@@ -120,15 +120,19 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
         case 4: *b = 0;          break;  /* B ← EventCntB'     — stub */
         case 5: *b = 0;          break;  /* B ← DBuf           — stub */
         case 6:                             /* B ← RWCPReg */
+            /* HM page 31: "B←RWCPReg = Link←B, B←CPReg'." That is,
+             * the function complements CPReg onto B *and* loads Link
+             * from the resulting B value. The BB pairs SetCPReg~
+             * (complemented write) with B←RWCPReg so the value lands
+             * on the Dorado side un-inverted. */
             if (cpu->baseboard) {
-                /* Real BaseBoard 6502: read from RIOT #3 (CPReg)
-                 * latches. */
-                *b = baseboard_dorado_read_cpreg(cpu->baseboard);
+                *b = (uint16_t)~baseboard_dorado_read_cpreg(cpu->baseboard);
             } else {
                 /* Counter stub for tests that don't wire a BaseBoard. */
                 *b = cpu->cpreg;
                 cpu->cpreg = (uint16_t)(cpu->cpreg + 1);
             }
+            cpu->Link = *b;
             break;
         case 7: *b = cpu->Link;  break;  /* B ← Link */
         default: return 0;
