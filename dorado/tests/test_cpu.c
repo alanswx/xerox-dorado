@@ -495,8 +495,12 @@ static int probe_bootstrap(void)
         }
         printf("       BB after 3 presses: PC=0x%04X\n", baseboard_pc(&bb));
 
-        /* Final 2-second idle to let CheckBootButton's 1.5-sec check fire. */
-        baseboard_run(&bb, 2000000);
+        /* Final wait: 1.5s for CheckBootButton dispatch, then ~10s for
+         * RebootDorado to traverse CheckVCC → DiskOK → SuppliesAllUp →
+         * Delay(1) → SetClockSpeed → Delay(2) → LoadDoradoCode. With
+         * the analog comparator model in place, the BB reaches
+         * Continuous (the steady-state polling loop) around cycle 11M. */
+        baseboard_run(&bb, 12000000);
         printf("       BB after final wait: PC=0x%04X (cycles=%llu)\n",
                baseboard_pc(&bb), (unsigned long long)bb.cycles);
 

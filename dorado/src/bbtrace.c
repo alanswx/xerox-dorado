@@ -55,6 +55,12 @@ static void dump_state(const char *tag)
            bb.mem[0x52], bb.mem[0x9C], bb.mem[0x68],
            bb.mem[0xA1], bb.mem[0xA2], bb.mem[0xA3], bb.mem[0xA4], bb.mem[0xA5],
            (unsigned long long)bb.irq_count);
+    printf("    POS=%02X  V[VDD/VCC/VTT/VEE]=%02X %02X %02X %02X  "
+           "I[IDD/ICC/ITT/IEE]=%02X %02X %02X %02X  DAC=%02X\n",
+           bb.mem[0x01],
+           bb.mem[0x02], bb.mem[0x03], bb.mem[0x04], bb.mem[0x05],
+           bb.mem[0x06], bb.mem[0x07], bb.mem[0x08], bb.mem[0x09],
+           bb.riot[0].pa_latch);
 }
 
 /* PC histogram: count entry into each 16-byte chunk. */
@@ -114,10 +120,25 @@ int main(void)
     dump_state("+1.5s idle");
     baseboard_run(&bb, 500000);
     dump_state("+2.0s idle");
-    baseboard_run(&bb, 1000000);
-    dump_state("+3.0s idle");
 
-    /* PC histogram for the last 1M cycles (during the +3.0s idle). */
+    /* Now hunt for LoadDoradoCode (0xFAAE) by stepping until either we
+     * reach it or burn 30s of simulated time. */
+    int hit_load = 0;
+    uint64_t deadline = bb.cycles + 30000000ULL;
+    while (bb.cycles < deadline) {
+        baseboard_step(&bb);
+        if (baseboard_pc(&bb) == 0xFAAE) { hit_load = 1; break; }
+    }
+    if (hit_load) {
+        printf("\n*** Reached LoadDoradoCode at 0xFAAE after %llu cycles\n",
+               (unsigned long long)bb.cycles);
+        dump_state("at LoadDoradoCode");
+    } else {
+        printf("\n*** Did not reach LoadDoradoCode in 30M cycles\n");
+        dump_state("after 30M idle");
+    }
+
+    /* PC histogram for the last 1M cycles. */
     memset(pc_hist, 0, sizeof pc_hist);
     run_with_hist(1000000);
 
@@ -126,7 +147,8 @@ int main(void)
     printf("  F590..F59F (CheckBootButton entry):  %u\n", pc_hist[0xF59]);
     printf("  F5A0..F5AF                        :  %u\n", pc_hist[0xF5A]);
     printf("  F418..F41F (RebootDorado entry)  :  %u\n", pc_hist[0xF41]);
-    printf("  F8AE      (LoadDoradoCode)       :  see below\n");
+    printf("  FAAE      (LoadDoradoCode)       :  %u\n", pc_hist[0xFAA]);
+    printf("  F4F3      (Continuous)           :  %u\n", pc_hist[0xF4F]);
     printf("  F2A0..F2AF (Interrupt handler)   :  %u\n", pc_hist[0xF2A]);
 
     /* Show all F500-F6FF chunks (CheckBootButton, dispatch, etc). */

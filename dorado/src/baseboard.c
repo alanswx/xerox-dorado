@@ -124,6 +124,43 @@ static riot_chip *riot_for(dorado_baseboard *bb, uint16_t addr)
     return NULL;
 }
 
+/*
+ * Analog A/D model. doradoanalog.masm runs an 8-bit successive-
+ * approximation converter: it writes a DAC value (RIOT[0] PA = 0x400)
+ * and reads a comparator that asserts when DAC > analog input. The
+ * result returned by ADConvert is the smallest DAC value where the
+ * comparator asserts — i.e., result ≈ input + 1.
+ *
+ * Voltage in-spec range is [0xA0, 0xE0); we model each voltage rail
+ * with input = 0xBF so ADConvert returns 0xC0. Currents have range
+ * [0, 0xFF); we model all four current channels at 0x7F so each
+ * returns 0x80, and after the firmware subtracts the IOffset (also
+ * 0x80) every recorded current is 0 — comfortably in spec. Direct-
+ * read temperatures (TBaseTempSense, TCBTempSense) use the same
+ * 0x7F target.
+ */
+static void update_analog_comparators(dorado_baseboard *bb)
+{
+    uint8_t dac = bb->riot[0].pa_latch;     /* DAC at 0x400 = RIOT[0].PA */
+
+    /* RIOT[1] PA (Comparators, 0x480): bits 0-3 are voltage comparators
+     * CVEE/CVTT/CVCC/CVDD, bit 4 is the current/calibrate comparator
+     * (CI). Bits 5-7 are ISel (firmware-driven, output via DDR mask
+     * 0xE0 — left untouched in pa_external). */
+    uint8_t cmp = 0;
+    if (dac > 0xBF) cmp |= 0x0F;            /* all 4 voltages in spec */
+    if (dac > 0x7F) cmp |= 0x10;            /* CI: current/temp target */
+    bb->riot[1].pa_external =
+        (uint8_t)((bb->riot[1].pa_external & 0xE0) | cmp);
+
+    /* RIOT[1] PB (MiscByte, 0x482): bit 4 = TBaseTempSense, bit 5 =
+     * TCBTempSense (both inputs). Bit 6 (Boot') is the keyboard boot
+     * button — leave it alone. Bit 7 (LampOff) is an output. */
+    uint8_t pb = (uint8_t)(bb->riot[1].pb_external & ~(uint8_t)0x30);
+    if (dac > 0x7F) pb |= 0x30;
+    bb->riot[1].pb_external = pb;
+}
+
 static uint8_t riot_register_read(dorado_baseboard *bb, riot_chip *r,
                                   uint8_t offset)
 {
@@ -183,8 +220,12 @@ static uint8 bb_read(ushort addr)
     /* I/O region: 0x0400..0x067F (5 chips × 0x80 bytes each). */
     if (addr >= 0x0400 && addr <= 0x067F) {
         riot_chip *r = riot_for(bb, addr);
-        if (r) return riot_register_read(bb, r, (uint8_t)(addr - r->base_addr));
-        return 0xFF;
+        if (!r) return 0xFF;
+        /* Refresh analog comparator bits before reading RIOT[1] (the
+         * Comparators/MiscByte chip). This is the chip ADConvert polls
+         * after every DAC write. */
+        if (r == &bb->riot[1]) update_analog_comparators(bb);
+        return riot_register_read(bb, r, (uint8_t)(addr - r->base_addr));
     }
 
     /* RAM / EPROM / unmapped — backed by mem[]. */

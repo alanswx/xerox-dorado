@@ -209,6 +209,59 @@ static int test_boot_button_press(void)
     return 0;
 }
 
+/*
+ * Test 7: Full cold boot reaches LoadDoradoCode and Continuous.
+ *
+ * After 3 boot-button presses (CoolBoot path) and the firmware's
+ * power-supply / clock-speed sequencing, control should reach
+ * LoadDoradoCode (0xFAAE) and then settle into the Continuous
+ * steady-state loop (0xF4F3). This is the proof that our analog
+ * model (DAC + comparators) is producing in-spec readings — without
+ * it, the firmware spins in CheckAllSupplies forever.
+ */
+static int test_cold_boot_to_continuous(void)
+{
+    baseboard_init(&bb);
+    EXPECT(baseboard_load_rom(&bb, "../chm/dorado/doradobaserom.mb!13") == 0,
+           "load_rom");
+    baseboard_reset(&bb);
+    baseboard_run(&bb, 1000000);
+
+    /* Three presses, ~400ms held, ~600ms released. */
+    for (int i = 0; i < 3; i++) {
+        baseboard_boot_button(&bb, 1);
+        baseboard_run(&bb, 400000);
+        baseboard_boot_button(&bb, 0);
+        baseboard_run(&bb, 600000);
+    }
+
+    /* Settle the dispatch + 1.5s "no-more-presses" window. */
+    baseboard_run(&bb, 2000000);
+
+    /* Step instruction-by-instruction looking for LoadDoradoCode. */
+    int saw_load_dorado_code = 0;
+    int saw_continuous = 0;
+    uint64_t deadline = bb.cycles + 30000000ULL;
+    while (bb.cycles < deadline && !saw_continuous) {
+        baseboard_step(&bb);
+        uint16_t p = baseboard_pc(&bb);
+        if (p == 0xFAAE) saw_load_dorado_code = 1;
+        if (p == 0xF4F3) saw_continuous = 1;
+    }
+
+    EXPECT(saw_load_dorado_code,
+           "never reached LoadDoradoCode in %llu cycles (PC=0x%04X)",
+           (unsigned long long)bb.cycles, baseboard_pc(&bb));
+    EXPECT(saw_continuous,
+           "never reached Continuous in %llu cycles (PC=0x%04X)",
+           (unsigned long long)bb.cycles, baseboard_pc(&bb));
+
+    printf("PASS  test_cold_boot_to_continuous "
+           "(LoadDoradoCode + Continuous reached, %llu cycles)\n",
+           (unsigned long long)bb.cycles);
+    return 0;
+}
+
 int main(void)
 {
     int rc = 0;
@@ -218,6 +271,7 @@ int main(void)
     rc |= test_cpreg_interface();
     rc |= test_timer_irq();
     rc |= test_boot_button_press();
+    rc |= test_cold_boot_to_continuous();
     if (rc == 0) printf("\nAll BaseBoard tests passed.\n");
     return rc;
 }
