@@ -877,9 +877,48 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
     return 0;
 }
 
+/* Forward declare so the BB-injected single-step path (below) can
+ * call into the same execution body the normal IM-fetch path uses. */
+static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im);
+
 int dorado_cpu_step(dorado_cpu *cpu)
 {
     if (cpu->halted) return 1;
+
+    /*
+     * If a BaseBoard is wired up and is driving the control bus,
+     * fold its state into our step decision:
+     *
+     *   ss_pending + mir_loaded → BB has just MIR-injected one
+     *     microinstruction and asserted SetSS+SetRun. Execute that
+     *     uinstr (not from IM) and clear ss_pending.
+     *
+     *   running == 0 → BB hasn't released the Dorado; the microengine
+     *     is held. Step is a no-op (we still tick the BB so it can
+     *     eventually issue SetRun).
+     *
+     *   running == 1 → free-running; fetch from IM as usual.
+     */
+    if (cpu->baseboard) {
+        if (cpu->baseboard->dorado_ss_pending && cpu->baseboard->dorado_mir_loaded) {
+            dorado_uinstr injected;
+            dorado_decode_mir(cpu->baseboard->mir_bytes, &injected);
+            cpu->baseboard->dorado_ss_pending = 0;
+            int rc = execute_uinstr(cpu, &injected, 0 /* not from IM */);
+            cpu->cycles++;
+            if (cpu->baseboard_cycles_per_uop > 0) {
+                baseboard_run(cpu->baseboard, cpu->baseboard_cycles_per_uop);
+            }
+            return rc;
+        }
+        if (!cpu->baseboard->dorado_running) {
+            /* Held — just tick the BB and return. */
+            if (cpu->baseboard_cycles_per_uop > 0) {
+                baseboard_run(cpu->baseboard, cpu->baseboard_cycles_per_uop);
+            }
+            return 0;
+        }
+    }
 
     if (cpu->real_PC >= IM_SIZE || !cpu->mc->im_present[cpu->real_PC]) {
         cpu->halted = 1;
@@ -894,6 +933,13 @@ int dorado_cpu_step(dorado_cpu *cpu)
         cpu->halt_reason = CPU_HALT_BREAKPOINT;
         return 1;
     }
+
+    return execute_uinstr(cpu, u, 1 /* from IM */);
+}
+
+static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
+{
+    (void)from_im;
 
     /* B and A buses. FF may override B (Pipe / Link / CPReg / …). */
     uint16_t b = 0, a = 0;
@@ -972,15 +1018,16 @@ int dorado_cpu_step(dorado_cpu *cpu)
 
     cpu->prev_PC = cpu->real_PC;
     cpu->real_PC = np;
-    cpu->cycles++;
 
-    /* If a BaseBoard is wired up, step it to keep its 6502 in lockstep
-     * with the Dorado microengine. The cycle ratio is loose — the real
-     * machine has the BaseBoard at ~1 MHz vs the Dorado at 16.7 MHz,
-     * but for our emulation the absolute rates don't matter, only that
-     * both make progress in roughly the right proportion. */
-    if (cpu->baseboard && cpu->baseboard_cycles_per_uop > 0) {
-        baseboard_run(cpu->baseboard, cpu->baseboard_cycles_per_uop);
+    /* Cycle accounting + BB stepping only happen on IM-fetched
+     * instructions. The injected-MIR caller (dorado_cpu_step) does
+     * its own cycle++/baseboard_run after we return — it has to,
+     * because we got here without any cpu->real_PC change. */
+    if (from_im) {
+        cpu->cycles++;
+        if (cpu->baseboard && cpu->baseboard_cycles_per_uop > 0) {
+            baseboard_run(cpu->baseboard, cpu->baseboard_cycles_per_uop);
+        }
     }
     return 0;
 }

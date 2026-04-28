@@ -65,6 +65,20 @@ void dorado_decode_model1(const uint16_t stored[4], dorado_uinstr *out);
 void dorado_redecode_fields(dorado_uinstr *u);
 
 /*
+ * Decode the 5-byte microinstruction format the BaseBoard uses to
+ * inject MIR via DoDoradoMicroInst (doradocpint.masm). Bytes are:
+ *   mir[0] = ExtraInstBits: bit 7 = RSTK[0], bit 5 = JCN[7], bits 6/4 = parity
+ *   mir[1] = MIR0: RSTK[1..3], ALUF[0], BLOCK, FF[0..2]
+ *   mir[2] = MIR1: ALUF[1..3], BSEL[0], FF[3..6]
+ *   mir[3] = MIR2: BSEL[1..2], LC[0..1], FF[7], JCN[0..2]
+ *   mir[4] = MIR3: LC[2], ASEL[0..2], JCN[3..6]
+ *
+ * The output's iw0/iw1/iw2 are constructed from the decoded fields
+ * so subsequent Write IM bookkeeping stays consistent.
+ */
+void dorado_decode_mir(const uint8_t mir[5], dorado_uinstr *out);
+
+/*
  * Format a decoded microinstruction into a buffer in a single line, no
  * trailing newline. Returns the number of bytes written (excluding NUL).
  *

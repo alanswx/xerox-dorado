@@ -97,6 +97,32 @@ typedef struct dorado_baseboard {
     int      cpreg_dorado_has_data;
     int      cpreg_baseboard_has_data;
 
+    /* Dorado control bus (LoadDoradoCode handshake). Driven by BB
+     * writes to MCPBus; read by the Dorado microengine on each step.
+     *
+     *   dorado_running       1 if SetRun has been latched without an
+     *                        offsetting Stop. Stays 0 between resets
+     *                        and the BB's first SetRun.
+     *   dorado_ss_pending    1 when BB has issued a single-step (Control
+     *                        with SetSS=1, SetRun=1). The microengine
+     *                        clears this after executing one micro-
+     *                        instruction (the one in the latched MIR).
+     *   dorado_mir_loaded    1 once all 4 MIR bytes have been strobed in,
+     *                        meaning mir_bytes[] holds a valid uinstr.
+     *   mir_bytes[5]         The 5-byte microinstruction format from
+     *                        doradocpint.masm (byte 0 = ExtraInstBits,
+     *                        bytes 1..4 = MIR0..MIR3 payloads). */
+    int      dorado_running;
+    int      dorado_ss_pending;
+    int      dorado_mir_loaded;
+    uint8_t  mir_bytes[5];
+
+    /* Last MCPBusL value, for rising-edge strobe detection on bit 0
+     * (MCPStrobe). Per doradoio.mdefs, the BB clocks each MCP function
+     * by writing the function code to MCPBusL with strobe=0 then INC'ing
+     * to set strobe=1 (rising edge → latch). */
+    uint8_t  mcpbusl_prev;
+
     /* External state — what the world is doing to the BaseBoard.
      *  - `boot_pressed`: nonzero when the boot button is held down.
      *  - `lamp_on`: derived; the BaseBoard sets this via MiscByte. */

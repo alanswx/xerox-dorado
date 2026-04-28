@@ -153,12 +153,52 @@ static int test_decode_all_microcode(void)
     return passed == n ? 0 : 1;
 }
 
+/*
+ * Verify dorado_decode_mir against a known Bootstrap IRTable entry.
+ * Nop# from doradoboot.masm:
+ *   RSTK[0],ALUF[0],BSEL[1],LC[0],ASEL[4],FF[77],JCN[201]
+ * Encoded as the 5-byte microinstruction format for DoDoradoMicroInst:
+ *   byte 0: 01^6.+(11^4.) = 0x70  (RSTK.0=0, P015=1, JCN.7=1, P1631=1)
+ *   byte 1: 0000^4.+0001  = 0x01
+ *   byte 2: 0000^4.+1111  = 0x0F
+ *   byte 3: 0100^4.+1100  = 0x4C
+ *   byte 4: 0100^4.+0000  = 0x40
+ */
+static int test_decode_mir_nop(void)
+{
+    uint8_t mir[5] = { 0x70, 0x01, 0x0F, 0x4C, 0x40 };
+    dorado_uinstr u = {0};
+    dorado_decode_mir(mir, &u);
+
+    EXPECT(u.rstk  == 0,    "Nop RSTK = %u, expected 0",  u.rstk);
+    EXPECT(u.aluf  == 0,    "Nop ALUF = %u, expected 0",  u.aluf);
+    EXPECT(u.bsel  == 1,    "Nop BSEL = %u, expected 1",  u.bsel);
+    EXPECT(u.lc    == 0,    "Nop LC = %u, expected 0",    u.lc);
+    EXPECT(u.asel  == 4,    "Nop ASEL = %u, expected 4",  u.asel);
+    EXPECT(u.block == 0,    "Nop BLOCK = %u, expected 0", u.block);
+    EXPECT(u.ff    == 0x3F, "Nop FF = 0x%02X, expected 0x3F (0o77)", u.ff);
+    EXPECT(u.jcn   == 0x81, "Nop JCN = 0x%02X, expected 0x81 (0o201)", u.jcn);
+
+    /* Re-encoded iw0/iw1/iw2 should round-trip back to the same fields
+     * after another redecode. */
+    dorado_uinstr v = u;
+    dorado_redecode_fields(&v);
+    EXPECT(v.rstk == u.rstk && v.aluf == u.aluf && v.bsel == u.bsel &&
+           v.lc   == u.lc   && v.asel == u.asel && v.block == u.block &&
+           v.ff   == u.ff   && v.jcn  == u.jcn,
+           "round-trip lost fields after redecode");
+
+    printf("PASS  test_decode_mir_nop\n");
+    return 0;
+}
+
 int main(void)
 {
     int rc = 0;
     rc |= test_unshuffle_known();
     rc |= test_decode_all_ftest();
     rc |= test_decode_all_microcode();
+    rc |= test_decode_mir_nop();
     if (rc == 0) printf("\nAll disasm tests passed.\n");
     return rc;
 }

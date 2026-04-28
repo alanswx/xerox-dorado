@@ -52,6 +52,71 @@ void dorado_redecode_fields(dorado_uinstr *u)
     u->brk_p = (uint8_t)((iw2 >> 12) & 3);
 }
 
+void dorado_decode_mir(const uint8_t mir[5], dorado_uinstr *out)
+{
+    /*
+     * Pull each manual-MSB-numbered bit out of the 5-byte stream and
+     * pack it into the C-LSB-first iw0/iw1/iw2 layout the rest of the
+     * decoder uses. See the table in disasm.h for the byte layout.
+     *
+     * Helper: BIT(byte, n) extracts manual bit n (= C bit 7-n).
+     */
+    #define BIT(byte, n) (((byte) >> (7 - (n))) & 1)
+    uint8_t b0 = mir[0], b1 = mir[1], b2 = mir[2], b3 = mir[3], b4 = mir[4];
+
+    /* iw0 (C-LSB) layout: bits 15..13 = RSTK[1..3] (manual 1,2,3),
+     * bits 12..9 = ALUF, bits 8..6 = BSEL, bits 5..3 = LC, bits 2..0
+     * = ASEL. (RSTK[0] manual = MSB lives in iw2[15].) */
+    uint16_t iw0 = 0;
+    iw0 |= (uint16_t)BIT(b1, 0) << 15;          /* RSTK[1] */
+    iw0 |= (uint16_t)BIT(b1, 1) << 14;          /* RSTK[2] */
+    iw0 |= (uint16_t)BIT(b1, 2) << 13;          /* RSTK[3] */
+    iw0 |= (uint16_t)BIT(b1, 3) << 12;          /* ALUF[0] */
+    iw0 |= (uint16_t)BIT(b2, 0) << 11;          /* ALUF[1] */
+    iw0 |= (uint16_t)BIT(b2, 1) << 10;          /* ALUF[2] */
+    iw0 |= (uint16_t)BIT(b2, 2) << 9;           /* ALUF[3] */
+    iw0 |= (uint16_t)BIT(b2, 3) << 8;           /* BSEL[0] */
+    iw0 |= (uint16_t)BIT(b3, 0) << 7;           /* BSEL[1] */
+    iw0 |= (uint16_t)BIT(b3, 1) << 6;           /* BSEL[2] */
+    iw0 |= (uint16_t)BIT(b3, 2) << 5;           /* LC[0]   */
+    iw0 |= (uint16_t)BIT(b3, 3) << 4;           /* LC[1]   */
+    iw0 |= (uint16_t)BIT(b4, 0) << 3;           /* LC[2]   */
+    iw0 |= (uint16_t)BIT(b4, 1) << 2;           /* ASEL[0] */
+    iw0 |= (uint16_t)BIT(b4, 2) << 1;           /* ASEL[1] */
+    iw0 |= (uint16_t)BIT(b4, 3) << 0;           /* ASEL[2] */
+
+    /* iw1 (C-LSB): bit 15 = BLOCK, bits 14..7 = FF, bits 6..0 = JCN[0..6]. */
+    uint16_t iw1 = 0;
+    iw1 |= (uint16_t)BIT(b1, 4) << 15;          /* BLOCK   */
+    iw1 |= (uint16_t)BIT(b1, 5) << 14;          /* FF[0]   */
+    iw1 |= (uint16_t)BIT(b1, 6) << 13;          /* FF[1]   */
+    iw1 |= (uint16_t)BIT(b1, 7) << 12;          /* FF[2]   */
+    iw1 |= (uint16_t)BIT(b2, 4) << 11;          /* FF[3]   */
+    iw1 |= (uint16_t)BIT(b2, 5) << 10;          /* FF[4]   */
+    iw1 |= (uint16_t)BIT(b2, 6) << 9;           /* FF[5]   */
+    iw1 |= (uint16_t)BIT(b2, 7) << 8;           /* FF[6]   */
+    iw1 |= (uint16_t)BIT(b3, 4) << 7;           /* FF[7]   */
+    iw1 |= (uint16_t)BIT(b3, 5) << 6;           /* JCN[0]  */
+    iw1 |= (uint16_t)BIT(b3, 6) << 5;           /* JCN[1]  */
+    iw1 |= (uint16_t)BIT(b3, 7) << 4;           /* JCN[2]  */
+    iw1 |= (uint16_t)BIT(b4, 4) << 3;           /* JCN[3]  */
+    iw1 |= (uint16_t)BIT(b4, 5) << 2;           /* JCN[4]  */
+    iw1 |= (uint16_t)BIT(b4, 6) << 1;           /* JCN[5]  */
+    iw1 |= (uint16_t)BIT(b4, 7) << 0;           /* JCN[6]  */
+
+    /* iw2 (C-LSB): bit 15 = RSTK[0] (manual MSB), bit 14 = JCN[7]. */
+    uint16_t iw2 = 0;
+    iw2 |= (uint16_t)BIT(b0, 0) << 15;          /* RSTK[0] */
+    iw2 |= (uint16_t)BIT(b0, 2) << 14;          /* JCN[7]  */
+
+    out->iw0 = iw0;
+    out->iw1 = iw1;
+    out->iw2 = iw2;
+    out->awd = 0;
+    dorado_redecode_fields(out);
+    #undef BIT
+}
+
 /* HM Table 7 — BSEL primary sources (when no external B source via FF). */
 static const char *bsel_primary[] = {
     "Md", "RM/STK", "T", "Q",

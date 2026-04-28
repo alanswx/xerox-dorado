@@ -182,6 +182,8 @@ static uint8_t riot_register_read(dorado_baseboard *bb, riot_chip *r,
     return 0;
 }
 
+static void apply_mcp_strobe(dorado_baseboard *bb, uint8_t mcpbusl);
+
 static void riot_register_write(dorado_baseboard *bb, riot_chip *r,
                                 uint8_t offset, uint8_t value)
 {
@@ -190,7 +192,18 @@ static void riot_register_write(dorado_baseboard *bb, riot_chip *r,
         switch (offset) {
         case 0: r->pa_latch = value; break;
         case 1: r->pa_ddr   = value; break;
-        case 2: r->pb_latch = value; break;
+        case 2:
+            /* MCPBusL = RIOT[3] PB. Watch for rising edge of bit 0
+             * (MCPStrobe) to decode the BB→Dorado control op. */
+            if (r == &bb->riot[3]) {
+                uint8_t prev = bb->mcpbusl_prev;
+                if (!(prev & 0x01) && (value & 0x01)) {
+                    apply_mcp_strobe(bb, value);
+                }
+                bb->mcpbusl_prev = value;
+            }
+            r->pb_latch = value;
+            break;
         case 3: r->pb_ddr   = value; break;
         }
         return;
@@ -208,6 +221,76 @@ static void riot_register_write(dorado_baseboard *bb, riot_chip *r,
         r->timer_int_enabled = (offset & 0x08) ? 1 : 0;
     }
     /* Other offsets: silently ignore. */
+}
+
+/*
+ * MCPBus strobe decoder. The BB drives the Dorado control bus by
+ * writing a data byte to MCPBusH (RIOT[3] PA = 0x580), a function
+ * code to MCPBusL (bits 6:4) plus optional SetSS in MCPBusL bit 7
+ * and MCPStrobe in MCPBusL bit 0, then toggling MCPStrobe via INC/DEC
+ * to clock the function. We capture the rising edge of bit 0.
+ *
+ * Function codes (from doradoio.mdefs / doradocpint.masm):
+ *
+ *   0  Control     MCPBusH bits = ClrStop, StopAtT1, Jam, Freeze,
+ *                   ClrMIR, ClrCT, SetRun. With MCPBusL bit 7 = SetSS,
+ *                   the Dorado executes one microinstruction.
+ *   1  Clock       Generic clock pulse (we ignore for now).
+ *   2  ABMux0      Latch MCPBusH into CPRegL[0:7] (low byte to Dorado).
+ *   3  ABMux1      Latch MCPBusH into CPRegH[0:7] (high byte to Dorado).
+ *                  MCPBusL bit 7 carries the parity/sync bit.
+ *   4  MIR0        Latch byte 1 of microinstruction (RSTK/ALUF/BLOCK/FF).
+ *                  MCPBusL bit 7 carries MIR0's extra bit (RSTK[0]).
+ *   5  MIR1        Byte 2 (ALUF/BSEL/FF). Extra bit = parity P015.
+ *   6  MIR2        Byte 3 (BSEL/LC/FF/JCN). Extra bit = JCN[7].
+ *   7  MIR3        Byte 4 (LC/ASEL/JCN). Extra bit = parity P1631.
+ *
+ * Each MIR byte's "extra bit" (bit 8 of the 9-bit slot) rides on the
+ * SetSS line during the strobe — this is a hardware multiplex.
+ */
+static void apply_mcp_strobe(dorado_baseboard *bb, uint8_t mcpbusl)
+{
+    uint8_t function = (uint8_t)((mcpbusl >> 4) & 0x07);
+    uint8_t setss    = (uint8_t)((mcpbusl >> 7) & 0x01);
+    uint8_t data     = bb->riot[3].pa_latch;        /* MCPBusH */
+
+    switch (function) {
+    case 0: /* Control */
+        if (data & 0x40) bb->dorado_running = 1;    /* ClrStop */
+        if (data & 0x10) {                          /* Jam — stop request */
+            bb->dorado_running = 0;
+        }
+        if (data & 0x01) {                          /* SetRun */
+            if (setss) {
+                bb->dorado_ss_pending = 1;          /* single-step */
+            } else {
+                bb->dorado_running = 1;             /* free-run */
+            }
+        }
+        if (data & 0x04) bb->dorado_mir_loaded = 0; /* ClrMIR */
+        /* Freeze (0x08), StopAtT1 (0x20), ClrCT (0x02): no model. */
+        break;
+    case 1: /* Clock — no-op */
+        break;
+    case 2: /* ABMux0: low byte to CPReg, MCPBusL bit 7 = parity */
+        bb->cpreg_to_dorado =
+            (uint16_t)((bb->cpreg_to_dorado & 0xFF00) | data);
+        break;
+    case 3: /* ABMux1: high byte to CPReg, MCPBusL bit 7 = sync (AMSync) */
+        bb->cpreg_to_dorado =
+            (uint16_t)((bb->cpreg_to_dorado & 0x00FF) |
+                       ((uint16_t)data << 8));
+        break;
+    case 4: case 5: case 6: case 7: { /* MIR0..MIR3 */
+        int slot = function - 4;                    /* 0..3 */
+        bb->mir_bytes[1 + slot] = data;
+        /* The "extra bit" rides on SetSS during MIR strobes. */
+        bb->mir_bytes[0] = (uint8_t)((bb->mir_bytes[0] & ~(1u << (7 - slot))) |
+                                     ((uint8_t)setss << (7 - slot)));
+        if (slot == 3) bb->dorado_mir_loaded = 1;
+        break;
+    }
+    }
 }
 
 /* ─── Bus dispatcher ──────────────────────────────────────────── */
