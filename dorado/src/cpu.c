@@ -1,5 +1,6 @@
 #include "cpu.h"
 #include "baseboard.h"
+#include "memory.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -247,10 +248,37 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
     if (fa != 1) return 0;
 
     if (fb == 6) {
-        /* B ← Pipe / FaultInfo / Config — memory subsystem state.
-         * No memory model yet; return 0 as a stub so microcode that
-         * peeks the pipe doesn't stall the engine. */
-        *b = 0;
+        /* HM Table 11c FA=1 FB=6: B-source from memory subsystem state.
+         *   FC=0  B ← FaultInfo'   (B[8:11]=SRN of 1st fault, B[12:15]=count)
+         *   FC=1  B ← Pipe0        (= VaHi of most-recent ref)
+         *   FC=2  B ← Pipe1        (= VaLo)
+         *   FC=3  B ← Pipe2'
+         *   FC=4  B ← Pipe3'       (= B+Map' for the entry)
+         *   FC=5  B ← Pipe4'       (= Errors' for the entry)
+         *   FC=6  B ← Config'
+         *   FC=7  B ← Pipe5'
+         *
+         * Pipe0..5 read consecutive bits of the most recent storage
+         * reference. We stub VA-bearing entries with the most-recent
+         * VA's high/low halves; others as 0 (no faults / clean
+         * config). The active-low ones return ~0 = 0xFFFF for "no
+         * faults" semantics. */
+        if (!cpu->mem) {
+            *b = (fc == 0 || fc == 6) ? 0xFFFF : 0;
+            return 1;
+        }
+        uint32_t va = dorado_pipe_va(cpu->mem, 0);
+        switch (fc) {
+        case 0: *b = 0xFFFF;                       break;  /* FaultInfo' */
+        case 1: *b = (uint16_t)((va >> 16) & 0x0FFF); break; /* Pipe0 = VaHi */
+        case 2: *b = (uint16_t)(va & 0xFFFF);      break;  /* Pipe1 = VaLo */
+        case 3: *b = 0;                            break;  /* Pipe2' */
+        case 4: *b = 0;                            break;  /* Pipe3' */
+        case 5: *b = 0;                            break;  /* Pipe4' */
+        case 6: *b = 0xFFFF;                       break;  /* Config' */
+        case 7: *b = 0;                            break;  /* Pipe5' */
+        default: *b = 0;                           break;
+        }
         return 1;
     }
     if (fb == 7) {
@@ -294,8 +322,9 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
  * `b` is the B-bus value, `alu` is the raw ALU output (= initial Pd).
  */
 static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
-                              uint16_t b, uint16_t alu, int *halt)
+                              uint16_t a, uint16_t b, uint16_t alu, int *halt)
 {
+    (void)a;  /* FA=1 FB=2 BrLo/BrHi will use this */
     int fa = ff_fa(u->ff), fb = ff_fb(u->ff), fc = ff_fc(u->ff);
     uint16_t pd = alu;
     *halt = 0;
@@ -391,8 +420,14 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
         if (fb == 2) {
             switch (fc) {
             case 2: /* CFlags ← A' */              return pd;  /* memory TBD */
-            case 3: /* BrLo ← A */                 return pd;  /* BR TBD */
-            case 4: /* BrHi ← A */                 return pd;
+            case 3: /* BrLo ← A — BR[MemBase][16:31] ← A[0:15]
+                     * (HM Table 11c FA=1 FB=2 FC=3). */
+                if (cpu->mem) dorado_br_lo_load(cpu->mem, cpu->MemBase, a);
+                return pd;
+            case 4: /* BrHi ← A — BR[MemBase][4:15] ← A[4:15]
+                     * (HM Table 11c FA=1 FB=2 FC=4). */
+                if (cpu->mem) dorado_br_hi_load(cpu->mem, cpu->MemBase, a);
+                return pd;
             case 5: /* LoadTestSyndrome */         return pd;
             case 6: /* LoadMcr[A,B] */             return pd;
             case 7: /* ProcSRN ← B[12:15] */       return pd;
@@ -603,8 +638,11 @@ static int b_bus(const dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *out)
     }
     int rm_a = rm_address(cpu, u);
     switch (u->bsel) {
-    case 0: /* Md (memory data) — no memory subsystem yet, return 0 */
-        *out = 0;
+    case 0: /* Md (memory data). HM page 39: Md is the latched
+             * result of the most recent fetch by this task. Without
+             * Hold modeling, fetches deliver Md immediately on the
+             * next instruction, so we just read mem->md. */
+        *out = cpu->mem ? cpu->mem->md : 0;
         return 0;
     case 1: /* RM/STK */
         if (rm_a >= CPU_RMSTK_INVALID) return CPU_HALT_UNSUPPORTED_BSEL;
@@ -717,17 +755,75 @@ static uint16_t shifter_output(const dorado_cpu *cpu, const dorado_uinstr *u)
     return (uint16_t)((lo16 & ~mask) | (fill & mask));
 }
 
-/* Compute A bus value (HM Table 8a/8b primary sources only). */
+/*
+ * Decode (ASEL, FF[0:1]) into a memory reference kind per HM Table 8a.
+ * ASEL 0..3 are memory ops; the table picks the kind based on
+ * ASEL × FF[0:1]:
+ *
+ *   ASEL  FF[0:1]  Kind
+ *   0     0        PreFetch←RM/STK
+ *   0     1        Map←RM/STK   -or- IOFetch←RM (io task)
+ *   0     2        LongFetch←RM/STK
+ *   0     3        Store←RM/STK
+ *   1     0        DummyRef←RM/STK
+ *   1     1        Flush←RM/STK -or- IOStore←RM (io task)
+ *   1     2        IFetch←RM/STK
+ *   1     3        Fetch←RM/STK
+ *   2     0..3     Store←{Md, Id, Q, T}     ("alt source" — TBD)
+ *   3     0..3     Fetch←{Md, Id, Q, T}     ("alt source" — TBD)
+ *
+ * For ASEL 0/1, the address (Mar) comes from RM/STK[rstk_a].
+ * For ASEL 2/3, Mar comes from a previous instruction's setup
+ * (or from FF[0:1] alt source). We don't model that yet — halt.
+ *
+ * io-task variants (Map↔IOFetch, Flush↔IOStore) are switched by the
+ * task ID. Without tasking, we always pick the emulator/fault variant
+ * (Map / Flush). */
+static dorado_ref_kind decode_ref_kind(const dorado_uinstr *u, int io_task)
+{
+    int ff01 = (u->ff >> 6) & 3;     /* FF[0:1] = top 2 bits of FF */
+    switch (u->asel) {
+    case 0:
+        switch (ff01) {
+        case 0: return DM_REF_PREFETCH;
+        case 1: return io_task ? DM_REF_IOFETCH : DM_REF_MAP;
+        case 2: return DM_REF_LONGFETCH;
+        case 3: return DM_REF_STORE;
+        }
+        break;
+    case 1:
+        switch (ff01) {
+        case 0: return DM_REF_DUMMYREF;
+        case 1: return io_task ? DM_REF_IOSTORE : DM_REF_FLUSH;
+        case 2: return DM_REF_IFETCH;
+        case 3: return DM_REF_FETCH;
+        }
+        break;
+    }
+    return DM_REF_NONE;
+}
+
+/* Compute A bus value (HM Table 8a/8b). */
 static int a_bus(const dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *out)
 {
     int rm_a = rm_address(cpu, u);
     switch (u->asel) {
-    case 0: case 1: case 2: case 3:
-        /* Memory references (Store←/Fetch←/...): A = RM/STK or T or Md
-         * or Q depending on the FF[0:1] sub-decode. No memory subsystem
-         * yet — return 0 and let the instruction be a no-op. Real
-         * microcode does sometimes use these as "implicit no-ops"
-         * (e.g., Boot0 trap reservations). */
+    case 0: case 1:
+        /* Memory references with RM/STK as the Mar source. A = RM/STK
+         * (so it can also drive Mar on the backplane — HM page 36).
+         * For BLOCK=1 in tasks 0..14 (non-emulator), the MIR's BLOCK
+         * bit means "block io task unless wakeup is waiting" — not a
+         * STK access; rm_a is then RM-style. */
+        if (rm_a >= CPU_RMSTK_INVALID) return CPU_HALT_UNSUPPORTED_ASEL;
+        *out = rm_stk_read(cpu, rm_a);
+        return 0;
+    case 2: case 3:
+        /* "Alt source" memory ops: ASEL=2 stores from {Md, Id, Q, T}
+         * and ASEL=3 fetches into {Md, Id, Q, T} per FF[0:1]. The
+         * address (Mar) for these comes from somewhere set up by a
+         * previous instruction. We don't yet model deferred Mar; for
+         * now treat the A-source for these as 0 and let the kind
+         * dispatch handle the data routing. */
         *out = 0;
         return 0;
     case 4: /* A←RM/STK */
@@ -1198,11 +1294,29 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
      * ALUFMRW or Pd←Cnt). FF post-effects also fire register loads
      * like Cnt←B, Link←B, RBase←FF[4:7], etc. */
     int ff_halt = 0;
-    uint16_t pd = ff_apply_post(cpu, u, b, alu, &ff_halt);
+    uint16_t pd = ff_apply_post(cpu, u, a, b, alu, &ff_halt);
     if (ff_halt) {
         cpu->halted = 1;
         cpu->halt_reason = ff_halt;
         return 1;
+    }
+
+    /*
+     * Memory references. ASEL = 0..3 dispatch a memory operation
+     * with VA = BR[MemBase] + Mar (Mar = A bus on processor refs).
+     * No memory subsystem attached → silently skip (we already
+     * treat unhandled refs as no-ops).
+     */
+    if (cpu->mem && u->asel <= 3) {
+        /* io_task = 0 always; we don't yet model tasking. The
+         * task-dependent variants (IOFetch / IOStore) are unreachable
+         * until Phase D. */
+        dorado_ref_kind kind = decode_ref_kind(u, /*io_task=*/0);
+        if (kind != DM_REF_NONE) {
+            uint32_t br = dorado_br_get(cpu->mem, cpu->MemBase);
+            uint32_t va = (br + a) & 0x0FFFFFFFu;
+            dorado_memory_ref(cpu->mem, kind, va, b);
+        }
     }
 
     /*

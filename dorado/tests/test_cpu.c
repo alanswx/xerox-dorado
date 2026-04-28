@@ -2,6 +2,7 @@
 #include "cpu.h"
 #include "disasm.h"
 #include "mb.h"
+#include "memory.h"
 #include "microcode.h"
 
 #include <stdio.h>
@@ -986,6 +987,86 @@ static int test_stk_underflow_check(void)
     return 0;
 }
 
+/*
+ * Integration test: Store via the microengine, then Fetch+B←Md, and
+ * verify the memory subsystem round-tripped a value end-to-end.
+ *
+ *   IM[0]: Store←RM/STK with RM[0] = 0x42 (the address) and B = T
+ *          (the data, set up by IM[-1]). Use ASEL=0 + FF[0:1]=3 →
+ *          DM_REF_STORE. BSEL=2 (T) drives data onto B.
+ *   IM[1]: Fetch←RM/STK at the same address.
+ *   IM[2]: T ← Md (BSEL=0 = Md).
+ *
+ * MemBase=0, BR[0]=0 → VA = 0 + 0x42 = 0x42.
+ *
+ * NOTE: this test uses BSEL=Md as the ALU's B source after a fetch.
+ * Per HM "deferred reference" rules, Md needs to be loaded directly
+ * into RM/T (LC=2/3/4) without Hold; reading Md onto the B-bus
+ * (BSEL=0) on the *same* instruction as the fetch would Hold. Our
+ * stub doesn't model Hold so the read is immediate.
+ */
+static int test_cpu_memory_roundtrip(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;   /* "B" */
+
+    /* IM[0]: Store←RM/STK. RSTK=0 → RM[0]; BSEL=2 (T data); ASEL=0;
+     * FF=0o300 = 0xC0 → FF[0:1] = 0b11 = 3 → Store. LC=0, JCN=local(1). */
+    mc.im[0] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/2, /*lc=*/0,
+                           /*asel=*/0, /*block=*/0, /*ff=*/0300,
+                           /*jcn=*/jcn_local(1));
+    mc.im_present[0] = 1;
+
+    /* IM[1]: Fetch←RM/STK. RSTK=0; BSEL=2 (don't care); ASEL=1;
+     * FF=0o300 → FF[0:1] = 3 → Fetch. LC=0, JCN=local(2). */
+    mc.im[1] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/2, /*lc=*/0,
+                           /*asel=*/1, /*block=*/0, /*ff=*/0300,
+                           /*jcn=*/jcn_local(2));
+    mc.im_present[1] = 1;
+
+    /* IM[2]: T ← Md. ASEL=6 (A←T); BSEL=0 (Md); ALUF=0 → "B"; LC=1
+     * (T←Pd). Self-loop. */
+    mc.im[2] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/0, /*lc=*/1,
+                           /*asel=*/6, /*block=*/0, /*ff=*/0,
+                           /*jcn=*/jcn_local(2));
+    mc.im_present[2] = 1;
+
+    for (int i = 0; i < 3; i++) {
+        mc.image_to_real[i] = i;
+        mc.image_present[i] = 1;
+    }
+    mc.n_instructions = 3;
+
+    static dorado_memory mem;
+    EXPECT(dorado_memory_init(&mem) == 0, "memory init");
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.mem = &mem;
+    cpu.T = 0xDEAD;        /* data we'll store */
+    cpu.RM[0] = 0x42;      /* address we'll store to */
+
+    /* Run 3 instructions: Store, Fetch, T←Md. */
+    EXPECT(dorado_cpu_step(&cpu) == 0, "Store step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(mem.storage[0x42] == 0xDEAD,
+           "after Store: storage[0x42] = 0x%04X, expected 0xDEAD",
+           mem.storage[0x42]);
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "Fetch step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(mem.md == 0xDEAD, "after Fetch: Md = 0x%04X", mem.md);
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "T←Md step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.T == 0xDEAD, "T = 0x%04X, expected 0xDEAD", cpu.T);
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_cpu_memory_roundtrip (Store→Fetch→T←Md)\n");
+    return 0;
+}
+
 int main(void)
 {
     int rc = 0;
@@ -1003,6 +1084,7 @@ int main(void)
     rc |= test_stk_pop_minus_4();
     rc |= test_stk_overflow();
     rc |= test_stk_underflow_check();
+    rc |= test_cpu_memory_roundtrip();
     rc |= probe_bootstrap();
     rc |= probe_full_boot();
     if (rc == 0) printf("\nAll CPU tests passed.\n");

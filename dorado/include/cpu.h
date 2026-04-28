@@ -60,6 +60,12 @@ typedef struct {
     uint16_t TIOA;              /* 8-bit I/O address (Slow IO) */
 
     /*
+     * Memory subsystem. When non-NULL, processor memory references
+     * (Fetch / Store / etc.) are dispatched to it; B←Md reads
+     * mem->md. Pipe reads (B←Pipe0..5) come from mem->pipe[]. */
+    struct dorado_memory *mem;
+
+    /*
      * BaseBoard interface. When non-NULL, the Dorado's `B←RWCPReg`
      * reads come from the BaseBoard's CPReg latches (RIOT #3 PA/PB)
      * and writes drive the BaseBoard's CPReg input pins. The
