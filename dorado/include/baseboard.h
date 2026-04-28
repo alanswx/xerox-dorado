@@ -62,7 +62,7 @@ typedef struct {
     uint16_t base_addr;
 } riot_chip;
 
-typedef struct {
+typedef struct dorado_baseboard {
     /* Direct memory: RAM (low) + EPROM (high). I/O regions are
      * trapped via the bus dispatcher. */
     uint8_t mem[BASEBOARD_MEM_SIZE];

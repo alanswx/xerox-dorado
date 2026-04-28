@@ -45,9 +45,21 @@ typedef struct {
     uint16_t Link;              /* subroutine return address */
     uint16_t TPC;               /* task PC (saved on switch) */
     uint16_t TIOA;              /* 8-bit I/O address (Slow IO) */
-    uint16_t cpreg;             /* control/parameter register — back-channel
-                                 * to BaseBoard. Bootstrap reads bytes from
-                                 * here (B←RWCPReg). Stub. */
+
+    /*
+     * BaseBoard interface. When non-NULL, the Dorado's `B←RWCPReg`
+     * reads come from the BaseBoard's CPReg latches (RIOT #3 PA/PB)
+     * and writes drive the BaseBoard's CPReg input pins. The
+     * BaseBoard 6502 is stepped at a configurable ratio per Dorado
+     * microcycle.
+     *
+     * If `baseboard` is NULL, B←RWCPReg returns the legacy `cpreg`
+     * counter stub (each read returns a different value).
+     */
+    struct dorado_baseboard *baseboard;
+    int      baseboard_cycles_per_uop; /* how many 6502 cycles per Dorado
+                                        * microinstruction. 0 = don't step. */
+    uint16_t cpreg;             /* legacy stub when baseboard == NULL */
 
     /* The "current instruction address" — what the manual calls CIA.
      * After step() runs, this advances to the next instruction. */

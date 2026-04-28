@@ -1,3 +1,4 @@
+#include "baseboard.h"
 #include "cpu.h"
 #include "disasm.h"
 #include "mb.h"
@@ -450,7 +451,10 @@ static int test_unsupported_halts(void)
 
 /* Diagnostic: step into real Bootstrap microcode and see where the
  * CPU stops. This is not a pass/fail test — it just reports what real
- * microcode hits so we can prioritize what to implement next. */
+ * microcode hits so we can prioritize what to implement next.
+ *
+ * Now wires up a real BaseBoard 6502 to serve CPReg, instead of the
+ * counter stub. */
 static int probe_bootstrap(void)
 {
     const char *path = "../chm/dorado/expanded/bootstrap.dm!20_/Bootstrap.mb";
@@ -460,20 +464,40 @@ static int probe_bootstrap(void)
         printf("SKIP  probe_bootstrap (file not loadable)\n");
         return 0;
     }
-    static dorado_microcode mc;   /* large struct — use static storage */
+    static dorado_microcode mc;
     if (dorado_microcode_load(&mb, &mc) != DM_OK) {
         printf("SKIP  probe_bootstrap (microcode load failed)\n");
         mb_free(&mb);
         return 0;
     }
-    /* Find BOOTSTRAP. It's at image 0 in this file. */
+
+    /* Stand up a BaseBoard. The doradobaserom.mb!13 ROM image is
+     * required; if we can't load it, fall back to the counter stub. */
+    static dorado_baseboard bb;
+    int have_bb = 0;
+    baseboard_init(&bb);
+    if (baseboard_load_rom(&bb, "../chm/dorado/doradobaserom.mb!13") == 0) {
+        baseboard_reset(&bb);
+        /* Spin the BaseBoard up to its supervisor loop. The reset
+         * code does power-up checks before it's ready to talk to the
+         * Dorado; give it 100k cycles to settle. */
+        baseboard_run(&bb, 100000);
+        have_bb = 1;
+    }
+
     int real_start = mc.image_present[0] ? mc.image_to_real[0] : 0;
     dorado_cpu cpu;
     dorado_cpu_init(&cpu, &mc, (uint16_t)real_start);
+    if (have_bb) {
+        cpu.baseboard = &bb;
+        cpu.baseboard_cycles_per_uop = 1;
+    }
 
     cpu_halt_reason r = dorado_cpu_run(&cpu, 1000);
-    printf("PROBE  bootstrap entry=0o%o, ran %d cycles, halt: %s at PC=0o%o\n",
-           real_start, cpu.cycles, cpu_halt_reason_str(r),
+    printf("PROBE  bootstrap entry=0o%o, BB=%s, ran %d cycles, "
+           "halt: %s at PC=0o%o\n",
+           real_start, have_bb ? "real-6502" : "counter-stub",
+           cpu.cycles, cpu_halt_reason_str(r),
            cpu.halted ? cpu.real_PC : 0);
 
     /* Print the offending uinstr if we halted on something we don't

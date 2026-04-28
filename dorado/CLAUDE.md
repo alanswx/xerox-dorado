@@ -129,16 +129,14 @@ combination raises a specific `cpu_halt_reason` rather than silently
 falling through, so `test_cpu`'s `probe_bootstrap` reports exactly
 which microinstruction we couldn't execute.
 
-**Current real-microcode reach:** Bootstrap.mb runs **all 100 000
-cycles** of the probe's budget. After init, Bootstrap settles into a
-6-PC poll loop (PCs 7700, 7715, 7741, 7742, 7746, 7747) reading
-CPReg. Each iteration: `Q ← Link` (snapshot return address), poll
-CPReg for a "byte ready" signal, conditional branch. Since our
-CPReg always returns 0, the readiness check never fires — but the
-microengine itself is no longer crashing or making spurious jumps.
-
-Real progress beyond this requires CPReg I/O (BaseBoard stub feeding
-EPROM bytes) and actual IM-write effect.
+**Current real-microcode reach:** Bootstrap.mb runs against a real
+**BaseBoard 6502** (from `chm/dorado/doradobaserom.mb!13`, reset
+vector at 0xF3A7). The Dorado microengine and the BaseBoard both
+execute correctly side-by-side through their respective reset paths.
+Bootstrap's poll loop (6 PCs at 7700/7715/7741/7742/7746/7747) is
+still spinning because the boot-button hasn't been pressed and the
+BaseBoard hasn't transitioned into Initial-upload mode. See item 4
+in "What's next" for the handshake gap.
 
 Shifter coverage in `shifter_output()`:
 - 32-bit barrel cycle of `(SHA||SHB)` left by ShC[4:7] (or FF[4:7] when
@@ -350,34 +348,41 @@ the probe further.
 2. ~~Read/Write IM, Read/Write TPC — stubbed (advance to .+1).~~ Real
    IM mutation needs to land before Bootstrap can produce a working
    Initial; see item 3.
-3. **CPReg I/O via the real BaseBoard hunk protocol** ★ — the current
-   blocker. Bootstrap spins in a 6-PC poll loop waiting for the
-   BaseBoard to deliver Initial in 17-byte hunks. Source at
-   `chm/dorado/expanded/doradobaserom.dm!12_/doradoboot.masm` (6502
-   for the BaseBoard side).
+3. ~~CPReg I/O — **done correctly via real 6502**.~~ See
+   `src/baseboard.c`. We dropped in fake6502 (CC0 from
+   `C-Chads/MyLittle6502`), built the BaseBoard's 64K memory map
+   with five 6532 RIOT chips at the canonical addresses (0x400,
+   0x480, 0x500=CPReg, 0x580, 0x600), and load
+   `chm/dorado/doradobaserom.mb!13` as the canonical 64K ROM image.
+   The Dorado's `B←RWCPReg` reads from RIOT #3's PA||PB latches.
+   Bootstrap probe now runs against a real BaseBoard 6502 from its
+   reset vector at 0xF3A7.
 
-   The current CPReg stub is just a counter (each read returns a
-   different value), enough to let the microengine make non-trivial
-   ALU progress without hanging. Real progress requires either:
-   - **Option A**: emulate the BaseBoard 6502 well enough to run
-     `doradoboot.masm`. ~5000 lines; biggest fidelity payoff.
-   - **Option B**: pre-bake the protocol output. Read the Boot1
-     descriptor from C-08/C-10 EPROMs, format it as the BaseBoard
-     would, feed Bootstrap byte-by-byte via CPReg.
-   - **Option C**: skip Bootstrap entirely. Load `Initial.mb`
-     (17 KB, 926 µinstrs) directly into IM and start the CPU at
-     Initial's entry point. Trades realism for fast forward
-     progress.
+4. **BaseBoard handshake — current blocker** ★ . Bootstrap's poll
+   loop and the BaseBoard 6502 are both running but not handshaking
+   to start the Initial upload. Likely needed:
+   - Boot-button press (BaseBoard.MiscByte's Boot' bit). Without a
+     press, the BaseBoard sits in its watchdog/idle loop and never
+     transitions into the upload state. We have
+     `baseboard_press_boot()` but the probe doesn't call it yet.
+     Need to model the timing per the booting memo (0.25–2.5s
+     window; 1/2/3/4-push semantics).
+   - 6532 timer accuracy. The BaseBoard times boot-button presses
+     in subticks; if our timer model is too loose, the boot-decoder
+     won't recognize the press.
+   - MCPBus (RIOT #4 at 0x580). The control bus that the BaseBoard
+     drives to halt/release the Dorado. We don't model it yet —
+     once the BaseBoard tries to issue a control command it'll
+     write to address 0x580+ and our handler will silently swallow
+     it. Need to model the bits per `doradoio.mdefs`.
 
-   I'd lean toward C first (testbed for Initial's behavior), then B
-   when we want to validate the Bootstrap→Initial handoff, then A
-   when we eventually need full BaseBoard fidelity.
-
-4. **Actual IM writes** — currently advancing PC without writing.
-   For Option C above this isn't a blocker; for B/A it is. Encode
-   the 9-bit slice per RSTK[2:3] (HM Figure 6) back into the
-   `dorado_uinstr` at `mc->im[Link & 0xFFF]`. Each Write IM updates
-   18 bits (one half) selected by RSTK[3].
+5. **Actual IM writes** — currently advancing PC without writing.
+   For getting Bootstrap→Initial handoff working it matters: once
+   the BaseBoard is uploading Initial via CPReg, Bootstrap needs to
+   actually deposit the bytes into IM. Encode the 9-bit slice per
+   RSTK[2:3] (HM Figure 6) back into the `dorado_uinstr` at
+   `mc->im[Link & 0xFFF]`. Each Write IM updates 18 bits (one half)
+   selected by RSTK[3].
 4. **FF function table** — Tables 11a-e. Bootstrap is exercising a
    handful right now (we silently ignore most of them, which is part
    of why the spin loop doesn't make progress). Audit a probe trace

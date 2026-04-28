@@ -1,4 +1,5 @@
 #include "cpu.h"
+#include "baseboard.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -119,11 +120,15 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
         case 4: *b = 0;          break;  /* B ← EventCntB'     — stub */
         case 5: *b = 0;          break;  /* B ← DBuf           — stub */
         case 6:                             /* B ← RWCPReg */
-            /* Stub: return a counter so that successive reads see
-             * different values (some bits set). Real progress
-             * requires modeling the BaseBoard's hunk-protocol. */
-            *b = cpu->cpreg;
-            cpu->cpreg = (uint16_t)(cpu->cpreg + 1);
+            if (cpu->baseboard) {
+                /* Real BaseBoard 6502: read from RIOT #3 (CPReg)
+                 * latches. */
+                *b = baseboard_dorado_read_cpreg(cpu->baseboard);
+            } else {
+                /* Counter stub for tests that don't wire a BaseBoard. */
+                *b = cpu->cpreg;
+                cpu->cpreg = (uint16_t)(cpu->cpreg + 1);
+            }
             break;
         case 7: *b = cpu->Link;  break;  /* B ← Link */
         default: return 0;
@@ -927,6 +932,15 @@ int dorado_cpu_step(dorado_cpu *cpu)
     cpu->prev_PC = cpu->real_PC;
     cpu->real_PC = np;
     cpu->cycles++;
+
+    /* If a BaseBoard is wired up, step it to keep its 6502 in lockstep
+     * with the Dorado microengine. The cycle ratio is loose — the real
+     * machine has the BaseBoard at ~1 MHz vs the Dorado at 16.7 MHz,
+     * but for our emulation the absolute rates don't matter, only that
+     * both make progress in roughly the right proportion. */
+    if (cpu->baseboard && cpu->baseboard_cycles_per_uop > 0) {
+        baseboard_run(cpu->baseboard, cpu->baseboard_cycles_per_uop);
+    }
     return 0;
 }
 

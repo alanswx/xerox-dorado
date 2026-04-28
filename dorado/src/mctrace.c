@@ -1,3 +1,4 @@
+#include "baseboard.h"
 #include "cpu.h"
 #include "disasm.h"
 #include "mb.h"
