@@ -44,6 +44,10 @@ typedef struct {
     uint16_t MemBase;           /* 5-bit BR selector */
     uint16_t Link;              /* subroutine return address */
     uint16_t TPC;               /* task PC (saved on switch) */
+    uint16_t TIOA;              /* 8-bit I/O address (Slow IO) */
+    uint16_t cpreg;             /* control/parameter register — back-channel
+                                 * to BaseBoard. Bootstrap reads bytes from
+                                 * here (B←RWCPReg). Stub. */
 
     /* The "current instruction address" — what the manual calls CIA.
      * After step() runs, this advances to the next instruction. */

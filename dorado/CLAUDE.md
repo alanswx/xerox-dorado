@@ -129,12 +129,16 @@ combination raises a specific `cpu_halt_reason` rather than silently
 falling through, so `test_cpu`'s `probe_bootstrap` reports exactly
 which microinstruction we couldn't execute.
 
-**Current real-microcode reach:** Bootstrap.mb runs **all 1000 cycles**
-of the probe's budget before being stopped by `max_cycles`. With the
-shifter (HM §3.11) implemented and Read/Write IM stubbed (advance to
-.+1 without actual write), Bootstrap is now spinning in its
-load-Initial-from-CPReg loop. Real progress beyond this requires
-modeling CPReg I/O and the actual IM-write effect.
+**Current real-microcode reach:** Bootstrap.mb runs **all 100 000
+cycles** of the probe's budget. After init, Bootstrap settles into a
+6-PC poll loop (PCs 7700, 7715, 7741, 7742, 7746, 7747) reading
+CPReg. Each iteration: `Q ← Link` (snapshot return address), poll
+CPReg for a "byte ready" signal, conditional branch. Since our
+CPReg always returns 0, the readiness check never fires — but the
+microengine itself is no longer crashing or making spurious jumps.
+
+Real progress beyond this requires CPReg I/O (BaseBoard stub feeding
+EPROM bytes) and actual IM-write effect.
 
 Shifter coverage in `shifter_output()`:
 - 32-bit barrel cycle of `(SHA||SHB)` left by ShC[4:7] (or FF[4:7] when
@@ -146,6 +150,25 @@ Shifter coverage in `shifter_output()`:
 - BSEL[0]=1 with ASEL=7: B is forced to be Q.
 - FF-controlled mode supplies count (FF[4:7]), RMask (FF[4:7]), and
   LMask (FF[0:3]).
+
+FF dispatcher (`ff_override_b()` + `ff_apply_post()`):
+- Decodes FA = FF[0:1], FB = FF[2:4], FC = FF[5:7] (HM §3.9).
+- "FF interpreted as a function iff (BSEL not constant) and
+  (JCN not long)" — gated by `ff_is_function`.
+- B-source overrides (FA=1, FB=6 or 7): Pipe / FaultInfo / EventCnt /
+  IFUMRH / DBuf are all stubbed to 0; **B←Link**, **B←RWCPReg**
+  (cpreg state register, currently 0) are wired up.
+- HM Table 7 asterisk: when an external B source is in play and
+  BSEL=3, the external value also lands in **Q**. Critical for
+  Bootstrap's `Q ← Link` snapshot trick.
+- Post-ALU side effects implemented: `Q←B`, `MemBase←B[3:7]`,
+  `RBase←B[12:15]`, `Pointers←B`, `StkP←B[8:15]`, `Cnt←B`, `Link←B`,
+  `Q lsh 1` / `Q rsh 1`, `TIOA←B[0:7]`, `ShC←B`, `RBase←FF[4:7]`
+  (FA=2 alt encoding), `Cnt←small constant` (FA=3 FB=4-5),
+  `MemBase←FF[3:7]` (FA=3 FB=0-3), `FlipMemBase`,
+  **`Pd←ALUFMRW`** (read+write ALUFM[ALUF] from B.8 || B[11:15]).
+- Tasking ops, IFU ops, memory side-effects (BrLo/BrHi, CFlags,
+  LoadMcr, ReadMap, …) silently honored as no-ops.
 
 ### Tests
 

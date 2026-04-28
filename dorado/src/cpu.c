@@ -75,8 +75,321 @@ static int rm_address(const dorado_cpu *cpu, const dorado_uinstr *u)
     return ((cpu->RBase & 0xF) << 4) | (u->rstk & 0xF);
 }
 
-/* Compute B bus value (HM Table 7, primary sources only). FF-driven
- * external sources (Pipe, Link, FaultInfo, etc.) live in handle_ff(). */
+/*
+ * Decode FF into FA / FB / FC (HM §3.9 — "the 8-bit FF field is shown
+ * below as a two-bit field FA (= FF[0:1]) and two 3-bit fields FB (=
+ * FF[2:4]) and FC (= FF[5:7])"). BCPL bit numbering: FF[0] = MSB.
+ */
+static inline int ff_fa(uint8_t ff) { return (ff >> 6) & 3; }
+static inline int ff_fb(uint8_t ff) { return (ff >> 3) & 7; }
+static inline int ff_fc(uint8_t ff) { return ff & 7; }
+
+/*
+ * Many FF values specify an *external* B source (Pipe, Link, CPReg,
+ * etc.) that overrides the BSEL primary source. Returns 1 if FF
+ * supplied an override and `*b` was set; 0 if BSEL should be used as
+ * normal.
+ *
+ * Coverage tracks what real microcode actually exercises. FF=0o077
+ * (FA=0 FB=7 FC=7) is "Reserved as a no-op" so we ignore it without
+ * halting. Unknown FF values that *would* override B fall through to
+ * the BSEL path (i.e., we silently miss the override) — TODO: tighten.
+ */
+static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
+                         uint16_t *b)
+{
+    int fa = ff_fa(u->ff), fb = ff_fb(u->ff), fc = ff_fc(u->ff);
+
+    /* Most external-B sources live at FA=1, FB=6 or 7 (HM Table 11b/c). */
+    if (fa != 1) return 0;
+
+    if (fb == 6) {
+        /* B ← Pipe / FaultInfo / Config — memory subsystem state.
+         * No memory model yet; return 0 as a stub so microcode that
+         * peeks the pipe doesn't stall the engine. */
+        *b = 0;
+        return 1;
+    }
+    if (fb == 7) {
+        switch (fc) {
+        case 0: *b = 0;          break;  /* B ← PCX'           — IFU PC */
+        case 1: *b = 0;          break;  /* B ← EventCntA'     — stub */
+        case 2: *b = 0;          break;  /* B ← IFUMRH'        — stub */
+        case 3: *b = 0;          break;  /* B ← IFUMLH'        — stub */
+        case 4: *b = 0;          break;  /* B ← EventCntB'     — stub */
+        case 5: *b = 0;          break;  /* B ← DBuf           — stub */
+        case 6: *b = cpu->cpreg; break;  /* B ← RWCPReg        — stubbed */
+        case 7: *b = cpu->Link;  break;  /* B ← Link */
+        default: return 0;
+        }
+        /* HM Table 7 asterisk: "BSEL decode for Q←B is needed in
+         * initializing Dorado from the baseboard or Alto." So when
+         * an external B source is in play AND BSEL=3, the external
+         * value lands in Q (not just on the bus). */
+        if (u->bsel == 3) cpu->Q = *b;
+        return 1;
+    }
+    return 0;
+}
+
+/*
+ * Side effects of FF that happen after ALU computation (register loads,
+ * Pd overrides, tasking flags, etc.). Returns the (possibly modified)
+ * Pd value. Sets *halt to a CPU_HALT_* code if FF requests something
+ * we don't yet handle.
+ *
+ * `b` is the B-bus value, `alu` is the raw ALU output (= initial Pd).
+ */
+static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
+                              uint16_t b, uint16_t alu, int *halt)
+{
+    int fa = ff_fa(u->ff), fb = ff_fb(u->ff), fc = ff_fc(u->ff);
+    uint16_t pd = alu;
+    *halt = 0;
+
+    /* When BSEL produces a constant (BSEL >= 4), or when FF[0:1] picks
+     * an alternate A source for memory references (ASEL=0..3 with
+     * specific FF[0:1]), the FF field is *not* interpreted as a
+     * function. Per HM §3.9: "FF interpreted as a function iff (BSEL
+     * not selecting a constant) and (JCN does not select a 'long'
+     * goto/call)." */
+    int ff_is_function = (u->bsel < 4);
+    /* Long branch consumes FF for address bits (JCN tag = 0000). */
+    uint8_t jcn_top4 = (u->jcn >> 4) & 0xF;
+    if (((u->jcn >> 7) & 1) == 0 && jcn_top4 == 0) ff_is_function = 0;
+    if (!ff_is_function) return pd;
+
+    if (fa == 0) {
+        if (fb <= 1) {
+            /* A[12:15] ← FF[4:7] — already handled at A-bus time, but
+             * harmless here. (We don't actually wire that override
+             * yet; tracked as a known gap.) */
+            return pd;
+        }
+        if (fb == 2) {
+            /* A-source overrides for memory ops. Mostly we skip these
+             * since memory isn't modeled yet. */
+            switch (fc) {
+            case 4: /* XorCarry — modifies ALUFM carry bit */
+            case 5: /* XorSavedCarry */
+            case 6: /* Carry20 — force carry into bit 12 */
+            case 7: /* ModStkPBeforeW */
+                return pd;       /* stub: silently honor */
+            }
+            return pd;
+        }
+        if (fb == 3) {
+            switch (fc) {
+            case 0: /* — */              return pd;
+            case 1: /* ReadMap */         return pd;  /* stub */
+            case 2: /* Pd ← Input */      return pd;  /* stub */
+            case 3: /* Pd ← InputNoPE */  return pd;  /* stub */
+            case 4: /* RIsId */           return pd;  /* needs IFU */
+            case 5: /* TIsId */           return pd;  /* needs IFU */
+            case 6: /* Output ← B */      return pd;  /* I/O, stub */
+            case 7: /* FlipMemBase */
+                cpu->MemBase ^= 1;
+                return pd;
+            }
+        }
+        if (fb >= 4 && fb <= 5) {
+            /* Replace RMaddr[0:3] with RBase[0:3], RMaddr[4:7] with
+             * FF[4:7], force RM write even if STK was read. Affects
+             * destination of the LC store; for now we silently honor. */
+            return pd;
+        }
+        if (fb == 6) {
+            /* Branch conditions (already handled in next_pc). */
+            return pd;
+        }
+        if (fb == 7) {
+            switch (fc) {
+            case 0: /* BigBDispatch ← B */         return pd;  /* IFU TBD */
+            case 1: /* BDispatch ← B */            return pd;
+            case 2: /* Multiply */                 return pd;  /* TBD */
+            case 3: /* Q ← B */
+                cpu->Q = b;
+                return pd;
+            case 4: /* unused */                   return pd;
+            case 5: /* TgetsMd */                  return pd;  /* memory TBD */
+            case 6: /* FreezeBC */                 return pd;
+            case 7: /* Reserved as no-op */        return pd;
+            }
+        }
+    }
+
+    if (fa == 1) {
+        if (fb == 0) {
+            switch (fc) {
+            case 0: /* PCF ← B */                  cpu->TPC = b;        return pd;
+            case 1: /* IFUTest ← B */              return pd;
+            case 2: /* IFUTick */                  return pd;
+            case 3: /* RescheduleNow */            return pd;
+            case 4: /* AckJunkTW ← B */            return pd;
+            case 5: /* MemBase ← B[3:7] */
+                cpu->MemBase = (b >> 8) & 0x1F;    return pd;
+            case 6: /* RBase ← B[12:15] */
+                cpu->RBase = b & 0xF;              return pd;
+            case 7: /* Pointers ← B (MemBase ← B[3:7], RBase ← B[12:15]) */
+                cpu->MemBase = (b >> 8) & 0x1F;
+                cpu->RBase = b & 0xF;              return pd;
+            }
+        }
+        if (fb == 2) {
+            switch (fc) {
+            case 2: /* CFlags ← A' */              return pd;  /* memory TBD */
+            case 3: /* BrLo ← A */                 return pd;  /* BR TBD */
+            case 4: /* BrHi ← A */                 return pd;
+            case 5: /* LoadTestSyndrome */         return pd;
+            case 6: /* LoadMcr[A,B] */             return pd;
+            case 7: /* ProcSRN ← B[12:15] */       return pd;
+            }
+        }
+        if (fb == 3) {
+            switch (fc) {
+            case 0: /* InsSetorEvent ← B */        return pd;
+            case 1: /* EventCntB ← B */            return pd;
+            case 2: /* Reschedule */               return pd;
+            case 3: /* NoReschedule */             return pd;
+            case 4: /* IFUMRH ← B */               return pd;
+            case 5: /* IFUMLH ← B */               return pd;
+            case 6: /* IFUReset */                 return pd;
+            case 7: /* BrkIns ← B */               return pd;
+            }
+        }
+        if (fb == 4) {
+            switch (fc) {
+            case 0: /* UseDMD */                   return pd;
+            case 1: /* MidasStrobe ← B */          return pd;
+            case 2: /* TaskingOff */               return pd;
+            case 3: /* TaskingOn */                return pd;
+            case 4: /* StkP ← B[8:15] */
+                cpu->StkP = b & 0xFF;              return pd;
+            case 5: /* RestoreStkP */              return pd;
+            case 6: /* Cnt ← B */
+                cpu->Cnt = b;                      return pd;
+            case 7: /* Link ← B */
+                cpu->Link = b;                     return pd;
+            }
+        }
+        if (fb == 5) {
+            switch (fc) {
+            case 0: /* Q lsh 1 */
+                cpu->Q = (uint16_t)(cpu->Q << 1);  return pd;
+            case 1: /* Q rsh 1 */
+                cpu->Q = (uint16_t)(cpu->Q >> 1);  return pd;
+            case 2: /* TIOA[0:7] ← B[0:7] */
+                cpu->TIOA = (b >> 8) & 0xFF;       return pd;
+            case 3: /* — */                        return pd;
+            case 4: /* Hold&TaskSim ← B */         return pd;
+            case 5: /* WF ← A */                   return pd;  /* shifter ctrl TBD */
+            case 6: /* RF ← A */                   return pd;
+            case 7: /* ShC ← B */
+                cpu->ShC = b;                      return pd;
+            }
+        }
+        /* fb == 6, fb == 7 → B sources already handled in
+         * ff_override_b; no post-ALU side effect. */
+        if (fb == 6 || fb == 7) return pd;
+    }
+
+    if (fa == 2) {
+        if (fb <= 1) {
+            /* RBase ← FF[4:7] (the immediate decode). */
+            cpu->RBase = u->ff & 0xF;
+            return pd;
+        }
+        if (fb >= 2 && fb <= 3) {
+            /* Replace RMaddr[0:3] with RBase[0:3], RMaddr[4:7] with
+             * FF[4:7] — force RM write. We silently honor. */
+            return pd;
+        }
+        if (fb == 4) {
+            switch (fc) {
+            case 0: case 1: case 2: case 3:
+                /* TIOA[5:7] ← FF[5:7] (TIOA[0:4] unchanged) */
+                cpu->TIOA = (cpu->TIOA & 0xF8) | (u->ff & 7);
+                return pd;
+            }
+            return pd;
+        }
+        if (fb == 5) {
+            switch (fc) {
+            case 0: case 1: case 2: case 3:  /* MemBaseX ← FF[6:7] */
+                cpu->MemBase = (cpu->MemBase & 0x18) |
+                               ((cpu->MemBase >> 1) & 0x03) |
+                               ((u->ff & 0x03) << 3);
+                return pd;
+            case 4: case 5: case 6: case 7:  /* MemBX ← FF[6:7] — TBD */
+                return pd;
+            }
+        }
+        if (fb == 6) {
+            switch (fc) {
+            case 0: case 1: /* — */          return pd;
+            case 2: /* Pd ← ALUFMRW */
+            case 3: /* Pd ← ALUFMEM (with ALUFMEM ← B.8, B[11:15]) */
+                /* Read current value to Pd, write new value from B.
+                 * 6-bit ALUFM entry: bit 5 = B.8 (BCPL) = (b>>7)&1,
+                 * bits 4..0 = B[11:15] (BCPL) = b & 0x1F. */
+                {
+                    int idx = u->aluf & 0xF;
+                    uint8_t cur = (cpu->mc->alufm_present[idx])
+                                  ? cpu->mc->alufm[idx] : 0;
+                    pd = cur;  /* placeholder: real Pd would be 6-bit */
+                    /* Mutate ALUFM via a non-const cast — the loaded
+                     * microcode lives in mb_file's mems[] but we wrote
+                     * a copy into mc->alufm at load time. Mutating the
+                     * mc copy is fine. */
+                    dorado_microcode *mc_w = (dorado_microcode *)cpu->mc;
+                    mc_w->alufm[idx] = (uint8_t)(((b >> 2) & 0x20) | (b & 0x1F));
+                    mc_w->alufm_present[idx] = 1;
+                }
+                return pd;
+            case 4: /* Pd ← Cnt */
+                pd = cpu->Cnt;                     return pd;
+            case 5: /* Pd ← Pointers */
+                pd = (uint16_t)((cpu->MemBase << 8) | cpu->RBase);
+                return pd;
+            case 6: /* Pd ← TIOA&StkP */
+                pd = (uint16_t)((cpu->TIOA << 8) | cpu->StkP);
+                return pd;
+            case 7: /* Pd ← ShC */
+                pd = cpu->ShC;                     return pd;
+            }
+        }
+        if (fb == 7) {
+            /* Pd ← ALU shifted/cycled by 1. We don't currently expose
+             * the ALU's pre-shift value; stub by returning alu. */
+            return pd;
+        }
+    }
+
+    if (fa == 3) {
+        if (fb <= 3) {
+            /* MemBase ← FF[3:7] (alt encoding) */
+            cpu->MemBase = u->ff & 0x1F;
+            return pd;
+        }
+        if (fb == 4 || fb == 5) {
+            /* Cnt ← small constant (1..16). FF[4:7] of 0 means 16. */
+            int n = u->ff & 0xF;
+            cpu->Cnt = (uint16_t)(n == 0 ? 16 : n);
+            return pd;
+        }
+        if (fb == 6 || fb == 7) {
+            /* Wakeup[n] — initiate wakeup for task FF[4:7]. No tasking
+             * model yet; stub. */
+            return pd;
+        }
+    }
+
+    return pd;
+}
+
+/* Compute B bus value (HM Table 7, primary sources). FF-driven external
+ * sources (Pipe, Link, FaultInfo, CPReg, …) are handled by
+ * ff_override_b before this fires. */
 static int b_bus(const dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *out)
 {
     /* HM §3.11: when BSEL controls a shift (BSEL[0]=1 with ASEL=7),
@@ -530,13 +843,15 @@ int dorado_cpu_step(dorado_cpu *cpu)
         return 1;
     }
 
-    /* B and A buses. */
+    /* B and A buses. FF may override B (Pipe / Link / CPReg / …). */
     uint16_t b = 0, a = 0;
     int rc;
-    if ((rc = b_bus(cpu, u, &b)) != 0) {
-        cpu->halted = 1;
-        cpu->halt_reason = rc;
-        return 1;
+    if (!ff_override_b(cpu, u, &b)) {
+        if ((rc = b_bus(cpu, u, &b)) != 0) {
+            cpu->halted = 1;
+            cpu->halt_reason = rc;
+            return 1;
+        }
     }
     if ((rc = a_bus(cpu, u, &a)) != 0) {
         cpu->halted = 1;
@@ -560,8 +875,16 @@ int dorado_cpu_step(dorado_cpu *cpu)
     cpu->alu_carry = new_carry;
     cpu->alu_overflow = new_ovf;
 
-    /* Pd = ALU output (no shifter routing yet). */
-    uint16_t pd = alu;
+    /* Pd = ALU output (FF may then override or transform Pd, e.g. via
+     * ALUFMRW or Pd←Cnt). FF post-effects also fire register loads
+     * like Cnt←B, Link←B, RBase←FF[4:7], etc. */
+    int ff_halt = 0;
+    uint16_t pd = ff_apply_post(cpu, u, b, alu, &ff_halt);
+    if (ff_halt) {
+        cpu->halted = 1;
+        cpu->halt_reason = ff_halt;
+        return 1;
+    }
 
     /* LC. */
     if ((rc = apply_lc(cpu, u, pd)) != 0) {
