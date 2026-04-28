@@ -308,7 +308,118 @@ static int test_conditional_branch_alu_zero(void)
     return 0;
 }
 
-/* Test 5: Verify an unsupported FF/JCN/ASEL halts cleanly with a
+/*
+ * Test 5: Shifter byte-cycle (HM §3.11).
+ *
+ * Set T ← 0o123 (= 0x53), then run a shift with:
+ *   ASEL=7 (shift), BSEL=7 (FF-controlled, SHA=T, SHB=T → input = T..T)
+ *   FF=0o010 → count = FF[4:7] = 8, LMask = FF[0:3] = 0, RMask = FF[4:7] = 8
+ *   ALUF[0:2] = 0  → ShiftNoMask
+ *   ALUF[3]   = 0  → use ALUFM[14] (= NOT A by convention)
+ *
+ * Expected:
+ *   input32         = T..T          = 0x00530053
+ *   cycled_left_8   = 0x53005300
+ *   low 16          = 0x5300
+ *   A bus           = ~0x5300       = 0xACFF (low-true)
+ *   ALU = NOT A     = 0x5300
+ *   Pd → RM[5]      = 0x5300        = 0o51400
+ */
+static int test_shifter_byte_cycle(void)
+{
+    dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+
+    mc.alufm[0]  = 025;             mc.alufm_present[0]  = 1;  /* B-pass */
+    mc.alufm[14] = 001;             mc.alufm_present[14] = 1;  /* NOT A */
+
+    /* IM[0]: T ← 0o123 via 0,,FF. */
+    mc.im[0] = make_uinstr(0, /*aluf=*/0, /*bsel=*/4, /*lc=*/1,
+                           /*asel=*/6, 0, /*ff=*/0123, jcn_local(1));
+    mc.im_present[0] = 1;
+
+    /* IM[1]: RM[5] ← shifter(T..T cycled 8). */
+    mc.im[1] = make_uinstr(/*rstk=*/5, /*aluf=*/0, /*bsel=*/7,
+                           /*lc=*/6, /*asel=*/7, 0,
+                           /*ff=*/0010, jcn_local(1));
+    mc.im_present[1] = 1;
+
+    mc.image_to_real[0] = 0; mc.image_present[0] = 1;
+    mc.image_to_real[1] = 1; mc.image_present[1] = 1;
+    mc.n_instructions = 2;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+
+    /* Step 1: T ← 0o123 */
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step 1: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.T == 0123, "T = 0o%o (expected 0o123)", cpu.T);
+
+    /* Step 2: shift */
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step 2: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.RM[5] == 051400,
+           "RM[5] = 0o%o (expected 0o51400 = byte-swap of 0o123)", cpu.RM[5]);
+
+    printf("PASS  test_shifter_byte_cycle (RM[5] = 0o%o)\n", cpu.RM[5]);
+    return 0;
+}
+
+/*
+ * Test 6: Shifter with ShiftRMask.
+ *
+ * Same setup as test 5, but ALUF=4:
+ *   ALUF[0:2] = 010 = 2  → ShiftRMask (mask right RMask bits with 0)
+ *   ALUF[3]   = 0        → ALUFM[14]
+ * Expected:
+ *   shifted = 0x5300; rmask of 8 bits → keep top byte, zero bottom byte
+ *   result = 0x5300 (already had 0 in low byte) → 0x5300
+ *
+ * Use FF=0o210 (count=8, LMask=2, RMask=8) and T=0xFFFF to get a more
+ * distinctive output. Then T..T = 0xFFFFFFFF, cycle 8 = 0xFFFFFFFF,
+ * low 16 = 0xFFFF, ShiftRMask(0xFFFF) with rmask=8 = 0xFF00.
+ *
+ * But T=0xFFFF requires a 16-bit constant. Use FF=0o377, BSEL=5 (= 0xFFFF)
+ * via 0o377,,FF route.
+ */
+static int test_shifter_rmask(void)
+{
+    dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0]  = 025;             mc.alufm_present[0]  = 1;
+    mc.alufm[14] = 001;             mc.alufm_present[14] = 1;
+
+    /* IM[0]: T ← 0o377,,FF with FF=0o377 → 0xFFFF. */
+    mc.im[0] = make_uinstr(0, /*aluf=*/0, /*bsel=*/5, /*lc=*/1,
+                           /*asel=*/6, 0, /*ff=*/0377, jcn_local(1));
+    mc.im_present[0] = 1;
+
+    /* IM[1]: ShiftRMask. ALUF=4 → ALUF[0:2]=010=2 (ShiftRMask), ALUF[3]=0. */
+    mc.im[1] = make_uinstr(/*rstk=*/5, /*aluf=*/4, /*bsel=*/7,
+                           /*lc=*/6, /*asel=*/7, 0,
+                           /*ff=*/0010, jcn_local(1));
+    mc.im_present[1] = 1;
+
+    mc.image_to_real[0] = 0; mc.image_present[0] = 1;
+    mc.image_to_real[1] = 1; mc.image_present[1] = 1;
+    mc.n_instructions = 2;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step 1");
+    EXPECT(cpu.T == 0xFFFF, "T = 0o%o (expected 0xFFFF)", cpu.T);
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step 2: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    /* 0xFFFF cycled 8 = 0xFFFF. RMask 8 → mask = 0x00FF. result = 0xFF00. */
+    EXPECT(cpu.RM[5] == 0xFF00,
+           "RM[5] = 0o%o (expected 0xFF00 = 0o177400)", cpu.RM[5]);
+
+    printf("PASS  test_shifter_rmask (RM[5] = 0o%o)\n", cpu.RM[5]);
+    return 0;
+}
+
+/* Test 7: Verify an unsupported FF/JCN/ASEL halts cleanly with a
  * specific reason rather than crashing or silently advancing. */
 static int test_unsupported_halts(void)
 {
@@ -388,6 +499,8 @@ int main(void)
     rc |= test_increment_loop();
     rc |= test_rm_roundtrip();
     rc |= test_conditional_branch_alu_zero();
+    rc |= test_shifter_byte_cycle();
+    rc |= test_shifter_rmask();
     rc |= test_unsupported_halts();
     rc |= probe_bootstrap();
     if (rc == 0) printf("\nAll CPU tests passed.\n");

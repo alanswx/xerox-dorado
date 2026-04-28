@@ -79,6 +79,12 @@ static int rm_address(const dorado_cpu *cpu, const dorado_uinstr *u)
  * external sources (Pipe, Link, FaultInfo, etc.) live in handle_ff(). */
 static int b_bus(const dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *out)
 {
+    /* HM §3.11: when BSEL controls a shift (BSEL[0]=1 with ASEL=7),
+     * "the B source is forced to be Q." */
+    if (u->asel == 7 && (u->bsel & 4)) {
+        *out = cpu->Q;
+        return 0;
+    }
     int rm_a = rm_address(cpu, u);
     switch (u->bsel) {
     case 0: /* Md */
@@ -109,6 +115,91 @@ static int b_bus(const dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *out)
     return CPU_HALT_UNSUPPORTED_BSEL;
 }
 
+/*
+ * Shifter (HM §3.11 + Figure 4).
+ *
+ * 32-bit barrel shifter taking SHA (high 16) || SHB (low 16) as input,
+ * cycling left by `count` (0..15), then masking with LMask/RMask
+ * according to ALUF[0:2]. The low 16 bits go on A complemented (HM:
+ * "the low order 16 bits of shifted data are placed *complemented* on
+ * A"). ALUFM[14] = "NOT A" by convention completes the inversion so
+ * the ALU ultimately delivers the shifter output.
+ *
+ * Two control paths:
+ *   - Standard (BSEL[0]=0): SHA, SHB, count, masks all from ShC.
+ *     ShC bits in BCPL ordering (bit 0 = MSB):
+ *       ShC[2]    : SHA select (0=RM/STK, 1=T)         → C bit 13
+ *       ShC[3]    : SHB select (0=RM/STK, 1=T)         → C bit 12
+ *       ShC[4:7]  : shift count                         → C bits 11..8
+ *       ShC[8:11] : RMask count                         → C bits 7..4
+ *       ShC[12:15]: LMask count                         → C bits 3..0
+ *
+ *   - FF-controlled (BSEL[0]=1): SHA = BSEL[1], SHB = BSEL[2],
+ *     count = FF[4:7], RMask = FF[4:7], LMask = FF[0:3].
+ *     B is forced to be Q in this mode (we do that in b_bus).
+ *
+ * Mask ops (ALUF[0:2], from HM Table 12):
+ *   0 ShiftNoMask    1 ShiftLMask    2 ShiftRMask    3 ShiftBothMasks
+ *   4 (unused)       5 ShMdLMask     6 ShMdRMask     7 ShMdBothMasks
+ *   "Sh" variants replace masked bits with 0; "ShMd" with Md (memory data).
+ */
+static uint16_t shifter_output(const dorado_cpu *cpu, const dorado_uinstr *u)
+{
+    int rm_a   = rm_address(cpu, u);
+    uint16_t r = (rm_a >= 0) ? cpu->RM[rm_a] : 0;
+    uint16_t t = cpu->T;
+    uint16_t sha, shb;
+    int count, rmask_n, lmask_n;
+
+    if (u->bsel & 4) {
+        /* FF-controlled — high bit of BSEL set. */
+        sha = (u->bsel & 2) ? t : r;
+        shb = (u->bsel & 1) ? t : r;
+        count   = u->ff & 0xF;          /* FF[4:7] */
+        rmask_n = u->ff & 0xF;          /* FF[4:7] */
+        lmask_n = (u->ff >> 4) & 0xF;   /* FF[0:3] */
+    } else {
+        /* ShC-controlled. */
+        sha = ((cpu->ShC >> 13) & 1) ? t : r;
+        shb = ((cpu->ShC >> 12) & 1) ? t : r;
+        count   = (cpu->ShC >> 8) & 0xF;
+        rmask_n = (cpu->ShC >> 4) & 0xF;
+        lmask_n = cpu->ShC & 0xF;
+    }
+
+    /* Cycle 32-bit (sha||shb) left by `count`. */
+    uint32_t in32 = ((uint32_t)sha << 16) | shb;
+    uint32_t cyc;
+    if (count == 0) cyc = in32;
+    else            cyc = (in32 << count) | (in32 >> (32 - count));
+    uint16_t lo16 = (uint16_t)(cyc & 0xFFFF);
+
+    /* Build the actual mask words. LMask: N ones at high end (bits
+     * 15..16-N). RMask: N ones at low end (bits N-1..0). */
+    uint16_t lmask = lmask_n ? (uint16_t)(0xFFFF << (16 - lmask_n)) : 0;
+    uint16_t rmask = rmask_n ? (uint16_t)((1u << rmask_n) - 1)      : 0;
+
+    int op = (u->aluf >> 1) & 7;        /* ALUF[0:2] in BCPL = high 3 bits */
+    uint16_t mask;
+    int with_md;
+    switch (op) {
+    case 0: mask = 0;             with_md = 0; break;   /* ShiftNoMask */
+    case 1: mask = lmask;         with_md = 0; break;   /* ShiftLMask */
+    case 2: mask = rmask;         with_md = 0; break;   /* ShiftRMask */
+    case 3: mask = lmask | rmask; with_md = 0; break;   /* ShiftBothMasks */
+    case 4: mask = 0;             with_md = 1; break;   /* ShMdNoMask (unused) */
+    case 5: mask = lmask;         with_md = 1; break;   /* ShMdLMask */
+    case 6: mask = rmask;         with_md = 1; break;   /* ShMdRMask */
+    case 7: mask = lmask | rmask; with_md = 1; break;   /* ShMdBothMasks */
+    default: mask = 0; with_md = 0; break;
+    }
+
+    /* Md substitution: we don't model memory yet — Md = 0 stub. When
+     * memory lands this becomes (with_md ? cpu->Md : 0). */
+    uint16_t fill = with_md ? 0 : 0;
+    return (uint16_t)((lo16 & ~mask) | (fill & mask));
+}
+
 /* Compute A bus value (HM Table 8a/8b primary sources only). */
 static int a_bus(const dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *out)
 {
@@ -128,8 +219,9 @@ static int a_bus(const dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *out)
     case 6: /* A←T */
         *out = cpu->T;
         return 0;
-    case 7: /* Shift operation — TBD */
-        return CPU_HALT_UNSUPPORTED_ASEL;
+    case 7: /* Shift. A bus = ~shifter_output (low-true). */
+        *out = (uint16_t)~shifter_output(cpu, u);
+        return 0;
     }
     return CPU_HALT_UNSUPPORTED_ASEL;
 }
@@ -365,16 +457,35 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
              * (0 1 f f f 1 1 1) where f = JCN[2:4]. */
             uint8_t fn = (jcn >> 3) & 7;   /* JCN[2:4] */
             if (fn == 0) {
-                /* Subroutine Return: TNIA = Link[2:15]. The 12-bit IM
-                 * address occupies Link bits 4:15 in the manual's
-                 * numbering, which is the low 12 bits in our C view. */
+                /* Subroutine Return: TNIA = Link[2:15]. */
                 *next = (uint16_t)(cpu->Link & 0xFFF);
                 /* Per HM §4.5: Link is reloaded with CIA+1 by Return,
                  * supporting CoReturn. */
                 cpu->Link = (uint16_t)(cpu->real_PC + 1);
                 return 0;
             }
-            /* Read TPC / Write TPC / Read IM / Write IM: defer. */
+            if (fn == 4 || fn == 5 || fn == 6 || fn == 7) {
+                /* Read TPC (4), Write TPC (5), Read IM (6), Write IM (7).
+                 *
+                 * HM §4.8: 6-cycle operations. Address comes from Link;
+                 * data comes from / goes to B (with RSTK[2:3] selecting
+                 * the byte for IM access; RSTK[1] is the parity flag for
+                 * writes). After the operation, control passes to .+1.
+                 *
+                 * For now we model the control-flow: advance to .+1.
+                 * The actual IM/TPC mutation is stubbed — Bootstrap
+                 * loads Initial into IM via this path, so anything that
+                 * branches into the freshly-loaded code will hit
+                 * CPU_HALT_NO_CODE. We'll wire up the actual writes
+                 * once we need them.
+                 *
+                 * (Read IM also needs Link[7:15] in the next instruction
+                 * to read inverted data on B; that's a separate piece.)
+                 */
+                *next = (uint16_t)(cpu->real_PC + 1);
+                return 0;
+            }
+            /* fn = 1, 2, 3 are unused. */
             return CPU_HALT_UNSUPPORTED_JCN;
         }
         /* Undefined (0 0 0 1 x 1 1 1). */
@@ -434,8 +545,13 @@ int dorado_cpu_step(dorado_cpu *cpu)
     }
 
     /* ALU. */
-    uint8_t alufm_entry = cpu->mc->alufm_present[u->aluf]
-                          ? cpu->mc->alufm[u->aluf]
+    /* On a barrel shift, the first three ALUFM address bits are forced
+     * to 1 (HM §3.11), so the index becomes 14 or 15 (= 0o16 or 0o17)
+     * with ALUF[3] selecting between them. ALUFM[14] holds "NOT A" by
+     * convention, completing the shifter's complement-on-A path. */
+    int aluf_idx = (u->asel == 7) ? (14 + (u->aluf & 1)) : u->aluf;
+    uint8_t alufm_entry = cpu->mc->alufm_present[aluf_idx]
+                          ? cpu->mc->alufm[aluf_idx]
                           : 0;
     uint8_t new_carry = cpu->alu_carry, new_ovf = cpu->alu_overflow;
     uint16_t alu = alu_op(alufm_entry, a, b, &new_carry, &new_ovf);

@@ -129,11 +129,23 @@ combination raises a specific `cpu_halt_reason` rather than silently
 falling through, so `test_cpu`'s `probe_bootstrap` reports exactly
 which microinstruction we couldn't execute.
 
-**Current real-microcode reach:** Bootstrap.mb runs **15 cycles** from
-its entry point (BOOTSTRAP at real 0o7740) before halting on the
-**shifter** (`ASEL=7`, `BSEL=FF,,0o377`, `FF=0o010`) at PC 0o7702.
-Bootstrap took at least one conditional branch and one Return to
-reach this point.
+**Current real-microcode reach:** Bootstrap.mb runs **all 1000 cycles**
+of the probe's budget before being stopped by `max_cycles`. With the
+shifter (HM §3.11) implemented and Read/Write IM stubbed (advance to
+.+1 without actual write), Bootstrap is now spinning in its
+load-Initial-from-CPReg loop. Real progress beyond this requires
+modeling CPReg I/O and the actual IM-write effect.
+
+Shifter coverage in `shifter_output()`:
+- 32-bit barrel cycle of `(SHA||SHB)` left by ShC[4:7] (or FF[4:7] when
+  BSEL[0]=1).
+- ALUF[0:2] mask op: ShiftNoMask, ShiftLMask, ShiftRMask, ShiftBothMasks.
+  ShMd* variants stubbed with Md=0.
+- A bus = ~shifter_output (low-true); ALUFM index forced to 14+ALUF[3]
+  during shift; ALUFM[14]="NOT A" by convention completes the inversion.
+- BSEL[0]=1 with ASEL=7: B is forced to be Q.
+- FF-controlled mode supplies count (FF[4:7]), RMask (FF[4:7]), and
+  LMask (FF[0:3]).
 
 ### Tests
 
@@ -308,23 +320,28 @@ Bootstrap probe now reaches the **shifter** at cycle 16. Priority is
 extending coverage of what real microcode hits — each step here pushes
 the probe further.
 
-1. **Shifter (ASEL=7)** ★ — currently the blocker. HM §3.11 + Figure 4.
-   The shifter is a 32-bit barrel shifter with masking; it sources A
-   from R..T or T..R (controlled by ShC[2:3]). For Bootstrap-only
-   (no BitBlt) we likely need the simple cases: shift count from ShC,
-   mask from FF (when BSEL[0]=1), produce a low-true result on A.
-2. **FF function table** — Tables 11a-e. The sprawling 256-entry
-   decode. Bootstrap will hit a handful: probably `RBase←FF[4:7]`,
-   `Cnt←B`, `Cnt←small constant`, `Pointers←B`, `B←Link`, `B←RWCPReg`
-   (CPReg I/O). Stub everything; implement on demand. Track which
-   FF combos appear and how often via the probe.
-3. **CPReg I/O** — Bootstrap copies Initial out of the BaseBoard EPROM
-   via the CPReg back-channel. We'll need a stub BaseBoard model that
-   serves bytes from the local EPROM dumps in `firmware/`
-   when Bootstrap reads CPReg.
-4. **IM read/write** (`JCN` Return-class with JCN[2:4] = 6 or 7).
-   Bootstrap writes the larger Initial microprogram into IM via Link
-   addressing. 6-cycle ops; need the timing model.
+1. ~~Shifter — done.~~ See `shifter_output()` in `src/cpu.c`. ShC- and
+   FF-controlled paths both work; ShiftNoMask / ShiftLMask /
+   ShiftRMask / ShiftBothMasks all implemented. ShMd* variants stub
+   Md=0 until memory lands.
+2. ~~Read/Write IM, Read/Write TPC — stubbed (advance to .+1).~~ Real
+   IM mutation needs to land before Bootstrap can produce a working
+   Initial; see item 3.
+3. **CPReg I/O + actual IM writes** ★ — the current blocker.
+   Bootstrap spins forever loading-Initial-via-stub. We need:
+   - A BaseBoard stub that serves EPROM bytes from `firmware/` when
+     Bootstrap does `B←RWCPReg`. Per the booting memo this is the
+     channel by which Bootstrap reads Initial out of the BaseBoard's
+     EPROMs in 16-bit chunks.
+   - Real IM writes: encode the 9-bit slice per RSTK[2:3] back into
+     the `dorado_uinstr` at `mc->im[Link & 0xFFF]`. Track raw iw0/iw1
+     storage so we can re-decode after a write.
+4. **FF function table** — Tables 11a-e. Bootstrap is exercising a
+   handful right now (we silently ignore most of them, which is part
+   of why the spin loop doesn't make progress). Audit a probe trace
+   and implement the FF functions Bootstrap actually uses
+   (`Cnt←B`, `Cnt←small`, `Pointers←B`, `B←Link`, `Link←B`,
+   `B←RWCPReg`, `MidasStrobe←B`, `RBase←FF[4:7]`).
 5. **Memory subsystem** — by the time we boot Initial we'll have
    touched `Fetch←` / `Store←`. See `docs/memory-architecture.md` for
    the design plan; defer the cache / Map / Pipe until microcode
