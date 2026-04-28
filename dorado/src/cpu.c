@@ -1285,10 +1285,16 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                           : 0;
     uint8_t new_carry = cpu->alu_carry, new_ovf = cpu->alu_overflow;
     uint16_t alu = alu_op(alufm_entry, a, b, &new_carry, &new_ovf);
-    cpu->alu_zero = (alu == 0) ? 1 : 0;
-    cpu->alu_lt0  = (alu & 0x8000) ? 1 : 0;
-    cpu->alu_carry = new_carry;
-    cpu->alu_overflow = new_ovf;
+
+    /*
+     * HM page 18 + page 30: branch conditions ALU=0, ALU<0, Carry',
+     * and Overflow are LOADED INTO RAM AT t3 of this instruction, then
+     * tested at t1 of the *next* instruction. So the cpu->alu_* flags
+     * must keep the PREVIOUS instruction's values until next_pc has
+     * read them; we capture the new values now and commit at the end
+     * of execute_uinstr. */
+    uint8_t new_alu_zero = (alu == 0) ? 1 : 0;
+    uint8_t new_alu_lt0  = (alu & 0x8000) ? 1 : 0;
 
     /* Pd = ALU output (FF may then override or transform Pd, e.g. via
      * ALUFMRW or Pd←Cnt). FF post-effects also fire register loads
@@ -1343,6 +1349,22 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
     /* Post-instruction StkP update + StkOvf/StkUnd recompute (HM
      * Table 6 / page 11). For BLOCK=0 instructions this is a no-op. */
     stk_apply_post(cpu, u);
+
+    /* Commit branch-condition flags (HM page 30, "loaded into the RAM
+     * at t3"). After this, the next instruction's next_pc reads these
+     * via eval_branch_condition. FreezeBC (FA=0 FB=7 FC=6) suppresses
+     * the load so the previous instruction's flags survive — checked
+     * here against the FF field. */
+    int fa_bc = (u->ff >> 6) & 3;
+    int fb_bc = (u->ff >> 3) & 7;
+    int fc_bc = u->ff & 7;
+    int freezebc = (fa_bc == 0 && fb_bc == 7 && fc_bc == 6);
+    if (!freezebc) {
+        cpu->alu_zero     = new_alu_zero;
+        cpu->alu_lt0      = new_alu_lt0;
+        cpu->alu_carry    = new_carry;
+        cpu->alu_overflow = new_ovf;
+    }
 
     if (cpu->trace && cpu->trace_fp) {
         FILE *fp = cpu->trace_fp;

@@ -1067,6 +1067,163 @@ static int test_cpu_memory_roundtrip(void)
     return 0;
 }
 
+/*
+ * BC timing test (HM page 18 + 30):
+ *
+ * Branch conditions ALU=0 / ALU<0 / Carry' / Overflow are LOADED
+ * into the BC RAM at t3 of the current instruction; the *next*
+ * instruction's branch reads them. So a conditional branch always
+ * tests the PREVIOUS instruction's ALU output.
+ *
+ * Conditional-jump JCN requires JCN[3]=1 (else the high 4 bits
+ * are 0 and the encoding is "long jump"). With page_high=0, the
+ * smallest reachable JCN[3:4] is 10 → page_low=2 → offsets 4/5.
+ * We use IM[4] (false) and IM[5] (true) as branch targets.
+ */
+static int test_bc_timing_previous_instr(void)
+{
+    dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;   /* "B" */
+
+    /* IM[0]: ALU=B (=0,,FF with FF=0) → 0. T←Pd, JCN=local(1). */
+    mc.im[0] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/4, /*lc=*/1,
+                           /*asel=*/6, /*block=*/0, /*ff=*/0,
+                           /*jcn=*/jcn_local(1));
+    mc.im_present[0] = 1;
+
+    /* IM[1]: ALU=B (=0,,FF with FF=1) → 1. T←Pd, JCN = conditional
+     * on ALU=0 with page_high=0, page_low=2 → targets IM[4]/IM[5].
+     * Per HM, this branch tests IM[0]'s ALU=0 (= TRUE) → branch to
+     * IM[5] (R=1). With the old timing model it would test IM[1]'s
+     * ALU=1 (= FALSE) and go to IM[4]. */
+    {
+        uint8_t jcn = (0 << 5) | (2 << 3) | 0;   /* page_low=2, cond=0 */
+        mc.im[1] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/4, /*lc=*/1,
+                               /*asel=*/6, /*block=*/0, /*ff=*/1,
+                               /*jcn=*/jcn);
+    }
+    mc.im_present[1] = 1;
+
+    /* IM[4]: false target. T←4, self-loop. */
+    mc.im[4] = make_uinstr(0, 0, /*bsel=*/4, /*lc=*/1,
+                           /*asel=*/6, 0, /*ff=*/4, jcn_local(4));
+    mc.im_present[4] = 1;
+
+    /* IM[5]: true target. T←5, self-loop. */
+    mc.im[5] = make_uinstr(0, 0, /*bsel=*/4, /*lc=*/1,
+                           /*asel=*/6, 0, /*ff=*/5, jcn_local(5));
+    mc.im_present[5] = 1;
+
+    for (int i = 0; i < 8; i++) {
+        if (mc.im_present[i]) {
+            mc.image_to_real[i] = i;
+            mc.image_present[i] = 1;
+        }
+    }
+    mc.n_instructions = 4;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+
+    /* Step 0: IM[0] runs. ALU=0 → BCs latched. T←0. PC→1. */
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step 0");
+    EXPECT(cpu.T == 0, "T=0o%o, expected 0", cpu.T);
+    /* Step 1: IM[1] runs. Branch tests previous instr (IM[0])'s ALU=0,
+     * which is TRUE. R=1, target is IM[5]. T←1 in IM[1]. */
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step 1");
+    EXPECT(cpu.T == 1, "T=0o%o, expected 1", cpu.T);
+    EXPECT(cpu.real_PC == 5,
+           "expected branch to IM[5] (true target), got PC=0o%o",
+           cpu.real_PC);
+
+    /* Step 2: IM[5] runs. T←5. */
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step 2");
+    EXPECT(cpu.T == 5, "T=0o%o, expected 5", cpu.T);
+
+    printf("PASS  test_bc_timing_previous_instr\n");
+    return 0;
+}
+
+/*
+ * FreezeBC test (HM Table 11a FA=0 FB=7 FC=6):
+ *
+ * FreezeBC prevents the BC RAM from being loaded at t3, so the
+ * NEXT instruction's branch reads the BCs from TWO instructions ago
+ * instead of the immediately-previous instruction.
+ *
+ * Setup: 4-instruction microprogram.
+ *   IM[0]: ALU=0  (BCs ALU=0=1)
+ *   IM[1]: ALU=1, FreezeBC (BCs frozen — alu_zero stays 1 from IM[0])
+ *   IM[2]: branch on ALU=0 — should test IM[0]'s BCs (= 1 = TRUE)
+ *           because IM[1] froze them. Without FreezeBC, would test
+ *           IM[1]'s BCs (alu_zero=0 since alu=1).
+ */
+static int test_freezebc(void)
+{
+    dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;   /* "B" */
+
+    /* IM[0]: ALU=0 → BCs ALU=0 will be set TRUE. */
+    mc.im[0] = make_uinstr(0, 0, /*bsel=*/4, /*lc=*/0,
+                           /*asel=*/6, 0, /*ff=*/0, jcn_local(1));
+    mc.im_present[0] = 1;
+
+    /* IM[1]: ALU=1, but with FreezeBC FF (FA=0 FB=7 FC=6).
+     * FF = (0 << 6) | (7 << 3) | 6 = 62 = 0o076. */
+    mc.im[1] = make_uinstr(0, 0, /*bsel=*/4, /*lc=*/0,
+                           /*asel=*/6, 0, /*ff=*/0076, jcn_local(2));
+    mc.im_present[1] = 1;
+
+    /* IM[2]: cond ALU=0, branch with page_low=2 → targets IM[4]/IM[5]. */
+    {
+        uint8_t jcn = (0 << 5) | (2 << 3) | 0;
+        mc.im[2] = make_uinstr(0, 0, /*bsel=*/4, /*lc=*/0,
+                               /*asel=*/6, 0, /*ff=*/2, jcn);
+    }
+    mc.im_present[2] = 1;
+
+    /* IM[4]: false target — T←4, self-loop. */
+    mc.im[4] = make_uinstr(0, 0, /*bsel=*/4, /*lc=*/1,
+                           /*asel=*/6, 0, /*ff=*/4, jcn_local(4));
+    mc.im_present[4] = 1;
+
+    /* IM[5]: true target — T←5, self-loop. */
+    mc.im[5] = make_uinstr(0, 0, /*bsel=*/4, /*lc=*/1,
+                           /*asel=*/6, 0, /*ff=*/5, jcn_local(5));
+    mc.im_present[5] = 1;
+
+    for (int i = 0; i < 8; i++) {
+        if (mc.im_present[i]) {
+            mc.image_to_real[i] = i;
+            mc.image_present[i] = 1;
+        }
+    }
+    mc.n_instructions = 5;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+
+    /* Step IM[0]: ALU=0 → alu_zero gets set to 1 at end. */
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step 0");
+    /* Step IM[1]: ALU=1 → alu_zero would be 0, but FreezeBC keeps 1. */
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step 1");
+    EXPECT(cpu.alu_zero == 1,
+           "after IM[1] FreezeBC, alu_zero = %u (expected 1, frozen from IM[0])",
+           cpu.alu_zero);
+
+    /* Step IM[2]: branch on ALU=0. Reads alu_zero (= 1, frozen).
+     * R=1 → branch to IM[5] (odd target). */
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step 2");
+    EXPECT(cpu.real_PC == 5,
+           "expected branch to IM[5] via frozen BC, got PC=0o%o",
+           cpu.real_PC);
+
+    printf("PASS  test_freezebc\n");
+    return 0;
+}
+
 int main(void)
 {
     int rc = 0;
@@ -1085,6 +1242,8 @@ int main(void)
     rc |= test_stk_overflow();
     rc |= test_stk_underflow_check();
     rc |= test_cpu_memory_roundtrip();
+    rc |= test_bc_timing_previous_instr();
+    rc |= test_freezebc();
     rc |= probe_bootstrap();
     rc |= probe_full_boot();
     if (rc == 0) printf("\nAll CPU tests passed.\n");
