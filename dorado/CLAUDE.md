@@ -129,22 +129,35 @@ combination raises a specific `cpu_halt_reason` rather than silently
 falling through, so `test_cpu`'s `probe_bootstrap` reports exactly
 which microinstruction we couldn't execute.
 
-**Current real-microcode reach:** Bootstrap.mb runs against a real
-**BaseBoard 6502** (from `chm/dorado/doradobaserom.mb!13`, reset
-vector at 0xF3A7). The BB cold-boot path runs end-to-end:
+**Current real-microcode reach:** The full BaseBoard ↔ Dorado
+boot handshake works end-to-end up through Boot0 starting to free-
+run from IM. probe_full_boot in `tests/test_cpu.c` runs the BB and
+the Dorado microengine tick-by-tick from cycle 0 with empty IM
+(matching real hardware power-up):
 
-  Reset → WaitForInitialBoot
-       → 3 boot-button presses → CoolBoot dispatch
-       → RebootDorado → CheckVCC (PowerOutOfSpec=0)
-       → DiskOK → SuppliesAllUp → SetClockSpeed → Delay 3s
-       → LoadDoradoCode (0xFAAE) → Continuous (0xF4F3)
+  1. BB cold-boots (Reset → WaitForInitialBoot, ~5 M cycles).
+  2. 3 boot-button presses → CoolBoot dispatch → RebootDorado.
+  3. RebootDorado walks PowerUp → LoadDoradoCode at 11.4 M cycles.
+  4. LoadDoradoCode jams 475 microinstructions into the Dorado via
+     DoDoradoMicroInst (MIR strobes + SetSS); the IRTable's
+     IMLH/IMRH variants deposit Boot0 into IM[0o7700..0o7777]
+     using Write IM. 64 IM entries are written.
+  5. BB sets Link=Boot0GoLoc (0o7740) via CPRegToLink#, then jams
+     `Return` without single-step → Dorado free-runs Boot0 from IM.
+  6. Dorado executes ~10 Boot0 microinstructions (PC walk:
+     0o7740 → 0o7761 → 0o7746 → 0o7707 → 0o7744). At 0o7744 it
+     hits an all-zero IM entry (a real Boot0 trap-reservation
+     slot) and the embedded long-jump goes to IM[0o4000], which
+     is empty — halt.
 
-LoadDoradoCode does its full muffler-bus / clock / manifold dance
-and falls into Continuous, the steady-state polling loop, around
-cycle 11M. The Dorado microengine still spins in Bootstrap's poll
-loop because LoadDoradoCode's actual data path — Dorado-side MIR
-strobing, CPReg streaming, and matching IM writes — isn't modeled
-yet. See item 5 in "What's next".
+The remaining wall is that Boot0 takes a path through its state
+machine that depends on register values our model doesn't set up
+(STK, RM, Q, ALUFM[1..14]). Real Boot0 probably never reaches
+those trap reservations on hardware because R<0 / Carry' / etc.
+conditions evaluate differently against the real initial state.
+Beyond this would need either a much fuller hardware model
+(memory subsystem, proper STK push/pop, ALUFM init from Midas)
+or per-microinstruction analysis of Boot0's intended flow.
 
 Shifter coverage in `shifter_output()`:
 - 32-bit barrel cycle of `(SHA||SHB)` left by ShC[4:7] (or FF[4:7] when
