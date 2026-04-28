@@ -152,11 +152,7 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
         case 4: *b = 0;          break;  /* B ← EventCntB'     — stub */
         case 5: *b = 0;          break;  /* B ← DBuf           — stub */
         case 6:                             /* B ← RWCPReg */
-            /* HM page 31: "B←RWCPReg = Link←B, B←CPReg'." That is,
-             * the function complements CPReg onto B *and* loads Link
-             * from the resulting B value. The BB pairs SetCPReg~
-             * (complemented write) with B←RWCPReg so the value lands
-             * on the Dorado side un-inverted. */
+            /* HM page 31: "B←RWCPReg = Link←B, B←CPReg'." */
             if (cpu->baseboard) {
                 *b = (uint16_t)~baseboard_dorado_read_cpreg(cpu->baseboard);
             } else {
@@ -377,19 +373,52 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
             case 2: /* Pd ← ALUFMRW */
             case 3: /* Pd ← ALUFMEM (with ALUFMEM ← B.8, B[11:15]) */
                 /* Read current value to Pd, write new value from B.
-                 * 6-bit ALUFM entry: bit 5 = B.8 (BCPL) = (b>>7)&1,
-                 * bits 4..0 = B[11:15] (BCPL) = b & 0x1F. */
+                 *
+                 * HM Table 11d: "ALUFMEM ← B.8, B[11:15]". The 6-bit
+                 * entry's bits map to B as follows (manual MSB-first):
+                 *   ALUFM[0] (MSB / carry) = B[8]
+                 *   ALUFM[1]                = B[11]
+                 *   ...
+                 *   ALUFM[5] (LSB)          = B[15]
+                 *
+                 * In C-LSB convention (alufm_entry as uint8_t with bit
+                 * 5 = MSB, bit 0 = LSB), this means:
+                 *   alufm[5] = B_C[7]  (= B[8] manual)
+                 *   alufm[4] = B_C[4]  (= B[11])
+                 *   alufm[3] = B_C[3]  (= B[12])
+                 *   alufm[2] = B_C[2]  (= B[13])
+                 *   alufm[1] = B_C[1]  (= B[14])
+                 *   alufm[0] = B_C[0]  (= B[15])
+                 *
+                 * Empirical validation: real BB firmware writes CPReg
+                 * = (Y << 8) | 0o25 with Y stale (typically 4) before
+                 * jamming QFromCPReg + ALUFM[0]FromQ, expecting
+                 * ALUFM[0] = 0o25. With this mapping, Q = ~CPReg =
+                 * 0xFBEA gives ALUFM[0] = 0x15 = 0o25 ✓.
+                 */
                 {
                     int idx = u->aluf & 0xF;
                     uint8_t cur = (cpu->mc->alufm_present[idx])
                                   ? cpu->mc->alufm[idx] : 0;
                     pd = cur;  /* placeholder: real Pd would be 6-bit */
-                    /* Mutate ALUFM via a non-const cast — the loaded
-                     * microcode lives in mb_file's mems[] but we wrote
-                     * a copy into mc->alufm at load time. Mutating the
-                     * mc copy is fine. */
                     dorado_microcode *mc_w = (dorado_microcode *)cpu->mc;
-                    mc_w->alufm[idx] = (uint8_t)(((b >> 2) & 0x20) | (b & 0x1F));
+                    /* ALUFM_manual bit position → B manual bit:
+                     *   0 (carry, MSB) ← B[15] (= B_C[0])
+                     *   1              ← B[14] (= B_C[1])
+                     *   2              ← B[13] (= B_C[2])
+                     *   3              ← B[12] (= B_C[3])
+                     *   4              ← B[11] (= B_C[4])
+                     *   5 (LSB of op)  ← B[8]  (= B_C[7])
+                     * In C-LSB ALUFM (bit 5 = manual MSB, bit 0 = LSB).
+                     */
+                    uint8_t alufm =
+                        (uint8_t)((((b >> 0) & 1) << 5) |
+                                  (((b >> 1) & 1) << 4) |
+                                  (((b >> 2) & 1) << 3) |
+                                  (((b >> 3) & 1) << 2) |
+                                  (((b >> 4) & 1) << 1) |
+                                  (((b >> 7) & 1) << 0));
+                    mc_w->alufm[idx] = alufm;
                     mc_w->alufm_present[idx] = 1;
                 }
                 return pd;
@@ -1073,9 +1102,9 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
         char line[256];
         dorado_format(u, line, sizeof line);
         fprintf(fp,
-                "  PC=%04o  T=%06o A=%06o B=%06o ALU=%06o  → PC=%04o\n"
+                "  PC=%04o T=%06o Q=%06o A=%06o B=%06o ALU=%06o  → PC=%04o\n"
                 "    %s\n",
-                cpu->real_PC, cpu->T, a, b, alu, np, line);
+                cpu->real_PC, cpu->T, cpu->Q, a, b, alu, np, line);
     }
 
     cpu->prev_PC = cpu->real_PC;
