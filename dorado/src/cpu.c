@@ -118,7 +118,13 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
         case 3: *b = 0;          break;  /* B ← IFUMLH'        — stub */
         case 4: *b = 0;          break;  /* B ← EventCntB'     — stub */
         case 5: *b = 0;          break;  /* B ← DBuf           — stub */
-        case 6: *b = cpu->cpreg; break;  /* B ← RWCPReg        — stubbed */
+        case 6:                             /* B ← RWCPReg */
+            /* Stub: return a counter so that successive reads see
+             * different values (some bits set). Real progress
+             * requires modeling the BaseBoard's hunk-protocol. */
+            *b = cpu->cpreg;
+            cpu->cpreg = (uint16_t)(cpu->cpreg + 1);
+            break;
         case 7: *b = cpu->Link;  break;  /* B ← Link */
         default: return 0;
         }

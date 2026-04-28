@@ -350,15 +350,34 @@ the probe further.
 2. ~~Read/Write IM, Read/Write TPC — stubbed (advance to .+1).~~ Real
    IM mutation needs to land before Bootstrap can produce a working
    Initial; see item 3.
-3. **CPReg I/O + actual IM writes** ★ — the current blocker.
-   Bootstrap spins forever loading-Initial-via-stub. We need:
-   - A BaseBoard stub that serves EPROM bytes from `firmware/` when
-     Bootstrap does `B←RWCPReg`. Per the booting memo this is the
-     channel by which Bootstrap reads Initial out of the BaseBoard's
-     EPROMs in 16-bit chunks.
-   - Real IM writes: encode the 9-bit slice per RSTK[2:3] back into
-     the `dorado_uinstr` at `mc->im[Link & 0xFFF]`. Track raw iw0/iw1
-     storage so we can re-decode after a write.
+3. **CPReg I/O via the real BaseBoard hunk protocol** ★ — the current
+   blocker. Bootstrap spins in a 6-PC poll loop waiting for the
+   BaseBoard to deliver Initial in 17-byte hunks. Source at
+   `chm/dorado/expanded/doradobaserom.dm!12_/doradoboot.masm` (6502
+   for the BaseBoard side).
+
+   The current CPReg stub is just a counter (each read returns a
+   different value), enough to let the microengine make non-trivial
+   ALU progress without hanging. Real progress requires either:
+   - **Option A**: emulate the BaseBoard 6502 well enough to run
+     `doradoboot.masm`. ~5000 lines; biggest fidelity payoff.
+   - **Option B**: pre-bake the protocol output. Read the Boot1
+     descriptor from C-08/C-10 EPROMs, format it as the BaseBoard
+     would, feed Bootstrap byte-by-byte via CPReg.
+   - **Option C**: skip Bootstrap entirely. Load `Initial.mb`
+     (17 KB, 926 µinstrs) directly into IM and start the CPU at
+     Initial's entry point. Trades realism for fast forward
+     progress.
+
+   I'd lean toward C first (testbed for Initial's behavior), then B
+   when we want to validate the Bootstrap→Initial handoff, then A
+   when we eventually need full BaseBoard fidelity.
+
+4. **Actual IM writes** — currently advancing PC without writing.
+   For Option C above this isn't a blocker; for B/A it is. Encode
+   the 9-bit slice per RSTK[2:3] (HM Figure 6) back into the
+   `dorado_uinstr` at `mc->im[Link & 0xFFF]`. Each Write IM updates
+   18 bits (one half) selected by RSTK[3].
 4. **FF function table** — Tables 11a-e. Bootstrap is exercising a
    handful right now (we silently ignore most of them, which is part
    of why the spin loop doesn't make progress). Audit a probe trace
