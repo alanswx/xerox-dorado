@@ -262,6 +262,72 @@ static int test_cold_boot_to_continuous(void)
     return 0;
 }
 
+/*
+ * Test 8: BB→Dorado MCPBus strobe → CPReg latching.
+ *
+ * Drive RIOT[3] PA/PB directly to simulate the BB writing
+ *   MCPBusH = data, MCPBusL = ABMux0+strobe, then ABMux1+strobe.
+ * Verify the data lands in cpreg_to_dorado and that the strobed
+ * MIR sequence sets dorado_mir_loaded.
+ */
+static int test_mcp_strobe(void)
+{
+    baseboard_init(&bb);
+    baseboard_active = &bb;       /* route write6502 callbacks at us */
+    extern void write6502(unsigned short, unsigned char);
+
+    /* Helper to mimic the firmware's "STA MCPBusH; STA MCPBusL;
+     * INC MCPBusL; DEC MCPBusL" pattern. The strobe handler fires on
+     * the rising edge of MCPBusL bit 0, so we write the function code
+     * with strobe=0 first, then with strobe=1 to clock it. RIOT[3]
+     * is at base 0x580; PA (MCPBusH) = +0, PB (MCPBusL) = +2. */
+    #define MCP_STROBE(func, setss, data) do {                              \
+        write6502((unsigned short)0x580, (uint8_t)(data));                  \
+        write6502((unsigned short)0x582, (uint8_t)(((setss) << 7) |         \
+                                                    ((func) << 4)));        \
+        write6502((unsigned short)0x582, (uint8_t)(((setss) << 7) |         \
+                                                    ((func) << 4) | 0x01)); \
+    } while (0)
+
+    /* ABMux0: low byte of CPReg = 0xCD. */
+    MCP_STROBE(2, 0, 0xCD);
+    /* ABMux1: high byte of CPReg = 0xAB. */
+    MCP_STROBE(3, 0, 0xAB);
+
+    EXPECT(baseboard_dorado_read_cpreg(&bb) == 0xABCD,
+           "after ABMux0/1 strobes, CPReg = 0x%04X, want 0xABCD",
+           baseboard_dorado_read_cpreg(&bb));
+
+    /* MIR0..MIR3 strobes — the 5-byte Bootstrap Nop pattern.
+     * mir_bytes[0] = 0x70 holds the extra bits; the per-strobe extra
+     * bit comes from SetSS (MCPBusL bit 7). The bits, MSB-first, are
+     * 0,1,1,1 (RSTK[0]=0, P015=1, JCN[7]=1, P1631=1). */
+    MCP_STROBE(4, 0, 0x01);  /* MIR0, extra=0 (RSTK[0]) */
+    MCP_STROBE(5, 1, 0x0F);  /* MIR1, extra=1 (P015)   */
+    MCP_STROBE(6, 1, 0x4C);  /* MIR2, extra=1 (JCN[7]) */
+    MCP_STROBE(7, 1, 0x40);  /* MIR3, extra=1 (P1631)  */
+
+    EXPECT(bb.dorado_mir_loaded,
+           "after 4 MIR strobes, dorado_mir_loaded should be 1");
+    EXPECT(bb.mir_bytes[0] == 0x70,
+           "MIR extra bits = 0x%02X, want 0x70", bb.mir_bytes[0]);
+    EXPECT(bb.mir_bytes[1] == 0x01 && bb.mir_bytes[4] == 0x40,
+           "MIR payload bytes wrong: %02X %02X %02X %02X %02X",
+           bb.mir_bytes[0], bb.mir_bytes[1], bb.mir_bytes[2],
+           bb.mir_bytes[3], bb.mir_bytes[4]);
+
+    /* Control function: SetRun + SetSS (single-step request). */
+    MCP_STROBE(0, 1, 0x01);
+    EXPECT(bb.dorado_ss_pending,
+           "after Control SetRun+SetSS, ss_pending should be 1");
+
+    printf("PASS  test_mcp_strobe (CPReg=0x%04X, MIR loaded, SS pending)\n",
+           baseboard_dorado_read_cpreg(&bb));
+    return 0;
+
+    #undef MCP_STROBE
+}
+
 int main(void)
 {
     int rc = 0;
@@ -272,6 +338,7 @@ int main(void)
     rc |= test_timer_irq();
     rc |= test_boot_button_press();
     rc |= test_cold_boot_to_continuous();
+    rc |= test_mcp_strobe();
     if (rc == 0) printf("\nAll BaseBoard tests passed.\n");
     return rc;
 }

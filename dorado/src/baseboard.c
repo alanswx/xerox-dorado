@@ -477,12 +477,14 @@ uint32_t baseboard_run(dorado_baseboard *bb, uint32_t cycles)
 
 uint16_t baseboard_dorado_read_cpreg(dorado_baseboard *bb)
 {
-    /* Combine the CPReg chip's PA (high byte) and PB (low byte)
-     * latches to form the 16-bit value the Dorado sees. */
-    riot_chip *cp = &bb->riot[2];        /* CPReg chip is RIOT #2 (index 2) */
-    uint16_t hi = riot_read_pa(cp);
-    uint16_t lo = riot_read_pb(cp);
-    return (uint16_t)((hi << 8) | lo);
+    /* The Dorado-side B←RWCPReg reads what the BaseBoard most recently
+     * wrote *to* the Dorado via MCPBus ABMux0/ABMux1 strobes. Those
+     * strobes accumulate into bb->cpreg_to_dorado in apply_mcp_strobe.
+     *
+     * The BB-side reads (via RIOT[2] CPRegH/L) see the *opposite*
+     * direction — what the Dorado wrote via baseboard_dorado_write_cpreg.
+     * Don't conflate the two. */
+    return bb->cpreg_to_dorado;
 }
 
 void baseboard_dorado_write_cpreg(dorado_baseboard *bb, uint16_t value)
