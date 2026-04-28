@@ -471,17 +471,35 @@ static int probe_bootstrap(void)
         return 0;
     }
 
-    /* Stand up a BaseBoard. The doradobaserom.mb!13 ROM image is
-     * required; if we can't load it, fall back to the counter stub. */
+    /* Stand up a BaseBoard, simulate a 3-push boot (CoolBoot — reload
+     * microcode), and let it run far enough to be ready to upload
+     * Initial via CPReg.
+     *
+     * Per the booting memo: press 0.25-2.5 s, gap <1.5 s, then wait
+     * 1.5 s after final release. At our nominal 1 MHz simulated rate,
+     * that's 250k-2.5M cycles per press, <1.5M cycle gap, 1.5M cycle
+     * final wait. */
     static dorado_baseboard bb;
     int have_bb = 0;
     baseboard_init(&bb);
     if (baseboard_load_rom(&bb, "../chm/dorado/doradobaserom.mb!13") == 0) {
         baseboard_reset(&bb);
-        /* Spin the BaseBoard up to its supervisor loop. The reset
-         * code does power-up checks before it's ready to talk to the
-         * Dorado; give it 100k cycles to settle. */
-        baseboard_run(&bb, 100000);
+        baseboard_run(&bb, 1000000);   /* warm up: 1 sec */
+        printf("       BB after warmup: PC=0x%04X\n", baseboard_pc(&bb));
+
+        for (int i = 0; i < 3; i++) {
+            baseboard_boot_button(&bb, 1);
+            baseboard_run(&bb, 400000);   /* press ~400 ms */
+            baseboard_boot_button(&bb, 0);
+            baseboard_run(&bb, 600000);   /* release ~600 ms */
+        }
+        printf("       BB after 3 presses: PC=0x%04X\n", baseboard_pc(&bb));
+
+        /* Final 2-second idle to let CheckBootButton's 1.5-sec check fire. */
+        baseboard_run(&bb, 2000000);
+        printf("       BB after final wait: PC=0x%04X (cycles=%llu)\n",
+               baseboard_pc(&bb), (unsigned long long)bb.cycles);
+
         have_bb = 1;
     }
 
@@ -494,9 +512,11 @@ static int probe_bootstrap(void)
     }
 
     cpu_halt_reason r = dorado_cpu_run(&cpu, 1000);
-    printf("PROBE  bootstrap entry=0o%o, BB=%s, ran %d cycles, "
-           "halt: %s at PC=0o%o\n",
+    printf("PROBE  bootstrap entry=0o%o, BB=%s (PC=0x%04X, %llu cycles), "
+           "Dorado ran %d cycles, halt: %s at PC=0o%o\n",
            real_start, have_bb ? "real-6502" : "counter-stub",
+           have_bb ? baseboard_pc(&bb) : 0,
+           have_bb ? (unsigned long long)bb.cycles : 0ULL,
            cpu.cycles, cpu_halt_reason_str(r),
            cpu.halted ? cpu.real_PC : 0);
 

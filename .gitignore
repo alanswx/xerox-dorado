@@ -32,6 +32,16 @@ dorado schematics/
 # Per-volume PARC archive scratch
 # (we keep chm/ — tests depend on those microcode files; ~12 MB)
 chm/.cache/
+.cache/
+
+# Coverage / scratch
+.coverage
+.pytest_cache/
+*.log
+
+# Misc tmp
+.tmp/
+tmp/
 
 # Generated listings (mbdis output redirected to file)
 *.dls

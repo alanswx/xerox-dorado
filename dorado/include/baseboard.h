@@ -50,13 +50,26 @@ typedef struct {
     uint8_t pa_ddr, pa_latch, pa_external;
     uint8_t pb_ddr, pb_latch, pb_external;
 
-    /* Timer: counts down at the configured prescaler. We model it
-     * loosely — return whatever current_value the firmware expects
-     * and decrement on baseboard_step(). */
+    /* Timer (one per RIOT chip).
+     *
+     * The 6532 timer counts down from `timer_value` at one tick per
+     * `timer_prescaler` 6502 cycles. When it reaches zero it stays
+     * at 0xFF and decrements every cycle (no prescaler) — this is
+     * "underflow mode" and lasts until the timer is reloaded. The
+     * TimerFlag bit (0x80) of int_flags is set on underflow.
+     *
+     * If the timer was loaded via the interrupt-enable register
+     * (offset 0x1C-0x1F, with DoTimerInterrupt bit 0x08 set), an IRQ
+     * is asserted while TimerFlag is high. Reading int_flags clears
+     * the flags. */
     uint8_t  timer_value;
     uint16_t timer_prescaler;     /* 1, 8, 64, or 1024 */
-    uint64_t timer_last_tick;
-    uint8_t  int_flags;           /* TimerFlag, PA7Flag */
+    uint8_t  timer_int_enabled;   /* 1 if IRQ on underflow */
+    uint8_t  timer_underflowed;   /* sticky: cleared on next load */
+    uint64_t timer_load_cycle;    /* baseboard.cycles at last load */
+    uint8_t  timer_load_value;    /* saved load value for re-derivation */
+
+    uint8_t  int_flags;           /* TimerFlag (0x80), PA7Flag (0x40) */
 
     /* Base address of this RIOT in the 6502 address space. */
     uint16_t base_addr;
@@ -93,6 +106,9 @@ typedef struct dorado_baseboard {
     /* Total cycles run. */
     uint64_t cycles;
 
+    /* Diagnostic: how many times we've fired irq6502(). */
+    uint64_t irq_count;
+
     /* Last reason for halt / panic, for tests to inspect. */
     int  halted;
     char halt_msg[128];
@@ -127,12 +143,31 @@ uint32_t baseboard_step(dorado_baseboard *bb);
 uint16_t baseboard_dorado_read_cpreg(dorado_baseboard *bb);
 void     baseboard_dorado_write_cpreg(dorado_baseboard *bb, uint16_t value);
 
-/* Press / release the boot button. `count` = number of presses; the
- * firmware uses press-counting to distinguish 1-/2-/3-/4-push boots
- * (per the booting memo). */
-void baseboard_press_boot(dorado_baseboard *bb, int count);
+/* Hold the boot button down (pressed). Per doradoio.mdefs, the
+ * MiscByte's Boot' bit (0x40, RIOT #2 PB) is active-low.
+ *
+ * The boot decoder in doradocontinuous.masm (BootInterrupt) samples
+ * the line on each timer tick, increments BootPushCount on each
+ * down-edge it sees, and dispatches when BootTicksOff exceeds 15
+ * (~1.5 seconds with no further press).
+ *
+ *   1 push  → HotBoot   (Dorado does it)
+ *   2 push  → WarmBoot  (INITMAP;G)
+ *   3-6 push→ CoolBoot  ★ (reload microcode — what we want!)
+ *   7+ push → DoShutdown
+ */
+void baseboard_boot_button(dorado_baseboard *bb, int pressed);
 
 /* Diagnostic: dump current state to a string. */
 void baseboard_dump(const dorado_baseboard *bb, char *buf, size_t buflen);
+
+/* Read 6502 register state. (fake6502 keeps these as file-scope static
+ * variables; expose them through baseboard.c so other TUs can inspect.) */
+uint16_t baseboard_pc(const dorado_baseboard *bb);
+uint8_t  baseboard_a(const dorado_baseboard *bb);
+uint8_t  baseboard_x(const dorado_baseboard *bb);
+uint8_t  baseboard_y(const dorado_baseboard *bb);
+uint8_t  baseboard_sp(const dorado_baseboard *bb);
+uint8_t  baseboard_status(const dorado_baseboard *bb);
 
 #endif

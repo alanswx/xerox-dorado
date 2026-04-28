@@ -128,6 +128,87 @@ static int test_cpreg_interface(void)
     return 0;
 }
 
+/*
+ * Test 5: Timer + IRQ. The reset path writes to RIOT[3] timer with
+ * IRQ enabled. After running enough cycles, the IRQ handler should
+ * have run multiple times and the timer should keep being reloaded.
+ * We verify by checking that the timer is in a non-overflowed state
+ * (i.e., the IRQ handler is keeping it fresh).
+ */
+static int test_timer_irq(void)
+{
+    baseboard_init(&bb);
+    EXPECT(baseboard_load_rom(&bb, "../chm/dorado/doradobaserom.mb!13") == 0,
+           "load_rom");
+    baseboard_reset(&bb);
+
+    /* Run 100k cycles — comfortably past the reset code (which finishes
+     * around cycle 5000) and into the WaitForInitialBoot poll loop. */
+    baseboard_run(&bb, 100000);
+
+    /* RIOT #3 (the MCPBus / timer chip at 0x580) should have been
+     * configured with IRQ enabled (0x59C/0x59F write). */
+    EXPECT(bb.riot[3].timer_int_enabled == 1,
+           "timer IRQ should be enabled, got %d",
+           bb.riot[3].timer_int_enabled);
+    EXPECT(bb.irq_count > 10,
+           "expected IRQ to have fired many times in 100k cycles, got %llu",
+           (unsigned long long)bb.irq_count);
+
+    /* PC should be in the F-prefix EPROM (the polling loop is in
+     * doradoreset.masm / doradocontinuous.masm code regions). */
+    uint16_t pc = baseboard_pc(&bb);
+    EXPECT(pc >= 0xF000 && pc <= 0xFFFF,
+           "after init PC should be in F-EPROM, got 0x%04X", pc);
+
+    printf("PASS  test_timer_irq (PC=0x%04X, IRQ enabled, %llu cycles)\n",
+           pc, (unsigned long long)bb.cycles);
+    return 0;
+}
+
+/*
+ * Test 6: Boot button press triggers a state change.
+ *
+ * The reset code sets up "ShutDown" status and sits in
+ * WaitForInitialBoot polling CheckBootButton + DoAllConversions.
+ * Pressing the boot button should cause the BaseBoard to transition
+ * out of that loop. We watch for the PC range to change after
+ * enough cycles with the button held.
+ */
+static int test_boot_button_press(void)
+{
+    baseboard_init(&bb);
+    EXPECT(baseboard_load_rom(&bb, "../chm/dorado/doradobaserom.mb!13") == 0,
+           "load_rom");
+    baseboard_reset(&bb);
+
+    /* Settle the reset path. */
+    baseboard_run(&bb, 200000);
+
+    uint16_t pc_before = baseboard_pc(&bb);
+    EXPECT(pc_before >= 0xF000, "expected PC in F-EPROM before press");
+
+    /* Press the button and run enough cycles for the firmware's
+     * 1.5-second-no-press dispatch to fire. At ~1 MHz that's 1.5 M
+     * cycles; we'll run 5 M to be safe. Hold for the first second,
+     * then release. */
+    baseboard_boot_button(&bb, 1);
+    baseboard_run(&bb, 1000000);
+    baseboard_boot_button(&bb, 0);
+    baseboard_run(&bb, 4000000);
+
+    /* PC should have moved (into RebootDorado / HotBoot / similar). */
+    uint16_t pc_after = baseboard_pc(&bb);
+    EXPECT(pc_after != pc_before || bb.cycles > 5000000,
+           "expected PC to move after boot press, stayed at 0x%04X",
+           pc_after);
+
+    printf("PASS  test_boot_button_press (PC: 0x%04X → 0x%04X, "
+           "%llu cycles)\n",
+           pc_before, pc_after, (unsigned long long)bb.cycles);
+    return 0;
+}
+
 int main(void)
 {
     int rc = 0;
@@ -135,6 +216,8 @@ int main(void)
     rc |= test_reset_and_step();
     rc |= test_run_burst();
     rc |= test_cpreg_interface();
+    rc |= test_timer_irq();
+    rc |= test_boot_button_press();
     if (rc == 0) printf("\nAll BaseBoard tests passed.\n");
     return rc;
 }

@@ -41,20 +41,67 @@ void  write6502(ushort address, uint8 v)  { bb_write(address, v);    }
 /* ─── 6532 RIOT helpers ───────────────────────────────────────── */
 
 /*
- * RIOT register offsets (relative to the chip's base address). Per
- * doradoio.mdefs:
- *   PA       = 0    Port A data
- *   DDR      = 1    DDR for the most-recently-touched port
- *   PB       = 2    Port B data
- *   IntFlags = 5    interrupt-flag register (TimerFlag, PA7Flag)
- *   Timer    = 14   timer value (with prescaler set by which
- *                   write address is used)
+ * 6532 (RIOT) register addressing within each chip's 0x80-byte window:
  *
- * On real hardware the addressing is more nuanced — some registers
- * appear at multiple offsets to encode prescaler / interrupt-enable
- * state. Our model is loose: we recognize the offsets the BaseBoard
- * firmware actually exercises and stub the rest.
+ *   offset    write target              read target
+ *   0x00      PA latch                  PA pins (latch & DDR | ext & ~DDR)
+ *   0x01      PA DDR                    PA DDR
+ *   0x02      PB latch                  PB pins
+ *   0x03      PB DDR                    PB DDR
+ *   0x04      —                         IntFlags (clear on read)
+ *   0x05      —                         IntFlags (clear on read)
+ *   0x14-17   timer load, IRQ disabled  timer value
+ *   0x1C-1F   timer load, IRQ enabled   timer value
+ *
+ * Prescaler is selected by the low 2 bits of the write offset:
+ *   .14/.1C → ÷1   .15/.1D → ÷8   .16/.1E → ÷64   .17/.1F → ÷1024
+ *
+ * Real RIOTs alias many addresses depending on A2/A3/A4 decoding; we
+ * cover the canonical set the BaseBoard firmware uses.
  */
+
+/* Compute the timer's apparent value at the current cycle count. */
+static uint8_t riot_timer_current(const riot_chip *r, uint64_t now)
+{
+    uint64_t elapsed = now - r->timer_load_cycle;
+    if (!r->timer_underflowed) {
+        uint64_t ticks = elapsed / r->timer_prescaler;
+        if (ticks <= r->timer_load_value) {
+            return (uint8_t)(r->timer_load_value - ticks);
+        }
+        /* Past underflow point — value continues at no-prescaler rate. */
+        uint64_t under = ticks - r->timer_load_value;
+        /* Subtracting from 0xFF then wrapping. */
+        return (uint8_t)(0xFFu - (under & 0xFFu));
+    }
+    /* Already in underflow mode (no prescaler). */
+    return (uint8_t)(r->timer_value - (uint8_t)(elapsed & 0xFF));
+}
+
+/* Advance internal timer state to `now` and update underflow / flags. */
+static void riot_timer_tick(riot_chip *r, uint64_t now)
+{
+    if (r->timer_underflowed) return;
+    uint64_t elapsed = now - r->timer_load_cycle;
+    uint64_t ticks   = elapsed / r->timer_prescaler;
+    if (ticks > r->timer_load_value) {
+        r->timer_underflowed = 1;
+        r->int_flags |= 0x80;     /* TimerFlag */
+        /* Re-anchor for underflow-mode counting (1 cycle / decrement). */
+        r->timer_value      = (uint8_t)(0xFFu);
+        r->timer_load_cycle = now;
+    }
+}
+
+/* Returns 1 if any RIOT is currently asserting IRQ. */
+static int baseboard_any_irq(dorado_baseboard *bb)
+{
+    for (int i = 0; i < BASEBOARD_NUM_RIOTS; i++) {
+        const riot_chip *r = &bb->riot[i];
+        if (r->timer_int_enabled && (r->int_flags & 0x80)) return 1;
+    }
+    return 0;
+}
 static uint8_t riot_read_pa(const riot_chip *r)
 {
     return (uint8_t)((r->pa_latch & r->pa_ddr) |
@@ -80,46 +127,50 @@ static riot_chip *riot_for(dorado_baseboard *bb, uint16_t addr)
 static uint8_t riot_register_read(dorado_baseboard *bb, riot_chip *r,
                                   uint8_t offset)
 {
-    /* Real RIOTs alias each register across the 0x80-byte window with
-     * various A2/A4 bits selecting timer-prescaler / interrupt-enable
-     * variants. We only handle the canonical offsets. */
-    switch (offset) {
-    case 0:  return riot_read_pa(r);                    /* PA */
+    /* The 6532's read decoding folds the 0x80 window down to PA, DDRA,
+     * PB, DDRB, IntFlags, and the timer. */
+    switch (offset & 0x07) {
+    case 0:  return riot_read_pa(r);                    /* PA pins */
     case 1:  return r->pa_ddr;                          /* DDRA */
-    case 2:  return riot_read_pb(r);                    /* PB */
+    case 2:  return riot_read_pb(r);                    /* PB pins */
     case 3:  return r->pb_ddr;                          /* DDRB */
-    case 4: case 0x0C:                                  /* timer read */
-        return r->timer_value;
-    case 5: case 0x0D: {                                /* IntFlags */
+    case 4: case 6:                                     /* timer read */
+        return riot_timer_current(r, bb->cycles);
+    case 5: case 7: {                                   /* IntFlags */
         uint8_t f = r->int_flags;
-        r->int_flags = 0;            /* read clears flags */
-        (void)bb;
+        r->int_flags = 0;
         return f;
     }
-    default:
-        /* Many RIOT register addresses overlap PA/PB depending on
-         * decode; alias odd offsets to DDR/Port. Return 0 for
-         * anything we don't know. */
-        return 0;
     }
+    return 0;
 }
 
 static void riot_register_write(dorado_baseboard *bb, riot_chip *r,
                                 uint8_t offset, uint8_t value)
 {
-    (void)bb;
-    switch (offset) {
-    case 0:  r->pa_latch = value; break;
-    case 1:  r->pa_ddr   = value; break;
-    case 2:  r->pb_latch = value; break;
-    case 3:  r->pb_ddr   = value; break;
-    case 0x14: r->timer_prescaler = 1;     r->timer_value = value; break;
-    case 0x15: r->timer_prescaler = 8;     r->timer_value = value; break;
-    case 0x16: r->timer_prescaler = 64;    r->timer_value = value; break;
-    case 0x17: r->timer_prescaler = 1024;  r->timer_value = value; break;
-    default:
-        break;   /* ignore writes to undecoded offsets */
+    /* Standard 6532 write decoding: low 4 bits select function. */
+    if (offset < 0x04) {
+        switch (offset) {
+        case 0: r->pa_latch = value; break;
+        case 1: r->pa_ddr   = value; break;
+        case 2: r->pb_latch = value; break;
+        case 3: r->pb_ddr   = value; break;
+        }
+        return;
     }
+    /* 0x14-0x17 = timer load (IRQ disabled), 0x1C-0x1F = timer load
+     * (IRQ enabled). Low 2 bits select prescaler. */
+    if ((offset & 0x14) == 0x14) {
+        static const uint16_t prescaler_table[4] = { 1, 8, 64, 1024 };
+        r->timer_prescaler   = prescaler_table[offset & 0x03];
+        r->timer_load_value  = value;
+        r->timer_value       = value;
+        r->timer_load_cycle  = bb->cycles;
+        r->timer_underflowed = 0;
+        r->int_flags        &= (uint8_t)~0x80;   /* clear TimerFlag */
+        r->timer_int_enabled = (offset & 0x08) ? 1 : 0;
+    }
+    /* Other offsets: silently ignore. */
 }
 
 /* ─── Bus dispatcher ──────────────────────────────────────────── */
@@ -235,20 +286,51 @@ void baseboard_reset(dorado_baseboard *bb)
     reset6502();
 }
 
-uint32_t baseboard_run(dorado_baseboard *bb, uint32_t cycles)
-{
-    baseboard_active = bb;
-    uint32_t ran = exec6502(cycles);
-    bb->cycles += ran;
-    return ran;
-}
-
+/*
+ * Step one 6502 instruction, then advance per-RIOT timers and assert
+ * IRQ if any chip is currently flagging a timer underflow with
+ * interrupt-enable set. Returns ticks consumed.
+ *
+ * We step instruction-by-instruction (not in big exec6502 batches) so
+ * that timer underflows are detected within a few microseconds rather
+ * than being missed when an interrupt-enabled timer fires inside a
+ * 1000-cycle batch.
+ */
 uint32_t baseboard_step(dorado_baseboard *bb)
 {
     baseboard_active = bb;
     uint32_t t = step6502();
     bb->cycles += t;
+
+    /* Tick timers — sets TimerFlag if an underflow happened during
+     * this instruction. */
+    for (int i = 0; i < BASEBOARD_NUM_RIOTS; i++) {
+        riot_timer_tick(&bb->riot[i], bb->cycles);
+    }
+
+    /* If any timer is asserting IRQ, fire it. fake6502 internally
+     * checks the I flag and ignores the call when interrupts are
+     * masked, so it's safe to call every instruction.
+     *
+     * We also detect the moment fake6502 actually accepts the
+     * interrupt (i.e. PC jumps to the IRQ vector) by checking that
+     * the I flag was clear before. */
+    if (baseboard_any_irq(bb) && (status & 0x04) == 0) {
+        irq6502();
+        bb->irq_count++;
+    }
     return t;
+}
+
+uint32_t baseboard_run(dorado_baseboard *bb, uint32_t cycles)
+{
+    uint32_t total = 0;
+    while (total < cycles) {
+        uint32_t t = baseboard_step(bb);
+        if (t == 0) break;
+        total += t;
+    }
+    return total;
 }
 
 /* ─── Dorado-side CPReg interface ─────────────────────────────── */
@@ -273,15 +355,23 @@ void baseboard_dorado_write_cpreg(dorado_baseboard *bb, uint16_t value)
     bb->cpreg_dorado_has_data = 1;
 }
 
-void baseboard_press_boot(dorado_baseboard *bb, int count)
+void baseboard_boot_button(dorado_baseboard *bb, int pressed)
 {
-    /* For now, just drop the Boot' bit (active-low) once. A more
-     * faithful model would time press/release per the booting memo's
-     * 0.25–2.5 second windows. */
-    (void)count;
-    bb->boot_pressed = 1;
-    bb->riot[1].pb_external &= (uint8_t)~0x40;   /* Boot' → 0 */
+    bb->boot_pressed = pressed ? 1 : 0;
+    if (pressed) {
+        /* Boot' is active-low: clear bit 0x40 of RIOT #2 PB. */
+        bb->riot[1].pb_external &= (uint8_t)~0x40;
+    } else {
+        bb->riot[1].pb_external |= 0x40;
+    }
 }
+
+uint16_t baseboard_pc(const dorado_baseboard *bb)     { (void)bb; return pc; }
+uint8_t  baseboard_a(const dorado_baseboard *bb)      { (void)bb; return a; }
+uint8_t  baseboard_x(const dorado_baseboard *bb)      { (void)bb; return x; }
+uint8_t  baseboard_y(const dorado_baseboard *bb)      { (void)bb; return y; }
+uint8_t  baseboard_sp(const dorado_baseboard *bb)     { (void)bb; return sp; }
+uint8_t  baseboard_status(const dorado_baseboard *bb) { (void)bb; return status; }
 
 void baseboard_dump(const dorado_baseboard *bb, char *buf, size_t buflen)
 {
