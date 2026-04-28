@@ -43,6 +43,12 @@ typedef struct {
     uint16_t ShC;               /* shifter control */
     uint16_t MemBase;           /* 5-bit BR selector */
     uint16_t Link;              /* subroutine return address */
+    uint16_t link_at_issue;     /* Link snapshot at instruction issue;
+                                 * Write IM and Subroutine Return read
+                                 * this instead of Link directly so a
+                                 * same-instruction Link←B (e.g.,
+                                 * B←RWCPReg) doesn't clobber the
+                                 * value the consumer needs. */
     uint16_t TPC;               /* task PC (saved on switch) */
     uint16_t TIOA;              /* 8-bit I/O address (Slow IO) */
 

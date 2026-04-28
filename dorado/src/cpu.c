@@ -70,10 +70,42 @@ void dorado_cpu_trace(dorado_cpu *cpu, void *fp)
  * matching the BLOCK==0 case (RM-only). We'll add stack semantics when
  * we hit microcode that uses BLOCK=1.
  */
+/*
+ * RM/STK addressing (HM Table 6).
+ *
+ *   BLOCK = 0: RM[RBase || RSTK] — 256 entries arranged as 16 banks
+ *              of 16. RBase selects bank, RSTK selects within bank.
+ *   BLOCK = 1: STK access. The full table has push/pop modes encoded
+ *              in RSTK[0:3], but for our purposes (Boot0 / Bootstrap)
+ *              a no-update-StkP top-of-stack stub gets us past the
+ *              first BLOCK=1 microinstruction. We return STK[StkP]
+ *              and ignore the RSTK sub-decode for now.
+ *
+ * Returns a positive RM index, or 0x100..0x1FF for STK indices (so
+ * callers can use one shared index space). >= 0x200 is "invalid".
+ */
+#define CPU_RMSTK_RM_BASE   0x000
+#define CPU_RMSTK_STK_BASE  0x100
+#define CPU_RMSTK_INVALID   0x200
+
 static int rm_address(const dorado_cpu *cpu, const dorado_uinstr *u)
 {
-    if (u->block) return -1;             /* STK access — TBD */
+    if (u->block) return CPU_RMSTK_STK_BASE | (cpu->StkP & 0xFF);
     return ((cpu->RBase & 0xF) << 4) | (u->rstk & 0xF);
+}
+
+static uint16_t rm_stk_read(const dorado_cpu *cpu, int idx)
+{
+    if (idx >= CPU_RMSTK_INVALID) return 0;
+    if (idx >= CPU_RMSTK_STK_BASE) return cpu->STK[idx & 0xFF];
+    return cpu->RM[idx & 0xFF];
+}
+
+static void rm_stk_write(dorado_cpu *cpu, int idx, uint16_t value)
+{
+    if (idx >= CPU_RMSTK_INVALID) return;
+    if (idx >= CPU_RMSTK_STK_BASE) cpu->STK[idx & 0xFF] = value;
+    else                            cpu->RM[idx & 0xFF]  = value;
 }
 
 /*
@@ -415,11 +447,12 @@ static int b_bus(const dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *out)
     }
     int rm_a = rm_address(cpu, u);
     switch (u->bsel) {
-    case 0: /* Md */
-        return CPU_HALT_UNSUPPORTED_BSEL;   /* memory not implemented */
+    case 0: /* Md (memory data) — no memory subsystem yet, return 0 */
+        *out = 0;
+        return 0;
     case 1: /* RM/STK */
-        if (rm_a < 0) return CPU_HALT_UNSUPPORTED_BSEL;
-        *out = cpu->RM[rm_a];
+        if (rm_a >= CPU_RMSTK_INVALID) return CPU_HALT_UNSUPPORTED_BSEL;
+        *out = rm_stk_read(cpu, rm_a);
         return 0;
     case 2: /* T */
         *out = cpu->T;
@@ -474,7 +507,7 @@ static int b_bus(const dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *out)
 static uint16_t shifter_output(const dorado_cpu *cpu, const dorado_uinstr *u)
 {
     int rm_a   = rm_address(cpu, u);
-    uint16_t r = (rm_a >= 0) ? cpu->RM[rm_a] : 0;
+    uint16_t r = (rm_a < CPU_RMSTK_INVALID) ? rm_stk_read(cpu, rm_a) : 0;
     uint16_t t = cpu->T;
     uint16_t sha, shb;
     int count, rmask_n, lmask_n;
@@ -535,12 +568,15 @@ static int a_bus(const dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *out)
     switch (u->asel) {
     case 0: case 1: case 2: case 3:
         /* Memory references (Store←/Fetch←/...): A = RM/STK or T or Md
-         * or Q depending on the FF[0:1] sub-decode. We don't model
-         * memory yet, so we panic — but only if A is actually used. */
-        return CPU_HALT_UNSUPPORTED_ASEL;
+         * or Q depending on the FF[0:1] sub-decode. No memory subsystem
+         * yet — return 0 and let the instruction be a no-op. Real
+         * microcode does sometimes use these as "implicit no-ops"
+         * (e.g., Boot0 trap reservations). */
+        *out = 0;
+        return 0;
     case 4: /* A←RM/STK */
-        if (rm_a < 0) return CPU_HALT_UNSUPPORTED_ASEL;
-        *out = cpu->RM[rm_a];
+        if (rm_a >= CPU_RMSTK_INVALID) return CPU_HALT_UNSUPPORTED_ASEL;
+        *out = rm_stk_read(cpu, rm_a);
         return 0;
     case 5: /* A←Id (IFU operand byte) — no IFU yet */
         return CPU_HALT_UNSUPPORTED_ASEL;
@@ -660,7 +696,7 @@ static uint16_t alu_op(uint8_t alufm_entry, uint16_t a, uint16_t b,
 static int apply_lc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t pd)
 {
     int rm_a = rm_address(cpu, u);
-    int has_rm = (rm_a >= 0);
+    int has_rm = (rm_a < CPU_RMSTK_INVALID);
     switch (u->lc) {
     case 0: /* No Action */
         break;
@@ -669,7 +705,7 @@ static int apply_lc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t pd)
         break;
     case 2: /* T←Md, RM/STK←Pd — Md not implemented */
         if (!has_rm) return CPU_HALT_UNSUPPORTED_ASEL;
-        cpu->RM[rm_a] = pd;
+        rm_stk_write(cpu, rm_a, pd);
         /* T←Md skipped; will be handled when memory lands */
         break;
     case 3: /* T←Md — not implemented */
@@ -681,12 +717,12 @@ static int apply_lc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t pd)
         break;
     case 6: /* RM/STK←Pd */
         if (!has_rm) return CPU_HALT_UNSUPPORTED_ASEL;
-        cpu->RM[rm_a] = pd;
+        rm_stk_write(cpu, rm_a, pd);
         break;
     case 7: /* T←Pd, RM/STK←Pd */
         cpu->T = pd;
         if (!has_rm) return CPU_HALT_UNSUPPORTED_ASEL;
-        cpu->RM[rm_a] = pd;
+        rm_stk_write(cpu, rm_a, pd);
         break;
     }
     return 0;
@@ -711,9 +747,9 @@ static int eval_branch_condition(dorado_cpu *cpu,
     case 3:  r = (cpu->Cnt == 0) ? 1 : 0;                          /* Cnt = 0&-1 */
              cpu->Cnt = (uint16_t)(cpu->Cnt - 1);                  /* …decrement after test */
              break;
-    case 4:  r = (rm_a >= 0 && (cpu->RM[rm_a] & 0x8000)) ? 1 : 0; break; /* R<0 */
-    case 5:  r = (rm_a >= 0 && (cpu->RM[rm_a] & 0x0001)) ? 1 : 0; break; /* R odd */
-    case 6:  r = 0;                                       break;  /* IOAtten' / Resched — stub */
+    case 4:  r = (rm_a < CPU_RMSTK_INVALID && (rm_stk_read(cpu, rm_a) & 0x8000)) ? 1 : 0; break; /* R<0 */
+    case 5:  r = (rm_a < CPU_RMSTK_INVALID && (rm_stk_read(cpu, rm_a) & 0x0001)) ? 1 : 0; break; /* R odd */
+    case 6:  r = 1;                                       break;  /* IOAtten' / Resched — stub: no I/O attention pending (active-low) */
     default: r = 0;                                       break;
     }
     return r;
@@ -785,8 +821,12 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
              * (0 1 f f f 1 1 1) where f = JCN[2:4]. */
             uint8_t fn = (jcn >> 3) & 7;   /* JCN[2:4] */
             if (fn == 0) {
-                /* Subroutine Return: TNIA = Link[2:15]. */
-                *next = (uint16_t)(cpu->Link & 0xFFF);
+                /* Subroutine Return: TNIA = Link[2:15]. Use the
+                 * issue-time snapshot so a same-instruction Link←B
+                 * (which can't appear in a "Return#" template but is
+                 * possible in other return-class encodings) doesn't
+                 * change where we go this cycle. */
+                *next = (uint16_t)(cpu->link_at_issue & 0xFFF);
                 /* Per HM §4.5: Link is reloaded with CIA+1 by Return,
                  * supporting CoReturn. */
                 cpu->Link = (uint16_t)(cpu->real_PC + 1);
@@ -811,14 +851,16 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                  * (Bootstrap, Boot0 loader) is single-task and never
                  * generates Hold during the access window.
                  */
-                uint16_t addr = (uint16_t)(cpu->Link & 0xFFF);
-                uint16_t b;
-                int rc = b_bus(cpu, u, &b);
-                if (rc != 0) return rc;
-
-                /* Apply any FF B-source override (e.g., B←RWCPReg
-                 * paired with Write IM in the Boot0 loader). */
-                ff_override_b(cpu, u, &b);
+                uint16_t addr = (uint16_t)(cpu->link_at_issue & 0xFFF);
+                uint16_t b = 0;
+                /* Try the FF override first — IMLH/IMRH instructions
+                 * pair Write IM with B←RWCPReg (BSEL=Md), and BSEL=0
+                 * by itself would otherwise halt with UNSUPPORTED_BSEL
+                 * because we don't model the memory subsystem yet. */
+                if (!ff_override_b(cpu, u, &b)) {
+                    int rc = b_bus(cpu, u, &b);
+                    if (rc != 0) return rc;
+                }
 
                 dorado_microcode *mc_w = (dorado_microcode *)cpu->mc;
                 dorado_uinstr *dst = &mc_w->im[addr];
@@ -907,7 +949,13 @@ int dorado_cpu_step(dorado_cpu *cpu)
         if (cpu->baseboard->dorado_ss_pending && cpu->baseboard->dorado_mir_loaded) {
             dorado_uinstr injected;
             dorado_decode_mir(cpu->baseboard->mir_bytes, &injected);
+            /* Edge-triggered: clear *both* mir_loaded and ss_pending
+             * so the BB's follow-up SetRun+SetSS strobes (which the
+             * firmware uses to "release" the SS line in BasicStopDorado)
+             * don't re-execute the same microinstruction. The next
+             * single-step requires a fresh MIR0..MIR3 strobe sequence. */
             cpu->baseboard->dorado_ss_pending = 0;
+            cpu->baseboard->dorado_mir_loaded = 0;
             int rc = execute_uinstr(cpu, &injected, 0 /* not from IM */);
             cpu->cycles++;
             if (cpu->baseboard_cycles_per_uop > 0) {
@@ -916,10 +964,13 @@ int dorado_cpu_step(dorado_cpu *cpu)
             return rc;
         }
         if (!cpu->baseboard->dorado_running) {
-            /* Held — just tick the BB and return. */
+            /* Held — tick the BB and count this as a wasted cycle.
+             * Increment cpu->cycles so dorado_cpu_run terminates after
+             * max_cycles even if the BB never releases Run. */
             if (cpu->baseboard_cycles_per_uop > 0) {
                 baseboard_run(cpu->baseboard, cpu->baseboard_cycles_per_uop);
             }
+            cpu->cycles++;
             return 0;
         }
     }
@@ -944,6 +995,14 @@ int dorado_cpu_step(dorado_cpu *cpu)
 static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
 {
     (void)from_im;
+
+    /* Snapshot Link before FF can modify it. Write IM (in next_pc) and
+     * Subroutine Return both consume Link at instruction-issue time;
+     * B←RWCPReg / Link←B / B-dispatch all overwrite Link via FF. The
+     * pipelined hardware reads Link at t1 and writes at t3, so the
+     * consumer sees the *old* value while the new value lands for the
+     * next instruction. We model this by capturing the entry value. */
+    cpu->link_at_issue = cpu->Link;
 
     /* B and A buses. FF may override B (Pipe / Link / CPReg / …). */
     uint16_t b = 0, a = 0;
@@ -988,23 +1047,22 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
         return 1;
     }
 
-    /* LC. */
-    if ((rc = apply_lc(cpu, u, pd)) != 0) {
+    /*
+     * Branch decision uses the *pre-LC* register values per HM §4.4
+     * ("the branch conditions are ordinarily loaded into the RAM at
+     * t3" — i.e., latched from the register file before this cycle's
+     * register write). Compute next PC first, then commit the LC write.
+     */
+    uint16_t np = (uint16_t)(cpu->real_PC + 1);
+    rc = next_pc(cpu, u, &np);
+    if (rc != 0) {
         cpu->halted = 1;
         cpu->halt_reason = rc;
         return 1;
     }
 
-    /* FF: huge subset, mostly TODO. We implement a few easy ones:
-     *   FA=4-5 → RBase replacement (not relevant here)
-     *   FA=2 FC=0..3 → A←RM/STK / A←T / A←Md / A←Q (those go via ASEL)
-     * For now, ignore FF entirely if BSEL didn't already consume it
-     * (we'll panic when we see real microcode that needs more). */
-
-    /* Next PC. */
-    uint16_t np = (uint16_t)(cpu->real_PC + 1);
-    rc = next_pc(cpu, u, &np);
-    if (rc != 0) {
+    /* LC. */
+    if ((rc = apply_lc(cpu, u, pd)) != 0) {
         cpu->halted = 1;
         cpu->halt_reason = rc;
         return 1;

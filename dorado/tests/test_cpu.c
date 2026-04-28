@@ -541,6 +541,173 @@ static int probe_bootstrap(void)
 }
 
 /*
+ * probe_full_boot — proper interleaved BB+Dorado cold boot.
+ *
+ * The pre-baked probe_bootstrap loads Bootstrap.MB into IM, runs the
+ * BB for 16 M cycles in isolation (long after MIR strobes have flown),
+ * then runs the Dorado for 1000 cycles. That misses every BB-driven
+ * MIR injection.
+ *
+ * This probe instead runs them tick-by-tick from cycle 0, with empty
+ * IM (the way real hardware comes up). The flow we expect:
+ *
+ *   1. BB cold-boots into WaitForInitialBoot (~5 M BB cycles).
+ *   2. We press the boot button 3× → CoolBoot dispatch → RebootDorado.
+ *   3. RebootDorado walks through PowerUp checks, reaches LoadDoradoCode.
+ *   4. LoadDoradoCode jams Boot0 microcode into IM via DoDoradoMicroInst
+ *      (MIR strobes + SetSS) and Bootstrap's IM-write IRTable entries.
+ *   5. With Boot0 loaded, BB sets Link = Boot0GoLoc and jams Return →
+ *      Dorado starts running Boot0 from IM.
+ *   6. Boot0 streams Boot1 via CPReg (BB's SendIMBlockToDorado, ViaCP=1).
+ *
+ * We don't yet expect to make it all the way through, but the probe
+ * tells us how far each piece gets and where the next real wall is.
+ */
+static int probe_full_boot(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    /* ALUFM[0] = "B" (logical pass-through) so ALUF=0 instructions
+     * with LC=1 (T←Pd) deposit B onto T. The firmware sets this up
+     * itself via ALUFM[0]FromQ# but we pre-load to be safe. */
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;
+    /* ALUFM[15] (used by ALUF=17 — most IRTable entries): also "B".
+     * Firmware doesn't preload; we fill in so undefined-ALUFM doesn't
+     * matter when the SAME instruction's Q←B side effect is the work
+     * being done. */
+    mc.alufm[15] = 025; mc.alufm_present[15] = 1;
+
+    static dorado_baseboard bb;
+    baseboard_init(&bb);
+    if (baseboard_load_rom(&bb, "../chm/dorado/doradobaserom.mb!13") != 0) {
+        printf("SKIP  probe_full_boot (BB ROM not loadable)\n");
+        return 0;
+    }
+    baseboard_reset(&bb);
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.baseboard = &bb;
+    cpu.baseboard_cycles_per_uop = 1;
+
+    /* Schedule of boot-button events, in BB cycles. The Dorado-cycle
+     * counter advances 1:1 with the BB once held, and at most a few
+     * cycles ahead of BB once running. */
+    const uint64_t T_PRESS1_DOWN  =  1000000;
+    const uint64_t T_PRESS1_UP    =  1400000;
+    const uint64_t T_PRESS2_DOWN  =  2000000;
+    const uint64_t T_PRESS2_UP    =  2400000;
+    const uint64_t T_PRESS3_DOWN  =  3000000;
+    const uint64_t T_PRESS3_UP    =  3400000;
+    const uint64_t T_GIVEUP       = 60000000;
+
+    int  pressed = 0;
+    int  saw_load_dorado_code = 0;
+    int  saw_continuous = 0;
+    int  saw_first_im_write = 0;
+    int  saw_first_dorado_uop = 0;
+    int  saw_first_imfetch = 0;
+    int  injected_count = 0;
+    int  imfetch_count = 0;
+    int  dorado_held_count = 0;
+    uint16_t first_im_write_addr = 0xFFFF;
+
+    while (bb.cycles < T_GIVEUP) {
+        /* Boot-button schedule. */
+        if (!pressed && bb.cycles >= T_PRESS1_DOWN && bb.cycles < T_PRESS1_UP) {
+            baseboard_boot_button(&bb, 1); pressed = 1;
+        } else if (pressed && bb.cycles >= T_PRESS1_UP && bb.cycles < T_PRESS2_DOWN) {
+            baseboard_boot_button(&bb, 0); pressed = 0;
+        } else if (!pressed && bb.cycles >= T_PRESS2_DOWN && bb.cycles < T_PRESS2_UP) {
+            baseboard_boot_button(&bb, 1); pressed = 1;
+        } else if (pressed && bb.cycles >= T_PRESS2_UP && bb.cycles < T_PRESS3_DOWN) {
+            baseboard_boot_button(&bb, 0); pressed = 0;
+        } else if (!pressed && bb.cycles >= T_PRESS3_DOWN && bb.cycles < T_PRESS3_UP) {
+            baseboard_boot_button(&bb, 1); pressed = 1;
+        } else if (pressed && bb.cycles >= T_PRESS3_UP) {
+            baseboard_boot_button(&bb, 0); pressed = 0;
+        }
+
+        /* Watch for landmark BB PCs. */
+        uint16_t pc = baseboard_pc(&bb);
+        if (!saw_load_dorado_code && pc == 0xFAAE) saw_load_dorado_code = 1;
+        if (!saw_continuous && pc == 0xF4F3)       saw_continuous = 1;
+
+        /* Classify this Dorado step before stepping. */
+        int will_inject = bb.dorado_ss_pending && bb.dorado_mir_loaded;
+        int will_hold   = !will_inject && !bb.dorado_running;
+
+        if (dorado_cpu_step(&cpu)) {
+            printf("       Dorado halted: %s at PC=0o%o, BB cycle %llu (BB PC=0x%04X)\n",
+                   cpu_halt_reason_str(cpu.halt_reason),
+                   cpu.real_PC, (unsigned long long)bb.cycles,
+                   baseboard_pc(&bb));
+            if (cpu.real_PC < 4096 && mc.im_present[cpu.real_PC]) {
+                const dorado_uinstr *u = &mc.im[cpu.real_PC];
+                char dis[256];
+                dorado_format(u, dis, sizeof dis);
+                printf("       offending uinstr: %s\n", dis);
+            }
+            break;
+        }
+
+        if (will_hold) {
+            dorado_held_count++;
+        } else if (will_inject) {
+            injected_count++;
+            if (!saw_first_dorado_uop) {
+                saw_first_dorado_uop = 1;
+                printf("       first injected uop at BB cycle %llu (BB PC=0x%04X)\n",
+                       (unsigned long long)bb.cycles, baseboard_pc(&bb));
+            }
+        } else {
+            imfetch_count++;
+            if (!saw_first_imfetch) {
+                saw_first_imfetch = 1;
+                printf("       first IM-fetched uop at BB cycle %llu, Dorado PC=0o%o\n",
+                       (unsigned long long)bb.cycles, cpu.real_PC);
+            }
+        }
+
+        /* Watch IM gradually filling up. */
+        for (int a = 0; a < 4096; a++) {
+            if (mc.im_present[a] && !saw_first_im_write) {
+                saw_first_im_write = 1;
+                first_im_write_addr = (uint16_t)a;
+                printf("       first IM write at addr 0o%o, BB cycle %llu\n",
+                       a, (unsigned long long)bb.cycles);
+                break;
+            }
+        }
+    }
+
+    /* Final IM occupancy count + dump of zero-vs-nonzero pattern. */
+    int im_filled = 0;
+    printf("       IM zero addrs:");
+    for (int a = 0; a < 4096; a++) {
+        if (!mc.im_present[a]) continue;
+        im_filled++;
+        const dorado_uinstr *u = &mc.im[a];
+        if (u->iw0 == 0 && u->iw1 == 0 && u->iw2 == 0) {
+            printf(" 0o%o", a);
+        }
+    }
+    putchar('\n');
+
+    printf("PROBE  full-boot: BB ended at PC=0x%04X (cycles=%llu)\n",
+           baseboard_pc(&bb), (unsigned long long)bb.cycles);
+    printf("       LoadDoradoCode reached: %s    Continuous reached: %s\n",
+           saw_load_dorado_code ? "yes" : "no",
+           saw_continuous ? "yes" : "no");
+    printf("       Dorado: %d injected, %d IM-fetched, %d held, ss=%d mir=%d\n",
+           injected_count, imfetch_count, dorado_held_count,
+           bb.dorado_ss_pending, bb.dorado_mir_loaded);
+    printf("       IM: %d entries written (first=0o%o), final Dorado PC=0o%o\n",
+           im_filled, first_im_write_addr, cpu.real_PC);
+    return 0;  /* informational */
+}
+
+/*
  * Test 8: Write IM round-trip. The Bootstrap loader uses Write IM to
  * deposit Initial into IM via four IRTable entries (LH/RH × secondary
  * 0/1). Each Write IM: address from cpu->Link, 16 bits from B,
@@ -645,6 +812,7 @@ int main(void)
     rc |= test_unsupported_halts();
     rc |= test_write_im();
     rc |= probe_bootstrap();
+    rc |= probe_full_boot();
     if (rc == 0) printf("\nAll CPU tests passed.\n");
     return rc;
 }

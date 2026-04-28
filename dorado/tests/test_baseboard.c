@@ -289,10 +289,10 @@ static int test_mcp_strobe(void)
                                                     ((func) << 4) | 0x01)); \
     } while (0)
 
-    /* ABMux0: low byte of CPReg = 0xCD. */
-    MCP_STROBE(2, 0, 0xCD);
-    /* ABMux1: high byte of CPReg = 0xAB. */
-    MCP_STROBE(3, 0, 0xAB);
+    /* ABMux0: high byte of CPReg = 0xAB. */
+    MCP_STROBE(2, 0, 0xAB);
+    /* ABMux1: low byte of CPReg = 0xCD. */
+    MCP_STROBE(3, 0, 0xCD);
 
     EXPECT(baseboard_dorado_read_cpreg(&bb) == 0xABCD,
            "after ABMux0/1 strobes, CPReg = 0x%04X, want 0xABCD",

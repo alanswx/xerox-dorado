@@ -248,18 +248,35 @@ static void riot_register_write(dorado_baseboard *bb, riot_chip *r,
  * Each MIR byte's "extra bit" (bit 8 of the 9-bit slot) rides on the
  * SetSS line during the strobe — this is a hardware multiplex.
  */
+static FILE *mcp_trace_fp = NULL;
+
 static void apply_mcp_strobe(dorado_baseboard *bb, uint8_t mcpbusl)
 {
     uint8_t function = (uint8_t)((mcpbusl >> 4) & 0x07);
     uint8_t setss    = (uint8_t)((mcpbusl >> 7) & 0x01);
     uint8_t data     = bb->riot[3].pa_latch;        /* MCPBusH */
+    if (mcp_trace_fp) {
+        static const char *fnames[] = {
+            "Control", "Clock", "ABMux0", "ABMux1",
+            "MIR0", "MIR1", "MIR2", "MIR3"
+        };
+        fprintf(mcp_trace_fp,
+                "  MCP %s: data=0x%02X setss=%d  CPReg=0x%04X mir=%d\n",
+                fnames[function], data, setss,
+                bb->cpreg_to_dorado, bb->dorado_mir_loaded);
+    }
 
     switch (function) {
     case 0: /* Control */
+        /* Order matters: a single Control byte can carry multiple bits
+         * that conflict (e.g., DoDoradoMicroInst's first strobe sets
+         * ClrStop *and* Freeze). Apply Freeze last so it wins — that's
+         * the actual hardware behavior: ClrStop releases the stop
+         * latch, but Freeze gates the clock so the Dorado isn't
+         * actually clocking forward yet. The next strobe (MIR or
+         * SetRun without Freeze) is what releases the clock. */
         if (data & 0x40) bb->dorado_running = 1;    /* ClrStop */
-        if (data & 0x10) {                          /* Jam — stop request */
-            bb->dorado_running = 0;
-        }
+        if (data & 0x10) bb->dorado_running = 0;    /* Jam */
         if (data & 0x01) {                          /* SetRun */
             if (setss) {
                 bb->dorado_ss_pending = 1;          /* single-step */
@@ -268,18 +285,21 @@ static void apply_mcp_strobe(dorado_baseboard *bb, uint8_t mcpbusl)
             }
         }
         if (data & 0x04) bb->dorado_mir_loaded = 0; /* ClrMIR */
-        /* Freeze (0x08), StopAtT1 (0x20), ClrCT (0x02): no model. */
+        if (data & 0x08) bb->dorado_running = 0;    /* Freeze (overrides ClrStop) */
+        /* StopAtT1 (0x20), ClrCT (0x02): no model. */
         break;
     case 1: /* Clock — no-op */
         break;
-    case 2: /* ABMux0: low byte to CPReg, MCPBusL bit 7 = parity */
-        bb->cpreg_to_dorado =
-            (uint16_t)((bb->cpreg_to_dorado & 0xFF00) | data);
-        break;
-    case 3: /* ABMux1: high byte to CPReg, MCPBusL bit 7 = sync (AMSync) */
+    case 2: /* ABMux0: high byte to CPReg. SetCPReg writes ToCPRegH
+             * via this function (per doradocpint.masm:SetCPReg0). */
         bb->cpreg_to_dorado =
             (uint16_t)((bb->cpreg_to_dorado & 0x00FF) |
                        ((uint16_t)data << 8));
+        break;
+    case 3: /* ABMux1: low byte to CPReg. MCPBusL bit 7 carries a
+             * parity bit on this strobe (not SetSS). */
+        bb->cpreg_to_dorado =
+            (uint16_t)((bb->cpreg_to_dorado & 0xFF00) | data);
         break;
     case 4: case 5: case 6: case 7: { /* MIR0..MIR3 */
         int slot = function - 4;                    /* 0..3 */
@@ -321,6 +341,9 @@ static uint8 bb_read(ushort addr)
  */
 typedef void (*bb_write_hook_fn)(uint16_t addr, uint8_t old, uint8_t new_, uint16_t pc);
 bb_write_hook_fn baseboard_write_hook = NULL;
+
+extern FILE *mcp_trace_fp;
+void baseboard_mcp_trace(FILE *fp) { mcp_trace_fp = fp; }
 
 static void bb_write(ushort addr, uint8 value)
 {
