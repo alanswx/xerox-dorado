@@ -34,8 +34,13 @@ void dorado_decode_model1(const uint16_t s[4], dorado_uinstr *u)
     u->iw1 = iw1;
     u->iw2 = iw2;
     u->awd = s[3];
+    dorado_redecode_fields(u);
+}
 
+void dorado_redecode_fields(dorado_uinstr *u)
+{
     /* Field extraction. C bit ordering (bit 15 = MSB). */
+    uint16_t iw0 = u->iw0, iw1 = u->iw1, iw2 = u->iw2;
     u->rstk  = (uint8_t)((((iw2 >> 15) & 1) << 3) | ((iw0 >> 13) & 7));
     u->aluf  = (uint8_t)((iw0 >> 9) & 0xF);
     u->bsel  = (uint8_t)((iw0 >> 6) & 7);

@@ -540,6 +540,99 @@ static int probe_bootstrap(void)
     return 0;  /* informational — never fail the test run */
 }
 
+/*
+ * Test 8: Write IM round-trip. The Bootstrap loader uses Write IM to
+ * deposit Initial into IM via four IRTable entries (LH/RH × secondary
+ * 0/1). Each Write IM: address from cpu->Link, 16 bits from B,
+ * half-select + secondary bit from RSTK[2:3].
+ *
+ * We exercise all four variants and verify both the raw iw0/iw1/iw2
+ * and the re-decoded fields end up where they belong.
+ */
+static int test_write_im(void)
+{
+    dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0]  = 025; mc.alufm_present[0]  = 1;  /* ALUF[0] = B */
+    mc.alufm[1]  = 025; mc.alufm_present[1]  = 1;
+    mc.alufm[2]  = 025; mc.alufm_present[2]  = 1;
+    mc.alufm[3]  = 025; mc.alufm_present[3]  = 1;
+
+    /* Four Write IM instructions, targeting four different IM addrs.
+     *   IM[0]: RSTK=1 → LH, secondary=0 → iw0 = B,        iw2[15] = 0
+     *   IM[1]: RSTK=3 → LH, secondary=1 → iw0 = B,        iw2[15] = 1
+     *   IM[2]: RSTK=0 → RH, secondary=0 → iw1 = B,        iw2[14] = 0
+     *   IM[3]: RSTK=2 → RH, secondary=1 → iw1 = B,        iw2[14] = 1
+     *
+     * B comes from BSEL=4 (0,,FF) with FF=0xAA → B = 0x00AA. */
+    mc.im[0] = make_uinstr(/*rstk=*/1, 0, /*bsel=*/4, /*lc=*/0,
+                           /*asel=*/4, 0, /*ff=*/0xAA, /*jcn=*/0x7F);
+    mc.im[1] = make_uinstr(/*rstk=*/3, 1, /*bsel=*/4, /*lc=*/0,
+                           /*asel=*/4, 0, /*ff=*/0xAA, /*jcn=*/0x7F);
+    mc.im[2] = make_uinstr(/*rstk=*/0, 2, /*bsel=*/4, /*lc=*/0,
+                           /*asel=*/4, 0, /*ff=*/0xAA, /*jcn=*/0x7F);
+    mc.im[3] = make_uinstr(/*rstk=*/2, 3, /*bsel=*/4, /*lc=*/0,
+                           /*asel=*/4, 0, /*ff=*/0xAA, /*jcn=*/0x7F);
+    for (int i = 0; i < 4; i++) {
+        mc.im_present[i] = 1;
+        mc.image_to_real[i] = i;
+        mc.image_present[i] = 1;
+    }
+    mc.n_instructions = 4;
+
+    /* Run each Write IM separately, pointing Link at a fresh target
+     * each time (200, 201, 202, 203). */
+    for (int i = 0; i < 4; i++) {
+        dorado_cpu cpu;
+        dorado_cpu_init(&cpu, &mc, (uint16_t)i);
+        cpu.Link = (uint16_t)(0x200 + i);
+
+        int rc = dorado_cpu_step(&cpu);
+        EXPECT(rc == 0, "case %d step: %s", i,
+               cpu_halt_reason_str(cpu.halt_reason));
+
+        uint16_t addr = (uint16_t)(0x200 + i);
+        EXPECT(mc.im_present[addr],
+               "case %d: IM[0x%03X] not marked present", i, addr);
+    }
+
+    /* LH writes land in iw0; RH writes land in iw1. */
+    EXPECT(mc.im[0x200].iw0 == 0x00AA,
+           "LH/sec0: iw0 = 0x%04X, want 0x00AA", mc.im[0x200].iw0);
+    EXPECT((mc.im[0x200].iw2 & 0x8000) == 0,
+           "LH/sec0: iw2[15] should be 0");
+    EXPECT(mc.im[0x201].iw0 == 0x00AA,
+           "LH/sec1: iw0 = 0x%04X, want 0x00AA", mc.im[0x201].iw0);
+    EXPECT((mc.im[0x201].iw2 & 0x8000) != 0,
+           "LH/sec1: iw2[15] should be 1");
+
+    EXPECT(mc.im[0x202].iw1 == 0x00AA,
+           "RH/sec0: iw1 = 0x%04X, want 0x00AA", mc.im[0x202].iw1);
+    EXPECT((mc.im[0x202].iw2 & 0x4000) == 0,
+           "RH/sec0: iw2[14] should be 0");
+    EXPECT(mc.im[0x203].iw1 == 0x00AA,
+           "RH/sec1: iw1 = 0x%04X, want 0x00AA", mc.im[0x203].iw1);
+    EXPECT((mc.im[0x203].iw2 & 0x4000) != 0,
+           "RH/sec1: iw2[14] should be 1");
+
+    /* The decoded fields should reflect the new iw0/iw1/iw2. For
+     * iw0=0x00AA: ASEL=iw0[2:0]=2, LC=iw0[5:3]=5, BSEL=iw0[8:6]=2,
+     * ALUF=iw0[12:9]=0, RSTK[2:0]=iw0[15:13]=0. */
+    EXPECT(mc.im[0x201].asel == 2,
+           "decoded ASEL = %d, want 2", mc.im[0x201].asel);
+    EXPECT(mc.im[0x201].lc == 5,
+           "decoded LC = %d, want 5", mc.im[0x201].lc);
+    EXPECT(mc.im[0x201].bsel == 2,
+           "decoded BSEL = %d, want 2", mc.im[0x201].bsel);
+    /* RSTK = (iw2[15] << 3) | iw0[15:13] = (1 << 3) | 0 = 8. */
+    EXPECT(mc.im[0x201].rstk == 8,
+           "decoded RSTK = %d, want 8 (secondary bit lifted to MSB)",
+           mc.im[0x201].rstk);
+
+    printf("PASS  test_write_im (4 variants, decoded fields refresh)\n");
+    return 0;
+}
+
 int main(void)
 {
     int rc = 0;
@@ -550,6 +643,7 @@ int main(void)
     rc |= test_shifter_byte_cycle();
     rc |= test_shifter_rmask();
     rc |= test_unsupported_halts();
+    rc |= test_write_im();
     rc |= probe_bootstrap();
     if (rc == 0) printf("\nAll CPU tests passed.\n");
     return rc;

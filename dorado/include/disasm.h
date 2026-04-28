@@ -58,6 +58,13 @@ typedef struct {
 void dorado_decode_model1(const uint16_t stored[4], dorado_uinstr *out);
 
 /*
+ * Re-derive the decoded fields from iw0/iw1/iw2 after they've been
+ * mutated in place (e.g., by a Write IM operation). The awd /
+ * brk_p / iw0..2 values are not touched.
+ */
+void dorado_redecode_fields(dorado_uinstr *u);
+
+/*
  * Format a decoded microinstruction into a buffer in a single line, no
  * trailing newline. Returns the number of bytes written (excluding NUL).
  *

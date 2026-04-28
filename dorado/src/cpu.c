@@ -788,23 +788,64 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                 cpu->Link = (uint16_t)(cpu->real_PC + 1);
                 return 0;
             }
-            if (fn == 4 || fn == 5 || fn == 6 || fn == 7) {
-                /* Read TPC (4), Write TPC (5), Read IM (6), Write IM (7).
+            if (fn == 7) {
+                /* Write IM (HM §4.8). Address from Link[4:15] (12-bit
+                 * IM address); 16 bits of data from B; 2 bits from
+                 * RSTK select the half-word and a "secondary" bit:
                  *
-                 * HM §4.8: 6-cycle operations. Address comes from Link;
-                 * data comes from / goes to B (with RSTK[2:3] selecting
-                 * the byte for IM access; RSTK[1] is the parity flag for
-                 * writes). After the operation, control passes to .+1.
+                 *   RSTK[3] (LSB of u->rstk in C) — half-select.
+                 *     1 = LH (writes iw0 + RSTK[0] of the destination)
+                 *     0 = RH (writes iw1 + JCN[7] of the destination)
+                 *   RSTK[2] — value of the secondary bit.
+                 *   RSTK[1] — parity bit (we ignore it; we don't model
+                 *             parity errors).
+                 *   RSTK[0] — unused for Write IM.
                  *
-                 * For now we model the control-flow: advance to .+1.
-                 * The actual IM/TPC mutation is stubbed — Bootstrap
-                 * loads Initial into IM via this path, so anything that
-                 * branches into the freshly-loaded code will hit
-                 * CPU_HALT_NO_CODE. We'll wire up the actual writes
-                 * once we need them.
+                 * Per the manual, "Tasking-off must be in force" and
+                 * Hold is illegal during Write IM. We don't enforce
+                 * either; emulator microcode that uses this path
+                 * (Bootstrap, Boot0 loader) is single-task and never
+                 * generates Hold during the access window.
+                 */
+                uint16_t addr = (uint16_t)(cpu->Link & 0xFFF);
+                uint16_t b;
+                int rc = b_bus(cpu, u, &b);
+                if (rc != 0) return rc;
+
+                /* Apply any FF B-source override (e.g., B←RWCPReg
+                 * paired with Write IM in the Boot0 loader). */
+                ff_override_b(cpu, u, &b);
+
+                dorado_microcode *mc_w = (dorado_microcode *)cpu->mc;
+                dorado_uinstr *dst = &mc_w->im[addr];
+                int half_lh   = (u->rstk & 1);         /* RSTK[3] manual */
+                int secondary = (u->rstk >> 1) & 1;    /* RSTK[2] manual */
+
+                if (half_lh) {
+                    dst->iw0 = b;
+                    /* iw2 bit 15 = manual RSTK[0] of destination. */
+                    dst->iw2 = (uint16_t)((dst->iw2 & ~0x8000u) |
+                                          ((uint16_t)secondary << 15));
+                } else {
+                    dst->iw1 = b;
+                    /* iw2 bit 14 = manual JCN[7] of destination. */
+                    dst->iw2 = (uint16_t)((dst->iw2 & ~0x4000u) |
+                                          ((uint16_t)secondary << 14));
+                }
+                dorado_redecode_fields(dst);
+                mc_w->im_present[addr] = 1;
+                *next = (uint16_t)(cpu->real_PC + 1);
+                return 0;
+            }
+            if (fn == 4 || fn == 5 || fn == 6) {
+                /* Read TPC (4), Write TPC (5), Read IM (6).
                  *
-                 * (Read IM also needs Link[7:15] in the next instruction
-                 * to read inverted data on B; that's a separate piece.)
+                 * Read IM places inverted data on B in the *next*
+                 * instruction (selected by Link[7:15], byte by RSTK[2:3]).
+                 * TPC ops similarly reach across instructions. None of
+                 * these are exercised by Bootstrap's CPReg-based loader,
+                 * so we just advance past the access for now and revisit
+                 * if microcode that uses them needs it.
                  */
                 *next = (uint16_t)(cpu->real_PC + 1);
                 return 0;
