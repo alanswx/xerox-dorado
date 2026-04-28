@@ -163,6 +163,14 @@ Example queries:
 - `grep -i 'mesa.mb\|mesa.eb\|mesa.dm' "chm/cross-reference.html"`
 - `grep -i 'microd' "chm/cross-reference.html"`
 
+## Project plans (kept in sync with code)
+
+| File | Notes |
+|---|---|
+| `boot-bringup-plan.md` | Phased plan from "Boot0 free-runs from IM" (current state) to "Mesa boots Pilot from disk." Phases A–F, with HM section refs and exit criteria. Update when phases land. |
+| `memory-architecture.md` | Reference for the Map/cache/Pipe/BR design. Read before implementing Phase B. |
+| `jcn-encoding.md` | The JCN field's 7-way encoding split (local / global / long / conditional / return / IFU jump). Distilled from HM §4.3 + Figure 6. |
+
 ## Suggested reading order for a new contributor
 
 1. CLAUDE.md (this directory's parent) — mission and constraints.
