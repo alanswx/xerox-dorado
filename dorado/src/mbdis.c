@@ -91,14 +91,37 @@ static void usage(const char *prog)
             "  -s, --summary       print only the per-memory summary\n"
             "  -m, --memory NAME   dump only the named memory (e.g. IM, RM)\n"
             "  -d, --disasm        also print symbolic decoding for IM entries\n"
+            "  -y, --symbols       list every symbol (mem, addr, name)\n"
             "  -h, --help          this help\n",
             prog);
+}
+
+static void print_symbols(const mb_file *mb)
+{
+    /* Symbols are stored as a singly-linked list in load order; reverse
+     * so output is in declaration order. */
+    int n = 0;
+    for (mb_symbol *s = mb->symbols; s; s = s->next) n++;
+    mb_symbol **arr = calloc((size_t)n, sizeof *arr);
+    int i = 0;
+    for (mb_symbol *s = mb->symbols; s; s = s->next) arr[i++] = s;
+    printf("=== Symbols (%d total) ===\n", n);
+    for (int k = n - 1; k >= 0; k--) {
+        const mb_memory *m = (arr[k]->mem_id < MB_MAX_MEMS) ?
+                             &mb->mems[arr[k]->mem_id] : NULL;
+        printf("  mem=%d (%s)  addr=0x%04X (%6o)  %s\n",
+               arr[k]->mem_id,
+               m && m->defined ? m->name : "?",
+               arr[k]->addr, arr[k]->addr, arr[k]->name);
+    }
+    free(arr);
 }
 
 int main(int argc, char **argv)
 {
     int summary_only = 0;
     int symbolic = 0;
+    int list_symbols = 0;
     const char *only_mem = NULL;
     const char *path = NULL;
 
@@ -106,6 +129,7 @@ int main(int argc, char **argv)
         const char *a = argv[i];
         if (!strcmp(a, "-s") || !strcmp(a, "--summary")) summary_only = 1;
         else if (!strcmp(a, "-d") || !strcmp(a, "--disasm")) symbolic = 1;
+        else if (!strcmp(a, "-y") || !strcmp(a, "--symbols")) list_symbols = 1;
         else if (!strcmp(a, "-m") || !strcmp(a, "--memory")) {
             if (++i >= argc) { usage(argv[0]); return 2; }
             only_mem = argv[i];
@@ -130,6 +154,12 @@ int main(int argc, char **argv)
     }
 
     print_summary(&mb);
+
+    if (list_symbols) {
+        print_symbols(&mb);
+        mb_free(&mb);
+        return 0;
+    }
 
     if (!summary_only) {
         if (only_mem) {

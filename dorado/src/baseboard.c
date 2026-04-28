@@ -191,6 +191,13 @@ static uint8 bb_read(ushort addr)
     return bb->mem[addr];
 }
 
+/*
+ * Write watchpoints. When non-NULL, calls into the per-address hook
+ * before storing — useful for debugging boot-counter transitions.
+ */
+typedef void (*bb_write_hook_fn)(uint16_t addr, uint8_t old, uint8_t new_, uint16_t pc);
+bb_write_hook_fn baseboard_write_hook = NULL;
+
 static void bb_write(ushort addr, uint8 value)
 {
     dorado_baseboard *bb = baseboard_active;
@@ -206,7 +213,10 @@ static void bb_write(ushort addr, uint8 value)
     if (addr >= 0xC000 && addr <= 0xFFFF) return;
     if (addr >= 0xD000 && addr <= 0xD7FF) return;
 
-    /* RAM / unmapped — accept the write into mem[]. */
+    if (baseboard_write_hook) {
+        uint8_t old = bb->mem[addr];
+        if (old != value) baseboard_write_hook(addr, old, value, pc);
+    }
     bb->mem[addr] = value;
 }
 
@@ -233,6 +243,12 @@ void baseboard_init(dorado_baseboard *bb)
      * MiscByte 0x40 bit named "Boot'"); start with button NOT
      * pressed → bit set. The MiscByte chip is RIOT #2 (0x480). */
     bb->riot[1].pb_external = 0x40;       /* Boot' = 1 (not pressed) */
+
+    /* MCPBusL has SkipDiskWait' (bit 0x02) — when LOW (jumper installed),
+     * the reset code SKIPS WaitForInitialBoot and goes straight to
+     * RebootDorado. We want the normal boot path: jumper NOT installed,
+     * so set this bit HIGH. RIOT #4 (MCPBus) is at base 0x580. */
+    bb->riot[3].pb_external = 0x02;       /* SkipDiskWait' = 1 (no jumper) */
 }
 
 int baseboard_load_rom(dorado_baseboard *bb, const char *mb_path)
