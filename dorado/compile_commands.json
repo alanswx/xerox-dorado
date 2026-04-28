@@ -1,0 +1,17 @@
+[
+  {
+    "directory": "/Users/alans/Documents/development/Dorado/dorado",
+    "command": "cc -std=c99 -Wall -Wextra -Wshadow -Wpedantic -Wno-gnu-zero-variadic-macro-arguments -O2 -g -Iinclude -c src/mb.c -o build/mb.o",
+    "file": "src/mb.c"
+  },
+  {
+    "directory": "/Users/alans/Documents/development/Dorado/dorado",
+    "command": "cc -std=c99 -Wall -Wextra -Wshadow -Wpedantic -Wno-gnu-zero-variadic-macro-arguments -O2 -g -Iinclude -c src/mbdis.c -o build/mbdis.o",
+    "file": "src/mbdis.c"
+  },
+  {
+    "directory": "/Users/alans/Documents/development/Dorado/dorado",
+    "command": "cc -std=c99 -Wall -Wextra -Wshadow -Wpedantic -Wno-gnu-zero-variadic-macro-arguments -O2 -g -Iinclude -c tests/test_mb.c -o build/test_mb.o",
+    "file": "tests/test_mb.c"
+  }
+]

@@ -1,0 +1,44 @@
+# macOS
+.DS_Store
+._.*
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build artifacts (the C emulator)
+dorado/build/
+dorado/*.o
+dorado/*.a
+dorado/*.dSYM/
+dorado/build/*
+
+# Local-only reference material
+# AltoInfo holds external Alto-emulator source trees and disk images
+# (~525 MB). Useful for cross-validation but not part of this project's
+# source. Re-download from:
+#   https://github.com/livingcomputermuseum/ContrAlto  (ContrAlto v1)
+#   https://github.com/joshdersch/Contralto  (ContrAlto v2)
+#   https://github.com/brouhaha/salto  (salto C source)
+AltoInfo/
+
+# Legacy directory name superseded by DoradoDocs/{manuals,schematics,photos}
+# (kept here so an accidental restore from backup doesn't end up tracked)
+dorado schematics/
+
+# Per-volume PARC archive scratch
+# (we keep chm/ — tests depend on those microcode files; ~12 MB)
+chm/.cache/
+
+# Generated listings (mbdis output redirected to file)
+*.dls
+*.disasm
+
+# Coverage / profiling
+*.gcov
+*.gcda
+*.gcno
+build/coverage/
