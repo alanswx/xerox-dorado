@@ -73,6 +73,28 @@ dorado_microcode_status dorado_microcode_load(const mb_file *mb,
         }
     }
 
+    /* HM §3 + page 16: "the first three bits of ALUF select the kind
+     * of shift, while the ALUFM address is forced to 16₈ or 17₈."
+     * ALUFM[14] (= 0o16) is "NOT A" by convention — the shifter's
+     * A-bus drives ~shifter_output (low-true), and ALUFM[14]=NOT A
+     * inverts back to the un-complemented value.
+     * ALUFM[15] (= 0o17) is similarly conventional: the second
+     * shifter bank, also "NOT A" (ALUF[3] selects between 14 and 15
+     * for shift sub-ops). Real microcode would set these via Midas
+     * before the first shift; we preset both so synthetic tests and
+     * Boot0 don't get garbage shifter output before any explicit
+     * ALUFM[N]FromQ runs. The real .MB also typically declares
+     * ALUFM[14] explicitly, in which case the load loop above
+     * overwrites this default — so this is a "safety preset" only. */
+    if (!out->alufm_present[14]) {
+        out->alufm[14]         = 001;   /* "NOT A" — HM Table 9 */
+        out->alufm_present[14] = 1;
+    }
+    if (!out->alufm_present[15]) {
+        out->alufm[15]         = 001;   /* same: "NOT A" */
+        out->alufm_present[15] = 1;
+    }
+
     /* IFUM: 2 words per entry, captured raw for now. */
     if (mb->ifum_id >= 0) {
         const mb_memory *m = &mb->mems[mb->ifum_id];
