@@ -1,0 +1,8 @@
+Micro of 3-12-81
+  at 19-Jun-85 15:33:47
+MICRO.RUN/u/o d1lang kernelalu ftest
+ ER[D1Lang.Mc...19-Jun-82, 0];1........D1LANG.MC...19-JUN-82
+TITLE[KernelALU-model1.8/30/78];7........KERNELALU-MODEL1.8/30/78..IM.ADDRESS.=.0
+TITLE[FTEST-MODEL1.MC];1........FTEST-MODEL1.MC..IM.ADDRESS.=.0
+Total of 1014 symbols, 5992 wordsnull: 0 symbols, 0 wordsmacro: 825 symbols, 4751 wordsfield: 56 symbols, 331 wordsinteger: 25 symbols, 139 wordsaddress: 26 symbols, 174 wordsbuiltin: 42 symbols, 255 wordsneutral: 27 symbols, 122 wordsmemory: 13 symbols, 220 wordsundefined: 0 symbols, 0 wordsbittable: 0 symbols, 0 wordsMacro defs: 825, words: 11006
+Time: 6 seconds; 11673 words free

@@ -1,0 +1,1 @@
+L X DisplayOn	; showD.midas. display Dboard info	July 10, 1979  2:54 PML X RdCmds MMDL X DisplayOnL C0 Addr R0L C1 Addr VAL C2 Addr CDATAL C3 Addr CURCDPATTERNL C4 Addr RSCRL C5 Addr RSCR2L C6 Addr T 20

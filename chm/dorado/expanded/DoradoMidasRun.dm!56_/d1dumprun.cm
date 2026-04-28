@@ -1,0 +1,1 @@
+ftp indigo connect dorado dump/C DoradoMidasRun.dm d1dumprun.cm ^d1newmidas.cm midas.run midas.syms midas.errors loader.mb ^midas.midas debug.midas tests.midas special.midas ^normal.midas poke.midas svcrash.midas simdump.midas ^

@@ -1,0 +1,1 @@
+L X Reset ;		smalltalk.midas.  February 25, 1980  11:07 AM...TaftL X Do-it L X SetClk L X 32 L X Ld DSEMUL A19 Val 0L X TimeOut 7777777777;	as close to infinite timeout as we can manage.L X Go INITMAP;	this is the standard emulator entrypoint.

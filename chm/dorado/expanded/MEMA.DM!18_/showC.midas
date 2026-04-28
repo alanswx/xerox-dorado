@@ -1,0 +1,1 @@
+L X DisplayOn;		show memC registers	July 10, 1979  2:53 PML X RdCmds MMC	; show memory mufflersL X DisplayOnL C0 Addr R0		; memC registersL C1 Addr COLL C2 Addr FLAGSVL C3 Addr RSCRL C4 Addr RSCR2L C5 Addr T 20L C6 Addr ITERATIONSL C7 Addr BRXL C8 Addr PATXL C9 Addr CURPATTERNL C10 Addr COL2XL C11 Addr ROWX
