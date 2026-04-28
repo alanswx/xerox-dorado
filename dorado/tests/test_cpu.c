@@ -800,6 +800,192 @@ static int test_write_im(void)
     return 0;
 }
 
+/*
+ * STK addressing tests (HM Table 6 / page 11).
+ *
+ * Encoding of u->rstk in C-LSB:
+ *   bit 3 = manual RSTK[0] (underflow-check flag)
+ *   bit 2 = manual RSTK[1] (sign of delta)
+ *   bit 1 = manual RSTK[2]
+ *   bit 0 = manual RSTK[3] (LSB of delta)
+ *
+ * RSTK[1:3] encodes a 3-bit signed delta in [-4, +3]:
+ *   0 (000) →  0     4 (100) → -4
+ *   1 (001) → +1     5 (101) → -3
+ *   2 (010) → +2     6 (110) → -2
+ *   3 (011) → +3     7 (111) → -1
+ */
+
+/* Construct a single instruction that does:
+ *   ASEL=A←RM/STK (4)   — read RM/STK[StkP] onto A
+ *   BSEL=RM/STK   (1)   — same value onto B
+ *   ALUF=N → ALUFM[N]=B → ALU = B
+ *   LC=RM/STK←Pd  (6)   — write Pd back to RM/STK
+ *   BLOCK=1            — STK access
+ *   JCN=local(0)        — stay at PC=0
+ * with the given RSTK encoding. */
+static dorado_uinstr stk_uinstr(int rstk, int ff)
+{
+    return make_uinstr(rstk, /*aluf=*/0, /*bsel=*/1, /*lc=*/6,
+                       /*asel=*/4, /*block=*/1, ff,
+                       /*jcn=*/jcn_local(0));
+}
+
+static int test_stk_no_change(void)
+{
+    /* RSTK[1:3] = 0 → StkP unchanged, RSTK[0] = 0 → no underflow check.
+     * u->rstk = 0b0000 = 0. */
+    dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;
+    mc.im[0] = stk_uinstr(/*rstk=*/00, /*ff=*/0077);
+    mc.im_present[0] = 1;
+    mc.image_to_real[0] = 0; mc.image_present[0] = 1;
+    mc.n_instructions = 1;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.StkP = 5;
+    cpu.STK[5] = 0xBEEF;
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.StkP == 5, "StkP changed: %u (expected 5)", cpu.StkP);
+    EXPECT(cpu.STK[5] == 0xBEEF, "STK[5] = 0x%04X (expected 0xBEEF)", cpu.STK[5]);
+    EXPECT(cpu.stk_ovf == 0 && cpu.stk_und == 0,
+           "stk flags should be clear: ovf=%u und=%u",
+           cpu.stk_ovf, cpu.stk_und);
+
+    printf("PASS  test_stk_no_change\n");
+    return 0;
+}
+
+static int test_stk_push(void)
+{
+    /* RSTK[1:3] = 1 → StkP+=1. RSTK[0] = 0. u->rstk = 0b0001 = 1. */
+    dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;
+    mc.im[0] = stk_uinstr(/*rstk=*/01, /*ff=*/0077);
+    mc.im_present[0] = 1;
+    mc.image_to_real[0] = 0; mc.image_present[0] = 1;
+    mc.n_instructions = 1;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.StkP = 5;
+    cpu.STK[5] = 0xCAFE;
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.StkP == 6, "after push, StkP = %u (expected 6)", cpu.StkP);
+    /* Read used unadjusted StkP=5; LC wrote to STK[5] (default — no
+     * ModStkPBeforeW). Value written = ALU = B = STK[5] = 0xCAFE.
+     * So STK[5] = 0xCAFE still. */
+    EXPECT(cpu.STK[5] == 0xCAFE, "STK[5] = 0x%04X (expected 0xCAFE)", cpu.STK[5]);
+
+    printf("PASS  test_stk_push (StkP 5 → 6)\n");
+    return 0;
+}
+
+static int test_stk_pop(void)
+{
+    /* RSTK[1:3] = 7 → StkP-=1 (signed -1). u->rstk = 0b0111 = 7. */
+    dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;
+    mc.im[0] = stk_uinstr(/*rstk=*/07, /*ff=*/0077);
+    mc.im_present[0] = 1;
+    mc.image_to_real[0] = 0; mc.image_present[0] = 1;
+    mc.n_instructions = 1;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.StkP = 10;
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.StkP == 9, "after pop, StkP = %u (expected 9)", cpu.StkP);
+
+    printf("PASS  test_stk_pop (StkP 10 → 9)\n");
+    return 0;
+}
+
+static int test_stk_pop_minus_4(void)
+{
+    /* RSTK[1:3] = 4 → StkP-=4. u->rstk = 0b0100 = 4. */
+    dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;
+    mc.im[0] = stk_uinstr(/*rstk=*/04, /*ff=*/0077);
+    mc.im_present[0] = 1;
+    mc.image_to_real[0] = 0; mc.image_present[0] = 1;
+    mc.n_instructions = 1;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.StkP = 020;     /* octal 20 = 16 decimal */
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.StkP == 014, "after pop -4, StkP = 0o%o (expected 0o14)",
+           cpu.StkP);
+
+    printf("PASS  test_stk_pop_minus_4 (StkP 0o20 → 0o14)\n");
+    return 0;
+}
+
+static int test_stk_overflow(void)
+{
+    /* StkP[2:7] = 077 (max in region), RSTK[1:3]=1 → would go to 0o100,
+     * which crosses into next region. Real hardware sets StkOvf and
+     * generates StkError; we just set the flag. */
+    dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;
+    mc.im[0] = stk_uinstr(/*rstk=*/01, /*ff=*/0077);
+    mc.im_present[0] = 1;
+    mc.image_to_real[0] = 0; mc.image_present[0] = 1;
+    mc.n_instructions = 1;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.StkP = 077;     /* octal 77 = 63 decimal, top of region 0 */
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.stk_ovf == 1, "StkOvf should be set on push past 077");
+    EXPECT(cpu.stk_und == 0, "StkUnd should NOT be set");
+
+    printf("PASS  test_stk_overflow (077 + 1 sets StkOvf)\n");
+    return 0;
+}
+
+static int test_stk_underflow_check(void)
+{
+    /* RSTK[0] = 1 → underflow check enabled.
+     * StkP starts at 1, RSTK[1:3] = 7 (-1) → final StkP = 0 → underflow.
+     * u->rstk = 0b1111 = 0o17. */
+    dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;
+    mc.im[0] = stk_uinstr(/*rstk=*/017, /*ff=*/0077);
+    mc.im_present[0] = 1;
+    mc.image_to_real[0] = 0; mc.image_present[0] = 1;
+    mc.n_instructions = 1;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.StkP = 1;
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.stk_und == 1, "StkUnd should be set on -1 to StkP=1");
+
+    printf("PASS  test_stk_underflow_check (StkP=1, -1, RSTK[0]=1 → StkUnd)\n");
+    return 0;
+}
+
 int main(void)
 {
     int rc = 0;
@@ -811,6 +997,12 @@ int main(void)
     rc |= test_shifter_rmask();
     rc |= test_unsupported_halts();
     rc |= test_write_im();
+    rc |= test_stk_no_change();
+    rc |= test_stk_push();
+    rc |= test_stk_pop();
+    rc |= test_stk_pop_minus_4();
+    rc |= test_stk_overflow();
+    rc |= test_stk_underflow_check();
     rc |= probe_bootstrap();
     rc |= probe_full_boot();
     if (rc == 0) printf("\nAll CPU tests passed.\n");

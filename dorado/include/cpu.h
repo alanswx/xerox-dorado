@@ -40,8 +40,15 @@ typedef struct {
     uint16_t Cnt;               /* loop counter */
     uint16_t RBase;             /* 4-bit RM page selector */
     uint16_t StkP;              /* 8-bit stack pointer */
+    uint8_t  stk_ovf;           /* StkOvf flipflop, set by post-instruction
+                                 * StkP-update overflow (HM page 11);
+                                 * read via Pd←Pointers FF (FA=2 FB=6 FC=5). */
+    uint8_t  stk_und;           /* StkUnd flipflop — same idea, underflow side. */
     uint16_t ShC;               /* shifter control */
     uint16_t MemBase;           /* 5-bit BR selector */
+    uint16_t MemBX;             /* 2-bit MemBase extension (HM §6 IFU
+                                 * supplies MemBX-relative MemBase per
+                                 * opcode for the emulator task). */
     uint16_t Link;              /* subroutine return address */
     uint16_t link_at_issue;     /* Link snapshot at instruction issue;
                                  * Write IM and Subroutine Return read

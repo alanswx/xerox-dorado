@@ -71,15 +71,34 @@ void dorado_cpu_trace(dorado_cpu *cpu, void *fp)
  * we hit microcode that uses BLOCK=1.
  */
 /*
- * RM/STK addressing (HM Table 6).
+ * RM/STK addressing (HM §3.1 + Table 6, page 11).
  *
- *   BLOCK = 0: RM[RBase || RSTK] — 256 entries arranged as 16 banks
- *              of 16. RBase selects bank, RSTK selects within bank.
- *   BLOCK = 1: STK access. The full table has push/pop modes encoded
- *              in RSTK[0:3], but for our purposes (Boot0 / Bootstrap)
- *              a no-update-StkP top-of-stack stub gets us past the
- *              first BLOCK=1 microinstruction. We return STK[StkP]
- *              and ignore the RSTK sub-decode for now.
+ *   BLOCK = 0 (or non-emulator task):
+ *     RM read address  = RBase[0:3] || RSTK[0:3]   (8 bits → 256 entries)
+ *     RM write address = same as read, unless an FF function modifies
+ *     it (RBase←SC, Pointers←B, etc. are tracked elsewhere).
+ *
+ *   BLOCK = 1 (emulator task only — HM page 10):
+ *     Read address  = unadjusted StkP (current StkP[0:7]).
+ *     Write address = unadjusted StkP, unless ModStkPBeforeW (FA=0
+ *                     FB=2 FC=7) is in effect — then ADJUSTED StkP.
+ *
+ *   Per Table 6, RSTK[1:3] is a signed 3-bit value that updates StkP
+ *   AFTER the access:
+ *     0    no change      4   StkP -= 4
+ *     1    StkP += 1      5   StkP -= 3
+ *     2    StkP += 2      6   StkP -= 2
+ *     3    StkP += 3      7   StkP -= 1
+ *
+ *   RSTK[0]: 0 = no underflow check; 1 = underflow if StkP originally
+ *   0 OR finally 0. Underflow / overflow set StkUnd / StkOvf flags
+ *   (read via Pd←Pointers) and would HOLD + wake fault task 15 on
+ *   real hardware — we just track the flags and document the sticky
+ *   bit semantics.
+ *
+ *   StkP[0:1] selects one of 4 stack regions (each 100₈ words).
+ *   StkP[2:7] is the per-region offset, valid range 1..77₈.
+ *   StkP[2:7] = 0 denotes empty stack.
  *
  * Returns a positive RM index, or 0x100..0x1FF for STK indices (so
  * callers can use one shared index space). >= 0x200 is "invalid".
@@ -90,8 +109,99 @@ void dorado_cpu_trace(dorado_cpu *cpu, void *fp)
 
 static int rm_address(const dorado_cpu *cpu, const dorado_uinstr *u)
 {
+    /* Read address — for STK this is always unadjusted StkP. The
+     * write-side ModStkPBeforeW case is handled in apply_lc via
+     * stk_write_address(). */
     if (u->block) return CPU_RMSTK_STK_BASE | (cpu->StkP & 0xFF);
     return ((cpu->RBase & 0xF) << 4) | (u->rstk & 0xF);
+}
+
+/* Decode RSTK[1:3] as a signed delta in [-4, +3]. RSTK[1:3] are the
+ * low 3 bits of u->rstk in C convention (since u->rstk packs all 4
+ * bits with bit 3 = manual MSB = RSTK[0], bit 0 = manual LSB =
+ * RSTK[3]). The "1:3" range in manual = "bits at position 1, 2, 3"
+ * from MSB = bits 2, 1, 0 in C-LSB = u->rstk & 0x7. The sign-bit is
+ * the MSB of those 3 bits (bit 2 of u->rstk = manual RSTK[1]).
+ *
+ * Encoding (Table 6 row "RSTK[1:3] Meaning"):
+ *   0 (000) →  0     4 (100) → -4
+ *   1 (001) → +1     5 (101) → -3
+ *   2 (010) → +2     6 (110) → -2
+ *   3 (011) → +3     7 (111) → -1
+ *
+ * So the value is a 3-bit two's-complement number. */
+static int stk_signed_delta(const dorado_uinstr *u)
+{
+    int v = u->rstk & 0x7;
+    return (v & 0x4) ? (v - 8) : v;
+}
+
+static int stk_underflow_check(const dorado_uinstr *u)
+{
+    return (u->rstk >> 3) & 1;        /* RSTK[0] manual = u->rstk bit 3 */
+}
+
+/* Compute the WRITE address for an RM/STK write. Same as rm_address
+ * for everything except STK with the ModStkPBeforeW FF function in
+ * play, which routes the write to the *adjusted* (post-delta) StkP. */
+static int stk_write_address(const dorado_cpu *cpu, const dorado_uinstr *u)
+{
+    if (!u->block) return rm_address(cpu, u);
+
+    /* ModStkPBeforeW FF = FA=0 FB=2 FC=7 = 0o27 = 0x17 */
+    int fa = (u->ff >> 6) & 3;
+    int fb = (u->ff >> 3) & 7;
+    int fc = u->ff & 7;
+    int mod_before_w = (fa == 0 && fb == 2 && fc == 7);
+    if (!mod_before_w) return rm_address(cpu, u);
+
+    int adjusted = (cpu->StkP + stk_signed_delta(u)) & 0xFF;
+    return CPU_RMSTK_STK_BASE | adjusted;
+}
+
+/* Apply the post-instruction StkP update + underflow/overflow check.
+ * Called once per instruction at the very end of execute_uinstr,
+ * AFTER reads and writes have used the unadjusted (or modified)
+ * indices. HM page 11:
+ *
+ *   StkError = (BLOCK==1) AND emulator AND
+ *              [(StkP[2:7] + RSTK[1:3] < 0) OR
+ *               (StkP[2:7] + RSTK[1:3] > 77₈) OR
+ *               (RSTK[0]==1 AND ((StkP[2:7] + RSTK[1:3]) == 0))]
+ *
+ * StkUnd / StkOvf get set on the appropriate side. They're *sticky*
+ * until the next stack operation by the emulator (HM page 11
+ * "These get cleared (i.e., recomputed) when the next stack
+ * operation is executed by the emulator").
+ *
+ * For now we don't model the HOLD + fault-task wake — we just set
+ * the flags so Pd←Pointers can read them. */
+static void stk_apply_post(dorado_cpu *cpu, const dorado_uinstr *u)
+{
+    if (!u->block) return;
+    int delta = stk_signed_delta(u);
+    if (delta == 0 && !stk_underflow_check(u)) return;
+
+    /* Compute the new in-region offset (StkP[2:7], 6 bits) and check
+     * for over/underflow. The region selector StkP[0:1] is preserved
+     * across normal pushes/pops — overflow signals at the boundary. */
+    int region = cpu->StkP & 0xC0;     /* StkP[0:1] in bits 7,6 */
+    int offset = cpu->StkP & 0x3F;     /* StkP[2:7] in bits 5..0 */
+    int new_off = offset + delta;
+    int underflow = 0, overflow = 0;
+    if (new_off < 0) underflow = 1;
+    if (new_off > 077) overflow = 1;
+    if (stk_underflow_check(u) && (new_off & 0x3F) == 0 && new_off >= 0)
+        underflow = 1;
+
+    /* StkUnd / StkOvf are sticky-recomputed: if this op didn't trip
+     * either, clear them. */
+    cpu->stk_und = (uint8_t)underflow;
+    cpu->stk_ovf = (uint8_t)overflow;
+
+    /* Always update StkP, even on overflow/underflow (HM doesn't say
+     * to suppress; the fault task is what makes it visible). */
+    cpu->StkP = (uint8_t)(region | (new_off & 0x3F));
 }
 
 static uint16_t rm_stk_read(const dorado_cpu *cpu, int idx)
@@ -424,8 +534,25 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                 return pd;
             case 4: /* Pd ← Cnt */
                 pd = cpu->Cnt;                     return pd;
-            case 5: /* Pd ← Pointers */
-                pd = (uint16_t)((cpu->MemBase << 8) | cpu->RBase);
+            case 5: /* Pd ← Pointers (HM Table 11d FA=2 FB=6 FC=5).
+                     *   Pd[1:2]   ← MemBX
+                     *   Pd[3:7]   ← MemBase
+                     *   Pd[8]     ← StkOvf
+                     *   Pd[9]     ← StkUnd
+                     *   Pd[12:15] ← RBase
+                     * In C-LSB Pd: bit 14 = manual Pd[1], bit 0 = manual
+                     * Pd[15]. */
+                pd = 0;
+                /* MemBX (2 bits) at manual Pd[1:2] = C-LSB bits 14..13 */
+                pd |= (uint16_t)((cpu->MemBX & 0x3) << 13);
+                /* MemBase (5 bits) at manual Pd[3:7] = C-LSB bits 12..8 */
+                pd |= (uint16_t)((cpu->MemBase & 0x1F) << 8);
+                /* StkOvf at manual Pd[8] = C-LSB bit 7 */
+                pd |= (uint16_t)((cpu->stk_ovf & 1) << 7);
+                /* StkUnd at manual Pd[9] = C-LSB bit 6 */
+                pd |= (uint16_t)((cpu->stk_und & 1) << 6);
+                /* RBase (4 bits) at manual Pd[12:15] = C-LSB bits 3..0 */
+                pd |= (uint16_t)(cpu->RBase & 0xF);
                 return pd;
             case 6: /* Pd ← TIOA&StkP */
                 pd = (uint16_t)((cpu->TIOA << 8) | cpu->StkP);
@@ -724,7 +851,9 @@ static uint16_t alu_op(uint8_t alufm_entry, uint16_t a, uint16_t b,
 /* Apply LC: deliver Pd to T and/or RM/STK (HM Table 10). */
 static int apply_lc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t pd)
 {
-    int rm_a = rm_address(cpu, u);
+    /* Use the *write* address for STK accesses — that may differ from
+     * the read address when ModStkPBeforeW is in effect (HM page 11). */
+    int rm_a = stk_write_address(cpu, u);
     int has_rm = (rm_a < CPU_RMSTK_INVALID);
     switch (u->lc) {
     case 0: /* No Action */
@@ -1096,6 +1225,10 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
         cpu->halt_reason = rc;
         return 1;
     }
+
+    /* Post-instruction StkP update + StkOvf/StkUnd recompute (HM
+     * Table 6 / page 11). For BLOCK=0 instructions this is a no-op. */
+    stk_apply_post(cpu, u);
 
     if (cpu->trace && cpu->trace_fp) {
         FILE *fp = cpu->trace_fp;
