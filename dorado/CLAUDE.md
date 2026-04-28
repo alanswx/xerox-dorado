@@ -131,12 +131,20 @@ which microinstruction we couldn't execute.
 
 **Current real-microcode reach:** Bootstrap.mb runs against a real
 **BaseBoard 6502** (from `chm/dorado/doradobaserom.mb!13`, reset
-vector at 0xF3A7). The Dorado microengine and the BaseBoard both
-execute correctly side-by-side through their respective reset paths.
-Bootstrap's poll loop (6 PCs at 7700/7715/7741/7742/7746/7747) is
-still spinning because the boot-button hasn't been pressed and the
-BaseBoard hasn't transitioned into Initial-upload mode. See item 4
-in "What's next" for the handshake gap.
+vector at 0xF3A7). The BB cold-boot path runs end-to-end:
+
+  Reset → WaitForInitialBoot
+       → 3 boot-button presses → CoolBoot dispatch
+       → RebootDorado → CheckVCC (PowerOutOfSpec=0)
+       → DiskOK → SuppliesAllUp → SetClockSpeed → Delay 3s
+       → LoadDoradoCode (0xFAAE) → Continuous (0xF4F3)
+
+LoadDoradoCode does its full muffler-bus / clock / manifold dance
+and falls into Continuous, the steady-state polling loop, around
+cycle 11M. The Dorado microengine still spins in Bootstrap's poll
+loop because LoadDoradoCode's actual data path — Dorado-side MIR
+strobing, CPReg streaming, and matching IM writes — isn't modeled
+yet. See item 5 in "What's next".
 
 Shifter coverage in `shifter_output()`:
 - 32-bit barrel cycle of `(SHA||SHB)` left by ShC[4:7] (or FF[4:7] when
@@ -358,23 +366,33 @@ the probe further.
    Bootstrap probe now runs against a real BaseBoard 6502 from its
    reset vector at 0xF3A7.
 
-4. **BaseBoard handshake — current blocker** ★ . Bootstrap's poll
-   loop and the BaseBoard 6502 are both running but not handshaking
-   to start the Initial upload. Likely needed:
-   - Boot-button press (BaseBoard.MiscByte's Boot' bit). Without a
-     press, the BaseBoard sits in its watchdog/idle loop and never
-     transitions into the upload state. We have
-     `baseboard_press_boot()` but the probe doesn't call it yet.
-     Need to model the timing per the booting memo (0.25–2.5s
-     window; 1/2/3/4-push semantics).
-   - 6532 timer accuracy. The BaseBoard times boot-button presses
-     in subticks; if our timer model is too loose, the boot-decoder
-     won't recognize the press.
-   - MCPBus (RIOT #4 at 0x580). The control bus that the BaseBoard
-     drives to halt/release the Dorado. We don't model it yet —
-     once the BaseBoard tries to issue a control command it'll
-     write to address 0x580+ and our handler will silently swallow
-     it. Need to model the bits per `doradoio.mdefs`.
+4. ~~BaseBoard cold boot~~ — **done**. With the analog-comparator
+   model in `update_analog_comparators()` (see `src/baseboard.c`)
+   producing in-spec voltage and current readings, the BB now runs
+   the full reset → CoolBoot → RebootDorado → SuppliesAllUp →
+   LoadDoradoCode → Continuous path. Verified by
+   `tests/test_baseboard.c::test_cold_boot_to_continuous`.
+
+5. **Dorado-side LoadDoradoCode handshake — current blocker** ★ .
+   The BB enters LoadDoradoCode and does the full sequence (stop
+   Dorado via MCPBus, jam Boot0 microcode into MIR, start the
+   loader, stream Boot1 + Initial via CPReg). On our side, every
+   MCPBus write is silently swallowed and the Dorado microengine
+   sees nothing. To make this actually work we need:
+   - **MIR injection from BB.** `DoDoradoMicroInst` writes 5 bytes
+     to MIR0..MIR3 via MCPBus. We need the Dorado side to consume
+     those as the next `dorado_uinstr` and execute it.
+   - **Run/Halt control.** Bits in MCPBus `Control` field
+     (Freeze/Run/SetSS/ClrStop) gate microengine ticks. Right now
+     the Dorado runs unconditionally; needs a "stopped" mode the
+     BB can drive.
+   - **CPReg streaming.** SendIMBlockToDorado writes Boot1/Initial
+     bytes through CPReg. The Dorado-side Boot0 loader reads
+     `B←RWCPReg` repeatedly and uses Write IM to deposit them.
+     Both ends need to actually move bytes; right now neither does.
+   - **Real Write IM.** The Boot0 loader's whole job is to take
+     CPReg bytes and write them into IM. Our Write IM is currently
+     stubbed (PC-only).
 
 5. **Actual IM writes** — currently advancing PC without writing.
    For getting Bootstrap→Initial handoff working it matters: once
