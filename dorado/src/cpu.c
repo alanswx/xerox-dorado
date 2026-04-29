@@ -2027,7 +2027,9 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
             }
             uint32_t br = dorado_br_get(cpu->mem, membase);
             uint32_t va = (br + a) & 0x0FFFFFFFu;
-            (void)dorado_memory_ref(cpu->mem, kind, va, b, cpu->TIOA);
+            int subtask = (int)(cpu->task_subtask[cpu->ctask] & 3);
+            (void)dorado_memory_ref_task(cpu->mem, kind, va, b, cpu->TIOA,
+                                         (int)cpu->ctask, subtask);
         }
     }
 

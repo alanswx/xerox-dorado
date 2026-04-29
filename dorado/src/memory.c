@@ -291,6 +291,16 @@ static int cache_invalidate_no_writeback(dorado_memory *mem, uint32_t va)
 dorado_fault_kind dorado_memory_ref(dorado_memory *mem, dorado_ref_kind kind,
                                     uint32_t va, uint16_t b, uint16_t tioa)
 {
+    return dorado_memory_ref_task(mem, kind, va, b, tioa, 0, 0);
+}
+
+dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
+                                         dorado_ref_kind kind,
+                                         uint32_t va, uint16_t b,
+                                         uint16_t tioa,
+                                         int task, int subtask)
+{
+    (void)task; (void)subtask;     /* used only for fast-IO branches below */
     /* Snapshot the map entry's pre-reference flags into the pipe slot.
      * HM page 47: "Every storage reference causes mapping and returns
      * old contents of the relevant map entry in the pipe." */
@@ -386,30 +396,56 @@ dorado_fault_kind dorado_memory_ref(dorado_memory *mem, dorado_ref_kind kind,
         break;
     }
     case DM_REF_IOFETCH: {
-        /* Fast-IO munch out (HM page 39). Reference always passes to
-         * storage. If the line is in the cache and dirty, real HW
-         * sends the dirty version to the device — we just read
-         * storage (close enough until we model the device side). No
-         * cache entry is created. Sets Map.Ref. */
+        /* Fast-IO munch out (HM page 39). Reference passes to
+         * storage; the 16-word munch travels on the Fin bus to the
+         * receiving device. If the line is in cache and dirty, real
+         * HW sends the dirty version — we just read storage (close
+         * enough until we model dirty-line bypass). No cache entry
+         * is created. Sets Map.Ref.
+         *
+         * If a fast_io_cb is registered, gather the munch from
+         * storage (16-word aligned) and hand it to the device via
+         * the callback. */
         f = va_translate(mem, va, /*is_write=*/0, &phys);
         if (f == DM_FAULT_NONE) {
             mem->map[va_map_index(va)].ref = 1;
+            if (mem->fast_io_cb && mem->storage) {
+                uint16_t munch[16];
+                uint32_t base = phys & ~(uint32_t)0xF;
+                for (int i = 0; i < 16; i++) {
+                    munch[i] = (base + i) < mem->storage_words
+                             ? mem->storage[base + i] : 0;
+                }
+                mem->fast_io_cb(mem, kind, task, subtask, va, munch,
+                                mem->fast_io_ctx);
+            }
         }
         break;
     }
     case DM_REF_IOSTORE: {
         /* HM page 40: "a munch in the cache is unconditionally
          * removed (without being stored if dirty)". HM page 45:
-         * IOStore sets Map.Dirty. */
+         * IOStore sets Map.Dirty.
+         *
+         * If a fast_io_cb is registered, the device fills a 16-word
+         * munch buffer; we then write it to storage. */
         f = va_translate(mem, va, /*is_write=*/1, &phys);
         if (f == DM_FAULT_NONE) {
             cache_invalidate_no_writeback(mem, va);
             mem->map[va_map_index(va)].ref   = 1;
             mem->map[va_map_index(va)].dirty = 1;
-            /* Real IOStore receives data from the fast input bus,
-             * not from B. Without device modeling, leave storage
-             * unchanged here — only the side effects (cache
-             * invalidate + Map flags) are observable. */
+            if (mem->fast_io_cb && mem->storage) {
+                uint16_t munch[16] = {0};
+                /* Callback fills munch from device. */
+                mem->fast_io_cb(mem, kind, task, subtask, va, munch,
+                                mem->fast_io_ctx);
+                uint32_t base = phys & ~(uint32_t)0xF;
+                for (int i = 0; i < 16; i++) {
+                    if ((base + i) < mem->storage_words) {
+                        mem->storage[base + i] = munch[i];
+                    }
+                }
+            }
         }
         break;
     }

@@ -199,6 +199,28 @@ typedef struct dorado_memory {
     uint8_t  fault_count;
     uint8_t  fault_first_srn;
     uint8_t  fault_emulator;
+
+    /*
+     * Fast-I/O callback (HM §8). When the microengine issues
+     * IOFetch← (memory → device, Fin bus) or IOStore← (device →
+     * memory, Fout bus), memory_ref calls this callback with the
+     * task ID, subtask, VA, kind, and a 16-word munch buffer.
+     *
+     *   IOFetch:  memory has just READ 16 words from storage[VA..VA+15]
+     *             into the munch buffer. Callback delivers them to the
+     *             receiving device (e.g., display FIFO for DWT).
+     *   IOStore:  memory is about to WRITE 16 words to storage[VA..
+     *             VA+15]. Callback is responsible for FILLING the
+     *             munch buffer from the source device (e.g., disk
+     *             controller's read FIFO for DSK).
+     *
+     * If `fast_io_cb` is NULL, IOFetch/IOStore behave as data-less
+     * pipe-and-cache-only operations (the legacy stub behavior).
+     */
+    void (*fast_io_cb)(struct dorado_memory *mem, dorado_ref_kind kind,
+                       int task, int subtask, uint32_t va,
+                       uint16_t munch[16], void *ctx);
+    void *fast_io_ctx;
 } dorado_memory;
 
 /* Initialize: allocate storage array, zero registers + pipe.
@@ -220,6 +242,14 @@ void dorado_memory_free(dorado_memory *mem);
  */
 dorado_fault_kind dorado_memory_ref(dorado_memory *mem, dorado_ref_kind kind,
                                     uint32_t va, uint16_t b, uint16_t tioa);
+
+/* Variant that supplies (task, subtask) — used for fast-IO references
+ * to dispatch to the right device. Other refs ignore task/subtask. */
+dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
+                                         dorado_ref_kind kind,
+                                         uint32_t va, uint16_t b,
+                                         uint16_t tioa,
+                                         int task, int subtask);
 
 /* Map manipulation helpers, mostly for tests. */
 void dorado_map_set(dorado_memory *mem, uint32_t va_page,
