@@ -1113,35 +1113,46 @@ static int test_ifu_map_fault_trap(void)
  */
 static int probe_aemu(void)
 {
-    const char *initial_path = "../chm/dorado/expanded/bootstrap.dm!20_/Initial.mb";
-    const char *aemu_path    = "../chm/dorado/AEmu.mb!2";
-
-    static mb_file initial_mb, aemu_mb;
-    mb_init(&initial_mb);
-    mb_init(&aemu_mb);
-    if (mb_load(&initial_mb, initial_path) != MB_OK) {
-        printf("SKIP  probe_aemu (Initial.mb not loadable)\n");
-        return 0;
-    }
-    if (mb_load(&aemu_mb, aemu_path) != MB_OK) {
-        printf("SKIP  probe_aemu (AEmu.mb not loadable)\n");
-        mb_free(&initial_mb);
-        return 0;
+    /* Real boot order: Initial → kernel → memMisc → IfuComplex →
+     * AEmu (the Alto-emulator-specific microcode). The kernel and
+     * memMisc files provide trap vectors, page-fault handlers, and
+     * memory primitives that AEmu calls into. */
+    struct { const char *path; mb_file mb; int n; } layers[] = {
+        { "../chm/dorado/expanded/bootstrap.dm!20_/Initial.mb",  {0}, 0 },
+        { "../chm/dorado/expanded/kernel.dm!38_/kernel.mb",      {0}, 0 },
+        { "../chm/dorado/expanded/memMisc.dm!11_/memMisc.mb",    {0}, 0 },
+        { "../chm/dorado/expanded/Ifu.dm!51_/IfuComplex.mb",     {0}, 0 },
+        { "../chm/dorado/AEmu.mb!2",                             {0}, 0 },
+    };
+    int n_layers = sizeof layers / sizeof layers[0];
+    for (int i = 0; i < n_layers; i++) {
+        mb_init(&layers[i].mb);
+        if (mb_load(&layers[i].mb, layers[i].path) != MB_OK) {
+            printf("SKIP  probe_aemu (%s not loadable)\n", layers[i].path);
+            for (int j = 0; j < i; j++) mb_free(&layers[j].mb);
+            return 0;
+        }
     }
 
     static dorado_microcode mc;
-    if (dorado_microcode_load(&initial_mb, &mc) != DM_OK) {
-        printf("SKIP  probe_aemu (Initial load failed)\n");
-        mb_free(&initial_mb); mb_free(&aemu_mb);
+    if (dorado_microcode_load(&layers[0].mb, &mc) != DM_OK) {
+        printf("SKIP  probe_aemu (first layer load failed)\n");
+        for (int j = 0; j < n_layers; j++) mb_free(&layers[j].mb);
         return 0;
     }
-    int initial_count = mc.n_instructions;
-    if (dorado_microcode_layer_load(&aemu_mb, &mc) != DM_OK) {
-        printf("SKIP  probe_aemu (AEmu layer-load failed)\n");
-        mb_free(&initial_mb); mb_free(&aemu_mb);
-        return 0;
+    layers[0].n = mc.n_instructions;
+    for (int i = 1; i < n_layers; i++) {
+        int before = mc.n_instructions;
+        if (dorado_microcode_layer_load(&layers[i].mb, &mc) != DM_OK) {
+            printf("SKIP  probe_aemu (layer %d failed)\n", i);
+            for (int j = 0; j < n_layers; j++) mb_free(&layers[j].mb);
+            return 0;
+        }
+        layers[i].n = mc.n_instructions - before;
     }
-    int aemu_count = mc.n_instructions;
+    int initial_count = layers[0].n;
+    int aemu_count    = mc.n_instructions;
+    (void)initial_count;
 
     int real_start = mc.image_present[0] ? mc.image_to_real[0] : 0;
 
@@ -1158,7 +1169,7 @@ static int probe_aemu(void)
     static dorado_memory mem;
     if (dorado_memory_init(&mem) != 0) {
         printf("SKIP  probe_aemu (mem init failed)\n");
-        mb_free(&initial_mb); mb_free(&aemu_mb);
+        for (int j = 0; j < n_layers; j++) mb_free(&layers[j].mb);
         return 0;
     }
     /* Mount a few low pages identity-mapped, RW. */
@@ -1200,10 +1211,14 @@ static int probe_aemu(void)
 
     const char *sym       = dorado_microcode_symbol_at_real(&mc, cpu.real_PC);
     const char *entry_sym = dorado_microcode_symbol_at_real(&mc, real_start);
-    printf("PROBE  aemu (Initial=%d + AEmu=%d entries) entry=0o%o "
-           "(image=0o0=%s), ran %d cycles, halt: %s at real_PC=0o%o%s%s\n",
-           initial_count, aemu_count - initial_count,
-           real_start, entry_sym ? entry_sym : "<no-sym>",
+    printf("PROBE  aemu (layers:");
+    for (int i = 0; i < n_layers; i++) {
+        const char *base = strrchr(layers[i].path, '/');
+        printf(" %s=%d", base ? base + 1 : layers[i].path, layers[i].n);
+    }
+    printf(", total=%d) entry=0o%o (image=0o0=%s), ran %d cycles, "
+           "halt: %s at real_PC=0o%o%s%s\n",
+           aemu_count, real_start, entry_sym ? entry_sym : "<no-sym>",
            cpu.cycles, cpu_halt_reason_str(r),
            cpu.real_PC,
            sym ? " sym=" : "", sym ? sym : "");
@@ -1251,8 +1266,7 @@ static int probe_aemu(void)
     }
 
     dorado_memory_free(&mem);
-    mb_free(&initial_mb);
-    mb_free(&aemu_mb);
+    for (int j = 0; j < n_layers; j++) mb_free(&layers[j].mb);
     return 0;
 }
 

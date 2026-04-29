@@ -40,13 +40,13 @@ static dorado_microcode_status microcode_load_inner(const mb_file *mb,
         memset(out, 0, sizeof *out);
     } else {
         /* Layered load: overlay IM/RM/ALUFM/IFUM, but reset the
-         * image-to-real map and n_instructions so symbol lookups
-         * reflect the new layer's .MB. (The previous layer's IM
-         * contents stay placed at their real addresses; lookups by
-         * real address go through the new mb's image-symbol table.) */
+         * image-to-real map so symbol lookups reflect the new
+         * layer's .MB. (The previous layer's IM contents stay
+         * placed at their real addresses; lookups by real address
+         * go through the new mb's image-symbol table.) Keep
+         * n_instructions cumulative across layers. */
         memset(out->image_to_real, 0, sizeof out->image_to_real);
         memset(out->image_present, 0, sizeof out->image_present);
-        out->n_instructions = 0;
     }
     out->mb = mb;
 
