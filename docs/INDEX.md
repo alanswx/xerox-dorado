@@ -167,6 +167,7 @@ Example queries:
 
 | File | Notes |
 |---|---|
+| `handoff.md` | ★ **Read first** if you're a new session picking this up. Current state, build/run, what works, what doesn't, pitfalls, suggested first action. |
 | `boot-bringup-plan.md` | Phased plan from "Bootstrap microengine runs" (current state, post ALUFM/quadrant fixes) to "Mesa boots Pilot from disk." Includes the normal boot sequence reference (Path A power-on/3-push, Path B LoadMB shortcut). |
 | `memory-architecture.md` | Reference for the Map/cache/Pipe/BR design (HM §5). Read before memory work. |
 | `io-systems-architecture.md` | High-level reference for Slow I/O, Fast I/O, the task scheduler/Wakeup-Block-Next protocol, plus an overview of the Disk, Display, and Ethernet controllers. Read first; then drill down into the per-subsystem docs below. |

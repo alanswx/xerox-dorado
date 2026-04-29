@@ -1,0 +1,469 @@
+# Handoff: continue building the Xerox Dorado emulator
+
+This document is for the next person (or LLM) picking up this project.
+Read it first. It tells you the current state, what's runnable, what's
+broken, what to work on next, and the gotchas that cost me hours so
+you don't repeat them.
+
+## TL;DR
+
+- **What:** A C emulator for the Xerox Dorado (1978–1985 PARC research
+  workstation). Goal: run the original Mesa/Cedar/Lisp/Smalltalk/Alto
+  emulator microcode against a Trident disk pack and show pixels on a
+  framebuffer.
+- **Status:** Microengine + memory subsystem + IFU + tasking + slow-IO
+  routing + BaseBoard 6502 model are working. Display + Disk + Fast-IO
+  transport have Phase-2 stubs that move data end-to-end. Real Mesa
+  microcode (AEmu) executes 200K cycles before stalling in IFU
+  dispatch.
+- **Repo:** `/Users/alans/Documents/development/Dorado`
+- **Most useful entry points to read:** `CLAUDE.md` (project mission),
+  `dorado/CLAUDE.md` (code-side guide), `docs/INDEX.md` (doc map).
+
+## Build and run
+
+```sh
+cd dorado
+make           # builds everything in build/
+make test      # runs all test binaries; should print "All <X> tests passed."
+make clean     # nuke build/
+```
+
+C99, no external deps. The `vendor/6502/` dir contains a 6502
+emulator (used for the BaseBoard model). `build/mbdis`, `build/mctrace`,
+`build/bbtrace` are diagnostic CLIs; the rest are test binaries.
+
+If a test fails after a partial change, **always `make clean &&
+make`** before debugging. Stale `build/test_cpu.o` linked against an
+old `cpu.h` will produce confusing failures. (I burned an hour on
+this once.)
+
+## Read these first (in order)
+
+1. **Hardware Manual:** `DoradoDocs/manuals/Dorado_Hardware_Manual_Sep1981.pdf`
+   — the canonical reference. Cite section + page numbers in commits and code.
+2. **Booting memo:** `DoradoDocs/manuals/Dorado_Booting_Operation_and_Mechanisms_Apr80.pdf`
+   — explains the boot sequence at a high level. Path A is BB → Bootstrap
+   → Initial → Ethernet; Path B is LoadMB (used by `probe_aemu`).
+3. **Project mission:** `CLAUDE.md` (top of repo). Describes the two-phase
+   plan (C emulator → Verilog) and working norms.
+4. **Code-side guide:** `dorado/CLAUDE.md`. What's built, conventions,
+   format findings (the .MB bit shuffle, ALUFM extraction).
+5. **The phased plan:** `docs/boot-bringup-plan.md`. Distilled state
+   of everything; updated each session.
+6. **I/O reference:** `docs/io-systems-architecture.md` (overview),
+   `docs/disk-architecture.md` (HM §9 detailed), `docs/display-architecture.md`
+   (HM §11 detailed), `docs/memory-architecture.md` (HM §5 detailed).
+7. **JCN encoding:** `docs/jcn-encoding.md` — the 7-way JCN field split.
+
+## Repo layout
+
+```
+Dorado/
+├── CLAUDE.md                       project mission + norms
+├── DoradoDocs/manuals/             ★ Hardware Manual + booting memo
+├── chm/dorado/                     ★ Dorado microcode + .MB sources from CHM
+│   ├── Mesa.mb!3 / Cedar.mb!6      emulator microcodes
+│   ├── AEmu.mb!2                   Alto emulator on Dorado
+│   ├── doradobaserom.mb!13         BaseBoard EPROM .MB
+│   └── expanded/
+│       ├── BootstrapSources.dm/    Bootstrap.mc + BootDefs.mc source (BCPL)
+│       ├── bootstrap.dm!20_/       Bootstrap.mb + Initial.mb
+│       ├── doradobaserom.dm!12_/   BaseBoard 6502 source (.masm)
+│       ├── kernel.dm!38_/          shared microcode helpers
+│       ├── memMisc.dm!11_/         memory primitives
+│       ├── Ifu.dm!51_/             IfuComplex.mb
+│       └── ftest.dm!1_/            full Micro→MicroD→.MB worked example
+├── AltoInfo/                       Alto/ContrAlto2 references (gitignored)
+│   └── Contralto2-2.0-Beta/        ★ TridentDrive.cs etc — port reference
+├── docs/                           project documentation (read INDEX.md)
+└── dorado/                         ★ the C emulator
+    ├── Makefile
+    ├── include/                    public headers
+    ├── src/                        implementation
+    ├── tests/                      test_*.c
+    └── vendor/6502/                fake6502 (6502 emulator for BB)
+```
+
+## What's built (verified by passing tests)
+
+These all compile clean and pass:
+
+### Microengine (`include/cpu.h`, `src/cpu.c`)
+- Full microinstruction decoder (RSTK / ALUF / BSEL / LC / ASEL /
+  BLOCK / FF / JCN). Verified against ~25K µinstrs.
+- ALU with all 16 ALUFM ops + arithmetic-vs-logical distinction
+  (Carry'/Overflow only updated on arithmetic ops, per HM page 30).
+- Full JCN: Local Jump/Call, Global Call, Long Jump/Call, Conditional
+  (cond 0..6 + Overflow), Subroutine Return, IFU Jump.
+- Shifter (ShC- and FF-controlled, all four mask ops).
+- FF dispatcher: large subset (TaskingOff/On, Wakeup[task], B←Pipe0..5,
+  Pd←ALUFMRW, IFUMLH/RH, PCF←B, IFUReset, BrkIns, etc.).
+- Tasking: 16 priority-scheduled tasks, T/TPC/MemBase/Link replicated,
+  BLOCK clears wakeup, FreezeBC, Reschedule trap, SubTask OR into
+  RBase[2:3]/MemBase[2:3].
+- IFU: IFUM 1024×24-bit, prefetch+pipeline, IFUJump dispatch, 4 entry-
+  vector slots, NotReady trap, conditional IFUJump.
+
+### Memory (`include/memory.h`, `src/memory.c`)
+- 4MW main storage, cache 4×64×16, Map (16K entries × 1024-word pages),
+  16-entry Pipe, 32-entry BR (28-bit each).
+- Refs: Fetch / Store / IFetch / PreFetch / LongFetch / IOFetch /
+  IOStore / Map / Flush / DummyRef.
+- Faults: page (vacant), write-protect, map-trouble. FaultInfo register.
+- ProcSRN / ASRN pipe slot allocation.
+- **No Hold semantics** — refs are atomic. Md is delivered immediately.
+  This is a known gap; AEmu's IFU dispatch loop appears to need real
+  Hold to stall properly.
+
+### BaseBoard (`include/baseboard.h`, `src/baseboard.c`)
+- 6502 + 5 RIOT chips at 0x400/0x480/0x500/0x580/0x600.
+- Loads `chm/dorado/doradobaserom.mb!13` as the 64K ROM image.
+- Cold boot through CoolBoot → RebootDorado → LoadDoradoCode →
+  Continuous (steady-state).
+- MCPBus strobes (Control / Clock / ABMux0 / ABMux1 / MIR0..3).
+- AMSync (CPRegH bit 7) wired correctly: ABMux1+SetSS sets, ABMux0
+  clears.
+- MIR injection + SetSS single-step, Run/Halt gate.
+- Analog comparators (in-spec voltage/current) so RebootDorado advances
+  through SuppliesAllUp.
+
+### Slow I/O routing (`include/io.h`, `src/io.c`)
+- Per-(task, TIOA) device callback table. Pd←Input / Pd←InputNoPE /
+  Output←B in cpu.c dispatch through it.
+- Floating-bus default: 0xFFFF + bad-parity flag (matches HM §7
+  page 86 "IOB has bad parity if a nonexistent register is selected").
+
+### Display (`include/display.h`, `src/display.c`)
+- 808×606 mono framebuffer, MSB-leftmost packing.
+- DDC slow-IO catch-all on tasks DHT/AHT/AWT/DWT.
+- State buckets: per-channel NLCB/CLCB (16×12-bit, A and B), HRam
+  (1024×3-bit), Mixer (1024×24-bit), PixelClk, Statics.
+- Per-channel FIFO (256 words) for IOFetch← munch delivery.
+- `dorado_display_render_fifo()` drains FIFO into framebuffer
+  (1-bit-per-pixel, MSB=leftmost).
+- PGM snapshot helper (`dorado_display_snapshot_pgm`).
+
+### Disk (`include/disk.h`, `src/disk.c`)
+- Trident T-80 / T-300 pack format (ContrAlto2/Bitsavers byte layout).
+  Create / load / save / sector access.
+- Drive struct: per-drive online/select state, current cyl/head/sec,
+  seek-in-progress, index-pulse latches.
+- Controller registered on task 14₈, TIOA 10₈-14₈:
+  - DiskControl bit decode (HM page 97).
+  - Format RAM 16×12 with auto-increment + EnableRun on last word.
+  - DiskData 16-word FIFO push/pop.
+  - DiskTag dispatch (HM pages 99-101): Drive Select / Head /
+    Cylinder / Control with Read/Write/ReZero/HeadAdvance.
+  - DiskMuff status readout (KSTATE / KSTAT subset).
+- Synthetic `dorado_disk_controller_advance_sector()` helper for
+  sector-pulse simulation.
+
+### Fast I/O (`include/fastio.h`, `src/fastio.c`)
+- `fast_io_cb` on `dorado_memory` fires on IOFetch / IOStore.
+- `dorado_fastio_dispatch` routes by task: DWT → display FIFO,
+  DSK → disk controller FIFO. Synchronous transport (one munch per
+  ref, no cycle-accurate timing).
+- End-to-end test (`test_fastio.c`):
+  - disk pack → FIFO → IOStore(DSK) → main memory ✅
+  - main memory → IOFetch(DWT) → display FIFO → framebuffer ✅
+
+## What works as a **probe** (informational, not pass/fail)
+
+Probes live in `tests/test_cpu.c::main()`. They run real microcode
+and report what happens. None of them currently boot a complete
+system, but they show how far the model gets:
+
+- **`probe_bootstrap_pure`** — load Bootstrap.MB into IM, no BB, run
+  from BOOTSTRAP. Walks 16 init instructions, hits READBB, enters
+  spin loop waiting for CPReg. With `cpu.cpreg=0x8000` (pre-set
+  AMSync), exits the spin once and proceeds through 0o7746 → 0o7715
+  → 0o7702 → re-enters READBB. Demonstrates the bootstrap loader is
+  executing real microcode.
+- **`probe_initial`** — load Initial.MB + Bootstrap.MB layered, run
+  from INITIAL. Initial's first instruction at 0o7500 globally calls
+  0o7700 (= READBB in Bootstrap region). Both Initial and Bootstrap
+  share IM by design; both depend on the BB CPReg protocol.
+- **`probe_full_boot`** — full BB cold-boot + Boot0 jam + Dorado
+  free-run from IM. The BB's NEWER Boot0 binary (different from
+  Bootstrap.MB) traps at 0o7744 because some hardware-state
+  expectation we haven't traced.
+- **`probe_full_boot_with_bootstrap`** — BB drives Bootstrap.MB
+  (substituted into IM at first IM-fetch) with its real Boot1 byte
+  stream. Bootstrap reaches WRITE000 1793 times. **All writes target
+  0o7744** because RM[3] = 0xFFF3 = ~0x000C. The bit-assembly produces
+  the complement of the BB's intended address. **Open root-cause
+  investigation.**
+- **`probe_aemu`** — layered load Initial + kernel + memMisc +
+  IfuComplex + AEmu, run from STARTEMULATOR. Executes 200K cycles
+  of real Mesa-emulator microcode (STARTEMULATOR → SETUPBRS →
+  DOBRS×12 → IFU dispatch loop). Stuck in LRTYPETABLE/LRTYPEIM
+  loop doing memory fetches that always return 0 — needs Hold
+  semantics or planted Mesa state in memory.
+
+## What's NOT working (the actual bring-up gaps)
+
+Listed in priority order. These are the next concrete tasks.
+
+### 1. AEmu's IFU dispatch loop (probably highest leverage)
+
+`probe_aemu` cycles through 9 instructions (LRTYPETABLE → LRTYPEIM →
+LRNOPREFNEXT → LRLOOPTOFF → TOFFRET) doing memory fetches that
+return 0. The loop is AEmu's startup trying to find a Mesa frame in
+main memory. Two paths to unblock:
+
+- **Plant valid Mesa state.** The structure of the frame, MDS
+  (Memory Descriptor System), context info, etc. would need to be
+  extracted from Mesa documentation. Then the probe pre-loads memory
+  with that state. This requires reading Pilot/Mesa documentation
+  in `chm/dorado/expanded/` to figure out the layout.
+- **Implement Hold semantics.** In our model, Md returns immediately
+  with stored data (0). On real hardware, when microcode references
+  Md before the read completes, the engine *holds*. AEmu's loop
+  uses Hold to wait; without it, the engine plows ahead with stale
+  Md and loops forever. This means our memory subsystem needs a
+  cycle counter and a `pending_md` queue. See HM §5 / Figure 9.
+
+### 2. Bootstrap.MB IMAddress decode (task #58)
+
+`probe_full_boot_with_bootstrap` fires Write IM 1793 times all
+targeting 0o7744. The Bootstrap source is
+`chm/dorado/expanded/BootstrapSources.dm/BootstrapMain.mc`.
+Look for the `Loc_ LSH[T, 10] / T_ LDF[T, 10, 0] / Loc_ (Loc) XOR T`
+sequence near the top — it assembles the IMAddress preamble bytes.
+Our model produces RM[3] = 0xFFF3 = ~0x000C; the BB's intended
+address is 0x000C, so we're storing the complement.
+
+`T_ RWCPReg` returns `~CPReg` per HM page 31 (B←CPReg'). The
+LSH/LDF/XOR is supposed to undo this somewhere. Possibilities:
+
+- Our shifter's LSH/LDF semantics are off in a way that flips bits.
+- The XOR with the second byte should be cancelling out the
+  complement, but isn't.
+- Our model's CPReg value at the moment Bootstrap reads it might
+  be wrong (the BB's preamble byte might not be where we think).
+
+To debug: trace cycle-by-cycle through `probe_full_boot_with_bootstrap`'s
+first 50 IM-fetched cycles and dump T, Loc, and CPReg at each.
+Compare against what the BCPL source does.
+
+### 3. Disk Phase 3: real timing + Fire Code ECC + sequence PROMs
+
+For booting an actual Alto OS, Mesa needs the disk to sequence
+through real read operations (preamble + sync + data + ECC + post-
+amble) per the read PROM (HM page 99). Currently our Read tag
+short-circuits and dumps header+label into the FIFO contiguously.
+
+For a basic boot this might be enough — Mesa probably trusts the
+Format-RAM-determined timing and our short-circuit might satisfy
+its expectations. Try it before implementing the full PROM
+sequencer.
+
+The Fire Code ECC (`P(X) = X³² + X²³ + X²¹ + X¹¹ + X² + 1`)
+might also be skippable for boot (Mesa might accept successful-read
+status without verifying ECC). Implement only if you observe Mesa
+faulting on missing ECC.
+
+### 4. Display Phase 3: pixel clock + waveforms + 7-wire interface
+
+Lower priority unless you're trying to get keyboard/mouse working
+(the back channel is on the 7-wire interface). For pure framebuffer
+output via DWT, Phase 2 is sufficient.
+
+### 5. Hold semantics in memory (touches #1)
+
+If you take path #1 (plant Mesa state) you may not need Hold. If
+you take path B, Hold is essential. See HM §5 for timing.
+
+## Most important pitfalls I hit
+
+In rough order of "hours wasted":
+
+### The ALUFM bit-mapping trap (FIXED, but worth knowing)
+
+The `Pd←ALUFMRW` operation writes a 6-bit ALUFM entry from B per
+HM Table 11d: `ALUFMEM ← B.8, B[11:15]`. The manual's bit
+positions are **MSB-first**; our C uses LSB-first. The mapping
+is **NOT** the obvious one. The correct C code:
+
+```c
+uint8_t alufm =
+    (uint8_t)((((b >> 7) & 1) << 5) |   /* B[8] manual = B_C[7] → entry top (carry) */
+              (((b >> 4) & 1) << 4) |   /* B[11] manual = B_C[4] */
+              (((b >> 3) & 1) << 3) |   /* B[12] manual = B_C[3] */
+              (((b >> 2) & 1) << 2) |   /* B[13] manual = B_C[2] */
+              (((b >> 1) & 1) << 1) |   /* B[14] manual = B_C[1] */
+              (((b >> 0) & 1) << 0));   /* B[15] manual = B_C[0] (op LSB) */
+```
+
+The wrong (mirrored) version is what I had originally. It made
+Bootstrap.MB's runtime ALUFM init silently corrupt the table,
+which made a downstream conditional jump land in a trap slot,
+which made Boot0 appear to be broken when really it was running
+correctly against corrupted state. Test: `test_alufmrw_bit_mapping`
+in `tests/test_cpu.c`.
+
+### CPU_QUADRANT_SIZE (FIXED)
+
+`include/cpu.h` had `CPU_QUADRANT_SIZE = 0o4000` (= 2K). Per HM §4.3,
+a quadrant is 4K-word = the whole IM today. Was 0o10000 (= 4K).
+Wrong size → Global Calls / Long jumps to addresses outside 12-bit
+IM range. Fix unblocked `probe_aemu` from "halts at fictional
+addresses" to "executes real Mesa microcode for 200K cycles."
+
+### B←RWCPReg returns ~CPReg, not CPReg
+
+Per HM page 31: `B←RWCPReg = Link←B, B←CPReg'`. The prime denotes
+inversion. So microcode reading CPReg always sees the complement.
+Our cpu.c does this in both the BB-attached and legacy-stub paths.
+**Several Bootstrap mysteries trace back to this** — when reading
+the source, watch for whether the surrounding code accounts for
+the inversion.
+
+### Stale incremental builds
+
+Make does NOT always pick up changes when `cpu.h` fields are
+added/removed. Symptom: tests fail with bizarre values like
+`cycles=1806855336`. **Always `make clean && make` after touching
+struct definitions.**
+
+### The BB-loaded Boot0 is NOT Bootstrap.MB
+
+`chm/dorado/expanded/bootstrap.dm!20_/Bootstrap.mb` is the source
+form. The BaseBoard EPROM contains a *newer* compiled-and-packed
+version that takes a different code path through the trap
+reservations. They share the entry point (0o7740 = BOOTSTRAP) but
+the bytes differ. Don't conflate the two.
+
+### Octal in C source
+
+C accepts `0` prefix for octal, NOT `0o`. (I keep typing `0o`
+out of habit from Python/Rust.) Use `025` not `0o25`.
+
+### `probe_aemu`'s memory mapping
+
+The probe maps 16 pages identity-RW. AEmu's memory references
+then succeed (no faults) but read 0 (unwritten storage). To make
+AEmu progress, plant data at the addresses it reads from, OR
+implement Hold so the engine stalls instead of looping with stale Md.
+
+## Coding norms
+
+From `CLAUDE.md`:
+- C99, no external libs except the vendored 6502 in `vendor/6502/`.
+- Octal where the manual uses octal. Microinstruction addresses,
+  IM contents, RM values — all octal.
+- Symbol names mirror the manual: RSTK, ALUF, BSEL, LC, ASEL, FF,
+  JCN, BLOCK, IM, IFUM, ALUFM, RM, STK, BR, MemBase, TPC, Pd, Md, Mar.
+- Cite HM section + page numbers in non-obvious code: `// HM §3.7
+  Table 9`. Cite MicroD source when touching .MB format.
+- No emojis in code or docs.
+- **Treat the Hardware Manual as canon.** When sources disagree,
+  prefer the September 1981 Hardware Manual unless deliberately
+  tracking a later revision.
+- **Don't invent behavior.** If a microcode source uses a feature
+  you haven't implemented, find the manual passage describing it
+  before writing code.
+
+## Test patterns
+
+When fixing a bug you found via a probe, write a *focused* test
+that:
+1. Sets up minimal microcode that triggers the bug.
+2. Verifies the corrected behavior.
+3. Goes in the matching `tests/test_*.c` file.
+4. Has a clear PASS/FAIL output.
+
+Examples already in the tree:
+- `test_alufmrw_bit_mapping` — uses 1 microinstruction to exercise
+  the Pd←ALUFMRW mapping.
+- `test_carry_preserved_on_logical` — 3 microinstructions verifying
+  HM page 30 ("Carry' is the result of the last *arithmetic* op").
+- `test_alufm_canonical_decoding` — verifies the standard ALUFM
+  convention is recovered from real .MB files.
+
+This way the bug stays fixed even if someone refactors later.
+
+## CHM (Computer History Museum) archives
+
+The richest archive is at `xeroxparcarchive.computerhistory.org`,
+specifically `_cd8_/dorado/` and `_cd8_/doradosource/`. URL
+convention is in `docs/chm-urls.md`. To grab a source file:
+
+```sh
+curl -sO "https://xeroxparcarchive.computerhistory.org/_cd8_/doradosource/BootstrapSources.dm!12_/BootstrapMain.mc"
+```
+
+Drop the file in `chm/dorado/expanded/<DirName>/` and refer to it
+in code/comments.
+
+The cross-reference is at `chm/cross-reference.html` (568K lines —
+grep it; never paginate it). Maps every PARC IFS file to its
+archive location.
+
+## Active task list
+
+When you start, skim the tasks via `TaskList`. The incomplete ones
+labeled "pending" or "in_progress" are the open work.
+
+Currently active when I left off:
+- **#58 pending:** trace Bootstrap.MB IMAddress decode to fix CPReg
+  protocol. Source code is at `chm/dorado/expanded/BootstrapSources.dm/BootstrapMain.mc`.
+- **#45 in_progress:** verify probe_full_boot reaches Boot1 ACK.
+  Likely needs #58 fixed first.
+- **#46 pending:** Phase 7 slow-IO subsystem. Mostly DONE in
+  practice (slow-IO routing layer + display + disk all wired).
+  Could be marked completed.
+
+## Suggested first action for the next session
+
+If you want a contained, high-leverage task: **trace `probe_aemu`'s
+LRTYPETABLE loop and either plant valid Mesa state OR implement
+Hold semantics** (task #1 above). This is the gate to AEmu actually
+dispatching Alto bytecodes, which is the gate to running an Alto OS
+disk image — the most visible form of "boot success."
+
+Order of operations:
+1. Read AEmu.mb's source (chm/dorado/AEmu.mb!2 disasm) around the
+   stuck loop addresses to understand what state it's reading.
+2. Check `chm/dorado/expanded/` for Mesa source files that document
+   the frame structure (try `MesaSources.dm` or similar).
+3. If Mesa state is too complex to plant, implement Hold: when a
+   Fetch← is in flight, subsequent ←Md reads in the same task block
+   the engine for ~3 cycles. See HM §5.
+
+Good luck. The infrastructure is solid; the remaining work is mostly
+about understanding what real microcode expects rather than building
+new mechanisms.
+
+## Recent commit history (reverse chronological, latest first)
+
+```
+7560889 docs: io-systems-architecture reflects Fast I/O DONE
+50d2d80 Fast I/O transport: Fin/Fout busses for DSK and DWT (HM §8)
+6345f28 docs: refresh display+disk status to Phase 2
+63797e9 Display + Disk Phase 2: Tag decoder + sector reads + FIFO renderer
+292fd24 boot-bringup-plan: document probe_initial + BootstrapSources finding
+2005727 probe_initial: load Initial.MB+Bootstrap.MB layered, run from INITIAL
+bc18f7f probe_full_boot+bootstrap diagnostics: Write IM target tracking
+2606929 boot-bringup-plan: document Phase-1 display+disk status
+840d12e probe_full_boot_with_bootstrap: BB drives Bootstrap.MB via real CPReg stream
+fcf07ef Detailed display + disk architecture references
+a62339f Doc updates: display + disk Phase 1 status
+078b0bd Trident T-80 disk port (HM §9) — Phase 1
+79aa902 Display framebuffer + DDC stub (HM §11) — Phase 1
+5b87de0 Microengine correctness fixes: ALUFM, JCN, RWCPReg
+18bcd3c Slow-I/O routing layer (HM §7)
+```
+
+`git log --oneline -30` for more.
+
+---
+
+When you finish your session, **update this doc** with:
+- Anything new that's working.
+- Any pitfalls you discovered.
+- The new active-task IDs.
+- Updated "Suggested first action."
+
+Keep it short, keep it honest. Don't write aspirational status.
