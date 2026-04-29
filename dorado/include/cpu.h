@@ -241,6 +241,16 @@ typedef struct {
     /* Trace control. */
     int      trace;             /* if nonzero, print each step to trace_fp */
     void    *trace_fp;          /* FILE* (kept opaque to avoid forcing stdio.h) */
+
+    /* Write-IM diagnostic capture (set dbg_writeim_log = 1 to enable). */
+    int      dbg_writeim_log;
+    int      dbg_writeim_n;
+    uint16_t dbg_writeim_addr[32];
+    uint8_t  dbg_writeim_half[32];
+    uint8_t  dbg_writeim_sec[32];
+    uint16_t dbg_writeim_b[32];
+    uint16_t dbg_writeim_t[32];
+    uint16_t dbg_writeim_pc[32];
 } dorado_cpu;
 
 typedef enum {

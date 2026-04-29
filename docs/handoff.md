@@ -15,11 +15,16 @@ you don't repeat them.
   routing + BaseBoard 6502 model are working. Display + Disk + Fast-IO
   transport have Phase-2 stubs that move data end-to-end. The full
   BaseBoard Boot0 path reaches the BB's Continuous loop. The
-  Bootstrap.MB swap probe now loads 896 Initial IM entries, transfers
-  into Initial, and runs until Initial spins at 0o6347. The AEmu
-  bypass probe currently halts early at `PC=0o7777` after the long-
-  branch fix; treat the canonical BB→Bootstrap→Initial path as the
-  higher-value bring-up path for now.
+  Bootstrap.MB swap probe (`probe_full_boot_with_bootstrap`) now uses
+  TWO workarounds — substituting canonical Initial.MB at BOOTSTAGE2
+  (because Bootstrap streaming corrupts data) and bypassing the
+  NOSTORAGE check (because our memory model doesn't report module
+  size). With those, Initial executes ~50 distinct PCs of real boot
+  code (WRITEALUF, RMINITL, IFUMINITL, PRESETMAP, CLRCACHEFCOLL,
+  SETBRFORPAGE, FINDMODULE, DISPLAYINITCONFIG) and then sits in a
+  tight LONGWAIT loop with TIOA=0xC0 polling for some I/O signal we
+  don't model. The AEmu bypass probe currently halts early at
+  `PC=0o7777`.
 - **Repo:** `/Users/alans/Documents/development/Dorado`
 - **Most useful entry points to read:** `CLAUDE.md` (project mission),
   `dorado/CLAUDE.md` (code-side guide), `docs/INDEX.md` (doc map).
@@ -249,30 +254,148 @@ to make it useful again:
   Md and loops forever. This means our memory subsystem needs a
   cycle counter and a `pending_md` queue. See HM §5 / Figure 9.
 
-### 2. Full BB→Bootstrap→Initial path spins at 0o6347
+### 2. Full BB→Bootstrap→Initial path now reaches LONGWAIT (post-bypass workarounds)
 
-`probe_full_boot_with_bootstrap` now gets through Bootstrap and into
-Initial. The remaining blocker is not display rendering yet: the probe
-ends by budget, still running, with `PC=0o6347`, `Task=0`, `TIOA=0`,
-`display outs=0`, `display iofetch=0`, `disk outs=0`, and `disk ins=0`.
-The nearby Initial symbols are `READTERMINALRET`, `TERMINALTABLE`, and
-`SETBOOTFLAG`; decode and trace this loop next.
+**Latest status (2026-04-29):** With the canonical-Initial substitution at BOOTSTAGE2 and the NOSTORAGE bypass (both in `probe_full_boot_with_bootstrap`), Initial runs through a full setup sequence:
 
-Immediate next questions:
+1. INITIAL (0o7500) → READBB for checksum (0o7700) → INITIAL1 (0o7501)
+2. WRITEALUF table init (writes 16 ALUFM entries via WRITEALUFTABLE)
+3. RMINITL (0o6102) — RM/STK init iteration (multiple passes)
+4. IFUMINITL (0o6145) — IFUM init
+5. PRESETMAP / RESETMAPL / WRITEMAP / WAITFORMAPBUF — Map init
+6. CLRCACHEFCOLL — cache flush
+7. SETBRFORPAGE — BR setup
+8. NOSTORAGE test at 0o6210 (`A AND 0xF000 == 0`) → branches to NOSTORAGE
+9. **NOSTORAGE BYPASSED → FINDMODULE (0o6357)** in probe
+10. Initial continues to DISPLAYINITCONFIG, sets TIOA=0xC0
+11. **Stuck:** LONGWAIT loop (PC=0o6116 → 0o6110 → 0o6115 → LONGWAIT(0o6100) → LWRETN → RETN → 0o6116) — 280K iterations
 
-- Is `0o6347` intentionally polling for terminal/boot-key state that
-  should come from BaseBoard, Display terminal-interface, or a keyboard
-  stub?
-- Does this path depend on an Initial parameter block or boot-keys table
-  that the current BB ROM stream did not provide?
-- Is the loop actually caused by branch-condition timing/state (for
-  example an unmodeled condition or stale dispatch bit), rather than a
-  missing device response?
+Hot PCs after bypass:
+- LWRETN (0o6012) × 9.2M
+- 0o6245 / WAITFORMAPBUF (0o6360) ~ 260K each
+- LONGWAIT loop ~ 280K iterations
 
-Start with a short trace around `0o6341`..`0o6357`: PC, next PC, T, RM
-address/value, ALU flags, dispatch_or, and any FF branch-condition
-state. Then compare against the Initial listing around
-`READTERMINALRET` and `SETBOOTFLAG`.
+**Underlying issues, in priority order to fix:**
+
+#### 2a. Bootstrap streaming corrupts data (still unfixed; bypassed via substitution)
+
+Original investigation showed:
+
+**Of the 896 entries Bootstrap writes, only ~94 match the canonical
+Initial.MB. The other ~768 are CORRUPTED.** Specifically the LH writes
+(iw0) frequently land as `0x0044` (a near-default decode of
+`RSTK=00 ALUF=00 BSEL=RM/STK LC=NoLoad ASEL=A←RM/STK`). The RH writes
+(iw1) sometimes land correctly (1 of the 5 dumped addresses matched).
+
+For `IM[0o6347]` specifically:
+- LOADED: `iw0=0o000104 iw1=0o017723 iw2=0o040000` → `JCN=0o247(local)` → self-loop to `0o6347`
+- CANON:  `iw0=0o051164 iw1=0o017723 iw2=0o100000` → `JCN=0o246(local)` → jump to `0o6346` (`READTERMINALRET`)
+
+iw1 happens to match by coincidence. iw0 differs (default-ish vs real
+`RSTK=12 ALUF=11 LC=RM/STK←Pd`), and iw2's `RSTK[0]/JN1bit7` bits are
+flipped. The local-jump target offset becomes `0o247` instead of `0o246`,
+so the instruction self-loops via the corrupt low bit.
+
+Diagnostic capture (in `test_cpu.c`'s probe with
+`cpu.dbg_writeim_log = 1` enabled at swap):
+
+```
+#00 pc=0o7720 addr=0o6100 half=LH sec=0 b=0x0044 T=0x0044
+#01 pc=0o7724 addr=0o6100 half=RH sec=0 b=0xE682 T=0xE682
+#02 pc=0o7722 addr=0o6101 half=LH sec=1 b=0x0044 T=0x0044   ← T=0x0044 again
+#06 pc=0o7720 addr=0o6103 half=LH sec=0 b=0x1286 T=0x1286   ← varied data
+#14 pc=0o7720 addr=0o6107 half=LH sec=0 b=0x5274 T=0x5274   ← canon iw0 of 0o6347!
+```
+
+So canon iw0 of REAL `0o6347` (= `0x5274`) appears in the byte stream
+at WRITE position 7 (= addr `0o6107`), not at position 167 (= addr
+`0o6347`). This rules out "BB streams in real-address order".
+
+Hypotheses for the root cause:
+
+1. **Bootstrap's `LSH[T,10]` + `LDF[T,10,0]` + `T XOR Byte1` T-composition
+   misexecutes** in our cpu.c shifter. The Dorado does this via the
+   barrel shifter and ALUF=`A XOR B`. The right answer would be the
+   16-bit data byte for that real address; we get something off.
+   Investigate by stepping through one full BootByteL iteration and
+   comparing T bit-by-bit against expected.
+2. **The BB ROM Boot1Data is not in real-address-sequential order.**
+   `chm/dorado/expanded/bootstrap.dm!20_/Initial.mb` may not be the
+   same layout the BB ROM has — the BB ROM is a separate build from
+   1987. Disassemble Boot1Data from the BB ROM (C000-D7FF) and decode
+   manually to verify the byte format.
+3. **CPReg-byte ordering between the BB and Bootstrap doesn't match
+   the Type-0/Type-1 packet format described in `BootstrapMain.mc`.**
+   Our BB pushes `ABMux1` (low byte) first, then `ABMux0` (high byte
+   with AMSync). Bootstrap reads `T←~CPReg` once and decodes via
+   `LSH[T,10]/LDF[T,10,0]`. If the CPReg layout has the byte data in
+   a different position than Bootstrap expects, every T composition
+   is shifted/garbled.
+
+The trace shows that the SECOND ReadBB (which provides the dispatch
++ right-half-byte) drives the 3-bit dispatch (`BTemp`) into a
+LH-or-RH selector that does seem to alternate correctly (we get pairs
+of LH+RH writes per address, with `secondary` varying — not stuck at
+sec=0). So the dispatch decode is at least partially right. But
+the data-byte composition into T is wrong in the LH writes.
+
+Easiest debugging approach: capture a focused per-cycle trace of the
+microengine through ONE full BootByteL iteration (from Cnt-test back
+to Cnt-test). Log T before each instruction, the result of LSH[T,10],
+LDF[T,3,10], LDF[T,10,0]. Compare to what Bootstrap.MB intends.
+
+To enable the post-swap Write IM log used to find this:
+```
+cpu.dbg_writeim_log = 0;          // off pre-swap
+// at swap:
+cpu.dbg_writeim_log = 1;
+cpu.dbg_writeim_n = 0;             // reset buffer (256-deep)
+```
+The struct fields are in `include/cpu.h` near the bottom of
+`dorado_cpu`. The Write IM trace in `src/cpu.c` is in the `fn == 7`
+arm of next_pc.
+
+Also note: `probe_initial` (which directly loads Initial.MB without
+streaming) gets stuck differently — INITIAL at 0o7500 does
+`Call[ReadBBLoc=0o7700]`, which spins because no BB is providing
+CPReg data. So even with correct microcode placement, INITIAL itself
+won't run without a working CPReg byte stream from BB.
+
+#### 2b. NOSTORAGE bypassed (workaround; not fixed)
+
+Initial computes a value via shifter ops at 0o6041..0o6277, stores in
+`RM/STK[RBase*16+8]`, then at 0o6210 tests
+`RM/STK[RBase*16+8] AND 0xF000`. If zero, branches to NOSTORAGE
+(0o6247). On our setup it evaluates to zero, so we hit NOSTORAGE.
+
+The probe currently bypasses by jumping `0o6247 → 0o6357 (FINDMODULE)`
+when PC reaches NOSTORAGE.
+
+This test likely encodes "module size detection" — Initial computes
+how much memory exists and checks if any module is present. With our
+memory's BR/Map state at default (no module size data populated), the
+check fails.
+
+**Real fix paths (not yet attempted):**
+1. Initialize `mem->br[]` array with sensible Dorado memory-config
+   values (BR0..BR3 set to first-module configuration).
+2. Investigate what 0o6041 / 0o6277 actually compute — probably a
+   shifter pipeline involving a module-config word that should come
+   from a hardware register we don't model.
+3. Look at HM §5 Module Boundary detection (page 47 area) for how
+   real Dorados report module configuration to microcode.
+
+#### 2c. LONGWAIT busy-wait (current top blocker)
+
+After bypassing NOSTORAGE, Initial calls DISPLAYINITCONFIG and sets
+TIOA=0xC0. It then enters a tight LONGWAIT loop:
+`0o6116 → 0o6110 → 0o6115 → LONGWAIT(0o6100) → LWRETN → RETN → 0o6116`
+running ~280K iterations until the cycle budget expires.
+
+To investigate, decode the instruction at 0o6116 to find what
+condition Initial polls each iteration, and add the missing device
+stub or hardware-state response. TIOA=0xC0 (= 0o300) is in the
+high-TIOA range used by some I/O devices we haven't mapped yet.
 
 ### 3. Disk Phase 3: real timing + Fire Code ECC + sequence PROMs
 
@@ -461,28 +584,53 @@ Currently active when I left off:
 
 ## Suggested first action for the next session
 
-If you want a contained, high-leverage task: **trace and unblock the
-Initial `0o6347` loop** in `probe_full_boot_with_bootstrap`. The
-BB/Bootstrap CPReg stream is now good enough to load Initial and enter
-its early configuration code; display/disk I/O counters are still zero,
-so the loop is before the display controller is exercised.
+The probe currently bypasses two issues (streaming corruption, NOSTORAGE)
+to let Initial run. The CURRENT BLOCKER is the LONGWAIT loop with
+TIOA=0xC0. Recommended order:
 
-Order of operations:
-1. Add a focused trace for `0o6341`..`0o6357`: next PC, T, RM/STK
-   address/value, ALU flags, dispatch state, and FF/JCN class.
-2. Use `build/mbdis -d chm/dorado/expanded/bootstrap.dm!20_/Initial.mb`
-   to decode the `READTERMINALRET` / `SETBOOTFLAG` region and identify
-   what value the loop is polling.
-3. If it is a terminal/boot-key/device wait, add the smallest truthful
-   BaseBoard/display terminal response stub and keep the display/disk
-   counters in the probe summary.
-4. Once Initial reaches display tasks, render the display FIFO to a PGM
-   snapshot and then try an Alto disk image from
-   `AltoInfo/ContrAlto2-beta/Disks/`.
+### Highest-value: decode the LONGWAIT loop and resolve
 
-Good luck. The infrastructure is solid; the remaining work is mostly
-about understanding what real microcode expects rather than building
-new mechanisms.
+1. Run `build/test_cpu` and look at `Initial top-20 hot PCs` — the
+   loop is `0o6116 → 0o6110 → 0o6115 → 0o6100(LONGWAIT) → 0o6012(LWRETN) → 0o6013(RETN) → 0o6116`.
+2. Decode the IM entry at PC `0o6116` (`build/mbdis -d ../chm/dorado/expanded/bootstrap.dm!20_/Initial.mb | grep -A1 "  6116\b"`)
+   to find what condition Initial polls.
+3. Cross-reference TIOA=0xC0 with HM §7 (Slow IO) Table 21 to identify
+   the device. Likely Display Controller status (DDC) or Ethernet.
+4. Add the missing device stub response in `src/io.c` so the wait
+   condition can be satisfied.
+
+### Higher-value: fix NOSTORAGE properly (so we don't bypass)
+
+Currently a hack jumps PC=0o6247 → 0o6357. Real fix:
+
+1. Initialize memory subsystem's BR registers with sensible Dorado
+   module-config values. Look at `dorado_memory_init` in `src/memory.c`
+   and add `mem->br[0..3]` defaults representing one fully-populated
+   16K-page module.
+2. Decode `0o6210`'s exact computation chain (back to 0o6041 and
+   0o6021) to identify which RM/STK register Initial expects to have
+   bits 12-15 set.
+3. Provide the right BR / RM state so Initial computes a non-zero
+   value and passes the test naturally.
+
+### Highest-leverage but hardest: fix Bootstrap streaming
+
+Currently bypassed by substituting canonical Initial.MB at BOOTSTAGE2.
+Real fix would mean we no longer need that workaround.
+
+1. **Verify the BB ROM Boot1Data layout.** Disassemble bytes from
+   `chm/dorado/doradobaserom.mb!13` C000-D7FF range and compare to
+   Initial.mb in real-address order. If they're different builds,
+   all debugging needs the BB ROM as ground truth.
+2. Trace one full BootByteL iteration cycle-by-cycle through Bootstrap's
+   T-composition (ReadBB1 → LSH[T,10] → ReadBB2 → LDF[T,10,0] → XOR Byte1).
+3. Verify our shifter's LSH/LDF outputs match Bootstrap's intent
+   (note: `10` in Mesa source is OCTAL, so `LSH[T,10]` = shift left 8).
+
+Good luck. The infrastructure is solid; current state is "Initial
+runs through canonical setup code with two probe-side workarounds,
+stuck in I/O wait" — concrete next step is identifying the I/O
+device at TIOA=0xC0.
 
 ## Recent commit history (reverse chronological, latest first)
 

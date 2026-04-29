@@ -1986,6 +1986,7 @@ static int probe_full_boot_with_bootstrap(void)
     dorado_cpu_init(&cpu, &mc, 0);
     cpu.baseboard = &bb;
     cpu.baseboard_cycles_per_uop = 1;
+    cpu.dbg_writeim_log = 0;  /* will be enabled at swap to capture only post-swap writes */
 
     static dorado_memory mem;
     static dorado_io io;
@@ -2076,6 +2077,44 @@ static int probe_full_boot_with_bootstrap(void)
     memset(im_was_iw1, 0, sizeof im_was_iw1);
     memset(im_was_iw2, 0, sizeof im_was_iw2);
 
+    /* Pre-load canonical Initial.MB so we can substitute it for
+     * Bootstrap's corrupt streamed IM when execution reaches
+     * BOOTSTAGE2 (= the BranchExternal[InitialLoc] at PC 0o7717).
+     * This bypasses the streaming bug while exercising the rest of
+     * the boot path. See handoff.md for details on the streaming
+     * corruption. */
+    static dorado_microcode init_mc;
+    static mb_file initial_mb_for_init_mc;
+    int initial_canonical_loaded = 0;
+    mb_init(&initial_mb_for_init_mc);
+    if (mb_load(&initial_mb_for_init_mc,
+                "../chm/dorado/expanded/bootstrap.dm!20_/Initial.mb") == MB_OK) {
+        if (dorado_microcode_load(&initial_mb_for_init_mc, &init_mc) == DM_OK) {
+            initial_canonical_loaded = 1;
+        }
+        /* Don't free initial_mb_for_init_mc — init_mc.mb references its
+         * symbol list for symbol lookups. */
+    }
+    int initial_substituted = 0;
+    uint64_t initial_substitute_cycle = 0;
+    int nostorage_bypassed = 0;
+    uint64_t nostorage_bypass_cycle = 0;
+
+    /* Post-substitution PC trail: capture first N distinct PC
+     * transitions after BOOTSTAGE2 substitution, so we can see
+     * what path Initial takes on the way to NOSTORAGE. Also keep
+     * a per-PC count + first-cycle map so we can see what Initial
+     * is iterating on. */
+    uint16_t init_first_trail[400];
+    int init_first_n = 0;
+    int prev_init_pc = -1;
+    static int init_pc_count[4096];
+    static uint64_t init_pc_first_cycle[4096];
+    /* Ring buffer of last K distinct PC transitions before halt. */
+    uint16_t init_last_trail[64];
+    int init_last_head = 0, init_last_total = 0;
+    int prev_last_pc = -1;
+
     while (bb.cycles < T_GIVEUP) {
         /* Boot button schedule. */
         if (!pressed && bb.cycles >= T_PRESS1_DOWN && bb.cycles < T_PRESS1_UP) {
@@ -2136,6 +2175,20 @@ static int probe_full_boot_with_bootstrap(void)
             swap_cycle = bb.cycles;
             bb_pc_at_swap = baseboard_pc(&bb);
             prev_cpreg = bb.cpreg_to_dorado;
+            /* Reset Write IM trace so we only capture Bootstrap's
+             * post-swap Initial-loading writes, not the BB's pre-swap
+             * MIR-jam writes. */
+            cpu.dbg_writeim_log = 1;
+            cpu.dbg_writeim_n = 0;
+            /* WORKAROUND: Bootstrap's streaming path produces
+             * corrupt data (root cause unknown — see handoff.md
+             * §"Full BB→Bootstrap→Initial path spins at 0o6347").
+             * Install Initial.MB at canonical placement now so that
+             * when BOOTSTAGE2 globally-calls INITIAL (0o7500),
+             * Initial executes from CORRECT microcode. The
+             * streaming below will overwrite some entries in
+             * 0o6100..0o7124 with garbage, so we'll need to re-
+             * install at BOOTSTAGE2 entry. */
             /* Snapshot im_present + IM content *now* so we can diff
              * what Bootstrap writes during the run. */
             for (int a = 0; a < 4096; a++) {
@@ -2156,6 +2209,55 @@ static int probe_full_boot_with_bootstrap(void)
                 cp_first_n++;
             }
             prev_cpreg = bb.cpreg_to_dorado;
+        }
+
+        /* WORKAROUND: bypass NOSTORAGE. Initial's storage-detection
+         * test fails because our memory subsystem's BR / Map state
+         * doesn't reflect a fully-configured Dorado. When PC reaches
+         * NOSTORAGE (0o6247), redirect it to FINDMODULE (0o6357) so
+         * Initial proceeds to the "found a module" path. */
+        if (initial_substituted && is_imfetch && cpu.real_PC == 06247
+            && !nostorage_bypassed) {
+            cpu.real_PC = 06357;
+            nostorage_bypassed = 1;
+            nostorage_bypass_cycle = bb.cycles;
+        }
+
+        /* When Bootstrap reaches BOOTSTAGE2 (0o7717), it is about
+         * to globally-call INITIAL (0o7500). At this point Bootstrap
+         * has finished streaming. Substitute canonical Initial.MB
+         * over the corrupt streamed IM so INITIAL executes from
+         * correct microcode. Keep Bootstrap.MB at 0o7700-0o7777
+         * intact so READBB still works for Initial's checksum read. */
+        if (initial_canonical_loaded && !initial_substituted &&
+            swapped && is_imfetch && cpu.real_PC == 07717) {
+            for (int a = 0; a < 4096; a++) {
+                if (init_mc.im_present[a]) {
+                    /* Don't overwrite Bootstrap.MB at 0o7700-0o7777. */
+                    if (a >= 07700 && a < 010000) continue;
+                    mc.im[a]         = init_mc.im[a];
+                    mc.im_present[a] = 1;
+                }
+            }
+            /* Also restore IFUM and ALUFM from Initial. ALUFM
+             * specifically: Bootstrap may have left ALUFM[14]=NOT B
+             * if its runtime init didn't fire correctly; Initial's
+             * canonical ALUFM has the right convention. */
+            for (int a = 0; a < 1024; a++) {
+                if (init_mc.ifum_present[a]) {
+                    mc.ifum_lo[a]      = init_mc.ifum_lo[a];
+                    mc.ifum_hi[a]      = init_mc.ifum_hi[a];
+                    mc.ifum_present[a] = 1;
+                }
+            }
+            for (int a = 0; a < 16; a++) {
+                if (init_mc.alufm_present[a]) {
+                    mc.alufm[a]         = init_mc.alufm[a];
+                    mc.alufm_present[a] = 1;
+                }
+            }
+            initial_substituted = 1;
+            initial_substitute_cycle = bb.cycles;
         }
 
         /* Capture pre-step PC + Link for trail / Write-IM tracking
@@ -2193,6 +2295,27 @@ static int probe_full_boot_with_bootstrap(void)
             bs_last_trail[bs_last_head] = pre_pc;
             bs_last_head = (bs_last_head + 1) % 64;
             bs_last_total++;
+        }
+        /* After substitution, capture distinct-PC trail through 0o6247
+         * (NOSTORAGE) so we can see how Initial reaches there. */
+        if (initial_substituted && is_imfetch) {
+            if (init_first_n < 400 && (int)pre_pc != prev_init_pc) {
+                init_first_trail[init_first_n++] = pre_pc;
+                prev_init_pc = (int)pre_pc;
+            }
+            if (pre_pc < 4096) {
+                if (init_pc_count[pre_pc] == 0) {
+                    init_pc_first_cycle[pre_pc] = bb.cycles;
+                }
+                init_pc_count[pre_pc]++;
+            }
+            /* Ring buffer of last 64 distinct PCs. */
+            if ((int)pre_pc != prev_last_pc) {
+                init_last_trail[init_last_head] = pre_pc;
+                init_last_head = (init_last_head + 1) % 64;
+                init_last_total++;
+                prev_last_pc = (int)pre_pc;
+            }
         }
         if (log_to_trail && is_wim) {
             uint16_t target = pre_link & 0xFFF;
@@ -2292,6 +2415,70 @@ static int probe_full_boot_with_bootstrap(void)
         }
         printf("\n");
     }
+    printf("       Initial.MB substituted at BOOTSTAGE2: %s",
+           initial_substituted ? "yes" : "NO");
+    if (initial_substituted) {
+        printf(" (cycle=%llu)",
+               (unsigned long long)initial_substitute_cycle);
+    }
+    printf("\n");
+    if (nostorage_bypassed) {
+        printf("       NOSTORAGE bypassed → FINDMODULE at cycle %llu\n",
+               (unsigned long long)nostorage_bypass_cycle);
+    }
+    if (init_first_n > 0) {
+        printf("       Initial PC trail (first %d distinct PCs after substitution):\n        ",
+               init_first_n);
+        for (int i = 0; i < init_first_n; i++) {
+            const char *sym =
+                dorado_microcode_symbol_at_real(&init_mc, init_first_trail[i]);
+            printf(" 0o%o%s%s%s", init_first_trail[i],
+                   sym ? "(" : "", sym ? sym : "", sym ? ")" : "");
+            if ((i & 7) == 7) printf("\n        ");
+        }
+        printf("\n");
+    }
+    if (init_last_total > 0) {
+        printf("       Initial last 64 distinct PCs:\n        ");
+        int last_n = init_last_total < 64 ? init_last_total : 64;
+        int last_first = init_last_total < 64 ? 0 : init_last_head;
+        for (int i = 0; i < last_n; i++) {
+            int idx = (last_first + i) % 64;
+            const char *sym = dorado_microcode_symbol_at_real(&init_mc,
+                                                              init_last_trail[idx]);
+            printf(" 0o%o%s%s%s", init_last_trail[idx],
+                   sym ? "(" : "", sym ? sym : "", sym ? ")" : "");
+            if ((i & 7) == 7) printf("\n        ");
+        }
+        printf("\n");
+    }
+    /* Top hot PCs by count after substitution. */
+    if (initial_substituted) {
+        struct hot_pc { int pc; int count; uint64_t first; };
+        struct hot_pc hot[20];
+        for (int i = 0; i < 20; i++) { hot[i].pc = -1; hot[i].count = 0; }
+        for (int a = 0; a < 4096; a++) {
+            if (init_pc_count[a] == 0) continue;
+            for (int s = 0; s < 20; s++) {
+                if (init_pc_count[a] > hot[s].count) {
+                    for (int t = 19; t > s; t--) hot[t] = hot[t-1];
+                    hot[s].pc = a;
+                    hot[s].count = init_pc_count[a];
+                    hot[s].first = init_pc_first_cycle[a];
+                    break;
+                }
+            }
+        }
+        printf("       Initial top-20 hot PCs (after substitution):\n");
+        for (int i = 0; i < 20 && hot[i].pc >= 0; i++) {
+            const char *sym = dorado_microcode_symbol_at_real(&init_mc,
+                                                              hot[i].pc);
+            printf("         0o%-5o ×%-7d first@%llu%s%s%s\n",
+                   hot[i].pc, hot[i].count,
+                   (unsigned long long)hot[i].first,
+                   sym ? " (" : "", sym ? sym : "", sym ? ")" : "");
+        }
+    }
     printf("       Dorado final state: PC=0o%o, T=0x%04X, Q=0x%04X, "
            "Link=0x%04X\n",
            cpu.real_PC, cpu.T, cpu.Q, cpu.Link);
@@ -2309,6 +2496,77 @@ static int probe_full_boot_with_bootstrap(void)
     printf("       RM[0..15]:");
     for (int r = 0; r < 16; r++) printf(" [%d]=0x%04X", r, cpu.RM[r]);
     printf("\n");
+
+    /* Dump first 32 Write IM operations to identify where T comes from. */
+    if (cpu.dbg_writeim_n > 0) {
+        printf("       Write IM ops (first %d):\n", cpu.dbg_writeim_n);
+        for (int i = 0; i < cpu.dbg_writeim_n; i++) {
+            printf("         #%02d pc=0o%o addr=0o%o half=%s sec=%d b=0x%04X T=0x%04X\n",
+                   i, cpu.dbg_writeim_pc[i], cpu.dbg_writeim_addr[i],
+                   cpu.dbg_writeim_half[i] ? "LH" : "RH",
+                   cpu.dbg_writeim_sec[i],
+                   cpu.dbg_writeim_b[i], cpu.dbg_writeim_t[i]);
+        }
+    }
+
+    /* Dump IM near 0o6347 (the stuck region) to verify Bootstrap wrote
+     * the expected unshuffled content. Compare with bs_mc loaded
+     * directly from Initial.MB. */
+    {
+        mb_file initial_mb;
+        mb_init(&initial_mb);
+        if (mb_load(&initial_mb,
+                    "../chm/dorado/expanded/bootstrap.dm!20_/Initial.mb") == MB_OK) {
+            static dorado_microcode dump_mc;
+            if (dorado_microcode_load(&initial_mb, &dump_mc) == DM_OK) {
+                printf("       IM dump near 0o6347 (loaded vs canonical Initial.mb):\n");
+                int probe_addrs[] = {06340, 06344, 06345, 06346, 06347, 06440, 06460, 06465};
+                int n_addrs = (int)(sizeof probe_addrs / sizeof probe_addrs[0]);
+                for (int i = 0; i < n_addrs; i++) {
+                    int a = probe_addrs[i];
+                    const dorado_uinstr *L = &mc.im[a];
+                    const dorado_uinstr *C = &dump_mc.im[a];
+                    int match = (L->iw0 == C->iw0 && L->iw1 == C->iw1 &&
+                                 L->iw2 == C->iw2);
+                    printf("         [0o%o] L: iw0=0o%06o iw1=0o%06o iw2=0o%06o "
+                           "C: iw0=0o%06o iw1=0o%06o iw2=0o%06o %s\n",
+                           a, L->iw0, L->iw1, L->iw2,
+                           C->iw0, C->iw1, C->iw2,
+                           match ? "MATCH" : "DIFFER");
+                    char dis[256];
+                    dorado_format(L, dis, sizeof dis);
+                    printf("              loaded: %s\n", dis);
+                    dorado_format(C, dis, sizeof dis);
+                    printf("              canon:  %s\n", dis);
+                }
+                /* Check overall placement: how many entries match between
+                 * loaded and canonical? */
+                int total_match = 0, total_diff = 0;
+                int total_canon = 0, total_loaded = 0;
+                int first_diff_in_init = -1;
+                for (int a = 0; a < 4096; a++) {
+                    if (dump_mc.im_present[a]) total_canon++;
+                    if (mc.im_present[a])      total_loaded++;
+                    if (dump_mc.im_present[a] && mc.im_present[a]) {
+                        if (dump_mc.im[a].iw0 == mc.im[a].iw0 &&
+                            dump_mc.im[a].iw1 == mc.im[a].iw1 &&
+                            dump_mc.im[a].iw2 == mc.im[a].iw2) {
+                            total_match++;
+                        } else {
+                            total_diff++;
+                            if (first_diff_in_init < 0) first_diff_in_init = a;
+                        }
+                    }
+                }
+                printf("       IM placement vs canonical Initial.mb: "
+                       "canonical=%d, loaded=%d, both-present-match=%d, "
+                       "both-present-differ=%d, first diff=0o%o\n",
+                       total_canon, total_loaded, total_match, total_diff,
+                       first_diff_in_init >= 0 ? first_diff_in_init : 0);
+            }
+            mb_free(&initial_mb);
+        }
+    }
 
     /* First trail (entry flow). */
     printf("       Bootstrap first PCs:");

@@ -1831,6 +1831,16 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                 int half_lh   = (u->rstk & 1);         /* RSTK[3] manual */
                 int secondary = (u->rstk >> 1) & 1;    /* RSTK[2] manual */
 
+                if (cpu->dbg_writeim_log && cpu->dbg_writeim_n < 32) {
+                    cpu->dbg_writeim_addr[cpu->dbg_writeim_n] = addr;
+                    cpu->dbg_writeim_half[cpu->dbg_writeim_n] = (uint8_t)half_lh;
+                    cpu->dbg_writeim_sec[cpu->dbg_writeim_n]  = (uint8_t)secondary;
+                    cpu->dbg_writeim_b[cpu->dbg_writeim_n]    = b;
+                    cpu->dbg_writeim_t[cpu->dbg_writeim_n]    = cpu->T;
+                    cpu->dbg_writeim_pc[cpu->dbg_writeim_n]   = cpu->real_PC;
+                    cpu->dbg_writeim_n++;
+                }
+
                 if (half_lh) {
                     dst->iw0 = b;
                     /* iw2 bit 15 = manual RSTK[0] of destination. */
