@@ -1145,6 +1145,13 @@ static int probe_aemu(void)
 
     int real_start = mc.image_present[0] ? mc.image_to_real[0] : 0;
 
+    /* Diagnostic: dump ALUFM contents. */
+    printf("       ALUFM:");
+    for (int a = 0; a < 16; a++) {
+        if (mc.alufm_present[a]) printf(" [%d]=0o%o", a, mc.alufm[a]);
+    }
+    printf("\n");
+
     /* Stand up memory + a code page so the IFU can fetch bytecode
      * (even though we don't have any planted; we just want to see
      * how AEmu's initialization runs before it tries to dispatch). */
@@ -1163,22 +1170,20 @@ static int probe_aemu(void)
     dorado_cpu_init(&cpu, &mc, (uint16_t)real_start);
     cpu.mem = &mem;
 
-    /* Step manually. Record PC trail (first 32 unique-ish PCs) +
-     * detect self-loops. Bump max cycles since we're running real
-     * microcode now. */
-    uint16_t trail[64];
-    int      trail_n = 0;
+    /* Step manually. Record PC trail (last N PCs in a ring) + detect
+     * self-loops. Bump max cycles since we're running real microcode. */
+    #define TRAIL_SIZE 256
+    uint16_t trail[TRAIL_SIZE];
+    int      trail_head = 0, trail_total = 0;
     cpu_halt_reason r = CPU_HALT_NONE;
     int loop_pc = -1, loop_count = 0;
     int max_cycles = 200000;
     for (int i = 0; i < max_cycles; i++) {
-        if (trail_n < 32) {
-            trail[trail_n++] = cpu.real_PC;
-        }
-        /* Self-loop detection: if we've been at the same PC for 100
-         * cycles, stop early. */
+        trail[trail_head] = cpu.real_PC;
+        trail_head = (trail_head + 1) % TRAIL_SIZE;
+        trail_total++;
         if ((int)cpu.real_PC == loop_pc) {
-            if (++loop_count > 100) break;
+            if (++loop_count > 200) break;
         } else {
             loop_pc = (int)cpu.real_PC;
             loop_count = 0;
@@ -1188,6 +1193,10 @@ static int probe_aemu(void)
             break;
         }
     }
+    int trail_n = trail_total < TRAIL_SIZE ? trail_total : TRAIL_SIZE;
+    int trail_first = trail_total < TRAIL_SIZE
+                      ? 0
+                      : trail_head;
 
     const char *sym       = dorado_microcode_symbol_at_real(&mc, cpu.real_PC);
     const char *entry_sym = dorado_microcode_symbol_at_real(&mc, real_start);
@@ -1198,26 +1207,38 @@ static int probe_aemu(void)
            cpu.cycles, cpu_halt_reason_str(r),
            cpu.real_PC,
            sym ? " sym=" : "", sym ? sym : "");
-    /* Print the trail of PCs the engine walked through. */
-    printf("       PC trail:");
-    for (int i = 0; i < trail_n && i < 24; i++) {
-        const char *s = dorado_microcode_symbol_at_real(&mc, trail[i]);
-        if (s) printf(" 0o%o(%s)", trail[i], s);
-        else   printf(" 0o%o", trail[i]);
+    /* Print PC trail with run-length compression (collapse repeats). */
+    printf("       trail:");
+    int prev_pc = -1, prev_count = 0;
+    for (int i = 0; i < trail_n; i++) {
+        int idx = (trail_first + i) % TRAIL_SIZE;
+        if ((int)trail[idx] == prev_pc) {
+            prev_count++;
+            continue;
+        }
+        if (prev_count > 1) printf("×%d", prev_count);
+        const char *s = dorado_microcode_symbol_at_real(&mc, trail[idx]);
+        if (s) printf(" 0o%o(%s)", trail[idx], s);
+        else   printf(" 0o%o", trail[idx]);
+        prev_pc = trail[idx];
+        prev_count = 1;
     }
+    if (prev_count > 1) printf("×%d", prev_count);
     printf("\n");
 
-    /* Disassemble the last few instructions in the trail to see the
-     * code path that led to the halt. */
-    int start = trail_n - 4 < 0 ? 0 : trail_n - 4;
-    for (int i = start; i < trail_n; i++) {
-        if (trail[i] >= 4096 || !mc.im_present[trail[i]]) continue;
+    /* Disassemble the last 4 instructions to see the halt context. */
+    int dis_start = trail_n - 4 < 0 ? 0 : trail_n - 4;
+    for (int i = dis_start; i < trail_n; i++) {
+        int idx = (trail_first + i) % TRAIL_SIZE;
+        uint16_t pc = trail[idx];
+        if (pc >= 4096 || !mc.im_present[pc]) continue;
         char dis[128];
-        dorado_format(&mc.im[trail[i]], dis, sizeof dis);
-        const char *s = dorado_microcode_symbol_at_real(&mc, trail[i]);
-        printf("       IM[0o%o]%s%s: %s\n", trail[i],
+        dorado_format(&mc.im[pc], dis, sizeof dis);
+        const char *s = dorado_microcode_symbol_at_real(&mc, pc);
+        printf("       IM[0o%o]%s%s: %s\n", pc,
                s ? " = " : "", s ? s : "", dis);
     }
+    #undef TRAIL_SIZE
 
     if (cpu.halt_reason == CPU_HALT_UNSUPPORTED_ASEL ||
         cpu.halt_reason == CPU_HALT_UNSUPPORTED_BSEL ||
