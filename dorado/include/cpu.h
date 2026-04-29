@@ -101,6 +101,17 @@ typedef struct {
      * address per HM Table 14). */
     uint8_t  ifu_warmup;
 
+    /* Reschedule countdown (HM Table 20).
+     * `Reschedule` FF function sets reschedule_pending = 2: the
+     *   second OR third successful IFUJump traps to *14-17.
+     * `RescheduleNow` FF sets reschedule_pending = 1: the next
+     *   successful IFUJump traps.
+     * `NoReschedule` clears it. Decrements on each successful
+     * (non-trapping) IFUJump; when it counts down to 1, that
+     * IFUJump traps. Also sets the IOAtten'/Reschedule branch
+     * condition true for the emulator (task 0). */
+    uint8_t  reschedule_pending;
+
     /* Operand bytes captured at IFUJump time (for ←Id delivery). */
     uint8_t  ifu_alpha;
     uint8_t  ifu_beta;

@@ -475,8 +475,12 @@ example, are 14-17, 114-117, 214-217, and 314-317").
   back from the cache/Map.
 - **IFU data parity (*4-7)** — TBD (no parity model yet).
 - **IFUM parity (*74-77)** — TBD (no parity model yet).
-- **Reschedule (*14-17)** — TBD (Reschedule FF function not yet
-  fully wired).
+- **Reschedule (*14-17)** ✓ — `Reschedule` FF (FA=1 FB=3 FC=2)
+  arms a flipflop with count=2 (next-or-following IFUJump traps).
+  `RescheduleNow` (FA=1 FB=0 FC=3) arms with count=1 (next IFUJump
+  traps). `NoReschedule` (FA=1 FB=3 FC=3) clears it. The IOAtten'/
+  Reschedule branch condition (cond=6) reads true when count >= 2
+  for the emulator (per HM Table 20).
 
 Tests in `tests/test_cpu.c`:
 - `test_ifu_dispatch_synthetic` — INC×4 + HALT bytecode dispatch
@@ -484,6 +488,7 @@ Tests in `tests/test_cpu.c`:
 - `test_ifu_conditional_cond_true` — cond=true PCF-hold path
 - `test_ifu_notready_trap` — *34-37 trap with InsSet OR'd
 - `test_ifu_map_fault_trap` — *0-3 trap on Vacant page
+- `test_reschedule_trap` — *14-17 trap from RescheduleNow FF
 
 ### C.4 Operand delivery (←Id)  ✓ MINIMAL LANDED
 

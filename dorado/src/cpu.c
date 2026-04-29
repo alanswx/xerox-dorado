@@ -583,7 +583,12 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                 return pd;
             case 1: /* IFUTest ← B */              return pd;
             case 2: /* IFUTick */                  return pd;
-            case 3: /* RescheduleNow */            return pd;
+            case 3: /* RescheduleNow (HM Table 20). Trap the next
+                     * successful IFUJump (so long as it appears in
+                     * the second cycle after RescheduleNow or later).
+                     * The Reschedule branch condition is NOT affected. */
+                cpu->reschedule_pending = 1;
+                return pd;
             case 4: /* AckJunkTW ← B */            return pd;
             case 5: /* MemBase ← B[3:7] */
                 cpu->MemBase = (b >> 8) & 0x1F;    return pd;
@@ -626,8 +631,13 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                 }
                 return pd;
             case 1: /* EventCntB ← B */            return pd;
-            case 2: /* Reschedule */               return pd;
-            case 3: /* NoReschedule */             return pd;
+            case 2: /* Reschedule (HM Table 20). Cause a reschedule
+                     * trap on the second OR third successful IFUJump. */
+                cpu->reschedule_pending = 2;
+                return pd;
+            case 3: /* NoReschedule. Clear the pending Reschedule. */
+                cpu->reschedule_pending = 0;
+                return pd;
             case 4: /* IFUMRH ← B (low part of IFUM entry).
                      * Writes 16 bits: Packed-α←B.5, IFaddr'←B[6:15],
                      * etc. We store the raw word; field decode happens
@@ -1253,7 +1263,14 @@ static int eval_branch_condition(dorado_cpu *cpu,
          * For now: emulator always returns 1 (no reschedule); other
          * tasks check their wakeup_pending bit. */
         if (cpu->ctask == 0) {
-            r = 1;   /* TBD: wire actual Reschedule flipflop */
+            /* Emulator: Reschedule branch condition. True (= r=0
+             * after inversion to active-low) if the Reschedule
+             * flipflop is set. HM Table 20: "Also set the
+             * Reschedule branch condition (emulator only) to true."
+             * Per HM, RescheduleNow does NOT affect this branch
+             * condition, only the trap. So we report true only if
+             * pending was set by Reschedule (count=2 at issue). */
+            r = (cpu->reschedule_pending >= 2) ? 0 : 1;
         } else {
             uint16_t mask = (uint16_t)(1u << cpu->ctask);
             r = (cpu->wakeup_pending & mask) ? 0 : 1;
@@ -1505,6 +1522,18 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                 return 0;
             }
 
+            /* Reschedule trap (HM Table 20). Fires on a successful
+             * IFUJump (past NotReady) — even before the IFUM lookup
+             * is examined. */
+            if (cpu->reschedule_pending > 0) {
+                cpu->reschedule_pending--;
+                if (cpu->reschedule_pending == 0) {
+                    *next = ifu_trap_addr(0014, n_slot, cpu->ifu_insset);
+                    cpu->Link = (uint16_t)(cpu->real_PC + 1);
+                    return 0;
+                }
+            }
+
             /* Conditional IFUJump (HM page 33): if an FF-encoded
              * branch condition is true in the same instruction as
              * IFUJump, IFU advance is disabled and the dispatch
@@ -1607,6 +1636,7 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
              * routing to entry n|1 of the vector. */
             int n_eff = n_slot | (cond_true ? 1 : 0);
             uint16_t tnia = (uint16_t)((ifaddr << 2) | n_eff);
+
             *next = (uint16_t)(tnia & 0xFFF);
             /* IFUJump always loads Link with CIA+1 (HM page 33). */
             cpu->Link = (uint16_t)(cpu->real_PC + 1);

@@ -881,6 +881,84 @@ static int test_ifu_conditional_cond_true(void)
 }
 
 /*
+ * Reschedule trap (HM Table 20). The `Reschedule` FF function arms
+ * a flipflop; the second-or-third successful IFUJump after that
+ * traps to *14-17 (with InsSet OR'd into bits 6:7 like the other
+ * IFU traps). This is how the OS schedules a reschedule check
+ * without immediately interrupting the current opcode.
+ *
+ * `RescheduleNow` arms the flipflop with count=1 — the very next
+ * successful IFUJump traps. Used by the kernel for higher-priority
+ * preemption.
+ */
+static int test_reschedule_trap(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;
+
+    /* IM[0]: PCF←B (B=T=0), warmup=5. */
+    mc.im[0] = make_uinstr(0, 0, 2, 0, 6, 0, /*ff=*/0100, jcn_local(1));
+    mc.im_present[0] = 1;
+    /* IM[1]: RescheduleNow. FA=1 FB=0 FC=3 → FF=0o103. BSEL=2 (T)
+     * for B != constant so FF acts as a function. */
+    mc.im[1] = make_uinstr(0, 0, /*bsel=*/2, /*lc=*/0, /*asel=*/6, 0,
+                           /*ff=*/0103, jcn_local(2));
+    mc.im_present[1] = 1;
+    /* IM[2..6]: NOPs to clear warmup (need 5 cycles total after PCF). */
+    for (int i = 2; i <= 6; i++) {
+        mc.im[i] = make_uinstr(0, 0, 2, 0, 6, 0, 0, jcn_local(i + 1));
+        mc.im_present[i] = 1;
+    }
+    /* IM[7]: IFUJump[1]. JCN=0x2F. Should TRAP to Reschedule
+     * vector (*14-17 with InsSet=0 → 0o314..0o317). With n=1 → 0o315. */
+    mc.im[7] = make_uinstr(0, 0, 2, 0, 6, 0, 0, /*jcn=*/0x2F);
+    mc.im_present[7] = 1;
+    /* Plant Reschedule trap entries at 0o314..0o317 — self-loops. */
+    for (int n = 0; n < 4; n++) {
+        mc.im[0314 + n] = make_uinstr(0, 0, 2, 0, 6, 0, 0,
+                                      jcn_local(0314 + n));
+        mc.im_present[0314 + n] = 1;
+    }
+    /* NotReady trap retries (since we IFUJump while still warming). */
+    for (int n = 0; n < 4; n++) {
+        uint8_t jcn_ifu_n = (uint8_t)(0x27 | (n << 3));
+        mc.im[0334 + n] = make_uinstr(0, 0, 2, 0, 6, 0, 0, jcn_ifu_n);
+        mc.im_present[0334 + n] = 1;
+    }
+
+    int present_addrs[] = {0,1,2,3,4,5,6,7,
+                           0314,0315,0316,0317,
+                           0334,0335,0336,0337};
+    for (size_t i = 0; i < sizeof present_addrs / sizeof present_addrs[0]; i++) {
+        mc.image_to_real[i] = present_addrs[i];
+        mc.image_present[i] = 1;
+    }
+    mc.n_instructions = sizeof present_addrs / sizeof present_addrs[0];
+
+    static dorado_memory mem;
+    EXPECT(dorado_memory_init(&mem) == 0, "mem init");
+    /* Mount page 0 RW so IFU fetches don't fault. */
+    dorado_map_set(&mem, 0, /*rp=*/0, /*wp=*/0, /*dirty=*/0);
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.mem = &mem;
+
+    /* Run until we land at the trap vector or budget exhausts. */
+    for (int i = 0; i < 80; i++) {
+        if (dorado_cpu_step(&cpu) != 0) break;
+    }
+
+    EXPECT(cpu.real_PC == 0315,
+           "expected Reschedule trap at 0o315, got 0o%o", cpu.real_PC);
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_reschedule_trap (PC=0o%o)\n", cpu.real_PC);
+    return 0;
+}
+
+/*
  * LdTPC←B / RdTPC←B — HM page 34, JCN encoding fn=5/4 in the
  * return-class group. Used by emulator/fault microcode to set up
  * other tasks' entry points.
@@ -2590,6 +2668,7 @@ int main(void)
     rc |= test_ifu_notready_trap();
     rc |= test_ifu_map_fault_trap();
     rc |= test_ldtpc_rdtpc();
+    rc |= test_reschedule_trap();
     rc |= probe_bootstrap();
     rc |= probe_aemu();
     rc |= probe_full_boot();
