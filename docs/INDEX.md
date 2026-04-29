@@ -169,6 +169,7 @@ Example queries:
 |---|---|
 | `boot-bringup-plan.md` | Phased plan from "Boot0 free-runs from IM" (current state) to "Mesa boots Pilot from disk." Phases A–F, with HM section refs and exit criteria. Update when phases land. |
 | `memory-architecture.md` | Reference for the Map/cache/Pipe/BR design. Read before implementing Phase B. |
+| `io-systems-architecture.md` | Reference for Slow I/O, Fast I/O, the task scheduler/Wakeup-Block-Next protocol, plus the Disk, Display, and Ethernet controllers. Read before implementing Phase 7. |
 | `jcn-encoding.md` | The JCN field's 7-way encoding split (local / global / long / conditional / return / IFU jump). Distilled from HM §4.3 + Figure 6. |
 
 ## Suggested reading order for a new contributor
