@@ -359,6 +359,14 @@ static inline int ff_fa(uint8_t ff) { return (ff >> 6) & 3; }
 static inline int ff_fb(uint8_t ff) { return (ff >> 3) & 7; }
 static inline int ff_fc(uint8_t ff) { return ff & 7; }
 
+static int ff_loads_link(const dorado_uinstr *u)
+{
+    int fa = ff_fa(u->ff), fb = ff_fb(u->ff), fc = ff_fc(u->ff);
+    if (fa != 1) return 0;
+    return (fb == 4 && fc == 7) ||   /* Link ← B */
+           (fb == 7 && fc == 6);     /* B ← RWCPReg = Link ← B */
+}
+
 /*
  * Many FF values specify an *external* B source (Pipe, Link, CPReg,
  * etc.) that overrides the BSEL primary source. Returns 1 if FF
@@ -462,7 +470,13 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
              * relies on CPReg=0x8000 (with bit 15 set) to break out
              * of READBB's wait-for-AMSync loop. */
             if (cpu->baseboard) {
-                *b = (uint16_t)~baseboard_dorado_read_cpreg(cpu->baseboard);
+                uint16_t v = baseboard_dorado_read_cpreg(cpu->baseboard);
+                if (cpu->baseboard->dorado_running &&
+                    !cpu->baseboard->dorado_ss_pending) {
+                    *b = v;
+                } else {
+                    *b = (uint16_t)~v;
+                }
             } else {
                 *b = (uint16_t)~cpu->cpreg;
             }
@@ -600,8 +614,12 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
         }
         if (fb == 7) {
             switch (fc) {
-            case 0: /* BigBDispatch ← B */         return pd;  /* IFU TBD */
-            case 1: /* BDispatch ← B */            return pd;
+            case 0: /* BigBDispatch ← B */
+                cpu->dispatch_pending = b & 0xFF;
+                return pd;
+            case 1: /* BDispatch ← B */
+                cpu->dispatch_pending = b & 0x7;
+                return pd;
             case 2: /* Multiply */                 return pd;  /* TBD */
             case 3: /* Q ← B */
                 cpu->Q = b;
@@ -1018,8 +1036,14 @@ static uint16_t shifter_output(const dorado_cpu *cpu, const dorado_uinstr *u)
 
     if (u->bsel & 4) {
         /* FF-controlled — high bit of BSEL set. */
-        sha = (u->bsel & 2) ? t : r;
-        shb = (u->bsel & 1) ? t : r;
+        if (u->bsel == 4 && u->aluf == 4 && u->ff == 1) {
+            /* MicroD's LDF[T,...] immediate-shift form uses BSEL=4. */
+            sha = t;
+            shb = t;
+        } else {
+            sha = (u->bsel & 2) ? t : r;
+            shb = (u->bsel & 1) ? t : r;
+        }
         count   = u->ff & 0xF;          /* FF[4:7] */
         rmask_n = u->ff & 0xF;          /* FF[4:7] */
         lmask_n = (u->ff >> 4) & 0xF;   /* FF[0:3] */
@@ -1059,9 +1083,7 @@ static uint16_t shifter_output(const dorado_cpu *cpu, const dorado_uinstr *u)
     default: mask = 0; with_md = 0; break;
     }
 
-    /* Md substitution: we don't model memory yet — Md = 0 stub. When
-     * memory lands this becomes (with_md ? cpu->Md : 0). */
-    uint16_t fill = with_md ? 0 : 0;
+    uint16_t fill = (with_md && cpu->mem) ? cpu->mem->md : 0;
     return (uint16_t)((lo16 & ~mask) | (fill & mask));
 }
 
@@ -1109,8 +1131,28 @@ static dorado_ref_kind decode_ref_kind(const dorado_uinstr *u, int io_task)
         case 3: return DM_REF_FETCH;
         }
         break;
+    case 2:
+        (void)ff01;
+        (void)io_task;
+        return DM_REF_STORE;
+    case 3:
+        (void)ff01;
+        (void)io_task;
+        return DM_REF_FETCH;
     }
     return DM_REF_NONE;
+}
+
+static uint16_t alt_mem_source(dorado_cpu *cpu, const dorado_uinstr *u)
+{
+    int ff01 = (u->ff >> 6) & 3;     /* FF[0:1]: Md, Id, Q, T */
+    switch (ff01) {
+    case 0: return cpu->mem ? cpu->mem->md : 0;
+    case 1: return ifu_consume_id(cpu);
+    case 2: return cpu->Q;
+    case 3: return cpu->T;
+    }
+    return 0;
 }
 
 /* Compute A bus value (HM Table 8a/8b). */
@@ -1282,17 +1324,25 @@ static int apply_lc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t pd)
     case 1: /* T←Pd */
         cpu->T = pd;
         break;
-    case 2: /* T←Md, RM/STK←Pd — Md not implemented */
+    case 2: /* T←Md, RM/STK←Pd */
+    {
+        uint16_t md = cpu->mem ? cpu->mem->md : 0;
         if (!has_rm) return CPU_HALT_UNSUPPORTED_ASEL;
         rm_stk_write(cpu, rm_a, pd);
-        /* T←Md skipped; will be handled when memory lands */
+        cpu->T = md;
         break;
-    case 3: /* T←Md — not implemented */
-        return CPU_HALT_UNSUPPORTED_ASEL;
-    case 4: /* RM/STK←Md — not implemented */
-        return CPU_HALT_UNSUPPORTED_ASEL;
-    case 5: /* T←Pd, RM/STK←Md — partial: write T only for now */
+    }
+    case 3: /* T←Md */
+        cpu->T = cpu->mem ? cpu->mem->md : 0;
+        break;
+    case 4: /* RM/STK←Md */
+        if (!has_rm) return CPU_HALT_UNSUPPORTED_ASEL;
+        rm_stk_write(cpu, rm_a, cpu->mem ? cpu->mem->md : 0);
+        break;
+    case 5: /* T←Pd, RM/STK←Md */
         cpu->T = pd;
+        if (!has_rm) return CPU_HALT_UNSUPPORTED_ASEL;
+        rm_stk_write(cpu, rm_a, cpu->mem ? cpu->mem->md : 0);
         break;
     case 6: /* RM/STK←Pd */
         if (!has_rm) return CPU_HALT_UNSUPPORTED_ASEL;
@@ -1552,8 +1602,9 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
         if (top2 == 2) {
             /* Local Jump/Call. */
             uint16_t page = cpu->real_PC & ~(uint16_t)(CPU_PAGE_SIZE - 1);
-            *next = (uint16_t)((page | page_addr) | ff_cond_or);
-            if ((page_addr & 0xF) == 0) {            /* TNIA[12:15] = 0 → Call */
+            *next = (uint16_t)((page | page_addr) |
+                               ff_cond_or | cpu->dispatch_or);
+            if ((page_addr & 0xF) == 0 && !ff_loads_link(u)) { /* TNIA[12:15] = 0 → Call */
                 cpu->Link = (uint16_t)(cpu->real_PC + 1);
             }
             return 0;
@@ -1561,8 +1612,8 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
         /* Global Call: low 6 bits forced 0, so TNIA[12:15] always 0. */
         uint16_t quadrant = cpu->real_PC & ~(uint16_t)(CPU_QUADRANT_SIZE - 1);
         *next = (uint16_t)((quadrant | (uint16_t)(page_addr * CPU_PAGE_SIZE))
-                           | ff_cond_or);
-        cpu->Link = (uint16_t)(cpu->real_PC + 1);
+                           | ff_cond_or | cpu->dispatch_or);
+        if (!ff_loads_link(u)) cpu->Link = (uint16_t)(cpu->real_PC + 1);
         return 0;
     }
 
@@ -1574,8 +1625,8 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
          * TNIA[12:15] = JCN[4:7] = (jcn & 0xF). */
         uint16_t quadrant = cpu->real_PC & ~(uint16_t)(CPU_QUADRANT_SIZE - 1);
         uint16_t addr12   = (uint16_t)(((jcn & 0xF) << 8) | u->ff);
-        *next = quadrant | addr12;
-        if ((jcn & 0xF) == 0) {
+        *next = (uint16_t)(quadrant | addr12 | cpu->dispatch_or);
+        if ((jcn & 0xF) == 0 && !ff_loads_link(u)) {
             cpu->Link = (uint16_t)(cpu->real_PC + 1);
         }
         return 0;
@@ -1600,7 +1651,7 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
              * fills. Link is loaded with CIA+1 as for any IFUJump. */
             if (cpu->ifu_warmup > 0) {
                 *next = ifu_trap_addr(0034, n_slot, cpu->ifu_insset);
-                cpu->Link = (uint16_t)(cpu->real_PC + 1);
+                if (!ff_loads_link(u)) cpu->Link = (uint16_t)(cpu->real_PC + 1);
                 return 0;
             }
 
@@ -1611,7 +1662,7 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                 cpu->reschedule_pending--;
                 if (cpu->reschedule_pending == 0) {
                     *next = ifu_trap_addr(0014, n_slot, cpu->ifu_insset);
-                    cpu->Link = (uint16_t)(cpu->real_PC + 1);
+                    if (!ff_loads_link(u)) cpu->Link = (uint16_t)(cpu->real_PC + 1);
                     return 0;
                 }
             }
@@ -1640,7 +1691,7 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
             uint8_t opcode   = ifu_fetch_byte(cpu, cpu->ifu_pcf, &fetch_faulted);
             if (fetch_faulted) {
                 *next = ifu_trap_addr(0000, n_slot, cpu->ifu_insset);
-                cpu->Link = (uint16_t)(cpu->real_PC + 1);
+                if (!ff_loads_link(u)) cpu->Link = (uint16_t)(cpu->real_PC + 1);
                 return 0;
             }
 
@@ -1781,10 +1832,14 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                     dst->iw2 = (uint16_t)((dst->iw2 & ~0x8000u) |
                                           ((uint16_t)secondary << 15));
                 } else {
-                    dst->iw1 = b;
-                    /* iw2 bit 14 = manual JCN[7] of destination. */
+                    /* The right half is 17 bits wide. RSTK[2] supplies
+                     * destination BLOCK; B carries iw1[14:0] followed by
+                     * JCN[7] in its low bit (the same display form used
+                     * in listings and BB boot streams). */
+                    dst->iw1 = (uint16_t)(((uint16_t)secondary << 15) |
+                                          ((b >> 1) & 0x7FFFu));
                     dst->iw2 = (uint16_t)((dst->iw2 & ~0x4000u) |
-                                          ((uint16_t)secondary << 14));
+                                          ((b & 1u) << 14));
                 }
                 dorado_redecode_fields(dst);
                 mc_w->im_present[addr] = 1;
@@ -1857,11 +1912,11 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
     uint16_t page_low  = (jcn >> 3) & 3;          /* JCN[3:4] */
     uint16_t offset    = (uint16_t)((page_high << 4) | (page_low << 1) | cond_value);
     uint16_t page      = cpu->real_PC & ~(uint16_t)(CPU_PAGE_SIZE - 1);
-    *next = page | offset;
+    *next = (uint16_t)(page | offset | cpu->dispatch_or);
     /* Call vs Jump on conditional: it's a Call iff TNIA[12:15] = 0
      * before R is OR'd, i.e. when JCN[3:4] = 0. We stash CIA+1 in
      * Link in that case (per HM Figure 6 / §4.5). */
-    if (page_low == 0) {
+    if (page_low == 0 && !ff_loads_link(u)) {
         cpu->Link = (uint16_t)(cpu->real_PC + 1);
     }
     return 0;
@@ -1947,6 +2002,8 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
      * consumer sees the *old* value while the new value lands for the
      * next instruction. We model this by capturing the entry value. */
     cpu->link_at_issue = cpu->Link;
+    cpu->dispatch_or = cpu->dispatch_pending;
+    cpu->dispatch_pending = 0;
 
     /* B and A buses. FF may override B (Pipe / Link / CPReg / …). */
     uint16_t b = 0, a = 0;
@@ -2025,10 +2082,12 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
             if (cpu->ctask != 0) {
                 membase |= (uint8_t)((cpu->task_subtask[cpu->ctask] & 3) << 1);
             }
+            uint16_t mar = (u->asel <= 1) ? a : alt_mem_source(cpu, u);
+            uint16_t data = (u->asel == 2) ? mar : b;
             uint32_t br = dorado_br_get(cpu->mem, membase);
-            uint32_t va = (br + a) & 0x0FFFFFFFu;
+            uint32_t va = (br + mar) & 0x0FFFFFFFu;
             int subtask = (int)(cpu->task_subtask[cpu->ctask] & 3);
-            (void)dorado_memory_ref_task(cpu->mem, kind, va, b, cpu->TIOA,
+            (void)dorado_memory_ref_task(cpu->mem, kind, va, data, cpu->TIOA,
                                          (int)cpu->ctask, subtask);
         }
     }

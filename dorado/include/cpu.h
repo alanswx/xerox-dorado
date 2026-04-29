@@ -64,6 +64,8 @@ typedef struct {
                                  * same-instruction Link←B (e.g.,
                                  * B←RWCPReg) doesn't clobber the
                                  * value the consumer needs. */
+    uint16_t dispatch_or;        /* active one-cycle TNIA dispatch OR */
+    uint16_t dispatch_pending;   /* dispatch OR value for next uinstr */
     uint16_t TPC;               /* task PC (saved on switch) */
     uint16_t TIOA;              /* 8-bit I/O address (Slow IO) */
 

@@ -13,9 +13,11 @@ you don't repeat them.
   framebuffer.
 - **Status:** Microengine + memory subsystem + IFU + tasking + slow-IO
   routing + BaseBoard 6502 model are working. Display + Disk + Fast-IO
-  transport have Phase-2 stubs that move data end-to-end. Real Mesa
-  microcode (AEmu) executes 200K cycles before stalling in IFU
-  dispatch.
+  transport have Phase-2 stubs that move data end-to-end. The full
+  BaseBoard Boot0 path now reaches the BB's Continuous loop. The
+  Bootstrap.MB swap probe starts writing Initial microcode into IM, but
+  still stops after the first hunk. Real Mesa microcode (AEmu) executes
+  200K cycles before stalling in IFU dispatch.
 - **Repo:** `/Users/alans/Documents/development/Dorado`
 - **Most useful entry points to read:** `CLAUDE.md` (project mission),
   `dorado/CLAUDE.md` (code-side guide), `docs/INDEX.md` (doc map).
@@ -32,6 +34,7 @@ make clean     # nuke build/
 C99, no external deps. The `vendor/6502/` dir contains a 6502
 emulator (used for the BaseBoard model). `build/mbdis`, `build/mctrace`,
 `build/bbtrace` are diagnostic CLIs; the rest are test binaries.
+Last verified: `make test` passed on 2026-04-29.
 
 If a test fails after a partial change, **always `make clean &&
 make`** before debugging. Stale `build/test_cpu.o` linked against an
@@ -97,6 +100,10 @@ These all compile clean and pass:
 - Full JCN: Local Jump/Call, Global Call, Long Jump/Call, Conditional
   (cond 0..6 + Overflow), Subroutine Return, IFU Jump.
 - Shifter (ShC- and FF-controlled, all four mask ops).
+- Alt-source memory refs (`Store←{Md,Id,Q,T}` /
+  `Fetch←{Md,Id,Q,T}`) and LC `Md` destinations (`T←Md`,
+  `RM/STK←Md`) are wired. A focused regression covers
+  `Fetch←T + RM/STK←Md`.
 - FF dispatcher: large subset (TaskingOff/On, Wakeup[task], B←Pipe0..5,
   Pd←ALUFMRW, IFUMLH/RH, PCF←B, IFUReset, BrkIns, etc.).
 - Tasking: 16 priority-scheduled tasks, T/TPC/MemBase/Link replicated,
@@ -185,15 +192,22 @@ system, but they show how far the model gets:
   0o7700 (= READBB in Bootstrap region). Both Initial and Bootstrap
   share IM by design; both depend on the BB CPReg protocol.
 - **`probe_full_boot`** — full BB cold-boot + Boot0 jam + Dorado
-  free-run from IM. The BB's NEWER Boot0 binary (different from
-  Bootstrap.MB) traps at 0o7744 because some hardware-state
-  expectation we haven't traced.
+  free-run from IM. This now reaches `LoadDoradoCode` and the BB's
+  `Continuous` loop. The run logged 475 injected Boot0 instructions,
+  about 13.3M IM-fetched Dorado cycles, and 64 IM entries written
+  starting at 0o7700. The important fixes were correct Write IM
+  right-half layout, one-cycle dispatch OR, explicit Link-write
+  precedence, and a narrow shifter-source fix for Bootstrap's
+  `LDF[T,3,10]` form.
 - **`probe_full_boot_with_bootstrap`** — BB drives Bootstrap.MB
   (substituted into IM at first IM-fetch) with its real Boot1 byte
-  stream. Bootstrap reaches WRITE000 1793 times. **All writes target
-  0o7744** because RM[3] = 0xFFF3 = ~0x000C. The bit-assembly produces
-  the complement of the BB's intended address. **Open root-cause
-  investigation.**
+  stream. This is much better than before: Bootstrap swaps in, takes
+  637 IM-fetched cycles, receives 38 CPReg strobes, fires Write IM 8
+  times, and writes distinct Initial targets 0o6100..0o6104. It then
+  exits/falls through after the first hunk with Dorado PC=0 instead of
+  loading the complete Initial image. **Open root-cause investigation:
+  count/decrement/termination handling or CPReg/BaseBoard stream
+  handoff after the first hunk.**
 - **`probe_aemu`** — layered load Initial + kernel + memMisc +
   IfuComplex + AEmu, run from STARTEMULATOR. Executes 200K cycles
   of real Mesa-emulator microcode (STARTEMULATOR → SETUPBRS →
@@ -209,8 +223,10 @@ Listed in priority order. These are the next concrete tasks.
 
 `probe_aemu` cycles through 9 instructions (LRTYPETABLE → LRTYPEIM →
 LRNOPREFNEXT → LRLOOPTOFF → TOFFRET) doing memory fetches that
-return 0. The loop is AEmu's startup trying to find a Mesa frame in
-main memory. Two paths to unblock:
+return 0. Alt-source `Fetch←T` and LC `Md` writes now execute, so this
+is no longer caused by those instructions being skipped. The remaining
+problem is that the bypass probe has blank main-memory tables that real
+Initial would have loaded. Two paths to unblock:
 
 - **Plant valid Mesa state.** The structure of the frame, MDS
   (Memory Descriptor System), context info, etc. would need to be
@@ -224,28 +240,24 @@ main memory. Two paths to unblock:
   Md and loops forever. This means our memory subsystem needs a
   cycle counter and a `pending_md` queue. See HM §5 / Figure 9.
 
-### 2. Bootstrap.MB IMAddress decode (task #58)
+### 2. Bootstrap.MB exits after first Initial hunk
 
-`probe_full_boot_with_bootstrap` fires Write IM 1793 times all
-targeting 0o7744. The Bootstrap source is
+`probe_full_boot_with_bootstrap` no longer collapses Write IM targets
+to 0o7744. With the current model, the first hunk writes distinct
+targets 0o6100, 0o6101, 0o6102, 0o6103, and 0o6104, then Dorado falls
+through to PC=0 while the BB is at PC=0xFCAF. The Bootstrap source is
 `chm/dorado/expanded/BootstrapSources.dm/BootstrapMain.mc`.
-Look for the `Loc_ LSH[T, 10] / T_ LDF[T, 10, 0] / Loc_ (Loc) XOR T`
-sequence near the top — it assembles the IMAddress preamble bytes.
-Our model produces RM[3] = 0xFFF3 = ~0x000C; the BB's intended
-address is 0x000C, so we're storing the complement.
 
-`T_ RWCPReg` returns `~CPReg` per HM page 31 (B←CPReg'). The
-LSH/LDF/XOR is supposed to undo this somewhere. Possibilities:
+The next root-cause candidates:
 
-- Our shifter's LSH/LDF semantics are off in a way that flips bits.
-- The XOR with the second byte should be cancelling out the
-  complement, but isn't.
-- Our model's CPReg value at the moment Bootstrap reads it might
-  be wrong (the BB's preamble byte might not be where we think).
+- Hunk count or decrement/termination handling around `Cnt=0&-1`.
+- CPReg/BaseBoard stream handoff after the first hunk.
+- A remaining shifter-source or field-extraction case beyond the
+  current narrow `LDF[T,3,10]` fix.
 
-To debug: trace cycle-by-cycle through `probe_full_boot_with_bootstrap`'s
-first 50 IM-fetched cycles and dump T, Loc, and CPReg at each.
-Compare against what the BCPL source does.
+To debug: trace the tail of the first hunk in
+`probe_full_boot_with_bootstrap`, especially Cnt, Tag, Loc, Link, and
+BB PC/CPReg transitions around the final write to 0o6104.
 
 ### 3. Disk Phase 3: real timing + Fire Code ECC + sequence PROMs
 
@@ -311,14 +323,20 @@ Wrong size → Global Calls / Long jumps to addresses outside 12-bit
 IM range. Fix unblocked `probe_aemu` from "halts at fictional
 addresses" to "executes real Mesa microcode for 200K cycles."
 
-### B←RWCPReg returns ~CPReg, not CPReg
+### B←RWCPReg normally returns ~CPReg, with a current boot-path caveat
 
 Per HM page 31: `B←RWCPReg = Link←B, B←CPReg'`. The prime denotes
 inversion. So microcode reading CPReg always sees the complement.
-Our cpu.c does this in both the BB-attached and legacy-stub paths.
-**Several Bootstrap mysteries trace back to this** — when reading
-the source, watch for whether the surrounding code accounts for
-the inversion.
+The current cpu.c still does this for the legacy-stub path and while
+the BaseBoard is single-stepping/IRTable setup. During Dorado
+free-run, it currently exposes the raw BB CPReg stream; that is a
+pragmatic boot bring-up compromise that lets Bootstrap receive the
+BB stream correctly, but it should be rechecked against the hardware
+manual once the first-hunk exit is understood.
+
+**Several Bootstrap mysteries trace back to this** — when reading the
+source, watch for whether the surrounding code accounts for the
+inversion.
 
 ### Stale incremental builds
 
@@ -407,30 +425,34 @@ When you start, skim the tasks via `TaskList`. The incomplete ones
 labeled "pending" or "in_progress" are the open work.
 
 Currently active when I left off:
-- **#58 pending:** trace Bootstrap.MB IMAddress decode to fix CPReg
-  protocol. Source code is at `chm/dorado/expanded/BootstrapSources.dm/BootstrapMain.mc`.
-- **#45 in_progress:** verify probe_full_boot reaches Boot1 ACK.
-  Likely needs #58 fixed first.
+- **#58 in_progress:** Bootstrap.MB now decodes/write-targets the first
+  Initial hunk correctly, but exits after 8 half-writes. Source code is
+  at `chm/dorado/expanded/BootstrapSources.dm/BootstrapMain.mc`.
+- **#45 in_progress:** `probe_full_boot` reaches `LoadDoradoCode` and
+  the BB `Continuous` loop. Next confirmation is complete
+  Bootstrap→Initial loading.
 - **#46 pending:** Phase 7 slow-IO subsystem. Mostly DONE in
   practice (slow-IO routing layer + display + disk all wired).
   Could be marked completed.
 
 ## Suggested first action for the next session
 
-If you want a contained, high-leverage task: **trace `probe_aemu`'s
-LRTYPETABLE loop and either plant valid Mesa state OR implement
-Hold semantics** (task #1 above). This is the gate to AEmu actually
-dispatching Alto bytecodes, which is the gate to running an Alto OS
-disk image — the most visible form of "boot success."
+If you want a contained, high-leverage task: **fix the real
+BB→Bootstrap→Initial path where Bootstrap stops after the first Initial
+hunk**. The CPReg/address decode is no longer the main blocker; the
+loader writes distinct IM targets 0o6100..0o6104 before falling through.
+This path is more canonical than the AEmu bypass because the bypass
+lacks the main-memory tables Initial normally loads.
 
 Order of operations:
-1. Read AEmu.mb's source (chm/dorado/AEmu.mb!2 disasm) around the
-   stuck loop addresses to understand what state it's reading.
-2. Check `chm/dorado/expanded/` for Mesa source files that document
-   the frame structure (try `MesaSources.dm` or similar).
-3. If Mesa state is too complex to plant, implement Hold: when a
-   Fetch← is in flight, subsequent ←Md reads in the same task block
-   the engine for ~3 cycles. See HM §5.
+1. Trace `probe_full_boot_with_bootstrap` from the write to 0o6104
+   through the fall-through to PC=0. Dump Cnt, Tag, Loc, Link, and BB
+   PC/CPReg transitions.
+2. Compare that control flow with `BootstrapMain.mc` around the hunk
+   loop and `Cnt=0&-1` termination path.
+3. Once Bootstrap loads the complete Initial image, wire the
+   disk/display controllers into the full boot probe and try an Alto
+   disk image from `AltoInfo/ContrAlto2-beta/Disks/`.
 
 Good luck. The infrastructure is solid; the remaining work is mostly
 about understanding what real microcode expects rather than building

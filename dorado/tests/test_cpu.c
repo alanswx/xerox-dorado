@@ -1971,6 +1971,24 @@ static int probe_full_boot_with_bootstrap(void)
     int      wim_target_count[4096];
     memset(wim_target_count, 0, sizeof wim_target_count);
 
+    struct readbb_trace {
+        uint64_t cycle;
+        uint16_t pc;
+        uint16_t raw;
+        uint16_t b_seen;
+        uint16_t t_before, t_after;
+        uint16_t tag_before, tag_after;
+        uint16_t loc_before, loc_after;
+        uint16_t link_before, link_after;
+        uint16_t next_pc;
+    };
+    struct readbb_trace rb_trace[48];
+    int rb_trace_n = 0;
+    uint16_t cp_first[32];
+    uint64_t cp_first_cycle[32];
+    uint16_t cp_first_bbpc[32];
+    int cp_first_n = 0;
+
     /* Snapshot of im_present + IM content at swap time, so we can
      * diff afterward and see which addresses Bootstrap actually
      * wrote. */
@@ -2056,6 +2074,12 @@ static int probe_full_boot_with_bootstrap(void)
         /* Detect CPReg strobes from BB after the swap. */
         if (swapped && bb.cpreg_to_dorado != prev_cpreg) {
             cpreg_strobes++;
+            if (cp_first_n < 32) {
+                cp_first[cp_first_n] = bb.cpreg_to_dorado;
+                cp_first_cycle[cp_first_n] = bb.cycles;
+                cp_first_bbpc[cp_first_n] = baseboard_pc(&bb);
+                cp_first_n++;
+            }
             prev_cpreg = bb.cpreg_to_dorado;
         }
 
@@ -2063,7 +2087,20 @@ static int probe_full_boot_with_bootstrap(void)
          * (only for IM fetches after the swap). */
         uint16_t pre_pc = cpu.real_PC;
         uint16_t pre_link = cpu.Link;
+        uint16_t pre_raw = bb.cpreg_to_dorado;
+        uint16_t pre_t = cpu.T;
+        uint16_t pre_tag = cpu.RM[4];
+        uint16_t pre_loc = cpu.RM[3];
         int log_to_trail = (swapped && is_imfetch);
+        int is_readbb_probe = (log_to_trail &&
+                               (pre_pc == 07746 || pre_pc == 07715 ||
+                                pre_pc == 07702 || pre_pc == 07703 ||
+                                pre_pc == 07705 || pre_pc == 07706 ||
+                                pre_pc == 07707 || pre_pc == 07711 ||
+                                pre_pc == 07712 || pre_pc == 07713 ||
+                                pre_pc == 07743 || pre_pc == 07751 ||
+                                pre_pc == 07752 || pre_pc == 07753 ||
+                                pre_pc == 07755 || pre_pc == 07757));
         /* Bootstrap.MB Write IM PCs: 0o7720, 0o7722, 0o7724, 0o7726,
          * 0o7730, 0o7732, 0o7734, 0o7736 (= WRITE000..WRITE111). */
         int is_wim = (pre_pc >= 07720 && pre_pc <= 07736 &&
@@ -2088,6 +2125,22 @@ static int probe_full_boot_with_bootstrap(void)
             wim_last[wim_last_head] = target;
             wim_last_head = (wim_last_head + 1) % 32;
             wim_last_total++;
+        }
+        if (is_readbb_probe && rb_trace_n < 48) {
+            rb_trace[rb_trace_n].cycle = bb.cycles;
+            rb_trace[rb_trace_n].pc = pre_pc;
+            rb_trace[rb_trace_n].raw = pre_raw;
+            rb_trace[rb_trace_n].b_seen = (uint16_t)~pre_raw;
+            rb_trace[rb_trace_n].t_before = pre_t;
+            rb_trace[rb_trace_n].t_after = cpu.T;
+            rb_trace[rb_trace_n].tag_before = pre_tag;
+            rb_trace[rb_trace_n].tag_after = cpu.RM[4];
+            rb_trace[rb_trace_n].loc_before = pre_loc;
+            rb_trace[rb_trace_n].loc_after = cpu.RM[3];
+            rb_trace[rb_trace_n].link_before = pre_link;
+            rb_trace[rb_trace_n].link_after = cpu.Link;
+            rb_trace[rb_trace_n].next_pc = cpu.real_PC;
+            rb_trace_n++;
         }
 
         /* (im_present scan moved to post-loop — much cheaper) */
@@ -2154,6 +2207,15 @@ static int probe_full_boot_with_bootstrap(void)
            min_changed, max_changed > 0 ? max_changed : 0);
     printf("       cpreg strobes from BB after swap: %d (final cpreg=0x%04X)\n",
            cpreg_strobes, bb.cpreg_to_dorado);
+    if (cp_first_n > 0) {
+        printf("       First CPReg changes after swap:");
+        for (int i = 0; i < cp_first_n; i++) {
+            printf(" [%llu pc=0x%04X raw=0x%04X seen=0x%04X]",
+                   (unsigned long long)cp_first_cycle[i],
+                   cp_first_bbpc[i], cp_first[i], (uint16_t)~cp_first[i]);
+        }
+        printf("\n");
+    }
     printf("       Dorado final state: PC=0o%o, T=0x%04X, Q=0x%04X, "
            "Link=0x%04X\n",
            cpu.real_PC, cpu.T, cpu.Q, cpu.Link);
@@ -2251,6 +2313,21 @@ static int probe_full_boot_with_bootstrap(void)
             printf(" 0o%o(×%d)", wim_top_pc[i], wim_top_count[i]);
         }
         printf("\n");
+    }
+    if (rb_trace_n > 0) {
+        printf("       ReadBB trace:\n");
+        for (int i = 0; i < rb_trace_n; i++) {
+            printf("         cyc=%llu pc=0o%o raw=0x%04X seen=0x%04X "
+                   "T %04X->%04X Tag %04X->%04X Loc %04X->%04X "
+                   "Link %04X->%04X next=0o%o\n",
+                   (unsigned long long)rb_trace[i].cycle,
+                   rb_trace[i].pc, rb_trace[i].raw, rb_trace[i].b_seen,
+                   rb_trace[i].t_before, rb_trace[i].t_after,
+                   rb_trace[i].tag_before, rb_trace[i].tag_after,
+                   rb_trace[i].loc_before, rb_trace[i].loc_after,
+                   rb_trace[i].link_before, rb_trace[i].link_after,
+                   rb_trace[i].next_pc);
+        }
     }
 
     mb_free(&bs_mb);
@@ -2521,7 +2598,9 @@ static int test_write_im(void)
                "case %d: IM[0x%03X] not marked present", i, addr);
     }
 
-    /* LH writes land in iw0; RH writes land in iw1. */
+    /* LH writes land directly in iw0. RH writes use the 17-bit right
+     * half display form: RSTK[2] becomes BLOCK, B[15:1] becomes
+     * iw1[14:0], and B[0] becomes JCN[7]. */
     EXPECT(mc.im[0x200].iw0 == 0x00AA,
            "LH/sec0: iw0 = 0x%04X, want 0x00AA", mc.im[0x200].iw0);
     EXPECT((mc.im[0x200].iw2 & 0x8000) == 0,
@@ -2531,14 +2610,14 @@ static int test_write_im(void)
     EXPECT((mc.im[0x201].iw2 & 0x8000) != 0,
            "LH/sec1: iw2[15] should be 1");
 
-    EXPECT(mc.im[0x202].iw1 == 0x00AA,
-           "RH/sec0: iw1 = 0x%04X, want 0x00AA", mc.im[0x202].iw1);
+    EXPECT(mc.im[0x202].iw1 == 0x0055,
+           "RH/sec0: iw1 = 0x%04X, want 0x0055", mc.im[0x202].iw1);
     EXPECT((mc.im[0x202].iw2 & 0x4000) == 0,
            "RH/sec0: iw2[14] should be 0");
-    EXPECT(mc.im[0x203].iw1 == 0x00AA,
-           "RH/sec1: iw1 = 0x%04X, want 0x00AA", mc.im[0x203].iw1);
-    EXPECT((mc.im[0x203].iw2 & 0x4000) != 0,
-           "RH/sec1: iw2[14] should be 1");
+    EXPECT(mc.im[0x203].iw1 == 0x8055,
+           "RH/sec1: iw1 = 0x%04X, want 0x8055", mc.im[0x203].iw1);
+    EXPECT((mc.im[0x203].iw2 & 0x4000) == 0,
+           "RH/sec1: iw2[14] should be 0");
 
     /* The decoded fields should reflect the new iw0/iw1/iw2. For
      * iw0=0x00AA: ASEL=iw0[2:0]=2, LC=iw0[5:3]=5, BSEL=iw0[8:6]=2,
@@ -2825,6 +2904,47 @@ static int test_cpu_memory_roundtrip(void)
 
     dorado_memory_free(&mem);
     printf("PASS  test_cpu_memory_roundtrip (Store→Fetch→T←Md)\n");
+    return 0;
+}
+
+static int test_alt_fetch_t_lc_md(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;   /* "B" */
+
+    /* ASEL=3 + FF[0:1]=3 is Fetch←T. LC=4 writes the fetched Md
+     * directly into RM/STK. This is the path used by AEmu's
+     * LRTYPEIM/LRLOOP loader. */
+    mc.im[0] = make_uinstr(/*rstk=*/1, /*aluf=*/0, /*bsel=*/2, /*lc=*/4,
+                           /*asel=*/3, /*block=*/0, /*ff=*/0300,
+                           /*jcn=*/jcn_local(1));
+    mc.im_present[0] = 1;
+    mc.im[1] = make_uinstr(0, 0, 4, 0, 4, 0, 0, jcn_local(1));
+    mc.im_present[1] = 1;
+    for (int i = 0; i < 2; i++) {
+        mc.image_to_real[i] = i;
+        mc.image_present[i] = 1;
+    }
+    mc.n_instructions = 2;
+
+    static dorado_memory mem;
+    EXPECT(dorado_memory_init(&mem) == 0, "memory init");
+    dorado_map_set(&mem, /*va_page=*/0, /*rp=*/0, /*wp=*/0, /*dirty=*/0);
+    mem.storage[0x42] = 0xBEEF;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.mem = &mem;
+    cpu.T = 0x42;
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "Fetch←T/RM←Md step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(mem.md == 0xBEEF, "Md = 0x%04X, expected 0xBEEF", mem.md);
+    EXPECT(cpu.RM[1] == 0xBEEF, "RM[1] = 0x%04X, expected 0xBEEF", cpu.RM[1]);
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_alt_fetch_t_lc_md (Fetch←T + RM/STK←Md)\n");
     return 0;
 }
 
@@ -3927,6 +4047,7 @@ int main(void)
     rc |= test_stk_overflow();
     rc |= test_stk_underflow_check();
     rc |= test_cpu_memory_roundtrip();
+    rc |= test_alt_fetch_t_lc_md();
     rc |= test_cpu_fault_info_visible();
     rc |= test_bc_timing_previous_instr();
     rc |= test_freezebc();
