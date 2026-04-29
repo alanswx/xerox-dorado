@@ -585,7 +585,21 @@ static int probe_aemu(void)
     dorado_cpu_init(&cpu, &mc, (uint16_t)real_start);
     cpu.mem = &mem;
 
-    cpu_halt_reason r = dorado_cpu_run(&cpu, 50000);
+    /* Step manually so we can record each PC + symbol the engine
+     * passed through. Useful for pinpointing where AEmu jumped to
+     * 0o6000 from. */
+    uint16_t trail[64];
+    int      trail_n = 0;
+    cpu_halt_reason r = CPU_HALT_NONE;
+    for (int i = 0; i < 50000; i++) {
+        if (trail_n < (int)(sizeof trail / sizeof trail[0])) {
+            trail[trail_n++] = cpu.real_PC;
+        }
+        if (dorado_cpu_step(&cpu) != 0) {
+            r = (cpu_halt_reason)cpu.halt_reason;
+            break;
+        }
+    }
 
     const char *sym       = dorado_microcode_symbol_at_real(&mc, cpu.real_PC);
     const char *entry_sym = dorado_microcode_symbol_at_real(&mc, real_start);
@@ -595,21 +609,14 @@ static int probe_aemu(void)
            cpu.cycles, cpu_halt_reason_str(r),
            cpu.real_PC,
            sym ? " sym=" : "", sym ? sym : "");
-    /* For NO_CODE: scan a few addresses around real_PC for the
-     * nearest labeled instruction so we know roughly where AEmu
-     * is in its initialization. */
-    if (cpu.halt_reason == CPU_HALT_NO_CODE) {
-        for (int delta = -8; delta <= 8 && delta != 0; delta++) {
-            int probe_addr = (int)cpu.real_PC + delta;
-            if (probe_addr < 0 || probe_addr >= 4096) continue;
-            const char *near = dorado_microcode_symbol_at_real(&mc, probe_addr);
-            if (near) {
-                printf("       nearest sym: 0o%o = %s (delta %+d)\n",
-                       probe_addr, near, delta);
-                break;
-            }
-        }
+    /* Print the trail of PCs the engine walked through. */
+    printf("       PC trail:");
+    for (int i = 0; i < trail_n && i < 24; i++) {
+        const char *s = dorado_microcode_symbol_at_real(&mc, trail[i]);
+        if (s) printf(" 0o%o(%s)", trail[i], s);
+        else   printf(" 0o%o", trail[i]);
     }
+    printf("\n");
 
     if (cpu.halt_reason == CPU_HALT_UNSUPPORTED_ASEL ||
         cpu.halt_reason == CPU_HALT_UNSUPPORTED_BSEL ||
