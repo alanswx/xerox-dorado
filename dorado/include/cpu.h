@@ -186,6 +186,17 @@ typedef struct {
     uint16_t task_link[16];
     uint8_t  task_membase[16];
 
+    /* SubTask (HM page 88). When an I/O device wakes a task, it
+     * may present a 2-bit SubTask. The processor OR's
+     * SubTask[0:1] into RBase[2:3] and MemBase[2:3] when the task
+     * runs, allowing one task's microcode to serve multiple
+     * "sub-channels" with separate RM regions and BR pairs.
+     *
+     * Each task has its own SubTask register; the I/O device
+     * driving that task chooses the SubTask value per wakeup.
+     * Without modeled devices, all SubTasks default to 0. */
+    uint8_t  task_subtask[16];
+
     /* ALU branch-condition flags from the previous instruction.
      * Updated whenever an ALU operation runs (HM Table 13). */
     uint8_t  alu_zero;          /* ALU = 0 */
@@ -248,5 +259,9 @@ void dorado_cpu_trace(dorado_cpu *cpu, void *fp);
 void dorado_cpu_wakeup(dorado_cpu *cpu, int task);
 void dorado_cpu_set_task_tpc(dorado_cpu *cpu, int task, uint16_t real_pc);
 uint16_t dorado_cpu_get_task_tpc(const dorado_cpu *cpu, int task);
+
+/* SubTask: I/O devices set the task's SubTask before/at wakeup.
+ * `subtask` is 2 bits (0..3); higher bits ignored. */
+void dorado_cpu_set_subtask(dorado_cpu *cpu, int task, uint8_t subtask);
 
 #endif

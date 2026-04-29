@@ -2324,6 +2324,67 @@ static int test_wakeup_ff_function(void)
 }
 
 /*
+ * SubTask (HM page 88) — when a non-emulator task is woken with
+ * SubTask=N, RBase[2:3] and MemBase[2:3] get OR'd with N. So an
+ * RM access in that task lands in a different 16-RM region.
+ *
+ * Test: set up two tasks, both reading RM[0]. Without SubTask,
+ * RM[0]. With SubTask=1, RM[0|1]=RM[1] (since RBase[2:3] = low 2
+ * bits of 4-bit RBase, OR'd with 1).
+ */
+static int test_subtask_or_rm(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;
+
+    /* IM[0]: T←RM[RSTK=0]. ASEL=4 (A←RM/STK), ALUF=0 ("B"), BSEL=2 (T data),
+     * LC=1 (T←Pd, but Pd = ALU = B = T... not what we want).
+     *
+     * Actually I want T = RM[0]. ALUF=0 with alufm[0]=025 (=B).
+     * To get ALU = A (= RM[0]), use alufm = 037 (= A) at slot 1. */
+    mc.alufm[1] = 037; mc.alufm_present[1] = 1;   /* "A" */
+
+    /* IM[0]: T ← RM[rm_a]. ASEL=4 (A←RM/STK), ALUF=1 (A), LC=1, BSEL=4 (constant). */
+    mc.im[0] = make_uinstr(/*rstk=*/0, /*aluf=*/1, /*bsel=*/4, /*lc=*/1,
+                           /*asel=*/4, /*block=*/0, /*ff=*/0,
+                           jcn_local(0));   /* self-loop */
+    mc.im_present[0] = 1;
+    /* Image and entry. */
+    mc.image_to_real[0] = 0; mc.image_present[0] = 1;
+    mc.n_instructions = 1;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    /* Plant distinct values in RM[0] and RM[1] so we can tell which
+     * region was selected. RM is preloaded by dorado_cpu_init from
+     * mc->rm; we set after init. */
+    cpu.RM[0] = 0xAAAA;   /* value if subtask=0 */
+    cpu.RM[1] = 0xBBBB;   /* value if subtask=1 */
+
+    /* Switch to task 5 with SubTask=1. */
+    dorado_cpu_set_task_tpc(&cpu, 5, 0);
+    dorado_cpu_set_subtask(&cpu, 5, 1);
+    dorado_cpu_wakeup(&cpu, 5);
+
+    /* Step task 0 once → triggers switch to task 5. */
+    EXPECT(dorado_cpu_step(&cpu) == 0, "first step");
+    /* Step task 5: should read RM with SubTask=1 ORed in. RBase=0,
+     * RSTK=0, SubTask=1. rm_a = ((0|1) << 4) | 0 = 0x10 = 16, but
+     * 4-bit RBase makes it 0x10. Wait that's RBase=1. So rm_a = 16 → RM[16]?
+     * Hmm. rbase | subtask = 0|1 = 1 (4 bits). rm_a = (1 << 4) | 0 = 16.
+     * Plant RM[16] with a marker. */
+    cpu.RM[16] = 0xC1C1;
+    EXPECT(dorado_cpu_step(&cpu) == 0, "task 5 step");
+    EXPECT(cpu.ctask == 5, "should be in task 5");
+    EXPECT(cpu.T == 0xC1C1,
+           "T should be RM[16] (= subtask-OR'd region), got 0x%04X", cpu.T);
+
+    printf("PASS  test_subtask_or_rm (T=0x%04X)\n", cpu.T);
+    return 0;
+}
+
+/*
  * IFUM round-trip — write an entry via InsSetorEvent←B + BrkIns←B +
  * IFUMLH/RH←B, then read it back via B←IFUMLH'/RH'. Phase C.1.
  */
@@ -2661,6 +2722,7 @@ int main(void)
     rc |= test_task_block_returns_to_emulator();
     rc |= test_tasking_off_blocks_switch();
     rc |= test_wakeup_ff_function();
+    rc |= test_subtask_or_rm();
     rc |= test_ifum_load_read();
     rc |= test_ifu_dispatch_synthetic();
     rc |= test_ifu_conditional_dispatch();

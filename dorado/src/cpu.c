@@ -89,6 +89,11 @@ uint16_t dorado_cpu_get_task_tpc(const dorado_cpu *cpu, int task)
     return (t == cpu->ctask) ? cpu->real_PC : cpu->task_tpc[t];
 }
 
+void dorado_cpu_set_subtask(dorado_cpu *cpu, int task, uint8_t subtask)
+{
+    cpu->task_subtask[task & 0xF] = (uint8_t)(subtask & 3);
+}
+
 /* Best Next Task — the highest-priority bit set in (ready|wakeup).
  * Task 0 (emulator) is always available, so worst case BNT = 0. */
 static int task_bnt(uint16_t avail)
@@ -233,7 +238,14 @@ static int rm_address(const dorado_cpu *cpu, const dorado_uinstr *u)
      * write-side ModStkPBeforeW case is handled in apply_lc via
      * stk_write_address(). */
     if (u->block) return CPU_RMSTK_STK_BASE | (cpu->StkP & 0xFF);
-    return ((cpu->RBase & 0xF) << 4) | (u->rstk & 0xF);
+    /* HM page 88: "the processor OR's SubTask[0:1] into RBase[2:3]"
+     * — the low 2 bits of RBase. Selects a sub-region of RM for
+     * I/O tasks driven by multiple sub-devices. */
+    uint8_t rbase = cpu->RBase & 0xF;
+    if (cpu->ctask != 0) {
+        rbase |= cpu->task_subtask[cpu->ctask] & 3;
+    }
+    return ((uint32_t)rbase << 4) | (u->rstk & 0xF);
 }
 
 /* Decode RSTK[1:3] as a signed delta in [-4, +3]. RSTK[1:3] are the
@@ -1922,16 +1934,21 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
      * treat unhandled refs as no-ops).
      */
     if (cpu->mem && u->asel <= 3) {
-        /* io_task = 0 always; we don't yet model tasking. The
-         * task-dependent variants (IOFetch / IOStore) are unreachable
-         * until Phase D. */
-        dorado_ref_kind kind = decode_ref_kind(u, /*io_task=*/0);
+        /* io_task = 1 for non-emulator tasks (HM Table 8a:
+         * Map↔IOFetch and Flush↔IOStore variants). */
+        int io_task = (cpu->ctask != 0) ? 1 : 0;
+        dorado_ref_kind kind = decode_ref_kind(u, io_task);
         if (kind != DM_REF_NONE) {
-            uint32_t br = dorado_br_get(cpu->mem, cpu->MemBase);
+            /* SubTask OR's into MemBase[2:3] (HM page 88). MemBase[2:3]
+             * in MSB-first 5-bit MemBase = LSB bits 2..1. So OR
+             * (subtask & 3) << 1. Only effective for non-emulator. */
+            uint8_t membase = (uint8_t)(cpu->MemBase & 0x1F);
+            if (cpu->ctask != 0) {
+                membase |= (uint8_t)((cpu->task_subtask[cpu->ctask] & 3) << 1);
+            }
+            uint32_t br = dorado_br_get(cpu->mem, membase);
             uint32_t va = (br + a) & 0x0FFFFFFFu;
             (void)dorado_memory_ref(cpu->mem, kind, va, b, cpu->TIOA);
-            /* Faults are recorded in mem->last_fault; tasking-aware
-             * dispatch comes in Phase D. */
         }
     }
 

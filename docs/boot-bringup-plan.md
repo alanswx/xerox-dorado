@@ -575,6 +575,21 @@ JCN-based (return-class encoding `0 1 f f f 1 1 1`):
 
 Test: `test_ldtpc_rdtpc` in tests/test_cpu.c.
 
+### D.7 SubTask  ✓ LANDED (HM page 88)
+
+I/O devices may present a 2-bit SubTask along with a wakeup,
+selecting one of 4 sub-regions of RM and 4 BR pairs for the
+task. The processor OR's SubTask[0:1] into:
+- **RBase[2:3]** (= low 2 bits of 4-bit RBase) at register reads
+- **MemBase[2:3]** (= LSB bits 2:1 of 5-bit MemBase) at memory ref
+
+Per-task `task_subtask[16]` field; only effective for non-emulator
+tasks. `dorado_cpu_set_subtask(cpu, task, subtask)` API for tests
+and I/O device modeling.
+
+Test: `test_subtask_or_rm` — task 5 with SubTask=1 reads RM[16]
+(via RBase | 1) instead of RM[0].
+
 ### D.6 IOAtten' / Reschedule conditions  ✓ PARTIAL
 
 Branch condition 6 (FF=0o66) — current implementation:
