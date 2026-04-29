@@ -148,18 +148,47 @@ What works
   device table, floating-bus default 0xFFFF + bad parity. Wired
   through Pd←Input / Pd←InputNoPE / Output←B in cpu.c.
 
+What works (continued)
+- **Display Phase 1** (`include/display.h` + `src/display.c`):
+  808×606 mono framebuffer, DDC catch-all slow-IO handler on tasks
+  DHT/AHT/AWT/DWT, per-channel NLCB/CLCB, HRam/Mixer/Statics state
+  buckets, per-channel FIFO, PGM snapshot.
+- **Disk Phase 1** (`include/disk.h` + `src/disk.c`): Trident T-80/
+  T-300 pack format (read/write), drive struct with online/select
+  state, controller registered on task 14₈ TIOA 10₈-14₈ with
+  DiskControl bit decode + Format RAM auto-increment + DiskData
+  FIFO + DiskTag capture + DiskMuff status readout.
+
+**probe_full_boot_with_bootstrap** (added 2026-04): the BB drives
+its real Boot1 byte stream through CPReg while Bootstrap.MB is
+substituted in IM. Demonstrates:
+- BB cold-boots → MIR-jams Boot0 → starts Dorado free-running.
+- IM swap to Bootstrap.MB at first IM-fetched cycle.
+- BB streams Boot1Data via CPReg: 6529 ABMux strobes consumed.
+- Bootstrap.MB executes ~13M IM-fetched cycles of real microcode.
+- Bootstrap reaches READBB 3590 times, fires WRITE000 (Write IM)
+  1793 times.
+- BUT only 1 IM entry actually changes content (0o7744). RM[3]=
+  0xFFF3 = ~0x000C — Bootstrap's stored target IMAddress is the
+  bit-inverted CPReg byte. Either Bootstrap inverts again before
+  using as Link, or the BB's stream protocol doesn't match what
+  Bootstrap.MB's loader expects. Needs deeper trace of the
+  Bootstrap-side IMAddress decoder.
+
 What's stub-or-missing
 - **Memory: storage backing** is a flat array (~OK for now) but
   ECC, deferred refs, and Hold semantics are missing. Long-running
   AEmu microcode hits memory references that should Hold the
   engine while a fault resolves.
-- **No I/O devices**: Display (DDC, DHT, DWT, framebuffer),
-  Disk (Trident T-80 + Format RAM + Fire Code ECC),
-  Ethernet (3 Mb/s, EOT/EIT tasks).
-- **No Bootstrap/Initial → emulator handoff**: the BB streams
-  Boot1 (= Initial) bytes, but Bootstrap's CPReg poll loop is
-  not yet driven by the BB without overwriting our pre-loaded
-  IM. Need a "BB-driven CPReg, no IM jam" probe variant.
+- **No I/O devices wiring**: Display + Disk Phase 1 stubs exist
+  but aren't yet attached to probe_aemu / probe_full_boot. AEmu
+  microcode that touches DWT/DHT slow-IO would hit the floating-
+  bus default (0xFFFF + bad parity). Ethernet not modeled.
+- **Bootstrap → Initial handoff in progress**: probe_full_boot_
+  with_bootstrap demonstrates the mechanism end-to-end but the
+  IMAddress-decode protocol mismatch keeps Bootstrap writing to
+  one address (0o7744) instead of laying out Initial.MB at its
+  expected addresses.
 - **No keyboard / boot-button → emulator selection** (Mesa/Cedar/
   Lisp/Smalltalk/Alto). This rides on Display back-channel.
 - **No Ethernet client** for Path A's Initial-fetches-emulator
