@@ -1946,9 +1946,11 @@ static int probe_full_boot_with_bootstrap(void)
     uint16_t first_outside_addr = 0xFFFF;
     int  imfetch_count = 0;
     int  cpreg_strobes = 0;
+    int  bb_strobes_pre_swap = 0;     /* count strobes before swap */
     uint64_t swap_cycle = 0;
     uint16_t prev_cpreg = 0;
     uint16_t bb_pc_at_swap = 0;
+    uint16_t pre_swap_cpreg = 0;
 
     /* Bootstrap PC trail (first 64 distinct PCs after the swap, plus
      * a ring buffer of the last 64). */
@@ -1959,6 +1961,15 @@ static int probe_full_boot_with_bootstrap(void)
     /* Frequency table: which Bootstrap PCs get hit how often, post-swap. */
     int      bs_pc_count[4096];
     memset(bs_pc_count, 0, sizeof bs_pc_count);
+    /* Write IM target capture: Bootstrap.MB's WRITE000-WRITE111 at
+     * IM[0o7720..0o7736] do Write IM with target = Link. Capture
+     * Link at issue time of each one. */
+    uint16_t wim_first[32];
+    int      wim_first_n = 0;
+    uint16_t wim_last[32];
+    int      wim_last_head = 0, wim_last_total = 0;
+    int      wim_target_count[4096];
+    memset(wim_target_count, 0, sizeof wim_target_count);
 
     /* Snapshot of im_present + IM content at swap time, so we can
      * diff afterward and see which addresses Bootstrap actually
@@ -1992,12 +2003,26 @@ static int probe_full_boot_with_bootstrap(void)
         int will_hold   = !will_inject && !bb.dorado_running;
         int is_imfetch  = !will_inject && !will_hold;
 
-        /* Substitution moment: when the Dorado is about to execute
-         * its first IM-fetched instruction (= BB has finished MIR-
-         * jamming Boot0 + jammed Return#, Dorado is in free-run mode
-         * with PC=Boot0GoLoc=0o7740). Overwrite IM with Bootstrap.MB.
-         * Pre-load ALUFM is already done above, persists. */
-        if (!swapped && is_imfetch && cpu.real_PC == 07740) {
+        /* Track CPReg strobes happening pre-swap. The BB's
+         * SendIMBlockToDorado(Boot1Block, ViaCP=1) starts streaming
+         * Boot1Data via ABMux strobes shortly after starting the
+         * Dorado. We delay the IM swap until the BB has fired at
+         * least N strobes — that way Bootstrap's first ReadBB sees
+         * the BB's actual preamble byte rather than the stale
+         * CPReg=0x8000 setup value from before streaming began. */
+        if (!swapped && bb.cpreg_to_dorado != pre_swap_cpreg) {
+            bb_strobes_pre_swap++;
+            pre_swap_cpreg = bb.cpreg_to_dorado;
+        }
+
+        /* Substitution moment: AFTER the BB has begun the Boot1
+         * stream (≥ 4 ABMux strobes, = at least one full
+         * SendAHalfMicroInstruction = the IMAddress preamble first
+         * half is in flight). The Dorado has been spinning at
+         * 0o7740 in BB-loaded Boot0 (whose conditional path traps,
+         * but it doesn't matter — we'll overwrite). */
+        if (!swapped && is_imfetch && cpu.real_PC == 07740 &&
+            bb_strobes_pre_swap >= 16) {
             /* Copy Bootstrap.MB IM in place. mc and bs_mc are both
              * dorado_microcode; we just memcpy the IM arrays. */
             for (int a = 0; a < 4096; a++) {
@@ -2034,10 +2059,15 @@ static int probe_full_boot_with_bootstrap(void)
             prev_cpreg = bb.cpreg_to_dorado;
         }
 
-        /* Capture pre-step PC for trail (only for IM fetches after
-         * the swap — that's when Bootstrap is running). */
+        /* Capture pre-step PC + Link for trail / Write-IM tracking
+         * (only for IM fetches after the swap). */
         uint16_t pre_pc = cpu.real_PC;
+        uint16_t pre_link = cpu.Link;
         int log_to_trail = (swapped && is_imfetch);
+        /* Bootstrap.MB Write IM PCs: 0o7720, 0o7722, 0o7724, 0o7726,
+         * 0o7730, 0o7732, 0o7734, 0o7736 (= WRITE000..WRITE111). */
+        int is_wim = (pre_pc >= 07720 && pre_pc <= 07736 &&
+                      (pre_pc & 1) == 0);
 
         if (dorado_cpu_step(&cpu)) {
             break;
@@ -2050,6 +2080,14 @@ static int probe_full_boot_with_bootstrap(void)
             bs_last_trail[bs_last_head] = pre_pc;
             bs_last_head = (bs_last_head + 1) % 64;
             bs_last_total++;
+        }
+        if (log_to_trail && is_wim) {
+            uint16_t target = pre_link & 0xFFF;
+            wim_target_count[target]++;
+            if (wim_first_n < 32) wim_first[wim_first_n++] = target;
+            wim_last[wim_last_head] = target;
+            wim_last_head = (wim_last_head + 1) % 32;
+            wim_last_total++;
         }
 
         /* (im_present scan moved to post-loop — much cheaper) */
@@ -2102,6 +2140,8 @@ static int probe_full_boot_with_bootstrap(void)
            "%llu cycles, swap@%llu (BB PC=0x%04X)\n",
            baseboard_pc(&bb), (unsigned long long)bb.cycles,
            (unsigned long long)swap_cycle, bb_pc_at_swap);
+    printf("       At swap: cpreg=0x%04X, BB strobes pre-swap=%d\n",
+           pre_swap_cpreg, bb_strobes_pre_swap);
     printf("       Bootstrap.MB swapped: %s, IM-fetched cycles=%d\n",
            swapped ? "yes" : "NO",
            imfetch_count);
@@ -2178,6 +2218,40 @@ static int probe_full_boot_with_bootstrap(void)
     for (int a = 0; a < 4096; a++) if (bs_pc_count[a]) unique++;
     printf("       Bootstrap visited %d unique IM addresses\n", unique);
     #undef TOP_N
+
+    /* Write IM target dump. */
+    printf("       Write IM fired %d times\n", wim_last_total);
+    if (wim_first_n > 0) {
+        printf("       First Write IM targets:");
+        for (int i = 0; i < wim_first_n; i++) printf(" 0o%o", wim_first[i]);
+        printf("\n");
+    }
+    int wim_unique = 0;
+    int wim_top_pc[5] = {-1,-1,-1,-1,-1};
+    int wim_top_count[5] = {0};
+    for (int a = 0; a < 4096; a++) {
+        if (wim_target_count[a] == 0) continue;
+        wim_unique++;
+        for (int s = 0; s < 5; s++) {
+            if (wim_target_count[a] > wim_top_count[s]) {
+                for (int t = 4; t > s; t--) {
+                    wim_top_pc[t] = wim_top_pc[t-1];
+                    wim_top_count[t] = wim_top_count[t-1];
+                }
+                wim_top_pc[s] = a;
+                wim_top_count[s] = wim_target_count[a];
+                break;
+            }
+        }
+    }
+    printf("       Write IM unique targets: %d\n", wim_unique);
+    if (wim_unique > 0) {
+        printf("       Top-5 Write IM targets:");
+        for (int i = 0; i < 5 && wim_top_pc[i] >= 0; i++) {
+            printf(" 0o%o(×%d)", wim_top_pc[i], wim_top_count[i]);
+        }
+        printf("\n");
+    }
 
     mb_free(&bs_mb);
     return 0;  /* informational */
