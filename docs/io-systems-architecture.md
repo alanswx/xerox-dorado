@@ -305,14 +305,27 @@ These numbers matter because:
 
 ### What we need to build (fast I/O)
 
-- ASEL=6/7 (`IOFetch←`/`IOStore←`) decoding in `cpu.c` with a
-  side-effect that enqueues a transport into the memory subsystem.
-- A simple fast-bus event queue keyed on `(task, subtask)` that the
-  device polls/awakens against.
-- For now, a **flat memory model** with synchronous transport (one
-  munch in one "pseudo-cycle") is acceptable; the cycle-accurate
-  staging belongs in Phase 8+. The MiSTer port will need the full
-  pipeline.
+**Status: DONE (synchronous-transport variant).** `dorado/include/
+fastio.h` + `src/fastio.c` provides:
+
+- A `fast_io_cb` callback on `dorado_memory` that fires on every
+  IOFetch / IOStore. Memory hands a 16-word munch buffer to the
+  callback (filled from storage on IOFetch, to-be-filled by the
+  device on IOStore).
+- `dorado_fastio_dispatch` routes by task ID:
+  - DWT (13₈) → push to display FIFO (channel selected by subtask)
+  - DSK (14₈) → push to / drain from disk controller FIFO
+- New `dorado_memory_ref_task()` takes (task, subtask) so the
+  dispatcher knows which device to hand the munch to. cpu.c now
+  uses this on every memory ref.
+
+End-to-end test (`tests/test_fastio.c`) verifies disk → FIFO →
+IOStore(DSK) → main memory and main memory → IOFetch(DWT) →
+display FIFO → framebuffer.
+
+Phase 3 (later) will add the cycle-accurate timing model for
+real hardware behavior (49.5-cycle worst-case latency per HM §8
+page 91); the MiSTer port will require the full pipeline.
 
 ---
 
@@ -765,7 +778,7 @@ Layered on `dorado/CLAUDE.md` "What's next":
 | 2 | BB-side stubs for whichever TIOA Boot0 probes  | N/A — Boot0 doesn't use slow-IO|
 | 2b| ALUFM bit-mapping fix (Pd←ALUFMRW)             | **DONE** — unblocked Bootstrap |
 | 3 | Task scheduler Wakeup/Block/Next protocol      | Partially done; "Next Lies" TBD|
-| 4 | `IOFetch←`/`IOStore←` decoding + Fin/Fout queue| TBD                            |
+| 4 | `IOFetch←`/`IOStore←` Fin/Fout transport       | **DONE** (synchronous variant) |
 | 5 | Display: framebuffer + DDC catch-all (Phase 1) | **DONE**                       |
 | 5b| Display: DDC command decoder + waveform gen    | TBD                            |
 | 6 | Disk: pack/drive/controller stub (Phase 1)     | **DONE**                       |
