@@ -550,15 +550,39 @@ T-80 specs (HM Table 23): 5 surfaces × 815 cylinders, 9.67 Mb/s,
 
 ### What we need to build (disk)
 
-This becomes meaningful in Phase 6. Plan:
+**Status (Phase 1: DONE).** `dorado/include/disk.h` + `src/disk.c`,
+ported from ContrAlto2's TridentDrive/TridentController/DiskPack.cs.
 
-1. **Disk-pack image format** — port from ContrAlto2 (`AltoInfo/`).
-2. **DiskController struct** holding control reg, format RAM, tag,
-   FIFO, sequence PROM emulation.
-3. **DSK task wakeup generator** driven by simulated subsector/index
-   pulses (~117 subsector + 1 index pulses per 16.67 ms revolution).
-4. **Fast-I/O FIFO transport** to/from main memory.
-5. **Fire Code ECC** in software.
+- **Pack image format**: dorado_disk_pack with Bitsavers/ContrAlto
+  layout (dummy 2B + header 4w + label 20w + data 2048w per sector,
+  stored CHS order, little-endian). Standard geometries:
+  T-80 = 815×5×9 (76 MB), T-300 = 815×19×9 (290 MB). Create/load/
+  save/free + sector accessor. ✓
+- **Drive**: dorado_disk_drive with per-drive online/ready/RO/select
+  state, current head position, seek-in-progress and index-pulse
+  latches. Controller daisy-chains tag commands to the selected
+  drive (decode in Phase 2). ✓
+- **Controller**: dorado_disk_controller registered on task 14₈
+  (DSK), TIOA 10₈-14₈ (DiskControl/DiskMuff/DiskData/DiskRam/
+  DiskTag). Implements:
+  - DiskControl bit field (HM page 97): ClearEnableRun,
+    SetDebugMode, SetBlockTillIndex, ops 1-4 per block.
+  - Format RAM auto-increment + EnableRun on last word (HM page 98).
+  - DiskData 16-word FIFO push/pop.
+  - DiskTag tag register capture.
+  - DiskMuff input packs wakeup TWs + EnableRun + Active for
+    microcode to read back.
+
+Phase 2 (later):
+- Sequence PROM execution: read PROM and write PROM advance per
+  WordClock, drive tag register from format RAM, generate wakeups.
+- Tag command decoder: cylinder address strobe, head select, op
+  (read/write/check/zero), drive-select.
+- Fast-I/O FIFO transport — wire the FIFO into IOFetch←/IOStore←
+  munches with main storage (sectors → memory and back).
+- Fire Code ECC: P(X) = X³² + X²³ + X²¹ + X¹¹ + X² + 1.
+- Sector-pulse timing: ~117 subsector + 1 index pulses per 16.67 ms
+  revolution drives DSK task wakeups.
 
 The MiSTer port will reuse drive-pack handling but redo the
 controller in RTL.
@@ -682,20 +706,26 @@ Keyboard and mouse arrive via the 7-wire interface's back channel.
 
 ### What we need to build (display)
 
-For Phase 6 first-light:
+**Status (Phase 1: DONE).** `dorado/include/display.h` + `src/display.c`.
 
-1. **A flat 808×606 framebuffer** in the BB-stub style. Skip the
-   pixel clock and waveform generation; render full frames at a
-   simulated 60 Hz.
-2. **DDC stub** responding to HRam, NLCB, MiniMixer slow-I/O writes
-   by accumulating state into the FB.
-3. **DWT task** issuing IOFetch← per HM microcode.
-4. **DHT timer** wakeup at simulated end-of-HWindow.
-5. **Back channel input device** (keyboard + mouse → 32-bit
-   messages).
+- 808×606 mono framebuffer, MSB-leftmost packing. ✓
+- DDC catch-all slow-I/O handler registered on tasks DHT/AHT/AWT/DWT.
+  Records (task, TIOA, data) into a buffered RIOB; preserves data
+  until the next output command per HM page 119. ✓
+- Per-channel state buckets: NLCB/CLCB (16×12-bit, channels A and
+  B), HRam (1024×3-bit), Mixer (1024×24-bit), PixelClk, Statics. ✓
+- Per-channel FIFO (256 words) for IOFetch← munch delivery. ✓
+- PGM snapshot helper (`dorado_display_snapshot_pgm`). ✓
 
-CLAUDE.md (project) recommendation: "display first (with a stub
-framebuffer), then disk." That stays the right call.
+Phase 2 (later):
+- Decode (task, TIOA) → specific DDC command (NLCB load, HRam load,
+  Mixer load, etc.) once we trace what microcode emits.
+- Pixel clock generation, real HSync/VSync timing.
+- 7-wire interface back-channel for keyboard/mouse.
+- 24Bit color (AMap+BMap+CMap), Mixer modes (A8B2/BBypass).
+- Drive the FB from FIFO + waveform generators (currently FB is
+  populated by direct `set_pixel` only, suitable for synthetic
+  tests).
 
 ---
 
@@ -726,11 +756,13 @@ Layered on `dorado/CLAUDE.md` "What's next":
 | 1 | Slow-I/O routing layer (`src/io.c`)            | **DONE**                       |
 | 1b| Per-task TIOA storage                          | TBD (single TIOA today)        |
 | 2 | BB-side stubs for whichever TIOA Boot0 probes  | N/A — Boot0 doesn't use slow-IO|
-| 2b| ALUFM[1..14] init                              | **Real Phase A.7 blocker**     |
+| 2b| ALUFM bit-mapping fix (Pd←ALUFMRW)             | **DONE** — unblocked Bootstrap |
 | 3 | Task scheduler Wakeup/Block/Next protocol      | Partially done; "Next Lies" TBD|
 | 4 | `IOFetch←`/`IOStore←` decoding + Fin/Fout queue| TBD                            |
-| 5 | Display: framebuffer + DDC + DHT + DWT         | TBD                            |
-| 6 | Disk: DSK task + format RAM + Fire Code ECC    | TBD                            |
+| 5 | Display: framebuffer + DDC catch-all (Phase 1) | **DONE**                       |
+| 5b| Display: DDC command decoder + waveform gen    | TBD                            |
+| 6 | Disk: pack/drive/controller stub (Phase 1)     | **DONE**                       |
+| 6b| Disk: sequence PROM + Fire Code ECC + Fast-IO  | TBD                            |
 | 7 | Ethernet                                       | TBD (optional)                 |
 
 Boot0's actual blocker turned out to be ALUFM init, not slow-I/O —

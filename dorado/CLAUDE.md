@@ -30,7 +30,9 @@ dorado/
 │   ├── cpu.h             microengine
 │   ├── memory.h          cache/Map/Pipe/BR
 │   ├── baseboard.h       6502 BB model
-│   └── io.h              slow-I/O device routing (HM §7)
+│   ├── io.h              slow-I/O device routing (HM §7)
+│   ├── display.h         display + DDC stub (HM §11)
+│   └── disk.h            Trident T-80/T-300 + DSK controller (HM §9)
 ├── src/
 │   ├── mb.c              .MB parser
 │   ├── disasm.c          model-1 unshuffle + microinstruction field decoder
@@ -39,14 +41,18 @@ dorado/
 │   ├── memory.c          memory subsystem
 │   ├── baseboard.c       BB 6502 + RIOTs + analog comparators
 │   ├── io.c              slow-I/O routing (per-(task,TIOA) device table)
+│   ├── display.c         framebuffer + DDC slow-IO catch-all
+│   ├── disk.c            disk pack + drive + DSK controller (slow-IO at TIOA 10₈-14₈)
 │   └── mbdis.c           CLI: dump / symbolic disasm
 └── tests/
     ├── test_mb.c         loader
     ├── test_disasm.c     decoder
-    ├── test_microcode.c  placement
+    ├── test_microcode.c  placement + ALUFM canonical decoding
     ├── test_memory.c     memory subsystem
     ├── test_baseboard.c  BB cold boot + CPReg + MCPBus
-    └── test_cpu.c        CPU smoke tests + slow-I/O round-trip + real-Bootstrap probe
+    ├── test_display.c    framebuffer + IO routing + PGM snapshot
+    ├── test_disk.c       pack create/save/load + controller TIOA routing
+    └── test_cpu.c        CPU smoke tests + slow-I/O routing + ALUFM/carry tests + Bootstrap/AEmu probes
 ```
 
 ## What's done
