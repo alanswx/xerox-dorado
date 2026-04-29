@@ -682,16 +682,21 @@ static int probe_full_boot(void)
         }
     }
 
-    /* Final IM occupancy count + dump of zero-vs-nonzero pattern. */
+    /* Final IM occupancy count + zero-vs-nonzero pattern. */
     int im_filled = 0;
-    printf("       IM zero addrs:");
+    int im_first = -1;
     for (int a = 0; a < 4096; a++) {
-        if (!mc.im_present[a]) continue;
-        im_filled++;
-        const dorado_uinstr *u = &mc.im[a];
-        if (u->iw0 == 0 && u->iw1 == 0 && u->iw2 == 0) {
-            printf(" 0o%o", a);
+        if (mc.im_present[a]) {
+            if (im_first < 0) im_first = a;
+            im_filled++;
         }
+    }
+    printf("       IM map starting at 0o%o (Z=zero, .=non-zero):\n       ", im_first);
+    for (int a = im_first; a < 4096 && a < im_first + 64; a++) {
+        if (!mc.im_present[a]) { putchar(' '); continue; }
+        const dorado_uinstr *u = &mc.im[a];
+        int is_zero = (u->iw0 == 0 && u->iw1 == 0 && u->iw2 == 0);
+        putchar(is_zero ? 'Z' : '.');
     }
     putchar('\n');
 

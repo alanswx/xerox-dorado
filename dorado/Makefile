@@ -37,6 +37,9 @@ $(BINDIR)/test_baseboard: $(LIB_OBJS) $(OBJDIR)/test_baseboard.o | $(BINDIR)
 $(BINDIR)/test_memory: $(LIB_OBJS) $(OBJDIR)/test_memory.o | $(BINDIR)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
+$(BINDIR)/audit_alufm: $(LIB_OBJS) $(OBJDIR)/audit_alufm.o | $(BINDIR)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
 $(OBJDIR)/%.o: src/%.c | $(OBJDIR)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
