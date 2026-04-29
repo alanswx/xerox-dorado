@@ -425,37 +425,65 @@ entry via the full FF protocol.
 the IFU pipeline (F/G → J → H → M levels), F/G byte ordering
 across instruction sets (HM page 64 "Alto compatibility kludge").
 
-### C.2 Instruction prefetch  ✓ MINIMAL LANDED
+### C.2 Instruction prefetch  ✓ FUNCTIONAL + WARMUP
 
-Functional model (no multi-stage F/G→J→H→M pipeline yet):
-- `PCF←B` (FA=1 FB=0 FC=0) sets the byte cursor and arms the IFU.
-- `ifu_fetch_byte(cpu, pc)` fetches via `dorado_memory_ref` (IFETCH),
-  using BR[31] as the codebase. Sets 0/1 use byte 0 = high byte;
-  sets 2/3 reverse. Sets 2/3 not yet exercised.
+Functional model with cycle-accurate warmup (multi-stage F/G→J→H→M
+pipeline is the Verilog target; for the C model we approximate the
+observable behavior with a 5-cycle warmup counter per HM page 67):
+
+- `PCF←B` (FA=1 FB=0 FC=0) sets the byte cursor, arms the IFU,
+  loads `ifu_warmup = 5`.
+- Each CPU step decrements `ifu_warmup` while the IFU is active.
+- `ifu_fetch_byte(cpu, pc, *out_faulted)` fetches via
+  `dorado_memory_ref(IFETCH)`, using BR[31] as the codebase. Sets
+  0/1: byte 0 = high byte; sets 2/3 reverse (not yet exercised).
+  Reports map-fault back to caller for trap dispatch.
 - IFUJump reads the opcode at PCF, looks up `IFUM[InsSet||opcode]`,
-  decodes per Table 18, and advances PCF by Length bytes. Operand
+  decodes per Table 18, advances PCF by Length bytes. Operand
   bytes (α, β) are captured into `cpu->ifu_alpha/beta` for later
   ←Id delivery.
 - MemBase + RBase are reinitialized at IFUJump per the IFUM
   entry's MemB[0:2] and RBaseB' fields (HM page 65 t0 init).
 
 **Still TBD (Phase C.2 polish):**
-- Multi-cycle pipeline (F/G/J/H/M levels) and NotReady traps to
-  `*34-37` (HM Table 14).
+- Explicit F/G/J/H/M pipeline stages (Verilog port will need this).
 - Cache miss / Hold during prefetch.
 - The Alto byte-ordering kludge for sets 2/3 (HM page 64).
+- IFUM parity errors (*74-77).
+- IFU data parity errors (*4-7).
+- Reschedule trap (*14-17) on the second/third successful IFUJump
+  after Reschedule FF.
 
-### C.3 IFUJump  ✓ MINIMAL LANDED
+### C.3 IFUJump  ✓ COMPLETE (functional)
 
 JCN encoding `0 0 1 _ _ 1 1 1` with `_ _` = entry-vector slot
 n (0..3). Computes TNIA = (IFaddr' << 2) | n in our 12-bit
 microstore. Loads Link with CIA+1.
 
-**Still TBD:**
-- Conditional IFUJump (FF-encoded condition; "if true, no IFU
-  advance — entry 3 reached without prefetch").
-- Trap addresses (*0-3 IFU map fault, *34-37 IFU not ready,
-  *4-7 IFU data parity, *74-77 IFUM parity) per HM Table 14.
+**Conditional IFUJump (HM page 33):** When the FF field encodes a
+branch condition (FA=0 FB=6 FC=0..6) AND the condition is true:
+- Dispatch goes to entry n|1 of the M-level vector (TNIA[15] OR'd).
+- IFU does NOT advance — PCF stays put. The next IFUJump
+  re-dispatches the same opcode.
+
+**Trap dispatch:** Computed via `ifu_trap_addr(base, n_slot, insset)`
+which OR's `~InsSet[0:1]` into bits 6:7 of the trap address per HM
+Table 14 footnote ("actual trap locations for Reschedule, for
+example, are 14-17, 114-117, 214-217, and 314-317").
+- **NotReady (*34-37)** ✓ — when `ifu_warmup > 0` at IFUJump time.
+- **IFU map fault (*0-3)** ✓ — when ifu_fetch_byte gets DM_FAULT
+  back from the cache/Map.
+- **IFU data parity (*4-7)** — TBD (no parity model yet).
+- **IFUM parity (*74-77)** — TBD (no parity model yet).
+- **Reschedule (*14-17)** — TBD (Reschedule FF function not yet
+  fully wired).
+
+Tests in `tests/test_cpu.c`:
+- `test_ifu_dispatch_synthetic` — INC×4 + HALT bytecode dispatch
+- `test_ifu_conditional_dispatch` — cond=false advance path
+- `test_ifu_conditional_cond_true` — cond=true PCF-hold path
+- `test_ifu_notready_trap` — *34-37 trap with InsSet OR'd
+- `test_ifu_map_fault_trap` — *0-3 trap on Vacant page
 
 ### C.4 Operand delivery (←Id)  ✓ MINIMAL LANDED
 
@@ -532,18 +560,29 @@ atomically. TaskingOn (FA=1 FB=4 FC=3) schedules re-enable after
 2 more instructions (HM page 27: "at least two more instructions
 will be executed by the same task").
 
-### D.5 LdTPC / RdTPC  TBD
+### D.5 LdTPC / RdTPC  ✓ LANDED
 
-Load/read the saved TPC of any task. JCN-based (special decode
-like Read/Write IM), not FF. Used by Initial to set up emulator
-entry points.
+JCN-based (return-class encoding `0 1 f f f 1 1 1`):
+- fn=4: **RdTPC←B** — task = B[12:15]; reads task_tpc[task] into
+  Link, 1's complemented (HM page 34 protocol).
+- fn=5: **LdTPC←B** — task = B[12:15]; writes task_tpc[task] from
+  Link[at-issue]. No-op if writing the running task's own TPC.
 
-### D.6 IOAtten' / Reschedule conditions  TBD
+Test: `test_ldtpc_rdtpc` in tests/test_cpu.c.
 
-Branch conditions 6 (cond 0o66 in FF) — IOAtten' for non-emulator
-tasks, Reschedule for emulator. We currently stub IOAtten' = 1
-(no I/O attention). Once I/O devices land in Phase E, IOAtten'
-becomes "I/O wants attention for this task".
+### D.6 IOAtten' / Reschedule conditions  ✓ PARTIAL
+
+Branch condition 6 (FF=0o66) — current implementation:
+- **Emulator (task 0):** returns 1 (no Reschedule pending). The
+  Reschedule flipflop set by `Reschedule` FF function is TBD.
+- **Non-emulator (tasks 1..15):** returns `(wakeup_pending & (1<<ctask))`
+  inverted — i.e., active-low. So if the task has a pending
+  wakeup not yet acknowledged, the condition reads 0 (true after
+  inversion).
+
+Until I/O devices drive real wakeups (Phase E), this is a
+reasonable proxy: tasks woken via `dorado_cpu_wakeup` or
+`Wakeup[task]` FF will see IOAtten' true.
 
 Tests in `tests/test_cpu.c`:
 - `test_task_switch_on_wakeup` — Wakeup → state save/load → switch

@@ -94,6 +94,13 @@ typedef struct {
     uint8_t  ifu_idcnt;         /* count of ←Id deliveries this opcode */
     uint8_t  ifu_active;        /* 1 = PCF set, ready to dispatch */
 
+    /* IFU warmup counter (HM page 67). After PCF←B, the pipeline
+     * needs ~5 cycles before the first opcode is in M-level and
+     * IFUJump can succeed. Earlier IFUJumps trap to the "IFU not
+     * ready" vector at *34-37 (with InsSet OR'd into the trap
+     * address per HM Table 14). */
+    uint8_t  ifu_warmup;
+
     /* Operand bytes captured at IFUJump time (for ←Id delivery). */
     uint8_t  ifu_alpha;
     uint8_t  ifu_beta;
