@@ -71,6 +71,18 @@ inferred behavior.
 BB by leaving 0x01 in MiscByte), and the BB streams Boot1 into the
 running Dorado via CPReg.
 
+**Status:** A.1–A.6 LANDED. A.7 (Boot1 ACK) **blocked** — Boot0
+runs a wait-loop polling for an AMSync/MASync edge on CPReg before
+entering the Boot1-load loop. Without modeling those sync bits in
+the CPReg latches (and the corresponding read paths the BB-side
+exercises during SendIMBlockToDorado(ViaCP=1)), Boot0 falls through
+its wait-loop into the trap-reservation slot at 0o7744 and long-
+jumps to IM[0o4000] — empty, halt. The wait loop itself is now
+visible in the trace (PC walk: 7740 → 7761 → 7747 → 7740, with
+RM[1] driven by the shifter as a soft counter), so the
+infrastructure is correct; what's missing is the AMSync/MASync
+hardware modeling. Defer to a sub-phase A.7 when we revisit.
+
 **Why this phase first:** the closest visible milestone. Validates
 the whole BB↔Dorado handshake, including the CPReg streaming path
 that the BB uses for Boot1 (and Mesa, and everything else).
