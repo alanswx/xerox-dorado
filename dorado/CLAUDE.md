@@ -190,7 +190,7 @@ FF dispatcher (`ff_override_b()` + `ff_apply_post()`):
   - **`ProcSRN←B[12:15]`** (FC=7) — sets the pipe-slot index for
     subsequent `B←Pipei` reads.
   - **`BrLo←A`** (FC=3), **`BrHi←A`** (FC=4) — load the BR.
-- Tasking + IFU FF functions (Phase D + C.1):
+- Tasking + IFU FF functions (Phase D + C.1/C.2):
   - **`TaskingOff`** (FA=1 FB=4 FC=2), **`TaskingOn`** (FC=3) —
     gate the task scheduler; TaskingOn delays 2 cycles.
   - **`Wakeup[task]`** (FA=3 FB=6-7, task=FF[4:7]) — assert wakeup.
@@ -202,6 +202,14 @@ FF dispatcher (`ff_override_b()` + `ff_apply_post()`):
   - **`B←IFUMRH'/LH'`** (FA=1 FB=7 FC=2/3) — read inverted IFUM
     halves from the same address.
   - **`IFUReset`** (FA=1 FB=3 FC=6) — clear IFU addressing regs.
+  - **`PCF←B`** (FA=1 FB=0 FC=0) — load byte cursor + arm IFU.
+  - **`A←Id`** (ASEL=5), **`TIsId`/`RIsId`** (FA=0 FB=3 FC=4/5) —
+    consume next operand byte (N, α, β, then Length forever).
+- IFU JCN dispatch:
+  - **`IFUJump[n]`** (JCN `0 0 1 _ _ 1 1 1`, n=JCN[3:4]) — read
+    opcode at PCF, look up IFUM, dispatch to entry vector slot n
+    (TNIA = (IFaddr' << 2) | n). Sets MemBase/RBase per the
+    IFUM entry's MemB/RBaseB' fields.
 - HM Table 7 asterisk: when an external B source is in play and
   BSEL=3, the external value also lands in **Q**. Critical for
   Bootstrap's `Q ← Link` snapshot trick.

@@ -60,19 +60,49 @@ typedef struct {
     uint16_t TIOA;              /* 8-bit I/O address (Slow IO) */
 
     /*
-     * IFU state — minimal Phase C.1 (HM §6, Table 18).
+     * IFU state — Phase C.1+C.2 (HM §6, Tables 18, 20).
      *
      * IFUM is a 1024 × 24-bit (+3 parity) RAM addressed by
-     * InsSet[0:1] || Opcode[0:7] = 10 bits. We don't yet model the
-     * IFU prefetch pipeline; this is just enough for microcode to
-     * load IFUM at startup via:
+     * InsSet[0:1] || Opcode[0:7] = 10 bits.
+     *
+     * For loading IFUM (Phase C.1):
      *   InsSetorEvent←B   (B[0]=1, B[6:7]→InsSet[0:1])
      *   BrkIns←B          (B[0:7]→Opcode)
      *   IFUMLH/RH←B       (write the 32-bit IFUM entry's halves)
-     * and to read it back via B←IFUMLH'/RH'.
+     * and reading back via B←IFUMLH'/RH'.
+     *
+     * For dispatching opcodes (Phase C.2 — minimal):
+     *   PCF←B starts the byte stream at PC = B (bit 0 of B is byte
+     *   selector, bits 1:15 are word displacement relative to BR[31]).
+     *   IFUJump[n] (JCN encoding) reads the opcode byte at PC, looks up
+     *   IFUM[InsSet||opcode], dispatches to the entry vector slot, and
+     *   sets MemBase/RBase per the IFUM entry. The IFU then has the
+     *   alpha/beta operand bytes available for ←Id (TIsId/RIsId/A←Id).
+     *
+     * Simplifications vs. real hardware:
+     *   - No multi-stage F/G→J→H→M pipeline; bytes are fetched on
+     *     demand. NotReady traps don't fire (we always have a byte).
+     *   - No timing model; IFUJump completes in one cycle.
+     *   - Hold + IFU map fault interactions deferred.
      */
     uint8_t  ifu_insset;        /* 2-bit instruction set selector */
-    uint8_t  ifu_opcode;        /* 8-bit opcode register */
+    uint8_t  ifu_opcode;        /* 8-bit opcode register (write addressing) */
+
+    /* IFU byte-stream cursor and decoded current-opcode state. */
+    uint16_t ifu_pcf;           /* byte cursor: bit 0=byte selector, bits 1:15=word */
+    uint16_t ifu_pcx;           /* PC of the currently-executing opcode */
+    uint8_t  ifu_idcnt;         /* count of ←Id deliveries this opcode */
+    uint8_t  ifu_active;        /* 1 = PCF set, ready to dispatch */
+
+    /* Operand bytes captured at IFUJump time (for ←Id delivery). */
+    uint8_t  ifu_alpha;
+    uint8_t  ifu_beta;
+    uint8_t  ifu_length;        /* 1, 2, or 3 */
+    uint8_t  ifu_n;             /* 4-bit operand from IFUM */
+    uint8_t  ifu_packed_a;
+    uint8_t  ifu_sign;
+    uint8_t  ifu_type_jump;     /* derived from TJump' */
+    uint8_t  ifu_type_pause;    /* derived from TPause' */
 
     /*
      * Memory subsystem. When non-NULL, processor memory references
@@ -172,6 +202,8 @@ typedef enum {
     CPU_HALT_BREAKPOINT,        /* uinstr.brk_p was set */
     CPU_HALT_BAD_RM,            /* RM access out of range */
     CPU_HALT_USER,              /* user requested via API */
+    CPU_HALT_IFU_NOT_READY,     /* IFUJump before PCF←B / before warmup */
+    CPU_HALT_IFU_NO_ENTRY,      /* IFUJump on opcode whose IFUM entry is absent */
 } cpu_halt_reason;
 
 const char *cpu_halt_reason_str(cpu_halt_reason r);

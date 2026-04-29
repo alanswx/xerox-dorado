@@ -425,38 +425,57 @@ entry via the full FF protocol.
 the IFU pipeline (F/G → J → H → M levels), F/G byte ordering
 across instruction sets (HM page 64 "Alto compatibility kludge").
 
-### C.2 Instruction prefetch
+### C.2 Instruction prefetch  ✓ MINIMAL LANDED
 
-The IFU runs in parallel with the processor. It prefetches the
-next opcode against base register 31, decodes via IFUM, and caches
-4 entry vectors (`IFUJump[0..3]`).
+Functional model (no multi-stage F/G→J→H→M pipeline yet):
+- `PCF←B` (FA=1 FB=0 FC=0) sets the byte cursor and arms the IFU.
+- `ifu_fetch_byte(cpu, pc)` fetches via `dorado_memory_ref` (IFETCH),
+  using BR[31] as the codebase. Sets 0/1 use byte 0 = high byte;
+  sets 2/3 reverse. Sets 2/3 not yet exercised.
+- IFUJump reads the opcode at PCF, looks up `IFUM[InsSet||opcode]`,
+  decodes per Table 18, and advances PCF by Length bytes. Operand
+  bytes (α, β) are captured into `cpu->ifu_alpha/beta` for later
+  ←Id delivery.
+- MemBase + RBase are reinitialized at IFUJump per the IFUM
+  entry's MemB[0:2] and RBaseB' fields (HM page 65 t0 init).
 
-Read by microcode via `B←IFUMRH'` / `B←IFUMLH'` (for inspection)
-and by JCN=`IFU Jump` (the dispatch that pops the prefetch).
+**Still TBD (Phase C.2 polish):**
+- Multi-cycle pipeline (F/G/J/H/M levels) and NotReady traps to
+  `*34-37` (HM Table 14).
+- Cache miss / Hold during prefetch.
+- The Alto byte-ordering kludge for sets 2/3 (HM page 64).
 
-### C.3 IFUJump
+### C.3 IFUJump  ✓ MINIMAL LANDED
 
-Per HM §6.2 + Figure 6's IFU Jump encoding: TNIA = CIA[2:3] ||
-InstrAddr[4:13] || JCN[3:4]. The InstrAddr comes from the IFU's
-prefetch slot N (N = JCN[3:4] from this instruction's JCN).
+JCN encoding `0 0 1 _ _ 1 1 1` with `_ _` = entry-vector slot
+n (0..3). Computes TNIA = (IFaddr' << 2) | n in our 12-bit
+microstore. Loads Link with CIA+1.
 
-When prefetch hasn't completed, IFUJump traps to the "IFU not
-ready" addresses (*34-37 per Table 14). Conditional IFUJump (with
-FF-encoded condition) further allows the IFU to *not* advance on
-the false branch.
+**Still TBD:**
+- Conditional IFUJump (FF-encoded condition; "if true, no IFU
+  advance — entry 3 reached without prefetch").
+- Trap addresses (*0-3 IFU map fault, *34-37 IFU not ready,
+  *4-7 IFU data parity, *74-77 IFUM parity) per HM Table 14.
 
-### C.4 Opcode advancement
+### C.4 Operand delivery (←Id)  ✓ MINIMAL LANDED
 
-`TIsId` / `RIsId` in FF (FA=1 FB=3 FC=4..5) advances the IFU one
-opcode and replaces a register with the operand byte. Without
-this, the emulator can't progress through bytecode.
+`A←Id` (ASEL=5) and `TIsId`/`RIsId` (FA=0 FB=3 FC=4/5) call
+`ifu_consume_id` to deliver the next operand byte:
+- N (if N != 17₈) first
+- α (or split nibbles if Packed-α=1)
+- β (length=3 only)
+- Then `Length` forever (used by jump-fallthrough calculations)
 
-Tests: `test_ifum_decode`, `test_ifu_jump`, `test_ifu_prefetch_miss`,
-`test_ifu_advance`. Validate by running AEmu.mb against a tiny
-synthetic Alto program (NOP loop + halt opcode).
+Tests:
+- `test_ifum_load_read` — IFUM RAM round-trip via the FF protocol
+- `test_ifu_dispatch_synthetic` — synthetic 2-opcode instruction
+  set (INC, HALT) dispatched through IFUJump; bytecode "10 10 10
+  10 20" runs INC×4 then HALT, T ends at 4.
 
 **Exit criterion for Phase C:** AEmu.mb executes the first 100
 Alto opcodes from a games.dsk image (Alto-emulator-on-Dorado).
+Currently: synthetic IFU pipeline runs, but real microcode bring-
+up needs C.2/C.3 polish (NotReady, conditional IFUJump, traps).
 
 ## Phase D — Tasking
 

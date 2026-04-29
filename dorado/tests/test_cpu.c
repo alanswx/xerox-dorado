@@ -428,8 +428,10 @@ static int test_unsupported_halts(void)
     dorado_microcode mc;
     memset(&mc, 0, sizeof mc);
 
-    /* IM[0]: ASEL=5 (A←Id) — not implemented (no IFU). */
-    mc.im[0] = make_uinstr(0, 0, 2, 0, /*asel=*/5, 0, 0, jcn_local(0));
+    /* IM[0]: IFUJump (JCN = 0 0 1 _ _ 1 1 1) without PCF←B —
+     * should halt with IFU_NOT_READY. JCN bits MSB-first:
+     *   0 0 1 0 0 1 1 1 = 0x27 = 0o47. */
+    mc.im[0] = make_uinstr(0, 0, 2, 0, /*asel=*/6, 0, 0, /*jcn=*/0x27);
     mc.im_present[0] = 1;
     mc.image_to_real[0] = 0;
     mc.image_present[0] = 1;
@@ -440,9 +442,9 @@ static int test_unsupported_halts(void)
     dorado_cpu_init(&cpu, &mc, 0);
 
     int rc = dorado_cpu_step(&cpu);
-    EXPECT(rc != 0, "expected halt on unsupported ASEL=5");
-    EXPECT(cpu.halt_reason == CPU_HALT_UNSUPPORTED_ASEL,
-           "expected UNSUPPORTED_ASEL, got %s",
+    EXPECT(rc != 0, "expected halt on IFUJump without PCF←B");
+    EXPECT(cpu.halt_reason == CPU_HALT_IFU_NOT_READY,
+           "expected IFU_NOT_READY, got %s",
            cpu_halt_reason_str(cpu.halt_reason));
 
     printf("PASS  test_unsupported_halts (%s)\n",
@@ -1636,6 +1638,187 @@ static int test_ifum_load_read(void)
     return 0;
 }
 
+/*
+ * IFU dispatch — synthetic emulator microcode.
+ *
+ * Builds a tiny "instruction set" with two opcodes:
+ *   opcode 0x10 (INC):  T ← T + 1; IFUJump[0] to next opcode
+ *   opcode 0x20 (HALT): branch to a "done" label (doesn't IFUJump)
+ *
+ * Plants 4 INCs followed by a HALT in emulated memory, sets up
+ * BR[31] (codebase) to point at the bytecode, PCF←B to start the
+ * IFU, then IFUJump[0] to dispatch. After dispatching 4 INCs the
+ * 5th IFUJump hits the HALT entry which branches to the end.
+ *
+ * This is the smallest "real opcode loop" the engine can run —
+ * Phase C.2 minimum.
+ */
+static int test_ifu_dispatch_synthetic(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0]  = 025;   mc.alufm_present[0]  = 1;  /* B */
+    mc.alufm[2]  = 0014;  mc.alufm_present[2]  = 1;  /* A+B (carry-in 0) */
+
+    /* === Microcode layout (real IM addresses) ===
+     *
+     * 0  setup0:    BrLo←A, MemBase=0, A=T(=0)              → IM[1]
+     *               (load BR[0] low 16 bits = 0)
+     * 1  setup1:    BrHi←A, A=T(=0)                         → IM[2]
+     *               (BR[0] = 0; we'll use that as code base
+     *                BUT — IFU uses BR[31], not BR[0]!)
+     *
+     * For simplicity, just build BR[31] differently. We'll use a
+     * helper API to set BR[31] from the test driver, since the
+     * microcode-only sequence to load BR[31] is several
+     * instructions. The test mounts the map and writes the
+     * bytecode directly, then the microcode just does PCF←B and
+     * IFUJump.
+     *
+     * Slim layout:
+     *   0  start:      PCF←B (B = 0 → byte 0, word 0)         → IM[1]
+     *   1  preroll:    NOP (give IFU a cycle if needed)        → IM[2]
+     *   2  dispatch:   IFUJump[0]                              → IM via TNIA
+     *
+     * IFUM entry for INC (opcode 0x10):
+     *   IFaddr' = 0x010 (= IM[0o100]) → entry 0 lands at IM[0o100]
+     *   Length' = 00 (low-true → length=1)
+     *   N = 017 (octal = 15, "no operand supplied")
+     *   MemB[0]=1, MemB[1:2]=0 → MemBase = 0o34
+     *
+     * IM[0o100] (entry 0 of INC): T←T+1, IFUJump[0]
+     * IM[0o101] (entry 1, unused): NOP
+     * IM[0o102] (entry 2, unused): NOP
+     * IM[0o103] (entry 3, unused): NOP
+     *
+     * IFUM entry for HALT (opcode 0x20):
+     *   IFaddr' = 0x020 → entry lands at IM[0o200]
+     *   Length' = 00
+     *   N = 017
+     *
+     * IM[0o200] (entry 0 of HALT): just self-loop (no IFUJump);
+     *                              the test detects the halt.
+     */
+
+    /* Microcode at IM[0..2]: PCF←B, NOP, IFUJump[0]. */
+    /* IM[0]: PCF←B with B=0. FA=1 FB=0 FC=0 → FF=0o100. BSEL=4
+     * (constant 0,,FF) gives B=FF=0; but BSEL=constant suppresses
+     * FF interpretation. Use BSEL=2 (T=0 by default) to deliver
+     * B=0 and let FF=0o100 trigger PCF←B. */
+    mc.im[0] = make_uinstr(0, 0, /*bsel=*/2, /*lc=*/0, /*asel=*/6, 0,
+                           /*ff=*/0100, jcn_local(1));
+    mc.im_present[0] = 1;
+    /* IM[1]: NOP — give the IFU a cycle. JCN=local(2). */
+    mc.im[1] = make_uinstr(0, 0, /*bsel=*/2, /*lc=*/0, /*asel=*/6, 0,
+                           /*ff=*/0, jcn_local(2));
+    mc.im_present[1] = 1;
+    /* IM[2]: IFUJump[0]. JCN = 0 0 1 0 0 1 1 1 = 0x27.
+     * BSEL=2 (T) so FF isn't a function (n/a here). */
+    mc.im[2] = make_uinstr(0, 0, /*bsel=*/2, /*lc=*/0, /*asel=*/6, 0,
+                           /*ff=*/0, /*jcn=*/0x27);
+    mc.im_present[2] = 1;
+
+    /* INC entry @ IM[0o100]: T ← T + 1, IFUJump[0]. ASEL=6 (A←T),
+     * BSEL=4 (B = constant 0,,FF; FF=1 makes B=1), ALUF=2 (A+B
+     * carry-in 0). LC=1 (T←Pd). JCN=IFUJump[0]=0x27. */
+    mc.im[0100] = make_uinstr(0, /*aluf=*/2, /*bsel=*/4, /*lc=*/1,
+                              /*asel=*/6, 0, /*ff=*/1, /*jcn=*/0x27);
+    mc.im_present[0100] = 1;
+
+    /* HALT entry @ IM[0o200]: self-loop forever (test detects via
+     * cycle count). */
+    mc.im[0200] = make_uinstr(0, 0, /*bsel=*/2, /*lc=*/0, /*asel=*/6, 0,
+                              /*ff=*/0, jcn_local(0));   /* local(0) of page = 0o200 (since 0o200 is page-aligned) */
+    /* Actually local(0) within page-of-IM[0o200] = page_high|0 = 0o200. */
+    mc.im_present[0200] = 1;
+
+    /* Mark image presence so the placement layer accepts these. */
+    for (int i = 0; i < 3; i++) {
+        mc.image_to_real[i] = i; mc.image_present[i] = 1;
+    }
+    mc.image_to_real[3] = 0100; mc.image_present[3] = 1;
+    mc.image_to_real[4] = 0200; mc.image_present[4] = 1;
+    mc.n_instructions = 5;
+
+    /* IFUM entries: opcode 0x10 (INC) and 0x20 (HALT) under InsSet=0. */
+    /* Entry layout per Table 20:
+     *   ifum_lo (RH): bit 5 = Packed-α, bits 6..15 = IFaddr' (10 bits)
+     *   ifum_hi (LH): bit 0=Sign, 1..3=Par, 4..5=Length', 6=RBaseB',
+     *                 7..9=MemB, 10=TPause', 11=TJump', 12..15=N
+     *
+     * For INC: Length'=00 (length=1), TPause'=1 (no pause, low-true),
+     * TJump'=1 (no jump, low-true), N=017, MemB=000, RBaseB'=1.
+     *
+     * In MSB-first bit numbering (0..15) → C-LSB representation:
+     * Each MSB-bit `n` is at LSB position `15-n`. Build a 16-bit value
+     * where each named field lands at the right position.
+     */
+    /* Helper-style: write the bits via shifts into a uint16_t with
+     * MSB-first layout. */
+    #define MK_LH(sign, length_p, rbaseb_p, memb, tpause_p, tjump_p, n) \
+        ((uint16_t)( ((uint16_t)((sign)&1) << 15) \
+                   | ((uint16_t)((length_p)&3) << 10) \
+                   | ((uint16_t)((rbaseb_p)&1) << 9) \
+                   | ((uint16_t)((memb)&7) << 6) \
+                   | ((uint16_t)((tpause_p)&1) << 5) \
+                   | ((uint16_t)((tjump_p)&1) << 4) \
+                   | ((uint16_t)((n)&0xF)) ))
+    #define MK_RH(packed_a, ifaddr) \
+        ((uint16_t)( ((uint16_t)((packed_a)&1) << 10) \
+                   | ((uint16_t)((ifaddr)&0x3FF)) ))
+
+    /* INC opcode 0x10. IFaddr' = 0o20 (= decimal 16). So entry 0
+     * lands at TNIA = (0o20 << 2) | 0 = 0o100 (= decimal 64). */
+    mc.ifum_hi[0x10] = MK_LH(0, /*Length'*/0, /*RBaseB'*/1,
+                             /*MemB*/4 /* MemB[0]=1, MemB[1:2]=00 → MemBase=034 */,
+                             /*TPause'*/1, /*TJump'*/1, /*N*/017);
+    mc.ifum_lo[0x10] = MK_RH(0, /*IFaddr'*/0020);
+    mc.ifum_present[0x10] = 1;
+
+    /* HALT opcode 0x20. IFaddr' = 0o40 (= decimal 32). Entry 0 →
+     * TNIA = (0o40 << 2) | 0 = 0o200. */
+    mc.ifum_hi[0x20] = MK_LH(0, 0, 1, 4, 1, 1, 017);
+    mc.ifum_lo[0x20] = MK_RH(0, /*IFaddr'*/0040);
+    mc.ifum_present[0x20] = 1;
+
+    /* Set up memory + BR[31] + plant bytecode. */
+    static dorado_memory mem;
+    EXPECT(dorado_memory_init(&mem) == 0, "memory init");
+    /* Mount map page 0 RW. */
+    dorado_map_set(&mem, 0, /*rp=*/0, /*wp=*/0, /*dirty=*/0);
+    /* BR[31] = 0 (codebase at the bottom of memory). */
+    dorado_br_lo_load(&mem, 31, 0);
+    dorado_br_hi_load(&mem, 31, 0);
+    /* Plant bytecode: 4 INCs (0x10) then a HALT (0x20).
+     * Sets 0/1: byte 0 = high byte. So byte 0 of word 0 = high
+     * 8 bits = (word >> 8). Pack as:
+     *   word 0 = INC INC = 0x1010
+     *   word 1 = INC INC = 0x1010
+     *   word 2 = HALT NOP= 0x2000 */
+    mem.storage[0] = 0x1010;
+    mem.storage[1] = 0x1010;
+    mem.storage[2] = 0x2000;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.mem = &mem;
+
+    /* Run 30 cycles; should reach the HALT self-loop with T == 4
+     * after dispatching 4 INCs. */
+    for (int i = 0; i < 30; i++) {
+        if (dorado_cpu_step(&cpu) != 0) break;
+    }
+    EXPECT(cpu.real_PC == 0200,
+           "should be at HALT entry (0o200), got 0o%o", cpu.real_PC);
+    EXPECT(cpu.T == 4, "T should = 4 (4 INCs), got %d", cpu.T);
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_ifu_dispatch_synthetic (T=%d)\n", cpu.T);
+    return 0;
+    #undef MK_LH
+    #undef MK_RH
+}
+
 int main(void)
 {
     int rc = 0;
@@ -1662,6 +1845,7 @@ int main(void)
     rc |= test_tasking_off_blocks_switch();
     rc |= test_wakeup_ff_function();
     rc |= test_ifum_load_read();
+    rc |= test_ifu_dispatch_synthetic();
     rc |= probe_bootstrap();
     rc |= probe_full_boot();
     if (rc == 0) printf("\nAll CPU tests passed.\n");

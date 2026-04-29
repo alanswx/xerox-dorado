@@ -5,6 +5,10 @@
 #include <stdio.h>
 #include <string.h>
 
+/* Forward declarations for IFU helpers (defined later in this file). */
+static uint16_t ifu_consume_id(dorado_cpu *cpu);
+static uint8_t  ifu_fetch_byte(dorado_cpu *cpu, uint16_t pc);
+
 /*
  * Dorado microengine. See include/cpu.h for scope.
  *
@@ -38,6 +42,8 @@ const char *cpu_halt_reason_str(cpu_halt_reason r)
     case CPU_HALT_BREAKPOINT:         return "halt: breakpoint";
     case CPU_HALT_BAD_RM:             return "halt: RM out of range";
     case CPU_HALT_USER:               return "halt: user";
+    case CPU_HALT_IFU_NOT_READY:      return "halt: IFU not ready";
+    case CPU_HALT_IFU_NO_ENTRY:       return "halt: IFUM entry missing";
     }
     return "halt: unknown";
 }
@@ -512,8 +518,18 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
             case 1: /* ReadMap */         return pd;  /* stub */
             case 2: /* Pd ← Input */      return pd;  /* stub */
             case 3: /* Pd ← InputNoPE */  return pd;  /* stub */
-            case 4: /* RIsId */           return pd;  /* needs IFU */
-            case 5: /* TIsId */           return pd;  /* needs IFU */
+            case 4: /* RIsId — Id replaces RM/STK in A←RM/STK,
+                     * B←RM/STK, and shifter (HM Table 11a FA=0 FB=3
+                     * FC=4). For our minimal model: just consume one
+                     * ←Id to advance the operand cursor. The actual
+                     * substitution into RM/STK reads happens elsewhere
+                     * — Phase C.4 polish. */
+                (void)ifu_consume_id(cpu);
+                return pd;
+            case 5: /* TIsId — Id replaces T in A←T, B←T, and shifter
+                     * (FC=5). Same caveat as RIsId. */
+                (void)ifu_consume_id(cpu);
+                return pd;
             case 6: /* Output ← B */      return pd;  /* I/O, stub */
             case 7: /* FlipMemBase */
                 cpu->MemBase ^= 1;
@@ -549,7 +565,17 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
     if (fa == 1) {
         if (fb == 0) {
             switch (fc) {
-            case 0: /* PCF ← B */                  cpu->TPC = b;        return pd;
+            case 0: /* PCF ← B (HM Table 11c FA=1 FB=0 FC=0).
+                     * Loads PCF and starts the IFU pipeline. PCF is
+                     * a 16-bit value: bits 0:14 (MSB) = word
+                     * displacement relative to BR[31], bit 15 (MSB) =
+                     * byte selector. In C-LSB: byte sel = bit 0,
+                     * word offset = (b >> 1) & 0x7FFF. */
+                cpu->ifu_pcf    = b;
+                cpu->ifu_pcx    = b;     /* until first IFUJump */
+                cpu->ifu_idcnt  = 0;
+                cpu->ifu_active = 1;
+                return pd;
             case 1: /* IFUTest ← B */              return pd;
             case 2: /* IFUTick */                  return pd;
             case 3: /* RescheduleNow */            return pd;
@@ -1004,7 +1030,7 @@ static dorado_ref_kind decode_ref_kind(const dorado_uinstr *u, int io_task)
 }
 
 /* Compute A bus value (HM Table 8a/8b). */
-static int a_bus(const dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *out)
+static int a_bus(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *out)
 {
     int rm_a = rm_address(cpu, u);
     switch (u->asel) {
@@ -1030,8 +1056,10 @@ static int a_bus(const dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *out)
         if (rm_a >= CPU_RMSTK_INVALID) return CPU_HALT_UNSUPPORTED_ASEL;
         *out = rm_stk_read(cpu, rm_a);
         return 0;
-    case 5: /* A←Id (IFU operand byte) — no IFU yet */
-        return CPU_HALT_UNSUPPORTED_ASEL;
+    case 5: /* A ← Id (IFU operand byte). Consumes one ←Id from
+             * the pipeline. */
+        *out = ifu_consume_id(cpu);
+        return 0;
     case 6: /* A←T */
         *out = cpu->T;
         return 0;
@@ -1209,6 +1237,129 @@ static int eval_branch_condition(dorado_cpu *cpu,
     return r;
 }
 
+/* Fetch a single byte from the IFU code stream at the given pc
+ * (16-bit; bit 0 = byte selector, bits 1:15 = word offset relative
+ * to BR[31]). Uses the memory subsystem to read the word, then
+ * extracts the byte per the instruction-set kludge (HM page 64:
+ * sets 0/1 use byte 0 = bits 0:7 (high half), sets 2/3 reverse).
+ *
+ * Returns the byte. If memory isn't wired, returns 0xFF. Caller is
+ * responsible for handling map faults via the standard fault path —
+ * this helper just delivers data. */
+static uint8_t ifu_fetch_byte(dorado_cpu *cpu, uint16_t pc)
+{
+    if (!cpu->mem) return 0xFF;
+    uint16_t word_off    = (uint16_t)(pc >> 1);
+    uint8_t  byte_sel    = (uint8_t)(pc & 1);
+    uint32_t br31        = dorado_br_get(cpu->mem, 31);
+    uint32_t va          = (br31 + word_off) & 0x0FFFFFFFu;
+
+    /* IFU fetches use a separate cache port in real hardware; here
+     * we issue a normal Fetch via the cache + Map. The result lands
+     * in mem->md. We use IFETCH so the pipe entry kind is correct. */
+    dorado_fault_kind f = dorado_memory_ref(cpu->mem, DM_REF_IFETCH,
+                                            va, 0, 0);
+    (void)f;   /* Phase C.2 minimum: assume no fault. */
+    uint16_t word = cpu->mem->md;
+    /* Sets 0/1 (the only ones we model so far): byte 0 = high byte. */
+    int high_byte = (cpu->ifu_insset < 2) ? (byte_sel == 0) : (byte_sel == 1);
+    return high_byte ? (uint8_t)((word >> 8) & 0xFF) : (uint8_t)(word & 0xFF);
+}
+
+/* Decode an IFUM entry's high half (Table 18). Sets the relevant
+ * fields on cpu->ifu_*. The 16-bit raw word is laid out per HM
+ * Table 20 (IFUMLH←B description):
+ *   bit 0  = Sign
+ *   bits 1..3 = IPar (parity bits, ignored in our model)
+ *   bits 4..5 = Length' (low-true; opcode length is ~Length' + 1)
+ *   bit 6  = RBaseB' (low-true)
+ *   bits 7..9 = MemB
+ *   bit 10 = TPause' (low-true)
+ *   bit 11 = TJump' (low-true)
+ *   bits 12..15 = N
+ * "MSB-first 0..15"; in C-LSB the MSB is bit 15 of the uint16_t. */
+static void ifu_decode_lh(dorado_cpu *cpu, uint16_t lh)
+{
+    /* C-LSB reverses bit order: LSB-bit n = MSB-bit (15-n). */
+    cpu->ifu_sign       = (lh >> 15) & 1;
+    /* Length' is low-true: 00→1 byte, 01→2, 10→3, 11→illegal. */
+    uint8_t lpr = (uint8_t)((lh >> 10) & 3);
+    cpu->ifu_length     = (uint8_t)(lpr + 1);
+    cpu->ifu_type_pause = !((lh >> 5) & 1);   /* TPause' low-true */
+    cpu->ifu_type_jump  = !((lh >> 4) & 1);   /* TJump' low-true */
+    cpu->ifu_n          = (uint8_t)(lh & 0xF);
+    /* MemB[0:2] in MSB-first = bits 7..9. In C-LSB: bits 8..6. */
+    uint8_t memb = (uint8_t)((lh >> 6) & 7);
+    /* HM page 65: at t0 of the entry instruction,
+     *   if MemB[0]==0: MemBase ← 0..MemBX[0:1]..MemB[1:2]
+     *   if MemB[0]==1: MemBase ← 34₈ + MemB[1:2]. */
+    uint8_t memb0 = (memb >> 2) & 1;
+    uint8_t memb12 = memb & 3;
+    if (memb0 == 0) {
+        cpu->MemBase = (uint8_t)(((cpu->MemBX & 3) << 2) | memb12);
+    } else {
+        cpu->MemBase = (uint8_t)(034 + memb12);
+    }
+    /* RBaseB' is low-true; RBase ← RBaseB. */
+    cpu->RBase = !((lh >> 9) & 1);
+}
+
+/* Decode an IFUM entry's low half (Table 20):
+ *   bit 5 = Packed-α
+ *   bits 6:15 = IFaddr' (10 bits — the 10-bit entry-vector base)
+ * Returns IFaddr'. Sets ifu_packed_a. */
+static uint16_t ifu_decode_rh(dorado_cpu *cpu, uint16_t rh)
+{
+    cpu->ifu_packed_a = (rh >> 10) & 1;
+    /* IFaddr' bits 6:15 (MSB) = bits 9..0 (LSB) = rh & 0x3FF. */
+    return (uint16_t)(rh & 0x3FF);
+}
+
+/* Deliver the next operand byte for ←Id (HM Table 19, regular &
+ * pause opcodes). Increments ifu_idcnt. After all operand bytes are
+ * consumed, ←Id delivers Length forever (used by jump-fallthrough
+ * calculations). For jump opcodes, we don't yet model the sequence
+ * (it's normally consumed inside IFUJump). */
+static uint16_t ifu_consume_id(dorado_cpu *cpu)
+{
+    uint8_t cnt   = cpu->ifu_idcnt++;
+    uint8_t len   = cpu->ifu_length;
+    uint8_t n_supplied = (cpu->ifu_n != 017);
+
+    /* Operand sequence: N (if supplied), then α (or α[0:3] / α[4:7]
+     * when Packed-α=1), then β (length=3 with Packeda=0), then
+     * Length forever. */
+    int op_idx = (int)cnt;
+    if (n_supplied) {
+        if (op_idx == 0) return (uint16_t)cpu->ifu_n;
+        op_idx--;
+    }
+    if (len == 2 && cpu->ifu_packed_a) {
+        /* α split into nibbles: α[0:3] then α[4:7]. */
+        if (op_idx == 0) return (uint16_t)((cpu->ifu_alpha >> 4) & 0xF);
+        if (op_idx == 1) return (uint16_t)(cpu->ifu_alpha & 0xF);
+    } else if (len >= 2) {
+        if (op_idx == 0) {
+            /* α; sign-extended to 16 bits if Sign=1. */
+            uint16_t a = cpu->ifu_alpha;
+            if (cpu->ifu_sign && (a & 0x80)) a |= 0xFF00;
+            return a;
+        }
+        op_idx--;
+    }
+    if (len == 3 && cpu->ifu_packed_a) {
+        /* α[0:3], α[4:7], then β. */
+        if (op_idx == 0) return (uint16_t)((cpu->ifu_alpha >> 4) & 0xF);
+        if (op_idx == 1) return (uint16_t)(cpu->ifu_alpha & 0xF);
+        if (op_idx == 2) return (uint16_t)cpu->ifu_beta;
+    } else if (len == 3) {
+        if (op_idx == 0) return (uint16_t)cpu->ifu_beta;
+        op_idx--;
+    }
+    /* Out of operands → return Length. */
+    return (uint16_t)cpu->ifu_length;
+}
+
 /*
  * Compute next real_PC from JCN (HM §4.3, Table 13, Figure 6).
  *
@@ -1267,8 +1418,80 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
         uint8_t bit1 = (jcn >> 6) & 1;     /* JCN[1] */
         uint8_t bits02 = (jcn >> 5) & 7;   /* JCN[0:2] */
         if (bits02 == 1) {
-            /* IFU Jump (0 0 1 _ _ 1 1 1). No IFU yet. */
-            return CPU_HALT_UNSUPPORTED_JCN;
+            /* IFU Jump (0 0 1 _ _ 1 1 1). JCN[3:4] = the entry-vector
+             * slot n (0..3). */
+            if (!cpu->ifu_active) return CPU_HALT_IFU_NOT_READY;
+            int n_slot = (jcn >> 3) & 3;   /* JCN[3:4] */
+
+            /* Read opcode at PCF. Save PCX (pc of currently-executing
+             * opcode = the one we're about to dispatch to). */
+            cpu->ifu_pcx     = cpu->ifu_pcf;
+            uint8_t opcode   = ifu_fetch_byte(cpu, cpu->ifu_pcf);
+
+            /* Look up IFUM[InsSet||opcode]. If the entry isn't
+             * present, halt — microcode mis-setup (or a real
+             * machine would map-fault on the IFU port). */
+            int ifum_addr = ((cpu->ifu_insset & 3) << 8) | opcode;
+            if (cpu->mc && !cpu->mc->ifum_present[ifum_addr]) {
+                return CPU_HALT_IFU_NO_ENTRY;
+            }
+            uint16_t lh = cpu->mc ? cpu->mc->ifum_hi[ifum_addr] : 0;
+            uint16_t rh = cpu->mc ? cpu->mc->ifum_lo[ifum_addr] : 0;
+            ifu_decode_lh(cpu, lh);
+            uint16_t ifaddr = ifu_decode_rh(cpu, rh);
+
+            /* Capture operand bytes if any (HM Table 19 for the full
+             * sequence; here we just snapshot α and β so ←Id can
+             * deliver them). For sets 0/1 (Alto-style), α follows
+             * the opcode in the byte stream. */
+            uint8_t length = cpu->ifu_length;
+            uint16_t pc_after = (uint16_t)(cpu->ifu_pcf + 1);
+            if (length >= 2) {
+                cpu->ifu_alpha = ifu_fetch_byte(cpu, pc_after);
+                pc_after = (uint16_t)(pc_after + 1);
+            }
+            if (length >= 3) {
+                cpu->ifu_beta = ifu_fetch_byte(cpu, pc_after);
+                pc_after = (uint16_t)(pc_after + 1);
+            }
+
+            /* Compute the next PCF for the *successor* opcode.
+             * - regular: PCF = pc_after (next byte after operands)
+             * - jump:    PCF = displacement-computed
+             * - pause:   PCF stays put; microcode must issue PCF←B */
+            if (cpu->ifu_type_pause) {
+                cpu->ifu_active = 0;        /* halt fetching */
+            } else if (cpu->ifu_type_jump) {
+                /* HM page 66 jump-displacement formulas — minimal
+                 * implementation: length=1 uses 6-bit signed
+                 * (Sign||Packeda||N), length=2 uses α (sign-extended
+                 * if Sign). */
+                int16_t disp;
+                if (length == 1) {
+                    int8_t s = (int8_t)((cpu->ifu_sign << 5)
+                                       | (cpu->ifu_packed_a << 4)
+                                       | cpu->ifu_n);
+                    if (s & 0x20) s = (int8_t)(s | 0xC0);  /* sign-extend 6→8 */
+                    disp = (int16_t)s;
+                } else {
+                    int16_t a16 = (int16_t)cpu->ifu_alpha;
+                    if (cpu->ifu_sign && (cpu->ifu_alpha & 0x80))
+                        a16 = (int16_t)(a16 | 0xFF00);
+                    disp = a16;
+                }
+                cpu->ifu_pcf = (uint16_t)(cpu->ifu_pcx + disp);
+            } else {
+                cpu->ifu_pcf = pc_after;
+            }
+            cpu->ifu_idcnt = 0;
+
+            /* Compute TNIA: TNIA[4:13] = IFaddr', TNIA[14:15] = n.
+             * In our 12-bit microstore, TNIA = (IFaddr' << 2) | n. */
+            uint16_t tnia = (uint16_t)((ifaddr << 2) | n_slot);
+            *next = (uint16_t)(tnia & 0xFFF);
+            /* IFUJump always loads Link with CIA+1 (HM page 33). */
+            cpu->Link = (uint16_t)(cpu->real_PC + 1);
+            return 0;
         }
         if (bit1 == 1) {
             /* Return / Read TPC / Write TPC / Read IM / Write IM
