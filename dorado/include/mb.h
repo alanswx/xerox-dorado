@@ -111,4 +111,8 @@ int mb_find_mem(const mb_file *mb, const char *name);
 /* Look up a symbol at (mem, addr). NULL if none. */
 const char *mb_lookup_symbol(const mb_file *mb, int mem_id, int addr);
 
+/* Reverse lookup — find a symbol's image address by name in the
+ * given memory. Returns -1 if not found. Case-sensitive. */
+int mb_find_symbol_addr(const mb_file *mb, int mem_id, const char *name);
+
 #endif

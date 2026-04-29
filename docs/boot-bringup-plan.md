@@ -512,22 +512,48 @@ up needs C.2/C.3 polish (NotReady, conditional IFUJump, traps).
 
 ### Boot-bypass probe — `probe_aemu` in test_cpu.c
 
-Loads `chm/dorado/AEmu.mb!2` directly (skipping the BB→Boot0→
-Boot1→Initial chain), points the cpu at AEmu's `START` symbol,
-mounts the first 16 map pages identity-RW, and runs.
+Layer-loads `Initial.mb` + `kernel.mb` + `memMisc.mb` +
+`IfuComplex.mb` + `AEmu.mb!2` (14,099 microinstructions across the
+4K IM real-address space, with later layers refining earlier
+ones), mimics BB's `PrepareProcessor` setup (tasking off, IFU
+inactive, no pending wakeups), mounts the first 16 map pages
+identity-RW, and runs from candidate entry points (BOOTEMULATOR
+→ STARTEMULATOR → AEmu's START in priority order).
 
-**Current result:** AEmu microcode executes **21 cycles** before
-halting at `real_PC=0o6000` (no code at PC). The first 21 cycles
-are AEmu's startup initialization. The halt indicates AEmu either
-(a) computed a long-jump target that depends on register state we
-haven't set up, (b) is doing an IFU dispatch that hits an
-uninitialized IFUM slot, or (c) returns through Link to a value
-that should have been set by Initial. Investigation TBD —
-single-stepping the 21 cycles with trace would reveal what AEmu
-is reaching for.
+**Current result:** Engine runs the full 200,000-cycle budget
+through real Xerox PARC microcode without halting. Entry trail:
 
-This is the first time real Xerox PARC microcode has run on the
-emulator beyond the BB-loaded Boot0 trap-walk. ✓
+  STARTEMULATOR (0o1133) → RESUMEEMULATOR (0o1135) → 0o1136 →
+  SETUPBRS (0o1140) → DOBRS×N (BR setup loop) → ... →
+  LRTYPETABLE / LRTYPEIM / LRLOOPTOFF / LRNOPREFNEXT / TOFFRET
+  (loops forever)
+
+**The wall:** AEmu's `LRTYPETABLE` loop reads a TYPE TABLE from
+**main memory** via `Fetch←RM/STK`. In real boot, Initial would
+have loaded this table data from disk or Ethernet into main
+memory before transferring to the emulator. The boot-bypass path
+can't replicate that — direct .MB layer-load only populates IM,
+RM, ALUFM, IFUM (the microcode-internal state), not main-memory
+data tables.
+
+**Three possible paths forward:**
+  1. **Fix Phase A.7 AMSync** so the real BB→Boot0→Boot1→Initial
+     chain runs faithfully and Initial loads main memory. This
+     is the canonical path; needs the CPReg sync handshake
+     completed.
+  2. **Reverse-engineer the table layout** AEmu's LRTYPETABLE
+     expects, plant it in main memory before running. Tractable
+     but requires reading the source / disassembly carefully.
+  3. **Use a synthetic emulator microcode** (already have the
+     pattern in `test_ifu_dispatch_synthetic`) and skip real
+     PARC-microcode bring-up. Validates engine semantics but
+     doesn't run real software.
+
+**Engine state:** the architectural skeleton is sound. 14k
+instructions of original microcode execute through Initial's
+kernel-init, IFUM-load, and emulator-dispatch sequences without
+hitting an "unsupported" halt. The remaining gap is data-driven,
+not engine-driven.
 
 ## Phase D — Tasking
 

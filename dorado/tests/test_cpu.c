@@ -1232,6 +1232,40 @@ static int probe_aemu(void)
     int aemu_count    = mc.n_instructions;
     (void)initial_count;
 
+    /* Look up some interesting entry points by name across all
+     * layers' .MBs. The image-to-real for a given .MB is local to
+     * that load; we re-derive by looking at each layer's mb_file. */
+    int initial_im_id     = mb_find_mem(&layers[0].mb, "IM");
+    int aemu_im_id        = mb_find_mem(&layers[n_layers-1].mb, "IM");
+    int bootemul_image    = (initial_im_id >= 0)
+        ? mb_find_symbol_addr(&layers[0].mb, initial_im_id, "BOOTEMULATOR")
+        : -1;
+    int startemul_image   = (aemu_im_id >= 0)
+        ? mb_find_symbol_addr(&layers[n_layers-1].mb, aemu_im_id, "STARTEMULATOR")
+        : -1;
+
+    /* Compute REAL addresses for those image addresses. The .MB
+     * stores the real placement in each entry's storage word 3
+     * (awd & 0xFFF). Re-read it directly from the mb_file. */
+    int bootemul_real = -1, startemul_real = -1;
+    if (bootemul_image >= 0) {
+        const mb_memory *m = &layers[0].mb.mems[initial_im_id];
+        if (m->present[bootemul_image]) {
+            bootemul_real = m->data[(size_t)bootemul_image * m->width_words + 3]
+                            & 0xFFF;
+        }
+    }
+    if (startemul_image >= 0) {
+        const mb_memory *m = &layers[n_layers-1].mb.mems[aemu_im_id];
+        if (m->present[startemul_image]) {
+            startemul_real = m->data[(size_t)startemul_image * m->width_words + 3]
+                             & 0xFFF;
+        }
+    }
+    printf("       symbols: BOOTEMULATOR(Initial)=0o%o "
+           "STARTEMULATOR(AEmu)=0o%o\n",
+           bootemul_real, startemul_real);
+
     int real_start = mc.image_present[0] ? mc.image_to_real[0] : 0;
 
     /* Diagnostic: dump ALUFM contents. */
@@ -1255,22 +1289,48 @@ static int probe_aemu(void)
         dorado_map_set(&mem, pg, /*rp=*/(uint16_t)pg, /*wp=*/0, /*dirty=*/0);
     }
 
-    dorado_cpu cpu;
-    dorado_cpu_init(&cpu, &mc, (uint16_t)real_start);
-    cpu.mem = &mem;
+    /* Choose entry point. Order of preference:
+     *   1. STARTEMULATOR (AEmu) — bypasses AEmu's own startup
+     *      (RESTOREALUFM, LRTYPETABLE etc.) which tries to reload
+     *      IFUM from main-memory tables Initial would have placed
+     *      there. Our static load already populated IFUM.
+     *   2. BOOTEMULATOR (Initial) — transfers to emulator after
+     *      Initial's setup; still hits AEmu's startup.
+     *   3. AEmu's START — full path (gets stuck in LRTYPETABLE). */
+    int entry = (startemul_real >= 0) ? startemul_real
+              : (bootemul_real >= 0)  ? bootemul_real
+              : real_start;
 
-    /* Step manually. Record PC trail (last N PCs in a ring) + detect
-     * self-loops. Bump max cycles since we're running real microcode. */
-    #define TRAIL_SIZE 256
-    uint16_t trail[TRAIL_SIZE];
-    int      trail_head = 0, trail_total = 0;
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, (uint16_t)entry);
+    cpu.mem = &mem;
+    /* Match BB's PrepareProcessor setup before starting the
+     * emulator: tasking off (BB's `Return#` instruction includes
+     * TaskingOff), no pending wakeups, IFU not active until
+     * microcode does PCF←B. */
+    cpu.tasking_on = 0;
+    cpu.wakeup_pending = 0;
+    cpu.reschedule_pending = 0;
+    cpu.ifu_active = 0;
+    cpu.ifu_warmup = 0;
+
+    /* Step manually. Record TWO trails: a "first" trail of the
+     * earliest 64 PCs (so we see entry flow) and a "last" trail of
+     * the most recent 64 PCs (so we see where it ended up). */
+    #define FIRST_N 64
+    #define LAST_N  64
+    uint16_t first_trail[FIRST_N];
+    uint16_t last_trail[LAST_N];
+    int      first_n = 0;
+    int      last_head = 0, last_total = 0;
     cpu_halt_reason r = CPU_HALT_NONE;
     int loop_pc = -1, loop_count = 0;
     int max_cycles = 200000;
     for (int i = 0; i < max_cycles; i++) {
-        trail[trail_head] = cpu.real_PC;
-        trail_head = (trail_head + 1) % TRAIL_SIZE;
-        trail_total++;
+        if (first_n < FIRST_N) first_trail[first_n++] = cpu.real_PC;
+        last_trail[last_head] = cpu.real_PC;
+        last_head = (last_head + 1) % LAST_N;
+        last_total++;
         if ((int)cpu.real_PC == loop_pc) {
             if (++loop_count > 200) break;
         } else {
@@ -1282,10 +1342,8 @@ static int probe_aemu(void)
             break;
         }
     }
-    int trail_n = trail_total < TRAIL_SIZE ? trail_total : TRAIL_SIZE;
-    int trail_first = trail_total < TRAIL_SIZE
-                      ? 0
-                      : trail_head;
+    int last_n = last_total < LAST_N ? last_total : LAST_N;
+    int last_first = last_total < LAST_N ? 0 : last_head;
 
     const char *sym       = dorado_microcode_symbol_at_real(&mc, cpu.real_PC);
     const char *entry_sym = dorado_microcode_symbol_at_real(&mc, real_start);
@@ -1300,38 +1358,38 @@ static int probe_aemu(void)
            cpu.cycles, cpu_halt_reason_str(r),
            cpu.real_PC,
            sym ? " sym=" : "", sym ? sym : "");
-    /* Print PC trail with run-length compression (collapse repeats). */
-    printf("       trail:");
+    /* Print first trail: entry flow. */
+    printf("       entry:");
     int prev_pc = -1, prev_count = 0;
-    for (int i = 0; i < trail_n; i++) {
-        int idx = (trail_first + i) % TRAIL_SIZE;
-        if ((int)trail[idx] == prev_pc) {
-            prev_count++;
-            continue;
-        }
+    for (int i = 0; i < first_n; i++) {
+        if ((int)first_trail[i] == prev_pc) { prev_count++; continue; }
         if (prev_count > 1) printf("×%d", prev_count);
-        const char *s = dorado_microcode_symbol_at_real(&mc, trail[idx]);
-        if (s) printf(" 0o%o(%s)", trail[idx], s);
-        else   printf(" 0o%o", trail[idx]);
-        prev_pc = trail[idx];
+        const char *s = dorado_microcode_symbol_at_real(&mc, first_trail[i]);
+        if (s) printf(" 0o%o(%s)", first_trail[i], s);
+        else   printf(" 0o%o", first_trail[i]);
+        prev_pc = first_trail[i];
         prev_count = 1;
     }
     if (prev_count > 1) printf("×%d", prev_count);
     printf("\n");
 
-    /* Disassemble the last 4 instructions to see the halt context. */
-    int dis_start = trail_n - 4 < 0 ? 0 : trail_n - 4;
-    for (int i = dis_start; i < trail_n; i++) {
-        int idx = (trail_first + i) % TRAIL_SIZE;
-        uint16_t pc = trail[idx];
-        if (pc >= 4096 || !mc.im_present[pc]) continue;
-        char dis[128];
-        dorado_format(&mc.im[pc], dis, sizeof dis);
-        const char *s = dorado_microcode_symbol_at_real(&mc, pc);
-        printf("       IM[0o%o]%s%s: %s\n", pc,
-               s ? " = " : "", s ? s : "", dis);
+    /* Print last trail: where it ended up. */
+    printf("       last:");
+    prev_pc = -1; prev_count = 0;
+    for (int i = 0; i < last_n; i++) {
+        int idx = (last_first + i) % LAST_N;
+        if ((int)last_trail[idx] == prev_pc) { prev_count++; continue; }
+        if (prev_count > 1) printf("×%d", prev_count);
+        const char *s = dorado_microcode_symbol_at_real(&mc, last_trail[idx]);
+        if (s) printf(" 0o%o(%s)", last_trail[idx], s);
+        else   printf(" 0o%o", last_trail[idx]);
+        prev_pc = last_trail[idx];
+        prev_count = 1;
     }
-    #undef TRAIL_SIZE
+    if (prev_count > 1) printf("×%d", prev_count);
+    printf("\n");
+    #undef FIRST_N
+    #undef LAST_N
 
     if (cpu.halt_reason == CPU_HALT_UNSUPPORTED_ASEL ||
         cpu.halt_reason == CPU_HALT_UNSUPPORTED_BSEL ||

@@ -140,6 +140,16 @@ const char *mb_lookup_symbol(const mb_file *mb, int mem_id, int addr)
     return NULL;
 }
 
+int mb_find_symbol_addr(const mb_file *mb, int mem_id, const char *name)
+{
+    for (mb_symbol *s = mb->symbols; s; s = s->next) {
+        if (s->mem_id == mem_id && strcmp(s->name, name) == 0) {
+            return s->addr;
+        }
+    }
+    return -1;
+}
+
 mb_status mb_load(mb_file *mb, const char *path)
 {
     FILE *fp = fopen(path, "rb");
