@@ -186,6 +186,75 @@ static int test_snapshot_pgm(void)
     return 0;
 }
 
+/* test_render_fifo — push pixel words into FIFO, render them, verify
+ * the framebuffer matches. */
+static int test_render_fifo(void)
+{
+    static dorado_display d;
+    dorado_display_init(&d);
+
+    /* Push 51 words to fill one scan line (50 full words = 800 pixels
+     * + 8 leftover pixels in the 51st word's first 8 bits). Use a
+     * recognizable pattern: alternating 0xAAAA / 0x5555 (= odd/even
+     * pixels). */
+    int row_words = (DORADO_DISPLAY_W + 15) / 16;       /* 51 */
+    for (int w = 0; w < row_words; w++) {
+        uint16_t pat = (w & 1) ? 0x5555 : 0xAAAA;
+        EXPECT(dorado_display_fifo_push(&d, /*subtask=*/0, pat) == 0,
+               "push word %d", w);
+    }
+
+    int dst_y = 0;
+    int rendered = dorado_display_render_fifo(&d, 0, &dst_y);
+    /* Should render at least one full row (= 808 pixels) plus 8 more
+     * from the 51st word. dst_y should be 1 (advanced past row 0). */
+    EXPECT(rendered >= DORADO_DISPLAY_W,
+           "rendered %d pixels (expected ≥ %d)", rendered, DORADO_DISPLAY_W);
+    EXPECT(dst_y >= 1, "dst_y advanced to %d", dst_y);
+
+    /* Row 0 should now contain pattern: words 0,2,4,... = 0xAAAA,
+     * words 1,3,5,... = 0x5555. So pixels at even positions in even
+     * words = 1, odd positions = 0; alternates per word. */
+    /* Pixel (0, 0) is bit 7 of fb[0]. Word 0 = 0xAAAA → MSB = 1. */
+    EXPECT((d.fb[0] >> 7) & 1, "pixel (0,0) should be 1");
+    /* Pixel (1, 0) = bit 6 of fb[0]. Word 0 bit 14 = 0 (0xAAAA = 1010..). */
+    EXPECT(!((d.fb[0] >> 6) & 1), "pixel (1,0) should be 0");
+    /* fb[0] should be 0xAA. */
+    EXPECT(d.fb[0] == 0xAA, "fb[0] = 0x%02X (expected 0xAA)", d.fb[0]);
+    /* fb[2] is the start of word 1 = 0x5555 → high byte = 0x55. */
+    EXPECT(d.fb[2] == 0x55, "fb[2] = 0x%02X (expected 0x55)", d.fb[2]);
+
+    /* Subsequent rows should be untouched. */
+    EXPECT(d.fb[DORADO_DISPLAY_ROW_BYTES] == 0,
+           "row 1 byte 0 should still be 0");
+
+    /* Push more rows and render. */
+    for (int r = 0; r < 4; r++) {
+        for (int w = 0; w < row_words; w++) {
+            uint16_t pat = ((r + w) & 1) ? 0x5555 : 0xAAAA;
+            dorado_display_fifo_push(&d, 0, pat);
+        }
+    }
+    rendered = dorado_display_render_fifo(&d, 0, &dst_y);
+    EXPECT(rendered >= 4 * DORADO_DISPLAY_W,
+           "after 4 more rows, rendered %d (expected ≥ %d)",
+           rendered, 4 * DORADO_DISPLAY_W);
+    EXPECT(dst_y >= 5, "dst_y advanced past 5, got %d", dst_y);
+
+    /* Empty FIFO render = no-op. */
+    int saved_y = dst_y;
+    rendered = dorado_display_render_fifo(&d, 0, &dst_y);
+    EXPECT(rendered == 0, "empty FIFO rendered %d pixels", rendered);
+    EXPECT(dst_y == saved_y, "dst_y advanced from empty FIFO");
+
+    /* Snapshot for visual inspection. */
+    dorado_display_snapshot_pgm(&d, "/tmp/test_dorado_render.pgm");
+    printf("PASS  test_render_fifo (5 rows × 808 px rendered, "
+           "dst_y=%d after; PGM at /tmp/test_dorado_render.pgm)\n",
+           dst_y);
+    return 0;
+}
+
 int main(void)
 {
     int rc = 0;
@@ -194,6 +263,7 @@ int main(void)
     rc |= test_attach_to_io();
     rc |= test_fifo_push();
     rc |= test_snapshot_pgm();
+    rc |= test_render_fifo();
     if (rc == 0) printf("\nAll display tests passed.\n");
     return rc;
 }

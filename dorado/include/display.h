@@ -162,4 +162,23 @@ int dorado_display_snapshot_pgm(const dorado_display *d, const char *path);
  */
 void dorado_display_set_pixel(dorado_display *d, int x, int y, int pix);
 
+/*
+ * Drain the per-channel FIFO and render pixels into the framebuffer.
+ * Phase 2 simplified: assumes 1-bit-per-pixel (Alto monitor /
+ * αItemSize=1). Each FIFO word delivers 16 pixels, MSB = leftmost.
+ *
+ * `subtask` selects channel (0 = A, 2 = B). The function scans
+ * across the framebuffer line by line, consuming FIFO words until
+ * either the FIFO is empty or `dst_y` reaches the bottom of the
+ * framebuffer. `dst_y` is incremented by the function as it goes.
+ *
+ * The mixer / waveform / pixel-clock machinery is NOT modeled; this
+ * is just a "dump FIFO contents into FB at (0, dst_y)..(end, dst_y)
+ * one row at a time" helper, useful for synthetic tests and for
+ * loading a snapshot of what microcode put into the FIFO.
+ *
+ * Returns the number of pixels rendered.
+ */
+int dorado_display_render_fifo(dorado_display *d, int subtask, int *dst_y);
+
 #endif

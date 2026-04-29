@@ -172,6 +172,46 @@ void dorado_disk_controller_attach_drive(dorado_disk_controller *ctl,
     dorado_disk_drive_attach_pack(&ctl->drive[slot], pack);
 }
 
+void dorado_disk_controller_advance_sector(dorado_disk_controller *ctl)
+{
+    dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
+    if (!d->pack) return;
+    d->cur_sector = (d->cur_sector + 1) % d->pack->geometry.sectors;
+    ctl->sector_tw = 1;
+    /* If the controller has been kicked off (Active + Read op pending),
+     * load the next sector's data. Phase 2 simplification: only
+     * triggered explicitly by this helper — real hardware sequences
+     * it via the read PROM. */
+    if (ctl->active && (ctl->control & 0xFF) != 0) {
+        /* Some op other than Done; reload FIFO with new sector. */
+        dorado_disk_sector *s = dorado_disk_pack_sector(
+            d->pack, d->cur_cyl, d->cur_head, d->cur_sector);
+        if (s) {
+            ctl->fifo_count = 0;
+            ctl->fifo_head = 0;
+            ctl->fifo_tail = 0;
+            int n = 0;
+            for (int w = 0;
+                 w < DORADO_DISK_HEADER_WORDS &&
+                 n < DORADO_DISK_FIFO_WORDS; w++, n++) {
+                ctl->fifo[ctl->fifo_head] = s->header[w];
+                ctl->fifo_head =
+                    (ctl->fifo_head + 1) % DORADO_DISK_FIFO_WORDS;
+                ctl->fifo_count++;
+            }
+            for (int w = 0;
+                 w < DORADO_DISK_LABEL_WORDS &&
+                 n < DORADO_DISK_FIFO_WORDS; w++, n++) {
+                ctl->fifo[ctl->fifo_head] = s->label[w];
+                ctl->fifo_head =
+                    (ctl->fifo_head + 1) % DORADO_DISK_FIFO_WORDS;
+                ctl->fifo_count++;
+            }
+            ctl->rd_fifo_tw = 1;
+        }
+    }
+}
+
 /* ─── Slow-IO command dispatch ───────────────────────────────────── */
 
 static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
@@ -231,8 +271,141 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
         ctl->tag = data;
         ctl->tag_writes++;
         /* Tag commands drive the daisy-chain to the selected drive.
-         * Phase 1 records the tag; Phase 2 will decode (Cyl/Head/
-         * Strobe/Op/Drive-select/etc.) and apply seek/read/write. */
+         * Decode Tag[0:3] (HM page 99-101). Per the manual, Tag[0:3]
+         * is the high 4 bits of the data word in MSB-first numbering
+         * = bits 12:15 in our LSB convention. */
+        {
+            int tag_type = (data >> 12) & 0xF;  /* MSB-first 0:3 = LSB 12..15 */
+            switch (tag_type) {
+            case 0: {
+                /* Drive Select / subsector count (HM page 100).
+                 * Tag[11:15] = drive select (5 bits, but bits 11:15
+                 * in MSB = bits 0..4 in LSB).
+                 * Tag[10] = "load subsector count" (LSB bit 5).
+                 * Tag[4:9] = subsector count (LSB bits 6..11). */
+                int drv_select = data & 0x1F;
+                if (drv_select <= 3) {
+                    ctl->selected_drive = drv_select;
+                    for (int i = 0; i < DORADO_DISK_NUM_DRIVES; i++) {
+                        ctl->drive[i].selected = (i == drv_select) ? 1 : 0;
+                    }
+                }
+                break;
+            }
+            case 1: {
+                /* Head Tag (HM page 100): Tag[10:15] = head number
+                 * (LSB 0..5). Tag[8] = OffCylinder (LSB 7).
+                 * Tag[9] = direction (LSB 6). */
+                int head = data & 0x3F;
+                dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
+                if (d->pack && head < d->pack->geometry.heads) {
+                    d->cur_head = head;
+                } else if (d->pack) {
+                    /* Invalid head — would set HeadOvfl on hardware. */
+                    d->cur_head = head;  /* still record */
+                }
+                ctl->tag_tw = 1;          /* tag-completion wakeup */
+                break;
+            }
+            case 2: {
+                /* Cylinder Tag (HM page 100): Tag[4:15] = 12-bit
+                 * cylinder number (LSB 0..11). */
+                int cyl = data & 0xFFF;
+                dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
+                if (d->pack && cyl < d->pack->geometry.cylinders) {
+                    d->cur_cyl = cyl;
+                    d->cur_sector = 0;       /* lose sector sync on seek */
+                    d->seek_in_progress = 0; /* simulated as instant */
+                }
+                ctl->tag_tw = 1;
+                break;
+            }
+            case 3: {
+                /* Control Tag (HM page 101). Tag bits (LSB):
+                 *   bit 0 = HeadAdvance
+                 *   bit 1 = ReZero
+                 *   bit 2 = HeadSelect
+                 *   bit 3 = DeviceCheckReset
+                 *   bit 4 = ResetHead
+                 *   bit 6 = Read
+                 *   bit 7 = Write
+                 *   bit 8 = StrobeEarly
+                 *   bit 9 = StrobeLate
+                 *   bit 11 = AltoLeader
+                 * (Bits 5, 10 unused.) */
+                if (data & (1u << 1)) {
+                    /* ReZero */
+                    dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
+                    d->cur_cyl = 0;
+                    d->cur_head = 0;
+                    d->cur_sector = 0;
+                }
+                if (data & (1u << 0)) {
+                    /* HeadAdvance */
+                    dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
+                    d->cur_head++;
+                }
+                if (data & (1u << 6)) {
+                    /* Read — populate FIFO from current sector. */
+                    dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
+                    if (d->pack) {
+                        dorado_disk_sector *s = dorado_disk_pack_sector(
+                            d->pack, d->cur_cyl, d->cur_head, d->cur_sector);
+                        if (s) {
+                            /* Drain FIFO first, then load with header
+                             * + label + as much data as fits.
+                             * The sequence PROM normally feeds words
+                             * progressively per-block; for Phase 2 we
+                             * just dump the first 16 words and rely
+                             * on microcode to drain quickly. */
+                            ctl->fifo_count = 0;
+                            ctl->fifo_head = 0;
+                            ctl->fifo_tail = 0;
+                            int n = 0;
+                            for (int w = 0;
+                                 w < DORADO_DISK_HEADER_WORDS &&
+                                 n < DORADO_DISK_FIFO_WORDS; w++, n++) {
+                                ctl->fifo[ctl->fifo_head] = s->header[w];
+                                ctl->fifo_head =
+                                    (ctl->fifo_head + 1) % DORADO_DISK_FIFO_WORDS;
+                                ctl->fifo_count++;
+                            }
+                            for (int w = 0;
+                                 w < DORADO_DISK_LABEL_WORDS &&
+                                 n < DORADO_DISK_FIFO_WORDS; w++, n++) {
+                                ctl->fifo[ctl->fifo_head] = s->label[w];
+                                ctl->fifo_head =
+                                    (ctl->fifo_head + 1) % DORADO_DISK_FIFO_WORDS;
+                                ctl->fifo_count++;
+                            }
+                            for (int w = 0;
+                                 n < DORADO_DISK_FIFO_WORDS &&
+                                 w < DORADO_DISK_DATA_WORDS;
+                                 w++, n++) {
+                                ctl->fifo[ctl->fifo_head] = s->data[w];
+                                ctl->fifo_head =
+                                    (ctl->fifo_head + 1) % DORADO_DISK_FIFO_WORDS;
+                                ctl->fifo_count++;
+                            }
+                            ctl->rd_fifo_tw = 1;  /* FIFO has data */
+                            ctl->active = 1;
+                        }
+                    }
+                }
+                if (data & (1u << 7)) {
+                    /* Write — clear FIFO, mark write-active. Microcode
+                     * will pump words via DiskData FIFO; we'll commit
+                     * to the disk pack when a SectorOvfl-or-block-end
+                     * marker is seen. Phase 2 stub: just enable
+                     * WrFifoTW so microcode can write. */
+                    ctl->wr_fifo_tw = 1;
+                    ctl->active = 1;
+                }
+                ctl->tag_tw = 1;
+                break;
+            }
+            }
+        }
         break;
     }
 }

@@ -123,6 +123,47 @@ void dorado_display_set_pixel(dorado_display *d, int x, int y, int pix)
 
 /* ─── Snapshot ───────────────────────────────────────────────────── */
 
+int dorado_display_render_fifo(dorado_display *d, int subtask, int *dst_y)
+{
+    int *head, *tail;
+    uint16_t *buf;
+    int cap = (int)(sizeof d->fifo_a / sizeof d->fifo_a[0]);
+
+    if (subtask == 0) {
+        head = &d->fifo_a_head;
+        tail = &d->fifo_a_tail;
+        buf  = d->fifo_a;
+    } else {
+        head = &d->fifo_b_head;
+        tail = &d->fifo_b_tail;
+        buf  = d->fifo_b;
+    }
+
+    int rendered = 0;
+    /* Words per scan line: 808 / 16 = 50 (with 8 leftover pixels in
+     * the 51st partial word). Many Alto microcode systems pack
+     * 51 words/line and ignore the extra 8 bits. We render
+     * exactly the visible 808 pixels. */
+    int x = 0;
+    while (*head != *tail && *dst_y < DORADO_DISPLAY_H) {
+        uint16_t w = buf[*tail];
+        *tail = (*tail + 1) % cap;
+        /* Lay 16 pixels into the framebuffer at (x..x+15, *dst_y).
+         * MSB = leftmost. */
+        for (int b = 0; b < 16 && x < DORADO_DISPLAY_W; b++) {
+            int bit = (w >> (15 - b)) & 1;
+            dorado_display_set_pixel(d, x, *dst_y, bit);
+            x++;
+            rendered++;
+        }
+        if (x >= DORADO_DISPLAY_W) {
+            x = 0;
+            (*dst_y)++;
+        }
+    }
+    return rendered;
+}
+
 int dorado_display_snapshot_pgm(const dorado_display *d, const char *path)
 {
     FILE *fp = fopen(path, "wb");

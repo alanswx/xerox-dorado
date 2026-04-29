@@ -220,4 +220,10 @@ void dorado_disk_controller_attach_to_io(dorado_disk_controller *ctl,
 void dorado_disk_controller_attach_drive(dorado_disk_controller *ctl,
                                          int slot, dorado_disk_pack *pack);
 
+/* Advance the selected drive's sector counter (= simulated subsector
+ * pulse arrival) and load the next sector's header+label+data into
+ * the FIFO if the controller is in a read state. Synthetic helper —
+ * real hardware sequences this from the format-RAM sequence PROM. */
+void dorado_disk_controller_advance_sector(dorado_disk_controller *ctl);
+
 #endif
