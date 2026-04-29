@@ -1099,26 +1099,49 @@ static int test_ifu_map_fault_trap(void)
 }
 
 /*
- * probe_aemu — Boot-bypass: load AEmu.mb directly into IM (skipping
- * the BB→Boot0→Boot1→Initial chain) and run from its START symbol.
- * Reports how far AEmu gets before hitting an unimplemented feature.
- * Informational only.
+ * probe_aemu — Boot-bypass: load Initial.mb + AEmu.mb directly
+ * into IM (skipping the BB→Boot0→Boot1→Initial RAM-image chain)
+ * and run from AEmu's START symbol. Reports how far AEmu gets
+ * before hitting an unimplemented feature. Informational only.
+ *
+ * On real hardware the boot sequence is:
+ *   BB → Boot0 (in IM[0o7700..0o7777] from EPROM)
+ *      → Boot0 loads Boot1 from CPReg
+ *      → Boot1 loads Initial via disk or CPReg
+ *      → Initial loads the emulator (AEmu/Mesa/...) via disk
+ * We compress this by direct-loading Initial+AEmu into IM.
  */
 static int probe_aemu(void)
 {
-    const char *path = "../chm/dorado/AEmu.mb!2";
-    mb_file mb;
-    mb_init(&mb);
-    if (mb_load(&mb, path) != MB_OK) {
-        printf("SKIP  probe_aemu (file not loadable: %s)\n", path);
+    const char *initial_path = "../chm/dorado/expanded/bootstrap.dm!20_/Initial.mb";
+    const char *aemu_path    = "../chm/dorado/AEmu.mb!2";
+
+    static mb_file initial_mb, aemu_mb;
+    mb_init(&initial_mb);
+    mb_init(&aemu_mb);
+    if (mb_load(&initial_mb, initial_path) != MB_OK) {
+        printf("SKIP  probe_aemu (Initial.mb not loadable)\n");
         return 0;
     }
+    if (mb_load(&aemu_mb, aemu_path) != MB_OK) {
+        printf("SKIP  probe_aemu (AEmu.mb not loadable)\n");
+        mb_free(&initial_mb);
+        return 0;
+    }
+
     static dorado_microcode mc;
-    if (dorado_microcode_load(&mb, &mc) != DM_OK) {
-        printf("SKIP  probe_aemu (microcode load failed)\n");
-        mb_free(&mb);
+    if (dorado_microcode_load(&initial_mb, &mc) != DM_OK) {
+        printf("SKIP  probe_aemu (Initial load failed)\n");
+        mb_free(&initial_mb); mb_free(&aemu_mb);
         return 0;
     }
+    int initial_count = mc.n_instructions;
+    if (dorado_microcode_layer_load(&aemu_mb, &mc) != DM_OK) {
+        printf("SKIP  probe_aemu (AEmu layer-load failed)\n");
+        mb_free(&initial_mb); mb_free(&aemu_mb);
+        return 0;
+    }
+    int aemu_count = mc.n_instructions;
 
     int real_start = mc.image_present[0] ? mc.image_to_real[0] : 0;
 
@@ -1128,7 +1151,7 @@ static int probe_aemu(void)
     static dorado_memory mem;
     if (dorado_memory_init(&mem) != 0) {
         printf("SKIP  probe_aemu (mem init failed)\n");
-        mb_free(&mb);
+        mb_free(&initial_mb); mb_free(&aemu_mb);
         return 0;
     }
     /* Mount a few low pages identity-mapped, RW. */
@@ -1140,15 +1163,25 @@ static int probe_aemu(void)
     dorado_cpu_init(&cpu, &mc, (uint16_t)real_start);
     cpu.mem = &mem;
 
-    /* Step manually so we can record each PC + symbol the engine
-     * passed through. Useful for pinpointing where AEmu jumped to
-     * 0o6000 from. */
+    /* Step manually. Record PC trail (first 32 unique-ish PCs) +
+     * detect self-loops. Bump max cycles since we're running real
+     * microcode now. */
     uint16_t trail[64];
     int      trail_n = 0;
     cpu_halt_reason r = CPU_HALT_NONE;
-    for (int i = 0; i < 50000; i++) {
-        if (trail_n < (int)(sizeof trail / sizeof trail[0])) {
+    int loop_pc = -1, loop_count = 0;
+    int max_cycles = 200000;
+    for (int i = 0; i < max_cycles; i++) {
+        if (trail_n < 32) {
             trail[trail_n++] = cpu.real_PC;
+        }
+        /* Self-loop detection: if we've been at the same PC for 100
+         * cycles, stop early. */
+        if ((int)cpu.real_PC == loop_pc) {
+            if (++loop_count > 100) break;
+        } else {
+            loop_pc = (int)cpu.real_PC;
+            loop_count = 0;
         }
         if (dorado_cpu_step(&cpu) != 0) {
             r = (cpu_halt_reason)cpu.halt_reason;
@@ -1158,8 +1191,9 @@ static int probe_aemu(void)
 
     const char *sym       = dorado_microcode_symbol_at_real(&mc, cpu.real_PC);
     const char *entry_sym = dorado_microcode_symbol_at_real(&mc, real_start);
-    printf("PROBE  aemu entry=0o%o (image=0o0=%s), ran %d cycles, "
-           "halt: %s at real_PC=0o%o%s%s\n",
+    printf("PROBE  aemu (Initial=%d + AEmu=%d entries) entry=0o%o "
+           "(image=0o0=%s), ran %d cycles, halt: %s at real_PC=0o%o%s%s\n",
+           initial_count, aemu_count - initial_count,
            real_start, entry_sym ? entry_sym : "<no-sym>",
            cpu.cycles, cpu_halt_reason_str(r),
            cpu.real_PC,
@@ -1196,7 +1230,8 @@ static int probe_aemu(void)
     }
 
     dorado_memory_free(&mem);
-    mb_free(&mb);
+    mb_free(&initial_mb);
+    mb_free(&aemu_mb);
     return 0;
 }
 

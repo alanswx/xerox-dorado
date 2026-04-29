@@ -14,10 +14,40 @@ const char *dorado_microcode_status_str(dorado_microcode_status s)
     return "unknown error";
 }
 
+/* Internal: shared loader body. If `reset` is non-zero, zero `out`
+ * first; otherwise overlay on existing state. */
+static dorado_microcode_status microcode_load_inner(const mb_file *mb,
+                                                    dorado_microcode *out,
+                                                    int reset);
+
 dorado_microcode_status dorado_microcode_load(const mb_file *mb,
                                               dorado_microcode *out)
 {
-    memset(out, 0, sizeof *out);
+    return microcode_load_inner(mb, out, /*reset=*/1);
+}
+
+dorado_microcode_status dorado_microcode_layer_load(const mb_file *mb_layered,
+                                                    dorado_microcode *out)
+{
+    return microcode_load_inner(mb_layered, out, /*reset=*/0);
+}
+
+static dorado_microcode_status microcode_load_inner(const mb_file *mb,
+                                                    dorado_microcode *out,
+                                                    int reset)
+{
+    if (reset) {
+        memset(out, 0, sizeof *out);
+    } else {
+        /* Layered load: overlay IM/RM/ALUFM/IFUM, but reset the
+         * image-to-real map and n_instructions so symbol lookups
+         * reflect the new layer's .MB. (The previous layer's IM
+         * contents stay placed at their real addresses; lookups by
+         * real address go through the new mb's image-symbol table.) */
+        memset(out->image_to_real, 0, sizeof out->image_to_real);
+        memset(out->image_present, 0, sizeof out->image_present);
+        out->n_instructions = 0;
+    }
     out->mb = mb;
 
     if (mb->dmachine != 2) return DM_ERR_NOT_DORADO_MODEL_1;

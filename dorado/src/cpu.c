@@ -1431,13 +1431,29 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
     uint8_t top1 = (jcn >> 7) & 1;
     uint8_t top2 = (jcn >> 6) & 3;
 
+    /* HM page 29: an FF-encoded branch condition (FA=0 FB=6) ORs
+     * its result into TNIA[15] for ANY JCN encoding except long
+     * branch (where FF supplies address bits). Compute it once
+     * here so all paths can OR it in. */
+    int ff_cond_or = 0;
+    {
+        int fa_c = (u->ff >> 6) & 3;
+        int fb_c = (u->ff >> 3) & 7;
+        int ff_is_function_local = (u->bsel < 4);
+        /* Long branch: JCN top4 = 0 (and top1=0). FF disabled. */
+        int is_long = (top1 == 0) && (((jcn >> 4) & 0xF) == 0);
+        if (ff_is_function_local && !is_long && fa_c == 0 && fb_c == 6) {
+            ff_cond_or = eval_branch_condition(cpu, u, u->ff & 7);
+        }
+    }
+
     if (top1 == 1) {
         /* Local or Global. */
         uint16_t page_addr = jcn & 0x3F;             /* JCN[2:7] */
         if (top2 == 2) {
             /* Local Jump/Call. */
             uint16_t page = cpu->real_PC & ~(uint16_t)(CPU_PAGE_SIZE - 1);
-            *next = page | page_addr;
+            *next = (uint16_t)((page | page_addr) | ff_cond_or);
             if ((page_addr & 0xF) == 0) {            /* TNIA[12:15] = 0 → Call */
                 cpu->Link = (uint16_t)(cpu->real_PC + 1);
             }
@@ -1445,7 +1461,8 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
         }
         /* Global Call: low 6 bits forced 0, so TNIA[12:15] always 0. */
         uint16_t quadrant = cpu->real_PC & ~(uint16_t)(CPU_QUADRANT_SIZE - 1);
-        *next = quadrant | (uint16_t)(page_addr * CPU_PAGE_SIZE);
+        *next = (uint16_t)((quadrant | (uint16_t)(page_addr * CPU_PAGE_SIZE))
+                           | ff_cond_or);
         cpu->Link = (uint16_t)(cpu->real_PC + 1);
         return 0;
     }

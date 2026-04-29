@@ -81,6 +81,20 @@ dorado_microcode_status dorado_microcode_load(const mb_file *mb,
                                               dorado_microcode *out);
 
 /*
+ * Layer a second .MB into an already-loaded microcode image. Does
+ * NOT reset existing state — instead overlays new IM/RM/ALUFM/IFUM
+ * entries on top of those already present. The order matches the
+ * real boot chain: Initial.mb is loaded first, then AEmu.mb (or
+ * Mesa.mb / Cedar.mb / etc.) is layered on top.
+ *
+ * If a real address has both layers' IM entries present, the new
+ * layer wins. mb_layered's mb_file pointer replaces `out->mb` for
+ * symbol lookups (so symbols of the most-recently-loaded .MB win).
+ */
+dorado_microcode_status dorado_microcode_layer_load(const mb_file *mb_layered,
+                                                    dorado_microcode *out);
+
+/*
  * Look up a symbol by real address (i.e., the post-placement IM
  * address). Returns NULL if no symbol attaches to that real address.
  * Internally translates real → image via image_to_real and queries the
