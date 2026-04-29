@@ -544,6 +544,89 @@ static int probe_bootstrap(void)
 }
 
 /*
+ * probe_aemu — Boot-bypass: load AEmu.mb directly into IM (skipping
+ * the BB→Boot0→Boot1→Initial chain) and run from its START symbol.
+ * Reports how far AEmu gets before hitting an unimplemented feature.
+ * Informational only.
+ */
+static int probe_aemu(void)
+{
+    const char *path = "../chm/dorado/AEmu.mb!2";
+    mb_file mb;
+    mb_init(&mb);
+    if (mb_load(&mb, path) != MB_OK) {
+        printf("SKIP  probe_aemu (file not loadable: %s)\n", path);
+        return 0;
+    }
+    static dorado_microcode mc;
+    if (dorado_microcode_load(&mb, &mc) != DM_OK) {
+        printf("SKIP  probe_aemu (microcode load failed)\n");
+        mb_free(&mb);
+        return 0;
+    }
+
+    int real_start = mc.image_present[0] ? mc.image_to_real[0] : 0;
+
+    /* Stand up memory + a code page so the IFU can fetch bytecode
+     * (even though we don't have any planted; we just want to see
+     * how AEmu's initialization runs before it tries to dispatch). */
+    static dorado_memory mem;
+    if (dorado_memory_init(&mem) != 0) {
+        printf("SKIP  probe_aemu (mem init failed)\n");
+        mb_free(&mb);
+        return 0;
+    }
+    /* Mount a few low pages identity-mapped, RW. */
+    for (uint32_t pg = 0; pg < 16; pg++) {
+        dorado_map_set(&mem, pg, /*rp=*/(uint16_t)pg, /*wp=*/0, /*dirty=*/0);
+    }
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, (uint16_t)real_start);
+    cpu.mem = &mem;
+
+    cpu_halt_reason r = dorado_cpu_run(&cpu, 50000);
+
+    const char *sym       = dorado_microcode_symbol_at_real(&mc, cpu.real_PC);
+    const char *entry_sym = dorado_microcode_symbol_at_real(&mc, real_start);
+    printf("PROBE  aemu entry=0o%o (image=0o0=%s), ran %d cycles, "
+           "halt: %s at real_PC=0o%o%s%s\n",
+           real_start, entry_sym ? entry_sym : "<no-sym>",
+           cpu.cycles, cpu_halt_reason_str(r),
+           cpu.real_PC,
+           sym ? " sym=" : "", sym ? sym : "");
+    /* For NO_CODE: scan a few addresses around real_PC for the
+     * nearest labeled instruction so we know roughly where AEmu
+     * is in its initialization. */
+    if (cpu.halt_reason == CPU_HALT_NO_CODE) {
+        for (int delta = -8; delta <= 8 && delta != 0; delta++) {
+            int probe_addr = (int)cpu.real_PC + delta;
+            if (probe_addr < 0 || probe_addr >= 4096) continue;
+            const char *near = dorado_microcode_symbol_at_real(&mc, probe_addr);
+            if (near) {
+                printf("       nearest sym: 0o%o = %s (delta %+d)\n",
+                       probe_addr, near, delta);
+                break;
+            }
+        }
+    }
+
+    if (cpu.halt_reason == CPU_HALT_UNSUPPORTED_ASEL ||
+        cpu.halt_reason == CPU_HALT_UNSUPPORTED_BSEL ||
+        cpu.halt_reason == CPU_HALT_UNSUPPORTED_FF ||
+        cpu.halt_reason == CPU_HALT_UNSUPPORTED_JCN) {
+        const dorado_uinstr *u = &mc.im[cpu.real_PC];
+        char dis[256];
+        dorado_format(u, dis, sizeof dis);
+        printf("       offending uinstr: %s\n", dis);
+    }
+
+    dorado_memory_free(&mem);
+    mb_free(&mb);
+    return 0;
+}
+
+/*
  * probe_full_boot — proper interleaved BB+Dorado cold boot.
  *
  * The pre-baked probe_bootstrap loads Bootstrap.MB into IM, runs the
@@ -1847,6 +1930,7 @@ int main(void)
     rc |= test_ifum_load_read();
     rc |= test_ifu_dispatch_synthetic();
     rc |= probe_bootstrap();
+    rc |= probe_aemu();
     rc |= probe_full_boot();
     if (rc == 0) printf("\nAll CPU tests passed.\n");
     return rc;

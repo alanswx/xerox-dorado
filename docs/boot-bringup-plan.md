@@ -477,6 +477,25 @@ Alto opcodes from a games.dsk image (Alto-emulator-on-Dorado).
 Currently: synthetic IFU pipeline runs, but real microcode bring-
 up needs C.2/C.3 polish (NotReady, conditional IFUJump, traps).
 
+### Boot-bypass probe — `probe_aemu` in test_cpu.c
+
+Loads `chm/dorado/AEmu.mb!2` directly (skipping the BB→Boot0→
+Boot1→Initial chain), points the cpu at AEmu's `START` symbol,
+mounts the first 16 map pages identity-RW, and runs.
+
+**Current result:** AEmu microcode executes **21 cycles** before
+halting at `real_PC=0o6000` (no code at PC). The first 21 cycles
+are AEmu's startup initialization. The halt indicates AEmu either
+(a) computed a long-jump target that depends on register state we
+haven't set up, (b) is doing an IFU dispatch that hits an
+uninitialized IFUM slot, or (c) returns through Link to a value
+that should have been set by Initial. Investigation TBD —
+single-stepping the 21 cycles with trace would reveal what AEmu
+is reaching for.
+
+This is the first time real Xerox PARC microcode has run on the
+emulator beyond the BB-loaded Boot0 trap-walk. ✓
+
 ## Phase D — Tasking
 
 **Goal:** I/O devices in Phase E can wake their tasks and the
