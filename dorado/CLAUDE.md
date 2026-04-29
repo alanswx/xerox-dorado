@@ -190,6 +190,18 @@ FF dispatcher (`ff_override_b()` + `ff_apply_post()`):
   - **`ProcSRN←B[12:15]`** (FC=7) — sets the pipe-slot index for
     subsequent `B←Pipei` reads.
   - **`BrLo←A`** (FC=3), **`BrHi←A`** (FC=4) — load the BR.
+- Tasking + IFU FF functions (Phase D + C.1):
+  - **`TaskingOff`** (FA=1 FB=4 FC=2), **`TaskingOn`** (FC=3) —
+    gate the task scheduler; TaskingOn delays 2 cycles.
+  - **`Wakeup[task]`** (FA=3 FB=6-7, task=FF[4:7]) — assert wakeup.
+  - **`InsSetorEvent←B`** (FA=1 FB=3 FC=0) — B[0]=1 loads
+    IFU's InsSet from B[6:7].
+  - **`BrkIns←B`** (FA=1 FB=3 FC=7) — load IFU's Opcode from B[0:7].
+  - **`IFUMRH/LH←B`** (FA=1 FB=3 FC=4/5) — write
+    `ifum_lo`/`ifum_hi`[InsSet||Opcode] from B.
+  - **`B←IFUMRH'/LH'`** (FA=1 FB=7 FC=2/3) — read inverted IFUM
+    halves from the same address.
+  - **`IFUReset`** (FA=1 FB=3 FC=6) — clear IFU addressing regs.
 - HM Table 7 asterisk: when an external B source is in play and
   BSEL=3, the external value also lands in **Q**. Critical for
   Bootstrap's `Q ← Link` snapshot trick.

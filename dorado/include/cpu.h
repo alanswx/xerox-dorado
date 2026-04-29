@@ -60,6 +60,21 @@ typedef struct {
     uint16_t TIOA;              /* 8-bit I/O address (Slow IO) */
 
     /*
+     * IFU state — minimal Phase C.1 (HM §6, Table 18).
+     *
+     * IFUM is a 1024 × 24-bit (+3 parity) RAM addressed by
+     * InsSet[0:1] || Opcode[0:7] = 10 bits. We don't yet model the
+     * IFU prefetch pipeline; this is just enough for microcode to
+     * load IFUM at startup via:
+     *   InsSetorEvent←B   (B[0]=1, B[6:7]→InsSet[0:1])
+     *   BrkIns←B          (B[0:7]→Opcode)
+     *   IFUMLH/RH←B       (write the 32-bit IFUM entry's halves)
+     * and to read it back via B←IFUMLH'/RH'.
+     */
+    uint8_t  ifu_insset;        /* 2-bit instruction set selector */
+    uint8_t  ifu_opcode;        /* 8-bit opcode register */
+
+    /*
      * Memory subsystem. When non-NULL, processor memory references
      * (Fetch / Store / etc.) are dispatched to it; B←Md reads
      * mem->md. Pipe reads (B←Pipe0..5) come from mem->pipe[]. */
@@ -84,6 +99,44 @@ typedef struct {
      * After step() runs, this advances to the next instruction. */
     uint16_t real_PC;
     uint16_t prev_PC;           /* for tracing */
+
+    /*
+     * Tasking (HM §4.1, page 26-27).
+     *
+     * 16 priority-scheduled tasks. Task 15 = highest (fault task);
+     * task 0 = lowest (emulator, always awake). Each task has its
+     * own T, TPC, Link, MemBase saved across switches; Q, ALUFM,
+     * StkP, ShC, Cnt, RBase are NOT per-task (HM §4.1).
+     *
+     * Wakeup model:
+     *   `wakeup_pending` — devices/microcode raised the wakeup line
+     *   `ready`          — task is runnable (woken and not yet
+     *                      blocked). Task 0 is always ready.
+     *   BNT (Best Next Task) = highest priority bit in
+     *                          (ready | wakeup_pending).
+     *   A task switch happens at the end of an instruction iff
+     *   BNT > CTASK, or BLOCK=1 in a non-emulator task.
+     *   A task that BLOCKs has its Ready bit cleared.
+     *
+     * Tasking can be disabled with the TaskingOff FF function and
+     * re-enabled with TaskingOn (atomic; takes effect after 2 more
+     * instructions per HM page 27).
+     */
+    uint8_t  ctask;             /* current task (0..15) */
+    uint16_t wakeup_pending;    /* bitmask: device/microcode wake requests */
+    uint16_t ready;             /* bitmask: tasks runnable */
+    uint8_t  tasking_on;        /* 1 = tasking enabled */
+    uint8_t  tasking_resume_delay; /* >0: countdown after TaskingOn before switching */
+
+    /* Per-task saved state. Loaded into the live registers when
+     * `ctask` becomes that task. */
+    uint16_t task_t[16];
+    uint16_t task_tpc[16];      /* indexed by task number; for the
+                                 * running task, the live PC is in
+                                 * real_PC and task_tpc[ctask] is
+                                 * stale until the next switch. */
+    uint16_t task_link[16];
+    uint8_t  task_membase[16];
 
     /* ALU branch-condition flags from the previous instruction.
      * Updated whenever an ALU operation runs (HM Table 13). */
@@ -139,5 +192,11 @@ cpu_halt_reason dorado_cpu_run(dorado_cpu *cpu, int max_cycles);
 
 /* Enable line-by-line tracing to stderr (or a user FILE*). */
 void dorado_cpu_trace(dorado_cpu *cpu, void *fp);
+
+/* Tasking helpers — used by tests and by I/O device modeling once
+ * Phase E lands. The `task` argument is 0..15. */
+void dorado_cpu_wakeup(dorado_cpu *cpu, int task);
+void dorado_cpu_set_task_tpc(dorado_cpu *cpu, int task, uint16_t real_pc);
+uint16_t dorado_cpu_get_task_tpc(const dorado_cpu *cpu, int task);
 
 #endif

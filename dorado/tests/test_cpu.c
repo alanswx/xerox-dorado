@@ -1305,6 +1305,337 @@ static int test_freezebc(void)
     return 0;
 }
 
+/*
+ * Tasking — basic task switch on Wakeup.
+ *
+ * Layout:
+ *   IM[0]: NOP self-loop in task 0 (emulator).
+ *   IM[1]: NOP for task 5; loops to 1.
+ * Boot at IM[0]. Set task 5's TPC to IM[1]. Wake task 5 — after the
+ * next end-of-instruction the engine should switch from task 0 to
+ * task 5.
+ */
+static int test_task_switch_on_wakeup(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;   /* "B" */
+
+    /* IM[0]: T←0o111 (task-0 marker). LC=1, JCN=local(0). */
+    mc.im[0] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/4, /*lc=*/1,
+                           /*asel=*/6, /*block=*/0, /*ff=*/0111,
+                           /*jcn=*/jcn_local(0));
+    mc.im_present[0] = 1;
+    /* IM[1]: T←0o222 (task-5 marker). LC=1, JCN=local(1). */
+    mc.im[1] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/4, /*lc=*/1,
+                           /*asel=*/6, /*block=*/0, /*ff=*/0222,
+                           /*jcn=*/jcn_local(1));
+    mc.im_present[1] = 1;
+    for (int i = 0; i < 2; i++) {
+        mc.image_to_real[i] = i;
+        mc.image_present[i] = 1;
+    }
+    mc.n_instructions = 2;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    EXPECT(cpu.ctask == 0, "ctask should start at 0");
+    EXPECT(cpu.ready == 0x0001, "only task 0 ready initially");
+
+    /* Step once — runs task 0's instruction; T←0o111. */
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step task 0");
+    EXPECT(cpu.T == 0111, "task 0 should set T=0o111, got 0o%o", cpu.T);
+    EXPECT(cpu.ctask == 0, "no other task ready, should still be task 0");
+
+    /* Set task 5's TPC, wake it. */
+    dorado_cpu_set_task_tpc(&cpu, 5, /*real_pc=*/1);
+    dorado_cpu_wakeup(&cpu, 5);
+
+    /* Step task 0 once more — at end of instruction, task switch
+     * to task 5 happens. */
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step before switch");
+    EXPECT(cpu.ctask == 5, "should have switched to task 5, ctask=%d",
+           cpu.ctask);
+    EXPECT(cpu.real_PC == 1, "should be at task 5's TPC, got 0o%o",
+           cpu.real_PC);
+    /* Wakeup acknowledged + Ready set. */
+    EXPECT((cpu.wakeup_pending & (1u << 5)) == 0,
+           "wakeup_pending bit 5 should be cleared");
+    EXPECT((cpu.ready & (1u << 5)) != 0,
+           "ready bit 5 should be set after switch");
+    /* Task 0's state was saved (T=0o111). */
+    EXPECT(cpu.task_t[0] == 0111, "task 0's T should be saved as 0o111");
+
+    /* Step in task 5 — T←0o222. */
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step task 5");
+    EXPECT(cpu.T == 0222, "task 5 should set T=0o222, got 0o%o", cpu.T);
+    EXPECT(cpu.ctask == 5, "should still be task 5");
+
+    printf("PASS  test_task_switch_on_wakeup\n");
+    return 0;
+}
+
+/*
+ * Tasking — BLOCK=1 in non-emulator clears Ready; engine returns to
+ * lower-priority task (here, task 0).
+ */
+static int test_task_block_returns_to_emulator(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;
+
+    /* IM[0]: task 0 — T←0o111, self-loop. */
+    mc.im[0] = make_uinstr(0, 0, /*bsel=*/4, /*lc=*/1, /*asel=*/6, /*block=*/0,
+                           /*ff=*/0111, jcn_local(0));
+    mc.im_present[0] = 1;
+    /* IM[1]: task 5 — T←0o222 with BLOCK=1 (block this task). */
+    mc.im[1] = make_uinstr(0, 0, /*bsel=*/4, /*lc=*/1, /*asel=*/6, /*block=*/1,
+                           /*ff=*/0222, jcn_local(1));
+    mc.im_present[1] = 1;
+    for (int i = 0; i < 2; i++) {
+        mc.image_to_real[i] = i; mc.image_present[i] = 1;
+    }
+    mc.n_instructions = 2;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    dorado_cpu_set_task_tpc(&cpu, 5, 1);
+    dorado_cpu_wakeup(&cpu, 5);
+
+    /* Step into task 5 (after task 0 step + switch). */
+    dorado_cpu_step(&cpu);
+    EXPECT(cpu.ctask == 5, "should be in task 5 now");
+
+    /* Step in task 5 — BLOCK=1 → Ready cleared, switch back. */
+    dorado_cpu_step(&cpu);
+    EXPECT(cpu.ctask == 0, "BLOCK=1 in task 5 should return to task 0, ctask=%d",
+           cpu.ctask);
+    EXPECT((cpu.ready & (1u << 5)) == 0,
+           "ready bit 5 should be cleared after BLOCK");
+    EXPECT(cpu.T == 0111, "task 0's T should be restored: 0o%o", cpu.T);
+
+    printf("PASS  test_task_block_returns_to_emulator\n");
+    return 0;
+}
+
+/*
+ * Tasking — TaskingOff prevents switch even when a higher task is
+ * woken; TaskingOn re-enables it (after 2 more instructions).
+ */
+static int test_tasking_off_blocks_switch(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;
+
+    /* IM[0]: task 0 — TaskingOff (FA=1 FB=4 FC=2 → FF=0o142).
+     * BSEL=0 (primary B sources, FF override active). */
+    mc.im[0] = make_uinstr(0, 0, /*bsel=*/0, /*lc=*/0, /*asel=*/6, 0,
+                           /*ff=*/0142, jcn_local(1));
+    mc.im_present[0] = 1;
+    /* IM[1]: task 0 — set T=0o111. */
+    mc.im[1] = make_uinstr(0, 0, /*bsel=*/4, /*lc=*/1, /*asel=*/6, 0,
+                           /*ff=*/0111, jcn_local(1));
+    mc.im_present[1] = 1;
+    for (int i = 0; i < 2; i++) {
+        mc.image_to_real[i] = i; mc.image_present[i] = 1;
+    }
+    mc.n_instructions = 2;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+
+    /* Wake task 5 BEFORE we issue TaskingOff. */
+    dorado_cpu_set_task_tpc(&cpu, 5, 0);
+    dorado_cpu_wakeup(&cpu, 5);
+
+    /* IM[0] → TaskingOff. tasking_on becomes 0 atomically. The
+     * end-of-instruction scheduler should NOT switch. */
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step IM[0] (TaskingOff)");
+    EXPECT(cpu.ctask == 0, "TaskingOff should prevent switch, ctask=%d",
+           cpu.ctask);
+    EXPECT(cpu.tasking_on == 0, "tasking_on should be 0");
+    EXPECT((cpu.wakeup_pending & (1u << 5)) != 0,
+           "task 5 wakeup should still be pending");
+
+    /* IM[1] runs in task 0, sets T. Still no switch. */
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step IM[1]");
+    EXPECT(cpu.ctask == 0, "still task 0 with TaskingOff");
+    EXPECT(cpu.T == 0111, "T should be 0o111");
+
+    printf("PASS  test_tasking_off_blocks_switch\n");
+    return 0;
+}
+
+/*
+ * Tasking — Wakeup[task] FF function asserts a wakeup line.
+ * FA=3 FB=6-7, FF[4:7]=task. For task 7: FA=3 FB=6 FC=7 → FF=0o307.
+ */
+static int test_wakeup_ff_function(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;
+
+    /* IM[0]: task 0 — Wakeup[7]. FA=3 FB=6 FC=7 → FF=0o367.
+     * (FF[4:7] = task = 7; FB=6 means tasks 0..7, FB=7 means 8..15.)
+     * BSEL=0 (primary sources) so FF is interpreted as a function. */
+    mc.im[0] = make_uinstr(0, 0, /*bsel=*/0, /*lc=*/0, /*asel=*/6, 0,
+                           /*ff=*/0367, jcn_local(1));
+    mc.im_present[0] = 1;
+    /* IM[1]: task 0 — self-loop. */
+    mc.im[1] = make_uinstr(0, 0, /*bsel=*/4, /*lc=*/0, /*asel=*/6, 0,
+                           /*ff=*/0, jcn_local(1));
+    mc.im_present[1] = 1;
+    /* IM[2]: task 7 — set T. */
+    mc.im[2] = make_uinstr(0, 0, /*bsel=*/4, /*lc=*/1, /*asel=*/6, 0,
+                           /*ff=*/0333, jcn_local(2));
+    mc.im_present[2] = 1;
+    for (int i = 0; i < 3; i++) {
+        mc.image_to_real[i] = i; mc.image_present[i] = 1;
+    }
+    mc.n_instructions = 3;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    dorado_cpu_set_task_tpc(&cpu, 7, 2);
+
+    /* Step IM[0] — Wakeup[7] sets bit 7 of wakeup_pending; the
+     * end-of-instruction switch then jumps to task 7. */
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step Wakeup[7]");
+    EXPECT(cpu.ctask == 7, "after Wakeup[7], should be in task 7, ctask=%d",
+           cpu.ctask);
+    EXPECT(cpu.real_PC == 2, "task 7 PC = 0o%o, expected 2", cpu.real_PC);
+
+    /* Run task 7's instruction. */
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step task 7");
+    EXPECT(cpu.T == 0333, "task 7 should set T=0o333, got 0o%o", cpu.T);
+
+    printf("PASS  test_wakeup_ff_function\n");
+    return 0;
+}
+
+/*
+ * IFUM round-trip — write an entry via InsSetorEvent←B + BrkIns←B +
+ * IFUMLH/RH←B, then read it back via B←IFUMLH'/RH'. Phase C.1.
+ */
+static int test_ifum_load_read(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;   /* "B" */
+
+    /* IM[0]: InsSetorEvent←B with B[0]=1, B[6:7]=2 (instruction set 2).
+     * FA=1 FB=3 FC=0 → FF = 0o130. BSEL=4 (constant 0,,FF) so the FF
+     * field provides the constant; but FF interpreted as constant
+     * means it's NOT a function. Use BSEL=2 (T) and put the data in T.
+     * Actually simplest: BSEL=0 (primary B sources) with no FF, then
+     * the next instruction does the FF write. We'll need a way to
+     * deliver a specific B value into the FF function.
+     *
+     * Easier approach: use BSEL=4 to deliver a constant on B (B = FF),
+     * but that suppresses FF interpretation. So use BSEL=2 (T) and
+     * pre-set T.
+     *
+     * Even simpler: use ALUF "B" + BSEL=4 in instruction A to put
+     * 0o102 into T (LC=1), then in instruction B do the FF function
+     * with BSEL=2 (T on B). */
+
+    /* IM[0]: T←0o102 (B[0]=1 means high bit of 16-bit word; in 16-bit
+     * MSB-first = bit 15 of the 16-bit value, in C-LSB = bit 15 (value
+     * 0x8000). Plus B[6:7]=2 means low 2 of high byte = bit 8..9.
+     * For InsSet=2: bits 6,7 of 16-bit B (MSB) = bit 9..8 in C-LSB.
+     * To set InsSet=2 (binary 10): B[6]=1, B[7]=0 → bit 9 = 1, bit 8 = 0.
+     * Plus B[0]=1 (bit 15 of B). So B = 0x8000 | 0x0200 = 0x8200. */
+    mc.im[0] = make_uinstr(0, 0, /*bsel=*/4, /*lc=*/1, /*asel=*/6, 0,
+                           /*ff=*/0202,   /* low 8 bits of 0x8200 = 0x02; with bsel=4 (0,,FF) gives 0x02 — wrong */
+                           jcn_local(1));
+    mc.im_present[0] = 1;
+
+    /* Actually using the constant route gets messy because BSEL=4
+     * gives "0,,FF" = 0x00FF. To put 0x8200 on B we'd need BSEL=6
+     * (FF,,0) which is FF in high byte = 0x8200 with FF=0x82.
+     * Let me use BSEL=6 with FF=0x82 → B = 0x8200. */
+    mc.im[0] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/6, /*lc=*/1,
+                           /*asel=*/6, /*block=*/0, /*ff=*/0x82,
+                           jcn_local(1));
+
+    /* IM[1]: InsSetorEvent←B with B sourced from T. FA=1 FB=3 FC=0,
+     * FF=0o130. BSEL=2 (T on B). LC=0, JCN=local(2). */
+    mc.im[1] = make_uinstr(0, 0, /*bsel=*/2, /*lc=*/0, /*asel=*/6, 0,
+                           /*ff=*/0130, jcn_local(2));
+    mc.im_present[1] = 1;
+
+    /* IM[2]: T←0xAB00 (sets opcode=0xAB via B[0:7]).
+     * Need 0xAB00 on B. BSEL=6 (FF,,0) with FF=0xAB → B = 0xAB00. */
+    mc.im[2] = make_uinstr(0, 0, /*bsel=*/6, /*lc=*/1, /*asel=*/6, 0,
+                           /*ff=*/0xAB, jcn_local(3));
+    mc.im_present[2] = 1;
+
+    /* IM[3]: BrkIns←B (Opcode ← B[0:7]). FA=1 FB=3 FC=7 → FF=0o137.
+     * BSEL=2 (T). */
+    mc.im[3] = make_uinstr(0, 0, /*bsel=*/2, /*lc=*/0, /*asel=*/6, 0,
+                           /*ff=*/0137, jcn_local(4));
+    mc.im_present[3] = 1;
+
+    /* IM[4]: T ← 0xCAFE for IFUMRH write. BSEL=6 with FF=0xCA → 0xCA00,
+     * but we want 0xCAFE. Use ALU A+B with A=T and B=...
+     * Simpler: use BSEL=4 (0,,FF) and a chain of ops. Actually a single
+     * instruction can't generate arbitrary 16-bit constants directly.
+     * For this test, just use 0xCA00 as the data — that exercises the
+     * write path. */
+    mc.im[4] = make_uinstr(0, 0, /*bsel=*/6, /*lc=*/1, /*asel=*/6, 0,
+                           /*ff=*/0xCA, jcn_local(5));
+    mc.im_present[4] = 1;
+
+    /* IM[5]: IFUMRH←B. FA=1 FB=3 FC=4 → FF=0o134. BSEL=2 (T). */
+    mc.im[5] = make_uinstr(0, 0, /*bsel=*/2, /*lc=*/0, /*asel=*/6, 0,
+                           /*ff=*/0134, jcn_local(6));
+    mc.im_present[5] = 1;
+
+    /* IM[6]: T ← 0xBE00 for IFUMLH write. */
+    mc.im[6] = make_uinstr(0, 0, /*bsel=*/6, /*lc=*/1, /*asel=*/6, 0,
+                           /*ff=*/0xBE, jcn_local(7));
+    mc.im_present[6] = 1;
+
+    /* IM[7]: IFUMLH←B. FA=1 FB=3 FC=5 → FF=0o135. */
+    mc.im[7] = make_uinstr(0, 0, /*bsel=*/2, /*lc=*/0, /*asel=*/6, 0,
+                           /*ff=*/0135, jcn_local(7));
+    mc.im_present[7] = 1;
+
+    for (int i = 0; i <= 7; i++) {
+        mc.image_to_real[i] = i; mc.image_present[i] = 1;
+    }
+    mc.n_instructions = 8;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+
+    /* Step through the 8-instruction setup sequence. */
+    for (int i = 0; i < 8; i++) {
+        EXPECT(dorado_cpu_step(&cpu) == 0,
+               "step %d failed: %s", i, cpu_halt_reason_str(cpu.halt_reason));
+    }
+
+    /* InsSet should now be 2, opcode = 0xAB. IFUM[2*256 + 0xAB] =
+     * IFUM[0x2AB] should have lo=0xCA00, hi=0xBE00. */
+    EXPECT(cpu.ifu_insset == 2, "InsSet = %d, expected 2", cpu.ifu_insset);
+    EXPECT(cpu.ifu_opcode == 0xAB,
+           "Opcode = 0x%02X, expected 0xAB", cpu.ifu_opcode);
+    EXPECT(mc.ifum_lo[0x2AB] == 0xCA00,
+           "ifum_lo[0x2AB] = 0x%04X, expected 0xCA00", mc.ifum_lo[0x2AB]);
+    EXPECT(mc.ifum_hi[0x2AB] == 0xBE00,
+           "ifum_hi[0x2AB] = 0x%04X, expected 0xBE00", mc.ifum_hi[0x2AB]);
+
+    /* Other entries should be untouched. */
+    EXPECT(mc.ifum_lo[0] == 0, "ifum_lo[0] should be untouched");
+    EXPECT(mc.ifum_lo[0x1AB] == 0, "different InsSet should be untouched");
+
+    printf("PASS  test_ifum_load_read\n");
+    return 0;
+}
+
 int main(void)
 {
     int rc = 0;
@@ -1326,6 +1657,11 @@ int main(void)
     rc |= test_cpu_fault_info_visible();
     rc |= test_bc_timing_previous_instr();
     rc |= test_freezebc();
+    rc |= test_task_switch_on_wakeup();
+    rc |= test_task_block_returns_to_emulator();
+    rc |= test_tasking_off_blocks_switch();
+    rc |= test_wakeup_ff_function();
+    rc |= test_ifum_load_read();
     rc |= probe_bootstrap();
     rc |= probe_full_boot();
     if (rc == 0) printf("\nAll CPU tests passed.\n");

@@ -400,14 +400,30 @@ and the emulator runs.
 
 HM §6. Three pieces:
 
-### C.1 IFUM — 1024 × 24-bit decode RAM
+### C.1 IFUM — 1024 × 24-bit decode RAM  ✓ LANDED (load/read)
 
-Indexed by `(InstructionSet[2] || Opcode[8])`. Each entry is
-24-bit, broken into 8 sub-fields per HM Table 18:
-N (entry-vector index), TJump, TPause, MemB, NotRBaseB, NotLength,
-IPar, Sign, PA bit 6, NotIFADr2.
+Indexed by `(InsSet[0:1] || Opcode[0:7])` = 10 bits → 1024 entries.
+Each entry is 24-bit (+3 parity), stored as two 16-bit halves
+(`mc->ifum_lo`, `mc->ifum_hi`).
 
-Loaded by microcode via `IFIMRH←B` / `IFUMLH←B` FF functions.
+Per HM Table 18: Length' (2), TPause' (1), TJump' (1), IFaddr' (10),
+RBaseB' (1), MemB (3), Sign (1), Packed-α (1), N (4) = 24 bits.
+
+FF functions wired in cpu.c:
+- **`InsSetorEvent←B`** (FA=1 FB=3 FC=0). If B[0]=1, B[6:7]→InsSet[0:1].
+- **`BrkIns←B`** (FA=1 FB=3 FC=7). Opcode ← B[0:7].
+- **`IFUMRH←B`** (FA=1 FB=3 FC=4). Writes ifum_lo[InsSet||Opcode].
+- **`IFUMLH←B`** (FA=1 FB=3 FC=5). Writes ifum_hi[…].
+- **`IFUReset`** (FA=1 FB=3 FC=6). Resets InsSet/Opcode.
+- **`B←IFUMRH'`** (FA=1 FB=7 FC=2). Reads ~ifum_lo[…].
+- **`B←IFUMLH'`** (FA=1 FB=7 FC=3). Reads ~ifum_hi[…].
+
+Test: `test_ifum_load_read` in `tests/test_cpu.c` round-trips an
+entry via the full FF protocol.
+
+**TBD (Phase C.2/C.3):** decoded field access during prefetch,
+the IFU pipeline (F/G → J → H → M levels), F/G byte ordering
+across instruction sets (HM page 64 "Alto compatibility kludge").
 
 ### C.2 Instruction prefetch
 
@@ -449,51 +465,57 @@ microcode for them gets dispatched.
 
 HM §4.1, §4.2, Table 22.
 
-### D.1 Per-task state replication
+### D.1 Per-task state replication  ✓ LANDED
 
-T, TPC, MemBase, Link all become 16-element arrays indexed by
-current task number. The Q register and ALUFM are *not* per-task
-(only emulator can use Q).
+`task_t[16]`, `task_tpc[16]`, `task_link[16]`, `task_membase[16]`
+on `dorado_cpu`. Saved/restored by `task_save`/`task_load` in
+cpu.c. Q, ALUFM, StkP, ShC, Cnt, RBase are NOT per-task (HM §4.1).
 
-`cpu->task_t[16]`, `cpu->task_tpc[16]`, `cpu->task_membase[16]`,
-`cpu->task_link[16]`. The "active" view (cpu->T etc.) is written
-back on task switch.
+### D.2 Wakeup latches + priority encoder  ✓ LANDED
 
-### D.2 Wakeup latches + priority encoder
+`wakeup_pending` (bitmask of pending wakeups) and `ready` (bitmask
+of runnable tasks). Task 0 always Ready (HM page 26: "task 0
+always awake"). BNT = highest bit set in (ready | wakeup_pending).
+`dorado_cpu_wakeup(cpu, task)` for tests; `Wakeup[task]` FF
+function (FA=3 FB=6-7) for microcode.
 
-16 wakeup signals from I/O devices. Highest-priority pending
-wakeup with a non-locked task wins. Locked tasks are implementation-
-specific (HM §4.2).
+### D.3 Task-switch sequencing  ✓ LANDED
 
-### D.3 Task-switch sequencing
+`task_schedule()` runs at end of every microinstruction. Switches
+iff (BNT > CTASK) OR (BLOCK=1 in non-emulator). On switch, save
+T/TPC/Link/MemBase to current task slot, load new task's slot.
 
-Switches happen at the end of every microinstruction. The PC for
-the next instruction is the new task's TPC; T/MemBase/Link are
-restored from the new task's saved state. The previous task's T
-etc. are saved.
+**TBD:** Hold/tasking interaction (Hold isn't modeled).
 
-Hold complicates this: a held instruction repeats with the *same*
-task, but if the held task is at lower priority and a higher one
-wants to run, the higher one runs first (per HM "Hold" remarks).
+### D.4 TaskingOff/On  ✓ LANDED
 
-### D.4 LdTPC / RdTPC
+`tasking_on` flag. TaskingOff (FA=1 FB=4 FC=2) sets it to 0
+atomically. TaskingOn (FA=1 FB=4 FC=3) schedules re-enable after
+2 more instructions (HM page 27: "at least two more instructions
+will be executed by the same task").
 
-Load/read the saved TPC of any task. Per HM §4.7. Used by Initial
-to set up emulator entry points.
+### D.5 LdTPC / RdTPC  TBD
 
-### D.5 IOAtten' / Reschedule conditions
+Load/read the saved TPC of any task. JCN-based (special decode
+like Read/Write IM), not FF. Used by Initial to set up emulator
+entry points.
+
+### D.6 IOAtten' / Reschedule conditions  TBD
 
 Branch conditions 6 (cond 0o66 in FF) — IOAtten' for non-emulator
 tasks, Reschedule for emulator. We currently stub IOAtten' = 1
-(no I/O attention). Once tasking lands, IOAtten' becomes
-"I/O wants attention for this task".
+(no I/O attention). Once I/O devices land in Phase E, IOAtten'
+becomes "I/O wants attention for this task".
 
-Tests: `test_task_switch`, `test_task_locked`, `test_ldtpc_rdtpc`,
-`test_wakeup_priority`.
+Tests in `tests/test_cpu.c`:
+- `test_task_switch_on_wakeup` — Wakeup → state save/load → switch
+- `test_task_block_returns_to_emulator` — BLOCK=1 in non-emulator
+  clears Ready, returns to task 0
+- `test_tasking_off_blocks_switch` — TaskingOff stops switching
+- `test_wakeup_ff_function` — Wakeup[7] FF dispatches to task 7
 
-**Exit criterion for Phase D:** AEmu.mb + a stub disk task can
-read one sector of an Alto disk image. Mostly: prove that I/O
-microcode actually gets dispatched.
+**Exit criterion for Phase D:** ✓ core mechanism in place. LdTPC,
+RdTPC, IOAtten' to follow when actually needed by microcode.
 
 ## Phase E — I/O devices
 

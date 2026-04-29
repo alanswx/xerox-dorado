@@ -54,6 +54,119 @@ void dorado_cpu_init(dorado_cpu *cpu, const dorado_microcode *mc,
             if (mc->rm_present[i]) cpu->RM[i] = mc->rm[i];
         }
     }
+    /* Tasking. CTask=0 (emulator); task 0 is always Ready (HM page 26
+     * "task 0 always awake"). Other tasks start un-ready and have no
+     * pending wakeup until microcode or a device asserts one.
+     * Tasking is on by default; TaskingOff disables it. */
+    cpu->ctask     = 0;
+    cpu->ready     = 0x0001;     /* task 0 always ready */
+    cpu->tasking_on = 1;
+}
+
+void dorado_cpu_wakeup(dorado_cpu *cpu, int task)
+{
+    cpu->wakeup_pending |= (uint16_t)(1u << (task & 0xF));
+}
+
+void dorado_cpu_set_task_tpc(dorado_cpu *cpu, int task, uint16_t real_pc)
+{
+    int t = task & 0xF;
+    cpu->task_tpc[t] = real_pc;
+    /* If we're setting the current task's TPC, also update the live
+     * PC so the next instruction fetch sees it. */
+    if (t == cpu->ctask) cpu->real_PC = real_pc;
+}
+
+uint16_t dorado_cpu_get_task_tpc(const dorado_cpu *cpu, int task)
+{
+    int t = task & 0xF;
+    return (t == cpu->ctask) ? cpu->real_PC : cpu->task_tpc[t];
+}
+
+/* Best Next Task — the highest-priority bit set in (ready|wakeup).
+ * Task 0 (emulator) is always available, so worst case BNT = 0. */
+static int task_bnt(uint16_t avail)
+{
+    avail |= 0x0001;   /* task 0 always ready */
+    for (int i = 15; i > 0; i--) {
+        if (avail & (uint16_t)(1u << i)) return i;
+    }
+    return 0;
+}
+
+/* Save the current task's live state into task_*[ctask], using
+ * `next_pc` as the resume point (the just-computed JCN target). */
+static void task_save(dorado_cpu *cpu, uint16_t next_pc)
+{
+    int t = cpu->ctask;
+    cpu->task_t[t]       = cpu->T;
+    cpu->task_tpc[t]     = next_pc;
+    cpu->task_link[t]    = cpu->Link;
+    cpu->task_membase[t] = (uint8_t)cpu->MemBase;
+}
+
+/* Load `task`'s saved state into the live registers. After this
+ * call, `cpu->real_PC` is the task's saved TPC. */
+static void task_load(dorado_cpu *cpu, int task)
+{
+    int t = task & 0xF;
+    cpu->ctask   = (uint8_t)t;
+    cpu->T       = cpu->task_t[t];
+    cpu->real_PC = cpu->task_tpc[t];
+    cpu->Link    = cpu->task_link[t];
+    cpu->MemBase = cpu->task_membase[t];
+}
+
+/* End-of-instruction task scheduling. `next_pc` is the JCN-computed
+ * resume PC of the currently-executing task. `block_in_non_emulator`
+ * is 1 if this instruction was BLOCK=1 in a non-emulator task — that
+ * clears Ready[ctask] and forces a switch. Returns the chosen new
+ * value of `real_PC` (which the caller assigns to advance the
+ * engine). */
+static uint16_t task_schedule(dorado_cpu *cpu, uint16_t next_pc,
+                              int block_in_non_emulator)
+{
+    /* TaskingOn delay: TaskingOn doesn't take effect until two more
+     * instructions of the same task have executed (HM page 27). */
+    if (cpu->tasking_resume_delay > 0) {
+        cpu->tasking_resume_delay--;
+        if (cpu->tasking_resume_delay == 0) cpu->tasking_on = 1;
+    }
+
+    /* If the current task is non-emulator and blocked, clear Ready. */
+    if (block_in_non_emulator) {
+        cpu->ready &= (uint16_t)~(1u << cpu->ctask);
+    }
+
+    /* If tasking is off, no switch — current task keeps running. */
+    if (!cpu->tasking_on) return next_pc;
+
+    /* Find Best Next Task. */
+    uint16_t avail = cpu->ready | cpu->wakeup_pending;
+    int bnt = task_bnt(avail);
+
+    /* Switch iff BNT > CTASK (higher priority woke up), or the
+     * non-emulator current task is BLOCKing. */
+    int should_switch = (bnt > (int)cpu->ctask) || block_in_non_emulator;
+
+    if (block_in_non_emulator && bnt == (int)cpu->ctask) {
+        /* CTASK just blocked but BNT picked it again — that means
+         * no other ready task. Pick again from a mask that excludes
+         * ctask. */
+        uint16_t avail2 = (cpu->ready | cpu->wakeup_pending)
+                          & (uint16_t)~(1u << cpu->ctask);
+        bnt = task_bnt(avail2);
+    }
+
+    if (!should_switch || bnt == (int)cpu->ctask) return next_pc;
+
+    /* Save current state, then jump to BNT. The wakeup is
+     * acknowledged (cleared) and the new task is now Ready. */
+    task_save(cpu, next_pc);
+    cpu->wakeup_pending &= (uint16_t)~(1u << bnt);
+    cpu->ready          |= (uint16_t)(1u << bnt);
+    task_load(cpu, bnt);
+    return cpu->real_PC;
 }
 
 void dorado_cpu_trace(dorado_cpu *cpu, void *fp)
@@ -302,8 +415,24 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
         switch (fc) {
         case 0: *b = 0;          break;  /* B ← PCX'           — IFU PC */
         case 1: *b = 0;          break;  /* B ← EventCntA'     — stub */
-        case 2: *b = 0;          break;  /* B ← IFUMRH'        — stub */
-        case 3: *b = 0;          break;  /* B ← IFUMLH'        — stub */
+        case 2: /* B ← IFUMRH' (low part of IFUM, inverted).
+                 * Address = InsSet||Opcode (set by InsSetorEvent←B
+                 * and BrkIns←B). */
+                if (cpu->mc) {
+                    int addr = ((cpu->ifu_insset & 3) << 8) | cpu->ifu_opcode;
+                    *b = (uint16_t)~cpu->mc->ifum_lo[addr];
+                } else {
+                    *b = 0xFFFF;
+                }
+                break;
+        case 3: /* B ← IFUMLH' (high part of IFUM, inverted). */
+                if (cpu->mc) {
+                    int addr = ((cpu->ifu_insset & 3) << 8) | cpu->ifu_opcode;
+                    *b = (uint16_t)~cpu->mc->ifum_hi[addr];
+                } else {
+                    *b = 0xFFFF;
+                }
+                break;
         case 4: *b = 0;          break;  /* B ← EventCntB'     — stub */
         case 5: *b = 0;          break;  /* B ← DBuf           — stub */
         case 6:                             /* B ← RWCPReg */
@@ -456,22 +585,69 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
         }
         if (fb == 3) {
             switch (fc) {
-            case 0: /* InsSetorEvent ← B */        return pd;
+            case 0: /* InsSetorEvent ← B (HM Table 11c FA=1 FB=3 FC=0).
+                     * If B[0]=0: B[4:15] are EventCntA/EventCntB
+                     * controls (not modeled). If B[0]=1: B[6:7] are
+                     * loaded into IFU's InsSet[0:1]. B[0] in MSB-first
+                     * = bit 15 in C-LSB; B[6:7] = bits 9..8 in C-LSB. */
+                if ((b >> 15) & 1) {
+                    cpu->ifu_insset = (uint8_t)((b >> 8) & 3);
+                }
+                return pd;
             case 1: /* EventCntB ← B */            return pd;
             case 2: /* Reschedule */               return pd;
             case 3: /* NoReschedule */             return pd;
-            case 4: /* IFUMRH ← B */               return pd;
-            case 5: /* IFUMLH ← B */               return pd;
-            case 6: /* IFUReset */                 return pd;
-            case 7: /* BrkIns ← B */               return pd;
+            case 4: /* IFUMRH ← B (low part of IFUM entry).
+                     * Writes 16 bits: Packed-α←B.5, IFaddr'←B[6:15],
+                     * etc. We store the raw word; field decode happens
+                     * during prefetch (Phase C.2). Address =
+                     * InsSet||Opcode. */
+                if (cpu->mc) {
+                    dorado_microcode *mc_w = (dorado_microcode *)cpu->mc;
+                    int addr = ((cpu->ifu_insset & 3) << 8) | cpu->ifu_opcode;
+                    mc_w->ifum_lo[addr] = b;
+                    mc_w->ifum_present[addr] = 1;
+                }
+                return pd;
+            case 5: /* IFUMLH ← B (high part of IFUM entry).
+                     * Writes 16 bits: Sign←B.0, PE←B[1:3], Length'←B[4:5],
+                     * RBaseB'←B.6, MemB←B[7:9], TPause'←B.10,
+                     * TJump'←B.11, N←B[12:15]. */
+                if (cpu->mc) {
+                    dorado_microcode *mc_w = (dorado_microcode *)cpu->mc;
+                    int addr = ((cpu->ifu_insset & 3) << 8) | cpu->ifu_opcode;
+                    mc_w->ifum_hi[addr] = b;
+                    mc_w->ifum_present[addr] = 1;
+                }
+                return pd;
+            case 6: /* IFUReset — clear IFU pipeline state. With no
+                     * pipeline yet, just reset our addressing regs. */
+                cpu->ifu_insset = 0;
+                cpu->ifu_opcode = 0;
+                return pd;
+            case 7: /* BrkIns ← B. Opcode ← B[0:7] and set BrkPending.
+                     * B[0:7] in MSB-first = high 8 bits of B = (b>>8). */
+                cpu->ifu_opcode = (uint8_t)((b >> 8) & 0xFF);
+                /* BrkPending is breakpoint state — not modeled yet. */
+                return pd;
             }
         }
         if (fb == 4) {
             switch (fc) {
             case 0: /* UseDMD */                   return pd;
             case 1: /* MidasStrobe ← B */          return pd;
-            case 2: /* TaskingOff */               return pd;
-            case 3: /* TaskingOn */                return pd;
+            case 2: /* TaskingOff (HM page 27) — atomic; effective
+                     * immediately. Subsequent instructions of the
+                     * same task run without task switches. */
+                cpu->tasking_on = 0;
+                cpu->tasking_resume_delay = 0;
+                return pd;
+            case 3: /* TaskingOn — not immediately effective; "at
+                     * least two more instructions will be executed
+                     * by the same task before task switching can
+                     * occur" (HM page 27). */
+                cpu->tasking_resume_delay = 2;
+                return pd;
             case 4: /* StkP ← B[8:15] */
                 cpu->StkP = b & 0xFF;              return pd;
             case 5: /* RestoreStkP */              return pd;
@@ -637,8 +813,11 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
             return pd;
         }
         if (fb == 6 || fb == 7) {
-            /* Wakeup[n] — initiate wakeup for task FF[4:7]. No tasking
-             * model yet; stub. */
+            /* Wakeup[n] — initiate wakeup request for task FF[4:7]
+             * (HM Table 11e). FF[4:7] in MSB-first numbering = low 4
+             * bits of FF in C-LSB. */
+            int task = u->ff & 0xF;
+            cpu->wakeup_pending |= (uint16_t)(1u << task);
             return pd;
         }
     }
@@ -1400,7 +1579,13 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
     }
 
     cpu->prev_PC = cpu->real_PC;
-    cpu->real_PC = np;
+
+    /* Tasking: at end of instruction, decide whether to switch tasks.
+     * BLOCK=1 in a non-emulator task means "block this task" (HM
+     * page 27); in the emulator (ctask=0) BLOCK=1 means StackSelect
+     * for STK addressing — handled elsewhere, not a task block. */
+    int block_in_non_emul = (u->block && cpu->ctask != 0);
+    cpu->real_PC = task_schedule(cpu, np, block_in_non_emul);
 
     /* Cycle accounting + BB stepping only happen on IM-fetched
      * instructions. The injected-MIR caller (dorado_cpu_step) does
