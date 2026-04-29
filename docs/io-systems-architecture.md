@@ -550,39 +550,42 @@ T-80 specs (HM Table 23): 5 surfaces × 815 cylinders, 9.67 Mb/s,
 
 ### What we need to build (disk)
 
-**Status (Phase 1: DONE).** `dorado/include/disk.h` + `src/disk.c`,
+**Status (Phase 1+2: DONE).** `dorado/include/disk.h` + `src/disk.c`,
 ported from ContrAlto2's TridentDrive/TridentController/DiskPack.cs.
 
+Phase 1:
 - **Pack image format**: dorado_disk_pack with Bitsavers/ContrAlto
   layout (dummy 2B + header 4w + label 20w + data 2048w per sector,
-  stored CHS order, little-endian). Standard geometries:
-  T-80 = 815×5×9 (76 MB), T-300 = 815×19×9 (290 MB). Create/load/
-  save/free + sector accessor. ✓
-- **Drive**: dorado_disk_drive with per-drive online/ready/RO/select
-  state, current head position, seek-in-progress and index-pulse
-  latches. Controller daisy-chains tag commands to the selected
-  drive (decode in Phase 2). ✓
+  stored CHS order, little-endian). T-80 = 815×5×9 (76 MB),
+  T-300 = 815×19×9 (290 MB). ✓
+- **Drive**: per-drive online/ready/RO/select state, current head
+  position, seek-in-progress and index-pulse latches. ✓
 - **Controller**: dorado_disk_controller registered on task 14₈
-  (DSK), TIOA 10₈-14₈ (DiskControl/DiskMuff/DiskData/DiskRam/
-  DiskTag). Implements:
-  - DiskControl bit field (HM page 97): ClearEnableRun,
-    SetDebugMode, SetBlockTillIndex, ops 1-4 per block.
-  - Format RAM auto-increment + EnableRun on last word (HM page 98).
-  - DiskData 16-word FIFO push/pop.
-  - DiskTag tag register capture.
-  - DiskMuff input packs wakeup TWs + EnableRun + Active for
-    microcode to read back.
+  (DSK), TIOA 10₈-14₈. DiskControl bit decode, Format RAM
+  auto-increment + EnableRun, DiskData FIFO push/pop, DiskTag
+  capture, DiskMuff status readout. ✓
 
-Phase 2 (later):
+Phase 2:
+- **Tag command decoder** (HM pages 99–101): Drive Select
+  (Tag[0:3]=0), Head Tag (=1), Cylinder Tag (=2), Control Tag
+  (=3 with ReZero/HeadAdvance/Read/Write bits). Cylinder Tag
+  updates `cur_cyl` (synthetic instant seek), Head Tag updates
+  `cur_head`, Read kicks off sector load — drains FIFO and fills
+  with header+label+(data prefix) from current (cyl,head,sec). ✓
+- **Sector-pulse helper**: `dorado_disk_controller_advance_sector()`
+  increments sector counter (wraps at 9 for T-80), sets
+  `sector_tw`, and reloads FIFO with the new sector if active. ✓
+
+Phase 3 (later):
 - Sequence PROM execution: read PROM and write PROM advance per
   WordClock, drive tag register from format RAM, generate wakeups.
-- Tag command decoder: cylinder address strobe, head select, op
-  (read/write/check/zero), drive-select.
 - Fast-I/O FIFO transport — wire the FIFO into IOFetch←/IOStore←
   munches with main storage (sectors → memory and back).
 - Fire Code ECC: P(X) = X³² + X²³ + X²¹ + X¹¹ + X² + 1.
-- Sector-pulse timing: ~117 subsector + 1 index pulses per 16.67 ms
-  revolution drives DSK task wakeups.
+- Real sector-pulse timing: 117 subsector + 1 index pulses per
+  16.67 ms revolution drives DSK task wakeups.
+- Block transitions per `Format RAM[8:11]` 1st/successive-block
+  delays.
 
 The MiSTer port will reuse drive-pack handling but redo the
 controller in RTL.
@@ -706,8 +709,9 @@ Keyboard and mouse arrive via the 7-wire interface's back channel.
 
 ### What we need to build (display)
 
-**Status (Phase 1: DONE).** `dorado/include/display.h` + `src/display.c`.
+**Status (Phase 1+2: DONE).** `dorado/include/display.h` + `src/display.c`.
 
+Phase 1:
 - 808×606 mono framebuffer, MSB-leftmost packing. ✓
 - DDC catch-all slow-I/O handler registered on tasks DHT/AHT/AWT/DWT.
   Records (task, TIOA, data) into a buffered RIOB; preserves data
@@ -717,15 +721,18 @@ Keyboard and mouse arrive via the 7-wire interface's back channel.
 - Per-channel FIFO (256 words) for IOFetch← munch delivery. ✓
 - PGM snapshot helper (`dorado_display_snapshot_pgm`). ✓
 
-Phase 2 (later):
+Phase 2:
+- `dorado_display_render_fifo()` drains the per-channel FIFO and
+  lays 16 pixels per word into the framebuffer (MSB=leftmost,
+  1-bit-per-pixel = Alto monitor convention). ✓
+
+Phase 3 (later):
 - Decode (task, TIOA) → specific DDC command (NLCB load, HRam load,
   Mixer load, etc.) once we trace what microcode emits.
 - Pixel clock generation, real HSync/VSync timing.
 - 7-wire interface back-channel for keyboard/mouse.
 - 24Bit color (AMap+BMap+CMap), Mixer modes (A8B2/BBypass).
-- Drive the FB from FIFO + waveform generators (currently FB is
-  populated by direct `set_pixel` only, suitable for synthetic
-  tests).
+- αItemSize handling (2/4/8 bits per pixel for grayscale).
 
 ---
 

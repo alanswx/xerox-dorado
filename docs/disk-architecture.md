@@ -546,8 +546,9 @@ software XOR the corrupted bits back to correct values.
 
 ## What we have today
 
-`dorado/include/disk.h` + `src/disk.c` (Phase 1):
+`dorado/include/disk.h` + `src/disk.c`.
 
+**Phase 1**:
 - **Pack image** read/write in ContrAlto2/Bitsavers format. T-80 and
   T-300 geometry constants.
 - **Drive** struct: per-drive online/ready/RO/select state, current
@@ -561,19 +562,39 @@ software XOR the corrupted bits back to correct values.
   - DiskMuff input packs the wakeup TWs + EnableRun + Active for
     microcode to read back.
 
+**Phase 2**:
+- **Tag decoder**: dispatches by Tag[0:3] (HM pages 99-101):
+  - Tag[0:3]=0 (Drive Select): updates `selected_drive` + per-drive
+    flags from Tag[11:15].
+  - Tag[0:3]=1 (Head Tag): sets `cur_head` from low 6 bits, raises
+    `tag_tw` wakeup.
+  - Tag[0:3]=2 (Cylinder Tag): seeks to `cur_cyl` from low 12 bits,
+    clears sector sync, raises `tag_tw`.
+  - Tag[0:3]=3 (Control Tag): handles ReZero (cyl=head=sec=0),
+    HeadAdvance (cur_head++), Read (loads FIFO with
+    header+label+(data prefix) from current (cyl,head,sec), sets
+    Active + `rd_fifo_tw`), Write (clears FIFO, sets `wr_fifo_tw` +
+    Active).
+- **Synthetic sector-pulse**: `dorado_disk_controller_advance_sector()`
+  increments the sector counter (wraps at sectors-per-track), sets
+  `sector_tw`, and reloads FIFO if the controller is in an active op.
+
 What's not yet wired:
 
 - **Sequence PROM execution**: the 30-step state machine that drives
-  reads/writes per Format RAM. Needs WordClock simulation timing.
-- **Tag register decoder**: Tag[0:3] dispatch (drive select / head
-  / cylinder seek / control). Currently the tag value is stored
-  but not interpreted.
+  reads/writes per Format RAM. Currently the Read tag short-circuits
+  by directly populating the FIFO from sector storage, bypassing
+  the PROM/preamble/sync-word/postamble sequence.
 - **Fast-IO transport**: FIFO ↔ main memory via IOFetch← / IOStore←
-  munches.
+  munches. DSK microcode currently has to drain FIFO via Pd←Input.
 - **Fire Code ECC**: polynomial P(X) implementation in software.
-- **Sector-pulse timing**: 117 subsector + 1 index pulses per
-  16.66 ms revolution drives DSK task wakeups. Phase 2 needs a
+- **Real sector-pulse timing**: 117 subsector + 1 index pulses per
+  16.66 ms revolution drives DSK task wakeups. Phase 3 needs a
   cycle-accurate simulation clock.
+- **Block transitions per Format RAM**: the format-RAM-driven
+  multi-block sector layout (1st block at offset N, gap of M words,
+  2nd block at offset...) — currently we just dump header+label+data
+  contiguously into the FIFO regardless of Format RAM contents.
 
 See `docs/io-systems-architecture.md` for a higher-level view of
 how disk fits into Slow I/O / Fast I/O / Tasking.

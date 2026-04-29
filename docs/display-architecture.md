@@ -395,8 +395,9 @@ production: 0 = Alto-style, 1 = LF (large format / Star).
 
 ## What we have today
 
-`dorado/include/display.h` + `src/display.c` (Phase 1):
+`dorado/include/display.h` + `src/display.c`.
 
+**Phase 1**:
 - **Framebuffer**: 808×606 mono, 61206 bytes, MSB-leftmost packing.
 - **Slow-IO catch-all**: registered on tasks DHT/AHT/AWT/DWT. All
   Output←B accumulate into a buffered RIOB; counter tracks them.
@@ -406,15 +407,21 @@ production: 0 = Alto-style, 1 = LF (large format / Star).
 - **Per-channel FIFO** (256 words) for IOFetch← munches.
 - **PGM snapshot helper**.
 
+**Phase 2**:
+- **`dorado_display_render_fifo()`**: drains the per-channel FIFO
+  and lays 16 pixels per word into the framebuffer at (0..808,
+  dst_y), advancing dst_y as full rows are consumed. MSB =
+  leftmost pixel. 1-bit-per-pixel only (Alto monitor convention).
+
 What's not yet wired:
 
 - TIOA→command decoder (we don't yet know the numeric TIOA values
-  microcode emits; Phase 2 will trace them).
+  microcode emits; Phase 3 will trace them).
 - Pixel clock / waveform generation (we render full frames).
 - 7-wire interface back channel (keyboard/mouse → 32-bit messages).
 - 24Bit / A8B2 / BBypass mixer modes.
-- Drive the FB from FIFO + waveforms (currently FB is populated by
-  direct `set_pixel` only, suitable for synthetic tests).
+- αItemSize handling for grayscale (2/4/8 bits per pixel).
+- HSync / VSync / VBlank waveforms driving the render timing.
 
 See `docs/io-systems-architecture.md` for a higher-level view of
 how display fits into Slow I/O / Fast I/O / Tasking.
