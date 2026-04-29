@@ -2258,6 +2258,214 @@ static int probe_full_boot_with_bootstrap(void)
 }
 
 /*
+ * probe_initial — load Initial.MB directly and run from INITIAL.
+ *
+ * Bypasses Bootstrap entirely. Initial's job (per the Booting memo)
+ * is hardware init: write RM/STK/T with valid data to prevent parity
+ * errors, initialize ALUFM, init the memory system enough to prevent
+ * unexpected errors, then notify the BB and load an emulator.
+ *
+ * Useful diagnostic: see if Initial's hardware-init code can run
+ * end-to-end against our microengine + memory subsystem.
+ */
+static int probe_initial(void)
+{
+    /* Load Initial first, then layer Bootstrap on top. Initial.MB's
+     * first instruction at 0o7500 jumps to 0o7700 (Bootstrap entry),
+     * so Bootstrap MUST be in IM[0o7700..0o7777] for Initial to
+     * function — that's the real-hardware loading order: Bootstrap
+     * is loaded by the BB and Initial is loaded by Bootstrap. Then
+     * Initial's code transfers control to Bootstrap-region entry
+     * points (BootstrapChecksumError, ResetTags, etc.) for shared
+     * helpers. */
+    mb_file initial_mb, bootstrap_mb;
+    mb_init(&initial_mb);
+    mb_init(&bootstrap_mb);
+    if (mb_load(&initial_mb,
+                "../chm/dorado/expanded/bootstrap.dm!20_/Initial.mb")
+        != MB_OK) {
+        printf("SKIP  probe_initial (Initial.mb)\n");
+        return 0;
+    }
+    if (mb_load(&bootstrap_mb,
+                "../chm/dorado/expanded/bootstrap.dm!20_/Bootstrap.mb")
+        != MB_OK) {
+        printf("SKIP  probe_initial (Bootstrap.mb)\n");
+        mb_free(&initial_mb);
+        return 0;
+    }
+    static dorado_microcode mc;
+    if (dorado_microcode_load(&initial_mb, &mc) != DM_OK) {
+        printf("SKIP  probe_initial (Initial microcode load)\n");
+        mb_free(&initial_mb); mb_free(&bootstrap_mb);
+        return 0;
+    }
+    if (dorado_microcode_layer_load(&bootstrap_mb, &mc) != DM_OK) {
+        printf("SKIP  probe_initial (Bootstrap layer load)\n");
+        mb_free(&initial_mb); mb_free(&bootstrap_mb);
+        return 0;
+    }
+
+    /* Find INITIAL symbol in Initial.MB (image → real). */
+    int im_id = mb_find_mem(&initial_mb, "IM");
+    int initial_image = (im_id >= 0)
+        ? mb_find_symbol_addr(&initial_mb, im_id, "INITIAL") : -1;
+    int initial_real = -1;
+    if (initial_image >= 0) {
+        const mb_memory *m = &initial_mb.mems[im_id];
+        if (m->present[initial_image]) {
+            initial_real = m->data[(size_t)initial_image * m->width_words + 3]
+                           & 0xFFF;
+        }
+    }
+    if (initial_real < 0) {
+        printf("SKIP  probe_initial (INITIAL symbol not found)\n");
+        mb_free(&initial_mb); mb_free(&bootstrap_mb);
+        return 0;
+    }
+
+    /* Stand up memory + map a few pages identity RW. */
+    static dorado_memory mem;
+    if (dorado_memory_init(&mem) != 0) {
+        printf("SKIP  probe_initial (memory init failed)\n");
+        mb_free(&initial_mb); mb_free(&bootstrap_mb);
+        return 0;
+    }
+    for (uint32_t pg = 0; pg < 16; pg++) {
+        dorado_map_set(&mem, pg, /*rp=*/(uint16_t)pg, /*wp=*/0, /*dirty=*/0);
+    }
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, (uint16_t)initial_real);
+    cpu.mem = &mem;
+    /* Match Bootstrap's expected handoff state: tasking off,
+     * no pending wakeups. Initial is supposed to enable I/O tasks
+     * itself once it's ready. */
+    cpu.tasking_on = 0;
+    cpu.wakeup_pending = 0;
+    cpu.reschedule_pending = 0;
+
+    /* Run; track first 64 PCs + last 64 PCs + top-10 hot. */
+    #define FN 64
+    #define LN 64
+    uint16_t first_trail[FN];
+    uint16_t last_trail[LN];
+    int  first_n = 0;
+    int  last_head = 0, last_total = 0;
+    static int pc_count[4096];
+    memset(pc_count, 0, sizeof pc_count);
+    cpu_halt_reason r = CPU_HALT_NONE;
+    int loop_pc = -1, loop_count = 0;
+    int max_cycles = 100000;
+    for (int i = 0; i < max_cycles; i++) {
+        if (first_n < FN) first_trail[first_n++] = cpu.real_PC;
+        last_trail[last_head] = cpu.real_PC;
+        last_head = (last_head + 1) % LN;
+        last_total++;
+        if (cpu.real_PC < 4096) pc_count[cpu.real_PC]++;
+        /* Tight-loop detector. */
+        if ((int)cpu.real_PC == loop_pc) {
+            if (++loop_count > 1000) break;
+        } else {
+            loop_pc = (int)cpu.real_PC;
+            loop_count = 0;
+        }
+        if (dorado_cpu_step(&cpu) != 0) {
+            r = (cpu_halt_reason)cpu.halt_reason;
+            break;
+        }
+    }
+    if (!cpu.halted) r = CPU_HALT_NONE;
+
+    const char *sym = dorado_microcode_symbol_at_real(&mc, cpu.real_PC);
+    printf("PROBE  initial: entry=0o%o(INITIAL), ran %d cycles, "
+           "halt: %s at PC=0o%o%s%s\n",
+           initial_real, cpu.cycles, cpu_halt_reason_str(r),
+           cpu.real_PC,
+           sym ? " sym=" : "", sym ? sym : "");
+
+    /* First trail. */
+    printf("       first:");
+    int prev_pc = -1, prev_count = 0;
+    for (int i = 0; i < first_n; i++) {
+        if ((int)first_trail[i] == prev_pc) { prev_count++; continue; }
+        if (prev_count > 1) printf("×%d", prev_count);
+        const char *s = dorado_microcode_symbol_at_real(&mc, first_trail[i]);
+        if (s) printf(" 0o%o(%s)", first_trail[i], s);
+        else   printf(" 0o%o", first_trail[i]);
+        prev_pc = first_trail[i];
+        prev_count = 1;
+    }
+    if (prev_count > 1) printf("×%d", prev_count);
+    printf("\n");
+
+    /* Last trail. */
+    int last_n = last_total < LN ? last_total : LN;
+    int last_first = last_total < LN ? 0 : last_head;
+    printf("       last:");
+    prev_pc = -1; prev_count = 0;
+    for (int i = 0; i < last_n; i++) {
+        int idx = (last_first + i) % LN;
+        if ((int)last_trail[idx] == prev_pc) { prev_count++; continue; }
+        if (prev_count > 1) printf("×%d", prev_count);
+        const char *s = dorado_microcode_symbol_at_real(&mc, last_trail[idx]);
+        if (s) printf(" 0o%o(%s)", last_trail[idx], s);
+        else   printf(" 0o%o", last_trail[idx]);
+        prev_pc = last_trail[idx];
+        prev_count = 1;
+    }
+    if (prev_count > 1) printf("×%d", prev_count);
+    printf("\n");
+
+    /* Top-10 hot PCs. */
+    int tops[10] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+    int topc[10] = {0};
+    for (int a = 0; a < 4096; a++) {
+        if (pc_count[a] == 0) continue;
+        for (int s = 0; s < 10; s++) {
+            if (pc_count[a] > topc[s]) {
+                for (int t = 9; t > s; t--) {
+                    tops[t] = tops[t-1];
+                    topc[t] = topc[t-1];
+                }
+                tops[s] = a;
+                topc[s] = pc_count[a];
+                break;
+            }
+        }
+    }
+    int unique = 0;
+    for (int a = 0; a < 4096; a++) if (pc_count[a]) unique++;
+    printf("       Initial visited %d unique IM addresses; top-10:\n",
+           unique);
+    for (int i = 0; i < 10 && tops[i] >= 0; i++) {
+        const char *s = dorado_microcode_symbol_at_real(&mc, tops[i]);
+        printf("         0o%o ×%d%s%s\n", tops[i], topc[i],
+               s ? " " : "", s ? s : "");
+    }
+    #undef FN
+    #undef LN
+
+    /* If we halted on something we don't yet handle, dump the offender. */
+    if (cpu.halt_reason == CPU_HALT_UNSUPPORTED_ASEL ||
+        cpu.halt_reason == CPU_HALT_UNSUPPORTED_BSEL ||
+        cpu.halt_reason == CPU_HALT_UNSUPPORTED_FF ||
+        cpu.halt_reason == CPU_HALT_UNSUPPORTED_JCN) {
+        if (cpu.real_PC < 4096 && mc.im_present[cpu.real_PC]) {
+            const dorado_uinstr *u = &mc.im[cpu.real_PC];
+            char dis[256];
+            dorado_format(u, dis, sizeof dis);
+            printf("       offending uinstr: %s\n", dis);
+        }
+    }
+
+    dorado_memory_free(&mem);
+    mb_free(&initial_mb);
+    mb_free(&bootstrap_mb);
+    return 0;  /* informational */
+}
+
+/*
  * Test 8: Write IM round-trip. The Bootstrap loader uses Write IM to
  * deposit Initial into IM via four IRTable entries (LH/RH × secondary
  * 0/1). Each Write IM: address from cpu->Link, 16 bits from B,
@@ -3741,6 +3949,7 @@ int main(void)
     rc |= probe_bootstrap_pure();
     rc |= probe_bootstrap();
     rc |= probe_aemu();
+    rc |= probe_initial();
     rc |= probe_full_boot();
     rc |= probe_full_boot_with_bootstrap();
     if (rc == 0) printf("\nAll CPU tests passed.\n");
