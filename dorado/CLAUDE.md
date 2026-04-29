@@ -24,18 +24,29 @@ dorado/
 ├── compile_commands.json
 ├── CLAUDE.md             ← this file
 ├── include/
-│   └── mb.h              .MB loader API
+│   ├── mb.h              .MB loader API
+│   ├── disasm.h          microinstruction decoder
+│   ├── microcode.h       placement / IM array
+│   ├── cpu.h             microengine
+│   ├── memory.h          cache/Map/Pipe/BR
+│   ├── baseboard.h       6502 BB model
+│   └── io.h              slow-I/O device routing (HM §7)
 ├── src/
 │   ├── mb.c              .MB parser
 │   ├── disasm.c          model-1 unshuffle + microinstruction field decoder
 │   ├── microcode.c       image→real placement, builds hardware-ready IM[4096]
-│   ├── cpu.c             microengine (single task, no IFU/memory/tasking yet)
+│   ├── cpu.c             microengine (tasking + IFU + memory)
+│   ├── memory.c          memory subsystem
+│   ├── baseboard.c       BB 6502 + RIOTs + analog comparators
+│   ├── io.c              slow-I/O routing (per-(task,TIOA) device table)
 │   └── mbdis.c           CLI: dump / symbolic disasm
 └── tests/
     ├── test_mb.c         loader
     ├── test_disasm.c     decoder
     ├── test_microcode.c  placement
-    └── test_cpu.c        CPU smoke tests + real-Bootstrap probe
+    ├── test_memory.c     memory subsystem
+    ├── test_baseboard.c  BB cold boot + CPReg + MCPBus
+    └── test_cpu.c        CPU smoke tests + slow-I/O round-trip + real-Bootstrap probe
 ```
 
 ## What's done
@@ -150,11 +161,53 @@ the Dorado microengine tick-by-tick from cycle 0 with empty IM
      slot) and the embedded long-jump goes to IM[0o4000], which
      is empty — halt.
 
-The remaining wall is that Boot0 takes a path through its state
-machine that depends on register values our model doesn't set up
-(STK, RM, Q, ALUFM[1..14]). Real Boot0 probably never reaches
-those trap reservations on hardware because R<0 / Carry' / etc.
-conditions evaluate differently against the real initial state.
+**Major correctness fixes (2026-04):**
+
+- **`src/microcode.c` ALUFM extraction** now recovers the carry_in bit
+  from storage word bit 15 (was masked off, conflating
+  ALUFM[2]=A+B-c0 with ALUFM[3]=A+B-c1). Locked in via
+  `test_alufm_canonical_decoding` — verifies Bootstrap.MB and
+  AEmu.mb standard convention is recovered.
+- **`src/cpu.c alu_op`** returns `is_arith` so the caller can preserve
+  Carry'/Overflow on logical ops (HM page 30: "the result of the last
+  *arithmetic* ALU operation"). Locked in via
+  `test_carry_preserved_on_logical`.
+- **`include/cpu.h CPU_QUADRANT_SIZE`** was 0o4000 (2K) — should be
+  0o10000 (4K) per HM §4.3 (one full IM = one quadrant). Was masking
+  off real address bits, sending Global Calls / Long jumps to
+  out-of-range targets. **Side effect: probe_aemu now executes real
+  AEmu microcode** (STARTEMULATOR → SETUPBRS → DOBRS×12 → IFU
+  dispatch loop) instead of halting at fictional addresses.
+- **`src/cpu.c B←RWCPReg`** legacy stub now matches the BaseBoard
+  path: returns `~cpu->cpreg` and does NOT increment per call. Lets
+  synthetic tests hold CPReg constant for AMSync polling.
+- **`src/cpu.c Pd←ALUFMRW`** B-to-ALUFM bit mapping was reversed.
+  HM Table 11d: `ALUFMEM ← B.8, B[11:15]` maps manual `B[8]=B_C[7]`
+  to entry top (carry), `B[11:15]=B_C[4..0]` to entry op[4..0]. Our
+  code had this mirrored. Locked in via `test_alufmrw_bit_mapping`.
+
+**probe_bootstrap_pure** now reaches the genuine loader behavior:
+- Walks BOOTSTRAP (0o7740) through 16 instructions of ALUFM
+  initialization (0o7771 writes ALUFM[8]=A XOR B, 0o7773 writes
+  ALUFM[10], 0o7776 writes ALUFM[14], etc. — Bootstrap.MB self-
+  initializes ALUFM at runtime even though .MB declares it).
+- Reaches READBB at 0o7700, then enters the spin loop
+  (0o7747 → 0o7742 → 0o7741) waiting for a CPReg byte from the BB.
+- With `cpu.cpreg=0x8000` (mimicking BB's `SetCPReg(0x80,0)` AMSync
+  preset), the loop exits on first iteration and proceeds through
+  0o7746 → 0o7715 → 0o7702 → 0o7700 (re-enter loader). Re-enters
+  the loop because the test environment doesn't drive CPReg with
+  fresh bytes — needs a BB feeding the byte stream to make further
+  progress.
+
+**probe_full_boot** still hits a trap at 0o7744 because the BB ROM
+contains a NEWER Boot0 binary that takes a different path than
+Bootstrap.MB. The newer binary doesn't appear to do runtime ALUFM
+init the same way; it lands in reserved trap slots given our
+zero-init RM/T. This is now isolated from the rest of the model —
+the microengine is correct; the BB-loaded binary has different
+semantics we'd need to disassemble piece-by-piece to follow.
+
 Beyond this would need either a much fuller hardware model
 (memory subsystem, proper STK push/pop, ALUFM init from Midas)
 or per-microinstruction analysis of Boot0's intended flow.

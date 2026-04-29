@@ -6,6 +6,7 @@
 
 #include "disasm.h"
 #include "microcode.h"
+#include "io.h"
 
 /*
  * Dorado microengine — minimal skeleton.
@@ -31,7 +32,14 @@
  */
 
 #define CPU_PAGE_SIZE       0100   /* 64-word IM page (HM §4.3) */
-#define CPU_QUADRANT_SIZE   04000  /* 4K-word IM quadrant */
+/* HM §4.3: a "quadrant" is a 4K-word IM region. Global Calls target
+ * any of 64 pages within the current quadrant; Long branches address
+ * 12 bits within the current quadrant. With our 4K IM, the entire
+ * store is one quadrant — quadrant masking effectively no-ops, but
+ * we must not mask off any address bits or globals/longs would
+ * point outside the 12-bit IM range. The constant is the next power
+ * of two beyond IM_SIZE so that `~(QUADRANT_SIZE-1)` is 0 in 12 bits. */
+#define CPU_QUADRANT_SIZE   010000 /* 4K-word IM quadrant (full IM today) */
 
 typedef struct {
     /* Working registers (HM Table 2). One task, so no replication. */
@@ -142,6 +150,19 @@ typedef struct {
     int      baseboard_cycles_per_uop; /* how many 6502 cycles per Dorado
                                         * microinstruction. 0 = don't step. */
     uint16_t cpreg;             /* legacy stub when baseboard == NULL */
+
+    /*
+     * Slow I/O routing (HM §7).
+     *
+     * When non-NULL, Pd←Input, Pd←InputNoPE and Output←B dispatch
+     * through the device table indexed by (ctask, TIOA). Default
+     * (NULL) returns 0xFFFF on read (floating bus) and discards
+     * writes — same behavior as the legacy stub.
+     */
+    dorado_io *io;
+    uint8_t  io_bad_parity;     /* set by Pd←Input on floating-bus or
+                                 * device-flagged parity error; consumed
+                                 * by parity-fault microcode (TBD). */
 
     /* The "current instruction address" — what the manual calls CIA.
      * After step() runs, this advances to the next instruction. */

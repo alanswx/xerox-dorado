@@ -454,13 +454,17 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
         case 4: *b = 0;          break;  /* B ← EventCntB'     — stub */
         case 5: *b = 0;          break;  /* B ← DBuf           — stub */
         case 6:                             /* B ← RWCPReg */
-            /* HM page 31: "B←RWCPReg = Link←B, B←CPReg'." */
+            /* HM page 31: "B←RWCPReg = Link←B, B←CPReg'." So B is the
+             * complement of CPReg, in both BaseBoard-attached and
+             * legacy-stub paths. The legacy stub honors `cpreg` as a
+             * stable value (no per-call increment) so synthetic tests
+             * can hold CPReg constant — e.g. the pure-Bootstrap probe
+             * relies on CPReg=0x8000 (with bit 15 set) to break out
+             * of READBB's wait-for-AMSync loop. */
             if (cpu->baseboard) {
                 *b = (uint16_t)~baseboard_dorado_read_cpreg(cpu->baseboard);
             } else {
-                /* Counter stub for tests that don't wire a BaseBoard. */
-                *b = cpu->cpreg;
-                cpu->cpreg = (uint16_t)(cpu->cpreg + 1);
+                *b = (uint16_t)~cpu->cpreg;
             }
             cpu->Link = *b;
             break;
@@ -528,18 +532,37 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
             switch (fc) {
             case 0: /* — */              return pd;
             case 1: /* ReadMap */         return pd;  /* stub */
-            case 2: /* Pd ← Input (HM page 86): reads IOB data and
-                     * checks parity. The IOB carries data from the
-                     * slow-IO device addressed by TIOA. With no
-                     * device modeling yet, return 0xFFFF — that's
+            case 2: /* Pd ← Input (HM §7 p. 86): reads IOB data with
+                     * parity check. Dispatches through the slow-IO
+                     * routing table indexed by (ctask, TIOA). With no
+                     * io table or no device mapped, returns 0xFFFF —
                      * the floating-bus default (real hardware: IOB
-                     * pulls high when no device asserts), and lets
-                     * Boot0 cond=R<0 tests evaluate true so it walks
-                     * past the trap-reservation slots. TODO: wire
-                     * actual slow-IO device map (HM §7). */
-                return (uint16_t)0xFFFF;
-            case 3: /* Pd ← InputNoPE — same data, no parity check. */
-                return (uint16_t)0xFFFF;
+                     * pulls high when no device asserts) — and sets
+                     * io_bad_parity so a parity-fault handler (TBD)
+                     * can react. */
+                {
+                    int bad = 0;
+                    uint16_t v = cpu->io
+                        ? dorado_io_read(cpu->io, cpu->ctask,
+                                         (uint8_t)cpu->TIOA, &bad)
+                        : (uint16_t)0xFFFF;
+                    if (!cpu->io) bad = 1;
+                    cpu->io_bad_parity = (uint8_t)bad;
+                    return v;
+                }
+            case 3: /* Pd ← InputNoPE — same data path, no parity check.
+                     * Microcode uses this to probe device presence:
+                     * absent device → IOB floats high → InputNoPE
+                     * delivers 0xFFFF without trapping. */
+                {
+                    int bad = 0;
+                    uint16_t v = cpu->io
+                        ? dorado_io_read(cpu->io, cpu->ctask,
+                                         (uint8_t)cpu->TIOA, &bad)
+                        : (uint16_t)0xFFFF;
+                    (void)bad;
+                    return v;
+                }
             case 4: /* RIsId — Id replaces RM/STK in A←RM/STK,
                      * B←RM/STK, and shifter (HM Table 11a FA=0 FB=3
                      * FC=4). For our minimal model: just consume one
@@ -552,7 +575,14 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                      * (FC=5). Same caveat as RIsId. */
                 (void)ifu_consume_id(cpu);
                 return pd;
-            case 6: /* Output ← B */      return pd;  /* I/O, stub */
+            case 6: /* Output ← B (HM §7 p. 86): drive 16 bits + parity
+                     * onto IOB to the device addressed by TIOA. Routed
+                     * through the slow-IO table; no-op if unmapped. */
+                if (cpu->io) {
+                    dorado_io_write(cpu->io, cpu->ctask,
+                                    (uint8_t)cpu->TIOA, b);
+                }
+                return pd;
             case 7: /* FlipMemBase */
                 cpu->MemBase ^= 1;
                 return pd;
@@ -807,22 +837,39 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                                   ? cpu->mc->alufm[idx] : 0;
                     pd = cur;  /* placeholder: real Pd would be 6-bit */
                     dorado_microcode *mc_w = (dorado_microcode *)cpu->mc;
-                    /* ALUFM_manual bit position → B manual bit:
-                     *   0 (carry, MSB) ← B[15] (= B_C[0])
-                     *   1              ← B[14] (= B_C[1])
-                     *   2              ← B[13] (= B_C[2])
-                     *   3              ← B[12] (= B_C[3])
-                     *   4              ← B[11] (= B_C[4])
-                     *   5 (LSB of op)  ← B[8]  (= B_C[7])
-                     * In C-LSB ALUFM (bit 5 = manual MSB, bit 0 = LSB).
+                    /* HM Table 11d: "ALUFMEM ← B.8, B[11:15]". Manual
+                     * bit numbering MSB-first. Decoded:
+                     *   ALUFM manual bit 0 (carry, MSB)  ← B[8]  manual = B_C[7]
+                     *   ALUFM manual bit 1               ← B[11] manual = B_C[4]
+                     *   ALUFM manual bit 2               ← B[12] manual = B_C[3]
+                     *   ALUFM manual bit 3               ← B[13] manual = B_C[2]
+                     *   ALUFM manual bit 4               ← B[14] manual = B_C[1]
+                     *   ALUFM manual bit 5 (LSB of op)   ← B[15] manual = B_C[0]
+                     *
+                     * Our `alu_op` consumes the 6-bit entry as
+                     * (carry << 5) | op[4:0] in C-LSB. So:
+                     *   entry C-bit 5 = ALUFM manual bit 0 = B_C[7]
+                     *   entry C-bit 4 = ALUFM manual bit 1 = B_C[4]
+                     *   entry C-bit 3 = ALUFM manual bit 2 = B_C[3]
+                     *   entry C-bit 2 = ALUFM manual bit 3 = B_C[2]
+                     *   entry C-bit 1 = ALUFM manual bit 4 = B_C[1]
+                     *   entry C-bit 0 = ALUFM manual bit 5 = B_C[0]
+                     *
+                     * Verified against Bootstrap.MB at IM[0o7771] which
+                     * does Pd←ALUFMRW with ALUF=10 (=8 dec) and B=T=0x13.
+                     * Bootstrap.MB pre-declares ALUFM[8] = 0o23 (A XOR
+                     * B); the runtime write should reproduce that.
+                     * 0x13 = 0b 0001 0011: B_C[7]=0, B_C[4]=1, B_C[3]=0,
+                     * B_C[2]=0, B_C[1]=1, B_C[0]=1 → entry =
+                     * 0_1_0_0_1_1 = 0o23 ✓.
                      */
                     uint8_t alufm =
-                        (uint8_t)((((b >> 0) & 1) << 5) |
-                                  (((b >> 1) & 1) << 4) |
-                                  (((b >> 2) & 1) << 3) |
-                                  (((b >> 3) & 1) << 2) |
-                                  (((b >> 4) & 1) << 1) |
-                                  (((b >> 7) & 1) << 0));
+                        (uint8_t)((((b >> 7) & 1) << 5) |
+                                  (((b >> 4) & 1) << 4) |
+                                  (((b >> 3) & 1) << 3) |
+                                  (((b >> 2) & 1) << 2) |
+                                  (((b >> 1) & 1) << 1) |
+                                  (((b >> 0) & 1) << 0));
                     mc_w->alufm[idx] = alufm;
                     mc_w->alufm_present[idx] = 1;
                 }
@@ -1134,8 +1181,20 @@ static int a_bus(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *out)
  *  For arithmetic with carry-in = 0:  *0 A, *6 2A, *14 A+B, *22 A-B-1, *36 A-1
  *  With carry-in = 1:                 *0 A+1, 6 2A+1, *14 A+B+1, *22 A-B, 36 A
  */
+/* Returns 1 if the ALU op `op` is arithmetic (updates Carry'/Overflow
+ * branch conditions), 0 if logical (Carry'/Overflow preserved from the
+ * last arithmetic op per HM page 30). The 16 arithmetic op codes are
+ * the even ones in HM Table 9. */
+static int alu_op_is_arithmetic(uint8_t op)
+{
+    /* HM Table 9: even op codes (low bit = 0) are arithmetic; odd ones
+     * (low bit = 1) are logical. */
+    return (op & 1) == 0;
+}
+
 static uint16_t alu_op(uint8_t alufm_entry, uint16_t a, uint16_t b,
-                       uint8_t *out_carry, uint8_t *out_overflow)
+                       uint8_t *out_carry, uint8_t *out_overflow,
+                       uint8_t *out_is_arith)
 {
     uint8_t carry_in = (alufm_entry >> 5) & 1;   /* high bit */
     uint8_t op = alufm_entry & 0x1F;             /* low 5 bits */
@@ -1206,6 +1265,7 @@ static uint16_t alu_op(uint8_t alufm_entry, uint16_t a, uint16_t b,
 
     if (out_carry)    *out_carry    = carry_out;
     if (out_overflow) *out_overflow = overflow;
+    if (out_is_arith) *out_is_arith = (uint8_t)alu_op_is_arithmetic(op);
     return (uint16_t)result;
 }
 
@@ -1914,7 +1974,16 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                           ? cpu->mc->alufm[aluf_idx]
                           : 0;
     uint8_t new_carry = cpu->alu_carry, new_ovf = cpu->alu_overflow;
-    uint16_t alu = alu_op(alufm_entry, a, b, &new_carry, &new_ovf);
+    uint8_t is_arith = 0;
+    uint16_t alu = alu_op(alufm_entry, a, b, &new_carry, &new_ovf, &is_arith);
+    /* HM page 30: "Carry' and Overflow are the result of the last
+     * *arithmetic* ALU operation". Logical ops must NOT update them —
+     * preserve the previous values so subsequent Carry'/Overflow
+     * branches see the last arithmetic result. */
+    if (!is_arith) {
+        new_carry = cpu->alu_carry;
+        new_ovf   = cpu->alu_overflow;
+    }
 
     /*
      * HM page 18 + page 30: branch conditions ALU=0, ALU<0, Carry',

@@ -206,12 +206,70 @@ static int test_real_microcode_places(void)
     return passed == n ? 0 : 1;
 }
 
+/*
+ * test_alufm_canonical_decoding — verify our ALUFM extraction
+ * recovers the canonical 6-bit entries from Bootstrap.MB / AEmu.mb.
+ *
+ * Both files declare the standard Dorado ALUFM convention:
+ *
+ *   ALUFM[ 0] = 0o25 (B)              stored 0o12400
+ *   ALUFM[ 1] = 0o00 (A, c=0)          stored 0o00000
+ *   ALUFM[ 2] = 0o14 (A+B, c=0)        stored 0o06000
+ *   ALUFM[ 3] = 0o54 (A+B, c=1)        stored 0o106000
+ *   ALUFM[ 4] = 0o62 (A-B, c=1)        stored 0o111000
+ *   ALUFM[ 5] = 0o22 (A-B-1, c=0)      stored 0o011000
+ *
+ * Storage layout: word bit 15 = carry_in (entry bit 5), word bits
+ * 12..8 = op (entry bits 4..0). The earlier extraction lost the
+ * carry bit, conflating ALUFM[2] and ALUFM[3].
+ */
+static int test_alufm_canonical_decoding(void)
+{
+    static const struct {
+        const char *path;
+        const char *name;
+    } files[] = {
+        { "../chm/dorado/expanded/bootstrap.dm!20_/Bootstrap.mb", "Bootstrap" },
+        { "../chm/dorado/AEmu.mb!2",                              "AEmu" },
+    };
+
+    static const uint8_t expected[6] = {
+        025, 000, 014, 054, 062, 022,
+    };
+
+    for (int f = 0; f < (int)(sizeof files / sizeof files[0]); f++) {
+        mb_file mb;
+        mb_init(&mb);
+        if (mb_load(&mb, files[f].path) != MB_OK) {
+            printf("SKIP  test_alufm_canonical_decoding (%s not loadable)\n",
+                   files[f].name);
+            mb_free(&mb);
+            continue;
+        }
+        static dorado_microcode mc;
+        EXPECT(dorado_microcode_load(&mb, &mc) == DM_OK,
+               "%s: microcode load", files[f].name);
+        for (int i = 0; i < 6; i++) {
+            EXPECT(mc.alufm_present[i],
+                   "%s: ALUFM[%d] not present", files[f].name, i);
+            EXPECT(mc.alufm[i] == expected[i],
+                   "%s: ALUFM[%d] = 0o%o (expected 0o%o)",
+                   files[f].name, i, mc.alufm[i], expected[i]);
+        }
+        mb_free(&mb);
+    }
+    printf("PASS  test_alufm_canonical_decoding "
+           "(carry+op extracted correctly across files)\n");
+    return 0;
+}
+
 int main(void)
 {
     int rc = 0;
     rc |= test_ftest_placement();
     rc |= test_bootstrap_placement();
     rc |= test_real_microcode_places();
+    rc |= test_alufm_canonical_decoding();
     if (rc == 0) printf("\nAll microcode tests passed.\n");
     return rc;
 }

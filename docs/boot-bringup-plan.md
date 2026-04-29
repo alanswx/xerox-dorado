@@ -1,47 +1,170 @@
 # Boot bring-up plan
 
-A staged plan for getting from "Boot0 starts free-running from IM"
-(where we are now) to "Mesa loads Pilot from disk and a hello-world
-appears on the display."
+A staged plan for getting from "Bootstrap microcode runs against our
+microengine" (where we are now) to "Mesa loads Pilot from disk and a
+hello-world appears on the display."
 
 This is a *design doc*. It captures decisions we want to make
 deliberately rather than rediscover under pressure later. Update it as
 phases land.
 
-## Current state (anchor)
+## The normal boot sequence (HM + Booting Memo Apr 1980)
 
-`probe_full_boot` in `tests/test_cpu.c` runs the BB and the Dorado
-microengine tick-by-tick from cycle 0 with empty IM. The BB cold-boot
-→ LoadDoradoCode → Boot0-injection-and-Write-IM path works
-end-to-end. After Boot0 is loaded into IM[0o7700..0o7777] and Return#
-is jammed without single-step, the Dorado free-runs from IM[0o7740]
-and executes ~10 microinstructions before walking into IM[0o7744]
-(an all-zero trap-reservation slot in the EPROM data); the embedded
-long-jump goes to IM[0o4000] which is empty → halt.
+For reference. Two end-to-end boot paths exist on real Dorado:
+
+### Path A: Power-on / 3-push button (full bootstrap)
+
+1. **BaseBoard wakes up.** 6502 monitors power supplies, temperature,
+   boot button, drives green LED.
+2. **BB halts the Dorado**, issues IO reset, clears Hold and Fault
+   wakeup state.
+3. **BB loads Bootstrap microcode** (~50 instructions) into IM via
+   *MIR jamming* — the BB drives MCPBus to deposit one
+   microinstruction at a time. Slow.
+4. **BB starts Bootstrap running**, then *streams Initial microcode*
+   (~700 instructions) via CPReg. Bootstrap polls CPReg, decodes
+   bytes, writes to IM via `Write IM`.
+5. **Bootstrap hands off to Initial.** They occupy disjoint IM regions.
+6. **Initial executes**: full hardware init (parity, cache, Map,
+   storage, BR), enables I/O tasks (Display, Ethernet, Junk), reads
+   keyboard for emulator selection.
+7. **Initial contacts Ethernet boot server** (Gateway/IFS): requests
+   the chosen emulator microcode (Mesa/Cedar/Lisp/Smalltalk/Alto),
+   stores it in main memory.
+8. **Initial calls LoadRam** which loads the emulator microcode from
+   main memory into IM/IFUM. The emulator REPLACES Bootstrap+Initial.
+9. **Emulator runs.** Memory init, disk-partition reset, I/O init,
+   then initiates an Alto-style software boot from disk or Ethernet.
+10. **Software OS loads** (Alto OS, Pilot, etc.) from disk/Ethernet.
+
+### Path B: LoadMB (microcode self-load, while running)
+
+Faster path used when an emulator is already running:
+
+1. The running emulator (or Bootstrap+Initial) loads a `.MB` file
+   from disk into main memory via the file system.
+2. A `LoadRam` procedure reads the file's IM/IFUM/RM/ALUFM data and
+   writes the new microcode to control store.
+3. The new microcode replaces the old; execution jumps to the
+   `InitMap` label (= 0o1076) of the new emulator.
+
+`LoadMB.run` is the user-space program that does this. **Our
+`probe_aemu` is the LoadMB equivalent**: it directly populates
+`mc.im[]` from a chain of layered `.MB` files (Initial + kernel +
+memMisc + IfuComplex + AEmu), then starts the CPU at AEmu's `START`
+label.
+
+## What's required for each milestone
+
+```
+                    ╔════════════════════════════════════╗
+                    ║ Bootstrap microengine runs (DONE)  ║
+                    ╚════════════════════════════════════╝
+                                     │
+                                     ▼
+        ┌─────────────────────────────────────────────────┐
+        │ Bootstrap loads Initial via CPReg byte stream   │
+        │ (probe_bootstrap_pure: spin loop works; needs   │
+        │  BB to feed CPReg with real Boot1Data bytes)    │
+        └─────────────────────────────────────────────────┘
+                                     │
+                                     ▼
+        ┌─────────────────────────────────────────────────┐
+        │ Initial: hardware init (Map/Cache/Pipe/BR)      │
+        │ + enables I/O tasks (Display, Ether, Junk)      │
+        │ + Ethernet client to fetch emulator             │
+        └─────────────────────────────────────────────────┘
+                              │            │
+                              │  Path A    │  Path B (shortcut)
+                              ▼            ▼
+        ┌──────────────────────┐  ┌──────────────────────┐
+        │ Ethernet boot server │  │ LoadMB-style direct  │
+        │ Gateway/IFS proto    │  │ load (probe_aemu)    │
+        └──────────────────────┘  └──────────────────────┘
+                              │            │
+                              └─────┬──────┘
+                                     ▼
+        ┌─────────────────────────────────────────────────┐
+        │ Emulator microcode (Mesa/Cedar/Lisp/Smalltalk)  │
+        │  + Disk subsystem (T-80 SMD)                    │
+        │  + Display (DDC + DHT/DWT)                      │
+        │  + IFU running emulator opcodes                 │
+        └─────────────────────────────────────────────────┘
+                                     │
+                                     ▼
+        ┌─────────────────────────────────────────────────┐
+        │ Alto OS / Mesa Pilot loads from disk            │
+        │ Hello-world on screen                           │
+        └─────────────────────────────────────────────────┘
+```
+
+## Current state (2026-04, post ALUFM+quadrant fixes)
+
+**Microengine works against real microcode.** Recent fixes (ALUFM
+extraction carry bit, `Pd←ALUFMRW` bit mapping, `CPU_QUADRANT_SIZE`,
+arithmetic-only Carry'/Overflow update, B←RWCPReg legacy stub) were
+all real correctness bugs that the unit tests didn't catch but real
+microcode hit. With them in place:
+
+- `probe_aemu` runs **real AEmu microcode** for 200K cycles:
+  STARTEMULATOR → RESUMEEMULATOR → SETUPBRS → DOBRS×12 → IFU
+  dispatch loop (LRTYPETABLE → LRTYPEIM → LRNOPREFNEXT →
+  LRLOOPTOFF → TOFFRET, repeating). The loop is real Mesa-emulator
+  startup code waiting for memory references that never complete
+  because the memory subsystem isn't fully wired.
+- `probe_bootstrap_pure` (no BB attached) runs Bootstrap.MB:
+  walks BOOTSTRAP through 16 init instructions (including 4
+  runtime `Pd←ALUFMRW` writes that re-init ALUFM[8/10/14/...]),
+  reaches READBB, enters the spin loop on 0o7747 → 0o7742 → 0o7741.
+  With `cpu.cpreg=0x8000` (mimicking BB's AMSync preset), exits
+  the loop on the first iteration and proceeds through 0o7746 →
+  0o7715 → 0o7702 → re-enters READBB. The loop is genuine — it
+  reads a CPReg byte each iteration and Bootstrap writes it to IM.
+- `probe_full_boot` (BB + Dorado coupled) is *not* progressing past
+  0o7744 because the **BaseBoard ROM contains a NEWER Boot0 binary**
+  that differs from Bootstrap.MB. Different bytes, different path.
+  Disassembling that newer binary instruction-by-instruction is a
+  separate exercise; not blocking the rest of bring-up.
 
 What works
-- Microinstruction decode, RM access, T/Q/Cnt/ShC, JCN (all forms
-  except IFU jump), basic shifter, FF (subset).
-- BaseBoard 6502 with full RIOT/timer/IRQ model.
+- Microinstruction decode, RM/STK access (push/pop), T/Q/Cnt/ShC,
+  full JCN (Local/Global/Long/Conditional/Return/IFUJump), full
+  shifter (ShC- and FF-controlled, all four mask ops), FF
+  dispatcher (large subset).
+- ALU: 16 ALUFM ops, arith vs logical distinction, Carry'/Overflow
+  preserved on logical ops per HM page 30.
+- BaseBoard 6502 with full RIOT/timer/IRQ + analog comparators.
 - BB↔Dorado handshake: MCPBus strobes (Control/Clock/ABMux/MIR),
-  CPReg streaming, MIR injection + SetSS single-step, Run/Halt gate.
-- Real Write IM, BLOCK=1 STK stub.
+  CPReg streaming, MIR injection + SetSS single-step, AMSync.
+- Real Write IM, BLOCK=1 STK push/pop with HM Table 6 sub-decodes.
+- Memory subsystem: cache 4×64×16, Map (16K entries), Pipe (16
+  entries), BR (32 entries), Fetch/Store/IFetch, Map faults.
+- IFU: IFUM 1024×24-bit, prefetch+pipeline, IFUJump dispatch,
+  4 entry-vector slots, NotReady trap, conditional IFUJump.
+- Tasking: 16 tasks, priority-scheduled, T/TPC/MemBase/Link
+  replicated, BLOCK clears wakeup, TaskingOff/On, FreezeBC,
+  Reschedule trap (*14-17), SubTask OR into RBase[2:3]/MemBase[2:3].
+- Slow-IO routing layer (`include/io.h` + `src/io.c`): per-(task,TIOA)
+  device table, floating-bus default 0xFFFF + bad parity. Wired
+  through Pd←Input / Pd←InputNoPE / Output←B in cpu.c.
 
 What's stub-or-missing
-- **STK** — `rm_address` returns `STK[StkP]` for any BLOCK=1 access;
-  no push/pop semantics, no RSTK[0:3] sub-decode.
-- **Memory subsystem** — Md returns 0; Fetch/Store/IFetch/PreFetch
-  no-op; no Map; no cache; no Pipe; no BR; no faults.
-- **ALUFM** — only 16 entries pre-seeded by tests; the firmware-
-  injected `ALUFM[0]FromQ` only writes `[0]`; entries 1..14 stay
-  zero. Several real ALUFM ops (notably arithmetic ops outside
-  the *0/*6/*14/*22/*36 set) aren't in the alu_op switch.
-- **Hold** — not modeled at all; references that *should* hold the
-  microengine just produce 0 on Md.
-- **IFU** — completely absent; IFUJump halts.
-- **Tasking** — single-task only; no wakeup, no T/TPC/MemBase/Link
-  replication, no FreezeBC.
-- **I/O** — no Display, Disk, Ethernet.
+- **Memory: storage backing** is a flat array (~OK for now) but
+  ECC, deferred refs, and Hold semantics are missing. Long-running
+  AEmu microcode hits memory references that should Hold the
+  engine while a fault resolves.
+- **No I/O devices**: Display (DDC, DHT, DWT, framebuffer),
+  Disk (Trident T-80 + Format RAM + Fire Code ECC),
+  Ethernet (3 Mb/s, EOT/EIT tasks).
+- **No Bootstrap/Initial → emulator handoff**: the BB streams
+  Boot1 (= Initial) bytes, but Bootstrap's CPReg poll loop is
+  not yet driven by the BB without overwriting our pre-loaded
+  IM. Need a "BB-driven CPReg, no IM jam" probe variant.
+- **No keyboard / boot-button → emulator selection** (Mesa/Cedar/
+  Lisp/Smalltalk/Alto). This rides on Display back-channel.
+- **No Ethernet client** for Path A's Initial-fetches-emulator
+  step. Punt to Path B (LoadMB-style direct microcode load) — it's
+  a much shorter route to running an emulator.
 
 ## Why "match the docs"
 

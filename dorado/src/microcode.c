@@ -90,15 +90,34 @@ static dorado_microcode_status microcode_load_inner(const mb_file *mb,
         }
     }
 
-    /* ALUFM: each entry is one byte (6 bits used). */
+    /* ALUFM: each entry is one byte (6 bits used).
+     *
+     * Storage layout (verified empirically against Bootstrap.MB and
+     * AEmu.mb, which both declare the standard Dorado convention):
+     *   word bit 15      = carry_in                (entry bit 5)
+     *   word bits 12..8  = op (5 bits)             (entry bits 4..0)
+     *   word bit 14, 13  = parity / unused
+     *
+     * Reconstructing the 6-bit entry our `alu_op` consumes:
+     *   entry[5] = (word >> 15) & 1
+     *   entry[4:0] = (word >> 8) & 0x1F
+     *
+     * Cross-check with the canonical convention:
+     *   ALUFM[0] = 0o25 (B)         — stored 0o12400 → entry 0o25 ✓
+     *   ALUFM[2] = 0o14 (A+B c0)    — stored 0o06000 → entry 0o14 ✓
+     *   ALUFM[3] = 0o54 (A+B c1)    — stored 0o106000 → entry 0o54 ✓
+     *   ALUFM[4] = 0o62 (A-B c1)    — stored 0o111000 → entry 0o62 ✓
+     *   ALUFM[5] = 0o22 (A-B-1)     — stored 0o011000 → entry 0o22 ✓
+     */
     if (mb->alufm_id >= 0) {
         const mb_memory *m = &mb->mems[mb->alufm_id];
         int n = m->max_addr < ALUFM_SIZE ? m->max_addr : ALUFM_SIZE;
         for (int a = 0; a < n; a++) {
             if (!m->present[a]) continue;
-            /* ALUFM storage is 1 word per entry; the 6-bit value lives
-             * in the high byte (per mdlist1.bcpl: "ALUFM!i rshift 8"). */
-            out->alufm[a]         = (uint8_t)((m->data[(size_t)a * m->width_words] >> 8) & 0x3F);
+            uint16_t w = m->data[(size_t)a * m->width_words];
+            uint8_t carry = (uint8_t)((w >> 15) & 1);
+            uint8_t op    = (uint8_t)((w >> 8) & 0x1F);
+            out->alufm[a]         = (uint8_t)((carry << 5) | op);
             out->alufm_present[a] = 1;
         }
     }

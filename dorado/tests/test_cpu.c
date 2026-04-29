@@ -452,6 +452,94 @@ static int test_unsupported_halts(void)
     return 0;
 }
 
+/*
+ * probe_bootstrap_pure — run Bootstrap.MB directly, NO BaseBoard.
+ *
+ * The BB-coupled probe_bootstrap below jams its own (newer) Boot0
+ * binary into IM during LoadDoradoCode, OVERWRITING the Bootstrap.MB
+ * we pre-loaded — so it can never test the source-level microcode.
+ * This pure variant skips the BB entirely: ALUFM, RM, IM all come
+ * from Bootstrap.MB, CPU starts at the BOOTSTRAP entry, no MIR
+ * injection. Useful to see how far our microengine takes
+ * pre-MicroD'd source code.
+ */
+static int probe_bootstrap_pure(void)
+{
+    const char *path = "../chm/dorado/expanded/bootstrap.dm!20_/Bootstrap.mb";
+    mb_file mb;
+    mb_init(&mb);
+    if (mb_load(&mb, path) != MB_OK) {
+        printf("SKIP  probe_bootstrap_pure (file not loadable)\n");
+        return 0;
+    }
+    static dorado_microcode mc;
+    if (dorado_microcode_load(&mb, &mc) != DM_OK) {
+        printf("SKIP  probe_bootstrap_pure (microcode load failed)\n");
+        mb_free(&mb);
+        return 0;
+    }
+
+    int real_start = mc.image_present[0] ? mc.image_to_real[0] : 0;
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, (uint16_t)real_start);
+    /* Pre-set CPReg with the AMSync (bit 15) set, mimicking what the
+     * BaseBoard's `SetCPReg(0x8000)` does just before starting Boot0.
+     * Without this, Bootstrap.MB's READBB spin loop (0o7700 → 0o7747
+     * → 0o7742 → 0o7741) tests ALU<0 of `T XOR RM[0]` = `~CPReg XOR 0`
+     * = `~CPReg`. With CPReg=0, ~CPReg=0xFFFF (high bit set) → loop
+     * iterates forever. With CPReg=0x8000, ~CPReg=0x7FFF (high bit
+     * clear) → loop exits. */
+    cpu.cpreg = 0x8000;
+
+    /* Trail. */
+    uint16_t trail[128];
+    int trail_n = 0;
+
+    cpu_halt_reason r = CPU_HALT_NONE;
+    for (int i = 0; i < 1000 && !cpu.halted; i++) {
+        if (trail_n < 128) trail[trail_n++] = cpu.real_PC;
+        if (dorado_cpu_step(&cpu)) {
+            r = (cpu_halt_reason)cpu.halt_reason;
+            break;
+        }
+    }
+    if (!cpu.halted) r = CPU_HALT_NONE;
+
+    printf("PROBE  bootstrap_pure: entry=0o%o, ran %d cycles, halt: %s at PC=0o%o\n",
+           real_start, cpu.cycles, cpu_halt_reason_str(r),
+           cpu.halted ? cpu.real_PC : 0);
+
+    /* Print trail with run-length compression. */
+    printf("       trail:");
+    int prev_pc = -1, prev_count = 0;
+    for (int i = 0; i < trail_n; i++) {
+        if ((int)trail[i] == prev_pc) { prev_count++; continue; }
+        if (prev_count > 1) printf("×%d", prev_count);
+        const char *sym = dorado_microcode_symbol_at_real(&mc, trail[i]);
+        if (sym) printf(" 0o%o(%s)", trail[i], sym);
+        else     printf(" 0o%o", trail[i]);
+        prev_pc = trail[i];
+        prev_count = 1;
+    }
+    if (prev_count > 1) printf("×%d", prev_count);
+    printf("\n");
+
+    if (cpu.halt_reason == CPU_HALT_UNSUPPORTED_ASEL ||
+        cpu.halt_reason == CPU_HALT_UNSUPPORTED_BSEL ||
+        cpu.halt_reason == CPU_HALT_UNSUPPORTED_FF ||
+        cpu.halt_reason == CPU_HALT_UNSUPPORTED_JCN) {
+        if (cpu.real_PC < 4096 && mc.im_present[cpu.real_PC]) {
+            const dorado_uinstr *u = &mc.im[cpu.real_PC];
+            char dis[256];
+            dorado_format(u, dis, sizeof dis);
+            printf("       offending uinstr: %s\n", dis);
+        }
+    }
+
+    mb_free(&mb);
+    return 0;  /* informational */
+}
+
 /* Diagnostic: step into real Bootstrap microcode and see where the
  * CPU stops. This is not a pass/fail test — it just reports what real
  * microcode hits so we can prioritize what to implement next.
@@ -1433,15 +1521,36 @@ static int probe_full_boot(void)
 {
     static dorado_microcode mc;
     memset(&mc, 0, sizeof mc);
-    /* ALUFM[0] = "B" (logical pass-through) so ALUF=0 instructions
-     * with LC=1 (T←Pd) deposit B onto T. The firmware sets this up
-     * itself via ALUFM[0]FromQ# but we pre-load to be safe. */
-    mc.alufm[0] = 025; mc.alufm_present[0] = 1;
-    /* ALUFM[15] (used by ALUF=17 — most IRTable entries): also "B".
-     * Firmware doesn't preload; we fill in so undefined-ALUFM doesn't
-     * matter when the SAME instruction's Q←B side effect is the work
-     * being done. */
-    mc.alufm[15] = 025; mc.alufm_present[15] = 1;
+    /*
+     * Preload ALUFM[0..15] with the canonical Dorado convention
+     * (verified identical across Bootstrap.MB and AEmu.mb). The BB
+     * EPROM only initializes ALUFM[0] explicitly via ALUFM[0]FromQ#;
+     * Boot0 itself uses ALUF=2/4/14/etc. starting from its first
+     * instruction, so SOMETHING must seed ALUFM[1..15] before Boot0
+     * runs. On real hardware this is Midas debugger state or
+     * power-on configuration we don't model. Empirically, all real
+     * Dorado microcode declares the same 16 standard ops, so we
+     * preset them here.
+     *
+     * 6-bit entry layout (per `alu_op` in src/cpu.c):
+     *   bit 5 = carry_in, bits 4..0 = ALU op (HM Table 9).
+     */
+    mc.alufm[ 0] = 025; mc.alufm_present[ 0] = 1; /* B */
+    mc.alufm[ 1] = 000; mc.alufm_present[ 1] = 1; /* A (arith, c=0) */
+    mc.alufm[ 2] = 014; mc.alufm_present[ 2] = 1; /* A+B (c=0) */
+    mc.alufm[ 3] = 054; mc.alufm_present[ 3] = 1; /* A+B (c=1) */
+    mc.alufm[ 4] = 062; mc.alufm_present[ 4] = 1; /* A-B (c=1: A-B-1+1) */
+    mc.alufm[ 5] = 022; mc.alufm_present[ 5] = 1; /* A-B-1 (c=0) */
+    mc.alufm[ 6] = 035; mc.alufm_present[ 6] = 1; /* A AND B */
+    mc.alufm[ 7] = 027; mc.alufm_present[ 7] = 1; /* A OR B */
+    mc.alufm[ 8] = 023; mc.alufm_present[ 8] = 1; /* A XOR B */
+    mc.alufm[ 9] = 031; mc.alufm_present[ 9] = 1; /* 0 */
+    mc.alufm[10] = 040; mc.alufm_present[10] = 1; /* A+1 (c=1, op=A) */
+    mc.alufm[11] = 036; mc.alufm_present[11] = 1; /* A-1 */
+    mc.alufm[12] = 013; mc.alufm_present[12] = 1; /* NOT B */
+    mc.alufm[13] = 033; mc.alufm_present[13] = 1; /* A AND NOT B */
+    mc.alufm[14] = 001; mc.alufm_present[14] = 1; /* NOT A (used by shifter) */
+    mc.alufm[15] = 006; mc.alufm_present[15] = 1; /* 2*A */
 
     static dorado_baseboard bb;
     baseboard_init(&bb);
@@ -1476,6 +1585,19 @@ static int probe_full_boot(void)
     int  injected_count = 0;
     uint16_t boot0_trail[64];
     int  boot0_trail_n = 0;
+    /* Per-step trace of branch-condition inputs for the first 16 IM
+     * fetches. Captures pre-step ALU flags + post-step Pd sign so we
+     * can debug why conditional jumps land in trap slots. */
+    struct {
+        uint16_t pre_pc;
+        uint16_t post_pc;
+        uint8_t  pre_zero, pre_lt0, pre_carry;
+        uint16_t pre_rm_at_rstk;
+        uint16_t post_pd;        /* approx — we capture T after, since
+                                  * Pd isn't exposed; for LC=T←Pd, T=Pd. */
+        uint8_t  post_carry;
+    } trail_detail[16];
+    int  trail_detail_n = 0;
     int  imfetch_count = 0;
     int  dorado_held_count = 0;
     uint16_t first_im_write_addr = 0xFFFF;
@@ -1504,6 +1626,22 @@ static int probe_full_boot(void)
         /* Classify this Dorado step before stepping. */
         int will_inject = bb.dorado_ss_pending && bb.dorado_mir_loaded;
         int will_hold   = !will_inject && !bb.dorado_running;
+
+        /* Snapshot pre-step state for trace_detail logging. */
+        int will_imfetch_for_trace = (!will_inject && !will_hold &&
+                                      trail_detail_n < 16);
+        uint16_t pre_pc = cpu.real_PC;
+        uint8_t  pre_zero = cpu.alu_zero;
+        uint8_t  pre_lt0  = cpu.alu_lt0;
+        uint8_t  pre_carry = cpu.alu_carry;
+        uint16_t pre_rm_at_rstk = 0;
+        if (will_imfetch_for_trace && pre_pc < 4096 && mc.im_present[pre_pc]) {
+            const dorado_uinstr *uu = &mc.im[pre_pc];
+            int rstk = uu->rstk & 0xF;
+            int rm_a = (cpu.RBase << 4) | rstk;
+            pre_rm_at_rstk = (uu->block) ? cpu.STK[cpu.StkP & 0xFF]
+                                          : cpu.RM[rm_a & 0xFF];
+        }
 
         if (dorado_cpu_step(&cpu)) {
             printf("       Dorado halted: %s at PC=0o%o, BB cycle %llu (BB PC=0x%04X)\n",
@@ -1540,6 +1678,17 @@ static int probe_full_boot(void)
             /* Record the first 64 IM-fetched PCs for trail printing. */
             if (boot0_trail_n < 64) {
                 boot0_trail[boot0_trail_n++] = cpu.real_PC;
+            }
+            if (will_imfetch_for_trace) {
+                int i = trail_detail_n++;
+                trail_detail[i].pre_pc    = pre_pc;
+                trail_detail[i].post_pc   = cpu.real_PC;
+                trail_detail[i].pre_zero  = pre_zero;
+                trail_detail[i].pre_lt0   = pre_lt0;
+                trail_detail[i].pre_carry = pre_carry;
+                trail_detail[i].pre_rm_at_rstk = pre_rm_at_rstk;
+                trail_detail[i].post_pd    = cpu.T;     /* T usually = Pd for LC=1 */
+                trail_detail[i].post_carry = cpu.alu_carry;
             }
         }
 
@@ -1628,6 +1777,70 @@ static int probe_full_boot(void)
             printf("       IM[0o%o]: <empty/no-code>\n", pc);
         }
     }
+
+    /* ── Slow-IO scan: dump every loaded Boot0 entry and flag any that
+     * issue Pd←Input (FF=0o032), Pd←InputNoPE (FF=0o033), Output←B
+     * (FF=0o036), or TIOA←B (FF=0o037 — FA=0 FB=3 FC=7… actually
+     * TIOA←B is FA=1 FB=3 FC=… see HM Table 11c). We emit a marked
+     * listing so we can read off the TIOA pairs Boot0 actually hits.
+     *
+     * FF is interpreted as a function only when BSEL is not constant
+     * (BSEL >= 4 selects a 0,,FF / FF,,0 form) and JCN top4 != 0o14
+     * (long jump). Encode that gate so we don't misclassify.  */
+    printf("       Boot0 full IM dump (IM[0o7700..0o7777]):\n");
+    int io_hits = 0;
+    for (int pc = 07700; pc <= 07777; pc++) {
+        if (!mc.im_present[pc]) {
+            printf("         IM[0o%o]: <not loaded>\n", pc);
+            continue;
+        }
+        const dorado_uinstr *u = &mc.im[pc];
+        int bsel_const = (u->bsel >= 4);
+        int jcn_long   = ((u->jcn >> 4) & 0xF) == 014;
+        int ff_is_fn   = !bsel_const && !jcn_long;
+        int fa = (u->ff >> 6) & 3;
+        int fb = (u->ff >> 3) & 7;
+        int fc =  u->ff       & 7;
+        const char *tag = "";
+        if (ff_is_fn && fa == 0 && fb == 3) {
+            switch (fc) {
+            case 2: tag = " <-- Pd←Input"; io_hits++; break;
+            case 3: tag = " <-- Pd←InputNoPE"; io_hits++; break;
+            case 6: tag = " <-- Output←B"; io_hits++; break;
+            }
+        }
+        if (ff_is_fn && fa == 1 && fb == 3) {
+            /* Some FA=1 FB=3 codes touch TIOA / IFUM, mark for review. */
+            if (fc == 0) tag = " <-- InsSetorEvent←B";
+            if (fc == 7) tag = " <-- BrkIns←B";
+        }
+        /* TIOA←B is FA=1 FB=2 FC=4 per HM Table 11b/c; TIOA←small
+         * constant is FA=2 (which our cpu.c calls "RBase←FF[4:7]
+         * alt encoding" — confirm before relying on this). */
+        if (ff_is_fn && fa == 1 && fb == 2 && fc == 4) tag = " <-- TIOA←B";
+        char dis[200];
+        dorado_format(u, dis, sizeof dis);
+        printf("         IM[0o%o] FF=0o%03o BSEL=%d JCN=0o%03o: %s%s\n",
+               pc, u->ff, u->bsel, u->jcn, dis, tag);
+    }
+    printf("       slow-IO hits in Boot0 region: %d\n", io_hits);
+
+    /* ── Per-step trace for the first 16 IM fetches: shows the branch
+     * condition inputs that decide each conditional jump. Diagnostic
+     * for Boot0 progression — each row shows pre-step ALU flags + the
+     * RM register at the current RSTK, plus post-step T (~ Pd for
+     * LC=T←Pd) and carry. C' shown as 1 when no-carry. */
+    printf("       Boot0 step trace (Z/<0/C'/rm@rstk → T-after / C'-after):\n");
+    for (int i = 0; i < trail_detail_n; i++) {
+        printf("         0o%04o → 0o%04o  Z=%d <0=%d C'=%d rm=0x%04X | "
+               "T=0x%04X C'=%d\n",
+               trail_detail[i].pre_pc, trail_detail[i].post_pc,
+               trail_detail[i].pre_zero, trail_detail[i].pre_lt0,
+               trail_detail[i].pre_carry ? 0 : 1,
+               trail_detail[i].pre_rm_at_rstk, trail_detail[i].post_pd,
+               trail_detail[i].post_carry ? 0 : 1);
+    }
+
     return 0;  /* informational */
 }
 
@@ -2808,6 +3021,273 @@ static int test_ifu_dispatch_synthetic(void)
     #undef MK_RH
 }
 
+/*
+ * test_slow_io_routing — verify the slow-I/O routing layer wires
+ * Pd←Input/Pd←InputNoPE/Output←B through to a registered device.
+ *
+ * Layout:
+ *   IM[0]: TIOA←B (FF=0o142? actually FA=1 FB=5 FC=2 = 0o152). With B=0o42
+ *          (BSEL=4 constant FF=0o42), TIOA[0:7]←B[0:7]=0o42.
+ *   IM[1]: Output←B (FF=0o036, FA=0 FB=3 FC=6). Drive 0o1234 (via
+ *          BSEL=2 holding T=0o1234 from a prior load).
+ *   IM[2]: Pd←Input → T←Pd. Read echoes the device's stored value.
+ *
+ * The test installs a tiny "echo" device that stores the last value
+ * written and returns it on read. Verifies write happened, read
+ * returned the value, and parity-bad clears when device is mapped.
+ */
+typedef struct {
+    uint16_t last_write;
+    int      writes;
+    int      reads;
+} echo_dev;
+
+static uint16_t echo_read(void *ctx, int task, uint8_t tioa, int *bad)
+{
+    (void)task; (void)tioa;
+    if (bad) *bad = 0;     /* good parity */
+    echo_dev *d = ctx;
+    d->reads++;
+    return d->last_write;
+}
+
+static void echo_write(void *ctx, int task, uint8_t tioa, uint16_t v)
+{
+    (void)task; (void)tioa;
+    echo_dev *d = ctx;
+    d->last_write = v;
+    d->writes++;
+}
+
+static int test_slow_io_routing(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025;  mc.alufm_present[0]  = 1;  /* B */
+
+    /* IM[0]: TIOA[0:7]←B[0:7]. FA=1 FB=5 FC=2 → FF = 0o152.
+     * BSEL=4 (constant 0,,FF) with FF... wait, with BSEL=constant
+     * FF is data not function. So we need BSEL<4 and a way to put
+     * a value on B. Easiest: BSEL=2 (T) with T pre-loaded — but T
+     * is zero at start. Use BSEL=1 (RM/STK) and pre-load RM[0]. */
+    mc.rm[0] = 0xDE00;   /* TIOA←B uses B[0:7] = high byte → 0xDE */
+    mc.rm_present[0] = 1;
+    mc.im[0] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/1, /*lc=*/0,
+                           /*asel=*/4, 0, /*ff=*/0152, jcn_local(1));
+    mc.im_present[0] = 1;
+
+    /* IM[1]: Output←B. FA=0 FB=3 FC=6 → FF = 0o036. BSEL=1 (RM/STK)
+     * to put RM[1]=0xCAFE on B. */
+    mc.rm[1] = 0xCAFE;
+    mc.rm_present[1] = 1;
+    mc.im[1] = make_uinstr(/*rstk=*/1, /*aluf=*/0, /*bsel=*/1, /*lc=*/0,
+                           /*asel=*/4, 0, /*ff=*/0036, jcn_local(2));
+    mc.im_present[1] = 1;
+
+    /* IM[2]: Pd←Input → T←Pd. FA=0 FB=3 FC=2 → FF = 0o032. BSEL=1
+     * (RM/STK to keep ALUF=0 honest), LC=1 (T←Pd). */
+    mc.im[2] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/1, /*lc=*/1,
+                           /*asel=*/4, 0, /*ff=*/0032, jcn_local(2));
+    mc.im_present[2] = 1;
+
+    for (int i = 0; i < 3; i++) {
+        mc.image_to_real[i] = i;
+        mc.image_present[i] = 1;
+    }
+    mc.n_instructions = 3;
+
+    static dorado_io io;
+    dorado_io_init(&io);
+    static echo_dev dev_state;
+    memset(&dev_state, 0, sizeof dev_state);
+    static const dorado_io_device echo_device = {
+        echo_read, echo_write, &dev_state, "echo"
+    };
+    dorado_io_register(&io, /*task=*/0, /*tioa=*/0xDE, &echo_device);
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.io = &io;
+
+    /* Step 0: TIOA←B. After this, TIOA[0:7]=0xDE. */
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step 0: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT((cpu.TIOA & 0xFF) == 0xDE,
+           "TIOA = 0x%X (expected 0xDE)", cpu.TIOA);
+
+    /* Step 1: Output←B. Device should record 0xCAFE. */
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step 1: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(dev_state.writes == 1, "writes=%d (expected 1)", dev_state.writes);
+    EXPECT(dev_state.last_write == 0xCAFE,
+           "last_write = 0x%X (expected 0xCAFE)", dev_state.last_write);
+
+    /* Step 2: Pd←Input → T. Should pull 0xCAFE off the bus. */
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step 2: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(dev_state.reads == 1, "reads=%d (expected 1)", dev_state.reads);
+    EXPECT(cpu.T == 0xCAFE, "T = 0x%X (expected 0xCAFE)", cpu.T);
+    EXPECT(cpu.io_bad_parity == 0,
+           "io_bad_parity = %d (expected 0 — device mapped)",
+           cpu.io_bad_parity);
+
+    /* Now switch to a TIOA the device doesn't claim (0xAA) and
+     * confirm floating-bus default + parity-bad. */
+    cpu.TIOA = 0xAA;
+    int bad = -1;
+    uint16_t v = dorado_io_read(&io, /*task=*/0, /*tioa=*/0xAA, &bad);
+    EXPECT(v == 0xFFFF, "unmapped read = 0x%X (expected 0xFFFF)", v);
+    EXPECT(bad == 1, "unmapped parity = %d (expected 1)", bad);
+
+    printf("PASS  test_slow_io_routing (TIOA=0x%X, %d writes, %d reads, T=0x%X)\n",
+           cpu.TIOA & 0xFF, dev_state.writes, dev_state.reads, cpu.T);
+    return 0;
+}
+
+/*
+ * test_carry_preserved_on_logical — HM page 30: "Carry' and Overflow
+ * are the result of the last *arithmetic* ALU operation". A logical
+ * op (e.g. ALU=B) must NOT clobber Carry'/Overflow from a prior
+ * arithmetic op.
+ *
+ * Sequence:
+ *   IM[0]: arithmetic A+B that produces carry-out=1 (e.g. 0xFFFF + 1).
+ *   IM[1]: logical "B" pass-through (must preserve carry).
+ *   IM[2]: branch on Carry' — if Carry' from IM[0] survived, take
+ *          target T. If clobbered to 0 by IM[1], take target F.
+ *
+ * Verifies Carry' = NOT(carry-out) = 0 still readable after a
+ * logical op intervenes.
+ */
+static int test_carry_preserved_on_logical(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0]  = 025;  mc.alufm_present[0]  = 1;  /* B */
+    mc.alufm[2]  = 014;  mc.alufm_present[2]  = 1;  /* A+B carry=0 */
+
+    /* Pre-load RM[0] = 0xFFFF so A+B = 0xFFFF + 1 = 0x10000 → carry=1. */
+    mc.rm[0] = 0xFFFF;
+    mc.rm_present[0] = 1;
+
+    /* IM[0]: ALU = RM[0] + 1 (BSEL=4 const FF=1, ALUF=2 = ALUFM[2] = A+B).
+     * ASEL=4 (A←RM/STK), LC=0. JCN=0o201 (local jump 1). */
+    mc.im[0] = make_uinstr(/*rstk=*/0, /*aluf=*/2, /*bsel=*/4, /*lc=*/0,
+                           /*asel=*/4, 0, /*ff=*/0001, jcn_local(1));
+    mc.im_present[0] = 1;
+
+    /* IM[1]: ALU = B (logical, ALUF=0 → ALUFM[0] = B). BSEL=4 const FF=0.
+     * Should NOT clobber Carry'. JCN=0o202 (local jump 2). */
+    mc.im[1] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/4, /*lc=*/0,
+                           /*asel=*/4, 0, /*ff=*/0, jcn_local(2));
+    mc.im_present[1] = 1;
+
+    /* IM[2]: conditional on Carry' (cond=2). Layout the page so target
+     * R=0 (= Carry'=0 = had carry) goes to IM[4], R=1 to IM[5].
+     *
+     * page_high = JCN[1:2] = 0b00 = 0  (offsets 0..7)
+     * page_low  = JCN[3:4] = 0b10 = 2  (offsets 4 or 5 with R)
+     * cond      = 2 (Carry')
+     * offset = (0<<4) | (2<<1) | R = 4 + R
+     * JCN = 0_00_0010_010 = bits 6:5=00, bits 4:3=10, bits 2:0=010 = 0b00010010 = 0o022 */
+    mc.im[2] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/4, /*lc=*/0,
+                           /*asel=*/4, 0, /*ff=*/0, /*jcn=*/0022);
+    mc.im_present[2] = 1;
+
+    /* IM[4]: HALT marker (self-loop). Reachable only if Carry' was
+     * preserved (= 0 after carry-producing IM[0]). */
+    mc.im[4] = make_uinstr(0, 0, 4, 0, 4, 0, 0, jcn_local(4));
+    mc.im_present[4] = 1;
+
+    /* IM[5]: bogus self-loop (reached if Carry' was clobbered to 1). */
+    mc.im[5] = make_uinstr(0, 0, 4, 0, 4, 0, 0, jcn_local(5));
+    mc.im_present[5] = 1;
+
+    for (int i = 0; i < 6; i++) {
+        mc.image_to_real[i] = i;
+        mc.image_present[i] = 1;
+    }
+    mc.n_instructions = 6;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+
+    /* Step 0: arithmetic produces carry=1. */
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step 0: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.alu_carry == 1, "step 0 should set alu_carry=1, got %d",
+           cpu.alu_carry);
+
+    /* Step 1: logical B. Must NOT clobber alu_carry. */
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step 1: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.alu_carry == 1,
+           "step 1 logical must preserve alu_carry=1, got %d",
+           cpu.alu_carry);
+
+    /* Step 2: conditional on Carry'. Carry'=0 → R=0 → goto IM[4]. */
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step 2: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.real_PC == 4,
+           "expected PC=4 (Carry' preserved as 0), got 0o%o", cpu.real_PC);
+
+    printf("PASS  test_carry_preserved_on_logical (carry=1 survived "
+           "logical op, branch to PC=%d)\n", cpu.real_PC);
+    return 0;
+}
+
+/*
+ * test_alufmrw_bit_mapping — HM Table 11d: "ALUFMEM ← B.8, B[11:15]".
+ * Manual MSB-first → C-LSB bit mapping is non-trivial. The runtime
+ * Pd←ALUFMRW must reproduce the .MB pre-declared ALUFM convention
+ * when given the corresponding B value.
+ *
+ * Verified case from Bootstrap.MB IM[0o7771]: writes ALUFM[8] from
+ * B = T = 0x13 (loaded earlier from FF=0o023 constant). Bootstrap.MB
+ * declares ALUFM[8] = 0o23 (A XOR B); the runtime write must yield
+ * the same value.
+ */
+static int test_alufmrw_bit_mapping(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[ 0] = 025; mc.alufm_present[ 0] = 1;
+    /* IM[0]: T ← 0x13 via 0,,FF (BSEL=4, FF=0o023, ALUF=0=B, LC=1). */
+    mc.im[0] = make_uinstr(0, 0, /*bsel=*/4, /*lc=*/1, /*asel=*/4,
+                           0, /*ff=*/0023, jcn_local(1));
+    mc.im_present[0] = 1;
+    /* IM[1]: Pd←ALUFMRW with ALUF=10 (=8 dec). BSEL=2 (T) puts T on B.
+     * ASEL=4 (A←RM/STK). LC=NoLoad. FF=0o262 = FA=2 FB=6 FC=2 = ALUFMRW.
+     * JCN=local(2) so we can step here. */
+    mc.im[1] = make_uinstr(0, /*aluf=*/010, /*bsel=*/2, /*lc=*/0,
+                           /*asel=*/4, 0, /*ff=*/0262, jcn_local(2));
+    mc.im_present[1] = 1;
+    /* IM[2]: HALT marker. */
+    mc.im[2] = make_uinstr(0, 0, 4, 0, 4, 0, 0, jcn_local(2));
+    mc.im_present[2] = 1;
+    for (int i = 0; i < 3; i++) {
+        mc.image_to_real[i] = i;
+        mc.image_present[i] = 1;
+    }
+    mc.n_instructions = 3;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step 0: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.T == 0x13, "T = 0x%X (expected 0x13)", cpu.T);
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step 1: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(mc.alufm[8] == 023,
+           "ALUFM[8] = 0o%o (expected 0o23 = A XOR B)", mc.alufm[8]);
+
+    printf("PASS  test_alufmrw_bit_mapping (Pd←ALUFMRW B=0x13 → ALUFM[8]=0o%o)\n",
+           mc.alufm[8]);
+    return 0;
+}
+
 int main(void)
 {
     int rc = 0;
@@ -2842,6 +3322,10 @@ int main(void)
     rc |= test_ifu_map_fault_trap();
     rc |= test_ldtpc_rdtpc();
     rc |= test_reschedule_trap();
+    rc |= test_slow_io_routing();
+    rc |= test_carry_preserved_on_logical();
+    rc |= test_alufmrw_bit_mapping();
+    rc |= probe_bootstrap_pure();
     rc |= probe_bootstrap();
     rc |= probe_aemu();
     rc |= probe_full_boot();
