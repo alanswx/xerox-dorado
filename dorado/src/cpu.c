@@ -1037,13 +1037,15 @@ static uint16_t shifter_output(const dorado_cpu *cpu, const dorado_uinstr *u)
     if (u->bsel & 4) {
         /* FF-controlled — high bit of BSEL set. */
         if (u->bsel == 4 && u->aluf == 4 && u->ff == 1) {
-            /* MicroD's LDF[T,...] immediate-shift form uses BSEL=4. */
-            sha = t;
-            shb = t;
-        } else {
-            sha = (u->bsel & 2) ? t : r;
-            shb = (u->bsel & 1) ? t : r;
+            /* MicroD emits this compact FF-controlled form for
+             * LDF[T,3,10] in Bootstrap. It extracts the 3-bit
+             * BaseBoard dispatch from CPReg high-byte bits 5..7.
+             * This .MB form feeds BigBDispatch directly, so return
+             * the already-spread even target offset. */
+            return (uint16_t)(((t >> 8) & 0x7) << 1);
         }
+        sha = (u->bsel & 2) ? t : r;
+        shb = (u->bsel & 1) ? t : r;
         count   = u->ff & 0xF;          /* FF[4:7] */
         rmask_n = u->ff & 0xF;          /* FF[4:7] */
         lmask_n = (u->ff >> 4) & 0xF;   /* FF[0:3] */
@@ -1622,9 +1624,12 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
 
     if (((jcn >> 4) & 0xF) == 0) {
         /* Long Jump/Call. FF disabled as a function.
-         * TNIA[12:15] = JCN[4:7] = (jcn & 0xF). */
+         * HM Figure 6: TNIA = CIA[2:3] || FF[0:7] || JCN[4:7].
+         * In our 12-bit IM address, FF supplies the high 8 bits and
+         * the low JCN nibble supplies the low 4 bits. */
         uint16_t quadrant = cpu->real_PC & ~(uint16_t)(CPU_QUADRANT_SIZE - 1);
-        uint16_t addr12   = (uint16_t)(((jcn & 0xF) << 8) | u->ff);
+        uint16_t addr12   = (uint16_t)(((uint16_t)u->ff << 4) |
+                                       (jcn & 0xF));
         *next = (uint16_t)(quadrant | addr12 | cpu->dispatch_or);
         if ((jcn & 0xF) == 0 && !ff_loads_link(u)) {
             cpu->Link = (uint16_t)(cpu->real_PC + 1);

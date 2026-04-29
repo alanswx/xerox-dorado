@@ -236,9 +236,8 @@ static void riot_register_write(dorado_baseboard *bb, riot_chip *r,
  *                   ClrMIR, ClrCT, SetRun. With MCPBusL bit 7 = SetSS,
  *                   the Dorado executes one microinstruction.
  *   1  Clock       Generic clock pulse (we ignore for now).
- *   2  ABMux0      Latch MCPBusH into CPRegL[0:7] (low byte to Dorado).
- *   3  ABMux1      Latch MCPBusH into CPRegH[0:7] (high byte to Dorado).
- *                  MCPBusL bit 7 carries the parity/sync bit.
+ *   2  ABMux0      Latch MCPBusH into CPRegH[0:7] (high byte to Dorado).
+ *   3  ABMux1      Latch MCPBusH into CPRegL[0:7] (low byte to Dorado).
  *   4  MIR0        Latch byte 1 of microinstruction (RSTK/ALUF/BLOCK/FF).
  *                  MCPBusL bit 7 carries MIR0's extra bit (RSTK[0]).
  *   5  MIR1        Byte 2 (ALUF/BSEL/FF). Extra bit = parity P015.
@@ -298,25 +297,13 @@ static void apply_mcp_strobe(dorado_baseboard *bb, uint8_t mcpbusl)
             (uint16_t)((bb->cpreg_to_dorado & 0x00FF) |
                        ((uint16_t)data << 8));
         break;
-    case 3: /* ABMux1: low byte to CPReg. MCPBusL bit 7 (= the SetSS
-             * line, repurposed during this strobe) carries the AMSync
-             * SET bit, which goes into CPRegH bit 7 (per .mdefs CPRegH:
-             * "AMSync = Sync ; in CPRegH during PokeMicro"). The
-             * BB-side SendAHalfMicroInstruction's "ABMux1 + 80" pattern
-             * relies on this multiplex — without it, Boot0 never sees
-             * AMSync flip and stays in its wait-loop.
-             *
-             * AMSync is set-only on ABMux1: setss=1 raises AMSync,
-             * setss=0 leaves it alone. AMSync is cleared by ABMux0
-             * writing a high byte with bit 7 = 0. The firmware never
-             * uses ABMux1 with setss=0 (every SetCPReg/SetCPReg~ +
-             * SendAHalf pattern asserts setss=1), but our test_mcp_strobe
-             * exercises both — keep the set-only semantics so that
-             * synthetic test still works after the AMSync wiring. */
+    case 3: /* ABMux1: low byte to CPReg. The SetSS/parity bit on
+             * MCPBusL is not part of CPReg data here. The BaseBoard
+             * SendAHalfMicroInstruction routine writes the low byte
+             * first, then ABMux0 writes CPRegH; Bootstrap's ReadBB
+             * synchronizes on CPRegH[0] changing after that ABMux0. */
         bb->cpreg_to_dorado =
-            (uint16_t)((bb->cpreg_to_dorado & 0xFF00) |  /* keep CPRegH */
-                       ((uint16_t)setss << 15) |          /* AMSync set-only */
-                       data);                              /* CPRegL */
+            (uint16_t)((bb->cpreg_to_dorado & 0xFF00) | data);
         break;
     case 4: case 5: case 6: case 7: { /* MIR0..MIR3 */
         int slot = function - 4;                    /* 0..3 */

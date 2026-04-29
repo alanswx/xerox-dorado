@@ -1,6 +1,10 @@
 #include "baseboard.h"
 #include "cpu.h"
 #include "disasm.h"
+#include "disk.h"
+#include "display.h"
+#include "fastio.h"
+#include "io.h"
 #include "mb.h"
 #include "memory.h"
 #include "microcode.h"
@@ -58,6 +62,13 @@ static uint8_t jcn_local(int target_in_page)
 {
     /* High 2 bits = 10 (local tag), low 6 = address within page. */
     return (uint8_t)(0x80 | (target_in_page & 0x3F));
+}
+
+/* JCN byte that encodes the low four bits of a long branch. The high
+ * eight target bits live in FF for long branches. */
+static uint8_t jcn_long(int target)
+{
+    return (uint8_t)(target & 0xF);
 }
 
 /* Test 1: T ← 0o123 via 0,,FF constant, then loop.
@@ -449,6 +460,33 @@ static int test_unsupported_halts(void)
 
     printf("PASS  test_unsupported_halts (%s)\n",
            cpu_halt_reason_str(cpu.halt_reason));
+    return 0;
+}
+
+static int test_jcn_long_branch_address(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;   /* B */
+
+    /* Initial.MB has this exact shape at IM[0o7557]: FF=0o304,
+     * JCN=0o002 must branch to 0o6102, not 0o1310. */
+    mc.im[07557] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/2,
+                               /*lc=*/0, /*asel=*/6, /*block=*/0,
+                               /*ff=*/0304, jcn_long(06102));
+    mc.im_present[07557] = 1;
+    mc.im[06102] = make_uinstr(0, 0, 2, 0, 6, 0, 0, jcn_local(06102));
+    mc.im_present[06102] = 1;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 07557);
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "long branch step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.real_PC == 06102, "long branch PC=0o%o, expected 0o6102",
+           cpu.real_PC);
+
+    printf("PASS  test_jcn_long_branch_address\n");
     return 0;
 }
 
@@ -1565,6 +1603,24 @@ static int probe_full_boot(void)
     cpu.baseboard = &bb;
     cpu.baseboard_cycles_per_uop = 1;
 
+    static dorado_memory mem;
+    static dorado_io io;
+    static dorado_display display;
+    static dorado_disk_controller disk;
+    static dorado_fastio_router fastio;
+    if (dorado_memory_init(&mem) == 0) {
+        dorado_io_init(&io);
+        dorado_display_init(&display);
+        dorado_disk_controller_init(&disk);
+        dorado_display_attach_to_io(&display, &io);
+        dorado_disk_controller_attach_to_io(&disk, &io);
+        dorado_fastio_router_init(&fastio, &display, &disk);
+        mem.fast_io_cb = dorado_fastio_dispatch;
+        mem.fast_io_ctx = &fastio;
+        cpu.mem = &mem;
+        cpu.io = &io;
+    }
+
     /* Schedule of boot-button events, in BB cycles. The Dorado-cycle
      * counter advances 1:1 with the BB once held, and at most a few
      * cycles ahead of BB once running. */
@@ -1785,7 +1841,7 @@ static int probe_full_boot(void)
      * listing so we can read off the TIOA pairs Boot0 actually hits.
      *
      * FF is interpreted as a function only when BSEL is not constant
-     * (BSEL >= 4 selects a 0,,FF / FF,,0 form) and JCN top4 != 0o14
+     * (BSEL >= 4 selects a 0,,FF / FF,,0 form) and JCN top4 != 0
      * (long jump). Encode that gate so we don't misclassify.  */
     printf("       Boot0 full IM dump (IM[0o7700..0o7777]):\n");
     int io_hits = 0;
@@ -1796,7 +1852,7 @@ static int probe_full_boot(void)
         }
         const dorado_uinstr *u = &mc.im[pc];
         int bsel_const = (u->bsel >= 4);
-        int jcn_long   = ((u->jcn >> 4) & 0xF) == 014;
+        int jcn_long   = ((u->jcn >> 4) & 0xF) == 0;
         int ff_is_fn   = !bsel_const && !jcn_long;
         int fa = (u->ff >> 6) & 3;
         int fb = (u->ff >> 3) & 7;
@@ -1931,6 +1987,24 @@ static int probe_full_boot_with_bootstrap(void)
     cpu.baseboard = &bb;
     cpu.baseboard_cycles_per_uop = 1;
 
+    static dorado_memory mem;
+    static dorado_io io;
+    static dorado_display display;
+    static dorado_disk_controller disk;
+    static dorado_fastio_router fastio;
+    if (dorado_memory_init(&mem) == 0) {
+        dorado_io_init(&io);
+        dorado_display_init(&display);
+        dorado_disk_controller_init(&disk);
+        dorado_display_attach_to_io(&display, &io);
+        dorado_disk_controller_attach_to_io(&disk, &io);
+        dorado_fastio_router_init(&fastio, &display, &disk);
+        mem.fast_io_cb = dorado_fastio_dispatch;
+        mem.fast_io_ctx = &fastio;
+        cpu.mem = &mem;
+        cpu.io = &io;
+    }
+
     const uint64_t T_PRESS1_DOWN = 1000000;
     const uint64_t T_PRESS1_UP   = 1400000;
     const uint64_t T_PRESS2_DOWN = 2000000;
@@ -1988,6 +2062,7 @@ static int probe_full_boot_with_bootstrap(void)
     uint64_t cp_first_cycle[32];
     uint16_t cp_first_bbpc[32];
     int cp_first_n = 0;
+    cpu_halt_reason halt_reason = CPU_HALT_NONE;
 
     /* Snapshot of im_present + IM content at swap time, so we can
      * diff afterward and see which addresses Bootstrap actually
@@ -2107,6 +2182,7 @@ static int probe_full_boot_with_bootstrap(void)
                       (pre_pc & 1) == 0);
 
         if (dorado_cpu_step(&cpu)) {
+            halt_reason = (cpu_halt_reason)cpu.halt_reason;
             break;
         }
 
@@ -2219,6 +2295,17 @@ static int probe_full_boot_with_bootstrap(void)
     printf("       Dorado final state: PC=0o%o, T=0x%04X, Q=0x%04X, "
            "Link=0x%04X\n",
            cpu.real_PC, cpu.T, cpu.Q, cpu.Link);
+    printf("       Dorado halt: %s%s\n",
+           cpu_halt_reason_str(halt_reason),
+           (cpu.real_PC < 4096 && mc.im_present[cpu.real_PC])
+               ? " (IM present)" : " (IM missing)");
+    printf("       Task=%u TIOA=0x%02X display outs=%llu iofetch=%llu "
+           "disk outs=%llu ins=%llu\n",
+           cpu.ctask, cpu.TIOA & 0xFF,
+           (unsigned long long)display.output_count,
+           (unsigned long long)display.iofetch_count,
+           (unsigned long long)disk.output_count,
+           (unsigned long long)disk.input_count);
     printf("       RM[0..15]:");
     for (int r = 0; r < 16; r++) printf(" [%d]=0x%04X", r, cpu.RM[r]);
     printf("\n");
@@ -2329,7 +2416,6 @@ static int probe_full_boot_with_bootstrap(void)
                    rb_trace[i].next_pc);
         }
     }
-
     mb_free(&bs_mb);
     return 0;  /* informational */
 }
@@ -2945,6 +3031,40 @@ static int test_alt_fetch_t_lc_md(void)
 
     dorado_memory_free(&mem);
     printf("PASS  test_alt_fetch_t_lc_md (Fetch←T + RM/STK←Md)\n");
+    return 0;
+}
+
+static int test_bootstrap_ldf_dispatch(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[14] = 001; mc.alufm_present[14] = 1;   /* NOT A for shift */
+
+    /* Bootstrap's compiled `BTemp_ LDF[T,3,10]` extracts the 3-bit
+     * dispatch from the high byte sent by the BaseBoard and delivers
+     * the even BigBDispatch target offset. For CPReg high byte 0x82,
+     * the dispatch is 2, so the offset is 4. */
+    mc.im[0] = make_uinstr(/*rstk=*/2, /*aluf=*/4, /*bsel=*/4, /*lc=*/6,
+                           /*asel=*/7, /*block=*/0, /*ff=*/001,
+                           /*jcn=*/jcn_local(1));
+    mc.im_present[0] = 1;
+    mc.im[1] = make_uinstr(0, 0, 4, 0, 4, 0, 0, jcn_local(1));
+    mc.im_present[1] = 1;
+    for (int i = 0; i < 2; i++) {
+        mc.image_to_real[i] = i;
+        mc.image_present[i] = 1;
+    }
+    mc.n_instructions = 2;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.T = 0x8282;
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "LDF[T,3,10] step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.RM[2] == 4, "BTemp = 0x%04X, expected 4", cpu.RM[2]);
+
+    printf("PASS  test_bootstrap_ldf_dispatch (LDF[T,3,10])\n");
     return 0;
 }
 
@@ -4039,6 +4159,7 @@ int main(void)
     rc |= test_shifter_byte_cycle();
     rc |= test_shifter_rmask();
     rc |= test_unsupported_halts();
+    rc |= test_jcn_long_branch_address();
     rc |= test_write_im();
     rc |= test_stk_no_change();
     rc |= test_stk_push();
@@ -4048,6 +4169,7 @@ int main(void)
     rc |= test_stk_underflow_check();
     rc |= test_cpu_memory_roundtrip();
     rc |= test_alt_fetch_t_lc_md();
+    rc |= test_bootstrap_ldf_dispatch();
     rc |= test_cpu_fault_info_visible();
     rc |= test_bc_timing_previous_instr();
     rc |= test_freezebc();
