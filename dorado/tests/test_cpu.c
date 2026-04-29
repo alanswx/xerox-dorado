@@ -1845,6 +1845,345 @@ static int probe_full_boot(void)
 }
 
 /*
+ * probe_full_boot_with_bootstrap — substitute Bootstrap.MB for the
+ * BB-loaded Boot0, then let the BB stream Boot1 (= Initial.MB
+ * mbtobase-encoded) through CPReg.
+ *
+ * The BB ROM contains a NEWER Boot0 binary that takes a different path
+ * than Bootstrap.MB (lands in trap reservations on our model). But the
+ * BB ROM also has the matching Boot1Data, encoded in the same
+ * mbtobase format that Bootstrap.MB's READBB loader expects. So:
+ *
+ *   1. Run the BB through cold boot + LoadDoradoCode normally. The
+ *      BB MIR-jams its Boot0 binary into IM[0o7700..0o7777], sets
+ *      Link=Boot0GoLoc, AMSync=1, then jams Return# → Dorado starts
+ *      free-running from IM.
+ *   2. THE MOMENT the Dorado executes its first IM-fetched
+ *      instruction, OVERWRITE IM[0o7700..0o7777] with Bootstrap.MB
+ *      (and pre-load ALUFM with Bootstrap's standard convention).
+ *      The Dorado's PC is at Boot0GoLoc=0o7740 = BOOTSTRAP entry —
+ *      same address Bootstrap.MB places its entry at.
+ *   3. Let the BB continue its SendIMBlockToDorado(Boot1Block,
+ *      ViaCP=1) loop. It strobes ABMux1/ABMux0 with Boot1Data bytes
+ *      → CPReg toggles AMSync per byte.
+ *   4. Bootstrap.MB's READBB loader consumes the stream and writes
+ *      Initial.MB into IM at the appropriate addresses (~0o0000..
+ *      0o1675 for ~926 instructions).
+ *   5. When the stream ends, Bootstrap branches to InitMap (= 0o1076)
+ *      and Initial begins executing.
+ *
+ * Goal: count how many IM entries get written outside the
+ * 0o7700-0o7777 region (= Initial entries). Trail the Dorado past
+ * the Bootstrap→Initial handoff.
+ */
+static int probe_full_boot_with_bootstrap(void)
+{
+    /* Load Bootstrap.MB into a side buffer; we'll memcpy it over the
+     * BB-loaded Boot0 IM at the right moment. */
+    mb_file bs_mb;
+    mb_init(&bs_mb);
+    if (mb_load(&bs_mb,
+                "../chm/dorado/expanded/bootstrap.dm!20_/Bootstrap.mb")
+        != MB_OK) {
+        printf("SKIP  probe_full_boot_with_bootstrap (Bootstrap.mb)\n");
+        return 0;
+    }
+    static dorado_microcode bs_mc;
+    if (dorado_microcode_load(&bs_mb, &bs_mc) != DM_OK) {
+        printf("SKIP  probe_full_boot_with_bootstrap (microcode load)\n");
+        mb_free(&bs_mb);
+        return 0;
+    }
+
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    /* Pre-load ALUFM with the canonical Dorado convention so Boot0
+     * has working ALU semantics from the first instruction. (Same
+     * preset as probe_full_boot.) */
+    mc.alufm[ 0] = 025; mc.alufm_present[ 0] = 1;
+    mc.alufm[ 1] = 000; mc.alufm_present[ 1] = 1;
+    mc.alufm[ 2] = 014; mc.alufm_present[ 2] = 1;
+    mc.alufm[ 3] = 054; mc.alufm_present[ 3] = 1;
+    mc.alufm[ 4] = 062; mc.alufm_present[ 4] = 1;
+    mc.alufm[ 5] = 022; mc.alufm_present[ 5] = 1;
+    mc.alufm[ 6] = 035; mc.alufm_present[ 6] = 1;
+    mc.alufm[ 7] = 027; mc.alufm_present[ 7] = 1;
+    mc.alufm[ 8] = 023; mc.alufm_present[ 8] = 1;
+    mc.alufm[ 9] = 031; mc.alufm_present[ 9] = 1;
+    mc.alufm[10] = 040; mc.alufm_present[10] = 1;
+    mc.alufm[11] = 036; mc.alufm_present[11] = 1;
+    mc.alufm[12] = 013; mc.alufm_present[12] = 1;
+    mc.alufm[13] = 033; mc.alufm_present[13] = 1;
+    mc.alufm[14] = 001; mc.alufm_present[14] = 1;
+    mc.alufm[15] = 006; mc.alufm_present[15] = 1;
+
+    static dorado_baseboard bb;
+    baseboard_init(&bb);
+    if (baseboard_load_rom(&bb, "../chm/dorado/doradobaserom.mb!13") != 0) {
+        printf("SKIP  probe_full_boot_with_bootstrap (BB ROM)\n");
+        mb_free(&bs_mb);
+        return 0;
+    }
+    baseboard_reset(&bb);
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.baseboard = &bb;
+    cpu.baseboard_cycles_per_uop = 1;
+
+    const uint64_t T_PRESS1_DOWN = 1000000;
+    const uint64_t T_PRESS1_UP   = 1400000;
+    const uint64_t T_PRESS2_DOWN = 2000000;
+    const uint64_t T_PRESS2_UP   = 2400000;
+    const uint64_t T_PRESS3_DOWN = 3000000;
+    const uint64_t T_PRESS3_UP   = 3400000;
+    const uint64_t T_GIVEUP      = 60000000;
+
+    int  pressed = 0;
+    int  swapped = 0;
+    int  bs_writes = 0;       /* IM writes Bootstrap.MB performs (= Initial bytes consumed) */
+    int  bs_writes_outside = 0;  /* Writes to IM outside 0o7700-0o7777 = Initial loaded */
+    uint16_t first_outside_addr = 0xFFFF;
+    int  imfetch_count = 0;
+    int  cpreg_strobes = 0;
+    uint64_t swap_cycle = 0;
+    uint16_t prev_cpreg = 0;
+    uint16_t bb_pc_at_swap = 0;
+
+    /* Bootstrap PC trail (first 64 distinct PCs after the swap, plus
+     * a ring buffer of the last 64). */
+    uint16_t bs_first_trail[64];
+    int      bs_first_n = 0;
+    uint16_t bs_last_trail[64];
+    int      bs_last_head = 0, bs_last_total = 0;
+    /* Frequency table: which Bootstrap PCs get hit how often, post-swap. */
+    int      bs_pc_count[4096];
+    memset(bs_pc_count, 0, sizeof bs_pc_count);
+
+    /* Snapshot of im_present + IM content at swap time, so we can
+     * diff afterward and see which addresses Bootstrap actually
+     * wrote. */
+    static uint8_t im_was_present[4096];
+    static uint16_t im_was_iw0[4096];
+    static uint16_t im_was_iw1[4096];
+    static uint16_t im_was_iw2[4096];
+    memset(im_was_present, 0, sizeof im_was_present);
+    memset(im_was_iw0, 0, sizeof im_was_iw0);
+    memset(im_was_iw1, 0, sizeof im_was_iw1);
+    memset(im_was_iw2, 0, sizeof im_was_iw2);
+
+    while (bb.cycles < T_GIVEUP) {
+        /* Boot button schedule. */
+        if (!pressed && bb.cycles >= T_PRESS1_DOWN && bb.cycles < T_PRESS1_UP) {
+            baseboard_boot_button(&bb, 1); pressed = 1;
+        } else if (pressed && bb.cycles >= T_PRESS1_UP && bb.cycles < T_PRESS2_DOWN) {
+            baseboard_boot_button(&bb, 0); pressed = 0;
+        } else if (!pressed && bb.cycles >= T_PRESS2_DOWN && bb.cycles < T_PRESS2_UP) {
+            baseboard_boot_button(&bb, 1); pressed = 1;
+        } else if (pressed && bb.cycles >= T_PRESS2_UP && bb.cycles < T_PRESS3_DOWN) {
+            baseboard_boot_button(&bb, 0); pressed = 0;
+        } else if (!pressed && bb.cycles >= T_PRESS3_DOWN && bb.cycles < T_PRESS3_UP) {
+            baseboard_boot_button(&bb, 1); pressed = 1;
+        } else if (pressed && bb.cycles >= T_PRESS3_UP) {
+            baseboard_boot_button(&bb, 0); pressed = 0;
+        }
+
+        int will_inject = bb.dorado_ss_pending && bb.dorado_mir_loaded;
+        int will_hold   = !will_inject && !bb.dorado_running;
+        int is_imfetch  = !will_inject && !will_hold;
+
+        /* Substitution moment: when the Dorado is about to execute
+         * its first IM-fetched instruction (= BB has finished MIR-
+         * jamming Boot0 + jammed Return#, Dorado is in free-run mode
+         * with PC=Boot0GoLoc=0o7740). Overwrite IM with Bootstrap.MB.
+         * Pre-load ALUFM is already done above, persists. */
+        if (!swapped && is_imfetch && cpu.real_PC == 07740) {
+            /* Copy Bootstrap.MB IM in place. mc and bs_mc are both
+             * dorado_microcode; we just memcpy the IM arrays. */
+            for (int a = 0; a < 4096; a++) {
+                if (bs_mc.im_present[a]) {
+                    mc.im[a]         = bs_mc.im[a];
+                    mc.im_present[a] = 1;
+                }
+            }
+            /* Also copy ALUFM from Bootstrap.MB (it should match our
+             * preset, but be authoritative). */
+            for (int a = 0; a < 16; a++) {
+                if (bs_mc.alufm_present[a]) {
+                    mc.alufm[a]         = bs_mc.alufm[a];
+                    mc.alufm_present[a] = 1;
+                }
+            }
+            swapped = 1;
+            swap_cycle = bb.cycles;
+            bb_pc_at_swap = baseboard_pc(&bb);
+            prev_cpreg = bb.cpreg_to_dorado;
+            /* Snapshot im_present + IM content *now* so we can diff
+             * what Bootstrap writes during the run. */
+            for (int a = 0; a < 4096; a++) {
+                im_was_present[a] = mc.im_present[a];
+                im_was_iw0[a]     = mc.im[a].iw0;
+                im_was_iw1[a]     = mc.im[a].iw1;
+                im_was_iw2[a]     = mc.im[a].iw2;
+            }
+        }
+
+        /* Detect CPReg strobes from BB after the swap. */
+        if (swapped && bb.cpreg_to_dorado != prev_cpreg) {
+            cpreg_strobes++;
+            prev_cpreg = bb.cpreg_to_dorado;
+        }
+
+        /* Capture pre-step PC for trail (only for IM fetches after
+         * the swap — that's when Bootstrap is running). */
+        uint16_t pre_pc = cpu.real_PC;
+        int log_to_trail = (swapped && is_imfetch);
+
+        if (dorado_cpu_step(&cpu)) {
+            break;
+        }
+
+        if (is_imfetch) imfetch_count++;
+        if (log_to_trail) {
+            if (pre_pc < 4096) bs_pc_count[pre_pc]++;
+            if (bs_first_n < 64) bs_first_trail[bs_first_n++] = pre_pc;
+            bs_last_trail[bs_last_head] = pre_pc;
+            bs_last_head = (bs_last_head + 1) % 64;
+            bs_last_total++;
+        }
+
+        /* (im_present scan moved to post-loop — much cheaper) */
+    }
+
+    /* Post-run scan: compare current IM content to the snapshot.
+     * Count three things:
+     *   - new_present:  addresses that became present (= Write IM
+     *                   wrote a slot that was empty)
+     *   - changed:      addresses where iw0/iw1/iw2 changed (= Write
+     *                   IM overwrote a previously-present slot,
+     *                   common since Bootstrap's IMAddress preamble
+     *                   often points back into 0o7700-0o7777)
+     *   - new_outside / new_inside: split by 0o7700 boundary
+     */
+    bs_writes = 0;
+    bs_writes_outside = 0;
+    first_outside_addr = 0xFFFF;
+    int new_inside = 0;
+    int changed = 0;
+    int changed_outside = 0;
+    int changed_inside = 0;
+    int min_changed = 0xFFFF;
+    int max_changed = -1;
+    for (int a = 0; a < 4096; a++) {
+        int now = mc.im_present[a];
+        int was = im_was_present[a];
+        int content_changed = (mc.im[a].iw0 != im_was_iw0[a] ||
+                               mc.im[a].iw1 != im_was_iw1[a] ||
+                               mc.im[a].iw2 != im_was_iw2[a]);
+        if (now && !was) {
+            bs_writes++;
+            if (a >= 07700) new_inside++;
+            else {
+                if (first_outside_addr == 0xFFFF) {
+                    first_outside_addr = (uint16_t)a;
+                }
+                bs_writes_outside++;
+            }
+        } else if (content_changed) {
+            changed++;
+            if (a < min_changed) min_changed = a;
+            if (a > max_changed) max_changed = a;
+            if (a >= 07700) changed_inside++;
+            else changed_outside++;
+        }
+    }
+
+    printf("PROBE  full-boot+bootstrap: BB ended at PC=0x%04X, "
+           "%llu cycles, swap@%llu (BB PC=0x%04X)\n",
+           baseboard_pc(&bb), (unsigned long long)bb.cycles,
+           (unsigned long long)swap_cycle, bb_pc_at_swap);
+    printf("       Bootstrap.MB swapped: %s, IM-fetched cycles=%d\n",
+           swapped ? "yes" : "NO",
+           imfetch_count);
+    printf("       New IM entries (was empty → now present): %d "
+           "(outside Boot0: %d, inside: %d, first outside: 0o%o)\n",
+           bs_writes, bs_writes_outside, new_inside, first_outside_addr);
+    printf("       Overwritten IM entries (was present, content changed): %d "
+           "(outside Boot0: %d, inside: %d, range 0o%o-0o%o)\n",
+           changed, changed_outside, changed_inside,
+           min_changed, max_changed > 0 ? max_changed : 0);
+    printf("       cpreg strobes from BB after swap: %d (final cpreg=0x%04X)\n",
+           cpreg_strobes, bb.cpreg_to_dorado);
+    printf("       Dorado final state: PC=0o%o, T=0x%04X, Q=0x%04X, "
+           "Link=0x%04X\n",
+           cpu.real_PC, cpu.T, cpu.Q, cpu.Link);
+    printf("       RM[0..15]:");
+    for (int r = 0; r < 16; r++) printf(" [%d]=0x%04X", r, cpu.RM[r]);
+    printf("\n");
+
+    /* First trail (entry flow). */
+    printf("       Bootstrap first PCs:");
+    int prev_pc = -1, prev_count = 0;
+    for (int i = 0; i < bs_first_n; i++) {
+        if ((int)bs_first_trail[i] == prev_pc) { prev_count++; continue; }
+        if (prev_count > 1) printf("×%d", prev_count);
+        printf(" 0o%o", bs_first_trail[i]);
+        prev_pc = bs_first_trail[i];
+        prev_count = 1;
+    }
+    if (prev_count > 1) printf("×%d", prev_count);
+    printf("\n");
+
+    /* Last trail (where it ended up — the loop body). */
+    int last_n = bs_last_total < 64 ? bs_last_total : 64;
+    int last_first = bs_last_total < 64 ? 0 : bs_last_head;
+    printf("       Bootstrap last PCs:");
+    prev_pc = -1; prev_count = 0;
+    for (int i = 0; i < last_n; i++) {
+        int idx = (last_first + i) % 64;
+        if ((int)bs_last_trail[idx] == prev_pc) { prev_count++; continue; }
+        if (prev_count > 1) printf("×%d", prev_count);
+        printf(" 0o%o", bs_last_trail[idx]);
+        prev_pc = bs_last_trail[idx];
+        prev_count = 1;
+    }
+    if (prev_count > 1) printf("×%d", prev_count);
+    printf("\n");
+
+    /* Top-20 most-hit PCs. */
+    #define TOP_N 20
+    int top_pc[TOP_N];
+    int top_count[TOP_N];
+    for (int i = 0; i < TOP_N; i++) { top_pc[i] = -1; top_count[i] = 0; }
+    for (int a = 0; a < 4096; a++) {
+        if (bs_pc_count[a] == 0) continue;
+        for (int s = 0; s < TOP_N; s++) {
+            if (bs_pc_count[a] > top_count[s]) {
+                for (int t = TOP_N - 1; t > s; t--) {
+                    top_pc[t] = top_pc[t-1];
+                    top_count[t] = top_count[t-1];
+                }
+                top_pc[s] = a;
+                top_count[s] = bs_pc_count[a];
+                break;
+            }
+        }
+    }
+    printf("       Bootstrap top-%d hot PCs:\n", TOP_N);
+    for (int i = 0; i < TOP_N && top_pc[i] >= 0; i++) {
+        printf("         0o%o ×%d\n", top_pc[i], top_count[i]);
+    }
+    /* Total PCs visited (= unique addresses). */
+    int unique = 0;
+    for (int a = 0; a < 4096; a++) if (bs_pc_count[a]) unique++;
+    printf("       Bootstrap visited %d unique IM addresses\n", unique);
+    #undef TOP_N
+
+    mb_free(&bs_mb);
+    return 0;  /* informational */
+}
+
+/*
  * Test 8: Write IM round-trip. The Bootstrap loader uses Write IM to
  * deposit Initial into IM via four IRTable entries (LH/RH × secondary
  * 0/1). Each Write IM: address from cpu->Link, 16 bits from B,
@@ -3329,6 +3668,7 @@ int main(void)
     rc |= probe_bootstrap();
     rc |= probe_aemu();
     rc |= probe_full_boot();
+    rc |= probe_full_boot_with_bootstrap();
     if (rc == 0) printf("\nAll CPU tests passed.\n");
     return rc;
 }
