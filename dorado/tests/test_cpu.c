@@ -1474,6 +1474,8 @@ static int probe_full_boot(void)
     int  saw_first_dorado_uop = 0;
     int  saw_first_imfetch = 0;
     int  injected_count = 0;
+    uint16_t boot0_trail[64];
+    int  boot0_trail_n = 0;
     int  imfetch_count = 0;
     int  dorado_held_count = 0;
     uint16_t first_im_write_addr = 0xFFFF;
@@ -1530,8 +1532,14 @@ static int probe_full_boot(void)
             imfetch_count++;
             if (!saw_first_imfetch) {
                 saw_first_imfetch = 1;
-                printf("       first IM-fetched uop at BB cycle %llu, Dorado PC=0o%o\n",
-                       (unsigned long long)bb.cycles, cpu.real_PC);
+                printf("       first IM-fetched uop at BB cycle %llu, Dorado PC=0o%o "
+                       "Link=0o%o T=0o%o RM[0]=0x%X RM[2]=0x%X\n",
+                       (unsigned long long)bb.cycles, cpu.real_PC,
+                       cpu.Link, cpu.T, cpu.RM[0], cpu.RM[2]);
+            }
+            /* Record the first 64 IM-fetched PCs for trail printing. */
+            if (boot0_trail_n < 64) {
+                boot0_trail[boot0_trail_n++] = cpu.real_PC;
             }
         }
 
@@ -1575,6 +1583,51 @@ static int probe_full_boot(void)
            bb.dorado_ss_pending, bb.dorado_mir_loaded);
     printf("       IM: %d entries written (first=0o%o), final Dorado PC=0o%o\n",
            im_filled, first_im_write_addr, cpu.real_PC);
+
+    /* Print Boot0 PC trail with run-length compression + disasm. */
+    printf("       Boot0 trail:");
+    int prev_pc_bt = -1, prev_count_bt = 0;
+    for (int i = 0; i < boot0_trail_n; i++) {
+        if ((int)boot0_trail[i] == prev_pc_bt) { prev_count_bt++; continue; }
+        if (prev_count_bt > 1) printf("×%d", prev_count_bt);
+        printf(" 0o%o", boot0_trail[i]);
+        prev_pc_bt = boot0_trail[i];
+        prev_count_bt = 1;
+    }
+    if (prev_count_bt > 1) printf("×%d", prev_count_bt);
+    printf("\n");
+    /* Disasm each unique trail PC so we can see what each step did. */
+    int seen_pcs[64], seen_n = 0;
+    /* Also disasm 0o7740 (Boot0 entry per BaseCodeVersion). */
+    int special_pcs[] = {07740, 07763, 07771};
+    for (int i = 0; i < (int)(sizeof special_pcs / sizeof special_pcs[0]); i++) {
+        seen_pcs[seen_n++] = special_pcs[i];
+        int pc = special_pcs[i];
+        if (pc < 4096 && mc.im_present[pc]) {
+            char dis[200];
+            dorado_format(&mc.im[pc], dis, sizeof dis);
+            const dorado_uinstr *u = &mc.im[pc];
+            printf("       IM[0o%o]: %s [iw0=%06o iw1=%06o iw2=%06o]\n",
+                   pc, dis, u->iw0, u->iw1, u->iw2);
+        } else {
+            printf("       IM[0o%o]: <empty/no-code>\n", pc);
+        }
+    }
+    for (int i = 0; i < boot0_trail_n; i++) {
+        int pc = boot0_trail[i], dup = 0;
+        for (int j = 0; j < seen_n; j++) if (seen_pcs[j] == pc) { dup = 1; break; }
+        if (dup) continue;
+        seen_pcs[seen_n++] = pc;
+        if (pc < 4096 && mc.im_present[pc]) {
+            char dis[200];
+            dorado_format(&mc.im[pc], dis, sizeof dis);
+            const dorado_uinstr *u = &mc.im[pc];
+            printf("       IM[0o%o]: %s [iw0=%06o iw1=%06o iw2=%06o]\n",
+                   pc, dis, u->iw0, u->iw1, u->iw2);
+        } else {
+            printf("       IM[0o%o]: <empty/no-code>\n", pc);
+        }
+    }
     return 0;  /* informational */
 }
 

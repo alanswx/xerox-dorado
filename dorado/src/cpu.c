@@ -528,8 +528,18 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
             switch (fc) {
             case 0: /* — */              return pd;
             case 1: /* ReadMap */         return pd;  /* stub */
-            case 2: /* Pd ← Input */      return pd;  /* stub */
-            case 3: /* Pd ← InputNoPE */  return pd;  /* stub */
+            case 2: /* Pd ← Input (HM page 86): reads IOB data and
+                     * checks parity. The IOB carries data from the
+                     * slow-IO device addressed by TIOA. With no
+                     * device modeling yet, return 0xFFFF — that's
+                     * the floating-bus default (real hardware: IOB
+                     * pulls high when no device asserts), and lets
+                     * Boot0 cond=R<0 tests evaluate true so it walks
+                     * past the trap-reservation slots. TODO: wire
+                     * actual slow-IO device map (HM §7). */
+                return (uint16_t)0xFFFF;
+            case 3: /* Pd ← InputNoPE — same data, no parity check. */
+                return (uint16_t)0xFFFF;
             case 4: /* RIsId — Id replaces RM/STK in A←RM/STK,
                      * B←RM/STK, and shifter (HM Table 11a FA=0 FB=3
                      * FC=4). For our minimal model: just consume one

@@ -71,17 +71,51 @@ inferred behavior.
 BB by leaving 0x01 in MiscByte), and the BB streams Boot1 into the
 running Dorado via CPReg.
 
-**Status:** A.1–A.6 LANDED. A.7 (Boot1 ACK) **blocked** — Boot0
-runs a wait-loop polling for an AMSync/MASync edge on CPReg before
-entering the Boot1-load loop. Without modeling those sync bits in
-the CPReg latches (and the corresponding read paths the BB-side
-exercises during SendIMBlockToDorado(ViaCP=1)), Boot0 falls through
-its wait-loop into the trap-reservation slot at 0o7744 and long-
-jumps to IM[0o4000] — empty, halt. The wait loop itself is now
-visible in the trace (PC walk: 7740 → 7761 → 7747 → 7740, with
-RM[1] driven by the shifter as a soft counter), so the
-infrastructure is correct; what's missing is the AMSync/MASync
-hardware modeling. Defer to a sub-phase A.7 when we revisit.
+**Status:** A.1–A.6 LANDED. A.7 (Boot1 ACK) **deeper than just
+AMSync** — investigation completed:
+
+  Boot0 starts at 0o7740 (BOOTSTRAP entry). Trail (5 IM-fetched
+  cycles before halt at 0o7744 → long-jump 0o4000):
+
+    0o7740 (BOOTSTRAP)     TaskingOff, →7763 (NOT recorded as
+                           IM-fetched; happens before saw_first
+                           triggers — possibly held)
+    0o7761                 Shift op, →7746 (via FF condition)
+    0o7746                 Q-based op, →7707
+    0o7707                 Conditional jump on R<0 — R is 0,
+                           cond=false → 0o7744 (trap reservation)
+    0o7744                 All-zero → long jump to 0o4000 → halt
+
+  **The wall is not just AMSync** — Boot0 reads device data via
+  `Pd←Input` (slow IO input at TIOA-selected address). Boot0
+  uses these reads to populate ALUFM[1..15] and other state
+  *before* it can correctly handle the conditional branches.
+
+  Per BB source (`doradoboot.masm`):
+  - BB pre-loads ALUFM[0]=0o25 (logical "B")
+  - BB sets CPReg[0]=1 to sync (AMSync wired ✓)
+  - BB streams Boot1 via ABMux0/ABMux1 strobes (CPReg-only,
+    no MIR re-injection) — wired ✓
+  - But Boot0 itself reads slow-IO inputs and may also depend on
+    the Hold/TaskSim state set up by BB's "40 NOPs to clear cobwebs"
+
+  Specific gaps identified:
+  - `Pd←Input` (FA=0 FB=2 FC=3) and `Pd←InputNoPE` (FC=4) stubbed
+    in cpu.c → Boot0 sees Pd=0 at 0o7763, writes 0 to ALUFM[N],
+    breaks downstream conditional logic.
+  - Slow-IO devices (Hold/TaskSim register, MCR, Reset register)
+    need modeling so BB-side TIOA-routed reads return real data.
+
+  **A.7 is the right next session** but requires Phase E (slow
+  IO) infrastructure first. The HM §7 ("Slow IO") describes the
+  TIOA + IOB bus + Output←B / Pd←Input mechanism — that's the
+  prerequisite, not just an AMSync byte-toggle.
+
+The infrastructure that *is* in place: AMSync (CPRegH bit 7)
+toggles on ABMux1 strobes with setss=1, ABMux0 clears it. The
+BB→Dorado handshake is wired correctly at the CPReg level — what's
+missing is the parallel slow-IO path that Boot0 polls in addition
+to CPReg.
 
 **Why this phase first:** the closest visible milestone. Validates
 the whole BB↔Dorado handshake, including the CPReg streaming path
