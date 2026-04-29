@@ -168,8 +168,10 @@ Example queries:
 | File | Notes |
 |---|---|
 | `boot-bringup-plan.md` | Phased plan from "Bootstrap microengine runs" (current state, post ALUFM/quadrant fixes) to "Mesa boots Pilot from disk." Includes the normal boot sequence reference (Path A power-on/3-push, Path B LoadMB shortcut). |
-| `memory-architecture.md` | Reference for the Map/cache/Pipe/BR design. Read before implementing memory work. |
-| `io-systems-architecture.md` | Reference for Slow I/O, Fast I/O, the task scheduler/Wakeup-Block-Next protocol, plus the Disk, Display, and Ethernet controllers. Display + Disk Phase 1 are built; this doc tracks what's done vs TBD. |
+| `memory-architecture.md` | Reference for the Map/cache/Pipe/BR design (HM §5). Read before memory work. |
+| `io-systems-architecture.md` | High-level reference for Slow I/O, Fast I/O, the task scheduler/Wakeup-Block-Next protocol, plus an overview of the Disk, Display, and Ethernet controllers. Read first; then drill down into the per-subsystem docs below. |
+| `display-architecture.md` | Detailed Display Controller reference (HM §11). DDC, NLCB/CLCB fields, HRam/Mixer/MiniMixer, 7-wire interface, back-channel keyboard/mouse messages, DHT/DWT microcode + wakeup logic. |
+| `disk-architecture.md` | Detailed Disk Controller reference (HM §9). Trident T-80/T-300 specs, TIOA registers, DiskControl bits, Format RAM table, Sequence PROM tables (read+write), tag register layouts, KSTATE/KSTAT muffler signals, Fire Code ECC polynomial + recovery procedure. |
 | `jcn-encoding.md` | The JCN field's 7-way encoding split (local / global / long / conditional / return / IFU jump). Distilled from HM §4.3 + Figure 6. |
 
 ## Suggested reading order for a new contributor
