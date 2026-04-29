@@ -167,13 +167,28 @@ substituted in IM. Demonstrates:
 - BB streams Boot1Data via CPReg: 6529 ABMux strobes consumed.
 - Bootstrap.MB executes ~13M IM-fetched cycles of real microcode.
 - Bootstrap reaches READBB 3590 times, fires WRITE000 (Write IM)
-  1793 times.
-- BUT only 1 IM entry actually changes content (0o7744). RM[3]=
-  0xFFF3 = ~0x000C — Bootstrap's stored target IMAddress is the
-  bit-inverted CPReg byte. Either Bootstrap inverts again before
-  using as Link, or the BB's stream protocol doesn't match what
-  Bootstrap.MB's loader expects. Needs deeper trace of the
-  Bootstrap-side IMAddress decoder.
+  1793 times — ALL targeting the same address (0o7744). RM[3] =
+  0xFFF3 = ~0x000C; the dispatch bits extracted from each second
+  byte read are always 0 → always WRITE000 (LH only) → Loc never
+  increments via the RH-write path. BB stream content reaches
+  Bootstrap, but the IMAddress bit-assembly produces the
+  *complement* of the BB's intended address.
+- Source code verified: BootstrapMain.mc (fetched from CHM
+  archives at chm/dorado/expanded/BootstrapSources.dm/) confirms
+  that ReadBB returns T = ~CPReg via B←RWCPReg (per HM page 31:
+  "B←CPReg'"). The LSH/LDF/XOR address-assembly code in
+  BootstrapMain.mc must somewhere undo the inversion — but in our
+  model, it doesn't, which suggests our shifter (LSH) or LDF
+  semantics doesn't quite match what Bootstrap was assembled
+  against. **Open investigation in task #58**.
+
+**probe_initial** (added 2026-04): bypasses the BB chain and runs
+Initial.MB directly with Bootstrap.MB layered for IM[0o7700-0o7777].
+Initial's first instruction at 0o7500 globally calls 0o7700
+(READBB), so Initial enters the same spin loop. Confirms Initial
+and Bootstrap share an IM region by design — Initial reuses
+Bootstrap's CPReg-reading subroutine. **Both depend on the BB
+CPReg protocol working** to make any progress.
 
 What's stub-or-missing
 - **Memory: storage backing** is a flat array (~OK for now) but
