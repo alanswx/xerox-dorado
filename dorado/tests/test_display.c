@@ -1,0 +1,199 @@
+#include "display.h"
+#include "io.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define FAIL(msg, ...) do { \
+    fprintf(stderr, "FAIL: %s:%d: " msg "\n", __FILE__, __LINE__, ##__VA_ARGS__); \
+    return 1; \
+} while (0)
+
+#define EXPECT(cond, msg, ...) do { \
+    if (!(cond)) FAIL(msg, ##__VA_ARGS__); \
+} while (0)
+
+/* test_init_zeroes — fresh display has zero framebuffer + zero counters. */
+static int test_init_zeroes(void)
+{
+    static dorado_display d;
+    dorado_display_init(&d);
+    EXPECT(d.output_count == 0, "output_count = %llu",
+           (unsigned long long)d.output_count);
+    EXPECT(d.iofetch_count == 0, "iofetch_count = %llu",
+           (unsigned long long)d.iofetch_count);
+    for (int i = 0; i < DORADO_DISPLAY_FB_BYTES; i++) {
+        EXPECT(d.fb[i] == 0, "fb[%d] = 0x%02X (expected 0)", i, d.fb[i]);
+    }
+    EXPECT(d.ram_keep == 1, "ram_keep should default to 1 (video owns)");
+    printf("PASS  test_init_zeroes (FB=%dx%d, %d bytes)\n",
+           DORADO_DISPLAY_W, DORADO_DISPLAY_H, DORADO_DISPLAY_FB_BYTES);
+    return 0;
+}
+
+/* test_set_pixel — round-trip pixels through set_pixel and verify
+ * the byte/bit packing matches the documented (MSB = leftmost) layout. */
+static int test_set_pixel(void)
+{
+    static dorado_display d;
+    dorado_display_init(&d);
+
+    /* Set the leftmost pixel of row 0. With MSB=leftmost packing,
+     * fb[0] should have bit 7 set = 0x80. */
+    dorado_display_set_pixel(&d, 0, 0, 1);
+    EXPECT(d.fb[0] == 0x80, "fb[0] = 0x%02X (expected 0x80)", d.fb[0]);
+
+    /* Pixel (7, 0) → fb[0] bit 0 → adds 0x01. */
+    dorado_display_set_pixel(&d, 7, 0, 1);
+    EXPECT(d.fb[0] == 0x81, "fb[0] = 0x%02X (expected 0x81)", d.fb[0]);
+
+    /* Pixel (8, 0) → fb[1] bit 7 → fb[1] = 0x80. */
+    dorado_display_set_pixel(&d, 8, 0, 1);
+    EXPECT(d.fb[1] == 0x80, "fb[1] = 0x%02X (expected 0x80)", d.fb[1]);
+
+    /* Bottom-right corner. */
+    dorado_display_set_pixel(&d, DORADO_DISPLAY_W - 1, DORADO_DISPLAY_H - 1, 1);
+    int last_byte = DORADO_DISPLAY_FB_BYTES - 1;
+    /* 808 / 8 = 101, so the last byte holds pixels 800..807. Pixel 807
+     * is bit 0 of the last byte. */
+    EXPECT(d.fb[last_byte] == 0x01,
+           "fb[%d] = 0x%02X (expected 0x01)", last_byte, d.fb[last_byte]);
+
+    /* Clear and re-test. */
+    dorado_display_set_pixel(&d, 0, 0, 0);
+    EXPECT(d.fb[0] == 0x01, "fb[0] = 0x%02X (expected 0x01 after clear)",
+           d.fb[0]);
+
+    /* Out-of-bounds: silent no-op. */
+    dorado_display_set_pixel(&d, -1, 0, 1);
+    dorado_display_set_pixel(&d, DORADO_DISPLAY_W, 0, 1);
+    dorado_display_set_pixel(&d, 0, -1, 1);
+    dorado_display_set_pixel(&d, 0, DORADO_DISPLAY_H, 1);
+
+    printf("PASS  test_set_pixel (MSB-leftmost packing verified)\n");
+    return 0;
+}
+
+/* test_attach_to_io — registering the display intercepts slow-IO
+ * outputs from display tasks (DHT/DWT/AHT/AWT) and counts them. */
+static int test_attach_to_io(void)
+{
+    static dorado_io io;
+    dorado_io_init(&io);
+    static dorado_display d;
+    dorado_display_init(&d);
+    dorado_display_attach_to_io(&d, &io);
+    EXPECT(d.attached == 1, "display.attached should be 1 after attach");
+
+    /* DHT (task 3) drives an Output←B at TIOA=0x42 with data 0xCAFE. */
+    dorado_io_write(&io, /*task=*/3, /*tioa=*/0x42, 0xCAFE);
+    EXPECT(d.output_count == 1, "output_count = %llu (expected 1)",
+           (unsigned long long)d.output_count);
+    EXPECT(d.riob == 0xCAFE, "riob = 0x%X (expected 0xCAFE)", d.riob);
+
+    /* DWT (task 13₈ = 11 dec) drives another. */
+    dorado_io_write(&io, /*task=*/011, /*tioa=*/0x10, 0x1234);
+    EXPECT(d.output_count == 2, "output_count after second write = %llu",
+           (unsigned long long)d.output_count);
+
+    /* Non-display task (e.g. EMU=0) is NOT routed to the display.
+     * Verify by writing to it — it should be a no-op since no other
+     * device is registered there. */
+    dorado_io_write(&io, /*task=*/0, /*tioa=*/0x42, 0xFFFF);
+    EXPECT(d.output_count == 2, "non-display task should not bump count, "
+           "got %llu", (unsigned long long)d.output_count);
+
+    /* Pd←Input from DDC reads the buffered RIOB. */
+    int bad = -1;
+    uint16_t v = dorado_io_read(&io, 3, 0x42, &bad);
+    EXPECT(v == 0x1234, "input = 0x%X (expected 0x1234 — last write)", v);
+    EXPECT(bad == 0, "parity should be good for mapped device, got bad=%d", bad);
+
+    printf("PASS  test_attach_to_io (4 tasks routed, 2 writes counted, "
+           "input=0x%X)\n", v);
+    return 0;
+}
+
+/* test_fifo_push — IOFetch← path drops words into per-channel FIFO. */
+static int test_fifo_push(void)
+{
+    static dorado_display d;
+    dorado_display_init(&d);
+
+    EXPECT(dorado_display_fifo_push(&d, 0, 0xDEAD) == 0, "push channel A");
+    EXPECT(dorado_display_fifo_push(&d, 0, 0xBEEF) == 0, "push channel A again");
+    EXPECT(dorado_display_fifo_push(&d, 2, 0x1234) == 0, "push channel B");
+
+    EXPECT(d.iofetch_count == 3, "iofetch_count = %llu (expected 3)",
+           (unsigned long long)d.iofetch_count);
+    EXPECT(d.fifo_a_head == 2, "channel A head = %d (expected 2)",
+           d.fifo_a_head);
+    EXPECT(d.fifo_b_head == 1, "channel B head = %d (expected 1)",
+           d.fifo_b_head);
+    EXPECT(d.fifo_a[0] == 0xDEAD, "fifo_a[0] = 0x%X", d.fifo_a[0]);
+    EXPECT(d.fifo_a[1] == 0xBEEF, "fifo_a[1] = 0x%X", d.fifo_a[1]);
+    EXPECT(d.fifo_b[0] == 0x1234, "fifo_b[0] = 0x%X", d.fifo_b[0]);
+
+    printf("PASS  test_fifo_push (channel A: 2 words, B: 1 word)\n");
+    return 0;
+}
+
+/* test_snapshot_pgm — draw a recognizable test pattern, write PGM,
+ * and verify the file header. */
+static int test_snapshot_pgm(void)
+{
+    static dorado_display d;
+    dorado_display_init(&d);
+
+    /* Draw a diagonal line + framing rectangle so the snapshot is
+     * visually verifiable if anyone opens it. */
+    for (int i = 0; i < DORADO_DISPLAY_H; i++) {
+        dorado_display_set_pixel(&d, 0, i, 1);
+        dorado_display_set_pixel(&d, DORADO_DISPLAY_W - 1, i, 1);
+    }
+    for (int i = 0; i < DORADO_DISPLAY_W; i++) {
+        dorado_display_set_pixel(&d, i, 0, 1);
+        dorado_display_set_pixel(&d, i, DORADO_DISPLAY_H - 1, 1);
+    }
+    int diag_len = DORADO_DISPLAY_H < DORADO_DISPLAY_W
+                 ? DORADO_DISPLAY_H : DORADO_DISPLAY_W;
+    for (int i = 0; i < diag_len; i++) {
+        dorado_display_set_pixel(&d, i, i, 1);
+    }
+
+    const char *path = "/tmp/test_dorado_display.pgm";
+    EXPECT(dorado_display_snapshot_pgm(&d, path) == 0,
+           "snapshot_pgm to %s", path);
+
+    /* Verify file header. */
+    FILE *fp = fopen(path, "rb");
+    EXPECT(fp != NULL, "reopen %s", path);
+    char hdr[32];
+    if (!fgets(hdr, sizeof hdr, fp)) { fclose(fp); FAIL("header read"); }
+    EXPECT(strcmp(hdr, "P5\n") == 0, "PGM magic = %s", hdr);
+    int w, h, maxv;
+    EXPECT(fscanf(fp, "%d %d\n%d", &w, &h, &maxv) == 3,
+           "header dims+maxv");
+    EXPECT(w == DORADO_DISPLAY_W && h == DORADO_DISPLAY_H,
+           "dims = %dx%d (expected %dx%d)", w, h,
+           DORADO_DISPLAY_W, DORADO_DISPLAY_H);
+    EXPECT(maxv == 255, "maxv = %d", maxv);
+    fclose(fp);
+
+    printf("PASS  test_snapshot_pgm (PGM at %s, %dx%d)\n",
+           path, DORADO_DISPLAY_W, DORADO_DISPLAY_H);
+    return 0;
+}
+
+int main(void)
+{
+    int rc = 0;
+    rc |= test_init_zeroes();
+    rc |= test_set_pixel();
+    rc |= test_attach_to_io();
+    rc |= test_fifo_push();
+    rc |= test_snapshot_pgm();
+    if (rc == 0) printf("\nAll display tests passed.\n");
+    return rc;
+}
