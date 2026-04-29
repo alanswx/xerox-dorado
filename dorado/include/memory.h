@@ -52,6 +52,82 @@ typedef enum {
 #define DM_PIPE_DEPTH    16
 #define DM_STORAGE_WORDS (4 * 1024 * 1024)   /* 4 MW = 8 MB */
 
+/*
+ * Cache (HM §5.11). 4096-word cache organized as 64 rows × 4 ways
+ * (columns) × 16 words/line. The cache holds VAs (not real
+ * addresses), so the Map is consulted only on miss.
+ *
+ * Address split (10 LSB bits of VA):
+ *   bits 0..3  = word offset within a 16-word munch
+ *   bits 4..9  = row index (one of 64)
+ * The remaining VA bits form the per-way tag. (HM says "compared
+ * with VA[4:19]" = 16 bits, but in our 1024-page config the actual
+ * tag is wider — we store the full upper VA bits.)
+ *
+ * Replacement: LRU per row. ways[lru[0]] is the most-recently-used
+ * way; ways[lru[3]] is the next victim.
+ *
+ * Flags per line:
+ *   valid — line currently holds a fetched munch
+ *   dirty — line has been written; must be flushed back on eviction
+ */
+#define DM_CACHE_ROWS      64
+#define DM_CACHE_WAYS      4
+#define DM_CACHE_LINE_W    16
+#define DM_CACHE_LINE_MASK (DM_CACHE_LINE_W - 1)
+#define DM_CACHE_ROW_MASK  (DM_CACHE_ROWS - 1)
+
+typedef struct {
+    uint32_t tag;     /* VA bits above the row+offset */
+    uint8_t  valid;
+    uint8_t  dirty;
+    uint16_t data[DM_CACHE_LINE_W];
+} dorado_cache_line;
+
+typedef struct {
+    dorado_cache_line ways[DM_CACHE_WAYS];
+    /* LRU permutation: lru[0] = MRU way index, lru[DM_CACHE_WAYS-1] = LRU. */
+    uint8_t lru[DM_CACHE_WAYS];
+} dorado_cache_row;
+
+/*
+ * Map (HM §5 "The Map", page 44 ff.). We pick the 16K-map ×
+ * 1024-word page configuration: VA[8:21] indexes the map, VA[22:31]
+ * is the page offset. Total VM = 2^24 words. (HM Table 16 lists
+ * other configurations — page sizes 256/1024/4096 with map IC sizes
+ * 16K/64K/256K. Our choice matches what Mesa typically expects.)
+ *
+ * Each map entry is a 16-bit real page number (RP) plus three flags:
+ *   - WP    write-protected
+ *   - Dirty modified
+ *   - Ref   referenced (set on any storage ref except Map←; cleared
+ *           by Map←)
+ *   - Vacant (encoded as WP=1, Dirty=1) — page fault on any access.
+ *
+ * Real address = (RP << 10) | VA[22:31]   (1024-word pages).
+ */
+#define DM_MAP_ENTRIES   (16 * 1024)         /* 16K map entries */
+#define DM_PAGE_SIZE     1024                /* 1024-word pages */
+
+typedef struct {
+    uint16_t rp;       /* 16-bit real page number */
+    uint8_t  wp;       /* 1 = write-protected */
+    uint8_t  dirty;    /* 1 = modified */
+    uint8_t  ref;      /* 1 = referenced */
+} dorado_map_entry;
+
+/*
+ * Fault kinds (HM page 46 "Faults"). Real Dorado wakes the fault
+ * task (task 15) on these; without tasking, we record the kind and
+ * VA, optionally halt.
+ */
+typedef enum {
+    DM_FAULT_NONE = 0,
+    DM_FAULT_PAGE,           /* reference to vacant map entry */
+    DM_FAULT_WRITE_PROTECT,  /* Store←/IOStore←/dirty-victim with WP=1 */
+    DM_FAULT_MAP_TROUBLE,    /* parity error on map read (we don't model this) */
+} dorado_fault_kind;
+
 typedef struct dorado_memory {
     /* 32 base registers, each 28-bit. Stored as uint32_t; the high 4
      * bits are unused. HM §5: BR addresses 1 of 32 28-bit registers,
@@ -62,18 +138,67 @@ typedef struct dorado_memory {
      * until and during the next fetch by the task." */
     uint16_t md;
 
-    /* Pipe ring — most recent storage references. Reads via
-     * B←Pipe0..5 FF functions look at the head and step backwards. */
+    /* Pipe — addressed by 4-bit SRN (Storage Reference Number).
+     * Each ref is assigned an SRN at issue time; the entry is
+     * written to pipe[srn]. Microcode reads pipe entries via
+     * `B←Pipei` after loading `ProcSRN←B` to address the slot.
+     *
+     * SRN allocation (HM page 51-52):
+     *   ProcSRN  — task 0/15 (emulator + fault) refs except
+     *              PreFetch-with-miss. Conventionally 0 or 1.
+     *   ASRN     — I/O task refs and emulator PreFetch-with-miss.
+     *              Ring buffer over slots 2..15. Advanced after a
+     *              reference that "starts the map" (i.e., goes to
+     *              storage); held otherwise.
+     *
+     * `map_flags_pre` snapshots the map entry's WP/Dirty/Ref bits
+     * as they were *before* the reference updated them. HM page 47:
+     * "Every storage reference causes mapping and returns old
+     * contents of the relevant map entry in the pipe."
+     *   bit 0 = WP, bit 1 = Dirty, bit 2 = Ref. */
     struct {
         uint32_t        va;
         dorado_ref_kind kind;
+        uint8_t         map_flags_pre;
     } pipe[DM_PIPE_DEPTH];
-    int pipe_head;          /* next slot to write */
+    int     pipe_head;       /* index just past the just-written slot, wrapped */
+    uint8_t proc_srn;        /* 4-bit; emulator + fault tasks. Default 0. */
+    uint8_t asrn;            /* 4-bit; I/O ring. 2..15. Default 2. */
 
     /* Main storage — flat array, 16-bit words. We don't model ECC
      * bits yet; HM §5.7 will add them in Phase B. */
     uint16_t *storage;
     size_t    storage_words;
+
+    /* Cache — interposed between processor refs and storage for
+     * Fetch/Store/PreFetch/Flush. IOFetch/IOStore bypass the cache
+     * (see HM page 39 IOFetch/IOStore semantics). */
+    dorado_cache_row cache[DM_CACHE_ROWS];
+
+    /*
+     * Map. All entries default to Vacant (WP=1, Dirty=1) at init; the
+     * microcode populates entries via Map← references during startup.
+     */
+    dorado_map_entry map[DM_MAP_ENTRIES];
+
+    /* Most recent fault state — set by dorado_memory_ref when a
+     * reference faults. The microcode would normally see this via
+     * the fault task's wake; in our single-task model we expose it
+     * for diagnostics + halt-on-fault tests. */
+    dorado_fault_kind last_fault;
+    uint32_t          last_fault_va;
+
+    /* FaultInfo register state — readable by microcode via
+     * B←FaultInfo' / B←Pipe2' (HM Table 11c FA=1 FB=6 FC=0).
+     * Both reads return the same 16-bit register, inverted.
+     *   - fault_count       (NFaults) — number of unacknowledged faults
+     *   - fault_first_srn   (SRN of first uncleared fault)
+     *   - fault_emulator    (was first fault from task 0/15? — always 1
+     *                        in single-task mode)
+     * Cleared by dorado_fault_clear(). */
+    uint8_t  fault_count;
+    uint8_t  fault_first_srn;
+    uint8_t  fault_emulator;
 } dorado_memory;
 
 /* Initialize: allocate storage array, zero registers + pipe.
@@ -86,12 +211,21 @@ void dorado_memory_free(dorado_memory *mem);
  *
  * `va` is the full 28-bit virtual address (already computed as
  * BR[MemBase] + Mar by the caller).
- * `b` is the B-bus value (data for stores).
- * `out_md` is set to the new Md value for fetches; left alone
- * otherwise. NULL means caller doesn't care.
+ * `b` is the B-bus value (data for stores or Map← writes).
+ * `tioa` is the TIOA register, used by Map← to supply WP/Dirty
+ *        bits (TIOA[0]=WP, TIOA[1]=Dirty per HM page 46).
+ *
+ * Returns DM_FAULT_NONE on success, or a fault kind. The caller
+ * (cpu.c) decides whether to halt or just record the fault.
  */
-void dorado_memory_ref(dorado_memory *mem, dorado_ref_kind kind,
-                       uint32_t va, uint16_t b);
+dorado_fault_kind dorado_memory_ref(dorado_memory *mem, dorado_ref_kind kind,
+                                    uint32_t va, uint16_t b, uint16_t tioa);
+
+/* Map manipulation helpers, mostly for tests. */
+void dorado_map_set(dorado_memory *mem, uint32_t va_page,
+                    uint16_t rp, int wp, int dirty);
+const dorado_map_entry *dorado_map_get(const dorado_memory *mem,
+                                       uint32_t va_page);
 
 /* Helpers for FF functions that load/read BR. */
 void     dorado_br_lo_load(dorado_memory *mem, int membase, uint16_t a);
@@ -99,7 +233,50 @@ void     dorado_br_hi_load(dorado_memory *mem, int membase, uint16_t a);
 uint32_t dorado_br_get(const dorado_memory *mem, int membase);
 
 /* Pipe access — `n` is the slot relative to head: 0 = most recent,
- * 1 = previous, etc. Returns 0 if pipe hasn't been touched yet. */
+ * 1 = previous, etc. Returns 0 if pipe hasn't been touched yet.
+ * Useful for tests that want temporal-order recall; microcode would
+ * use the SRN-based accessors below. */
 uint32_t dorado_pipe_va(const dorado_memory *mem, int n);
+
+/* SRN-based pipe accessors. `srn` is a 4-bit slot index (0..15) —
+ * the value microcode would have loaded into ProcSRN before reading
+ * `B←Pipei`. */
+uint32_t dorado_pipe_va_at(const dorado_memory *mem, int srn);
+uint8_t  dorado_pipe_map_flags_at(const dorado_memory *mem, int srn);
+
+/* Set ProcSRN (the slot index used for non-PreFetch-miss task-0/15
+ * references). FF function `ProcSRN←B[12:15]` (HM Table 11c FA=1
+ * FB=2 FC=7) calls this with B[12:15] = low 4 bits of B. */
+void     dorado_proc_srn_set(dorado_memory *mem, uint8_t srn);
+
+/* Snapshot of map flags for the pipe entry at slot `n` (relative to
+ * head). Bit layout (high-true): bit 0=WP, bit 1=Dirty, bit 2=Ref.
+ * On the B bus this would be read inverted as `B←Pipe3'`. */
+uint8_t  dorado_pipe_map_flags(const dorado_memory *mem, int n);
+
+/* Compute the high-true 16-bit FaultInfo register value. The B bus
+ * receives `~fault_info` as `B←FaultInfo'`. Layout (MSB-first):
+ *   B[0:7]   reserved (zero internally)
+ *   B[8:11]  SRN of first fault
+ *   B[12:15] NFaults count
+ * Microcode acknowledges by some mechanism (TBD); our model exposes
+ * `dorado_fault_clear()` for tests. */
+uint16_t dorado_fault_info(const dorado_memory *mem);
+void     dorado_fault_clear(dorado_memory *mem);
+
+/* Cache inspection helpers, for tests and diagnostics.
+ *
+ * dorado_cache_lookup() returns 1 if the munch containing `va` is
+ * cached, with *out_way (if non-NULL) set to the way index.
+ *
+ * dorado_storage_at_va() bypasses the cache: translates VA via the
+ * Map and returns the storage word. Used by tests that need to probe
+ * "what's actually in storage" without going through the cache. The
+ * map must be mounted; if the entry is Vacant the function returns
+ * 0xFFFF (no fault is signaled — this is a probe, not a reference).
+ */
+int      dorado_cache_lookup(const dorado_memory *mem, uint32_t va,
+                             int *out_way);
+uint16_t dorado_storage_at_va(const dorado_memory *mem, uint32_t va);
 
 #endif

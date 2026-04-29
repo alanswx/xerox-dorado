@@ -221,63 +221,154 @@ including the Map setup that PIlot does on startup.
 
 This is HM §5 in full. The simplest order:
 
-### B.1 BR (Base Registers)
+### B.1 BR (Base Registers)  ✓ LANDED
 
 32 × 28-bit registers. Loaded via:
 - `BrLo←A` (FA=1 FB=2 FC=3): BR[MemBase][16:31] ← A[0:15].
-- `BrHi←A` (FA=1 FB=2 FC=4): BR[MemBase][4:15] ← A[4:15] +
-  some sign-extension.
+- `BrHi←A` (FA=1 FB=2 FC=4): BR[MemBase][4:15] ← A[4:15].
 
-Read: `VA = BR[MemBase] + Mar` for Fetch/Store; read on Pipe.
+Read by VA computation: `VA = BR[MemBase] + Mar` in cpu.c memory-ref
+dispatch.
 
-Tests: `test_br_load_consistency`, `test_br_pertask` (BR is shared
-across tasks, contrary to T/TPC/MemBase/Link which are per-task).
+Implemented in `dorado/src/memory.c::dorado_br_lo_load`,
+`dorado_br_hi_load`, `dorado_br_get`. BR is shared across tasks (only
+MemBase is per-task).
 
-### B.2 Map
+Tests: `test_br_load` in `tests/test_memory.c` covers the load/read
+paths and per-MemBase isolation.
 
-16K- (or 64K-) entry × 19-bit table. VA[10:23] indexes; entry
-contains a 12-bit real page + flags (W=writeable, D=dirty,
-R=referenced, ECC enable). Loaded via `Map←` reference (ASEL
-encodes a Map write); read via `ReadMap` FF function.
+### B.2 Map  ✓ LANDED
 
-Page faults when entry's W bit is 0 on a write, etc. Map fault
-microcode lives at IM trap address *0-3 (per HM Table 14).
+16K-entry table indexed by VA[10:21] (we picked the 16K-IC × 1024-
+word-page configuration from HM Table 16). Entry holds 16-bit RP +
+WP/Dirty/Ref. Vacant = WP=1 ∧ Dirty=1 (initial state at power-up).
 
-Tests: `test_map_load`, `test_map_fault_write_to_ro`,
-`test_map_referenced_dirty_bits`.
+Implemented in `dorado/src/memory.c::va_translate` and the `Map←`
+arm of `dorado_memory_ref`. `Map←B` writes RP from B[0:15] and
+WP/Dirty from TIOA[0:1]; Ref is zeroed (HM page 46). A Vacant
+entry page-faults on any access; a WP entry faults on Store/IOStore.
 
-### B.3 Cache
+The fault is surfaced as a `dorado_fault_kind` return value (plus
+`mem.last_fault`/`last_fault_va` for inspection) — the actual trap
+to *0-3 (HM Table 14) is wired in cpu.c, **TBD** for Phase B.5.
 
-4 K-words organized as 64 rows × 4 columns × 16-word lines. Hit
-on VA[4:19]. Tags + V/D bits per line. Replacement: write-back
-(victim eviction on miss).
+Map fault microcode trap targets are documented in HM Table 14;
+those lookups are part of Phase B.5 (faults).
 
-The tricky parts:
-- 28-cycle storage latency (cache miss). Determines Hold time.
-- Victim writes happen lazily.
-- Cache hits on deferred references don't Hold (HM page 37).
-- Flush← removes a line without storing.
+Tests (in `tests/test_memory.c`): `test_map_vacant_page_fault`,
+`test_map_write_protect`, `test_map_load`, `test_map_translation`,
+`test_no_fault_refs`. All passing.
 
-Tests: `test_cache_hit_miss`, `test_cache_dirty_writeback`,
-`test_cache_flush`.
+See `docs/memory-architecture.md` § "The Map" for the full
+reference (Table 16 configurations, entry format, Map← semantics,
+cache/Map interaction, hold conditions).
 
-### B.4 Pipe
+### B.3 Cache  ✓ LANDED
+
+4096-word cache organized as 64 rows × 4 ways × 16-word lines.
+The cache holds **virtual** addresses (VA[10:27] is the tag; VA[4:9]
+is the row index; VA[0:3] is the word offset). Replacement: 4-way
+LRU per row.
+
+Reference dispatch in `dorado_memory_ref`:
+- **Fetch / IFetch / LongFetch:** lookup → hit returns line[offset]
+  with no Map flag update; miss translates, picks LRU victim
+  (writeback if dirty, sets Map.Ref+Dirty), fills, returns.
+- **Store:** WP-checks via translate. Write-allocate on miss.
+  Marks line dirty. **Map.Dirty stays clean** until the munch is
+  later evicted or `Flush←`'d (HM page 45).
+- **PreFetch:** silent fill on legal page; never faults.
+- **Flush:** clean hit invalidates; dirty hit writes back (sets
+  Map.Ref AND Map.Dirty) then invalidates; clean miss is no-op.
+- **IOFetch / IOStore:** bypass cache, sets Map flags. IOStore
+  unconditionally invalidates the cached line (without writeback).
+
+Tests in `tests/test_memory.c`: `test_cache_hit`,
+`test_cache_miss_fill`, `test_cache_store_no_map_dirty`,
+`test_cache_lru_eviction`, `test_cache_dirty_victim_writeback`,
+`test_cache_flush_clean`, `test_iostore_cache_invalidate`.
+
+**Still TBD** (will land alongside Hold/timing in Phase C):
+- 28-cycle miss latency (Hold modeling).
+- Cache parity, ECC over munches.
+- `BeingLoaded` and `NextVictim` flags in Pipe5.
+
+See `docs/memory-architecture.md § "The cache"` for the full
+reference.
+
+### B.4 Pipe  ✓ LANDED (basic VA tracking)
 
 16-entry ring buffer of pending storage references. Each entry
-records VA, kind (Fetch/Store/Map/IFetch/IOFetch/IOStore/Flush),
-and trap info. Read by microcode via `B←Pipe0..5` FF functions
-(FA=1 FB=6 FC=0..5). The ring's tail advances every storage cycle.
+records VA + kind (Fetch/Store/Map/IFetch/IOFetch/IOStore/Flush).
+`pipe_push` runs on every reference (including ones that fault) so
+fault microcode can recover the VA from `Pipe0`/`Pipe1`.
 
-Tests: `test_pipe_records_va`, `test_pipe_wraps`,
-`test_pipe_records_iotype`.
+Read by microcode via `B←Pipe0..5` FF functions (FA=1 FB=6 FC=0..5).
+The C side has `dorado_pipe_va(mem, n)` returning slot relative to
+head (0 = most recent).
 
-### B.5 Faults
+**Still TBD:** the *other* fields of Pipe entries — Map flags
+(`Pipe3'`: pre-ref WP/Dirty/Ref), error syndrome (`Pipe3'` low),
+config word (`Pipe4'`), and IFU-ref tracking (`Pipe5'`). These need
+to land before Pipe-driven fault recovery can work in microcode.
 
-Per HM Table 14: page faults, cache parity, ECC errors, IFU map
-fault, etc. Each traps to a reserved IM address. The microcode
-sees the trap reason via `B←FaultInfo'`.
+Tests (in `tests/test_memory.c`): `test_pipe_records`,
+`test_pipe_wraps`, `test_map_vacant_page_fault` (verifies fault
+still pushes). All passing.
 
-Tests: induce each fault type, verify trap entry + FaultInfo.
+### B.5 Faults  ✓ PARTIALLY LANDED
+
+**Subtle correction to the plan:** Table 14 trap addresses (`*0-3`,
+`*4-7`, `*34-37`, `*74-77`) are **IFU** traps — they fire on
+IFU-side faults (map fault during opcode fetch, IFUM parity error,
+"IFU not ready"). They are dispatched on IFUJump *after* the IFU
+itself faults.
+
+**Processor** memory faults (Fetch/Store/IOFetch/IOStore through
+the Map) wake **task 15** (the fault task). Task 15 reads
+`Pipe0/Pipe1` for the VA, `Pipe3'` for the pre-ref map flags, and
+`FaultInfo'` for the count + first-fault SRN.
+
+So the right Phase B.5 split:
+
+**B.5a ✓ LANDED — fault state visibility for microcode:**
+- `dorado_memory.fault_count`, `fault_first_srn`, `fault_emulator`
+- `dorado_fault_info(mem)` returns the high-true 16-bit register
+  (B[7]=EmulatorFault, B[8:11]=SRN, B[12:15]=NFaults)
+- `dorado_fault_clear(mem)` resets fault state
+- `dorado_pipe_map_flags(mem, n)` returns pre-ref WP/Dirty/Ref
+  snapshot for any pipe slot
+- cpu.c FF override:
+  - `B←FaultInfo'` (FA=1 FB=6 FC=0) returns inverted FaultInfo
+  - `B←Pipe2'` (FA=1 FB=6 FC=3) returns the same (HM page 51:
+    "Pipe2' is simply a convenient decode for [FaultInfo]")
+  - `B←Pipe3'` (FA=1 FB=6 FC=4) returns inverted map-flags snapshot
+- Tests: `test_fault_info`, `test_pipe3_map_flags` in
+  `tests/test_memory.c`; `test_cpu_fault_info_visible` in
+  `tests/test_cpu.c` (full FF dispatch path).
+
+**B.5b — task-15 wakeup on processor fault:** TBD until tasking
+(Phase D) lands. Currently a fault on a processor reference is
+silently recorded and the microengine continues with stale Md.
+
+**B.5c — IFU trap to *0-3 (Table 14):** TBD until IFU (Phase C)
+lands. Phase C.3 (IFUJump) needs the trap-vector dispatch hook.
+
+**B.5d ✓ LANDED — ProcSRN/ASRN split:**
+- `dorado_memory.proc_srn` (4-bit, default 0): selects pipe slot
+  for task-0/15 non-prefetch refs and PreFetch-with-hit.
+- `dorado_memory.asrn` (4-bit, default 2; ring 2..15): selects pipe
+  slot for IOFetch/IOStore and PreFetch-with-miss; advances after
+  the ref.
+- `ProcSRN←B` FF function (FA=1 FB=2 FC=7) wired in cpu.c via
+  `dorado_proc_srn_set(mem, b & 0xF)`.
+- `B←Pipei` reads in cpu.c now use `pipe[mem.proc_srn]` instead of
+  "most recent" semantics — matches HM page 51 microcode pattern.
+- Tests: `test_proc_srn_overwrite`, `test_prefetch_srn_split`,
+  updated `test_pipe_records` and `test_pipe_wraps` to use IOFetch
+  through the ASRN ring.
+
+See `docs/memory-architecture.md § "The Pipe"` for the full reference.
 
 ### B.6 ECC
 

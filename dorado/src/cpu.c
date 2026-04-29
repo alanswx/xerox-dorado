@@ -267,16 +267,33 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
             *b = (fc == 0 || fc == 6) ? 0xFFFF : 0;
             return 1;
         }
-        uint32_t va = dorado_pipe_va(cpu->mem, 0);
+        /* HM page 51: "To read a pipe entry, first ProcSRN←B
+         * addresses the pipe entry, then the contents of that entry
+         * are read with B←Pipei." So Pipe0/1/3'/4'/5 read from the
+         * slot pointed to by ProcSRN, not from "the most recent ref."
+         * (FaultInfo'/Pipe2' are not slot-addressed — they read the
+         * global FaultInfo register.) */
+        int      psrn  = (int)cpu->mem->proc_srn;
+        uint32_t va    = dorado_pipe_va_at(cpu->mem, psrn);
+        uint16_t finfo = dorado_fault_info(cpu->mem);
+        uint8_t  mflg  = dorado_pipe_map_flags_at(cpu->mem, psrn);
         switch (fc) {
-        case 0: *b = 0xFFFF;                       break;  /* FaultInfo' */
+        /* HM Table 11c FA=1 FB=6 FC=0 / page 51: FaultInfo' is the
+         * inverted FaultInfo register (NFaults, SRNFirstFault,
+         * EmulatorFault). 0xFFFF = "no faults". */
+        case 0: *b = (uint16_t)~finfo;             break;  /* FaultInfo' */
         case 1: *b = (uint16_t)((va >> 16) & 0x0FFF); break; /* Pipe0 = VaHi */
         case 2: *b = (uint16_t)(va & 0xFFFF);      break;  /* Pipe1 = VaLo */
-        case 3: *b = 0;                            break;  /* Pipe2' */
-        case 4: *b = 0;                            break;  /* Pipe3' */
-        case 5: *b = 0;                            break;  /* Pipe4' */
+        /* Pipe2' is the same data as FaultInfo' (HM page 51:
+         * "B←Pipe2' is simply a convenient decode for reading
+         * [FaultInfo] back"). */
+        case 3: *b = (uint16_t)~finfo;             break;  /* Pipe2' */
+        /* Pipe3' is the inverted snapshot of map flags (WP/Dirty/Ref)
+         * from before the reference at slot ProcSRN. */
+        case 4: *b = (uint16_t)~(uint16_t)mflg;    break;  /* Pipe3' */
+        case 5: *b = 0;                            break;  /* Pipe4' (errors) */
         case 6: *b = 0xFFFF;                       break;  /* Config' */
-        case 7: *b = 0;                            break;  /* Pipe5' */
+        case 7: *b = 0;                            break;  /* Pipe5' (victim) */
         default: *b = 0;                           break;
         }
         return 1;
@@ -430,7 +447,11 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                 return pd;
             case 5: /* LoadTestSyndrome */         return pd;
             case 6: /* LoadMcr[A,B] */             return pd;
-            case 7: /* ProcSRN ← B[12:15] */       return pd;
+            case 7: /* ProcSRN ← B[12:15] (HM Table 11c FA=1 FB=2 FC=7).
+                     * B[12:15] in MSB-first numbering = low 4 bits in
+                     * C-LSB. */
+                if (cpu->mem) dorado_proc_srn_set(cpu->mem, (uint8_t)(b & 0xF));
+                return pd;
             }
         }
         if (fb == 3) {
@@ -1321,7 +1342,9 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
         if (kind != DM_REF_NONE) {
             uint32_t br = dorado_br_get(cpu->mem, cpu->MemBase);
             uint32_t va = (br + a) & 0x0FFFFFFFu;
-            dorado_memory_ref(cpu->mem, kind, va, b);
+            (void)dorado_memory_ref(cpu->mem, kind, va, b, cpu->TIOA);
+            /* Faults are recorded in mem->last_fault; tasking-aware
+             * dispatch comes in Phase D. */
         }
     }
 

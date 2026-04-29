@@ -1045,6 +1045,8 @@ static int test_cpu_memory_roundtrip(void)
 
     static dorado_memory mem;
     EXPECT(dorado_memory_init(&mem) == 0, "memory init");
+    /* Mount map page 0 (covers VA 0x42) so the ref doesn't page-fault. */
+    dorado_map_set(&mem, /*va_page=*/0, /*rp=*/0, /*wp=*/0, /*dirty=*/0);
 
     dorado_cpu cpu;
     dorado_cpu_init(&cpu, &mc, 0);
@@ -1052,12 +1054,14 @@ static int test_cpu_memory_roundtrip(void)
     cpu.T = 0xDEAD;        /* data we'll store */
     cpu.RM[0] = 0x42;      /* address we'll store to */
 
-    /* Run 3 instructions: Store, Fetch, T←Md. */
+    /* Run 3 instructions: Store, Fetch, T←Md. After Store, the data
+     * lives in the cache (HM page 45: Store doesn't set Map.Dirty
+     * until evict). The subsequent Fetch hits the cache and returns
+     * the stored value. */
     EXPECT(dorado_cpu_step(&cpu) == 0, "Store step: %s",
            cpu_halt_reason_str(cpu.halt_reason));
-    EXPECT(mem.storage[0x42] == 0xDEAD,
-           "after Store: storage[0x42] = 0x%04X, expected 0xDEAD",
-           mem.storage[0x42]);
+    EXPECT(dorado_cache_lookup(&mem, 0x42, NULL),
+           "Store should have placed VA 0x42 in the cache");
 
     EXPECT(dorado_cpu_step(&cpu) == 0, "Fetch step: %s",
            cpu_halt_reason_str(cpu.halt_reason));
@@ -1069,6 +1073,78 @@ static int test_cpu_memory_roundtrip(void)
 
     dorado_memory_free(&mem);
     printf("PASS  test_cpu_memory_roundtrip (Store→Fetch→T←Md)\n");
+    return 0;
+}
+
+/*
+ * Fault → FaultInfo' visibility test.
+ *
+ * Issue a Fetch← to a Vacant map entry (page-fault), then read
+ * `B←FaultInfo'` (FA=1 FB=6 FC=0 → FF=0o160) and verify the bus
+ * value reflects NFaults=1, SRN=0, EmulatorFault=1.
+ *
+ * High-true FaultInfo for one fault from emulator at SRN 0:
+ *   B[7]=1 (EmulatorFault) → bit 8 (LSB) = 0x100
+ *   B[8:11]=SRN=0          → bits 4..7   = 0x000
+ *   B[12:15]=NFaults=1     → bits 0..3   = 0x001
+ *   high-true value        = 0x101
+ *   on the bus (~)         = 0xFEFE
+ */
+static int test_cpu_fault_info_visible(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;   /* "B" */
+
+    /* IM[0]: Fetch←RM/STK at A=RM[0]; FF=0o300 (FF[0:1]=3 → Fetch);
+     * BSEL=2 (T data, ignored for fetch). ASEL=1 chooses RM/STK
+     * source for A; RSTK=0 reads RM[0]. LC=0, JCN=local(1). */
+    mc.im[0] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/2, /*lc=*/0,
+                           /*asel=*/1, /*block=*/0, /*ff=*/0300,
+                           /*jcn=*/jcn_local(1));
+    mc.im_present[0] = 1;
+
+    /* IM[1]: B ← FaultInfo'.   FA=1 FB=6 FC=0 → FF = (1<<6)|(6<<3)|0
+     * = 64 + 48 = 112 = 0o160. LC=1 → T←Pd. ALUF=0 ("B"). BSEL=0
+     * (primary B sources, FF override active). ASEL=6 (A←T,
+     * harmless). Self-loop. */
+    mc.im[1] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/0, /*lc=*/1,
+                           /*asel=*/6, /*block=*/0, /*ff=*/0160,
+                           /*jcn=*/jcn_local(1));
+    mc.im_present[1] = 1;
+
+    for (int i = 0; i < 2; i++) {
+        mc.image_to_real[i] = i;
+        mc.image_present[i] = 1;
+    }
+    mc.n_instructions = 2;
+
+    static dorado_memory mem;
+    EXPECT(dorado_memory_init(&mem) == 0, "memory init");
+    /* Don't mount any page → page 0 is Vacant → fetch faults. */
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.mem = &mem;
+    cpu.RM[0] = 0x42;     /* Will be the faulting VA. */
+
+    /* Step 1: Fetch faults. */
+    EXPECT(dorado_cpu_step(&cpu) == 0, "Fetch step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(mem.last_fault == DM_FAULT_PAGE,
+           "expected page fault, got %d", (int)mem.last_fault);
+    EXPECT(mem.fault_count == 1, "NFaults = %d, expected 1",
+           (int)mem.fault_count);
+
+    /* Step 2: B ← FaultInfo'. T should land on the bus value. */
+    EXPECT(dorado_cpu_step(&cpu) == 0, "FaultInfo step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.T == 0xFEFE,
+           "T = 0x%04X, expected 0xFEFE (NFaults=1, SRN=0, Emul=1)",
+           cpu.T);
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_cpu_fault_info_visible (B←FaultInfo')\n");
     return 0;
 }
 
@@ -1247,6 +1323,7 @@ int main(void)
     rc |= test_stk_overflow();
     rc |= test_stk_underflow_check();
     rc |= test_cpu_memory_roundtrip();
+    rc |= test_cpu_fault_info_visible();
     rc |= test_bc_timing_previous_instr();
     rc |= test_freezebc();
     rc |= probe_bootstrap();

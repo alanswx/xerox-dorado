@@ -174,9 +174,22 @@ FF dispatcher (`ff_override_b()` + `ff_apply_post()`):
 - Decodes FA = FF[0:1], FB = FF[2:4], FC = FF[5:7] (HM §3.9).
 - "FF interpreted as a function iff (BSEL not constant) and
   (JCN not long)" — gated by `ff_is_function`.
-- B-source overrides (FA=1, FB=6 or 7): Pipe / FaultInfo / EventCnt /
-  IFUMRH / DBuf are all stubbed to 0; **B←Link**, **B←RWCPReg**
-  (cpreg state register, currently 0) are wired up.
+- B-source overrides (FA=1, FB=6 or 7):
+  - **`B←FaultInfo'`** (FB=6 FC=0) — wired to `dorado_fault_info()`
+    inverted; reports NFaults + first-fault SRN. Same data as
+    `B←Pipe2'`.
+  - **`B←Pipe0`/`B←Pipe1`** (FB=6 FC=1/2) — VaHi/VaLo of the pipe
+    entry at slot `ProcSRN` (HM page 51: microcode loads `ProcSRN←B`
+    first, then reads).
+  - **`B←Pipe3'`** (FB=6 FC=4) — inverted snapshot of pre-ref map
+    flags (WP/Dirty/Ref) at slot `ProcSRN`.
+  - **`B←Link`** (FB=7 FC=7) — the per-task Link register.
+  - **`B←RWCPReg`** (FB=7 FC=6) — Link←B, B←CPReg' from the BB.
+  - Other Pipe / Config / EventCnt / IFUMRH / DBuf stubs return 0.
+- B-sink post-effects (FA=1 FB=2 FC=…):
+  - **`ProcSRN←B[12:15]`** (FC=7) — sets the pipe-slot index for
+    subsequent `B←Pipei` reads.
+  - **`BrLo←A`** (FC=3), **`BrHi←A`** (FC=4) — load the BR.
 - HM Table 7 asterisk: when an external B source is in play and
   BSEL=3, the external value also lands in **Q**. Critical for
   Bootstrap's `Q ← Link` snapshot trick.
