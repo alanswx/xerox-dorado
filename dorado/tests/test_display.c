@@ -252,6 +252,32 @@ static int test_frame_clock(void)
     return 0;
 }
 
+static int test_scanline_tick_wakes_terminal_task(void)
+{
+    static dorado_io io;
+    dorado_io_init(&io);
+    static dorado_display d;
+    dorado_display_init(&d);
+    dorado_display_attach_to_io(&d, &io);
+
+    EXPECT(dorado_display_scanline_tick(&d) == -1,
+           "no terminal task before DHT/AHT output");
+    EXPECT(d.scanline_ticks == 1, "scanline tick should still count");
+
+    dorado_io_write(&io, DORADO_DISPLAY_TASK_AHT, 0x20, 0x1234);
+    EXPECT(d.terminal_task == DORADO_DISPLAY_TASK_AHT,
+           "AHT output should select terminal task");
+
+    EXPECT(dorado_display_scanline_tick(&d) == DORADO_DISPLAY_TASK_AHT,
+           "scanline should wake AHT");
+    EXPECT(d.terminal_wakeups == 1,
+           "terminal wakeups = %llu",
+           (unsigned long long)d.terminal_wakeups);
+
+    printf("PASS  test_scanline_tick_wakes_terminal_task (AHT)\n");
+    return 0;
+}
+
 /* test_render_fifo — push pixel words into FIFO, render them, verify
  * the framebuffer matches. */
 static int test_render_fifo(void)
@@ -331,6 +357,7 @@ int main(void)
     rc |= test_fifo_push();
     rc |= test_snapshot_pgm();
     rc |= test_frame_clock();
+    rc |= test_scanline_tick_wakes_terminal_task();
     rc |= test_render_fifo();
     if (rc == 0) printf("\nAll display tests passed.\n");
     return rc;

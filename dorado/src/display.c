@@ -72,9 +72,11 @@ static void display_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
     d->output_count++;
     d->riob = data;     /* HM page 119: IOB stays in DDC RIOB until
                          * next output command */
+    if (task == DORADO_DISPLAY_TASK_DHT || task == DORADO_DISPLAY_TASK_AHT) {
+        d->terminal_task = task;
+    }
     /* TODO: dispatch by (task, tioa) to NLCB load / HRam load /
      * Mixer load / PixelClk / Statics / etc. */
-    (void)task;
     (void)tioa;
 }
 
@@ -246,4 +248,19 @@ void dorado_display_vblank(dorado_display *d)
     d->frame_count++;
     d->scan_line = 0;
     d->scan_pixel = 0;
+}
+
+int dorado_display_scanline_tick(dorado_display *d)
+{
+    if (!d) return -1;
+
+    d->scanline_ticks++;
+    dorado_display_advance_pixels(d, DORADO_DISPLAY_W);
+
+    if (d->terminal_task == DORADO_DISPLAY_TASK_DHT ||
+        d->terminal_task == DORADO_DISPLAY_TASK_AHT) {
+        d->terminal_wakeups++;
+        return d->terminal_task;
+    }
+    return -1;
 }

@@ -11,6 +11,9 @@ CHM hosts **two** Xerox PARC IFS mirrors:
   Dorado microcode `.mb`/`.midas` files, the Bootstrap and Initial
   microcode dumps, the BaseBoard ROM source, the `LoadMB`/`ReadMB`
   Alto tools, and `io/doradologic/` schematic-source archives.
+- **https://xeroxparcarchive.computerhistory.org/Xerox_PARC_source_code.html**
+  — CHM's source-code landing page for the PARC archive; use this when
+  starting from the public collection rather than a known IFS path.
 
 URL conventions for both servers are documented in `chm-urls.md`.
 

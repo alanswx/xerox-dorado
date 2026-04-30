@@ -562,6 +562,8 @@ software XOR the corrupted bits back to correct values.
   - DiskTag register capture.
   - DiskMuff input packs the wakeup TWs + EnableRun + Active for
     microcode to read back.
+  - DiskMuff returns the selected signal on IOB[15]. In this C model's
+    LSB numbering that is bit 0, so asserted readout is `0x0001`.
 
 **Phase 2**:
 - **Tag decoder**: dispatches by Tag[0:3] (HM pages 99-101):

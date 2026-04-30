@@ -161,7 +161,7 @@ static int test_controller_io_routing(void)
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKMUFF, 010);
     v = dorado_io_read(&io, DORADO_DISK_TASK,
                        DORADO_DISK_TIOA_DISKMUFF, &bad);
-    EXPECT(v == 0x8000, "muff EnableRun = 0x%X (expected sign bit)", v);
+    EXPECT(v == 0x0001, "muff EnableRun = 0x%X (expected IOB[15])", v);
     printf("PASS  test_controller_io_routing (control=0x%X, format ram, "
            "tag, FIFO 2 push/pop, muff readout)\n", ctl.control);
     return 0;

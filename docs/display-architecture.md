@@ -416,6 +416,11 @@ production: 0 = Alto-style, 1 = LF (large format / Star).
   without changing frame count; headless tests can call
   `dorado_display_vblank()` when they intentionally mark a completed
   frame for snapshotting.
+- **Synthetic AHT/DHT scanline wakeups**: until the real pixel clock
+  and HBlank timing are modeled, `dorado_display_scanline_tick()`
+  advances one scanline and wakes whichever terminal horizontal task
+  last wrote display slow I/O. The full boot probe uses this to keep
+  the DispM/AHT keyboard path alive while running headless.
 
 **Phase 2**:
 - **`dorado_display_render_fifo()`**: drains the per-channel FIFO

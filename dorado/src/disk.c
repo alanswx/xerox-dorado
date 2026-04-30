@@ -470,7 +470,9 @@ static uint16_t disk_input(void *ctx, int task, uint8_t tioa, int *bad)
         case 037: bit = 0; break;
         default: bit = 0; break;
         }
-        return bit ? 0x8000 : 0x0000;
+        /* HM pages 101-102: selected muffler signal is returned on
+         * IOB[15]. Manual bit 15 is the low C bit in this codebase. */
+        return bit ? 0x0001 : 0x0000;
     }
     }
 

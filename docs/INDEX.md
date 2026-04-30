@@ -119,7 +119,10 @@ Detailed survey lives in `altoinfo-survey.md`. Headlines:
 
 Pulled April 2026 from **two** CHM mirrors:
 `xeroxalto.computerhistory.org` and
-`xeroxparcarchive.computerhistory.org`. URL conventions documented in
+`xeroxparcarchive.computerhistory.org`; the PARC source-code landing
+page is
+`https://xeroxparcarchive.computerhistory.org/Xerox_PARC_source_code.html`.
+URL conventions documented in
 `chm-urls.md`. Full inventory in `chm-archive.md` §7. Highlights:
 
 - **`chm/dorado/`** ★ — the canonical `_cd8_/dorado/` tree. Microcode

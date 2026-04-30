@@ -58,6 +58,11 @@
 #define DORADO_DISPLAY_MIXER_WORDS  1024  /* 1024 × 24 (HM page 112) */
 #define DORADO_DISPLAY_KEY_WORDS    5      /* Alto-compatible boot words */
 
+#define DORADO_DISPLAY_TASK_DHT     003
+#define DORADO_DISPLAY_TASK_AHT     004
+#define DORADO_DISPLAY_TASK_AWT     011
+#define DORADO_DISPLAY_TASK_DWT     013
+
 typedef struct {
     /* Per-channel CLCB/NLCB. HM page 113: αPolarity, αResolution,
      * αItemSize, αLeftMargin, αWidth, αFifoAddr, MixerModes, VCW,
@@ -123,11 +128,14 @@ typedef struct {
 
     /* Slow-IO routing — registered by display_attach_to_io. */
     int      attached;
+    int      terminal_task;      /* DHT or AHT selected by Initial */
 
     /* Diagnostic counters. */
     uint64_t output_count;       /* total Output←B writes seen */
     uint64_t iofetch_count;      /* total IOFetch← munches received */
     uint64_t nlcb_writes;        /* DHT NLCB outputs */
+    uint64_t scanline_ticks;     /* synthetic horizontal timing ticks */
+    uint64_t terminal_wakeups;   /* DHT/AHT wakeups requested */
 } dorado_display;
 
 void dorado_display_init(dorado_display *d);
@@ -182,6 +190,12 @@ int dorado_display_snapshot_pgm(const dorado_display *d, const char *path);
 uint64_t dorado_display_frame(const dorado_display *d);
 int      dorado_display_advance_pixels(dorado_display *d, uint32_t pixels);
 void     dorado_display_vblank(dorado_display *d);
+
+/* Synthetic horizontal timing. Returns DHT/AHT task number to wake,
+ * or -1 if the terminal horizontal task has not been initialized yet.
+ * This is a timing shim until the DDC pixel clock and HBlank waveform
+ * are modeled from the actual control outputs. */
+int      dorado_display_scanline_tick(dorado_display *d);
 
 /*
  * Direct framebuffer pixel write — used for synthetic tests that don't

@@ -29,10 +29,15 @@ you don't repeat them.
   The full probe mounts `spruce-server.dsk300` when present. Because
   the DDC terminal back-channel is not modeled yet, the probe forces
   boot keys up and redirects the remaining false `GotBootKey` case to
-  `DiskHardMicrocodeBoot`. That reaches `DiskHardMicrocodeBoot`,
-  `BootTransfer`, and `DiskMBootRet`, but disk FIFO reads/writes are
-  still zero; the next blocker is DiskMuff/status/DSK-task transfer
-  sequencing before real sector data is consumed. The AEmu bypass
+  `DiskHardMicrocodeBoot`. Display scanline wakeups now run the
+  AHT/DispM terminal task continuously (`display outs=35414`,
+  frame 59 snapshot) and keep the boot keyboard words all-up. Disk
+  bring-up now forces PilotDisk's one-time normal-mode branch past the
+  disabled loop and reaches the DSK idle loop (`KIdleLoop/KIdleCont`)
+  with DiskMuff inputs active, but it still does not reach
+  `KSameDrive`, `DoDiskBlock`, or DiskData. The next blocker is making
+  the `CSB.next` IOCB command pointer visible to the DSK task through
+  the correct IOBR/CSB memory path. The AEmu bypass
   probe currently halts at `PC=0o7777`.
 - **Repo:** `/Users/alans/Documents/development/Dorado`
 - **Most useful entry points to read:** `CLAUDE.md` (project mission),

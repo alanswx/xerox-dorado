@@ -2341,6 +2341,9 @@ static int probe_full_boot_with_bootstrap(void)
     int preset_trace_enabled = test_u64_env("DORADO_PRESET_TRACE", 0) != 0;
     uint64_t disk_sector_ticks = 0;
     uint64_t disk_wakeups = 0;
+    uint64_t disk_normal_mode_shims = 0;
+    uint64_t display_scanline_wakeups = 0;
+    uint64_t next_display_scanline_cycle = 0;
     uint64_t keyboard_seed_count = 0;
     struct key_trace {
         uint64_t cycle;
@@ -2373,6 +2376,29 @@ static int probe_full_boot_with_bootstrap(void)
         { 06443, "DOETHERMICROCODEBOOT", 0, 0 },
         { 06404, "MICROCODEBOOTFAILED", 0, 0 },
         { 06057, "AWAITETHERBOOTREPLY", 0, 0 },
+    };
+    struct boot_landmark disk_landmarks[] = {
+        { 06740, "DSKINITPC", 0, 0 },
+        { 06754, "KMODETEST", 0, 0 },
+        { 06737, "KDISABLE", 0, 0 },
+        { 06664, "KFORGETCMMD", 0, 0 },
+        { 06644, "KIDLELOOP", 0, 0 },
+        { 06650, "KIDLECONT", 0, 0 },
+        { 06552, "KNEWDRIVE", 0, 0 },
+        { 06553, "KSAMEDRIVE", 0, 0 },
+        { 06572, "KCONTINUECMMD", 0, 0 },
+        { 06561, "KCHECKSEEK", 0, 0 },
+        { 07102, "KNORESTORE", 0, 0 },
+        { 07133, "KWAITSECTOR", 0, 0 },
+        { 07105, "KCMMDINTIME", 0, 0 },
+        { 07120, "DODISKBLOCK", 0, 0 },
+        { 07201, "KCMMDREAD", 0, 0 },
+        { 07300, "INITRAMPILOT", 0, 0 },
+        { 06500, "READ1MUFF", 0, 0 },
+        { 06600, "DOMUFFOUTPUT", 0, 0 },
+        { 07060, "WAITFORSECTOR", 0, 0 },
+        { 07000, "UPDATESECTOR", 0, 0 },
+        { 06760, "CLEARDISK", 0, 0 },
     };
 
     while (bb.cycles < T_GIVEUP) {
@@ -2564,6 +2590,34 @@ static int probe_full_boot_with_bootstrap(void)
                     break;
                 }
             }
+            if (cpu.ctask == DORADO_DISK_TASK) {
+                n = (int)(sizeof disk_landmarks / sizeof disk_landmarks[0]);
+                for (int i = 0; i < n; i++) {
+                    if (pre_pc == disk_landmarks[i].pc) {
+                        if (disk_landmarks[i].hits == 0) {
+                            disk_landmarks[i].first_cycle = bb.cycles;
+                        }
+                        disk_landmarks[i].hits++;
+                        break;
+                    }
+                }
+            }
+        }
+        if (initial_substituted && is_imfetch &&
+            cpu.ctask == DORADO_DISK_TASK && pre_pc == 06754) {
+            /* Bring-up shim: PilotDisk's DSKInitPC intends normal
+             * mode (`KTemp3 <- 0`) before the task checks KTemp3.
+             * Our current RM/RBase model does not preserve that
+             * cross-task init write into the DiskRegs bank, so the
+             * DSK task falls into KDisable and only dismisses
+             * wakeups. Force the DiskRegs scratch candidates clear
+             * at the exact mode test so the real command path can
+             * run while the RM-region model is fixed. */
+            cpu.RM[(014 << 4) | 000] = 0;
+            cpu.RM[(014 << 4) | 017] = 0;
+            cpu.real_PC = 06664;  /* KForgetCmmd: normal-mode path. */
+            pre_pc = cpu.real_PC;
+            disk_normal_mode_shims++;
         }
         struct preset_sample ps;
         int is_preset_probe =
@@ -2647,6 +2701,15 @@ static int probe_full_boot_with_bootstrap(void)
         }
         service_boot_disk(&cpu, &disk, bb.cycles,
                           &disk_sector_ticks, &disk_wakeups);
+        if (initial_substituted && display.output_count > 0 &&
+            bb.cycles >= next_display_scanline_cycle) {
+            int task = dorado_display_scanline_tick(&display);
+            if (task >= 0) {
+                dorado_cpu_wakeup(&cpu, task);
+                display_scanline_wakeups++;
+            }
+            next_display_scanline_cycle = bb.cycles + 1000;
+        }
 
         if (is_preset_probe) {
             ps.next_pc = cpu.real_PC;
@@ -2870,19 +2933,23 @@ static int probe_full_boot_with_bootstrap(void)
         }
     }
     printf("       Task=%u TIOA=0x%02X display outs=%llu iofetch=%llu "
+           "scanline wakeups=%llu "
            "disk outs=%llu ins=%llu\n",
            cpu.ctask, cpu.TIOA & 0xFF,
            (unsigned long long)display.output_count,
            (unsigned long long)display.iofetch_count,
+           (unsigned long long)display_scanline_wakeups,
            (unsigned long long)disk.output_count,
            (unsigned long long)disk.input_count);
     printf("       Disk pack: %s, sector ticks=%llu wakeups=%llu "
-           "fifo reads=%llu writes=%llu selected=%d CHS=(%d,%d,%d)\n",
+           "fifo reads=%llu writes=%llu normal-mode shims=%llu "
+           "selected=%d CHS=(%d,%d,%d)\n",
            disk_pack_attached ? disk_pack.path : "(none)",
            (unsigned long long)disk_sector_ticks,
            (unsigned long long)disk_wakeups,
            (unsigned long long)disk.fifo_reads,
            (unsigned long long)disk.fifo_writes,
+           (unsigned long long)disk_normal_mode_shims,
            disk.selected_drive,
            disk.drive[disk.selected_drive].cur_cyl,
            disk.drive[disk.selected_drive].cur_head,
@@ -2913,6 +2980,16 @@ static int probe_full_boot_with_bootstrap(void)
                    boot_landmarks[i].name, boot_landmarks[i].pc,
                    (unsigned long long)boot_landmarks[i].hits,
                    (unsigned long long)boot_landmarks[i].first_cycle);
+        }
+    }
+    printf("\n");
+    printf("       Disk task landmarks:");
+    for (int i = 0; i < (int)(sizeof disk_landmarks / sizeof disk_landmarks[0]); i++) {
+        if (disk_landmarks[i].hits) {
+            printf(" %s@0o%o×%llu(first@%llu)",
+                   disk_landmarks[i].name, disk_landmarks[i].pc,
+                   (unsigned long long)disk_landmarks[i].hits,
+                   (unsigned long long)disk_landmarks[i].first_cycle);
         }
     }
     printf("\n");

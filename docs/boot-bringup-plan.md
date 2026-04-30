@@ -193,12 +193,15 @@ image. With that in place, the probe now demonstrates:
   present. Because terminal keyboard input is not modeled yet, the
   probe forces `ETemp0..3` to all-up and redirects the remaining false
   `GotBootKey` to `DiskHardMicrocodeBoot`. Current probe facts:
-  `DISKHARDMICROCODEBOOT`, `BOOTTRANSFER`, and `DISKMBOOTRET` are hit;
-  `display outs=3`, `disk outs=9488`, disk sector ticks/wakeups are
-  generated, but DiskData inputs and FIFO reads/writes remain zero.
-  Initial is not yet transferring hard-disk boot sectors from the
-  mounted pack; the next blocker is DiskMuff/status/DSK-task transfer
-  sequencing.
+  `DISKHARDMICROCODEBOOT`, `BOOTTRANSFER`, and `DISKMBOOTRET` are hit.
+  Synthetic AHT scanline wakeups now drive the terminal task:
+  `display outs=35414`, frame 59 snapshot written, and boot keyboard
+  words stay `FFFF`. With the current DSK normal-mode shim, PilotDisk
+  reaches `KIdleLoop/KIdleCont` and DiskMuff inputs are active
+  (`disk outs=61504`, `ins=18912`), but DiskData inputs and FIFO
+  reads/writes remain zero. Initial is not yet transferring hard-disk
+  boot sectors from the mounted pack; the next blocker is the
+  `CSB.next`/IOCB command handoff into PilotDisk.
 - Source code verified: BootstrapMain.mc (fetched from CHM
   archives at chm/dorado/expanded/BootstrapSources.dm/) confirms
   that ReadBB returns T = ~CPReg via B←RWCPReg (per HM page 31:
