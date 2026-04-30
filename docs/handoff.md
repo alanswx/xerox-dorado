@@ -700,6 +700,15 @@ Latest disk bring-up checkpoint:
   blocker is `WaitForSector`/`UpdateSector` returning through the sector
   search failure path while the firmware sector value remains
   unsynchronized (`FFFF`/`0402` in recent traces).
+- Current disk model details to preserve: KSTATE block-mode muffler
+  signals `RdOnlyBlock'`, `WriteBlock'`, and `CheckBlock'` are
+  active-low; Cylinder Tag/ReZero now hold `NotReady` until the
+  synthetic sector/index cadence reaches index; subsector count uses
+  the HM examples' floor division (`117 / (count+1)`, so count 3 -> 29
+  sector pulses/rev). A one-hot Tag[0:3] attempt was rejected because
+  Initial's observed `0xFFEF` tag value behaves as preload/idle, not all
+  commands at once; the C model still decodes command values from the
+  high nibble `0..3` and ignores other high nibbles.
 
 1. Use the `probe_full_boot_with_bootstrap` boot-landmark and per-TIOA
    disk counters to find exactly where `BootTransfer` fails.

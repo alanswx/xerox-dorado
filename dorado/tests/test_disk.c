@@ -172,6 +172,29 @@ static int test_controller_io_routing(void)
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKMUFF,
                     1u << 2);
     EXPECT(ctl.tag_tw == 0, "low-byte clear bit should clear TagTW");
+
+    /* The block-mode KSTATE signals are primed in the hardware manual:
+     * idle reads high, and the matching active block mode reads low. */
+    ctl.active = 0;
+    ctl.control = 0;
+    dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKMUFF,
+                    014 << 8);
+    v = dorado_io_read(&io, DORADO_DISK_TASK,
+                       DORADO_DISK_TIOA_DISKMUFF, &bad);
+    EXPECT(v == 0x0001, "idle CheckBlock' = 0x%X", v);
+
+    ctl.active = 1;
+    ctl.control = DORADO_DISK_OP_RDCHK << DORADO_DISK_CTRL_OP1_SHIFT;
+    v = dorado_io_read(&io, DORADO_DISK_TASK,
+                       DORADO_DISK_TIOA_DISKMUFF, &bad);
+    EXPECT(v == 0x0000, "active CheckBlock' = 0x%X", v);
+
+    dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKMUFF,
+                    012 << 8);
+    v = dorado_io_read(&io, DORADO_DISK_TASK,
+                       DORADO_DISK_TIOA_DISKMUFF, &bad);
+    EXPECT(v == 0x0001, "non-read RdOnlyBlock' = 0x%X", v);
+
     printf("PASS  test_controller_io_routing (control=0x%X, format ram, "
            "tag, FIFO 2 push/pop, muff readout)\n", ctl.control);
     return 0;
@@ -230,24 +253,26 @@ static int test_tag_decoder(void)
     }
     dorado_disk_controller_attach_drive(&ctl, 0, &pack);
 
-    /* Drive Select Tag (Tag[0:3] = 0): select drive 0. */
+    /* Drive Select Tag (high nibble 0): select drive 0. */
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG, 0x0000);
     EXPECT(ctl.selected_drive == 0, "selected_drive=%d", ctl.selected_drive);
     EXPECT(ctl.drive[0].selected == 1, "drive 0 selected");
 
-    /* Cylinder Tag (Tag[0:3] = 2): seek to cylinder 137. */
+    /* Cylinder Tag (high nibble 2): seek to cylinder 137. */
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG,
                     (uint16_t)((2u << 12) | 137u));
     EXPECT(ctl.drive[0].cur_cyl == 137, "cur_cyl=%d", ctl.drive[0].cur_cyl);
-    EXPECT(ctl.tag_tw == 1, "tag_tw should be set after seek");
+    EXPECT(ctl.drive[0].seek_in_progress > 0,
+           "seek_in_progress should be raised after Cylinder Tag");
+    EXPECT(ctl.tag_tw == 1, "tag_tw should be set after Cylinder Tag");
 
-    /* Head Tag (Tag[0:3] = 1): select head 3. */
+    /* Head Tag (high nibble 1): select head 3. */
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG,
                     (uint16_t)((1u << 12) | 3u));
     EXPECT(ctl.drive[0].cur_head == 3, "cur_head=%d",
            ctl.drive[0].cur_head);
 
-    /* Control Tag (Tag[0:3] = 3): Read = bit 6, HeadSelect = bit 2. */
+    /* Control Tag (high nibble 3): Read = bit 6, HeadSelect = bit 2. */
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG,
                     (uint16_t)((3u << 12) | (1u << 6) | (1u << 2)));
     EXPECT(ctl.active == 1, "controller should be Active after Read");
@@ -297,6 +322,8 @@ static int test_tag_decoder(void)
            ctl.drive[0].cur_head);
     EXPECT(ctl.drive[0].cur_sector == 0, "cur_sector after ReZero = %d",
            ctl.drive[0].cur_sector);
+    EXPECT(ctl.drive[0].seek_in_progress > 0,
+           "seek_in_progress should be raised after ReZero");
 
     dorado_disk_pack_free(&pack);
     printf("PASS  test_tag_decoder (DriveSel/Cyl/Head/Read/ReZero, "
@@ -349,9 +376,10 @@ static int test_advance_sector(void)
     EXPECT(ctl.fifo_count > 0, "FIFO reloaded after advance, count=%d",
            ctl.fifo_count);
 
-    /* Boot drive 0 uses Pilot's 30-position controller sector cadence;
+    /* Boot drive 0 uses Pilot's 29-position controller sector cadence;
      * media lookup maps those positions onto the 9-sector image. */
-    for (int i = 1; i < 30; i++) dorado_disk_controller_advance_sector(&ctl);
+    int sectors_per_rev = ctl.drive[0].sectors_per_revolution;
+    for (int i = 1; i < sectors_per_rev; i++) dorado_disk_controller_advance_sector(&ctl);
     EXPECT(ctl.drive[0].cur_sector == 0,
            "cur_sector wraps to 0, got %d", ctl.drive[0].cur_sector);
 
@@ -375,6 +403,7 @@ static int test_block_till_index(void)
 
     ctl.block_till_index = 1;
     ctl.drive[0].cur_sector = 0;
+    ctl.drive[0].seek_in_progress = ctl.drive[0].sectors_per_revolution;
 
     dorado_disk_controller_advance_sector(&ctl);
     EXPECT(ctl.drive[0].cur_sector == 1, "cur_sector=%d after advance",
@@ -382,16 +411,20 @@ static int test_block_till_index(void)
     EXPECT(ctl.block_till_index == 1, "block_till_index should remain set");
     EXPECT(ctl.sector_tw == 0, "sector_tw should be masked before index");
     EXPECT(ctl.index_tw == 0, "index_tw should stay clear before index");
+    EXPECT(ctl.drive[0].seek_in_progress > 0,
+           "seek should still be in progress before index");
     EXPECT(!dorado_disk_controller_wakeup_pending(&ctl),
            "no wakeup should be pending before index");
 
-    for (int i = 1; i < 30; i++) {
+    for (int i = 1; i < ctl.drive[0].sectors_per_revolution; i++) {
         dorado_disk_controller_advance_sector(&ctl);
     }
     EXPECT(ctl.drive[0].cur_sector == 0, "cur_sector should wrap to index");
     EXPECT(ctl.block_till_index == 0, "block_till_index should clear");
     EXPECT(ctl.sector_tw == 1, "index pulse should also set sector_tw");
     EXPECT(ctl.index_tw == 1, "index_tw should be set at index");
+    EXPECT(ctl.drive[0].seek_in_progress == 0,
+           "seek should complete at index");
     EXPECT(dorado_disk_controller_wakeup_pending(&ctl),
            "index wakeup should be pending");
 
@@ -402,8 +435,8 @@ static int test_block_till_index(void)
 
 /* test_drive_select_subsector_count — Drive Select Tag[10] loads the
  * selected drive's subsector divider. Count 3 means four 117-pulse
- * subsectors per controller sector, or 30 sector wakeups per rev with
- * the leftover fraction rounded up to the index interval. */
+ * subsectors per controller sector, or 29 sector wakeups per rev with
+ * the leftover fraction ignored until the index interval. */
 static int test_drive_select_subsector_count(void)
 {
     static dorado_io io;
@@ -420,23 +453,23 @@ static int test_drive_select_subsector_count(void)
                     (uint16_t)((1u << 5) | (3u << 6)));
     EXPECT(ctl.drive[0].subsector_count == 3,
            "subsector_count=%d", ctl.drive[0].subsector_count);
-    EXPECT(ctl.drive[0].sectors_per_revolution == 30,
+    EXPECT(ctl.drive[0].sectors_per_revolution == 29,
            "sectors_per_revolution=%d",
            ctl.drive[0].sectors_per_revolution);
 
-    for (int i = 0; i < 29; i++) dorado_disk_controller_advance_sector(&ctl);
-    EXPECT(ctl.drive[0].cur_sector == 29,
+    for (int i = 0; i < 28; i++) dorado_disk_controller_advance_sector(&ctl);
+    EXPECT(ctl.drive[0].cur_sector == 28,
            "cur_sector=%d before index", ctl.drive[0].cur_sector);
     EXPECT(ctl.index_tw == 0, "index_tw should not assert before wrap");
 
     dorado_disk_controller_advance_sector(&ctl);
     EXPECT(ctl.drive[0].cur_sector == 0,
-           "cur_sector should wrap at 30, got %d", ctl.drive[0].cur_sector);
+           "cur_sector should wrap at 29, got %d", ctl.drive[0].cur_sector);
     EXPECT(ctl.index_tw == 1, "index_tw should assert at wrapped sector");
     EXPECT(ctl.sector_tw == 1, "index pulse should also assert sector_tw");
 
     dorado_disk_pack_free(&pack);
-    printf("PASS  test_drive_select_subsector_count (count 3 -> 30 pulses/rev)\n");
+    printf("PASS  test_drive_select_subsector_count (count 3 -> 29 pulses/rev)\n");
     return 0;
 }
 

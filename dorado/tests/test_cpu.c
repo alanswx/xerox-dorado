@@ -2417,6 +2417,8 @@ static int probe_full_boot_with_bootstrap(void)
         uint8_t membase_before, membase_after;
         uint8_t muff_addr, index_tw, sector_tw, tag_tw, rd_fifo_tw, wr_fifo_tw;
         uint8_t enable_run, active, block_till_index;
+        uint8_t disk_out_tioa, disk_in_tioa;
+        uint16_t disk_out_data, disk_in_data;
         uint32_t mar_before, mar_after;
         uint16_t storage_after_mar;
     } disk_trace[256];
@@ -2606,7 +2608,8 @@ static int probe_full_boot_with_bootstrap(void)
             cpu.RM[0x1C] = 0xFFFFu;
             cpu.RM[0x1D] = 0xFFFFu;
         }
-        if (initial_substituted && is_imfetch && pre_pc == 06432) {
+        if (initial_substituted && is_imfetch &&
+            (pre_pc == 06432 || pre_pc == 06443)) {
             cpu.real_PC = 07140;  /* No boot keys: force disk microcode boot. */
             pre_pc = cpu.real_PC;
         }
@@ -2628,6 +2631,7 @@ static int probe_full_boot_with_bootstrap(void)
             }
             if (pre_pc == 07140) {
                 disk_trace_armed = 1;
+                disk_trace_n = 0;
                 if (boot_identity_map_shims == 0) {
                     for (uint32_t pg = 0; pg < 256; pg++) {
                         dorado_map_set(&mem, pg, (uint16_t)pg,
@@ -2783,6 +2787,10 @@ static int probe_full_boot_with_bootstrap(void)
             dt->enable_run = disk.enable_run;
             dt->active = disk.active;
             dt->block_till_index = disk.block_till_index;
+            dt->disk_out_tioa = disk.last_output_tioa;
+            dt->disk_out_data = disk.last_output_data;
+            dt->disk_in_tioa = disk.last_input_tioa;
+            dt->disk_in_data = disk.last_input_data;
             dt->mar_before = pre_mar;
             dt->mar_after = mem.mar;
             dt->storage_after_mar = dorado_storage_at_va(&mem, mem.mar);
@@ -3125,6 +3133,7 @@ static int probe_full_boot_with_bootstrap(void)
                    "T=%04X->%04X Md=%04X->%04X Link=%04X->%04X "
                    "RB=%o->%o MB=%o->%o Mar=%07X->%07X store@Mar=%04X "
                    "muff=%03o tw=%u%u%u rf=%u wf=%u en=%u act=%u bti=%u "
+                   "dio=O%02o:%04X/I%02o:%04X "
                    "RM0=%04X RM1=%04X RM2=%04X RM3=%04X "
                    "DRM0=%04X DRM1=%04X DRM2=%04X DRM3=%04X "
                    "DRM4=%04X DRM5=%04X DRM6=%04X DRM7=%04X "
@@ -3142,6 +3151,8 @@ static int probe_full_boot_with_bootstrap(void)
                    dt->muff_addr, dt->index_tw, dt->sector_tw, dt->tag_tw,
                    dt->rd_fifo_tw, dt->wr_fifo_tw, dt->enable_run,
                    dt->active, dt->block_till_index,
+                   dt->disk_out_tioa, dt->disk_out_data,
+                   dt->disk_in_tioa, dt->disk_in_data,
                    dt->rm0, dt->rm1, dt->rm2, dt->rm3,
                    dt->drm[0], dt->drm[1], dt->drm[2], dt->drm[3],
                    dt->drm[4], dt->drm[5], dt->drm[6], dt->drm[7],

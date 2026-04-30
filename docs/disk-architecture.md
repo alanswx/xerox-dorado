@@ -320,14 +320,17 @@ during drive-select changes.
 
 ### Tag bit field interpretation
 
-Tag[0:3] = command type (4 bits = 16 commands, but only 4 used).
+The hardware manual describes Tag[0:3] as tag lines. In the values
+presented by Initial's I/O path to this C model, the active command
+appears as the high nibble `0..3`; high nibbles outside that range are
+treated as preload/idle patterns and do not execute commands.
 
-| Tag[0:3] | Type            | Tag[4:15] meaning                     |
-|----------|-----------------|---------------------------------------|
-| 0        | Drive select / subsector count | (see below)             |
-| 1        | Head Tag        | Head select                           |
-| 2        | Cylinder Tag    | Seek to cylinder                      |
-| 3        | Control Tag     | Read/Write/Reset/etc.                 |
+| High nibble | Type            | Tag[4:15] meaning                     |
+|-------------|-----------------|---------------------------------------|
+| 0           | Drive select / subsector count | (see below)             |
+| 1           | Head Tag        | Head select                           |
+| 2           | Cylinder Tag    | Seek to cylinder                      |
+| 3           | Control Tag     | Read/Write/Reset/etc.                 |
 
 #### Tag[0]: Drive select and subsector count
 
@@ -455,6 +458,11 @@ Midas examination.
 | 014  | CheckBlock'  | Block in read+check mode                             |
 | 015  | Active       | Controller is processing a command                   |
 | 016:017 | Select.0..1 | Address of currently selected drive                 |
+
+The primed block-mode signals are active-low. In the emulator they
+read high while the controller is idle or processing a different block
+mode, and read low only while `Active` is set and the current
+`DiskControl` block operation matches the selected mode.
 
 ### KSTAT — drive/controller status
 
@@ -597,17 +605,24 @@ software XOR the corrupted bits back to correct values.
     LSB numbering that is bit 0, so asserted readout is `0x0001`.
 
 **Phase 2**:
-- **Tag decoder**: dispatches by Tag[0:3] (HM pages 99-101):
-  - Tag[0:3]=0 (Drive Select): updates `selected_drive` + per-drive
-    flags from Tag[11:15]; honors Tag[10] by loading the selected
-    drive's subsector count from Tag[4:9] and deriving controller
-    sector-pulses-per-revolution from the 117 drive pulses.
-  - Tag[0:3]=1 (Head Tag): sets `cur_head` from low 6 bits, raises
+- **Tag decoder**: dispatches by the observed high-nibble command
+  value in Initial's I/O stream (HM pages 99-101). High nibbles outside
+  `0..3` are preload/idle patterns and are ignored:
+  - 0 (Drive Select): updates `selected_drive` + per-drive flags from
+    Tag[11:15]; honors Tag[10] by loading the selected drive's
+    subsector count from Tag[4:9] and deriving controller
+    sector-pulses-per-revolution from the 117 drive pulses. During
+    single-pack bring-up, offline drive selects are clamped so the
+    mounted boot pack remains selected until offline KSTAT behavior is
+    modeled more completely.
+  - 1 (Head Tag): sets `cur_head` from low 6 bits, raises
     `tag_tw` wakeup.
-  - Tag[0:3]=2 (Cylinder Tag): seeks to `cur_cyl` from low 12 bits,
-    clears sector sync, raises `tag_tw`.
-  - Tag[0:3]=3 (Control Tag): handles ReZero (cyl=head=sec=0),
-    HeadAdvance (cur_head++), Read (loads FIFO with
+  - 2 (Cylinder Tag): seeks to `cur_cyl` from low 12 bits,
+    clears sector sync, raises `tag_tw`, and holds `NotReady` until
+    the simulated seek reaches an index pulse.
+  - 3 (Control Tag): handles ReZero (cyl=head=sec=0),
+    raises the same seek/index `NotReady` window, HeadAdvance
+    (cur_head++), Read (loads FIFO with
     header+label+(data prefix) from current (cyl,head,sec), sets
     Active + `rd_fifo_tw`), Write (clears FIFO, sets `wr_fifo_tw` +
     Active).
@@ -619,7 +634,9 @@ software XOR the corrupted bits back to correct values.
   if the controller is in an active op or EnableRun plus a non-Done
   DiskControl op is pending. `block_till_index` masks newly generated
   non-index sector wakeups; existing wakeups remain pending, matching
-  HM page 97.
+  HM page 97. Cylinder Tag and ReZero now also raise `NotReady` until
+  this index event, matching the manual's "ready and index" condition
+  for leaving `BlockTillIndex`.
 
 What's not yet wired:
 

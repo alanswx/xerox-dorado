@@ -171,6 +171,8 @@ void dorado_disk_controller_init(dorado_disk_controller *ctl)
     for (int i = 0; i < DORADO_DISK_NUM_DRIVES; i++) {
         dorado_disk_drive_init(&ctl->drive[i]);
     }
+    ctl->selected_drive = 0;
+    ctl->drive[0].selected = 1;
     /* PilotDisk/Initial treat drive 0 as the boot drive and load
      * subsector count 3 (four 117-pulse subsectors per sector). We
      * seed that convention here until the full drive-select timing path
@@ -221,7 +223,7 @@ static void disk_set_subsector_count(dorado_disk_drive *d, int count)
     int divisor = d->subsector_count + 1;
     if (divisor <= 0) divisor = 1;
     d->sectors_per_revolution =
-        (DORADO_DISK_SUBSECTOR_PULSES_PER_REV + divisor - 1) / divisor;
+        DORADO_DISK_SUBSECTOR_PULSES_PER_REV / divisor;
     if (d->sectors_per_revolution <= 0) d->sectors_per_revolution = 1;
     if (d->cur_sector >= d->sectors_per_revolution) d->cur_sector = 0;
 }
@@ -288,12 +290,25 @@ static int disk_control_has_transfer_op(uint16_t control)
             DORADO_DISK_OP_DONE);
 }
 
+static int disk_control_has_op(uint16_t control, unsigned op)
+{
+    return (((control >> DORADO_DISK_CTRL_OP1_SHIFT) & DORADO_DISK_CTRL_OP_MASK) == op) ||
+           (((control >> DORADO_DISK_CTRL_OP2_SHIFT) & DORADO_DISK_CTRL_OP_MASK) == op) ||
+           (((control >> DORADO_DISK_CTRL_OP3_SHIFT) & DORADO_DISK_CTRL_OP_MASK) == op) ||
+           (((control >> DORADO_DISK_CTRL_OP4_SHIFT) & DORADO_DISK_CTRL_OP_MASK) == op);
+}
+
 void dorado_disk_controller_advance_sector(dorado_disk_controller *ctl)
 {
     dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
     if (!d->pack) return;
     d->cur_sector = (d->cur_sector + 1) % disk_sector_pulse_count(d);
     int at_index = (d->cur_sector == 0);
+
+    if (d->seek_in_progress > 0) {
+        d->seek_in_progress--;
+        if (at_index) d->seek_in_progress = 0;
+    }
 
     if (at_index) {
         d->index_pulse = 1;
@@ -324,6 +339,8 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
     dorado_disk_controller *ctl = ctx;
     ctl->output_count++;
     ctl->output_tioa_count[tioa & 0x0F]++;
+    ctl->last_output_tioa = tioa;
+    ctl->last_output_data = data;
     (void)task;
 
     switch (tioa) {
@@ -386,11 +403,11 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
         ctl->tag = data;
         ctl->tag_writes++;
         /* Tag commands drive the daisy-chain to the selected drive.
-         * Decode Tag[0:3] (HM page 99-101). Per the manual, Tag[0:3]
-         * is the high 4 bits of the data word in MSB-first numbering
-         * = bits 12:15 in our LSB convention. */
+         * The microcode presents the active command as the high nibble
+         * of the I/O word in this model. Values outside 0..3 are
+         * preload/idle patterns and do not execute commands. */
         {
-            int tag_type = (data >> 12) & 0xF;  /* MSB-first 0:3 = LSB 12..15 */
+            int tag_type = (data >> 12) & 0xF;
             switch (tag_type) {
             case 0: {
                 /* Drive Select / subsector count (HM page 100).
@@ -404,7 +421,7 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
                     disk_set_subsector_count(&ctl->drive[ctl->selected_drive],
                                              count);
                 }
-                if (drv_select <= 3) {
+                if (drv_select <= 3 && ctl->drive[drv_select].online) {
                     ctl->selected_drive = drv_select;
                     for (int i = 0; i < DORADO_DISK_NUM_DRIVES; i++) {
                         ctl->drive[i].selected = (i == drv_select) ? 1 : 0;
@@ -435,7 +452,7 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
                 if (d->pack && cyl < d->pack->geometry.cylinders) {
                     d->cur_cyl = cyl;
                     d->cur_sector = 0;       /* lose sector sync on seek */
-                    d->seek_in_progress = 0; /* simulated as instant */
+                    d->seek_in_progress = disk_sector_pulse_count(d);
                 }
                 ctl->tag_tw = 1;
                 break;
@@ -459,6 +476,7 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
                     d->cur_cyl = 0;
                     d->cur_head = 0;
                     d->cur_sector = 0;
+                    d->seek_in_progress = disk_sector_pulse_count(d);
                 }
                 if (data & (1u << 0)) {
                     /* HeadAdvance */
@@ -489,6 +507,8 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
                 ctl->tag_tw = 1;
                 break;
             }
+            default:
+                break;
             }
         }
         break;
@@ -501,6 +521,7 @@ static uint16_t disk_input(void *ctx, int task, uint8_t tioa, int *bad)
     if (bad) *bad = 0;
     ctl->input_count++;
     ctl->input_tioa_count[tioa & 0x0F]++;
+    ctl->last_input_tioa = tioa;
     (void)task;
 
     switch (tioa) {
@@ -513,8 +534,10 @@ static uint16_t disk_input(void *ctx, int task, uint8_t tioa, int *bad)
             ctl->fifo_count--;
             ctl->fifo_reads++;
             dorado_disk_controller_refill_fifo(ctl);
+            ctl->last_input_data = v;
             return v;
         }
+        ctl->last_input_data = 0xFFFF;
         return 0xFFFF;
 
     case DORADO_DISK_TIOA_DISKMUFF: {
@@ -528,6 +551,18 @@ static uint16_t disk_input(void *ctx, int task, uint8_t tioa, int *bad)
         case 005: bit = ctl->wr_fifo_tw; break;
         case 010: bit = ctl->enable_run; break;
         case 011: bit = ctl->debug_mode; break;
+        case 012:
+            bit = !(ctl->active &&
+                    disk_control_has_op(ctl->control, DORADO_DISK_OP_READ));
+            break;
+        case 013:
+            bit = !(ctl->active &&
+                    disk_control_has_op(ctl->control, DORADO_DISK_OP_WRITE));
+            break;
+        case 014:
+            bit = !(ctl->active &&
+                    disk_control_has_op(ctl->control, DORADO_DISK_OP_RDCHK));
+            break;
         case 015: bit = ctl->active; break;
         case 016: bit = ctl->selected_drive & 1; break;
         case 017: bit = (ctl->selected_drive >> 1) & 1; break;
@@ -541,12 +576,15 @@ static uint16_t disk_input(void *ctx, int task, uint8_t tioa, int *bad)
         }
         /* HM pages 101-102: selected muffler signal is returned on
          * IOB[15]. Manual bit 15 is the low C bit in this codebase. */
-        return bit ? 0x0001 : 0x0000;
+        uint16_t v = bit ? 0x0001 : 0x0000;
+        ctl->last_input_data = v;
+        return v;
     }
     }
 
     /* Unknown TIOA — return floating bus. */
     if (bad) *bad = 1;
+    ctl->last_input_data = 0xFFFF;
     return 0xFFFF;
 }
 

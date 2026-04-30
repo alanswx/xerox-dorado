@@ -219,6 +219,10 @@ typedef struct {
     uint64_t tag_writes;
     uint64_t fifo_writes;
     uint64_t fifo_reads;
+    uint8_t  last_output_tioa;
+    uint16_t last_output_data;
+    uint8_t  last_input_tioa;
+    uint16_t last_input_data;
 } dorado_disk_controller;
 
 void dorado_disk_controller_init(dorado_disk_controller *ctl);

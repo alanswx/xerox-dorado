@@ -208,13 +208,10 @@ image. With that in place, the probe now demonstrates:
   The hardware manual and DskEth schematic confirm the drive/controller
   sector timing model: 117 drive subsector pulses/rev, divided by the
   selected drive's `Tag[4:9]+1` subsector count. Drive 0 is initialized
-  by PilotDisk/Initial with count 3, so firmware counts 30 sector
-  positions per revolution (29 plus a leftover fraction,
-  `MaxSectors = 36₈`) even when the attached Alto/Trident pack image
-  stores 9 media sectors/track. Since the current full-boot trace does
-  not yet emit direct TIOA `DiskTag` writes, the emulator seeds drive 0
-  with that count-3 convention while the real controller tag/sequence
-  path is still being filled in.
+  by PilotDisk/Initial with count 3, so firmware counts 29 sector
+  pulses per revolution (`117 / 4`, with the remainder consumed by the
+  index interval) even when the attached Alto/Trident pack image stores
+  9 media sectors/track.
   The full probe also uses a temporary identity-map shim for the first
   256 pages at `DiskHardMicrocodeBoot`; without it, final map entries
   for the first 64K are still vacant and the CSB/IOCB handoff faults.
@@ -994,9 +991,27 @@ microcode.
   and low-byte masks clear TWs (`1=IndexTW`, `2=SectorTW`,
   `4=TagTW`). The latest full-boot probe shows `DiskTag` writes
   (`TIOA 014`) and DiskMuff reads, but still no `KWAITSECTOR`,
-  `DODISKBLOCK`, or `DiskData` FIFO reads. Next focus is the
-  `UpdateSector` clear/read timing and whether the disk tick service is
-  reasserting `SectorTW` before the firmware can leave the status path.
+  `DODISKBLOCK`, or `DiskData` FIFO reads. `UpdateSector` clear/read
+  timing now looks sane in trace: selecting `SectorTW`/`IndexTW` no
+  longer clears `TagTW`, and low-byte clears drop the selected wakeup
+  bits. The current focus is KSTATE block-mode readout. The hardware
+  manual marks `RdOnlyBlock'`, `WriteBlock'`, and `CheckBlock'` as
+  primed signals, so the emulator now returns them active-low based on
+  `Active` plus the matching `DiskControl` block op. The next trace
+  then reached `KWAITSECTOR`/`WAITFORSECTOR`; it showed that the
+  cylinder tag was modeled as instantly ready, so `SeekWait` could
+  enter `WaitForSector` before `BlockTillIndex` had observed an index.
+  Cylinder Tag and ReZero now raise `NotReady` until the simulated
+  sector/index cadence reaches index, which should keep the firmware
+  in the seek wait path until the sector counter is resynchronized.
+- A one-hot Tag[0:3] experiment matched one reading of the HM text but
+  did not match Initial's observed I/O values: `0xFFEF` behaved as a
+  preload/idle value, not "all tag commands at once". The emulator
+  therefore decodes the high nibble values `0..3` as the active
+  command in this C model and ignores other high nibbles. Offline drive
+  selects are clamped during single-pack bring-up so the mounted boot
+  pack remains selected until the missing offline-drive KSTAT behavior
+  is modeled.
 
 Three styles of test, used at every phase:
 

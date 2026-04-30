@@ -580,15 +580,19 @@ Phase 1:
   capture, DiskMuff status readout. ✓
 
 Phase 2:
-- **Tag command decoder** (HM pages 99–101): Drive Select
-  (Tag[0:3]=0), Head Tag (=1), Cylinder Tag (=2), Control Tag
-  (=3 with ReZero/HeadAdvance/Read/Write bits). Cylinder Tag
-  updates `cur_cyl` (synthetic instant seek), Head Tag updates
-  `cur_head`, Read kicks off sector load — drains FIFO and fills
-  with header+label+(data prefix) from current (cyl,head,sec). ✓
+- **Tag command decoder** (HM pages 99–101): Initial's I/O stream
+  presents Drive Select / Head / Cylinder / Control as high-nibble
+  command values `0..3`; other high nibbles are treated as preload or
+  idle patterns. Cylinder Tag updates `cur_cyl`, raises TagTW, and
+  holds NotReady until the simulated seek reaches index; Head Tag
+  updates `cur_head`; Read kicks off sector load and fills FIFO from
+  current (cyl,head,sec). ✓
 - **Sector-pulse helper**: `dorado_disk_controller_advance_sector()`
-  increments sector counter (wraps at 9 for T-80), sets
-  `sector_tw`, and reloads FIFO with the new sector if active. ✓
+  increments the controller sector counter, wraps at the selected
+  drive's subsector-derived cadence, sets `sector_tw`, asserts
+  `index_tw` at wrap, and reloads FIFO with the new sector if active.
+  Media lookup maps that controller position onto the 9-sector pack
+  image. ✓
 - **Read-stream refill**: the FIFO now streams the whole
   header+label+data record instead of only the first 16 words. ✓
 
