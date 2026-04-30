@@ -1029,7 +1029,10 @@ microcode.
   The current post-load blocker is runtime state/scheduling: task 0
   repeatedly runs the short `0o6000/0o6002/0o6003/0o6012/0o6013` loop,
   only task 0 remains ready, and no loaded display task is producing
-  pixels yet.
+  pixels yet. The loaded IM samples currently printed by the probe are
+  `0o6000=00104/71501/00000`, `0o6001=00104/131705/140000`,
+  `0o6002=00104/14701/00000`, `0o6012=13116/14105/00000`,
+  `0o6100=00204/60005/00000`, `0o5021=05406/77714/40000`.
 - A one-hot Tag[0:3] experiment matched one reading of the HM text but
   did not match Initial's observed I/O values: `0xFFEF` behaved as a
   preload/idle value, not "all tag commands at once". The emulator

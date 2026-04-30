@@ -737,7 +737,10 @@ Latest disk bring-up checkpoint:
    repeatedly loads MCR values such as `0x78E1`, and no loaded display
    task is writing pixels yet. Next step is to identify that loaded
    runtime loop from the EB/source archive and seed or emulate the
-   runtime wakeups/state it expects.
+   runtime wakeups/state it expects. Current raw loaded IM samples:
+   `0o6000=00104/71501/00000`, `0o6001=00104/131705/140000`,
+   `0o6002=00104/14701/00000`, `0o6012=13116/14105/00000`,
+   `0o6100=00204/60005/00000`, `0o5021=05406/77714/40000`.
 4. Keep improving DiskMuff/sequence-PROM behavior in parallel so real
    emulator disk I/O has a solid controller after microcode load.
 5. Re-run `build/test_cpu`; success means `CheckChecksumAndLoad` and

@@ -3154,6 +3154,17 @@ static int probe_full_boot_with_bootstrap(void)
             printf(" %s=%d/%d", ref_mcs[r].name, matches, present);
         }
         printf("\n");
+        printf("       Post-LoadRam loaded IM samples:");
+        for (int i = 0; i < (int)(sizeof probe_addrs / sizeof probe_addrs[0]); i++) {
+            uint16_t a = probe_addrs[i];
+            if (mc.im_present[a]) {
+                printf(" 0o%o=%05o/%05o/%05o",
+                       a, mc.im[a].iw0, mc.im[a].iw1, mc.im[a].iw2);
+            } else {
+                printf(" 0o%o=<absent>", a);
+            }
+        }
+        printf("\n");
         if (cpu.real_PC < IM_SIZE && mc.im_present[cpu.real_PC]) {
             char dis[200];
             dorado_format(&mc.im[cpu.real_PC], dis, sizeof dis);
