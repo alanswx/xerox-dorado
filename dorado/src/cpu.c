@@ -1445,8 +1445,11 @@ static uint16_t alu_op(uint8_t alufm_entry, uint16_t a, uint16_t b,
     return (uint16_t)result;
 }
 
-/* Apply LC: deliver Pd to T and/or RM/STK (HM Table 10). */
-static int apply_lc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t pd)
+/* Apply LC: deliver Pd to T and/or RM/STK (HM Table 10). Md loads see
+ * the Md latch as it was at instruction issue; a concurrent Fetch updates
+ * Md for later instructions. */
+static int apply_lc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t pd,
+                    uint16_t md_at_issue)
 {
     /* Use the *write* address for STK accesses — that may differ from
      * the read address when ModStkPBeforeW is in effect (HM page 11). */
@@ -1460,23 +1463,22 @@ static int apply_lc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t pd)
         break;
     case 2: /* T←Md, RM/STK←Pd */
     {
-        uint16_t md = cpu->mem ? cpu->mem->md : 0;
         if (!has_rm) return CPU_HALT_UNSUPPORTED_ASEL;
         rm_stk_write(cpu, rm_a, pd);
-        cpu->T = md;
+        cpu->T = md_at_issue;
         break;
     }
     case 3: /* T←Md */
-        cpu->T = cpu->mem ? cpu->mem->md : 0;
+        cpu->T = md_at_issue;
         break;
     case 4: /* RM/STK←Md */
         if (!has_rm) return CPU_HALT_UNSUPPORTED_ASEL;
-        rm_stk_write(cpu, rm_a, cpu->mem ? cpu->mem->md : 0);
+        rm_stk_write(cpu, rm_a, md_at_issue);
         break;
     case 5: /* T←Pd, RM/STK←Md */
         cpu->T = pd;
         if (!has_rm) return CPU_HALT_UNSUPPORTED_ASEL;
-        rm_stk_write(cpu, rm_a, cpu->mem ? cpu->mem->md : 0);
+        rm_stk_write(cpu, rm_a, md_at_issue);
         break;
     case 6: /* RM/STK←Pd */
         if (!has_rm) return CPU_HALT_UNSUPPORTED_ASEL;
@@ -2160,6 +2162,7 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
     cpu->link_at_issue = cpu->Link;
     cpu->dispatch_or = cpu->dispatch_pending;
     cpu->dispatch_pending = 0;
+    uint16_t md_at_issue = cpu->mem ? cpu->mem->md : 0;
 
     /* B and A buses. FF may override B (Pipe / Link / CPReg / …). */
     uint16_t b = 0, a = 0;
@@ -2277,7 +2280,7 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
     }
 
     /* LC. */
-    if ((rc = apply_lc(cpu, u, pd)) != 0) {
+    if ((rc = apply_lc(cpu, u, pd, md_at_issue)) != 0) {
         cpu->halted = 1;
         cpu->halt_reason = rc;
         return 1;

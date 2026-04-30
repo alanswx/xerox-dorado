@@ -2339,9 +2339,12 @@ static int probe_full_boot_with_bootstrap(void)
     int preset_first_n = 0;
     int preset_last_head = 0, preset_last_total = 0;
     int preset_trace_enabled = test_u64_env("DORADO_PRESET_TRACE", 0) != 0;
+    int disk_trace_enabled = test_u64_env("DORADO_DISK_TRACE", 0) != 0;
+    int mcr_trace_enabled = test_u64_env("DORADO_MCR_TRACE", 0) != 0;
     uint64_t disk_sector_ticks = 0;
     uint64_t disk_wakeups = 0;
     uint64_t disk_normal_mode_shims = 0;
+    uint64_t boot_identity_map_shims = 0;
     uint64_t display_scanline_wakeups = 0;
     uint64_t next_display_scanline_cycle = 0;
     uint64_t keyboard_seed_count = 0;
@@ -2400,6 +2403,29 @@ static int probe_full_boot_with_bootstrap(void)
         { 07000, "UPDATESECTOR", 0, 0 },
         { 06760, "CLEARDISK", 0, 0 },
     };
+    struct disk_trace_sample {
+        uint64_t cycle;
+        uint8_t task;
+        uint16_t pc, next_pc;
+        uint16_t t_before, t_after;
+        uint16_t md_before, md_after;
+        uint16_t link_before, link_after;
+        uint16_t rm0, rm1, rm2, rm3, rm14, rm15, rm16, rm17;
+        uint8_t rbase_before, rbase_after;
+        uint8_t membase_before, membase_after;
+        uint32_t mar_before, mar_after;
+        uint16_t storage_after_mar;
+    } disk_trace[256];
+    int disk_trace_n = 0;
+    int disk_trace_armed = 0;
+    struct mcr_trace_sample {
+        uint64_t cycle;
+        uint16_t pc, next_pc;
+        uint16_t t_before, t_after;
+        uint16_t mcr_before, mcr_after;
+        uint8_t task;
+    } mcr_trace[64];
+    int mcr_trace_n = 0;
 
     while (bb.cycles < T_GIVEUP) {
         /* Boot button schedule. */
@@ -2555,10 +2581,16 @@ static int probe_full_boot_with_bootstrap(void)
          * (only for IM fetches after the swap). */
         uint16_t pre_pc = cpu.real_PC;
         uint16_t pre_link = cpu.Link;
+        uint8_t pre_task = (uint8_t)cpu.ctask;
         uint16_t pre_raw = bb.cpreg_to_dorado;
         uint16_t pre_t = cpu.T;
         uint16_t pre_tag = cpu.RM[4];
         uint16_t pre_loc = cpu.RM[3];
+        uint32_t pre_mar = mem.mar;
+        uint16_t pre_md = mem.md;
+        uint8_t pre_rbase = (uint8_t)cpu.RBase;
+        uint8_t pre_membase = (uint8_t)cpu.MemBase;
+        uint16_t pre_mcr = dorado_mcr_get(&mem);
         if (initial_substituted && is_imfetch &&
             (pre_pc == 06417 || (pre_pc >= 06407 && pre_pc <= 06431))) {
             /* Bring-up shim: the 7-wire terminal back-channel is not
@@ -2588,6 +2620,16 @@ static int probe_full_boot_with_bootstrap(void)
                     }
                     boot_landmarks[i].hits++;
                     break;
+                }
+            }
+            if (pre_pc == 07140) {
+                disk_trace_armed = 1;
+                if (boot_identity_map_shims == 0) {
+                    for (uint32_t pg = 0; pg < 256; pg++) {
+                        dorado_map_set(&mem, pg, (uint16_t)pg,
+                                       /*wp=*/0, /*dirty=*/0);
+                    }
+                    boot_identity_map_shims++;
                 }
             }
             if (cpu.ctask == DORADO_DISK_TASK) {
@@ -2676,10 +2718,63 @@ static int probe_full_boot_with_bootstrap(void)
          * 0o7730, 0o7732, 0o7734, 0o7736 (= WRITE000..WRITE111). */
         int is_wim = (pre_pc >= 07720 && pre_pc <= 07736 &&
                       (pre_pc & 1) == 0);
+        int is_disk_trace =
+            disk_trace_enabled &&
+            disk_trace_armed && initial_substituted && is_imfetch &&
+            disk_trace_n < (int)(sizeof disk_trace / sizeof disk_trace[0]) &&
+            ((pre_task == DORADO_DISK_TASK &&
+              ((pre_pc >= 06500 && pre_pc <= 06777) ||
+               pre_pc == 07000 ||
+               pre_pc == 07120 || pre_pc == 06553)) ||
+             (pre_task == 0 &&
+              (pre_pc == 07400 || (pre_pc >= 07440 && pre_pc <= 07477))));
+        int is_mcr_trace =
+            mcr_trace_enabled &&
+            initial_substituted && is_imfetch && mcr_trace_n < 64 &&
+            (pre_pc == 06003 || pre_pc == 06012);
 
         if (dorado_cpu_step(&cpu)) {
             halt_reason = (cpu_halt_reason)cpu.halt_reason;
             break;
+        }
+        if (is_mcr_trace) {
+            struct mcr_trace_sample *mt = &mcr_trace[mcr_trace_n++];
+            mt->cycle = bb.cycles;
+            mt->task = pre_task;
+            mt->pc = pre_pc;
+            mt->next_pc = cpu.real_PC;
+            mt->t_before = pre_t;
+            mt->t_after = cpu.T;
+            mt->mcr_before = pre_mcr;
+            mt->mcr_after = dorado_mcr_get(&mem);
+        }
+        if (is_disk_trace) {
+            struct disk_trace_sample *dt = &disk_trace[disk_trace_n++];
+            dt->cycle = bb.cycles;
+            dt->task = pre_task;
+            dt->pc = pre_pc;
+            dt->next_pc = cpu.real_PC;
+            dt->t_before = pre_t;
+            dt->t_after = cpu.T;
+            dt->md_before = pre_md;
+            dt->md_after = mem.md;
+            dt->link_before = pre_link;
+            dt->link_after = cpu.Link;
+            dt->rm0 = cpu.RM[0];
+            dt->rm1 = cpu.RM[1];
+            dt->rm2 = cpu.RM[2];
+            dt->rm3 = cpu.RM[3];
+            dt->rm14 = cpu.RM[(014 << 4) | 014];
+            dt->rm15 = cpu.RM[(014 << 4) | 015];
+            dt->rm16 = cpu.RM[(014 << 4) | 016];
+            dt->rm17 = cpu.RM[(014 << 4) | 017];
+            dt->rbase_before = pre_rbase;
+            dt->rbase_after = (uint8_t)cpu.RBase;
+            dt->membase_before = pre_membase;
+            dt->membase_after = (uint8_t)cpu.MemBase;
+            dt->mar_before = pre_mar;
+            dt->mar_after = mem.mar;
+            dt->storage_after_mar = dorado_storage_at_va(&mem, mem.mar);
         }
         if (is_key_trace) {
             struct key_trace *kt = &key_trace[key_trace_n++];
@@ -2857,6 +2952,10 @@ static int probe_full_boot_with_bootstrap(void)
         printf("       NOSTORAGE bypassed → FINDMODULE at cycle %llu\n",
                (unsigned long long)nostorage_bypass_cycle);
     }
+    if (boot_identity_map_shims) {
+        printf("       Boot identity-map shims: %llu\n",
+               (unsigned long long)boot_identity_map_shims);
+    }
     if (init_first_n > 0) {
         printf("       Initial PC trail (first %d distinct PCs after substitution):\n        ",
                init_first_n);
@@ -3007,6 +3106,40 @@ static int probe_full_boot_with_bootstrap(void)
                    kt->mar);
         }
     }
+    if (disk_trace_n > 0) {
+        printf("       Disk/BootTransfer trace:\n");
+        for (int i = 0; i < disk_trace_n; i++) {
+            const struct disk_trace_sample *dt = &disk_trace[i];
+            printf("         cyc=%llu task=%o pc=0o%o->0o%o "
+                   "T=%04X->%04X Md=%04X->%04X Link=%04X->%04X "
+                   "RB=%o->%o MB=%o->%o Mar=%07X->%07X store@Mar=%04X "
+                   "RM0=%04X RM1=%04X RM2=%04X RM3=%04X "
+                   "DRM14=%04X DRM15=%04X DRM16=%04X DRM17=%04X\n",
+                   (unsigned long long)dt->cycle,
+                   dt->task, dt->pc, dt->next_pc,
+                   dt->t_before, dt->t_after,
+                   dt->md_before, dt->md_after,
+                   dt->link_before, dt->link_after,
+                   dt->rbase_before, dt->rbase_after,
+                   dt->membase_before, dt->membase_after,
+                   dt->mar_before, dt->mar_after,
+                   dt->storage_after_mar,
+                   dt->rm0, dt->rm1, dt->rm2, dt->rm3,
+                   dt->rm14, dt->rm15, dt->rm16, dt->rm17);
+        }
+    }
+    if (mcr_trace_n > 0) {
+        printf("       MCR trace:\n");
+        for (int i = 0; i < mcr_trace_n; i++) {
+            const struct mcr_trace_sample *mt = &mcr_trace[i];
+            printf("         cyc=%llu task=%o pc=0o%o->0o%o "
+                   "T=%04X->%04X MCR=%04X->%04X\n",
+                   (unsigned long long)mt->cycle,
+                   mt->task, mt->pc, mt->next_pc,
+                   mt->t_before, mt->t_after,
+                   mt->mcr_before, mt->mcr_after);
+        }
+    }
     printf("       tasking_on=%d resume_delay=%d wakeup_pending=0x%04X "
            "ready=0x%04X\n",
            cpu.tasking_on, cpu.tasking_resume_delay,
@@ -3026,6 +3159,28 @@ static int probe_full_boot_with_bootstrap(void)
                dorado_mcr_noref(cpu.mem),
                dorado_mcr_fdmiss(cpu.mem),
                dorado_mcr_nowake(cpu.mem));
+        {
+            const dorado_map_entry *m0 = dorado_map_get(&mem, 0);
+            const dorado_map_entry *m1 = dorado_map_get(&mem, 1);
+            const dorado_map_entry *mff = dorado_map_get(&mem, 0xFF);
+            printf("       Map[0]=rp%04X wp%d d%d r%d "
+                   "Map[1]=rp%04X wp%d d%d r%d "
+                   "Map[0xFF]=rp%04X wp%d d%d r%d\n",
+                   m0->rp, m0->wp, m0->dirty, m0->ref,
+                   m1->rp, m1->wp, m1->dirty, m1->ref,
+                   mff->rp, mff->wp, mff->dirty, mff->ref);
+        }
+        {
+            printf("       CSB/IOCB: CSB.next=%04X CSB.cyl=%04X "
+                   "IOCB[0..15]=",
+                   dorado_storage_at_va(&mem, 0xFF50u),
+                   dorado_storage_at_va(&mem, 0xFF51u));
+            for (uint32_t i = 0; i < 16; i++) {
+                printf("%s%04X", (i == 0) ? "" : " ",
+                       dorado_storage_at_va(&mem, 0x0119u + i));
+            }
+            printf("\n");
+        }
     }
     printf("       ALUFM after run:");
     for (int a = 0; a < 16; a++) printf(" [%X]=0o%o", a, mc.alufm[a]);
@@ -3877,15 +4032,16 @@ static int test_cpu_memory_roundtrip(void)
     return 0;
 }
 
-static int test_alt_fetch_t_lc_md(void)
+static int test_alt_fetch_t_lc_md_pipeline(void)
 {
     static dorado_microcode mc;
     memset(&mc, 0, sizeof mc);
     mc.alufm[0] = 025; mc.alufm_present[0] = 1;   /* "B" */
 
-    /* ASEL=3 + FF[0:1]=3 is Fetch←T. LC=4 writes the fetched Md
-     * directly into RM/STK. This is the path used by AEmu's
-     * LRTYPEIM/LRLOOP loader. */
+    /* ASEL=3 + FF[0:1]=3 is Fetch←T. LC=4 reads the Md latch as it
+     * stood at issue; the concurrent Fetch updates Md for later
+     * instructions. PilotDisk relies on this when it checks IOCB.seal
+     * while starting the next IOCB-field fetch. */
     mc.im[0] = make_uinstr(/*rstk=*/1, /*aluf=*/0, /*bsel=*/2, /*lc=*/4,
                            /*asel=*/3, /*block=*/0, /*ff=*/0300,
                            /*jcn=*/jcn_local(1));
@@ -3907,14 +4063,15 @@ static int test_alt_fetch_t_lc_md(void)
     dorado_cpu_init(&cpu, &mc, 0);
     cpu.mem = &mem;
     cpu.T = 0x42;
+    mem.md = 0xCAFE;
 
     EXPECT(dorado_cpu_step(&cpu) == 0, "Fetch←T/RM←Md step: %s",
            cpu_halt_reason_str(cpu.halt_reason));
     EXPECT(mem.md == 0xBEEF, "Md = 0x%04X, expected 0xBEEF", mem.md);
-    EXPECT(cpu.RM[1] == 0xBEEF, "RM[1] = 0x%04X, expected 0xBEEF", cpu.RM[1]);
+    EXPECT(cpu.RM[1] == 0xCAFE, "RM[1] = 0x%04X, expected 0xCAFE", cpu.RM[1]);
 
     dorado_memory_free(&mem);
-    printf("PASS  test_alt_fetch_t_lc_md (Fetch←T + RM/STK←Md)\n");
+    printf("PASS  test_alt_fetch_t_lc_md_pipeline (Fetch←T + old Md latch)\n");
     return 0;
 }
 
@@ -5260,7 +5417,7 @@ int main(void)
     rc |= test_stk_underflow_check();
     rc |= test_lc_forced_rm_write_address();
     rc |= test_cpu_memory_roundtrip();
-    rc |= test_alt_fetch_t_lc_md();
+    rc |= test_alt_fetch_t_lc_md_pipeline();
     rc |= test_alt_store_t_uses_b_data();
     rc |= test_memory_decode_uses_table8b_when_ff_not_ok();
     rc |= test_bootstrap_ldf_dispatch();

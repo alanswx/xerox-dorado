@@ -196,12 +196,19 @@ image. With that in place, the probe now demonstrates:
   `DISKHARDMICROCODEBOOT`, `BOOTTRANSFER`, and `DISKMBOOTRET` are hit.
   Synthetic AHT scanline wakeups now drive the terminal task:
   `display outs=35414`, frame 59 snapshot written, and boot keyboard
-  words stay `FFFF`. With the current DSK normal-mode shim, PilotDisk
-  reaches `KIdleLoop/KIdleCont` and DiskMuff inputs are active
-  (`disk outs=61504`, `ins=18912`), but DiskData inputs and FIFO
-  reads/writes remain zero. Initial is not yet transferring hard-disk
-  boot sectors from the mounted pack; the next blocker is the
-  `CSB.next`/IOCB command handoff into PilotDisk.
+  words stay `FFFF`. With the current DSK normal-mode shim and the
+  Md-at-issue LC timing fix, PilotDisk accepts the IOCB seal and reaches
+  `KSameDrive`, `KContinueCmmd`, and `KCheckSeek`. DiskData inputs and
+  FIFO reads/writes remain zero. Initial is not yet transferring
+  hard-disk boot sectors from the mounted pack; the next blocker is the
+  disk sector/status path used by `WaitForSector` and `Read1Muff`.
+  The full probe also uses a temporary identity-map shim for the first
+  256 pages at `DiskHardMicrocodeBoot`; without it, final map entries
+  for the first 64K are still vacant and the CSB/IOCB handoff faults.
+  Initial's final `SetMCR[mcr.noWake]` currently decodes as `0xFEE7`;
+  the emulator treats that source-level value as normal memory
+  references enabled with only fault wakeups suppressed until the full
+  active-low MCR/schematic decode is finished.
 - Source code verified: BootstrapMain.mc (fetched from CHM
   archives at chm/dorado/expanded/BootstrapSources.dm/) confirms
   that ReadBB returns T = ~CPReg via B←RWCPReg (per HM page 31:
@@ -374,7 +381,10 @@ Tests: `test_mem_fetch_store`, `test_br_loadhi_loadlo`,
 
 HM §4 ("Hold"): hold is asserted when:
 - A reference to Md happens before Md is ready (~3 instructions
-  after Fetch unless cache hit on a deferred reference).
+  after Fetch unless cache hit on a deferred reference). LC loads of
+  `Md` now use the Md latch value present at instruction issue; a
+  concurrent `Fetch` updates `Md` for later instructions. PilotDisk's
+  IOCB seal check depends on this ordering.
 - StkError, Pipe full, FreezeBC, IFU map fault concurrent with
   IFUJump, etc.
 
@@ -383,8 +393,9 @@ references). But the FreezeBC FF function needs to actually hold
 branch conditions for one cycle, otherwise R<0 at PC=0o7707 evaluates
 post-LC instead of pre-LC.
 
-We've already got the "evaluate next_pc before apply_lc" fix that
-covers the common case. FreezeBC adds a one-cycle latch where the
+We've already got the "evaluate next_pc before apply_lc" fix and the
+Md-at-issue LC timing fix that cover the common cases seen during
+Initial/PilotDisk bring-up. FreezeBC adds a one-cycle latch where the
 *previous* instruction's branch conditions are reused. Implement
 as `cpu->bc_frozen` flag set by FreezeBC FF, consumed and cleared
 in `eval_branch_condition`.

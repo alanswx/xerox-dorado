@@ -33,11 +33,20 @@ you don't repeat them.
   AHT/DispM terminal task continuously (`display outs=35414`,
   frame 59 snapshot) and keep the boot keyboard words all-up. Disk
   bring-up now forces PilotDisk's one-time normal-mode branch past the
-  disabled loop and reaches the DSK idle loop (`KIdleLoop/KIdleCont`)
-  with DiskMuff inputs active, but it still does not reach
-  `KSameDrive`, `DoDiskBlock`, or DiskData. The next blocker is making
-  the `CSB.next` IOCB command pointer visible to the DSK task through
-  the correct IOBR/CSB memory path. The AEmu bypass
+  disabled loop. A CPU Md-latch timing fix lets DSK read the IOCB seal
+  correctly, so the full probe now reaches `KSameDrive`,
+  `KContinueCmmd`, and `KCheckSeek`. It still does not reach
+  `DoDiskBlock` or DiskData; it falls back through the seek/sector
+  status path and then spends the probe budget in `Read1Muff`. The next
+  blocker is modeling the disk sector/status/muffler path closely enough
+  for `WaitForSector` and the sequence-PROM command timing to proceed.
+  The full-boot probe currently uses a temporary first-256-page identity
+  map shim at `DiskHardMicrocodeBoot` because Initial's real `PresetMap`
+  writes still leave the first-64K map vacant at disk boot time.
+  Initial's final `mcr.noWake` load appears as `MCR=0xFEE7`; the
+  emulator currently special-cases that as normal references enabled
+  with only fault wakeups suppressed until the MCR active-low decode is
+  corrected from the source docs/schematics. The AEmu bypass
   probe currently halts at `PC=0o7777`.
 - **Repo:** `/Users/alans/Documents/development/Dorado`
 - **Most useful entry points to read:** `CLAUDE.md` (project mission),
@@ -59,7 +68,9 @@ The Makefile uses compiler-generated `.d` sidecars (`-MMD -MP`), so
 header edits under `include/` rebuild the affected objects. Last
 focused verification: `make build/test_memory`, `./build/test_memory`,
 `make build/test_disk`, `./build/test_disk`, `make build/test_cpu`, and
-`./build/test_cpu` passed on 2026-04-30.
+`./build/test_cpu` passed on 2026-04-30. Full-probe disk facts from
+the latest run: `KSameDrive@0o6553`, `KContinueCmmd@0o6572`, and
+`KCheckSeek@0o6561` are hit; DiskData/FIFO counts remain zero.
 
 ## Read these first (in order)
 

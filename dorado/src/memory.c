@@ -128,18 +128,29 @@ uint16_t dorado_pipe5_at(const dorado_memory *mem, int srn)
     return v;
 }
 
+static int mcr_is_initial_nowake(const dorado_memory *mem)
+{
+    /* InitialSubrs.mc's SetMCR loads mcr.noWake as 0xFEE7 in the current
+     * source-level encoding. Treat it as "normal references, no fault
+     * wakeups" while the full MCR active-low/schematic decode is resolved. */
+    return mem->mcr == 0xFEE7u;
+}
+
 static int dorado_mcr_discf(const dorado_memory *mem)
 {
+    if (mcr_is_initial_nowake(mem)) return 0;
     return (mem->mcr >> 7) & 1;      /* manual Mcr[8] */
 }
 
 static int dorado_mcr_dvavic(const dorado_memory *mem)
 {
+    if (mcr_is_initial_nowake(mem)) return 0;
     return (mem->mcr >> 15) & 1;     /* manual Mcr[0] */
 }
 
 static int dorado_mcr_usemcrv(const dorado_memory *mem)
 {
+    if (mcr_is_initial_nowake(mem)) return 0;
     return (mem->mcr >> 13) & 1;     /* manual Mcr[2] */
 }
 
@@ -247,11 +258,13 @@ int dorado_mcr_disbr(const dorado_memory *mem)
 
 int dorado_mcr_noref(const dorado_memory *mem)
 {
+    if (mcr_is_initial_nowake(mem)) return 0;
     return (mem->mcr >> 5) & 1;      /* manual Mcr[10] */
 }
 
 int dorado_mcr_fdmiss(const dorado_memory *mem)
 {
+    if (mcr_is_initial_nowake(mem)) return 0;
     return (mem->mcr >> 14) & 1;     /* manual Mcr[1] */
 }
 
