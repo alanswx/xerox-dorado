@@ -40,7 +40,7 @@
  * bytes per row, 101 × 606 = 61206 bytes total.
  *
  * NOT modeled yet:
- *   - Pixel clock generation (we render full frames synchronously)
+ *   - Pixel clock generation (we use a synthetic raster/vblank clock)
  *   - Real HSync/VSync waveform timing
  *   - 7-wire interface back-channel keyboard/mouse encoding
  *   - 24Bit color mode (3-channel via AMap+BMap+CMap)
@@ -56,6 +56,7 @@
 #define DORADO_DISPLAY_NLCB_WORDS   16
 #define DORADO_DISPLAY_HRAM_WORDS   1024
 #define DORADO_DISPLAY_MIXER_WORDS  1024  /* 1024 × 24 (HM page 112) */
+#define DORADO_DISPLAY_KEY_WORDS    5      /* Alto-compatible boot words */
 
 typedef struct {
     /* Per-channel CLCB/NLCB. HM page 113: αPolarity, αResolution,
@@ -87,17 +88,23 @@ typedef struct {
     /* Cursor position (loaded from CursorX in CLCB). */
     uint16_t cursor_data[16];    /* 16-bit cursor sprite per scan line */
 
+    /* Terminal keyboard state in the Alto-compatible complemented
+     * word format used by Initial: 1 = key up, 0 = key down. Word
+     * 0..3 are the normal boot keyboard words; word 4 is Star-only. */
+    uint16_t keyboard_words[DORADO_DISPLAY_KEY_WORDS];
+
     /* Framebuffer: 808×606 mono, packed 8 pixels per byte, MSB = leftmost.
      * Phase 1: DWT's IOFetch← drops words here as a backdoor; eventually
      * the mixer + waveform generator will populate this from the FIFO. */
     uint8_t  fb[DORADO_DISPLAY_FB_BYTES];
 
-    /* Scan position for synthetic time. Each Dorado clock advances
-     * by `pixels_per_dorado_clock` (default 1 for now). Wraps at
-     * (W * H) for full-frame redraw. */
+    /* Scan position for synthetic time. The GUI may inspect/render the
+     * framebuffer at any point, including mid-frame. frame_count only
+     * advances when the raster crosses the modeled vertical blank
+     * boundary, or when a headless harness explicitly marks vblank. */
     uint32_t scan_line;          /* current scan line 0..H-1 */
     uint32_t scan_pixel;         /* current pixel within line 0..W-1 */
-    uint64_t frame_count;        /* full frames rendered */
+    uint64_t frame_count;        /* completed frames at vblank */
 
     /* Per-channel "munch-fetch" state (HM page 117 αNextAddr / αNextCount). */
     uint16_t next_addr_lo[2];
@@ -124,6 +131,16 @@ typedef struct {
 } dorado_display;
 
 void dorado_display_init(dorado_display *d);
+
+/* Headless keyboard API. SDL or another frontend should translate host
+ * key events into these same calls; the emulator core only consumes
+ * the complemented Alto-style words. */
+void     dorado_display_keyboard_all_up(dorado_display *d);
+void     dorado_display_keyboard_set_word(dorado_display *d, int word,
+                                          uint16_t value);
+uint16_t dorado_display_keyboard_word(const dorado_display *d, int word);
+void     dorado_display_keyboard_set_bit(dorado_display *d, int word,
+                                         int bit, int down);
 
 /*
  * Attach this display to a slow-IO routing table. Registers a single
@@ -153,6 +170,18 @@ int dorado_display_fifo_push(dorado_display *d, int subtask, uint16_t word);
  * Useful for visual verification.
  */
 int dorado_display_snapshot_pgm(const dorado_display *d, const char *path);
+
+/* Headless frame clock. The framebuffer is always owned by the
+ * emulator core; GUI frontends should render this same buffer. These
+ * helpers provide a stable frame counter for headless runs such as
+ * "run 100 frames, dump frame 100".
+ *
+ * `advance_pixels` advances the synthetic raster position and returns
+ * the number of vertical-blank boundaries crossed. `vblank` forces one
+ * complete frame boundary using the current framebuffer contents. */
+uint64_t dorado_display_frame(const dorado_display *d);
+int      dorado_display_advance_pixels(dorado_display *d, uint32_t pixels);
+void     dorado_display_vblank(dorado_display *d);
 
 /*
  * Direct framebuffer pixel write — used for synthetic tests that don't

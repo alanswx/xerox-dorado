@@ -401,11 +401,21 @@ production: 0 = Alto-style, 1 = LF (large format / Star).
 - **Framebuffer**: 808×606 mono, 61206 bytes, MSB-leftmost packing.
 - **Slow-IO catch-all**: registered on tasks DHT/AHT/AWT/DWT. All
   Output←B accumulate into a buffered RIOB; counter tracks them.
-  Pd←Input returns RIOB.
+  Pd←Input currently returns the headless keyboard idle word.
 - **State buckets**: per-channel NLCB/CLCB (16×12-bit, A and B),
   HRam (1024×3-bit), Mixer (1024×24-bit), PixelClk, Statics.
 - **Per-channel FIFO** (256 words) for IOFetch← munches.
 - **PGM snapshot helper**.
+- **Headless keyboard words**: five complemented Alto-style words
+  (`1 = key up`, `0 = key down`). SDL or another frontend should
+  translate host key events into these same core APIs.
+- **VBlank frame counter**: `dorado_display_frame()` reports completed
+  vertical blanks. `dorado_display_advance_pixels()` advances the
+  synthetic raster and increments only when it crosses the modeled
+  vblank boundary. A frontend can render the framebuffer mid-frame
+  without changing frame count; headless tests can call
+  `dorado_display_vblank()` when they intentionally mark a completed
+  frame for snapshotting.
 
 **Phase 2**:
 - **`dorado_display_render_fifo()`**: drains the per-channel FIFO
@@ -417,7 +427,9 @@ What's not yet wired:
 
 - TIOA→command decoder (we don't yet know the numeric TIOA values
   microcode emits; Phase 3 will trace them).
-- Pixel clock / waveform generation (we render full frames).
+- Pixel clock / waveform generation. The current vblank boundary is
+  synthetic at the end of the modeled visible 808×606 raster; real
+  blanking intervals still need to come from the DDC timing model.
 - 7-wire interface back channel (keyboard/mouse → 32-bit messages).
 - 24Bit / A8B2 / BBypass mixer modes.
 - αItemSize handling for grayscale (2/4/8 bits per pixel).

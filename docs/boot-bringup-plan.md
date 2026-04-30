@@ -157,9 +157,13 @@ What works (continued)
 - **Display Phase 1** (`include/display.h` + `src/display.c`):
   808×606 mono framebuffer, DDC catch-all slow-IO handler on tasks
   DHT/AHT/AWT/DWT, per-channel NLCB/CLCB, HRam/Mixer/Statics state
-  buckets, per-channel FIFO, PGM snapshot. DDC input currently returns
-  idle/all-ones; the real 7-wire terminal back-channel and keyboard
-  message decoder are still missing.
+  buckets, per-channel FIFO, PGM snapshot, headless keyboard words,
+  and a vblank-based frame counter. DDC input currently returns the
+  headless keyboard idle word; the real 7-wire terminal back-channel
+  and keyboard message decoder are still missing. The boot probe writes
+  a viewable PGM framebuffer snapshot to `/tmp/dorado_boot_display.pgm`
+  by default, or to `DORADO_BOOT_SNAPSHOT` when that environment
+  variable is set.
 - **Disk Phase 1/2 subset** (`include/disk.h` + `src/disk.c`):
   Trident T-80/T-300 pack format (2 dummy bytes + 2 header words +
   10 label words + 1024 data words = 2074 bytes/sector), drive struct

@@ -75,6 +75,37 @@ static int test_set_pixel(void)
     return 0;
 }
 
+static int test_keyboard_words(void)
+{
+    static dorado_display d;
+    dorado_display_init(&d);
+
+    for (int i = 0; i < DORADO_DISPLAY_KEY_WORDS; i++) {
+        EXPECT(dorado_display_keyboard_word(&d, i) == 0xFFFF,
+               "keyboard word %d should initialize all-up", i);
+    }
+
+    dorado_display_keyboard_set_bit(&d, 1, 4, 1);
+    EXPECT(dorado_display_keyboard_word(&d, 1) == 0xFFEF,
+           "key down clears bit 4, got 0x%04X",
+           dorado_display_keyboard_word(&d, 1));
+
+    dorado_display_keyboard_set_bit(&d, 1, 4, 0);
+    EXPECT(dorado_display_keyboard_word(&d, 1) == 0xFFFF,
+           "key up sets bit 4, got 0x%04X",
+           dorado_display_keyboard_word(&d, 1));
+
+    dorado_display_keyboard_set_word(&d, 3, 0x7FFF);
+    EXPECT(dorado_display_keyboard_word(&d, 3) == 0x7FFF,
+           "set keyboard word 3");
+    dorado_display_keyboard_all_up(&d);
+    EXPECT(dorado_display_keyboard_word(&d, 3) == 0xFFFF,
+           "all_up resets word 3");
+
+    printf("PASS  test_keyboard_words (complemented Alto key words)\n");
+    return 0;
+}
+
 /* test_attach_to_io — registering the display intercepts slow-IO
  * outputs from display tasks (DHT/DWT/AHT/AWT) and counts them. */
 static int test_attach_to_io(void)
@@ -186,6 +217,41 @@ static int test_snapshot_pgm(void)
     return 0;
 }
 
+static int test_frame_clock(void)
+{
+    static dorado_display d;
+    dorado_display_init(&d);
+
+    EXPECT(dorado_display_frame(&d) == 0,
+           "initial frame should be 0");
+    EXPECT(dorado_display_advance_pixels(&d, DORADO_DISPLAY_W - 1) == 0,
+           "not enough pixels for a frame");
+    EXPECT(d.scan_line == 0 && d.scan_pixel == DORADO_DISPLAY_W - 1,
+           "scan position should advance within first line");
+
+    EXPECT(dorado_display_advance_pixels(&d, 1) == 0,
+           "one full scan line is not a frame");
+    EXPECT(d.scan_line == 1 && d.scan_pixel == 0,
+           "scan position should wrap to line 1");
+
+    uint32_t remaining =
+        (uint32_t)(DORADO_DISPLAY_W * (DORADO_DISPLAY_H - 1));
+    EXPECT(dorado_display_advance_pixels(&d, remaining) == 1,
+           "remaining visible pixels should complete one frame");
+    EXPECT(dorado_display_frame(&d) == 1,
+           "frame count should be 1, got %llu",
+           (unsigned long long)dorado_display_frame(&d));
+    EXPECT(d.scan_line == 0 && d.scan_pixel == 0,
+           "scan should reset at frame boundary");
+
+    dorado_display_vblank(&d);
+    EXPECT(dorado_display_frame(&d) == 2,
+           "vblank should increment to 2");
+
+    printf("PASS  test_frame_clock (vblank frame counter)\n");
+    return 0;
+}
+
 /* test_render_fifo — push pixel words into FIFO, render them, verify
  * the framebuffer matches. */
 static int test_render_fifo(void)
@@ -260,9 +326,11 @@ int main(void)
     int rc = 0;
     rc |= test_init_zeroes();
     rc |= test_set_pixel();
+    rc |= test_keyboard_words();
     rc |= test_attach_to_io();
     rc |= test_fifo_push();
     rc |= test_snapshot_pgm();
+    rc |= test_frame_clock();
     rc |= test_render_fifo();
     if (rc == 0) printf("\nAll display tests passed.\n");
     return rc;

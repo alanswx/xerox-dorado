@@ -181,6 +181,12 @@ These all compile clean and pass:
 - `dorado_display_render_fifo()` drains FIFO into framebuffer
   (1-bit-per-pixel, MSB=leftmost).
 - PGM snapshot helper (`dorado_display_snapshot_pgm`).
+- Headless keyboard state is held as five complemented Alto-style
+  words (`1 = key up`, `0 = key down`) so SDL can later feed the same
+  core API that tests use today.
+- Frame count is a core display value advanced at vblank, not by GUI
+  repaint. The framebuffer remains available for mid-frame GUI viewing
+  and for headless snapshots such as "dump frame 100".
 
 ### Disk (`include/disk.h`, `src/disk.c`)
 - Trident T-80 / T-300 pack format (ContrAlto2/Bitsavers byte layout).

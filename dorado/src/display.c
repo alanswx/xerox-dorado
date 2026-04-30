@@ -24,9 +24,41 @@ void dorado_display_init(dorado_display *d)
     /* HM §11: Keep' is a flipflop that defaults to "video owns" (true).
      * Dorado must take ownership before loading RAM. */
     d->ram_keep = 1;
+    dorado_display_keyboard_all_up(d);
 }
 
 /* ─── Slow-IO catch-all callbacks ────────────────────────────────── */
+
+void dorado_display_keyboard_all_up(dorado_display *d)
+{
+    if (!d) return;
+    for (int i = 0; i < DORADO_DISPLAY_KEY_WORDS; i++) {
+        d->keyboard_words[i] = 0xFFFFu;
+    }
+}
+
+void dorado_display_keyboard_set_word(dorado_display *d, int word,
+                                      uint16_t value)
+{
+    if (!d || word < 0 || word >= DORADO_DISPLAY_KEY_WORDS) return;
+    d->keyboard_words[word] = value;
+}
+
+uint16_t dorado_display_keyboard_word(const dorado_display *d, int word)
+{
+    if (!d || word < 0 || word >= DORADO_DISPLAY_KEY_WORDS) return 0xFFFFu;
+    return d->keyboard_words[word];
+}
+
+void dorado_display_keyboard_set_bit(dorado_display *d, int word,
+                                     int bit, int down)
+{
+    if (!d || word < 0 || word >= DORADO_DISPLAY_KEY_WORDS) return;
+    if (bit < 0 || bit >= 16) return;
+    uint16_t mask = (uint16_t)(1u << bit);
+    if (down) d->keyboard_words[word] &= (uint16_t)~mask;
+    else      d->keyboard_words[word] |= mask;
+}
 
 /* Phase 1: a single permissive output handler that records the
  * (task, tioa, data) triple but does nothing semantically. The
@@ -57,8 +89,7 @@ static uint16_t display_input(void *ctx, int task, uint8_t tioa, int *bad)
      * report idle/all-ones so boot keys stay "up". */
     (void)task;
     (void)tioa;
-    (void)d;
-    return 0xFFFFu;
+    return dorado_display_keyboard_word(d, 0);
 }
 
 void dorado_display_attach_to_io(dorado_display *d, dorado_io *io)
@@ -185,4 +216,34 @@ int dorado_display_snapshot_pgm(const dorado_display *d, const char *path)
     }
     fclose(fp);
     return 0;
+}
+
+uint64_t dorado_display_frame(const dorado_display *d)
+{
+    return d ? d->frame_count : 0;
+}
+
+int dorado_display_advance_pixels(dorado_display *d, uint32_t pixels)
+{
+    if (!d || pixels == 0) return 0;
+
+    const uint64_t pixels_per_frame =
+        (uint64_t)DORADO_DISPLAY_W * (uint64_t)DORADO_DISPLAY_H;
+    uint64_t pos = (uint64_t)d->scan_line * (uint64_t)DORADO_DISPLAY_W +
+                   (uint64_t)d->scan_pixel + (uint64_t)pixels;
+    uint64_t frames = pos / pixels_per_frame;
+    uint64_t rem = pos % pixels_per_frame;
+
+    d->frame_count += frames;
+    d->scan_line = (uint32_t)(rem / DORADO_DISPLAY_W);
+    d->scan_pixel = (uint32_t)(rem % DORADO_DISPLAY_W);
+    return (int)frames;
+}
+
+void dorado_display_vblank(dorado_display *d)
+{
+    if (!d) return;
+    d->frame_count++;
+    d->scan_line = 0;
+    d->scan_pixel = 0;
 }

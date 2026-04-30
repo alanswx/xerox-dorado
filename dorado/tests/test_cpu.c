@@ -74,12 +74,13 @@ static void service_boot_disk(dorado_cpu *cpu, dorado_disk_controller *disk,
     }
 }
 
-static void seed_boot_keyboard_va(dorado_memory *mem, uint32_t va)
+static void seed_boot_keyboard_va(dorado_memory *mem, uint32_t va,
+                                  uint16_t value)
 {
     if (!mem || !mem->storage) return;
 
     if ((size_t)va < mem->storage_words) {
-        mem->storage[va] = 0xFFFFu;
+        mem->storage[va] = value;
     }
 
     uint32_t idx = dorado_map_index(va);
@@ -87,7 +88,7 @@ static void seed_boot_keyboard_va(dorado_memory *mem, uint32_t va)
     if (!(e->wp && e->dirty)) {
         size_t phys = (size_t)e->rp * DM_PAGE_SIZE + (va & (DM_PAGE_SIZE - 1));
         if (phys < mem->storage_words) {
-            mem->storage[phys] = 0xFFFFu;
+            mem->storage[phys] = value;
         }
     }
 
@@ -97,12 +98,13 @@ static void seed_boot_keyboard_va(dorado_memory *mem, uint32_t va)
     for (int way = 0; way < DM_CACHE_WAYS; way++) {
         dorado_cache_line *line = &mem->cache[row].ways[way];
         if (line->valid && line->tag == tag) {
-            line->data[off] = 0xFFFFu;
+            line->data[off] = value;
         }
     }
 }
 
-static void seed_boot_keyboard_all_up(dorado_memory *mem)
+static void seed_boot_keyboard_from_display(dorado_memory *mem,
+                                            const dorado_display *display)
 {
     if (!mem || !mem->storage) return;
 
@@ -114,7 +116,9 @@ static void seed_boot_keyboard_all_up(dorado_memory *mem)
     for (size_t b = 0; b < sizeof bases / sizeof bases[0]; b++) {
         for (uint32_t off_va = 0177034u; off_va < 0177042u; off_va++) {
             uint32_t va = (bases[b] + off_va) & 0x0FFFFFFFu;
-            seed_boot_keyboard_va(mem, va);
+            int word = (int)(off_va - 0177034u);
+            uint16_t value = dorado_display_keyboard_word(display, word);
+            seed_boot_keyboard_va(mem, va, value);
         }
     }
 }
@@ -2638,7 +2642,7 @@ static int probe_full_boot_with_bootstrap(void)
             kt->mar = mem.mar;
         }
         if (initial_substituted && display.output_count > 0) {
-            seed_boot_keyboard_all_up(&mem);
+            seed_boot_keyboard_from_display(&mem, &display);
             keyboard_seed_count++;
         }
         service_boot_disk(&cpu, &disk, bb.cycles,
@@ -2850,6 +2854,21 @@ static int probe_full_boot_with_bootstrap(void)
            cpu_halt_reason_str(halt_reason),
            (cpu.real_PC < 4096 && mc.im_present[cpu.real_PC])
                ? " (IM present)" : " (IM missing)");
+    const char *snapshot_path = test_str_env("DORADO_BOOT_SNAPSHOT",
+                                             "/tmp/dorado_boot_display.pgm");
+    if (cpu.mem && display.attached) {
+        int dst_y = 0;
+        dorado_display_render_fifo(&display, 0, &dst_y);
+        dorado_display_vblank(&display);
+        if (dorado_display_snapshot_pgm(&display, snapshot_path) == 0) {
+            printf("       Display snapshot: frame=%llu %s\n",
+                   (unsigned long long)dorado_display_frame(&display),
+                   snapshot_path);
+        } else {
+            printf("       Display snapshot: failed to write %s\n",
+                   snapshot_path);
+        }
+    }
     printf("       Task=%u TIOA=0x%02X display outs=%llu iofetch=%llu "
            "disk outs=%llu ins=%llu\n",
            cpu.ctask, cpu.TIOA & 0xFF,
