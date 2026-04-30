@@ -1034,11 +1034,16 @@ microcode.
   `[0]=8882891 [2]=28608 [4]=422755 [14]=201554`,
   `switches=106789`, `ready_or=0x1015`, `wakeup_or=0x1014`,
   display slow-IO writes `+35410`, disk slow-IO writes `+36150`, but
-  `display iofetch=0`. So tasking is alive and AHT/DSK are running,
-  but DWT task 13 is never woken and no display fast-I/O reaches the
-  framebuffer. The next likely hardware gap is the DDC horizontal-task
-  to DWT handoff: NLCB/CLCB decoding, `NextWCBFlag`/`CurrentWCBFlag`,
-  `DWTShutUp`, and the delayed DWT wakeup logic from HM §11 page 118.
+  `display iofetch=0`. A follow-up DHT clock experiment wakes task 3,
+  changing post-load counts to include `[3]=35485`, but task 3's hot
+  PC is only `0o6006` and all display slow-IO writes still come from
+  AHT/task 4. DWT task 13 is never woken. So tasking is alive, but the
+  loaded emulator has not initialized the display task PCs yet. The
+  immediate blocker is still task-0 startup around
+  `0o6000/0o6002/0o6012`, where MCR values such as `0x78E1`,
+  `0x7861`, `0x70E1`, and `0x6861` are repeatedly loaded. Re-check
+  MCR active-low/source-level decode and cache/reference semantics
+  before expecting DHT/DWT to render.
   The loaded IM samples currently printed by the probe are
   `0o6000=00104/71501/00000`, `0o6001=00104/131705/140000`,
   `0o6002=00104/14701/00000`, `0o6012=13116/14105/00000`,

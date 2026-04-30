@@ -132,10 +132,12 @@ typedef struct {
 
     /* Diagnostic counters. */
     uint64_t output_count;       /* total Output←B writes seen */
+    uint64_t output_task_count[16]; /* Output←B writes by task */
     uint64_t iofetch_count;      /* total IOFetch← munches received */
     uint64_t nlcb_writes;        /* DHT NLCB outputs */
     uint64_t scanline_ticks;     /* synthetic horizontal timing ticks */
     uint64_t terminal_wakeups;   /* DHT/AHT wakeups requested */
+    uint64_t dwt_wakeups;        /* DWT wakeups requested */
 } dorado_display;
 
 void dorado_display_init(dorado_display *d);
@@ -196,6 +198,8 @@ void     dorado_display_vblank(dorado_display *d);
  * This is a timing shim until the DDC pixel clock and HBlank waveform
  * are modeled from the actual control outputs. */
 int      dorado_display_scanline_tick(dorado_display *d);
+uint16_t dorado_display_scanline_wakeup_mask(dorado_display *d);
+int      dorado_display_dwt_wakeup(dorado_display *d, int *subtask);
 
 /*
  * Direct framebuffer pixel write — used for synthetic tests that don't

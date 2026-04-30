@@ -2424,6 +2424,7 @@ static int probe_full_boot_with_bootstrap(void)
     uint64_t ether_boot_inject_cycle = 0;
     uint64_t ether_inject_display_outs = 0;
     uint64_t ether_inject_display_iofetch = 0;
+    uint64_t ether_inject_display_dwt_wakeups = 0;
     uint64_t ether_inject_scanline_wakeups = 0;
     uint64_t ether_inject_disk_outs = 0;
     uint64_t ether_inject_disk_ins = 0;
@@ -2434,6 +2435,7 @@ static int probe_full_boot_with_bootstrap(void)
     uint16_t post_eb_ready_or = 0;
     uint16_t post_eb_wakeup_or = 0;
     int post_eb_prev_task = -1;
+    static uint32_t post_eb_task_pc_count[16][4096];
     uint64_t display_scanline_wakeups = 0;
     uint64_t next_display_scanline_cycle = 0;
     uint64_t keyboard_seed_count = 0;
@@ -2723,6 +2725,7 @@ static int probe_full_boot_with_bootstrap(void)
                 ether_boot_inject_cycle = bb.cycles;
                 ether_inject_display_outs = display.output_count;
                 ether_inject_display_iofetch = display.iofetch_count;
+                ether_inject_display_dwt_wakeups = display.dwt_wakeups;
                 ether_inject_scanline_wakeups = display_scanline_wakeups;
                 ether_inject_disk_outs = disk.output_count;
                 ether_inject_disk_ins = disk.input_count;
@@ -2940,15 +2943,26 @@ static int probe_full_boot_with_bootstrap(void)
         service_boot_disk(&cpu, &disk, bb.cycles,
                           &disk_sector_ticks, &disk_wakeups);
         if (initial_substituted && bb.cycles >= next_display_scanline_cycle) {
-            int task = dorado_display_scanline_tick(&display);
-            if (task >= 0) {
-                dorado_cpu_wakeup(&cpu, task);
-                display_scanline_wakeups++;
+            uint16_t mask = dorado_display_scanline_wakeup_mask(&display);
+            for (int task = 0; task < 16; task++) {
+                if (mask & (1u << task)) {
+                    dorado_cpu_wakeup(&cpu, task);
+                    display_scanline_wakeups++;
+                }
             }
             next_display_scanline_cycle = bb.cycles + 1000;
         }
+        if (initial_substituted) {
+            int dwt_subtask = 0;
+            if (dorado_display_dwt_wakeup(&display, &dwt_subtask)) {
+                dorado_cpu_set_subtask(&cpu, DORADO_DISPLAY_TASK_DWT,
+                                       (uint8_t)dwt_subtask);
+                dorado_cpu_wakeup(&cpu, DORADO_DISPLAY_TASK_DWT);
+            }
+        }
         if (ether_loaded_world_cycle && is_imfetch) {
             post_eb_task_cycles[pre_task & 0xF]++;
+            if (pre_pc < 4096) post_eb_task_pc_count[pre_task & 0xF][pre_pc]++;
             post_eb_ready_or |= cpu.ready;
             post_eb_wakeup_or |= cpu.wakeup_pending;
             if (post_eb_prev_task >= 0 && post_eb_prev_task != pre_task) {
@@ -3237,20 +3251,31 @@ static int probe_full_boot_with_bootstrap(void)
         }
     }
     printf("       Task=%u TIOA=0x%02X display outs=%llu iofetch=%llu "
-           "scanline wakeups=%llu "
+           "dwt wakeups=%llu scanline wakeups=%llu "
            "disk outs=%llu ins=%llu\n",
            cpu.ctask, cpu.TIOA & 0xFF,
            (unsigned long long)display.output_count,
            (unsigned long long)display.iofetch_count,
+           (unsigned long long)display.dwt_wakeups,
            (unsigned long long)display_scanline_wakeups,
            (unsigned long long)disk.output_count,
            (unsigned long long)disk.input_count);
+    printf("       Display outputs by task:");
+    for (int t = 0; t < 16; t++) {
+        if (display.output_task_count[t]) {
+            printf(" [%o]=%llu", t,
+                   (unsigned long long)display.output_task_count[t]);
+        }
+    }
+    printf("\n");
     if (ether_boot_injections) {
         printf("       Post-EB device deltas: display outs=+%llu iofetch=+%llu "
-               "scanline wakeups=+%llu disk outs=+%llu ins=+%llu "
-               "disk wakeups=+%llu\n",
+               "dwt wakeups=+%llu scanline wakeups=+%llu "
+               "disk outs=+%llu ins=+%llu disk wakeups=+%llu\n",
                (unsigned long long)(display.output_count - ether_inject_display_outs),
                (unsigned long long)(display.iofetch_count - ether_inject_display_iofetch),
+               (unsigned long long)(display.dwt_wakeups -
+                                    ether_inject_display_dwt_wakeups),
                (unsigned long long)(display_scanline_wakeups -
                                     ether_inject_scanline_wakeups),
                (unsigned long long)(disk.output_count - ether_inject_disk_outs),
@@ -3266,6 +3291,25 @@ static int probe_full_boot_with_bootstrap(void)
         printf(" switches=%llu ready_or=0x%04X wakeup_or=0x%04X\n",
                (unsigned long long)post_eb_task_switches,
                post_eb_ready_or, post_eb_wakeup_or);
+        for (int task = 0; task < 16; task++) {
+            if (!post_eb_task_cycles[task]) continue;
+            printf("       Post-LoadRam task %o hot PCs:", task);
+            for (int rank = 0; rank < 5; rank++) {
+                int best_pc = -1;
+                uint32_t best = 0;
+                for (int pc = 0; pc < 4096; pc++) {
+                    uint32_t n = post_eb_task_pc_count[task][pc];
+                    if (n > best) {
+                        best = n;
+                        best_pc = pc;
+                    }
+                }
+                if (best_pc < 0 || best == 0) break;
+                printf(" 0o%o=%u", best_pc, best);
+                post_eb_task_pc_count[task][best_pc] = 0;
+            }
+            printf("\n");
+        }
     }
     printf("       Disk pack: %s, sector ticks=%llu wakeups=%llu "
            "fifo reads=%llu writes=%llu normal-mode shims=%llu "

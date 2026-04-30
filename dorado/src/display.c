@@ -70,10 +70,16 @@ static void display_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
 {
     dorado_display *d = ctx;
     d->output_count++;
+    d->output_task_count[task & 0xF]++;
     d->riob = data;     /* HM page 119: IOB stays in DDC RIOB until
                          * next output command */
     if (task == DORADO_DISPLAY_TASK_DHT || task == DORADO_DISPLAY_TASK_AHT) {
         d->terminal_task = task;
+    }
+    if (task == DORADO_DISPLAY_TASK_DHT) {
+        int channel = (data & 0x8000u) ? 1 : 0;
+        d->next_wcb_flag[channel] = 1;
+        d->nlcb_writes++;
     }
     /* TODO: dispatch by (task, tioa) to NLCB load / HRam load /
      * Mixer load / PixelClk / Statics / etc. */
@@ -254,13 +260,46 @@ int dorado_display_scanline_tick(dorado_display *d)
 {
     if (!d) return -1;
 
+    uint16_t mask = dorado_display_scanline_wakeup_mask(d);
+    if (mask & (1u << DORADO_DISPLAY_TASK_AHT)) return DORADO_DISPLAY_TASK_AHT;
+    if (mask & (1u << DORADO_DISPLAY_TASK_DHT)) return DORADO_DISPLAY_TASK_DHT;
+    return -1;
+}
+
+uint16_t dorado_display_scanline_wakeup_mask(dorado_display *d)
+{
+    if (!d) return 0;
+
     d->scanline_ticks++;
     dorado_display_advance_pixels(d, DORADO_DISPLAY_W);
 
+    uint16_t mask = 0;
+    /* The display raster clock is independent of the Dorado. DHT is
+     * the data-channel horizontal task; AHT is the DispM terminal
+     * horizontal task selected once terminal microcode writes display
+     * slow I/O. Statics/DHTShutUp decoding is not wired yet, so keep
+     * DHT live and let task BLOCK behavior throttle it. */
+    mask |= (uint16_t)(1u << DORADO_DISPLAY_TASK_DHT);
     if (d->terminal_task == DORADO_DISPLAY_TASK_DHT ||
         d->terminal_task == DORADO_DISPLAY_TASK_AHT) {
         d->terminal_wakeups++;
-        return d->terminal_task;
+        mask |= (uint16_t)(1u << d->terminal_task);
     }
-    return -1;
+    return mask;
+}
+
+int dorado_display_dwt_wakeup(dorado_display *d, int *subtask)
+{
+    if (!d) return 0;
+
+    for (int ch = 0; ch < 2; ch++) {
+        if (d->next_wcb_flag[ch] && !d->current_wcb_flag[ch]) {
+            d->next_wcb_flag[ch] = 0;
+            d->current_wcb_flag[ch] = 1;
+            d->dwt_wakeups++;
+            if (subtask) *subtask = ch ? 2 : 0;
+            return 1;
+        }
+    }
+    return 0;
 }

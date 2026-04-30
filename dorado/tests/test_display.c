@@ -260,16 +260,19 @@ static int test_scanline_tick_wakes_terminal_task(void)
     dorado_display_init(&d);
     dorado_display_attach_to_io(&d, &io);
 
-    EXPECT(dorado_display_scanline_tick(&d) == -1,
-           "no terminal task before DHT/AHT output");
+    EXPECT(dorado_display_scanline_tick(&d) == DORADO_DISPLAY_TASK_DHT,
+           "scanline should wake DHT before terminal output");
     EXPECT(d.scanline_ticks == 1, "scanline tick should still count");
 
     dorado_io_write(&io, DORADO_DISPLAY_TASK_AHT, 0x20, 0x1234);
     EXPECT(d.terminal_task == DORADO_DISPLAY_TASK_AHT,
            "AHT output should select terminal task");
 
-    EXPECT(dorado_display_scanline_tick(&d) == DORADO_DISPLAY_TASK_AHT,
-           "scanline should wake AHT");
+    uint16_t mask = dorado_display_scanline_wakeup_mask(&d);
+    EXPECT(mask & (1u << DORADO_DISPLAY_TASK_DHT),
+           "scanline mask should wake DHT");
+    EXPECT(mask & (1u << DORADO_DISPLAY_TASK_AHT),
+           "scanline mask should wake AHT");
     EXPECT(d.terminal_wakeups == 1,
            "terminal wakeups = %llu",
            (unsigned long long)d.terminal_wakeups);

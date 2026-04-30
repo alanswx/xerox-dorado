@@ -425,10 +425,13 @@ production: 0 = Alto-style, 1 = LF (large format / Star).
   the hardware fact that raster timing is independent of whether the
   Dorado has recently touched display slow I/O.
 - **Known DWT gap**: post-LoadRam AltoMesa EB runs schedule AHT and DSK
-  but never DWT (`display iofetch=0`). The missing hardware behavior
-  is the HM page 118 DDC handoff from horizontal task state to DWT:
-  decode DHT/AHT output enough to maintain `NextWCBFlag`,
-  `CurrentWCBFlag`, `DWTShutUp`, and the delayed word-task wakeup.
+  but never DWT (`display iofetch=0`). Waking DHT from the raster clock
+  currently runs task 3 only at `0o6006`, with no task-3 display
+  outputs, so the loaded emulator has not installed real DHT/DWT task
+  PCs yet. Once task-0 startup escapes its MCR/cache loop, the missing
+  HM page 118 DDC handoff will be: decode DHT output enough to maintain
+  `NextWCBFlag`, `CurrentWCBFlag`, `DWTShutUp`, and the delayed
+  word-task wakeup.
 
 **Phase 2**:
 - **`dorado_display_render_fifo()`**: drains the per-channel FIFO
