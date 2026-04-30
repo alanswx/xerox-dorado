@@ -721,6 +721,9 @@ software XOR the corrupted bits back to correct values.
    is sampling/clearing disk latches. Fix: move this out of
    `test_cpu.c` into a controller clock input with explicit leading and
    trailing sector phases, then let tests choose a compressed period.
+   Current probe default: `DORADO_DISK_SECTOR_PERIOD=512`; the earlier
+   2000-cycle period could let `BootTransfer` time out before the next
+   synthetic sector wakeup.
 
 See `docs/io-systems-architecture.md` for a higher-level view of
 how disk fits into Slow I/O / Fast I/O / Tasking.

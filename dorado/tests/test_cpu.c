@@ -121,7 +121,8 @@ static void service_boot_disk(dorado_cpu *cpu, dorado_disk_controller *disk,
                               uint64_t *wakeups)
 {
     if (!disk || !disk->drive[0].pack) return;
-    uint64_t sector_period = 2000u;
+    uint64_t sector_period = test_u64_env("DORADO_DISK_SECTOR_PERIOD", 512);
+    if (sector_period == 0) sector_period = 1;
     int seek_pending = disk->drive[disk->selected_drive].seek_in_progress > 0;
     /* Probe-only spindle service: the real drive/index/sector clocks
      * run independently of whether microcode is currently touching the

@@ -714,9 +714,12 @@ Latest disk bring-up checkpoint:
   Initial's observed `0xFFEF` tag value behaves as preload/idle, not all
   commands at once; the C model still carries high-nibble compatibility
   decoding but also recognizes the observed native low-nibble restore
-  tag `0x100A` as Control Tag + ReZero. The latest focused probe no
-  longer corrupts CHS to head 10 and ends with DSK at `Read1Muff`
-  (`0o6500`), no FIFO reads/writes yet.
+  tag `0x100A` as Control Tag + ReZero. The probe spindle period is now
+  `DORADO_DISK_SECTOR_PERIOD` with default 512 cycles; this lets DSK
+  reach `KSameDrive`/`KCheckSeek` before Initial's first
+  `BootTransferTimeout`. The latest focused probe no longer corrupts
+  CHS to head 10 and still ends with DSK at `Read1Muff` (`0o6500`),
+  no FIFO reads/writes yet.
 - New memory-system fidelity: `NoRef+UseMcrV` stores now update the
   selected cache-address entry without touching map/storage. This is
   needed by `InitialSubrs.mc` `ClearCacheFlags`.

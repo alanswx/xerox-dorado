@@ -1012,9 +1012,16 @@ microcode.
   the simulated sector/index cadence reaches index, which keeps the
   firmware in the seek/tag wait path until the sector counter is
   resynchronized.
-- The latest focused 120M-cycle probe ends with task 14 at `0o6500`
-  (`Read1Muff`), no FIFO reads/writes, and CHS no longer corrupted to
-  head 10 by `0x100A`. `InitialDisk.mc` states that hard disk
+- The full-boot disk probe now uses a configurable compressed spindle
+  period, `DORADO_DISK_SECTOR_PERIOD` (default 512 Dorado cycles), so
+  the DSK task can see a sector wakeup before Initial's short
+  `BootTransferTimeout`. At the older 2000-cycle probe period,
+  `BootTransfer` could time out before the next synthetic sector.
+- The latest focused 120M-cycle probe reaches `KSameDrive` and
+  `KCheckSeek` before the first `BootTransferTimeout`, later reaches
+  `SeekAndWaitForReady`/`KNoRestore`, then ends with task 14 at
+  `0o6500` (`Read1Muff`), no FIFO reads/writes, and CHS no longer
+  corrupted to head 10 by `0x100A`. `InitialDisk.mc` states that hard disk
   microcode is a private Dorado convention starting at page 4
   (cylinder 0/head 0/sector 4); the mounted `spruce-server.dsk300` is
   an Alto Spruce T-300 pack and is not known to contain that private
