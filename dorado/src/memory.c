@@ -3,6 +3,21 @@
 #include <stdlib.h>
 #include <string.h>
 
+static uint32_t va_cache_row(uint32_t va);
+
+enum {
+    PIPE5_MAPBUF_BUSY = 0x8000u,  /* manual Pipe5[0] */
+    PIPE5_DIRTY       = 0x0020u,  /* approximate HM Figure 10 positions */
+    PIPE5_VACANT      = 0x0010u,
+    PIPE5_WP          = 0x0008u,
+    PIPE5_BEING_LOAD  = 0x0004u,
+
+    CFLAGS_A_DIRTY      = 0x0080u,  /* manual CFlags input bit 8 */
+    CFLAGS_A_VACANT     = 0x0040u,
+    CFLAGS_A_WP         = 0x0020u,
+    CFLAGS_A_BEING_LOAD = 0x0010u,
+};
+
 int dorado_memory_init(dorado_memory *mem)
 {
     memset(mem, 0, sizeof *mem);
@@ -34,6 +49,8 @@ int dorado_memory_init(dorado_memory *mem)
     mem->asrn     = 2;
     mem->mapbuf_busy_slot = -1;
     mem->mapbuf_busy_cycles = 0;
+    mem->last_cache_row = -1;
+    mem->last_cache_way = -1;
     return 0;
 }
 
@@ -62,6 +79,7 @@ static void pipe_push(dorado_memory *mem, int srn, dorado_ref_kind kind,
     mem->pipe[srn].va            = va;
     mem->pipe[srn].map_flags_pre = flags_pre;
     mem->pipe[srn].mapbuf_busy   = 0;
+    mem->pipe[srn].cache_flags   = 0;
     mem->pipe_head = (srn + 1) % DM_PIPE_DEPTH;
 }
 
@@ -99,9 +117,56 @@ uint16_t dorado_pipe5_at(const dorado_memory *mem, int srn)
     int slot = srn & (DM_PIPE_DEPTH - 1);
     /* Figure 10 shows Pipe5 high-true. Initial's WAITFORMAPBUF reads
      * Pipe5 and branches on ALU<0, so expose MapBufBusy as bit 0 in
-     * manual numbering, i.e. the C sign bit. Other Pipe5/cache fields
-     * remain zero until cache-flag diagnostics need them. */
-    return mem->pipe[slot].mapbuf_busy ? 0x8000u : 0;
+     * manual numbering, i.e. the C sign bit. Cache-address-section
+     * flags are latched from the hit/victim entry selected by that
+     * storage reference. */
+    uint16_t v = mem->pipe[slot].cache_flags;
+    if (mem->pipe[slot].mapbuf_busy) v |= PIPE5_MAPBUF_BUSY;
+    return v;
+}
+
+static int dorado_mcr_discf(const dorado_memory *mem)
+{
+    return (mem->mcr >> 7) & 1;      /* manual Mcr[8] */
+}
+
+static int dorado_mcr_usemcrv(const dorado_memory *mem)
+{
+    return (mem->mcr >> 13) & 1;     /* manual Mcr[2] */
+}
+
+static int dorado_mcr_victim(const dorado_memory *mem)
+{
+    return (mem->mcr >> 11) & 3;     /* manual Mcr[3:4] */
+}
+
+static uint16_t cache_line_pipe5_flags(const dorado_memory *mem, uint32_t va,
+                                       int way)
+{
+    if (dorado_mcr_discf(mem) || way < 0 || way >= DM_CACHE_WAYS) return 0;
+
+    const dorado_cache_line *line = &mem->cache[va_cache_row(va)].ways[way];
+    uint16_t v = 0;
+    if (line->dirty)        v |= PIPE5_DIRTY;
+    if (line->vacant)       v |= PIPE5_VACANT;
+    if (line->wp)           v |= PIPE5_WP;
+    if (line->being_loaded) v |= PIPE5_BEING_LOAD;
+    return v;
+}
+
+void dorado_cflags_load(dorado_memory *mem, uint16_t a)
+{
+    if (dorado_mcr_discf(mem)) return;
+    if (mem->last_cache_row < 0 || mem->last_cache_row >= DM_CACHE_ROWS) return;
+    if (mem->last_cache_way < 0 || mem->last_cache_way >= DM_CACHE_WAYS) return;
+
+    dorado_cache_line *line =
+        &mem->cache[mem->last_cache_row].ways[mem->last_cache_way];
+    uint16_t flags = (uint16_t)~a;   /* CFlags←A' */
+    line->dirty        = (flags & CFLAGS_A_DIRTY) ? 1 : 0;
+    line->vacant       = (flags & CFLAGS_A_VACANT) ? 1 : 0;
+    line->wp           = (flags & CFLAGS_A_WP) ? 1 : 0;
+    line->being_loaded = (flags & CFLAGS_A_BEING_LOAD) ? 1 : 0;
 }
 
 void dorado_memory_tick(dorado_memory *mem)
@@ -263,6 +328,14 @@ static void cache_touch_lru(dorado_cache_row *row, int way)
     row->lru[0] = (uint8_t)way;
 }
 
+static void cache_select(dorado_memory *mem, uint32_t va, int way, int srn)
+{
+    mem->last_cache_row = (int)va_cache_row(va);
+    mem->last_cache_way = way;
+    mem->pipe[srn & (DM_PIPE_DEPTH - 1)].cache_flags =
+        cache_line_pipe5_flags(mem, va, way);
+}
+
 /* Lookup VA in the cache. Returns 1 if any way matches; sets *out_way
  * if non-NULL. Does NOT update LRU (caller decides). */
 int dorado_cache_lookup(const dorado_memory *mem, uint32_t va, int *out_way)
@@ -293,6 +366,8 @@ uint16_t dorado_storage_at_va(const dorado_memory *mem, uint32_t va)
  * cache_writeback_victim first). */
 static int cache_pick_victim(dorado_memory *mem, uint32_t va)
 {
+    if (dorado_mcr_usemcrv(mem)) return dorado_mcr_victim(mem);
+
     dorado_cache_row *row = &mem->cache[va_cache_row(va)];
     /* Prefer invalid. */
     for (int w = 0; w < DM_CACHE_WAYS; w++) {
@@ -352,6 +427,9 @@ static void cache_fill(dorado_memory *mem, uint32_t va, int way)
     line->tag   = va_cache_tag(va);
     line->valid = 1;
     line->dirty = 0;
+    line->wp = mem->map[dorado_map_index(va)].wp;
+    line->vacant = 0;
+    line->being_loaded = 0;
     for (int i = 0; i < DM_CACHE_LINE_W; i++) {
         line->data[i] = mem->storage[(phys + i) & (mem->storage_words - 1)];
     }
@@ -371,6 +449,7 @@ static int cache_invalidate_no_writeback(dorado_memory *mem, uint32_t va)
     if (!dorado_cache_lookup(mem, va, &way)) return 0;
     mem->cache[va_cache_row(va)].ways[way].valid = 0;
     mem->cache[va_cache_row(va)].ways[way].dirty = 0;
+    mem->cache[va_cache_row(va)].ways[way].vacant = 1;
     return 1;
 }
 
@@ -430,6 +509,9 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
     case DM_REF_LONGFETCH: {
         int way;
         if (dorado_mcr_noref(mem)) {
+            way = dorado_mcr_usemcrv(mem) ? dorado_mcr_victim(mem)
+                                          : cache_pick_victim(mem, va);
+            cache_select(mem, va, way, srn);
             f = DM_FAULT_NONE;
         } else if (!dorado_mcr_fdmiss(mem) &&
                    dorado_cache_lookup(mem, va, &way)) {
@@ -438,6 +520,7 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
             mem->md = mem->cache[va_cache_row(va)].ways[way]
                           .data[va_cache_offset(va)];
             cache_touch_lru(&mem->cache[va_cache_row(va)], way);
+            cache_select(mem, va, way, srn);
         } else {
             /* Miss: translate (fault check), then fill. */
             f = va_translate(mem, va, /*is_write=*/0, &phys);
@@ -447,6 +530,7 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
                 cache_fill(mem, va, victim);
                 mem->md = mem->cache[va_cache_row(va)].ways[victim]
                               .data[va_cache_offset(va)];
+                cache_select(mem, va, victim, srn);
             }
         }
         break;
@@ -461,6 +545,7 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
                 int victim = cache_pick_victim(mem, va);
                 cache_writeback_line(mem, va_cache_row(va), victim);
                 cache_fill(mem, va, victim);
+                cache_select(mem, va, victim, srn);
             }
             (void)phys_pf;
         }
@@ -474,6 +559,9 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
          * only happens when the dirty munch is later chosen as
          * victim. */
         if (dorado_mcr_noref(mem)) {
+            way = dorado_mcr_usemcrv(mem) ? dorado_mcr_victim(mem)
+                                          : cache_pick_victim(mem, va);
+            cache_select(mem, va, way, srn);
             f = DM_FAULT_NONE;
             break;
         }
@@ -490,7 +578,9 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
                 &mem->cache[va_cache_row(va)].ways[way];
             line->data[va_cache_offset(va)] = b;
             line->dirty = 1;
+            line->vacant = 0;
             cache_touch_lru(&mem->cache[va_cache_row(va)], way);
+            cache_select(mem, va, way, srn);
         }
         break;
     }
@@ -506,6 +596,9 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
          * storage (16-word aligned) and hand it to the device via
          * the callback. */
         if (dorado_mcr_noref(mem)) {
+            int way = dorado_mcr_usemcrv(mem) ? dorado_mcr_victim(mem)
+                                              : cache_pick_victim(mem, va);
+            cache_select(mem, va, way, srn);
             f = DM_FAULT_NONE;
             break;
         }
@@ -533,6 +626,9 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
          * If a fast_io_cb is registered, the device fills a 16-word
          * munch buffer; we then write it to storage. */
         if (dorado_mcr_noref(mem)) {
+            int way = dorado_mcr_usemcrv(mem) ? dorado_mcr_victim(mem)
+                                              : cache_pick_victim(mem, va);
+            cache_select(mem, va, way, srn);
             f = DM_FAULT_NONE;
             break;
         }
@@ -585,6 +681,11 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
         if (dorado_cache_lookup(mem, va, &way)) {
             cache_writeback_line(mem, va_cache_row(va), way);
             mem->cache[va_cache_row(va)].ways[way].valid = 0;
+            mem->cache[va_cache_row(va)].ways[way].vacant = 1;
+            cache_select(mem, va, way, srn);
+        } else {
+            way = cache_pick_victim(mem, va);
+            cache_select(mem, va, way, srn);
         }
         break;
     }

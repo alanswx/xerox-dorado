@@ -359,6 +359,17 @@ static inline int ff_fa(uint8_t ff) { return (ff >> 6) & 3; }
 static inline int ff_fb(uint8_t ff) { return (ff >> 3) & 7; }
 static inline int ff_fc(uint8_t ff) { return ff & 7; }
 
+static int ff_decode_ok(const dorado_uinstr *u)
+{
+    /* HM §3.6: FF is available as a function or memory subdecode only
+     * when BSEL is not selecting a constant and JCN is not a long
+     * goto/call. */
+    if (u->bsel >= 4) return 0;
+    uint8_t jcn_top4 = (u->jcn >> 4) & 0xF;
+    if (((u->jcn >> 7) & 1) == 0 && jcn_top4 == 0) return 0;
+    return 1;
+}
+
 static int ff_loads_link(const dorado_uinstr *u)
 {
     int fa = ff_fa(u->ff), fb = ff_fb(u->ff), fc = ff_fc(u->ff);
@@ -528,10 +539,7 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
      * function. Per HM §3.9: "FF interpreted as a function iff (BSEL
      * not selecting a constant) and (JCN does not select a 'long'
      * goto/call)." */
-    int ff_is_function = (u->bsel < 4);
-    /* Long branch consumes FF for address bits (JCN tag = 0000). */
-    uint8_t jcn_top4 = (u->jcn >> 4) & 0xF;
-    if (((u->jcn >> 7) & 1) == 0 && jcn_top4 == 0) ff_is_function = 0;
+    int ff_is_function = ff_decode_ok(u);
     if (!ff_is_function) return pd;
 
     if (fa == 0) {
@@ -703,7 +711,9 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
         }
         if (fb == 2) {
             switch (fc) {
-            case 2: /* CFlags ← A' */              return pd;  /* memory TBD */
+            case 2: /* CFlags ← A' */
+                if (cpu->mem) dorado_cflags_load(cpu->mem, a);
+                return pd;
             case 3: /* BrLo ← A — BR[MemBase][16:31] ← A[0:15]
                      * (HM Table 11c FA=1 FB=2 FC=3). */
                 if (cpu->mem) dorado_br_lo_load(cpu->mem, cpu->MemBase, a);
@@ -1149,9 +1159,11 @@ static uint16_t shifter_output(const dorado_cpu *cpu, const dorado_uinstr *u)
  * (Map / Flush). */
 static dorado_ref_kind decode_ref_kind(const dorado_uinstr *u, int io_task)
 {
-    int ff01 = (u->ff >> 6) & 3;     /* FF[0:1] = top 2 bits of FF */
+    int ff_ok = ff_decode_ok(u);
+    int ff01 = ff_ok ? ((u->ff >> 6) & 3) : 0;  /* FF[0:1] if Table 8a */
     switch (u->asel) {
     case 0:
+        if (!ff_ok) return DM_REF_STORE;         /* HM Table 8b */
         switch (ff01) {
         case 0: return DM_REF_PREFETCH;
         case 1: return io_task ? DM_REF_IOFETCH : DM_REF_MAP;
@@ -1160,6 +1172,7 @@ static dorado_ref_kind decode_ref_kind(const dorado_uinstr *u, int io_task)
         }
         break;
     case 1:
+        if (!ff_ok) return DM_REF_FETCH;         /* HM Table 8b */
         switch (ff01) {
         case 0: return DM_REF_DUMMYREF;
         case 1: return io_task ? DM_REF_IOSTORE : DM_REF_FLUSH;
@@ -1181,6 +1194,7 @@ static dorado_ref_kind decode_ref_kind(const dorado_uinstr *u, int io_task)
 
 static uint16_t alt_mem_source(dorado_cpu *cpu, const dorado_uinstr *u)
 {
+    if (!ff_decode_ok(u)) return cpu->T;  /* HM Table 8b: Store/Fetch<-T */
     int ff01 = (u->ff >> 6) & 3;     /* FF[0:1]: Md, Id, Q, T */
     switch (ff01) {
     case 0: return cpu->mem ? cpu->mem->md : 0;
@@ -2133,7 +2147,7 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                 membase |= (uint8_t)((cpu->task_subtask[cpu->ctask] & 3) << 1);
             }
             uint16_t mar = (u->asel <= 1) ? a : alt_mem_source(cpu, u);
-            uint16_t data = (u->asel == 2) ? mar : b;
+            uint16_t data = b;
             uint32_t br = dorado_mcr_disbr(cpu->mem)
                         ? 0
                         : dorado_br_get(cpu->mem, membase);

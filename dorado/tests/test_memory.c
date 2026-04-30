@@ -855,6 +855,55 @@ static int test_mapbuf_busy_pipe5_timing(void)
     return 0;
 }
 
+static int test_cflags_load_visible_in_pipe5(void)
+{
+    enum {
+        CFLAGS_A_DIRTY = 0x0080u,
+        CFLAGS_A_WP    = 0x0020u,
+        PIPE5_DIRTY    = 0x0020u,
+        PIPE5_WP       = 0x0008u,
+    };
+
+    static dorado_memory mem; memset(&mem, 0, sizeof mem);
+    EXPECT(dorado_memory_init(&mem) == 0, "init");
+    dorado_map_set(&mem, 0, /*rp=*/0, /*wp=*/0, /*dirty=*/0);
+
+    dorado_memory_ref(&mem, DM_REF_FETCH, 0x20, 0, 0);
+    dorado_cflags_load(&mem, (uint16_t)~(CFLAGS_A_DIRTY | CFLAGS_A_WP));
+    dorado_memory_ref(&mem, DM_REF_FETCH, 0x20, 0, 0);
+
+    uint16_t p5 = dorado_pipe5_at(&mem, mem.proc_srn);
+    EXPECT((p5 & PIPE5_DIRTY) != 0, "Pipe5 missing Dirty after CFlags");
+    EXPECT((p5 & PIPE5_WP) != 0, "Pipe5 missing WP after CFlags");
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_cflags_load_visible_in_pipe5\n");
+    return 0;
+}
+
+static int test_discf_blocks_cflags_and_pipe5_flags(void)
+{
+    enum {
+        CFLAGS_A_DIRTY = 0x0080u,
+        PIPE5_DIRTY    = 0x0020u,
+    };
+
+    static dorado_memory mem; memset(&mem, 0, sizeof mem);
+    EXPECT(dorado_memory_init(&mem) == 0, "init");
+    dorado_map_set(&mem, 0, /*rp=*/0, /*wp=*/0, /*dirty=*/0);
+
+    dorado_memory_ref(&mem, DM_REF_FETCH, 0x20, 0, 0);
+    dorado_mcr_load(&mem, 0x0080, 0);  /* manual Mcr[8] = DisCF */
+    dorado_cflags_load(&mem, (uint16_t)~CFLAGS_A_DIRTY);
+    dorado_memory_ref(&mem, DM_REF_FETCH, 0x20, 0, 0);
+    EXPECT((dorado_pipe5_at(&mem, mem.proc_srn) & PIPE5_DIRTY) == 0,
+           "DisCF should hide/prevent Pipe5 cache flags");
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_discf_blocks_cflags_and_pipe5_flags\n");
+    return 0;
+}
+
 int main(void)
 {
     int rc = 0;
@@ -885,6 +934,8 @@ int main(void)
     rc |= test_mcr_disbr_blocks_br_writes();
     rc |= test_mcr_noref_suppresses_storage_access();
     rc |= test_mapbuf_busy_pipe5_timing();
+    rc |= test_cflags_load_visible_in_pipe5();
+    rc |= test_discf_blocks_cflags_and_pipe5_flags();
     if (rc == 0) printf("\nAll memory tests passed.\n");
     return rc;
 }

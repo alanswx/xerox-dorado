@@ -157,6 +157,11 @@ Implemented in `dorado/src/memory.c` and `dorado/include/memory.h`:
   index. Used by tests.
 - `dorado_storage_at_va(mem, va)` — bypasses cache; translates via
   Map and reads storage directly. For tests probing physical state.
+- The cache-address-section flag latch records the row/way selected
+  by the most recent memory reference. `CFlags<-A'` updates Dirty,
+  Vacant, WP, and BeingLoaded for that selected entry unless `DisCF`
+  is set in MCR; `B<-Pipe5` exposes the selected entry's cache flags
+  alongside MapBufBusy.
 - `cache_pick_victim`, `cache_writeback_line`, `cache_fill`,
   `cache_invalidate_no_writeback` are internal helpers.
 
@@ -164,7 +169,8 @@ Tests (`tests/test_memory.c`):
 `test_cache_hit`, `test_cache_miss_fill`,
 `test_cache_store_no_map_dirty`, `test_cache_lru_eviction`,
 `test_cache_dirty_victim_writeback`, `test_cache_flush_clean`,
-`test_iostore_cache_invalidate`. All passing.
+`test_iostore_cache_invalidate`, `test_cflags_load_visible_in_pipe5`,
+`test_discf_blocks_cflags_and_pipe5_flags`. All passing.
 
 ### Not yet modeled (Phase B/C)
 
@@ -175,8 +181,7 @@ Tests (`tests/test_memory.c`):
   quadwords × (64 data + 8 check bits). We always succeed.
 - **Cache parity** (the cache address memory has its own parity).
 - **`MapPE` reporting in Pipe4** (we always report no-error).
-- The `BeingLoaded` and `NextVictim` flags exposed via Pipe5 are
-  approximated (not tracked).
+- `NextVictim` in Pipe5 is not yet modeled.
 
 ## The Map (HM §5.5–5.7, pages 44–48)
 
@@ -393,13 +398,20 @@ B[12:15] → ProcSRN), then reads `B←Pipei` to fetch fields of that
 slot. We honor that in cpu.c — `B←Pipe0/Pipe1/Pipe3'/Pipe4'/Pipe5`
 all read from `pipe[mem.proc_srn]`.
 
-`Map<-` now models the hardware MapBufBusy delay that Initial polls in
+`Map<-` models the hardware MapBufBusy delay that Initial polls in
 `WAITFORMAPBUF`: the map write marks the addressed pipe slot busy for
 9 CPU ticks, and `B←Pipe5` exposes that busy state as the sign bit.
 This matches HM §5's MapBuf timing and the MEMX/MEMC schematic names
 around Mapbuf/HoldMapbuf/Pipe5. The actual map RAM update is still
 performed immediately by the emulator; only the observable busy timing
 is delayed.
+
+`CFlags<-A'` and the cache-flag portion of `B<-Pipe5` are now modeled
+well enough for initialization/diagnostic code: they operate on the
+cache row of the last memory reference and the selected hit/victim
+column, and `DisCF` forces reads to zero and suppresses writes. The
+exact Figure 10 bit positions should still be checked against MEMC/MEMX
+before relying on obscure diagnostics.
 
 ### Pipe entry contents
 
@@ -413,7 +425,7 @@ this table summarizes the user-visible reads):
 | `B←Pipe2'` | low-true | EmulatorFault, NFaults, SRNFirstFault. **Same data as `B←FaultInfo'`** — Pipe2' is a "convenient decode" for the same FaultInfo register. |
 | `B←Pipe3'` | low-true | Map flags **as they were before this reference**: WP, Dirty, Ref, BeingLoaded, NextVictim (+ RP) |
 | `B←Pipe4` | mixed | Errors: syndrome bits, correctable bit, etc. XOR with `0150361₈` to get high-true. |
-| `B←Pipe5` | high-true | MapBufBusy sign bit is modeled for `WAITFORMAPBUF`; other fields are victim/cache status and remain debugging-grade. |
+| `B←Pipe5` | high-true | MapBufBusy sign bit plus selected cache-address-section flags (Dirty, Vacant, WP, BeingLoaded). |
 
 `B←FaultInfo'` (`FA=1 FB=6 FC=0`) returns:
 - B[8:11] = SRN of 1st fault (4 bits, inverted)

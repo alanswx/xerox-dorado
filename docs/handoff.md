@@ -415,20 +415,22 @@ the budget in map initialization rather than the old display
 → 0o6366 → WAITFORMAPBUF → 0o6245 → 0o6244 → 0o6367 → DORETURN →
 RETN → PRESETMAPE/PRESETMAPL → SETBRFORPAGE → ...`.
 
-After adding MapBufBusy, the 60M run ends at `PC=0o6244`, `Task=0`,
-`TIOA=0`, no display/disk I/O, and no outstanding memory faults.
-Selected Initial variables look sane: `RNUM=4`, `RCONST=4`,
-`VIRTUALBANKS=4`, `REALPAGES=4`, `DISPLAYCONFIG=7`. A 120M run using
-`DORADO_BOOT_BUDGET=120000000 ./build/test_cpu` still stayed in the
-same PRESETMAP/WAITFORMAPBUF loop.
+After adding MapBufBusy, and then the first cache-address flag model,
+the 60M run still ends at `PC=0o6244`, `Task=0`, `TIOA=0`, with no
+display/disk I/O. Selected Initial variables look sane: `RNUM=4`,
+`RCONST=4`, `VIRTUALBANKS=4`, `REALPAGES=4`, `DISPLAYCONFIG=7`. A
+120M run using `DORADO_BOOT_BUDGET=120000000 ./build/test_cpu` stayed
+in the same PRESETMAP/WAITFORMAPBUF loop.
 
 `LoadMcr[A,B]` is now real enough to cover the bits Initial appears to
-use first (DisBR, NoRef, FDMiss, NoWake), and the full test/probe still
-parks in this same PRESETMAP loop. Basic Config, MapBufBusy, and
-ReadMap/Map<- indexing are no longer the likely blockers. The next
-likely missing hardware is deeper memory-section behavior: Hold/DisHold,
-remaining Pipe5/cache flags, or unmodeled MCR bits (DisCF, DisHold,
-WMiss, ReportSE').
+use first (DisBR, DisCF, NoRef, FDMiss, UseMcrV, NoWake), and
+`CFlags<-A'` plus the cache-flag portion of `B<-Pipe5` are modeled at a
+basic level. The full test/probe still parks in this same PRESETMAP
+loop. Basic Config, MapBufBusy, ReadMap/Map<- indexing, HM Table 8a/8b
+memory-reference decode, and basic cache flags are no longer the likely
+blockers. The next likely missing hardware is deeper memory-section
+behavior: Hold/DisHold, exact Pipe5 bit layout/NextVictim, or remaining
+MCR bits (DisHold, WMiss, ReportSE').
 
 #### 2d. LONGWAIT busy-wait (superseded for now)
 
@@ -654,10 +656,10 @@ order:
    `PRESETMAPL`, and `SETBRFORPAGE`.
 2. Implement enough Hold/DisHold behavior that memory/map references
    can stall instead of returning stale Md immediately.
-3. Fill in remaining Pipe5/cache status from MEMC/MEMX if PRESETMAP
-   or cache-flag setup reads it beyond MapBufBusy.
+3. Verify the Pipe5/CFlags bit positions against MEMC/MEMX and add
+   NextVictim if PRESETMAP/cache setup reads it.
 4. Finish the remaining MCR bits if the map loop depends on them:
-   DisCF, DisHold, WMiss, and ReportSE'.
+   DisHold, WMiss, and ReportSE'.
 5. Re-run `build/test_cpu`; success means leaving PRESETMAP and
    reaching DISPLAYINITCONFIG / device I/O without the NOSTORAGE
    workaround.

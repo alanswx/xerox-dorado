@@ -3359,6 +3359,87 @@ static int test_alt_fetch_t_lc_md(void)
     return 0;
 }
 
+static int test_alt_store_t_uses_b_data(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;   /* "B" */
+
+    /* ASEL=2 + FF[0:1]=3 is Store<-T: T supplies Mar/address, but
+     * DBuf/store data still comes from B. Use BSEL=Q to prove the
+     * emulator does not accidentally store the address. */
+    mc.im[0] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/3, /*lc=*/0,
+                           /*asel=*/2, /*block=*/0, /*ff=*/0300,
+                           /*jcn=*/jcn_local(1));
+    mc.im_present[0] = 1;
+    mc.im[1] = make_uinstr(0, 0, 4, 0, 4, 0, 0, jcn_local(1));
+    mc.im_present[1] = 1;
+    for (int i = 0; i < 2; i++) {
+        mc.image_to_real[i] = i;
+        mc.image_present[i] = 1;
+    }
+    mc.n_instructions = 2;
+
+    static dorado_memory mem;
+    EXPECT(dorado_memory_init(&mem) == 0, "memory init");
+    dorado_map_set(&mem, /*va_page=*/0, /*rp=*/0, /*wp=*/0, /*dirty=*/0);
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.mem = &mem;
+    cpu.T = 0x42;       /* address */
+    cpu.Q = 0xCAFE;     /* B/data */
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "Store<-T step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    dorado_memory_ref(&mem, DM_REF_FETCH, 0x42, 0, 0);
+    EXPECT(mem.md == 0xCAFE, "Md = 0x%04X, expected stored Q data", mem.md);
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_alt_store_t_uses_b_data\n");
+    return 0;
+}
+
+static int test_memory_decode_uses_table8b_when_ff_not_ok(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;   /* "B" */
+
+    /* Long JCN makes FF unavailable. HM Table 8b says ASEL=0 is
+     * Store<-RM/STK, even though FF[0:1]=1 would mean Map<- under
+     * Table 8a. */
+    mc.im[0] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/2, /*lc=*/0,
+                           /*asel=*/0, /*block=*/0, /*ff=*/0100,
+                           /*jcn=*/0x00);
+    mc.im_present[0] = 1;
+    mc.image_to_real[0] = 0;
+    mc.image_present[0] = 1;
+    mc.n_instructions = 1;
+
+    static dorado_memory mem;
+    EXPECT(dorado_memory_init(&mem) == 0, "memory init");
+    dorado_map_set(&mem, /*va_page=*/0, /*rp=*/0, /*wp=*/0, /*dirty=*/0);
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.mem = &mem;
+    cpu.RM[0] = 0x55;   /* address */
+    cpu.T = 0xBEEF;     /* B/data */
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "Table 8b Store step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    dorado_memory_ref(&mem, DM_REF_FETCH, 0x55, 0, 0);
+    EXPECT(mem.md == 0xBEEF, "Md = 0x%04X, expected Table 8b Store data",
+           mem.md);
+    EXPECT((dorado_pipe5_at(&mem, 0) & 0x8000u) == 0,
+           "Instruction should not have been decoded as Map<-");
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_memory_decode_uses_table8b_when_ff_not_ok\n");
+    return 0;
+}
+
 static int test_bootstrap_ldf_dispatch(void)
 {
     static dorado_microcode mc;
@@ -4498,6 +4579,8 @@ int main(void)
     rc |= test_stk_underflow_check();
     rc |= test_cpu_memory_roundtrip();
     rc |= test_alt_fetch_t_lc_md();
+    rc |= test_alt_store_t_uses_b_data();
+    rc |= test_memory_decode_uses_table8b_when_ff_not_ok();
     rc |= test_bootstrap_ldf_dispatch();
     rc |= test_cpu_fault_info_visible();
     rc |= test_bc_timing_previous_instr();

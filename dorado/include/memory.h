@@ -70,6 +70,8 @@ typedef enum {
  * Flags per line:
  *   valid — line currently holds a fetched munch
  *   dirty — line has been written; must be flushed back on eviction
+ *   wp/vacant/being_loaded — cache-address-section flags visible via
+ *           Pipe5 and writable via CFlags←A during diagnostics/init
  */
 #define DM_CACHE_ROWS      64
 #define DM_CACHE_WAYS      4
@@ -81,6 +83,9 @@ typedef struct {
     uint32_t tag;     /* VA bits above the row+offset */
     uint8_t  valid;
     uint8_t  dirty;
+    uint8_t  wp;
+    uint8_t  vacant;
+    uint8_t  being_loaded;
     uint16_t data[DM_CACHE_LINE_W];
 } dorado_cache_line;
 
@@ -161,6 +166,7 @@ typedef struct dorado_memory {
         dorado_ref_kind kind;
         uint8_t         map_flags_pre;
         uint8_t         mapbuf_busy;
+        uint16_t        cache_flags;
     } pipe[DM_PIPE_DEPTH];
     int     pipe_head;       /* index just past the just-written slot, wrapped */
     uint8_t proc_srn;        /* 4-bit; emulator + fault tasks. Default 0. */
@@ -171,6 +177,11 @@ typedef struct dorado_memory {
      * entry and clears it about 9 cycles later. */
     int mapbuf_busy_slot;
     int mapbuf_busy_cycles;
+
+    /* Cache-address-section entry selected by the most recent memory
+     * reference. CFlags←A and Pipe5 use this row/column. */
+    int last_cache_row;
+    int last_cache_way;
 
     /* Main storage — flat array, 16-bit words. We don't model ECC
      * bits yet; HM §5.7 will add them in Phase B. */
@@ -293,6 +304,7 @@ uint32_t dorado_pipe_va_at(const dorado_memory *mem, int srn);
 uint8_t  dorado_pipe_map_flags_at(const dorado_memory *mem, int srn);
 uint16_t dorado_pipe5_at(const dorado_memory *mem, int srn);
 void     dorado_memory_tick(dorado_memory *mem);
+void     dorado_cflags_load(dorado_memory *mem, uint16_t a);
 
 /* Set ProcSRN (the slot index used for non-PreFetch-miss task-0/15
  * references). FF function `ProcSRN←B[12:15]` (HM Table 11c FA=1
