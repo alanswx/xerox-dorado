@@ -2694,6 +2694,59 @@ static int probe_full_boot_with_bootstrap(void)
          * intact so READBB still works for Initial's checksum read. */
         if (initial_canonical_loaded && !initial_substituted &&
             swapped && is_imfetch && cpu.real_PC == 07717) {
+            /* (gap A1 diagnostic) — measure how well Bootstrap's
+             * STREAMING populated IM against canonical Initial.mb,
+             * BEFORE we overwrite with the canonical version. */
+            int s_canon = 0, s_streamed = 0, s_match = 0, s_differ = 0;
+            int s_first_diff = -1;
+            for (int a = 0; a < 4096; a++) {
+                if (a >= 07700 && a < 010000) continue;
+                if (init_mc.im_present[a]) s_canon++;
+                if (mc.im_present[a])       s_streamed++;
+                if (init_mc.im_present[a] && mc.im_present[a]) {
+                    if (init_mc.im[a].iw0 == mc.im[a].iw0 &&
+                        init_mc.im[a].iw1 == mc.im[a].iw1 &&
+                        init_mc.im[a].iw2 == mc.im[a].iw2) {
+                        s_match++;
+                    } else {
+                        s_differ++;
+                        if (s_first_diff < 0) s_first_diff = a;
+                    }
+                }
+            }
+            printf("       A1 stream-vs-canonical (pre-substitution): "
+                   "canon=%d streamed=%d match=%d differ=%d first_diff=0o%o\n",
+                   s_canon, s_streamed, s_match, s_differ,
+                   s_first_diff >= 0 ? s_first_diff : 0);
+            /* Dump first 6 differing entries to see the corruption pattern. */
+            int dumped = 0;
+            for (int a = 0; a < 4096 && dumped < 6; a++) {
+                if (a >= 07700 && a < 010000) continue;
+                if (init_mc.im_present[a] && mc.im_present[a] &&
+                    (init_mc.im[a].iw0 != mc.im[a].iw0 ||
+                     init_mc.im[a].iw1 != mc.im[a].iw1 ||
+                     init_mc.im[a].iw2 != mc.im[a].iw2)) {
+                    printf("         [0o%o] streamed iw0=0x%04X iw1=0x%04X iw2=0x%04X "
+                           "canon iw0=0x%04X iw1=0x%04X iw2=0x%04X\n",
+                           a,
+                           mc.im[a].iw0, mc.im[a].iw1, mc.im[a].iw2,
+                           init_mc.im[a].iw0, init_mc.im[a].iw1, init_mc.im[a].iw2);
+                    dumped++;
+                }
+            }
+            /* Dump first 6 MATCHING entries too, for contrast. */
+            int matched_dumped = 0;
+            for (int a = 0; a < 4096 && matched_dumped < 6; a++) {
+                if (a >= 07700 && a < 010000) continue;
+                if (init_mc.im_present[a] && mc.im_present[a] &&
+                    init_mc.im[a].iw0 == mc.im[a].iw0 &&
+                    init_mc.im[a].iw1 == mc.im[a].iw1 &&
+                    init_mc.im[a].iw2 == mc.im[a].iw2) {
+                    printf("         [0o%o] MATCH iw0=0x%04X iw1=0x%04X iw2=0x%04X\n",
+                           a, mc.im[a].iw0, mc.im[a].iw1, mc.im[a].iw2);
+                    matched_dumped++;
+                }
+            }
             for (int a = 0; a < 4096; a++) {
                 if (init_mc.im_present[a]) {
                     /* Don't overwrite Bootstrap.MB at 0o7700-0o7777. */

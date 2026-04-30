@@ -253,3 +253,94 @@ here with the BB ROM disassembly + the Bootstrap.mc walkthrough.
 - `dorado/build/bbdis` — disassembler tool. Re-run with
   `--start XXXX --end YYYY chm/dorado/doradobaserom.mb!13` to dump
   any region.
+
+## Diagnostic findings (2026-04-30)
+
+A new diagnostic in `probe_full_boot_with_bootstrap` measures
+streamed-vs-canonical IM content **before** the BOOTSTAGE2
+substitution. Baseline result with the current "no-invert during
+BB free-run" band-aid:
+
+```
+A1 stream-vs-canonical (pre-substitution):
+  canon=4031 streamed=896 match=95 differ=800 first_diff=0o6100
+```
+
+So 95/896 streamed entries match canonical Initial.mb. First
+divergence is at 0o6100 — the very first written address.
+
+### Sample diffs
+
+```
+[0o6100] streamed iw0=0x0044 iw1=0x7341 iw2=0x0000  canon iw0=0x0084 iw1=0x6005 iw2=0x0000
+[0o6101] streamed iw0=0x0044 iw1=0xB3C5 iw2=0xC000  canon iw0=0x00B4 iw1=0x2F47 iw2=0x4000
+[0o6102] streamed iw0=0x0044 iw1=0x19C1 iw2=0x0000  canon iw0=0xE0B4 iw1=0x2340 iw2=0xC000
+```
+
+Streamed iw0 is the default-decode `0x0044` (NoOp) for many
+addresses — what `dorado_decode_model1` produces from a near-zero
+byte.
+
+### Loc-computation analysis
+
+The first 4 ReadBB calls Bootstrap makes set `Loc` (start IM
+address) and `Cnt` (hunk count). Per BootstrapMain.mc:
+
+```
+Loc_ LSH[T, 10], Call[ReadBB];     * Bytes 0, 1 = loc
+T_ LDF[T, 10, 0];
+Loc_ (Loc) XOR T, Call[ReadBB];
+```
+
+Reading the .mb-compiled forms via `mbdis --disasm bootstrap.mb`
+and walking through `cpu.c::shifter_output`: `LSH[T, 10]` (octal
+10 = 8 bits) compiles to `T << 8`, `LDF[T, 10, 0]` to `T & 0xFF`.
+
+So `Loc = (T1 << 8) XOR (T2 & 0xFF)`.
+
+The BB sends Boot1IMLoc = `0x0C40` (= 0o6100) as 2 bytes per
+`SendIMBlockToDorado`:
+- `Hunk[0] = 0x40` (low byte of address)
+- `Hunk[1] = 0x0C` (high byte)
+
+With current no-invert path:
+- T1 = CPReg = 0x0040 (sync=0, data=0x40).
+- T2 = CPReg = 0x800C (sync=1, data=0x0C).
+- Loc = (0x0040 << 8) XOR (0x800C & 0xFF)
+      = 0x4000 XOR 0x0C
+      = **0x400C** — but we want **0x0C40**.
+
+Bytes are *byte-swapped* relative to the desired result. With
+always-invert (= spec), Loc = 0xBFF3 — also wrong.
+
+### Hypothesis
+
+Three candidates, in decreasing likelihood:
+
+1. **BB byte order is opposite from the .masm read.** The
+   `LDA IMAddress,#HighAddrByte; STA Hunk+1; LDA IMAddress,#LowAddrByte;
+   STA Hunk` sequence in `doradoboot.masm` may have semantics
+   different from "Hunk[0] = low, Hunk[1] = high" when the assembler's
+   `#HighAddrByte` / `#LowAddrByte` macros are taken into account.
+   Need to find the macro definitions.
+2. **Our LSH/LDF semantics for `LSH[T, 10]` and `LDF[T, 10, 0]`
+   are inverted.** The first argument `10` may be interpreted in
+   the wrong direction. Cross-check by examining BootstrapMain.mc
+   uses of these macros against the disassembled bootstrap.mb.
+3. **Both, partially compensating** — and the no-invert path
+   produces 95 correct entries by coincidence (e.g., entries whose
+   bytes are palindromic or whose XOR partners cancel).
+
+### Next actionable step
+
+Per-cycle trace one full `BootByteL` iteration with:
+- T pre/post each microinstruction
+- CPReg value at each ReadBB
+- the resulting IM write address + iw0/iw1/iw2
+
+Compare line-by-line to BootstrapMain.mc lines 167-204. The first
+divergence identifies the bug.
+
+The 95-vs-896 diagnostic line lives in `tests/test_cpu.c`
+post-this-session, so the metric is observable directly on every
+run.
