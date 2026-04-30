@@ -126,6 +126,10 @@ typedef struct {
     int  cur_cyl;
     int  cur_head;
     int  cur_sector;
+    int  subsector_count;            /* Tag[4:9], sector pulse every N+1
+                                      * of the 117 drive subsector pulses */
+    int  sectors_per_revolution;     /* controller sector-pulse cadence;
+                                      * distinct from pack image sectors */
 
     int  seek_in_progress;
     int  index_pulse;               /* set briefly on each rev */

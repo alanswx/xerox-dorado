@@ -339,8 +339,9 @@ static int test_advance_sector(void)
     EXPECT(ctl.fifo_count > 0, "FIFO reloaded after advance, count=%d",
            ctl.fifo_count);
 
-    /* Wrap around at sector 9. */
-    for (int i = 1; i < 9; i++) dorado_disk_controller_advance_sector(&ctl);
+    /* Boot drive 0 uses Pilot's 30-position controller sector cadence;
+     * media lookup maps those positions onto the 9-sector image. */
+    for (int i = 1; i < 30; i++) dorado_disk_controller_advance_sector(&ctl);
     EXPECT(ctl.drive[0].cur_sector == 0,
            "cur_sector wraps to 0, got %d", ctl.drive[0].cur_sector);
 
@@ -374,7 +375,7 @@ static int test_block_till_index(void)
     EXPECT(!dorado_disk_controller_wakeup_pending(&ctl),
            "no wakeup should be pending before index");
 
-    for (int i = 1; i < pack.geometry.sectors; i++) {
+    for (int i = 1; i < 30; i++) {
         dorado_disk_controller_advance_sector(&ctl);
     }
     EXPECT(ctl.drive[0].cur_sector == 0, "cur_sector should wrap to index");
@@ -389,6 +390,46 @@ static int test_block_till_index(void)
     return 0;
 }
 
+/* test_drive_select_subsector_count — Drive Select Tag[10] loads the
+ * selected drive's subsector divider. Count 3 means four 117-pulse
+ * subsectors per controller sector, or 30 sector wakeups per rev with
+ * the leftover fraction rounded up to the index interval. */
+static int test_drive_select_subsector_count(void)
+{
+    static dorado_io io;
+    dorado_io_init(&io);
+    static dorado_disk_controller ctl;
+    dorado_disk_controller_init(&ctl);
+    dorado_disk_controller_attach_to_io(&ctl, &io);
+
+    static dorado_disk_pack pack;
+    EXPECT(dorado_disk_pack_create(&pack, &DORADO_DISK_T80) == 0, "create");
+    dorado_disk_controller_attach_drive(&ctl, 0, &pack);
+
+    dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG,
+                    (uint16_t)((1u << 5) | (3u << 6)));
+    EXPECT(ctl.drive[0].subsector_count == 3,
+           "subsector_count=%d", ctl.drive[0].subsector_count);
+    EXPECT(ctl.drive[0].sectors_per_revolution == 30,
+           "sectors_per_revolution=%d",
+           ctl.drive[0].sectors_per_revolution);
+
+    for (int i = 0; i < 29; i++) dorado_disk_controller_advance_sector(&ctl);
+    EXPECT(ctl.drive[0].cur_sector == 29,
+           "cur_sector=%d before index", ctl.drive[0].cur_sector);
+    EXPECT(ctl.index_tw == 0, "index_tw should not assert before wrap");
+
+    dorado_disk_controller_advance_sector(&ctl);
+    EXPECT(ctl.drive[0].cur_sector == 0,
+           "cur_sector should wrap at 30, got %d", ctl.drive[0].cur_sector);
+    EXPECT(ctl.index_tw == 1, "index_tw should assert at wrapped sector");
+    EXPECT(ctl.sector_tw == 1, "index pulse should also assert sector_tw");
+
+    dorado_disk_pack_free(&pack);
+    printf("PASS  test_drive_select_subsector_count (count 3 -> 30 pulses/rev)\n");
+    return 0;
+}
+
 int main(void)
 {
     int rc = 0;
@@ -399,6 +440,7 @@ int main(void)
     rc |= test_tag_decoder();
     rc |= test_advance_sector();
     rc |= test_block_till_index();
+    rc |= test_drive_select_subsector_count();
     if (rc == 0) printf("\nAll disk tests passed.\n");
     return rc;
 }

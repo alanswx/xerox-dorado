@@ -7,6 +7,10 @@
 const dorado_disk_geometry DORADO_DISK_T80  = { 815, 5, 9 };
 const dorado_disk_geometry DORADO_DISK_T300 = { 815, 19, 9 };
 
+#define DORADO_DISK_SUBSECTOR_PULSES_PER_REV 117
+
+static void disk_set_subsector_count(dorado_disk_drive *d, int count);
+
 /* ─── Pack image I/O ────────────────────────────────────────────── */
 
 static int sector_index(const dorado_disk_geometry *g,
@@ -143,6 +147,7 @@ void dorado_disk_pack_free(dorado_disk_pack *pack)
 void dorado_disk_drive_init(dorado_disk_drive *drv)
 {
     memset(drv, 0, sizeof *drv);
+    drv->sectors_per_revolution = 0;
 }
 
 void dorado_disk_drive_attach_pack(dorado_disk_drive *drv,
@@ -153,6 +158,9 @@ void dorado_disk_drive_attach_pack(dorado_disk_drive *drv,
     drv->cur_cyl = 0;
     drv->cur_head = 0;
     drv->cur_sector = 0;
+    if (pack && drv->sectors_per_revolution <= 0) {
+        drv->sectors_per_revolution = pack->geometry.sectors;
+    }
 }
 
 /* ─── Controller ────────────────────────────────────────────────── */
@@ -163,6 +171,11 @@ void dorado_disk_controller_init(dorado_disk_controller *ctl)
     for (int i = 0; i < DORADO_DISK_NUM_DRIVES; i++) {
         dorado_disk_drive_init(&ctl->drive[i]);
     }
+    /* PilotDisk/Initial treat drive 0 as the boot drive and load
+     * subsector count 3 (four 117-pulse subsectors per sector). We
+     * seed that convention here until the full drive-select timing path
+     * through the controller sequence logic is modeled. */
+    disk_set_subsector_count(&ctl->drive[0], 3);
 }
 
 void dorado_disk_controller_attach_drive(dorado_disk_controller *ctl,
@@ -188,6 +201,31 @@ static uint16_t disk_sector_word(const dorado_disk_sector *s, int idx)
     return 0;
 }
 
+static int disk_sector_pulse_count(const dorado_disk_drive *d)
+{
+    if (d->sectors_per_revolution > 0) return d->sectors_per_revolution;
+    if (d->pack && d->pack->geometry.sectors > 0) return d->pack->geometry.sectors;
+    return 1;
+}
+
+static int disk_media_sector(const dorado_disk_drive *d)
+{
+    if (!d->pack || d->pack->geometry.sectors <= 0) return d->cur_sector;
+    return d->cur_sector % d->pack->geometry.sectors;
+}
+
+static void disk_set_subsector_count(dorado_disk_drive *d, int count)
+{
+    if (!d) return;
+    d->subsector_count = count & 0x3F;
+    int divisor = d->subsector_count + 1;
+    if (divisor <= 0) divisor = 1;
+    d->sectors_per_revolution =
+        (DORADO_DISK_SUBSECTOR_PULSES_PER_REV + divisor - 1) / divisor;
+    if (d->sectors_per_revolution <= 0) d->sectors_per_revolution = 1;
+    if (d->cur_sector >= d->sectors_per_revolution) d->cur_sector = 0;
+}
+
 void dorado_disk_controller_refill_fifo(dorado_disk_controller *ctl)
 {
     if (!ctl || !ctl->read_stream_active) return;
@@ -197,7 +235,7 @@ void dorado_disk_controller_refill_fifo(dorado_disk_controller *ctl)
         return;
     }
     dorado_disk_sector *s = dorado_disk_pack_sector(
-        d->pack, d->cur_cyl, d->cur_head, d->cur_sector);
+        d->pack, d->cur_cyl, d->cur_head, disk_media_sector(d));
     if (!s) {
         ctl->read_stream_active = 0;
         return;
@@ -254,7 +292,7 @@ void dorado_disk_controller_advance_sector(dorado_disk_controller *ctl)
 {
     dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
     if (!d->pack) return;
-    d->cur_sector = (d->cur_sector + 1) % d->pack->geometry.sectors;
+    d->cur_sector = (d->cur_sector + 1) % disk_sector_pulse_count(d);
     int at_index = (d->cur_sector == 0);
 
     if (at_index) {
@@ -360,6 +398,11 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
                  * Tag[10] = "load subsector count" (LSB bit 5).
                  * Tag[4:9] = subsector count (LSB bits 6..11). */
                 int drv_select = data & 0x1F;
+                if (data & (1u << 5)) {
+                    int count = (data >> 6) & 0x3F;
+                    disk_set_subsector_count(&ctl->drive[ctl->selected_drive],
+                                             count);
+                }
                 if (drv_select <= 3) {
                     ctl->selected_drive = drv_select;
                     for (int i = 0; i < DORADO_DISK_NUM_DRIVES; i++) {

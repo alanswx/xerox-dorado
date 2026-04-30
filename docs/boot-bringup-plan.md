@@ -169,10 +169,13 @@ What works (continued)
   10 label words + 1024 data words = 2074 bytes/sector), drive struct
   with online/select state, controller registered on task 14₈ TIOA
   10₈-14₈ with DiskControl bit decode + Format RAM auto-increment +
-  DiskData FIFO + DiskTag decode + DiskMuff status readout. FIFO reads
-  stream a full sector record when exercised by tests; Initial reaches
-  the disk boot routine now, but it still does not issue DiskData
-  inputs in the full boot probe.
+  DiskData FIFO + DiskTag decode + DiskMuff status readout. Drive
+  Select now tracks the selected drive's subsector divider, so the
+  synthetic sector wakeups use the controller's 117-pulse-derived
+  sector cadence instead of conflating it with the 9-sector pack image
+  layout. FIFO reads stream a full sector record when exercised by
+  tests; Initial reaches the disk boot routine now, but it still does
+  not issue DiskData inputs in the full boot probe.
 
 **probe_full_boot_with_bootstrap** (added 2026-04): the BB drives
 its real Boot1 byte stream through CPReg while Bootstrap.MB is
@@ -202,6 +205,16 @@ image. With that in place, the probe now demonstrates:
   FIFO reads/writes remain zero. Initial is not yet transferring
   hard-disk boot sectors from the mounted pack; the next blocker is the
   disk sector/status path used by `WaitForSector` and `Read1Muff`.
+  The hardware manual and DskEth schematic confirm the drive/controller
+  sector timing model: 117 drive subsector pulses/rev, divided by the
+  selected drive's `Tag[4:9]+1` subsector count. Drive 0 is initialized
+  by PilotDisk/Initial with count 3, so firmware counts 30 sector
+  positions per revolution (29 plus a leftover fraction,
+  `MaxSectors = 36₈`) even when the attached Alto/Trident pack image
+  stores 9 media sectors/track. Since the current full-boot trace does
+  not yet emit direct TIOA `DiskTag` writes, the emulator seeds drive 0
+  with that count-3 convention while the real controller tag/sequence
+  path is still being filled in.
   The full probe also uses a temporary identity-map shim for the first
   256 pages at `DiskHardMicrocodeBoot`; without it, final map entries
   for the first 64K are still vacant and the CSB/IOCB handoff faults.

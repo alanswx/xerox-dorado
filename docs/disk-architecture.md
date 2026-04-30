@@ -137,6 +137,26 @@ little-endian on disk.
 
 `dorado_disk_pack` (in `include/disk.h`) reads/writes this format.
 
+Important emulator distinction: this 9-sector value is the **pack
+image layout**, not necessarily the controller's current sector-wakeup
+cadence. The hardware drive produces 117 subsector pulses per
+revolution. The controller divides those by the selected drive's
+subsector count (`Tag[4:9] + 1`) and wakes the DSK task on the derived
+sector pulses. Boot/Pilot microcode sets drive 0 to subsector count 3,
+so the firmware sees 30 possible sector pulse positions per revolution
+(29 plus a leftover fraction, with `MaxSectors = 36₈`). Reads from a
+9-sector Alto/Trident pack image must therefore map controller sector
+position to media sector number explicitly; the current emulator uses
+`controller_sector % pack.geometry.sectors` until the real sequence
+PROM/header-matching path is implemented.
+
+Current bring-up note: the full boot trace does not yet write TIOA
+`DiskTag`; the source path is still going through controller/sequence
+logic we have not fully modeled. To match the boot software's stated
+drive-0 convention, controller init seeds drive 0 with subsector count
+3, while still honoring later Drive Select Tag[10] loads when they are
+observed.
+
 ## TIOA register map (HM §9 page 92)
 
 All on task 14₈. Other tasks **must not** select these TIOA addresses
@@ -568,7 +588,9 @@ software XOR the corrupted bits back to correct values.
 **Phase 2**:
 - **Tag decoder**: dispatches by Tag[0:3] (HM pages 99-101):
   - Tag[0:3]=0 (Drive Select): updates `selected_drive` + per-drive
-    flags from Tag[11:15].
+    flags from Tag[11:15]; honors Tag[10] by loading the selected
+    drive's subsector count from Tag[4:9] and deriving controller
+    sector-pulses-per-revolution from the 117 drive pulses.
   - Tag[0:3]=1 (Head Tag): sets `cur_head` from low 6 bits, raises
     `tag_tw` wakeup.
   - Tag[0:3]=2 (Cylinder Tag): seeks to `cur_cyl` from low 12 bits,
@@ -579,12 +601,14 @@ software XOR the corrupted bits back to correct values.
     Active + `rd_fifo_tw`), Write (clears FIFO, sets `wr_fifo_tw` +
     Active).
 - **Synthetic sector-pulse**: `dorado_disk_controller_advance_sector()`
-  increments the sector counter (wraps at sectors-per-track), sets
-  `sector_tw`, asserts `index_tw` on wrap, clears `block_till_index`
-  at the index pulse, and reloads FIFO if the controller is in an
-  active op or EnableRun plus a non-Done DiskControl op is pending.
-  `block_till_index` masks newly generated non-index sector wakeups;
-  existing wakeups remain pending, matching HM page 97.
+  increments the selected drive's controller sector position, wrapping
+  at the per-drive subsector-derived sector count rather than the pack
+  image's 9 stored sectors. It sets `sector_tw`, asserts `index_tw` on
+  wrap, clears `block_till_index` at the index pulse, and reloads FIFO
+  if the controller is in an active op or EnableRun plus a non-Done
+  DiskControl op is pending. `block_till_index` masks newly generated
+  non-index sector wakeups; existing wakeups remain pending, matching
+  HM page 97.
 
 What's not yet wired:
 
@@ -596,8 +620,9 @@ What's not yet wired:
   munches. DSK microcode currently has to drain FIFO via Pd←Input.
 - **Fire Code ECC**: polynomial P(X) implementation in software.
 - **Real sector-pulse timing**: 117 subsector + 1 index pulses per
-  16.66 ms revolution drives DSK task wakeups. Phase 3 needs a
-  cycle-accurate simulation clock.
+  16.66 ms revolution drives DSK task wakeups. We now model the
+  per-drive divider for synthetic wakeups, but Phase 3 still needs a
+  cycle-accurate simulation clock and leftover-subsector timing.
 - **Block transitions per Format RAM**: the format-RAM-driven
   multi-block sector layout (1st block at offset N, gap of M words,
   2nd block at offset...) — currently we just dump header+label+data
