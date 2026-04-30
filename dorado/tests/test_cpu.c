@@ -127,9 +127,11 @@ static void service_boot_disk(dorado_cpu *cpu, dorado_disk_controller *disk,
      * run independently of whether microcode is currently touching the
      * slow-IO ports. Keep that property here and let the controller's
      * own latch/mask state decide whether the DSK task should wake. */
-    if (seek_pending ||
-        ((disk->active || disk->enable_run) &&
-         (disk->block_till_index || (cycle % sector_period) == 0))) {
+    int disk_task_running = (cpu && cpu->ctask == DORADO_DISK_TASK);
+    int urgent_clock = seek_pending || disk->block_till_index;
+    if (!disk_task_running &&
+        ((urgent_clock && (disk->active || disk->enable_run)) ||
+         ((disk->active || disk->enable_run) && (cycle % sector_period) == 0))) {
         dorado_disk_controller_advance_sector(disk);
         if (sector_ticks) (*sector_ticks)++;
     }
@@ -169,6 +171,42 @@ static void seed_boot_keyboard_from_display(dorado_memory *mem,
             seed_boot_keyboard_va(mem, va, value);
         }
     }
+}
+
+static int service_alto_disk_boot_shim(dorado_memory *mem,
+                                       dorado_disk_pack *pack,
+                                       int boot_head)
+{
+    if (!mem || !pack || !pack->sectors) return 0;
+
+    /* AEmu's Alto disk boot builds a legacy Alto command block at
+     * 0431 and posts its pointer in 0521.  Until the Alto/Dorado disk
+     * task is complete, satisfy just that first boot-sector read so we
+     * can keep CPU/display bring-up moving. */
+    if (dorado_storage_at_va(mem, 0521u) != 0431u) return 0;
+    if (dorado_storage_at_va(mem, 0433u) != 044000u) return 0;
+    if (dorado_storage_at_va(mem, 0432u) & 07400u) return 0;
+
+    if (boot_head < 0) boot_head = 0;
+    if (boot_head >= pack->geometry.heads) {
+        boot_head = pack->geometry.heads - 1;
+    }
+    dorado_disk_sector *s = dorado_disk_pack_sector(pack, 0, boot_head, 0);
+    if (!s) return 0;
+
+    for (int i = 0; i < DORADO_DISK_HEADER_WORDS; i++) {
+        store_boot_va(mem, 0402u + (uint32_t)i, s->header[i]);
+    }
+    for (int i = 0; i < DORADO_DISK_LABEL_WORDS; i++) {
+        store_boot_va(mem, 0404u + (uint32_t)i, s->label[i]);
+    }
+    for (int i = 0; i < DORADO_DISK_DATA_WORDS; i++) {
+        store_boot_va(mem, 0001u + (uint32_t)i, s->data[i]);
+    }
+
+    store_boot_va(mem, 0432u, 07400u); /* Done, no low-byte errors. */
+    store_boot_va(mem, 0521u, 0);
+    return 1;
 }
 
 static uint16_t boot_keyboard_word(const dorado_memory *mem, uint32_t off)
@@ -2417,6 +2455,8 @@ static int probe_full_boot_with_bootstrap(void)
     uint64_t disk_sector_ticks = 0;
     uint64_t disk_wakeups = 0;
     uint64_t disk_normal_mode_shims = 0;
+    uint64_t alto_disk_boot_shims = 0;
+    int alto_disk_boot_head = (int)test_u64_env("DORADO_ALTO_BOOT_HEAD", 18);
     uint64_t boot_identity_map_shims = 0;
     uint64_t ether_boot_injections = 0;
     uint16_t ether_boot_end = 0;
@@ -2513,6 +2553,9 @@ static int probe_full_boot_with_bootstrap(void)
         uint8_t tioa;
         uint8_t muff_addr, index_tw, sector_tw, tag_tw, rd_fifo_tw, wr_fifo_tw;
         uint8_t enable_run, active, block_till_index;
+        uint16_t disk_control;
+        uint8_t fifo_count;
+        uint8_t cur_cyl_lo, cur_head, cur_sector;
         uint8_t disk_out_tioa, disk_in_tioa;
         uint16_t disk_out_data, disk_in_data;
         uint32_t mar_before, mar_after;
@@ -2918,6 +2961,11 @@ static int probe_full_boot_with_bootstrap(void)
             dt->enable_run = disk.enable_run;
             dt->active = disk.active;
             dt->block_till_index = disk.block_till_index;
+            dt->disk_control = disk.control;
+            dt->fifo_count = (uint8_t)disk.fifo_count;
+            dt->cur_cyl_lo = (uint8_t)(disk.drive[disk.selected_drive].cur_cyl & 0xFF);
+            dt->cur_head = (uint8_t)(disk.drive[disk.selected_drive].cur_head & 0xFF);
+            dt->cur_sector = (uint8_t)(disk.drive[disk.selected_drive].cur_sector & 0xFF);
             dt->disk_out_tioa = disk.last_output_tioa;
             dt->disk_out_data = disk.last_output_data;
             dt->disk_in_tioa = disk.last_input_tioa;
@@ -2948,6 +2996,11 @@ static int probe_full_boot_with_bootstrap(void)
         }
         service_boot_disk(&cpu, &disk, bb.cycles,
                           &disk_sector_ticks, &disk_wakeups);
+        if (ether_loaded_world_cycle && alto_disk_boot_shims == 0 &&
+            service_alto_disk_boot_shim(&mem, &disk_pack,
+                                        alto_disk_boot_head)) {
+            alto_disk_boot_shims++;
+        }
         if (initial_substituted && bb.cycles >= next_display_scanline_cycle) {
             uint16_t mask = dorado_display_scanline_wakeup_mask(&display);
             for (int task = 0; task < 16; task++) {
@@ -3371,6 +3424,7 @@ static int probe_full_boot_with_bootstrap(void)
     }
     printf("       Disk pack: %s, sector ticks=%llu wakeups=%llu "
            "fifo reads=%llu writes=%llu normal-mode shims=%llu "
+           "alto-boot shims=%llu(head=%d) "
            "selected=%d CHS=(%d,%d,%d)\n",
            disk_pack_attached ? disk_pack.path : "(none)",
            (unsigned long long)disk_sector_ticks,
@@ -3378,6 +3432,8 @@ static int probe_full_boot_with_bootstrap(void)
            (unsigned long long)disk.fifo_reads,
            (unsigned long long)disk.fifo_writes,
            (unsigned long long)disk_normal_mode_shims,
+           (unsigned long long)alto_disk_boot_shims,
+           alto_disk_boot_head,
            disk.selected_drive,
            disk.drive[disk.selected_drive].cur_cyl,
            disk.drive[disk.selected_drive].cur_head,
@@ -3443,6 +3499,7 @@ static int probe_full_boot_with_bootstrap(void)
                    "T=%04X->%04X Md=%04X->%04X Link=%04X->%04X "
                    "RB=%o->%o MB=%o->%o TIOA=%02o Mar=%07X->%07X store@Mar=%04X "
                    "muff=%03o tw=%u%u%u rf=%u wf=%u en=%u act=%u bti=%u "
+                   "ctl=%04X fifo=%u CHSlo=(%u,%u,%u) "
                    "dio=O%02o:%04X/I%02o:%04X "
                    "RM0=%04X RM1=%04X RM2=%04X RM3=%04X "
                    "DRM0=%04X DRM1=%04X DRM2=%04X DRM3=%04X "
@@ -3461,6 +3518,8 @@ static int probe_full_boot_with_bootstrap(void)
                    dt->muff_addr, dt->index_tw, dt->sector_tw, dt->tag_tw,
                    dt->rd_fifo_tw, dt->wr_fifo_tw, dt->enable_run,
                    dt->active, dt->block_till_index,
+                   dt->disk_control, dt->fifo_count,
+                   dt->cur_cyl_lo, dt->cur_head, dt->cur_sector,
                    dt->disk_out_tioa, dt->disk_out_data,
                    dt->disk_in_tioa, dt->disk_in_data,
                    dt->rm0, dt->rm1, dt->rm2, dt->rm3,

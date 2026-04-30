@@ -970,6 +970,13 @@ microcode.
 
 ### Current disk bring-up checkpoint
 
+- Known shortcomings are now tracked in
+  `docs/disk-architecture.md` and `docs/memory-architecture.md`.
+  Disk priority order: split leading/trailing sector timing, add a
+  Format-RAM/sequence-PROM read path, then tighten FIFO thresholds and
+  KSTAT/ECC. Memory priority order: add observable Hold/ready-cycle
+  semantics, then ADDRESS/MAP.3/FastOutBus conflict modeling from
+  `DoradoB-WEverything.dm!1_`.
 - Disk controller sector advance now asserts `IndexTW` at sector wrap,
   asserts `SectorTW` with the index pulse, and honors
   `BlockTillIndex` by masking newly generated non-index sector wakeups
@@ -979,14 +986,13 @@ microcode.
   only; it keeps the model from missing Initial's short `BootTransfer`
   timeout while still preserving the controller latch behavior.
 - Current boot trace reaches `KSameDrive`, `KContinueCmmd`, and
-  `KCheckSeek`, then fails before `DoDiskBlock`. A traced `SendTag`
-  path exposed a CPU decode bug: `TIOA[DiskTag]` (`014`) was being
-  ignored because the small-constant `TIOA` FF path only accepted low
-  values `0..3`. After fixing that decode, the next check is whether
-  `DiskTag` writes advance the firmware into `WaitForSector` and then
-  into `DiskData` FIFO transfers; if not, continue around `Sector <-`,
-  `UpdateSector`, `WaitForSector`, and DiskMuff SectorTW/IndexTW
-  clear/read timing.
+  `KCheckSeek`, then spends most disk-task time in
+  `Read1Muff`/`UpdateSector`; it still fails before `DoDiskBlock`.
+  Fixed items on this path: CPU `TIOA[DiskTag]` (`014`) decode,
+  DiskMuff high-byte address/low-byte clear handling, native `IOB[15]`
+  DiskMuff readback, active-low KSTATE block-mode readout, delayed
+  `NotReady`/`TagTW` for Cylinder/ReZero, and the observed native
+  restore tag `0x100A` (Control Tag + ReZero).
 - DiskMuff byte placement is now aligned with Initial's constants:
   high-byte values select muffler addresses (`0x0200` -> address `002`),
   and low-byte masks clear TWs (`1=IndexTW`, `2=SectorTW`,
@@ -1006,8 +1012,9 @@ microcode.
   the simulated sector/index cadence reaches index, which keeps the
   firmware in the seek/tag wait path until the sector counter is
   resynchronized.
-- The latest traced probe still falls through without `DODISKBLOCK` or
-  `DiskData` FIFO reads. `InitialDisk.mc` states that hard disk
+- The latest focused 120M-cycle probe ends with task 14 at `0o6500`
+  (`Read1Muff`), no FIFO reads/writes, and CHS no longer corrupted to
+  head 10 by `0x100A`. `InitialDisk.mc` states that hard disk
   microcode is a private Dorado convention starting at page 4
   (cylinder 0/head 0/sector 4); the mounted `spruce-server.dsk300` is
   an Alto Spruce T-300 pack and is not known to contain that private
@@ -1052,11 +1059,13 @@ microcode.
 - A one-hot Tag[0:3] experiment matched one reading of the HM text but
   did not match Initial's observed I/O values: `0xFFEF` behaved as a
   preload/idle value, not "all tag commands at once". The emulator
-  therefore decodes the high nibble values `0..3` as the active
-  command in this C model and ignores other high nibbles. Offline drive
-  selects are clamped during single-pack bring-up so the mounted boot
-  pack remains selected until the missing offline-drive KSTAT behavior
-  is modeled.
+  still carries the older high-nibble compatibility decoder, but now
+  also recognizes the observed native low-nibble restore/control tag
+  `0x100A`. The next disk gap is the read/check FIFO status sequence:
+  `RdFifoTW` thresholds, block-mode status, ECC words, and end-of-block
+  `ReadErr`/`WriteErr` summary bits. Offline drive selects are clamped
+  during single-pack bring-up so the mounted boot pack remains selected
+  until the missing offline-drive KSTAT behavior is modeled.
 
 Three styles of test, used at every phase:
 

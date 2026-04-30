@@ -5,7 +5,11 @@ implemented in the C emulator** — captured here so the design isn't
 forgotten between sessions.
 
 Sources: HM §1, §5, §6 (IFU), Figure 8 (Overall Structure of the
-Memory System), Figure 9 (Cache, Map, Storage Addressing).
+Memory System), Figure 9 (Cache, Map, Storage Addressing). The CHM
+archive `[_CD8_]<DoradoDocs>DoradoB-WEverything.dm!1_>` contains the
+CSL-81-1 paper bundle; `DoradoMem.Press` is the most useful companion
+for the cache/map/storage pipeline, `Hold`, `ADDRESS`/`MAP.3` waits,
+dirty `I/ORead`, and FastOutBus conflict timing.
 
 ## At a glance
 
@@ -202,6 +206,37 @@ Tests (`tests/test_memory.c`):
   `UseMcrV` overrides both, but the normal-mode update policy is still
   approximated by the emulator's LRU list rather than a separate VNV
   RAM with the HM page 60 replacement equations.
+
+### Known shortcomings and repair plan
+
+1. **Hold is not modeled.**
+   `DoradoMem.Press` makes clear that `Hold` converts the current
+   microinstruction into a jump-to-self while allowing higher-priority
+   tasks to run. The emulator currently completes references
+   atomically. Fix: give each memory reference a ready cycle and assert
+   CPU hold when a task consumes `Md`, `DBuf`, ADDRESS, or MAP before
+   the memory section can accept/provide it.
+2. **ADDRESS/MAP.3 traffic control is missing.**
+   Real references wait in `ADDRESS` or `MAP.3` for CacheD, MapRAM,
+   WRITETR, dirty victims, and FastOutBus conflicts. Fix: add a small
+   memory-pipeline scoreboard instead of a fully physical pipeline:
+   track ADDRESS busy, MAP.3 busy, CacheD load/unload windows, and
+   FastOutBus use.
+3. **Fast I/O read/write conflicts are too idealized.**
+   The memory paper notes that dirty `I/ORead` sources data from CacheD
+   and can conflict with later FastOutBus use. Fix: for `IOFetch` and
+   `IOStore`, route through the same ready/busy model used by cache
+   loads and dirty writebacks.
+4. **Cache miss latency is collapsed.**
+   HM timing and the paper show long miss/victim sequences; the C model
+   currently fills the cache immediately. Fix: first expose observable
+   miss latency through Hold, then refine only the cases that affect
+   disk/display/IFU task interleaving.
+5. **ECC/parity faults are optimistic.**
+   Storage ECC, cache-address parity, and Pipe4 error reporting are
+   always clean. Fix: leave the default clean path, but add fields and
+   tests so diagnostics and fault microcode can observe injected
+   errors.
 
 ## The Map (HM §5.5–5.7, pages 44–48)
 

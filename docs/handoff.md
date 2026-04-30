@@ -712,8 +712,11 @@ Latest disk bring-up checkpoint:
   count uses the HM examples' floor division (`117 / (count+1)`, so
   count 3 -> 29 sector pulses/rev). A one-hot Tag[0:3] attempt was rejected because
   Initial's observed `0xFFEF` tag value behaves as preload/idle, not all
-  commands at once; the C model still decodes command values from the
-  high nibble `0..3` and ignores other high nibbles.
+  commands at once; the C model still carries high-nibble compatibility
+  decoding but also recognizes the observed native low-nibble restore
+  tag `0x100A` as Control Tag + ReZero. The latest focused probe no
+  longer corrupts CHS to head 10 and ends with DSK at `Read1Muff`
+  (`0o6500`), no FIFO reads/writes yet.
 - New memory-system fidelity: `NoRef+UseMcrV` stores now update the
   selected cache-address entry without touching map/storage. This is
   needed by `InitialSubrs.mc` `ClearCacheFlags`.
@@ -771,10 +774,9 @@ Latest disk bring-up checkpoint:
    must not be treated as cache-data hits.
 4. Keep improving DiskTag/format-RAM/sequence-PROM behavior in parallel
    so real emulator disk I/O has a solid controller after microcode
-   load. The next likely disk gap is how loaded microcode's tag values
-   such as `0xFFEF/0x0FEF` map onto the Trident Tag[0:3] timing and
-   Tag[4:15] bus, because the HM text and observed firmware values are
-   not yet reconciled.
+   load. The next likely disk gap is the controller read/check FIFO
+   status sequence: `RdFifoTW` thresholds, block-mode status, ECC words,
+   and end-of-block `ReadErr`/`WriteErr` summary bits.
 5. Re-run `build/test_cpu`; success means `CheckChecksumAndLoad` and
    `LoadRam` are reached after disk or Ethernet microcode load.
 

@@ -335,6 +335,20 @@ static int test_tag_decoder(void)
            "seek_in_progress should be raised after ReZero");
     EXPECT(ctl.tag_tw == 0, "ReZero completion should wait for index");
 
+    ctl.drive[0].cur_cyl = 123;
+    ctl.drive[0].cur_head = 4;
+    ctl.drive[0].cur_sector = 5;
+    ctl.tag_tw = 0;
+    dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG,
+                    0x100A);
+    EXPECT(ctl.drive[0].cur_cyl == 0,
+           "native control-tag ReZero cur_cyl = %d", ctl.drive[0].cur_cyl);
+    EXPECT(ctl.drive[0].cur_head == 0,
+           "native control-tag ReZero cur_head = %d", ctl.drive[0].cur_head);
+    EXPECT(ctl.drive[0].cur_sector == 0,
+           "native control-tag ReZero cur_sector = %d",
+           ctl.drive[0].cur_sector);
+
     dorado_disk_pack_free(&pack);
     printf("PASS  test_tag_decoder (DriveSel/Cyl/Head/Read/ReZero, "
            "FIFO loaded with sector data)\n");

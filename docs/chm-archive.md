@@ -156,9 +156,16 @@ microcode from sources.
 
 ### Cross-references for the truly missing things
 
+- **`[_CD8_]<DoradoDocs>DoradoB-WEverything.dm!1_>`** — contains the
+  CSL-81-1 Dorado paper bundle (`DoradoB-W.Press`) plus separate
+  processor, IFU, and memory-system papers/figures from January 1981.
+  These are useful for CPU/IFU/memory timing (`Hold`, task switching,
+  cache/map/storage pipeline, FastIn/FastOut behavior), but they are
+  not disk-controller references. Disk-specific details remain in HM
+  §9, DskEth drawings, and `DiskFormat.txt!1`.
 - **Bitsavers** (`bitsavers.org/pdf/xerox/parc/`) — has separate
-  scanned Dorado documents. Probably has the Lampson/Pier CSL-81-1
-  Dorado paper as a PDF.
+  scanned Dorado documents; use as a cross-check for PDF quality and
+  alternate scans.
 - **Al Kossow's archives** — sometimes have PARC tapes that didn't
   make any public mirror.
 - **CHM directly** — internal catalogues hold more than the public

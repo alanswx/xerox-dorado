@@ -411,6 +411,7 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
          * preload/idle patterns and do not execute commands. */
         {
             int tag_type = (data >> 12) & 0xF;
+            if ((data & 0x000F) == 0x000A) tag_type = 3;
             switch (tag_type) {
             case 0: {
                 /* Drive Select / subsector count (HM page 100).
@@ -472,7 +473,8 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
                  *   bit 9 = StrobeLate
                  *   bit 11 = AltoLeader
                  * (Bits 5, 10 unused.) */
-                if (data & (1u << 1)) {
+                if ((data & (1u << 1)) ||
+                    (((data & 0x000F) == 0x000A) && (data & 0x1000u))) {
                     /* ReZero */
                     dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
                     d->cur_cyl = 0;
