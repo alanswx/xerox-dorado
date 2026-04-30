@@ -170,6 +170,19 @@ typedef struct dorado_memory {
         uint8_t         map_flags_pre;
         uint8_t         mapbuf_busy;
         uint16_t        cache_flags;
+        /* Per-slot Pipe4 syndrome bits (gap C2). Bit positions match
+         * the manual / EMemDefs.mc — high-true internal storage:
+         *   bit 0 = MapTrouble       (cache fault during fill)
+         *   bit 1 = MemError         (single-bit ECC, corrected)
+         *   bit 2 = EcFault          (uncorrectable)
+         * `pipe4_syndrome` is the 8-bit ECC syndrome (only meaningful
+         * when MemError or EcFault is set). `pipe4_quadword` (2 bits)
+         * identifies which 16-word pair within a 4x16-word munch the
+         * error landed on. The `B<-Pipe4'` accessor encodes these
+         * to the active-low form expected by microcode. */
+        uint8_t         pipe4_errors;
+        uint8_t         pipe4_syndrome;
+        uint8_t         pipe4_quadword;
     } pipe[DM_PIPE_DEPTH];
     int     pipe_head;       /* index just past the just-written slot, wrapped */
     uint8_t proc_srn;        /* 4-bit; emulator + fault tasks. Default 0. */
@@ -306,6 +319,23 @@ uint32_t dorado_pipe_va(const dorado_memory *mem, int n);
 uint32_t dorado_pipe_va_at(const dorado_memory *mem, int srn);
 uint8_t  dorado_pipe_map_flags_at(const dorado_memory *mem, int srn);
 uint16_t dorado_pipe5_at(const dorado_memory *mem, int srn);
+/* Encoded `B<-Pipe4'` for slot `srn`. Mixed-polarity active-low
+ * form per HM page 51 / EMemDefs.mc — `0o150361 XOR Pipe4'` yields
+ * high-true. The no-error baseline is therefore `0o150361`. (gap C2) */
+uint16_t dorado_pipe4_at(const dorado_memory *mem, int srn);
+
+/* Set Pipe4 error bits for the given slot. Errors persist until the
+ * next reference to the same slot overwrites them (i.e., until
+ * pipe_push runs again with the same SRN). (gap C2)
+ *   PIPE4_ERR_MAP_TROUBLE = cache fill failed against the map
+ *   PIPE4_ERR_MEM_ERROR   = single-bit ECC, corrected
+ *   PIPE4_ERR_EC_FAULT    = uncorrectable ECC */
+#define PIPE4_ERR_MAP_TROUBLE  (1u << 0)
+#define PIPE4_ERR_MEM_ERROR    (1u << 1)
+#define PIPE4_ERR_EC_FAULT     (1u << 2)
+void dorado_pipe4_set_error(dorado_memory *mem, int srn,
+                            uint8_t err_flags,
+                            uint8_t syndrome, uint8_t quadword);
 void     dorado_memory_tick(dorado_memory *mem);
 void     dorado_cflags_load(dorado_memory *mem, uint16_t a);
 

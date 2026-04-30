@@ -311,14 +311,26 @@ for the as-built notes):
   - **A1** ⏳ corrected with `BootstrapMain.mc` as oracle: over-CPReg
     stream is 2 bytes per half-microinstruction. Implementation
     deferred to a focused next session of cycle-level tracing.
-- ⏳ **Phase 3** in progress (memory subsystem):
+- ✅ **Phase 3** (research-complete; B1+C3 implementations deferred):
   - **C6** ✅ MCR decode bit positions cross-checked against
-    `EMemDefs.mc` (the canonical source from PARC). Fixed
-    `dorado_mcr_disbr` (it was at the wrong bit). Added
-    `dorado_mcr_dishold` getter. Test fixture updated. The 0xFEE7
-    special-case stays in place until B1 (Hold) lands.
-  - Remaining: **B1/C1** (Hold + deferred refs), **C2** (Pipe4
-    syndrome), **C3** (ECC).
+    `EMemDefs.mc`. Fixed `dorado_mcr_disbr`. Added
+    `dorado_mcr_dishold` getter. The 0xFEE7 special-case stays
+    until B1 lands.
+  - **C2** ✅ Per-slot Pipe4 error bits modeled.
+    `dorado_pipe4_at(mem, srn)` composes the high-true value from
+    per-slot state and XORs with the `0o150361` baseline. New
+    `dorado_pipe4_set_error` API. The dirty-victim WP fault from C4
+    now records `MAP_TROUBLE` in the triggering slot's Pipe4. Two
+    new tests pin the encoding.
+  - **B1/C1** ⏳ research note in `docs/research/B1-C1-hold-semantics.md`
+    captures the spec from `InitialSubrs.mc` + `InitialMain.mc`.
+    Implementation deferred — substantial architectural change.
+    Note: boot-stage microcode runs with `mcr.disHold` set and
+    uses cycle-counted waits, so it doesn't depend on Hold; only
+    post-boot emulators (probe_aemu) require it.
+  - **C3** ⏳ research note in `docs/research/C3-ecc.md`. ECC
+    polynomial documented (HM §5.12). Deferred — nothing in our
+    current test inventory exercises ECC.
 
 ### A. Showstoppers blocking real boot
 

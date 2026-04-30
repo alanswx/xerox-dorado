@@ -83,6 +83,12 @@ static void pipe_push(dorado_memory *mem, int srn, dorado_ref_kind kind,
     mem->pipe[srn].map_flags_pre = flags_pre;
     mem->pipe[srn].mapbuf_busy   = 0;
     mem->pipe[srn].cache_flags   = 0;
+    /* C2: each new reference clears the slot's accumulated error
+     * state. Errors raised by *this* reference are deposited later
+     * via dorado_pipe4_set_error. */
+    mem->pipe[srn].pipe4_errors    = 0;
+    mem->pipe[srn].pipe4_syndrome  = 0;
+    mem->pipe[srn].pipe4_quadword  = 0;
     mem->pipe_head = (srn + 1) % DM_PIPE_DEPTH;
 }
 
@@ -126,6 +132,62 @@ uint16_t dorado_pipe5_at(const dorado_memory *mem, int srn)
     uint16_t v = mem->pipe[slot].cache_flags;
     if (mem->pipe[slot].mapbuf_busy) v |= PIPE5_MAPBUF_BUSY;
     return v;
+}
+
+/* `B<-Pipe4'` (gap C2). Mixed-polarity per HM page 51 / EMemDefs.mc.
+ * Bit positions, manual MSB-first numbering:
+ *   b0  = ref               (high-true: 1 = this slot was a real ref)
+ *   b1  = notMapTrouble     (active-low)
+ *   b2  = wProtect          (high-true)
+ *   b3  = dirty             (high-true)
+ *   b4  = notMemError       (active-low: single-bit ECC corrected)
+ *   b5  = notEcFault        (active-low: uncorrectable ECC)
+ *   b6:7 = quadWord         (which 16-word pair within the munch)
+ *   b8:15 = syndrome        (8-bit ECC syndrome)
+ * In LSB ordering (bit `i` LSB = bit `15-i` manual):
+ *   bit 15: ref            (b0)
+ *   bit 14: notMapTrouble  (b1)
+ *   bit 13: wProtect       (b2)
+ *   bit 12: dirty          (b3)
+ *   bit 11: notMemError    (b4)
+ *   bit 10: notEcFault     (b5)
+ *   bits 9..8: quadWord    (b6:7)
+ *   bits 7..0: syndrome    (b8:15)
+ * The `0o150361 XOR Pipe4'` invariant gives the no-error baseline
+ * `0o150361` = `0xD0F1`. */
+uint16_t dorado_pipe4_at(const dorado_memory *mem, int srn)
+{
+    int slot = srn & (DM_PIPE_DEPTH - 1);
+    /* Compose the high-true value first, then XOR with the
+     * 0o150361 baseline mask to produce the raw Pipe4' the
+     * processor sees. (HM page 51: `0o150361 XOR Pipe4' = high
+     * true`.) Bit positions are LSB-mapped from EMemDefs.mc:
+     *   bit 15 = ref,    14 = MapTrouble,  13 = wProtect,
+     *   bit 12 = dirty,  11 = MemError,    10 = EcFault,
+     *   bits 9..8 = quadword,  7..0 = syndrome.
+     * `wProtect`/`dirty` here are snapshots taken at fill time;
+     * we don't yet track them per-slot — leave 0 until needed. */
+    uint16_t ht = 0;
+    uint8_t  e  = mem->pipe[slot].pipe4_errors;
+    if (mem->pipe[slot].kind != DM_REF_NONE) ht |= (uint16_t)(1u << 15);
+    if (e & PIPE4_ERR_MAP_TROUBLE)           ht |= (uint16_t)(1u << 14);
+    if (e & PIPE4_ERR_MEM_ERROR)             ht |= (uint16_t)(1u << 11);
+    if (e & PIPE4_ERR_EC_FAULT)              ht |= (uint16_t)(1u << 10);
+    ht |= (uint16_t)((mem->pipe[slot].pipe4_quadword & 3u) << 8);
+    ht |= (uint16_t)mem->pipe[slot].pipe4_syndrome;
+    return (uint16_t)(0150361u ^ ht);
+}
+
+void dorado_pipe4_set_error(dorado_memory *mem, int srn,
+                            uint8_t err_flags,
+                            uint8_t syndrome, uint8_t quadword)
+{
+    int slot = srn & (DM_PIPE_DEPTH - 1);
+    mem->pipe[slot].pipe4_errors  |= err_flags;
+    if (err_flags & (PIPE4_ERR_MEM_ERROR | PIPE4_ERR_EC_FAULT)) {
+        mem->pipe[slot].pipe4_syndrome  = syndrome;
+        mem->pipe[slot].pipe4_quadword  = (uint8_t)(quadword & 3u);
+    }
 }
 
 static int mcr_is_initial_nowake(const dorado_memory *mem)
@@ -506,7 +568,9 @@ static dorado_fault_kind cache_writeback_line(dorado_memory *mem,
 
 /* Note (gap C4): a dirty-victim writeback whose Map says the page is
  * now WP or Vacant is reported via this return value. Record it as a
- * fault on the *triggering* reference's SRN. */
+ * fault on the *triggering* reference's SRN. The Pipe4 syndrome is
+ * also updated so microcode reading `B<-Pipe4'` sees MapTrouble for
+ * that slot (gap C2). */
 static void record_writeback_fault(dorado_memory *mem,
                                    dorado_fault_kind f, int srn)
 {
@@ -520,6 +584,7 @@ static void record_writeback_fault(dorado_memory *mem,
     /* mem->last_fault_va is left as the triggering ref's VA — that's
      * what microcode reads via Pipe0/Pipe1. The dirty-victim VA is
      * recoverable from cache state if needed. */
+    dorado_pipe4_set_error(mem, srn, PIPE4_ERR_MAP_TROUBLE, 0, 0);
 }
 
 /* Fill `way` in the row of `va` with the 16 words of the munch

@@ -706,6 +706,85 @@ static int test_dirty_victim_wp_fault(void)
     return 0;
 }
 
+/*
+ * test_pipe4_error_encoding (gap C2) — verifies dorado_pipe4_at()
+ * encodes per-slot error state into the mixed-polarity Pipe4' word
+ * such that XOR with 0o150361 yields the high-true semantic value.
+ */
+static int test_pipe4_error_encoding(void)
+{
+    static dorado_memory mem; memset(&mem, 0, sizeof mem);
+    EXPECT(dorado_memory_init(&mem) == 0, "init");
+    dorado_map_set(&mem, 0, /*rp=*/0, 0, 0);
+
+    /* Issue a Fetch so slot 0 has kind != NONE. */
+    dorado_memory_ref(&mem, DM_REF_FETCH, 0, 0, 0);
+
+    uint16_t pipe4_no_err = dorado_pipe4_at(&mem, 0);
+    /* High-true after XOR: bit 15 (ref) set, all others 0. */
+    EXPECT((uint16_t)(pipe4_no_err ^ 0150361u) == 0x8000,
+           "Pipe4' XOR baseline = 0x%04X, expected 0x8000 (ref only)",
+           (uint16_t)(pipe4_no_err ^ 0150361u));
+
+    /* Inject a MapTrouble. */
+    dorado_pipe4_set_error(&mem, 0, PIPE4_ERR_MAP_TROUBLE, 0, 0);
+    uint16_t pipe4_mt = dorado_pipe4_at(&mem, 0);
+    EXPECT((uint16_t)(pipe4_mt ^ 0150361u) == 0xC000,
+           "Pipe4' XOR baseline = 0x%04X, expected 0xC000 (ref+MapTrouble)",
+           (uint16_t)(pipe4_mt ^ 0150361u));
+
+    /* Inject MemError + syndrome. */
+    dorado_pipe4_set_error(&mem, 0, PIPE4_ERR_MEM_ERROR, 0x55, 0);
+    uint16_t pipe4_me = dorado_pipe4_at(&mem, 0);
+    /* High-true: bit 15 (ref) | bit 14 (MapTrouble — sticky) |
+     * bit 11 (MemError) | syndrome 0x55 in low byte. */
+    EXPECT((uint16_t)(pipe4_me ^ 0150361u) == 0xC855,
+           "Pipe4' XOR baseline = 0x%04X, expected 0xC855",
+           (uint16_t)(pipe4_me ^ 0150361u));
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_pipe4_error_encoding (gap C2)\n");
+    return 0;
+}
+
+/*
+ * test_dirty_victim_pipe4_map_trouble (gap C2 + C4 integration) —
+ * dirty-victim WP fault should set MapTrouble in the triggering ref's
+ * Pipe4 slot.
+ */
+static int test_dirty_victim_pipe4_map_trouble(void)
+{
+    static dorado_memory mem; memset(&mem, 0, sizeof mem);
+    EXPECT(dorado_memory_init(&mem) == 0, "init");
+
+    const uint32_t vas[5] = { 0x000, 0x400, 0x800, 0xC00, 0x1000 };
+    for (int i = 0; i < 5; i++) {
+        dorado_map_set(&mem, dorado_map_index(vas[i]),
+                       (uint16_t)(vas[i] >> 8), 0, 0);
+    }
+
+    /* Dirty page 0; mark WP=1; force eviction by 4 fetches. */
+    dorado_memory_ref(&mem, DM_REF_STORE, 0x000, 0xCAFE, 0);
+    dorado_map_set(&mem, 0, 0, /*wp=*/1, 0);
+
+    dorado_memory_ref(&mem, DM_REF_FETCH, 0x400, 0, 0);
+    dorado_memory_ref(&mem, DM_REF_FETCH, 0x800, 0, 0);
+    dorado_memory_ref(&mem, DM_REF_FETCH, 0xC00, 0, 0);
+    /* This 5th miss evicts page 0 → writeback hits WP fault → records
+     * MapTrouble for *this* ref's slot (proc_srn = 0). */
+    dorado_memory_ref(&mem, DM_REF_FETCH, 0x1000, 0, 0);
+
+    uint16_t pipe4 = dorado_pipe4_at(&mem, mem.proc_srn);
+    uint16_t high_true = (uint16_t)(pipe4 ^ 0150361u);
+    EXPECT(high_true & (1u << 14),
+           "Pipe4 high-true = 0x%04X — expected MapTrouble bit set",
+           high_true);
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_dirty_victim_pipe4_map_trouble (gap C2)\n");
+    return 0;
+}
+
 /* Test 19: Flush← on a clean hit — invalidates without storage
  * activity; Map.Dirty stays 0. */
 static int test_cache_flush_clean(void)
@@ -1115,6 +1194,8 @@ int main(void)
     rc |= test_cache_lru_eviction();
     rc |= test_cache_dirty_victim_writeback();
     rc |= test_dirty_victim_wp_fault();
+    rc |= test_pipe4_error_encoding();
+    rc |= test_dirty_victim_pipe4_map_trouble();
     rc |= test_cache_flush_clean();
     rc |= test_iostore_cache_invalidate();
     rc |= test_proc_srn_overwrite();

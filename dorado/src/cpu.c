@@ -528,10 +528,13 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
         /* Pipe3' is the inverted snapshot of map flags (WP/Dirty/Ref)
          * from before the reference at slot ProcSRN. */
         case 4: *b = (uint16_t)~(uint16_t)mflg;    break;  /* Pipe3' */
-        /* Pipe4' is mixed-polarity. HM page 51 says 0150361_8 XOR
-         * Pipe4' yields high-true values for all Pipe4 fields, so
-         * the no-error/no-syndrome baseline is 0150361_8. */
-        case 5: *b = 0150361;                      break;  /* Pipe4' (errors) */
+        /* Pipe4' is mixed-polarity (HM page 51, EMemDefs.mc).
+         * `dorado_pipe4_at` (gap C2) composes the slot's per-ref
+         * error state with the no-error baseline `0o150361`.
+         * MapTrouble from a dirty-victim writeback (gap C4) shows
+         * up here. */
+        case 5: *b = dorado_pipe4_at(cpu->mem, psrn);
+                break;                              /* Pipe4' (errors) */
         case 6: *b = (uint16_t)~dorado_memory_config_word(cpu->mem);
                 break;                             /* Config' */
         case 7: *b = dorado_pipe5_at(cpu->mem, psrn); break; /* Pipe5 */
