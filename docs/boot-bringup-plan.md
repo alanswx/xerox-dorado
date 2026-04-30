@@ -1079,18 +1079,24 @@ Three styles of test, used at every phase:
   stores as cache-address writes (`CacheA[VA, selected column] <- VA`).
   The emulator now models that side effect and covers it with
   `test_mcr_noref_store_writes_cache_address`.
+- Follow-up cache fix: `CFlags<-A'` `Vacant` entries are now excluded
+  from cache-data lookup while still being readable through
+  `dVA<-Victim`. This matches Initial's "write CacheA, then mark
+  Vacant" sweep and is covered by
+  `test_vacant_cache_address_is_not_cache_hit`.
 - HM §9 says DiskMuff input returns the selected signal on `IOB[15]`.
   The disk controller now returns native `0x8000` instead of `0x0001`,
   so microcode branches that test `R<0`/`ALU<0` can see asserted
   KSTATE/KSTAT signals. Disk unit tests were updated.
-- Focused EB run with `AltoMesaDorado.eb!1` still reaches LoadRam and
-  the loaded image, but remains in the same post-load startup/disk wait:
-  task 0 hot PCs `0o6012/0o6002/0o6013/0o6000/0o6003`, DSK task 14 hot
-  PCs `0o6600/0o6601/0o6624/0o6625/0o6644`, `display iofetch=0`, and
-  final `MCR=0x6861`. The DiskMuff high-bit correction did not change
-  this EB endpoint, so the next likely gap is still the loaded image's
-  disk/tag/format-RAM path or another memory/MCR detail around the
-  task-0 disk wait loop.
+- Focused EB run with `AltoMesaDorado.eb!1` now moves farther after
+  the cache `Vacant` fix. With `DORADO_BOOT_BUDGET=120000000`, it
+  reaches LoadRam and the loaded image, produces a headless display
+  snapshot (`frame=180`), and task 4 is active around terminal/read
+  PCs (`0o6300/0o6301/0o6311/0o6721/0o6744`). It still has
+  `display iofetch=0`, DWT wakeups `0`, disk FIFO reads/writes `0`,
+  and task 0 remains hot in `SetMCR`/`LongWait` startup code. Next
+  likely gaps are display-task wake/PC initialization and disk
+  tag/format-RAM transfer start.
 
 ## Cross-cutting: don't drift from "match the docs"
 

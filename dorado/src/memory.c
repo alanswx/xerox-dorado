@@ -404,7 +404,8 @@ int dorado_cache_lookup(const dorado_memory *mem, uint32_t va, int *out_way)
     const dorado_cache_row *row = &mem->cache[va_cache_row(va)];
     uint32_t tag = va_cache_tag(va);
     for (int w = 0; w < DM_CACHE_WAYS; w++) {
-        if (row->ways[w].valid && row->ways[w].tag == tag) {
+        if (row->ways[w].valid && !row->ways[w].vacant &&
+            row->ways[w].tag == tag) {
             if (out_way) *out_way = w;
             return 1;
         }

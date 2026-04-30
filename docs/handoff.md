@@ -755,10 +755,15 @@ Latest disk bring-up checkpoint:
    `0o6000=00104/71501/00000`, `0o6001=00104/131705/140000`,
    `0o6002=00104/14701/00000`, `0o6012=13116/14105/00000`,
    `0o6100=00204/60005/00000`, `0o5021=05406/77714/40000`.
-   After the `NoRef` cache-address and DiskMuff `IOB[15]` fixes, this
-   focused EB endpoint is unchanged: final `PC=0o6000`, `MCR=0x6861`,
-   `display iofetch=0`, and the same task hot PCs. So those fixes are
-   correct hardware fidelity work, but not the remaining EB blocker.
+   After the `NoRef` cache-address, cache `Vacant` lookup, and DiskMuff
+   `IOB[15]` fixes, a 120M-cycle focused EB run moves farther: final
+   `PC=0o6307`, display snapshot `frame=180`, task 4 hot at
+   `0o6300/0o6301/0o6311/0o6721/0o6744`, but still
+   `display iofetch=0`, DWT wakeups `0`, and disk FIFO reads/writes
+   `0`. The cache `Vacant` fix is important because Initial's
+   `ClearCacheFlags` writes all CacheA entries and then marks them
+   vacant; those addresses remain readable through `dVA<-Victim` but
+   must not be treated as cache-data hits.
 4. Keep improving DiskTag/format-RAM/sequence-PROM behavior in parallel
    so real emulator disk I/O has a solid controller after microcode
    load. The next likely disk gap is how loaded microcode's tag values

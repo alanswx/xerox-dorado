@@ -171,6 +171,10 @@ Implemented in `dorado/src/memory.c` and `dorado/include/memory.h`:
   (`CacheA[VA, McrV] <- VA` when `UseMcrV` is set) and do not touch
   map/storage. This matches `InitialSubrs.mc` `ClearCacheFlags`, which
   writes cache addresses before loading `CFlags`.
+- A cache-address entry marked `Vacant` is still readable through
+  `dVA<-Victim`, but it is not a cache-data hit. This matters during
+  `ClearCacheFlags`: Initial deliberately writes all cache addresses
+  and then marks those entries vacant before normal cache fills begin.
 - `cache_pick_victim`, `cache_writeback_line`, `cache_fill`,
   `cache_invalidate_no_writeback` are internal helpers.
 
@@ -182,7 +186,8 @@ Tests (`tests/test_memory.c`):
 `test_pipe5_reports_victim_and_nextvictim`,
 `test_discf_blocks_cflags_and_pipe5_flags`,
 `test_mcr_dvavic_reads_cache_address_without_storage`,
-`test_mcr_noref_store_writes_cache_address`. All passing.
+`test_mcr_noref_store_writes_cache_address`,
+`test_vacant_cache_address_is_not_cache_hit`. All passing.
 
 ### Not yet modeled (Phase B/C)
 
