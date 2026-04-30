@@ -420,7 +420,15 @@ production: 0 = Alto-style, 1 = LF (large format / Star).
   and HBlank timing are modeled, `dorado_display_scanline_tick()`
   advances one scanline and wakes whichever terminal horizontal task
   last wrote display slow I/O. The full boot probe uses this to keep
-  the DispM/AHT keyboard path alive while running headless.
+  the DispM/AHT keyboard path alive while running headless. The probe
+  now lets this clock run continuously after Initial starts, matching
+  the hardware fact that raster timing is independent of whether the
+  Dorado has recently touched display slow I/O.
+- **Known DWT gap**: post-LoadRam AltoMesa EB runs schedule AHT and DSK
+  but never DWT (`display iofetch=0`). The missing hardware behavior
+  is the HM page 118 DDC handoff from horizontal task state to DWT:
+  decode DHT/AHT output enough to maintain `NextWCBFlag`,
+  `CurrentWCBFlag`, `DWTShutUp`, and the delayed word-task wakeup.
 
 **Phase 2**:
 - **`dorado_display_render_fifo()`**: drains the per-channel FIFO

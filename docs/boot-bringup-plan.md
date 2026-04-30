@@ -1026,10 +1026,20 @@ microcode.
   image (AEmu has no sampled addresses present), so this EB payload is
   not byte-for-byte any of those known `.mb` binaries; treat it as its
   own AltoMesa LoadRam image.
-  The current post-load blocker is runtime state/scheduling: task 0
-  repeatedly runs the short `0o6000/0o6002/0o6003/0o6012/0o6013` loop,
-  only task 0 remains ready, and no loaded display task is producing
-  pixels yet. The loaded IM samples currently printed by the probe are
+  The current post-load blocker is runtime display scheduling rather
+  than the EB checksum/LoadRam path. After making the probe clocks more
+  hardware-like (disk sector service and display scanline timing are
+  no longer gated on prior slow-IO writes), the focused EB run reports:
+  `loaded-world cycle=24704942`, post-LoadRam task cycles
+  `[0]=8882891 [2]=28608 [4]=422755 [14]=201554`,
+  `switches=106789`, `ready_or=0x1015`, `wakeup_or=0x1014`,
+  display slow-IO writes `+35410`, disk slow-IO writes `+36150`, but
+  `display iofetch=0`. So tasking is alive and AHT/DSK are running,
+  but DWT task 13 is never woken and no display fast-I/O reaches the
+  framebuffer. The next likely hardware gap is the DDC horizontal-task
+  to DWT handoff: NLCB/CLCB decoding, `NextWCBFlag`/`CurrentWCBFlag`,
+  `DWTShutUp`, and the delayed DWT wakeup logic from HM §11 page 118.
+  The loaded IM samples currently printed by the probe are
   `0o6000=00104/71501/00000`, `0o6001=00104/131705/140000`,
   `0o6002=00104/14701/00000`, `0o6012=13116/14105/00000`,
   `0o6100=00204/60005/00000`, `0o5021=05406/77714/40000`.
