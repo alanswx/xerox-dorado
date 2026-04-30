@@ -350,6 +350,45 @@ static int test_advance_sector(void)
     return 0;
 }
 
+/* test_block_till_index — BlockTillIndex suppresses new sector wakeups
+ * until the selected drive reaches index, where IndexTW and SectorTW
+ * assert together and the latch clears. */
+static int test_block_till_index(void)
+{
+    static dorado_disk_controller ctl;
+    dorado_disk_controller_init(&ctl);
+
+    static dorado_disk_pack pack;
+    EXPECT(dorado_disk_pack_create(&pack, &DORADO_DISK_T80) == 0, "create");
+    dorado_disk_controller_attach_drive(&ctl, 0, &pack);
+
+    ctl.block_till_index = 1;
+    ctl.drive[0].cur_sector = 0;
+
+    dorado_disk_controller_advance_sector(&ctl);
+    EXPECT(ctl.drive[0].cur_sector == 1, "cur_sector=%d after advance",
+           ctl.drive[0].cur_sector);
+    EXPECT(ctl.block_till_index == 1, "block_till_index should remain set");
+    EXPECT(ctl.sector_tw == 0, "sector_tw should be masked before index");
+    EXPECT(ctl.index_tw == 0, "index_tw should stay clear before index");
+    EXPECT(!dorado_disk_controller_wakeup_pending(&ctl),
+           "no wakeup should be pending before index");
+
+    for (int i = 1; i < pack.geometry.sectors; i++) {
+        dorado_disk_controller_advance_sector(&ctl);
+    }
+    EXPECT(ctl.drive[0].cur_sector == 0, "cur_sector should wrap to index");
+    EXPECT(ctl.block_till_index == 0, "block_till_index should clear");
+    EXPECT(ctl.sector_tw == 1, "index pulse should also set sector_tw");
+    EXPECT(ctl.index_tw == 1, "index_tw should be set at index");
+    EXPECT(dorado_disk_controller_wakeup_pending(&ctl),
+           "index wakeup should be pending");
+
+    dorado_disk_pack_free(&pack);
+    printf("PASS  test_block_till_index (masked sectors, index wakeup)\n");
+    return 0;
+}
+
 int main(void)
 {
     int rc = 0;
@@ -359,6 +398,7 @@ int main(void)
     rc |= test_drive_attach();
     rc |= test_tag_decoder();
     rc |= test_advance_sector();
+    rc |= test_block_till_index();
     if (rc == 0) printf("\nAll disk tests passed.\n");
     return rc;
 }

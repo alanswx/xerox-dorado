@@ -684,6 +684,23 @@ the unimplemented Ethernet boot path.
 
 ### Highest-value: finish the boot-media path
 
+Latest disk bring-up checkpoint:
+
+- `dorado_disk_controller_advance_sector()` now models index wrap:
+  index pulses assert both `IndexTW` and `SectorTW`, clear
+  `BlockTillIndex`, and non-index sector pulses are masked while
+  `BlockTillIndex` is set. `test_block_till_index` covers this.
+- The full-boot probe uses an accelerated synthetic sector period only
+  while `BlockTillIndex` is set. This keeps the controller behavior
+  close to HM page 97 while avoiding probe-only boot-transfer timeouts
+  caused by an arbitrary fake spindle rate.
+- With disk tracing enabled, Initial again reaches `KSameDrive`,
+  `KContinueCmmd`, and `KCheckSeek` before the first disk boot timeout.
+  It still does not reach `DoDiskBlock` or read `DiskData`; the active
+  blocker is `WaitForSector`/`UpdateSector` returning through the sector
+  search failure path while the firmware sector value remains
+  unsynchronized (`FFFF`/`0402` in recent traces).
+
 1. Use the `probe_full_boot_with_bootstrap` boot-landmark and per-TIOA
    disk counters to find exactly where `BootTransfer` fails.
 2. If the failure is real pack contents, stop spending time on

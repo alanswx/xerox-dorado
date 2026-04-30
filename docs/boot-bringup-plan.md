@@ -957,6 +957,23 @@ microcode.
 
 ## Cross-cutting: testing strategy
 
+### Current disk bring-up checkpoint
+
+- Disk controller sector advance now asserts `IndexTW` at sector wrap,
+  asserts `SectorTW` with the index pulse, and honors
+  `BlockTillIndex` by masking newly generated non-index sector wakeups
+  until the index pulse clears the latch.
+- The full-boot probe accelerates the synthetic sector period while
+  `BlockTillIndex` is set. This is probe timing only; it keeps the
+  model from missing Initial's short `BootTransfer` timeout while still
+  preserving the controller latch behavior.
+- Current boot trace reaches `KSameDrive`, `KContinueCmmd`, and
+  `KCheckSeek`, then fails in the `WaitForSector`/`UpdateSector` path
+  before `DoDiskBlock`. `DiskData` FIFO reads remain zero. Next work
+  should focus on the firmware sector counter path around `Sector <-`,
+  `UpdateSector`, `WaitForSector`, and DiskMuff SectorTW/IndexTW
+  clear/read timing.
+
 Three styles of test, used at every phase:
 
 1. **Synthetic microprograms.** Hand-written `dorado_uinstr`

@@ -580,7 +580,11 @@ software XOR the corrupted bits back to correct values.
     Active).
 - **Synthetic sector-pulse**: `dorado_disk_controller_advance_sector()`
   increments the sector counter (wraps at sectors-per-track), sets
-  `sector_tw`, and reloads FIFO if the controller is in an active op.
+  `sector_tw`, asserts `index_tw` on wrap, clears `block_till_index`
+  at the index pulse, and reloads FIFO if the controller is in an
+  active op or EnableRun plus a non-Done DiskControl op is pending.
+  `block_till_index` masks newly generated non-index sector wakeups;
+  existing wakeups remain pending, matching HM page 97.
 
 What's not yet wired:
 

@@ -238,18 +238,43 @@ int dorado_disk_controller_wakeup_pending(const dorado_disk_controller *ctl)
            ctl->rd_fifo_tw || ctl->wr_fifo_tw;
 }
 
+static int disk_control_has_transfer_op(uint16_t control)
+{
+    return (((control >> DORADO_DISK_CTRL_OP1_SHIFT) & DORADO_DISK_CTRL_OP_MASK) !=
+            DORADO_DISK_OP_DONE) ||
+           (((control >> DORADO_DISK_CTRL_OP2_SHIFT) & DORADO_DISK_CTRL_OP_MASK) !=
+            DORADO_DISK_OP_DONE) ||
+           (((control >> DORADO_DISK_CTRL_OP3_SHIFT) & DORADO_DISK_CTRL_OP_MASK) !=
+            DORADO_DISK_OP_DONE) ||
+           (((control >> DORADO_DISK_CTRL_OP4_SHIFT) & DORADO_DISK_CTRL_OP_MASK) !=
+            DORADO_DISK_OP_DONE);
+}
+
 void dorado_disk_controller_advance_sector(dorado_disk_controller *ctl)
 {
     dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
     if (!d->pack) return;
     d->cur_sector = (d->cur_sector + 1) % d->pack->geometry.sectors;
-    ctl->sector_tw = 1;
-    /* If the controller has been kicked off (Active + Read op pending),
-     * load the next sector's data. Phase 2 simplification: only
-     * triggered explicitly by this helper — real hardware sequences
-     * it via the read PROM. */
-    if (ctl->active && (ctl->control & 0xFF) != 0) {
+    int at_index = (d->cur_sector == 0);
+
+    if (at_index) {
+        d->index_pulse = 1;
+        ctl->index_tw = 1;
+        ctl->sector_tw = 1;
+        ctl->block_till_index = 0;
+    } else {
+        d->index_pulse = 0;
+        if (ctl->block_till_index) return;
+        ctl->sector_tw = 1;
+    }
+
+    /* If a transfer is active or queued by DiskControl, load the next
+     * sector's data. Phase 2 simplification: real hardware sequences
+     * this via the read PROM. */
+    if ((ctl->active || ctl->enable_run) &&
+        disk_control_has_transfer_op(ctl->control)) {
         /* Some op other than Done; reload FIFO with new sector. */
+        ctl->active = 1;
         disk_begin_read_stream(ctl);
     }
 }

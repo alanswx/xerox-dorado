@@ -64,7 +64,8 @@ static void service_boot_disk(dorado_cpu *cpu, dorado_disk_controller *disk,
 {
     if (!disk || !disk->drive[0].pack) return;
     if (disk->output_count == 0) return;
-    if ((disk->active || disk->enable_run) && (cycle % 2000u) == 0) {
+    uint64_t sector_period = disk->block_till_index ? 20u : 2000u;
+    if ((disk->active || disk->enable_run) && (cycle % sector_period) == 0) {
         dorado_disk_controller_advance_sector(disk);
         if (sector_ticks) (*sector_ticks)++;
     }
@@ -2724,8 +2725,7 @@ static int probe_full_boot_with_bootstrap(void)
             disk_trace_n < (int)(sizeof disk_trace / sizeof disk_trace[0]) &&
             ((pre_task == DORADO_DISK_TASK &&
               ((pre_pc >= 06500 && pre_pc <= 06777) ||
-               pre_pc == 07000 ||
-               pre_pc == 07120 || pre_pc == 06553)) ||
+               (pre_pc >= 07000 && pre_pc <= 07477))) ||
              (pre_task == 0 &&
               (pre_pc == 07400 || (pre_pc >= 07440 && pre_pc <= 07477))));
         int is_mcr_trace =
