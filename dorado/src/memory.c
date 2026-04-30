@@ -7,10 +7,10 @@ static uint32_t va_cache_row(uint32_t va);
 
 enum {
     PIPE5_MAPBUF_BUSY = 0x8000u,  /* manual Pipe5[0] */
-    PIPE5_DIRTY       = 0x0020u,  /* approximate HM Figure 10 positions */
-    PIPE5_VACANT      = 0x0010u,
-    PIPE5_WP          = 0x0008u,
-    PIPE5_BEING_LOAD  = 0x0004u,
+    PIPE5_DIRTY       = 0x0080u,  /* manual Pipe5[8] */
+    PIPE5_VACANT      = 0x0040u,  /* manual Pipe5[9] */
+    PIPE5_WP          = 0x0020u,  /* manual Pipe5[10] */
+    PIPE5_BEING_LOAD  = 0x0010u,  /* manual Pipe5[11] */
 
     CFLAGS_A_DIRTY      = 0x0080u,  /* manual CFlags input bit 8 */
     CFLAGS_A_VACANT     = 0x0040u,
@@ -271,14 +271,14 @@ uint16_t dorado_memory_config_word(const dorado_memory *mem)
 }
 
 /* Map index from VA: page-number portion for our 16K-map /
- * 1024-word-page configuration. Keep this shared with cpu.c's ReadMap
+ * 256-word-page configuration. Keep this shared with cpu.c's ReadMap
  * path; Initial depends on ReadMap observing the same entry Map<- wrote. */
 uint32_t dorado_map_index(uint32_t va)
 {
-    return (va >> 10) & (DM_MAP_ENTRIES - 1);   /* page-number portion */
+    return (va >> 8) & (DM_MAP_ENTRIES - 1);   /* page-number portion */
 }
 
-/* Page-offset extraction: VA[22:31] = low 10 bits of VA in 1024-word
+/* Page-offset extraction: VA[24:31] = low 8 bits of VA in 256-word
  * page mode. */
 static uint32_t va_page_offset(uint32_t va)
 {

@@ -48,8 +48,10 @@ static int test_fetch_store(void)
     static dorado_memory mem; memset(&mem, 0, sizeof mem);
     EXPECT(dorado_memory_init(&mem) == 0, "init");
 
-    /* Mount map page 0 → real page 0 (identity), not WP, not dirty. */
+    /* Mount the touched pages identity-mapped, not WP, not dirty. */
     dorado_map_set(&mem, 0, /*rp=*/0, /*wp=*/0, /*dirty=*/0);
+    dorado_map_set(&mem, dorado_map_index(0x100), /*rp=*/1, 0, 0);
+    dorado_map_set(&mem, dorado_map_index(0x200), /*rp=*/2, 0, 0);
 
     /* Store 0xCAFE at VA = 0x100. */
     dorado_memory_ref(&mem, DM_REF_STORE, 0x100, 0xCAFE, 0);
@@ -147,8 +149,10 @@ static int test_prefetch_dummyref(void)
     static dorado_memory mem; memset(&mem, 0, sizeof mem);
     EXPECT(dorado_memory_init(&mem) == 0, "init");
 
-    /* VAs 0x500/0x600/0x700 all fall in map page 1 (>>10 = 1). */
-    dorado_map_set(&mem, 1, /*rp=*/1, /*wp=*/0, /*dirty=*/0);
+    /* VAs 0x500/0x600/0x700 fall in distinct 256-word pages. */
+    dorado_map_set(&mem, dorado_map_index(0x500), /*rp=*/5, 0, 0);
+    dorado_map_set(&mem, dorado_map_index(0x600), /*rp=*/6, 0, 0);
+    dorado_map_set(&mem, dorado_map_index(0x700), /*rp=*/7, 0, 0);
 
     /* Plant a sentinel in storage at VA=0x500. */
     dorado_memory_ref(&mem, DM_REF_STORE, 0x500, 0xABCD, 0);
@@ -181,10 +185,10 @@ static int test_storage_wrap(void)
     static dorado_memory mem; memset(&mem, 0, sizeof mem);
     EXPECT(dorado_memory_init(&mem) == 0, "init");
 
-    /* Map page 0 (covers VA 0x42) and map page 0x1000 (covers
-     * VA 0x400042). Both identity-mapped: page i → RP i. */
+    /* Map the low VA and the high VA to physical words that alias
+     * after the 4MW storage mask. */
     dorado_map_set(&mem, /*va_page=*/0,      /*rp=*/0,      0, 0);
-    dorado_map_set(&mem, /*va_page=*/0x1000, /*rp=*/0x1000, 0, 0);
+    dorado_map_set(&mem, dorado_map_index(0x400042), /*rp=*/0x4000, 0, 0);
 
     /* Store at low address, then read at high address that wraps to
      * the same physical word. With cache modeling, the Store sits in
@@ -272,14 +276,14 @@ static int test_map_load(void)
      * cleared. dorado_map_set already zeroes Ref, so set it manually. */
     dorado_map_set(&mem, 7, /*rp=*/0, /*wp=*/0, /*dirty=*/0);
     /* (No public setter for Ref alone; cycle a fetch to set it.) */
-    dorado_memory_ref(&mem, DM_REF_FETCH, 7 * 1024 + 0x10, 0, 0);
+    dorado_memory_ref(&mem, DM_REF_FETCH, 7 * DM_PAGE_SIZE + 0x10, 0, 0);
     EXPECT(dorado_map_get(&mem, 7)->ref == 1, "Ref should be set");
 
     /* Issue Map← with VA targeting page 7. B = 0xCAFE (RP).
      * TIOA = 0b10000000 (bit 7 set in C-LSB) = 0x80
      *   → manual TIOA[0]=1 (WP), TIOA[1]=0 (not Dirty). */
     dorado_fault_kind f = dorado_memory_ref(&mem, DM_REF_MAP,
-                                            7 * 1024, 0xCAFE, 0x80);
+                                            7 * DM_PAGE_SIZE, 0xCAFE, 0x80);
     EXPECT(f == DM_FAULT_NONE, "Map← should not fault");
 
     const dorado_map_entry *e = dorado_map_get(&mem, 7);
@@ -289,13 +293,13 @@ static int test_map_load(void)
     EXPECT(e->ref == 0, "ref = %d, expected 0 (Map← zeroes Ref)", e->ref);
 
     /* Now Map← with TIOA = 0xC0 → WP=1, Dirty=1 = Vacant. */
-    f = dorado_memory_ref(&mem, DM_REF_MAP, 7 * 1024, 0, 0xC0);
+    f = dorado_memory_ref(&mem, DM_REF_MAP, 7 * DM_PAGE_SIZE, 0, 0xC0);
     EXPECT(f == DM_FAULT_NONE, "Map← never faults");
     e = dorado_map_get(&mem, 7);
     EXPECT(e->wp == 1 && e->dirty == 1, "should be Vacant");
 
     /* And a fetch through page 7 now page-faults. */
-    f = dorado_memory_ref(&mem, DM_REF_FETCH, 7 * 1024, 0, 0);
+    f = dorado_memory_ref(&mem, DM_REF_FETCH, 7 * DM_PAGE_SIZE, 0, 0);
     EXPECT(f == DM_FAULT_PAGE, "fetch through Vacant should page-fault");
 
     dorado_memory_free(&mem);
@@ -320,15 +324,15 @@ static int test_map_translation(void)
     /* Plant a value at the underlying storage location via a
      * non-WP path: temporarily mount page 5 RW, store, Flush←
      * (so the dirty line is written back to storage rather than
-     * cached as VA 5*1024+0x42), then re-mount WP. */
+     * cached as VA 5*PAGE_SIZE+0x42), then re-mount WP. */
     dorado_map_set(&mem, 5, /*rp=*/100, /*wp=*/0, /*dirty=*/0);
-    dorado_memory_ref(&mem, DM_REF_STORE, 5 * 1024 + 0x42, 0xFACE, 0);
-    dorado_memory_ref(&mem, DM_REF_FLUSH, 5 * 1024 + 0x42, 0, 0);
+    dorado_memory_ref(&mem, DM_REF_STORE, 5 * DM_PAGE_SIZE + 0x42, 0xFACE, 0);
+    dorado_memory_ref(&mem, DM_REF_FLUSH, 5 * DM_PAGE_SIZE + 0x42, 0, 0);
     dorado_map_set(&mem, 5, /*rp=*/100, /*wp=*/1, /*dirty=*/0);
 
     /* Fetch through page 6 — must miss cache (different VA tag),
      * read from storage, and see the planted value. */
-    dorado_memory_ref(&mem, DM_REF_FETCH, 6 * 1024 + 0x42, 0, 0);
+    dorado_memory_ref(&mem, DM_REF_FETCH, 6 * DM_PAGE_SIZE + 0x42, 0, 0);
     EXPECT(mem.md == 0xFACE,
            "alias fetch Md = 0x%04X, expected 0xFACE", mem.md);
 
@@ -346,15 +350,15 @@ static int test_no_fault_refs(void)
 
     /* Page 9 is still Vacant. Map← should still succeed. */
     dorado_fault_kind f = dorado_memory_ref(&mem, DM_REF_MAP,
-                                            9 * 1024, 0x1234, 0);
+                                            9 * DM_PAGE_SIZE, 0x1234, 0);
     EXPECT(f == DM_FAULT_NONE, "Map← into Vacant should not fault");
 
     /* Page 11 still Vacant. PreFetch should also not fault. */
-    f = dorado_memory_ref(&mem, DM_REF_PREFETCH, 11 * 1024, 0, 0);
+    f = dorado_memory_ref(&mem, DM_REF_PREFETCH, 11 * DM_PAGE_SIZE, 0, 0);
     EXPECT(f == DM_FAULT_NONE, "PreFetch into Vacant should not fault");
 
     /* DummyRef also pipe-only, so it should never fault either. */
-    f = dorado_memory_ref(&mem, DM_REF_DUMMYREF, 12 * 1024, 0, 0);
+    f = dorado_memory_ref(&mem, DM_REF_DUMMYREF, 12 * DM_PAGE_SIZE, 0, 0);
     EXPECT(f == DM_FAULT_NONE, "DummyRef should not fault");
 
     dorado_memory_free(&mem);
@@ -439,14 +443,14 @@ static int test_pipe3_map_flags(void)
            dorado_pipe_map_flags(&mem, 0));
 
     /* WP entry: WP=1, Dirty=0, Ref=0 → flags=1. */
-    dorado_map_set(&mem, 1, /*rp=*/1, /*wp=*/1, /*dirty=*/0);
+    dorado_map_set(&mem, dorado_map_index(0x400), /*rp=*/4, /*wp=*/1, /*dirty=*/0);
     dorado_memory_ref(&mem, DM_REF_FETCH, 0x400, 0, 0);
     EXPECT(dorado_pipe_map_flags(&mem, 0) == 1,
            "WP-only flags = 0x%X, expected 1",
            dorado_pipe_map_flags(&mem, 0));
 
     /* Vacant entry: WP=1, Dirty=1, Ref=0 → flags=3. */
-    /* Page 2 is still default Vacant. */
+    /* The page containing 0x800 is still default Vacant. */
     dorado_memory_ref(&mem, DM_REF_FETCH, 0x800, 0, 0);
     EXPECT(dorado_pipe_map_flags(&mem, 0) == 3,
            "Vacant flags = 0x%X, expected 3 (WP+Dirty)",
@@ -554,9 +558,9 @@ static int test_cache_lru_eviction(void)
 {
     static dorado_memory mem; memset(&mem, 0, sizeof mem);
     EXPECT(dorado_memory_init(&mem) == 0, "init");
-    /* All five VAs use page 0 → row index = (va >> 4) & 0x3F. We pick
-     * 5 munches all at row 0 by offsetting in 1024-word strides
-     * (= 64 rows × 16 words/munch). */
+    /* Pick 5 munches all at row 0 by offsetting in 1024-word strides
+     * (= 64 rows × 16 words/munch). In 256-word map mode these VAs
+     * live in map pages 0, 4, 8, 12, and 16. */
     dorado_map_set(&mem, 0, /*rp=*/0, /*wp=*/0, /*dirty=*/0);
 
     /* Plant identifiable values at the start of each munch. */
@@ -564,23 +568,17 @@ static int test_cache_lru_eviction(void)
     mem.storage[0x400] = 0x2222;   /* munch (0x400 >> 4) = 64 → row 0 again */
     mem.storage[0x800] = 0x3333;   /* row 0 (0x800 >> 4 = 128, mod 64 = 0) */
     mem.storage[0xC00] = 0x4444;   /* row 0 */
-    mem.storage[0x1000] = 0x5555;  /* row 0 — but this would need page 1 mounted */
+    mem.storage[0x1000] = 0x5555;  /* row 0 */
 
-    /* Use VAs all within page 0 for simplicity. Different cache rows
-     * means we need same row but different tags. Tag = va >> 10.
+    /* Same row but different tags. Tag = va >> 10.
      * Row 0 means low 10 bits = 0..15. Tag varies via va >> 10.
      * So VAs that all map to row 0 with distinct tags:
      *   0x000 (tag 0), 0x400 (tag 1), 0x800 (tag 2),
      *   0xC00 (tag 3), 0x1000 (tag 4). */
-    /* Need a separate map page for VAs 0x400, 0x800, 0xC00, 0x1000 if
-     * they fall in different map pages. Map page = va >> 10.
-     *   0x000 → page 0; 0x400 → page 1; 0x800 → page 2;
-     *   0xC00 → page 3; 0x1000 → page 4.
-     * Mount each pointing at its own RP so the storage layout works. */
-    dorado_map_set(&mem, 1, /*rp=*/1, 0, 0);  /* RP1 starts at storage 0x400 */
-    dorado_map_set(&mem, 2, /*rp=*/2, 0, 0);
-    dorado_map_set(&mem, 3, /*rp=*/3, 0, 0);
-    dorado_map_set(&mem, 4, /*rp=*/4, 0, 0);
+    dorado_map_set(&mem, dorado_map_index(0x400),  /*rp=*/4,  0, 0);
+    dorado_map_set(&mem, dorado_map_index(0x800),  /*rp=*/8,  0, 0);
+    dorado_map_set(&mem, dorado_map_index(0xC00),  /*rp=*/12, 0, 0);
+    dorado_map_set(&mem, dorado_map_index(0x1000), /*rp=*/16, 0, 0);
 
     dorado_memory_ref(&mem, DM_REF_FETCH, 0x000, 0, 0);  /* fills way A */
     dorado_memory_ref(&mem, DM_REF_FETCH, 0x400, 0, 0);  /* way B */
@@ -610,9 +608,11 @@ static int test_cache_dirty_victim_writeback(void)
     EXPECT(dorado_memory_init(&mem) == 0, "init");
 
     /* Same trick as the LRU test: 5 munches in cache row 0. */
-    for (int p = 0; p < 5; p++) {
-        dorado_map_set(&mem, /*va_page=*/(uint32_t)p, /*rp=*/(uint16_t)p,
-                       /*wp=*/0, /*dirty=*/0);
+    const uint32_t vas[5] = { 0x000, 0x400, 0x800, 0xC00, 0x1000 };
+    for (int i = 0; i < 5; i++) {
+        uint32_t va = vas[i];
+        dorado_map_set(&mem, dorado_map_index(va),
+                       /*rp=*/(uint16_t)(va >> 8), /*wp=*/0, /*dirty=*/0);
     }
 
     /* Store at VA 0x000 — dirties cache row 0 way A. */
@@ -860,8 +860,8 @@ static int test_cflags_load_visible_in_pipe5(void)
     enum {
         CFLAGS_A_DIRTY = 0x0080u,
         CFLAGS_A_WP    = 0x0020u,
-        PIPE5_DIRTY    = 0x0020u,
-        PIPE5_WP       = 0x0008u,
+        PIPE5_DIRTY    = 0x0080u,
+        PIPE5_WP       = 0x0020u,
     };
 
     static dorado_memory mem; memset(&mem, 0, sizeof mem);
@@ -885,7 +885,7 @@ static int test_discf_blocks_cflags_and_pipe5_flags(void)
 {
     enum {
         CFLAGS_A_DIRTY = 0x0080u,
-        PIPE5_DIRTY    = 0x0020u,
+        PIPE5_DIRTY    = 0x0080u,
     };
 
     static dorado_memory mem; memset(&mem, 0, sizeof mem);

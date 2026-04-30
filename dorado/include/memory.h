@@ -97,10 +97,11 @@ typedef struct {
 
 /*
  * Map (HM §5 "The Map", page 44 ff.). We pick the 16K-map ×
- * 1024-word page configuration: VA[8:21] indexes the map, VA[22:31]
- * is the page offset. Total VM = 2^24 words. (HM Table 16 lists
+ * 256-word page configuration: VA[10:23] indexes the map, VA[24:31]
+ * is the page offset. Total VM = 2^22 words. (HM Table 16 lists
  * other configurations — page sizes 256/1024/4096 with map IC sizes
- * 16K/64K/256K. Our choice matches what Mesa typically expects.)
+ * 16K/64K/256K. This is the smallest/default 4K-cache configuration
+ * Initial's map setup appears to expect.)
  *
  * Each map entry is a 16-bit real page number (RP) plus three flags:
  *   - WP    write-protected
@@ -109,10 +110,10 @@ typedef struct {
  *           by Map←)
  *   - Vacant (encoded as WP=1, Dirty=1) — page fault on any access.
  *
- * Real address = (RP << 10) | VA[22:31]   (1024-word pages).
+ * Real address = (RP << 8) | VA[24:31]   (256-word pages).
  */
 #define DM_MAP_ENTRIES   (16 * 1024)         /* 16K map entries */
-#define DM_PAGE_SIZE     1024                /* 1024-word pages */
+#define DM_PAGE_SIZE     256                 /* 256-word pages */
 
 typedef struct {
     uint16_t rp;       /* 16-bit real page number */

@@ -196,19 +196,20 @@ build time. The seven supported configurations:
 
 | Map IC size | Page size (words) | VA bits used as map index | Page-offset bits | VM size |
 |---:|---:|---:|---:|---:|
-| 16 K   | 256  | VA[8:21]   | VA[22:31] tail; VA[22:23] is also concat'd? — check HM | 4 M words |
+| 16 K   | 256  | VA[10:23]  | VA[24:31] (low 8)  | 4 M words |
 | 16 K   | 1024 | VA[8:21]   | VA[22:31] (low 10) | 16 M words |
-| 16 K   | 4096 | VA[8:21]   | VA[20:31] (low 12) | 64 M words |
+| 16 K   | 4096 | VA[6:19]   | VA[20:31] (low 12) | 64 M words |
 | 64 K   | 256  | VA[6:21]   | VA[24:31] (low 8)  | 16 M words |
 | 64 K   | 1024 | VA[6:21]   | VA[22:31] (low 10) | 64 M words |
 | 64 K   | 4096 | VA[6:21]   | VA[20:31] (low 12) | 256 M words |
 | 256 K  | 256  | VA[4:21]   | VA[24:31] (low 8)  | 64 M words |
 
-(The C emulator picks **16 K-entry × 1024-word page**, giving
-VM = 2^24 words = 16 MW. This matches what Mesa typically expects.)
+(The C emulator currently picks **16 K-entry × 256-word page**, giving
+VM = 2^22 words = 4 MW. This matches the smallest/default cache-map
+configuration and Initial's observed map setup loop.)
 
 The total addressable VM is `IC_size × page_size`. For our config:
-16384 × 1024 = 16 MW = 32 MB.
+16384 × 256 = 4 MW = 8 MB.
 
 ### Map entry format (HM page 45)
 
@@ -425,7 +426,7 @@ this table summarizes the user-visible reads):
 | `B←Pipe2'` | low-true | EmulatorFault, NFaults, SRNFirstFault. **Same data as `B←FaultInfo'`** — Pipe2' is a "convenient decode" for the same FaultInfo register. |
 | `B←Pipe3'` | low-true | Map flags **as they were before this reference**: WP, Dirty, Ref, BeingLoaded, NextVictim (+ RP) |
 | `B←Pipe4` | mixed | Errors: syndrome bits, correctable bit, etc. XOR with `0150361₈` to get high-true. |
-| `B←Pipe5` | high-true | MapBufBusy sign bit plus selected cache-address-section flags (Dirty, Vacant, WP, BeingLoaded). |
+| `B←Pipe5` | high-true | MapBufBusy in manual bit 0 plus selected cache-address-section flags in manual bits 8..11 (Dirty, Vacant, WP, BeingLoaded). |
 
 `B←FaultInfo'` (`FA=1 FB=6 FC=0`) returns:
 - B[8:11] = SRN of 1st fault (4 bits, inverted)

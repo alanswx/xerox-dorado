@@ -440,7 +440,7 @@ paths and per-MemBase isolation.
 
 ### B.2 Map  ✓ LANDED
 
-16K-entry table indexed by VA[10:21] (we picked the 16K-IC × 1024-
+16K-entry table indexed by VA[10:23] (we picked the 16K-IC × 256-
 word-page configuration from HM Table 16). Entry holds 16-bit RP +
 WP/Dirty/Ref. Vacant = WP=1 ∧ Dirty=1 (initial state at power-up).
 

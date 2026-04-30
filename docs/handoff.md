@@ -125,7 +125,7 @@ These all compile clean and pass:
   vector slots, NotReady trap, conditional IFUJump.
 
 ### Memory (`include/memory.h`, `src/memory.c`)
-- 4MW main storage, cache 4×64×16, Map (16K entries × 1024-word pages),
+- 4MW main storage, cache 4×64×16, Map (16K entries × 256-word pages),
   16-entry Pipe, 32-entry BR (28-bit each).
 - Refs: Fetch / Store / IFetch / PreFetch / LongFetch / IOFetch /
   IOStore / Map / Flush / DummyRef.
@@ -139,7 +139,7 @@ These all compile clean and pass:
   schematics, `Map<-` now marks the addressed pipe slot busy for 9
   cycles and `B<-Pipe5` exposes that busy state in the sign bit for
   Initial's `WAITFORMAPBUF` loop.
-- `ReadMap` and `Map<-` now share the same 1024-word-page map index
+- `ReadMap` and `Map<-` now share the same 256-word-page map index
   helper, avoiding stale reads from the old `va >> 6` path.
 - **No Hold semantics** — refs are atomic. Md is delivered immediately.
   This is a known gap; AEmu's IFU dispatch loop appears to need real
@@ -415,22 +415,23 @@ the budget in map initialization rather than the old display
 → 0o6366 → WAITFORMAPBUF → 0o6245 → 0o6244 → 0o6367 → DORETURN →
 RETN → PRESETMAPE/PRESETMAPL → SETBRFORPAGE → ...`.
 
-After adding MapBufBusy, and then the first cache-address flag model,
-the 60M run still ends at `PC=0o6244`, `Task=0`, `TIOA=0`, with no
-display/disk I/O. Selected Initial variables look sane: `RNUM=4`,
-`RCONST=4`, `VIRTUALBANKS=4`, `REALPAGES=4`, `DISPLAYCONFIG=7`. A
-120M run using `DORADO_BOOT_BUDGET=120000000 ./build/test_cpu` stayed
-in the same PRESETMAP/WAITFORMAPBUF loop.
+After adding MapBufBusy, the first cache-address flag model, switching
+to HM Table 16's 16K-entry x 256-word page map geometry, and correcting
+Pipe5 cache flags to manual bits 8..11, the 80M run still ends in this
+path (`PC=0o6245`, `Task=0`, `TIOA=0`, no display/disk I/O). Selected
+Initial variables look sane: `RNUM=4`, `RCONST=4`, `VIRTUALBANKS=4`,
+`REALPAGES=4`, `DISPLAYCONFIG=7`.
 
 `LoadMcr[A,B]` is now real enough to cover the bits Initial appears to
 use first (DisBR, DisCF, NoRef, FDMiss, UseMcrV, NoWake), and
 `CFlags<-A'` plus the cache-flag portion of `B<-Pipe5` are modeled at a
 basic level. The full test/probe still parks in this same PRESETMAP
 loop. Basic Config, MapBufBusy, ReadMap/Map<- indexing, HM Table 8a/8b
-memory-reference decode, and basic cache flags are no longer the likely
-blockers. The next likely missing hardware is deeper memory-section
-behavior: Hold/DisHold, exact Pipe5 bit layout/NextVictim, or remaining
-MCR bits (DisHold, WMiss, ReportSE').
+memory-reference decode, 256-word page geometry, and basic cache flags
+are no longer the likely blockers. The next likely missing hardware is
+deeper memory-section behavior: Hold/DisHold, dVA<-Victim/cache-address
+VA readback, Pipe5 Victim/NextVictim bits, or remaining MCR bits
+(DisHold, WMiss, ReportSE').
 
 #### 2d. LONGWAIT busy-wait (superseded for now)
 
@@ -656,8 +657,8 @@ order:
    `PRESETMAPL`, and `SETBRFORPAGE`.
 2. Implement enough Hold/DisHold behavior that memory/map references
    can stall instead of returning stale Md immediately.
-3. Verify the Pipe5/CFlags bit positions against MEMC/MEMX and add
-   NextVictim if PRESETMAP/cache setup reads it.
+3. Add dVA<-Victim/cache-address VA readback and Pipe5 Victim/NextVictim
+   if PRESETMAP/cache setup reads them.
 4. Finish the remaining MCR bits if the map loop depends on them:
    DisHold, WMiss, and ReportSE'.
 5. Re-run `build/test_cpu`; success means leaving PRESETMAP and

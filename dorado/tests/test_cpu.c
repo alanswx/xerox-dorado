@@ -2157,6 +2157,20 @@ static int probe_full_boot_with_bootstrap(void)
     uint16_t init_last_trail[64];
     int init_last_head = 0, init_last_total = 0;
     int prev_last_pc = -1;
+    struct preset_sample {
+        uint64_t cycle;
+        uint16_t pc, next_pc;
+        uint16_t t, q, link, cnt;
+        uint16_t rm1, rm2, rm6, rm7, rm0x45, rm0x48, rm0x49;
+        uint8_t rbase, membase, proc_srn, alu_lt0;
+        uint16_t pipe5;
+        uint32_t mar;
+    };
+    struct preset_sample preset_first[64];
+    struct preset_sample preset_last[64];
+    int preset_first_n = 0;
+    int preset_last_head = 0, preset_last_total = 0;
+    int preset_trace_enabled = test_u64_env("DORADO_PRESET_TRACE", 0) != 0;
 
     while (bb.cycles < T_GIVEUP) {
         /* Boot button schedule. */
@@ -2316,6 +2330,38 @@ static int probe_full_boot_with_bootstrap(void)
         uint16_t pre_t = cpu.T;
         uint16_t pre_tag = cpu.RM[4];
         uint16_t pre_loc = cpu.RM[3];
+        struct preset_sample ps;
+        int is_preset_probe =
+            preset_trace_enabled && initial_substituted && is_imfetch &&
+            (pre_pc == 06357 || pre_pc == 06356 || pre_pc == 06361 ||
+             pre_pc == 06362 || pre_pc == 06363 || pre_pc == 06340 ||
+             pre_pc == 06365 || pre_pc == 06360 || pre_pc == 06245 ||
+             pre_pc == 06244 || pre_pc == 06366 || pre_pc == 06367 ||
+             pre_pc == 06001 || pre_pc == 06013);
+        if (is_preset_probe) {
+            memset(&ps, 0, sizeof ps);
+            ps.cycle = bb.cycles;
+            ps.pc = pre_pc;
+            ps.t = cpu.T;
+            ps.q = cpu.Q;
+            ps.link = cpu.Link;
+            ps.cnt = cpu.Cnt;
+            ps.rm1 = cpu.RM[1];
+            ps.rm2 = cpu.RM[2];
+            ps.rm6 = cpu.RM[6];
+            ps.rm7 = cpu.RM[7];
+            ps.rm0x45 = cpu.RM[0x45];
+            ps.rm0x48 = cpu.RM[0x48];
+            ps.rm0x49 = cpu.RM[0x49];
+            ps.rbase = (uint8_t)cpu.RBase;
+            ps.membase = (uint8_t)cpu.MemBase;
+            ps.alu_lt0 = cpu.alu_lt0;
+            if (cpu.mem) {
+                ps.proc_srn = cpu.mem->proc_srn;
+                ps.pipe5 = dorado_pipe5_at(cpu.mem, cpu.mem->proc_srn);
+                ps.mar = cpu.mem->mar;
+            }
+        }
         int log_to_trail = (swapped && is_imfetch);
         int is_readbb_probe = (log_to_trail &&
                                (pre_pc == 07746 || pre_pc == 07715 ||
@@ -2334,6 +2380,14 @@ static int probe_full_boot_with_bootstrap(void)
         if (dorado_cpu_step(&cpu)) {
             halt_reason = (cpu_halt_reason)cpu.halt_reason;
             break;
+        }
+
+        if (is_preset_probe) {
+            ps.next_pc = cpu.real_PC;
+            if (preset_first_n < 64) preset_first[preset_first_n++] = ps;
+            preset_last[preset_last_head] = ps;
+            preset_last_head = (preset_last_head + 1) % 64;
+            preset_last_total++;
         }
 
         if (is_imfetch) imfetch_count++;
@@ -2563,6 +2617,37 @@ static int probe_full_boot_with_bootstrap(void)
            cpu.RM[0x10], cpu.RM[0x14], cpu.RM[0x15], cpu.RM[0x16],
            cpu.RM[0x45], cpu.RM[0x46], cpu.RM[0x48], cpu.RM[0x49],
            cpu.RM[0x76]);
+
+    if (preset_first_n > 0) {
+        printf("       PRESETMAP samples (first %d):\n", preset_first_n);
+        for (int i = 0; i < preset_first_n; i++) {
+            const struct preset_sample *s = &preset_first[i];
+            printf("         cyc=%llu pc=0o%o->0o%o T=%04X Q=%04X Cnt=%04X "
+                   "R1=%04X R2=%04X R6=%04X R7=%04X R45=%04X R48=%04X R49=%04X "
+                   "RB=%o MB=%o lt0=%d srn=%o p5=%04X Mar=%07X Link=%04X\n",
+                   (unsigned long long)s->cycle, s->pc, s->next_pc,
+                   s->t, s->q, s->cnt, s->rm1, s->rm2, s->rm6, s->rm7,
+                   s->rm0x45, s->rm0x48, s->rm0x49,
+                   s->rbase, s->membase, s->alu_lt0, s->proc_srn,
+                   s->pipe5, s->mar, s->link);
+        }
+    }
+    if (preset_last_total > 0) {
+        int n = preset_last_total < 64 ? preset_last_total : 64;
+        int first = preset_last_total < 64 ? 0 : preset_last_head;
+        printf("       PRESETMAP samples (last %d):\n", n);
+        for (int i = 0; i < n; i++) {
+            const struct preset_sample *s = &preset_last[(first + i) % 64];
+            printf("         cyc=%llu pc=0o%o->0o%o T=%04X Q=%04X Cnt=%04X "
+                   "R1=%04X R2=%04X R6=%04X R7=%04X R45=%04X R48=%04X R49=%04X "
+                   "RB=%o MB=%o lt0=%d srn=%o p5=%04X Mar=%07X Link=%04X\n",
+                   (unsigned long long)s->cycle, s->pc, s->next_pc,
+                   s->t, s->q, s->cnt, s->rm1, s->rm2, s->rm6, s->rm7,
+                   s->rm0x45, s->rm0x48, s->rm0x49,
+                   s->rbase, s->membase, s->alu_lt0, s->proc_srn,
+                   s->pipe5, s->mar, s->link);
+        }
+    }
 
     /* Dump first 32 Write IM operations to identify where T comes from. */
     if (cpu.dbg_writeim_n > 0) {

@@ -57,8 +57,8 @@ static int test_dsk_iostore_to_memory(void)
     mem.fast_io_cb  = dorado_fastio_dispatch;
     mem.fast_io_ctx = &router;
 
-    /* Map page 0 RW so VA 0..1023 → phys 0..1023. */
-    dorado_map_set(&mem, 0, /*rp=*/0, /*wp=*/0, /*dirty=*/0);
+    /* Map the touched page RW and identity-mapped. */
+    dorado_map_set(&mem, dorado_map_index(0x200), /*rp=*/2, /*wp=*/0, /*dirty=*/0);
 
     /* Drive the disk: select drive 0, seek (5, 2, 3), Read. */
     static dorado_io io;
@@ -140,7 +140,7 @@ static int test_dwt_iofetch_to_display(void)
 
     /* Plant 16 words of pixel data at VA 0x100 = phys 0x100. The
      * pattern: alternating 0xAAAA / 0x5555. */
-    dorado_map_set(&mem, 0, /*rp=*/0, /*wp=*/0, /*dirty=*/0);
+    dorado_map_set(&mem, dorado_map_index(0x100), /*rp=*/1, /*wp=*/0, /*dirty=*/0);
     for (int i = 0; i < 16; i++) {
         mem.storage[0x100 + i] = (i & 1) ? 0x5555 : 0xAAAA;
     }
