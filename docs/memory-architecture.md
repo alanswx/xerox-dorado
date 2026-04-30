@@ -160,8 +160,13 @@ Implemented in `dorado/src/memory.c` and `dorado/include/memory.h`:
 - The cache-address-section flag latch records the row/way selected
   by the most recent memory reference. `CFlags<-A'` updates Dirty,
   Vacant, WP, and BeingLoaded for that selected entry unless `DisCF`
-  is set in MCR; `B<-Pipe5` exposes the selected entry's cache flags
-  alongside MapBufBusy.
+  is set in MCR; `B<-Pipe5` exposes the selected entry's cache flags,
+  Victim, and NextVictim alongside MapBufBusy. Per HM page 62,
+  `DisCF` hides only the four cache flag bits; Victim and NextVictim
+  remain readable.
+- MCR `dVA<-Victim`, when set, suppresses map/storage starts and
+  returns the cache-address VA for the selected row/way through
+  Pipe0/Pipe1. With `UseMcrV`, `McrV` selects the way.
 - `cache_pick_victim`, `cache_writeback_line`, `cache_fill`,
   `cache_invalidate_no_writeback` are internal helpers.
 
@@ -170,7 +175,9 @@ Tests (`tests/test_memory.c`):
 `test_cache_store_no_map_dirty`, `test_cache_lru_eviction`,
 `test_cache_dirty_victim_writeback`, `test_cache_flush_clean`,
 `test_iostore_cache_invalidate`, `test_cflags_load_visible_in_pipe5`,
-`test_discf_blocks_cflags_and_pipe5_flags`. All passing.
+`test_pipe5_reports_victim_and_nextvictim`,
+`test_discf_blocks_cflags_and_pipe5_flags`,
+`test_mcr_dvavic_reads_cache_address_without_storage`. All passing.
 
 ### Not yet modeled (Phase B/C)
 
@@ -181,7 +188,10 @@ Tests (`tests/test_memory.c`):
   quadwords × (64 data + 8 check bits). We always succeed.
 - **Cache parity** (the cache address memory has its own parity).
 - **`MapPE` reporting in Pipe4** (we always report no-error).
-- `NextVictim` in Pipe5 is not yet modeled.
+- **Precise VNV update RAM.** Pipe5 reports Victim/NextVictim, and
+  `UseMcrV` overrides both, but the normal-mode update policy is still
+  approximated by the emulator's LRU list rather than a separate VNV
+  RAM with the HM page 60 replacement equations.
 
 ## The Map (HM §5.5–5.7, pages 44–48)
 
@@ -426,7 +436,7 @@ this table summarizes the user-visible reads):
 | `B←Pipe2'` | low-true | EmulatorFault, NFaults, SRNFirstFault. **Same data as `B←FaultInfo'`** — Pipe2' is a "convenient decode" for the same FaultInfo register. |
 | `B←Pipe3'` | low-true | Map flags **as they were before this reference**: WP, Dirty, Ref, BeingLoaded, NextVictim (+ RP) |
 | `B←Pipe4` | mixed | Errors: syndrome bits, correctable bit, etc. XOR with `0150361₈` to get high-true. |
-| `B←Pipe5` | high-true | MapBufBusy in manual bit 0 plus selected cache-address-section flags in manual bits 8..11 (Dirty, Vacant, WP, BeingLoaded). |
+| `B←Pipe5` | high-true | MapBufBusy in manual bit 0 plus selected cache-address-section state read during the last ref: flags in manual bits 8..11 (Dirty, Vacant, WP, BeingLoaded), Victim in manual bits 12..13, and NextVictim in manual bits 14..15. |
 
 `B←FaultInfo'` (`FA=1 FB=6 FC=0`) returns:
 - B[8:11] = SRN of 1st fault (4 bits, inverted)
@@ -536,11 +546,10 @@ In rough dependency order (matching what microcode actually exercises):
    ready tracking before tasking-driven microcode is correct.
 4. ~~**Pipe**~~ — done. 16-entry ring, every ref pushes regardless of
    fault. `dorado_pipe_va(n)` returns slot relative to head.
-5. **Cache** — TBD. Once Mesa's microcode starts Long-Fetching across
-   page boundaries we'll want 4-way LRU semantics, mostly because
-   eviction affects when Pipe entries (the Pipe is ref-driven, not
-   cache-driven, so it's actually fine?) and dirty-victim timing
-   matters.
+5. ~~**Cache**~~ — basic model done: 4-way/64-row/16-word lines,
+   VA-tagged entries, LRU, dirty writeback, `CFlags<-A'`, `B<-Pipe5`
+   flags, and `dVA<-Victim` cache-address readback. Remaining gaps
+   are timing, parity/ECC, and exact VNV update RAM behavior.
 6. ~~**Map**~~ — done. 16K entries × {RP, WP, Dirty, Ref}. Vacant at
    init. `Map←` writes RP from B and WP/Dirty from TIOA[0:1]. Faults
    surface as `dorado_fault_kind` return values plus `last_fault*`

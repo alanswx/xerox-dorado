@@ -4,6 +4,7 @@
 #include <string.h>
 
 static uint32_t va_cache_row(uint32_t va);
+static int cache_pick_victim(dorado_memory *mem, uint32_t va);
 
 enum {
     PIPE5_MAPBUF_BUSY = 0x8000u,  /* manual Pipe5[0] */
@@ -11,6 +12,8 @@ enum {
     PIPE5_VACANT      = 0x0040u,  /* manual Pipe5[9] */
     PIPE5_WP          = 0x0020u,  /* manual Pipe5[10] */
     PIPE5_BEING_LOAD  = 0x0010u,  /* manual Pipe5[11] */
+    PIPE5_VICTIM_SHIFT      = 2,  /* manual Pipe5[12:13] */
+    PIPE5_NEXTVICTIM_SHIFT  = 0,  /* manual Pipe5[14:15] */
 
     CFLAGS_A_DIRTY      = 0x0080u,  /* manual CFlags input bit 8 */
     CFLAGS_A_VACANT     = 0x0040u,
@@ -130,6 +133,11 @@ static int dorado_mcr_discf(const dorado_memory *mem)
     return (mem->mcr >> 7) & 1;      /* manual Mcr[8] */
 }
 
+static int dorado_mcr_dvavic(const dorado_memory *mem)
+{
+    return (mem->mcr >> 15) & 1;     /* manual Mcr[0] */
+}
+
 static int dorado_mcr_usemcrv(const dorado_memory *mem)
 {
     return (mem->mcr >> 13) & 1;     /* manual Mcr[2] */
@@ -140,13 +148,25 @@ static int dorado_mcr_victim(const dorado_memory *mem)
     return (mem->mcr >> 11) & 3;     /* manual Mcr[3:4] */
 }
 
+static int dorado_mcr_nextvictim(const dorado_memory *mem)
+{
+    return (mem->mcr >> 9) & 3;      /* manual Mcr[5:6] */
+}
+
 static uint16_t cache_line_pipe5_flags(const dorado_memory *mem, uint32_t va,
                                        int way)
 {
-    if (dorado_mcr_discf(mem) || way < 0 || way >= DM_CACHE_WAYS) return 0;
+    if (way < 0 || way >= DM_CACHE_WAYS) return 0;
 
-    const dorado_cache_line *line = &mem->cache[va_cache_row(va)].ways[way];
-    uint16_t v = 0;
+    uint32_t row_idx = va_cache_row(va);
+    int next_way = dorado_mcr_usemcrv(mem)
+                 ? dorado_mcr_nextvictim(mem)
+                 : mem->cache[row_idx].lru[DM_CACHE_WAYS - 1];
+    uint16_t v = (uint16_t)(((way & 3) << PIPE5_VICTIM_SHIFT) |
+                            ((next_way & 3) << PIPE5_NEXTVICTIM_SHIFT));
+    if (dorado_mcr_discf(mem)) return v;
+
+    const dorado_cache_line *line = &mem->cache[row_idx].ways[way];
     if (line->dirty)        v |= PIPE5_DIRTY;
     if (line->vacant)       v |= PIPE5_VACANT;
     if (line->wp)           v |= PIPE5_WP;
@@ -336,6 +356,15 @@ static void cache_select(dorado_memory *mem, uint32_t va, int way, int srn)
         cache_line_pipe5_flags(mem, va, way);
 }
 
+static uint32_t cache_address_va(const dorado_memory *mem, uint32_t va, int way)
+{
+    if (way < 0 || way >= DM_CACHE_WAYS) return 0;
+    uint32_t row_idx = va_cache_row(va);
+    const dorado_cache_line *line = &mem->cache[row_idx].ways[way];
+    if (!line->valid) return 0;
+    return (line->tag << 10) | (row_idx << 4);
+}
+
 /* Lookup VA in the cache. Returns 1 if any way matches; sets *out_way
  * if non-NULL. Does NOT update LRU (caller decides). */
 int dorado_cache_lookup(const dorado_memory *mem, uint32_t va, int *out_way)
@@ -490,6 +519,16 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
         }
     }
     int srn = use_asrn ? mem->asrn : mem->proc_srn;
+
+    if (dorado_mcr_dvavic(mem) &&
+        kind != DM_REF_MAP && kind != DM_REF_DUMMYREF && kind != DM_REF_NONE) {
+        int way = dorado_mcr_usemcrv(mem) ? dorado_mcr_victim(mem)
+                                          : cache_pick_victim(mem, va);
+        uint32_t pipe_va = cache_address_va(mem, va, way);
+        pipe_push(mem, srn, kind, pipe_va, flags_pre);
+        cache_select(mem, va, way, srn);
+        return DM_FAULT_NONE;
+    }
 
     /* Pipe entries are pushed for *every* reference, including ones
      * that fault — so fault microcode can read the offending VA

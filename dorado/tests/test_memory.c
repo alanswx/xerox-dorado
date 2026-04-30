@@ -831,6 +831,42 @@ static int test_mcr_noref_suppresses_storage_access(void)
     return 0;
 }
 
+static int test_mcr_dvavic_reads_cache_address_without_storage(void)
+{
+    static dorado_memory mem; memset(&mem, 0, sizeof mem);
+    EXPECT(dorado_memory_init(&mem) == 0, "init");
+
+    uint32_t cached_va = 0x2340;
+    dorado_map_set(&mem, dorado_map_index(cached_va),
+                   /*rp=*/(uint16_t)(cached_va >> 8), /*wp=*/0, /*dirty=*/0);
+    mem.storage[cached_va] = 0xCAFE;
+
+    /* Fill cache way 2 for the target row. */
+    dorado_mcr_load(&mem, 0x3000, 0);  /* UseMcrV + McrV=2 */
+    dorado_fault_kind f = dorado_memory_ref(&mem, DM_REF_FETCH,
+                                            cached_va, 0, 0);
+    EXPECT(f == DM_FAULT_NONE, "priming fetch should not fault");
+    EXPECT(mem.md == 0xCAFE, "priming fetch Md=0x%04X", mem.md);
+
+    /* dVA<-Victim prevents map/storage activity and returns the cache
+     * address memory contents for row(cached_va), way 2 through Pipe0/1. */
+    dorado_mcr_load(&mem, 0xB000, 0);  /* dVA<-Victim + UseMcrV + McrV=2 */
+    f = dorado_memory_ref(&mem, DM_REF_FETCH, cached_va, 0, 0);
+    EXPECT(f == DM_FAULT_NONE, "dVA<-Victim fetch should not fault");
+    EXPECT(dorado_pipe_va_at(&mem, mem.proc_srn) == cached_va,
+           "pipe VA=0x%X, expected cached VA 0x%X",
+           dorado_pipe_va_at(&mem, mem.proc_srn), cached_va);
+
+    /* Even an unmapped VA should not start the map/storage automata. */
+    f = dorado_memory_ref(&mem, DM_REF_FETCH, 0x9000, 0, 0);
+    EXPECT(f == DM_FAULT_NONE, "dVA<-Victim must suppress map faults");
+    EXPECT(mem.fault_count == 0, "dVA<-Victim should not record faults");
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_mcr_dvavic_reads_cache_address_without_storage\n");
+    return 0;
+}
+
 static int test_mapbuf_busy_pipe5_timing(void)
 {
     static dorado_memory mem; memset(&mem, 0, sizeof mem);
@@ -878,6 +914,37 @@ static int test_cflags_load_visible_in_pipe5(void)
 
     dorado_memory_free(&mem);
     printf("PASS  test_cflags_load_visible_in_pipe5\n");
+    return 0;
+}
+
+static int test_pipe5_reports_victim_and_nextvictim(void)
+{
+    enum {
+        PIPE5_VICTIM_MASK = 0x000Cu,
+        PIPE5_NEXT_MASK   = 0x0003u,
+    };
+
+    static dorado_memory mem; memset(&mem, 0, sizeof mem);
+    EXPECT(dorado_memory_init(&mem) == 0, "init");
+
+    dorado_map_set(&mem, dorado_map_index(0x120), /*rp=*/1, 0, 0);
+
+    /* UseMcrV selects Victim=2 and McrNV=1. Pipe5 reports both even
+     * when DisCF is clear and no cache flags have been explicitly set. */
+    dorado_mcr_load(&mem, 0x3200, 0);
+    dorado_fault_kind f = dorado_memory_ref(&mem, DM_REF_FETCH, 0x120, 0, 0);
+    EXPECT(f == DM_FAULT_NONE, "fetch should not fault");
+
+    uint16_t p5 = dorado_pipe5_at(&mem, mem.proc_srn);
+    EXPECT(((p5 & PIPE5_VICTIM_MASK) >> 2) == 2,
+           "Pipe5 Victim = %u, expected 2",
+           (unsigned)((p5 & PIPE5_VICTIM_MASK) >> 2));
+    EXPECT((p5 & PIPE5_NEXT_MASK) == 1,
+           "Pipe5 NextVictim = %u, expected 1",
+           (unsigned)(p5 & PIPE5_NEXT_MASK));
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_pipe5_reports_victim_and_nextvictim\n");
     return 0;
 }
 
@@ -933,8 +1000,10 @@ int main(void)
     rc |= test_mcr_load_and_controls();
     rc |= test_mcr_disbr_blocks_br_writes();
     rc |= test_mcr_noref_suppresses_storage_access();
+    rc |= test_mcr_dvavic_reads_cache_address_without_storage();
     rc |= test_mapbuf_busy_pipe5_timing();
     rc |= test_cflags_load_visible_in_pipe5();
+    rc |= test_pipe5_reports_victim_and_nextvictim();
     rc |= test_discf_blocks_cflags_and_pipe5_flags();
     if (rc == 0) printf("\nAll memory tests passed.\n");
     return rc;

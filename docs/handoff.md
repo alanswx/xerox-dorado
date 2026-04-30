@@ -423,15 +423,16 @@ Initial variables look sane: `RNUM=4`, `RCONST=4`, `VIRTUALBANKS=4`,
 `REALPAGES=4`, `DISPLAYCONFIG=7`.
 
 `LoadMcr[A,B]` is now real enough to cover the bits Initial appears to
-use first (DisBR, DisCF, NoRef, FDMiss, UseMcrV, NoWake), and
-`CFlags<-A'` plus the cache-flag portion of `B<-Pipe5` are modeled at a
-basic level. The full test/probe still parks in this same PRESETMAP
-loop. Basic Config, MapBufBusy, ReadMap/Map<- indexing, HM Table 8a/8b
-memory-reference decode, 256-word page geometry, and basic cache flags
-are no longer the likely blockers. The next likely missing hardware is
-deeper memory-section behavior: Hold/DisHold, dVA<-Victim/cache-address
-VA readback, Pipe5 Victim/NextVictim bits, or remaining MCR bits
-(DisHold, WMiss, ReportSE').
+use first (dVA<-Victim, DisBR, DisCF, NoRef, FDMiss, UseMcrV,
+NoWake), and `CFlags<-A'` plus the cache-address-section portion of
+`B<-Pipe5` are modeled at a basic level, including Victim/NextVictim.
+The full test/probe still parks in this same PRESETMAP loop. Basic
+Config, MapBufBusy, ReadMap/Map<- indexing, HM Table 8a/8b
+memory-reference decode, 256-word page geometry, cache-address VA
+readback, basic cache flags, and Pipe5 Victim/NextVictim reporting are
+no longer the likely blockers. The next likely missing hardware is
+deeper memory-section behavior: Hold/DisHold, exact VNV update RAM
+behavior, or remaining MCR bits (DisHold, WMiss, ReportSE').
 
 #### 2d. LONGWAIT busy-wait (superseded for now)
 
@@ -657,8 +658,9 @@ order:
    `PRESETMAPL`, and `SETBRFORPAGE`.
 2. Implement enough Hold/DisHold behavior that memory/map references
    can stall instead of returning stale Md immediately.
-3. Add dVA<-Victim/cache-address VA readback and Pipe5 Victim/NextVictim
-   if PRESETMAP/cache setup reads them.
+3. Replace the LRU-derived Victim/NextVictim approximation with the
+   separate VNV RAM/update equations if PRESETMAP/cache setup depends
+   on exact replacement diagnostics.
 4. Finish the remaining MCR bits if the map loop depends on them:
    DisHold, WMiss, and ReportSE'.
 5. Re-run `build/test_cpu`; success means leaving PRESETMAP and

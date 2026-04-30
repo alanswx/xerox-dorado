@@ -487,12 +487,18 @@ Reference dispatch in `dorado_memory_ref`:
 Tests in `tests/test_memory.c`: `test_cache_hit`,
 `test_cache_miss_fill`, `test_cache_store_no_map_dirty`,
 `test_cache_lru_eviction`, `test_cache_dirty_victim_writeback`,
-`test_cache_flush_clean`, `test_iostore_cache_invalidate`.
+`test_cache_flush_clean`, `test_iostore_cache_invalidate`,
+`test_cflags_load_visible_in_pipe5`,
+`test_pipe5_reports_victim_and_nextvictim`,
+`test_mcr_dvavic_reads_cache_address_without_storage`.
 
 **Still TBD** (will land alongside Hold/timing in Phase C):
 - 28-cycle miss latency (Hold modeling).
 - Cache parity, ECC over munches.
-- `BeingLoaded` and `NextVictim` flags in Pipe5.
+- Exact VNV update RAM behavior. Pipe5 now reports Victim/NextVictim,
+  and `UseMcrV` overrides both, but normal replacement still derives
+  from the emulator's LRU list instead of the hardware's separate VNV
+  update equations.
 
 See `docs/memory-architecture.md § "The cache"` for the full
 reference.
@@ -508,10 +514,13 @@ Read by microcode via `B←Pipe0..5` FF functions (FA=1 FB=6 FC=0..5).
 The C side has `dorado_pipe_va(mem, n)` returning slot relative to
 head (0 = most recent).
 
-**Still TBD:** the *other* fields of Pipe entries — Map flags
-(`Pipe3'`: pre-ref WP/Dirty/Ref), error syndrome (`Pipe3'` low),
-config word (`Pipe4'`), and IFU-ref tracking (`Pipe5'`). These need
-to land before Pipe-driven fault recovery can work in microcode.
+`Pipe3'` pre-ref WP/Dirty/Ref, `Pipe4'` config/fault info, MapBufBusy
+in `Pipe5`, cache flags in `Pipe5[8:11]`, and Victim/NextVictim in
+`Pipe5[12:15]` are modeled enough for current bring-up probes.
+
+**Still TBD:** error syndrome details and IFU-ref tracking in Pipe5.
+These need to land before Pipe-driven fault recovery can work in
+microcode.
 
 Tests (in `tests/test_memory.c`): `test_pipe_records`,
 `test_pipe_wraps`, `test_map_vacant_page_fault` (verifies fault

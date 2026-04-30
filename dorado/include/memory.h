@@ -5,17 +5,17 @@
 #include <stddef.h>
 
 /*
- * Dorado memory subsystem — Phase A.2 stub.
+ * Dorado memory subsystem.
  *
- * HM §5 ("Memory Section"). The full memory system is cache + Map +
- * Pipe + BR + storage; this stub provides just enough for the
- * processor to issue Fetch / Store references and for Md to deliver
- * data on the next cycle. No cache, no Map, no Hold modeling: refs
- * are atomic and Md is available immediately.
+ * HM §5 ("Memory Section"). The modeled system includes BRs, Map,
+ * cache address/data state, Pipe, main storage, and enough MCR control
+ * for boot bring-up. Timing is still simplified: refs are atomic and
+ * Md is available immediately; full Hold/deferred-reference behavior
+ * is not modeled yet.
  *
  * Address model:
  *   VA = BR[MemBase] + Mar     (28-bit virtual; HM page 36)
- *   Phys ≡ VA[4:31] truncated to `storage_words` (no map yet)
+ *   Phys = Map[page(VA)].RP || page_offset(VA), truncated to storage
  *
  * Reference kinds (HM Table 8a + page 37):
  *   PreFetch     — load munch into cache; no Md update.
