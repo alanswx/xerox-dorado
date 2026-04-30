@@ -160,10 +160,17 @@ typedef struct dorado_memory {
         uint32_t        va;
         dorado_ref_kind kind;
         uint8_t         map_flags_pre;
+        uint8_t         mapbuf_busy;
     } pipe[DM_PIPE_DEPTH];
     int     pipe_head;       /* index just past the just-written slot, wrapped */
     uint8_t proc_srn;        /* 4-bit; emulator + fault tasks. Default 0. */
     uint8_t asrn;            /* 4-bit; I/O ring. 2..15. Default 2. */
+
+    /* MapBufBusy timing. Map← shares MapBuf with LoadMcr, ProcSRN, and
+     * LoadTestSyndrome; HM §5 says Map← turns MapBufBusy on in its pipe
+     * entry and clears it about 9 cycles later. */
+    int mapbuf_busy_slot;
+    int mapbuf_busy_cycles;
 
     /* Main storage — flat array, 16-bit words. We don't model ECC
      * bits yet; HM §5.7 will add them in Phase B. */
@@ -262,6 +269,7 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
                                          int task, int subtask);
 
 /* Map manipulation helpers, mostly for tests. */
+uint32_t dorado_map_index(uint32_t va);
 void dorado_map_set(dorado_memory *mem, uint32_t va_page,
                     uint16_t rp, int wp, int dirty);
 const dorado_map_entry *dorado_map_get(const dorado_memory *mem,
@@ -283,6 +291,8 @@ uint32_t dorado_pipe_va(const dorado_memory *mem, int n);
  * `B←Pipei`. */
 uint32_t dorado_pipe_va_at(const dorado_memory *mem, int srn);
 uint8_t  dorado_pipe_map_flags_at(const dorado_memory *mem, int srn);
+uint16_t dorado_pipe5_at(const dorado_memory *mem, int srn);
+void     dorado_memory_tick(dorado_memory *mem);
 
 /* Set ProcSRN (the slot index used for non-PreFetch-miss task-0/15
  * references). FF function `ProcSRN←B[12:15]` (HM Table 11c FA=1

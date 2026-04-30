@@ -135,6 +135,12 @@ These all compile clean and pass:
   writes and BR-based virtual addressing, NoRef suppresses storage
   references, FDMiss forces fill/miss behavior, and NoWake suppresses
   fault wakeups.
+- MapBufBusy/Pipe5 timing for `Map<-`: per HM §5 and MEMX/MEMC
+  schematics, `Map<-` now marks the addressed pipe slot busy for 9
+  cycles and `B<-Pipe5` exposes that busy state in the sign bit for
+  Initial's `WAITFORMAPBUF` loop.
+- `ReadMap` and `Map<-` now share the same 1024-word-page map index
+  helper, avoiding stale reads from the old `va >> 6` path.
 - **No Hold semantics** — refs are atomic. Md is delivered immediately.
   This is a known gap; AEmu's IFU dispatch loop appears to need real
   Hold to stall properly.
@@ -409,17 +415,20 @@ the budget in map initialization rather than the old display
 → 0o6366 → WAITFORMAPBUF → 0o6245 → 0o6244 → 0o6367 → DORETURN →
 RETN → PRESETMAPE/PRESETMAPL → SETBRFORPAGE → ...`.
 
-The 60M run ends at `PC=0o7454`, `Task=0`, `TIOA=0`, no display/disk
-I/O, `RM[8]=0xF000`, and only the two expected early faults. A
-temporary 120M run stayed in the same PRESETMAP/WAITFORMAPBUF loop,
-so this is not just barely past the old budget.
+After adding MapBufBusy, the 60M run ends at `PC=0o6244`, `Task=0`,
+`TIOA=0`, no display/disk I/O, and no outstanding memory faults.
+Selected Initial variables look sane: `RNUM=4`, `RCONST=4`,
+`VIRTUALBANKS=4`, `REALPAGES=4`, `DISPLAYCONFIG=7`. A 120M run using
+`DORADO_BOOT_BUDGET=120000000 ./build/test_cpu` still stayed in the
+same PRESETMAP/WAITFORMAPBUF loop.
 
 `LoadMcr[A,B]` is now real enough to cover the bits Initial appears to
 use first (DisBR, NoRef, FDMiss, NoWake), and the full test/probe still
-parks in this same PRESETMAP/WAITFORMAPBUF loop. The likely missing
-hardware is now MapBufBusy timing/readback and/or the related Hold
-semantics. MCR bits still not modeled include DisCF, DisHold, WMiss,
-and ReportSE'.
+parks in this same PRESETMAP loop. Basic Config, MapBufBusy, and
+ReadMap/Map<- indexing are no longer the likely blockers. The next
+likely missing hardware is deeper memory-section behavior: Hold/DisHold,
+remaining Pipe5/cache flags, or unmodeled MCR bits (DisCF, DisHold,
+WMiss, ReportSE').
 
 #### 2d. LONGWAIT busy-wait (superseded for now)
 
@@ -638,16 +647,18 @@ corruption) to let Initial run. NOSTORAGE no longer needs the bypass.
 The CURRENT BLOCKER is the PRESETMAP / WAITFORMAPBUF loop. Recommended
 order:
 
-### Highest-value: implement MapBuf / Hold behavior
+### Highest-value: finish PRESETMAP memory-section dependencies
 
-1. Decode `WAITFORMAPBUF` (`0o6360`) against HM §5. It may expect
-   MapBufBusy to clear after a fixed delay and/or to appear in a Pipe
-   or MCR-related readback path.
+1. Instrument the PRESETMAP termination test more deeply: capture
+   `ReadMap` values and the branch inputs around `PRESETMAPE`,
+   `PRESETMAPL`, and `SETBRFORPAGE`.
 2. Implement enough Hold/DisHold behavior that memory/map references
    can stall instead of returning stale Md immediately.
-3. Finish the remaining MCR bits if the map loop depends on them:
+3. Fill in remaining Pipe5/cache status from MEMC/MEMX if PRESETMAP
+   or cache-flag setup reads it beyond MapBufBusy.
+4. Finish the remaining MCR bits if the map loop depends on them:
    DisCF, DisHold, WMiss, and ReportSE'.
-4. Re-run `build/test_cpu`; success means leaving PRESETMAP and
+5. Re-run `build/test_cpu`; success means leaving PRESETMAP and
    reaching DISPLAYINITCONFIG / device I/O without the NOSTORAGE
    workaround.
 

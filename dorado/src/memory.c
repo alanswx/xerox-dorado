@@ -32,6 +32,8 @@ int dorado_memory_init(dorado_memory *mem)
      * ASRN starts at 2 (the bottom of the I/O ring). */
     mem->proc_srn = 0;
     mem->asrn     = 2;
+    mem->mapbuf_busy_slot = -1;
+    mem->mapbuf_busy_cycles = 0;
     return 0;
 }
 
@@ -59,6 +61,7 @@ static void pipe_push(dorado_memory *mem, int srn, dorado_ref_kind kind,
     mem->pipe[srn].kind          = kind;
     mem->pipe[srn].va            = va;
     mem->pipe[srn].map_flags_pre = flags_pre;
+    mem->pipe[srn].mapbuf_busy   = 0;
     mem->pipe_head = (srn + 1) % DM_PIPE_DEPTH;
 }
 
@@ -89,6 +92,27 @@ uint32_t dorado_pipe_va_at(const dorado_memory *mem, int srn)
 uint8_t dorado_pipe_map_flags_at(const dorado_memory *mem, int srn)
 {
     return mem->pipe[srn & (DM_PIPE_DEPTH - 1)].map_flags_pre;
+}
+
+uint16_t dorado_pipe5_at(const dorado_memory *mem, int srn)
+{
+    int slot = srn & (DM_PIPE_DEPTH - 1);
+    /* Figure 10 shows Pipe5 high-true. Initial's WAITFORMAPBUF reads
+     * Pipe5 and branches on ALU<0, so expose MapBufBusy as bit 0 in
+     * manual numbering, i.e. the C sign bit. Other Pipe5/cache fields
+     * remain zero until cache-flag diagnostics need them. */
+    return mem->pipe[slot].mapbuf_busy ? 0x8000u : 0;
+}
+
+void dorado_memory_tick(dorado_memory *mem)
+{
+    if (mem->mapbuf_busy_cycles <= 0) return;
+    mem->mapbuf_busy_cycles--;
+    if (mem->mapbuf_busy_cycles == 0) {
+        int slot = mem->mapbuf_busy_slot & (DM_PIPE_DEPTH - 1);
+        mem->pipe[slot].mapbuf_busy = 0;
+        mem->mapbuf_busy_slot = -1;
+    }
 }
 
 void dorado_proc_srn_set(dorado_memory *mem, uint8_t srn)
@@ -181,12 +205,10 @@ uint16_t dorado_memory_config_word(const dorado_memory *mem)
                       chip_size_64kx1);
 }
 
-/* Map index from VA: VA[8:21] for our 16K-map / 1024-word-page
- * configuration. In manual MSB-first 28-bit VA: bits 8..21 are
- * positions 0-indexed-from-MSB. In C-LSB 32-bit (with VA in low
- * 28 bits): manual VA[8] = bit 19 in C-LSB, manual VA[21] = bit 6.
- * So map_index = (va >> 6) & 0x3FFF. */
-static uint32_t va_map_index(uint32_t va)
+/* Map index from VA: page-number portion for our 16K-map /
+ * 1024-word-page configuration. Keep this shared with cpu.c's ReadMap
+ * path; Initial depends on ReadMap observing the same entry Map<- wrote. */
+uint32_t dorado_map_index(uint32_t va)
 {
     return (va >> 10) & (DM_MAP_ENTRIES - 1);   /* page-number portion */
 }
@@ -206,7 +228,7 @@ static uint32_t va_page_offset(uint32_t va)
 static dorado_fault_kind va_translate(const dorado_memory *mem, uint32_t va,
                                       int is_write, size_t *out_phys)
 {
-    uint32_t idx = va_map_index(va);
+    uint32_t idx = dorado_map_index(va);
     const dorado_map_entry *e = &mem->map[idx];
 
     /* Vacant: WP=1 AND Dirty=1. */
@@ -306,7 +328,7 @@ static void cache_writeback_line(dorado_memory *mem, int row_idx, int way)
             mem->storage[(phys + i) & (mem->storage_words - 1)] = line->data[i];
         }
         /* HM: dirty-victim write sets Map.Ref AND Map.Dirty. */
-        uint32_t idx = va_map_index(va_base);
+        uint32_t idx = dorado_map_index(va_base);
         mem->map[idx].ref   = 1;
         mem->map[idx].dirty = 1;
     }
@@ -334,7 +356,7 @@ static void cache_fill(dorado_memory *mem, uint32_t va, int way)
         line->data[i] = mem->storage[(phys + i) & (mem->storage_words - 1)];
     }
     /* Cache miss → Map.Ref set on the page. */
-    mem->map[va_map_index(va)].ref = 1;
+    mem->map[dorado_map_index(va)].ref = 1;
 
     cache_touch_lru(&mem->cache[va_cache_row(va)], way);
 }
@@ -371,7 +393,7 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
     /* Snapshot the map entry's pre-reference flags into the pipe slot.
      * HM page 47: "Every storage reference causes mapping and returns
      * old contents of the relevant map entry in the pipe." */
-    uint32_t idx_snapshot = va_map_index(va);
+    uint32_t idx_snapshot = dorado_map_index(va);
     uint8_t  flags_pre    = encode_map_flags(&mem->map[idx_snapshot]);
 
     /* SRN selection (HM page 51-52). Without tasking we treat every
@@ -489,7 +511,7 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
         }
         f = va_translate(mem, va, /*is_write=*/0, &phys);
         if (f == DM_FAULT_NONE) {
-            mem->map[va_map_index(va)].ref = 1;
+            mem->map[dorado_map_index(va)].ref = 1;
             if (mem->fast_io_cb && mem->storage) {
                 uint16_t munch[16];
                 uint32_t base = phys & ~(uint32_t)0xF;
@@ -517,8 +539,8 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
         f = va_translate(mem, va, /*is_write=*/1, &phys);
         if (f == DM_FAULT_NONE) {
             cache_invalidate_no_writeback(mem, va);
-            mem->map[va_map_index(va)].ref   = 1;
-            mem->map[va_map_index(va)].dirty = 1;
+            mem->map[dorado_map_index(va)].ref   = 1;
+            mem->map[dorado_map_index(va)].dirty = 1;
             if (mem->fast_io_cb && mem->storage) {
                 uint16_t munch[16] = {0};
                 /* Callback fills munch from device. */
@@ -541,7 +563,7 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
          * in the pipe (we approximate by leaving it in the entry
          * being overwritten — real hardware copies the OLD entry
          * into the pipe). */
-        uint32_t idx = va_map_index(va);
+        uint32_t idx = dorado_map_index(va);
         dorado_map_entry *e = &mem->map[idx];
         e->rp    = b;
         /* TIOA[0:1] in manual = bits 0 (MSB) and 1 = C-LSB bits 7,6
@@ -549,6 +571,9 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
         e->wp    = (tioa >> 7) & 1;
         e->dirty = (tioa >> 6) & 1;
         e->ref   = 0;
+        mem->pipe[srn & (DM_PIPE_DEPTH - 1)].mapbuf_busy = 1;
+        mem->mapbuf_busy_slot = srn & (DM_PIPE_DEPTH - 1);
+        mem->mapbuf_busy_cycles = 9;
         break;
     }
     case DM_REF_FLUSH: {

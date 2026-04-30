@@ -10,6 +10,7 @@
 #include "microcode.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define FAIL(msg, ...) do { \
@@ -20,6 +21,15 @@
 #define EXPECT(cond, msg, ...) do { \
     if (!(cond)) FAIL(msg, ##__VA_ARGS__); \
 } while (0)
+
+static uint64_t test_u64_env(const char *name, uint64_t fallback)
+{
+    const char *s = getenv(name);
+    if (!s || !*s) return fallback;
+    char *end = NULL;
+    unsigned long long v = strtoull(s, &end, 0);
+    return (end && *end == '\0' && v > 0) ? (uint64_t)v : fallback;
+}
 
 /*
  * The CPU is single-task, no-IFU, no-memory. Tests construct
@@ -2012,7 +2022,8 @@ static int probe_full_boot_with_bootstrap(void)
     const uint64_t T_PRESS2_UP   = 2400000;
     const uint64_t T_PRESS3_DOWN = 3000000;
     const uint64_t T_PRESS3_UP   = 3400000;
-    const uint64_t T_GIVEUP      = 60000000;
+    const uint64_t T_GIVEUP      = test_u64_env("DORADO_BOOT_BUDGET",
+                                                60000000);
 
     int  pressed = 0;
     int  swapped = 0;
@@ -2545,6 +2556,13 @@ static int probe_full_boot_with_bootstrap(void)
     printf("       RM[0..15]:");
     for (int r = 0; r < 16; r++) printf(" [%d]=0x%04X", r, cpu.RM[r]);
     printf("\n");
+    printf("       Initial map vars:"
+           " R400=0x%04X BFN/BTEMP0=0x%04X BTEMP1=0x%04X BTEMP2=0x%04X"
+           " RNUM=0x%04X RCONST=0x%04X VIRTUALBANKS=0x%04X REALPAGES=0x%04X"
+           " DISPLAYCONFIG=0x%04X\n",
+           cpu.RM[0x10], cpu.RM[0x14], cpu.RM[0x15], cpu.RM[0x16],
+           cpu.RM[0x45], cpu.RM[0x46], cpu.RM[0x48], cpu.RM[0x49],
+           cpu.RM[0x76]);
 
     /* Dump first 32 Write IM operations to identify where T comes from. */
     if (cpu.dbg_writeim_n > 0) {

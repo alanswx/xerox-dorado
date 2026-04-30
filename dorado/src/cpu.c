@@ -433,7 +433,7 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
         case 5: *b = 0;                            break;  /* Pipe4' (errors) */
         case 6: *b = (uint16_t)~dorado_memory_config_word(cpu->mem);
                 break;                             /* Config' */
-        case 7: *b = 0;                            break;  /* Pipe5' (victim) */
+        case 7: *b = dorado_pipe5_at(cpu->mem, psrn); break; /* Pipe5 */
         default: *b = 0;                           break;
         }
         return 1;
@@ -568,7 +568,7 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                      *   bit 15 = WP, bit 14 = Dirty, bit 13 = Ref,
                      *   bits 12..0 = RP[0..12]. */
                 if (cpu->mem) {
-                    uint32_t idx = (cpu->mem->mar >> 6) & 0x3FFF; /* va_map_index */
+                    uint32_t idx = dorado_map_index(cpu->mem->mar);
                     const dorado_map_entry *e = &cpu->mem->map[idx];
                     uint16_t v = 0;
                     v |= (uint16_t)((e->wp    & 1) << 15);
@@ -2006,6 +2006,7 @@ int dorado_cpu_step(dorado_cpu *cpu)
             cpu->baseboard->dorado_mir_loaded = 0;
             int rc = execute_uinstr(cpu, &injected, 0 /* not from IM */);
             cpu->cycles++;
+            if (cpu->mem) dorado_memory_tick(cpu->mem);
             if (cpu->baseboard_cycles_per_uop > 0) {
                 baseboard_run(cpu->baseboard, cpu->baseboard_cycles_per_uop);
             }
@@ -2221,6 +2222,7 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
      * because we got here without any cpu->real_PC change. */
     if (from_im) {
         cpu->cycles++;
+        if (cpu->mem) dorado_memory_tick(cpu->mem);
         if (cpu->baseboard && cpu->baseboard_cycles_per_uop > 0) {
             baseboard_run(cpu->baseboard, cpu->baseboard_cycles_per_uop);
         }

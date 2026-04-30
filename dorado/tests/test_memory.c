@@ -831,6 +831,30 @@ static int test_mcr_noref_suppresses_storage_access(void)
     return 0;
 }
 
+static int test_mapbuf_busy_pipe5_timing(void)
+{
+    static dorado_memory mem; memset(&mem, 0, sizeof mem);
+    EXPECT(dorado_memory_init(&mem) == 0, "init");
+
+    dorado_proc_srn_set(&mem, 0);
+    dorado_fault_kind f = dorado_memory_ref(&mem, DM_REF_MAP,
+                                            0x00001234u, 0x0042, 0);
+    EXPECT(f == DM_FAULT_NONE, "Map ref should not fault");
+    EXPECT((dorado_pipe5_at(&mem, 0) & 0x8000u) != 0,
+           "MapBufBusy should appear in Pipe5 sign bit");
+
+    for (int i = 0; i < 8; i++) dorado_memory_tick(&mem);
+    EXPECT((dorado_pipe5_at(&mem, 0) & 0x8000u) != 0,
+           "MapBufBusy cleared too early");
+    dorado_memory_tick(&mem);
+    EXPECT((dorado_pipe5_at(&mem, 0) & 0x8000u) == 0,
+           "MapBufBusy should clear after 9 cycles");
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_mapbuf_busy_pipe5_timing\n");
+    return 0;
+}
+
 int main(void)
 {
     int rc = 0;
@@ -860,6 +884,7 @@ int main(void)
     rc |= test_mcr_load_and_controls();
     rc |= test_mcr_disbr_blocks_br_writes();
     rc |= test_mcr_noref_suppresses_storage_access();
+    rc |= test_mapbuf_busy_pipe5_timing();
     if (rc == 0) printf("\nAll memory tests passed.\n");
     return rc;
 }

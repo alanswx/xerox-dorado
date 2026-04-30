@@ -393,6 +393,14 @@ B[12:15] → ProcSRN), then reads `B←Pipei` to fetch fields of that
 slot. We honor that in cpu.c — `B←Pipe0/Pipe1/Pipe3'/Pipe4'/Pipe5`
 all read from `pipe[mem.proc_srn]`.
 
+`Map<-` now models the hardware MapBufBusy delay that Initial polls in
+`WAITFORMAPBUF`: the map write marks the addressed pipe slot busy for
+9 CPU ticks, and `B←Pipe5` exposes that busy state as the sign bit.
+This matches HM §5's MapBuf timing and the MEMX/MEMC schematic names
+around Mapbuf/HoldMapbuf/Pipe5. The actual map RAM update is still
+performed immediately by the emulator; only the observable busy timing
+is delayed.
+
 ### Pipe entry contents
 
 Approximate field layout (HM Figure 10 has the exact bit positions;
@@ -405,7 +413,7 @@ this table summarizes the user-visible reads):
 | `B←Pipe2'` | low-true | EmulatorFault, NFaults, SRNFirstFault. **Same data as `B←FaultInfo'`** — Pipe2' is a "convenient decode" for the same FaultInfo register. |
 | `B←Pipe3'` | low-true | Map flags **as they were before this reference**: WP, Dirty, Ref, BeingLoaded, NextVictim (+ RP) |
 | `B←Pipe4` | mixed | Errors: syndrome bits, correctable bit, etc. XOR with `0150361₈` to get high-true. |
-| `B←Pipe5` | high-true | Victim info: Dirty victim flag, victim's VA; debugging-grade. |
+| `B←Pipe5` | high-true | MapBufBusy sign bit is modeled for `WAITFORMAPBUF`; other fields are victim/cache status and remain debugging-grade. |
 
 `B←FaultInfo'` (`FA=1 FB=6 FC=0`) returns:
 - B[8:11] = SRN of 1st fault (4 bits, inverted)
