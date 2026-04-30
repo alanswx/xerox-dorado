@@ -763,6 +763,24 @@ static int test_prefetch_srn_split(void)
     return 0;
 }
 
+static int test_config_word_reports_storage(void)
+{
+    static dorado_memory mem; memset(&mem, 0, sizeof mem);
+    EXPECT(dorado_memory_init(&mem) == 0, "init");
+
+    uint16_t cfg = dorado_memory_config_word(&mem);
+    EXPECT(((cfg >> 8) & 0xF) == 2,
+           "Config ASRN = 0x%X, expected 2", (cfg >> 8) & 0xF);
+    EXPECT(((cfg >> 4) & 0xF) == 0xF,
+           "Config module mask = 0x%X, expected 0xF", (cfg >> 4) & 0xF);
+    EXPECT((cfg & 0x3) == 2,
+           "Config chip size = 0x%X, expected 2", cfg & 0x3);
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_config_word_reports_storage\n");
+    return 0;
+}
+
 int main(void)
 {
     int rc = 0;
@@ -788,6 +806,7 @@ int main(void)
     rc |= test_iostore_cache_invalidate();
     rc |= test_proc_srn_overwrite();
     rc |= test_prefetch_srn_split();
+    rc |= test_config_word_reports_storage();
     if (rc == 0) printf("\nAll memory tests passed.\n");
     return rc;
 }

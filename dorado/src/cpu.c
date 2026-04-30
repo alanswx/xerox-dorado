@@ -431,7 +431,8 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
          * from before the reference at slot ProcSRN. */
         case 4: *b = (uint16_t)~(uint16_t)mflg;    break;  /* Pipe3' */
         case 5: *b = 0;                            break;  /* Pipe4' (errors) */
-        case 6: *b = 0xFFFF;                       break;  /* Config' */
+        case 6: *b = (uint16_t)~dorado_memory_config_word(cpu->mem);
+                break;                             /* Config' */
         case 7: *b = 0;                            break;  /* Pipe5' (victim) */
         default: *b = 0;                           break;
         }

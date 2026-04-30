@@ -383,31 +383,44 @@ streaming) gets stuck differently — INITIAL at 0o7500 does
 CPReg data. So even with correct microcode placement, INITIAL itself
 won't run without a working CPReg byte stream from BB.
 
-#### 2b. NOSTORAGE bypassed (workaround; not fixed)
+#### 2b. NOSTORAGE fixed by Config' storage-present response
 
 Initial computes a value via shifter ops at 0o6041..0o6277, stores in
 `RM/STK[RBase*16+8]`, then at 0o6210 tests
 `RM/STK[RBase*16+8] AND 0xF000`. If zero, branches to NOSTORAGE
-(0o6247). On our setup it evaluates to zero, so we hit NOSTORAGE.
+(0o6247).
 
-The probe currently bypasses by jumping `0o6247 → 0o6357 (FINDMODULE)`
-when PC reaches NOSTORAGE.
+Fixed: `B←Config'` now comes from `dorado_memory_config_word()` instead
+of hard-coded `0xFFFF`. Per HM Figure 10 it reports ASRN, M0..M3
+storage-module-present bits, and ChipSize (modeled as four present
+1MW slots, 64Kx1 chips). With this, the full boot probe no longer
+hits the NOSTORAGE bypass; Initial reaches `FINDMODULE` naturally.
 
-This test likely encodes "module size detection" — Initial computes
-how much memory exists and checks if any module is present. With our
-memory's BR/Map state at default (no module size data populated), the
-check fails.
+The old probe-side `0o6247 → 0o6357` bypass remains in
+`test_cpu.c`, but it no longer fires in the normal run.
 
-**Real fix paths (not yet attempted):**
-1. Initialize `mem->br[]` array with sensible Dorado memory-config
-   values (BR0..BR3 set to first-module configuration).
-2. Investigate what 0o6041 / 0o6277 actually compute — probably a
-   shifter pipeline involving a module-config word that should come
-   from a hardware register we don't model.
-3. Look at HM §5 Module Boundary detection (page 47 area) for how
-   real Dorados report module configuration to microcode.
+#### 2c. PRESETMAP / WAITFORMAPBUF loop (current top blocker)
 
-#### 2c. LONGWAIT busy-wait (current top blocker)
+After Config' was implemented, Initial enters `FINDMODULE` and spends
+the budget in map initialization rather than the old display
+`LONGWAIT` path. At 60M cycles the hot loop is:
+`WRITEMAP(0o6340) → 0o6365 → WAITFORMAPBUF(0o6360) → 0o6245 → 0o6244
+→ 0o6366 → WAITFORMAPBUF → 0o6245 → 0o6244 → 0o6367 → DORETURN →
+RETN → PRESETMAPE/PRESETMAPL → SETBRFORPAGE → ...`.
+
+The 60M run ends at `PC=0o7454`, `Task=0`, `TIOA=0`, no display/disk
+I/O, `RM[8]=0xF000`, and only the two expected early faults. A
+temporary 120M run stayed in the same PRESETMAP/WAITFORMAPBUF loop,
+so this is not just barely past the old budget.
+
+Most likely missing hardware now: real `LoadMcr[A,B]` / MCR behavior
+and/or MapBufBusy timing/readback. `LoadMcr` is still a no-op in
+`cpu.c`, but Initial uses `SETMCR` around memory initialization. MCR
+bits include DisBR, DisCF, DisHold, NoRef, WMiss, ReportSE', and
+NoWake; ignoring those can make Initial's cache/map setup execute
+with the wrong reference behavior.
+
+#### 2d. LONGWAIT busy-wait (superseded for now)
 
 After bypassing NOSTORAGE, Initial calls DISPLAYINITCONFIG and sets
 TIOA=0xC0. It then enters a tight LONGWAIT loop:
@@ -427,9 +440,10 @@ local `spruce-server.dsk300` Trident image to drive 0 did not change
 the path, because no disk task slow-I/O is issued. Synthetic periodic
 wakeups for DHT/AHT/AWT/DWT/DSK caused task switches but quickly
 accumulated faults and still produced no display or disk I/O. So the
-next blocker is probably still missing main-memory/module configuration
-or a task/TPC setup detail, not just absent media or a missing DDC/DSK
-status read.
+This was observed only while the probe forcibly bypassed NOSTORAGE.
+After the real Config' response, the run no longer reaches this path
+within the current budget. Keep these notes, but focus first on MCR /
+MapBufBusy / map initialization.
 
 ### 3. Disk Phase 3: real timing + Fire Code ECC + sequence PROMs
 
@@ -618,34 +632,25 @@ Currently active when I left off:
 
 ## Suggested first action for the next session
 
-The probe currently bypasses two issues (streaming corruption, NOSTORAGE)
-to let Initial run. The CURRENT BLOCKER is the LONGWAIT loop with
-TIOA=0xC0. Recommended order:
+The probe currently bypasses one issue (Bootstrap streaming
+corruption) to let Initial run. NOSTORAGE no longer needs the bypass.
+The CURRENT BLOCKER is the PRESETMAP / WAITFORMAPBUF loop. Recommended
+order:
 
-### Highest-value: decode the LONGWAIT loop and resolve
+### Highest-value: implement MCR / MapBuf behavior
 
-1. Run `build/test_cpu` and look at `Initial top-20 hot PCs` — the
-   loop is `0o6116 → 0o6110 → 0o6115 → 0o6100(LONGWAIT) → 0o6012(LWRETN) → 0o6013(RETN) → 0o6116`.
-2. Decode the IM entry at PC `0o6116` (`build/mbdis -d ../chm/dorado/expanded/bootstrap.dm!20_/Initial.mb | grep -A1 "  6116\b"`)
-   to find what condition Initial polls.
-3. Cross-reference TIOA=0xC0 with HM §7 (Slow IO) Table 21 to identify
-   the device. Likely Display Controller status (DDC) or Ethernet.
-4. Add the missing device stub response in `src/io.c` so the wait
-   condition can be satisfied.
-
-### Higher-value: fix NOSTORAGE properly (so we don't bypass)
-
-Currently a hack jumps PC=0o6247 → 0o6357. Real fix:
-
-1. Initialize memory subsystem's BR registers with sensible Dorado
-   module-config values. Look at `dorado_memory_init` in `src/memory.c`
-   and add `mem->br[0..3]` defaults representing one fully-populated
-   16K-page module.
-2. Decode `0o6210`'s exact computation chain (back to 0o6041 and
-   0o6021) to identify which RM/STK register Initial expects to have
-   bits 12-15 set.
-3. Provide the right BR / RM state so Initial computes a non-zero
-   value and passes the test naturally.
+1. Implement `LoadMcr[A,B]` as a real memory-section register in
+   `src/memory.c` / `src/cpu.c`.
+2. Model the MCR bits Initial relies on during memory initialization:
+   at minimum DisBR, DisHold, NoRef, NoWake, and FDMiss. Start with
+   storing/readable state and enforce DisBR/NoRef in the CPU memory-ref
+   path.
+3. Decode `WAITFORMAPBUF` (`0o6360`) against HM §5. It may expect
+   MapBufBusy to clear after a fixed delay and/or to appear in a Pipe
+   or MCR-related readback path.
+4. Re-run `build/test_cpu`; success means leaving PRESETMAP and
+   reaching DISPLAYINITCONFIG / device I/O without the NOSTORAGE
+   workaround.
 
 ### Highest-leverage but hardest: fix Bootstrap streaming
 

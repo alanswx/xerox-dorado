@@ -117,6 +117,36 @@ void dorado_fault_clear(dorado_memory *mem)
     mem->last_fault_va    = 0;
 }
 
+uint16_t dorado_memory_config_word(const dorado_memory *mem)
+{
+    /* HM Figure 10 / B←Config':
+     *   manual B[4:7]   ASRN[0:3]
+     *   manual B[8:11]  M0..M3, true when a storage module is plugged
+     *   manual B[14:15] ChipSize, 2 = 64Kx1 RAMs
+     *
+     * The CPU reads Config' active-low, so this helper returns the
+     * high-true internal value and cpu.c complements it for B←Config'.
+     * Current storage is modeled as four 1MW slots backed by 64Kx1-era
+     * boards, which matches the emulator's 4MW allocation and gives
+     * Initial a truthful "storage exists" response.
+     */
+    enum {
+        module_words = 1024 * 1024,
+        chip_size_64kx1 = 2,
+    };
+
+    size_t modules = mem->storage_words / module_words;
+    if (modules == 0 && mem->storage_words != 0) modules = 1;
+    if (modules > 4) modules = 4;
+
+    uint16_t module_mask = 0;
+    for (size_t i = 0; i < modules; i++) module_mask |= (uint16_t)(1u << i);
+
+    return (uint16_t)(((uint16_t)(mem->asrn & 0xF) << 8) |
+                      (module_mask << 4) |
+                      chip_size_64kx1);
+}
+
 /* Map index from VA: VA[8:21] for our 16K-map / 1024-word-page
  * configuration. In manual MSB-first 28-bit VA: bits 8..21 are
  * positions 0-indexed-from-MSB. In C-LSB 32-bit (with VA in low

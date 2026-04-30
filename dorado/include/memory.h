@@ -300,6 +300,10 @@ uint8_t  dorado_pipe_map_flags(const dorado_memory *mem, int n);
 uint16_t dorado_fault_info(const dorado_memory *mem);
 void     dorado_fault_clear(dorado_memory *mem);
 
+/* High-true internal value for the hardware B←Config' source. The CPU
+ * puts the complement of this on the B bus. */
+uint16_t dorado_memory_config_word(const dorado_memory *mem);
+
 /* Cache inspection helpers, for tests and diagnostics.
  *
  * dorado_cache_lookup() returns 1 if the munch containing `va` is
