@@ -184,7 +184,7 @@ become RTL.
 
 ## External resources
 
-- **Computer History Museum Xerox PARC archive** — https://xeroxalto.computerhistory.org/
+- **Computer History Museum Xerox PARC archive** — https://xeroxparcarchive.computerhistory.org/ 
   The full IFS file-server contents from PARC. Microcode sources, MB
   binaries, schematics, tools. See `docs/chm-archive.md` for a curated list
   of Dorado-relevant directories.
