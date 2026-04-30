@@ -24,32 +24,8 @@ The plan is two-phase:
 
 ## Status
 
-The microengine skeleton runs **15 cycles** of the original 1985
-Dorado Bootstrap microcode (`chm/dorado/expanded/bootstrap.dm!20_/Bootstrap.mb`,
-the 50-instruction microprogram cited in the 1980 booting memo) before
-halting on the shifter — its current implementation gap.
+TBD
 
-What's working:
-
-- `.MB` file loader (every Dorado microcode binary in this repo loads
-  cleanly; ~25 K microinstructions across 9 files validate).
-- Symbolic disassembler (model-1 unshuffle + field decode for RSTK,
-  ALUF, BSEL, LC, ASEL, BLOCK, FF, JCN).
-- Image→real placement (matches MicroD's `ftest.DLS` output exactly).
-- Microengine: ALU + RM/STK + T + Q + Cnt; local / global / long /
-  conditional branches; subroutine call+return.
-- Hand-built unit tests + a `probe_bootstrap` diagnostic that surfaces
-  exactly which microinstruction halts the CPU.
-
-What's pending:
-
-- Shifter (HM §3.11 + Figure 4) — the immediate blocker.
-- FF function table (HM Tables 11a–e).
-- IM read/write, CPReg I/O, BaseBoard model.
-- Memory subsystem (cache, Map, Pipe, BR) — design captured in
-  `docs/memory-architecture.md`; defer until microcode demands it.
-- IFU + tasking + Hold — required for emulator microcode (Mesa,
-  Cedar). Big chunk; defer.
 
 ## Build & run
 
