@@ -370,8 +370,21 @@ static int ff_decode_ok(const dorado_uinstr *u)
     return 1;
 }
 
+static int ff_full_function_ok(const dorado_uinstr *u)
+{
+    if (!ff_decode_ok(u)) return 0;
+    /* HM §3.6 / Table 8a: for ASEL 0..3, FF[0:1] selects the
+     * memory-reference variant. FF[2:7] may still encode a branch
+     * condition, but the whole 8-bit FF value is not a Table 11
+     * side-effect function. Initial's BootMem loop depends on
+     * FF=0o363 meaning Store + Cnt=0&-1, not Wakeup[3]. */
+    if (u->asel <= 3) return 0;
+    return 1;
+}
+
 static int ff_loads_link(const dorado_uinstr *u)
 {
+    if (!ff_full_function_ok(u)) return 0;
     int fa = ff_fa(u->ff), fb = ff_fb(u->ff), fc = ff_fc(u->ff);
     if (fa != 1) return 0;
     return (fb == 4 && fc == 7) ||   /* Link ← B */
@@ -392,6 +405,8 @@ static int ff_loads_link(const dorado_uinstr *u)
 static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
                          uint16_t *b)
 {
+    if (!ff_full_function_ok(u)) return 0;
+
     int fa = ff_fa(u->ff), fb = ff_fb(u->ff), fc = ff_fc(u->ff);
 
     /* Most external-B sources live at FA=1, FB=6 or 7 (HM Table 11b/c). */
@@ -544,7 +559,7 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
      * function. Per HM §3.9: "FF interpreted as a function iff (BSEL
      * not selecting a constant) and (JCN does not select a 'long'
      * goto/call)." */
-    int ff_is_function = ff_decode_ok(u);
+    int ff_is_function = ff_full_function_ok(u);
     if (!ff_is_function) return pd;
 
     if (fa == 0) {
@@ -1170,12 +1185,11 @@ static uint16_t shifter_output(const dorado_cpu *cpu, const dorado_uinstr *u)
  *   1     1        Flush←RM/STK -or- IOStore←RM (io task)
  *   1     2        IFetch←RM/STK
  *   1     3        Fetch←RM/STK
- *   2     0..3     Store←{Md, Id, Q, T}     ("alt source" — TBD)
- *   3     0..3     Fetch←{Md, Id, Q, T}     ("alt source" — TBD)
+ *   2     0..3     Store←{Md, Id, Q, T}
+ *   3     0..3     Fetch←{Md, Id, Q, T}
  *
  * For ASEL 0/1, the address (Mar) comes from RM/STK[rstk_a].
- * For ASEL 2/3, Mar comes from a previous instruction's setup
- * (or from FF[0:1] alt source). We don't model that yet — halt.
+ * For ASEL 2/3, the selected alternate source drives A and Mar.
  *
  * io-task variants (Map↔IOFetch, Flush↔IOStore) are switched by the
  * task ID. Without tasking, we always pick the emulator/fault variant
@@ -1243,13 +1257,9 @@ static int a_bus(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *out)
         *out = rm_stk_read(cpu, rm_a);
         return 0;
     case 2: case 3:
-        /* "Alt source" memory ops: ASEL=2 stores from {Md, Id, Q, T}
-         * and ASEL=3 fetches into {Md, Id, Q, T} per FF[0:1]. The
-         * address (Mar) for these comes from somewhere set up by a
-         * previous instruction. We don't yet model deferred Mar; for
-         * now treat the A-source for these as 0 and let the kind
-         * dispatch handle the data routing. */
-        *out = 0;
+        /* Store/Fetch from alternate A sources. The selected source
+         * drives both the ALU A input and Mar (HM Table 8a/8b). */
+        *out = alt_mem_source(cpu, u);
         return 0;
     case 4: /* A←RM/STK */
         if (rm_a >= CPU_RMSTK_INVALID) return CPU_HALT_UNSUPPORTED_ASEL;
@@ -1659,13 +1669,21 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
      * here so all paths can OR it in. */
     int ff_cond_or = 0;
     {
-        int fa_c = (u->ff >> 6) & 3;
-        int fb_c = (u->ff >> 3) & 7;
-        int ff_is_function_local = (u->bsel < 4);
+        int ff_is_available = (u->bsel < 4);
         /* Long branch: JCN top4 = 0 (and top1=0). FF disabled. */
         int is_long = (top1 == 0) && (((jcn >> 4) & 0xF) == 0);
-        if (ff_is_function_local && !is_long && fa_c == 0 && fb_c == 6) {
-            ff_cond_or = eval_branch_condition(cpu, u, u->ff & 7);
+        if (ff_is_available && !is_long) {
+            if (u->asel <= 3) {
+                int ff_low6 = u->ff & 077;
+                if ((ff_low6 & 070) == 060) {
+                    ff_cond_or = eval_branch_condition(cpu, u, u->ff & 7);
+                }
+            } else {
+                int fa_c = ff_fa(u->ff), fb_c = ff_fb(u->ff);
+                if (fa_c == 0 && fb_c == 6) {
+                    ff_cond_or = eval_branch_condition(cpu, u, u->ff & 7);
+                }
+            }
         }
     }
 
@@ -2169,7 +2187,7 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
             if (cpu->ctask != 0) {
                 membase |= (uint8_t)((cpu->task_subtask[cpu->ctask] & 3) << 1);
             }
-            uint16_t mar = (u->asel <= 1) ? a : alt_mem_source(cpu, u);
+            uint16_t mar = a;
             uint16_t data = b;
             uint32_t br = dorado_mcr_disbr(cpu->mem)
                         ? 0

@@ -98,14 +98,15 @@ label.
         └─────────────────────────────────────────────────┘
 ```
 
-## Current state (2026-04-29, post memory Config + ALU-shift fixes)
+## Current state (2026-04-30, post Initial display-start fixes)
 
 **Microengine works against real microcode.** Recent fixes (ALUFM
 extraction carry bit, `Pd←ALUFMRW` bit mapping, `CPU_QUADRANT_SIZE`,
 arithmetic-only Carry'/Overflow update, B←RWCPReg legacy stub,
-Config' storage reporting, and HM Table 11d ALU one-bit shifts) were
-all real correctness bugs that unit tests alone did not catch but
-real microcode hit. With them in place:
+Config' storage reporting, HM Table 11d ALU one-bit shifts, HM Table
+8a memory-reference FF branch conditions, and `Store←/Fetch←T`
+A/Mar routing) were all real correctness bugs that unit tests alone
+did not catch but real microcode hit. With them in place:
 
 - `probe_aemu` runs **real AEmu microcode** for 200K cycles:
   STARTEMULATOR → RESUMEEMULATOR → SETUPBRS → DOBRS×12 → IFU
@@ -174,10 +175,13 @@ image. With that in place, the probe now demonstrates:
 - BB streams Boot1Data via CPReg; Bootstrap writes 896 unique Initial
   targets beginning at 0o6100, two half-writes each.
 - Initial runs through ALUFM init, RMINITL, IFUMINITL, PRESETMAP,
-  FINDMODULE, and into the `LWRETN` / `LONGWAIT` return path.
-- The 80M-cycle run parks at `PC=0o6012`, `Task=0`, `TIOA=0xC0`,
-  display/disk/fast-I/O counts all zero, `wakeup_pending=0xFFFE`,
-  and `fault_count=3`.
+  FINDMODULE, BootMem's memory-reference wait loop, BootEmulator's
+  first-64K zeroing loop, and then enters display/disk/task init.
+- The 120M-cycle run reaches display slow-I/O: final state
+  `PC=0o6205`, `Task=0`, `TIOA=0xF0`, `display outs=3`,
+  `disk outs=32`, `fast-I/O=0`, `tasking_on=1`,
+  `wakeup_pending=0`, and `fault_count=15`. Task TPCs show DHT at
+  `0o6744`, AHT at `0o6737`, DSK initialized, and JNK in its loop.
 - Source code verified: BootstrapMain.mc (fetched from CHM
   archives at chm/dorado/expanded/BootstrapSources.dm/) confirms
   that ReadBB returns T = ~CPReg via B←RWCPReg (per HM page 31:
@@ -201,8 +205,8 @@ What's stub-or-missing
   semantics are missing. Long-running AEmu and Initial paths both
   reach memory/fault waits that likely need these details.
 - **I/O bring-up:** Display + Disk Phase 1 stubs exist and fast-I/O
-  transport is tested, but Initial has not yet issued display/disk
-  slow-I/O in the full boot probe. Ethernet is not modeled.
+  transport is tested. Initial now issues display and disk slow-I/O
+  in the full boot probe; Ethernet is not modeled.
 - **Bootstrap → Initial handoff in progress**: probe_full_boot_
   with_bootstrap demonstrates the mechanism end-to-end, but the
   streamed Initial image still differs from canonical Initial.MB, so

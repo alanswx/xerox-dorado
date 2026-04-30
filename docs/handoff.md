@@ -19,12 +19,13 @@ you don't repeat them.
   Initial.MB at BOOTSTAGE2 because Bootstrap streaming does not yet
   match `chm/Initial.mb`. NOSTORAGE no longer needs a probe bypass:
   Config' reports the installed one-module 4MW storage configuration.
-  Initial now gets through PRESETMAP and FINDMODULE after MapBufBusy,
-  Pipe5, Config, and ALU one-bit shift fixes. The current 80M-cycle
-  run parks in Initial's `LWRETN` / `LONGWAIT` return path around
-  `PC=0o6012`, with `TIOA=0xC0`, no display/disk slow-I/O yet, and
-  a few pending memory faults. The AEmu bypass probe currently halts
-  at `PC=0o7777`.
+  Initial now gets through PRESETMAP, FINDMODULE, BootMem, and
+  BootEmulator's first-64K clear loop after MapBufBusy, Pipe5,
+  Config, ALU one-bit shift, memory-ref FF branch, and `Store←T`
+  A/Mar fixes. The current 120M-cycle run reaches display/disk
+  initialization: final `PC=0o6205`, `TIOA=0xF0`, `display outs=3`,
+  `disk outs=32`, tasking on, no pending wakeups. The AEmu bypass
+  probe currently halts at `PC=0o7777`.
 - **Repo:** `/Users/alans/Documents/development/Dorado`
 - **Most useful entry points to read:** `CLAUDE.md` (project mission),
   `dorado/CLAUDE.md` (code-side guide), `docs/INDEX.md` (doc map).
@@ -225,11 +226,11 @@ system, but they show how far the model gets:
   changes after swap, 1792 Write IM half-writes, and 896 unique Initial
   targets beginning at 0o6100. The long-branch fix lets Initial get past
   the old `0o1310` no-code stop and run into its configuration path.
-  Current state at the 60M-cycle budget: Dorado still running at
-  `PC=0o6347`, `Task=0`, `TIOA=0`, with no display/disk slow-I/O or
-  fast-I/O activity yet. The loop is in Initial's terminal/config
-  handling (`READTERMINALRET` / `SETBOOTFLAG` area), before display
-  output begins.
+  After the memory-ref FF branch and `Store←T` A/Mar fixes, the 120M
+  cycle run reaches display/disk initialization. Final state:
+  `PC=0o6205`, `Task=0`, `TIOA=0xF0`, `display outs=3`,
+  `disk outs=32`, `fast-I/O=0`, tasking on, no pending wakeups.
+  DHT/AHT task TPCs are in the terminal horizontal task code.
 - **`probe_aemu`** — layered load Initial + kernel + memMisc +
   IfuComplex + AEmu, run from STARTEMULATOR. After the long-branch
   packing fix, this bypass now halts after 203 cycles at `PC=0o7777`
@@ -277,16 +278,20 @@ Initial runs through a full setup sequence:
 7. SETBRFORPAGE — BR setup
 8. NOSTORAGE test passes via real `B←Config'` (one 4MW storage module)
 9. FINDMODULE (0o6357) advances after FA=2/FB=7 ALU shift support
-10. Initial reaches the `LWRETN` / `LONGWAIT` return path
-11. **Stuck:** no display/disk I/O has started; tasking is off in the
-    final sample and wakeup_pending still has many task bits set
+10. Initial reaches and exits the BootMem wait loop at `0o6116`
+11. BootEmulator clears the first 64K at `0o6226`
+12. Display init runs (`DisplayInitConfig`, `THTInitPC`, `THTInit1`)
+    and starts DDC slow-I/O outputs
+13. Disk/Junk task setup runs; final sample is in the post-init loop
+    around `0o6205`
 
 State at end:
-- 80M run: `PC=0o6012`, `T=0x0004`, `Q=0x0F41`, `Link=0x0C4E`
-- Task=0, `TIOA=0xC0`, display outs=0, disk outs=0, fast I/O=0
-- `tasking_on=0`, `wakeup_pending=0xFFFE`, `ready=0x0001`
-- Memory: faults=3, `first_srn=0`, `Mar=0xAB9`
-- `RM[1]=0x0B6A`, `RM[2]=0x0080`, `RM[6]=0xFEFF`, `RM[8]=0x0000`
+- 120M run: `PC=0o6205`, `T=0x0C0B`, `Q=0x0F41`, `Link=0x0C91`
+- Task=0, `TIOA=0xF0`, display outs=3, disk outs=32, fast I/O=0
+- `tasking_on=1`, `wakeup_pending=0x0000`, `ready=0x0001`
+- Memory: faults=15, `first_srn=0`, `Mar=0xFE21`
+- Initial variables: `R400=0x0100`, `RNUM=4`, `REALPAGES=4`,
+  `DISPLAYCONFIG=0xFFFF`
 
 **Underlying issues, in priority order to fix:**
 
@@ -419,31 +424,25 @@ stub returned the unshifted ALU output, so the module/page scan never
 advanced correctly. `cpu.c` now implements rsh/rcy/brsh/arsh/lsh/lcy,
 and `test_alu_shift_ff_functions` pins them down.
 
-#### 2d. LWRETN / LONGWAIT path (current top blocker)
+#### 2d. BootMem / BootEmulator memory-reference loops (fixed enough for display start)
 
-After Config, PRESETMAP, and FINDMODULE progress, the 80M-cycle probe
-parks in the return/long-wait region. Hot PCs are dominated by
-`LWRETN(0o6012)`, `LONGWAIT(0o6100)`, `0o6110`, `0o6115`, and
-`0o6116`; final `TIOA=0xC0`. No display/disk slow-I/O or fast-I/O has
-started yet.
+The old park at `LWRETN`/`LONGWAIT` was caused by two processor
+decode/modeling gaps:
 
-To investigate, decode the instruction at 0o6116 to find what
-condition Initial polls each iteration, and add the missing device
-stub or hardware-state response. TIOA=0xC0 (= 0o300) is in the
-high-TIOA range used by some I/O devices we haven't mapped yet.
+- `FF=0o363` on a memory reference means Store plus the Table 13
+  low-six-bit branch condition `Cnt=0&-1`; it is not the full Table 11
+  `Wakeup[3]` side effect.
+- `ASEL=2/3` alternate memory references must drive the selected
+  source onto A and Mar. `Store←T` was previously using A=0, so
+  BootEmulator's first-64K clear loop recomputed `T=1` forever.
 
-Update from the follow-up probe: extending the cycle budget to 120M
-and 140M does not reach display/disk I/O. The loop continues through
-the same `SETBRFORPAGE` / `SETMCR` / `LONGWAIT` path, with final
-`Task=0`, `TIOA=0xC0`, `display outs=0`, `disk outs=0`. Attaching the
-local `spruce-server.dsk300` Trident image to drive 0 did not change
-the path, because no disk task slow-I/O is issued. Synthetic periodic
-wakeups for DHT/AHT/AWT/DWT/DSK caused task switches but quickly
-accumulated faults and still produced no display or disk I/O. So the
-This was observed only while the probe forcibly bypassed NOSTORAGE.
-After the real Config' response, the run no longer reaches this path
-within the current budget. Keep these notes, but focus first on MCR /
-MapBufBusy / map initialization.
+With those fixed, the 64K clear loop at `0o6226` runs for 65,537 hits
+and exits to display initialization. Current top blocker is later:
+the probe is running at `0o6205` after display and disk slow-I/O have
+started (`display outs=3`, `disk outs=32`). Next investigation should
+decode `0o6205` and nearby caller state, then decide whether the loop
+is waiting on real disk/keyboard/display state or on another missing
+memory/timing behavior.
 
 ### 3. Disk Phase 3: real timing + Fire Code ECC + sequence PROMs
 
@@ -621,8 +620,8 @@ labeled "pending" or "in_progress" are the open work.
 
 Currently active when I left off:
 - **#58 in_progress:** BB→Bootstrap→Initial now loads 896 Initial IM
-  entries and runs Initial. Next blocker is the `0o6347` terminal/config
-  loop before display/disk I/O starts.
+  entries and runs Initial. With canonical Initial substitution, the
+  probe now starts display/disk slow-I/O and then runs at `0o6205`.
 - **#45 in_progress:** `probe_full_boot` reaches `LoadDoradoCode` and
   the BB `Continuous` loop. `probe_full_boot_with_bootstrap` is now the
   canonical deeper path for Initial bring-up.
@@ -633,15 +632,17 @@ Currently active when I left off:
 ## Suggested first action for the next session
 
 The probe currently bypasses one issue (Bootstrap streaming
-corruption) to let Initial run. NOSTORAGE, PRESETMAP, and FINDMODULE
-are no longer the current blockers. The CURRENT BLOCKER is the
-`LWRETN` / `LONGWAIT` path after FINDMODULE. Recommended order:
+corruption) to let Initial run. NOSTORAGE, PRESETMAP, FINDMODULE,
+BootMem, and the first-64K clear loop are no longer the current
+blockers. The CURRENT BLOCKER is the post-display-init path around
+`0o6205`. Recommended order:
 
 ### Highest-value: decode the current wait path
 
-1. Instrument PCs `0o6012`, `0o6100`, `0o6110`, `0o6115`, `0o6116`,
-   and the caller around `0o7420`/`0o7450`; log branch inputs, Link,
-   TIOA, FaultInfo', Pipe3'/Pipe4'/Pipe5, and tasking state.
+1. Instrument `0o6205` and the preceding caller path after
+   `DisplayInitConfig`/`THTInitPC`/disk init; log branch inputs, Link,
+   TIOA, FaultInfo', Pipe3'/Pipe4'/Pipe5, tasking state, display
+   outputs, and disk outputs.
 2. Implement per-slot Pipe4 error reporting beyond the no-error
    baseline (`Pipe4' = 0150361_8`) so the fault/wait code can see
    Page/WP/storage data errors accurately.

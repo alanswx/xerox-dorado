@@ -500,6 +500,64 @@ static int test_jcn_long_branch_address(void)
     return 0;
 }
 
+static int test_ff_condition_with_memory_ref(void)
+{
+    dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;   /* B */
+
+    /* IM[0]: T <- 2. */
+    mc.im[0] = make_uinstr(0, 0, 4, 1, 6, 0, 0002, jcn_local(1));
+    mc.im_present[0] = 1;
+
+    /* IM[1]: Cnt <- T. */
+    mc.im[1] = make_uinstr(0, 0, 2, 0, 6, 0, 0146, jcn_local(2));
+    mc.im_present[1] = 1;
+
+    /* IM[2]: Store<-RM/STK with FF[0:1]=3 and FF[2:7]=0o63.
+     * Hardware treats this as a memory Store plus FF-encoded
+     * Cnt=0&-1 branch condition, not as full FF function
+     * Wakeup[3]. The false target is even IM[2]; the true target
+     * is odd IM[3]. This is the shape Initial uses at 0o6116. */
+    mc.im[2] = make_uinstr(0, 0, 1, 0, 0, 0, 0363, jcn_local(2));
+    mc.im_present[2] = 1;
+
+    /* IM[3]: marker. */
+    mc.im[3] = make_uinstr(0, 0, 4, 1, 6, 0, 0077, jcn_local(3));
+    mc.im_present[3] = 1;
+
+    dorado_memory mem;
+    EXPECT(dorado_memory_init(&mem) == 0, "memory init");
+    dorado_map_set(&mem, 0, 0, 0, 0);
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.mem = &mem;
+    cpu.RM[0] = 0;
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step 0");
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step 1");
+    EXPECT(cpu.Cnt == 2, "Cnt=%u after load, expected 2", cpu.Cnt);
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "loop 1");
+    EXPECT(cpu.real_PC == 2, "PC=0o%o after Cnt=2, expected 2", cpu.real_PC);
+    EXPECT(cpu.Cnt == 1, "Cnt=%u after loop 1, expected 1", cpu.Cnt);
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "loop 2");
+    EXPECT(cpu.real_PC == 2, "PC=0o%o after Cnt=1, expected 2", cpu.real_PC);
+    EXPECT(cpu.Cnt == 0, "Cnt=%u after loop 2, expected 0", cpu.Cnt);
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "exit loop");
+    EXPECT(cpu.real_PC == 3, "PC=0o%o after Cnt=0, expected 3", cpu.real_PC);
+    EXPECT(cpu.wakeup_pending == 0,
+           "FF=0o363 memory ref should not issue Wakeup[3], pending=0x%X",
+           cpu.wakeup_pending);
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_ff_condition_with_memory_ref\n");
+    return 0;
+}
+
 /*
  * probe_bootstrap_pure — run Bootstrap.MB directly, NO BaseBoard.
  *
@@ -2163,7 +2221,9 @@ static int probe_full_boot_with_bootstrap(void)
         uint16_t t, q, link, cnt;
         uint16_t rm1, rm2, rm6, rm7, rm0x45, rm0x48, rm0x49;
         uint8_t rbase, membase, proc_srn, alu_lt0;
+        uint8_t task, tasking_on;
         uint16_t pipe5;
+        uint16_t mcr;
         uint32_t mar;
     };
     struct preset_sample preset_first[64];
@@ -2337,7 +2397,15 @@ static int probe_full_boot_with_bootstrap(void)
              pre_pc == 06362 || pre_pc == 06363 || pre_pc == 06340 ||
              pre_pc == 06365 || pre_pc == 06360 || pre_pc == 06245 ||
              pre_pc == 06244 || pre_pc == 06366 || pre_pc == 06367 ||
-             pre_pc == 06001 || pre_pc == 06013);
+             pre_pc == 06000 || pre_pc == 06002 || pre_pc == 06003 ||
+             pre_pc == 06011 || pre_pc == 06012 || pre_pc == 06013 ||
+             pre_pc == 06100 || pre_pc == 06101 || pre_pc == 06102 ||
+             pre_pc == 06103 || pre_pc == 06114 || pre_pc == 06117 ||
+             pre_pc == 06130 || pre_pc == 06137 || pre_pc == 06157 ||
+             pre_pc == 06161 || pre_pc == 06162 || pre_pc == 06163 ||
+             pre_pc == 06171 || pre_pc == 06172 || pre_pc == 06173 ||
+             pre_pc == 06175 || pre_pc == 06176 || pre_pc == 06177 ||
+             pre_pc == 06110 || pre_pc == 06115 || pre_pc == 06116);
         if (is_preset_probe) {
             memset(&ps, 0, sizeof ps);
             ps.cycle = bb.cycles;
@@ -2356,9 +2424,12 @@ static int probe_full_boot_with_bootstrap(void)
             ps.rbase = (uint8_t)cpu.RBase;
             ps.membase = (uint8_t)cpu.MemBase;
             ps.alu_lt0 = cpu.alu_lt0;
+            ps.task = cpu.ctask;
+            ps.tasking_on = cpu.tasking_on;
             if (cpu.mem) {
                 ps.proc_srn = cpu.mem->proc_srn;
                 ps.pipe5 = dorado_pipe5_at(cpu.mem, cpu.mem->proc_srn);
+                ps.mcr = dorado_mcr_get(cpu.mem);
                 ps.mar = cpu.mem->mar;
             }
         }
@@ -2599,10 +2670,21 @@ static int probe_full_boot_with_bootstrap(void)
            "ready=0x%04X\n",
            cpu.tasking_on, cpu.tasking_resume_delay,
            cpu.wakeup_pending, cpu.ready);
+    printf("       task TPCs:");
+    for (int t = 0; t < 16; t++) {
+        printf(" [%o]=0o%o", t, dorado_cpu_get_task_tpc(&cpu, t));
+    }
+    printf("\n");
     if (cpu.mem) {
         printf("       Memory: faults=%d first_srn=%d Mar=0x%X\n",
                cpu.mem->fault_count, cpu.mem->fault_first_srn,
                cpu.mem->mar);
+        printf("       MCR=0x%04X disbr=%d noref=%d fdmiss=%d nowake=%d\n",
+               dorado_mcr_get(cpu.mem),
+               dorado_mcr_disbr(cpu.mem),
+               dorado_mcr_noref(cpu.mem),
+               dorado_mcr_fdmiss(cpu.mem),
+               dorado_mcr_nowake(cpu.mem));
     }
     printf("       ALUFM after run:");
     for (int a = 0; a < 16; a++) printf(" [%X]=0o%o", a, mc.alufm[a]);
@@ -2624,12 +2706,13 @@ static int probe_full_boot_with_bootstrap(void)
             const struct preset_sample *s = &preset_first[i];
             printf("         cyc=%llu pc=0o%o->0o%o T=%04X Q=%04X Cnt=%04X "
                    "R1=%04X R2=%04X R6=%04X R7=%04X R45=%04X R48=%04X R49=%04X "
-                   "RB=%o MB=%o lt0=%d srn=%o p5=%04X Mar=%07X Link=%04X\n",
+                   "RB=%o MB=%o task=%o ton=%d lt0=%d srn=%o mcr=%04X p5=%04X "
+                   "Mar=%07X Link=%04X\n",
                    (unsigned long long)s->cycle, s->pc, s->next_pc,
                    s->t, s->q, s->cnt, s->rm1, s->rm2, s->rm6, s->rm7,
                    s->rm0x45, s->rm0x48, s->rm0x49,
-                   s->rbase, s->membase, s->alu_lt0, s->proc_srn,
-                   s->pipe5, s->mar, s->link);
+                   s->rbase, s->membase, s->task, s->tasking_on,
+                   s->alu_lt0, s->proc_srn, s->mcr, s->pipe5, s->mar, s->link);
         }
     }
     if (preset_last_total > 0) {
@@ -2640,12 +2723,13 @@ static int probe_full_boot_with_bootstrap(void)
             const struct preset_sample *s = &preset_last[(first + i) % 64];
             printf("         cyc=%llu pc=0o%o->0o%o T=%04X Q=%04X Cnt=%04X "
                    "R1=%04X R2=%04X R6=%04X R7=%04X R45=%04X R48=%04X R49=%04X "
-                   "RB=%o MB=%o lt0=%d srn=%o p5=%04X Mar=%07X Link=%04X\n",
+                   "RB=%o MB=%o task=%o ton=%d lt0=%d srn=%o mcr=%04X p5=%04X "
+                   "Mar=%07X Link=%04X\n",
                    (unsigned long long)s->cycle, s->pc, s->next_pc,
                    s->t, s->q, s->cnt, s->rm1, s->rm2, s->rm6, s->rm7,
                    s->rm0x45, s->rm0x48, s->rm0x49,
-                   s->rbase, s->membase, s->alu_lt0, s->proc_srn,
-                   s->pipe5, s->mar, s->link);
+                   s->rbase, s->membase, s->task, s->tasking_on,
+                   s->alu_lt0, s->proc_srn, s->mcr, s->pipe5, s->mar, s->link);
         }
     }
 
@@ -4728,6 +4812,7 @@ int main(void)
     rc |= test_shifter_rmask();
     rc |= test_unsupported_halts();
     rc |= test_jcn_long_branch_address();
+    rc |= test_ff_condition_with_memory_ref();
     rc |= test_write_im();
     rc |= test_stk_no_change();
     rc |= test_stk_push();
