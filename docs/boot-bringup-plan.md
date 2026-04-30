@@ -1020,9 +1020,12 @@ microcode.
   `../chm/microcode/AltoMesaDorado.eb!1`, the injected payload ends at
   `0x44E4` (printed as the wrapped 16-bit pointer) and checksums to
   zero; the probe reaches loaded-image runtime code around
-  `PC=0o6000/0o6002/0o6012`. A sampled IM comparison against
-  `Mesa.mb!3` is `0/6`, so this EB payload is not byte-for-byte the
-  repository's `Mesa.mb!3`; treat it as its own AltoMesa LoadRam image.
+  `PC=0o6000/0o6002/0o6012`. A sampled IM comparison against known
+  repository `.mb` files reports `0/6` for `Mesa.mb!3`,
+  `TriMesa.mb!3`, `Cedar.mb!6`, `DSemu.mb!1`, and the UnBug Mesa
+  image (AEmu has no sampled addresses present), so this EB payload is
+  not byte-for-byte any of those known `.mb` binaries; treat it as its
+  own AltoMesa LoadRam image.
   The current post-load blocker is runtime state/scheduling: task 0
   repeatedly runs the short `0o6000/0o6002/0o6003/0o6012/0o6013` loop,
   only task 0 remains ready, and no loaded display task is producing

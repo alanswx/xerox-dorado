@@ -728,10 +728,12 @@ Latest disk bring-up checkpoint:
    copies the zero-sum payload into Initial's `BootDataPtr` area, and
    lets `CheckChecksumAndLoad`/`LoadRam` run. Latest result reaches the
    loaded-image runtime loop around `PC=0o6000/0o6002/0o6012`.
-   The probe compares sampled IM addresses against `Mesa.mb!3` and
-   reports `0/6`, so `AltoMesaDorado.eb!1` should be treated as a
-   distinct AltoMesa LoadRam image rather than a byte-for-byte copy of
-   `Mesa.mb!3`. Current post-load state: only task 0 is ready, the loop
+   The probe compares sampled IM addresses against known `.mb` files:
+   `Mesa.mb!3`, `TriMesa.mb!3`, `Cedar.mb!6`, `DSemu.mb!1`, and the
+   UnBug Mesa image all report `0/6` (AEmu has no sampled addresses
+   present), so `AltoMesaDorado.eb!1` should be treated as a distinct
+   AltoMesa LoadRam image rather than a byte-for-byte copy of a checked-
+   in `.mb`. Current post-load state: only task 0 is ready, the loop
    repeatedly loads MCR values such as `0x78E1`, and no loaded display
    task is writing pixels yet. Next step is to identify that loaded
    runtime loop from the EB/source archive and seed or emulate the
