@@ -1012,6 +1012,15 @@ microcode.
   an Alto Spruce T-300 pack and is not known to contain that private
   Initial hard-microcode boot file. Treat it as a Trident-controller
   validation pack, not as proof that Initial disk boot should succeed.
+- `DORADO_ETHER_BOOT_IMAGE=<path>` now enables a probe-only Ethernet
+  boot injector. It copies the EB payload after the first 512-byte
+  overhead page into Initial's `BootDataPtr` area, preserving the same
+  zero-sum checksum that `CheckChecksumAndLoad` expects, then lets
+  Initial run through `LoadRam`. With
+  `../chm/microcode/AltoMesaDorado.eb!1`, the injected payload ends at
+  `0x44E4` (printed as the wrapped 16-bit pointer) and checksums to
+  zero; the probe reaches the loaded-world address range around
+  `PC=0o6002`.
 - A one-hot Tag[0:3] experiment matched one reading of the HM text but
   did not match Initial's observed I/O values: `0xFFEF` behaved as a
   preload/idle value, not "all tag commands at once". The emulator

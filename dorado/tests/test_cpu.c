@@ -45,6 +45,64 @@ static int file_exists_readable(const char *path)
     return 1;
 }
 
+static void store_boot_va(dorado_memory *mem, uint32_t va, uint16_t value)
+{
+    if (!mem || !mem->storage) return;
+
+    uint32_t idx = dorado_map_index(va);
+    const dorado_map_entry *e = dorado_map_get(mem, idx);
+    size_t phys = (size_t)e->rp * DM_PAGE_SIZE + (va & (DM_PAGE_SIZE - 1));
+    if (phys < mem->storage_words) {
+        mem->storage[phys] = value;
+    }
+
+    uint32_t row = (va >> 4) & DM_CACHE_ROW_MASK;
+    uint32_t tag = va >> 10;
+    uint32_t off = va & DM_CACHE_LINE_MASK;
+    for (int way = 0; way < DM_CACHE_WAYS; way++) {
+        dorado_cache_line *line = &mem->cache[row].ways[way];
+        if (line->valid && line->tag == tag) {
+            line->data[off] = value;
+        }
+    }
+}
+
+static int inject_ether_boot_image(dorado_memory *mem, const char *path,
+                                   uint32_t start_va, uint16_t *end_va,
+                                   uint16_t *sum_out)
+{
+    FILE *fp = fopen(path, "rb");
+    if (!fp) return 0;
+
+    /* EB files have a one-page Pilot/IFS overhead record. Initial's
+     * Ethernet receive path stores only the checksummed payload. */
+    if (fseek(fp, 512, SEEK_SET) != 0) {
+        fclose(fp);
+        return 0;
+    }
+
+    uint32_t va = start_va;
+    uint32_t sum = 0;
+    for (;;) {
+        int hi = fgetc(fp);
+        int lo = fgetc(fp);
+        if (hi == EOF && lo == EOF) break;
+        if (hi == EOF || lo == EOF) {
+            fclose(fp);
+            return 0;
+        }
+        uint16_t word = (uint16_t)(((uint16_t)hi << 8) | (uint16_t)lo);
+        store_boot_va(mem, va, word);
+        sum = (sum + word) & 0xFFFFu;
+        va++;
+    }
+    fclose(fp);
+
+    if (end_va) *end_va = (uint16_t)(va & 0xFFFFu);
+    if (sum_out) *sum_out = (uint16_t)sum;
+    return va > start_va;
+}
+
 static int attach_default_trident_pack(dorado_disk_controller *disk,
                                        dorado_disk_pack *pack)
 {
@@ -90,24 +148,7 @@ static void seed_boot_keyboard_va(dorado_memory *mem, uint32_t va,
         mem->storage[va] = value;
     }
 
-    uint32_t idx = dorado_map_index(va);
-    const dorado_map_entry *e = dorado_map_get(mem, idx);
-    if (!(e->wp && e->dirty)) {
-        size_t phys = (size_t)e->rp * DM_PAGE_SIZE + (va & (DM_PAGE_SIZE - 1));
-        if (phys < mem->storage_words) {
-            mem->storage[phys] = value;
-        }
-    }
-
-    uint32_t row = (va >> 4) & DM_CACHE_ROW_MASK;
-    uint32_t tag = va >> 10;
-    uint32_t off = va & DM_CACHE_LINE_MASK;
-    for (int way = 0; way < DM_CACHE_WAYS; way++) {
-        dorado_cache_line *line = &mem->cache[row].ways[way];
-        if (line->valid && line->tag == tag) {
-            line->data[off] = value;
-        }
-    }
+    store_boot_va(mem, va, value);
 }
 
 static void seed_boot_keyboard_from_display(dorado_memory *mem,
@@ -2348,10 +2389,16 @@ static int probe_full_boot_with_bootstrap(void)
     int preset_trace_enabled = test_u64_env("DORADO_PRESET_TRACE", 0) != 0;
     int disk_trace_enabled = test_u64_env("DORADO_DISK_TRACE", 0) != 0;
     int mcr_trace_enabled = test_u64_env("DORADO_MCR_TRACE", 0) != 0;
+    const char *ether_boot_image = getenv("DORADO_ETHER_BOOT_IMAGE");
+    int ether_boot_enabled = ether_boot_image && *ether_boot_image &&
+                             file_exists_readable(ether_boot_image);
     uint64_t disk_sector_ticks = 0;
     uint64_t disk_wakeups = 0;
     uint64_t disk_normal_mode_shims = 0;
     uint64_t boot_identity_map_shims = 0;
+    uint64_t ether_boot_injections = 0;
+    uint16_t ether_boot_end = 0;
+    uint16_t ether_boot_sum = 0;
     uint64_t display_scanline_wakeups = 0;
     uint64_t next_display_scanline_cycle = 0;
     uint64_t keyboard_seed_count = 0;
@@ -2384,6 +2431,8 @@ static int probe_full_boot_with_bootstrap(void)
         { 06420, "CHECKKEY", 0, 0 },
         { 06432, "GOTBOOTKEY", 0, 0 },
         { 06443, "DOETHERMICROCODEBOOT", 0, 0 },
+        { 06460, "CHECKCHECKSUMANDLOAD", 0, 0 },
+        { 07600, "LOADRAM", 0, 0 },
         { 06404, "MICROCODEBOOTFAILED", 0, 0 },
         { 06057, "AWAITETHERBOOTREPLY", 0, 0 },
     };
@@ -2614,10 +2663,29 @@ static int probe_full_boot_with_bootstrap(void)
             cpu.RM[0x1C] = 0xFFFFu;
             cpu.RM[0x1D] = 0xFFFFu;
         }
-        if (initial_substituted && is_imfetch &&
+        if (!ether_boot_enabled && initial_substituted && is_imfetch &&
             (pre_pc == 06432 || pre_pc == 06443)) {
             cpu.real_PC = 07140;  /* No boot keys: force disk microcode boot. */
             pre_pc = cpu.real_PC;
+        }
+        if (ether_boot_enabled && initial_substituted && is_imfetch &&
+            pre_pc == 06440 && ether_boot_injections == 0) {
+            for (uint32_t pg = 0; pg < 256; pg++) {
+                dorado_map_set(&mem, pg, (uint16_t)pg,
+                               /*wp=*/0, /*dirty=*/0);
+            }
+            if (inject_ether_boot_image(&mem, ether_boot_image, 01000,
+                                        &ether_boot_end, &ether_boot_sum)) {
+                for (uint16_t rb = 0; rb < 0x100; rb += 0x10) {
+                    cpu.RM[rb | 0x01] = ether_boot_end;
+                    cpu.RM[rb | 0x0A] = 0;
+                    cpu.RM[rb | 0x11] = ether_boot_end;
+                    cpu.RM[rb | 0x1A] = 0;
+                }
+                cpu.real_PC = 06445;           /* ETemp0_A0; Call CheckChecksumAndLoad */
+                pre_pc = cpu.real_PC;
+                ether_boot_injections++;
+            }
         }
         int is_key_trace =
             initial_substituted && is_imfetch && key_trace_n < 48 &&
@@ -2980,6 +3048,10 @@ static int probe_full_boot_with_bootstrap(void)
     if (boot_identity_map_shims) {
         printf("       Boot identity-map shims: %llu\n",
                (unsigned long long)boot_identity_map_shims);
+    }
+    if (ether_boot_injections) {
+        printf("       Ether boot image injected: %s end=0x%04X sum=0x%04X\n",
+               ether_boot_image, ether_boot_end, ether_boot_sum);
     }
     if (init_first_n > 0) {
         printf("       Initial PC trail (first %d distinct PCs after substitution):\n        ",

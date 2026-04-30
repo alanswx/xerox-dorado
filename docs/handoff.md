@@ -721,7 +721,15 @@ Latest disk bring-up checkpoint:
    microcode file at page 4.
 3. Implement enough 3 Mb Ethernet boot support, or a controlled
    Initial Ethernet packet injector, to deliver `chm/microcode/*.eb`
-   files and let `EtherMicrocodeBoot` load emulator microcode.
+   files and let `EtherMicrocodeBoot` load emulator microcode. A gated
+   probe injector now exists: run
+   `DORADO_ETHER_BOOT_IMAGE=../chm/microcode/AltoMesaDorado.eb!1
+   ./build/test_cpu`. It skips the first 512-byte EB overhead page,
+   copies the zero-sum payload into Initial's `BootDataPtr` area, and
+   lets `CheckChecksumAndLoad`/`LoadRam` run. Latest result reaches the
+   loaded-world address range around `PC=0o6002`; the next blocker is
+   interpreting that post-LoadRam state and wiring enough runtime I/O
+   for visible Alto/Mesa progress.
 4. Keep improving DiskMuff/sequence-PROM behavior in parallel so real
    emulator disk I/O has a solid controller after microcode load.
 5. Re-run `build/test_cpu`; success means `CheckChecksumAndLoad` and
