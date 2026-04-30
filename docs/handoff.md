@@ -419,6 +419,18 @@ condition Initial polls each iteration, and add the missing device
 stub or hardware-state response. TIOA=0xC0 (= 0o300) is in the
 high-TIOA range used by some I/O devices we haven't mapped yet.
 
+Update from the follow-up probe: extending the cycle budget to 120M
+and 140M does not reach display/disk I/O. The loop continues through
+the same `SETBRFORPAGE` / `SETMCR` / `LONGWAIT` path, with final
+`Task=0`, `TIOA=0xC0`, `display outs=0`, `disk outs=0`. Attaching the
+local `spruce-server.dsk300` Trident image to drive 0 did not change
+the path, because no disk task slow-I/O is issued. Synthetic periodic
+wakeups for DHT/AHT/AWT/DWT/DSK caused task switches but quickly
+accumulated faults and still produced no display or disk I/O. So the
+next blocker is probably still missing main-memory/module configuration
+or a task/TPC setup detail, not just absent media or a missing DDC/DSK
+status read.
+
 ### 3. Disk Phase 3: real timing + Fire Code ECC + sequence PROMs
 
 For booting an actual Alto OS, Mesa needs the disk to sequence
