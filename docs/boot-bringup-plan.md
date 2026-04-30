@@ -1097,6 +1097,16 @@ Three styles of test, used at every phase:
   and task 0 remains hot in `SetMCR`/`LongWait` startup code. Next
   likely gaps are display-task wake/PC initialization and disk
   tag/format-RAM transfer start.
+- `_cd8_/doradomicrocode/` is not fully mirrored locally, but a focused
+  subset now exists under `chm/doradomicrocode/doradomicrocodesources/`
+  (`ADefs`, `DisplayDefs`, `DisplayMain`, `DisplayAux`, `LoadRam`,
+  `NewMemory`, `PilotDisk`, `PilotDiskDefs`, and build recipes). These
+  sources corrected the display diagnosis: task 4 is the terminal
+  horizontal path, but the latest 120M-cycle trace shows display outputs
+  only at TIOA `0366` (`TNLCB`) and `0367` (`TStatics`), never `0364`
+  (`AHTFlag`). `DAStart` low-core words `0420..0427` are all zero, so
+  the current blank screen is because no display control block chain has
+  been installed yet, not because the WCB flag shim alone was missing.
 
 ## Cross-cutting: don't drift from "match the docs"
 

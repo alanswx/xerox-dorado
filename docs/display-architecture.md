@@ -424,14 +424,19 @@ production: 0 = Alto-style, 1 = LF (large format / Star).
   now lets this clock run continuously after Initial starts, matching
   the hardware fact that raster timing is independent of whether the
   Dorado has recently touched display slow I/O.
-- **Known DWT gap**: post-LoadRam AltoMesa EB runs schedule AHT and DSK
-  but never DWT (`display iofetch=0`). Waking DHT from the raster clock
-  currently runs task 3 only at `0o6006`, with no task-3 display
-  outputs, so the loaded emulator has not installed real DHT/DWT task
-  PCs yet. Once task-0 startup escapes its MCR/cache loop, the missing
-  HM page 118 DDC handoff will be: decode DHT output enough to maintain
-  `NextWCBFlag`, `CurrentWCBFlag`, `DWTShutUp`, and the delayed
-  word-task wakeup.
+- **Current DWT gap**: post-LoadRam `AltoMesaDorado.eb!1` schedules the
+  terminal horizontal path and disk, but still produces
+  `display iofetch=0`. Source from `_cd8_/doradomicrocode/` confirms
+  the handoff: `DisplayMain.mc!1` has DHT/THT set `ANextWCBFlag` /
+  `BNextWCBFlag`, then DWT/TWT uses `Output_ 1` and `Output_ 0` to
+  maintain `CurrentWCBFlag`. The emulator now models that WCB protocol,
+  but the 120M-cycle trace shows task 4 writes only TIOA `0366`
+  (`TNLCB`) and `0367` (`TStatics`), never `0364` (`AHTFlag`), so no
+  WCB is being handed to the word task. Low core display words
+  `0420..0427` (`DAStart` / display area state) remain zero, which
+  explains the blank-scanline behavior. Next display work is to find why
+  the loaded Alto/Mesa software has not installed a DCB chain, while
+  continuing disk and memory fidelity work.
 
 **Phase 2**:
 - **`dorado_display_render_fifo()`**: drains the per-channel FIFO

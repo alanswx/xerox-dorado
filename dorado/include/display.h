@@ -63,6 +63,11 @@
 #define DORADO_DISPLAY_TASK_AWT     011
 #define DORADO_DISPLAY_TASK_DWT     013
 
+#define DORADO_DISPLAY_TIOA_DHTFLAG 0374
+#define DORADO_DISPLAY_TIOA_DWTFLAG 0373
+#define DORADO_DISPLAY_TIOA_AHTFLAG 0364
+#define DORADO_DISPLAY_TIOA_AWTFLAG 0363
+
 typedef struct {
     /* Per-channel CLCB/NLCB. HM page 113: αPolarity, αResolution,
      * αItemSize, αLeftMargin, αWidth, αFifoAddr, MixerModes, VCW,
@@ -133,6 +138,7 @@ typedef struct {
     /* Diagnostic counters. */
     uint64_t output_count;       /* total Output←B writes seen */
     uint64_t output_task_count[16]; /* Output←B writes by task */
+    uint64_t output_tioa_count[256]; /* Output←B writes by TIOA */
     uint64_t iofetch_count;      /* total IOFetch← munches received */
     uint64_t nlcb_writes;        /* DHT NLCB outputs */
     uint64_t scanline_ticks;     /* synthetic horizontal timing ticks */

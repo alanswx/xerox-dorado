@@ -742,23 +742,26 @@ Latest disk bring-up checkpoint:
    AltoMesa LoadRam image rather than a byte-for-byte copy of a checked-
    in `.mb`. Current post-load state: the loaded image now schedules
    multiple tasks when the probe clocks are allowed to run like
-   free-running hardware. With DHT also clocked, task counts include
-   `[0]=8909159 [2]=28806 [3]=35485 [4]=425739 [14]=203320`, but task
-   3's hot PC is only `0o6006`, all display slow-IO writes are from
-   task 4, DWT task 13 never runs, and `display iofetch=0`. This means
-   the emulator has not initialized display task PCs yet; don't spend
-   too long on DWT handoff until task 0 escapes the
-   `0o6000/0o6002/0o6012` startup loop. MCR trace shows that loop
-   repeatedly loading values such as `0x78E1`, `0x7861`, `0x70E1`, and
-   `0x6861`, so the next concrete target is MCR/cache/reference
-   fidelity rather than framebuffer code. Current raw loaded IM samples:
+   free-running hardware. A focused subset of `_cd8_/doradomicrocode/`
+   was downloaded into `chm/doradomicrocode/doradomicrocodesources/`;
+   `ADefs.mc!3` confirms the expected task numbers and
+   `DisplayMain.mc!1` confirms the DHT/THT -> WCB -> DWT/TWT handoff.
+   The emulator now models the WCB flag protocol, but the latest
+   120M-cycle run still has `display iofetch=0` and DWT wakeups `0`.
+   The useful new clue is that all display writes are task 4 to TIOA
+   `0366` (`TNLCB`) plus two writes to `0367` (`TStatics`); there are
+   no writes to `0364` (`AHTFlag`), and low-core display words
+   `0420..0427` (`DAStart` region) are all zero. That means task 4 is
+   alive and blanking/terminal-scanning, but no display control block
+   chain has been installed for the word task to fetch. Current raw
+   loaded IM samples:
    `0o6000=00104/71501/00000`, `0o6001=00104/131705/140000`,
    `0o6002=00104/14701/00000`, `0o6012=13116/14105/00000`,
    `0o6100=00204/60005/00000`, `0o5021=05406/77714/40000`.
-   After the `NoRef` cache-address, cache `Vacant` lookup, and DiskMuff
-   `IOB[15]` fixes, a 120M-cycle focused EB run moves farther: final
-   `PC=0o6307`, display snapshot `frame=180`, task 4 hot at
-   `0o6300/0o6301/0o6311/0o6721/0o6744`, but still
+   After the `NoRef` cache-address, cache `Vacant` lookup, DiskMuff
+   `IOB[15]`, and display WCB protocol fixes, a 120M-cycle focused EB
+   run moves farther: final `PC=0o6307`, display snapshot `frame=180`,
+   task 4 hot at `0o6300/0o6301/0o6311/0o6721/0o6744`, but still
    `display iofetch=0`, DWT wakeups `0`, and disk FIFO reads/writes
    `0`. The cache `Vacant` fix is important because Initial's
    `ClearCacheFlags` writes all CacheA entries and then marks them

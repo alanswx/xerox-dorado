@@ -112,18 +112,26 @@ patterns:
 | `BasicCedarDLion.pb!1` | Cedar for Dandelion (Star/8010) |
 | `OscarDicentra.pb!1` | Mesa world (Dicentra release) |
 
-## What CHM does NOT have as raw disk packs
+## What CHM does and does not have as raw disk packs
 
-Searched `chm/cross-reference.html` (45 MB, 568K lines indexing the
-xeroxparcarchive mirror) for Trident `.disk` / `.image` pack files:
-**none exist as raw disk packs**. The PARC IFS archives store
-individual files (`.bcd`, `.mesa`, `.config`, etc.), not raw disk pack
-images. Dorado-era Mesa/Cedar worlds were always distributed as
-`.eb` or `.pb` files, never as disk packs.
+**Trident packs (T-80, T-300):** none on either CHM mirror. The only
+known public Trident pack image is the Spruce T-300 we already have
+locally (`AltoInfo/ContrAlto2-beta/Disks/spruce-server.dsk300`).
+Dorado-era Mesa/Cedar worlds were distributed as `.eb`/`.pb` memory
+images, not as Trident packs.
 
-So if you specifically want a Mesa-on-Dorado **disk pack**, that's
-not a thing the public archives have. The closest is the Spruce pack
-(Alto, T-300) we already have.
+**Alto Diablo-30 packs (`.bfs` / `.altodisk` / `.copydisk`):** yes —
+9 of them in `_cd8_/basicdisks/` and `indigo/basicdisks/` on
+`xeroxparcarchive`. Headline pack: `Mesa6-14.bfs!4` (4.9 MB, Mesa 6.14
+development). Plus 4 D0/Dolphin diagnostic packs under `cyan/d0/*.disk!1_/`.
+Our own `chm/dorado/UnBug.bfs!1` (2.3 MB) is also a BFS pack — the
+Dorado developers' Alto debug environment.
+
+These run under the **Alto-emulator microcode** on our Dorado
+(`AltoMesaDorado.eb`/`AEmu.mb`), not under Mesa or Cedar microcode
+directly. See `parc-archive-survey.md` for the full inventory and the
+tools (`restore_alto_files`, `palo`, ContrAlto's AltoFS) that read
+and write BFS packs.
 
 ## Pilot Backup (`.pb`) format
 

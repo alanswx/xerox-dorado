@@ -146,6 +146,43 @@ static int test_attach_to_io(void)
     return 0;
 }
 
+static int test_display_wcb_flag_protocol(void)
+{
+    static dorado_io io;
+    dorado_io_init(&io);
+    static dorado_display d;
+    dorado_display_init(&d);
+    dorado_display_attach_to_io(&d, &io);
+
+    dorado_io_write(&io, DORADO_DISPLAY_TASK_AHT,
+                    DORADO_DISPLAY_TIOA_AHTFLAG, 0002);
+    EXPECT(d.next_wcb_flag[0] == 1, "channel A NextWCB should be set");
+    EXPECT(d.nlcb_writes == 1, "nlcb_writes = %llu (expected 1)",
+           (unsigned long long)d.nlcb_writes);
+
+    int subtask = -1;
+    EXPECT(dorado_display_dwt_wakeup(&d, &subtask) == 1,
+           "DWT wakeup should be pending after NextWCB");
+    EXPECT(subtask == 0, "DWT subtask = %d (expected A/subtask 0)", subtask);
+    EXPECT(d.next_wcb_flag[0] == 0, "NextWCB should be consumed");
+    EXPECT(d.current_wcb_flag[0] == 1, "CurrentWCB should be set");
+
+    dorado_io_write(&io, DORADO_DISPLAY_TASK_DWT,
+                    DORADO_DISPLAY_TIOA_DWTFLAG, 0000);
+    EXPECT(d.current_wcb_flag[0] == 0, "DWT Output_0 clears CurrentWCB");
+
+    dorado_io_write(&io, DORADO_DISPLAY_TASK_DHT,
+                    DORADO_DISPLAY_TIOA_DHTFLAG, 0004);
+    EXPECT(d.next_wcb_flag[1] == 1, "channel B NextWCB should be set");
+    EXPECT(dorado_display_dwt_wakeup(&d, &subtask) == 1,
+           "DWT wakeup should be pending for channel B");
+    EXPECT(subtask == 2, "DWT subtask = %d (expected B/subtask 2)", subtask);
+
+    printf("PASS  test_display_wcb_flag_protocol "
+           "(DHT/AHT flag outputs drive DWT wakeups)\n");
+    return 0;
+}
+
 /* test_fifo_push — IOFetch← path drops words into per-channel FIFO. */
 static int test_fifo_push(void)
 {
@@ -357,6 +394,7 @@ int main(void)
     rc |= test_set_pixel();
     rc |= test_keyboard_words();
     rc |= test_attach_to_io();
+    rc |= test_display_wcb_flag_protocol();
     rc |= test_fifo_push();
     rc |= test_snapshot_pgm();
     rc |= test_frame_clock();

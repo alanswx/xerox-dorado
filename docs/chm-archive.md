@@ -125,6 +125,7 @@ has been confirmed to resolve:
 | Server path | Contents |
 |---|---|
 | `xeroxparcarchive…/_cd8_/dorado/` | **The canonical Dorado tree.** All current `.mb` microcode (Mesa, Cedar, AEmu, DSemu, TriEmu, TriMesa), all `Initial*.eb` boot stages, all `.dm` source archives (bootstrap, doradobaserom, Ifu, kernel, MEMA, memMisc, Tricond, eventCounters, edp, ftest, diex, DSemu, bootEmu, DoradoMidasRun), `LoadMB.run`/`ReadMB.run`, plus `test/` subdir. |
+| `xeroxparcarchive…/_cd8_/doradomicrocode/` | **Partially mirrored locally in `chm/doradomicrocode/`.** Separate Dorado microcode source tree with subdirs `DoradoMicrocodeSources`, `KernelSources`, `MicroD`, `Micro`, `Top`, `Code`, `Initial`, `BlockOps`, `CedarDual3`, `EtherTester`, `Documentation`, etc. The local subset currently includes the display/disk/memory sources needed for bring-up (`ADefs`, `DisplayDefs`, `DisplayMain`, `DisplayAux`, `LoadRam`, `NewMemory`, `PilotDisk`, `PilotDiskDefs`, plus Mesa build recipes). |
 | `xeroxparcarchive…/_cd8_/dorado/test/` | `Cedar.mb!4`, `Cedar.midas!3`, `TestDorado.eb!5`, `TestW.mb!1`, `TestW.midas!1`. |
 | `xeroxparcarchive…/indigo/dorado/` | Older versions of every file in `_cd8_/dorado/`. Skip unless you specifically need a previous revision. |
 | `xeroxparcarchive…/io/doradologic/` | Schematic-source `.dm` archives for every board revision (BaseBd, ContA/B, DispM, DispY, DskEth, IFU, MemC/D/X, ProcH/L, MSA, IOTest, etc.) plus `DoradoFiles.dm`, `DoradoBuildFiles.dm`, `DoradoProms.run`, `RevStatus.memo`. |
@@ -242,6 +243,37 @@ The canonical Dorado source tree.
   reference disassembler in working code).
 - `pcprint.run!5`, `MakeCardImages.run!1`, `Resist.run!15`,
   `HighResist.run!1`.
+
+### `_cd8_/doradomicrocode/` (remote; focused subset in `chm/doradomicrocode/`)
+
+Top-level index:
+`https://xeroxparcarchive.computerhistory.org/_cd8_/doradomicrocode/.index.html`
+
+This is a separate archive tree from `chm/dorado/`. A quick index
+survey on 30-Apr-2026 found these subdirectories: `7.0`, `BlockOps`,
+`CedarDual3`, `Code`, `Cpa`, `Documentation`,
+`DoradoMicrocodeSources`, `EtherTester`, `Initial`, `KernelSources`,
+`LoadAltoDumpFile`, `LoadMB`, `Micro`, `MicroD`, and `Top`.
+
+The critical pieces are in `DoradoMicrocodeSources` and `KernelSources`.
+They contain source-level modules for the loaded Pilot/Cedar/Mesa
+microcode path, including display, disk, memory startup, and `LoadRam`.
+A focused local subset was downloaded on 30-Apr-2026:
+
+- `ADefs.mc!3`
+- `DisplayDefs.mc!1`
+- `DisplayMain.mc!1`
+- `DisplayAux.mc!1`
+- `LoadRam.mc!1`
+- `NewMemory.mc!1`
+- `PilotDisk.mc!1`
+- `PilotDiskDefs.mc!1`
+- `AltoMesa.cm!1`
+- `CedarMesa10MB.cm!1`
+
+This is not a full mirror. When debugging post-LoadRam Mesa behavior,
+prefer these sources over trying to infer everything from `.mb`
+disassembly, and fetch additional files from the same archive as needed.
 
 **BCPL compiled (.bcd)**:
 - `MicroSample.bcd!2`, `MicroSampleDefs.bcd!1`, `SetClock.bcd!1`,

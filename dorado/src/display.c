@@ -69,21 +69,37 @@ void dorado_display_keyboard_set_bit(dorado_display *d, int word,
 static void display_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
 {
     dorado_display *d = ctx;
+    int t = task & 0xF;
+
     d->output_count++;
-    d->output_task_count[task & 0xF]++;
+    d->output_task_count[t]++;
+    d->output_tioa_count[tioa]++;
     d->riob = data;     /* HM page 119: IOB stays in DDC RIOB until
                          * next output command */
-    if (task == DORADO_DISPLAY_TASK_DHT || task == DORADO_DISPLAY_TASK_AHT) {
-        d->terminal_task = task;
+    if (t == DORADO_DISPLAY_TASK_DHT || t == DORADO_DISPLAY_TASK_AHT) {
+        d->terminal_task = t;
     }
-    if (task == DORADO_DISPLAY_TASK_DHT) {
-        int channel = (data & 0x8000u) ? 1 : 0;
-        d->next_wcb_flag[channel] = 1;
+
+    /* DisplayMain.mc:
+     *   DHT/THT writes ANextWCBFlag or BNextWCBFlag to DHTFlag/AHTFlag.
+     *   DWT/TWT writes 1 when starting a scan line and 0 when it is
+     *   exhausted. Model those WCB flags independent of whether terminal
+     *   emulation is using DispY (DHT/DWT) or DispM (AHT/AWT).
+     */
+    if (tioa == DORADO_DISPLAY_TIOA_DHTFLAG ||
+        tioa == DORADO_DISPLAY_TIOA_AHTFLAG) {
+        if (data & 0002u) d->next_wcb_flag[0] = 1;
+        if (data & 0004u) d->next_wcb_flag[1] = 1;
         d->nlcb_writes++;
+    } else if (tioa == DORADO_DISPLAY_TIOA_DWTFLAG ||
+               tioa == DORADO_DISPLAY_TIOA_AWTFLAG) {
+        int channel = (data & 0x8000u) ? 1 : 0;
+        uint8_t cur = (uint8_t)(data & 1u);
+        d->current_wcb_flag[channel] = cur;
+        if (cur) d->next_wcb_flag[channel] = 0;
     }
     /* TODO: dispatch by (task, tioa) to NLCB load / HRam load /
      * Mixer load / PixelClk / Statics / etc. */
-    (void)tioa;
 }
 
 static uint16_t display_input(void *ctx, int task, uint8_t tioa, int *bad)

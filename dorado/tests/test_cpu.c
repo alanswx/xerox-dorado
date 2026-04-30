@@ -3271,6 +3271,32 @@ static int probe_full_boot_with_bootstrap(void)
         }
     }
     printf("\n");
+    printf("       Display outputs by TIOA:");
+    int printed_tioa[8] = {0};
+    for (int i = 0; i < 8; i++) {
+        int best = -1;
+        uint64_t best_count = 0;
+        for (int a = 0; a < 256; a++) {
+            int already_printed = 0;
+            for (int b = 0; b < i; b++) {
+                if (printed_tioa[b] == a) {
+                    already_printed = 1;
+                    break;
+                }
+            }
+            if (already_printed) continue;
+            uint64_t count = display.output_tioa_count[a];
+            if (count > best_count) {
+                best = a;
+                best_count = count;
+            }
+        }
+        if (best < 0 || best_count == 0) break;
+        printed_tioa[i] = best;
+        printf(" [%03o]=%llu", best,
+               (unsigned long long)best_count);
+    }
+    printf("\n");
     if (ether_boot_injections) {
         printf("       Post-EB device deltas: display outs=+%llu iofetch=+%llu "
                "dwt wakeups=+%llu scanline wakeups=+%llu "
@@ -3466,6 +3492,19 @@ static int probe_full_boot_with_bootstrap(void)
             for (uint32_t i = 0; i < 16; i++) {
                 printf("%s%04X", (i == 0) ? "" : " ",
                        dorado_storage_at_va(&mem, 0x0119u + i));
+            }
+            printf("\n");
+        }
+        {
+            printf("       Display low-core: DAStart[0420..0427]=");
+            for (uint32_t i = 0; i < 8; i++) {
+                printf("%s%04X", (i == 0) ? "" : " ",
+                       dorado_storage_at_va(&mem, 0420u + i));
+            }
+            printf(" Cursor[0431..0450]=");
+            for (uint32_t i = 0; i < 16; i++) {
+                printf("%s%04X", (i == 0) ? "" : " ",
+                       dorado_storage_at_va(&mem, 0431u + i));
             }
             printf("\n");
         }

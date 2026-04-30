@@ -177,6 +177,7 @@ Example queries:
 | `display-architecture.md` | Detailed Display Controller reference (HM §11). DDC, NLCB/CLCB fields, HRam/Mixer/MiniMixer, 7-wire interface, back-channel keyboard/mouse messages, DHT/DWT microcode + wakeup logic. |
 | `disk-architecture.md` | Detailed Disk Controller reference (HM §9). Trident T-80/T-300 specs, TIOA registers, DiskControl bits, Format RAM table, Sequence PROM tables (read+write), tag register layouts, KSTATE/KSTAT muffler signals, Fire Code ECC polynomial + recovery procedure. |
 | `jcn-encoding.md` | The JCN field's 7-way encoding split (local / global / long / conditional / return / IFU jump). Distilled from HM §4.3 + Figure 6. |
+| `parc-archive-survey.md` | End-to-end survey of `xeroxparcarchive.computerhistory.org` for Dorado material. Covers the four Alto disk-pack image formats (`.bfs`/`.altodisk`/`.copydisk`/`.disk`), the 9 BFS packs in `BasicDisks/`, why no Trident packs are public, and the tools (`restore_alto_files`, `palo`, ContrAlto's AltoFS) for reading/writing them. |
 
 ## Suggested reading order for a new contributor
 
