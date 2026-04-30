@@ -5869,6 +5869,43 @@ static int test_alufmrw_bit_mapping(void)
 }
 
 /*
+ * test_pcx_b_source (gap B3 sub-item) — HM Table 11c FA=1 FB=7 FC=0:
+ *   `B ← PCX'` returns the IFU PC of the currently-executing
+ *   opcode, inverted.
+ */
+static int test_pcx_b_source(void)
+{
+    dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025;          /* logical B */
+    mc.alufm_present[0] = 1;
+
+    /* IM[0]: B<-PCX' (FF=0o170; FA=1 FB=7 FC=0).
+     * BSEL=2 (T) — picks a non-constant primary so FF is a
+     * function. ALUF=0 → ALUFM[0]=025=logical B → ALU = B =
+     * PCX'. LC=1 (T<-Pd). JCN=local(1) so it's NOT a Call. */
+    mc.im[0] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/2, /*lc=*/1,
+                           /*asel=*/4, /*block=*/0, /*ff=*/0170,
+                           /*jcn=*/jcn_local(1));
+    mc.im_present[0] = 1;
+    mc.image_to_real[0] = 0;
+    mc.image_present[0] = 1;
+    mc.n_instructions = 1;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.ifu_pcx = 0x1234;
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    /* B = ~ifu_pcx = ~0x1234 = 0xEDCB; ALU = B; T <- ALU. */
+    EXPECT(cpu.T == 0xEDCB,
+           "T should be ~0x1234 = 0xEDCB, got 0x%04X", cpu.T);
+    printf("PASS  test_pcx_b_source (gap B3 — B<-PCX')\n");
+    return 0;
+}
+
+/*
  * test_b11_event_cnt_brk_state (gap B11) — verify the EventCntB,
  * BrkPending, and EventCntCtrl state slots round-trip through their
  * FF functions. The functions don't yet drive any behavior; this test
@@ -6073,6 +6110,7 @@ int main(void)
     rc |= test_alu_shift_ff_functions();
     rc |= test_a_low_ff_override();
     rc |= test_b11_event_cnt_brk_state();
+    rc |= test_pcx_b_source();
     rc |= probe_bootstrap_pure();
     rc |= probe_bootstrap();
     rc |= probe_aemu();

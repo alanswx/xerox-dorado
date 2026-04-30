@@ -544,7 +544,14 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
     }
     if (fb == 7) {
         switch (fc) {
-        case 0: *b = 0;          break;  /* B ← PCX'           — IFU PC */
+        case 0: /* B ← PCX' (HM Table 11c FA=1 FB=7 FC=0). Active-low.
+                 * Returns the inverted IFU instruction-pointer of the
+                 * currently-executing opcode (16-bit; bit 0 = byte
+                 * selector, bits 1:15 = word offset relative to
+                 * BR[31]). Used by emulator microcode that needs to
+                 * know the IFU PC for branch arithmetic. */
+                *b = (uint16_t)~cpu->ifu_pcx;
+                break;
         case 1: /* B ← EventCntA' (HM §4.11). Active-low. */
                 *b = (uint16_t)~cpu->event_cnt_a;
                 break;
