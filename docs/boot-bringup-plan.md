@@ -1019,8 +1019,14 @@ microcode.
   Initial run through `LoadRam`. With
   `../chm/microcode/AltoMesaDorado.eb!1`, the injected payload ends at
   `0x44E4` (printed as the wrapped 16-bit pointer) and checksums to
-  zero; the probe reaches the loaded-world address range around
-  `PC=0o6002`.
+  zero; the probe reaches loaded-image runtime code around
+  `PC=0o6000/0o6002/0o6012`. A sampled IM comparison against
+  `Mesa.mb!3` is `0/6`, so this EB payload is not byte-for-byte the
+  repository's `Mesa.mb!3`; treat it as its own AltoMesa LoadRam image.
+  The current post-load blocker is runtime state/scheduling: task 0
+  repeatedly runs the short `0o6000/0o6002/0o6003/0o6012/0o6013` loop,
+  only task 0 remains ready, and no loaded display task is producing
+  pixels yet.
 - A one-hot Tag[0:3] experiment matched one reading of the HM text but
   did not match Initial's observed I/O values: `0xFFEF` behaved as a
   preload/idle value, not "all tag commands at once". The emulator

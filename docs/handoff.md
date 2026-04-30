@@ -727,9 +727,15 @@ Latest disk bring-up checkpoint:
    ./build/test_cpu`. It skips the first 512-byte EB overhead page,
    copies the zero-sum payload into Initial's `BootDataPtr` area, and
    lets `CheckChecksumAndLoad`/`LoadRam` run. Latest result reaches the
-   loaded-world address range around `PC=0o6002`; the next blocker is
-   interpreting that post-LoadRam state and wiring enough runtime I/O
-   for visible Alto/Mesa progress.
+   loaded-image runtime loop around `PC=0o6000/0o6002/0o6012`.
+   The probe compares sampled IM addresses against `Mesa.mb!3` and
+   reports `0/6`, so `AltoMesaDorado.eb!1` should be treated as a
+   distinct AltoMesa LoadRam image rather than a byte-for-byte copy of
+   `Mesa.mb!3`. Current post-load state: only task 0 is ready, the loop
+   repeatedly loads MCR values such as `0x78E1`, and no loaded display
+   task is writing pixels yet. Next step is to identify that loaded
+   runtime loop from the EB/source archive and seed or emulate the
+   runtime wakeups/state it expects.
 4. Keep improving DiskMuff/sequence-PROM behavior in parallel so real
    emulator disk I/O has a solid controller after microcode load.
 5. Re-run `build/test_cpu`; success means `CheckChecksumAndLoad` and

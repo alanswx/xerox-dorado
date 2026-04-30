@@ -2318,11 +2318,15 @@ static int probe_full_boot_with_bootstrap(void)
     static mb_file kernel_mb_layer;
     static mb_file memmisc_mb_layer;
     static mb_file ifucomplex_mb_layer;
+    static dorado_microcode mesa_mc;
+    static mb_file mesa_mb;
     int initial_canonical_loaded = 0;
+    int mesa_loaded = 0;
     mb_init(&initial_mb_for_init_mc);
     mb_init(&kernel_mb_layer);
     mb_init(&memmisc_mb_layer);
     mb_init(&ifucomplex_mb_layer);
+    mb_init(&mesa_mb);
     /* Load order matters: kernel/memMisc/IfuComplex provide
      * task-specific microcode (fault task, IFU helpers, etc.) at
      * various real addresses. Some addresses CONFLICT with Initial's
@@ -2351,6 +2355,10 @@ static int probe_full_boot_with_bootstrap(void)
         }
         /* Keep all loaded mb_files alive — init_mc.mb (the latest
          * layer's mb) references its symbol list. */
+    }
+    if (mb_load(&mesa_mb, "../chm/dorado/Mesa.mb!3") == MB_OK &&
+        dorado_microcode_load(&mesa_mb, &mesa_mc) == DM_OK) {
+        mesa_loaded = 1;
     }
     int initial_substituted = 0;
     uint64_t initial_substitute_cycle = 0;
@@ -3109,6 +3117,38 @@ static int probe_full_boot_with_bootstrap(void)
     printf("       Dorado final state: PC=0o%o, T=0x%04X, Q=0x%04X, "
            "Link=0x%04X\n",
            cpu.real_PC, cpu.T, cpu.Q, cpu.Link);
+    if (ether_boot_injections && mesa_loaded) {
+        static const uint16_t probe_addrs[] = {
+            06000, 06001, 06002, 06012, 06100, 05021
+        };
+        int matches = 0;
+        int present = 0;
+        printf("       Post-LoadRam Mesa.mb!3 IM compare:");
+        for (int i = 0; i < (int)(sizeof probe_addrs / sizeof probe_addrs[0]); i++) {
+            uint16_t a = probe_addrs[i];
+            int have = mc.im_present[a];
+            int ref = mesa_mc.im_present[a];
+            int same = have && ref &&
+                       mc.im[a].iw0 == mesa_mc.im[a].iw0 &&
+                       mc.im[a].iw1 == mesa_mc.im[a].iw1 &&
+                       mc.im[a].iw2 == mesa_mc.im[a].iw2;
+            if (have && ref) present++;
+            if (same) matches++;
+            printf(" 0o%o=%s", a, same ? "match" : "diff");
+        }
+        printf(" (%d/%d present-address matches)\n", matches, present);
+        if (cpu.real_PC < IM_SIZE && mc.im_present[cpu.real_PC]) {
+            char dis[200];
+            dorado_format(&mc.im[cpu.real_PC], dis, sizeof dis);
+            const char *mesa_sym =
+                dorado_microcode_symbol_at_real(&mesa_mc, cpu.real_PC);
+            printf("       Final PC decode%s%s%s: %s\n",
+                   mesa_sym ? " (Mesa.mb!3 symbol at same address: " : "",
+                   mesa_sym ? mesa_sym : "",
+                   mesa_sym ? ")" : "",
+                   dis);
+        }
+    }
     printf("       Dorado halt: %s%s\n",
            cpu_halt_reason_str(halt_reason),
            (cpu.real_PC < 4096 && mc.im_present[cpu.real_PC])
