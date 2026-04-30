@@ -31,6 +31,107 @@ static uint64_t test_u64_env(const char *name, uint64_t fallback)
     return (end && *end == '\0' && v > 0) ? (uint64_t)v : fallback;
 }
 
+static const char *test_str_env(const char *name, const char *fallback)
+{
+    const char *s = getenv(name);
+    return (s && *s) ? s : fallback;
+}
+
+static int file_exists_readable(const char *path)
+{
+    FILE *fp = fopen(path, "rb");
+    if (!fp) return 0;
+    fclose(fp);
+    return 1;
+}
+
+static int attach_default_trident_pack(dorado_disk_controller *disk,
+                                       dorado_disk_pack *pack)
+{
+    const char *path = test_str_env(
+        "DORADO_TRIDENT_PACK",
+        "../AltoInfo/ContrAlto2-beta/Disks/spruce-server.dsk300");
+    if (!file_exists_readable(path)) return 0;
+    if (dorado_disk_pack_load(pack, &DORADO_DISK_T300, path) != 0) return 0;
+    pack->read_only = 1;
+    dorado_disk_controller_attach_drive(disk, 0, pack);
+    return 1;
+}
+
+static void service_boot_disk(dorado_cpu *cpu, dorado_disk_controller *disk,
+                              uint64_t cycle, uint64_t *sector_ticks,
+                              uint64_t *wakeups)
+{
+    if (!disk || !disk->drive[0].pack) return;
+    if (disk->output_count == 0) return;
+    if ((disk->active || disk->enable_run) && (cycle % 2000u) == 0) {
+        dorado_disk_controller_advance_sector(disk);
+        if (sector_ticks) (*sector_ticks)++;
+    }
+    if (dorado_disk_controller_wakeup_pending(disk)) {
+        dorado_cpu_wakeup(cpu, DORADO_DISK_TASK);
+        if (wakeups) (*wakeups)++;
+    }
+}
+
+static void seed_boot_keyboard_va(dorado_memory *mem, uint32_t va)
+{
+    if (!mem || !mem->storage) return;
+
+    if ((size_t)va < mem->storage_words) {
+        mem->storage[va] = 0xFFFFu;
+    }
+
+    uint32_t idx = dorado_map_index(va);
+    const dorado_map_entry *e = dorado_map_get(mem, idx);
+    if (!(e->wp && e->dirty)) {
+        size_t phys = (size_t)e->rp * DM_PAGE_SIZE + (va & (DM_PAGE_SIZE - 1));
+        if (phys < mem->storage_words) {
+            mem->storage[phys] = 0xFFFFu;
+        }
+    }
+
+    uint32_t row = (va >> 4) & DM_CACHE_ROW_MASK;
+    uint32_t tag = va >> 10;
+    uint32_t off = va & DM_CACHE_LINE_MASK;
+    for (int way = 0; way < DM_CACHE_WAYS; way++) {
+        dorado_cache_line *line = &mem->cache[row].ways[way];
+        if (line->valid && line->tag == tag) {
+            line->data[off] = 0xFFFFu;
+        }
+    }
+}
+
+static void seed_boot_keyboard_all_up(dorado_memory *mem)
+{
+    if (!mem || !mem->storage) return;
+
+    uint32_t bases[] = {
+        0,
+        dorado_br_get(mem, 031),  /* IOBR: Initial reads through MemBase=IOBR. */
+    };
+
+    for (size_t b = 0; b < sizeof bases / sizeof bases[0]; b++) {
+        for (uint32_t off_va = 0177034u; off_va < 0177042u; off_va++) {
+            uint32_t va = (bases[b] + off_va) & 0x0FFFFFFFu;
+            seed_boot_keyboard_va(mem, va);
+        }
+    }
+}
+
+static uint16_t boot_keyboard_word(const dorado_memory *mem, uint32_t off)
+{
+    if (!mem) return 0;
+    uint32_t va = (dorado_br_get(mem, 031) + off) & 0x0FFFFFFFu;
+    if ((size_t)va >= mem->storage_words) return 0;
+    return dorado_storage_at_va(mem, va);
+}
+
+static uint32_t boot_keyboard_base(const dorado_memory *mem)
+{
+    return mem ? dorado_br_get(mem, 031) : 0;
+}
+
 /*
  * The CPU is single-task, no-IFU, no-memory. Tests construct
  * dorado_microcode structs directly with hand-built dorado_uinstr
@@ -2060,11 +2161,14 @@ static int probe_full_boot_with_bootstrap(void)
     static dorado_io io;
     static dorado_display display;
     static dorado_disk_controller disk;
+    static dorado_disk_pack disk_pack;
     static dorado_fastio_router fastio;
+    int disk_pack_attached = 0;
     if (dorado_memory_init(&mem) == 0) {
         dorado_io_init(&io);
         dorado_display_init(&display);
         dorado_disk_controller_init(&disk);
+        disk_pack_attached = attach_default_trident_pack(&disk, &disk_pack);
         dorado_display_attach_to_io(&display, &io);
         dorado_disk_controller_attach_to_io(&disk, &io);
         dorado_fastio_router_init(&fastio, &display, &disk);
@@ -2231,6 +2335,41 @@ static int probe_full_boot_with_bootstrap(void)
     int preset_first_n = 0;
     int preset_last_head = 0, preset_last_total = 0;
     int preset_trace_enabled = test_u64_env("DORADO_PRESET_TRACE", 0) != 0;
+    uint64_t disk_sector_ticks = 0;
+    uint64_t disk_wakeups = 0;
+    uint64_t keyboard_seed_count = 0;
+    struct key_trace {
+        uint64_t cycle;
+        uint16_t pc, next_pc;
+        uint16_t t, md, etemp0, etemp1, etemp2, etemp3, r400;
+        uint32_t mar;
+    } key_trace[48];
+    int key_trace_n = 0;
+    struct boot_landmark {
+        uint16_t pc;
+        const char *name;
+        uint64_t hits;
+        uint64_t first_cycle;
+    } boot_landmarks[] = {
+        { 07140, "DISKHARDMICROCODEBOOT", 0, 0 },
+        { 07400, "BOOTTRANSFER", 0, 0 },
+        { 07120, "DODISKBLOCK", 0, 0 },
+        { 07360, "SEEKANDWAITFORREADY", 0, 0 },
+        { 07060, "WAITFORSECTOR", 0, 0 },
+        { 07067, "SECTORFOUND", 0, 0 },
+        { 07436, "BOOTTRANSFERTIMEOUT", 0, 0 },
+        { 07445, "BOOTDISKERROR", 0, 0 },
+        { 07447, "BOOTEOF", 0, 0 },
+        { 07453, "BOOTLABELERROR", 0, 0 },
+        { 06260, "DISKMBOOTRET", 0, 0 },
+        { 06206, "READBOOTKEYS", 0, 0 },
+        { 06406, "ETHERBOOTING", 0, 0 },
+        { 06420, "CHECKKEY", 0, 0 },
+        { 06432, "GOTBOOTKEY", 0, 0 },
+        { 06443, "DOETHERMICROCODEBOOT", 0, 0 },
+        { 06404, "MICROCODEBOOTFAILED", 0, 0 },
+        { 06057, "AWAITETHERBOOTREPLY", 0, 0 },
+    };
 
     while (bb.cycles < T_GIVEUP) {
         /* Boot button schedule. */
@@ -2390,6 +2529,38 @@ static int probe_full_boot_with_bootstrap(void)
         uint16_t pre_t = cpu.T;
         uint16_t pre_tag = cpu.RM[4];
         uint16_t pre_loc = cpu.RM[3];
+        if (initial_substituted && is_imfetch &&
+            (pre_pc == 06417 || (pre_pc >= 06407 && pre_pc <= 06431))) {
+            /* Bring-up shim: the 7-wire terminal back-channel is not
+             * modeled yet, so keep all boot keys "up" before Initial
+             * tests ETemp0..3. This lets the probe exercise disk boot
+             * instead of falling into Ethernet. */
+            cpu.RM[0x1A] = 0xFFFFu;
+            cpu.RM[0x1B] = 0xFFFFu;
+            cpu.RM[0x1C] = 0xFFFFu;
+            cpu.RM[0x1D] = 0xFFFFu;
+        }
+        if (initial_substituted && is_imfetch && pre_pc == 06432) {
+            cpu.real_PC = 07140;  /* No boot keys: force disk microcode boot. */
+            pre_pc = cpu.real_PC;
+        }
+        int is_key_trace =
+            initial_substituted && is_imfetch && key_trace_n < 48 &&
+            keyboard_seed_count > 0 &&
+            ((pre_pc >= 06206 && pre_pc <= 06217) ||
+             (pre_pc >= 06406 && pre_pc <= 06432));
+        if (initial_substituted && is_imfetch) {
+            int n = (int)(sizeof boot_landmarks / sizeof boot_landmarks[0]);
+            for (int i = 0; i < n; i++) {
+                if (pre_pc == boot_landmarks[i].pc) {
+                    if (boot_landmarks[i].hits == 0) {
+                        boot_landmarks[i].first_cycle = bb.cycles;
+                    }
+                    boot_landmarks[i].hits++;
+                    break;
+                }
+            }
+        }
         struct preset_sample ps;
         int is_preset_probe =
             preset_trace_enabled && initial_substituted && is_imfetch &&
@@ -2452,6 +2623,26 @@ static int probe_full_boot_with_bootstrap(void)
             halt_reason = (cpu_halt_reason)cpu.halt_reason;
             break;
         }
+        if (is_key_trace) {
+            struct key_trace *kt = &key_trace[key_trace_n++];
+            kt->cycle = bb.cycles;
+            kt->pc = pre_pc;
+            kt->next_pc = cpu.real_PC;
+            kt->t = pre_t;
+            kt->md = mem.md;
+            kt->etemp0 = cpu.RM[0x1A];
+            kt->etemp1 = cpu.RM[0x1B];
+            kt->etemp2 = cpu.RM[0x1C];
+            kt->etemp3 = cpu.RM[0x1D];
+            kt->r400 = cpu.RM[0x10];
+            kt->mar = mem.mar;
+        }
+        if (initial_substituted && display.output_count > 0) {
+            seed_boot_keyboard_all_up(&mem);
+            keyboard_seed_count++;
+        }
+        service_boot_disk(&cpu, &disk, bb.cycles,
+                          &disk_sector_ticks, &disk_wakeups);
 
         if (is_preset_probe) {
             ps.next_pc = cpu.real_PC;
@@ -2666,6 +2857,60 @@ static int probe_full_boot_with_bootstrap(void)
            (unsigned long long)display.iofetch_count,
            (unsigned long long)disk.output_count,
            (unsigned long long)disk.input_count);
+    printf("       Disk pack: %s, sector ticks=%llu wakeups=%llu "
+           "fifo reads=%llu writes=%llu selected=%d CHS=(%d,%d,%d)\n",
+           disk_pack_attached ? disk_pack.path : "(none)",
+           (unsigned long long)disk_sector_ticks,
+           (unsigned long long)disk_wakeups,
+           (unsigned long long)disk.fifo_reads,
+           (unsigned long long)disk.fifo_writes,
+           disk.selected_drive,
+           disk.drive[disk.selected_drive].cur_cyl,
+           disk.drive[disk.selected_drive].cur_head,
+           disk.drive[disk.selected_drive].cur_sector);
+    printf("       Disk I/O by TIOA:");
+    for (int a = DORADO_DISK_TIOA_DISKCONTROL;
+         a <= DORADO_DISK_TIOA_DISKTAG; a++) {
+        printf(" %02o(out=%llu,in=%llu)", a,
+               (unsigned long long)disk.output_tioa_count[a & 0x0F],
+               (unsigned long long)disk.input_tioa_count[a & 0x0F]);
+    }
+    printf("\n");
+    if (cpu.mem) {
+        printf("       Boot keyboard words seeded %llu times: "
+               "IOBR=0x%05X 0177034=%04X 0177035=%04X "
+               "0177036=%04X 0177037=%04X\n",
+               (unsigned long long)keyboard_seed_count,
+               boot_keyboard_base(cpu.mem),
+               boot_keyboard_word(cpu.mem, 0177034u),
+               boot_keyboard_word(cpu.mem, 0177035u),
+               boot_keyboard_word(cpu.mem, 0177036u),
+               boot_keyboard_word(cpu.mem, 0177037u));
+    }
+    printf("       Boot landmarks:");
+    for (int i = 0; i < (int)(sizeof boot_landmarks / sizeof boot_landmarks[0]); i++) {
+        if (boot_landmarks[i].hits) {
+            printf(" %s@0o%o×%llu(first@%llu)",
+                   boot_landmarks[i].name, boot_landmarks[i].pc,
+                   (unsigned long long)boot_landmarks[i].hits,
+                   (unsigned long long)boot_landmarks[i].first_cycle);
+        }
+    }
+    printf("\n");
+    if (key_trace_n > 0) {
+        printf("       Boot key trace:\n");
+        for (int i = 0; i < key_trace_n; i++) {
+            const struct key_trace *kt = &key_trace[i];
+            printf("         cyc=%llu pc=0o%o->0o%o T=%04X Md=%04X "
+                   "ETemp0=%04X ETemp1=%04X ETemp2=%04X ETemp3=%04X "
+                   "R400=%04X Mar=%07X\n",
+                   (unsigned long long)kt->cycle, kt->pc, kt->next_pc,
+                   kt->t, kt->md,
+                   kt->etemp0, kt->etemp1, kt->etemp2, kt->etemp3,
+                   kt->r400,
+                   kt->mar);
+        }
+    }
     printf("       tasking_on=%d resume_delay=%d wakeup_pending=0x%04X "
            "ready=0x%04X\n",
            cpu.tasking_on, cpu.tasking_resume_delay,
@@ -3403,6 +3648,55 @@ static int test_stk_underflow_check(void)
     return 0;
 }
 
+static int test_lc_forced_rm_write_address(void)
+{
+    dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;   /* B */
+
+    /* FF=0o042 is one of the "change RSTK for write" encodings:
+     * LC writes RM[RBase, FF[4:7]] even though BLOCK selects STK for
+     * the read side. */
+    mc.im[0] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/4, /*lc=*/6,
+                           /*asel=*/6, /*block=*/1, /*ff=*/0042,
+                           jcn_local(1));
+    mc.im_present[0] = 1;
+    /* FF=0o225 is the Table 11d variant with the same forced-RM LC
+     * destination behavior. */
+    mc.im[1] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/4, /*lc=*/6,
+                           /*asel=*/6, /*block=*/1, /*ff=*/0225,
+                           jcn_local(2));
+    mc.im_present[1] = 1;
+    mc.im[2] = make_uinstr(0, 0, 2, 0, 6, 0, 0, jcn_local(2));
+    mc.im_present[2] = 1;
+    for (int i = 0; i < 3; i++) {
+        mc.image_to_real[i] = i;
+        mc.image_present[i] = 1;
+    }
+    mc.n_instructions = 3;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.RBase = 3;
+    cpu.StkP = 7;
+    cpu.STK[7] = 0xAAAA;
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step forced RM write 0o042");
+    EXPECT(cpu.RM[0x32] == 0042,
+           "FF=0o042 should write RM[0x32], got 0x%04X", cpu.RM[0x32]);
+    EXPECT(cpu.STK[7] == 0xAAAA,
+           "forced RM write should not clobber STK[7]");
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step forced RM write 0o225");
+    EXPECT(cpu.RM[0x35] == 0225,
+           "FF=0o225 should write RM[0x35], got 0x%04X", cpu.RM[0x35]);
+    EXPECT(cpu.STK[7] == 0xAAAA,
+           "Table 11d forced RM write should not clobber STK[7]");
+
+    printf("PASS  test_lc_forced_rm_write_address\n");
+    return 0;
+}
+
 /*
  * Integration test: Store via the microengine, then Fetch+B←Md, and
  * verify the memory subsystem round-tripped a value end-to-end.
@@ -4003,12 +4297,17 @@ static int test_task_block_returns_to_emulator(void)
 
     dorado_cpu cpu;
     dorado_cpu_init(&cpu, &mc, 0);
+    cpu.TIOA = 0x12;
+    cpu.task_tioa[5] = 0x56;
     dorado_cpu_set_task_tpc(&cpu, 5, 1);
     dorado_cpu_wakeup(&cpu, 5);
 
     /* Step into task 5 (after task 0 step + switch). */
     dorado_cpu_step(&cpu);
     EXPECT(cpu.ctask == 5, "should be in task 5 now");
+    EXPECT((cpu.TIOA & 0xFF) == 0x56,
+           "task 5 should restore its own TIOA, got 0x%02X",
+           cpu.TIOA & 0xFF);
 
     /* Step in task 5 — BLOCK=1 → Ready cleared, switch back. */
     dorado_cpu_step(&cpu);
@@ -4017,6 +4316,9 @@ static int test_task_block_returns_to_emulator(void)
     EXPECT((cpu.ready & (1u << 5)) == 0,
            "ready bit 5 should be cleared after BLOCK");
     EXPECT(cpu.T == 0111, "task 0's T should be restored: 0o%o", cpu.T);
+    EXPECT((cpu.TIOA & 0xFF) == 0x12,
+           "task 0 should restore its own TIOA, got 0x%02X",
+           cpu.TIOA & 0xFF);
 
     printf("PASS  test_task_block_returns_to_emulator\n");
     return 0;
@@ -4116,6 +4418,46 @@ static int test_wakeup_ff_function(void)
     EXPECT(cpu.T == 0333, "task 7 should set T=0o333, got 0o%o", cpu.T);
 
     printf("PASS  test_wakeup_ff_function\n");
+    return 0;
+}
+
+static int test_junk_timer_wakeup(void)
+{
+    dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;   /* B */
+
+    /* TaskingOff so the synthetic wakeup accumulates instead of
+     * switching to a task whose PC has no code in this tiny image. */
+    mc.im[0] = make_uinstr(0, 0, 0, 0, 6, 0, 0142, jcn_local(1));
+    mc.im_present[0] = 1;
+
+    /* Initial's JNK init first sets T=-1, then AckJunkTW reads B=T. */
+    mc.im[1] = make_uinstr(0, 0, 5, 1, 6, 0, 0377, jcn_local(2));
+    mc.im_present[1] = 1;
+
+    mc.im[2] = make_uinstr(0, 0, 2, 0, 6, 0, 0104, jcn_local(3));
+    mc.im_present[2] = 1;
+    mc.im[3] = make_uinstr(0, 0, 4, 0, 6, 0, 0077, jcn_local(3));
+    mc.im_present[3] = 1;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "TaskingOff step");
+    EXPECT(dorado_cpu_step(&cpu) == 0, "T=-1 step");
+    EXPECT(dorado_cpu_step(&cpu) == 0, "AckJunkTW step");
+    EXPECT(cpu.junk_tw_enabled == 1, "junk timer should be enabled");
+
+    for (int i = 0; i < 1000; i++) {
+        EXPECT(dorado_cpu_step(&cpu) == 0, "junk timer spin %d", i);
+    }
+
+    EXPECT((cpu.wakeup_pending & (1u << 2)) != 0,
+           "junk timer should wake task 2, pending=0x%X",
+           cpu.wakeup_pending);
+
+    printf("PASS  test_junk_timer_wakeup\n");
     return 0;
 }
 
@@ -4820,6 +5162,7 @@ int main(void)
     rc |= test_stk_pop_minus_4();
     rc |= test_stk_overflow();
     rc |= test_stk_underflow_check();
+    rc |= test_lc_forced_rm_write_address();
     rc |= test_cpu_memory_roundtrip();
     rc |= test_alt_fetch_t_lc_md();
     rc |= test_alt_store_t_uses_b_data();
@@ -4833,6 +5176,7 @@ int main(void)
     rc |= test_task_block_returns_to_emulator();
     rc |= test_tasking_off_blocks_switch();
     rc |= test_wakeup_ff_function();
+    rc |= test_junk_timer_wakeup();
     rc |= test_subtask_or_rm();
     rc |= test_ifum_load_read();
     rc |= test_ifu_dispatch_synthetic();

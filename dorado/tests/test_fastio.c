@@ -42,8 +42,6 @@ static int test_dsk_iostore_to_memory(void)
     EXPECT(sec != NULL, "sector pointer");
     sec->header[0] = 0xFEED;
     sec->header[1] = 0xBEEF;
-    sec->header[2] = 0xCAFE;
-    sec->header[3] = 0xDEAD;
     for (int w = 0; w < DORADO_DISK_LABEL_WORDS; w++) {
         sec->label[w] = (uint16_t)(0x2000 | w);
     }
@@ -95,24 +93,31 @@ static int test_dsk_iostore_to_memory(void)
     EXPECT(f == DM_FAULT_NONE, "IOStore should succeed (fault=%d)", f);
 
     /* Verify mem[0x200..0x20F] now contains the FIFO contents (=
-     * sector header + label, 16 words). The first 4 words should be
-     * the header, the next 12 the start of the label. */
+     * sector header + label + start of data). The first 2 words are
+     * the Trident header, the next 10 are the label. */
     EXPECT(mem.storage[0x200] == 0xFEED,
            "storage[0x200] = 0x%X (expected 0xFEED)", mem.storage[0x200]);
     EXPECT(mem.storage[0x201] == 0xBEEF,
            "storage[0x201] = 0x%X (expected 0xBEEF)", mem.storage[0x201]);
-    EXPECT(mem.storage[0x203] == 0xDEAD,
-           "storage[0x203] = 0x%X (expected 0xDEAD)", mem.storage[0x203]);
-    EXPECT(mem.storage[0x204] == 0x2000,
-           "storage[0x204] = 0x%X (expected 0x2000 = label[0])",
-           mem.storage[0x204]);
-    EXPECT(mem.storage[0x20F] == 0x200B,
-           "storage[0x20F] = 0x%X (expected 0x200B = label[11])",
+    EXPECT(mem.storage[0x202] == 0x2000,
+           "storage[0x202] = 0x%X (expected 0x2000 = label[0])",
+           mem.storage[0x202]);
+    EXPECT(mem.storage[0x20B] == 0x2009,
+           "storage[0x20B] = 0x%X (expected 0x2009 = label[9])",
+           mem.storage[0x20B]);
+    EXPECT(mem.storage[0x20C] == 0x4000,
+           "storage[0x20C] = 0x%X (expected 0x4000 = data[0])",
+           mem.storage[0x20C]);
+    EXPECT(mem.storage[0x20F] == 0x4003,
+           "storage[0x20F] = 0x%X (expected 0x4003 = data[3])",
            mem.storage[0x20F]);
 
-    /* FIFO should be empty after the IOStore. */
-    EXPECT(disk.fifo_count == 0,
-           "FIFO drained, count=%d", disk.fifo_count);
+    /* The router drained one 16-word munch from the controller. A
+     * sector stream may immediately refill the FIFO for the next
+     * munch, so assert the transfer counter rather than empty state. */
+    EXPECT(disk.fifo_reads >= DORADO_DISK_FIFO_WORDS,
+           "FIFO reads = %llu (expected at least %d)",
+           (unsigned long long)disk.fifo_reads, DORADO_DISK_FIFO_WORDS);
 
     dorado_disk_pack_free(&pack);
     dorado_memory_free(&mem);

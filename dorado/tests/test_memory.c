@@ -771,12 +771,10 @@ static int test_config_word_reports_storage(void)
     EXPECT(dorado_memory_init(&mem) == 0, "init");
 
     uint16_t cfg = dorado_memory_config_word(&mem);
-    EXPECT(((cfg >> 8) & 0xF) == 2,
-           "Config ASRN = 0x%X, expected 2", (cfg >> 8) & 0xF);
+    EXPECT((cfg & 0x3) == 0,
+           "Config chip size = 0x%X, expected 0", cfg & 0x3);
     EXPECT(((cfg >> 4) & 0xF) == 0x1,
            "Config module mask = 0x%X, expected 0x1", (cfg >> 4) & 0xF);
-    EXPECT((cfg & 0x3) == 2,
-           "Config chip size = 0x%X, expected 2", cfg & 0x3);
 
     dorado_memory_free(&mem);
     printf("PASS  test_config_word_reports_storage\n");

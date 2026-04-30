@@ -104,10 +104,10 @@ static int test_attach_to_io(void)
     EXPECT(d.output_count == 2, "non-display task should not bump count, "
            "got %llu", (unsigned long long)d.output_count);
 
-    /* Pd←Input from DDC reads the buffered RIOB. */
+    /* Pd←Input from DDC currently reports idle terminal back-channel. */
     int bad = -1;
     uint16_t v = dorado_io_read(&io, 3, 0x42, &bad);
-    EXPECT(v == 0x1234, "input = 0x%X (expected 0x1234 — last write)", v);
+    EXPECT(v == 0xFFFF, "input = 0x%X (expected idle 0xFFFF)", v);
     EXPECT(bad == 0, "parity should be good for mapped device, got bad=%d", bad);
 
     printf("PASS  test_attach_to_io (4 tasks routed, 2 writes counted, "

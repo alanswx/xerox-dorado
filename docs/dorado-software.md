@@ -43,8 +43,10 @@ So "boot disk" can mean either:
 ## Trident T-300 disk packs (locally available)
 
 Our `dorado/include/disk.h` driver implements **Trident T-80**
-(815 × 5 × 9 × 2048 words ≈ 75 MB) and **Trident T-300**
-(815 × 19 × 9 × 2048 words ≈ 285 MB). Locally available pack files:
+(815 × 5 × 9 × 2074-byte records ≈ 76 MB) and **Trident T-300**
+(815 × 19 × 9 × 2074-byte records ≈ 289 MB). The preserved image
+record is 2 dummy bytes + 2 header words + 10 label words + 1024
+data words. Locally available pack files:
 
 | File | Size | Format | Contents |
 |---|---|---|---|
@@ -53,9 +55,10 @@ Our `dorado/include/disk.h` driver implements **Trident T-80**
 | `AltoInfo/ContrAlto2-beta/Disks/tdisk4.dsk` | 2.5 MB | T-80? | small Trident sample |
 | `AltoInfo/ContrAlto2-beta/Disks/spruce-server.dsk` | 2.5 MB | Diablo | Alto Diablo 30 (NOT Trident) |
 
-`spruce-server.dsk300` is the right format for first-boot bring-up.
-It's an Alto-format pack — Dorado can read it via the Alto-emulator
-microcode (`AltoMesaDorado.eb`).
+`spruce-server.dsk300` is the right preserved Trident image format for
+drive validation. It is an Alto Spruce print-server pack, not known to
+contain Initial's private hard-microcode boot file at page 4, so the
+normal Initial disk boot may legitimately fall through to Ethernet.
 
 The other `.dsk` files (`games.dsk`, `bcpl.dsk`, `bravox.dsk`,
 `xmsmall.dsk`, etc.) are **Diablo 30 packs** (2.5 MB) used by ContrAlto.

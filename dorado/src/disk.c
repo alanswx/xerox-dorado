@@ -42,8 +42,8 @@ int dorado_disk_pack_create(dorado_disk_pack *pack,
 
 /* Load a pack image. Layout per ContrAlto2 / Bitsavers:
  *   for each (cyl, head, sec):
- *     2 dummy bytes + header (4 words = 8 bytes) + label (20w = 40 b)
- *       + data (2048w = 4096 b)   = 4146 bytes/sector
+ *     2 dummy bytes + header (2 words = 4 bytes) + label (10w = 20 b)
+ *       + data (1024w = 2048 b)   = 2074 bytes/sector
  * Words are stored little-endian on disk.
  */
 int dorado_disk_pack_load(dorado_disk_pack *pack,
@@ -172,6 +172,72 @@ void dorado_disk_controller_attach_drive(dorado_disk_controller *ctl,
     dorado_disk_drive_attach_pack(&ctl->drive[slot], pack);
 }
 
+static uint16_t disk_sector_word(const dorado_disk_sector *s, int idx)
+{
+    if (idx < DORADO_DISK_HEADER_WORDS) {
+        return s->header[idx];
+    }
+    idx -= DORADO_DISK_HEADER_WORDS;
+    if (idx < DORADO_DISK_LABEL_WORDS) {
+        return s->label[idx];
+    }
+    idx -= DORADO_DISK_LABEL_WORDS;
+    if (idx < DORADO_DISK_DATA_WORDS) {
+        return s->data[idx];
+    }
+    return 0;
+}
+
+void dorado_disk_controller_refill_fifo(dorado_disk_controller *ctl)
+{
+    if (!ctl || !ctl->read_stream_active) return;
+    dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
+    if (!d->pack) {
+        ctl->read_stream_active = 0;
+        return;
+    }
+    dorado_disk_sector *s = dorado_disk_pack_sector(
+        d->pack, d->cur_cyl, d->cur_head, d->cur_sector);
+    if (!s) {
+        ctl->read_stream_active = 0;
+        return;
+    }
+
+    const int total = DORADO_DISK_HEADER_WORDS +
+                      DORADO_DISK_LABEL_WORDS +
+                      DORADO_DISK_DATA_WORDS;
+    while (ctl->fifo_count < DORADO_DISK_FIFO_WORDS &&
+           ctl->read_stream_index < total) {
+        ctl->fifo[ctl->fifo_head] = disk_sector_word(s, ctl->read_stream_index);
+        ctl->fifo_head = (ctl->fifo_head + 1) % DORADO_DISK_FIFO_WORDS;
+        ctl->fifo_count++;
+        ctl->read_stream_index++;
+    }
+    ctl->rd_fifo_tw = (ctl->fifo_count > 0) ? 1 : 0;
+    if (ctl->read_stream_index >= total && ctl->fifo_count == 0) {
+        ctl->read_stream_active = 0;
+        ctl->active = 0;
+        ctl->tag_tw = 1;
+    }
+}
+
+static void disk_begin_read_stream(dorado_disk_controller *ctl)
+{
+    ctl->fifo_count = 0;
+    ctl->fifo_head = 0;
+    ctl->fifo_tail = 0;
+    ctl->read_stream_index = 0;
+    ctl->read_stream_active = 1;
+    dorado_disk_controller_refill_fifo(ctl);
+}
+
+int dorado_disk_controller_wakeup_pending(const dorado_disk_controller *ctl)
+{
+    if (!ctl) return 0;
+    return ctl->index_tw || ctl->sector_tw || ctl->tag_tw ||
+           ctl->rd_fifo_tw || ctl->wr_fifo_tw;
+}
+
 void dorado_disk_controller_advance_sector(dorado_disk_controller *ctl)
 {
     dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
@@ -184,31 +250,7 @@ void dorado_disk_controller_advance_sector(dorado_disk_controller *ctl)
      * it via the read PROM. */
     if (ctl->active && (ctl->control & 0xFF) != 0) {
         /* Some op other than Done; reload FIFO with new sector. */
-        dorado_disk_sector *s = dorado_disk_pack_sector(
-            d->pack, d->cur_cyl, d->cur_head, d->cur_sector);
-        if (s) {
-            ctl->fifo_count = 0;
-            ctl->fifo_head = 0;
-            ctl->fifo_tail = 0;
-            int n = 0;
-            for (int w = 0;
-                 w < DORADO_DISK_HEADER_WORDS &&
-                 n < DORADO_DISK_FIFO_WORDS; w++, n++) {
-                ctl->fifo[ctl->fifo_head] = s->header[w];
-                ctl->fifo_head =
-                    (ctl->fifo_head + 1) % DORADO_DISK_FIFO_WORDS;
-                ctl->fifo_count++;
-            }
-            for (int w = 0;
-                 w < DORADO_DISK_LABEL_WORDS &&
-                 n < DORADO_DISK_FIFO_WORDS; w++, n++) {
-                ctl->fifo[ctl->fifo_head] = s->label[w];
-                ctl->fifo_head =
-                    (ctl->fifo_head + 1) % DORADO_DISK_FIFO_WORDS;
-                ctl->fifo_count++;
-            }
-            ctl->rd_fifo_tw = 1;
-        }
+        disk_begin_read_stream(ctl);
     }
 }
 
@@ -218,6 +260,7 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
 {
     dorado_disk_controller *ctl = ctx;
     ctl->output_count++;
+    ctl->output_tioa_count[tioa & 0x0F]++;
     (void)task;
 
     switch (tioa) {
@@ -237,8 +280,16 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
         break;
 
     case DORADO_DISK_TIOA_DISKMUFF:
-        /* Output sets the muffler address (which DDC-style signal we
-         * read on the DiskMuff input). Phase 1: just record. */
+        /* Output selects the muffler address in B[8:15] and clears
+         * wakeup/error flip-flops via B[4:7] (manual MSB numbering). */
+        ctl->muff_addr = (uint8_t)(data & 0xFF);
+        if (data & (1u << 11)) ctl->index_tw = 0;   /* B[4] */
+        if (data & (1u << 10)) ctl->sector_tw = 0;  /* B[5] */
+        if (data & (1u << 9))  ctl->tag_tw = 0;     /* B[6] */
+        if (data & (1u << 8)) {                     /* B[7] */
+            ctl->rd_fifo_tw = 0;
+            ctl->wr_fifo_tw = 0;
+        }
         break;
 
     case DORADO_DISK_TIOA_DISKDATA:
@@ -349,45 +400,10 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
                     /* Read — populate FIFO from current sector. */
                     dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
                     if (d->pack) {
-                        dorado_disk_sector *s = dorado_disk_pack_sector(
-                            d->pack, d->cur_cyl, d->cur_head, d->cur_sector);
-                        if (s) {
-                            /* Drain FIFO first, then load with header
-                             * + label + as much data as fits.
-                             * The sequence PROM normally feeds words
-                             * progressively per-block; for Phase 2 we
-                             * just dump the first 16 words and rely
-                             * on microcode to drain quickly. */
-                            ctl->fifo_count = 0;
-                            ctl->fifo_head = 0;
-                            ctl->fifo_tail = 0;
-                            int n = 0;
-                            for (int w = 0;
-                                 w < DORADO_DISK_HEADER_WORDS &&
-                                 n < DORADO_DISK_FIFO_WORDS; w++, n++) {
-                                ctl->fifo[ctl->fifo_head] = s->header[w];
-                                ctl->fifo_head =
-                                    (ctl->fifo_head + 1) % DORADO_DISK_FIFO_WORDS;
-                                ctl->fifo_count++;
-                            }
-                            for (int w = 0;
-                                 w < DORADO_DISK_LABEL_WORDS &&
-                                 n < DORADO_DISK_FIFO_WORDS; w++, n++) {
-                                ctl->fifo[ctl->fifo_head] = s->label[w];
-                                ctl->fifo_head =
-                                    (ctl->fifo_head + 1) % DORADO_DISK_FIFO_WORDS;
-                                ctl->fifo_count++;
-                            }
-                            for (int w = 0;
-                                 n < DORADO_DISK_FIFO_WORDS &&
-                                 w < DORADO_DISK_DATA_WORDS;
-                                 w++, n++) {
-                                ctl->fifo[ctl->fifo_head] = s->data[w];
-                                ctl->fifo_head =
-                                    (ctl->fifo_head + 1) % DORADO_DISK_FIFO_WORDS;
-                                ctl->fifo_count++;
-                            }
-                            ctl->rd_fifo_tw = 1;  /* FIFO has data */
+                        if (dorado_disk_pack_sector(d->pack, d->cur_cyl,
+                                                    d->cur_head,
+                                                    d->cur_sector)) {
+                            disk_begin_read_stream(ctl);
                             ctl->active = 1;
                         }
                     }
@@ -415,6 +431,7 @@ static uint16_t disk_input(void *ctx, int task, uint8_t tioa, int *bad)
     dorado_disk_controller *ctl = ctx;
     if (bad) *bad = 0;
     ctl->input_count++;
+    ctl->input_tioa_count[tioa & 0x0F]++;
     (void)task;
 
     switch (tioa) {
@@ -426,24 +443,34 @@ static uint16_t disk_input(void *ctx, int task, uint8_t tioa, int *bad)
             ctl->fifo_tail = (ctl->fifo_tail + 1) % DORADO_DISK_FIFO_WORDS;
             ctl->fifo_count--;
             ctl->fifo_reads++;
+            dorado_disk_controller_refill_fifo(ctl);
             return v;
         }
         return 0xFFFF;
 
     case DORADO_DISK_TIOA_DISKMUFF: {
-        /* Muffler readout per HM §9. Returns one of the controller's
-         * internal status bits selected by the previous DiskMuff
-         * output. Phase 1 stub: pack the wakeup TWs into a status
-         * word so microcode can at least see SOMETHING. */
-        uint16_t v = 0;
-        if (ctl->index_tw)    v |= (1u << 0);
-        if (ctl->sector_tw)   v |= (1u << 1);
-        if (ctl->tag_tw)      v |= (1u << 2);
-        if (ctl->rd_fifo_tw)  v |= (1u << 3);
-        if (ctl->wr_fifo_tw)  v |= (1u << 4);
-        if (ctl->enable_run)  v |= (1u << 5);
-        if (ctl->active)      v |= (1u << 6);
-        return v;
+        int bit = 0;
+        dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
+        switch (ctl->muff_addr) {
+        case 001: bit = ctl->index_tw; break;
+        case 002: bit = ctl->sector_tw; break;
+        case 003: bit = ctl->tag_tw; break;
+        case 004: bit = ctl->rd_fifo_tw; break;
+        case 005: bit = ctl->wr_fifo_tw; break;
+        case 010: bit = ctl->enable_run; break;
+        case 011: bit = ctl->debug_mode; break;
+        case 015: bit = ctl->active; break;
+        case 016: bit = ctl->selected_drive & 1; break;
+        case 017: bit = (ctl->selected_drive >> 1) & 1; break;
+        case 023: bit = !d->selected; break;
+        case 024: bit = !d->online; break;
+        case 025: bit = d->seek_in_progress || !d->online; break;
+        case 032: bit = d->read_only; break;
+        case 036:
+        case 037: bit = 0; break;
+        default: bit = 0; break;
+        }
+        return bit ? 0x8000 : 0x0000;
     }
     }
 

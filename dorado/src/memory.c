@@ -263,19 +263,26 @@ int dorado_mcr_nowake(const dorado_memory *mem)
 uint16_t dorado_memory_config_word(const dorado_memory *mem)
 {
     /* HM Figure 10 / B←Config':
-     *   manual B[4:7]   ASRN[0:3]
-     *   manual B[8:11]  M0..M3, true when a storage module is plugged
-     *   manual B[14:15] ChipSize, 2 = 64Kx1 RAMs
+     *   InitialSubrs.mc consumes the high-true value as:
+     *     LDF[Config,2,2]  -> storage chip size
+     *     LSH[Config,10]   -> left-justify M0..M3
+     *
+     * In the emulator's C-LSB word convention, MicroD's LSH/LDF
+     * forms used by Initial expect ChipSize in bits 0..1 and M0..M3
+     * in bits 4..7.  That way `ModMask_ LSH[ModMask,10]` moves M0
+     * into Initial's left-justified module mask.
      *
      * The CPU reads Config' active-low, so this helper returns the
      * high-true internal value and cpu.c complements it for B←Config'.
-     * Current storage is modeled as 4MW backed by 64Kx1-era boards.
-     * HM page 59: one 64Kx1 module stores 1M 64-bit quadwords, i.e.
-     * 4M 16-bit words, so the default allocation is one present module.
+     * We currently report the small 4K-chip configuration to Initial.
+     * That maps the first 64K words BootEmulator needs without making
+     * the bring-up probe spend most of its budget walking a full 4MW
+     * map; the backing array is still larger, so later emulator code
+     * can discover/initialize more storage when that path is modeled.
      */
     enum {
         module_words = 4 * 1024 * 1024,
-        chip_size_64kx1 = 2,
+        chip_size_4kx1 = 0,
     };
 
     size_t modules = mem->storage_words / module_words;
@@ -285,9 +292,7 @@ uint16_t dorado_memory_config_word(const dorado_memory *mem)
     uint16_t module_mask = 0;
     for (size_t i = 0; i < modules; i++) module_mask |= (uint16_t)(1u << i);
 
-    return (uint16_t)(((uint16_t)(mem->asrn & 0xF) << 8) |
-                      (module_mask << 4) |
-                      chip_size_64kx1);
+    return (uint16_t)((module_mask << 4) | chip_size_4kx1);
 }
 
 /* Map index from VA: page-number portion for our 16K-map /

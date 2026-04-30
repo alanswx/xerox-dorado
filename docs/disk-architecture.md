@@ -124,15 +124,16 @@ ContrAlto2 stores Trident packs as a flat byte stream:
 ```
 For each (cyl, head, sec):
   2 bytes dummy
-  4 words (= 8 B) header
-  20 words (= 40 B) label
-  2048 words (= 4096 B) data
-  Total: 4146 bytes/sector
+  2 words (= 4 B) header
+  10 words (= 20 B) label
+  1024 words (= 2048 B) data
+  Total: 2074 bytes/sector
 ```
 
-T-80 image: 815 × 5 × 9 × 4146 = 152,053,470 bytes (~152 MB), the
-extra-versus-spec slack being the dummy and header/label overheads.
-Words are little-endian on disk.
+T-80 image: 815 × 5 × 9 × 2074 = 76,026,735 bytes. T-300 image:
+815 × 19 × 9 × 2074 = 289,043,010 bytes (~276 MiB). The extra-versus-
+spec slack is the dummy plus header/label overheads. Words are
+little-endian on disk.
 
 `dorado_disk_pack` (in `include/disk.h`) reads/writes this format.
 

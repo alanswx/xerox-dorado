@@ -67,6 +67,7 @@ void dorado_fastio_dispatch(struct dorado_memory *mem,
                         (r->disk_ctl->fifo_tail + 1) % DORADO_DISK_FIFO_WORDS;
                     r->disk_ctl->fifo_count--;
                     r->disk_ctl->fifo_reads++;
+                    dorado_disk_controller_refill_fifo(r->disk_ctl);
                 } else {
                     munch[i] = 0;     /* FIFO empty — pad with zeros */
                 }

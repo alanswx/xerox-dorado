@@ -98,7 +98,7 @@ label.
         └─────────────────────────────────────────────────┘
 ```
 
-## Current state (2026-04-30, post Initial display-start fixes)
+## Current state (2026-04-30, post Initial display/disk-start fixes)
 
 **Microengine works against real microcode.** Recent fixes (ALUFM
 extraction carry bit, `Pd←ALUFMRW` bit mapping, `CPU_QUADRANT_SIZE`,
@@ -157,12 +157,18 @@ What works (continued)
 - **Display Phase 1** (`include/display.h` + `src/display.c`):
   808×606 mono framebuffer, DDC catch-all slow-IO handler on tasks
   DHT/AHT/AWT/DWT, per-channel NLCB/CLCB, HRam/Mixer/Statics state
-  buckets, per-channel FIFO, PGM snapshot.
-- **Disk Phase 1** (`include/disk.h` + `src/disk.c`): Trident T-80/
-  T-300 pack format (read/write), drive struct with online/select
-  state, controller registered on task 14₈ TIOA 10₈-14₈ with
-  DiskControl bit decode + Format RAM auto-increment + DiskData
-  FIFO + DiskTag capture + DiskMuff status readout.
+  buckets, per-channel FIFO, PGM snapshot. DDC input currently returns
+  idle/all-ones; the real 7-wire terminal back-channel and keyboard
+  message decoder are still missing.
+- **Disk Phase 1/2 subset** (`include/disk.h` + `src/disk.c`):
+  Trident T-80/T-300 pack format (2 dummy bytes + 2 header words +
+  10 label words + 1024 data words = 2074 bytes/sector), drive struct
+  with online/select state, controller registered on task 14₈ TIOA
+  10₈-14₈ with DiskControl bit decode + Format RAM auto-increment +
+  DiskData FIFO + DiskTag decode + DiskMuff status readout. FIFO reads
+  stream a full sector record when exercised by tests; Initial reaches
+  the disk boot routine now, but it still does not issue DiskData
+  inputs in the full boot probe.
 
 **probe_full_boot_with_bootstrap** (added 2026-04): the BB drives
 its real Boot1 byte stream through CPReg while Bootstrap.MB is
@@ -176,12 +182,19 @@ image. With that in place, the probe now demonstrates:
   targets beginning at 0o6100, two half-writes each.
 - Initial runs through ALUFM init, RMINITL, IFUMINITL, PRESETMAP,
   FINDMODULE, BootMem's memory-reference wait loop, BootEmulator's
-  first-64K zeroing loop, and then enters display/disk/task init.
-- The 120M-cycle run reaches display slow-I/O: final state
-  `PC=0o6205`, `Task=0`, `TIOA=0xF0`, `display outs=3`,
-  `disk outs=32`, `fast-I/O=0`, `tasking_on=1`,
-  `wakeup_pending=0`, and `fault_count=15`. Task TPCs show DHT at
-  `0o6744`, AHT at `0o6737`, DSK initialized, and JNK in its loop.
+  first-64K zeroing loop, display/disk/task init, and the 100 ms
+  RTClock wait after Junk task wakeups are modeled.
+- The full probe now mounts
+  `../AltoInfo/ContrAlto2-beta/Disks/spruce-server.dsk300` when
+  present. Because terminal keyboard input is not modeled yet, the
+  probe forces `ETemp0..3` to all-up and redirects the remaining false
+  `GotBootKey` to `DiskHardMicrocodeBoot`. Current probe facts:
+  `DISKHARDMICROCODEBOOT`, `BOOTTRANSFER`, and `DISKMBOOTRET` are hit;
+  `display outs=3`, `disk outs=9488`, disk sector ticks/wakeups are
+  generated, but DiskData inputs and FIFO reads/writes remain zero.
+  Initial is not yet transferring hard-disk boot sectors from the
+  mounted pack; the next blocker is DiskMuff/status/DSK-task transfer
+  sequencing.
 - Source code verified: BootstrapMain.mc (fetched from CHM
   archives at chm/dorado/expanded/BootstrapSources.dm/) confirms
   that ReadBB returns T = ~CPReg via B←RWCPReg (per HM page 31:
@@ -204,9 +217,10 @@ What's stub-or-missing
   per-slot Pipe4 error fields, deferred refs, and Hold/DisHold
   semantics are missing. Long-running AEmu and Initial paths both
   reach memory/fault waits that likely need these details.
-- **I/O bring-up:** Display + Disk Phase 1 stubs exist and fast-I/O
-  transport is tested. Initial now issues display and disk slow-I/O
-  in the full boot probe; Ethernet is not modeled.
+- **I/O bring-up:** Display + Disk stubs exist and fast-I/O transport
+  is tested. Initial now issues display and disk slow-I/O in the full
+  boot probe. Ethernet is not modeled, and that is now the expected
+  visible blocker after the hard-disk boot attempt fails.
 - **Bootstrap → Initial handoff in progress**: probe_full_boot_
   with_bootstrap demonstrates the mechanism end-to-end, but the
   streamed Initial image still differs from canonical Initial.MB, so

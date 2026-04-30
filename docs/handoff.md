@@ -18,13 +18,21 @@ you don't repeat them.
   `probe_full_boot_with_bootstrap` still substitutes canonical
   Initial.MB at BOOTSTAGE2 because Bootstrap streaming does not yet
   match `chm/Initial.mb`. NOSTORAGE no longer needs a probe bypass:
-  Config' reports the installed one-module 4MW storage configuration.
-  Initial now gets through PRESETMAP, FINDMODULE, BootMem, and
-  BootEmulator's first-64K clear loop after MapBufBusy, Pipe5,
-  Config, ALU one-bit shift, memory-ref FF branch, and `Store←T`
-  A/Mar fixes. The current 120M-cycle run reaches display/disk
-  initialization: final `PC=0o6205`, `TIOA=0xF0`, `display outs=3`,
-  `disk outs=32`, tasking on, no pending wakeups. The AEmu bypass
+  Config' now uses the bit layout Initial's compiled LSH/LDF code
+  consumes (`ChipSize` low bits, module-present bits in bits 4..7).
+  For bring-up it reports one present 4K-chip module, enough to map
+  the first 64K without spending the probe budget on a full 4MW map
+  walk. Initial now gets through PRESETMAP, FINDMODULE, BootMem,
+  BootEmulator's first-64K clear loop, display/disk init, and the
+  100 ms RTClock wait after MapBufBusy, Pipe5, Config, ALU one-bit
+  shift, memory-ref FF branch, `Store←T` A/Mar, and Junk timer fixes.
+  The full probe mounts `spruce-server.dsk300` when present. Because
+  the DDC terminal back-channel is not modeled yet, the probe forces
+  boot keys up and redirects the remaining false `GotBootKey` case to
+  `DiskHardMicrocodeBoot`. That reaches `DiskHardMicrocodeBoot`,
+  `BootTransfer`, and `DiskMBootRet`, but disk FIFO reads/writes are
+  still zero; the next blocker is DiskMuff/status/DSK-task transfer
+  sequencing before real sector data is consumed. The AEmu bypass
   probe currently halts at `PC=0o7777`.
 - **Repo:** `/Users/alans/Documents/development/Dorado`
 - **Most useful entry points to read:** `CLAUDE.md` (project mission),
@@ -44,7 +52,9 @@ emulator (used for the BaseBoard model). `build/mbdis`, `build/mctrace`,
 `build/bbtrace` are diagnostic CLIs; the rest are test binaries.
 The Makefile uses compiler-generated `.d` sidecars (`-MMD -MP`), so
 header edits under `include/` rebuild the affected objects. Last
-verified: `make test` passed on 2026-04-29.
+focused verification: `make build/test_memory`, `./build/test_memory`,
+`make build/test_disk`, `./build/test_disk`, `make build/test_cpu`, and
+`./build/test_cpu` passed on 2026-04-30.
 
 ## Read these first (in order)
 
@@ -226,11 +236,14 @@ system, but they show how far the model gets:
   changes after swap, 1792 Write IM half-writes, and 896 unique Initial
   targets beginning at 0o6100. The long-branch fix lets Initial get past
   the old `0o1310` no-code stop and run into its configuration path.
-  After the memory-ref FF branch and `Store←T` A/Mar fixes, the 120M
-  cycle run reaches display/disk initialization. Final state:
-  `PC=0o6205`, `Task=0`, `TIOA=0xF0`, `display outs=3`,
-  `disk outs=32`, `fast-I/O=0`, tasking on, no pending wakeups.
-  DHT/AHT task TPCs are in the terminal horizontal task code.
+  After the memory-ref FF branch, `Store←T` A/Mar, and Junk timer
+  fixes, the probe gets through display/disk initialization and the
+  100 ms RTClock wait. It mounts `spruce-server.dsk300` if present,
+  attempts `DiskHardMicrocodeBoot`, and falls through to Ethernet.
+  Current state: `display outs=3`, `disk outs=32`, disk sector
+  wakeups generated, no disk FIFO reads/writes yet, EMU waiting near
+  `AWAITETHERBOOTREPLY` (`0o6057`) while DSK can be sampled in its
+  idle loop (`0o6775`).
 - **`probe_aemu`** — layered load Initial + kernel + memMisc +
   IfuComplex + AEmu, run from STARTEMULATOR. After the long-branch
   packing fix, this bypass now halts after 203 cycles at `PC=0o7777`
@@ -282,13 +295,19 @@ Initial runs through a full setup sequence:
 11. BootEmulator clears the first 64K at `0o6226`
 12. Display init runs (`DisplayInitConfig`, `THTInitPC`, `THTInit1`)
     and starts DDC slow-I/O outputs
-13. Disk/Junk task setup runs; final sample is in the post-init loop
-    around `0o6205`
+13. Disk/Junk task setup runs; the Junk timer advances RTClock and
+    exits the old post-init wait around `0o6205`
+14. Initial attempts `DiskHardMicrocodeBoot`, then falls through to
+    Ethernet boot wait because the hard-disk boot path has not yet
+    produced a successful transfer
 
 State at end:
-- 120M run: `PC=0o6205`, `T=0x0C0B`, `Q=0x0F41`, `Link=0x0C91`
-- Task=0, `TIOA=0xF0`, display outs=3, disk outs=32, fast I/O=0
-- `tasking_on=1`, `wakeup_pending=0x0000`, `ready=0x0001`
+- 80M run with `spruce-server.dsk300`: EMU is waiting near
+  `AWAITETHERBOOTREPLY` (`0o6057`); with DSK wakeups active the
+  sampled final PC is often DSK idle (`0o6775`)
+- display outs=3, disk outs=32, disk sector wakeups generated,
+  disk FIFO reads/writes=0
+- `tasking_on=1`; `wakeup_pending` may include DSK when sampled
 - Memory: faults=15, `first_srn=0`, `Mar=0xFE21`
 - Initial variables: `R400=0x0100`, `RNUM=4`, `REALPAGES=4`,
   `DISPLAYCONFIG=0xFFFF`
@@ -387,31 +406,33 @@ Initial computes a value via shifter ops at 0o6041..0o6277, stores in
 (0o6247).
 
 Fixed: `B←Config'` now comes from `dorado_memory_config_word()` instead
-of hard-coded `0xFFFF`. Per HM Figure 10 it reports ASRN, M0..M3
-storage-module-present bits, and ChipSize. HM page 59 says one 64Kx1
-module stores 1M 64-bit quadwords, i.e. 4M 16-bit words, so the
-default 4MW backing store is reported as one present module. With
-this, the full boot probe no longer hits the NOSTORAGE bypass;
-Initial reaches `FINDMODULE` naturally.
+of hard-coded `0xFFFF`. The field layout matches what Initial's
+compiled shifter code consumes: `ChipSize` in low bits and M0..M3 in
+bits 4..7, so `ModMask_ LSH[ModMask,10]` left-justifies the present
+module mask. For bring-up we report `ChipSize=0` (4K chips) and one
+present module; that maps the first 64K words quickly while leaving
+the larger backing store available for later emulator work. With this,
+the full boot probe no longer hits the NOSTORAGE bypass; Initial
+reaches `FINDMODULE` naturally.
 
 The old probe-side `0o6247 → 0o6357` bypass remains in
 `test_cpu.c`, but it no longer fires in the normal run.
 
 #### 2c. PRESETMAP / WAITFORMAPBUF loop (fixed enough for boot path)
 
-After Config' was implemented, Initial enters `FINDMODULE` and spends
-the budget in map initialization rather than the old display
-`LONGWAIT` path. At 60M cycles the hot loop is:
+After Config' was implemented with 64K-chip reporting, Initial entered
+`FINDMODULE` but spent the budget in map initialization rather than the
+old display `LONGWAIT` path. That is why current bring-up reports the
+small 4K-chip module. The earlier 60M-cycle hot loop was:
 `WRITEMAP(0o6340) → 0o6365 → WAITFORMAPBUF(0o6360) → 0o6245 → 0o6244
 → 0o6366 → WAITFORMAPBUF → 0o6245 → 0o6244 → 0o6367 → DORETURN →
 RETN → PRESETMAPE/PRESETMAPL → SETBRFORPAGE → ...`.
 
 After adding MapBufBusy, the first cache-address flag model, switching
-to HM Table 16's 16K-entry x 256-word page map geometry, and correcting
-Pipe5 cache flags to manual bits 8..11, the 80M run still ends in this
-path (`PC=0o6245`, `Task=0`, `TIOA=0`, no display/disk I/O). Selected
-Initial variables look sane: `RNUM=4`, `RCONST=4`, `VIRTUALBANKS=4`,
-`REALPAGES=4`, `DISPLAYCONFIG=7`.
+to HM Table 16's 16K-entry x 256-word page map geometry, correcting
+Pipe5 cache flags to manual bits 8..11, and reporting the smaller
+module geometry, the normal 60M probe gets past map setup and into
+BootEmulator/display/disk initialization.
 
 `LoadMcr[A,B]` is now real enough to cover the bits Initial appears to
 use first (dVA<-Victim, DisBR, DisCF, NoRef, FDMiss, UseMcrV,
@@ -437,12 +458,11 @@ decode/modeling gaps:
   BootEmulator's first-64K clear loop recomputed `T=1` forever.
 
 With those fixed, the 64K clear loop at `0o6226` runs for 65,537 hits
-and exits to display initialization. Current top blocker is later:
-the probe is running at `0o6205` after display and disk slow-I/O have
-started (`display outs=3`, `disk outs=32`). Next investigation should
-decode `0o6205` and nearby caller state, then decide whether the loop
-is waiting on real disk/keyboard/display state or on another missing
-memory/timing behavior.
+and exits to display initialization. The later `0o6205` RTClock wait
+is also fixed by modeling Junk task timer wakeups. Current top blocker
+is now the boot-media path: hard-disk microcode boot is attempted but
+does not transfer sector FIFO data, then Initial waits for Ethernet
+boot replies.
 
 ### 3. Disk Phase 3: real timing + Fire Code ECC + sequence PROMs
 
@@ -621,7 +641,8 @@ labeled "pending" or "in_progress" are the open work.
 Currently active when I left off:
 - **#58 in_progress:** BB→Bootstrap→Initial now loads 896 Initial IM
   entries and runs Initial. With canonical Initial substitution, the
-  probe now starts display/disk slow-I/O and then runs at `0o6205`.
+  probe now reaches display/disk init, exits the RTClock wait, attempts
+  hard-disk boot, and falls through to Ethernet.
 - **#45 in_progress:** `probe_full_boot` reaches `LoadDoradoCode` and
   the BB `Continuous` loop. `probe_full_boot_with_bootstrap` is now the
   canonical deeper path for Initial bring-up.
@@ -633,25 +654,27 @@ Currently active when I left off:
 
 The probe currently bypasses one issue (Bootstrap streaming
 corruption) to let Initial run. NOSTORAGE, PRESETMAP, FINDMODULE,
-BootMem, and the first-64K clear loop are no longer the current
-blockers. The CURRENT BLOCKER is the post-display-init path around
-`0o6205`. Recommended order:
+BootMem, the first-64K clear loop, and the `0o6205` RTClock wait are
+no longer the current blockers. The CURRENT BLOCKER is boot media:
+Initial reaches `DiskHardMicrocodeBoot`, but the mounted Trident pack
+does not yet produce a successful boot transfer, so execution falls to
+the unimplemented Ethernet boot path.
 
-### Highest-value: decode the current wait path
+### Highest-value: finish the boot-media path
 
-1. Instrument `0o6205` and the preceding caller path after
-   `DisplayInitConfig`/`THTInitPC`/disk init; log branch inputs, Link,
-   TIOA, FaultInfo', Pipe3'/Pipe4'/Pipe5, tasking state, display
-   outputs, and disk outputs.
-2. Implement per-slot Pipe4 error reporting beyond the no-error
-   baseline (`Pipe4' = 0150361_8`) so the fault/wait code can see
-   Page/WP/storage data errors accurately.
-3. Implement enough Hold/DisHold behavior that memory/map references
-   can stall instead of returning stale Md immediately.
-4. Finish the remaining MCR bits if the wait path depends on them:
-   DisHold, WMiss, and ReportSE'.
-5. Re-run `build/test_cpu`; success means reaching display or disk I/O
-   after Initial's hardware init.
+1. Use the `probe_full_boot_with_bootstrap` boot-landmark and per-TIOA
+   disk counters to find exactly where `BootTransfer` fails.
+2. If the failure is real pack contents, stop spending time on
+   `spruce-server.dsk300` as an Initial hard-microcode source; it is
+   an Alto Spruce pack and likely lacks the private Dorado hard
+   microcode file at page 4.
+3. Implement enough 3 Mb Ethernet boot support, or a controlled
+   Initial Ethernet packet injector, to deliver `chm/microcode/*.eb`
+   files and let `EtherMicrocodeBoot` load emulator microcode.
+4. Keep improving DiskMuff/sequence-PROM behavior in parallel so real
+   emulator disk I/O has a solid controller after microcode load.
+5. Re-run `build/test_cpu`; success means `CheckChecksumAndLoad` and
+   `LoadRam` are reached after disk or Ethernet microcode load.
 
 ### Highest-leverage but hardest: fix Bootstrap streaming
 

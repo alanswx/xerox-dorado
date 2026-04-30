@@ -5,6 +5,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#define DORADO_JUNK_TASK          2
+#define DORADO_JUNK_TICK_CYCLES   1000  /* 32 us / 32 ns */
+
 /* Forward declarations for IFU helpers (defined later in this file). */
 static uint16_t ifu_consume_id(dorado_cpu *cpu);
 static uint8_t  ifu_fetch_byte(dorado_cpu *cpu, uint16_t pc, int *out_faulted);
@@ -105,6 +108,30 @@ static int task_bnt(uint16_t avail)
     return 0;
 }
 
+static void junk_timer_control(dorado_cpu *cpu, uint16_t b)
+{
+    /* HM Table 11c / §12.1: AckJunkTW←B dismisses the current timer
+     * wakeup. Initial's JNK init executes this with B=-1 to enable
+     * periodic wakeups, so B[15]=1 is the enable case. */
+    cpu->wakeup_pending &= (uint16_t)~(1u << DORADO_JUNK_TASK);
+    cpu->junk_tw_enabled = ((b & 0x8000) != 0);
+    if (cpu->junk_tw_enabled && cpu->junk_tw_countdown == 0) {
+        cpu->junk_tw_countdown = DORADO_JUNK_TICK_CYCLES;
+    }
+}
+
+static void junk_timer_tick(dorado_cpu *cpu)
+{
+    if (!cpu->junk_tw_enabled) return;
+    if (cpu->junk_tw_countdown == 0) {
+        cpu->junk_tw_countdown = DORADO_JUNK_TICK_CYCLES;
+    }
+    if (--cpu->junk_tw_countdown == 0) {
+        cpu->wakeup_pending |= (uint16_t)(1u << DORADO_JUNK_TASK);
+        cpu->junk_tw_countdown = DORADO_JUNK_TICK_CYCLES;
+    }
+}
+
 /* Save the current task's live state into task_*[ctask], using
  * `next_pc` as the resume point (the just-computed JCN target). */
 static void task_save(dorado_cpu *cpu, uint16_t next_pc)
@@ -114,6 +141,7 @@ static void task_save(dorado_cpu *cpu, uint16_t next_pc)
     cpu->task_tpc[t]     = next_pc;
     cpu->task_link[t]    = cpu->Link;
     cpu->task_membase[t] = (uint8_t)cpu->MemBase;
+    cpu->task_tioa[t]    = (uint8_t)cpu->TIOA;
 }
 
 /* Load `task`'s saved state into the live registers. After this
@@ -126,6 +154,7 @@ static void task_load(dorado_cpu *cpu, int task)
     cpu->real_PC = cpu->task_tpc[t];
     cpu->Link    = cpu->task_link[t];
     cpu->MemBase = cpu->task_membase[t];
+    cpu->TIOA    = cpu->task_tioa[t];
 }
 
 /* End-of-instruction task scheduling. `next_pc` is the JCN-computed
@@ -289,6 +318,24 @@ static int stk_write_address(const dorado_cpu *cpu, const dorado_uinstr *u)
 
     int adjusted = (cpu->StkP + stk_signed_delta(u)) & 0xFF;
     return CPU_RMSTK_STK_BASE | adjusted;
+}
+
+static int lc_write_address(const dorado_cpu *cpu, const dorado_uinstr *u)
+{
+    int fa = (u->ff >> 6) & 3;
+    int fb = (u->ff >> 3) & 7;
+
+    /* HM Table 11a/11d: these FF groups replace the LC destination's
+     * low RM address nibble with FF[4:7] while keeping the current
+     * RBase high nibble, and force the write into RM even when the
+     * instruction read STK. SubTask OR does not apply to this explicit
+     * write-region form. */
+    if ((fa == 0 && (fb == 4 || fb == 5)) ||
+        (fa == 2 && (fb == 2 || fb == 3))) {
+        return ((cpu->RBase & 0xF) << 4) | (u->ff & 0xF);
+    }
+
+    return stk_write_address(cpu, u);
 }
 
 /* Apply the post-instruction StkP update + underflow/overflow check.
@@ -711,7 +758,9 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                 cpu->ifu_active  = 1;
                 cpu->ifu_warmup  = 5;     /* HM page 67 */
                 return pd;
-            case 1: /* IFUTest ← B */              return pd;
+            case 1: /* IFUTest ← B */
+                junk_timer_control(cpu, b);
+                return pd;
             case 2: /* IFUTick */                  return pd;
             case 3: /* RescheduleNow (HM Table 20). Trap the next
                      * successful IFUJump (so long as it appears in
@@ -719,7 +768,9 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                      * The Reschedule branch condition is NOT affected. */
                 cpu->reschedule_pending = 1;
                 return pd;
-            case 4: /* AckJunkTW ← B */            return pd;
+            case 4: /* AckJunkTW ← B */
+                junk_timer_control(cpu, b);
+                return pd;
             case 5: /* MemBase ← B[3:7] */
                 cpu->MemBase = (b >> 8) & 0x1F;    return pd;
             case 6: /* RBase ← B[12:15] */
@@ -1399,7 +1450,7 @@ static int apply_lc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t pd)
 {
     /* Use the *write* address for STK accesses — that may differ from
      * the read address when ModStkPBeforeW is in effect (HM page 11). */
-    int rm_a = stk_write_address(cpu, u);
+    int rm_a = lc_write_address(cpu, u);
     int has_rm = (rm_a < CPU_RMSTK_INVALID);
     switch (u->lc) {
     case 0: /* No Action */
@@ -2263,6 +2314,8 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
     }
 
     cpu->prev_PC = cpu->real_PC;
+
+    if (from_im) junk_timer_tick(cpu);
 
     /* Tasking: at end of instruction, decide whether to switch tasks.
      * BLOCK=1 in a non-emulator task means "block this task" (HM

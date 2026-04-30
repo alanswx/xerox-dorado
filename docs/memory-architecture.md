@@ -522,9 +522,11 @@ MemBase — see HM §6.4.
 
 - Storage modules are fixed real-address ranges, not interleaved. HM
   page 59: a module stores 256K or 1M 64-bit quadwords depending on
-  chip generation; with the 64Kx1 chips reported by our Config' model,
-  one module is 4M 16-bit words. The default 4MW backing store is
-  therefore one present module, not four smaller modules.
+  chip generation. For current Initial bring-up, `Config'` reports one
+  present 4K-chip module (`ChipSize=0`, M0 present in the bit position
+  Initial's compiled `LSH[ModMask,10]` expects), so Initial maps the
+  first 64K words quickly. The C backing store remains larger; full
+  64Kx1/4MW discovery is a later accuracy step.
 - References beyond installed storage report a storage/data fault in
   the C model; they do not wrap back into low storage.
 - 8 EC bits per 16-bit word (Hamming SEC + DED extension).

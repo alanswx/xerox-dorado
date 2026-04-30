@@ -33,10 +33,10 @@
  *          ▼
  *   ┌──────────────────────────────────────────────────────────────┐
  *   │  TridentDrive[0..3]  — Century Data Trident SMD               │
- *   │     T-80:  815 cyl × 5 heads × 9 sectors × 2048 words/sector  │
- *   │     T-300: 815 cyl × 19 heads × 9 sectors × 2048 words/sector │
- *   │     pack image stored as one file: header(4w)+label(20w)+     │
- *   │     data(2048w)+dummy(1w) per sector, in CHS order            │
+ *   │     T-80:  815 cyl × 5 heads × 9 sectors × 1024 words/sector  │
+ *   │     T-300: 815 cyl × 19 heads × 9 sectors × 1024 words/sector │
+ *   │     pack image stored as one file: header(2w)+label(10w)+     │
+ *   │     data(1024w)+dummy(1w) per sector, in CHS order            │
  *   └──────────────────────────────────────────────────────────────┘
  *
  * Phase 1 (this header):
@@ -56,11 +56,9 @@
 
 /* ─── Geometry ──────────────────────────────────────────────────── */
 
-#define DORADO_DISK_HEADER_WORDS   4    /* HM page 94 */
-#define DORADO_DISK_LABEL_WORDS    20
-#define DORADO_DISK_DATA_WORDS     2048 /* T-80 / T-300 1024-word
-                                         * sectors with Alto Trident
-                                         * format = 9 sectors/rev. */
+#define DORADO_DISK_HEADER_WORDS   2    /* ContrAlto/Bitsavers Trident */
+#define DORADO_DISK_LABEL_WORDS    10
+#define DORADO_DISK_DATA_WORDS     1024 /* 2048-byte Alto Trident data */
 #define DORADO_DISK_DUMMY_WORDS    1    /* Bitsavers/ContrAlto extra */
 #define DORADO_DISK_SECTOR_WORDS \
     (DORADO_DISK_HEADER_WORDS + DORADO_DISK_LABEL_WORDS + \
@@ -186,11 +184,14 @@ typedef struct {
     uint16_t format_ram[DORADO_DISK_FORMAT_RAM_WORDS];
     int      format_ram_addr;        /* auto-incrementing RAM addr,
                                       * zeroed by writing DiskControl */
+    uint8_t  muff_addr;              /* DiskMuff-selected diagnostic signal */
 
     uint16_t tag;                    /* last Tag command */
     uint16_t fifo[DORADO_DISK_FIFO_WORDS];
     int      fifo_head, fifo_tail;
     int      fifo_count;
+    uint8_t  read_stream_active;     /* current sector is streaming into FIFO */
+    int      read_stream_index;      /* word index in header+label+data */
 
     /* Drives. Drive 0 is the boot drive on real hardware. */
     dorado_disk_drive drive[DORADO_DISK_NUM_DRIVES];
@@ -208,6 +209,8 @@ typedef struct {
     /* Diagnostic counters. */
     uint64_t output_count;
     uint64_t input_count;
+    uint64_t output_tioa_count[16];
+    uint64_t input_tioa_count[16];
     uint64_t format_ram_writes;
     uint64_t tag_writes;
     uint64_t fifo_writes;
@@ -219,6 +222,14 @@ void dorado_disk_controller_attach_to_io(dorado_disk_controller *ctl,
                                          dorado_io *io);
 void dorado_disk_controller_attach_drive(dorado_disk_controller *ctl,
                                          int slot, dorado_disk_pack *pack);
+
+/* Refill the read FIFO from the current sector stream. Fast-IO drains
+ * full munches directly, bypassing DiskData input, so the router calls
+ * this after each pop. */
+void dorado_disk_controller_refill_fifo(dorado_disk_controller *ctl);
+
+/* True when a controller wakeup flip-flop should wake task DSK. */
+int dorado_disk_controller_wakeup_pending(const dorado_disk_controller *ctl);
 
 /* Advance the selected drive's sector counter (= simulated subsector
  * pulse arrival) and load the next sector's header+label+data into

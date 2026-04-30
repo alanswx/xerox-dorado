@@ -568,9 +568,9 @@ ported from ContrAlto2's TridentDrive/TridentController/DiskPack.cs.
 
 Phase 1:
 - **Pack image format**: dorado_disk_pack with Bitsavers/ContrAlto
-  layout (dummy 2B + header 4w + label 20w + data 2048w per sector,
+  layout (dummy 2B + header 2w + label 10w + data 1024w per sector,
   stored CHS order, little-endian). T-80 = 815×5×9 (76 MB),
-  T-300 = 815×19×9 (290 MB). ✓
+  T-300 = 815×19×9 (289 MB). ✓
 - **Drive**: per-drive online/ready/RO/select state, current head
   position, seek-in-progress and index-pulse latches. ✓
 - **Controller**: dorado_disk_controller registered on task 14₈
@@ -588,6 +588,8 @@ Phase 2:
 - **Sector-pulse helper**: `dorado_disk_controller_advance_sector()`
   increments sector counter (wraps at 9 for T-80), sets
   `sector_tw`, and reloads FIFO with the new sector if active. ✓
+- **Read-stream refill**: the FIFO now streams the whole
+  header+label+data record instead of only the first 16 words. ✓
 
 Phase 3 (later):
 - Sequence PROM execution: read PROM and write PROM advance per

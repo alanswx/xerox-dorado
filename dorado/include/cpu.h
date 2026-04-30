@@ -67,7 +67,7 @@ typedef struct {
     uint16_t dispatch_or;        /* active one-cycle TNIA dispatch OR */
     uint16_t dispatch_pending;   /* dispatch OR value for next uinstr */
     uint16_t TPC;               /* task PC (saved on switch) */
-    uint16_t TIOA;              /* 8-bit I/O address (Slow IO) */
+    uint16_t TIOA;              /* live 8-bit I/O address (Slow IO) */
 
     /*
      * IFU state — Phase C.1+C.2 (HM §6, Tables 18, 20).
@@ -121,6 +121,12 @@ typedef struct {
      * IFUJump traps. Also sets the IOAtten'/Reschedule branch
      * condition true for the emulator (task 0). */
     uint8_t  reschedule_pending;
+
+    /* Junk-task timer wakeup (HM §12.1). The IFU board raises the
+     * Junk task wakeup every 32 us while enabled; AckJunkTW/IFUTest
+     * dismisses and controls re-enable. */
+    uint8_t  junk_tw_enabled;
+    uint16_t junk_tw_countdown;
 
     /* Operand bytes captured at IFUJump time (for ←Id delivery). */
     uint8_t  ifu_alpha;
@@ -176,8 +182,9 @@ typedef struct {
      *
      * 16 priority-scheduled tasks. Task 15 = highest (fault task);
      * task 0 = lowest (emulator, always awake). Each task has its
-     * own T, TPC, Link, MemBase saved across switches; Q, ALUFM,
-     * StkP, ShC, Cnt, RBase are NOT per-task (HM §4.1).
+     * own T, TPC, Link, MemBase, and TIOA saved across switches;
+     * Q, ALUFM, StkP, ShC, Cnt, RBase are NOT per-task (HM §4.1,
+     * §7).
      *
      * Wakeup model:
      *   `wakeup_pending` — devices/microcode raised the wakeup line
@@ -208,6 +215,7 @@ typedef struct {
                                  * stale until the next switch. */
     uint16_t task_link[16];
     uint8_t  task_membase[16];
+    uint8_t  task_tioa[16];
 
     /* SubTask (HM page 88). When an I/O device wakes a task, it
      * may present a 2-bit SubTask. The processor OR's

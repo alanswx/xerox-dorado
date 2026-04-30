@@ -22,7 +22,7 @@ worth lifting comes from the two source trees.
 
 | What | Source | Why |
 |---|---|---|
-| **Trident T-80 / T-300 SMD pack image format** | `Contralto2-2.0-Beta/ContraltoLib/IO/DiskPack.cs` | The Dorado uses the same physical drive family. The Bitsavers-style image format (2 dummy + 4 header + 20 label + 2048 data = **2074 bytes/sector**, T-80 = 815×5×9, T-300 = 815×19×9) is the de-facto preservation standard. We can read and write the same images. |
+| **Trident T-80 / T-300 SMD pack image format** | `Contralto2-2.0-Beta/ContraltoLib/IO/DiskPack.cs` | The Dorado uses the same physical drive family. The Bitsavers-style image format (2 dummy bytes + 2 header words + 10 label words + 1024 data words = **2074 bytes/sector**, T-80 = 815×5×9, T-300 = 815×19×9) is the de-facto preservation standard. We can read and write the same images. |
 | **Trident drive emulation logic** | `Contralto2-2.0-Beta/ContraltoLib/IO/TridentDrive.cs` (+ `TridentController.cs`, `TridentTask.cs`) | Seek, sector-clock, head/cylinder/sector indexing — all reusable. The *controller microcode protocol* is Alto-specific (the Dorado has its own DskEth controller); we only port the drive surface, not the controller. |
 | **Sample Trident pack images** | `ContrAlto2-beta/Disks/spruce-server-t300.zip`, `spruce-server.dsk300` (276 MB), `spruce-server.dsk` | Real preserved Spruce print-server pack we can use to validate our Trident drive emulation byte-for-byte against ContrAlto2. |
 | **3 Mbit Alto Ethernet** | `salto/src/ether.c`, `Contralto2-2.0-Beta/ContraltoLib/IO/EthernetController.cs` | Dorado supports both 3 Mb and 10 Mb Ethernet; 3 Mb is identical to Alto. Useful as a reference once we get to §11. |

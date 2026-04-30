@@ -50,14 +50,15 @@ static uint16_t display_input(void *ctx, int task, uint8_t tioa, int *bad)
 {
     dorado_display *d = ctx;
     if (bad) *bad = 0;
-    /* Single input register on each board: DDC muffler readout (HM
-     * page 120, Table 25 DDC Muffler Signals). For Phase 1 just
-     * return RIOB (the last value the Dorado wrote) which is the
-     * primary muffler-system pattern. Refine when we trace what
-     * real microcode actually inputs. */
+    /* Single input register on each board: DDC muffler / terminal
+     * back-channel readout (HM page 120, Table 25). Returning the
+     * last output word makes Initial's terminal task synthesize false
+     * key-down messages. Until the 7-wire back-channel is decoded,
+     * report idle/all-ones so boot keys stay "up". */
     (void)task;
     (void)tioa;
-    return d->riob;
+    (void)d;
+    return 0xFFFFu;
 }
 
 void dorado_display_attach_to_io(dorado_display *d, dorado_io *io)

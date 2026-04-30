@@ -156,12 +156,12 @@ static int test_controller_io_routing(void)
                        DORADO_DISK_TIOA_DISKDATA, &bad);
     EXPECT(v == 0x5555, "second pop = 0x%X", v);
 
-    /* DiskMuff input — packs the wakeup-TW status. EnableRun=1
-     * should appear in bit 5. */
+    /* DiskMuff input — select EnableRun (muffler address 010) and
+     * verify the selected signal is returned on IOB[15]. */
+    dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKMUFF, 010);
     v = dorado_io_read(&io, DORADO_DISK_TASK,
                        DORADO_DISK_TIOA_DISKMUFF, &bad);
-    EXPECT((v & (1u << 5)) != 0, "muff[5] = %d (expected 1 for EnableRun)",
-           (v >> 5) & 1);
+    EXPECT(v == 0x8000, "muff EnableRun = 0x%X (expected sign bit)", v);
     printf("PASS  test_controller_io_routing (control=0x%X, format ram, "
            "tag, FIFO 2 push/pop, muff readout)\n", ctl.control);
     return 0;
@@ -269,8 +269,8 @@ static int test_tag_decoder(void)
                        DORADO_DISK_TIOA_DISKDATA, &bad);
     EXPECT(v == 0xCAFE, "header[1] = 0x%X (expected 0xCAFE)", v);
 
-    /* Skip header[2..3], read label[0]. */
-    for (int i = 0; i < 2; i++) {
+    /* Skip any remaining header words, then read label[0]. */
+    for (int i = 2; i < DORADO_DISK_HEADER_WORDS; i++) {
         dorado_io_read(&io, DORADO_DISK_TASK,
                        DORADO_DISK_TIOA_DISKDATA, &bad);
     }
@@ -320,16 +320,18 @@ static int test_advance_sector(void)
                     (uint16_t)(3u << DORADO_DISK_CTRL_OP1_SHIFT)); /* Read op1 */
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG,
                     (uint16_t)((3u << 12) | (1u << 6))); /* Control: Read */
-    /* Drain FIFO header+label = 24 words, then read data[0]. */
+    /* Drain FIFO header+label = 24 words, then read data[0]. The
+     * controller refills the 16-word FIFO from the active sector stream. */
     int bad = -1;
     for (int i = 0; i < DORADO_DISK_HEADER_WORDS + DORADO_DISK_LABEL_WORDS;
          i++) {
         dorado_io_read(&io, DORADO_DISK_TASK,
                        DORADO_DISK_TIOA_DISKDATA, &bad);
     }
-    /* Wait — DORADO_DISK_FIFO_WORDS = 16, but header (4) + label (20) = 24
-     * which exceeds FIFO. So actually we have 4 header + 12 label words.
-     * Let's just verify next sector advance reloads. */
+    uint16_t v = dorado_io_read(&io, DORADO_DISK_TASK,
+                                DORADO_DISK_TIOA_DISKDATA, &bad);
+    EXPECT(v == 0xA000, "sector 0 data[0]=0x%X", v);
+
     dorado_disk_controller_advance_sector(&ctl);
     EXPECT(ctl.drive[0].cur_sector == 1, "cur_sector=%d after advance",
            ctl.drive[0].cur_sector);
