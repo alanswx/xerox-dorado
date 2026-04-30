@@ -158,7 +158,8 @@ What works (continued)
   808×606 mono framebuffer, DDC catch-all slow-IO handler on tasks
   DHT/AHT/AWT/DWT, per-channel NLCB/CLCB, HRam/Mixer/Statics state
   buckets, per-channel FIFO, PGM snapshot, headless keyboard words,
-  and a vblank-based frame counter. DDC input currently returns the
+  symbolic Alto key mapping from Palo's keyboard matrix, and a
+  vblank-based frame counter. DDC input currently returns the
   headless keyboard idle word; the real 7-wire terminal back-channel
   and keyboard message decoder are still missing. The boot probe writes
   a viewable PGM framebuffer snapshot to `/tmp/dorado_boot_display.pgm`

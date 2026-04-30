@@ -199,7 +199,9 @@ These all compile clean and pass:
 - PGM snapshot helper (`dorado_display_snapshot_pgm`).
 - Headless keyboard state is held as five complemented Alto-style
   words (`1 = key up`, `0 = key down`) so SDL can later feed the same
-  core API that tests use today.
+  core API that tests use today. `dorado_display_keyboard_set_key()`
+  now exposes the named Alto keyboard matrix, imported from
+  `AltoInfo/palo/src/simulator/keyboard.c`.
 - Frame count is a core display value advanced at vblank, not by GUI
   repaint. The framebuffer remains available for mid-frame GUI viewing
   and for headless snapshots such as "dump frame 100".

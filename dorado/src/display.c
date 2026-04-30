@@ -3,6 +3,76 @@
 #include <stdio.h>
 #include <string.h>
 
+typedef struct {
+    int word;
+    uint16_t mask;
+} display_key_map;
+
+static const display_key_map key_map[DORADO_KEY_LAST] = {
+    [DORADO_KEY_NONE]        = { -1, 0x0000 },
+    [DORADO_KEY_5]           = { 0, 0x8000 },
+    [DORADO_KEY_4]           = { 0, 0x4000 },
+    [DORADO_KEY_6]           = { 0, 0x2000 },
+    [DORADO_KEY_E]           = { 0, 0x1000 },
+    [DORADO_KEY_7]           = { 0, 0x0800 },
+    [DORADO_KEY_D]           = { 0, 0x0400 },
+    [DORADO_KEY_U]           = { 0, 0x0200 },
+    [DORADO_KEY_V]           = { 0, 0x0100 },
+    [DORADO_KEY_0]           = { 0, 0x0080 },
+    [DORADO_KEY_K]           = { 0, 0x0040 },
+    [DORADO_KEY_MINUS]       = { 0, 0x0020 },
+    [DORADO_KEY_P]           = { 0, 0x0010 },
+    [DORADO_KEY_FSLASH]      = { 0, 0x0008 },
+    [DORADO_KEY_BSLASH]      = { 0, 0x0004 },
+    [DORADO_KEY_LF]          = { 0, 0x0002 },
+    [DORADO_KEY_BS]          = { 0, 0x0001 },
+    [DORADO_KEY_3]           = { 1, 0x8000 },
+    [DORADO_KEY_2]           = { 1, 0x4000 },
+    [DORADO_KEY_W]           = { 1, 0x2000 },
+    [DORADO_KEY_Q]           = { 1, 0x1000 },
+    [DORADO_KEY_S]           = { 1, 0x0800 },
+    [DORADO_KEY_A]           = { 1, 0x0400 },
+    [DORADO_KEY_9]           = { 1, 0x0200 },
+    [DORADO_KEY_I]           = { 1, 0x0100 },
+    [DORADO_KEY_X]           = { 1, 0x0080 },
+    [DORADO_KEY_O]           = { 1, 0x0040 },
+    [DORADO_KEY_L]           = { 1, 0x0020 },
+    [DORADO_KEY_COMMA]       = { 1, 0x0010 },
+    [DORADO_KEY_QUOTE]       = { 1, 0x0008 },
+    [DORADO_KEY_RBRACKET]    = { 1, 0x0004 },
+    [DORADO_KEY_BLANKMIDDLE] = { 1, 0x0002 },
+    [DORADO_KEY_BLANKTOP]    = { 1, 0x0001 },
+    [DORADO_KEY_1]           = { 2, 0x8000 },
+    [DORADO_KEY_ESC]         = { 2, 0x4000 },
+    [DORADO_KEY_TAB]         = { 2, 0x2000 },
+    [DORADO_KEY_F]           = { 2, 0x1000 },
+    [DORADO_KEY_CTRL]        = { 2, 0x0800 },
+    [DORADO_KEY_C]           = { 2, 0x0400 },
+    [DORADO_KEY_J]           = { 2, 0x0200 },
+    [DORADO_KEY_B]           = { 2, 0x0100 },
+    [DORADO_KEY_Z]           = { 2, 0x0080 },
+    [DORADO_KEY_LSHIFT]      = { 2, 0x0040 },
+    [DORADO_KEY_PERIOD]      = { 2, 0x0020 },
+    [DORADO_KEY_SEMICOLON]   = { 2, 0x0010 },
+    [DORADO_KEY_RETURN]      = { 2, 0x0008 },
+    [DORADO_KEY_ARROW]       = { 2, 0x0004 },
+    [DORADO_KEY_DEL]         = { 2, 0x0002 },
+    [DORADO_KEY_R]           = { 3, 0x8000 },
+    [DORADO_KEY_T]           = { 3, 0x4000 },
+    [DORADO_KEY_G]           = { 3, 0x2000 },
+    [DORADO_KEY_Y]           = { 3, 0x1000 },
+    [DORADO_KEY_H]           = { 3, 0x0800 },
+    [DORADO_KEY_8]           = { 3, 0x0400 },
+    [DORADO_KEY_N]           = { 3, 0x0200 },
+    [DORADO_KEY_M]           = { 3, 0x0100 },
+    [DORADO_KEY_LOCK]        = { 3, 0x0080 },
+    [DORADO_KEY_SPACE]       = { 3, 0x0040 },
+    [DORADO_KEY_LBRACKET]    = { 3, 0x0020 },
+    [DORADO_KEY_PLUS]        = { 3, 0x0010 },
+    [DORADO_KEY_RSHIFT]      = { 3, 0x0008 },
+    [DORADO_KEY_BLANKBOTTOM] = { 3, 0x0004 },
+};
+
 /*
  * Display Controller — minimal Phase 1 model.
  *
@@ -56,6 +126,18 @@ void dorado_display_keyboard_set_bit(dorado_display *d, int word,
     if (!d || word < 0 || word >= DORADO_DISPLAY_KEY_WORDS) return;
     if (bit < 0 || bit >= 16) return;
     uint16_t mask = (uint16_t)(1u << bit);
+    if (down) d->keyboard_words[word] &= (uint16_t)~mask;
+    else      d->keyboard_words[word] |= mask;
+}
+
+void dorado_display_keyboard_set_key(dorado_display *d,
+                                     dorado_display_key key,
+                                     int down)
+{
+    if (!d || key <= DORADO_KEY_NONE || key >= DORADO_KEY_LAST) return;
+    int word = key_map[key].word;
+    uint16_t mask = key_map[key].mask;
+    if (word < 0 || word >= DORADO_DISPLAY_KEY_WORDS || mask == 0) return;
     if (down) d->keyboard_words[word] &= (uint16_t)~mask;
     else      d->keyboard_words[word] |= mask;
 }

@@ -2436,6 +2436,9 @@ static int probe_full_boot_with_bootstrap(void)
     uint16_t post_eb_wakeup_or = 0;
     int post_eb_prev_task = -1;
     static uint32_t post_eb_task_pc_count[16][4096];
+    static uint16_t post_eb_task_pc_link[16][4096];
+    static uint16_t post_eb_task_pc_mcr[16][4096];
+    static uint32_t post_eb_task_pc_mar[16][4096];
     uint64_t display_scanline_wakeups = 0;
     uint64_t next_display_scanline_cycle = 0;
     uint64_t keyboard_seed_count = 0;
@@ -2965,7 +2968,13 @@ static int probe_full_boot_with_bootstrap(void)
         }
         if (ether_loaded_world_cycle && is_imfetch) {
             post_eb_task_cycles[pre_task & 0xF]++;
-            if (pre_pc < 4096) post_eb_task_pc_count[pre_task & 0xF][pre_pc]++;
+            if (pre_pc < 4096) {
+                uint8_t t = pre_task & 0xF;
+                post_eb_task_pc_count[t][pre_pc]++;
+                post_eb_task_pc_link[t][pre_pc] = pre_link;
+                post_eb_task_pc_mcr[t][pre_pc] = pre_mcr;
+                post_eb_task_pc_mar[t][pre_pc] = pre_mar;
+            }
             post_eb_ready_or |= cpu.ready;
             post_eb_wakeup_or |= cpu.wakeup_pending;
             if (post_eb_prev_task >= 0 && post_eb_prev_task != pre_task) {
@@ -3335,6 +3344,26 @@ static int probe_full_boot_with_bootstrap(void)
                 }
                 if (best_pc < 0 || best == 0) break;
                 printf(" 0o%o=%u", best_pc, best);
+                {
+                    const char *sym =
+                        dorado_microcode_symbol_at_real(&init_mc, best_pc);
+                    if (sym) printf(" Initial:%s", sym);
+                    for (int r = 0; r < (int)(sizeof ref_mcs / sizeof ref_mcs[0]); r++) {
+                        if (!ref_mcs[r].loaded) continue;
+                        sym = dorado_microcode_symbol_at_real(&ref_mcs[r].mc,
+                                                              best_pc);
+                        if (sym) printf(" %s:%s", ref_mcs[r].name, sym);
+                    }
+                    if (mc.im_present[best_pc]) {
+                        char dis[160];
+                        dorado_format(&mc.im[best_pc], dis, sizeof dis);
+                        printf(" {%s}", dis);
+                    }
+                    printf(" link=0o%o mcr=%04X mar=%05X",
+                           post_eb_task_pc_link[task][best_pc],
+                           post_eb_task_pc_mcr[task][best_pc],
+                           post_eb_task_pc_mar[task][best_pc]);
+                }
                 post_eb_task_pc_count[task][best_pc] = 0;
             }
             printf("\n");
@@ -3496,7 +3525,10 @@ static int probe_full_boot_with_bootstrap(void)
             printf("\n");
         }
         {
-            printf("       Display low-core: DAStart[0420..0427]=");
+            uint32_t iobr = dorado_br_get(&mem, 031);
+            printf("       BRs: IOBR/BR31=0x%05X MDS/BR36=0x%05X Code/BR37=0x%05X\n",
+                   iobr, dorado_br_get(&mem, 036), dorado_br_get(&mem, 037));
+            printf("       Display absolute low-core: DAStart[0420..0427]=");
             for (uint32_t i = 0; i < 8; i++) {
                 printf("%s%04X", (i == 0) ? "" : " ",
                        dorado_storage_at_va(&mem, 0420u + i));
@@ -3505,6 +3537,17 @@ static int probe_full_boot_with_bootstrap(void)
             for (uint32_t i = 0; i < 16; i++) {
                 printf("%s%04X", (i == 0) ? "" : " ",
                        dorado_storage_at_va(&mem, 0431u + i));
+            }
+            printf("\n");
+            printf("       Display IOBR low-core: DAStart[0420..0427]=");
+            for (uint32_t i = 0; i < 8; i++) {
+                printf("%s%04X", (i == 0) ? "" : " ",
+                       dorado_storage_at_va(&mem, iobr + 0420u + i));
+            }
+            printf(" Cursor[0431..0450]=");
+            for (uint32_t i = 0; i < 16; i++) {
+                printf("%s%04X", (i == 0) ? "" : " ",
+                       dorado_storage_at_va(&mem, iobr + 0431u + i));
             }
             printf("\n");
         }

@@ -275,6 +275,25 @@ This is not a full mirror. When debugging post-LoadRam Mesa behavior,
 prefer these sources over trying to infer everything from `.mb`
 disassembly, and fetch additional files from the same archive as needed.
 
+### `chm/doradosource/` (from `xeroxparcarchive…/_cd8_/doradosource/`, partial)
+
+`AemuSources.dm!82_` is the 1984 Alto-emulator source archive matching
+the `AEmu.mb!2` / `AltoMesaDorado.eb` era more closely than the later
+`doradomicrocode` tree. A focused subset is mirrored locally:
+
+- `ADefs.mc`
+- `AEm0.mc`
+- `EMemDefs.mc`
+- `InitMem.mc`
+- `RegisterDefs.mc`
+- `S-Group.mc`
+- `Start.mc`
+
+Use these when decoding post-LoadRam `Initial`/AEmu paths such as
+`ResumeEmulator`, `SetupBRs`, `Start`, `AEmuNext`, and Alto keyboard
+boot selection. Fetch additional members from the same expanded archive
+as needed.
+
 **BCPL compiled (.bcd)**:
 - `MicroSample.bcd!2`, `MicroSampleDefs.bcd!1`, `SetClock.bcd!1`,
   `AlarmTest.bcd!1`, `CorrectMwWl.bcd!1`.

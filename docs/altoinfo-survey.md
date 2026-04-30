@@ -1,6 +1,6 @@
 # AltoInfo/ — Alto emulators surveyed
 
-The user dropped four Alto emulator artifacts into `AltoInfo/`. This is
+The user dropped several Alto emulator artifacts into `AltoInfo/`. This is
 what is in there and what we should lift, reference, or ignore.
 
 ```
@@ -8,6 +8,7 @@ AltoInfo/
 ├── ContrAlto-mono/         pre-built mono binary (older ContrAlto v1, ~2018)
 ├── Contralto2-2.0-Beta/    ★ SOURCE TREE for ContrAlto v2.0 (C# / .NET 8)
 ├── ContrAlto2-beta/        pre-built ContrAlto v2 binary (Avalonia .NET)
+├── palo/                   ★ SOURCE TREE for Palo (C Alto assembler/archiver/simulator)
 ├── salto/                  ★ SOURCE TREE for Juergen Buchmueller's "salto" (C, GPL, ~2008)
 └── salto-0.4.2.tar.gz      same source as a tarball
 ```
@@ -29,6 +30,9 @@ worth lifting comes from the two source trees.
 | **Alto microcode listings (real microcode sources)** | `salto/docs/altoIIcode3.mu` (58 KB), `salto/docs/altocode24.mu` (50 KB), same files in `ContrAlto2/...Disassembly/` | Documentation of microcode patterns. Cross-reference when writing the Alto-emulator microcode for Dorado. |
 | **Alto microengine structure** | `salto/include/cpu.h`, `salto/src/cpu.c`, `Contralto2-.../CPU/CPU.cs`, `MicroInstruction.cs` | Useful **architectural template** for a microcoded engine in C: how to lay out tasks, microinstruction decoding, branch prediction, hold logic. |
 | **Disassembler output examples** | `salto/docs/cpu.txt` (10 KB Alto microinstruction decode table), `Contralto2-.../CPU/UCodeDisassembler.cs` | Reference for what a microcode disassembler looks like. Our Dorado disassembler will be a different format. |
+| **Alto keyboard matrix** | `palo/src/simulator/keyboard.c` | Directly useful. It maps named Alto keys to the four complemented boot keyboard words (`1 = up`, `0 = down`). We imported this into `dorado_display_keyboard_set_key()` so headless tests and a future SDL frontend can share one symbolic API. |
+| **Alto display timing pattern** | `palo/src/simulator/display.c` | Not directly portable to Dorado's DDC, but it is a clean example of keeping framebuffer state in the core, scheduling vblank/word-task events, and letting GUI code copy pixels. This matches our headless-frame plan. |
+| **Alto FS / BFS tooling** | `palo/src/fs/*`, `palo/src/par.c` | Useful reference for reading/writing Alto BFS images and installing boot files. It is file-system/tooling code, not Dorado hardware emulation. |
 
 ## What is NOT reusable
 
@@ -40,10 +44,16 @@ worth lifting comes from the two source trees.
   is for the Alto's removable Diablo 31/44 cartridges, not the Trident
   packs the Dorado uses. Skip.
 - **Alto display** code (`salto/src/display.c`,
-  `Contralto2-.../Display/`) targets the Alto's 606×808 monochrome
+  `Contralto2-.../Display/`, `palo/src/simulator/display.c`) targets
+  the Alto's 606×808 monochrome
   framebuffer driven by the DWT/DHT/DVT tasks. The Dorado's DispM/DispY
   display works differently (own DDC chip, its own task model). Don't
-  port; use as inspiration for the SDL framebuffer plumbing only.
+  port; use as inspiration for framebuffer ownership, frame scheduling,
+  and SDL plumbing only.
+- **Palo's Alto simulator CPU/microcode engine** is Alto II-specific:
+  fixed Alto microinstruction fields, S/R register banks, Alto task
+  numbers, Alto memory timing, and Diablo controller functions. It is a
+  useful simulator-architecture reference, not a Dorado engine source.
 - **Alto IO controllers** (Orbit raster image processor, Dover ROS,
   organ keyboard, audio DAC) — Alto-specific. Skip.
 - **BCPL / Alto OS / Mesa-on-Alto** images. The Alto's Mesa

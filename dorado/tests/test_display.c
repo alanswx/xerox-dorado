@@ -95,6 +95,24 @@ static int test_keyboard_words(void)
            "key up sets bit 4, got 0x%04X",
            dorado_display_keyboard_word(&d, 1));
 
+    dorado_display_keyboard_set_key(&d, DORADO_KEY_RETURN, 1);
+    EXPECT(dorado_display_keyboard_word(&d, 2) == 0xFFF7,
+           "RETURN down clears word 2 mask 0x0008, got 0x%04X",
+           dorado_display_keyboard_word(&d, 2));
+    dorado_display_keyboard_set_key(&d, DORADO_KEY_RETURN, 0);
+    EXPECT(dorado_display_keyboard_word(&d, 2) == 0xFFFF,
+           "RETURN up restores word 2, got 0x%04X",
+           dorado_display_keyboard_word(&d, 2));
+
+    dorado_display_keyboard_set_key(&d, DORADO_KEY_M, 1);
+    EXPECT(dorado_display_keyboard_word(&d, 3) == 0xFEFF,
+           "M down clears word 3 mask 0x0100, got 0x%04X",
+           dorado_display_keyboard_word(&d, 3));
+    dorado_display_keyboard_set_key(&d, DORADO_KEY_BS, 1);
+    EXPECT(dorado_display_keyboard_word(&d, 0) == 0xFFFE,
+           "BS down clears word 0 mask 0x0001, got 0x%04X",
+           dorado_display_keyboard_word(&d, 0));
+
     dorado_display_keyboard_set_word(&d, 3, 0x7FFF);
     EXPECT(dorado_display_keyboard_word(&d, 3) == 0x7FFF,
            "set keyboard word 3");
