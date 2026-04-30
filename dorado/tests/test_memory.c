@@ -645,6 +645,67 @@ static int test_cache_dirty_victim_writeback(void)
     return 0;
 }
 
+/*
+ * test_dirty_victim_wp_fault (gap C4) — when a dirty cache line's
+ * map entry has been changed to WP=1 since the fill, the writeback
+ * triggered by eviction must report a fault into FaultInfo. The
+ * triggering reference (which forced the eviction) succeeds; the
+ * fault is credited to its SRN.
+ *
+ * This is the "dirty-victim WP fault" path described in HM §5.
+ */
+static int test_dirty_victim_wp_fault(void)
+{
+    static dorado_memory mem; memset(&mem, 0, sizeof mem);
+    EXPECT(dorado_memory_init(&mem) == 0, "init");
+
+    const uint32_t vas[5] = { 0x000, 0x400, 0x800, 0xC00, 0x1000 };
+    for (int i = 0; i < 5; i++) {
+        uint32_t va = vas[i];
+        dorado_map_set(&mem, dorado_map_index(va),
+                       /*rp=*/(uint16_t)(va >> 8), /*wp=*/0, /*dirty=*/0);
+    }
+
+    /* Dirty page 0. */
+    dorado_memory_ref(&mem, DM_REF_STORE, 0x000, 0xCAFE, 0);
+
+    /* Now WP-protect page 0 — emulating microcode rewriting the map. */
+    dorado_map_set(&mem, 0, /*rp=*/0, /*wp=*/1, /*dirty=*/0);
+
+    /* Capture FaultInfo state before. */
+    uint8_t pre_count = mem.fault_count;
+
+    /* Force eviction. The 4 fetches push way containing 0x000 to LRU,
+     * and the 5th miss evicts it — triggering writeback against the
+     * now-WP page. The fetches themselves do NOT fault (they're reads,
+     * and the pages are RP'd RW). */
+    dorado_fault_kind f;
+    f = dorado_memory_ref(&mem, DM_REF_FETCH, 0x400, 0, 0);
+    EXPECT(f == DM_FAULT_NONE, "0x400 fetch should not fault");
+    f = dorado_memory_ref(&mem, DM_REF_FETCH, 0x800, 0, 0);
+    EXPECT(f == DM_FAULT_NONE, "0x800 fetch should not fault");
+    f = dorado_memory_ref(&mem, DM_REF_FETCH, 0xC00, 0, 0);
+    EXPECT(f == DM_FAULT_NONE, "0xC00 fetch should not fault");
+    f = dorado_memory_ref(&mem, DM_REF_FETCH, 0x1000, 0, 0);
+    EXPECT(f == DM_FAULT_NONE,
+           "0x1000 fetch (the evictor) should still succeed; "
+           "writeback fault is recorded into FaultInfo, not propagated");
+
+    /* fault_count must have advanced past the writeback failure. */
+    EXPECT(mem.fault_count > pre_count,
+           "fault_count = %d (was %d) — dirty-victim fault not recorded",
+           mem.fault_count, pre_count);
+
+    /* The dirty data was dropped (WP says page is read-only). */
+    EXPECT(dorado_storage_at_va(&mem, 0x000) == 0,
+           "storage[0x000] = 0x%04X — WP victim should not have committed",
+           dorado_storage_at_va(&mem, 0x000));
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_dirty_victim_wp_fault (gap C4)\n");
+    return 0;
+}
+
 /* Test 19: Flush← on a clean hit — invalidates without storage
  * activity; Map.Dirty stays 0. */
 static int test_cache_flush_clean(void)
@@ -805,7 +866,9 @@ static int test_mcr_disbr_blocks_br_writes(void)
     EXPECT(dorado_memory_init(&mem) == 0, "init");
 
     dorado_br_lo_load(&mem, 0, 0x1234);
-    dorado_mcr_load(&mem, 0x0100, 0);  /* manual Mcr[7] = DisBR */
+    /* Per EMemDefs.mc: mcr.disBR = b8 = manual Mcr[8] = LSB bit 7
+     * (the SAME bit as disCF) — gap C6. */
+    dorado_mcr_load(&mem, 0x0080, 0);  /* LSB bit 7 = b8 = disBR/disCF */
     dorado_br_lo_load(&mem, 0, 0xABCD);
     EXPECT((dorado_br_get(&mem, 0) & 0xFFFF) == 0x1234,
            "DisBR should suppress BrLo writes, BR=0x%08X",
@@ -1051,6 +1114,7 @@ int main(void)
     rc |= test_cache_store_no_map_dirty();
     rc |= test_cache_lru_eviction();
     rc |= test_cache_dirty_victim_writeback();
+    rc |= test_dirty_victim_wp_fault();
     rc |= test_cache_flush_clean();
     rc |= test_iostore_cache_invalidate();
     rc |= test_proc_srn_overwrite();

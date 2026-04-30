@@ -5815,6 +5815,120 @@ static int test_alufmrw_bit_mapping(void)
     return 0;
 }
 
+/*
+ * test_b11_event_cnt_brk_state (gap B11) — verify the EventCntB,
+ * BrkPending, and EventCntCtrl state slots round-trip through their
+ * FF functions. The functions don't yet drive any behavior; this test
+ * pins the read/write contract so future microcode that uses them
+ * lands instead of seeing zero.
+ */
+static int test_b11_event_cnt_brk_state(void)
+{
+    dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 037;          /* logical A */
+    mc.alufm_present[0] = 1;
+    mc.rm[0] = 0xBEEF;
+    mc.rm_present[0] = 1;
+
+    /* IM[0]: EventCntB ← B. RM[0]=0xBEEF on B (BSEL=1 RM/STK).
+     * FA=1 FB=3 FC=1 → FF = 0b01_011_001 = 0o131. */
+    mc.im[0] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/1, /*lc=*/0,
+                           /*asel=*/4, /*block=*/0, /*ff=*/0131,
+                           /*jcn=*/jcn_local(1));
+    mc.im_present[0] = 1;
+    /* IM[1]: BrkIns ← B. B[0:7] = high byte of RM[0] = 0xBE.
+     * FA=1 FB=3 FC=7 → FF = 0b01_011_111 = 0o137. */
+    mc.im[1] = make_uinstr(0, 0, 1, 0, 4, 0, 0137, jcn_local(2));
+    mc.im_present[1] = 1;
+    /* IM[2]: self-loop (NoOp). BSEL=2 (T), ASEL=6 (A←T). */
+    mc.im[2] = make_uinstr(0, 0, 2, 0, 6, 0, 0, jcn_local(2));
+    mc.im_present[2] = 1;
+    for (int i = 0; i < 3; i++) {
+        mc.image_to_real[i] = i;
+        mc.image_present[i] = 1;
+    }
+    mc.n_instructions = 3;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+
+    /* Step EventCntB ← B. */
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step 1: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.event_cnt_b == 0xBEEF,
+           "EventCntB should be 0xBEEF, got 0x%04X", cpu.event_cnt_b);
+
+    /* Step BrkIns ← B. */
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step 2: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.brk_pending == 1, "BrkPending should be set");
+    EXPECT(cpu.brk_opcode == 0xBE, "brk_opcode = 0x%02X, expected 0xBE",
+           cpu.brk_opcode);
+
+    printf("PASS  test_b11_event_cnt_brk_state (gap B11)\n");
+    return 0;
+}
+
+/*
+ * test_a_low_ff_override (gap B6) — HM Table 11a (FA=0 FB=0/1):
+ *   "A[12:15] ← FF[4:7]"
+ *
+ * Verifies the A-bus low-nibble override fires when FF is interpreted
+ * as a function (ASEL > 3, BSEL not constant, JCN not long), and is
+ * suppressed otherwise.
+ */
+static uint16_t run_a_override(uint8_t ff, uint8_t bsel, uint16_t rm0)
+{
+    dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    /* ALUFM[0] = 0o37 (logical "A"). */
+    mc.alufm[0] = 037;
+    mc.alufm_present[0] = 1;
+    mc.im[0] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/bsel, /*lc=*/1,
+                           /*asel=*/4, /*block=*/0, /*ff=*/ff,
+                           /*jcn=*/jcn_local(0));
+    mc.im_present[0] = 1;
+    mc.image_to_real[0] = 0;
+    mc.image_present[0] = 1;
+    mc.n_instructions = 1;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.RM[0] = rm0;
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    return cpu.T;
+}
+
+static int test_a_low_ff_override(void)
+{
+    /* FF = 0o005: FA=0 FB=0 FC=5; FF[4:7] = 5. BSEL=2 (T), so FF is
+     * a function. Expected: A[12:15] replaced with 5. */
+    EXPECT(run_a_override(0005, /*bsel=T*/2, 0xAAAA) == 0xAAA5,
+           "A[12:15]←FF[4:7] should rewrite low nibble");
+
+    /* Same FF, BSEL=4 (constant 0,,FF): FF is NOT interpreted as a
+     * function — override must NOT fire. T = ALU(A=RM, ALUFM[0]=A) = RM. */
+    EXPECT(run_a_override(0005, /*bsel=const*/4, 0xAAAA) == 0xAAAA,
+           "override must be suppressed when BSEL is constant");
+
+    /* FA=0 FB=2: NOT the override (memory-A-source territory).
+     * FF=0o025 → FA=0 FB=2 FC=5. With BSEL=2 (T) and ASEL=4, FF is
+     * a function but FB=2 is not "A[12:15]←FF[4:7]" — leave A alone. */
+    EXPECT(run_a_override(0025, /*bsel=T*/2, 0xAAAA) == 0xAAAA,
+           "FA=0 FB=2 must not trigger A-bus override");
+
+    /* FA=0 FB=1 also encodes the override (manual lists it as a paired
+     * variant of FB=0). FF=0o015 → FA=0 FB=1 FC=5; FF[4:7] = 0xD
+     * (because FB's LSB is the high bit of the FF[4:7] nibble). */
+    EXPECT(run_a_override(0015, /*bsel=T*/2, 0xAAAA) == 0xAAAD,
+           "FA=0 FB=1 must also trigger A-bus override");
+
+    printf("PASS  test_a_low_ff_override (gap B6)\n");
+    return 0;
+}
+
 static uint16_t run_alu_shift_ff(uint8_t ff, uint8_t alufm, uint16_t rm0)
 {
     dorado_microcode mc;
@@ -5904,6 +6018,8 @@ int main(void)
     rc |= test_carry_preserved_on_logical();
     rc |= test_alufmrw_bit_mapping();
     rc |= test_alu_shift_ff_functions();
+    rc |= test_a_low_ff_override();
+    rc |= test_b11_event_cnt_brk_state();
     rc |= probe_bootstrap_pure();
     rc |= probe_bootstrap();
     rc |= probe_aemu();

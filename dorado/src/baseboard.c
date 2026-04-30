@@ -220,7 +220,11 @@ static void riot_register_write(dorado_baseboard *bb, riot_chip *r,
         r->int_flags        &= (uint8_t)~0x80;   /* clear TimerFlag */
         r->timer_int_enabled = (offset & 0x08) ? 1 : 0;
     }
-    /* Other offsets: silently ignore. */
+    /* Other offsets: silently ignore. (gap D1) */
+    {
+        dorado_baseboard *bb_active = baseboard_active;
+        if (bb_active) bb_active->riot_writes_dropped++;
+    }
 }
 
 /*
@@ -290,18 +294,21 @@ static void apply_mcp_strobe(dorado_baseboard *bb, uint8_t mcpbusl)
     case 1: /* Clock — no-op */
         break;
     case 2: /* ABMux0: high byte to CPReg. SetCPReg writes ToCPRegH
-             * via this function (per doradocpint.masm:SetCPReg0). The
-             * data byte includes AMSync (bit 7 of CPRegH per .mdefs)
-             * — Boot0 polls this bit to detect a new byte from BB. */
+             * via this function (per doradocpint.masm:SetCPReg0).
+             * During the Boot1 stream doradoboot.masm first clears
+             * CPRegH with ABMux0, then later writes
+             * (MicroHalf << 1) | extra_bit here; the CPReg high bit
+             * rising on that final ABMux0 strobe is the BB->Dorado
+             * data-ready edge. */
         bb->cpreg_to_dorado =
             (uint16_t)((bb->cpreg_to_dorado & 0x00FF) |
                        ((uint16_t)data << 8));
         break;
     case 3: /* ABMux1: low byte to CPReg. The SetSS/parity bit on
              * MCPBusL is not part of CPReg data here. The BaseBoard
-             * SendAHalfMicroInstruction routine writes the low byte
-             * first, then ABMux0 writes CPRegH; Bootstrap's ReadBB
-             * synchronizes on CPRegH[0] changing after that ABMux0. */
+             * SendAHalfMicroInstruction routine writes one low byte,
+             * clears CPRegH, writes the second low byte, then writes
+             * CPRegH through ABMux0 to signal that data is ready. */
         bb->cpreg_to_dorado =
             (uint16_t)((bb->cpreg_to_dorado & 0xFF00) | data);
         break;
@@ -360,9 +367,14 @@ static void bb_write(ushort addr, uint8 value)
         return;
     }
 
-    /* EPROM regions are read-only — silently drop writes. */
-    if (addr >= 0xC000 && addr <= 0xFFFF) return;
-    if (addr >= 0xD000 && addr <= 0xD7FF) return;
+    /* EPROM regions are read-only — drop writes, but count them.
+     * A 6502 program that writes its own ROM is almost certainly
+     * misbehaving (gap D1). */
+    if ((addr >= 0xC000 && addr <= 0xFFFF) ||
+        (addr >= 0xD000 && addr <= 0xD7FF)) {
+        bb->writes_to_eprom++;
+        return;
+    }
 
     if (baseboard_write_hook) {
         uint8_t old = bb->mem[addr];

@@ -34,13 +34,17 @@ void dorado_fastio_dispatch(struct dorado_memory *mem,
             for (int i = 0; i < 16; i++) {
                 if (dorado_display_fifo_push(r->display, subtask,
                                              munch[i]) != 0) {
-                    /* FIFO full — drop. Real hardware would Hold the
-                     * processor; we silently discard. */
+                    /* FIFO full — drop the rest of the munch. Real
+                     * hardware would Hold the processor (HM §8 /
+                     * gap B1); we count the drop. */
+                    r->drops_display_fifo_full++;
                     break;
                 }
             }
+        } else if (kind == DM_REF_IOSTORE) {
+            /* IOStore from DWT: not used by display. */
+            r->drops_unrouted_iostore++;
         }
-        /* IOStore from DWT: not used by display. */
         break;
 
     case 014:  /* DSK — disk task */
@@ -49,7 +53,10 @@ void dorado_fastio_dispatch(struct dorado_memory *mem,
              * disk WRITE. Push 16 words into the controller's
              * write-FIFO. */
             for (int i = 0; i < 16; i++) {
-                if (r->disk_ctl->fifo_count >= DORADO_DISK_FIFO_WORDS) break;
+                if (r->disk_ctl->fifo_count >= DORADO_DISK_FIFO_WORDS) {
+                    r->drops_disk_fifo_full++;
+                    break;
+                }
                 r->disk_ctl->fifo[r->disk_ctl->fifo_head] = munch[i];
                 r->disk_ctl->fifo_head =
                     (r->disk_ctl->fifo_head + 1) % DORADO_DISK_FIFO_WORDS;
@@ -70,6 +77,7 @@ void dorado_fastio_dispatch(struct dorado_memory *mem,
                     dorado_disk_controller_refill_fifo(r->disk_ctl);
                 } else {
                     munch[i] = 0;     /* FIFO empty — pad with zeros */
+                    r->drops_disk_fifo_empty++;
                 }
             }
         }
@@ -77,7 +85,10 @@ void dorado_fastio_dispatch(struct dorado_memory *mem,
 
     default:
         /* Other tasks aren't routed for fast IO yet (Ethernet, terminal
-         * interface). Silently ignore. */
+         * interface, etc.). Count the unrouted ref so probes can
+         * detect missing routes per gap G1. */
+        if (kind == DM_REF_IOFETCH) r->drops_unrouted_iofetch++;
+        else if (kind == DM_REF_IOSTORE) r->drops_unrouted_iostore++;
         break;
     }
 }

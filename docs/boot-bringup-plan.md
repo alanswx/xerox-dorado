@@ -238,6 +238,12 @@ Bootstrap's CPReg-reading subroutine. **Both depend on the BB
 CPReg protocol working** to make any progress.
 
 What's stub-or-missing
+
+> Canonical list lives in `docs/handoff.md` under
+> "Known gaps — full punch list" (sections A–K). The summary below is
+> the boot-bring-up framing of those same items; keep it short and let
+> handoff.md drift.
+
 - **Memory timing/errors:** storage modules no longer alias, but ECC,
   per-slot Pipe4 error fields, deferred refs, and Hold/DisHold
   semantics are missing. Long-running AEmu and Initial paths both
@@ -324,11 +330,12 @@ AMSync** — investigation completed:
   TIOA + IOB bus + Output←B / Pd←Input mechanism — that's the
   prerequisite, not just an AMSync byte-toggle.
 
-The infrastructure that *is* in place: AMSync (CPRegH bit 7)
-toggles on ABMux1 strobes with setss=1, ABMux0 clears it. The
-BB→Dorado handshake is wired correctly at the CPReg level — what's
-missing is the parallel slow-IO path that Boot0 polls in addition
-to CPReg.
+The infrastructure that *is* in place: CPReg low/high latching matches
+`doradoboot.masm`: ABMux1 writes CPRegL, ABMux0 writes CPRegH, and the
+Boot1 data-ready transition is the final ABMux0 write of
+`(MicroHalf << 1)|extra_bit` into CPRegH. The BB→Dorado handshake is wired at
+the CPReg latch level — what's missing is the parallel slow-IO path that
+Boot0 polls in addition to CPReg.
 
 **Why this phase first:** the closest visible milestone. Validates
 the whole BB↔Dorado handshake, including the CPReg streaming path

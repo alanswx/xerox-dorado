@@ -92,6 +92,26 @@ Without flags: octal listing of every memory's contents, symbol-
 annotated. With `--disasm`: each IM entry also gets a one-line
 symbolic decode (RSTK/ALUF/BSEL/LC/ASEL/FF/JCN/BLOCK).
 
+### `bbdis` — BaseBoard 6502 ROM disassembler (src/bbdis.c)
+
+Standalone NMOS-6502 disassembler that loads a `.MB` ROM image
+(typically `chm/dorado/doradobaserom.mb!13`) into a 64K byte array
+and emits annotated assembly for a chosen address range.
+
+```
+bbdis [--start HEX] [--end HEX] [--labels FILE] [--vectors] PATH
+```
+
+`--vectors` dumps NMI/RESET/IRQ targets and exits. `--labels FILE`
+reads a tab-separated `HEX<tab>name` symbol table to annotate calls
+and branches. Output is suitable for diffing against the BB source
+in `chm/dorado/expanded/doradobaserom.dm!12_/*.masm`.
+
+Pre-rendered dumps live at `chm/disassembly/bb_C000-D7FF.s` (Boot0/
+Boot1 data region) and `chm/disassembly/bb_F000-FFFF.s` (BB program
+code). These were generated for gap A1 research; see
+`docs/research/A1-bootstrap-streaming.md`.
+
 The raw-octal output matches ftest.DLS's stored-word presentation;
 the symbolic line is our addition. To match ftest.DLS's W0/W1 column
 exactly (which uses a re-shuffled display form combining iw0/iw1/iw2

@@ -338,6 +338,7 @@ uint16_t dorado_memory_config_word(const dorado_memory *mem);
 void     dorado_mcr_load(dorado_memory *mem, uint16_t a, uint16_t b);
 uint16_t dorado_mcr_get(const dorado_memory *mem);
 int      dorado_mcr_disbr(const dorado_memory *mem);
+int      dorado_mcr_dishold(const dorado_memory *mem);
 int      dorado_mcr_noref(const dorado_memory *mem);
 int      dorado_mcr_fdmiss(const dorado_memory *mem);
 int      dorado_mcr_nowake(const dorado_memory *mem);

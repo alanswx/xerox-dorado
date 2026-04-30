@@ -429,6 +429,25 @@ static int ff_full_function_ok(const dorado_uinstr *u)
     return 1;
 }
 
+/* HM Table 11a (FA=0 FB=0/1): "A[12:15] ← FF[4:7]" override. The
+ * low nibble of the A-bus is replaced by FF[4:7] before the value
+ * reaches the ALU.
+ *
+ * Mapping: FF[4:7] in the manual's MSB-first numbering = the low 4
+ * bits of FF in C-LSB. Returns -1 if no override applies, else the
+ * 4-bit replacement value (0..15).
+ *
+ * Gated by ff_full_function_ok so that memory-ref ASEL=0..3 forms
+ * (where FF[0:1] is an alt-A-source selector, not a function) are
+ * not affected. */
+static int ff_a_low_override(const dorado_uinstr *u)
+{
+    if (!ff_full_function_ok(u)) return -1;
+    int fa = ff_fa(u->ff), fb = ff_fb(u->ff);
+    if (fa == 0 && fb <= 1) return u->ff & 0xF;
+    return -1;
+}
+
 static int ff_loads_link(const dorado_uinstr *u)
 {
     if (!ff_full_function_ok(u)) return 0;
@@ -444,10 +463,16 @@ static int ff_loads_link(const dorado_uinstr *u)
  * supplied an override and `*b` was set; 0 if BSEL should be used as
  * normal.
  *
- * Coverage tracks what real microcode actually exercises. FF=0o077
- * (FA=0 FB=7 FC=7) is "Reserved as a no-op" so we ignore it without
- * halting. Unknown FF values that *would* override B fall through to
- * the BSEL path (i.e., we silently miss the override) — TODO: tighten.
+ * Per HM Table 11, all B-source overrides live at FA=1 with FB ∈
+ * {6, 7}. Non-FA=1 functions never modify the B bus, so the
+ * `if (fa != 1) return 0` short-circuit is complete. The
+ * BSEL-constant case is caught upstream by `ff_decode_ok`
+ * (BSEL >= 4 → FF not a function), and the ASEL ∈ {0..3} memory-ref
+ * case is caught by `ff_full_function_ok`.
+ *
+ * FF=0o077 (FA=0 FB=7 FC=7) is "Reserved as a no-op". The two switch
+ * statements below enumerate all 16 (FB=6/7) × (FC=0..7) cases; the
+ * `default` arms are unreachable.
  */
 static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
                          uint16_t *b)
@@ -517,7 +542,9 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
     if (fb == 7) {
         switch (fc) {
         case 0: *b = 0;          break;  /* B ← PCX'           — IFU PC */
-        case 1: *b = 0;          break;  /* B ← EventCntA'     — stub */
+        case 1: /* B ← EventCntA' (HM §4.11). Active-low. */
+                *b = (uint16_t)~cpu->event_cnt_a;
+                break;
         case 2: /* B ← IFUMRH' (low part of IFUM, inverted).
                  * Address = InsSet||Opcode (set by InsSetorEvent←B
                  * and BrkIns←B). */
@@ -536,7 +563,9 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
                     *b = 0xFFFF;
                 }
                 break;
-        case 4: *b = 0;          break;  /* B ← EventCntB'     — stub */
+        case 4: /* B ← EventCntB' (HM §4.11). Active-low. */
+                *b = (uint16_t)~cpu->event_cnt_b;
+                break;
         case 5: *b = 0;          break;  /* B ← DBuf           — stub */
         case 6:                             /* B ← RWCPReg */
             /* HM page 31: "B←RWCPReg = Link←B, B←CPReg'." On real
@@ -611,9 +640,8 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
 
     if (fa == 0) {
         if (fb <= 1) {
-            /* A[12:15] ← FF[4:7] — already handled at A-bus time, but
-             * harmless here. (We don't actually wire that override
-             * yet; tracked as a known gap.) */
+            /* A[12:15] ← FF[4:7] — applied at A-bus time by
+             * ff_a_low_override(); no post-ALU side effect. */
             return pd;
         }
         if (fb == 2) {
@@ -807,15 +835,22 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
         if (fb == 3) {
             switch (fc) {
             case 0: /* InsSetorEvent ← B (HM Table 11c FA=1 FB=3 FC=0).
-                     * If B[0]=0: B[4:15] are EventCntA/EventCntB
-                     * controls (not modeled). If B[0]=1: B[6:7] are
-                     * loaded into IFU's InsSet[0:1]. B[0] in MSB-first
-                     * = bit 15 in C-LSB; B[6:7] = bits 9..8 in C-LSB. */
+                     * If B[0]=1: B[6:7] are loaded into IFU's
+                     * InsSet[0:1]. If B[0]=0: B[4:15] are
+                     * EventCntA/EventCntB controls (HM §4.11). We
+                     * record the low 12 bits in two halves so
+                     * microcode round-tripping the controls observes
+                     * the value it wrote (gap B11 stub). */
                 if ((b >> 15) & 1) {
                     cpu->ifu_insset = (uint8_t)((b >> 8) & 3);
+                } else {
+                    cpu->event_cnt_ctrl_hi = (uint8_t)((b >> 8) & 0x0F);
+                    cpu->event_cnt_ctrl_lo = (uint8_t)(b & 0xFF);
                 }
                 return pd;
-            case 1: /* EventCntB ← B */            return pd;
+            case 1: /* EventCntB ← B (HM §4.11). */
+                cpu->event_cnt_b = b;
+                return pd;
             case 2: /* Reschedule (HM Table 20). Cause a reschedule
                      * trap on the second OR third successful IFUJump. */
                 cpu->reschedule_pending = 2;
@@ -851,10 +886,14 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                 cpu->ifu_insset = 0;
                 cpu->ifu_opcode = 0;
                 return pd;
-            case 7: /* BrkIns ← B. Opcode ← B[0:7] and set BrkPending.
-                     * B[0:7] in MSB-first = high 8 bits of B = (b>>8). */
+            case 7: /* BrkIns ← B (HM §4.10). Opcode ← B[0:7] and set
+                     * BrkPending; the next IFU dispatch will trap to
+                     * the breakpoint vector. We record the state slot
+                     * (gap B11) so microcode round-trips it; we do
+                     * not yet trigger the trap. */
                 cpu->ifu_opcode = (uint8_t)((b >> 8) & 0xFF);
-                /* BrkPending is breakpoint state — not modeled yet. */
+                cpu->brk_opcode = cpu->ifu_opcode;
+                cpu->brk_pending = 1;
                 return pd;
             }
         }
@@ -2176,6 +2215,13 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
         cpu->halted = 1;
         cpu->halt_reason = rc;
         return 1;
+    }
+    /* HM Table 11a (FA=0 FB=0/1): A[12:15] ← FF[4:7] (gap B6).
+     * The override fires only when FF is interpreted as a function
+     * (ASEL > 3, BSEL not constant, JCN not long). */
+    {
+        int ovr = ff_a_low_override(u);
+        if (ovr >= 0) a = (uint16_t)((a & 0xFFF0u) | (uint16_t)ovr);
     }
 
     /* ALU. */

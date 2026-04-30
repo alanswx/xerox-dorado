@@ -135,6 +135,13 @@ typedef struct dorado_baseboard {
     /* Diagnostic: how many times we've fired irq6502(). */
     uint64_t irq_count;
 
+    /* Diagnostic counters for ill-formed BB accesses (gap D1).
+     * The BB ROM should never write its own EPROM region. RIOT
+     * registers have a sparse address map; writes to unallocated
+     * offsets are dropped by the chip but worth counting. */
+    uint32_t writes_to_eprom;       /* writes to 0xC000..0xFFFF */
+    uint32_t riot_writes_dropped;   /* RIOT writes to unhandled offsets */
+
     /* Last reason for halt / panic, for tests to inspect. */
     int  halted;
     char halt_msg[128];

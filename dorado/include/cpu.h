@@ -139,6 +139,32 @@ typedef struct {
     uint8_t  ifu_type_pause;    /* derived from TPause' */
 
     /*
+     * Breakpoints / parity / event counters — gap B11.
+     *
+     * HM §4.10 describes a `BrkPending` flipflop set by BrkIns←B and
+     * cleared when the corresponding instruction is fetched from IM.
+     * We model the state slot but do not yet trigger a breakpoint
+     * trap (Midas, the Alto-side debugger, would consume it).
+     *
+     * EventCntA / EventCntB are 16-bit performance counters that
+     * tick on selected events programmed via InsSetorEvent←B (B[0]=0
+     * mode). We provide read/write access so microcode using them
+     * round-trips correctly; we do not yet drive any tick events.
+     *
+     * `parity_error` is a single bit set by IFUM/IM/RM parity
+     * mismatches. We do not yet model parity at the bit level, so
+     * the bit only ever sets if the slow-IO path reports
+     * `io_bad_parity`.
+     */
+    uint8_t  brk_pending;       /* HM §4.10 BrkPending flipflop */
+    uint8_t  brk_opcode;        /* opcode from BrkIns←B (high 8 bits of B) */
+    uint16_t event_cnt_a;       /* HM §4.11 EventCntA */
+    uint16_t event_cnt_b;       /* HM §4.11 EventCntB */
+    uint8_t  event_cnt_ctrl_lo; /* B[4:15] saved when B[0]=0 in InsSetorEvent←B */
+    uint8_t  event_cnt_ctrl_hi;
+    uint8_t  parity_error;      /* set when IOAtten parity fault propagates */
+
+    /*
      * Memory subsystem. When non-NULL, processor memory references
      * (Fetch / Store / etc.) are dispatched to it; B←Md reads
      * mem->md. Pipe reads (B←Pipe0..5) come from mem->pipe[]. */

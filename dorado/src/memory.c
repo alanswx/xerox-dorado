@@ -253,7 +253,26 @@ uint16_t dorado_mcr_get(const dorado_memory *mem)
 
 int dorado_mcr_disbr(const dorado_memory *mem)
 {
-    return (mem->mcr >> 8) & 1;      /* manual Mcr[7] */
+    /* Per EMemDefs.mc: `mcr.disBR = b8`. Manual MSB-bit numbering
+     * makes b8 = LSB bit 7 — the SAME bit as disCF. The two field
+     * names are aliases for one hardware bit; setting it disables
+     * both BR-relative virtual addressing and the cache-flag
+     * machinery (gap C6). */
+    if (mcr_is_initial_nowake(mem)) return 0;
+    return (mem->mcr >> 7) & 1;      /* manual Mcr[8] */
+}
+
+int dorado_mcr_dishold(const dorado_memory *mem)
+{
+    /* Per EMemDefs.mc: `mcr.disHold = b9`. Manual b9 = LSB bit 6.
+     * When set, the engine does not Hold on cache miss / Pipe
+     * conflict / IFU fault (HM §4 Hold). Initial uses
+     * `mcr.noRefHold = b9 | b10` to suppress both Hold AND
+     * storage refs during map init; we mirror that intent here.
+     * Hold itself is gap B1 — currently a no-op — so this getter
+     * exists for completeness pending B1's landing. */
+    if (mcr_is_initial_nowake(mem)) return 0;
+    return (mem->mcr >> 6) & 1;      /* manual Mcr[9] */
 }
 
 int dorado_mcr_noref(const dorado_memory *mem)
@@ -452,15 +471,26 @@ static dorado_fault_kind munch_phys_base(const dorado_memory *mem,
 /* Write back the dirty contents of a cache line to storage, then
  * mark Map.Ref and Map.Dirty for that line's page (HM page 47:
  * "If the victim for the miss ... is dirty, Ref and Dirty for its
- * map entry also get set"). The line itself is not invalidated. */
-static void cache_writeback_line(dorado_memory *mem, int row_idx, int way)
+ * map entry also get set"). The line itself is not invalidated.
+ *
+ * Returns DM_FAULT_NONE on success, or the fault kind if translate
+ * fails. Real hardware reports a *dirty-victim* fault (HM §5):
+ * the line's data is dropped, Pipe4 records the syndrome for the
+ * triggering reference, and FaultInfo is updated. We don't model
+ * Pipe4 syndrome bits yet (gap C2), but we propagate the kind so
+ * the caller can advance fault_count / fault_first_srn (gap C4). */
+static dorado_fault_kind cache_writeback_line(dorado_memory *mem,
+                                              int row_idx, int way)
 {
     dorado_cache_line *line = &mem->cache[row_idx].ways[way];
-    if (!line->valid || !line->dirty) return;
+    if (!line->valid || !line->dirty) return DM_FAULT_NONE;
     /* Reconstruct the VA of the line: tag||row||0_offset. */
     uint32_t va_base = (line->tag << 10) | ((uint32_t)row_idx << 4);
     size_t phys;
-    if (va_translate(mem, va_base, /*is_write=*/0, &phys) == DM_FAULT_NONE) {
+    /* Use is_write=1 so a now-WP page reports DM_FAULT_WRITE_PROTECT
+     * rather than succeeding with a stale phys. */
+    dorado_fault_kind f = va_translate(mem, va_base, /*is_write=*/1, &phys);
+    if (f == DM_FAULT_NONE) {
         for (int i = 0; i < DM_CACHE_LINE_W; i++) {
             size_t p = phys + (size_t)i;
             if (p < mem->storage_words) mem->storage[p] = line->data[i];
@@ -470,11 +500,26 @@ static void cache_writeback_line(dorado_memory *mem, int row_idx, int way)
         mem->map[idx].ref   = 1;
         mem->map[idx].dirty = 1;
     }
-    /* If translate fails (shouldn't happen for a valid cached line —
-     * the page must have been valid when we filled it), drop the data
-     * silently. Real hardware would WP-fault here, captured as
-     * dirty-victim WP fault in Pipe5. */
     line->dirty = 0;
+    return f;
+}
+
+/* Note (gap C4): a dirty-victim writeback whose Map says the page is
+ * now WP or Vacant is reported via this return value. Record it as a
+ * fault on the *triggering* reference's SRN. */
+static void record_writeback_fault(dorado_memory *mem,
+                                   dorado_fault_kind f, int srn)
+{
+    if (f == DM_FAULT_NONE) return;
+    if (mem->fault_count == 0) {
+        mem->fault_first_srn = (uint8_t)(srn & 0xF);
+        mem->fault_emulator  = 1;
+    }
+    if (mem->fault_count < 0xF) mem->fault_count++;
+    mem->last_fault    = f;
+    /* mem->last_fault_va is left as the triggering ref's VA — that's
+     * what microcode reads via Pipe0/Pipe1. The dirty-victim VA is
+     * recoverable from cache state if needed. */
 }
 
 /* Fill `way` in the row of `va` with the 16 words of the munch
@@ -600,7 +645,11 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
             f = va_translate(mem, va, /*is_write=*/0, &phys);
             if (f == DM_FAULT_NONE) {
                 int victim = cache_pick_victim(mem, va);
-                cache_writeback_line(mem, va_cache_row(va), victim);
+                {
+                    dorado_fault_kind wbf =
+                        cache_writeback_line(mem, va_cache_row(va), victim);
+                    record_writeback_fault(mem, wbf, srn);
+                }
                 cache_fill(mem, va, victim);
                 mem->md = mem->cache[va_cache_row(va)].ways[victim]
                               .data[va_cache_offset(va)];
@@ -617,7 +666,11 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
             size_t phys_pf;
             if (va_translate(mem, va, /*is_write=*/0, &phys_pf) == DM_FAULT_NONE) {
                 int victim = cache_pick_victim(mem, va);
-                cache_writeback_line(mem, va_cache_row(va), victim);
+                {
+                    dorado_fault_kind wbf =
+                        cache_writeback_line(mem, va_cache_row(va), victim);
+                    record_writeback_fault(mem, wbf, srn);
+                }
                 cache_fill(mem, va, victim);
                 cache_select(mem, va, victim, srn);
             }
@@ -646,7 +699,11 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
                 !dorado_cache_lookup(mem, va, &way)) {
                 /* Miss: write-allocate. Fill, then write into the line. */
                 way = cache_pick_victim(mem, va);
-                cache_writeback_line(mem, va_cache_row(va), way);
+                {
+                    dorado_fault_kind wbf =
+                        cache_writeback_line(mem, va_cache_row(va), way);
+                    record_writeback_fault(mem, wbf, srn);
+                }
                 cache_fill(mem, va, way);
             }
             dorado_cache_line *line =
@@ -754,7 +811,9 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
          * reference: writes back, sets Map.Ref AND Map.Dirty. */
         int way;
         if (dorado_cache_lookup(mem, va, &way)) {
-            cache_writeback_line(mem, va_cache_row(va), way);
+            dorado_fault_kind wbf =
+                cache_writeback_line(mem, va_cache_row(va), way);
+            record_writeback_fault(mem, wbf, srn);
             mem->cache[va_cache_row(va)].ways[way].valid = 0;
             mem->cache[va_cache_row(va)].ways[way].vacant = 1;
             cache_select(mem, va, way, srn);

@@ -274,6 +274,264 @@ system, but they show how far the model gets:
   via `JNKINITPC`. It likely needs Bootstrap/Initial support code or
   real main-memory state that the bypass does not currently plant.
 
+## Known gaps — full punch list
+
+Compiled 2026-04-30 from a sweep of `dorado/src/*.c`, `dorado/include/*.h`,
+and the narrative sections of this doc and `boot-bringup-plan.md`.
+Section letters here are stable references — cite them in commit messages
+and follow-up notes.
+
+**Phase-progress index** (updated as gaps land — see
+`docs/research-plan.md` for the per-gap plan and `docs/research/<id>-*.md`
+for the as-built notes):
+
+- ✅ **Phase 0** — archive sweep + BB ROM disassembler. (`bbdis` tool;
+  `chm/disassembly/bb_*.s`; `chm-archive.md` §8.)
+- ✅ **Phase 1** — local foundation gaps:
+  - **B6** A[12:15]←FF[4:7] override — wired in `cpu.c::ff_a_low_override`.
+  - **B7** `ff_full_function_ok` — gating audited correct; comment cleaned up.
+  - **C4** dirty-victim WP fault — recorded in FaultInfo; test pinned.
+  - **C5** ReadMap-on-Vacant — non-issue (PreFetch silence is per HM).
+  - **G1** fast-IO drop counters — added 5 counters to `dorado_fastio_router`.
+  - **D1** BB drop counters — added 2 counters to `dorado_baseboard`.
+  - **B11** breakpoint/EventCnt/parity state slots — round-trip works;
+    trap/tick semantics deferred until `Kernel.Press!6` is transcribed.
+- ✅ **Phase 2** (research-complete; A1 implementation deferred):
+  - **D2** ✅ BB ROM disassembled with 76 labels from the embedded
+    symbol table; `bbdis --hunks` decodes Boot0 hunks. Annotated dumps
+    in `chm/disassembly/`.
+  - **A2** ✅ re-diagnosed: Boot0 (= Bootstrap) does **no** slow-IO.
+    The original "Pd←Input returns 0" theory was wrong (FF=0o262 in
+    Boot0 is `Pd←ALUFMRW`, not TIOA).
+  - **B2 / H2** ✅ closed by A2 re-diagnosis — no slow-IO devices
+    needed for Boot0.
+  - **B8** ✅ research-only: spec captured in
+    `docs/research/B8-rwcpreg-polarity.md`. Code change deferred —
+    must land with A1 fix.
+  - **A1** ⏳ corrected with `BootstrapMain.mc` as oracle: over-CPReg
+    stream is 2 bytes per half-microinstruction. Implementation
+    deferred to a focused next session of cycle-level tracing.
+- ⏳ **Phase 3** in progress (memory subsystem):
+  - **C6** ✅ MCR decode bit positions cross-checked against
+    `EMemDefs.mc` (the canonical source from PARC). Fixed
+    `dorado_mcr_disbr` (it was at the wrong bit). Added
+    `dorado_mcr_dishold` getter. Test fixture updated. The 0xFEE7
+    special-case stays in place until B1 (Hold) lands.
+  - Remaining: **B1/C1** (Hold + deferred refs), **C2** (Pipe4
+    syndrome), **C3** (ECC).
+
+### A. Showstoppers blocking real boot
+
+A1. **Bootstrap → Initial CPReg streaming corrupts data**
+(`probe_full_boot_with_bootstrap`). ~768 of 896 IM half-writes do not
+match canonical `Initial.MB`; LH writes default to `0x0044`, iw2
+RSTK[0]/JCN[7] bits flip (e.g. `IM[0o6347]` lands as `local→0o6347`
+self-loop instead of `local→0o6346`). Currently bypassed by substituting
+canonical `Initial.MB` at BOOTSTAGE2. Suspected causes: shifter LSH/LDF
+mis-execution in Bootstrap's T-composition; a different Boot1Data layout
+in the BB EPROM vs. `Initial.mb`; CPReg-byte ordering between BB
+ABMux0/ABMux1 and Bootstrap's T-decode. See §2a below.
+
+A2. **`probe_full_boot` (BB Boot0) halts at 0o7744.** BB ROM contains a
+*newer* compiled Boot0 than `Bootstrap.MB`. Reads slow-IO inputs
+(`Pd←Input`/`Pd←InputNoPE`) we don't model, so ALUFM[N] from the cobweb-
+clear NOPs comes back zero (`boot-bringup-plan.md` Phase A.7).
+
+A3. **Hard-disk boot doesn't transfer.** Initial reaches `KSameDrive`,
+`KContinueCmmd`, `KCheckSeek`, `KWAITSECTOR`, `WAITFORSECTOR`, then times
+out at `Read1Muff` (`0o6500`). `DiskData` reads/writes stay zero. The
+mounted `spruce-server.dsk300` is a Spruce Alto pack and probably doesn't
+contain Initial's private "page 4" Dorado microcode file. No Trident pack
+with the right contents is available.
+
+A4. **Probe-only workarounds still live in `tests/test_cpu.c`:**
+first-256-page identity-map shim at `DiskHardMicrocodeBoot`; canonical
+`Initial.MB` swap at BOOTSTAGE2; `ETemp0..3` forced all-up + `GotBootKey`
+redirect to `DiskHardMicrocodeBoot`; special-case decode of
+`mcr.noWake = 0xFEE7`.
+
+### B. Microengine (`src/cpu.c`, `include/cpu.h`)
+
+B1. **No Hold semantics.** Memory `Md` is delivered immediately; real
+hardware stalls the engine on miss (~28 cycles), on Pipe full, on
+FreezeBC, on `StkError`, on IFU map fault concurrent with IFUJump.
+AEmu's `LRTYPETABLE`→`LRTYPEIM`→`LRLOOPTOFF`→`TOFFRET` loop spins forever
+because of this. (`include/cpu.h` HM §4 Hold; `include/memory.h` line 13.)
+
+B2. **`Pd←Input` / `Pd←InputNoPE` slow-IO read FF ops** stubbed for many
+devices (Hold/TaskSim register, MCR, Reset register). Boot0 needs them.
+
+B3. **FF table gaps tagged "stub: silently honor" in `cpu.c`:**
+- FA=0 FB=2 FC=4 `XorCarry`, FC=5 `XorSavedCarry`, FC=6 `Carry20`,
+  FC=7 `ModStkPBeforeW` (line 627).
+- FA=0 FB=4-5 RMaddr replace + force-RM-write (line 715).
+- FA=2 FB=2-3 RMaddr replace + force-RM-write (line 915).
+- FA=2 FB=5 FC=4..7 `MemBX←FF[6:7]` (line 932).
+- FA=1 FB=4 FC=0 `UseDMD`, FC=1 `MidasStrobe`, FC=5 `RestoreStkP`.
+- FA=1 FB=5 FC=4 `Hold&TaskSim`, FC=5 `WF←A`, FC=6 `RF←A`.
+- FA=0 FB=7 FC=2 `Multiply`, FC=5 `TgetsMd`, FC=6 `FreezeBC`.
+- FA=1 FB=2 FC=5 `LoadTestSyndrome`.
+- FA=1 FB=3 FC=1 `EventCntB←B`; FA=1 FB=7 FC=1/4 `EventCntA'/B'` return 0.
+- FA=1 FB=7 FC=0 `B←PCX'` returns 0; FC=5 `B←DBuf` returns 0.
+
+B4. **Divide / CDivide** placeholders return Pd unchanged
+(`cpu.c` lines 1055-1057).
+
+B5. **Read IM** stubbed — advances PC but doesn't deliver inverted IM
+bytes on B (`cpu.c` line 2046).
+
+B6. **A[12:15] ← FF[4:7] override at A-bus time** not wired; FA=0 FB=0/1
+silently no-ops (line 614).
+
+B7. **B-source override gating** can be missed — `ff_full_function_ok`
+doesn't always catch every BSEL constant case (TODO at line 450).
+
+B8. **`B←RWCPReg` polarity asymmetry.** Inverts only on the legacy-stub /
+single-step path; during BB free-run returns the raw value because
+Bootstrap otherwise composes `Loc` with bit 15 set. Needs hardware-correct
+fix once BB ROM Boot1Data layout is understood (line 542).
+
+B9. **IFU pipeline simplifications** (`cpu.h` lines 92-96): no F/G→J→H→M
+staging, single-cycle IFUJump, no Hold + IFU-map-fault interaction; only
+InsSets 0/1's byte ordering modeled (cpu.c line 1579).
+
+B10. **Reschedule / RescheduleNow** branch condition uses pending-wakeup
+as a proxy for non-emulator tasks; device-driven IOAttention not wired
+(line 1530).
+
+B11. **Breakpoints / parity / performance counters** not modeled
+(`BrkPending` ignored after `BrkIns←B`, line 858).
+
+### C. Memory subsystem (`src/memory.c`, `include/memory.h`)
+
+C1. **Atomic refs only.** No deferred references, no Hold, no cycle
+counter (header line 13).
+
+C2. **Per-slot Pipe4 error fields** not tracked beyond the constant
+`0150361` baseline (cpu.c line 506).
+
+C3. **ECC absent** — no syndrome generation, no double-bit error reporting.
+
+C4. **WP fault on store** swallowed silently instead of asserting a real
+WP fault (`memory.c` line 475).
+
+C5. **`ReadMap` walks the map silently on Vacant** instead of generating
+a map fault (`memory.c` line 614).
+
+C6. **MCR active-low decode incomplete.** `mcr.noWake = 0xFEE7`
+special-cased; full DisBR/DisCF/NoRef/FDMiss/UseMcrV semantics need to be
+re-derived from schematics.
+
+### D. BaseBoard (`src/baseboard.c`)
+
+D1. BB 6502 unmapped offsets and EPROM writes silently dropped
+(`baseboard.c` lines 223, 363) — should at least log; might mask a real
+ROM fault.
+
+D2. **No disassembly of the BB EPROM Boot0/Boot1Data** vs. `Bootstrap.mb`
+— needed before A1 and A2 can be debugged with ground truth.
+
+### E. Display (`src/display.c`, `include/display.h`)
+
+E1. **`display_output_b` lacks per-(task,tioa) dispatch.** TODO at line
+183: NLCB load, HRam load, Mixer load, PixelClk, Statics are collapsed
+into one catch-all that only tracks NLCB/CLCB write counts plus the
+WCB-flag protocol.
+
+E2. **DDC input returns idle key word always** — no 7-wire terminal
+back-channel, no keyboard message decoder, no boot-key selection
+(`display.c` line 187). No way to select an emulator
+(Mesa/Cedar/Lisp/Smalltalk/Alto) at boot.
+
+E3. **No pixel clock / waveform / mixer** — `dorado_display_render_fifo`
+assumes 1-bpp Alto mode and dumps the FIFO straight into the framebuffer
+(header line 289).
+
+E4. **DDC catch-all is registered on every TIOA** for tasks 3/4/011/013
+(`display.c` line 220) — broad; refine once specific (task,TIOA) pairs
+are observed.
+
+E5. **Scanline timing is a synthetic shim** — real pixel-clock and HBlank
+waveforms aren't driven from the actual control outputs (`display.h`
+line 273).
+
+### F. Disk (`src/disk.c`, `include/disk.h`)
+
+F1. **Phase 3 sequence-PROM execution missing.** Read tag short-circuits
+and dumps header+label into the FIFO contiguously instead of stepping
+through preamble/sync/data/ECC/postamble per the read PROM (HM page 99).
+
+F2. **Fire Code ECC absent** (`P(X) = X³² + X²³ + X²¹ + X¹¹ + X² + 1`).
+
+F3. **Write side stub:** sets `WrFifoTW=1` and marks active; nothing
+commits the FIFO back to the pack (`disk.c` line 506).
+
+F4. **Real sector-pulse timing → wakeup generation** is synthetic —
+`dorado_disk_controller_advance_sector()` is poked manually from probe
+code, not driven from a clock model (`disk.h` line 47).
+
+F5. **Status readout partial** — KSTATE/KSTAT subset only;
+`RdFifoTW` thresholds, block-mode status, ECC words, end-of-block
+`ReadErr`/`WriteErr` summary bits not modeled.
+
+F6. **Tag decode** carries both high-nibble (compatibility) and low-
+nibble (`0x100A` ReZero) decoders side by side — chosen empirically; not
+yet aligned to a single canonical decoding.
+
+### G. Fast I/O (`src/fastio.c`)
+
+G1. IOFetch/IOStore data destined for unrouted tasks is silently
+discarded (line 38).
+
+### H. I/O routing / devices
+
+H1. **No Ethernet controller.** Now the next visible blocker after
+hard-disk boot fails (Path A's Initial-fetches-emulator step).
+`EtherMicrocodeBoot` falls through. A gated probe-only injector exists
+for `.eb` images but isn't a real Ethernet model.
+
+H2. **MCR / Hold/TaskSim / Reset register** not wired as slow-IO devices.
+Returning floating-bus 0xFFFF + bad-parity for these is what blocks
+Boot0 (A2 above).
+
+### I. Tests / probes
+
+I1. `probe_aemu` halts at `PC=0o7777` via `JNKINITPC`. Needs either
+planted Mesa state (frame/MDS/context layout from Pilot docs) or Hold
+semantics (B1).
+
+I2. Probes carry environment-driven side paths (`DORADO_ETHER_BOOT_IMAGE`,
+`DORADO_BOOT_SNAPSHOT`) — bring-up scaffolding; should be replaced or
+migrated to real fixtures.
+
+### J. .MB loader / disasm coverage
+
+J1. Only **DMachine == 2 (model-1)** storage shuffle is exercised. Model
+0 (3-word, no shuffle) and D0 (DMachine == 0) paths exist nominally but
+are untested (`dorado/CLAUDE.md` "Model-1 storage bit-shuffle" section).
+
+J2. Disassembler polish deferred: sharper FF/JCN sub-decoding, ALUFM
+cross-reference, `.DLS`-format `--listing` mode.
+
+### K. Phase-2 (Verilog) prerequisites not yet satisfied
+
+K1. Cycle accuracy still skipped in many places (atomic refs, single-
+cycle IFUJump, no Hold, synthetic disk timing). Each will need to land in
+C before the RTL port has anything to mirror.
+
+### Highest-leverage gaps (suggested ordering)
+
+1. Disk sector/status path through `WaitForSector`/`Read1Muff`
+   (F1–F5).
+2. A real or controlled Ethernet boot path so `LoadRam` can pull in
+   emulator microcode (H1).
+3. Bootstrap streaming corruption — verify BB ROM Boot1Data layout vs.
+   `Initial.mb` (A1, D2).
+4. Hold semantics in the memory subsystem (B1, C1) — needed for AEmu
+   and likely for any post-boot Mesa work.
+5. `Pd←Input`/`Pd←InputNoPE` plus the slow-IO devices the BB ROM Boot0
+   polls (B2, H2).
+
 ## What's NOT working (the actual bring-up gaps)
 
 Listed in priority order. These are the next concrete tasks.
@@ -387,10 +645,12 @@ Hypotheses for the root cause:
    manually to verify the byte format.
 3. **CPReg-byte ordering between the BB and Bootstrap doesn't match
    the Type-0/Type-1 packet format described in `BootstrapMain.mc`.**
-   Our BB pushes `ABMux1` (low byte) first, then `ABMux0` (high byte
-   with AMSync). Bootstrap reads `T←~CPReg` once and decodes via
-   `LSH[T,10]/LDF[T,10,0]`. If the CPReg layout has the byte data in
-   a different position than Bootstrap expects, every T composition
+   Our BB pushes `ABMux1` (low byte) first, then `ABMux0` (high byte).
+   During the Boot1 stream the first ABMux0 write clears CPRegH and the
+   second writes `(MicroHalf << 1)|extra_bit`, creating the Dorado-visible
+   data-ready transition. Bootstrap reads `T←~CPReg` once and decodes
+   via `LSH[T,10]/LDF[T,10,0]`. If the CPReg layout has the byte data
+   in a different position than Bootstrap expects, every T composition
    is shifted/garbled.
 
 The trace shows that the SECOND ReadBB (which provides the dispatch

@@ -24,6 +24,16 @@
 typedef struct {
     dorado_display         *display;
     dorado_disk_controller *disk_ctl;
+
+    /* Diagnostics (gap G1). Real hardware Holds the processor when a
+     * destination FIFO is full or there is no destination at all.
+     * We don't model Hold yet — these counters at least make silent
+     * drops detectable. */
+    uint32_t drops_display_fifo_full;   /* DWT IOFetch: display FIFO full */
+    uint32_t drops_disk_fifo_full;      /* DSK IOFetch: disk FIFO full */
+    uint32_t drops_disk_fifo_empty;     /* DSK IOStore: disk FIFO empty (zero-padded) */
+    uint32_t drops_unrouted_iofetch;    /* IOFetch from a task with no device */
+    uint32_t drops_unrouted_iostore;    /* IOStore from a task with no device */
 } dorado_fastio_router;
 
 void dorado_fastio_router_init(dorado_fastio_router *r,

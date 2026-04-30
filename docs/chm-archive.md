@@ -378,3 +378,201 @@ pulled because we already have the equivalent PDFs. Pulled:
 
 Just the directory index, saved for reference. Contents are mostly
 older versions of files we already have; not pulled in bulk.
+
+## 8. Phase-0 archive survey (2026-04-30)
+
+Full re-walk of the `xeroxparcarchive` `_cd8_/` tree to feed
+`docs/research-plan.md`. Earlier sections of this doc undercounted
+several Dorado branches; this section is the authoritative inventory
+of Dorado-relevant content on the live server, annotated with the
+gap IDs (per `handoff.md`) each artifact serves.
+
+### Top-level branches in `_cd8_/`
+
+```
+alto/  altodocs/  basicdisks/  bootfiles/  cedardocs/  cedarlib/
+dicentra/  dls/  dorado/  doradodocs/  doradomicrocode/  doradosource/
+grapevine/  ifs/  indigogv/  indigoifs/  juno/  laurel/  mockingbird/
+portola/  press/  printingdocs/  pup/  pupgateway/  solidviews/
++ cd_copy / cd_link tools (not relevant)
+```
+
+Dorado-relevant branches: `dorado/` (canon), `doradodocs/` (papers),
+`doradomicrocode/` (alt-organised source tree), `doradosource/` (the
+broader source archive). `pup/`, `pupgateway/`, `bootfiles/` may also
+matter for **H1 Ethernet** boot bring-up.
+
+### `_cd8_/doradodocs/` ★ — **previously unsurveyed**
+
+42 entries. PRESS-format documents (Xerox internal printable form);
+plan to convert each to PDF locally.
+
+| File | Gap | Notes |
+|---|---|---|
+| `DoradoHardwareManual.press!1` (667 KB) | all | Same source as our HM PDF — keep as cross-check. |
+| `DoradoManual-A.press!8`, `-B.press!8`, `-Figs.press!8` | all | The 1981 manual we already use, in original form. |
+| `DoradoBooting.press!7` (33 KB) | A1, A2, H1 | Newer (1984) booting memo — supersedes the 1980 memo we have. |
+| `DoradoBootingImpl.press!1` (26 KB) | A1, A2, H1 | Boot **implementation** memo (1983) — likely the BB Boot0/Boot1 protocol detail. |
+| `DoradoDebugging.press!2` (73 KB) | B5, B11 | Debugging facilities — Read IM, breakpoints, parity, perf counters. |
+| `DoradoMidas.press!15` (280 KB) | B5, B11 | Midas debugger. |
+| `MidasInternal.press!8` (168 KB) | B5, B11 | Midas internals. |
+| `GarageMidasManual.Press!2` (159 KB), `GarageMidasListings.Press!2` (177 KB) | B5, B11 | Newer Midas variant. |
+| `Kernel.Press!6` (278 KB) | B11, C1, C3 | Kernel microcode listings — fault handling ground truth. |
+| `MakeKernelListings.cm!5` | B11 | Build script for Kernel.Press. |
+| `DoradoMicroAssembler.Press!8` (216 KB) | J2 | Micro-assembler manual. |
+| `MicroSample.memo!1` (7 KB) | J2 | Tiny example for `.mc` source format. |
+| `OpcodeTimings.press!1` (20 KB), `opcodeTimings.bravo!2` | B1, K1 | Opcode timings — ground truth for Hold + cycle accuracy. |
+| `ExtendedOpcodes.press!3` (19 KB) | B9 | Extended opcode set. |
+| `DiskFormat.txt!1` (12 KB) | F1, F6 | **Disk format specification** — sequence-PROM context. |
+| `Mc10139LABLES.SIL!3`, `Mc10149PROMLABLES.SIL!4` | F1 | **PROM label data** — likely the read/sequence PROM source. |
+| `DougsTimingDiagrams.dm!1`, `.press!1` | B1, B9, K1 | **Timing diagrams** — load-bearing for Hold and IFU pipeline. |
+| `DispMwakeupwiring.bravo!2` (241 B) | E5 | Display-monitor wakeup wiring note. |
+| `D1DocsMail.dm!1` (382 KB) | (D1) | Dolphin docs — only relevant if model-0 .MB ever matters (J1). |
+| `DoradoB-W.Press!1` (398 KB), `DoradoB-WCover.Press!1`, `DoradoB-WEverything.dm!1` (1.6 MB) | all | CSL-81-1 Dorado paper bundle (already noted in §5). |
+| `BoardTester.press!7`, `BuildStandards.press!6`, `pcBoardSpec.press!2` | (none for emu) | Manufacturing docs. |
+| `Archive.Directory!2`, `RevStatus.press!4`, `SustainingEngineers.press!2`, `Microcode.mail!1`, `Dorado.mail!1`, `bootDorado.press!1`, `DoradoUserOps.press!2`, `baseboardloadingchart.sil!1` | misc | Ancillary; not load-bearing. |
+
+### `_cd8_/doradomicrocode/` — partially surveyed
+
+Subdirectories (no top-level files):
+
+```
+7.0/  BlockOps/  CedarDual3/  Code/  Cpa/  Documentation/
+DoradoMicrocodeSources/  EtherTester/  Initial/  KernelSources/
+LoadAltoDumpFile/  LoadMB/  Micro/  MicroD/  Top/
+```
+
+The local mirror has a focused subset of `DoradoMicrocodeSources/`
+already. For our gaps:
+
+- **`EtherTester/`** ★ — **H1**. Not pulled. Spider next.
+- **`Initial/`** ★ — A1, A2. Not pulled. Should contain the source
+  for `Initial.mb` separate from `BootstrapSources.dm`.
+- **`KernelSources/`** ★ — B11, C1, C3, C4, C5. Need full pull.
+- **`LoadMB/`**, **`LoadAltoDumpFile/`** — B5 (Read IM context).
+- **`Documentation/`** — likely contains Mesa/Cedar driver docs.
+- **`BlockOps/`**, **`CedarDual3/`**, **`Cpa/`**, **`Top/`**, **`Code/`** — examine on demand.
+
+### `_cd8_/doradosource/` — partially surveyed
+
+40 sub-archives, 62 top-level files. Highest-value for our gaps:
+
+| File / dir | Gap | Notes |
+|---|---|---|
+| **`DoradoProms.dm!14`** (54 KB) | F1, F6 | ★ **Read/sequence-PROM dumps** — the canonical artifact for disk Phase 3. Pull and decode early. |
+| **`MEMASOURCE.DM!15`** (105 KB) | B1, C1, C2, C3, C6 | ★ Main-memory microcode source. Hold/Pipe/MCR ground truth. |
+| **`memMiscSource.dm!9`** (76 KB) | C1, C3, C4, C5 | Memory helper microcode. We have a partial. |
+| **`kernelSources.dm!40`** (170 KB) | B11, C4, C5 | Kernel source — fault handlers. We have a partial. |
+| **`BootstrapSources.dm!12`** (64 KB) | A1 | We have it locally. |
+| **`IfuSources.dm!53`** (277 KB) | B9 | We have it locally. |
+| **`MidasSources.dm!24`** (245 KB), **`MidasDoradoSources.dm!27`** (496 KB), **`MidasInternal.Dm!4`** (134 KB) | B5, B11 | Midas/DoradoDebug source. Pull for Read IM + breakpoints. |
+| **`ReadMB.dm!1`** (11 KB) | B5 | ReadMB source — direct Read IM example. |
+| **`LoadMB.dm!6`** (22 KB) | B5 | LoadMB source — IM loader microcode. |
+| **`eventCountersSources.dm!5`** (174 KB) | B11 | Event-counter (perf-counter) microcode. |
+| **`diagnosticsubrs.dm!11`** (177 KB), `diagnosticListings/` | many | Diagnostics — exercises every sub-system. |
+| **`emuEvents.dm!1`** (14 KB) | B11 | Emulator events. |
+| `DoradoProms.dm!14`, `DoradoMicroAssembler.Dm!3`, `DoradoMidasManual.dm!10`, `MicroMemo.Dm!2` | J2, others | Tooling sources. |
+| `D1Lang.Mc!14`, `D1Alu.Mc!3`, `D1AssemblerTest.Dm!2`, `D1ALTOMCSOURCE.DM!1`, `D1THEORY.DM!1` | J1 | Dolphin (D1/model-0) — only matters if we revive the model-0 .MB path. |
+| `TriEmu.mb`-related: `Tricond.dm`, `TriDiskSources.dm!8`, `TriconD-Diagnostics.dm!8` | (Tricon, separate) | Trident-disk-specific microcode for the Tricon controller (different from regular Trident). |
+| `Resist.dm!15`, `HighResist.dm!1`, `Ftestsource.dm!2`, `setClock.mesa!1`, `pcprint.dm!4` | misc | Tooling / tests. |
+
+### `_cd8_/dorado/` — corrections to old §5
+
+Several items the old `chm-urls.md` flagged as "not on the live
+server" **are** on the live server:
+
+- `bootstrap.dm!20` (20 KB) — present.
+- `doradobaserom.dm!12` (84 KB) — present.
+- `Ifu.dm!51` (128 KB) — present.
+- `kernel.dm!38` (61 KB) — present.
+- `MEMA.DM!18` (67 KB) — present.
+- `memMisc.dm!11` (55 KB) — present.
+- `Mesa.mb!3`, `Cedar.mb!6`, `AEmu.mb!2`, `DSemu.mb!1`, `TriEmu.mb!3`, `TriMesa.mb!3` — all present and pulled into `chm/dorado/`.
+
+The original "not fetchable" claim was mistaken; `chm-urls.md` should
+be amended.
+
+New finds in `_cd8_/dorado/` not in old §7:
+
+- `bootEmu.dm!3` (129 KB) — boot-emulator microcode. Possibly
+  relevant for Path A boot.
+- `diex.dm!2` (51 KB), `edp.dm!3` (40 KB) — diagnostic/debug
+  archives.
+- `DoradoMidasRun.dm!56` (239 KB) — Dorado-side Midas runtime.
+- `eventCounters.dm!5` (50 KB) — built event-counter microcode.
+
+### What's still missing
+
+After this re-walk:
+
+- **Alto-side Midas** UI (we have the Dorado-side runtime). Not
+  load-bearing for emu correctness.
+- **MBtoBase**, **APNew** — toolchain only.
+- **Trident pack** containing Initial's "page 4" private microcode
+  (A3). Not located here; check `bootfiles/`, `dicentra/` next pass.
+
+### Prioritized fetch list (start with these)
+
+The gaps drive the order. Each line: target dir + file → the gap it
+unblocks.
+
+1. `doradodocs/Mc10139LABLES.SIL!3`, `Mc10149PROMLABLES.SIL!4` → F1
+2. `doradodocs/DiskFormat.txt!1` → F1, F6
+3. `doradosource/DoradoProms.dm!14` → F1, F6
+4. `doradosource/MEMASOURCE.DM!15` → B1, C1–C6
+5. `doradodocs/DoradoBootingImpl.press!1` → A1, A2
+6. `doradodocs/DoradoDebugging.press!2`, `DoradoMidas.press!15` → B5, B11
+7. `doradosource/ReadMB.dm!1`, `MidasSources.dm!24` → B5
+8. `doradodocs/Kernel.Press!6` → B11, C4, C5
+9. `doradodocs/DougsTimingDiagrams.press!1`, `OpcodeTimings.press!1` → B1, K1
+10. `doradomicrocode/EtherTester/` (full pull) → H1
+11. `doradomicrocode/Initial/` (full pull) → A1, A2
+12. `doradomicrocode/KernelSources/` (full pull) → B11, C-series
+13. `doradosource/eventCountersSources.dm!5` → B11
+
+PRESS-format files are not directly readable; we'll need either a
+local Press-to-PDF converter (likely a Java/Smalltalk thing) or to
+locate equivalents on Bitsavers. The HM is already on hand as PDF
+because someone already converted; chase that route for the others
+before pulling raw PRESS bytes.
+
+### Cross-reference grep (Phase 0b)
+
+Hit counts in `chm/cross-reference.html` (45 MB index, 568K lines):
+
+```
+   527  ECC      (mostly false-positive: Eccentric, Eros, …)
+    65  Hold     (some Dorado timing memos)
+   374  DDC      (Cedar dictionary-mostly false-positive)
+   201  Trident
+  1954  Midas
+   128  EtherBoot
+    11  DoradoDebug
+     0  MCPBus / Read.PROM / Sequence.PROM / Boot1 / Boot0 / FireCode
+```
+
+The keyword search exposed a few previously unseen archives:
+
+- **`indigo/doradosource/doradodebugging.dm!1_/`** — Press source of
+  the DoradoDebugging document (Press-format archive).
+- **`indigo/daffodil/ibip/doc/ibip-bus-ifu-clockhold.dm!1_/`** —
+  IBIP-era doc on bus / IFU / clock / Hold timing. **High value for B1.**
+- **`io/doradologic/debug/doradobasedebug.dm!1_/`** — BaseBoard debug
+  ROM source (separate from `doradobaserom.dm`).
+- **`_cd8_/alto/etherboot.dm!1_/`** — Alto-side EtherBoot server source.
+  Pup boot protocol implementation. **High value for H1.**
+- **`_cd8_/pup/`** — Pup protocol stack. Use for the EtherBoot
+  packet format that the Dorado Initial speaks.
+
+### `_cd8_/doradomicrocode/` subdirectories — sub-survey
+
+| Subdir | Files | Notes |
+|---|---|---|
+| `KernelSources/` | 20 | ★ `Kernel1.mc` … `Kernel5.mc`, `KernelALU.mc`, `Preamble.mc`, `Postamble.mc`. Ground truth for B11 breakpoints, fault handling (C4/C5), and ALUFM init. |
+| `Initial/` | 1 | Just `InitialSelect.mb!1` (11 KB) — possibly the current Initial the BB ROM streams. |
+| `Documentation/` | 5 | `CedarBRAssignments.tioga!1`, `CedarRMAssignments.tioga!1`, `NewCedar*.tioga!2`, `EtherTesterDoc.tioga!1`. ★ For I1 (Mesa state planting), the BR/RM assignments are the layout we need. |
+| `EtherTester/` | 34 | All Mesa-side test programs (`EtherTesterMainImpl.mesa!1`, `NewEthernetHeadDorado.mesa!1`, `NSCedar.eb!1`, etc). Mesa drivers, not microcode — useful as a reference for what Mesa expects of the Ethernet controller, but not the µcode itself. |
+
+The other `doradomicrocode/` subdirs (`7.0/`, `BlockOps/`, `CedarDual3/`,
+`Code/`, `Cpa/`, `LoadAltoDumpFile/`, `LoadMB/`, `Micro/`, `MicroD/`,
+`Top/`) remain unsurveyed — pull on demand.
