@@ -179,32 +179,34 @@ static int test_prefetch_dummyref(void)
     return 0;
 }
 
-/* Test 6: Storage wraps modulo storage_words. */
-static int test_storage_wrap(void)
+/* Test 6: Real storage does not wrap into missing modules. */
+static int test_storage_bounds(void)
 {
     static dorado_memory mem; memset(&mem, 0, sizeof mem);
     EXPECT(dorado_memory_init(&mem) == 0, "init");
 
-    /* Map the low VA and the high VA to physical words that alias
-     * after the 4MW storage mask. */
+    /* Map the low VA and the high VA to physical words that would
+     * alias if real addresses were masked by the installed size. */
     dorado_map_set(&mem, /*va_page=*/0,      /*rp=*/0,      0, 0);
     dorado_map_set(&mem, dorado_map_index(0x400042), /*rp=*/0x4000, 0, 0);
 
-    /* Store at low address, then read at high address that wraps to
-     * the same physical word. With cache modeling, the Store sits in
-     * the cache for VA 0x42; we Flush← it back to storage before
-     * reading via the aliased VA (HM page 47: distinct VAs → same RP
-     * is illegal unless both WP, so the canonical pattern is
-     * Flush←-then-read). */
+    /* Store at low address, then try a high address that used to wrap
+     * to the same physical word. Flush first so a cache hit cannot
+     * hide the physical-storage boundary. */
     dorado_memory_ref(&mem, DM_REF_STORE, 0x42, 0xBEEF, 0);
     dorado_memory_ref(&mem, DM_REF_FLUSH, 0x42, 0, 0);
-    /* DM_STORAGE_WORDS = 4 MW = 0x400000. So phys 0x400042 wraps to 0x42. */
-    dorado_memory_ref(&mem, DM_REF_FETCH, 0x400042, 0, 0);
-    EXPECT(mem.md == 0xBEEF,
-           "wrap fetch returned Md = 0x%04X, expected 0xBEEF", mem.md);
+    /* DM_STORAGE_WORDS = 4 MW = 0x400000. Phys 0x400042 is in an
+     * absent module for the default one-module config and must fault,
+     * not wrap to storage[0x42]. */
+    dorado_fault_kind f =
+        dorado_memory_ref(&mem, DM_REF_FETCH, 0x400042, 0, 0);
+    EXPECT(f == DM_FAULT_STORAGE_ERROR,
+           "out-of-range fetch fault = %d, expected storage error", (int)f);
+    EXPECT(mem.md != 0xBEEF,
+           "out-of-range fetch aliased low storage: Md = 0x%04X", mem.md);
 
     dorado_memory_free(&mem);
-    printf("PASS  test_storage_wrap\n");
+    printf("PASS  test_storage_bounds\n");
     return 0;
 }
 
@@ -771,8 +773,8 @@ static int test_config_word_reports_storage(void)
     uint16_t cfg = dorado_memory_config_word(&mem);
     EXPECT(((cfg >> 8) & 0xF) == 2,
            "Config ASRN = 0x%X, expected 2", (cfg >> 8) & 0xF);
-    EXPECT(((cfg >> 4) & 0xF) == 0xF,
-           "Config module mask = 0x%X, expected 0xF", (cfg >> 4) & 0xF);
+    EXPECT(((cfg >> 4) & 0xF) == 0x1,
+           "Config module mask = 0x%X, expected 0x1", (cfg >> 4) & 0xF);
     EXPECT((cfg & 0x3) == 2,
            "Config chip size = 0x%X, expected 2", cfg & 0x3);
 
@@ -979,7 +981,7 @@ int main(void)
     rc |= test_pipe_records();
     rc |= test_pipe_wraps();
     rc |= test_prefetch_dummyref();
-    rc |= test_storage_wrap();
+    rc |= test_storage_bounds();
     rc |= test_map_vacant_page_fault();
     rc |= test_map_write_protect();
     rc |= test_map_load();

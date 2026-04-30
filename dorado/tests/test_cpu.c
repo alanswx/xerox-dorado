@@ -3635,6 +3635,38 @@ static int test_cpu_fault_info_visible(void)
     return 0;
 }
 
+static int test_cpu_pipe4_no_error_baseline(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;   /* "B" */
+
+    /* B←Pipe4' = FA=1 FB=6 FC=5 = 0o165. HM page 51 says
+     * 0150361_8 XOR Pipe4' yields high-true fields, so no error
+     * reads as exactly 0150361_8 on the bus. */
+    mc.im[0] = make_uinstr(0, 0, 0, 1, 6, 0, 0165, jcn_local(0));
+    mc.im_present[0] = 1;
+    mc.image_to_real[0] = 0;
+    mc.image_present[0] = 1;
+    mc.n_instructions = 1;
+
+    static dorado_memory mem;
+    EXPECT(dorado_memory_init(&mem) == 0, "memory init");
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.mem = &mem;
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "Pipe4 step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.T == 0150361,
+           "Pipe4' no-error baseline = 0o%o, expected 0o150361", cpu.T);
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_cpu_pipe4_no_error_baseline\n");
+    return 0;
+}
+
 /*
  * BC timing test (HM page 18 + 30):
  *
@@ -4644,6 +4676,47 @@ static int test_alufmrw_bit_mapping(void)
     return 0;
 }
 
+static uint16_t run_alu_shift_ff(uint8_t ff, uint8_t alufm, uint16_t rm0)
+{
+    dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = alufm;
+    mc.alufm_present[0] = 1;
+    mc.im[0] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/1, /*lc=*/1,
+                           /*asel=*/4, /*block=*/0, /*ff=*/ff,
+                           /*jcn=*/jcn_local(0));
+    mc.im_present[0] = 1;
+    mc.image_to_real[0] = 0;
+    mc.image_present[0] = 1;
+    mc.n_instructions = 1;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.RM[0] = rm0;
+    EXPECT(dorado_cpu_step(&cpu) == 0, "ALU shift step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    return cpu.T;
+}
+
+static int test_alu_shift_ff_functions(void)
+{
+    EXPECT(run_alu_shift_ff(0270, 025, 0x8001) == 0x4000,
+           "ALU rsh 1 failed");
+    EXPECT(run_alu_shift_ff(0271, 025, 0x8001) == 0xC000,
+           "ALU rcy 1 failed");
+    EXPECT(run_alu_shift_ff(0272, 014, 0x8000) == 0x8000,
+           "ALU brsh 1 failed");
+    EXPECT(run_alu_shift_ff(0273, 025, 0x8001) == 0xC000,
+           "ALU arsh 1 failed");
+    EXPECT(run_alu_shift_ff(0274, 025, 0x4001) == 0x8002,
+           "ALU lsh 1 failed");
+    EXPECT(run_alu_shift_ff(0275, 025, 0x8001) == 0x0003,
+           "ALU lcy 1 failed");
+
+    printf("PASS  test_alu_shift_ff_functions\n");
+    return 0;
+}
+
 int main(void)
 {
     int rc = 0;
@@ -4668,6 +4741,7 @@ int main(void)
     rc |= test_memory_decode_uses_table8b_when_ff_not_ok();
     rc |= test_bootstrap_ldf_dispatch();
     rc |= test_cpu_fault_info_visible();
+    rc |= test_cpu_pipe4_no_error_baseline();
     rc |= test_bc_timing_previous_instr();
     rc |= test_freezebc();
     rc |= test_task_switch_on_wakeup();
@@ -4686,6 +4760,7 @@ int main(void)
     rc |= test_slow_io_routing();
     rc |= test_carry_preserved_on_logical();
     rc |= test_alufmrw_bit_mapping();
+    rc |= test_alu_shift_ff_functions();
     rc |= probe_bootstrap_pure();
     rc |= probe_bootstrap();
     rc |= probe_aemu();

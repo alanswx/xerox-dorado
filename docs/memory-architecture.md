@@ -520,7 +520,13 @@ MemBase — see HM §6.4.
 
 ## ECC and storage layout
 
-- Storage: 256 K × 16 words per module, 1–4 modules.
+- Storage modules are fixed real-address ranges, not interleaved. HM
+  page 59: a module stores 256K or 1M 64-bit quadwords depending on
+  chip generation; with the 64Kx1 chips reported by our Config' model,
+  one module is 4M 16-bit words. The default 4MW backing store is
+  therefore one present module, not four smaller modules.
+- References beyond installed storage report a storage/data fault in
+  the C model; they do not wrap back into low storage.
 - 8 EC bits per 16-bit word (Hamming SEC + DED extension).
 - Single bits corrected automatically; doubles fault.
 - `Sin` / `Sout` are the storage buses, separate from Md.

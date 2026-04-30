@@ -98,13 +98,14 @@ label.
         └─────────────────────────────────────────────────┘
 ```
 
-## Current state (2026-04, post ALUFM+quadrant fixes)
+## Current state (2026-04-29, post memory Config + ALU-shift fixes)
 
 **Microengine works against real microcode.** Recent fixes (ALUFM
 extraction carry bit, `Pd←ALUFMRW` bit mapping, `CPU_QUADRANT_SIZE`,
-arithmetic-only Carry'/Overflow update, B←RWCPReg legacy stub) were
-all real correctness bugs that the unit tests didn't catch but real
-microcode hit. With them in place:
+arithmetic-only Carry'/Overflow update, B←RWCPReg legacy stub,
+Config' storage reporting, and HM Table 11d ALU one-bit shifts) were
+all real correctness bugs that unit tests alone did not catch but
+real microcode hit. With them in place:
 
 - `probe_aemu` runs **real AEmu microcode** for 200K cycles:
   STARTEMULATOR → RESUMEEMULATOR → SETUPBRS → DOBRS×12 → IFU
@@ -139,6 +140,9 @@ What works
 - Real Write IM, BLOCK=1 STK push/pop with HM Table 6 sub-decodes.
 - Memory subsystem: cache 4×64×16, Map (16K entries), Pipe (16
   entries), BR (32 entries), Fetch/Store/IFetch, Map faults.
+  Config' reports one present 4MW module for the default 64Kx1
+  backing store, and physical storage references past installed
+  modules fault instead of wrapping.
 - IFU: IFUM 1024×24-bit, prefetch+pipeline, IFUJump dispatch,
   4 entry-vector slots, NotReady trap, conditional IFUJump.
 - Tasking: 16 tasks, priority-scheduled, T/TPC/MemBase/Link
@@ -161,26 +165,27 @@ What works (continued)
 
 **probe_full_boot_with_bootstrap** (added 2026-04): the BB drives
 its real Boot1 byte stream through CPReg while Bootstrap.MB is
-substituted in IM. Demonstrates:
+substituted in IM. Current bring-up uses a second workaround at
+BOOTSTAGE2: canonical Initial.MB is restored before INITIAL runs,
+because Bootstrap streaming still does not match the CHM Initial.MB
+image. With that in place, the probe now demonstrates:
 - BB cold-boots → MIR-jams Boot0 → starts Dorado free-running.
 - IM swap to Bootstrap.MB at first IM-fetched cycle.
-- BB streams Boot1Data via CPReg: 6529 ABMux strobes consumed.
-- Bootstrap.MB executes ~13M IM-fetched cycles of real microcode.
-- Bootstrap reaches READBB 3590 times, fires WRITE000 (Write IM)
-  1793 times — ALL targeting the same address (0o7744). RM[3] =
-  0xFFF3 = ~0x000C; the dispatch bits extracted from each second
-  byte read are always 0 → always WRITE000 (LH only) → Loc never
-  increments via the RH-write path. BB stream content reaches
-  Bootstrap, but the IMAddress bit-assembly produces the
-  *complement* of the BB's intended address.
+- BB streams Boot1Data via CPReg; Bootstrap writes 896 unique Initial
+  targets beginning at 0o6100, two half-writes each.
+- Initial runs through ALUFM init, RMINITL, IFUMINITL, PRESETMAP,
+  FINDMODULE, and into the `LWRETN` / `LONGWAIT` return path.
+- The 80M-cycle run parks at `PC=0o6012`, `Task=0`, `TIOA=0xC0`,
+  display/disk/fast-I/O counts all zero, `wakeup_pending=0xFFFE`,
+  and `fault_count=3`.
 - Source code verified: BootstrapMain.mc (fetched from CHM
   archives at chm/dorado/expanded/BootstrapSources.dm/) confirms
   that ReadBB returns T = ~CPReg via B←RWCPReg (per HM page 31:
   "B←CPReg'"). The LSH/LDF/XOR address-assembly code in
   BootstrapMain.mc must somewhere undo the inversion — but in our
-  model, it doesn't, which suggests our shifter (LSH) or LDF
-  semantics doesn't quite match what Bootstrap was assembled
-  against. **Open investigation in task #58**.
+  model still does not reconstruct a matching image; the remaining
+  streaming mismatch is separate from the Initial bring-up blocker.
+  **Open investigation in task #58**.
 
 **probe_initial** (added 2026-04): bypasses the BB chain and runs
 Initial.MB directly with Bootstrap.MB layered for IM[0o7700-0o7777].
@@ -191,19 +196,17 @@ Bootstrap's CPReg-reading subroutine. **Both depend on the BB
 CPReg protocol working** to make any progress.
 
 What's stub-or-missing
-- **Memory: storage backing** is a flat array (~OK for now) but
-  ECC, deferred refs, and Hold semantics are missing. Long-running
-  AEmu microcode hits memory references that should Hold the
-  engine while a fault resolves.
-- **No I/O devices wiring**: Display + Disk Phase 1 stubs exist
-  but aren't yet attached to probe_aemu / probe_full_boot. AEmu
-  microcode that touches DWT/DHT slow-IO would hit the floating-
-  bus default (0xFFFF + bad parity). Ethernet not modeled.
+- **Memory timing/errors:** storage modules no longer alias, but ECC,
+  per-slot Pipe4 error fields, deferred refs, and Hold/DisHold
+  semantics are missing. Long-running AEmu and Initial paths both
+  reach memory/fault waits that likely need these details.
+- **I/O bring-up:** Display + Disk Phase 1 stubs exist and fast-I/O
+  transport is tested, but Initial has not yet issued display/disk
+  slow-I/O in the full boot probe. Ethernet is not modeled.
 - **Bootstrap → Initial handoff in progress**: probe_full_boot_
-  with_bootstrap demonstrates the mechanism end-to-end but the
-  IMAddress-decode protocol mismatch keeps Bootstrap writing to
-  one address (0o7744) instead of laying out Initial.MB at its
-  expected addresses.
+  with_bootstrap demonstrates the mechanism end-to-end, but the
+  streamed Initial image still differs from canonical Initial.MB, so
+  the probe restores canonical Initial at BOOTSTAGE2.
 - **No keyboard / boot-button → emulator selection** (Mesa/Cedar/
   Lisp/Smalltalk/Alto). This rides on Display back-channel.
 - **No Ethernet client** for Path A's Initial-fetches-emulator
@@ -320,8 +323,10 @@ verify StkP / STK[N] state.
 
 Just enough for Boot0 to not walk into NaN. The simplest path:
 
-1. **Flat 4M-word storage array** in `src/memory.c`. No Map, no
-   cache, no faults — just `mem[VA & 0x3FFFFFF]`.
+1. Historical first stub: **flat 4M-word storage array** in
+   `src/memory.c`, no Map/cache/faults. Current code has real Map,
+   cache, Pipe, Config', and installed-module bounds; physical
+   addresses beyond installed storage fault instead of wrapping.
 2. **VA = BR[MemBase] + Mar** where `Mar` comes from A on
    Fetch←/Store← references. BR is 32 entries × 28-bit VAs;
    loaded via `BrLo←A` and `BrHi←A` (FA=1 FB=2 FC=3..4).

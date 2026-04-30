@@ -269,12 +269,12 @@ uint16_t dorado_memory_config_word(const dorado_memory *mem)
      *
      * The CPU reads Config' active-low, so this helper returns the
      * high-true internal value and cpu.c complements it for B←Config'.
-     * Current storage is modeled as four 1MW slots backed by 64Kx1-era
-     * boards, which matches the emulator's 4MW allocation and gives
-     * Initial a truthful "storage exists" response.
+     * Current storage is modeled as 4MW backed by 64Kx1-era boards.
+     * HM page 59: one 64Kx1 module stores 1M 64-bit quadwords, i.e.
+     * 4M 16-bit words, so the default allocation is one present module.
      */
     enum {
-        module_words = 1024 * 1024,
+        module_words = 4 * 1024 * 1024,
         chip_size_64kx1 = 2,
     };
 
@@ -307,7 +307,11 @@ static uint32_t va_page_offset(uint32_t va)
 
 /* Pure VA→phys translation. Returns the fault kind (PAGE if Vacant,
  * WRITE_PROTECT if writing through a WP=1 entry); on success sets
- * *out_phys to the storage offset. **Does not modify Map flags** —
+ * *out_phys to the storage offset. References beyond the installed
+ * storage modules report a storage/data error instead of aliasing
+ * back into low memory (HM page 59: each module supplies a fixed
+ * quarter of real memory and firmware cannot remap the range).
+ * **Does not modify Map flags** —
  * Ref and Dirty are managed at higher levels (cache fill, IOStore,
  * dirty-victim writeback) per HM page 47. */
 static dorado_fault_kind va_translate(const dorado_memory *mem, uint32_t va,
@@ -322,7 +326,8 @@ static dorado_fault_kind va_translate(const dorado_memory *mem, uint32_t va,
     if (is_write && e->wp) return DM_FAULT_WRITE_PROTECT;
 
     uint32_t phys = (uint32_t)(e->rp) * DM_PAGE_SIZE + va_page_offset(va);
-    *out_phys = (size_t)phys & (mem->storage_words - 1);
+    if ((size_t)phys >= mem->storage_words) return DM_FAULT_STORAGE_ERROR;
+    *out_phys = (size_t)phys;
     return DM_FAULT_NONE;
 }
 
@@ -429,7 +434,8 @@ static void cache_writeback_line(dorado_memory *mem, int row_idx, int way)
     size_t phys;
     if (va_translate(mem, va_base, /*is_write=*/0, &phys) == DM_FAULT_NONE) {
         for (int i = 0; i < DM_CACHE_LINE_W; i++) {
-            mem->storage[(phys + i) & (mem->storage_words - 1)] = line->data[i];
+            size_t p = phys + (size_t)i;
+            if (p < mem->storage_words) mem->storage[p] = line->data[i];
         }
         /* HM: dirty-victim write sets Map.Ref AND Map.Dirty. */
         uint32_t idx = dorado_map_index(va_base);
@@ -460,7 +466,8 @@ static void cache_fill(dorado_memory *mem, uint32_t va, int way)
     line->vacant = 0;
     line->being_loaded = 0;
     for (int i = 0; i < DM_CACHE_LINE_W; i++) {
-        line->data[i] = mem->storage[(phys + i) & (mem->storage_words - 1)];
+        size_t p = phys + (size_t)i;
+        line->data[i] = (p < mem->storage_words) ? mem->storage[p] : 0;
     }
     /* Cache miss → Map.Ref set on the page. */
     mem->map[dorado_map_index(va)].ref = 1;

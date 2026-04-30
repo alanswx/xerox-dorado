@@ -15,19 +15,16 @@ you don't repeat them.
   routing + BaseBoard 6502 model are working. Display + Disk + Fast-IO
   transport have Phase-2 stubs that move data end-to-end. The full
   BaseBoard Boot0 path reaches the BB's Continuous loop.
-  `probe_full_boot_with_bootstrap` uses three workarounds —
-  substituting canonical Initial.MB at BOOTSTAGE2 (Bootstrap streaming
-  produces data that doesn't match chm/Initial.mb because BB ROM is a
-  different build), bypassing the NOSTORAGE check, and forcing
-  tasking-on after the bypass. With those, plus kernel.mb/memMisc.mb/
-  IfuComplex.mb layered under Initial, the cpu executes a real boot
-  loop visiting CLRCACHEFCOLL, SETBRFORPAGE, SETMCR, LONGWAIT,
-  RMINITL, IFUMINITL, PRESETMAP, FINDMODULE, DISPLAYINITCONFIG, plus
-  task-15 fault processing. fault_count drops from 15 to 2;
-  wakeup_pending settles to 0. The boot still has no top-level
-  termination because Initial is presumably waiting for a disk-task
-  load of Mesa.mb. The AEmu bypass probe currently halts at
-  `PC=0o7777`.
+  `probe_full_boot_with_bootstrap` still substitutes canonical
+  Initial.MB at BOOTSTAGE2 because Bootstrap streaming does not yet
+  match `chm/Initial.mb`. NOSTORAGE no longer needs a probe bypass:
+  Config' reports the installed one-module 4MW storage configuration.
+  Initial now gets through PRESETMAP and FINDMODULE after MapBufBusy,
+  Pipe5, Config, and ALU one-bit shift fixes. The current 80M-cycle
+  run parks in Initial's `LWRETN` / `LONGWAIT` return path around
+  `PC=0o6012`, with `TIOA=0xC0`, no display/disk slow-I/O yet, and
+  a few pending memory faults. The AEmu bypass probe currently halts
+  at `PC=0o7777`.
 - **Repo:** `/Users/alans/Documents/development/Dorado`
 - **Most useful entry points to read:** `CLAUDE.md` (project mission),
   `dorado/CLAUDE.md` (code-side guide), `docs/INDEX.md` (doc map).
@@ -266,9 +263,8 @@ to make it useful again:
 
 ### 2. Full BB→Bootstrap→Initial path now runs the boot loop (with workarounds)
 
-**Latest status (2026-04-29 evening):** With three workarounds —
-canonical-Initial substitution at BOOTSTAGE2, NOSTORAGE bypass, and
-forced tasking-on after bypass — plus kernel.mb/memMisc.mb/IfuComplex.mb
+**Latest status (2026-04-29 late):** With canonical-Initial
+substitution at BOOTSTAGE2 plus kernel.mb/memMisc.mb/IfuComplex.mb
 layered under Initial.mb to provide fault-task and helper microcode,
 Initial runs through a full setup sequence:
 
@@ -279,30 +275,18 @@ Initial runs through a full setup sequence:
 5. PRESETMAP / RESETMAPL / WRITEMAP / WAITFORMAPBUF — Map init
 6. CLRCACHEFCOLL — cache flush
 7. SETBRFORPAGE — BR setup
-8. NOSTORAGE test at 0o6210 (`A AND 0xF000 == 0`) → branches to NOSTORAGE
-9. **NOSTORAGE BYPASSED → FINDMODULE (0o6357)** in probe
-10. Initial continues to DISPLAYINITCONFIG, sets TIOA=0xC0
-11. After bypass, with kernel layered, runs a complex outer loop:
-    `0o7065 → 0o6211 → CLRCACHEFCOLL(0o6202) → 0o6215 → 0o6441 →
-    0o6451 → SETBRFORPAGE(0o7420) → 0o7434 → 0o7450 → 0o7454 →
-    0o6452 → 0o6457 → 0o6453 → SETMCR(0o6000) → 0o6002 → 0o6003 →
-    LWRETN(0o6012) → RETN(0o6013) → 0o6454 → 0o6455 → LONGWAIT(0o6100) →
-    ... → 0o6471 → 0o7064 → 0o7010 → 0o7014 → 0o7034 → 0o7070 → 0o7065`
-12. **Stuck:** the outer loop has no top-level termination — likely
-    waiting for disk task to load Mesa.mb microcode
-
-Hot PCs (with kernel layered, post-bypass):
-- LWRETN (0o6012) × 3.2M (down from 9.2M without kernel)
-- 0o6002 ×1.9M
-- RETN (0o6013) ×702K
-- 0o6245 ×523K
-- SETMCR (0o6000) ×269K
+8. NOSTORAGE test passes via real `B←Config'` (one 4MW storage module)
+9. FINDMODULE (0o6357) advances after FA=2/FB=7 ALU shift support
+10. Initial reaches the `LWRETN` / `LONGWAIT` return path
+11. **Stuck:** no display/disk I/O has started; tasking is off in the
+    final sample and wakeup_pending still has many task bits set
 
 State at end:
-- Task=0 TIOA=0xC0
-- tasking_on=1, wakeup_pending=0, ready=0x0001
-- Memory: faults=2 (down from 15)
-- RM[3]=0xCFC0, RM[5]=0x1CFC, RM[8]=0x8000 (Initial computed values)
+- 80M run: `PC=0o6012`, `T=0x0004`, `Q=0x0F41`, `Link=0x0C4E`
+- Task=0, `TIOA=0xC0`, display outs=0, disk outs=0, fast I/O=0
+- `tasking_on=0`, `wakeup_pending=0xFFFE`, `ready=0x0001`
+- Memory: faults=3, `first_srn=0`, `Mar=0xAB9`
+- `RM[1]=0x0B6A`, `RM[2]=0x0080`, `RM[6]=0xFEFF`, `RM[8]=0x0000`
 
 **Underlying issues, in priority order to fix:**
 
@@ -399,14 +383,16 @@ Initial computes a value via shifter ops at 0o6041..0o6277, stores in
 
 Fixed: `B←Config'` now comes from `dorado_memory_config_word()` instead
 of hard-coded `0xFFFF`. Per HM Figure 10 it reports ASRN, M0..M3
-storage-module-present bits, and ChipSize (modeled as four present
-1MW slots, 64Kx1 chips). With this, the full boot probe no longer
-hits the NOSTORAGE bypass; Initial reaches `FINDMODULE` naturally.
+storage-module-present bits, and ChipSize. HM page 59 says one 64Kx1
+module stores 1M 64-bit quadwords, i.e. 4M 16-bit words, so the
+default 4MW backing store is reported as one present module. With
+this, the full boot probe no longer hits the NOSTORAGE bypass;
+Initial reaches `FINDMODULE` naturally.
 
 The old probe-side `0o6247 → 0o6357` bypass remains in
 `test_cpu.c`, but it no longer fires in the normal run.
 
-#### 2c. PRESETMAP / WAITFORMAPBUF loop (current top blocker)
+#### 2c. PRESETMAP / WAITFORMAPBUF loop (fixed enough for boot path)
 
 After Config' was implemented, Initial enters `FINDMODULE` and spends
 the budget in map initialization rather than the old display
@@ -426,20 +412,20 @@ Initial variables look sane: `RNUM=4`, `RCONST=4`, `VIRTUALBANKS=4`,
 use first (dVA<-Victim, DisBR, DisCF, NoRef, FDMiss, UseMcrV,
 NoWake), and `CFlags<-A'` plus the cache-address-section portion of
 `B<-Pipe5` are modeled at a basic level, including Victim/NextVictim.
-The full test/probe still parks in this same PRESETMAP loop. Basic
-Config, MapBufBusy, ReadMap/Map<- indexing, HM Table 8a/8b
-memory-reference decode, 256-word page geometry, cache-address VA
-readback, basic cache flags, and Pipe5 Victim/NextVictim reporting are
-no longer the likely blockers. The next likely missing hardware is
-deeper memory-section behavior: Hold/DisHold, exact VNV update RAM
-behavior, or remaining MCR bits (DisHold, WMiss, ReportSE').
+This is no longer the top blocker. The remaining bug was not in
+MapBufBusy: Initial's FINDMODULE path uses HM Table 11d ALU one-bit
+shifts (`FA=2, FB=7`, especially `Pd←ALU lsh 1` at 0o6357). The old
+stub returned the unshifted ALU output, so the module/page scan never
+advanced correctly. `cpu.c` now implements rsh/rcy/brsh/arsh/lsh/lcy,
+and `test_alu_shift_ff_functions` pins them down.
 
-#### 2d. LONGWAIT busy-wait (superseded for now)
+#### 2d. LWRETN / LONGWAIT path (current top blocker)
 
-After bypassing NOSTORAGE, Initial calls DISPLAYINITCONFIG and sets
-TIOA=0xC0. It then enters a tight LONGWAIT loop:
-`0o6116 → 0o6110 → 0o6115 → LONGWAIT(0o6100) → LWRETN → RETN → 0o6116`
-running ~280K iterations until the cycle budget expires.
+After Config, PRESETMAP, and FINDMODULE progress, the 80M-cycle probe
+parks in the return/long-wait region. Hot PCs are dominated by
+`LWRETN(0o6012)`, `LONGWAIT(0o6100)`, `0o6110`, `0o6115`, and
+`0o6116`; final `TIOA=0xC0`. No display/disk slow-I/O or fast-I/O has
+started yet.
 
 To investigate, decode the instruction at 0o6116 to find what
 condition Initial polls each iteration, and add the missing device
@@ -647,25 +633,24 @@ Currently active when I left off:
 ## Suggested first action for the next session
 
 The probe currently bypasses one issue (Bootstrap streaming
-corruption) to let Initial run. NOSTORAGE no longer needs the bypass.
-The CURRENT BLOCKER is the PRESETMAP / WAITFORMAPBUF loop. Recommended
-order:
+corruption) to let Initial run. NOSTORAGE, PRESETMAP, and FINDMODULE
+are no longer the current blockers. The CURRENT BLOCKER is the
+`LWRETN` / `LONGWAIT` path after FINDMODULE. Recommended order:
 
-### Highest-value: finish PRESETMAP memory-section dependencies
+### Highest-value: decode the current wait path
 
-1. Instrument the PRESETMAP termination test more deeply: capture
-   `ReadMap` values and the branch inputs around `PRESETMAPE`,
-   `PRESETMAPL`, and `SETBRFORPAGE`.
-2. Implement enough Hold/DisHold behavior that memory/map references
+1. Instrument PCs `0o6012`, `0o6100`, `0o6110`, `0o6115`, `0o6116`,
+   and the caller around `0o7420`/`0o7450`; log branch inputs, Link,
+   TIOA, FaultInfo', Pipe3'/Pipe4'/Pipe5, and tasking state.
+2. Implement per-slot Pipe4 error reporting beyond the no-error
+   baseline (`Pipe4' = 0150361_8`) so the fault/wait code can see
+   Page/WP/storage data errors accurately.
+3. Implement enough Hold/DisHold behavior that memory/map references
    can stall instead of returning stale Md immediately.
-3. Replace the LRU-derived Victim/NextVictim approximation with the
-   separate VNV RAM/update equations if PRESETMAP/cache setup depends
-   on exact replacement diagnostics.
-4. Finish the remaining MCR bits if the map loop depends on them:
+4. Finish the remaining MCR bits if the wait path depends on them:
    DisHold, WMiss, and ReportSE'.
-5. Re-run `build/test_cpu`; success means leaving PRESETMAP and
-   reaching DISPLAYINITCONFIG / device I/O without the NOSTORAGE
-   workaround.
+5. Re-run `build/test_cpu`; success means reaching display or disk I/O
+   after Initial's hardware init.
 
 ### Highest-leverage but hardest: fix Bootstrap streaming
 

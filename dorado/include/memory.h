@@ -15,7 +15,8 @@
  *
  * Address model:
  *   VA = BR[MemBase] + Mar     (28-bit virtual; HM page 36)
- *   Phys = Map[page(VA)].RP || page_offset(VA), truncated to storage
+ *   Phys = Map[page(VA)].RP || page_offset(VA), checked against installed
+ *          storage modules
  *
  * Reference kinds (HM Table 8a + page 37):
  *   PreFetch     — load munch into cache; no Md update.
@@ -132,6 +133,7 @@ typedef enum {
     DM_FAULT_PAGE,           /* reference to vacant map entry */
     DM_FAULT_WRITE_PROTECT,  /* Store←/IOStore←/dirty-victim with WP=1 */
     DM_FAULT_MAP_TROUBLE,    /* parity error on map read (we don't model this) */
+    DM_FAULT_STORAGE_ERROR,  /* storage data/module error (MemError) */
 } dorado_fault_kind;
 
 typedef struct dorado_memory {
