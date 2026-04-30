@@ -2081,19 +2081,51 @@ static int probe_full_boot_with_bootstrap(void)
      * Bootstrap's corrupt streamed IM when execution reaches
      * BOOTSTAGE2 (= the BranchExternal[InitialLoc] at PC 0o7717).
      * This bypasses the streaming bug while exercising the rest of
-     * the boot path. See handoff.md for details on the streaming
-     * corruption. */
+     * the boot path.
+     *
+     * On top of Initial.mb, layer kernel.mb (fault task + dispatch),
+     * memMisc.mb (memory primitives), and IfuComplex.mb (IFU
+     * support). This is the standard Mesa-bootstrap microcode stack
+     * — without these layers, Initial's wakeups for fault task /
+     * I/O tasks have no microcode to dispatch to. */
     static dorado_microcode init_mc;
     static mb_file initial_mb_for_init_mc;
+    static mb_file kernel_mb_layer;
+    static mb_file memmisc_mb_layer;
+    static mb_file ifucomplex_mb_layer;
     int initial_canonical_loaded = 0;
     mb_init(&initial_mb_for_init_mc);
+    mb_init(&kernel_mb_layer);
+    mb_init(&memmisc_mb_layer);
+    mb_init(&ifucomplex_mb_layer);
+    /* Load order matters: kernel/memMisc/IfuComplex provide
+     * task-specific microcode (fault task, IFU helpers, etc.) at
+     * various real addresses. Some addresses CONFLICT with Initial's
+     * own placements (e.g., 0o6340 WRITEMAP exists in both kernel
+     * and Initial with different microinstructions). Initial's copy
+     * is what Initial is designed to call; kernel's is a duplicate
+     * for kernel's own use. We load kernel first so Initial overrides
+     * conflicting entries while still keeping kernel's task-specific
+     * non-conflicting entries (fault handler, dispatch, etc.). */
+    if (mb_load(&kernel_mb_layer,
+                "../chm/dorado/expanded/kernel.dm!38_/kernel.mb") == MB_OK) {
+        dorado_microcode_load(&kernel_mb_layer, &init_mc);
+    }
+    if (mb_load(&memmisc_mb_layer,
+                "../chm/dorado/expanded/memMisc.dm!11_/memMisc.mb") == MB_OK) {
+        dorado_microcode_layer_load(&memmisc_mb_layer, &init_mc);
+    }
+    if (mb_load(&ifucomplex_mb_layer,
+                "../chm/dorado/expanded/Ifu.dm!51_/IfuComplex.mb") == MB_OK) {
+        dorado_microcode_layer_load(&ifucomplex_mb_layer, &init_mc);
+    }
     if (mb_load(&initial_mb_for_init_mc,
                 "../chm/dorado/expanded/bootstrap.dm!20_/Initial.mb") == MB_OK) {
-        if (dorado_microcode_load(&initial_mb_for_init_mc, &init_mc) == DM_OK) {
+        if (dorado_microcode_layer_load(&initial_mb_for_init_mc, &init_mc) == DM_OK) {
             initial_canonical_loaded = 1;
         }
-        /* Don't free initial_mb_for_init_mc — init_mc.mb references its
-         * symbol list for symbol lookups. */
+        /* Keep all loaded mb_files alive — init_mc.mb (the latest
+         * layer's mb) references its symbol list. */
     }
     int initial_substituted = 0;
     uint64_t initial_substitute_cycle = 0;
@@ -2215,10 +2247,15 @@ static int probe_full_boot_with_bootstrap(void)
          * test fails because our memory subsystem's BR / Map state
          * doesn't reflect a fully-configured Dorado. When PC reaches
          * NOSTORAGE (0o6247), redirect it to FINDMODULE (0o6357) so
-         * Initial proceeds to the "found a module" path. */
+         * Initial proceeds to the "found a module" path. Also turn
+         * tasking on so that fault wakeups (set in cpu.c memory_ref)
+         * can actually trigger task switches — without this, Initial's
+         * subsequent LONGWAIT loop has no way to be preempted by the
+         * fault task, since the entire setup phase keeps tasking off. */
         if (initial_substituted && is_imfetch && cpu.real_PC == 06247
             && !nostorage_bypassed) {
             cpu.real_PC = 06357;
+            cpu.tasking_on = 1;
             nostorage_bypassed = 1;
             nostorage_bypass_cycle = bb.cycles;
         }
