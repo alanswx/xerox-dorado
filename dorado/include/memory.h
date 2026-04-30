@@ -188,6 +188,12 @@ typedef struct dorado_memory {
     dorado_fault_kind last_fault;
     uint32_t          last_fault_va;
 
+    /* Mar register — the most recent reference's VA. Used by
+     * `ReadMap` (FA=0 FB=3 FC=1) to address the Map for read-back
+     * (HM page 41: ReadMap delivers map[Mar] to B in the next
+     * instruction). Updated on every memory_ref. */
+    uint32_t          mar;
+
     /* FaultInfo register state — readable by microcode via
      * B←FaultInfo' / B←Pipe2' (HM Table 11c FA=1 FB=6 FC=0).
      * Both reads return the same 16-bit register, inverted.

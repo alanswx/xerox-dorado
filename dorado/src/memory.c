@@ -301,6 +301,9 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
                                          int task, int subtask)
 {
     (void)task; (void)subtask;     /* used only for fast-IO branches below */
+    /* Update Mar (most-recent reference VA). ReadMap (HM page 41)
+     * uses this to look up the map entry. */
+    mem->mar = va;
     /* Snapshot the map entry's pre-reference flags into the pipe slot.
      * HM page 47: "Every storage reference causes mapping and returns
      * old contents of the relevant map entry in the pipe." */

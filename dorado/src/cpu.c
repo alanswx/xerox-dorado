@@ -462,13 +462,23 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
         case 4: *b = 0;          break;  /* B ← EventCntB'     — stub */
         case 5: *b = 0;          break;  /* B ← DBuf           — stub */
         case 6:                             /* B ← RWCPReg */
-            /* HM page 31: "B←RWCPReg = Link←B, B←CPReg'." So B is the
-             * complement of CPReg, in both BaseBoard-attached and
-             * legacy-stub paths. The legacy stub honors `cpreg` as a
-             * stable value (no per-call increment) so synthetic tests
-             * can hold CPReg constant — e.g. the pure-Bootstrap probe
-             * relies on CPReg=0x8000 (with bit 15 set) to break out
-             * of READBB's wait-for-AMSync loop. */
+            /* HM page 31: "B←RWCPReg = Link←B, B←CPReg'." On real
+             * hardware B is the complement of the CPReg latch, but
+             * empirically the BB ROM streams data such that the
+             * Bootstrap protocol composes correct values when the
+             * Dorado-side reads CPReg directly (un-inverted) during
+             * normal running. The BB itself appears to apply the
+             * inversion at the strobe boundary or pre-invert the data
+             * in ROM. The legacy-stub path (no real BB) returns
+             * ~cpreg per the manual semantics so synthetic tests can
+             * hold a stable CPReg value through wait loops.
+             *
+             * Empirical: with this asymmetry, Bootstrap composes the
+             * correct Loc=0o6100 and decodes the 4-byte-per-instruction
+             * stream into IM[0o6100..0o7124]. Reverting to always-
+             * invert in BB-running mode triggers Bootstrap to compose
+             * Loc with bit 15 set, sending writes into Boot0 region
+             * (0o7763..0o7777), corrupting Bootstrap itself. */
             if (cpu->baseboard) {
                 uint16_t v = baseboard_dorado_read_cpreg(cpu->baseboard);
                 if (cpu->baseboard->dorado_running &&
@@ -545,7 +555,28 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
         if (fb == 3) {
             switch (fc) {
             case 0: /* — */              return pd;
-            case 1: /* ReadMap */         return pd;  /* stub */
+            case 1: /* ReadMap (HM page 41 / Table 11a FA=0 FB=3 FC=1).
+                     * Delivers the Map[Mar] entry on Pd. The previous
+                     * memory reference's VA is in mem->mar. The 16-bit
+                     * encoding (HM Table 16):
+                     *   bit 0 (MSB)  : WP
+                     *   bit 1        : Dirty
+                     *   bit 2        : Ref
+                     *   bits 3..15   : RP[0:12] (real page number)
+                     * In C-LSB ordering with manual MSB at bit 15:
+                     *   bit 15 = WP, bit 14 = Dirty, bit 13 = Ref,
+                     *   bits 12..0 = RP[0..12]. */
+                if (cpu->mem) {
+                    uint32_t idx = (cpu->mem->mar >> 6) & 0x3FFF; /* va_map_index */
+                    const dorado_map_entry *e = &cpu->mem->map[idx];
+                    uint16_t v = 0;
+                    v |= (uint16_t)((e->wp    & 1) << 15);
+                    v |= (uint16_t)((e->dirty & 1) << 14);
+                    v |= (uint16_t)((e->ref   & 1) << 13);
+                    v |= (uint16_t)(e->rp & 0x1FFF);
+                    return v;
+                }
+                return pd;
             case 2: /* Pd ← Input (HM §7 p. 86): reads IOB data with
                      * parity check. Dispatches through the slow-IO
                      * routing table indexed by (ctask, TIOA). With no
@@ -2104,6 +2135,14 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
             int subtask = (int)(cpu->task_subtask[cpu->ctask] & 3);
             (void)dorado_memory_ref_task(cpu->mem, kind, va, data, cpu->TIOA,
                                          (int)cpu->ctask, subtask);
+            /* HM page 46: a memory fault wakes up the fault task
+             * (task 15). We track this via wakeup_pending; the next
+             * end-of-instruction scheduling round picks task 15 if
+             * tasking is on. Currently NOT auto-wiring fault→wake
+             * because (a) tests expect the FaultInfo to be readable
+             * synchronously by task 0, and (b) we have no fault-task
+             * microcode loaded. Once tasking is fully wired through
+             * Initial / Mesa, revisit this. */
         }
     }
 

@@ -2493,6 +2493,18 @@ static int probe_full_boot_with_bootstrap(void)
            (unsigned long long)display.iofetch_count,
            (unsigned long long)disk.output_count,
            (unsigned long long)disk.input_count);
+    printf("       tasking_on=%d resume_delay=%d wakeup_pending=0x%04X "
+           "ready=0x%04X\n",
+           cpu.tasking_on, cpu.tasking_resume_delay,
+           cpu.wakeup_pending, cpu.ready);
+    if (cpu.mem) {
+        printf("       Memory: faults=%d first_srn=%d Mar=0x%X\n",
+               cpu.mem->fault_count, cpu.mem->fault_first_srn,
+               cpu.mem->mar);
+    }
+    printf("       ALUFM after run:");
+    for (int a = 0; a < 16; a++) printf(" [%X]=0o%o", a, mc.alufm[a]);
+    printf("\n");
     printf("       RM[0..15]:");
     for (int r = 0; r < 16; r++) printf(" [%d]=0x%04X", r, cpu.RM[r]);
     printf("\n");
