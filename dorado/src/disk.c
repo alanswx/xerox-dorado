@@ -307,7 +307,10 @@ void dorado_disk_controller_advance_sector(dorado_disk_controller *ctl)
 
     if (d->seek_in_progress > 0) {
         d->seek_in_progress--;
-        if (at_index) d->seek_in_progress = 0;
+        if (at_index) {
+            d->seek_in_progress = 0;
+            ctl->tag_tw = 1;
+        }
     }
 
     if (at_index) {
@@ -454,7 +457,6 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
                     d->cur_sector = 0;       /* lose sector sync on seek */
                     d->seek_in_progress = disk_sector_pulse_count(d);
                 }
-                ctl->tag_tw = 1;
                 break;
             }
             case 3: {
@@ -504,7 +506,7 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
                     ctl->wr_fifo_tw = 1;
                     ctl->active = 1;
                 }
-                ctl->tag_tw = 1;
+                if (!(data & (1u << 1))) ctl->tag_tw = 1;
                 break;
             }
             default:

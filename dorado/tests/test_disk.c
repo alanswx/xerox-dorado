@@ -264,7 +264,15 @@ static int test_tag_decoder(void)
     EXPECT(ctl.drive[0].cur_cyl == 137, "cur_cyl=%d", ctl.drive[0].cur_cyl);
     EXPECT(ctl.drive[0].seek_in_progress > 0,
            "seek_in_progress should be raised after Cylinder Tag");
-    EXPECT(ctl.tag_tw == 1, "tag_tw should be set after Cylinder Tag");
+    EXPECT(ctl.tag_tw == 0,
+           "Cylinder Tag completion should wait for seek/index");
+    for (int i = 0; i < ctl.drive[0].sectors_per_revolution; i++) {
+        dorado_disk_controller_advance_sector(&ctl);
+    }
+    EXPECT(ctl.tag_tw == 1, "tag_tw should assert when seek completes");
+    ctl.tag_tw = 0;
+    ctl.index_tw = 0;
+    ctl.sector_tw = 0;
 
     /* Head Tag (high nibble 1): select head 3. */
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG,
@@ -312,6 +320,7 @@ static int test_tag_decoder(void)
     v = dorado_io_read(&io, DORADO_DISK_TASK,
                        DORADO_DISK_TIOA_DISKDATA, &bad);
     EXPECT(v == 0xBEEF, "label[0] = 0x%X (expected 0xBEEF)", v);
+    ctl.tag_tw = 0;
 
     /* ReZero (control tag bit 1) should reset cyl=0, head=0, sec=0. */
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG,
@@ -324,6 +333,7 @@ static int test_tag_decoder(void)
            ctl.drive[0].cur_sector);
     EXPECT(ctl.drive[0].seek_in_progress > 0,
            "seek_in_progress should be raised after ReZero");
+    EXPECT(ctl.tag_tw == 0, "ReZero completion should wait for index");
 
     dorado_disk_pack_free(&pack);
     printf("PASS  test_tag_decoder (DriveSel/Cyl/Head/Read/ReZero, "

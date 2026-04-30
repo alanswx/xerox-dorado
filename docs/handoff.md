@@ -690,22 +690,25 @@ Latest disk bring-up checkpoint:
   index pulses assert both `IndexTW` and `SectorTW`, clear
   `BlockTillIndex`, and non-index sector pulses are masked while
   `BlockTillIndex` is set. `test_block_till_index` covers this.
-- The full-boot probe uses an accelerated synthetic sector period only
-  while `BlockTillIndex` is set. This keeps the controller behavior
-  close to HM page 97 while avoiding probe-only boot-transfer timeouts
-  caused by an arbitrary fake spindle rate.
+- The full-boot probe advances the synthetic spindle on every service
+  call while `BlockTillIndex` or a seek is pending. This keeps the
+  controller behavior close to HM page 97 while avoiding probe-only
+  boot-transfer timeouts caused by an arbitrary fake spindle rate.
 - With disk tracing enabled, Initial again reaches `KSameDrive`,
-  `KContinueCmmd`, and `KCheckSeek` before the first disk boot timeout.
-  It still does not reach `DoDiskBlock` or read `DiskData`; the active
-  blocker is `WaitForSector`/`UpdateSector` returning through the sector
-  search failure path while the firmware sector value remains
-  unsynchronized (`FFFF`/`0402` in recent traces).
+  `KContinueCmmd`, `KCheckSeek`, `KWAITSECTOR`, and `WAITFORSECTOR`
+  before the first disk boot timeout. It still does not reach
+  `DoDiskBlock` or read `DiskData`; `InitialDisk.mc` says the hard disk
+  microcode file is a private Dorado convention starting at page 4
+  (cylinder 0/head 0/sector 4), while the mounted `spruce-server.dsk300`
+  is an Alto Spruce T-300 pack and is not known to contain that file.
+  Treat Spruce as a controller validation pack, not as a required
+  successful Initial hard-disk boot source.
 - Current disk model details to preserve: KSTATE block-mode muffler
   signals `RdOnlyBlock'`, `WriteBlock'`, and `CheckBlock'` are
-  active-low; Cylinder Tag/ReZero now hold `NotReady` until the
-  synthetic sector/index cadence reaches index; subsector count uses
-  the HM examples' floor division (`117 / (count+1)`, so count 3 -> 29
-  sector pulses/rev). A one-hot Tag[0:3] attempt was rejected because
+  active-low; Cylinder Tag/ReZero now hold `NotReady` and delay `TagTW`
+  until the synthetic sector/index cadence reaches index; subsector
+  count uses the HM examples' floor division (`117 / (count+1)`, so
+  count 3 -> 29 sector pulses/rev). A one-hot Tag[0:3] attempt was rejected because
   Initial's observed `0xFFEF` tag value behaves as preload/idle, not all
   commands at once; the C model still decodes command values from the
   high nibble `0..3` and ignores other high nibbles.

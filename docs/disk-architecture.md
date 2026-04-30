@@ -618,11 +618,12 @@ software XOR the corrupted bits back to correct values.
   - 1 (Head Tag): sets `cur_head` from low 6 bits, raises
     `tag_tw` wakeup.
   - 2 (Cylinder Tag): seeks to `cur_cyl` from low 12 bits,
-    clears sector sync, raises `tag_tw`, and holds `NotReady` until
-    the simulated seek reaches an index pulse.
+    clears sector sync, and holds `NotReady` until the simulated seek
+    reaches an index pulse. `TagTW` is raised with that index-complete
+    event rather than immediately.
   - 3 (Control Tag): handles ReZero (cyl=head=sec=0),
-    raises the same seek/index `NotReady` window, HeadAdvance
-    (cur_head++), Read (loads FIFO with
+    raises the same seek/index `NotReady` window and delays `TagTW`
+    until index, HeadAdvance (cur_head++), Read (loads FIFO with
     header+label+(data prefix) from current (cyl,head,sec), sets
     Active + `rd_fifo_tw`), Write (clears FIFO, sets `wr_fifo_tw` +
     Active).
@@ -634,9 +635,9 @@ software XOR the corrupted bits back to correct values.
   if the controller is in an active op or EnableRun plus a non-Done
   DiskControl op is pending. `block_till_index` masks newly generated
   non-index sector wakeups; existing wakeups remain pending, matching
-  HM page 97. Cylinder Tag and ReZero now also raise `NotReady` until
-  this index event, matching the manual's "ready and index" condition
-  for leaving `BlockTillIndex`.
+  HM page 97. Cylinder Tag and ReZero now also raise `NotReady` and
+  delay `TagTW` until this index event, matching the manual's "ready
+  and index" condition for leaving `BlockTillIndex`.
 
 What's not yet wired:
 

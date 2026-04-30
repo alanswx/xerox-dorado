@@ -64,8 +64,14 @@ static void service_boot_disk(dorado_cpu *cpu, dorado_disk_controller *disk,
 {
     if (!disk || !disk->drive[0].pack) return;
     if (disk->output_count == 0) return;
-    uint64_t sector_period = disk->block_till_index ? 20u : 2000u;
-    if ((disk->active || disk->enable_run) && (cycle % sector_period) == 0) {
+    uint64_t sector_period = 2000u;
+    int seek_pending = disk->drive[disk->selected_drive].seek_in_progress > 0;
+    /* Probe-only spindle service: Initial's timeout is short compared
+     * with the fake CPU-cycle cadence, so keep explicit index waits and
+     * seek waits moving without changing the controller latch rules. */
+    if (seek_pending ||
+        ((disk->active || disk->enable_run) &&
+         (disk->block_till_index || (cycle % sector_period) == 0))) {
         dorado_disk_controller_advance_sector(disk);
         if (sector_ticks) (*sector_ticks)++;
     }

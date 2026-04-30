@@ -973,10 +973,10 @@ microcode.
   asserts `SectorTW` with the index pulse, and honors
   `BlockTillIndex` by masking newly generated non-index sector wakeups
   until the index pulse clears the latch.
-- The full-boot probe accelerates the synthetic sector period while
-  `BlockTillIndex` is set. This is probe timing only; it keeps the
-  model from missing Initial's short `BootTransfer` timeout while still
-  preserving the controller latch behavior.
+- The full-boot probe advances the synthetic spindle on every service
+  call while `BlockTillIndex` or a seek is pending. This is probe timing
+  only; it keeps the model from missing Initial's short `BootTransfer`
+  timeout while still preserving the controller latch behavior.
 - Current boot trace reaches `KSameDrive`, `KContinueCmmd`, and
   `KCheckSeek`, then fails before `DoDiskBlock`. A traced `SendTag`
   path exposed a CPU decode bug: `TIOA[DiskTag]` (`014`) was being
@@ -1000,10 +1000,18 @@ microcode.
   `Active` plus the matching `DiskControl` block op. The next trace
   then reached `KWAITSECTOR`/`WAITFORSECTOR`; it showed that the
   cylinder tag was modeled as instantly ready, so `SeekWait` could
-  enter `WaitForSector` before `BlockTillIndex` had observed an index.
-  Cylinder Tag and ReZero now raise `NotReady` until the simulated
-  sector/index cadence reaches index, which should keep the firmware
-  in the seek wait path until the sector counter is resynchronized.
+  enter `WaitForSector` before the next index/sector cadence.
+  Cylinder Tag and ReZero now raise `NotReady` and defer `TagTW` until
+  the simulated sector/index cadence reaches index, which keeps the
+  firmware in the seek/tag wait path until the sector counter is
+  resynchronized.
+- The latest traced probe still falls through without `DODISKBLOCK` or
+  `DiskData` FIFO reads. `InitialDisk.mc` states that hard disk
+  microcode is a private Dorado convention starting at page 4
+  (cylinder 0/head 0/sector 4); the mounted `spruce-server.dsk300` is
+  an Alto Spruce T-300 pack and is not known to contain that private
+  Initial hard-microcode boot file. Treat it as a Trident-controller
+  validation pack, not as proof that Initial disk boot should succeed.
 - A one-hot Tag[0:3] experiment matched one reading of the HM text but
   did not match Initial's observed I/O values: `0xFFEF` behaved as a
   preload/idle value, not "all tag commands at once". The emulator
