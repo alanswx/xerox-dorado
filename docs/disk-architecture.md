@@ -150,12 +150,16 @@ position to media sector number explicitly; the current emulator uses
 `controller_sector % pack.geometry.sectors` until the real sequence
 PROM/header-matching path is implemented.
 
-Current bring-up note: the full boot trace does not yet write TIOA
-`DiskTag`; the source path is still going through controller/sequence
-logic we have not fully modeled. To match the boot software's stated
-drive-0 convention, controller init seeds drive 0 with subsector count
-3, while still honoring later Drive Select Tag[10] loads when they are
-observed.
+Current bring-up note: the boot path reaches the `SendTag` source path.
+One blocker was outside the disk controller: the CPU `TIOA` small-constant
+decode only accepted low values `0..3`, so `TIOA[DiskTag]` (`014`, low
+value `4`) left the task pointed at `DiskMuff`. The CPU decode now treats
+all three low selector bits as significant. To match the boot software's
+stated drive-0 convention, controller init seeds drive 0 with subsector
+count 3, while still honoring later Drive Select Tag[10] loads when they
+are observed. The remaining boot blocker is later in the status path:
+`DiskTag` writes occur, but the firmware still does not reach
+`WaitForSector`/`DoDiskBlock` or issue `DiskData` reads.
 
 ## TIOA register map (HM §9 page 92)
 
@@ -403,7 +407,12 @@ for reading miscellaneous logic signals during debugging. Writing
 DiskMuff selects a muffler address; the next Pd←Input from
 DiskMuff returns the value of that signal on IOB[15].
 
-DiskMuff output bits also drive other operations:
+DiskMuff output bits also drive other operations. In the emulator's
+native 16-bit word order, Initial's `FF,,0` constants put the muffler
+address in the high byte (`0x0200` selects address `002`), while the
+one-shot wakeup clear operations are carried in the low byte as a direct
+mask (`0x0001` clears `IndexTW`, `0x0002` clears `SectorTW`, `0x0004`
+clears `TagTW`).
 
 | Bit  | Action                                                     |
 |------|------------------------------------------------------------|
@@ -418,7 +427,9 @@ DiskMuff output bits also drive other operations:
 | B[8:15] | Muffler address (selects which signal to sample)        |
 
 After writing DiskMuff, microcode must wait *one cycle* before
-reading via Pd←Input.
+reading via Pd←Input. Address-select writes must not clear wakeup
+flip-flops; otherwise polling address `002` (`SectorTW`) can
+accidentally erase `TagTW` before `SendTagWait` observes it.
 
 ## Muffler signals (HM pages 102-104)
 

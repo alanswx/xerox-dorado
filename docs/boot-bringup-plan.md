@@ -981,11 +981,22 @@ microcode.
   model from missing Initial's short `BootTransfer` timeout while still
   preserving the controller latch behavior.
 - Current boot trace reaches `KSameDrive`, `KContinueCmmd`, and
-  `KCheckSeek`, then fails in the `WaitForSector`/`UpdateSector` path
-  before `DoDiskBlock`. `DiskData` FIFO reads remain zero. Next work
-  should focus on the firmware sector counter path around `Sector <-`,
+  `KCheckSeek`, then fails before `DoDiskBlock`. A traced `SendTag`
+  path exposed a CPU decode bug: `TIOA[DiskTag]` (`014`) was being
+  ignored because the small-constant `TIOA` FF path only accepted low
+  values `0..3`. After fixing that decode, the next check is whether
+  `DiskTag` writes advance the firmware into `WaitForSector` and then
+  into `DiskData` FIFO transfers; if not, continue around `Sector <-`,
   `UpdateSector`, `WaitForSector`, and DiskMuff SectorTW/IndexTW
   clear/read timing.
+- DiskMuff byte placement is now aligned with Initial's constants:
+  high-byte values select muffler addresses (`0x0200` -> address `002`),
+  and low-byte masks clear TWs (`1=IndexTW`, `2=SectorTW`,
+  `4=TagTW`). The latest full-boot probe shows `DiskTag` writes
+  (`TIOA 014`) and DiskMuff reads, but still no `KWAITSECTOR`,
+  `DODISKBLOCK`, or `DiskData` FIFO reads. Next focus is the
+  `UpdateSector` clear/read timing and whether the disk tick service is
+  reasserting `SectorTW` before the firmware can leave the status path.
 
 Three styles of test, used at every phase:
 

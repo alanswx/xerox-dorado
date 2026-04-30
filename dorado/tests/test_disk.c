@@ -156,12 +156,22 @@ static int test_controller_io_routing(void)
                        DORADO_DISK_TIOA_DISKDATA, &bad);
     EXPECT(v == 0x5555, "second pop = 0x%X", v);
 
-    /* DiskMuff input — select EnableRun (muffler address 010) and
-     * verify the selected signal is returned on IOB[15]. */
-    dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKMUFF, 010);
+    /* DiskMuff input — select EnableRun (muffler address 010, carried
+     * in the high byte by Initial's FF,,0 constants) and verify the
+     * selected signal is returned on IOB[15]. */
+    dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKMUFF,
+                    010 << 8);
     v = dorado_io_read(&io, DORADO_DISK_TASK,
                        DORADO_DISK_TIOA_DISKMUFF, &bad);
     EXPECT(v == 0x0001, "muff EnableRun = 0x%X (expected IOB[15])", v);
+    ctl.tag_tw = 1;
+    dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKMUFF,
+                    002 << 8);
+    EXPECT(ctl.muff_addr == 002, "muff_addr = 0o%o", ctl.muff_addr);
+    EXPECT(ctl.tag_tw == 1, "address select must not clear TagTW");
+    dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKMUFF,
+                    1u << 2);
+    EXPECT(ctl.tag_tw == 0, "low-byte clear bit should clear TagTW");
     printf("PASS  test_controller_io_routing (control=0x%X, format ram, "
            "tag, FIFO 2 push/pop, muff readout)\n", ctl.control);
     return 0;

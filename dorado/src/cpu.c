@@ -916,12 +916,10 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
             return pd;
         }
         if (fb == 4) {
-            switch (fc) {
-            case 0: case 1: case 2: case 3:
-                /* TIOA[5:7] ← FF[5:7] (TIOA[0:4] unchanged) */
-                cpu->TIOA = (cpu->TIOA & 0xF8) | (u->ff & 7);
-                return pd;
-            }
+            /* TIOA[5:7] ← FF[5:7] (TIOA[0:4] unchanged).
+             * All three low selector bits are significant; disk uses
+             * 010..014 here, including DiskTag at low value 4. */
+            cpu->TIOA = (cpu->TIOA & 0xF8) | (u->ff & 7);
             return pd;
         }
         if (fb == 5) {

@@ -63,8 +63,9 @@ three**. The BaseBoard talks via slow I/O only.
   current task's TIOA decodes to "this device." Loaded by either:
   - `TIOA←B` (FF function): low 8 bits from B[0:7], at t₂.
   - `TIOA←small constant` (FA=2 alt encoding): TIOA[5:7] from FF[5:7]
-    while preserving TIOA[0:4]. Used for "next register on the same
-    device."
+    while preserving TIOA[0:4]. All three low selector bits are valid
+    (`0..7`); this is how the disk task selects registers `010..014`,
+    including `DiskTag` at `014`.
 - **IOB** — 16-bit data + odd byte parity (2 bits). Shared bus.
 - **Pd←Input** — read IOB into Pd; checks parity, raises a fault on
   bad parity. Used after TIOA points at an input register.

@@ -343,13 +343,14 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
         break;
 
     case DORADO_DISK_TIOA_DISKMUFF:
-        /* Output selects the muffler address in B[8:15] and clears
-         * wakeup/error flip-flops via B[4:7] (manual MSB numbering). */
-        ctl->muff_addr = (uint8_t)(data & 0xFF);
-        if (data & (1u << 11)) ctl->index_tw = 0;   /* B[4] */
-        if (data & (1u << 10)) ctl->sector_tw = 0;  /* B[5] */
-        if (data & (1u << 9))  ctl->tag_tw = 0;     /* B[6] */
-        if (data & (1u << 8)) {                     /* B[7] */
+        /* Output selects the muffler address in the byte produced by
+         * FF,,0 constants (e.g. 0x0200 selects SectorTW at address 002).
+         * The low byte carries one-shot operations such as clear TWs. */
+        ctl->muff_addr = (uint8_t)((data >> 8) & 0xFF);
+        if (data & (1u << 0)) ctl->index_tw = 0;
+        if (data & (1u << 1)) ctl->sector_tw = 0;
+        if (data & (1u << 2)) ctl->tag_tw = 0;
+        if (data & (1u << 3)) {
             ctl->rd_fifo_tw = 0;
             ctl->wr_fifo_tw = 0;
         }

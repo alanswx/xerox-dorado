@@ -2411,9 +2411,12 @@ static int probe_full_boot_with_bootstrap(void)
         uint16_t t_before, t_after;
         uint16_t md_before, md_after;
         uint16_t link_before, link_after;
-        uint16_t rm0, rm1, rm2, rm3, rm14, rm15, rm16, rm17;
+        uint16_t rm0, rm1, rm2, rm3;
+        uint16_t drm[16];
         uint8_t rbase_before, rbase_after;
         uint8_t membase_before, membase_after;
+        uint8_t muff_addr, index_tw, sector_tw, tag_tw, rd_fifo_tw, wr_fifo_tw;
+        uint8_t enable_run, active, block_till_index;
         uint32_t mar_before, mar_after;
         uint16_t storage_after_mar;
     } disk_trace[256];
@@ -2651,13 +2654,13 @@ static int probe_full_boot_with_bootstrap(void)
             /* Bring-up shim: PilotDisk's DSKInitPC intends normal
              * mode (`KTemp3 <- 0`) before the task checks KTemp3.
              * Our current RM/RBase model does not preserve that
-             * cross-task init write into the DiskRegs bank, so the
+             * cross-task init write into the active DiskRegs bank, so the
              * DSK task falls into KDisable and only dismisses
              * wakeups. Force the DiskRegs scratch candidates clear
              * at the exact mode test so the real command path can
              * run while the RM-region model is fixed. */
-            cpu.RM[(014 << 4) | 000] = 0;
-            cpu.RM[(014 << 4) | 017] = 0;
+            cpu.RM[((cpu.RBase & 0xF) << 4) | 000] = 0;
+            cpu.RM[((cpu.RBase & 0xF) << 4) | 017] = 0;
             cpu.real_PC = 06664;  /* KForgetCmmd: normal-mode path. */
             pre_pc = cpu.real_PC;
             disk_normal_mode_shims++;
@@ -2764,14 +2767,22 @@ static int probe_full_boot_with_bootstrap(void)
             dt->rm1 = cpu.RM[1];
             dt->rm2 = cpu.RM[2];
             dt->rm3 = cpu.RM[3];
-            dt->rm14 = cpu.RM[(014 << 4) | 014];
-            dt->rm15 = cpu.RM[(014 << 4) | 015];
-            dt->rm16 = cpu.RM[(014 << 4) | 016];
-            dt->rm17 = cpu.RM[(014 << 4) | 017];
+            for (int j = 0; j < 16; j++) {
+                dt->drm[j] = cpu.RM[((cpu.RBase & 0xF) << 4) | j];
+            }
             dt->rbase_before = pre_rbase;
             dt->rbase_after = (uint8_t)cpu.RBase;
             dt->membase_before = pre_membase;
             dt->membase_after = (uint8_t)cpu.MemBase;
+            dt->muff_addr = disk.muff_addr;
+            dt->index_tw = disk.index_tw;
+            dt->sector_tw = disk.sector_tw;
+            dt->tag_tw = disk.tag_tw;
+            dt->rd_fifo_tw = disk.rd_fifo_tw;
+            dt->wr_fifo_tw = disk.wr_fifo_tw;
+            dt->enable_run = disk.enable_run;
+            dt->active = disk.active;
+            dt->block_till_index = disk.block_till_index;
             dt->mar_before = pre_mar;
             dt->mar_after = mem.mar;
             dt->storage_after_mar = dorado_storage_at_va(&mem, mem.mar);
@@ -3113,7 +3124,11 @@ static int probe_full_boot_with_bootstrap(void)
             printf("         cyc=%llu task=%o pc=0o%o->0o%o "
                    "T=%04X->%04X Md=%04X->%04X Link=%04X->%04X "
                    "RB=%o->%o MB=%o->%o Mar=%07X->%07X store@Mar=%04X "
+                   "muff=%03o tw=%u%u%u rf=%u wf=%u en=%u act=%u bti=%u "
                    "RM0=%04X RM1=%04X RM2=%04X RM3=%04X "
+                   "DRM0=%04X DRM1=%04X DRM2=%04X DRM3=%04X "
+                   "DRM4=%04X DRM5=%04X DRM6=%04X DRM7=%04X "
+                   "DRM10=%04X DRM11=%04X DRM12=%04X DRM13=%04X "
                    "DRM14=%04X DRM15=%04X DRM16=%04X DRM17=%04X\n",
                    (unsigned long long)dt->cycle,
                    dt->task, dt->pc, dt->next_pc,
@@ -3124,8 +3139,15 @@ static int probe_full_boot_with_bootstrap(void)
                    dt->membase_before, dt->membase_after,
                    dt->mar_before, dt->mar_after,
                    dt->storage_after_mar,
+                   dt->muff_addr, dt->index_tw, dt->sector_tw, dt->tag_tw,
+                   dt->rd_fifo_tw, dt->wr_fifo_tw, dt->enable_run,
+                   dt->active, dt->block_till_index,
                    dt->rm0, dt->rm1, dt->rm2, dt->rm3,
-                   dt->rm14, dt->rm15, dt->rm16, dt->rm17);
+                   dt->drm[0], dt->drm[1], dt->drm[2], dt->drm[3],
+                   dt->drm[4], dt->drm[5], dt->drm[6], dt->drm[7],
+                   dt->drm[010], dt->drm[011], dt->drm[012],
+                   dt->drm[013], dt->drm[014], dt->drm[015],
+                   dt->drm[016], dt->drm[017]);
         }
     }
     if (mcr_trace_n > 0) {
@@ -5211,6 +5233,36 @@ static int test_slow_io_routing(void)
     return 0;
 }
 
+static int test_tioa_small_constant_all_low_bits(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025;  mc.alufm_present[0] = 1;  /* B */
+    mc.im[0] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/1, /*lc=*/0,
+                           /*asel=*/4, 0, /*ff=*/0244, jcn_local(0));
+    mc.im_present[0] = 1;
+    mc.image_to_real[0] = 0;
+    mc.image_present[0] = 1;
+    mc.n_instructions = 1;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.TIOA = 010;
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step 0: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.TIOA == 014, "TIOA = 0o%o (expected 0o14)", cpu.TIOA);
+
+    mc.im[0].ff = 0247;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.TIOA = 010;
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step 1: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.TIOA == 017, "TIOA = 0o%o (expected 0o17)", cpu.TIOA);
+
+    printf("PASS  test_tioa_small_constant_all_low_bits\n");
+    return 0;
+}
+
 /*
  * test_carry_preserved_on_logical — HM page 30: "Carry' and Overflow
  * are the result of the last *arithmetic* ALU operation". A logical
@@ -5440,6 +5492,7 @@ int main(void)
     rc |= test_ldtpc_rdtpc();
     rc |= test_reschedule_trap();
     rc |= test_slow_io_routing();
+    rc |= test_tioa_small_constant_all_low_bits();
     rc |= test_carry_preserved_on_logical();
     rc |= test_alufmrw_bit_mapping();
     rc |= test_alu_shift_ff_functions();
