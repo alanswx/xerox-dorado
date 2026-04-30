@@ -14,16 +14,19 @@ you don't repeat them.
 - **Status:** Microengine + memory subsystem + IFU + tasking + slow-IO
   routing + BaseBoard 6502 model are working. Display + Disk + Fast-IO
   transport have Phase-2 stubs that move data end-to-end. The full
-  BaseBoard Boot0 path reaches the BB's Continuous loop. The
-  Bootstrap.MB swap probe (`probe_full_boot_with_bootstrap`) now uses
-  TWO workarounds — substituting canonical Initial.MB at BOOTSTAGE2
-  (because Bootstrap streaming corrupts data) and bypassing the
-  NOSTORAGE check (because our memory model doesn't report module
-  size). With those, Initial executes ~50 distinct PCs of real boot
-  code (WRITEALUF, RMINITL, IFUMINITL, PRESETMAP, CLRCACHEFCOLL,
-  SETBRFORPAGE, FINDMODULE, DISPLAYINITCONFIG) and then sits in a
-  tight LONGWAIT loop with TIOA=0xC0 polling for some I/O signal we
-  don't model. The AEmu bypass probe currently halts early at
+  BaseBoard Boot0 path reaches the BB's Continuous loop.
+  `probe_full_boot_with_bootstrap` uses three workarounds —
+  substituting canonical Initial.MB at BOOTSTAGE2 (Bootstrap streaming
+  produces data that doesn't match chm/Initial.mb because BB ROM is a
+  different build), bypassing the NOSTORAGE check, and forcing
+  tasking-on after the bypass. With those, plus kernel.mb/memMisc.mb/
+  IfuComplex.mb layered under Initial, the cpu executes a real boot
+  loop visiting CLRCACHEFCOLL, SETBRFORPAGE, SETMCR, LONGWAIT,
+  RMINITL, IFUMINITL, PRESETMAP, FINDMODULE, DISPLAYINITCONFIG, plus
+  task-15 fault processing. fault_count drops from 15 to 2;
+  wakeup_pending settles to 0. The boot still has no top-level
+  termination because Initial is presumably waiting for a disk-task
+  load of Mesa.mb. The AEmu bypass probe currently halts at
   `PC=0o7777`.
 - **Repo:** `/Users/alans/Documents/development/Dorado`
 - **Most useful entry points to read:** `CLAUDE.md` (project mission),
@@ -254,9 +257,13 @@ to make it useful again:
   Md and loops forever. This means our memory subsystem needs a
   cycle counter and a `pending_md` queue. See HM §5 / Figure 9.
 
-### 2. Full BB→Bootstrap→Initial path now reaches LONGWAIT (post-bypass workarounds)
+### 2. Full BB→Bootstrap→Initial path now runs the boot loop (with workarounds)
 
-**Latest status (2026-04-29):** With the canonical-Initial substitution at BOOTSTAGE2 and the NOSTORAGE bypass (both in `probe_full_boot_with_bootstrap`), Initial runs through a full setup sequence:
+**Latest status (2026-04-29 evening):** With three workarounds —
+canonical-Initial substitution at BOOTSTAGE2, NOSTORAGE bypass, and
+forced tasking-on after bypass — plus kernel.mb/memMisc.mb/IfuComplex.mb
+layered under Initial.mb to provide fault-task and helper microcode,
+Initial runs through a full setup sequence:
 
 1. INITIAL (0o7500) → READBB for checksum (0o7700) → INITIAL1 (0o7501)
 2. WRITEALUF table init (writes 16 ALUFM entries via WRITEALUFTABLE)
@@ -268,12 +275,27 @@ to make it useful again:
 8. NOSTORAGE test at 0o6210 (`A AND 0xF000 == 0`) → branches to NOSTORAGE
 9. **NOSTORAGE BYPASSED → FINDMODULE (0o6357)** in probe
 10. Initial continues to DISPLAYINITCONFIG, sets TIOA=0xC0
-11. **Stuck:** LONGWAIT loop (PC=0o6116 → 0o6110 → 0o6115 → LONGWAIT(0o6100) → LWRETN → RETN → 0o6116) — 280K iterations
+11. After bypass, with kernel layered, runs a complex outer loop:
+    `0o7065 → 0o6211 → CLRCACHEFCOLL(0o6202) → 0o6215 → 0o6441 →
+    0o6451 → SETBRFORPAGE(0o7420) → 0o7434 → 0o7450 → 0o7454 →
+    0o6452 → 0o6457 → 0o6453 → SETMCR(0o6000) → 0o6002 → 0o6003 →
+    LWRETN(0o6012) → RETN(0o6013) → 0o6454 → 0o6455 → LONGWAIT(0o6100) →
+    ... → 0o6471 → 0o7064 → 0o7010 → 0o7014 → 0o7034 → 0o7070 → 0o7065`
+12. **Stuck:** the outer loop has no top-level termination — likely
+    waiting for disk task to load Mesa.mb microcode
 
-Hot PCs after bypass:
-- LWRETN (0o6012) × 9.2M
-- 0o6245 / WAITFORMAPBUF (0o6360) ~ 260K each
-- LONGWAIT loop ~ 280K iterations
+Hot PCs (with kernel layered, post-bypass):
+- LWRETN (0o6012) × 3.2M (down from 9.2M without kernel)
+- 0o6002 ×1.9M
+- RETN (0o6013) ×702K
+- 0o6245 ×523K
+- SETMCR (0o6000) ×269K
+
+State at end:
+- Task=0 TIOA=0xC0
+- tasking_on=1, wakeup_pending=0, ready=0x0001
+- Memory: faults=2 (down from 15)
+- RM[3]=0xCFC0, RM[5]=0x1CFC, RM[8]=0x8000 (Initial computed values)
 
 **Underlying issues, in priority order to fix:**
 
