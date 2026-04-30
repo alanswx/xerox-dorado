@@ -170,6 +170,10 @@ typedef struct dorado_memory {
     uint16_t *storage;
     size_t    storage_words;
 
+    /* Memory Control Register (MCR). Stored in normal C bit order for
+     * the 16-bit value that microcode loads with LoadMcr[A,B]. */
+    uint16_t mcr;
+
     /* Cache — interposed between processor refs and storage for
      * Fetch/Store/PreFetch/Flush. IOFetch/IOStore bypass the cache
      * (see HM page 39 IOFetch/IOStore semantics). */
@@ -303,6 +307,15 @@ void     dorado_fault_clear(dorado_memory *mem);
 /* High-true internal value for the hardware B←Config' source. The CPU
  * puts the complement of this on the B bus. */
 uint16_t dorado_memory_config_word(const dorado_memory *mem);
+
+/* Load/read MCR. LoadMcr[A,B] takes Mcr[0:10] from A/MarMux and
+ * Mcr[13:15] from B/BMux; manual bit numbers are MSB-first. */
+void     dorado_mcr_load(dorado_memory *mem, uint16_t a, uint16_t b);
+uint16_t dorado_mcr_get(const dorado_memory *mem);
+int      dorado_mcr_disbr(const dorado_memory *mem);
+int      dorado_mcr_noref(const dorado_memory *mem);
+int      dorado_mcr_fdmiss(const dorado_memory *mem);
+int      dorado_mcr_nowake(const dorado_memory *mem);
 
 /* Cache inspection helpers, for tests and diagnostics.
  *

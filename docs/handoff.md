@@ -44,12 +44,9 @@ make clean     # nuke build/
 C99, no external deps. The `vendor/6502/` dir contains a 6502
 emulator (used for the BaseBoard model). `build/mbdis`, `build/mctrace`,
 `build/bbtrace` are diagnostic CLIs; the rest are test binaries.
-Last verified: `make test` passed on 2026-04-29.
-
-If a test fails after a partial change, **always `make clean &&
-make`** before debugging. Stale `build/test_cpu.o` linked against an
-old `cpu.h` will produce confusing failures. (I burned an hour on
-this once.)
+The Makefile uses compiler-generated `.d` sidecars (`-MMD -MP`), so
+header edits under `include/` rebuild the affected objects. Last
+verified: `make test` passed on 2026-04-29.
 
 ## Read these first (in order)
 
@@ -134,6 +131,10 @@ These all compile clean and pass:
   IOStore / Map / Flush / DummyRef.
 - Faults: page (vacant), write-protect, map-trouble. FaultInfo register.
 - ProcSRN / ASRN pipe slot allocation.
+- Memory Control Register state for `LoadMcr[A,B]`: DisBR blocks BR
+  writes and BR-based virtual addressing, NoRef suppresses storage
+  references, FDMiss forces fill/miss behavior, and NoWake suppresses
+  fault wakeups.
 - **No Hold semantics** — refs are atomic. Md is delivered immediately.
   This is a known gap; AEmu's IFU dispatch loop appears to need real
   Hold to stall properly.
@@ -413,12 +414,12 @@ I/O, `RM[8]=0xF000`, and only the two expected early faults. A
 temporary 120M run stayed in the same PRESETMAP/WAITFORMAPBUF loop,
 so this is not just barely past the old budget.
 
-Most likely missing hardware now: real `LoadMcr[A,B]` / MCR behavior
-and/or MapBufBusy timing/readback. `LoadMcr` is still a no-op in
-`cpu.c`, but Initial uses `SETMCR` around memory initialization. MCR
-bits include DisBR, DisCF, DisHold, NoRef, WMiss, ReportSE', and
-NoWake; ignoring those can make Initial's cache/map setup execute
-with the wrong reference behavior.
+`LoadMcr[A,B]` is now real enough to cover the bits Initial appears to
+use first (DisBR, NoRef, FDMiss, NoWake), and the full test/probe still
+parks in this same PRESETMAP/WAITFORMAPBUF loop. The likely missing
+hardware is now MapBufBusy timing/readback and/or the related Hold
+semantics. MCR bits still not modeled include DisCF, DisHold, WMiss,
+and ReportSE'.
 
 #### 2d. LONGWAIT busy-wait (superseded for now)
 
@@ -637,17 +638,15 @@ corruption) to let Initial run. NOSTORAGE no longer needs the bypass.
 The CURRENT BLOCKER is the PRESETMAP / WAITFORMAPBUF loop. Recommended
 order:
 
-### Highest-value: implement MCR / MapBuf behavior
+### Highest-value: implement MapBuf / Hold behavior
 
-1. Implement `LoadMcr[A,B]` as a real memory-section register in
-   `src/memory.c` / `src/cpu.c`.
-2. Model the MCR bits Initial relies on during memory initialization:
-   at minimum DisBR, DisHold, NoRef, NoWake, and FDMiss. Start with
-   storing/readable state and enforce DisBR/NoRef in the CPU memory-ref
-   path.
-3. Decode `WAITFORMAPBUF` (`0o6360`) against HM §5. It may expect
+1. Decode `WAITFORMAPBUF` (`0o6360`) against HM §5. It may expect
    MapBufBusy to clear after a fixed delay and/or to appear in a Pipe
    or MCR-related readback path.
+2. Implement enough Hold/DisHold behavior that memory/map references
+   can stall instead of returning stale Md immediately.
+3. Finish the remaining MCR bits if the map loop depends on them:
+   DisCF, DisHold, WMiss, and ReportSE'.
 4. Re-run `build/test_cpu`; success means leaving PRESETMAP and
    reaching DISPLAYINITCONFIG / device I/O without the NOSTORAGE
    workaround.

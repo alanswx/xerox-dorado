@@ -713,7 +713,9 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                 if (cpu->mem) dorado_br_hi_load(cpu->mem, cpu->MemBase, a);
                 return pd;
             case 5: /* LoadTestSyndrome */         return pd;
-            case 6: /* LoadMcr[A,B] */             return pd;
+            case 6: /* LoadMcr[A,B] */
+                if (cpu->mem) dorado_mcr_load(cpu->mem, a, b);
+                return pd;
             case 7: /* ProcSRN ← B[12:15] (HM Table 11c FA=1 FB=2 FC=7).
                      * B[12:15] in MSB-first numbering = low 4 bits in
                      * C-LSB. */
@@ -2131,7 +2133,9 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
             }
             uint16_t mar = (u->asel <= 1) ? a : alt_mem_source(cpu, u);
             uint16_t data = (u->asel == 2) ? mar : b;
-            uint32_t br = dorado_br_get(cpu->mem, membase);
+            uint32_t br = dorado_mcr_disbr(cpu->mem)
+                        ? 0
+                        : dorado_br_get(cpu->mem, membase);
             uint32_t va = (br + mar) & 0x0FFFFFFFu;
             int subtask = (int)(cpu->task_subtask[cpu->ctask] & 3);
             dorado_fault_kind ref_fault =
@@ -2145,7 +2149,7 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
              * tasking turns on. Tests that read FaultInfo on the
              * faulting task must disable tasking before the fault
              * (test_cpu_fault_info_visible). */
-            if (ref_fault != DM_FAULT_NONE) {
+            if (ref_fault != DM_FAULT_NONE && !dorado_mcr_nowake(cpu->mem)) {
                 cpu->wakeup_pending |= (uint16_t)(1u << 15);
             }
         }

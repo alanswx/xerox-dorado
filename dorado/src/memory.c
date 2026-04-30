@@ -117,6 +117,40 @@ void dorado_fault_clear(dorado_memory *mem)
     mem->last_fault_va    = 0;
 }
 
+void dorado_mcr_load(dorado_memory *mem, uint16_t a, uint16_t b)
+{
+    /* Manual bit numbering is MSB-first. In C order:
+     *   manual Mcr[0:10]  = bits 15..5 from A
+     *   manual Mcr[13:15] = bits 2..0 from B
+     * Mcr[11:12] are not loaded by this function and are kept clear. */
+    mem->mcr = (uint16_t)((a & 0xFFE0u) | (b & 0x0007u));
+}
+
+uint16_t dorado_mcr_get(const dorado_memory *mem)
+{
+    return mem->mcr;
+}
+
+int dorado_mcr_disbr(const dorado_memory *mem)
+{
+    return (mem->mcr >> 8) & 1;      /* manual Mcr[7] */
+}
+
+int dorado_mcr_noref(const dorado_memory *mem)
+{
+    return (mem->mcr >> 5) & 1;      /* manual Mcr[10] */
+}
+
+int dorado_mcr_fdmiss(const dorado_memory *mem)
+{
+    return (mem->mcr >> 14) & 1;     /* manual Mcr[1] */
+}
+
+int dorado_mcr_nowake(const dorado_memory *mem)
+{
+    return mem->mcr & 1;             /* manual Mcr[15] */
+}
+
 uint16_t dorado_memory_config_word(const dorado_memory *mem)
 {
     /* HM Figure 10 / B←Config':
@@ -348,7 +382,8 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
     int use_asrn = (kind == DM_REF_IOFETCH) || (kind == DM_REF_IOSTORE);
     int prefetch_was_miss = 0;
     if (kind == DM_REF_PREFETCH) {
-        if (!dorado_cache_lookup(mem, va, NULL)) {
+        if (!dorado_mcr_noref(mem) &&
+            (dorado_mcr_fdmiss(mem) || !dorado_cache_lookup(mem, va, NULL))) {
             use_asrn = 1;
             prefetch_was_miss = 1;
         }
@@ -372,7 +407,10 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
     case DM_REF_IFETCH:
     case DM_REF_LONGFETCH: {
         int way;
-        if (dorado_cache_lookup(mem, va, &way)) {
+        if (dorado_mcr_noref(mem)) {
+            f = DM_FAULT_NONE;
+        } else if (!dorado_mcr_fdmiss(mem) &&
+                   dorado_cache_lookup(mem, va, &way)) {
             /* Hit: deliver Md directly from the cache line. No
              * Map.Ref update — HM page 47: only misses set Ref. */
             mem->md = mem->cache[va_cache_row(va)].ways[way]
@@ -394,7 +432,8 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
     case DM_REF_PREFETCH: {
         /* HM page 39: "PreFetch← does not clobber Md and never causes
          * a map fault." Walks the Map silently; on Vacant, no-op. */
-        if (!dorado_cache_lookup(mem, va, NULL)) {
+        if (!dorado_mcr_noref(mem) &&
+            (dorado_mcr_fdmiss(mem) || !dorado_cache_lookup(mem, va, NULL))) {
             size_t phys_pf;
             if (va_translate(mem, va, /*is_write=*/0, &phys_pf) == DM_FAULT_NONE) {
                 int victim = cache_pick_victim(mem, va);
@@ -412,9 +451,14 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
          * Per HM page 45: Store-hit does NOT set Map.Dirty — that
          * only happens when the dirty munch is later chosen as
          * victim. */
+        if (dorado_mcr_noref(mem)) {
+            f = DM_FAULT_NONE;
+            break;
+        }
         f = va_translate(mem, va, /*is_write=*/1, &phys);
         if (f == DM_FAULT_NONE) {
-            if (!dorado_cache_lookup(mem, va, &way)) {
+            if (dorado_mcr_fdmiss(mem) ||
+                !dorado_cache_lookup(mem, va, &way)) {
                 /* Miss: write-allocate. Fill, then write into the line. */
                 way = cache_pick_victim(mem, va);
                 cache_writeback_line(mem, va_cache_row(va), way);
@@ -439,6 +483,10 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
          * If a fast_io_cb is registered, gather the munch from
          * storage (16-word aligned) and hand it to the device via
          * the callback. */
+        if (dorado_mcr_noref(mem)) {
+            f = DM_FAULT_NONE;
+            break;
+        }
         f = va_translate(mem, va, /*is_write=*/0, &phys);
         if (f == DM_FAULT_NONE) {
             mem->map[va_map_index(va)].ref = 1;
@@ -462,6 +510,10 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
          *
          * If a fast_io_cb is registered, the device fills a 16-word
          * munch buffer; we then write it to storage. */
+        if (dorado_mcr_noref(mem)) {
+            f = DM_FAULT_NONE;
+            break;
+        }
         f = va_translate(mem, va, /*is_write=*/1, &phys);
         if (f == DM_FAULT_NONE) {
             cache_invalidate_no_writeback(mem, va);
@@ -569,6 +621,7 @@ const dorado_map_entry *dorado_map_get(const dorado_memory *mem,
  * FA=1 FB=2 FC=3). The "lo" half of the 28-bit BR. */
 void dorado_br_lo_load(dorado_memory *mem, int membase, uint16_t a)
 {
+    if (dorado_mcr_disbr(mem)) return;
     uint32_t cur = mem->br[membase & 0x1F];
     cur = (cur & 0xFFFF0000u) | (uint32_t)a;
     mem->br[membase & 0x1F] = cur & 0x0FFFFFFFu;
@@ -581,6 +634,7 @@ void dorado_br_lo_load(dorado_memory *mem, int membase, uint16_t a)
  * corresponds to BR_C bits 27..16 (the upper 12 bits). */
 void dorado_br_hi_load(dorado_memory *mem, int membase, uint16_t a)
 {
+    if (dorado_mcr_disbr(mem)) return;
     uint32_t cur = mem->br[membase & 0x1F];
     /* low 12 bits of A (manual A[4:15]) into bits 27..16 of BR. */
     cur = (cur & 0x0000FFFFu) | (((uint32_t)a & 0x0FFFu) << 16);

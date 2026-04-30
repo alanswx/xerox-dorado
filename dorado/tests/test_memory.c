@@ -781,6 +781,56 @@ static int test_config_word_reports_storage(void)
     return 0;
 }
 
+static int test_mcr_load_and_controls(void)
+{
+    static dorado_memory mem; memset(&mem, 0, sizeof mem);
+    EXPECT(dorado_memory_init(&mem) == 0, "init");
+
+    dorado_mcr_load(&mem, 0xFFE0, 0x0007);
+    EXPECT(dorado_mcr_get(&mem) == 0xFFE7,
+           "MCR = 0x%04X, expected 0xFFE7", dorado_mcr_get(&mem));
+    EXPECT(dorado_mcr_disbr(&mem), "DisBR should be set");
+    EXPECT(dorado_mcr_noref(&mem), "NoRef should be set");
+    EXPECT(dorado_mcr_fdmiss(&mem), "FDMiss should be set");
+    EXPECT(dorado_mcr_nowake(&mem), "NoWake should be set");
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_mcr_load_and_controls\n");
+    return 0;
+}
+
+static int test_mcr_disbr_blocks_br_writes(void)
+{
+    static dorado_memory mem; memset(&mem, 0, sizeof mem);
+    EXPECT(dorado_memory_init(&mem) == 0, "init");
+
+    dorado_br_lo_load(&mem, 0, 0x1234);
+    dorado_mcr_load(&mem, 0x0100, 0);  /* manual Mcr[7] = DisBR */
+    dorado_br_lo_load(&mem, 0, 0xABCD);
+    EXPECT((dorado_br_get(&mem, 0) & 0xFFFF) == 0x1234,
+           "DisBR should suppress BrLo writes, BR=0x%08X",
+           dorado_br_get(&mem, 0));
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_mcr_disbr_blocks_br_writes\n");
+    return 0;
+}
+
+static int test_mcr_noref_suppresses_storage_access(void)
+{
+    static dorado_memory mem; memset(&mem, 0, sizeof mem);
+    EXPECT(dorado_memory_init(&mem) == 0, "init");
+
+    dorado_mcr_load(&mem, 0x0020, 0);  /* manual Mcr[10] = NoRef */
+    dorado_fault_kind f = dorado_memory_ref(&mem, DM_REF_FETCH, 0, 0, 0);
+    EXPECT(f == DM_FAULT_NONE, "NoRef fetch should not fault");
+    EXPECT(mem.fault_count == 0, "NoRef fetch should not record fault");
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_mcr_noref_suppresses_storage_access\n");
+    return 0;
+}
+
 int main(void)
 {
     int rc = 0;
@@ -807,6 +857,9 @@ int main(void)
     rc |= test_proc_srn_overwrite();
     rc |= test_prefetch_srn_split();
     rc |= test_config_word_reports_storage();
+    rc |= test_mcr_load_and_controls();
+    rc |= test_mcr_disbr_blocks_br_writes();
+    rc |= test_mcr_noref_suppresses_storage_access();
     if (rc == 0) printf("\nAll memory tests passed.\n");
     return rc;
 }
