@@ -3388,6 +3388,10 @@ static int test_cpu_fault_info_visible(void)
     dorado_cpu cpu;
     dorado_cpu_init(&cpu, &mc, 0);
     cpu.mem = &mem;
+    cpu.tasking_on = 0;   /* keep on task 0 so the fault is visible
+                           * synchronously; with tasking on, a fault
+                           * wakes task 15 and the next instruction
+                           * runs as task 15, not task 0. */
     cpu.RM[0] = 0x42;     /* Will be the faulting VA. */
 
     /* Step 1: Fetch faults. */

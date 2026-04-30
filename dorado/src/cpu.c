@@ -2133,16 +2133,20 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
             uint32_t br = dorado_br_get(cpu->mem, membase);
             uint32_t va = (br + mar) & 0x0FFFFFFFu;
             int subtask = (int)(cpu->task_subtask[cpu->ctask] & 3);
-            (void)dorado_memory_ref_task(cpu->mem, kind, va, data, cpu->TIOA,
-                                         (int)cpu->ctask, subtask);
+            dorado_fault_kind ref_fault =
+                dorado_memory_ref_task(cpu->mem, kind, va, data, cpu->TIOA,
+                                       (int)cpu->ctask, subtask);
             /* HM page 46: a memory fault wakes up the fault task
-             * (task 15). We track this via wakeup_pending; the next
+             * (task 15). We propagate via wakeup_pending; the next
              * end-of-instruction scheduling round picks task 15 if
-             * tasking is on. Currently NOT auto-wiring fault→wake
-             * because (a) tests expect the FaultInfo to be readable
-             * synchronously by task 0, and (b) we have no fault-task
-             * microcode loaded. Once tasking is fully wired through
-             * Initial / Mesa, revisit this. */
+             * tasking is on. With tasking off (Bootstrap / early
+             * Initial), the bit accumulates and fires later when
+             * tasking turns on. Tests that read FaultInfo on the
+             * faulting task must disable tasking before the fault
+             * (test_cpu_fault_info_visible). */
+            if (ref_fault != DM_FAULT_NONE) {
+                cpu->wakeup_pending |= (uint16_t)(1u << 15);
+            }
         }
     }
 
