@@ -1073,6 +1073,25 @@ Three styles of test, used at every phase:
    architectural state. The Alto side is the only place this is
    feasible; for Mesa we don't have an oracle.
 
+## Latest bring-up notes
+
+- `InitialSubrs.mc` `ClearCacheFlags` relies on `NoRef+UseMcrV`
+  stores as cache-address writes (`CacheA[VA, selected column] <- VA`).
+  The emulator now models that side effect and covers it with
+  `test_mcr_noref_store_writes_cache_address`.
+- HM §9 says DiskMuff input returns the selected signal on `IOB[15]`.
+  The disk controller now returns native `0x8000` instead of `0x0001`,
+  so microcode branches that test `R<0`/`ALU<0` can see asserted
+  KSTATE/KSTAT signals. Disk unit tests were updated.
+- Focused EB run with `AltoMesaDorado.eb!1` still reaches LoadRam and
+  the loaded image, but remains in the same post-load startup/disk wait:
+  task 0 hot PCs `0o6012/0o6002/0o6013/0o6000/0o6003`, DSK task 14 hot
+  PCs `0o6600/0o6601/0o6624/0o6625/0o6644`, `display iofetch=0`, and
+  final `MCR=0x6861`. The DiskMuff high-bit correction did not change
+  this EB endpoint, so the next likely gap is still the loaded image's
+  disk/tag/format-RAM path or another memory/MCR detail around the
+  task-0 disk wait loop.
+
 ## Cross-cutting: don't drift from "match the docs"
 
 A few rules to keep ourselves honest:

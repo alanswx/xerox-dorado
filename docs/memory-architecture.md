@@ -167,6 +167,10 @@ Implemented in `dorado/src/memory.c` and `dorado/include/memory.h`:
 - MCR `dVA<-Victim`, when set, suppresses map/storage starts and
   returns the cache-address VA for the selected row/way through
   Pipe0/Pipe1. With `UseMcrV`, `McrV` selects the way.
+- `NoRef` stores update only the selected cache-address entry
+  (`CacheA[VA, McrV] <- VA` when `UseMcrV` is set) and do not touch
+  map/storage. This matches `InitialSubrs.mc` `ClearCacheFlags`, which
+  writes cache addresses before loading `CFlags`.
 - `cache_pick_victim`, `cache_writeback_line`, `cache_fill`,
   `cache_invalidate_no_writeback` are internal helpers.
 
@@ -177,7 +181,8 @@ Tests (`tests/test_memory.c`):
 `test_iostore_cache_invalidate`, `test_cflags_load_visible_in_pipe5`,
 `test_pipe5_reports_victim_and_nextvictim`,
 `test_discf_blocks_cflags_and_pipe5_flags`,
-`test_mcr_dvavic_reads_cache_address_without_storage`. All passing.
+`test_mcr_dvavic_reads_cache_address_without_storage`,
+`test_mcr_noref_store_writes_cache_address`. All passing.
 
 ### Not yet modeled (Phase B/C)
 

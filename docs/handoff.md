@@ -712,6 +712,13 @@ Latest disk bring-up checkpoint:
   Initial's observed `0xFFEF` tag value behaves as preload/idle, not all
   commands at once; the C model still decodes command values from the
   high nibble `0..3` and ignores other high nibbles.
+- New memory-system fidelity: `NoRef+UseMcrV` stores now update the
+  selected cache-address entry without touching map/storage. This is
+  needed by `InitialSubrs.mc` `ClearCacheFlags`.
+- New disk fidelity: DiskMuff input now returns asserted signals as
+  native `0x8000` on `IOB[15]`, per HM §9 pages 101-102. Returning
+  `0x0001` made sign-branch tests (`R<0`/`ALU<0`) see true KSTATE/KSTAT
+  signals as false.
 
 1. Use the `probe_full_boot_with_bootstrap` boot-landmark and per-TIOA
    disk counters to find exactly where `BootTransfer` fails.
@@ -748,8 +755,16 @@ Latest disk bring-up checkpoint:
    `0o6000=00104/71501/00000`, `0o6001=00104/131705/140000`,
    `0o6002=00104/14701/00000`, `0o6012=13116/14105/00000`,
    `0o6100=00204/60005/00000`, `0o5021=05406/77714/40000`.
-4. Keep improving DiskMuff/sequence-PROM behavior in parallel so real
-   emulator disk I/O has a solid controller after microcode load.
+   After the `NoRef` cache-address and DiskMuff `IOB[15]` fixes, this
+   focused EB endpoint is unchanged: final `PC=0o6000`, `MCR=0x6861`,
+   `display iofetch=0`, and the same task hot PCs. So those fixes are
+   correct hardware fidelity work, but not the remaining EB blocker.
+4. Keep improving DiskTag/format-RAM/sequence-PROM behavior in parallel
+   so real emulator disk I/O has a solid controller after microcode
+   load. The next likely disk gap is how loaded microcode's tag values
+   such as `0xFFEF/0x0FEF` map onto the Trident Tag[0:3] timing and
+   Tag[4:15] bus, because the HM text and observed firmware values are
+   not yet reconciled.
 5. Re-run `build/test_cpu`; success means `CheckChecksumAndLoad` and
    `LoadRam` are reached after disk or Ethernet microcode load.
 

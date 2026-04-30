@@ -163,7 +163,7 @@ static int test_controller_io_routing(void)
                     010 << 8);
     v = dorado_io_read(&io, DORADO_DISK_TASK,
                        DORADO_DISK_TIOA_DISKMUFF, &bad);
-    EXPECT(v == 0x0001, "muff EnableRun = 0x%X (expected IOB[15])", v);
+    EXPECT(v == 0x8000, "muff EnableRun = 0x%X (expected IOB[15])", v);
     ctl.tag_tw = 1;
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKMUFF,
                     002 << 8);
@@ -181,7 +181,7 @@ static int test_controller_io_routing(void)
                     014 << 8);
     v = dorado_io_read(&io, DORADO_DISK_TASK,
                        DORADO_DISK_TIOA_DISKMUFF, &bad);
-    EXPECT(v == 0x0001, "idle CheckBlock' = 0x%X", v);
+    EXPECT(v == 0x8000, "idle CheckBlock' = 0x%X", v);
 
     ctl.active = 1;
     ctl.control = DORADO_DISK_OP_RDCHK << DORADO_DISK_CTRL_OP1_SHIFT;
@@ -193,7 +193,7 @@ static int test_controller_io_routing(void)
                     012 << 8);
     v = dorado_io_read(&io, DORADO_DISK_TASK,
                        DORADO_DISK_TIOA_DISKMUFF, &bad);
-    EXPECT(v == 0x0001, "non-read RdOnlyBlock' = 0x%X", v);
+    EXPECT(v == 0x8000, "non-read RdOnlyBlock' = 0x%X", v);
 
     printf("PASS  test_controller_io_routing (control=0x%X, format ram, "
            "tag, FIFO 2 push/pop, muff readout)\n", ctl.control);

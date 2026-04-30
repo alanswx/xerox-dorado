@@ -379,6 +379,15 @@ static void cache_select(dorado_memory *mem, uint32_t va, int way, int srn)
         cache_line_pipe5_flags(mem, va, way);
 }
 
+static void cache_address_write(dorado_memory *mem, uint32_t va, int way)
+{
+    if (way < 0 || way >= DM_CACHE_WAYS) return;
+
+    dorado_cache_line *line = &mem->cache[va_cache_row(va)].ways[way];
+    line->tag = va_cache_tag(va);
+    line->valid = 1;
+}
+
 static uint32_t cache_address_va(const dorado_memory *mem, uint32_t va, int way)
 {
     if (way < 0 || way >= DM_CACHE_WAYS) return 0;
@@ -625,6 +634,7 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
         if (dorado_mcr_noref(mem)) {
             way = dorado_mcr_usemcrv(mem) ? dorado_mcr_victim(mem)
                                           : cache_pick_victim(mem, va);
+            cache_address_write(mem, va, way);
             cache_select(mem, va, way, srn);
             f = DM_FAULT_NONE;
             break;

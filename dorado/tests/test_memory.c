@@ -867,6 +867,31 @@ static int test_mcr_dvavic_reads_cache_address_without_storage(void)
     return 0;
 }
 
+static int test_mcr_noref_store_writes_cache_address(void)
+{
+    static dorado_memory mem; memset(&mem, 0, sizeof mem);
+    EXPECT(dorado_memory_init(&mem) == 0, "init");
+
+    /* InitialSubrs ClearCacheFlags uses NoRef+UseMcrV stores as a
+     * cache-address write: CacheA[VA, selected column] <- VA. */
+    dorado_mcr_load(&mem, 0x7030, 0);  /* FDMiss + UseMcrV + Victim=2 + NoRef */
+    dorado_fault_kind f = dorado_memory_ref(&mem, DM_REF_STORE,
+                                            0x12340, 0xA5A5, 0);
+    EXPECT(f == DM_FAULT_NONE, "NoRef Store should not fault");
+    EXPECT(mem.fault_count == 0, "NoRef Store should not record fault");
+
+    dorado_mcr_load(&mem, 0xB000, 0);  /* dVA<-Victim + UseMcrV + Victim=2 */
+    f = dorado_memory_ref(&mem, DM_REF_FETCH, 0x12340, 0, 0);
+    EXPECT(f == DM_FAULT_NONE, "dVA<-Victim fetch should not fault");
+    EXPECT(dorado_pipe_va(&mem, 0) == 0x12340,
+           "CacheA readback VA=0x%05X, expected 0x12340",
+           (unsigned)dorado_pipe_va(&mem, 0));
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_mcr_noref_store_writes_cache_address\n");
+    return 0;
+}
+
 static int test_mapbuf_busy_pipe5_timing(void)
 {
     static dorado_memory mem; memset(&mem, 0, sizeof mem);
@@ -1001,6 +1026,7 @@ int main(void)
     rc |= test_mcr_disbr_blocks_br_writes();
     rc |= test_mcr_noref_suppresses_storage_access();
     rc |= test_mcr_dvavic_reads_cache_address_without_storage();
+    rc |= test_mcr_noref_store_writes_cache_address();
     rc |= test_mapbuf_busy_pipe5_timing();
     rc |= test_cflags_load_visible_in_pipe5();
     rc |= test_pipe5_reports_victim_and_nextvictim();

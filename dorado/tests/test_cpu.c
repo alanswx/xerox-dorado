@@ -2507,6 +2507,7 @@ static int probe_full_boot_with_bootstrap(void)
         uint16_t drm[16];
         uint8_t rbase_before, rbase_after;
         uint8_t membase_before, membase_after;
+        uint8_t tioa;
         uint8_t muff_addr, index_tw, sector_tw, tag_tw, rd_fifo_tw, wr_fifo_tw;
         uint8_t enable_run, active, block_till_index;
         uint8_t disk_out_tioa, disk_in_tioa;
@@ -2853,7 +2854,8 @@ static int probe_full_boot_with_bootstrap(void)
                       (pre_pc & 1) == 0);
         int is_disk_trace =
             disk_trace_enabled &&
-            disk_trace_armed && initial_substituted && is_imfetch &&
+            (disk_trace_armed || ether_loaded_world_cycle != 0) &&
+            initial_substituted && is_imfetch &&
             disk_trace_n < (int)(sizeof disk_trace / sizeof disk_trace[0]) &&
             ((pre_task == DORADO_DISK_TASK &&
               ((pre_pc >= 06500 && pre_pc <= 06777) ||
@@ -2903,6 +2905,7 @@ static int probe_full_boot_with_bootstrap(void)
             dt->rbase_after = (uint8_t)cpu.RBase;
             dt->membase_before = pre_membase;
             dt->membase_after = (uint8_t)cpu.MemBase;
+            dt->tioa = (uint8_t)cpu.TIOA;
             dt->muff_addr = disk.muff_addr;
             dt->index_tw = disk.index_tw;
             dt->sector_tw = disk.sector_tw;
@@ -3383,7 +3386,7 @@ static int probe_full_boot_with_bootstrap(void)
             const struct disk_trace_sample *dt = &disk_trace[i];
             printf("         cyc=%llu task=%o pc=0o%o->0o%o "
                    "T=%04X->%04X Md=%04X->%04X Link=%04X->%04X "
-                   "RB=%o->%o MB=%o->%o Mar=%07X->%07X store@Mar=%04X "
+                   "RB=%o->%o MB=%o->%o TIOA=%02o Mar=%07X->%07X store@Mar=%04X "
                    "muff=%03o tw=%u%u%u rf=%u wf=%u en=%u act=%u bti=%u "
                    "dio=O%02o:%04X/I%02o:%04X "
                    "RM0=%04X RM1=%04X RM2=%04X RM3=%04X "
@@ -3397,7 +3400,7 @@ static int probe_full_boot_with_bootstrap(void)
                    dt->md_before, dt->md_after,
                    dt->link_before, dt->link_after,
                    dt->rbase_before, dt->rbase_after,
-                   dt->membase_before, dt->membase_after,
+                   dt->membase_before, dt->membase_after, dt->tioa,
                    dt->mar_before, dt->mar_after,
                    dt->storage_after_mar,
                    dt->muff_addr, dt->index_tw, dt->sector_tw, dt->tag_tw,

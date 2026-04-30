@@ -417,6 +417,11 @@ one-shot wakeup clear operations are carried in the low byte as a direct
 mask (`0x0001` clears `IndexTW`, `0x0002` clears `SectorTW`, `0x0004`
 clears `TagTW`).
 
+Pd←Input from DiskMuff returns the selected signal on native bit 15
+(`0x8000`). Real microcode often tests the value with `R<0`/`ALU<0`,
+so returning it in bit 0 makes asserted wakeup/status signals look
+false.
+
 | Bit  | Action                                                     |
 |------|------------------------------------------------------------|
 | B[0] | Simulate read data of 1 for 1 cycle (diagnostic)           |
@@ -601,8 +606,7 @@ software XOR the corrupted bits back to correct values.
   - DiskTag register capture.
   - DiskMuff input packs the wakeup TWs + EnableRun + Active for
     microcode to read back.
-  - DiskMuff returns the selected signal on IOB[15]. In this C model's
-    LSB numbering that is bit 0, so asserted readout is `0x0001`.
+  - DiskMuff returns the selected signal on IOB[15] as native `0x8000`.
 
 **Phase 2**:
 - **Tag decoder**: dispatches by the observed high-nibble command
