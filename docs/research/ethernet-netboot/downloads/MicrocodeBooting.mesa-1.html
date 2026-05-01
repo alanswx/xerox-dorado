@@ -1,0 +1,11 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<html>
+  <head>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+    <title>File [Indigo]&lt;Cedar>Pilot>MicrocodeBooting.mesa!1</title>
+  </head>
+  <body>
+    <pre>
+-- MicrocodeBooting.mesa    program control over microcode booting-- modified 22-Jun-82 14:39:30 by TaftMicrocodeBooting: DEFINITIONS =  BEGIN  -- Microcode booting control:  BootFileNumber: TYPE = RECORD [CARDINAL];  nullBootFileNumber: BootFileNumber = [0];  BootSpecificMicrocode: PROCEDURE [bfn: BootFileNumber];  -- If bfn=nullBootFileNumber, performs default booting action (usually from disk).  -- Otherwise boots the specified microcode from an Ethernet boot server.  -- Attempting to boot nonexistent microcode has undefined results usually requiring  -- manual intervention.  -- Machine-independent microcode enumeration:  MicrocodeType: TYPE = {  -- Alto Emulator based microcode:  altoMesa, lisp, smalltalk76, smalltalk80,  -- Pilot based microcode:  pilotMesa, cedarMesa};  GetBootFileNumber: PROCEDURE [type: MicrocodeType] RETURNS [bfn: BootFileNumber];  -- Returns the BootFileNumber of the specified microcode for this machine and  -- (in the case of pilotMesa or cedarMesa) for the release of Pilot currently  -- running on this machine.  Returns nullBootFileNumber if no such microcode  -- is known to exist.  END.</pre>
+  </body>
+</html>

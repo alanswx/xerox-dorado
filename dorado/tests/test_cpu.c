@@ -3,6 +3,7 @@
 #include "disasm.h"
 #include "disk.h"
 #include "display.h"
+#include "ethernet.h"
 #include "fastio.h"
 #include "io.h"
 #include "mb.h"
@@ -130,6 +131,61 @@ static int inject_ether_boot_image(dorado_memory *mem, const char *path,
     if (sum_out) *sum_out = (uint16_t)sum;
     if (start_pc_out) *start_pc_out = start_pc;
     return va > start_va;
+}
+
+static int read_eb_end_item(const char *path, uint32_t *word_offset_out,
+                            uint16_t item_out[4], uint32_t *payload_words_out,
+                            uint16_t *sum_out)
+{
+    FILE *fp = fopen(path, "rb");
+    if (!fp) return 0;
+    if (fseek(fp, 512, SEEK_SET) != 0) {
+        fclose(fp);
+        return 0;
+    }
+
+    uint32_t payload_words = 0;
+    uint32_t sum = 0;
+    uint16_t item[4] = {0};
+    for (;;) {
+        for (int i = 0; i < 4; i++) {
+            int hi = fgetc(fp);
+            int lo = fgetc(fp);
+            if (hi == EOF && lo == EOF) {
+                fclose(fp);
+                return 0;
+            }
+            if (hi == EOF || lo == EOF) {
+                fclose(fp);
+                return 0;
+            }
+            item[i] = (uint16_t)(((uint16_t)hi << 8) | (uint16_t)lo);
+            sum = (sum + item[i]) & 0xFFFFu;
+            payload_words++;
+        }
+        if ((item[0] & 7u) == 2u) {
+            fclose(fp);
+            if (word_offset_out) *word_offset_out = payload_words - 4;
+            if (item_out) {
+                for (int i = 0; i < 4; i++) item_out[i] = item[i];
+            }
+            if (payload_words_out) *payload_words_out = payload_words;
+            if (sum_out) *sum_out = (uint16_t)sum;
+            return 1;
+        }
+    }
+}
+
+static const char *ether_boot_path_for_offset(const dorado_ethernet *eth,
+                                              uint16_t offset)
+{
+    switch (offset) {
+    case 0110: return eth->boot_110_path;
+    case 0111: return eth->boot_111_path;
+    case 0113: return eth->boot_113_path;
+    case 0114: return eth->boot_114_path;
+    default: return NULL;
+    }
 }
 
 static void map_boot_probe_bank_to(dorado_memory *mem, uint32_t base_page,
@@ -318,7 +374,8 @@ static void seed_boot_keyboard_from_display(dorado_memory *mem,
 
 static int service_alto_disk_boot_shim(dorado_memory *mem,
                                        dorado_disk_pack *pack,
-                                       int boot_head)
+                                       int boot_head,
+                                       int force_kwait)
 {
     if (!mem || !pack || !pack->sectors) return 0;
 
@@ -326,8 +383,8 @@ static int service_alto_disk_boot_shim(dorado_memory *mem,
      * 0431 and posts its pointer in 0521.  Until the Alto/Dorado disk
      * task is complete, satisfy just that first boot-sector read so we
      * can keep CPU/display bring-up moving. */
-    if (dorado_storage_at_va(mem, 0521u) != 0431u) return 0;
-    if (dorado_storage_at_va(mem, 0433u) != 044000u) return 0;
+    if (!force_kwait && dorado_storage_at_va(mem, 0521u) != 0431u) return 0;
+    if (!force_kwait && dorado_storage_at_va(mem, 0433u) != 044000u) return 0;
     if (dorado_storage_at_va(mem, 0432u) & 07400u) return 0;
 
     if (boot_head < 0) boot_head = 0;
@@ -347,7 +404,7 @@ static int service_alto_disk_boot_shim(dorado_memory *mem,
         store_boot_va(mem, 0001u + (uint32_t)i, s->data[i]);
     }
 
-    store_boot_va(mem, 0432u, 07400u); /* Done, no low-byte errors. */
+    store_boot_va(mem, 0432u, 07401u); /* Done bit plus nonzero status byte. */
     store_boot_va(mem, 0521u, 0);
     return 1;
 }
@@ -784,26 +841,31 @@ static int test_unsupported_halts(void)
     memset(&mc, 0, sizeof mc);
 
     /* IM[0]: IFUJump (JCN = 0 0 1 _ _ 1 1 1) without PCF←B —
-     * should halt with IFU_NOT_READY. JCN bits MSB-first:
+     * should trap to IFU NotReady. JCN bits MSB-first:
      *   0 0 1 0 0 1 1 1 = 0x27 = 0o47. */
     mc.im[0] = make_uinstr(0, 0, 2, 0, /*asel=*/6, 0, 0, /*jcn=*/0x27);
     mc.im_present[0] = 1;
+    mc.im[0334] = make_uinstr(0, 0, 2, 0, /*asel=*/6, 0, 0,
+                              jcn_local(0334 & 0x3F));
+    mc.im_present[0334] = 1;
     mc.image_to_real[0] = 0;
     mc.image_present[0] = 1;
+    mc.image_to_real[1] = 0334;
+    mc.image_present[1] = 1;
     mc.alufm[0] = 025; mc.alufm_present[0] = 1;
-    mc.n_instructions = 1;
+    mc.n_instructions = 2;
 
     dorado_cpu cpu;
     dorado_cpu_init(&cpu, &mc, 0);
 
     int rc = dorado_cpu_step(&cpu);
-    EXPECT(rc != 0, "expected halt on IFUJump without PCF←B");
-    EXPECT(cpu.halt_reason == CPU_HALT_IFU_NOT_READY,
-           "expected IFU_NOT_READY, got %s",
+    EXPECT(rc == 0, "unexpected halt on IFUJump without PCF←B: %s",
            cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.real_PC == 0334,
+           "expected IFU NotReady trap at 0o334, got 0o%o", cpu.real_PC);
 
-    printf("PASS  test_unsupported_halts (%s)\n",
-           cpu_halt_reason_str(cpu.halt_reason));
+    printf("PASS  test_unsupported_halts (IFU NotReady PC=0o%o)\n",
+           cpu.real_PC);
     return 0;
 }
 
@@ -2394,6 +2456,7 @@ static int probe_full_boot_with_bootstrap(void)
     static dorado_io io;
     static dorado_display display;
     static dorado_disk_controller disk;
+    static dorado_ethernet ethernet;
     static dorado_disk_pack disk_pack;
     static dorado_fastio_router fastio;
     int disk_pack_attached = 0;
@@ -2401,9 +2464,19 @@ static int probe_full_boot_with_bootstrap(void)
         dorado_io_init(&io);
         dorado_display_init(&display);
         dorado_disk_controller_init(&disk);
+        dorado_ethernet_init(&ethernet);
+        dorado_ethernet_set_boot_file(
+            &ethernet, 0110,
+            test_str_env("DORADO_ETH_BOOT_110",
+                         "../chm/microcode/AltoMesaDorado.eb!1"));
+        dorado_ethernet_set_boot_file(
+            &ethernet, 0114,
+            test_str_env("DORADO_ETH_BOOT_114",
+                         "../chm/microcode/TestDorado.eb!1"));
         disk_pack_attached = attach_default_trident_pack(&disk, &disk_pack);
         dorado_display_attach_to_io(&display, &io);
         dorado_disk_controller_attach_to_io(&disk, &io);
+        dorado_ethernet_attach_to_io(&ethernet, &io);
         dorado_fastio_router_init(&fastio, &display, &disk);
         mem.fast_io_cb = dorado_fastio_dispatch;
         mem.fast_io_ctx = &fastio;
@@ -2593,6 +2666,9 @@ static int probe_full_boot_with_bootstrap(void)
     int disk_trace_enabled = test_u64_env("DORADO_DISK_TRACE", 0) != 0;
     int mcr_trace_enabled = test_u64_env("DORADO_MCR_TRACE", 0) != 0;
     int post_eb_trace_enabled = test_u64_env("DORADO_POST_EB_TRACE", 0) != 0;
+    int eth_reg_trace_enabled = test_u64_env("DORADO_ETH_REG_TRACE", 0) != 0;
+    int ethernet_boot_enabled = test_u64_env("DORADO_BOOT_ETHERNET", 1) != 0;
+    uint64_t ethernet_wakeups = 0;
     const char *ether_boot_image = getenv("DORADO_ETHER_BOOT_IMAGE");
     int ether_boot_enabled = ether_boot_image && *ether_boot_image &&
                              file_exists_readable(ether_boot_image);
@@ -2675,6 +2751,10 @@ static int probe_full_boot_with_bootstrap(void)
     uint64_t display_scanline_wakeups = 0;
     uint64_t next_display_scanline_cycle = 0;
     uint64_t keyboard_seed_count = 0;
+    uint64_t boot_parameter_seed_count = 0;
+    int force_ether_mesa_boot =
+        ethernet_boot_enabled &&
+        test_u64_env("DORADO_ETH_FORCE_MESA_BOOT_PARAM", 1) != 0;
     struct key_trace {
         uint64_t cycle;
         uint16_t pc, next_pc;
@@ -2709,6 +2789,7 @@ static int probe_full_boot_with_bootstrap(void)
         { 06404, "MICROCODEBOOTFAILED", 0, 0 },
         { 06057, "AWAITETHERBOOTREPLY", 0, 0 },
     };
+    int checksum_and_load_seen = 0;
     struct boot_landmark disk_landmarks[] = {
         { 06740, "DSKINITPC", 0, 0 },
         { 06754, "KMODETEST", 0, 0 },
@@ -2777,7 +2858,11 @@ static int probe_full_boot_with_bootstrap(void)
         uint16_t mcr_before, mcr_after;
     } loadram_trace[512];
     int loadram_trace_n = 0;
-    int loadram_trace_enabled = test_u64_env("DORADO_LOADRAM_TRACE", 0) != 0;
+    int loadram_trace_head = 0;
+    uint64_t loadram_trace_total = 0;
+    int loadram_trace_mode = (int)test_u64_env("DORADO_LOADRAM_TRACE", 0);
+    int checksum_trace_enabled =
+        test_u64_env("DORADO_CHECKSUM_TRACE", 0) != 0;
     struct mcr_trace_sample {
         uint64_t cycle;
         uint16_t pc, next_pc;
@@ -3022,18 +3107,35 @@ static int probe_full_boot_with_bootstrap(void)
         uint16_t pre_mcr = dorado_mcr_get(&mem);
         uint8_t pre_ifu_active = cpu.ifu_active;
         uint32_t pre_br37 = dorado_br_get(&mem, 037);
-        if (initial_substituted && is_imfetch &&
+        if (force_ether_mesa_boot && initial_substituted && is_imfetch &&
+            !checksum_and_load_seen &&
+            ((pre_pc >= 06170 && pre_pc <= 06217) ||
+             (pre_pc >= 06406 && pre_pc <= 06443))) {
+            /* Initial has a documented boot-parameter path:
+             * STK[1]=boot file number, STK[2]=BootParameterSeal, and
+             * STK[1]+STK[2]+STK[3]=0. Use it in the full-boot probe to
+             * select the normal Mesa microcode (110B) without relying on
+             * the not-yet-complete terminal keyboard back-channel. */
+            cpu.STK[1] = 0110u;
+            cpu.STK[2] = 056623u;
+            cpu.STK[3] = 0121045u;
+            boot_parameter_seed_count++;
+        }
+        if (initial_substituted && is_imfetch && !checksum_and_load_seen &&
             (pre_pc == 06417 || (pre_pc >= 06407 && pre_pc <= 06431))) {
             /* Bring-up shim: the 7-wire terminal back-channel is not
              * modeled yet, so keep all boot keys "up" before Initial
              * tests ETemp0..3. This lets the probe exercise disk boot
-             * instead of falling into Ethernet. */
+             * instead of falling into Ethernet. The same IM PCs are later
+             * reused by CheckChecksumAndLoad, so stop once that routine has
+             * started or this shim corrupts the checksum accumulator. */
             cpu.RM[0x1A] = 0xFFFFu;
             cpu.RM[0x1B] = 0xFFFFu;
             cpu.RM[0x1C] = 0xFFFFu;
             cpu.RM[0x1D] = 0xFFFFu;
         }
-        if (!ether_boot_enabled && initial_substituted && is_imfetch &&
+        if (!ether_boot_enabled && !ethernet_boot_enabled &&
+            initial_substituted && is_imfetch &&
             (pre_pc == 06432 || pre_pc == 06443)) {
             cpu.real_PC = 07140;  /* No boot keys: force disk microcode boot. */
             pre_pc = cpu.real_PC;
@@ -3116,6 +3218,20 @@ static int probe_full_boot_with_bootstrap(void)
                 ether_loaded_world_cycle = bb.cycles;
             }
         }
+        if (!ether_boot_injections && checksum_and_load_seen &&
+            ether_loaded_world_cycle == 0 && is_imfetch &&
+            pre_pc < IM_SIZE && mc.im_present[pre_pc] &&
+            !(pre_pc >= 06000 && pre_pc < 07700)) {
+            /* Real Ethernet path: Initial's LoadRam has replaced the
+             * control store and branched to the EB End-item start PC.
+             * Mark this so the post-emulator disk/display probes apply
+             * to the real path, not just the direct EB shortcut. */
+            ether_loaded_world_cycle = bb.cycles;
+            if (disk_trace_enabled) {
+                disk_trace_armed = 1;
+                disk_trace_n = 0;
+            }
+        }
         int is_key_trace =
             initial_substituted && is_imfetch && key_trace_n < 48 &&
             keyboard_seed_count > 0 &&
@@ -3129,8 +3245,20 @@ static int probe_full_boot_with_bootstrap(void)
                         boot_landmarks[i].first_cycle = bb.cycles;
                     }
                     boot_landmarks[i].hits++;
+                    if (pre_pc == 06460) checksum_and_load_seen = 1;
                     break;
                 }
+            }
+            if (pre_pc == 06222 && ethernet_boot_enabled &&
+                boot_identity_map_shims == 0) {
+                /* Bring-up shim: Initial's PresetMap should leave installed
+                 * storage identity-mapped before BootEmulator clears the
+                 * first 64K and builds the Ethernet request at VM 177400.
+                 * The current memory bring-up still reaches the vacant-map
+                 * path after the NoStorage bypass, so install the same map
+                 * shape here while the Config'/PresetMap gap is fixed. */
+                map_boot_probe_installed_storage(&mem);
+                boot_identity_map_shims++;
             }
             if (pre_pc == 07140) {
                 disk_trace_armed = 1;
@@ -3264,11 +3392,59 @@ static int probe_full_boot_with_bootstrap(void)
             initial_substituted && is_imfetch && mcr_trace_n < 64 &&
             (pre_pc == 06003 || pre_pc == 06012);
         int is_loadram_trace =
-            loadram_trace_enabled &&
+            loadram_trace_mode != 0 &&
             initial_substituted && is_imfetch &&
-            pre_task == 0 && pre_pc >= 07600 && pre_pc < 07700 &&
-            loadram_trace_n < (int)(sizeof loadram_trace /
-                                    sizeof loadram_trace[0]);
+            pre_task == 0 && pre_pc >= 07600 && pre_pc < 07700;
+        if (is_loadram_trace && loadram_trace_mode == 2) {
+            is_loadram_trace = (pre_t >= 0x3D20 && pre_t <= 0x3D70);
+            if (is_loadram_trace &&
+                loadram_trace_n >= (int)(sizeof loadram_trace /
+                                          sizeof loadram_trace[0])) {
+                is_loadram_trace = 0;
+            }
+        }
+        if (checksum_trace_enabled && initial_substituted && is_imfetch &&
+            pre_task == 0 && cpu.RM[0x11] >= 01000 &&
+            (pre_pc == 06460 || pre_pc == 06435 || pre_pc == 06436 ||
+             pre_pc == 06421 || pre_pc == 06437 || pre_pc == 06466 ||
+             pre_pc == 06467 || pre_pc == 06404)) {
+            uint32_t mar = cpu.mem ? cpu.mem->mar : 0;
+            uint16_t mem_t = 0, mem_mar = 0;
+            if (cpu.mem) {
+                if ((size_t)cpu.T < cpu.mem->storage_words) {
+                    mem_t = cpu.mem->storage[cpu.T];
+                }
+                if ((size_t)mar < cpu.mem->storage_words) {
+                    mem_mar = cpu.mem->storage[mar];
+                }
+            }
+            fprintf(stderr,
+                    "CKSUM cyc=%llu pc=0o%o T=%06o Q=%06o Md=%06o "
+                    "BootDataPtr=%06o ETemp0=%06o Cnt=%06o RB=%02o MB=%02o "
+                    "Mar=%07o memT=%06o memMar=%06o aluZ=%u aluLT=%u\n",
+                    (unsigned long long)bb.cycles, pre_pc,
+                    cpu.T & 0177777, cpu.Q & 0177777, pre_md & 0177777,
+                    cpu.RM[0x11] & 0177777, cpu.RM[0x1A] & 0177777,
+                    cpu.Cnt & 0177777, cpu.RBase & 017, cpu.MemBase & 037,
+                    mar & 077777777, mem_t & 0177777, mem_mar & 0177777,
+                    cpu.alu_zero, cpu.alu_lt0);
+        }
+        if (eth_reg_trace_enabled && initial_substituted && is_imfetch &&
+            pre_task == DORADO_ETHERNET_TASK_EIT &&
+            (pre_pc == 06611 || pre_pc == 06612 || pre_pc == 06617 ||
+             pre_pc == 06623 || pre_pc == 06626 || pre_pc == 06627 ||
+             pre_pc == 06632 || pre_pc == 06636 || pre_pc == 06637 ||
+             pre_pc == 06640 || pre_pc == 06641 || pre_pc == 06642)) {
+            fprintf(stderr,
+                    "ETH_REG cyc=%llu pc=0o%o T=%06o Md=%06o Cnt=%06o "
+                    "BootDataPtr=%06o SeqNo=%06o EIPtr=%06o EICnt=%06o "
+                    "RHost=%06o Link=%06o\n",
+                    (unsigned long long)bb.cycles, pre_pc,
+                    cpu.T & 0177777, pre_md & 0177777, cpu.Cnt & 0177777,
+                    cpu.RM[0x11] & 0177777, cpu.RM[0x17] & 0177777,
+                    cpu.RM[0x19] & 0177777, cpu.RM[0x1A] & 0177777,
+                    cpu.RM[0x14] & 0177777, pre_link & 0177777);
+        }
         struct post_eb_trace_sample post_eb_step_trace;
         int trace_post_eb_step =
             post_eb_trace_enabled && ether_loaded_world_cycle && is_imfetch;
@@ -3411,7 +3587,16 @@ static int probe_full_boot_with_bootstrap(void)
             mt->mcr_after = dorado_mcr_get(&mem);
         }
         if (is_loadram_trace) {
-            struct loadram_trace_sample *lt = &loadram_trace[loadram_trace_n++];
+            int cap = (int)(sizeof loadram_trace / sizeof loadram_trace[0]);
+            struct loadram_trace_sample *lt;
+            if (loadram_trace_mode == 2) {
+                lt = &loadram_trace[loadram_trace_n++];
+            } else {
+                lt = &loadram_trace[loadram_trace_head];
+                loadram_trace_head = (loadram_trace_head + 1) % cap;
+                if (loadram_trace_n < cap) loadram_trace_n++;
+            }
+            loadram_trace_total++;
             lt->cycle = bb.cycles;
             lt->task = pre_task;
             lt->pc = pre_pc;
@@ -3514,9 +3699,31 @@ static int probe_full_boot_with_bootstrap(void)
         }
         service_boot_disk(&cpu, &disk, bb.cycles,
                           &disk_sector_ticks, &disk_wakeups);
+        if (initial_substituted) {
+            if (ethernet_boot_enabled &&
+                test_u64_env("DORADO_ETH_FORCE_ELOAD_ZERO", 1) != 0 &&
+                ethernet.tx_active && ethernet.requests_seen == 0 &&
+                ethernet.tx_count == 0 && ethernet.data_writes == 0 &&
+                cpu.RM[0x19] != 0) {
+                /* Bring-up guard: Initial's `ELoad_ A0` should clear this
+                 * retry mask before EOT runs. Until the remaining RM/RBase
+                 * initialization issue is fixed, keep EOT from taking the
+                 * load-overflow stop path before it emits the request. */
+                cpu.RM[0x19] = 0;
+            }
+            uint16_t eth_mask = dorado_ethernet_wakeup_mask(&ethernet);
+            for (int task = 0; task < 16; task++) {
+                if (eth_mask & (uint16_t)(1u << task)) {
+                    dorado_cpu_wakeup(&cpu, task);
+                    ethernet_wakeups++;
+                }
+            }
+        }
         if (ether_loaded_world_cycle && alto_disk_boot_shims == 0 &&
             service_alto_disk_boot_shim(&mem, &disk_pack,
-                                        alto_disk_boot_head)) {
+                                        alto_disk_boot_head,
+                                        cpu.ctask == 0 &&
+                                            cpu.real_PC == 01017)) {
             alto_disk_boot_shims++;
         }
         if (initial_substituted && bb.cycles >= next_display_scanline_cycle) {
@@ -3898,6 +4105,52 @@ static int probe_full_boot_with_bootstrap(void)
            (unsigned long long)display_scanline_wakeups,
            (unsigned long long)disk.output_count,
            (unsigned long long)disk.input_count);
+    printf("       Ethernet: enabled=%d wakeups=%llu ctl0=%llu last0=0o%o "
+           "ctl6=%llu last6=0o%o ctl7=%llu last7=0o%o tx_words=%zu "
+           "starts=%llu eops=%llu stops=%llu requests=%llu last_bfn=0o%o "
+           "replies=%llu rx_pos=%zu/%zu data_w=%llu data_r=%llu\n",
+           ethernet_boot_enabled,
+           (unsigned long long)ethernet_wakeups,
+           (unsigned long long)ethernet.control_writes[0],
+           ethernet.control_last[0],
+           (unsigned long long)ethernet.control_writes[DORADO_ETHERNET_TASK_EOT],
+           ethernet.control_last[DORADO_ETHERNET_TASK_EOT],
+           (unsigned long long)ethernet.control_writes[DORADO_ETHERNET_TASK_EIT],
+           ethernet.control_last[DORADO_ETHERNET_TASK_EIT],
+           ethernet.tx_count,
+           (unsigned long long)ethernet.tx_starts,
+           (unsigned long long)ethernet.tx_eops,
+           (unsigned long long)ethernet.tx_stops,
+           (unsigned long long)ethernet.requests_seen,
+           ethernet.last_boot_offset,
+           (unsigned long long)ethernet.replies_queued,
+           ethernet.rx_pos, ethernet.rx_count,
+           (unsigned long long)ethernet.data_writes,
+           (unsigned long long)ethernet.data_reads);
+    {
+        const char *eb_path =
+            ether_boot_path_for_offset(&ethernet, ethernet.last_boot_offset);
+        uint32_t end_off = 0, payload_words = 0;
+        uint16_t end_item[4] = {0};
+        uint16_t eb_sum = 0;
+        if (eb_path &&
+            read_eb_end_item(eb_path, &end_off, end_item, &payload_words,
+                             &eb_sum)) {
+            uint32_t end_va = 01000u + end_off;
+            printf("       Ethernet EB End: path=%s payload_words=%u "
+                   "sum=0o%06o end_off=0o%o va=0o%o "
+                   "file=[%06o %06o %06o %06o] "
+                   "mem=[%06o %06o %06o %06o]\n",
+                   eb_path, payload_words, eb_sum & 0177777,
+                   end_off, end_va,
+                   end_item[0] & 0177777, end_item[1] & 0177777,
+                   end_item[2] & 0177777, end_item[3] & 0177777,
+                   dorado_storage_at_va(&mem, end_va) & 0177777,
+                   dorado_storage_at_va(&mem, end_va + 1) & 0177777,
+                   dorado_storage_at_va(&mem, end_va + 2) & 0177777,
+                   dorado_storage_at_va(&mem, end_va + 3) & 0177777);
+        }
+    }
     /* Diagnostic counters (gaps G1, D1) — surfacing silent drops so
      * unmodelled paths become visible. Non-zero values point at
      * tasks whose fast-IO routes / BB accesses we don't yet handle. */
@@ -4138,6 +4391,10 @@ static int probe_full_boot_with_bootstrap(void)
                boot_keyboard_word(cpu.mem, 0177036u),
                boot_keyboard_word(cpu.mem, 0177037u));
     }
+    printf("       Boot parameter seeds=%llu force_mesa=%d STK[1..3]=%06o %06o %06o\n",
+           (unsigned long long)boot_parameter_seed_count,
+           force_ether_mesa_boot,
+           cpu.STK[1], cpu.STK[2], cpu.STK[3]);
     printf("       Boot landmarks:");
     for (int i = 0; i < (int)(sizeof boot_landmarks / sizeof boot_landmarks[0]); i++) {
         if (boot_landmarks[i].hits) {
@@ -4230,9 +4487,17 @@ static int probe_full_boot_with_bootstrap(void)
         }
     }
     if (loadram_trace_n > 0) {
-        printf("       LoadRam trace:\n");
+        int cap = (int)(sizeof loadram_trace / sizeof loadram_trace[0]);
+        int start = (loadram_trace_mode == 2) ? 0 :
+                    (loadram_trace_total < (uint64_t)cap)
+                        ? 0 : loadram_trace_head;
+        printf("       LoadRam trace %s %d of %llu steps:\n",
+               loadram_trace_mode == 2 ? "window" : "last",
+               loadram_trace_n,
+               (unsigned long long)loadram_trace_total);
         for (int i = 0; i < loadram_trace_n; i++) {
-            const struct loadram_trace_sample *lt = &loadram_trace[i];
+            const struct loadram_trace_sample *lt =
+                &loadram_trace[(start + i) % cap];
             printf("         cyc=%llu task=%o pc=0o%o->0o%o "
                    "T=%04X->%04X Q=%04X->%04X Md=%04X->%04X "
                    "Link=%04X->%04X RB=%o->%o MB=%o->%o "
@@ -4355,6 +4620,11 @@ static int probe_full_boot_with_bootstrap(void)
     printf("\n");
     printf("       RM[0..15]:");
     for (int r = 0; r < 16; r++) printf(" [%d]=0x%04X", r, cpu.RM[r]);
+    printf("\n");
+    printf("       RM[0x10..0x1D]:");
+    for (int r = 0x10; r <= 0x1D; r++) {
+        printf(" [%02X]=0x%04X", r, cpu.RM[r]);
+    }
     printf("\n");
     printf("       Initial map vars:"
            " R400=0x%04X BFN/BTEMP0=0x%04X BTEMP1=0x%04X BTEMP2=0x%04X"
@@ -5146,16 +5416,17 @@ static int test_cpu_memory_roundtrip(void)
     mc.alufm[0] = 025; mc.alufm_present[0] = 1;   /* "B" */
 
     /* IM[0]: Store←RM/STK. RSTK=0 → RM[0]; BSEL=2 (T data); ASEL=0;
-     * FF=0o300 = 0xC0 → FF[0:1] = 0b11 = 3 → Store. LC=0, JCN=local(1). */
+     * FF=0o320 → FF[0:1] = 3 → Store, with low-six FF function 0o20
+     * (A←RM/STK) instead of the low-nibble A override. */
     mc.im[0] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/2, /*lc=*/0,
-                           /*asel=*/0, /*block=*/0, /*ff=*/0300,
+                           /*asel=*/0, /*block=*/0, /*ff=*/0320,
                            /*jcn=*/jcn_local(1));
     mc.im_present[0] = 1;
 
     /* IM[1]: Fetch←RM/STK. RSTK=0; BSEL=2 (don't care); ASEL=1;
-     * FF=0o300 → FF[0:1] = 3 → Fetch. LC=0, JCN=local(2). */
+     * FF=0o320 → FF[0:1] = 3 → Fetch. LC=0, JCN=local(2). */
     mc.im[1] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/2, /*lc=*/0,
-                           /*asel=*/1, /*block=*/0, /*ff=*/0300,
+                           /*asel=*/1, /*block=*/0, /*ff=*/0320,
                            /*jcn=*/jcn_local(2));
     mc.im_present[1] = 1;
 
@@ -5627,7 +5898,7 @@ static int test_freezebc(void)
 
     /* IM[1]: ALU=1, but with FreezeBC FF (FA=0 FB=7 FC=6).
      * FF = (0 << 6) | (7 << 3) | 6 = 62 = 0o076. */
-    mc.im[1] = make_uinstr(0, 0, /*bsel=*/4, /*lc=*/0,
+    mc.im[1] = make_uinstr(0, 0, /*bsel=*/2, /*lc=*/0,
                            /*asel=*/6, 0, /*ff=*/0076, jcn_local(2));
     mc.im_present[1] = 1;
 
@@ -6214,15 +6485,17 @@ static int test_ifum_load_read(void)
                "step %d failed: %s", i, cpu_halt_reason_str(cpu.halt_reason));
     }
 
-    /* InsSet should now be 2, opcode = 0xAB. IFUM[2*256 + 0xAB] =
-     * IFUM[0x2AB] should have lo=0xCA00, hi=0xBE00. */
+    /* InsSet should now be 2, opcode = 0xAB. IFUMRH writes the field
+     * half (hi) and IFUMLH writes the PackedAlpha/IFaddr half (lo).
+     * This is the same order LoadRam.mc uses for EB IFUM items:
+     * word0 -> IFUMLH, word1 -> IFUMRH. */
     EXPECT(cpu.ifu_insset == 2, "InsSet = %d, expected 2", cpu.ifu_insset);
     EXPECT(cpu.ifu_opcode == 0xAB,
            "Opcode = 0x%02X, expected 0xAB", cpu.ifu_opcode);
-    EXPECT(mc.ifum_lo[0x2AB] == 0xCA00,
-           "ifum_lo[0x2AB] = 0x%04X, expected 0xCA00", mc.ifum_lo[0x2AB]);
-    EXPECT(mc.ifum_hi[0x2AB] == 0xBE00,
-           "ifum_hi[0x2AB] = 0x%04X, expected 0xBE00", mc.ifum_hi[0x2AB]);
+    EXPECT(mc.ifum_hi[0x2AB] == 0xCA00,
+           "ifum_hi[0x2AB] = 0x%04X, expected 0xCA00", mc.ifum_hi[0x2AB]);
+    EXPECT(mc.ifum_lo[0x2AB] == 0xBE00,
+           "ifum_lo[0x2AB] = 0x%04X, expected 0xBE00", mc.ifum_lo[0x2AB]);
 
     /* Other entries should be untouched. */
     EXPECT(mc.ifum_lo[0] == 0, "ifum_lo[0] should be untouched");
@@ -6505,7 +6778,11 @@ static int test_slow_io_routing(void)
     static echo_dev dev_state;
     memset(&dev_state, 0, sizeof dev_state);
     static const dorado_io_device echo_device = {
-        echo_read, echo_write, &dev_state, "echo"
+        .read = echo_read,
+        .write = echo_write,
+        .attention = NULL,
+        .ctx = &dev_state,
+        .name = "echo"
     };
     dorado_io_register(&io, /*task=*/0, /*tioa=*/0xDE, &echo_device);
 
@@ -6569,7 +6846,11 @@ static int test_output_t_store_shape_routes_slow_io(void)
     static echo_dev dev_state;
     memset(&dev_state, 0, sizeof dev_state);
     static const dorado_io_device echo_device = {
-        echo_read, echo_write, &dev_state, "echo"
+        .read = echo_read,
+        .write = echo_write,
+        .attention = NULL,
+        .ctx = &dev_state,
+        .name = "echo"
     };
     dorado_io_register(&io, /*task=*/3, /*tioa=*/0375, &echo_device);
 

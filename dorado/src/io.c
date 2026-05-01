@@ -57,3 +57,11 @@ int dorado_io_has_write(const dorado_io *io, int task, uint8_t tioa)
     const dorado_io_device *dev = io->cells[task][tioa];
     return dev && dev->write;
 }
+
+int dorado_io_attention(dorado_io *io, int task, uint8_t tioa)
+{
+    if (!io || task < 0 || task >= DORADO_IO_TASKS) return 0;
+    const dorado_io_device *dev = io->cells[task][tioa];
+    if (!dev || !dev->attention) return 0;
+    return dev->attention(dev->ctx, task, tioa) ? 1 : 0;
+}

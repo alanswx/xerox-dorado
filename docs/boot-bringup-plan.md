@@ -1366,6 +1366,20 @@ A few rules to keep ourselves honest:
 
 ## Estimate
 
+## Current Next Step (2026-05-01)
+
+The real Ethernet path now reaches the loaded Mesa/AEmu world:
+Initial requests boot file `0110`, receives `AltoMesaDorado.eb!1`,
+verifies the zero checksum, and `LoadRam` jumps to the EB End-item
+start address. The next blocker is no longer Ethernet or LoadRam.
+
+Current hot loop: AEmu disk boot `KWait` at `0o1017`, with the
+`0o5250/0o5203/0o5246` support loop. `AEm0.mc` shows this is waiting
+for status at Alto memory `0432`. The probe first-sector shim now fires
+on this real path and writes `0F01`, but the emulator remains in
+`KWait`, so the next coding pass should trace the status fetch/branch
+sequence and MD/cache/map visibility before adding more display logic.
+
 These are weeks-of-work each, in rough order of effort:
 
 | Phase | Effort | Dependency      |

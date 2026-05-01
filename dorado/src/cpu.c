@@ -13,6 +13,7 @@
 /* Forward declarations for IFU helpers (defined later in this file). */
 static uint16_t ifu_consume_id(dorado_cpu *cpu);
 static uint8_t  ifu_fetch_byte(dorado_cpu *cpu, uint16_t pc, int *out_faulted);
+static uint16_t task_md(const dorado_cpu *cpu);
 
 /*
  * Dorado microengine. See include/cpu.h for scope.
@@ -193,6 +194,14 @@ static uint16_t task_schedule(dorado_cpu *cpu, uint16_t next_pc,
     /* If the current task is non-emulator and blocked, clear Ready. */
     if (block_in_non_emulator) {
         cpu->ready &= (uint16_t)~(1u << cpu->ctask);
+        /* A terminal `Block, Branch[.]` has consumed the wakeup it was
+         * servicing. If a synthetic device asserted the bit again just
+         * before the terminal block, leaving it pending immediately
+         * re-enters code that expects to be asleep. Do not clear ordinary
+         * inter-word blocks; Ethernet input relies on those wakeups. */
+        if (next_pc == cpu->real_PC) {
+            cpu->wakeup_pending &= (uint16_t)~(1u << cpu->ctask);
+        }
     }
 
     /* If tasking is off, no switch — current task keeps running. */
@@ -461,6 +470,18 @@ static int ff_full_function_ok(const dorado_uinstr *u)
  * not affected. */
 static int ff_a_low_override(const dorado_uinstr *u)
 {
+    if (!ff_decode_ok(u)) return -1;
+
+    /* For memory-reference ASELs, FF[0:1] select the reference kind
+     * and do not participate in the FF function decode; the remaining
+     * six bits are decoded as functions 0..63. */
+    if (u->asel == 0 || u->asel == 1) {
+        uint8_t f = u->ff & 077;
+        int fb = (f >> 3) & 7;
+        if (fb <= 1) return u->ff & 0xF;
+        return -1;
+    }
+
     if (!ff_full_function_ok(u)) return -1;
     int fa = ff_fa(u->ff), fb = ff_fb(u->ff);
     if (fa == 0 && fb <= 1) return u->ff & 0xF;
@@ -576,20 +597,20 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
         case 1: /* B ← EventCntA' (HM §4.11). Active-low. */
                 *b = (uint16_t)~cpu->event_cnt_a;
                 break;
-        case 2: /* B ← IFUMRH' (low part of IFUM, inverted).
-                 * Address = InsSet||Opcode (set by InsSetorEvent←B
-                 * and BrkIns←B). */
+        case 2: /* B ← IFUMRH' (field half, inverted). Address =
+                 * InsSet||Opcode (set by InsSetorEvent←B and
+                 * BrkIns←B). */
                 if (cpu->mc) {
                     int addr = ((cpu->ifu_insset & 3) << 8) | cpu->ifu_opcode;
-                    *b = (uint16_t)~cpu->mc->ifum_lo[addr];
+                    *b = (uint16_t)~cpu->mc->ifum_hi[addr];
                 } else {
                     *b = 0xFFFF;
                 }
                 break;
-        case 3: /* B ← IFUMLH' (high part of IFUM, inverted). */
+        case 3: /* B ← IFUMLH' (PackedAlpha,,IFaddr' half, inverted). */
                 if (cpu->mc) {
                     int addr = ((cpu->ifu_insset & 3) << 8) | cpu->ifu_opcode;
-                    *b = (uint16_t)~cpu->mc->ifum_hi[addr];
+                    *b = (uint16_t)~cpu->mc->ifum_lo[addr];
                 } else {
                     *b = 0xFFFF;
                 }
@@ -671,7 +692,33 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
      * not selecting a constant) and (JCN does not select a 'long'
      * goto/call)." */
     int ff_is_function = ff_full_function_ok(u);
-    if (!ff_is_function) return pd;
+    if (!ff_is_function) {
+        if (ff_decode_ok(u) && u->asel <= 3) {
+            /* HM Table 8a memory-reference forms use FF[0:1] for the
+             * memory source/operation select, but the lower six bits still
+             * carry simple Table-11a functions. LoadRam relies on this for
+             * `Q_ MD` (FF=0o373) and `BDispatch_ Q` (FF=0o371) while
+             * issuing Fetches. Keep this narrow so memory-ref branch
+             * encodings such as Initial's BootMem loop are not misdecoded as
+             * full 8-bit FF side effects. */
+            switch (u->ff & 077) {
+            case 070: /* BigBDispatch ← B */
+                cpu->dispatch_pending = b & 0xFF;
+                break;
+            case 071: /* BDispatch ← B */
+                cpu->dispatch_pending = b & 0x7;
+                break;
+            case 073: /* Q ← B */
+                cpu->Q = b;
+                break;
+            case 075: /* TgetsMd */
+                return task_md(cpu);
+            default:
+                break;
+            }
+        }
+        return pd;
+    }
 
     if (fa == 0) {
         if (fb <= 1) {
@@ -893,19 +940,7 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
             case 3: /* NoReschedule. Clear the pending Reschedule. */
                 cpu->reschedule_pending = 0;
                 return pd;
-            case 4: /* IFUMRH ← B (low part of IFUM entry).
-                     * Writes 16 bits: Packed-α←B.5, IFaddr'←B[6:15],
-                     * etc. We store the raw word; field decode happens
-                     * during prefetch (Phase C.2). Address =
-                     * InsSet||Opcode. */
-                if (cpu->mc) {
-                    dorado_microcode *mc_w = (dorado_microcode *)cpu->mc;
-                    int addr = ((cpu->ifu_insset & 3) << 8) | cpu->ifu_opcode;
-                    mc_w->ifum_lo[addr] = b;
-                    mc_w->ifum_present[addr] = 1;
-                }
-                return pd;
-            case 5: /* IFUMLH ← B (high part of IFUM entry).
+            case 4: /* IFUMRH ← B (field half of IFUM entry).
                      * Writes 16 bits: Sign←B.0, PE←B[1:3], Length'←B[4:5],
                      * RBaseB'←B.6, MemB←B[7:9], TPause'←B.10,
                      * TJump'←B.11, N←B[12:15]. */
@@ -913,6 +948,19 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                     dorado_microcode *mc_w = (dorado_microcode *)cpu->mc;
                     int addr = ((cpu->ifu_insset & 3) << 8) | cpu->ifu_opcode;
                     mc_w->ifum_hi[addr] = b;
+                    mc_w->ifum_present[addr] = 1;
+                }
+                return pd;
+            case 5: /* IFUMLH ← B (PackedAlpha,,IFaddr' half).
+                     * Writes 16 bits: Packed-α←B.5 and IFaddr'←B[6:15].
+                     * LoadRam.mc writes EB word0 through IFUMLH and word1
+                     * through IFUMRH; the in-memory form keeps those as
+                     * ifum_lo and ifum_hi respectively because dispatch
+                     * decodes IFaddr from lo and fields from hi. */
+                if (cpu->mc) {
+                    dorado_microcode *mc_w = (dorado_microcode *)cpu->mc;
+                    int addr = ((cpu->ifu_insset & 3) << 8) | cpu->ifu_opcode;
+                    mc_w->ifum_lo[addr] = b;
                     mc_w->ifum_present[addr] = 1;
                 }
                 return pd;
@@ -1163,6 +1211,63 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
     return pd;
 }
 
+static uint16_t task_md(const dorado_cpu *cpu)
+{
+    int task = cpu->ctask & 0xF;
+    if (cpu->task_md_valid[task]) {
+        return cpu->task_md[task];
+    }
+    return cpu->mem ? cpu->mem->md : 0;
+}
+
+static int ref_kind_loads_md(dorado_ref_kind kind)
+{
+    return kind == DM_REF_FETCH ||
+           kind == DM_REF_IFETCH ||
+           kind == DM_REF_LONGFETCH;
+}
+
+static const char *ref_kind_name(dorado_ref_kind kind)
+{
+    switch (kind) {
+    case DM_REF_NONE:      return "none";
+    case DM_REF_FETCH:     return "fetch";
+    case DM_REF_STORE:     return "store";
+    case DM_REF_IFETCH:    return "ifetch";
+    case DM_REF_PREFETCH:  return "prefetch";
+    case DM_REF_MAP:       return "map";
+    case DM_REF_DUMMYREF:  return "dummyref";
+    case DM_REF_FLUSH:     return "flush";
+    case DM_REF_LONGFETCH: return "longfetch";
+    case DM_REF_IOFETCH:   return "iofetch";
+    case DM_REF_IOSTORE:   return "iostore";
+    default:               return "?";
+    }
+}
+
+static int eth_mem_trace_enabled(void)
+{
+    static int cached = -1;
+    if (cached < 0) cached = getenv("DORADO_ETH_MEM_TRACE") ? 1 : 0;
+    return cached;
+}
+
+static int rm_trace_enabled(void)
+{
+    static int cached = -1;
+    if (cached < 0) cached = getenv("DORADO_RM_TRACE") ? 1 : 0;
+    return cached;
+}
+
+static void latch_task_md_from_memory(dorado_cpu *cpu)
+{
+    if (cpu->mem) {
+        int task = cpu->ctask & 0xF;
+        cpu->task_md[task] = cpu->mem->md;
+        cpu->task_md_valid[task] = 1;
+    }
+}
+
 /* Compute B bus value (HM Table 7, primary sources). FF-driven external
  * sources (Pipe, Link, FaultInfo, CPReg, …) are handled by
  * ff_override_b before this fires. */
@@ -1176,11 +1281,9 @@ static int b_bus(const dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *out)
     }
     int rm_a = rm_address(cpu, u);
     switch (u->bsel) {
-    case 0: /* Md (memory data). HM page 39: Md is the latched
-             * result of the most recent fetch by this task. Without
-             * Hold modeling, fetches deliver Md immediately on the
-             * next instruction, so we just read mem->md. */
-        *out = cpu->mem ? cpu->mem->md : 0;
+    case 0: /* Md (memory data). HM page 39/40: Md is task-specific
+             * and remains valid until the next fetch by this task. */
+        *out = task_md(cpu);
         return 0;
     case 1: /* RM/STK */
         if (rm_a >= CPU_RMSTK_INVALID) return CPU_HALT_UNSUPPORTED_BSEL;
@@ -1295,7 +1398,7 @@ static uint16_t shifter_output(const dorado_cpu *cpu, const dorado_uinstr *u)
     default: mask = 0; with_md = 0; break;
     }
 
-    uint16_t fill = (with_md && cpu->mem) ? cpu->mem->md : 0;
+    uint16_t fill = with_md ? task_md(cpu) : 0;
     return (uint16_t)((lo16 & ~mask) | (fill & mask));
 }
 
@@ -1362,7 +1465,7 @@ static uint16_t alt_mem_source(dorado_cpu *cpu, const dorado_uinstr *u)
     if (!ff_decode_ok(u)) return cpu->T;  /* HM Table 8b: Store/Fetch<-T */
     int ff01 = (u->ff >> 6) & 3;     /* FF[0:1]: Md, Id, Q, T */
     switch (ff01) {
-    case 0: return cpu->mem ? cpu->mem->md : 0;
+    case 0: return task_md(cpu);
     case 1: return ifu_consume_id(cpu);
     case 2: return cpu->Q;
     case 3: return cpu->T;
@@ -1541,6 +1644,15 @@ static int apply_lc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t pd,
     case 2: /* T←Md, RM/STK←Pd */
     {
         if (!has_rm) return CPU_HALT_UNSUPPORTED_ASEL;
+        if (rm_trace_enabled() && rm_a >= 0 && rm_a < 0x100) {
+            fprintf(stderr,
+                    "RM_WRITE task=%o pc=0o%o addr=%03o old=%06o new=%06o "
+                    "via=LC2 pd=%06o md=%06o rb=%02o rstk=%02o\n",
+                    cpu->ctask & 017, cpu->real_PC, rm_a & 0377,
+                    cpu->RM[rm_a] & 0177777, pd & 0177777,
+                    pd & 0177777, md_at_issue & 0177777,
+                    cpu->RBase & 017, u->rstk & 017);
+        }
         rm_stk_write(cpu, rm_a, pd);
         cpu->T = md_at_issue;
         break;
@@ -1550,20 +1662,56 @@ static int apply_lc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t pd,
         break;
     case 4: /* RM/STK←Md */
         if (!has_rm) return CPU_HALT_UNSUPPORTED_ASEL;
+        if (rm_trace_enabled() && rm_a >= 0 && rm_a < 0x100) {
+            fprintf(stderr,
+                    "RM_WRITE task=%o pc=0o%o addr=%03o old=%06o new=%06o "
+                    "via=LC4 pd=%06o md=%06o rb=%02o rstk=%02o\n",
+                    cpu->ctask & 017, cpu->real_PC, rm_a & 0377,
+                    cpu->RM[rm_a] & 0177777, md_at_issue & 0177777,
+                    pd & 0177777, md_at_issue & 0177777,
+                    cpu->RBase & 017, u->rstk & 017);
+        }
         rm_stk_write(cpu, rm_a, md_at_issue);
         break;
     case 5: /* T←Pd, RM/STK←Md */
         cpu->T = pd;
         if (!has_rm) return CPU_HALT_UNSUPPORTED_ASEL;
+        if (rm_trace_enabled() && rm_a >= 0 && rm_a < 0x100) {
+            fprintf(stderr,
+                    "RM_WRITE task=%o pc=0o%o addr=%03o old=%06o new=%06o "
+                    "via=LC5 pd=%06o md=%06o rb=%02o rstk=%02o\n",
+                    cpu->ctask & 017, cpu->real_PC, rm_a & 0377,
+                    cpu->RM[rm_a] & 0177777, md_at_issue & 0177777,
+                    pd & 0177777, md_at_issue & 0177777,
+                    cpu->RBase & 017, u->rstk & 017);
+        }
         rm_stk_write(cpu, rm_a, md_at_issue);
         break;
     case 6: /* RM/STK←Pd */
         if (!has_rm) return CPU_HALT_UNSUPPORTED_ASEL;
+        if (rm_trace_enabled() && rm_a >= 0 && rm_a < 0x100) {
+            fprintf(stderr,
+                    "RM_WRITE task=%o pc=0o%o addr=%03o old=%06o new=%06o "
+                    "via=LC6 pd=%06o md=%06o rb=%02o rstk=%02o\n",
+                    cpu->ctask & 017, cpu->real_PC, rm_a & 0377,
+                    cpu->RM[rm_a] & 0177777, pd & 0177777,
+                    pd & 0177777, md_at_issue & 0177777,
+                    cpu->RBase & 017, u->rstk & 017);
+        }
         rm_stk_write(cpu, rm_a, pd);
         break;
     case 7: /* T←Pd, RM/STK←Pd */
         cpu->T = pd;
         if (!has_rm) return CPU_HALT_UNSUPPORTED_ASEL;
+        if (rm_trace_enabled() && rm_a >= 0 && rm_a < 0x100) {
+            fprintf(stderr,
+                    "RM_WRITE task=%o pc=0o%o addr=%03o old=%06o new=%06o "
+                    "via=LC7 pd=%06o md=%06o rb=%02o rstk=%02o\n",
+                    cpu->ctask & 017, cpu->real_PC, rm_a & 0377,
+                    cpu->RM[rm_a] & 0177777, pd & 0177777,
+                    pd & 0177777, md_at_issue & 0177777,
+                    cpu->RBase & 017, u->rstk & 017);
+        }
         rm_stk_write(cpu, rm_a, pd);
         break;
     }
@@ -1617,8 +1765,11 @@ static int eval_branch_condition(dorado_cpu *cpu,
              * pending was set by Reschedule (count=2 at issue). */
             r = (cpu->reschedule_pending >= 2) ? 0 : 1;
         } else {
-            uint16_t mask = (uint16_t)(1u << cpu->ctask);
-            r = (cpu->wakeup_pending & mask) ? 0 : 1;
+            int io_attention = cpu->io
+                ? dorado_io_attention(cpu->io, cpu->ctask,
+                                      (uint8_t)cpu->TIOA)
+                : 0;
+            r = io_attention ? 0 : 1;
         }
         break;
     default: r = 0;                                       break;
@@ -1841,6 +1992,23 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
     /* top1 == 0 — long, conditional, return-class, IFU jump, or undefined. */
     uint8_t low3 = jcn & 7;
 
+    /* LoadRam.mc hand-places its End-item exit as:
+     *   LRFlag, Link_ MD, BRGO@[0] RETCL@[2] JCN[45]
+     * MicroD uses BRGO/RETCL control bits that are not otherwise exposed
+     * in our decoded fields. For the complete-replacement path
+     * (LRFlag even), the freshly-loaded Link is the emulator start PC. */
+    if (jcn == 0045 && u->ff == 0147) {
+        int rm_a = rm_address(cpu, u);
+        uint16_t flag = (rm_a < CPU_RMSTK_INVALID) ? rm_stk_read(cpu, rm_a) : 0;
+        if ((flag & 1u) == 0) {
+            *next = (uint16_t)(cpu->Link & 0x0FFFu);
+        } else {
+            *next = (uint16_t)((cpu->real_PC & ~(uint16_t)(CPU_PAGE_SIZE - 1))
+                               | 0021u);
+        }
+        return 0;
+    }
+
     if (((jcn >> 4) & 0xF) == 0) {
         /* Long Jump/Call. FF disabled as a function.
          * HM Figure 6: TNIA = CIA[2:3] || FF[0:7] || JCN[4:7].
@@ -1865,9 +2033,17 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
              * slot n (0..3). */
             int n_slot = (jcn >> 3) & 3;   /* JCN[3:4] */
 
-            /* IFU not active (PCF←B not yet issued) → halt. Real HW
-             * has no fault for this; microcode error. */
-            if (!cpu->ifu_active) return CPU_HALT_IFU_NOT_READY;
+            /* IFU not active (PCF←B not yet issued, or a pause
+             * opcode explicitly halted fetching) → trap to the same
+             * NotReady vector used while the pipeline is warming. The
+             * emulator sources include retry handlers at these vectors
+             * (for example AEmuNotReady), so this is a recoverable
+             * microcode path rather than an emulator-level halt. */
+            if (!cpu->ifu_active) {
+                *next = ifu_trap_addr(0034, n_slot, cpu->ifu_insset);
+                if (!ff_loads_link(u)) cpu->Link = (uint16_t)(cpu->real_PC + 1);
+                return 0;
+            }
 
             /* IFU still warming up after PCF←B → trap to *34-37
              * NotReady vector. The trap entries themselves should
@@ -2161,6 +2337,14 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
  * call into the same execution body the normal IM-fetch path uses. */
 static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im);
 
+static int jcn_is_write_im(const dorado_uinstr *u)
+{
+    uint8_t jcn = u->jcn;
+    if ((jcn & 7) != 7) return 0;
+    if (((jcn >> 6) & 1) == 0) return 0;
+    return ((jcn >> 3) & 7) == 7;
+}
+
 int dorado_cpu_step(dorado_cpu *cpu)
 {
     if (cpu->halted) return 1;
@@ -2240,7 +2424,8 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
     cpu->link_at_issue = cpu->Link;
     cpu->dispatch_or = cpu->dispatch_pending;
     cpu->dispatch_pending = 0;
-    uint16_t md_at_issue = cpu->mem ? cpu->mem->md : 0;
+    uint16_t md_at_issue = task_md(cpu);
+    uint8_t rbase_at_issue = cpu->RBase;
 
     /* B and A buses. FF may override B (Pipe / Link / CPReg / …). */
     uint16_t b = 0, a = 0;
@@ -2313,7 +2498,7 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
      * No memory subsystem attached → silently skip (we already
      * treat unhandled refs as no-ops).
      */
-    if (cpu->mem && u->asel <= 3) {
+    if (cpu->mem && u->asel <= 3 && !jcn_is_write_im(u)) {
         /* io_task = 1 for non-emulator tasks (HM Table 8a:
          * Map↔IOFetch and Flush↔IOStore variants). */
         int io_task = (cpu->ctask != 0) ? 1 : 0;
@@ -2361,6 +2546,28 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
             dorado_fault_kind ref_fault =
                 dorado_memory_ref_task(cpu->mem, kind, va, data, cpu->TIOA,
                                        (int)cpu->ctask, subtask);
+            if (ref_fault == DM_FAULT_NONE && ref_kind_loads_md(kind)) {
+                latch_task_md_from_memory(cpu);
+            }
+            if (eth_mem_trace_enabled()) {
+                int packet_va = (va >= 0177400u && va <= 0177416u);
+                int eth_task = (cpu->ctask == 6 || cpu->ctask == 7);
+                if (packet_va || eth_task) {
+                    fprintf(stderr,
+                            "ETH_MEM task=%o pc=0o%o kind=%s rb=%02o mb=%02o "
+                            "sub=%o br=%07X mar=%04X va=%07X "
+                            "data=%06o md=%06o task_md=%06o "
+                            "tioa=%03o fault=%d\n",
+                            cpu->ctask & 017, cpu->real_PC,
+                            ref_kind_name(kind), cpu->RBase & 017,
+                            membase & 037,
+                            subtask & 3, br & 0x0FFFFFFFu, mar,
+                            va & 0x0FFFFFFFu, data & 0177777,
+                            cpu->mem->md & 0177777,
+                            task_md(cpu) & 0177777,
+                            cpu->TIOA & 0377, (int)ref_fault);
+                }
+            }
             if (ref_fault != DM_FAULT_NONE) {
                 cpu->mem->last_fault_pc = (uint16_t)(cpu->ifu_pcx & 0xFFFFu);
                 cpu->mem->last_fault_real_pc = cpu->real_PC;
@@ -2407,7 +2614,10 @@ memory_ref_done: ;
      * register write). Compute next PC first, then commit the LC write.
      */
     uint16_t np = (uint16_t)(cpu->real_PC + 1);
+    uint8_t rbase_after_ff = cpu->RBase;
+    cpu->RBase = rbase_at_issue;
     rc = next_pc(cpu, u, &np);
+    cpu->RBase = rbase_after_ff;
     if (rc != 0) {
         cpu->halted = 1;
         cpu->halt_reason = rc;
@@ -2433,7 +2643,8 @@ memory_ref_done: ;
     int fa_bc = (u->ff >> 6) & 3;
     int fb_bc = (u->ff >> 3) & 7;
     int fc_bc = u->ff & 7;
-    int freezebc = (fa_bc == 0 && fb_bc == 7 && fc_bc == 6);
+    int freezebc = ff_full_function_ok(u) &&
+                   (fa_bc == 0 && fb_bc == 7 && fc_bc == 6);
     if (!freezebc) {
         cpu->alu_zero     = new_alu_zero;
         cpu->alu_lt0      = new_alu_lt0;

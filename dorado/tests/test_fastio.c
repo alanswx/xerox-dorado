@@ -62,13 +62,14 @@ static int test_dsk_iostore_to_memory(void)
     static dorado_io io;
     dorado_io_init(&io);
     dorado_disk_controller_attach_to_io(&disk, &io);
-    dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG, 0);
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG,
-                    (uint16_t)((2u << 12) | 5u));   /* Cyl 5 */
+                    (uint16_t)(0x8000u | (1u << 4))); /* Select drive 0 */
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG,
-                    (uint16_t)((1u << 12) | 2u));   /* Head 2 */
+                    (uint16_t)(0x4000u | 5u));      /* Cyl 5 */
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG,
-                    (uint16_t)((3u << 12) | (1u << 6))); /* Read */
+                    (uint16_t)(0x2000u | 2u));      /* Head 2 */
+    dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG,
+                    (uint16_t)(0x1000u | (1u << 6))); /* Read */
     /* But we need to set cur_sector = 3 first. Easiest: advance from 0. */
     /* The Read above loaded sector (5,2,0) into FIFO. Drain it and
      * advance to sector 3 to load (5,2,3). */
@@ -80,7 +81,7 @@ static int test_dsk_iostore_to_memory(void)
      * have a sector-pulse driver yet). */
     disk.drive[0].cur_sector = 3;
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG,
-                    (uint16_t)((3u << 12) | (1u << 6))); /* Read */
+                    (uint16_t)(0x1000u | (1u << 6))); /* Read */
     EXPECT(disk.fifo_count == DORADO_DISK_FIFO_WORDS,
            "FIFO loaded with sector data, count=%d", disk.fifo_count);
 

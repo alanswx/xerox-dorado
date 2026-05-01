@@ -208,7 +208,7 @@ typedef struct {
      *
      * 16 priority-scheduled tasks. Task 15 = highest (fault task);
      * task 0 = lowest (emulator, always awake). Each task has its
-     * own T, TPC, Link, MemBase, RBase, and TIOA saved across switches;
+     * own T, TPC, Link, MemBase, RBase, TIOA, and Md saved across switches;
      * Q, ALUFM, StkP, ShC, and Cnt are not per-task (HM §4.1,
      * §7).
      *
@@ -243,6 +243,8 @@ typedef struct {
     uint8_t  task_membase[16];
     uint8_t  task_rbase[16];
     uint8_t  task_tioa[16];
+    uint16_t task_md[16];
+    uint8_t  task_md_valid[16];
 
     /* SubTask (HM page 88). When an I/O device wakes a task, it
      * may present a 2-bit SubTask. The processor OR's

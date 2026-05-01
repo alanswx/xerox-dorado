@@ -37,10 +37,12 @@ typedef uint16_t (*dorado_io_read_fn)(void *ctx, int task, uint8_t tioa,
                                       int *out_bad_parity);
 typedef void     (*dorado_io_write_fn)(void *ctx, int task, uint8_t tioa,
                                        uint16_t data);
+typedef int      (*dorado_io_attention_fn)(void *ctx, int task, uint8_t tioa);
 
 typedef struct {
     dorado_io_read_fn  read;
     dorado_io_write_fn write;
+    dorado_io_attention_fn attention;
     void              *ctx;
     const char        *name;
 } dorado_io_device;
@@ -75,5 +77,8 @@ void dorado_io_write(dorado_io *io, int task, uint8_t tioa, uint16_t data);
 
 /* True if a device with a write handler is registered at (task, TIOA). */
 int dorado_io_has_write(const dorado_io *io, int task, uint8_t tioa);
+
+/* True if the device currently asserts IOAttention for (task, TIOA). */
+int dorado_io_attention(dorado_io *io, int task, uint8_t tioa);
 
 #endif

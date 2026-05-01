@@ -762,15 +762,19 @@ Phase 3 (later):
 - **EOT** (6) — output (transmit).
 - **EIT** (7) — input (receive).
 
-Co-located with disk on the same logic board. Ethernet uses 2 of the
-3 TIOA slots in the disk's range that the disk doesn't claim (HM
-§9 page 92 says "uses two of the other three"). Specific TIOA
-assignments not captured in this doc — read HM §10 when implementing.
+Co-located with disk on the same logic board. Ethernet uses TIOA
+`015B` (`EData`) for data and TIOA `016B` (`EControl`) for
+control/status. See `docs/ethernet-architecture.md` for the full
+controller model and the Initial microcode netboot packet protocol.
 
 ### What we need to build (ether)
 
-Defer until disk + display are working. We do not need it for Mesa
-boot. Useful eventually for IFS (file server) connectivity.
+For microcode netboot, build a packet-level fake controller at the
+`EData`/`EControl` boundary. It should capture Initial's
+`MicrocodeBootRequest`, stream `MicrocodeBootReply` packets from a
+local `.eb` file using the CHM boot-server chunking rules, and present
+normal receive status through EIT. Full wire-level phase encoding and
+collision behavior can wait.
 
 ---
 

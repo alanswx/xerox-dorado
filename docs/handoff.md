@@ -1365,3 +1365,45 @@ reset. `DORADO_BOOT_BUDGET=120000000 DORADO_ETHER_BOOT_IMAGE=../chm/microcode/Al
 writes `/tmp/dorado_direct_eb.pgm` at frame 158 and finishes with no
 memory faults, but the image is still all white (`unique=1`,
 `nonwhite=0`) because display fast-I/O fetches remain `0`.
+
+2026-05-01 Ethernet bootstrap pass: added `dorado/include/ethernet.h`,
+`dorado/src/ethernet.c`, and `tests/test_ethernet.c`, plus device-level
+`IOAtten` callbacks in the slow-I/O table. `DORADO_BOOT_ETHERNET=1` is
+now the default full-bootstrap probe path. Important CPU fix:
+non-emulator `IOAtten` now comes from the addressed device only; using
+`wakeup_pending` as a proxy made EOT branch to `EOAbrt` on every normal
+transmit wakeup. With a temporary `DORADO_ETH_FORCE_ELOAD_ZERO=1`
+probe guard, EOT reaches `EData` and EIT consumes queued
+`AltoMesaDorado.eb!1` reply packets. Current blocker: EOT fetches zeros
+from VM `177400B` instead of Initial's request packet, and EIT still
+does not make Initial advance to `CheckChecksumAndLoad`, probably
+because non-emulator task memory fetch/store through `MemBase=IOBR`
+does not round-trip the packet buffers correctly. Next action: trace
+EOT `Fetch_ EOPtr` and EIT `Store_ EIPtr`/`Fetch_ EIPtr` memory refs.
+
+2026-05-01 real Ethernet LoadRam update: Initial now uses the sealed
+boot-parameter path to request Mesa (`last_bfn=0110`) and EIT receives
+all `AltoMesaDorado.eb!1` reply words. The EB End item in memory matches
+the file (`[000002 000000 177730 001076]`, checksum zero), and LoadRam
+jumps into the loaded world. Two CPU/IFU fixes landed here:
+
+- `IFUJump` with an inactive IFU now vectors to the IFU NotReady trap
+  instead of halting the emulator. This matches the hardware manual's
+  NotReady retry model and the `AEmuNotReady` handler in `Start.mc`.
+- IFUM function half ordering was corrected for real `LoadRam`: EB
+  word0 (`PackedAlpha,,IFaddr'`) is written by `IFUMLH` and stored in
+  `ifum_lo`; EB word1 (Sign/Length/TPause/TJump/N fields) is written by
+  `IFUMRH` and stored in `ifum_hi`. The previous ordering corrupted the
+  Mesa IFUM after Ethernet LoadRam.
+
+The full probe now runs to the budget without a CPU halt. It writes
+`/tmp/dorado_boot_display.pgm` around frame 31 and touches the display
+controller (`display outs=17304`), but still has `display iofetch=0`.
+The current hot loop is AEmu disk boot `KWait` (`0o1017` with
+`0o5250/0o5203/0o5246`), which `AEm0.mc` shows is waiting on status at
+Alto memory `0432`. The probe's first-sector Alto boot shim now fires
+on the real Ethernet path (`alto-boot shims=1`) and stores status
+`0F01`, but AEmu remains in `KWait`. Next debugging target: trace the
+`KWait` fetch/branch sequence and status-word visibility through
+Md/cache/map, then replace the shim with real Alto/Dorado disk command
+completion.
