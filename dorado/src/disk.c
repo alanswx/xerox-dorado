@@ -574,7 +574,13 @@ static uint16_t disk_input(void *ctx, int task, uint8_t tioa, int *bad)
         case 001: bit = ctl->index_tw; break;
         case 002: bit = ctl->sector_tw; break;
         case 003: bit = ctl->tag_tw; break;
-        case 004: bit = ctl->rd_fifo_tw; break;
+        case 004:
+            if (!ctl->rd_fifo_tw && !ctl->active && ctl->enable_run && d->pack) {
+                ctl->active = 1;
+                disk_begin_read_stream(ctl);
+            }
+            bit = ctl->rd_fifo_tw;
+            break;
         case 005: bit = ctl->wr_fifo_tw; break;
         case 010: bit = ctl->enable_run; break;
         case 011: bit = ctl->debug_mode; break;

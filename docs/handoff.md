@@ -1337,4 +1337,22 @@ task 14 to `KCmmdRead` with `KCmmd=0005`, then immediately takes
 instructions on the `KCmmdInTime` path in the EB-loaded image and
 verify whether `Output_ KCmmd` is being skipped, revoked by the
 same-sector check, or compiled into another slow-I/O output shape that
-`cpu.c` does not yet route.
+`cpu.c` does not yet route. Current bring-up fallback in `disk.c` starts
+a read stream when task 14 explicitly polls `muffRdFifoTW` with
+`EnableRun=1`, `Active=0`, and a mounted pack; replace this with the
+real DiskControl/Format-RAM sequence-PROM start timing.
+
+2026-05-01 follow-up after the fallback: full boot now gets out of the
+disk wait and into LoadRam. The disk-loaded IM matches canonical
+`Initial.mb` for 925/926 overlapping entries (`0o7512` is the only
+difference), and the hot loop is now LoadRam
+`0o7605/7606/7611/7612/7614/7620/7673/7675/7676`. New opt-in
+`DORADO_LOADRAM_TRACE=1` records the item-stream state; it shows LoadRam
+using `BR31=0x00200` and reading from `0x200`, but the first item words
+there are zero, so LoadRam consumes endless zero IM items instead of an
+End item. Next suggested action: verify whether `spruce-server.dsk300`
+actually contains the Dorado hard-microcode boot file; if it does, trace
+the disk boot memory stores into the `01000B` boot buffer. If it does
+not, use the EB/direct LoadRam path for display bring-up and treat this
+disk path as a media-content limitation until we have a known-good Dorado
+boot pack.

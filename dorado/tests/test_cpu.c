@@ -2739,6 +2739,9 @@ static int probe_full_boot_with_bootstrap(void)
         uint16_t t_before, t_after;
         uint16_t md_before, md_after;
         uint16_t link_before, link_after;
+        uint8_t alu_zero_before, alu_zero_after;
+        uint8_t alu_lt0_before, alu_lt0_after;
+        uint8_t alu_carry_before, alu_carry_after;
         uint16_t rm0, rm1, rm2, rm3;
         uint16_t pre_drm[16];
         uint16_t drm[16];
@@ -2754,9 +2757,27 @@ static int probe_full_boot_with_bootstrap(void)
         uint16_t disk_out_data, disk_in_data;
         uint32_t mar_before, mar_after;
         uint16_t storage_after_mar;
-    } disk_trace[2048];
+    } disk_trace[8192];
     int disk_trace_n = 0;
     int disk_trace_armed = 0;
+    struct loadram_trace_sample {
+        uint64_t cycle;
+        uint8_t task;
+        uint16_t pc, next_pc;
+        uint16_t t_before, t_after;
+        uint16_t q_before, q_after;
+        uint16_t md_before, md_after;
+        uint16_t link_before, link_after;
+        uint8_t rbase_before, rbase_after;
+        uint8_t membase_before, membase_after;
+        uint16_t rm_before[16], rm_after[16];
+        uint32_t mar_before, mar_after;
+        uint16_t storage_at_t_before;
+        uint16_t storage_at_mar_after;
+        uint16_t mcr_before, mcr_after;
+    } loadram_trace[512];
+    int loadram_trace_n = 0;
+    int loadram_trace_enabled = test_u64_env("DORADO_LOADRAM_TRACE", 0) != 0;
     struct mcr_trace_sample {
         uint64_t cycle;
         uint16_t pc, next_pc;
@@ -2984,10 +3005,14 @@ static int probe_full_boot_with_bootstrap(void)
         uint8_t pre_task = (uint8_t)cpu.ctask;
         uint16_t pre_raw = bb.cpreg_to_dorado;
         uint16_t pre_t = cpu.T;
+        uint16_t pre_q = cpu.Q;
         uint16_t pre_tag = cpu.RM[4];
         uint16_t pre_loc = cpu.RM[3];
         uint32_t pre_mar = mem.mar;
         uint16_t pre_md = mem.md;
+        uint8_t pre_alu_zero = cpu.alu_zero;
+        uint8_t pre_alu_lt0 = cpu.alu_lt0;
+        uint8_t pre_alu_carry = cpu.alu_carry;
         uint8_t pre_rbase = (uint8_t)cpu.RBase;
         uint8_t pre_membase = (uint8_t)cpu.MemBase;
         uint16_t pre_task_rm[16];
@@ -3206,6 +3231,22 @@ static int probe_full_boot_with_bootstrap(void)
             (pre_pc >= 05200 && pre_pc <= 05777) ||
             (pre_pc >= 06000 && pre_pc <= 06777) ||
             (pre_pc >= 07000 && pre_pc <= 07477);
+        int disk_trace_focus = (int)test_u64_env("DORADO_DISK_TRACE_FOCUS", 0);
+        int is_focused_disk_pc =
+            (pre_pc >= 03300 && pre_pc <= 03313) ||
+            (pre_pc >= 05730 && pre_pc <= 05745) ||
+            (pre_pc >= 06214 && pre_pc <= 06277) ||
+            (pre_pc >= 06340 && pre_pc <= 06370) ||
+            (pre_pc >= 06520 && pre_pc <= 06577) ||
+            pre_pc == 03500;
+        if (disk_trace_focus == 2) {
+            is_focused_disk_pc =
+                (pre_pc >= 06340 && pre_pc <= 06370) ||
+                (pre_pc >= 06520 && pre_pc <= 06577) ||
+                (pre_pc >= 06500 && pre_pc <= 06507) ||
+                (pre_pc >= 07120 && pre_pc <= 07133);
+        }
+        if (disk_trace_focus) is_disk_code_pc = is_focused_disk_pc;
         int is_disk_trace =
             disk_trace_enabled &&
             (disk_trace_armed || ether_loaded_world_cycle != 0) &&
@@ -3221,6 +3262,12 @@ static int probe_full_boot_with_bootstrap(void)
             mcr_trace_enabled &&
             initial_substituted && is_imfetch && mcr_trace_n < 64 &&
             (pre_pc == 06003 || pre_pc == 06012);
+        int is_loadram_trace =
+            loadram_trace_enabled &&
+            initial_substituted && is_imfetch &&
+            pre_task == 0 && pre_pc >= 07600 && pre_pc < 07700 &&
+            loadram_trace_n < (int)(sizeof loadram_trace /
+                                    sizeof loadram_trace[0]);
         struct post_eb_trace_sample post_eb_step_trace;
         int trace_post_eb_step =
             post_eb_trace_enabled && ether_loaded_world_cycle && is_imfetch;
@@ -3362,6 +3409,35 @@ static int probe_full_boot_with_bootstrap(void)
             mt->mcr_before = pre_mcr;
             mt->mcr_after = dorado_mcr_get(&mem);
         }
+        if (is_loadram_trace) {
+            struct loadram_trace_sample *lt = &loadram_trace[loadram_trace_n++];
+            lt->cycle = bb.cycles;
+            lt->task = pre_task;
+            lt->pc = pre_pc;
+            lt->next_pc = cpu.real_PC;
+            lt->t_before = pre_t;
+            lt->t_after = cpu.T;
+            lt->q_before = pre_q;
+            lt->q_after = cpu.Q;
+            lt->md_before = pre_md;
+            lt->md_after = mem.md;
+            lt->link_before = pre_link;
+            lt->link_after = cpu.Link;
+            lt->rbase_before = pre_rbase;
+            lt->rbase_after = (uint8_t)cpu.RBase;
+            lt->membase_before = pre_membase;
+            lt->membase_after = (uint8_t)cpu.MemBase;
+            for (int j = 0; j < 16; j++) {
+                lt->rm_before[j] = pre_task_rm[j];
+                lt->rm_after[j] = cpu.RM[((cpu.RBase & 0xF) << 4) | j];
+            }
+            lt->mar_before = pre_mar;
+            lt->mar_after = mem.mar;
+            lt->storage_at_t_before = dorado_storage_at_va(&mem, pre_t);
+            lt->storage_at_mar_after = dorado_storage_at_va(&mem, mem.mar);
+            lt->mcr_before = pre_mcr;
+            lt->mcr_after = dorado_mcr_get(&mem);
+        }
         if (is_disk_trace) {
             struct disk_trace_sample *dt = &disk_trace[disk_trace_n++];
             dt->cycle = bb.cycles;
@@ -3374,6 +3450,12 @@ static int probe_full_boot_with_bootstrap(void)
             dt->md_after = mem.md;
             dt->link_before = pre_link;
             dt->link_after = cpu.Link;
+            dt->alu_zero_before = pre_alu_zero;
+            dt->alu_zero_after = cpu.alu_zero;
+            dt->alu_lt0_before = pre_alu_lt0;
+            dt->alu_lt0_after = cpu.alu_lt0;
+            dt->alu_carry_before = pre_alu_carry;
+            dt->alu_carry_after = cpu.alu_carry;
             dt->rm0 = cpu.RM[0];
             dt->rm1 = cpu.RM[1];
             dt->rm2 = cpu.RM[2];
@@ -4092,6 +4174,7 @@ static int probe_full_boot_with_bootstrap(void)
             const struct disk_trace_sample *dt = &disk_trace[i];
             printf("         cyc=%llu task=%o pc=0o%o->0o%o "
                    "T=%04X->%04X Md=%04X->%04X Link=%04X->%04X "
+                   "BC=z%u%u l%u%u c%u%u "
                    "RB=%o->%o MB=%o->%o TIOA=%02o Mar=%07X->%07X store@Mar=%04X "
                    "muff=%03o tw=%u%u%u rf=%u wf=%u en=%u act=%u bti=%u "
                    "ctl=%04X fifo=%u CHSlo=(%u,%u,%u) "
@@ -4107,6 +4190,9 @@ static int probe_full_boot_with_bootstrap(void)
                    dt->t_before, dt->t_after,
                    dt->md_before, dt->md_after,
                    dt->link_before, dt->link_after,
+                   dt->alu_zero_before, dt->alu_zero_after,
+                   dt->alu_lt0_before, dt->alu_lt0_after,
+                   dt->alu_carry_before, dt->alu_carry_after,
                    dt->rbase_before, dt->rbase_after,
                    dt->membase_before, dt->membase_after, dt->tioa,
                    dt->mar_before, dt->mar_after,
@@ -4137,6 +4223,40 @@ static int probe_full_boot_with_bootstrap(void)
                    mt->task, mt->pc, mt->next_pc,
                    mt->t_before, mt->t_after,
                    mt->mcr_before, mt->mcr_after);
+        }
+    }
+    if (loadram_trace_n > 0) {
+        printf("       LoadRam trace:\n");
+        for (int i = 0; i < loadram_trace_n; i++) {
+            const struct loadram_trace_sample *lt = &loadram_trace[i];
+            printf("         cyc=%llu task=%o pc=0o%o->0o%o "
+                   "T=%04X->%04X Q=%04X->%04X Md=%04X->%04X "
+                   "Link=%04X->%04X RB=%o->%o MB=%o->%o "
+                   "Mar=%07X->%07X mem[T]=%04X mem[Mar]=%04X "
+                   "MCR=%04X->%04X "
+                   "RM0=%04X RM1=%04X RM2=%04X RM3=%04X "
+                   "RM4=%04X RM5=%04X RM6=%04X RM7=%04X "
+                   "RM10=%04X RM11=%04X RM12=%04X RM13=%04X "
+                   "RM14=%04X RM15=%04X RM16=%04X RM17=%04X\n",
+                   (unsigned long long)lt->cycle, lt->task,
+                   lt->pc, lt->next_pc,
+                   lt->t_before, lt->t_after,
+                   lt->q_before, lt->q_after,
+                   lt->md_before, lt->md_after,
+                   lt->link_before, lt->link_after,
+                   lt->rbase_before, lt->rbase_after,
+                   lt->membase_before, lt->membase_after,
+                   lt->mar_before, lt->mar_after,
+                   lt->storage_at_t_before, lt->storage_at_mar_after,
+                   lt->mcr_before, lt->mcr_after,
+                   lt->rm_after[0], lt->rm_after[1],
+                   lt->rm_after[2], lt->rm_after[3],
+                   lt->rm_after[4], lt->rm_after[5],
+                   lt->rm_after[6], lt->rm_after[7],
+                   lt->rm_after[010], lt->rm_after[011],
+                   lt->rm_after[012], lt->rm_after[013],
+                   lt->rm_after[014], lt->rm_after[015],
+                   lt->rm_after[016], lt->rm_after[017]);
         }
     }
     printf("       tasking_on=%d resume_delay=%d wakeup_pending=0x%04X "

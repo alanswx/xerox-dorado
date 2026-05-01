@@ -730,9 +730,12 @@ software XOR the corrupted bits back to correct values.
 8. **Disk transfer start is still too coarse.**
    Native DiskTag strobe decode is now exact enough for
    `SendDriveTag`/`SendTag`, but PilotDisk still reaches the status path
-   before any `DiskData` FIFO read. Fix: trace the `KCmmdInTime` to
-   `DoDiskBlock` path against `PilotDisk.mc`, then model the
-   DiskControl leading-edge command start and read FIFO threshold that
+   before any `DiskData` FIFO read. Current bring-up fallback: if
+   microcode explicitly polls `muffRdFifoTW` while `EnableRun=1`,
+   `Active=0`, and a pack is mounted, the controller starts a
+   current-sector read stream so `KCmmdRead` can make forward progress.
+   Fix: replace that fallback with the DiskControl/Format-RAM
+   leading-edge command start and read FIFO threshold that
    `KCmmdRead`/`KCmmdCheck` expect.
 9. **Probe spindle timing is not yet hardware timing.**
    The full-boot test must clock the synthetic spindle fast enough to

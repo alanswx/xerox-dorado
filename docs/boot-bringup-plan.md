@@ -1086,6 +1086,11 @@ microcode.
   before the first `Read1Muff(muffRdFifoTW)`. The next fix should
   explain why the `KCmmdInTime` command output is missing or why the
   command load is encoded in a CPU output form we still do not route.
+- Follow-up bring-up patch: when task 14 polls `muffRdFifoTW` with
+  `EnableRun=1`, no active transfer, and a mounted pack, `disk.c` now
+  starts a current-sector read stream. This is a constrained substitute
+  for the missing DiskControl/Format-RAM sequence-PROM start timing; it
+  should be removed once the real leading-edge command sequencer exists.
 - DiskTag decode now follows the native strobe bits from
   `DiskDefs.mc`: `0x8000` Drive, `0x4000` Cylinder, `0x2000` Head, and
   `0x1000` Control. Unstrobed preload/idle values such as `0xFFEF` are
@@ -1312,6 +1317,18 @@ Three styles of test, used at every phase:
   render FIFO data. The next disk trace showed Pilot DriveTag word
   `0x08f0`; native bit `0x0800` is KSelect bookkeeping, so DriveTag
   subsector-count decode now masks to the documented tag-bus field.
+- 2026-05-01 disk-to-LoadRam update: the `muffRdFifoTW` fallback moves
+  the full boot past the old `KCmmdRead`/`KReadBadTW` wait. Initial's IM
+  loaded from disk now matches canonical `Initial.mb` for 925/926
+  overlapping entries (only `0o7512` differs), and the final hot loop is
+  LoadRam (`0o7605/7606/7611/7612/7614/7620/7673/7675/7676`) rather than
+  disk microcode. New opt-in `DORADO_LOADRAM_TRACE=1` shows LoadRam
+  enters with `BR31=0x00200` and reads the boot item stream from
+  `0x200`, but those words are zero, so it interprets an endless run of
+  zero IM items instead of seeing an End item. Next: determine whether
+  `spruce-server.dsk300` lacks the Dorado hard-microcode boot file, or
+  whether our disk boot path is failing to write the boot image into the
+  `01000B` buffer before `CheckChecksumAndLoad`.
 
 ## Cross-cutting: don't drift from "match the docs"
 
