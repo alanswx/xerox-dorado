@@ -75,11 +75,12 @@ static uint8_t encode_map_flags(const dorado_map_entry *e)
  * `dorado_pipe_va(mem, 0)` returns the just-written slot
  * (regardless of whether that's a ProcSRN or ASRN slot). */
 static void pipe_push(dorado_memory *mem, int srn, dorado_ref_kind kind,
-                      uint32_t va, uint8_t flags_pre)
+                      uint32_t va, uint16_t rp_pre, uint8_t flags_pre)
 {
     srn &= (DM_PIPE_DEPTH - 1);
     mem->pipe[srn].kind          = kind;
     mem->pipe[srn].va            = va;
+    mem->pipe[srn].map_rp_pre    = rp_pre;
     mem->pipe[srn].map_flags_pre = flags_pre;
     mem->pipe[srn].mapbuf_busy   = 0;
     mem->pipe[srn].cache_flags   = 0;
@@ -114,6 +115,11 @@ uint8_t dorado_pipe_map_flags(const dorado_memory *mem, int n)
 uint32_t dorado_pipe_va_at(const dorado_memory *mem, int srn)
 {
     return mem->pipe[srn & (DM_PIPE_DEPTH - 1)].va;
+}
+
+uint16_t dorado_pipe_map_rp_at(const dorado_memory *mem, int srn)
+{
+    return mem->pipe[srn & (DM_PIPE_DEPTH - 1)].map_rp_pre;
 }
 
 uint8_t dorado_pipe_map_flags_at(const dorado_memory *mem, int srn)
@@ -165,12 +171,15 @@ uint16_t dorado_pipe4_at(const dorado_memory *mem, int srn)
      *   bit 15 = ref,    14 = MapTrouble,  13 = wProtect,
      *   bit 12 = dirty,  11 = MemError,    10 = EcFault,
      *   bits 9..8 = quadword,  7..0 = syndrome.
-     * `wProtect`/`dirty` here are snapshots taken at fill time;
-     * we don't yet track them per-slot — leave 0 until needed. */
+     * wProtect/dirty are the old Map flags snapshotted for the
+     * reference; Mesa's NewMemory.mc reads them through Errors'. */
     uint16_t ht = 0;
     uint8_t  e  = mem->pipe[slot].pipe4_errors;
+    uint8_t  mf = mem->pipe[slot].map_flags_pre;
     if (mem->pipe[slot].kind != DM_REF_NONE) ht |= (uint16_t)(1u << 15);
     if (e & PIPE4_ERR_MAP_TROUBLE)           ht |= (uint16_t)(1u << 14);
+    if (mf & 1u)                              ht |= (uint16_t)(1u << 13);
+    if (mf & 2u)                              ht |= (uint16_t)(1u << 12);
     if (e & PIPE4_ERR_MEM_ERROR)             ht |= (uint16_t)(1u << 11);
     if (e & PIPE4_ERR_EC_FAULT)              ht |= (uint16_t)(1u << 10);
     ht |= (uint16_t)((mem->pipe[slot].pipe4_quadword & 3u) << 8);
@@ -356,37 +365,30 @@ int dorado_mcr_nowake(const dorado_memory *mem)
 
 uint16_t dorado_memory_config_word(const dorado_memory *mem)
 {
-    /* HM Figure 10 / B←Config':
-     *   InitialSubrs.mc consumes the high-true value as:
-     *     LDF[Config,2,2]  -> storage chip size
-     *     LSH[Config,10]   -> left-justify M0..M3
-     *
-     * In the emulator's C-LSB word convention, MicroD's LSH/LDF
-     * forms used by Initial expect ChipSize in bits 0..1 and M0..M3
-     * in bits 4..7.  That way `ModMask_ LSH[ModMask,10]` moves M0
-     * into Initial's left-justified module mask.
+    /* EMemDefs.mc / B←Config':
+     *   ChipSize = b12,b13     (C-LSB bits 3..2)
+     *   M0..M3   = 0200,0100,0040,0020
      *
      * The CPU reads Config' active-low, so this helper returns the
      * high-true internal value and cpu.c complements it for B←Config'.
-     * We currently report the small 4K-chip configuration to Initial.
-     * That maps the first 64K words BootEmulator needs without making
-     * the bring-up probe spend most of its budget walking a full 4MW
-     * map; the backing array is still larger, so later emulator code
-     * can discover/initialize more storage when that path is modeled.
+     * Report the 64K-chip configuration for the default 4MW backing
+     * store. InitMem.mc derives pages-per-module as 0400 << (2*T);
+     * T=3 gives 040000 256-word pages, matching one 4MW module.
      */
     enum {
         module_words = 4 * 1024 * 1024,
-        chip_size_4kx1 = 0,
+        chip_size_64kx1 = 3,
     };
 
     size_t modules = mem->storage_words / module_words;
     if (modules == 0 && mem->storage_words != 0) modules = 1;
     if (modules > 4) modules = 4;
 
+    static const uint16_t module_bits[4] = { 0200u, 0100u, 0040u, 0020u };
     uint16_t module_mask = 0;
-    for (size_t i = 0; i < modules; i++) module_mask |= (uint16_t)(1u << i);
+    for (size_t i = 0; i < modules; i++) module_mask |= module_bits[i];
 
-    return (uint16_t)((module_mask << 4) | chip_size_4kx1);
+    return (uint16_t)(module_mask | (chip_size_64kx1 << 2));
 }
 
 /* Map index from VA: page-number portion for our 16K-map /
@@ -647,6 +649,7 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
      * HM page 47: "Every storage reference causes mapping and returns
      * old contents of the relevant map entry in the pipe." */
     uint32_t idx_snapshot = dorado_map_index(va);
+    uint16_t rp_pre       = mem->map[idx_snapshot].rp;
     uint8_t  flags_pre    = encode_map_flags(&mem->map[idx_snapshot]);
 
     /* SRN selection (HM page 51-52). Without tasking we treat every
@@ -670,7 +673,7 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
         int way = dorado_mcr_usemcrv(mem) ? dorado_mcr_victim(mem)
                                           : cache_pick_victim(mem, va);
         uint32_t pipe_va = cache_address_va(mem, va, way);
-        pipe_push(mem, srn, kind, pipe_va, flags_pre);
+        pipe_push(mem, srn, kind, pipe_va, rp_pre, flags_pre);
         cache_select(mem, va, way, srn);
         return DM_FAULT_NONE;
     }
@@ -678,7 +681,7 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
     /* Pipe entries are pushed for *every* reference, including ones
      * that fault — so fault microcode can read the offending VA
      * from Pipe0/Pipe1. */
-    pipe_push(mem, srn, kind, va, flags_pre);
+    pipe_push(mem, srn, kind, va, rp_pre, flags_pre);
 
     size_t phys = 0;
     dorado_fault_kind f = DM_FAULT_NONE;

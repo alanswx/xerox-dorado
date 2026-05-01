@@ -479,8 +479,8 @@ this table summarizes the user-visible reads):
 | `B←Pipe0` | high-true | VaHi = VA[0:15] (bits 0:15 of the 28-bit VA, MSB-first) |
 | `B←Pipe1` | high-true | VaLo = VA[16:31] |
 | `B←Pipe2'` | low-true | EmulatorFault, NFaults, SRNFirstFault. **Same data as `B←FaultInfo'`** — Pipe2' is a "convenient decode" for the same FaultInfo register. |
-| `B←Pipe3'` | low-true | Map flags **as they were before this reference**: WP, Dirty, Ref, BeingLoaded, NextVictim (+ RP) |
-| `B←Pipe4` | mixed | Errors: syndrome bits, correctable bit, etc. XOR with `0150361₈` to get high-true. |
+| `B←Pipe3'` / `B←Map'` | low-true | Old real-page number from the map entry, snapshotted **before this reference**. |
+| `B←Pipe4` / `B←Errors'` | mixed | Reference/error flags: Ref plus old WP/Dirty map flags and the hardware error fields. XOR with `0150361₈` to get high-true. |
 | `B←Pipe5` | high-true | MapBufBusy in manual bit 0 plus selected cache-address-section state read during the last ref: flags in manual bits 8..11 (Dirty, Vacant, WP, BeingLoaded), Victim in manual bits 12..13, and NextVictim in manual bits 14..15. |
 
 `B←FaultInfo'` (`FA=1 FB=6 FC=0`) returns:
@@ -490,33 +490,34 @@ this table summarizes the user-visible reads):
   task 0?)
 - All bits inverted on the bus → "no faults" reads as `0xFFFF`.
 
-### Pipe3' bit layout (as we model it)
+### Map'/Pipe3' and Errors'/Pipe4 snapshots
 
-We record three flags in each pipe slot, snapshotted **before** the
-reference modified them:
+`NewMemory.mc` and `InitMem.mc` use `B←Map'`/`Pipe3'` to recover the
+old real-page number from a `Map←`/reference. The write-protect and
+dirty status bits are read through `B←Errors'`/`Pipe4'`, not through
+Pipe3. The emulator now snapshots both values before the reference
+modifies the entry.
 
 ```
-  Pipe3 (high-true, internal):
-    bit 0 (LSB)  WP
-    bit 1        Dirty
-    bit 2        Ref
-    bits 3..15   reserved (zero)
+  Pipe3/Map (high-true, internal):
+    bits 0..15   old RP
 
-  B←Pipe3' (on the bus): ~Pipe3
+  B←Pipe3' (on the bus): ~oldRP
 ```
 
-Real hardware also carries `BeingLoaded`, `NextVictim`, and the RP
-in this word; we leave those zero until the cache is modeled.
+Pipe4 is still a simplified high-level model of the hardware error
+word. It reports the reference event plus old WP/Dirty map flags and
+keeps the remaining syndrome/parity details at no-error values.
 
 ### Reference→Pipe handshake
 
 - Every reference (Fetch, Store, Map, IFetch, Prefetch, IOFetch,
   IOStore, Flush, DummyRef) pushes one Pipe entry. **Faulting refs
   push too** — fault microcode reads `Pipe0/Pipe1` to recover the VA.
-- The snapshot of map flags captured into Pipe3' is the value
-  *before* this reference (so a `Store←` that sets Ref appears in
-  the next-cycle pipe entry with Ref=0 — the *new* Ref will only
-  show up on the *next* reference's Pipe3' snapshot).
+- The old map entry captured into Pipe3'/Map' and Pipe4/Errors' is the
+  value *before* this reference (so a `Store←` that sets Ref/Dirty
+  does not retroactively change the pipe snapshot for the reference
+  that caused it).
 - `Map←` itself returns the previous map contents in the pipe,
   same way (HM page 47: "Reading the Map: Every storage reference
   causes mapping and returns old contents of the relevant map
@@ -533,9 +534,12 @@ We track:
 - `fault_emulator` — always 1 in single-task mode
 - `last_fault_va`, `last_fault` (kind) — for diagnostic halts
 
-`dorado_fault_clear(mem)` resets these. Real microcode acknowledges
-faults by some means (TBD — the manual implies the fault task
-reads-and-clears).
+`dorado_fault_clear(mem)` resets these. `B←FaultInfo'` reads the
+inverted FaultInfo register and clears the latched fault state; this is
+the behavior `InitMem.mc` relies on at entry and at `InitMemDone`.
+`B←Pipe2'` is the same readback value but is kept as a read-only pipe
+decode in the C model until the hardware clear semantics are pinned
+more precisely.
 
 ### Figure 10 (the canonical Pipe layout)
 
@@ -567,11 +571,16 @@ MemBase — see HM §6.4.
 
 - Storage modules are fixed real-address ranges, not interleaved. HM
   page 59: a module stores 256K or 1M 64-bit quadwords depending on
-  chip generation. For current Initial bring-up, `Config'` reports one
-  present 4K-chip module (`ChipSize=0`, M0 present in the bit position
-  Initial's compiled `LSH[ModMask,10]` expects), so Initial maps the
-  first 64K words quickly. The C backing store remains larger; full
-  64Kx1/4MW discovery is a later accuracy step.
+  chip generation. The C model now reports one present 64K-chip/4MW
+  module. `EMemDefs.mc` defines `ChipSize` in memory-control bits
+  `b12,b13` (C bits 3..2) and present-module bits as M0=`0200`,
+  M1=`0100`, M2=`0040`, M3=`0020`; the C model reports
+  `ChipSize=3` plus M0 present. The backing store is 4MW. After this
+  correction the EB direct-load probe gets sane initial config
+  (`R400=0x0100`) and moves BR31/BR36/BR37 from `0x10000` to
+  `0x20000`. The later `Mar=0x2FE1F` checkpoint is now mapped and
+  referenced successfully in the direct probe; the active blocker has
+  moved to task/display startup.
 - References beyond installed storage report a storage/data fault in
   the C model; they do not wrap back into low storage.
 - 8 EC bits per 16-bit word (Hamming SEC + DED extension).
@@ -607,7 +616,7 @@ In rough dependency order (matching what microcode actually exercises):
    init. `Map←` writes RP from B and WP/Dirty from TIOA[0:1]. Faults
    surface as `dorado_fault_kind` return values plus `last_fault*`
    state on the memory struct.
-7. **ECC** — TBD. Only needed if microcode reads `Pipe3'` error
+7. **ECC** — TBD. Only needed if microcode reads `Pipe4'` error
    fields; stubbed (always "no error") for the C emulator. Verilog
    target will need it.
 8. **Hold + Address-Section busy** — TBD. Phase C work.
@@ -632,12 +641,12 @@ logic). The C emulator's cycle-accurate timing is the spec.
   a concatenation but the numbering is non-obvious.
 - The interplay between Map fault, Pipe recycling, and the fault
   task's wakeup latency. We push to Pipe before translating, so the
-  faulting VA lands in Pipe0; but the Pipe **also** captures the OLD
-  Map flags into `Pipe3'`. Real hardware does this in one cycle; we
-  don't currently snapshot the pre-ref flags.
+  faulting VA lands in Pipe0; Pipe3'/Map' now snapshots old RP and
+  Pipe4/Errors' snapshots old WP/Dirty, but the exact wakeup latency is
+  still approximate.
 - The IFU's interaction with the cache (uses BR[31], runs in parallel
   with the processor — Figure 8 implies a separate cache port).
-- ECC syndrome layout (`Pipe3'` low bits) — which Hamming code Xerox
+- ECC syndrome layout (`Pipe4'` low bits) — which Hamming code Xerox
   used. HM §5.7 says SEC + DED extension over 16 data bits = 8 EC
   bits per word; the precise generator-matrix is TBD.
 - What "AS busy" item 3 (Pipe slot occupied) means in cycles — the

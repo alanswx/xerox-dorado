@@ -372,12 +372,10 @@ uint16_t dorado_display_scanline_wakeup_mask(dorado_display *d)
     dorado_display_advance_pixels(d, DORADO_DISPLAY_W);
 
     uint16_t mask = 0;
-    /* The display raster clock is independent of the Dorado. DHT is
-     * the data-channel horizontal task; AHT is the DispM terminal
-     * horizontal task selected once terminal microcode writes display
-     * slow I/O. Statics/DHTShutUp decoding is not wired yet, so keep
-     * DHT live and let task BLOCK behavior throttle it. */
-    mask |= (uint16_t)(1u << DORADO_DISPLAY_TASK_DHT);
+    /* The display raster clock is independent of the Dorado, but a
+     * reset/shut-up DDC should not wake arbitrary tasks. Until the
+     * full Statics DHTShutUp/AHTShutUp decode is modeled, wake only
+     * the horizontal task that has actually addressed the display. */
     if (d->terminal_task == DORADO_DISPLAY_TASK_DHT ||
         d->terminal_task == DORADO_DISPLAY_TASK_AHT) {
         d->terminal_wakeups++;

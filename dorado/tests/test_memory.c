@@ -416,21 +416,24 @@ static int test_fault_info(void)
     return 0;
 }
 
-/* Test 13: Pipe3' returns the snapshot of map flags BEFORE the ref.
+/* Test 13: Pipe3' / Map' returns the snapshot of the real page BEFORE the ref,
+ * while the flags snapshot is available through the Pipe4/Errors path.
  * HM page 47: "Every storage reference causes mapping and returns
  * old contents of the relevant map entry in the pipe." */
-static int test_pipe3_map_flags(void)
+static int test_pipe3_map_entry_snapshot(void)
 {
     static dorado_memory mem; memset(&mem, 0, sizeof mem);
     EXPECT(dorado_memory_init(&mem) == 0, "init");
 
-    /* Mount page 0: WP=0, Dirty=0, Ref=0. Then fetch — Ref will
-     * become 1 in the entry, but the pipe should still see Ref=0
-     * (pre-ref snapshot). */
-    dorado_map_set(&mem, 0, /*rp=*/0, /*wp=*/0, /*dirty=*/0);
+    /* Mount page 0 at a non-identity real page. Then fetch — Ref will
+     * become 1 in the entry, but the pipe should still see Ref=0 in
+     * the pre-ref flags while Map'/Pipe3' sees the old RP. */
+    dorado_map_set(&mem, 0, /*rp=*/0x1234, /*wp=*/0, /*dirty=*/0);
     dorado_memory_ref(&mem, DM_REF_FETCH, 0x10, 0, 0);
 
-    /* Snapshot in pipe slot 0: WP=0, Dirty=0, Ref=0 → flags=0. */
+    EXPECT(dorado_pipe_map_rp_at(&mem, 0) == 0x1234,
+           "pipe[0].rp_pre = 0x%04X, expected 0x1234",
+           dorado_pipe_map_rp_at(&mem, 0));
     EXPECT(dorado_pipe_map_flags(&mem, 0) == 0,
            "pipe[0].flags_pre = 0x%X, expected 0 (WP=0,D=0,R=0)",
            dorado_pipe_map_flags(&mem, 0));
@@ -444,9 +447,12 @@ static int test_pipe3_map_flags(void)
            "pipe[0].flags_pre after 2nd ref = 0x%X, expected 4 (Ref pre-set)",
            dorado_pipe_map_flags(&mem, 0));
 
-    /* WP entry: WP=1, Dirty=0, Ref=0 → flags=1. */
-    dorado_map_set(&mem, dorado_map_index(0x400), /*rp=*/4, /*wp=*/1, /*dirty=*/0);
+    /* WP entry: old RP preserved, WP=1, Dirty=0, Ref=0 → flags=1. */
+    dorado_map_set(&mem, dorado_map_index(0x400), /*rp=*/0x4321, /*wp=*/1, /*dirty=*/0);
     dorado_memory_ref(&mem, DM_REF_FETCH, 0x400, 0, 0);
+    EXPECT(dorado_pipe_map_rp_at(&mem, 0) == 0x4321,
+           "WP page rp_pre = 0x%04X, expected 0x4321",
+           dorado_pipe_map_rp_at(&mem, 0));
     EXPECT(dorado_pipe_map_flags(&mem, 0) == 1,
            "WP-only flags = 0x%X, expected 1",
            dorado_pipe_map_flags(&mem, 0));
@@ -459,7 +465,7 @@ static int test_pipe3_map_flags(void)
            dorado_pipe_map_flags(&mem, 0));
 
     dorado_memory_free(&mem);
-    printf("PASS  test_pipe3_map_flags\n");
+    printf("PASS  test_pipe3_map_entry_snapshot\n");
     return 0;
 }
 
@@ -937,10 +943,10 @@ static int test_config_word_reports_storage(void)
     EXPECT(dorado_memory_init(&mem) == 0, "init");
 
     uint16_t cfg = dorado_memory_config_word(&mem);
-    EXPECT((cfg & 0x3) == 0,
-           "Config chip size = 0x%X, expected 0", cfg & 0x3);
-    EXPECT(((cfg >> 4) & 0xF) == 0x1,
-           "Config module mask = 0x%X, expected 0x1", (cfg >> 4) & 0xF);
+    EXPECT(((cfg >> 2) & 0x3) == 3,
+           "Config chip size = 0x%X, expected 3", (cfg >> 2) & 0x3);
+    EXPECT((cfg & 0200u) != 0,
+           "Config M0 bit missing: cfg=0o%06o", cfg);
 
     dorado_memory_free(&mem);
     printf("PASS  test_config_word_reports_storage\n");
@@ -1213,7 +1219,7 @@ int main(void)
     rc |= test_map_translation();
     rc |= test_no_fault_refs();
     rc |= test_fault_info();
-    rc |= test_pipe3_map_flags();
+    rc |= test_pipe3_map_entry_snapshot();
     rc |= test_cache_hit();
     rc |= test_cache_miss_fill();
     rc |= test_cache_store_no_map_dirty();

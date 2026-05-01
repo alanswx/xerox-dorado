@@ -159,14 +159,17 @@ typedef struct dorado_memory {
      *              reference that "starts the map" (i.e., goes to
      *              storage); held otherwise.
      *
-     * `map_flags_pre` snapshots the map entry's WP/Dirty/Ref bits
-     * as they were *before* the reference updated them. HM page 47:
+     * `map_rp_pre` and `map_flags_pre` snapshot the map entry as it
+     * was *before* the reference updated it. HM page 47:
      * "Every storage reference causes mapping and returns old
-     * contents of the relevant map entry in the pipe."
-     *   bit 0 = WP, bit 1 = Dirty, bit 2 = Ref. */
+     * contents of the relevant map entry in the pipe." Mesa map
+     * primitives read old RP via `Map'` / `Pipe3'` and old flags via
+     * the error/Pipe4 path.
+     *   map_flags_pre bit 0 = WP, bit 1 = Dirty, bit 2 = Ref. */
     struct {
         uint32_t        va;
         dorado_ref_kind kind;
+        uint16_t        map_rp_pre;
         uint8_t         map_flags_pre;
         uint8_t         mapbuf_busy;
         uint16_t        cache_flags;
@@ -322,6 +325,7 @@ uint32_t dorado_pipe_va(const dorado_memory *mem, int n);
  * the value microcode would have loaded into ProcSRN before reading
  * `B←Pipei`. */
 uint32_t dorado_pipe_va_at(const dorado_memory *mem, int srn);
+uint16_t dorado_pipe_map_rp_at(const dorado_memory *mem, int srn);
 uint8_t  dorado_pipe_map_flags_at(const dorado_memory *mem, int srn);
 uint16_t dorado_pipe5_at(const dorado_memory *mem, int srn);
 /* Encoded `B<-Pipe4'` for slot `srn`. Mixed-polarity active-low
@@ -351,7 +355,8 @@ void     dorado_proc_srn_set(dorado_memory *mem, uint8_t srn);
 
 /* Snapshot of map flags for the pipe entry at slot `n` (relative to
  * head). Bit layout (high-true): bit 0=WP, bit 1=Dirty, bit 2=Ref.
- * On the B bus this would be read inverted as `B←Pipe3'`. */
+ * On the B bus the previous RP is read inverted as `B←Pipe3'` /
+ * `Map'`; flags are exposed through `B←Pipe4'` / Errors'. */
 uint8_t  dorado_pipe_map_flags(const dorado_memory *mem, int n);
 
 /* Compute the high-true 16-bit FaultInfo register value. The B bus

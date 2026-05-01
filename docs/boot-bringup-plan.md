@@ -573,9 +573,10 @@ Read by microcode via `B←Pipe0..5` FF functions (FA=1 FB=6 FC=0..5).
 The C side has `dorado_pipe_va(mem, n)` returning slot relative to
 head (0 = most recent).
 
-`Pipe3'` pre-ref WP/Dirty/Ref, `Pipe4'` config/fault info, MapBufBusy
-in `Pipe5`, cache flags in `Pipe5[8:11]`, and Victim/NextVictim in
-`Pipe5[12:15]` are modeled enough for current bring-up probes.
+`Pipe3'`/`Map'` old-RP snapshots, `Pipe4'`/`Errors'` Ref plus old
+WP/Dirty flags, MapBufBusy in `Pipe5`, cache flags in `Pipe5[8:11]`,
+and Victim/NextVictim in `Pipe5[12:15]` are modeled enough for current
+bring-up probes.
 
 **Still TBD:** error syndrome details and IFU-ref tracking in Pipe5.
 These need to land before Pipe-driven fault recovery can work in
@@ -595,8 +596,9 @@ itself faults.
 
 **Processor** memory faults (Fetch/Store/IOFetch/IOStore through
 the Map) wake **task 15** (the fault task). Task 15 reads
-`Pipe0/Pipe1` for the VA, `Pipe3'` for the pre-ref map flags, and
-`FaultInfo'` for the count + first-fault SRN.
+`Pipe0/Pipe1` for the VA, `Pipe3'`/`Map'` for the pre-ref real page,
+`Pipe4'`/`Errors'` for Ref/WP/Dirty and error status, and `FaultInfo'`
+for the count + first-fault SRN.
 
 So the right Phase B.5 split:
 
@@ -605,14 +607,15 @@ So the right Phase B.5 split:
 - `dorado_fault_info(mem)` returns the high-true 16-bit register
   (B[7]=EmulatorFault, B[8:11]=SRN, B[12:15]=NFaults)
 - `dorado_fault_clear(mem)` resets fault state
-- `dorado_pipe_map_flags(mem, n)` returns pre-ref WP/Dirty/Ref
-  snapshot for any pipe slot
+- `dorado_pipe_map_rp_at(mem, n)` returns the old RP snapshot for any
+  pipe slot; `dorado_pipe_map_flags(mem, n)` keeps the old WP/Dirty/Ref
+  snapshot used by `Pipe4'`
 - cpu.c FF override:
   - `B←FaultInfo'` (FA=1 FB=6 FC=0) returns inverted FaultInfo
   - `B←Pipe2'` (FA=1 FB=6 FC=3) returns the same (HM page 51:
     "Pipe2' is simply a convenient decode for [FaultInfo]")
-  - `B←Pipe3'` (FA=1 FB=6 FC=4) returns inverted map-flags snapshot
-- Tests: `test_fault_info`, `test_pipe3_map_flags` in
+  - `B←Pipe3'` (FA=1 FB=6 FC=4) returns inverted old-RP snapshot
+- Tests: `test_fault_info`, `test_pipe3_map_entry_snapshot` in
   `tests/test_memory.c`; `test_cpu_fault_info_visible` in
   `tests/test_cpu.c` (full FF dispatch path).
 
@@ -1131,6 +1134,46 @@ Three styles of test, used at every phase:
   (`AHTFlag`). `DAStart` low-core words `0420..0427` are all zero, so
   the current blank screen is because no display control block chain has
   been installed yet, not because the WCB flag shim alone was missing.
+- 2026-04-30 follow-up: the focused EB probe now records the EB End
+  item start address (`AltoMesaDorado.eb!1` reports `start=0o1076`)
+  and no longer treats Initial's `0o6046` Ethernet wait loop as the
+  loaded world. A temporary probe-side direct LoadRam parser can install
+  EB IM/IFUM/RM items without relying on the unfinished Ethernet packet
+  path. That direct run reaches real Alto/Mesa initialization/display/
+  disk PCs (`0o1077`, `0o4656`, `0o5624`, `0o6744`, etc.) but halts in
+  task `0o14` at `PC=0o6`, an IFUJump exit with `IFU active=0`.
+  Instrumentation shows `PCF<-B` never armed the IFU in that run
+  (`Post-LoadRam IFU transitions: arms=0`). Next target: debug task
+  startup/TPC/CoReturn/LdTPC state around the transition from emulator
+  initialization into task `0o14`, not disk sector transfer.
+- 2026-04-30 later follow-up: two stale-I/O artifacts were removed
+  from the direct-LoadRam probe. The probe now resets the modeled disk
+  controller at EB takeover so Initial's partially active disk command
+  does not leak into the AltoMesa image, and the display scanline stub
+  no longer wakes DHT before display microcode has selected a terminal
+  task. With those changes, the EB run no longer halts immediately in
+  disk task `0o14`; it runs to the cycle budget and writes display
+  control outputs from task `0o4`.
+- 2026-04-30 memory-map follow-up: the memory sources corrected two
+  emulator assumptions. `NewMemory.mc`/`InitMem.mc` use `Pipe3'`/`Map'`
+  for old RP and `Pipe4'`/`Errors'` for old WP/Dirty/error status, and
+  `EMemDefs.mc` puts Config `ChipSize` in b12/b13 (C bits 3..2) with
+  module bits M0=`0200`, M1=`0100`, M2=`0040`, M3=`0020`. After those
+  fixes the EB direct run reports `R400=0x0100`, moves BR31/BR36/BR37
+  from `0x10000` to `0x20000`, and no longer sits in the old
+  `XFER/XFERMD` loop at `0x10000`.
+- 2026-04-30 later memory/task follow-up: `B←FaultInfo'` now clears
+  latched FaultInfo, matching `InitMem.mc`'s `B_ FaultInfo'; * clear
+  faults` comments, and the EB direct LoadRam shortcut maps the
+  warm-start bank `0x20000..0x2FFFF`. The focused run now reports
+  `Memory: faults=0`; `Mar=0x2FE1F` is mapped (`Map[0x2FE]=rp02FE
+  wp0 d0 r1`) and no longer explains the blank screen. The active
+  blocker moved to task/display startup: `IFU active` remains 0, no
+  `PCF←B` arms occur, `DAStart` in the IOBR bank is still zero, and
+  the probe eventually schedules task `014` at invalid TPC `0177037`.
+  Next target: trace loaded Mesa task initialization/wakeup ordering and
+  stop probe-generated disk/display wakeups from reaching uninitialized
+  task TPCs.
 
 ## Cross-cutting: don't drift from "match the docs"
 

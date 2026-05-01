@@ -18,11 +18,10 @@ you don't repeat them.
   `probe_full_boot_with_bootstrap` still substitutes canonical
   Initial.MB at BOOTSTAGE2 because Bootstrap streaming does not yet
   match `chm/Initial.mb`. NOSTORAGE no longer needs a probe bypass:
-  Config' now uses the bit layout Initial's compiled LSH/LDF code
-  consumes (`ChipSize` low bits, module-present bits in bits 4..7).
-  For bring-up it reports one present 4K-chip module, enough to map
-  the first 64K without spending the probe budget on a full 4MW map
-  walk. Initial now gets through PRESETMAP, FINDMODULE, BootMem,
+  Config' now follows `EMemDefs.mc` (`ChipSize` in b12/b13, C bits
+  3..2, M0..M3 at `0200/0100/0040/0020`) and reports one present
+  64K-chip/4MW module. Initial now gets through PRESETMAP, FINDMODULE,
+  BootMem,
   BootEmulator's first-64K clear loop, display/disk init, and the
   100 ms RTClock wait after MapBufBusy, Pipe5, Config, ALU one-bit
   shift, memory-ref FF branch, `Store←T` A/Mar, and Junk timer fixes.
@@ -724,28 +723,28 @@ won't run without a working CPReg byte stream from BB.
 
 Initial computes a value via shifter ops at 0o6041..0o6277, stores in
 `RM/STK[RBase*16+8]`, then at 0o6210 tests
-`RM/STK[RBase*16+8] AND 0xF000`. If zero, branches to NOSTORAGE
+  `RM/STK[RBase*16+8] AND 0xF000`. If zero, branches to NOSTORAGE
 (0o6247).
 
 Fixed: `B←Config'` now comes from `dorado_memory_config_word()` instead
-of hard-coded `0xFFFF`. The field layout matches what Initial's
-compiled shifter code consumes: `ChipSize` in low bits and M0..M3 in
-bits 4..7, so `ModMask_ LSH[ModMask,10]` left-justifies the present
-module mask. For bring-up we report `ChipSize=0` (4K chips) and one
-present module; that maps the first 64K words quickly while leaving
-the larger backing store available for later emulator work. With this,
-the full boot probe no longer hits the NOSTORAGE bypass; Initial
-reaches `FINDMODULE` naturally.
+of hard-coded `0xFFFF`. `EMemDefs.mc` defines `ChipSize` in b12/b13
+(C bits 3..2) and present-module bits as M0=`0200`, M1=`0100`,
+M2=`0040`, M3=`0020`; for bring-up the C model reports `ChipSize=3`
+and one present 64K-chip/4MW module. With this, the full boot probe no
+longer hits the NOSTORAGE bypass; Initial reaches `FINDMODULE`
+naturally.
 
 The old probe-side `0o6247 → 0o6357` bypass remains in
 `test_cpu.c`, but it no longer fires in the normal run.
 
 #### 2c. PRESETMAP / WAITFORMAPBUF loop (fixed enough for boot path)
 
-After Config' was implemented with 64K-chip reporting, Initial entered
-`FINDMODULE` but spent the budget in map initialization rather than the
-old display `LONGWAIT` path. That is why current bring-up reports the
-small 4K-chip module. The earlier 60M-cycle hot loop was:
+After Config' was implemented with storage-present reporting, Initial
+entered `FINDMODULE` but spent the budget in map initialization rather
+than the old display `LONGWAIT` path. That was temporarily worked
+around with a small-module report; current bring-up reports the real
+64K-chip/4MW module layout from `EMemDefs.mc`. The earlier 60M-cycle
+hot loop was:
 `WRITEMAP(0o6340) → 0o6365 → WAITFORMAPBUF(0o6360) → 0o6245 → 0o6244
 → 0o6366 → WAITFORMAPBUF → 0o6245 → 0o6244 → 0o6367 → DORETURN →
 RETN → PRESETMAPE/PRESETMAPL → SETBRFORPAGE → ...`.
@@ -1080,6 +1079,60 @@ Latest disk bring-up checkpoint:
    and end-of-block `ReadErr`/`WriteErr` summary bits.
 5. Re-run `build/test_cpu`; success means `CheckChecksumAndLoad` and
    `LoadRam` are reached after disk or Ethernet microcode load.
+
+### 2026-04-30 EB direct-load probe update
+
+`DORADO_ETHER_BOOT_IMAGE=../chm/microcode/AltoMesaDorado.eb!1
+./build/test_cpu` now parses the EB End item (`start=0o1076`) and has
+a probe-side direct LoadRam path that installs EB IM/IFUM/RM items.
+This is a diagnostic shortcut, not a real Ethernet controller.
+
+Result: the run reaches Alto/Mesa initialization/display/disk PCs
+(`0o1077`, `0o4656`, `0o5624`, `0o6744`, `0o7000`, etc.) and the
+loaded IM samples match the EB payload, but it halts in task `0o14`
+at `PC=0o6` on `halt: IFU not ready`. IFU diagnostics show
+`active=0`, `PCF=0`, and `Post-LoadRam IFU transitions: arms=0`, so
+no `PCF<-B` has happened before a page-zero IFUJump exit is reached.
+Next best action: debug task startup/TPC/CoReturn/LdTPC after EB
+initialization, especially why task `0o14` resumes through `0o3500`
+with `Link=0o6`, instead of continuing to emulator `StartIFU`.
+
+### 2026-04-30 EB direct-load stale I/O cleanup
+
+The immediate disk-task `PC=0o6` halt was a probe artifact: the direct
+LoadRam shortcut carried Initial's partially active disk controller state
+into the AltoMesa image. The probe now resets the disk controller at EB
+takeover, preserving the attached pack, and the display scanline model no
+longer wakes DHT before display microcode selects a terminal task.
+
+### 2026-04-30 memory-map follow-up
+
+The memory-map docs/sources were rechecked after the stale-I/O cleanup.
+`LoadRam.mc` confirms the direct EB loader was already loading RM from
+item word 2. `NewMemory.mc`/`InitMem.mc` show that `B←Map'`/`Pipe3'`
+returns the old RP, while old WP/Dirty are recovered through
+`B←Errors'`/`Pipe4'`; the emulator now snapshots both. `EMemDefs.mc`
+also corrected the Config layout: `ChipSize` is b12/b13 (C bits 3..2)
+and module bits are M0=`0200`, M1=`0100`, M2=`0040`, M3=`0020`.
+
+Current EB status: the direct run reaches the cycle budget rather than
+an early halt, writes display-control outputs from task `0o4`, and
+produces `/tmp/dorado_boot_display.pgm`. The Config fix moves the EB
+state forward: `R400=0x0100`, BR31/BR36/BR37 now become `0x20000`
+instead of `0x10000`, and the old Mesa `XFER/XFERMD` loop at `0x10000`
+is gone.
+
+Follow-up: `B←FaultInfo'` now clears the latched FaultInfo state, as
+`InitMem.mc` expects, and the direct EB probe maps the skipped warm-start
+bank `0x20000..0x2FFFF`. The same run now reports
+`Memory: faults=0`; `Mar=0x2FE1F` is just the last reference, with
+`Map[0x2FE]=rp02FE wp0 d0 r1`. The next blocker is task/display
+bring-up, not memory translation: IFU still never arms, `DAStart`
+remains zero in the IOBR bank, and the probe eventually switches to
+task `014` with TPC `0177037` after running task 0 hot at
+`0o5013/0o5014/0o5022`. Next best action is to trace the loaded Mesa
+world's task initialization and wakeups, especially why DSK/display
+wakeups become ready before their TPCs are valid and before `PCF←B`.
 
 ### Highest-leverage but hardest: fix Bootstrap streaming
 

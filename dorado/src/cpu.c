@@ -513,21 +513,23 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
         int      psrn  = (int)cpu->mem->proc_srn;
         uint32_t va    = dorado_pipe_va_at(cpu->mem, psrn);
         uint16_t finfo = dorado_fault_info(cpu->mem);
-        uint8_t  mflg  = dorado_pipe_map_flags_at(cpu->mem, psrn);
         switch (fc) {
         /* HM Table 11c FA=1 FB=6 FC=0 / page 51: FaultInfo' is the
          * inverted FaultInfo register (NFaults, SRNFirstFault,
          * EmulatorFault). 0xFFFF = "no faults". */
-        case 0: *b = (uint16_t)~finfo;             break;  /* FaultInfo' */
+        case 0: *b = (uint16_t)~finfo;             /* FaultInfo' */
+                dorado_fault_clear(cpu->mem);
+                break;
         case 1: *b = (uint16_t)((va >> 16) & 0x0FFF); break; /* Pipe0 = VaHi */
         case 2: *b = (uint16_t)(va & 0xFFFF);      break;  /* Pipe1 = VaLo */
         /* Pipe2' is the same data as FaultInfo' (HM page 51:
          * "B←Pipe2' is simply a convenient decode for reading
          * [FaultInfo] back"). */
         case 3: *b = (uint16_t)~finfo;             break;  /* Pipe2' */
-        /* Pipe3' is the inverted snapshot of map flags (WP/Dirty/Ref)
-         * from before the reference at slot ProcSRN. */
-        case 4: *b = (uint16_t)~(uint16_t)mflg;    break;  /* Pipe3' */
+        /* Pipe3' / Map' is the inverted snapshot of the old real page
+         * number for the selected SRN. NewMemory.mc reads old map
+         * flags separately through Errors' / Pipe4'. */
+        case 4: *b = (uint16_t)~dorado_pipe_map_rp_at(cpu->mem, psrn); break;
         /* Pipe4' is mixed-polarity (HM page 51, EMemDefs.mc).
          * `dorado_pipe4_at` (gap C2) composes the slot's per-ref
          * error state with the no-error baseline `0o150361`.
@@ -2090,7 +2092,7 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                  * case; for other tasks, write the saved-TPC slot
                  * so when we switch to that task it picks up there. */
                 if (task != cpu->ctask) {
-                    cpu->task_tpc[task] = cpu->link_at_issue;
+                    cpu->task_tpc[task] = cpu->Link;
                 }
                 *next = (uint16_t)(cpu->real_PC + 1);
                 return 0;
