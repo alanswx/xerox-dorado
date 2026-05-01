@@ -1162,6 +1162,48 @@ visible in this trace, especially `Config'`, `SetDMuxAddress`/`UseDMD`,
 `StartEmulator`. Only then will task/display wakeups and `PCF<-B` be
 expected.
 
+2026-05-01 later follow-up: original docs/source closed several of the
+direct-EB memory setup gaps. `LoadRam.mc` records do not carry ALUFM, so
+the probe-side direct LoadRam path restores the standard ALUFM table
+that Initial would have left behind. HM Table 11d says
+`Pd<-ALUFMEM` is read-only; Mesa `SETDLP` was using it and the emulator
+was accidentally rewriting ALUFM. HM §8.3/§12.1 plus `Kernel5.mc`
+clarify the junk timer polarity: Dorado bit 15 is the low-order C bit,
+`AckJunkTW.15=1` enables periodic junk wakeups, and `IFUTest.15=1`
+disables them. `InitMem.mc` also shows `NextMapEntry` depends on
+`DummyRef_ T, T_ MD`, so that compiled DummyRef shape now uses old `T`
+as Mar. Finally, HM page 29's "FF branch condition ORs into TNIA" rule
+now applies to return-class JCNs; this fixes `Return[ALU=0]` in
+`NextMapEntry`. The focused direct EB run with
+`DORADO_BOOT_BUDGET=26300000 DORADO_ETHER_BOOT_IMAGE=../chm/microcode/AltoMesaDorado.eb!1 DORADO_POST_EB_TRACE=1`
+now passes, leaves the old unbounded `VAHi` map enumeration, reaches
+`STARTEMULATOR(AEmu)=0o1133`/`DOBRS`, and later runs in disk/status
+service code (`SEEKWAIT`, `KREADBADTW`, `WAITFORMAPBUF`) with
+`Memory: faults=0`, `BR36=0x19100`, display FIFO activity still zero,
+and disk FIFO reads/writes still zero. Next best action: continue from
+the disk/status/muffler path using `DiskSubrs.mc` (`Read1Muff`,
+`Read20Muffs`, `SeekWait`, `WaitForSector`) and HM §9/DskEth
+schematics; verify DiskMuff signal selection, TW clearing, seek-ready,
+sector/index, and FIFO-ready semantics.
+
+2026-05-01 display/map correction: the latest fault diagnostics move
+the active blocker back to display-memory ordering. The display model now
+honors the `Statics` `DHTShutUp/DWTShutUp` bits from `DisplayDefs.mc`:
+reset starts with both wakeups shut up, TIOA `0377`/`0367` updates the
+Statics latch, and synthetic scanline/DWT wakeups stay suppressed until
+microcode clears the bits. With
+`DORADO_BOOT_BUDGET=120000000 DORADO_ETHER_BOOT_IMAGE=../chm/microcode/AltoMesaDorado.eb!1`
+the run still reaches `NOTEMUFAULT`, but the last fault is now precise:
+`task 3`, `store`, `TIOA=0375` (HRam), `VA=0x2010C`, with
+`BR36=0x20000`, `EmuBRHiReg=0x0002`, and `Map[0x200]`/`Map[0x201]`
+still vacant. `DORADO_FAULT_TRACE=1` is available for non-emulator fault
+lines (`DORADO_FAULT_TRACE=all` includes task 0), and the normal probe
+output now prints task MemBase/TIOA plus the AEmu BR registers. Next best
+action: trace `JAMHRAM`/`InitHRam` in
+`DisplayAux.mc` and the immediately preceding map writes; determine why
+the display horizontal task can run through MDS before bank 2 has been
+remapped.
+
 ### Highest-leverage but hardest: fix Bootstrap streaming
 
 Currently bypassed by substituting canonical Initial.MB at BOOTSTAGE2.

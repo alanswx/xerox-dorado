@@ -1194,6 +1194,49 @@ Three styles of test, used at every phase:
   matching `InitMem.mc`'s memory configuration/map setup side effects
   well enough for `InitMap` to branch to `StartEmulator`, then resume
   task/display wakeup debugging.
+- 2026-05-01 memory enumeration fixes: several direct-EB blockers were
+  traced back to original source/docs. `LoadRam.mc` item records carry
+  IM, IFUM, RM, and End records, but not ALUFM, so the direct LoadRam
+  shortcut now restores Initial's standard ALUFM convention before
+  entering the EB image. HM §8.3/§12.1 and `Kernel5.mc` show that
+  Dorado bit 15 is the low-order C bit: `AckJunkTW` enables periodic
+  junk wakeups when that bit is 1, while `IFUTest.15` disables them.
+  HM Table 11d also distinguishes `Pd<-ALUFMRW` (read/write) from
+  `Pd<-ALUFMEM` (read-only); Mesa `SETDLP` uses the read-only form and
+  must not corrupt ALUFM. `InitMem.mc`'s `NextMapEntry` uses
+  `DummyRef_ T, T_ MD`, so the compiled `ASEL=1, LC=T<-Md` DummyRef
+  form now uses old `T` as Mar. Finally, HM page 29 says FF branch
+  conditions OR into TNIA for every non-long JCN; the implementation now
+  applies this to subroutine Return as well. This fixes
+  `Return[ALU=0]` in `NextMapEntry`, so the map walk exits at
+  `VirtualBanks` instead of running VAHi far past `0x40`.
+- Focused verification after the Return fix:
+  `DORADO_BOOT_BUDGET=26300000 DORADO_ETHER_BOOT_IMAGE=../chm/microcode/AltoMesaDorado.eb!1 DORADO_POST_EB_TRACE=1 ./build/test_cpu`
+  passes all CPU tests. The direct EB path now reports
+  `STARTEMULATOR(AEmu)=0o1133`, reaches the `STARTEMULATOR`/`DOBRS`
+  path, and no longer parks forever in the first `NextMapEntry`
+  enumeration. At the sampled budget it is running in later memory/disk
+  service code (`SEEKWAIT`, `KREADBADTW`, `WAITFORMAPBUF`), with
+  `Memory: faults=0`, `BR36=0x19100`, no display FIFO activity yet, and
+  disk FIFO reads/writes still zero. The next useful debugging target is
+  the disk/status/muffler path (`Read1Muff`, `Read20Muffs`,
+  `SeekWait`, `WaitForSector`) and any remaining memory-map side effects
+  those routines expect.
+- 2026-05-01 display/map follow-up: `DORADO_FAULT_TRACE=1` now records
+  non-emulator memory-faulting task/ref/VA lines
+  (`DORADO_FAULT_TRACE=all` includes task 0), and the final probe output
+  prints task MemBase/TIOA plus `EmuBRHiReg`/`EmuXMBRHiReg`. The direct
+  EB run with a 120M budget still reaches `NOTEMUFAULT`, but the fault is
+  now pinned to display memory, not disk: after Statics gating, synthetic
+  scanline and DWT wakeups are suppressed until display microcode clears
+  `DHTShutUp/DWTShutUp`; the remaining last fault is `task 3`, `store`,
+  `TIOA=0375` (HRam), `VA=0x2010C`, while `BR36=0x20000` and
+  `Map[0x200]`/`Map[0x201]` are still vacant. This means the next blocker
+  is the ordering/semantics around AEmu display initialization and the
+  Alto/Mesa bank-2 map rebuild, not DiskMuff. Next action: trace the
+  `JAMHRAM`/`InitHRam` path against `DisplayAux.mc` and the map writes
+  immediately before it, and determine why task 3 can run through MDS
+  before bank 2 has been restored.
 
 ## Cross-cutting: don't drift from "match the docs"
 

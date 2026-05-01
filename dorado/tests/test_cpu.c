@@ -37,6 +37,24 @@ static const char *test_str_env(const char *name, const char *fallback)
     return (s && *s) ? s : fallback;
 }
 
+static const char *ref_kind_name(dorado_ref_kind kind)
+{
+    switch (kind) {
+    case DM_REF_NONE:      return "none";
+    case DM_REF_PREFETCH:  return "prefetch";
+    case DM_REF_MAP:       return "map";
+    case DM_REF_IOFETCH:   return "iofetch";
+    case DM_REF_LONGFETCH: return "longfetch";
+    case DM_REF_STORE:     return "store";
+    case DM_REF_DUMMYREF:  return "dummyref";
+    case DM_REF_FLUSH:     return "flush";
+    case DM_REF_IOSTORE:   return "iostore";
+    case DM_REF_IFETCH:    return "ifetch";
+    case DM_REF_FETCH:     return "fetch";
+    }
+    return "unknown";
+}
+
 static int file_exists_readable(const char *path)
 {
     FILE *fp = fopen(path, "rb");
@@ -124,6 +142,23 @@ static void map_boot_probe_bank(dorado_memory *mem, uint32_t base_page,
     }
 }
 
+static void restore_standard_alufm(dorado_microcode *mc)
+{
+    /* LoadRam.mc's Item format carries IM, IFUM, RM, and End records
+     * only.  Complete replacement images inherit the standard ALUFM
+     * convention that Initial established before calling LoadRam.  The
+     * direct probe bypasses that real LoadRam handoff, so restore the
+     * same table here from the canonical Bootstrap/AEmu/Mesa values. */
+    static const uint8_t standard[ALUFM_SIZE] = {
+        025, 000, 014, 054, 062, 022, 035, 027,
+        023, 031, 040, 036, 013, 033, 001, 006,
+    };
+    for (int i = 0; i < ALUFM_SIZE; i++) {
+        mc->alufm[i] = standard[i];
+        mc->alufm_present[i] = 1;
+    }
+}
+
 static int loadram_image_direct(dorado_microcode *mc, dorado_cpu *cpu,
                                 const char *path, uint16_t *start_pc_out)
 {
@@ -133,6 +168,8 @@ static int loadram_image_direct(dorado_microcode *mc, dorado_cpu *cpu,
         fclose(fp);
         return 0;
     }
+
+    restore_standard_alufm(mc);
 
     int loaded = 0;
     uint16_t start_pc = 0;
@@ -2591,6 +2628,11 @@ static int probe_full_boot_with_bootstrap(void)
         uint8_t ifu_warmup_before, ifu_warmup_after;
         uint8_t tasking_on_before, tasking_on_after;
         uint8_t resume_delay_before, resume_delay_after;
+        uint16_t shc_before, shc_after;
+        uint16_t dispatch_or_before, dispatch_or_after;
+        uint16_t dispatch_pending_before, dispatch_pending_after;
+        uint16_t rm_before[16], rm_after[16];
+        uint8_t alufm_before[16], alufm_after[16];
         uint16_t ready_before, ready_after;
         uint16_t wakeup_before, wakeup_after;
         uint16_t ifu_pcf_before, ifu_pcf_after;
@@ -2971,10 +3013,17 @@ static int probe_full_boot_with_bootstrap(void)
                 /* Complete-world LoadRam exits with tasking off. The
                  * direct probe bypasses the real LoadRam/IOReset path,
                  * so discard wakeups left over from Initial before the
-                 * AltoMesa image initializes its task TPCs.
+                 * AltoMesa image initializes its task TPCs. Also discard
+                 * any nearly-expired synthetic junk timer countdown from
+                 * Initial; the real LoadRam path executes IFUReset at
+                 * entry, so the replacement world starts from a fresh
+                 * IFU/test-control state rather than inheriting a pending
+                 * tick.
                  */
                 cpu.ready = 1u;
                 cpu.wakeup_pending = 0;
+                cpu.junk_tw_enabled = 0;
+                cpu.junk_tw_countdown = 0;
                 pre_pc = cpu.real_PC;
                 ether_boot_injections++;
                 ether_boot_inject_cycle = bb.cycles;
@@ -3145,6 +3194,13 @@ static int probe_full_boot_with_bootstrap(void)
             post_eb_step_trace.ifu_warmup_before = cpu.ifu_warmup;
             post_eb_step_trace.tasking_on_before = cpu.tasking_on;
             post_eb_step_trace.resume_delay_before = cpu.tasking_resume_delay;
+            post_eb_step_trace.shc_before = cpu.ShC;
+            post_eb_step_trace.dispatch_or_before = cpu.dispatch_or;
+            post_eb_step_trace.dispatch_pending_before = cpu.dispatch_pending;
+            for (int rr = 0; rr < 16; rr++)
+                post_eb_step_trace.rm_before[rr] = cpu.RM[0x40 + rr];
+            for (int aa = 0; aa < 16; aa++)
+                post_eb_step_trace.alufm_before[aa] = mc.alufm[aa];
             post_eb_step_trace.ready_before = cpu.ready;
             post_eb_step_trace.wakeup_before = cpu.wakeup_pending;
             post_eb_step_trace.ifu_pcf_before = cpu.ifu_pcf;
@@ -3167,6 +3223,13 @@ static int probe_full_boot_with_bootstrap(void)
                 post_eb_step_trace.ifu_warmup_after = cpu.ifu_warmup;
                 post_eb_step_trace.tasking_on_after = cpu.tasking_on;
                 post_eb_step_trace.resume_delay_after = cpu.tasking_resume_delay;
+                post_eb_step_trace.shc_after = cpu.ShC;
+                post_eb_step_trace.dispatch_or_after = cpu.dispatch_or;
+                post_eb_step_trace.dispatch_pending_after = cpu.dispatch_pending;
+                for (int rr = 0; rr < 16; rr++)
+                    post_eb_step_trace.rm_after[rr] = cpu.RM[0x40 + rr];
+                for (int aa = 0; aa < 16; aa++)
+                    post_eb_step_trace.alufm_after[aa] = mc.alufm[aa];
                 post_eb_step_trace.ready_after = cpu.ready;
                 post_eb_step_trace.wakeup_after = cpu.wakeup_pending;
                 post_eb_step_trace.ifu_pcf_after = cpu.ifu_pcf;
@@ -3194,6 +3257,13 @@ static int probe_full_boot_with_bootstrap(void)
             post_eb_step_trace.ifu_warmup_after = cpu.ifu_warmup;
             post_eb_step_trace.tasking_on_after = cpu.tasking_on;
             post_eb_step_trace.resume_delay_after = cpu.tasking_resume_delay;
+            post_eb_step_trace.shc_after = cpu.ShC;
+            post_eb_step_trace.dispatch_or_after = cpu.dispatch_or;
+            post_eb_step_trace.dispatch_pending_after = cpu.dispatch_pending;
+            for (int rr = 0; rr < 16; rr++)
+                post_eb_step_trace.rm_after[rr] = cpu.RM[0x40 + rr];
+            for (int aa = 0; aa < 16; aa++)
+                post_eb_step_trace.alufm_after[aa] = mc.alufm[aa];
             post_eb_step_trace.ready_after = cpu.ready;
             post_eb_step_trace.wakeup_after = cpu.wakeup_pending;
             post_eb_step_trace.ifu_pcf_after = cpu.ifu_pcf;
@@ -3745,15 +3815,17 @@ static int probe_full_boot_with_bootstrap(void)
                        (unsigned long long)pt->cycle, pt->task, pt->pc);
                 if (sym) printf(":%s", sym);
                 printf(" ->0o%o T=%04X->%04X Q=%04X->%04X "
-                       "L=%04X->%04X RB=%u->%u MB=%u->%u "
+                       "L=%04X->%04X ShC=%04X->%04X RB=%u->%u MB=%u->%u "
                        "IFU a=%u->%u w=%u->%u PCF=0o%o->0o%o "
                        "PCX=0o%o->0o%o tasking=%u/%u->%u/%u "
+                       "disp=%04X/%04X->%04X/%04X "
                        "ready=%04X->%04X wake=%04X->%04X MCR=%04X->%04X "
                        "MAR=%05X->%05X MD=%04X->%04X",
                        pt->next_pc,
                        pt->t_before, pt->t_after,
                        pt->q_before, pt->q_after,
                        pt->link_before, pt->link_after,
+                       pt->shc_before, pt->shc_after,
                        pt->rbase_before, pt->rbase_after,
                        pt->membase_before, pt->membase_after,
                        pt->ifu_active_before, pt->ifu_active_after,
@@ -3762,11 +3834,44 @@ static int probe_full_boot_with_bootstrap(void)
                        pt->ifu_pcx_before, pt->ifu_pcx_after,
                        pt->tasking_on_before, pt->resume_delay_before,
                        pt->tasking_on_after, pt->resume_delay_after,
+                       pt->dispatch_or_before, pt->dispatch_pending_before,
+                       pt->dispatch_or_after, pt->dispatch_pending_after,
                        pt->ready_before, pt->ready_after,
                        pt->wakeup_before, pt->wakeup_after,
                        pt->mcr_before, pt->mcr_after,
                        pt->mar_before, pt->mar_after,
                        pt->md_before, pt->md_after);
+                if ((pt->pc >= 01000 && pt->pc <= 01060) ||
+                    (pt->pc >= 04654 && pt->pc <= 04657) ||
+                    (pt->pc >= 05720 && pt->pc <= 05747)) {
+                    printf(" RM40-4F:");
+                    for (int rr = 0; rr < 16; rr++) {
+                        if (pt->rm_before[rr] == pt->rm_after[rr]) {
+                            printf(" %02X=%04X", 0x40 + rr,
+                                   pt->rm_after[rr]);
+                        } else {
+                            printf(" %02X=%04X->%04X", 0x40 + rr,
+                                   pt->rm_before[rr], pt->rm_after[rr]);
+                        }
+                    }
+                }
+                int alufm_changed = 0;
+                for (int aa = 0; aa < 16; aa++) {
+                    if (pt->alufm_before[aa] != pt->alufm_after[aa]) {
+                        alufm_changed = 1;
+                        break;
+                    }
+                }
+                if (alufm_changed) {
+                    printf(" ALUFM:");
+                    for (int aa = 0; aa < 16; aa++) {
+                        if (pt->alufm_before[aa] != pt->alufm_after[aa]) {
+                            printf(" %X=0o%o->0o%o", aa,
+                                   pt->alufm_before[aa],
+                                   pt->alufm_after[aa]);
+                        }
+                    }
+                }
                 if (pt->halt_reason != CPU_HALT_NONE) {
                     printf(" HALT=%s", cpu_halt_reason_str(pt->halt_reason));
                 }
@@ -3944,9 +4049,12 @@ static int probe_full_boot_with_bootstrap(void)
     }
     printf("\n");
     if (cpu.mem) {
-        printf("       Memory: faults=%d first_srn=%d Mar=0x%X\n",
+        printf("       Memory: faults=%d first_srn=%d last=%s task=%o/%u "
+               "va=0x%X Mar=0x%X\n",
                cpu.mem->fault_count, cpu.mem->fault_first_srn,
-               cpu.mem->mar);
+               ref_kind_name(cpu.mem->last_fault_ref_kind),
+               cpu.mem->last_fault_task, cpu.mem->last_fault_subtask,
+               cpu.mem->last_fault_va, cpu.mem->mar);
         printf("       MCR=0x%04X disbr=%d noref=%d fdmiss=%d nowake=%d\n",
                dorado_mcr_get(cpu.mem),
                dorado_mcr_disbr(cpu.mem),
@@ -3985,6 +4093,9 @@ static int probe_full_boot_with_bootstrap(void)
             uint32_t iobr = dorado_br_get(&mem, 031);
             printf("       BRs: IOBR/BR31=0x%05X MDS/BR36=0x%05X Code/BR37=0x%05X\n",
                    iobr, dorado_br_get(&mem, 036), dorado_br_get(&mem, 037));
+            printf("       AEmu BR regs: EmuBRHiReg/RM[0x18]=0x%04X "
+                   "EmuXMBRHiReg/RM[0x19]=0x%04X\n",
+                   cpu.RM[0x18], cpu.RM[0x19]);
             printf("       Display absolute low-core: DAStart[0420..0427]=");
             for (uint32_t i = 0; i < 8; i++) {
                 printf("%s%04X", (i == 0) ? "" : " ",
@@ -4022,6 +4133,11 @@ static int probe_full_boot_with_bootstrap(void)
            cpu.RM[0x10], cpu.RM[0x14], cpu.RM[0x15], cpu.RM[0x16],
            cpu.RM[0x45], cpu.RM[0x46], cpu.RM[0x48], cpu.RM[0x49],
            cpu.RM[0x76]);
+    printf("       Task MemBase/TIOA:");
+    for (int t = 0; t < 16; t++) {
+        printf(" [%o]=%02o/%03o", t, cpu.task_membase[t], cpu.task_tioa[t]);
+    }
+    printf("\n");
 
     if (preset_first_n > 0) {
         printf("       PRESETMAP samples (first %d):\n", preset_first_n);
@@ -4902,6 +5018,54 @@ static int test_alt_fetch_t_lc_md_pipeline(void)
     return 0;
 }
 
+static int test_dummyref_t_uses_t_as_mar(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;   /* "B" */
+
+    /* InitMem.mc's NextMapEntry source is `DummyRef_ T, T_ MD`.
+     * In the compiled Table-8a form that is ASEL=1, FF[0:1]=0
+     * (DummyRef), LC=3 (T<-Md).  The Mar source must be the old T,
+     * not RM/STK, while the LC still sees the old Md latch. */
+    mc.im[0] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/1, /*lc=*/3,
+                           /*asel=*/1, /*block=*/0, /*ff=*/0021,
+                           /*jcn=*/jcn_local(1));
+    mc.im_present[0] = 1;
+    mc.im[1] = make_uinstr(0, 0, 4, 0, 4, 0, 0, jcn_local(1));
+    mc.im_present[1] = 1;
+    for (int i = 0; i < 2; i++) {
+        mc.image_to_real[i] = i;
+        mc.image_present[i] = 1;
+    }
+    mc.n_instructions = 2;
+
+    static dorado_memory mem;
+    EXPECT(dorado_memory_init(&mem) == 0, "memory init");
+    dorado_br_hi_load(&mem, 0, 0x0001);
+    dorado_br_lo_load(&mem, 0, 0x2000);
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.mem = &mem;
+    cpu.T = 0x0340;
+    cpu.RM[0] = 0x0055;
+    mem.md = 0xCAFE;
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "DummyRef_ T step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+
+    uint32_t expected = (dorado_br_get(&mem, 0) + 0x0340u) & 0x0FFFFFFFu;
+    EXPECT(dorado_pipe_va_at(&mem, mem.proc_srn) == expected,
+           "DummyRef pipe VA = 0x%07X, expected 0x%07X",
+           dorado_pipe_va_at(&mem, mem.proc_srn), expected);
+    EXPECT(cpu.T == 0xCAFE, "T = 0x%04X, expected old Md 0xCAFE", cpu.T);
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_dummyref_t_uses_t_as_mar\n");
+    return 0;
+}
+
 static int test_alt_store_t_uses_b_data(void)
 {
     static dorado_microcode mc;
@@ -5286,6 +5450,62 @@ static int test_freezebc(void)
 }
 
 /*
+ * Return-class JCN with FF branch condition:
+ *
+ * HM page 29 says an FF-encoded branch condition ORs its result into
+ * TNIA[15] for any JCN encoding except long branch. InitMem.mc uses
+ * this as `Return[ALU=0]` in NextMapEntry: the false return resumes at
+ * Link, the true return resumes at Link|1.
+ */
+static int test_return_ff_condition_or(void)
+{
+    dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;   /* "B" */
+
+    /* IM[0]: produce ALU=0 and branch to the return instruction. */
+    mc.im[0] = make_uinstr(0, 0, /*bsel=*/4, /*lc=*/0,
+                           /*asel=*/6, 0, /*ff=*/0, jcn_local(1));
+    mc.im_present[0] = 1;
+
+    /* IM[1]: Subroutine Return with FF=060 (ALU=0 condition).
+     * JCN = 0 1 000 111 = 0x47 = 0107. BSEL<4 keeps FF available
+     * as a branch condition rather than a full Table-11 function. */
+    mc.im[1] = make_uinstr(0, 0, /*bsel=*/0, /*lc=*/0,
+                           /*asel=*/4, 0, /*ff=*/0060, /*jcn=*/0x47);
+    mc.im_present[1] = 1;
+
+    for (int i = 0; i < 2; i++) {
+        mc.image_to_real[i] = i;
+        mc.image_present[i] = 1;
+    }
+    mc.n_instructions = 2;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.Link = 0200;
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "return cond setup true");
+    EXPECT(cpu.alu_zero == 1, "setup should latch ALU=0 true");
+    EXPECT(dorado_cpu_step(&cpu) == 0, "return cond true");
+    EXPECT(cpu.real_PC == 0201,
+           "Return[ALU=0] true should OR Link with 1, got PC=0o%o",
+           cpu.real_PC);
+
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.Link = 0200;
+    cpu.alu_zero = 0;
+    cpu.real_PC = 1;
+    EXPECT(dorado_cpu_step(&cpu) == 0, "return cond false");
+    EXPECT(cpu.real_PC == 0200,
+           "Return[ALU=0] false should return to Link, got PC=0o%o",
+           cpu.real_PC);
+
+    printf("PASS  test_return_ff_condition_or\n");
+    return 0;
+}
+
+/*
  * Tasking — basic task switch on Wakeup.
  *
  * Layout:
@@ -5541,6 +5761,55 @@ static int test_junk_timer_wakeup(void)
            cpu.wakeup_pending);
 
     printf("PASS  test_junk_timer_wakeup\n");
+    return 0;
+}
+
+static int test_ifutest_junk_timer_polarity(void)
+{
+    dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;   /* B */
+
+    /* T = 1, then IFUTest←T. Dorado bit 15 is the low-order C bit,
+     * and IFUTest.15 disables junk wakeups. */
+    mc.im[0] = make_uinstr(0, 0, 4, 1, 6, 0, 0001, jcn_local(1));
+    mc.im_present[0] = 1;
+    mc.im[1] = make_uinstr(0, 0, 2, 0, 6, 0, 0101, jcn_local(2));
+    mc.im_present[1] = 1;
+
+    /* T = -1, then AckJunkTW←T. AckJunkTW.15 enables junk wakeups. */
+    mc.im[2] = make_uinstr(0, 0, 5, 1, 6, 0, 0377, jcn_local(3));
+    mc.im_present[2] = 1;
+    mc.im[3] = make_uinstr(0, 0, 2, 0, 6, 0, 0104, jcn_local(4));
+    mc.im_present[3] = 1;
+
+    /* T = 0, then IFUTest←T. Normal IFUTest values also enable junk. */
+    mc.im[4] = make_uinstr(0, 0, 4, 1, 6, 0, 0000, jcn_local(5));
+    mc.im_present[4] = 1;
+    mc.im[5] = make_uinstr(0, 0, 2, 0, 6, 0, 0101, jcn_local(5));
+    mc.im_present[5] = 1;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.junk_tw_enabled = 1;
+    cpu.junk_tw_countdown = 100;
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "T=1");
+    EXPECT(dorado_cpu_step(&cpu) == 0, "IFUTest.15 disables");
+    EXPECT(cpu.junk_tw_enabled == 0,
+           "IFUTest.15 should disable junk timer");
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "T=-1");
+    EXPECT(dorado_cpu_step(&cpu) == 0, "AckJunkTW.15 enables");
+    EXPECT(cpu.junk_tw_enabled == 1,
+           "AckJunkTW.15 should enable junk timer");
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "T=0");
+    EXPECT(dorado_cpu_step(&cpu) == 0, "IFUTest.15 clear enables");
+    EXPECT(cpu.junk_tw_enabled == 1,
+           "IFUTest with bit 15 clear should enable junk timer");
+
+    printf("PASS  test_ifutest_junk_timer_polarity\n");
     return 0;
 }
 
@@ -6215,6 +6484,46 @@ static int test_alufmrw_bit_mapping(void)
     return 0;
 }
 
+static int test_alufmem_is_read_only(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;
+    mc.alufm[8] = 023; mc.alufm_present[8] = 1;
+
+    /* IM[0]: T <- 0x7F. */
+    mc.im[0] = make_uinstr(0, 0, /*bsel=*/4, /*lc=*/1, /*asel=*/4,
+                           0, /*ff=*/0177, jcn_local(1));
+    mc.im_present[0] = 1;
+    /* IM[1]: Pd<-ALUFMEM with ALUF=8 reads the entry but must not
+     * write from B. HM Table 11d: FC=2 is ALUFMRW, FC=3 is ALUFMEM. */
+    mc.im[1] = make_uinstr(0, /*aluf=*/010, /*bsel=*/2, /*lc=*/0,
+                           /*asel=*/4, 0, /*ff=*/0263, jcn_local(2));
+    mc.im_present[1] = 1;
+    mc.im[2] = make_uinstr(0, 0, 4, 0, 4, 0, 0, jcn_local(2));
+    mc.im_present[2] = 1;
+    for (int i = 0; i < 3; i++) {
+        mc.image_to_real[i] = i;
+        mc.image_present[i] = 1;
+    }
+    mc.n_instructions = 3;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step 0: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.T == 0x7F, "T = 0x%X (expected 0x7F)", cpu.T);
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step 1: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(mc.alufm[8] == 023,
+           "ALUFMEM read changed ALUFM[8] to 0o%o", mc.alufm[8]);
+
+    printf("PASS  test_alufmem_is_read_only (Pd<-ALUFMEM left ALUFM[8]=0o%o)\n",
+           mc.alufm[8]);
+    return 0;
+}
+
 /*
  * test_pcx_b_source (gap B3 sub-item) — HM Table 11c FA=1 FB=7 FC=0:
  *   `B ← PCX'` returns the IFU PC of the currently-executing
@@ -6429,6 +6738,7 @@ int main(void)
     rc |= test_lc_forced_rm_write_address();
     rc |= test_cpu_memory_roundtrip();
     rc |= test_alt_fetch_t_lc_md_pipeline();
+    rc |= test_dummyref_t_uses_t_as_mar();
     rc |= test_alt_store_t_uses_b_data();
     rc |= test_memory_decode_uses_table8b_when_ff_not_ok();
     rc |= test_bootstrap_ldf_dispatch();
@@ -6436,11 +6746,13 @@ int main(void)
     rc |= test_cpu_pipe4_no_error_baseline();
     rc |= test_bc_timing_previous_instr();
     rc |= test_freezebc();
+    rc |= test_return_ff_condition_or();
     rc |= test_task_switch_on_wakeup();
     rc |= test_task_block_returns_to_emulator();
     rc |= test_tasking_off_blocks_switch();
     rc |= test_wakeup_ff_function();
     rc |= test_junk_timer_wakeup();
+    rc |= test_ifutest_junk_timer_polarity();
     rc |= test_subtask_or_rm();
     rc |= test_ifum_load_read();
     rc |= test_ifu_dispatch_synthetic();
@@ -6454,6 +6766,7 @@ int main(void)
     rc |= test_tioa_small_constant_all_low_bits();
     rc |= test_carry_preserved_on_logical();
     rc |= test_alufmrw_bit_mapping();
+    rc |= test_alufmem_is_read_only();
     rc |= test_alu_shift_ff_functions();
     rc |= test_a_low_ff_override();
     rc |= test_b11_event_cnt_brk_state();

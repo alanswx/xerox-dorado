@@ -7,6 +7,7 @@
 
 #define DORADO_JUNK_TASK          2
 #define DORADO_JUNK_TICK_CYCLES   1000  /* 32 us / 32 ns */
+#define DORADO_B15_MASK           0x0001u
 
 /* Forward declarations for IFU helpers (defined later in this file). */
 static uint16_t ifu_consume_id(dorado_cpu *cpu);
@@ -108,16 +109,29 @@ static int task_bnt(uint16_t avail)
     return 0;
 }
 
-static void junk_timer_control(dorado_cpu *cpu, uint16_t b)
+static void junk_timer_enable(dorado_cpu *cpu, int enable)
 {
-    /* HM Table 11c / §12.1: AckJunkTW←B dismisses the current timer
-     * wakeup. Initial's JNK init executes this with B=-1 to enable
-     * periodic wakeups, so B[15]=1 is the enable case. */
     cpu->wakeup_pending &= (uint16_t)~(1u << DORADO_JUNK_TASK);
-    cpu->junk_tw_enabled = ((b & 0x8000) != 0);
+    cpu->junk_tw_enabled = enable ? 1 : 0;
     if (cpu->junk_tw_enabled && cpu->junk_tw_countdown == 0) {
         cpu->junk_tw_countdown = DORADO_JUNK_TICK_CYCLES;
     }
+}
+
+static void junk_timer_ack_control(dorado_cpu *cpu, uint16_t b)
+{
+    /* HM §12.1 and Kernel5.mc: AckJunkTW←B dismisses the current
+     * wakeup; B[15]=1 enables periodic junk wakeups and B[15]=0
+     * disables them. Dorado bit 15 is the low-order C bit. */
+    junk_timer_enable(cpu, (b & DORADO_B15_MASK) != 0);
+}
+
+static void junk_timer_ifutest_control(dorado_cpu *cpu, uint16_t b)
+{
+    /* HM §8.3: IFUTest←B also dismisses the junk wakeup, but the IFU
+     * test register uses the opposite polarity: IFUTest.15 disables
+     * the periodic junk request. Dorado bit 15 is the low-order C bit. */
+    junk_timer_enable(cpu, (b & DORADO_B15_MASK) == 0);
 }
 
 static void junk_timer_tick(dorado_cpu *cpu)
@@ -803,7 +817,7 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                 cpu->ifu_warmup  = 5;     /* HM page 67 */
                 return pd;
             case 1: /* IFUTest ← B */
-                junk_timer_control(cpu, b);
+                junk_timer_ifutest_control(cpu, b);
                 return pd;
             case 2: /* IFUTick */                  return pd;
             case 3: /* RescheduleNow (HM Table 20). Trap the next
@@ -813,7 +827,7 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                 cpu->reschedule_pending = 1;
                 return pd;
             case 4: /* AckJunkTW ← B */
-                junk_timer_control(cpu, b);
+                junk_timer_ack_control(cpu, b);
                 return pd;
             case 5: /* MemBase ← B[3:7] */
                 cpu->MemBase = (b >> 8) & 0x1F;    return pd;
@@ -992,8 +1006,11 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
             switch (fc) {
             case 0: case 1: /* — */          return pd;
             case 2: /* Pd ← ALUFMRW */
-            case 3: /* Pd ← ALUFMEM (with ALUFMEM ← B.8, B[11:15]) */
-                /* Read current value to Pd, write new value from B.
+            case 3: /* Pd ← ALUFMEM */
+                /* Read current value to Pd. FC=2 also writes a new
+                 * value from B; FC=3 is read-only. This distinction is
+                 * visible in Mesa's SETDLP path, which reads ALUFM[0]
+                 * with FF=0o263 and expects the table to survive.
                  *
                  * HM Table 11d: "ALUFMEM ← B.8, B[11:15]". The 6-bit
                  * entry's bits map to B as follows (manual MSB-first):
@@ -1049,15 +1066,17 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                      * B_C[2]=0, B_C[1]=1, B_C[0]=1 → entry =
                      * 0_1_0_0_1_1 = 0o23 ✓.
                      */
-                    uint8_t alufm =
-                        (uint8_t)((((b >> 7) & 1) << 5) |
-                                  (((b >> 4) & 1) << 4) |
-                                  (((b >> 3) & 1) << 3) |
-                                  (((b >> 2) & 1) << 2) |
-                                  (((b >> 1) & 1) << 1) |
-                                  (((b >> 0) & 1) << 0));
-                    mc_w->alufm[idx] = alufm;
-                    mc_w->alufm_present[idx] = 1;
+                    if (fc == 2) {
+                        uint8_t alufm =
+                            (uint8_t)((((b >> 7) & 1) << 5) |
+                                      (((b >> 4) & 1) << 4) |
+                                      (((b >> 3) & 1) << 3) |
+                                      (((b >> 2) & 1) << 2) |
+                                      (((b >> 1) & 1) << 1) |
+                                      (((b >> 0) & 1) << 0));
+                        mc_w->alufm[idx] = alufm;
+                        mc_w->alufm_present[idx] = 1;
+                    }
                 }
                 return pd;
             case 4: /* Pd ← Cnt */
@@ -1985,7 +2004,8 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                  * (which can't appear in a "Return#" template but is
                  * possible in other return-class encodings) doesn't
                  * change where we go this cycle. */
-                *next = (uint16_t)(cpu->link_at_issue & 0xFFF);
+                *next = (uint16_t)((cpu->link_at_issue & 0xFFF) |
+                                   ff_cond_or | cpu->dispatch_or);
                 /* Per HM §4.5: Link is reloaded with CIA+1 by Return,
                  * supporting CoReturn. */
                 cpu->Link = (uint16_t)(cpu->real_PC + 1);
@@ -2302,6 +2322,15 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                 membase |= (uint8_t)((cpu->task_subtask[cpu->ctask] & 3) << 1);
             }
             uint16_t mar = a;
+            /* InitMem.mc's NextMapEntry emits `DummyRef_ T, T_ MD`
+             * to make the memory system add one page to the current
+             * BR and report the resulting VA through VALo/VAHi
+             * (Pipe1/Pipe0). In the compiled Table-8a DummyRef shape
+             * this is the ASEL=1, LC=T<-Md form; use T as Mar for
+             * that source-level construct instead of RM/STK. */
+            if (kind == DM_REF_DUMMYREF && u->asel == 1 && u->lc == 3) {
+                mar = cpu->T;
+            }
             uint16_t data = b;
             uint32_t br = dorado_mcr_disbr(cpu->mem)
                         ? 0

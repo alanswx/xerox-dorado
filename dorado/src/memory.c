@@ -1,10 +1,52 @@
 #include "memory.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 static uint32_t va_cache_row(uint32_t va);
 static int cache_pick_victim(dorado_memory *mem, uint32_t va);
+
+static int map_trace_enabled(void)
+{
+    static int cached = -1;
+    if (cached < 0) {
+        const char *env = getenv("DORADO_MAP_TRACE");
+        cached = (env && env[0] && env[0] != '0') ? 1 : 0;
+    }
+    return cached;
+}
+
+static int fault_trace_mode(void)
+{
+    static int cached = -1;
+    if (cached < 0) {
+        const char *env = getenv("DORADO_FAULT_TRACE");
+        cached = 0;
+        if (env && env[0] && env[0] != '0') {
+            cached = (strcmp(env, "all") == 0) ? 2 : 1;
+        }
+    }
+    return cached;
+}
+
+static const char *ref_kind_trace_name(dorado_ref_kind kind)
+{
+    switch (kind) {
+    case DM_REF_NONE:      return "none";
+    case DM_REF_PREFETCH:  return "prefetch";
+    case DM_REF_MAP:       return "map";
+    case DM_REF_IOFETCH:   return "iofetch";
+    case DM_REF_LONGFETCH: return "longfetch";
+    case DM_REF_STORE:     return "store";
+    case DM_REF_DUMMYREF:  return "dummyref";
+    case DM_REF_FLUSH:     return "flush";
+    case DM_REF_IOSTORE:   return "iostore";
+    case DM_REF_IFETCH:    return "ifetch";
+    case DM_REF_FETCH:     return "fetch";
+    }
+    return "unknown";
+}
 
 enum {
     PIPE5_MAPBUF_BUSY = 0x8000u,  /* manual Pipe5[0] */
@@ -306,6 +348,9 @@ void dorado_fault_clear(dorado_memory *mem)
     mem->fault_emulator   = 0;
     mem->last_fault       = DM_FAULT_NONE;
     mem->last_fault_va    = 0;
+    mem->last_fault_task  = 0;
+    mem->last_fault_subtask = 0;
+    mem->last_fault_ref_kind = DM_REF_NONE;
 }
 
 void dorado_mcr_load(dorado_memory *mem, uint16_t a, uint16_t b)
@@ -641,7 +686,7 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
                                          uint16_t tioa,
                                          int task, int subtask)
 {
-    (void)task; (void)subtask;     /* used only for fast-IO branches below */
+    (void)subtask;     /* used only for fast-IO branches below */
     /* Update Mar (most-recent reference VA). ReadMap (HM page 41)
      * uses this to look up the map entry. */
     mem->mar = va;
@@ -871,6 +916,15 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
         e->wp    = (tioa >> 7) & 1;
         e->dirty = (tioa >> 6) & 1;
         e->ref   = 0;
+        if (map_trace_enabled() &&
+            (idx < 2 || idx == 0xFF || idx == 0x200 || idx == 0x201 ||
+             idx == 0x2FE || idx == 0x2FF)) {
+            fprintf(stderr,
+                    "MAP_TRACE task=%o va=%05X idx=%04X rp=%04X "
+                    "wp=%u dirty=%u tioa=%02X\n",
+                    task & 017, va & 0x0FFFFFFFu, idx, e->rp,
+                    e->wp, e->dirty, tioa & 0xFFu);
+        }
         mem->pipe[srn & (DM_PIPE_DEPTH - 1)].mapbuf_busy = 1;
         mem->mapbuf_busy_slot = srn & (DM_PIPE_DEPTH - 1);
         mem->mapbuf_busy_cycles = 9;
@@ -903,8 +957,22 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
     }
 
     if (f != DM_FAULT_NONE) {
-        mem->last_fault    = f;
-        mem->last_fault_va = va;
+        mem->last_fault          = f;
+        mem->last_fault_va       = va;
+        mem->last_fault_task     = (uint8_t)(task & 017);
+        mem->last_fault_subtask  = (uint8_t)(subtask & 3);
+        mem->last_fault_ref_kind = kind;
+        int fault_trace = fault_trace_mode();
+        if (fault_trace && (fault_trace > 1 || task != 0)) {
+            uint32_t idx = dorado_map_index(va);
+            const dorado_map_entry *e = &mem->map[idx];
+            fprintf(stderr,
+                    "FAULT_TRACE kind=%s task=%o sub=%u va=%05X idx=%04X "
+                    "rp=%04X wp=%u dirty=%u ref=%u tioa=%02X srn=%u\n",
+                    ref_kind_trace_name(kind), task & 017, subtask & 3,
+                    va & 0x0FFFFFFFu, idx, e->rp, e->wp, e->dirty,
+                    e->ref, tioa & 0xFFu, srn & 0xF);
+        }
 
         /* Update FaultInfo register state. NFaults saturates at 15
          * (4-bit field). The first uncleared fault locks in

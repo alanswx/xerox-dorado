@@ -91,6 +91,10 @@ void dorado_display_init(dorado_display *d)
     memset(d, 0, sizeof *d);
     d->fifo_a_head = d->fifo_a_tail = 0;
     d->fifo_b_head = d->fifo_b_tail = 0;
+    /* DisplayDefs.mc defines Statics bit 0 as DHTShutUp and bit 1
+     * as DWTShutUp. IOReset leaves the display quiet until THT init
+     * explicitly writes Statics=0 near the end of initialization. */
+    d->statics = DORADO_DISPLAY_STATICS_ALL_SHUTUP;
     /* HM §11: Keep' is a flipflop that defaults to "video owns" (true).
      * Dorado must take ownership before loading RAM. */
     d->ram_keep = 1;
@@ -160,6 +164,10 @@ static void display_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
                          * next output command */
     if (t == DORADO_DISPLAY_TASK_DHT || t == DORADO_DISPLAY_TASK_AHT) {
         d->terminal_task = t;
+    }
+    if (tioa == DORADO_DISPLAY_TIOA_STATICS ||
+        tioa == DORADO_DISPLAY_TIOA_TSTATICS) {
+        d->statics = data;
     }
 
     /* DisplayMain.mc:
@@ -376,8 +384,9 @@ uint16_t dorado_display_scanline_wakeup_mask(dorado_display *d)
      * reset/shut-up DDC should not wake arbitrary tasks. Until the
      * full Statics DHTShutUp/AHTShutUp decode is modeled, wake only
      * the horizontal task that has actually addressed the display. */
-    if (d->terminal_task == DORADO_DISPLAY_TASK_DHT ||
-        d->terminal_task == DORADO_DISPLAY_TASK_AHT) {
+    if (!(d->statics & DORADO_DISPLAY_STATICS_DHT_SHUTUP) &&
+        (d->terminal_task == DORADO_DISPLAY_TASK_DHT ||
+         d->terminal_task == DORADO_DISPLAY_TASK_AHT)) {
         d->terminal_wakeups++;
         mask |= (uint16_t)(1u << d->terminal_task);
     }
@@ -387,6 +396,7 @@ uint16_t dorado_display_scanline_wakeup_mask(dorado_display *d)
 int dorado_display_dwt_wakeup(dorado_display *d, int *subtask)
 {
     if (!d) return 0;
+    if (d->statics & DORADO_DISPLAY_STATICS_DWT_SHUTUP) return 0;
 
     for (int ch = 0; ch < 2; ch++) {
         if (d->next_wcb_flag[ch] && !d->current_wcb_flag[ch]) {
