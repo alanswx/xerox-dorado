@@ -1277,3 +1277,28 @@ When you finish your session, **update this doc** with:
 - Updated "Suggested first action."
 
 Keep it short, keep it honest. Don't write aspirational status.
+
+2026-05-01 snapshot/map update: current EB boot snapshot is still blank
+white. `/tmp/dorado_boot_display.png` has `unique=1` and `nonwhite=0`;
+the renderer test PNGs (`/tmp/test_dorado_display.png` and
+`/tmp/test_dorado_render.png`) do contain pixels. The next blocker was
+confirmed as task-0 IFetch at `pc=0o573`, `VA=0x20004`, with bank 2
+vacant. `InitMem.mc` says `InitMapWarm` maps the emulator virtual bank
+onto the first 64K of **real** Alto memory, so the direct EB LoadRam
+probe now maps virtual bank 2 (`0x20000`) to real pages 0..255 and
+reapplies it after `loadram_image_direct`. The EB image still later
+vacates `Map[0x200]`; the probe records that cycle/task/PC and remaps
+bank 2 again so bring-up can continue. The next stop was task 2
+IFetch at `VA=0x624aa`, so the EB probe now maps the installed
+real-storage page range before overlaying bank 2 to real page 0. This
+is a probe correction, not a substitute for implementing the real
+LoadRam/warm-map handoff.
+
+2026-05-01 EB probe progress after installed-storage shim:
+`display outs=+48333`, `dwt wakeups=+1`, disk slow I/O is active
+(`outs=+3020`, `ins=+2984`), and display-list words through IOBR are
+non-`FFFF`. The framebuffer snapshot is still blank white because
+display fast-I/O fetches remain `0`. The new blocker is an emulator
+IFetch fault after the Code BR goes bad (`BR37=0xfff0006` in the
+summary). Next step: trace the BR load/StartIFU path around that
+corruption before implementing more display behavior.

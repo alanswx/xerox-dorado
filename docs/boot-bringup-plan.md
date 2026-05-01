@@ -1260,6 +1260,39 @@ Three styles of test, used at every phase:
   MDS at `VA=0x20004` (`pc=0o573`) after bank 2 has become vacant.
   That points back to warm-start/LoadRam map restoration for the
   Alto/Mesa bank, not to HRam slow-I/O.
+- 2026-05-01 PNG snapshot check: `/tmp/dorado_boot_display.png`
+  is generated from the current EB boot probe, but it is still all
+  white (`unique=1`, `nonwhite=0`). The display renderer itself is
+  not blank: `/tmp/test_dorado_display.png` and
+  `/tmp/test_dorado_render.png` contain nonwhite unit-test pixels.
+- Direct LoadRam shortcut correction: `InitMem.mc` says warm-start
+  setup assumes the first 64K of **real** memory contains the Alto
+  memory, then maps the emulator's virtual bank onto it. The EB
+  shortcut now maps AltoMesaDorado's virtual bank 2 (`0x20000`) onto
+  real pages 0..255 instead of real pages `0x200..0x2ff`, and reapplies
+  that probe map after the replacement RAM image is loaded. This is
+  still a probe-side shortcut until the real LoadRam path owns the
+  warm-map handoff.
+- Follow-up diagnostic: the loaded EB image still rewrites and later
+  vacates `Map[0x200]` during its map-init path before the emulator
+  task fetches from MDS. The probe now records the cycle/task/PC of
+  the first bank-2 vacant transition and, for EB-only bring-up, remaps
+  bank 2 to real pages 0..255 so debugging can continue past the
+  task-0 IFetch fault. This shim must be removed/replaced by the real
+  LoadRam/InitMap behavior.
+- Next fault after that shim was task 2 IFetch at `pc=0o3656`,
+  `BR=0x60b7e`, `VA=0x624aa`: another vacant page outside bank 2.
+  The direct probe now maps the installed real-storage page range
+  before overlaying bank 2 to real page 0. This is intentionally still
+  restricted to the EB probe path.
+- Latest EB probe with the installed-storage watch shim gets further:
+  `display outs=+48333`, `dwt wakeups=+1`, disk slow I/O is active
+  (`outs=+3020`, `ins=+2984`), and IOBR display-list words are no
+  longer all `FFFF`. The framebuffer is still all white because
+  display fast-I/O fetches remain `0`. The next blocker is an emulator
+  IFetch fault after the Code BR goes bad (`BR37=0xfff0006` in the
+  summary); decode/trace the BR load path before adding more display
+  behavior.
 
 ## Cross-cutting: don't drift from "match the docs"
 

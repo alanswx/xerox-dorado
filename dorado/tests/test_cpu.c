@@ -132,14 +132,28 @@ static int inject_ether_boot_image(dorado_memory *mem, const char *path,
     return va > start_va;
 }
 
-static void map_boot_probe_bank(dorado_memory *mem, uint32_t base_page,
-                                uint32_t pages)
+static void map_boot_probe_bank_to(dorado_memory *mem, uint32_t base_page,
+                                   uint32_t real_base_page, uint32_t pages)
 {
     for (uint32_t pg = 0; pg < pages; pg++) {
         uint32_t vp = base_page + pg;
         if (vp >= DM_MAP_ENTRIES) break;
-        dorado_map_set(mem, vp, (uint16_t)vp, /*wp=*/0, /*dirty=*/0);
+        dorado_map_set(mem, vp, (uint16_t)(real_base_page + pg),
+                       /*wp=*/0, /*dirty=*/0);
     }
+}
+
+static void map_boot_probe_bank(dorado_memory *mem, uint32_t base_page,
+                                uint32_t pages)
+{
+    map_boot_probe_bank_to(mem, base_page, base_page, pages);
+}
+
+static void map_boot_probe_installed_storage(dorado_memory *mem)
+{
+    uint32_t pages = (uint32_t)(mem->storage_words / DM_PAGE_SIZE);
+    if (pages > DM_MAP_ENTRIES) pages = DM_MAP_ENTRIES;
+    map_boot_probe_bank(mem, 0, pages);
 }
 
 static void restore_standard_alufm(dorado_microcode *mc)
@@ -2601,6 +2615,11 @@ static int probe_full_boot_with_bootstrap(void)
     uint64_t ether_inject_disk_ins = 0;
     uint64_t ether_inject_disk_wakeups = 0;
     uint64_t ether_loaded_world_cycle = 0;
+    uint64_t ether_bank2_lost_cycle = 0;
+    uint16_t ether_bank2_lost_pc = 0;
+    uint8_t ether_bank2_lost_task = 0;
+    dorado_map_entry ether_bank2_lost_entry = {0};
+    uint64_t ether_bank2_remap_shims = 0;
     uint64_t post_eb_task_cycles[16] = {0};
     uint64_t post_eb_task_switches = 0;
     uint16_t post_eb_ready_or = 0;
@@ -2983,18 +3002,22 @@ static int probe_full_boot_with_bootstrap(void)
         }
         if (ether_boot_enabled && initial_substituted && is_imfetch &&
             pre_pc == 06440 && ether_boot_injections == 0) {
-            map_boot_probe_bank(&mem, 0, 256);
+            map_boot_probe_installed_storage(&mem);
             /* The direct LoadRam shortcut skips the real warm-start
-             * map setup. AltoMesaDorado later programs emulator BRs to
-             * bank 2 (0x20000), so keep that 64K bank mapped for this
-             * probe instead of faulting before display/task init can run.
+             * map setup. InitMap.mc says the first 64K of REAL memory
+             * contains simulated Alto memory, then maps the emulator's
+             * virtual bank onto it. AltoMesaDorado later programs the
+             * emulator BRs to bank 2 (0x20000), so model that warm-map
+             * result explicitly for the direct probe.
              */
-            map_boot_probe_bank(&mem, 0x200, 256);
+            map_boot_probe_bank_to(&mem, 0x200, 0, 256);
             if (inject_ether_boot_image(&mem, ether_boot_image, 01000,
                                         &ether_boot_end, &ether_boot_sum,
                                         &ether_boot_start_pc)) {
                 (void)loadram_image_direct(&mc, &cpu, ether_boot_image,
                                            &ether_boot_start_pc);
+                map_boot_probe_installed_storage(&mem);
+                map_boot_probe_bank_to(&mem, 0x200, 0, 256);
                 if (disk_pack_attached) {
                     dorado_disk_controller_init(&disk);
                     dorado_disk_controller_attach_drive(&disk, 0, &disk_pack);
@@ -3242,6 +3265,24 @@ static int probe_full_boot_with_bootstrap(void)
                 post_eb_trace_total++;
             }
             break;
+        }
+        if (ether_boot_injections) {
+            const dorado_map_entry *m200 = dorado_map_get(&mem, 0x200);
+            const dorado_map_entry *m2fe = dorado_map_get(&mem, 0x2FE);
+            const dorado_map_entry *m624 = dorado_map_get(&mem, 0x624);
+            if ((m200->wp && m200->dirty) ||
+                (m2fe->wp && m2fe->dirty) ||
+                (m624->wp && m624->dirty)) {
+                if (ether_bank2_lost_cycle == 0) {
+                    ether_bank2_lost_cycle = bb.cycles;
+                    ether_bank2_lost_pc = pre_pc;
+                    ether_bank2_lost_task = pre_task;
+                    ether_bank2_lost_entry = *m200;
+                }
+                map_boot_probe_installed_storage(&mem);
+                map_boot_probe_bank_to(&mem, 0x200, 0, 256);
+                ether_bank2_remap_shims++;
+            }
         }
         if (trace_post_eb_step) {
             post_eb_step_trace.next_pc = cpu.real_PC;
@@ -3562,6 +3603,18 @@ static int probe_full_boot_with_bootstrap(void)
         printf("       Ether injection cycle=%llu loaded-world cycle=%llu\n",
                (unsigned long long)ether_boot_inject_cycle,
                (unsigned long long)ether_loaded_world_cycle);
+        if (ether_bank2_lost_cycle) {
+            printf("       Ether bank2 map lost at cycle=%llu task=%o pc=0o%o "
+                   "Map[0x200]=rp%04X wp%u d%u r%u\n",
+                   (unsigned long long)ether_bank2_lost_cycle,
+                   ether_bank2_lost_task & 017, ether_bank2_lost_pc,
+                   ether_bank2_lost_entry.rp, ether_bank2_lost_entry.wp,
+                   ether_bank2_lost_entry.dirty, ether_bank2_lost_entry.ref);
+        }
+        if (ether_bank2_remap_shims) {
+            printf("       Ether bank2 remap shims: %llu\n",
+                   (unsigned long long)ether_bank2_remap_shims);
+        }
     }
     if (init_first_n > 0) {
         printf("       Initial PC trail (first %d distinct PCs after substitution):\n        ",
