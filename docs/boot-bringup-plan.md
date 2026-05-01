@@ -1071,6 +1071,21 @@ microcode.
   `0o6000=00104/71501/00000`, `0o6001=00104/131705/140000`,
   `0o6002=00104/14701/00000`, `0o6012=13116/14105/00000`,
   `0o6100=00204/60005/00000`, `0o5021=05406/77714/40000`.
+
+2026-05-01 loaded-world disk trace update:
+- `DORADO_DISK_TRACE=1` now resets its ring at direct EB injection and
+  captures task-0 plus task-14 disk-code ranges, so the trace is no
+  longer filled by Initial's earlier disk attempt or by display task PC
+  overlaps.
+- With `AltoMesaDorado.eb!1`, task 14 reaches the read path with
+  `KCmmd=0005` and then branches through `KReadBadTW`/`Read20Muffs`.
+  The controller state at that point is `EnableRun=1`, `Active=0`,
+  `RdFifoTW=0`, and `DiskControl=0100`.
+- In the same focused window, the only `DiskControl` outputs are
+  `0400`/`0100` setup values; no `O10:0005` command load is observed
+  before the first `Read1Muff(muffRdFifoTW)`. The next fix should
+  explain why the `KCmmdInTime` command output is missing or why the
+  command load is encoded in a CPU output form we still do not route.
 - DiskTag decode now follows the native strobe bits from
   `DiskDefs.mc`: `0x8000` Drive, `0x4000` Cylinder, `0x2000` Head, and
   `0x1000` Control. Unstrobed preload/idle values such as `0xFFEF` are

@@ -178,6 +178,18 @@ match the boot software's stated drive-0 convention, controller init
 seeds drive 0 with subsector count 3, while still honoring later Drive
 Select Tag[10] loads when they are observed.
 
+Loaded-world EB trace note (2026-05-01): after direct
+`AltoMesaDorado.eb!1` injection, the disk trace is reset at LoadRam so
+it captures the loaded image rather than Initial's earlier boot attempt.
+Task 14 reaches the read path with `KCmmd=0005`, then takes
+`KReadBadTW` and scans `Read20Muffs`. At that point the controller has
+`EnableRun=1`, `Active=0`, `RdFifoTW=0`, and `DiskControl=0100`; no
+`DiskControl` command output for `0005` is observed in the focused
+window. This points at the command-load side of the path, not at the
+FIFO data-pop code: either `KCmmdInTime` is being skipped/revoked before
+the controller sees it, or one more compiled `Output_ <source>` shape is
+still not routed through slow I/O.
+
 ## TIOA register map (HM §9 page 92)
 
 All on task 14₈. Other tasks **must not** select these TIOA addresses

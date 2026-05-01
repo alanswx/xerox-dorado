@@ -1321,3 +1321,20 @@ display fast-I/O fetches remain `0`. The new blocker is an emulator
 IFetch fault after the Code BR goes bad (`BR37=0xfff0006` in the
 summary). Next step: trace the BR load/StartIFU path around that
 corruption before implementing more display behavior.
+
+2026-05-01 loaded-world disk trace update: the focused EB run no longer
+hits the old BR37 failure in the sampled 80M/120M runs; it reaches the
+display loop (`display outs` in the millions) but still has
+`display iofetch=0` and zero DAStart words, so software has not built a
+display control block yet. Disk remains the active blocker. The
+`DORADO_DISK_TRACE=1` buffer now resets at direct EB injection and
+captures task-0 plus task-14 disk-code ranges. The loaded image gets
+task 14 to `KCmmdRead` with `KCmmd=0005`, then immediately takes
+`KReadBadTW`/`Read20Muffs` because `RdFifoTW=0`. The controller has
+`EnableRun=1`, `Active=0`, and `DiskControl=0100`; the only
+`DiskControl` writes in the focused window are `0400`/`0100`, with no
+`O10:0005` command load. Suggested next action: inspect the compiled
+instructions on the `KCmmdInTime` path in the EB-loaded image and
+verify whether `Output_ KCmmd` is being skipped, revoked by the
+same-sector check, or compiled into another slow-I/O output shape that
+`cpu.c` does not yet route.

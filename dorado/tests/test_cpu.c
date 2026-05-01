@@ -3072,6 +3072,10 @@ static int probe_full_boot_with_bootstrap(void)
                 ether_inject_disk_wakeups = disk_wakeups;
                 ether_loaded_world_cycle = bb.cycles;
                 cpu.dbg_writeim_n = 0;          /* capture LoadRam writes, not Bootstrap */
+                if (disk_trace_enabled) {
+                    disk_trace_armed = 1;
+                    disk_trace_n = 0;            /* focus on loaded-world disk code */
+                }
             }
         }
         if (ether_boot_injections && ether_loaded_world_cycle == 0 &&
@@ -3196,18 +3200,23 @@ static int probe_full_boot_with_bootstrap(void)
          * 0o7730, 0o7732, 0o7734, 0o7736 (= WRITE000..WRITE111). */
         int is_wim = (pre_pc >= 07720 && pre_pc <= 07736 &&
                       (pre_pc & 1) == 0);
+        int is_disk_code_pc =
+            (pre_pc >= 02700 && pre_pc <= 03377) ||
+            (pre_pc >= 04360 && pre_pc <= 04377) ||
+            (pre_pc >= 05200 && pre_pc <= 05777) ||
+            (pre_pc >= 06000 && pre_pc <= 06777) ||
+            (pre_pc >= 07000 && pre_pc <= 07477);
         int is_disk_trace =
             disk_trace_enabled &&
             (disk_trace_armed || ether_loaded_world_cycle != 0) &&
             initial_substituted && is_imfetch &&
             disk_trace_n < (int)(sizeof disk_trace / sizeof disk_trace[0]) &&
-            ((pre_task == DORADO_DISK_TASK &&
-              ((pre_pc >= 02700 && pre_pc <= 03377) ||
-               (pre_pc >= 04360 && pre_pc <= 04377) ||
-               (pre_pc >= 06500 && pre_pc <= 06777) ||
-               (pre_pc >= 07000 && pre_pc <= 07477))) ||
+            ((pre_task == DORADO_DISK_TASK && is_disk_code_pc) ||
              (pre_task == 0 &&
-              (pre_pc == 07400 || (pre_pc >= 07440 && pre_pc <= 07477))));
+              (ether_loaded_world_cycle != 0
+                   ? is_disk_code_pc
+                   : (pre_pc == 07400 ||
+                      (pre_pc >= 07440 && pre_pc <= 07477)))));
         int is_mcr_trace =
             mcr_trace_enabled &&
             initial_substituted && is_imfetch && mcr_trace_n < 64 &&
