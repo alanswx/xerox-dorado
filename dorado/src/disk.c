@@ -9,6 +9,20 @@ const dorado_disk_geometry DORADO_DISK_T300 = { 815, 19, 9 };
 
 #define DORADO_DISK_SUBSECTOR_PULSES_PER_REV 117
 
+#define DORADO_DISK_TAG_DRIVE    0x8000u
+#define DORADO_DISK_TAG_CYLINDER 0x4000u
+#define DORADO_DISK_TAG_HEAD     0x2000u
+#define DORADO_DISK_TAG_CONTROL  0x1000u
+#define DORADO_DISK_TAG_BUS      0x0FFFu
+
+#define DORADO_DISK_MUFF_CLEAR_COMPARE_ERR 0x2000u
+#define DORADO_DISK_MUFF_SET_CHECKSUM_ERR  0x1000u
+#define DORADO_DISK_MUFF_CLEAR_INDEX_TW    0x0800u
+#define DORADO_DISK_MUFF_CLEAR_SECTOR_TW   0x0400u
+#define DORADO_DISK_MUFF_CLEAR_SEEKTAG_TW  0x0200u
+#define DORADO_DISK_MUFF_CLEAR_ERRORS      0x0100u
+#define DORADO_DISK_MUFF_ADDR              0x00FFu
+
 static void disk_set_subsector_count(dorado_disk_drive *d, int count);
 
 /* ─── Pack image I/O ────────────────────────────────────────────── */
@@ -363,21 +377,14 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
         break;
 
     case DORADO_DISK_TIOA_DISKMUFF:
-        /* DiskMuff output. The hardware spec per DiskDefs.mc says
-         * muffAddr lives at bits 7..0 and clearXxxTW at bits 8..11
-         * (octal 0o400-0o4000). However, Initial's compiled microcode
-         * appears to push constants via BSEL=FF,,0 with the address
-         * in the high byte and uses LSB bits 0..3 as the clear flags
-         * — a different wire convention than the spec literal would
-         * suggest. We honor that observed convention here.
-         * (gap F5/F6: confirm against a per-cycle disk trace and
-         * unify with DiskDefs constants if/when the convention proves
-         * inconsistent.) */
-        ctl->muff_addr = (uint8_t)((data >> 8) & 0xFF);
-        if (data & (1u << 0)) ctl->index_tw = 0;
-        if (data & (1u << 1)) ctl->sector_tw = 0;
-        if (data & (1u << 2)) ctl->tag_tw = 0;
-        if (data & (1u << 3)) {
+        /* DiskMuff output. DiskDefs.mc maps muffAddr to the low
+         * byte and the wakeup/error clear controls to native octal
+         * constants 04000, 02000, 01000, and 00400. */
+        ctl->muff_addr = (uint8_t)(data & DORADO_DISK_MUFF_ADDR);
+        if (data & DORADO_DISK_MUFF_CLEAR_INDEX_TW) ctl->index_tw = 0;
+        if (data & DORADO_DISK_MUFF_CLEAR_SECTOR_TW) ctl->sector_tw = 0;
+        if (data & DORADO_DISK_MUFF_CLEAR_SEEKTAG_TW) ctl->tag_tw = 0;
+        if (data & DORADO_DISK_MUFF_CLEAR_ERRORS) {
             ctl->rd_fifo_tw = 0;
             ctl->wr_fifo_tw = 0;
         }
@@ -412,13 +419,22 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
     case DORADO_DISK_TIOA_DISKTAG:
         ctl->tag = data;
         ctl->tag_writes++;
-        /* Tag commands drive the daisy-chain to the selected drive.
-         * The microcode presents the active command as the high nibble
-         * of the I/O word in this model. Values outside 0..3 are
-         * preload/idle patterns and do not execute commands. */
+        /* Native Dorado DiskTag commands are strobed on one of the
+         * upper four bits. SendDriveTag deliberately writes bus,
+         * bus|tagDrive, then bus again; only the strobed word should
+         * execute a drive command. */
         {
-            int tag_type = (data >> 12) & 0xF;
-            if ((data & 0x000F) == 0x000A) tag_type = 3;
+            uint16_t bus = data & DORADO_DISK_TAG_BUS;
+            int tag_type = -1;
+            if (data & DORADO_DISK_TAG_DRIVE) {
+                tag_type = 0;
+            } else if (data & DORADO_DISK_TAG_HEAD) {
+                tag_type = 1;
+            } else if (data & DORADO_DISK_TAG_CYLINDER) {
+                tag_type = 2;
+            } else if (data & DORADO_DISK_TAG_CONTROL) {
+                tag_type = 3;
+            }
             switch (tag_type) {
             case 0: {
                 /* Drive Select / subsector count (HM page 100).
@@ -426,7 +442,6 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
                  * also carries KSelect bookkeeping in bit 11
                  * (0x0800), so mask the fields instead of treating the
                  * whole low 12 bits as the subsector count. */
-                uint16_t bus = data & 0x0FFFu;
                 int drv_select = bus & 0x0F;
                 if (bus & (1u << 5)) {
                     int count = (bus >> 6) & 0x0F;
@@ -446,7 +461,7 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
                 /* Head Tag (HM page 100): Tag[10:15] = head number
                  * (LSB 0..5). Tag[8] = OffCylinder (LSB 7).
                  * Tag[9] = direction (LSB 6). */
-                int head = data & 0x3F;
+                int head = bus & 0x3F;
                 dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
                 if (d->pack && head < d->pack->geometry.heads) {
                     d->cur_head = head;
@@ -460,7 +475,7 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
             case 2: {
                 /* Cylinder Tag (HM page 100): Tag[4:15] = 12-bit
                  * cylinder number (LSB 0..11). */
-                int cyl = data & 0xFFF;
+                int cyl = bus;
                 dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
                 if (d->pack && cyl < d->pack->geometry.cylinders) {
                     d->cur_cyl = cyl;
@@ -482,8 +497,7 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
                  *   bit 9 = StrobeLate
                  *   bit 11 = AltoLeader
                  * (Bits 5, 10 unused.) */
-                if ((data & (1u << 1)) ||
-                    (((data & 0x000F) == 0x000A) && (data & 0x1000u))) {
+                if (bus & (1u << 1)) {
                     /* ReZero */
                     dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
                     d->cur_cyl = 0;
@@ -491,12 +505,12 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
                     d->cur_sector = 0;
                     d->seek_in_progress = disk_sector_pulse_count(d);
                 }
-                if (data & (1u << 0)) {
+                if (bus & (1u << 0)) {
                     /* HeadAdvance */
                     dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
                     d->cur_head++;
                 }
-                if (data & (1u << 6)) {
+                if (bus & (1u << 6)) {
                     /* Read — populate FIFO from current sector. */
                     dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
                     if (d->pack) {
@@ -508,7 +522,7 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
                         }
                     }
                 }
-                if (data & (1u << 7)) {
+                if (bus & (1u << 7)) {
                     /* Write — clear FIFO, mark write-active. Microcode
                      * will pump words via DiskData FIFO; we'll commit
                      * to the disk pack when a SectorOvfl-or-block-end
@@ -517,7 +531,7 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
                     ctl->wr_fifo_tw = 1;
                     ctl->active = 1;
                 }
-                if (!(data & (1u << 1))) ctl->tag_tw = 1;
+                if (!(bus & (1u << 1))) ctl->tag_tw = 1;
                 break;
             }
             default:
@@ -588,9 +602,9 @@ static uint16_t disk_input(void *ctx, int task, uint8_t tioa, int *bad)
         default: bit = 0; break;
         }
         /* HM pages 101-102: the selected muffler signal is driven on
-         * IOB[15]. Return it in the native high bit so microcode tests
-         * using R<0/ALU<0 see an asserted signal. */
-        uint16_t v = bit ? 0x8000 : 0x0000;
+         * IOB[15]. In this emulator's C word layout, Dorado bit 15 is
+         * the low bit; DiskSubrs.mc tests Read1Muff with R odd. */
+        uint16_t v = bit ? 0x0001 : 0x0000;
         ctl->last_input_data = v;
         return v;
     }

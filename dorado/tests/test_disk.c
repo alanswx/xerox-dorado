@@ -14,6 +14,16 @@
     if (!(cond)) FAIL(msg, ##__VA_ARGS__); \
 } while (0)
 
+#define TAG_DRIVE    0x8000u
+#define TAG_CYLINDER 0x4000u
+#define TAG_HEAD     0x2000u
+#define TAG_CONTROL  0x1000u
+
+#define MUFF_CLEAR_INDEX_TW   0x0800u
+#define MUFF_CLEAR_SECTOR_TW  0x0400u
+#define MUFF_CLEAR_SEEKTAG_TW 0x0200u
+#define MUFF_CLEAR_ERRORS     0x0100u
+
 /* test_pack_create_t80 — empty Trident T-80 has the right shape. */
 static int test_pack_create_t80(void)
 {
@@ -156,32 +166,32 @@ static int test_controller_io_routing(void)
                        DORADO_DISK_TIOA_DISKDATA, &bad);
     EXPECT(v == 0x5555, "second pop = 0x%X", v);
 
-    /* DiskMuff input — select EnableRun (muffler address 010, carried
-     * in the high byte by Initial's FF,,0 constants) and verify the
-     * selected signal is returned on IOB[15]. */
+    /* DiskMuff input — select EnableRun (muffler address 010 in the
+     * low byte) and verify the selected signal is returned on Dorado
+     * IOB[15], represented as C bit 15 / low bit in this emulator. */
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKMUFF,
-                    010 << 8);
+                    010);
     v = dorado_io_read(&io, DORADO_DISK_TASK,
                        DORADO_DISK_TIOA_DISKMUFF, &bad);
-    EXPECT(v == 0x8000, "muff EnableRun = 0x%X (expected IOB[15])", v);
+    EXPECT(v == 0x0001, "muff EnableRun = 0x%X (expected IOB[15])", v);
     ctl.tag_tw = 1;
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKMUFF,
-                    002 << 8);
+                    002);
     EXPECT(ctl.muff_addr == 002, "muff_addr = 0o%o", ctl.muff_addr);
     EXPECT(ctl.tag_tw == 1, "address select must not clear TagTW");
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKMUFF,
-                    1u << 2);
-    EXPECT(ctl.tag_tw == 0, "low-byte clear bit should clear TagTW");
+                    MUFF_CLEAR_SEEKTAG_TW);
+    EXPECT(ctl.tag_tw == 0, "native clearSeekTagTW should clear TagTW");
 
     /* The block-mode KSTATE signals are primed in the hardware manual:
      * idle reads high, and the matching active block mode reads low. */
     ctl.active = 0;
     ctl.control = 0;
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKMUFF,
-                    014 << 8);
+                    014);
     v = dorado_io_read(&io, DORADO_DISK_TASK,
                        DORADO_DISK_TIOA_DISKMUFF, &bad);
-    EXPECT(v == 0x8000, "idle CheckBlock' = 0x%X", v);
+    EXPECT(v == 0x0001, "idle CheckBlock' = 0x%X", v);
 
     ctl.active = 1;
     ctl.control = DORADO_DISK_OP_RDCHK << DORADO_DISK_CTRL_OP1_SHIFT;
@@ -190,10 +200,10 @@ static int test_controller_io_routing(void)
     EXPECT(v == 0x0000, "active CheckBlock' = 0x%X", v);
 
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKMUFF,
-                    012 << 8);
+                    012);
     v = dorado_io_read(&io, DORADO_DISK_TASK,
                        DORADO_DISK_TIOA_DISKMUFF, &bad);
-    EXPECT(v == 0x8000, "non-read RdOnlyBlock' = 0x%X", v);
+    EXPECT(v == 0x0001, "non-read RdOnlyBlock' = 0x%X", v);
 
     printf("PASS  test_controller_io_routing (control=0x%X, format ram, "
            "tag, FIFO 2 push/pop, muff readout)\n", ctl.control);
@@ -253,14 +263,23 @@ static int test_tag_decoder(void)
     }
     dorado_disk_controller_attach_drive(&ctl, 0, &pack);
 
-    /* Drive Select Tag (high nibble 0): select drive 0. */
-    dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG, 0x0000);
+    /* Plain bus preload should not execute without the native strobe. */
+    dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG,
+                    (uint16_t)((1u << 5) | (3u << 6)));
+    EXPECT(ctl.drive[0].subsector_count == 3,
+           "unstrobed bus should not alter subsector_count=%d",
+           ctl.drive[0].subsector_count);
+
+    /* Native DriveTag strobe: select drive 0 and load subsector count. */
+    dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG,
+                    (uint16_t)(TAG_DRIVE | (1u << 5) | (3u << 6) |
+                               (1u << 4)));
     EXPECT(ctl.selected_drive == 0, "selected_drive=%d", ctl.selected_drive);
     EXPECT(ctl.drive[0].selected == 1, "drive 0 selected");
 
-    /* Cylinder Tag (high nibble 2): seek to cylinder 137. */
+    /* Native CylinderTag strobe: seek to cylinder 137. */
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG,
-                    (uint16_t)((2u << 12) | 137u));
+                    (uint16_t)(TAG_CYLINDER | 137u));
     EXPECT(ctl.drive[0].cur_cyl == 137, "cur_cyl=%d", ctl.drive[0].cur_cyl);
     EXPECT(ctl.drive[0].seek_in_progress > 0,
            "seek_in_progress should be raised after Cylinder Tag");
@@ -274,15 +293,15 @@ static int test_tag_decoder(void)
     ctl.index_tw = 0;
     ctl.sector_tw = 0;
 
-    /* Head Tag (high nibble 1): select head 3. */
+    /* Native HeadTag strobe: select head 3. */
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG,
-                    (uint16_t)((1u << 12) | 3u));
+                    (uint16_t)(TAG_HEAD | 3u));
     EXPECT(ctl.drive[0].cur_head == 3, "cur_head=%d",
            ctl.drive[0].cur_head);
 
-    /* Control Tag (high nibble 3): Read = bit 6, HeadSelect = bit 2. */
+    /* Native ControlTag strobe: Read = bit 6, HeadSelect = bit 2. */
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG,
-                    (uint16_t)((3u << 12) | (1u << 6) | (1u << 2)));
+                    (uint16_t)(TAG_CONTROL | (1u << 6) | (1u << 2)));
     EXPECT(ctl.active == 1, "controller should be Active after Read");
     EXPECT(ctl.rd_fifo_tw == 1, "rd_fifo_tw should be set");
     EXPECT(ctl.fifo_count == DORADO_DISK_FIFO_WORDS,
@@ -294,11 +313,11 @@ static int test_tag_decoder(void)
      * outside the stamped range; expect 0. Re-test with c=2,h=3,s=0. */
     /* Reseek to a stamped sector. */
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG,
-                    (uint16_t)((2u << 12) | 2u));      /* cyl 2 */
+                    (uint16_t)(TAG_CYLINDER | 2u));      /* cyl 2 */
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG,
-                    (uint16_t)((1u << 12) | 3u));      /* head 3 */
+                    (uint16_t)(TAG_HEAD | 3u));      /* head 3 */
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG,
-                    (uint16_t)((3u << 12) | (1u << 6))); /* Read */
+                    (uint16_t)(TAG_CONTROL | (1u << 6))); /* Read */
     int bad = -1;
     uint16_t v = dorado_io_read(&io, DORADO_DISK_TASK,
                                 DORADO_DISK_TIOA_DISKDATA, &bad);
@@ -324,7 +343,7 @@ static int test_tag_decoder(void)
 
     /* ReZero (control tag bit 1) should reset cyl=0, head=0, sec=0. */
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG,
-                    (uint16_t)((3u << 12) | (1u << 1)));
+                    (uint16_t)(TAG_CONTROL | (1u << 1)));
     EXPECT(ctl.drive[0].cur_cyl == 0, "cur_cyl after ReZero = %d",
            ctl.drive[0].cur_cyl);
     EXPECT(ctl.drive[0].cur_head == 0, "cur_head after ReZero = %d",
@@ -340,7 +359,7 @@ static int test_tag_decoder(void)
     ctl.drive[0].cur_sector = 5;
     ctl.tag_tw = 0;
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG,
-                    0x100A);
+                    (uint16_t)(TAG_CONTROL | 0x000A));
     EXPECT(ctl.drive[0].cur_cyl == 0,
            "native control-tag ReZero cur_cyl = %d", ctl.drive[0].cur_cyl);
     EXPECT(ctl.drive[0].cur_head == 0,
@@ -380,7 +399,7 @@ static int test_advance_sector(void)
                     DORADO_DISK_TIOA_DISKCONTROL,
                     (uint16_t)(3u << DORADO_DISK_CTRL_OP1_SHIFT)); /* Read op1 */
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG,
-                    (uint16_t)((3u << 12) | (1u << 6))); /* Control: Read */
+                    (uint16_t)(TAG_CONTROL | (1u << 6))); /* Control: Read */
     /* Drain FIFO header+label = 24 words, then read data[0]. The
      * controller refills the 16-word FIFO from the active sector stream. */
     int bad = -1;
@@ -474,7 +493,7 @@ static int test_drive_select_subsector_count(void)
     dorado_disk_controller_attach_drive(&ctl, 0, &pack);
 
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG,
-                    (uint16_t)((1u << 5) | (3u << 6)));
+                    (uint16_t)(TAG_DRIVE | (1u << 5) | (3u << 6)));
     EXPECT(ctl.drive[0].subsector_count == 3,
            "subsector_count=%d", ctl.drive[0].subsector_count);
     EXPECT(ctl.drive[0].sectors_per_revolution == 29,
@@ -485,7 +504,7 @@ static int test_drive_select_subsector_count(void)
      * carried as native bit 11 (0x0800) in the DriveTag word. It is
      * not part of tagSubSector and must not turn count 3 into 35. */
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG,
-                    (uint16_t)(0x0800u | (1u << 5) | (3u << 6) |
+                    (uint16_t)(TAG_DRIVE | 0x0800u | (1u << 5) | (3u << 6) |
                                (1u << 4)));
     EXPECT(ctl.drive[0].subsector_count == 3,
            "KSelect-flagged subsector_count=%d",

@@ -1004,33 +1004,22 @@ microcode.
   call while `BlockTillIndex` or a seek is pending. This is probe timing
   only; it keeps the model from missing Initial's short `BootTransfer`
   timeout while still preserving the controller latch behavior.
-- Current boot trace reaches `KSameDrive`, `KContinueCmmd`, and
-  `KCheckSeek`, then spends most disk-task time in
-  `Read1Muff`/`UpdateSector`; it still fails before `DoDiskBlock`.
-  Fixed items on this path: CPU `TIOA[DiskTag]` (`014`) decode,
-  DiskMuff high-byte address/low-byte clear handling, native `IOB[15]`
-  DiskMuff readback, active-low KSTATE block-mode readout, delayed
-  `NotReady`/`TagTW` for Cylinder/ReZero, and the observed native
-  restore tag `0x100A` (Control Tag + ReZero).
-- DiskMuff byte placement is now aligned with Initial's constants:
-  high-byte values select muffler addresses (`0x0200` -> address `002`),
-  and low-byte masks clear TWs (`1=IndexTW`, `2=SectorTW`,
-  `4=TagTW`). The latest full-boot probe shows `DiskTag` writes
-  (`TIOA 014`) and DiskMuff reads, but still no `KWAITSECTOR`,
-  `DODISKBLOCK`, or `DiskData` FIFO reads. `UpdateSector` clear/read
-  timing now looks sane in trace: selecting `SectorTW`/`IndexTW` no
-  longer clears `TagTW`, and low-byte clears drop the selected wakeup
-  bits. The current focus is KSTATE block-mode readout. The hardware
-  manual marks `RdOnlyBlock'`, `WriteBlock'`, and `CheckBlock'` as
-  primed signals, so the emulator now returns them active-low based on
-  `Active` plus the matching `DiskControl` block op. The next trace
-  then reached `KWAITSECTOR`/`WAITFORSECTOR`; it showed that the
-  cylinder tag was modeled as instantly ready, so `SeekWait` could
-  enter `WaitForSector` before the next index/sector cadence.
-  Cylinder Tag and ReZero now raise `NotReady` and defer `TagTW` until
-  the simulated sector/index cadence reaches index, which keeps the
-  firmware in the seek/tag wait path until the sector counter is
-  resynchronized.
+- Current boot trace reaches `KSameDrive`, `KContinueCmmd`,
+  `KCheckSeek`, `SendTagWait`, and the `Read20Muffs` status scan, but
+  still does not issue `DiskData` FIFO reads. Fixed items on this path:
+  CPU `TIOA[DiskTag]` (`014`) decode, native DiskTag strobe decode,
+  native DiskMuff low-byte address/high-byte clear handling,
+  right-justified DiskMuff readback for `Read1Muff`, active-low KSTATE
+  block-mode readout, delayed `NotReady`/`TagTW` for Cylinder/ReZero,
+  and CPU `BLOCK` semantics for non-emulator tasks.
+- The latest focused 30M-cycle probe shows `SendTagWait` now does the
+  expected `KTemp0_ muffSeekTagTW, Block, Call[Read1Muff]` sequence:
+  `KTemp0` becomes `0003`, DiskMuff selects address `003`, and
+  `Read1Muff` returns `0001` for `R odd`. The task then reaches the
+  disk status/error path (`Read20Muffs`, real PCs `6600..6627`) before
+  any DiskControl read command or `DiskData` access. Next debugging
+  target: why PilotDisk is entering that status path with no FIFO
+  transfer active.
 - The full-boot disk probe now uses a configurable compressed spindle
   period, `DORADO_DISK_SECTOR_PERIOD` (default 512 Dorado cycles), so
   the DSK task can see a sector wakeup before Initial's short
@@ -1038,9 +1027,9 @@ microcode.
   `BootTransfer` could time out before the next synthetic sector.
 - The latest focused 120M-cycle probe reaches `KSameDrive` and
   `KCheckSeek` before the first `BootTransferTimeout`, later reaches
-  `SeekAndWaitForReady`/`KNoRestore`, then ends with task 14 at
-  `0o6500` (`Read1Muff`), no FIFO reads/writes, and CHS no longer
-  corrupted to head 10 by `0x100A`. `InitialDisk.mc` states that hard disk
+  `SeekAndWaitForReady`/`KNoRestore`; after the non-emulator `BLOCK`
+  fix the 30M focused trace reaches `Read20Muffs` status scanning. It
+  still has no FIFO reads/writes. `InitialDisk.mc` states that hard disk
   microcode is a private Dorado convention starting at page 4
   (cylinder 0/head 0/sector 4); the mounted `spruce-server.dsk300` is
   an Alto Spruce T-300 pack and is not known to contain that private
@@ -1082,12 +1071,10 @@ microcode.
   `0o6000=00104/71501/00000`, `0o6001=00104/131705/140000`,
   `0o6002=00104/14701/00000`, `0o6012=13116/14105/00000`,
   `0o6100=00204/60005/00000`, `0o5021=05406/77714/40000`.
-- A one-hot Tag[0:3] experiment matched one reading of the HM text but
-  did not match Initial's observed I/O values: `0xFFEF` behaved as a
-  preload/idle value, not "all tag commands at once". The emulator
-  still carries the older high-nibble compatibility decoder, but now
-  also recognizes the observed native low-nibble restore/control tag
-  `0x100A`. The next disk gap is the read/check FIFO status sequence:
+- DiskTag decode now follows the native strobe bits from
+  `DiskDefs.mc`: `0x8000` Drive, `0x4000` Cylinder, `0x2000` Head, and
+  `0x1000` Control. Unstrobed preload/idle values such as `0xFFEF` are
+  ignored. The next disk gap is the read/check FIFO status sequence:
   `RdFifoTW` thresholds, block-mode status, ECC words, and end-of-block
   `ReadErr`/`WriteErr` summary bits. Offline drive selects are clamped
   during single-pack bring-up so the mounted boot pack remains selected
@@ -1121,9 +1108,9 @@ Three styles of test, used at every phase:
   Vacant" sweep and is covered by
   `test_vacant_cache_address_is_not_cache_hit`.
 - HM §9 says DiskMuff input returns the selected signal on `IOB[15]`.
-  The disk controller now returns native `0x8000` instead of `0x0001`,
-  so microcode branches that test `R<0`/`ALU<0` can see asserted
-  KSTATE/KSTAT signals. Disk unit tests were updated.
+  In the emulator's C bit layout, Dorado bit 15 is represented as
+  `0x0001`; `DiskSubrs.mc::Read1Muff` explicitly returns 0/1 and tests
+  `R odd`. Disk unit tests now pin this right-justified convention.
 - Focused EB run with `AltoMesaDorado.eb!1` now moves farther after
   the cache `Vacant` fix. With `DORADO_BOOT_BUDGET=120000000`, it
   reaches LoadRam and the loaded image, produces a headless display

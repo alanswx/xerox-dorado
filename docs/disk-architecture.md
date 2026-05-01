@@ -167,16 +167,16 @@ position to media sector number explicitly; the current emulator uses
 PROM/header-matching path is implemented.
 
 Current bring-up note: the boot path reaches `KSameDrive`,
-`KContinueCmmd`, `KCheckSeek`, and then spends most of its time in
-`Read1Muff`/`UpdateSector`; it still does not reach `DoDiskBlock` or
-issue `DiskData` reads. Fixed blockers so far include CPU `TIOA`
-small-constant decode for `DiskTag` (`014`), DiskMuff native
-`IOB[15]` readback, active-low KSTATE block-mode signals, delayed
-`NotReady`/`TagTW` for Cylinder/ReZero, and native restore control tag
-`0x100A` (Control Tag + ReZero) decoding. To match the boot software's
-stated drive-0 convention, controller init seeds drive 0 with subsector
-count 3, while still honoring later Drive Select Tag[10] loads when they
-are observed.
+`KContinueCmmd`, `KCheckSeek`, `SendTagWait`, and the
+`Read20Muffs`/status path. It still does not issue `DiskData` reads.
+Fixed blockers so far include CPU `TIOA` small-constant decode for
+`DiskTag` (`014`), native DiskTag strobe decode, native DiskMuff
+address/clear decode, right-justified DiskMuff readback, active-low
+KSTATE block-mode signals, delayed `NotReady`/`TagTW` for
+Cylinder/ReZero, and CPU `BLOCK` semantics for non-emulator tasks. To
+match the boot software's stated drive-0 convention, controller init
+seeds drive 0 with subsector count 3, while still honoring later Drive
+Select Tag[10] loads when they are observed.
 
 ## TIOA register map (HM §9 page 92)
 
@@ -427,17 +427,16 @@ for reading miscellaneous logic signals during debugging. Writing
 DiskMuff selects a muffler address; the next Pd←Input from
 DiskMuff returns the value of that signal on IOB[15].
 
-DiskMuff output bits also drive other operations. In the emulator's
-native 16-bit word order, Initial's `FF,,0` constants put the muffler
-address in the high byte (`0x0200` selects address `002`), while the
-one-shot wakeup clear operations are carried in the low byte as a direct
-mask (`0x0001` clears `IndexTW`, `0x0002` clears `SectorTW`, `0x0004`
-clears `TagTW`).
+DiskMuff output bits also drive other operations. In the emulator's C
+word layout, the native Dorado constants put the muffler address in the
+low byte (`0x0002` selects address `002`) and the one-shot wakeup clear
+operations in the high byte (`0x0800` clears `IndexTW`, `0x0400` clears
+`SectorTW`, `0x0200` clears `TagTW`).
 
-Pd←Input from DiskMuff returns the selected signal on native bit 15
-(`0x8000`). Real microcode often tests the value with `R<0`/`ALU<0`,
-so returning it in bit 0 makes asserted wakeup/status signals look
-false.
+Pd←Input from DiskMuff returns the selected signal on hardware IOB[15].
+In this emulator's C word layout, Dorado bit 15 is represented as
+`0x0001`. `DiskSubrs.mc::Read1Muff` documents the exit value as
+right-justified and tests it with `R odd`.
 
 | Bit  | Action                                                     |
 |------|------------------------------------------------------------|
@@ -630,26 +629,27 @@ software XOR the corrupted bits back to correct values.
   - DiskTag register capture.
   - DiskMuff input packs the wakeup TWs + EnableRun + Active for
     microcode to read back.
-  - DiskMuff returns the selected signal on IOB[15] as native `0x8000`.
+  - DiskMuff returns the selected signal as right-justified `0x0001`,
+    matching `Read1Muff`'s `R odd` test in the emulator's C bit layout.
 
 **Phase 2**:
-- **Tag decoder**: dispatches by the observed high-nibble command
-  value in Initial's I/O stream (HM pages 99-101). High nibbles outside
-  `0..3` are preload/idle patterns and are ignored:
-  - 0 (Drive Select): updates `selected_drive` + per-drive flags from
+- **Tag decoder**: dispatches native DiskTag strobes (HM pages 99-101):
+  Drive `0x8000`, Cylinder `0x4000`, Head `0x2000`, and Control
+  `0x1000`. Unstrobed bus preload/lower words are ignored.
+  - Drive Select: updates `selected_drive` + per-drive flags from
     Tag[11:15]; honors Tag[10] by loading the selected drive's
     subsector count from Tag[4:9] and deriving controller
     sector-pulses-per-revolution from the 117 drive pulses. During
     single-pack bring-up, offline drive selects are clamped so the
     mounted boot pack remains selected until offline KSTAT behavior is
     modeled more completely.
-  - 1 (Head Tag): sets `cur_head` from low 6 bits, raises
+  - Head Tag: sets `cur_head` from low 6 bits, raises
     `tag_tw` wakeup.
-  - 2 (Cylinder Tag): seeks to `cur_cyl` from low 12 bits,
+  - Cylinder Tag: seeks to `cur_cyl` from low 12 bits,
     clears sector sync, and holds `NotReady` until the simulated seek
     reaches an index pulse. `TagTW` is raised with that index-complete
     event rather than immediately.
-  - 3 (Control Tag): handles ReZero (cyl=head=sec=0),
+  - Control Tag: handles ReZero (cyl=head=sec=0),
     raises the same seek/index `NotReady` window and delays `TagTW`
     until index, HeadAdvance (cur_head++), Read (loads FIFO with
     header+label+(data prefix) from current (cyl,head,sec), sets
@@ -715,13 +715,13 @@ software XOR the corrupted bits back to correct values.
    real disk microcode is still draining via `DiskData`. Fix: after
    slow-IO FIFO reads work in boot probes, wire the same FIFO state into
    DSK fast-IO munch timing for the microcode paths that use it.
-8. **Tag[0:3] interpretation is still empirical.**
-   The C model still decodes older unit-test high nibbles `0..3`, but
-   observed Initial/Pilot values also require native low-nibble strobes
-   such as `0x100A` for Control Tag + ReZero. Fix: reconcile this with
-   the DskEth schematics' tag-strobe timing, replace the high-nibble
-   compatibility path with exact IOB bit order, and add tests for the
-   observed `0x0007`, `0x100A`, and Format RAM tag values.
+8. **Disk transfer start is still too coarse.**
+   Native DiskTag strobe decode is now exact enough for
+   `SendDriveTag`/`SendTag`, but PilotDisk still reaches the status path
+   before any `DiskData` FIFO read. Fix: trace the `KCmmdInTime` to
+   `DoDiskBlock` path against `PilotDisk.mc`, then model the
+   DiskControl leading-edge command start and read FIFO threshold that
+   `KCmmdRead`/`KCmmdCheck` expect.
 9. **Probe spindle timing is not yet hardware timing.**
    The full-boot test must clock the synthetic spindle fast enough to
    beat Initial's short timeout, but must not advance while the DSK task

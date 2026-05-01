@@ -283,7 +283,9 @@ static int rm_address(const dorado_cpu *cpu, const dorado_uinstr *u)
     /* Read address — for STK this is always unadjusted StkP. The
      * write-side ModStkPBeforeW case is handled in apply_lc via
      * stk_write_address(). */
-    if (u->block) return CPU_RMSTK_STK_BASE | (cpu->StkP & 0xFF);
+    if (u->block && cpu->ctask == 0) {
+        return CPU_RMSTK_STK_BASE | (cpu->StkP & 0xFF);
+    }
     /* HM page 88: "the processor OR's SubTask[0:1] into RBase[2:3]"
      * — the low 2 bits of RBase. Selects a sub-region of RM for
      * I/O tasks driven by multiple sub-devices. */
@@ -324,7 +326,7 @@ static int stk_underflow_check(const dorado_uinstr *u)
  * play, which routes the write to the *adjusted* (post-delta) StkP. */
 static int stk_write_address(const dorado_cpu *cpu, const dorado_uinstr *u)
 {
-    if (!u->block) return rm_address(cpu, u);
+    if (!u->block || cpu->ctask != 0) return rm_address(cpu, u);
 
     /* ModStkPBeforeW FF = FA=0 FB=2 FC=7 = 0o27 = 0x17 */
     int fa = (u->ff >> 6) & 3;
@@ -374,7 +376,7 @@ static int lc_write_address(const dorado_cpu *cpu, const dorado_uinstr *u)
  * the flags so Pd←Pointers can read them. */
 static void stk_apply_post(dorado_cpu *cpu, const dorado_uinstr *u)
 {
-    if (!u->block) return;
+    if (!u->block || cpu->ctask != 0) return;
     int delta = stk_signed_delta(u);
     if (delta == 0 && !stk_underflow_check(u)) return;
 

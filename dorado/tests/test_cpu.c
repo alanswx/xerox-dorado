@@ -2740,6 +2740,7 @@ static int probe_full_boot_with_bootstrap(void)
         uint16_t md_before, md_after;
         uint16_t link_before, link_after;
         uint16_t rm0, rm1, rm2, rm3;
+        uint16_t pre_drm[16];
         uint16_t drm[16];
         uint8_t rbase_before, rbase_after;
         uint8_t membase_before, membase_after;
@@ -2753,7 +2754,7 @@ static int probe_full_boot_with_bootstrap(void)
         uint16_t disk_out_data, disk_in_data;
         uint32_t mar_before, mar_after;
         uint16_t storage_after_mar;
-    } disk_trace[256];
+    } disk_trace[2048];
     int disk_trace_n = 0;
     int disk_trace_armed = 0;
     struct mcr_trace_sample {
@@ -2989,6 +2990,10 @@ static int probe_full_boot_with_bootstrap(void)
         uint16_t pre_md = mem.md;
         uint8_t pre_rbase = (uint8_t)cpu.RBase;
         uint8_t pre_membase = (uint8_t)cpu.MemBase;
+        uint16_t pre_task_rm[16];
+        for (int rr = 0; rr < 16; rr++) {
+            pre_task_rm[rr] = cpu.RM[((pre_rbase & 0xF) << 4) | rr];
+        }
         uint16_t pre_mcr = dorado_mcr_get(&mem);
         uint8_t pre_ifu_active = cpu.ifu_active;
         uint32_t pre_br37 = dorado_br_get(&mem, 037);
@@ -3197,7 +3202,9 @@ static int probe_full_boot_with_bootstrap(void)
             initial_substituted && is_imfetch &&
             disk_trace_n < (int)(sizeof disk_trace / sizeof disk_trace[0]) &&
             ((pre_task == DORADO_DISK_TASK &&
-              ((pre_pc >= 06500 && pre_pc <= 06777) ||
+              ((pre_pc >= 02700 && pre_pc <= 03377) ||
+               (pre_pc >= 04360 && pre_pc <= 04377) ||
+               (pre_pc >= 06500 && pre_pc <= 06777) ||
                (pre_pc >= 07000 && pre_pc <= 07477))) ||
              (pre_task == 0 &&
               (pre_pc == 07400 || (pre_pc >= 07440 && pre_pc <= 07477))));
@@ -3363,7 +3370,8 @@ static int probe_full_boot_with_bootstrap(void)
             dt->rm2 = cpu.RM[2];
             dt->rm3 = cpu.RM[3];
             for (int j = 0; j < 16; j++) {
-                dt->drm[j] = cpu.RM[((cpu.RBase & 0xF) << 4) | j];
+                dt->pre_drm[j] = pre_task_rm[j];
+                dt->drm[j] = cpu.RM[((pre_rbase & 0xF) << 4) | j];
             }
             dt->rbase_before = pre_rbase;
             dt->rbase_after = (uint8_t)cpu.RBase;
@@ -4080,6 +4088,7 @@ static int probe_full_boot_with_bootstrap(void)
                    "ctl=%04X fifo=%u CHSlo=(%u,%u,%u) "
                    "dio=O%02o:%04X/I%02o:%04X "
                    "RM0=%04X RM1=%04X RM2=%04X RM3=%04X "
+                   "preDRM14=%04X preDRM15=%04X "
                    "DRM0=%04X DRM1=%04X DRM2=%04X DRM3=%04X "
                    "DRM4=%04X DRM5=%04X DRM6=%04X DRM7=%04X "
                    "DRM10=%04X DRM11=%04X DRM12=%04X DRM13=%04X "
@@ -4101,6 +4110,7 @@ static int probe_full_boot_with_bootstrap(void)
                    dt->disk_out_tioa, dt->disk_out_data,
                    dt->disk_in_tioa, dt->disk_in_data,
                    dt->rm0, dt->rm1, dt->rm2, dt->rm3,
+                   dt->pre_drm[014], dt->pre_drm[015],
                    dt->drm[0], dt->drm[1], dt->drm[2], dt->drm[3],
                    dt->drm[4], dt->drm[5], dt->drm[6], dt->drm[7],
                    dt->drm[010], dt->drm[011], dt->drm[012],
