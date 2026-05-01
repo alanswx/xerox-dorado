@@ -2714,8 +2714,16 @@ static int probe_full_boot_with_bootstrap(void)
                     }
                 }
             }
-            printf("       A1 stream-vs-canonical (pre-substitution): "
-                   "canon=%d streamed=%d match=%d differ=%d first_diff=0o%o\n",
+            /* Note (gap A1 resolved 2026-04-30): the .mb archive at
+             * `chm/dorado/expanded/bootstrap.dm!20_/Initial.mb` is a
+             * DIFFERENT BUILD than the Initial encoded in the BB ROM's
+             * Boot1Data ($C016+). Streamed entries that "differ" are
+             * not corruptions — they're bytes from a different build.
+             * See `chm/disassembly/bb_boot1data.s` for the BB-ROM-side
+             * decode (the actual oracle for this probe). */
+            printf("       A1 stream-vs-archive-build (pre-substitution): "
+                   "archive=%d streamed=%d match=%d differ=%d first_diff=0o%o "
+                   "(differ ≠ corruption — different build)\n",
                    s_canon, s_streamed, s_match, s_differ,
                    s_first_diff >= 0 ? s_first_diff : 0);
             /* Dump first 6 differing entries to see the corruption pattern. */

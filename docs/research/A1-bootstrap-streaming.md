@@ -344,3 +344,88 @@ divergence identifies the bug.
 The 95-vs-896 diagnostic line lives in `tests/test_cpu.c`
 post-this-session, so the metric is observable directly on every
 run.
+
+## RESOLUTION (2026-04-30 mid-session): different Initial builds
+
+The "byte-swap" hypothesis above turns out to be wrong. Disassembling
+the BB ROM `SendIMBlockToDorado` at `$FBCB` and the
+`SendAHalfMicroInstruction` strobes via our own `bbdis` revealed:
+
+### What the BB actually sends
+
+`SendIMBlockToDorado` stores IMAddress's HIGH byte at `$C8` and LOW
+byte at `$C9` (despite the comment "high-order byte first" — the
+macro semantics in BCA put high at +0). The preamble pointer
+`(CE,CF)` is set to `$00C8`, then `SendAHalfMicroInstruction` reads
+`Hunk[0..1]`, sending HIGH byte first, LOW byte second.
+
+Verifying against the CPReg trace:
+
+| BB strobe seq                             | data byte | role            |
+|-------------------------------------------|-----------|-----------------|
+| Pair 1 (after IMAddress preamble call)    | 0x0C, 0x40| HighByte, LowByte of `Loc=0x0C40=0o6100` ✓ |
+| Pair 2 (after HunksLeft preamble call)    | 0x00, 0xE0| HunksLeft = 0x00E0 = 224 hunks |
+| Pair 3 (first hunk byte 1+2 = LH instr 0) | 0x00, **0x44** | first iw0 LH bytes |
+
+With Bootstrap's no-invert ReadBB (band-aid) waiting for CPRegH bit
+15 = 0 then 1 transitions, the Tag-flip protocol *correctly* picks
+up CPReg AT THE RIGHT MOMENTS — read 1 sees CPReg = `0x000C`
+(after strobe 2), read 2 sees `0x8040` (after strobe 4):
+
+```
+T1 = 0x000C → LSH[T1, 8] = 0x0C00
+T2 = 0x8040 → LDF[T2, 8, 0] = 0x40
+Loc = 0x0C00 XOR 0x40 = 0x0C40 ✓
+```
+
+So **Loc is correctly computed**. Earlier hypothesis (byte-swap)
+was misled by reasoning about BB byte order without consulting the
+actual disassembly.
+
+### The real divergence
+
+For pair 3 (first hunk's LH bytes), the BB sends `(0x00, 0x44)`.
+But canonical `Initial.mb`'s `IM[0o6100]` has `iw0 = 0x0084`,
+which would need byte 2 = `0x84`. The BB is sending `0x44`.
+
+`0x0044` decodes as `RSTK=00 ALUF=00 BSEL=RM/STK LC=NoLoad
+ASEL=A←RM/STK` — a NoOp. The same value appears at `0o6101`,
+`0o6102`, `0o6105` — alignment NoOps at the start of a different
+Initial build.
+
+### Root cause
+
+**The BB ROM's `Boot1Data` is a different build of Initial than
+`chm/dorado/expanded/bootstrap.dm!20_/Initial.mb`.**
+
+The handoff doc already noted this for Boot0:
+> The BaseBoard EPROM contains a NEWER Boot0 binary that takes a
+> different code path than Bootstrap.MB.
+
+The same is true for Boot1Data. Our streaming is correct; the
+comparison oracle was wrong.
+
+### Implications
+
+1. The "95/896 match" metric was a red herring — comparing two
+   different Initial builds.
+2. The BOOTSTAGE2 substitution shim in `tests/test_cpu.c` is now
+   correctly framed as "swap in the version of Initial we have so
+   the rest of the probe (with hard-coded address landmarks like
+   NOSTORAGE=0o6247) works against that build."
+3. To remove the substitution, we'd need to either (a) decode the
+   BB ROM's Boot1Data into a microcode listing and use IT as the
+   probe oracle, or (b) accept that the BB-driven boot path runs
+   a slightly different Initial build than our archive copy.
+
+### Concrete follow-ups
+
+- Use `bbdis --hunks $C016 224 0o6100` to decode the entire BB
+  Boot1Data into Dorado microinstructions. Diff against
+  `chm/dorado/expanded/bootstrap.dm!20_/Initial.mb` to enumerate
+  the build differences.
+- Update the diagnostic message in `probe_full_boot_with_bootstrap`
+  to clarify it compares against the bootstrap.dm archive copy,
+  not "the canonical Initial."
+- Consider closing A1: streaming is functionally correct; the
+  workaround is intentional, not a bug.
