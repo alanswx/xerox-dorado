@@ -2541,6 +2541,7 @@ static int probe_full_boot_with_bootstrap(void)
     int preset_trace_enabled = test_u64_env("DORADO_PRESET_TRACE", 0) != 0;
     int disk_trace_enabled = test_u64_env("DORADO_DISK_TRACE", 0) != 0;
     int mcr_trace_enabled = test_u64_env("DORADO_MCR_TRACE", 0) != 0;
+    int post_eb_trace_enabled = test_u64_env("DORADO_POST_EB_TRACE", 0) != 0;
     const char *ether_boot_image = getenv("DORADO_ETHER_BOOT_IMAGE");
     int ether_boot_enabled = ether_boot_image && *ether_boot_image &&
                              file_exists_readable(ether_boot_image);
@@ -2574,6 +2575,31 @@ static int probe_full_boot_with_bootstrap(void)
     uint16_t post_eb_last_ifu_stop_pc = 0;
     uint16_t post_eb_last_ifu_pcf = 0;
     uint16_t post_eb_last_ifu_pcx = 0;
+    struct post_eb_trace_sample {
+        uint64_t cycle;
+        uint8_t task;
+        uint16_t pc, next_pc;
+        uint16_t t_before, t_after;
+        uint16_t q_before, q_after;
+        uint16_t link_before, link_after;
+        uint16_t mcr_before, mcr_after;
+        uint32_t mar_before, mar_after;
+        uint16_t md_before, md_after;
+        uint8_t rbase_before, rbase_after;
+        uint8_t membase_before, membase_after;
+        uint8_t ifu_active_before, ifu_active_after;
+        uint8_t ifu_warmup_before, ifu_warmup_after;
+        uint8_t tasking_on_before, tasking_on_after;
+        uint8_t resume_delay_before, resume_delay_after;
+        uint16_t ready_before, ready_after;
+        uint16_t wakeup_before, wakeup_after;
+        uint16_t ifu_pcf_before, ifu_pcf_after;
+        uint16_t ifu_pcx_before, ifu_pcx_after;
+        cpu_halt_reason halt_reason;
+    };
+#define POST_EB_TRACE_CAP 1024
+    struct post_eb_trace_sample post_eb_trace[POST_EB_TRACE_CAP];
+    int post_eb_trace_head = 0, post_eb_trace_total = 0;
     static uint32_t post_eb_task_pc_count[16][4096];
     static uint16_t post_eb_task_pc_link[16][4096];
     static uint16_t post_eb_task_pc_mcr[16][4096];
@@ -3099,10 +3125,84 @@ static int probe_full_boot_with_bootstrap(void)
             mcr_trace_enabled &&
             initial_substituted && is_imfetch && mcr_trace_n < 64 &&
             (pre_pc == 06003 || pre_pc == 06012);
+        struct post_eb_trace_sample post_eb_step_trace;
+        int trace_post_eb_step =
+            post_eb_trace_enabled && ether_loaded_world_cycle && is_imfetch;
+        if (trace_post_eb_step) {
+            memset(&post_eb_step_trace, 0, sizeof post_eb_step_trace);
+            post_eb_step_trace.cycle = bb.cycles;
+            post_eb_step_trace.task = pre_task;
+            post_eb_step_trace.pc = pre_pc;
+            post_eb_step_trace.t_before = pre_t;
+            post_eb_step_trace.q_before = cpu.Q;
+            post_eb_step_trace.link_before = pre_link;
+            post_eb_step_trace.mcr_before = pre_mcr;
+            post_eb_step_trace.mar_before = pre_mar;
+            post_eb_step_trace.md_before = pre_md;
+            post_eb_step_trace.rbase_before = pre_rbase;
+            post_eb_step_trace.membase_before = pre_membase;
+            post_eb_step_trace.ifu_active_before = pre_ifu_active;
+            post_eb_step_trace.ifu_warmup_before = cpu.ifu_warmup;
+            post_eb_step_trace.tasking_on_before = cpu.tasking_on;
+            post_eb_step_trace.resume_delay_before = cpu.tasking_resume_delay;
+            post_eb_step_trace.ready_before = cpu.ready;
+            post_eb_step_trace.wakeup_before = cpu.wakeup_pending;
+            post_eb_step_trace.ifu_pcf_before = cpu.ifu_pcf;
+            post_eb_step_trace.ifu_pcx_before = cpu.ifu_pcx;
+        }
 
         if (dorado_cpu_step(&cpu)) {
             halt_reason = (cpu_halt_reason)cpu.halt_reason;
+            if (trace_post_eb_step) {
+                post_eb_step_trace.next_pc = cpu.real_PC;
+                post_eb_step_trace.t_after = cpu.T;
+                post_eb_step_trace.q_after = cpu.Q;
+                post_eb_step_trace.link_after = cpu.Link;
+                post_eb_step_trace.mcr_after = dorado_mcr_get(&mem);
+                post_eb_step_trace.mar_after = mem.mar;
+                post_eb_step_trace.md_after = mem.md;
+                post_eb_step_trace.rbase_after = (uint8_t)cpu.RBase;
+                post_eb_step_trace.membase_after = (uint8_t)cpu.MemBase;
+                post_eb_step_trace.ifu_active_after = cpu.ifu_active;
+                post_eb_step_trace.ifu_warmup_after = cpu.ifu_warmup;
+                post_eb_step_trace.tasking_on_after = cpu.tasking_on;
+                post_eb_step_trace.resume_delay_after = cpu.tasking_resume_delay;
+                post_eb_step_trace.ready_after = cpu.ready;
+                post_eb_step_trace.wakeup_after = cpu.wakeup_pending;
+                post_eb_step_trace.ifu_pcf_after = cpu.ifu_pcf;
+                post_eb_step_trace.ifu_pcx_after = cpu.ifu_pcx;
+                post_eb_step_trace.halt_reason = halt_reason;
+                post_eb_trace[post_eb_trace_head] = post_eb_step_trace;
+                post_eb_trace_head = (post_eb_trace_head + 1) %
+                                     (int)(sizeof post_eb_trace /
+                                           sizeof post_eb_trace[0]);
+                post_eb_trace_total++;
+            }
             break;
+        }
+        if (trace_post_eb_step) {
+            post_eb_step_trace.next_pc = cpu.real_PC;
+            post_eb_step_trace.t_after = cpu.T;
+            post_eb_step_trace.q_after = cpu.Q;
+            post_eb_step_trace.link_after = cpu.Link;
+            post_eb_step_trace.mcr_after = dorado_mcr_get(&mem);
+            post_eb_step_trace.mar_after = mem.mar;
+            post_eb_step_trace.md_after = mem.md;
+            post_eb_step_trace.rbase_after = (uint8_t)cpu.RBase;
+            post_eb_step_trace.membase_after = (uint8_t)cpu.MemBase;
+            post_eb_step_trace.ifu_active_after = cpu.ifu_active;
+            post_eb_step_trace.ifu_warmup_after = cpu.ifu_warmup;
+            post_eb_step_trace.tasking_on_after = cpu.tasking_on;
+            post_eb_step_trace.resume_delay_after = cpu.tasking_resume_delay;
+            post_eb_step_trace.ready_after = cpu.ready;
+            post_eb_step_trace.wakeup_after = cpu.wakeup_pending;
+            post_eb_step_trace.ifu_pcf_after = cpu.ifu_pcf;
+            post_eb_step_trace.ifu_pcx_after = cpu.ifu_pcx;
+            post_eb_trace[post_eb_trace_head] = post_eb_step_trace;
+            post_eb_trace_head = (post_eb_trace_head + 1) %
+                                 (int)(sizeof post_eb_trace /
+                                       sizeof post_eb_trace[0]);
+            post_eb_trace_total++;
         }
         if (is_mcr_trace) {
             struct mcr_trace_sample *mt = &mcr_trace[mcr_trace_n++];
@@ -3622,6 +3722,58 @@ static int probe_full_boot_with_bootstrap(void)
                post_eb_last_ifu_stop_pc,
                post_eb_last_ifu_pcf,
                post_eb_last_ifu_pcx);
+        if (post_eb_trace_enabled && post_eb_trace_total > 0) {
+            int cap = (int)(sizeof post_eb_trace / sizeof post_eb_trace[0]);
+            int n = post_eb_trace_total < cap ? post_eb_trace_total : cap;
+            int start = (post_eb_trace_total < cap) ? 0 : post_eb_trace_head;
+            printf("       Post-LoadRam trace last %d IM steps:\n", n);
+            for (int i = 0; i < n; i++) {
+                const struct post_eb_trace_sample *pt =
+                    &post_eb_trace[(start + i) % cap];
+                const char *sym = NULL;
+                for (int r = 0; r < (int)(sizeof ref_mcs / sizeof ref_mcs[0]); r++) {
+                    if (!ref_mcs[r].loaded) continue;
+                    sym = dorado_microcode_symbol_at_real(&ref_mcs[r].mc,
+                                                          pt->pc);
+                    if (sym) break;
+                }
+                char dis[160] = "";
+                if (pt->pc < IM_SIZE && mc.im_present[pt->pc]) {
+                    dorado_format(&mc.im[pt->pc], dis, sizeof dis);
+                }
+                printf("         cyc=%llu task=%o pc=0o%o",
+                       (unsigned long long)pt->cycle, pt->task, pt->pc);
+                if (sym) printf(":%s", sym);
+                printf(" ->0o%o T=%04X->%04X Q=%04X->%04X "
+                       "L=%04X->%04X RB=%u->%u MB=%u->%u "
+                       "IFU a=%u->%u w=%u->%u PCF=0o%o->0o%o "
+                       "PCX=0o%o->0o%o tasking=%u/%u->%u/%u "
+                       "ready=%04X->%04X wake=%04X->%04X MCR=%04X->%04X "
+                       "MAR=%05X->%05X MD=%04X->%04X",
+                       pt->next_pc,
+                       pt->t_before, pt->t_after,
+                       pt->q_before, pt->q_after,
+                       pt->link_before, pt->link_after,
+                       pt->rbase_before, pt->rbase_after,
+                       pt->membase_before, pt->membase_after,
+                       pt->ifu_active_before, pt->ifu_active_after,
+                       pt->ifu_warmup_before, pt->ifu_warmup_after,
+                       pt->ifu_pcf_before, pt->ifu_pcf_after,
+                       pt->ifu_pcx_before, pt->ifu_pcx_after,
+                       pt->tasking_on_before, pt->resume_delay_before,
+                       pt->tasking_on_after, pt->resume_delay_after,
+                       pt->ready_before, pt->ready_after,
+                       pt->wakeup_before, pt->wakeup_after,
+                       pt->mcr_before, pt->mcr_after,
+                       pt->mar_before, pt->mar_after,
+                       pt->md_before, pt->md_after);
+                if (pt->halt_reason != CPU_HALT_NONE) {
+                    printf(" HALT=%s", cpu_halt_reason_str(pt->halt_reason));
+                }
+                if (dis[0]) printf(" {%s}", dis);
+                printf("\n");
+            }
+        }
         for (int task = 0; task < 16; task++) {
             if (!post_eb_task_cycles[task]) continue;
             printf("       Post-LoadRam task %o hot PCs:", task);

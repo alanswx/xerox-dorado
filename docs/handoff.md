@@ -1149,6 +1149,19 @@ Suggested first action: trace that Mesa IFU path against `Mesa.mb!3`
 symbols and IFU pause/PCF semantics; the I/O wakeup ordering bug is no
 longer the first direct-EB blocker.
 
+2026-05-01 follow-up: the optional `DORADO_POST_EB_TRACE=1` ring now
+captures the loaded-world task-0 path. That corrected the diagnosis:
+the focused direct EB run starts at `InitMap` and never reaches the
+normal `InitTasks`/`StartEmulator` handoff before halting at the page-0
+IFUJump. The hot `0o4654/0o4656/0o4657` loop is the `SetDMuxAddress`
+helper used during memory configuration, and the later `0o5720/0o5747`
+path is still memory/map setup context, not a live Alto opcode loop.
+Next best action: compare `InitMem.mc` against the memory side effects
+visible in this trace, especially `Config'`, `SetDMuxAddress`/`UseDMD`,
+`Map<-`, `Pipe5`, and `LoadMCR`, until `InitMap` reaches
+`StartEmulator`. Only then will task/display wakeups and `PCF<-B` be
+expected.
+
 ### Highest-leverage but hardest: fix Bootstrap streaming
 
 Currently bypassed by substituting canonical Initial.MB at BOOTSTAGE2.

@@ -1184,6 +1184,16 @@ Three styles of test, used at every phase:
   `0o4654/0o4656/0o4657` (`Mesa.mb!3:SETDLP`) and
   `0o5724/0o5736`. The active blocker has moved from uninitialized
   task wakeups to Mesa IFU startup/PCF semantics.
+- 2026-05-01 trace correction: `DORADO_POST_EB_TRACE=1` now records a
+  ring of the loaded-world IM steps. The trace shows the direct EB run
+  starts at `InitMap` and halts before the normal `InitTasks` sequence:
+  task 0 is still the only task, `PCF<-B` has never executed, and the
+  apparent `0o5724/0o5736` hot loop is reached from memory
+  configuration/map setup rather than from a running Alto opcode loop.
+  The next blocker is therefore earlier than IFU startup: finish
+  matching `InitMem.mc`'s memory configuration/map setup side effects
+  well enough for `InitMap` to branch to `StartEmulator`, then resume
+  task/display wakeup debugging.
 
 ## Cross-cutting: don't drift from "match the docs"
 
