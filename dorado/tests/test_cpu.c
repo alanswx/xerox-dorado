@@ -3061,6 +3061,7 @@ static int probe_full_boot_with_bootstrap(void)
                     dorado_disk_controller_attach_drive(&disk, 0, &disk_pack);
                 }
                 dorado_display_init(&display);
+                dorado_display_attach_to_io(&display, &io);
                 for (uint16_t rb = 0; rb < 0x100; rb += 0x10) {
                     cpu.RM[rb | 0x01] = ether_boot_end;
                     cpu.RM[rb | 0x0A] = 0;

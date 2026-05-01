@@ -1356,3 +1356,12 @@ the disk boot memory stores into the `01000B` boot buffer. If it does
 not, use the EB/direct LoadRam path for display bring-up and treat this
 disk path as a media-content limitation until we have a known-good Dorado
 boot pack.
+
+2026-05-01 EB snapshot fix: the direct EB shortcut reinitialized
+`display` after `loadram_image_direct` but did not reattach it to the
+I/O table, leaving `display.attached=0` and skipping the end-of-run
+snapshot. The probe now calls `dorado_display_attach_to_io` after that
+reset. `DORADO_BOOT_BUDGET=120000000 DORADO_ETHER_BOOT_IMAGE=../chm/microcode/AltoMesaDorado.eb!1`
+writes `/tmp/dorado_direct_eb.pgm` at frame 158 and finishes with no
+memory faults, but the image is still all white (`unique=1`,
+`nonwhite=0`) because display fast-I/O fetches remain `0`.

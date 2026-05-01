@@ -1329,6 +1329,14 @@ Three styles of test, used at every phase:
   `spruce-server.dsk300` lacks the Dorado hard-microcode boot file, or
   whether our disk boot path is failing to write the boot image into the
   `01000B` buffer before `CheckChecksumAndLoad`.
+- EB snapshot follow-up: the direct EB probe reinitialized the display
+  after `loadram_image_direct` but left `display.attached=0`, so the
+  end-of-run headless snapshot was skipped even though the I/O callbacks
+  still referenced the same display object. The probe now reattaches the
+  display after that reset. With `AltoMesaDorado.eb!1` and a 120M budget,
+  `/tmp/dorado_direct_eb.pgm` is written at frame 158, still all white
+  (`unique=1`, `nonwhite=0`), with `display iofetch=0` and no memory
+  faults.
 
 ## Cross-cutting: don't drift from "match the docs"
 
