@@ -785,6 +785,32 @@ static int test_dirty_victim_pipe4_map_trouble(void)
     return 0;
 }
 
+/*
+ * test_dbuf_captures_store_b (gap B3 sub-item) — the data buffer
+ * captures the most-recent Store's B value. Used by Midas via
+ * `B<-DBuf` (HM Table 11c FA=1 FB=7 FC=5).
+ */
+static int test_dbuf_captures_store_b(void)
+{
+    static dorado_memory mem; memset(&mem, 0, sizeof mem);
+    EXPECT(dorado_memory_init(&mem) == 0, "init");
+    dorado_map_set(&mem, 0, 0, 0, 0);
+
+    dorado_memory_ref(&mem, DM_REF_STORE, 0x10, 0xCAFE, 0);
+    EXPECT(mem.dbuf == 0xCAFE, "dbuf=0x%04X, expected 0xCAFE", mem.dbuf);
+
+    dorado_memory_ref(&mem, DM_REF_STORE, 0x20, 0xBEEF, 0);
+    EXPECT(mem.dbuf == 0xBEEF, "dbuf=0x%04X, expected 0xBEEF", mem.dbuf);
+
+    /* A Fetch should NOT change dbuf. */
+    dorado_memory_ref(&mem, DM_REF_FETCH, 0x10, 0, 0);
+    EXPECT(mem.dbuf == 0xBEEF, "dbuf changed by Fetch: 0x%04X", mem.dbuf);
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_dbuf_captures_store_b (gap B3)\n");
+    return 0;
+}
+
 /* Test 19: Flush← on a clean hit — invalidates without storage
  * activity; Map.Dirty stays 0. */
 static int test_cache_flush_clean(void)
@@ -1196,6 +1222,7 @@ int main(void)
     rc |= test_dirty_victim_wp_fault();
     rc |= test_pipe4_error_encoding();
     rc |= test_dirty_victim_pipe4_map_trouble();
+    rc |= test_dbuf_captures_store_b();
     rc |= test_cache_flush_clean();
     rc |= test_iostore_cache_invalidate();
     rc |= test_proc_srn_overwrite();

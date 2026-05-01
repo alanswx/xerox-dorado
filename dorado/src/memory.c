@@ -746,6 +746,10 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
     }
     case DM_REF_STORE: {
         int way;
+        /* DBuf <- B (HM page 45 / EMemDefs.mc). Captured here so the
+         * `B<-DBuf` FF source can return the most-recent Store's
+         * value (gap B3 sub-item). */
+        mem->dbuf = b;
         /* Hit *or* miss, the WP check happens via Map (translate).
          * Per HM page 45: Store-hit does NOT set Map.Dirty — that
          * only happens when the dirty munch is later chosen as

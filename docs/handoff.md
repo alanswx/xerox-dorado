@@ -308,9 +308,14 @@ for the as-built notes):
   - **B8** ✅ research-only: spec captured in
     `docs/research/B8-rwcpreg-polarity.md`. Code change deferred —
     must land with A1 fix.
-  - **A1** ⏳ corrected with `BootstrapMain.mc` as oracle: over-CPReg
-    stream is 2 bytes per half-microinstruction. Implementation
-    deferred to a focused next session of cycle-level tracing.
+  - **A1** ✅ **RESOLVED 2026-04-30**: streaming was never broken.
+    The 95/896 "match" rate is because the BB ROM Boot1Data is a
+    DIFFERENT BUILD of Initial than the
+    `bootstrap.dm!20_/Initial.mb` archive copy. `bbdis --hunks $C016
+    224 0o6100` produces a bit-exact match against what our streaming
+    delivers. BOOTSTAGE2 substitution shim is an intentional probe-
+    time feature, not a bug workaround. See
+    `docs/research/A1-bootstrap-streaming.md` "RESOLUTION" section.
 - ✅ **Phase 3** (research-complete; B1+C3 implementations deferred):
   - **C6** ✅ MCR decode bit positions cross-checked against
     `EMemDefs.mc`. Fixed `dorado_mcr_disbr`. Added

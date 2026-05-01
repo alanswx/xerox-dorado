@@ -576,7 +576,11 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
         case 4: /* B ← EventCntB' (HM §4.11). Active-low. */
                 *b = (uint16_t)~cpu->event_cnt_b;
                 break;
-        case 5: *b = 0;          break;  /* B ← DBuf           — stub */
+        case 5: /* B ← DBuf (HM Table 11c FA=1 FB=7 FC=5).
+                 * Returns the data buffer holding the most recent
+                 * Store's B value. Used by Midas. */
+                *b = cpu->mem ? cpu->mem->dbuf : 0;
+                break;
         case 6:                             /* B ← RWCPReg */
             /* HM page 31: "B←RWCPReg = Link←B, B←CPReg'." On real
              * hardware B is the complement of the CPReg latch, but

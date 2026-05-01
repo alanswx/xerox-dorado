@@ -208,6 +208,11 @@ typedef struct dorado_memory {
      * the 16-bit value that microcode loads with LoadMcr[A,B]. */
     uint16_t mcr;
 
+    /* DBuf — the data buffer holding the most recent Store's B value.
+     * Microcode reads it via `B<-DBuf` (HM Table 11c FA=1 FB=7 FC=5);
+     * Midas uses it to inspect pending stores. */
+    uint16_t dbuf;
+
     /* Cache — interposed between processor refs and storage for
      * Fetch/Store/PreFetch/Flush. IOFetch/IOStore bypass the cache
      * (see HM page 39 IOFetch/IOStore semantics). */
