@@ -363,9 +363,16 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
         break;
 
     case DORADO_DISK_TIOA_DISKMUFF:
-        /* Output selects the muffler address in the byte produced by
-         * FF,,0 constants (e.g. 0x0200 selects SectorTW at address 002).
-         * The low byte carries one-shot operations such as clear TWs. */
+        /* DiskMuff output. The hardware spec per DiskDefs.mc says
+         * muffAddr lives at bits 7..0 and clearXxxTW at bits 8..11
+         * (octal 0o400-0o4000). However, Initial's compiled microcode
+         * appears to push constants via BSEL=FF,,0 with the address
+         * in the high byte and uses LSB bits 0..3 as the clear flags
+         * — a different wire convention than the spec literal would
+         * suggest. We honor that observed convention here.
+         * (gap F5/F6: confirm against a per-cycle disk trace and
+         * unify with DiskDefs constants if/when the convention proves
+         * inconsistent.) */
         ctl->muff_addr = (uint8_t)((data >> 8) & 0xFF);
         if (data & (1u << 0)) ctl->index_tw = 0;
         if (data & (1u << 1)) ctl->sector_tw = 0;
