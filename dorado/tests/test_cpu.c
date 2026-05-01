@@ -3532,9 +3532,12 @@ static int probe_full_boot_with_bootstrap(void)
         if (initial_substituted) {
             int dwt_subtask = 0;
             if (dorado_display_dwt_wakeup(&display, &dwt_subtask)) {
-                dorado_cpu_set_subtask(&cpu, DORADO_DISPLAY_TASK_DWT,
-                                       (uint8_t)dwt_subtask);
-                dorado_cpu_wakeup(&cpu, DORADO_DISPLAY_TASK_DWT);
+                int word_task =
+                    display.terminal_task == DORADO_DISPLAY_TASK_AHT
+                        ? DORADO_DISPLAY_TASK_AWT
+                        : DORADO_DISPLAY_TASK_DWT;
+                dorado_cpu_set_subtask(&cpu, word_task, (uint8_t)dwt_subtask);
+                dorado_cpu_wakeup(&cpu, word_task);
             }
         }
         if (ether_loaded_world_cycle && is_imfetch) {

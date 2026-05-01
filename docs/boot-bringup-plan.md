@@ -1337,6 +1337,12 @@ Three styles of test, used at every phase:
   `/tmp/dorado_direct_eb.pgm` is written at frame 158, still all white
   (`unique=1`, `nonwhite=0`), with `display iofetch=0` and no memory
   faults.
+- Display word-task follow-up: the synthetic WCB wakeup now targets AWT
+  (`011`) when the active terminal horizontal task is AHT (`004`), and
+  DWT (`013`) otherwise. This is the correct `DisplayMain.mc` THT/TWT
+  relationship, but it does not change the current EB result: task 3 is
+  still hot in `COLORBITMAPNIL`, `DAStart[0420..0427]` remains zero, and
+  there are no display munches for fast I/O to fetch.
 
 ## Cross-cutting: don't drift from "match the docs"
 

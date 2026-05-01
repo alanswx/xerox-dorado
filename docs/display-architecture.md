@@ -447,6 +447,12 @@ production: 0 = Alto-style, 1 = LF (large format / Star).
   explains the blank-scanline behavior. Next display work is to find why
   the loaded Alto/Mesa software has not installed a DCB chain, while
   continuing disk and memory fidelity work.
+- **Terminal word-task wake target**: the synthetic WCB wakeup path now
+  wakes AWT (`011`) when the active terminal horizontal task is AHT
+  (`004`), and DWT (`013`) otherwise. This follows `DisplayMain.mc`'s
+  THT/TWT split. The current EB run is unchanged after this correction:
+  task 3 remains in `COLORBITMAPNIL`, `DAStart` is still zero, and no
+  real display munches are ready for fast I/O.
 
 **Phase 2**:
 - **`dorado_display_render_fifo()`**: drains the per-channel FIFO
