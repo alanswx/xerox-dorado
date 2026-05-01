@@ -4050,10 +4050,13 @@ static int probe_full_boot_with_bootstrap(void)
     printf("\n");
     if (cpu.mem) {
         printf("       Memory: faults=%d first_srn=%d last=%s task=%o/%u "
+               "pc=0o%o mesa_pc=0x%04X mb=%02o tioa=%03o "
                "va=0x%X Mar=0x%X\n",
                cpu.mem->fault_count, cpu.mem->fault_first_srn,
                ref_kind_name(cpu.mem->last_fault_ref_kind),
                cpu.mem->last_fault_task, cpu.mem->last_fault_subtask,
+               cpu.mem->last_fault_real_pc, cpu.mem->last_fault_pc,
+               cpu.mem->last_fault_membase, cpu.mem->last_fault_tioa,
                cpu.mem->last_fault_va, cpu.mem->mar);
         printf("       MCR=0x%04X disbr=%d noref=%d fdmiss=%d nowake=%d\n",
                dorado_mcr_get(cpu.mem),
@@ -6310,6 +6313,57 @@ static int test_slow_io_routing(void)
     return 0;
 }
 
+static int test_output_t_store_shape_routes_slow_io(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025;  mc.alufm_present[0] = 1;  /* B */
+
+    /* Decoded shape seen from display `Output_ T` while loading HRam:
+     * ASEL=Store<-T, BSEL=T, no LC destination. It must drive slow I/O
+     * and must not issue a main-memory Store. */
+    mc.im[0] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/2, /*lc=*/0,
+                           /*asel=*/2, 0, /*ff=*/0354, jcn_local(0));
+    mc.im_present[0] = 1;
+    mc.image_to_real[0] = 0;
+    mc.image_present[0] = 1;
+    mc.n_instructions = 1;
+
+    static dorado_io io;
+    dorado_io_init(&io);
+    static echo_dev dev_state;
+    memset(&dev_state, 0, sizeof dev_state);
+    static const dorado_io_device echo_device = {
+        echo_read, echo_write, &dev_state, "echo"
+    };
+    dorado_io_register(&io, /*task=*/3, /*tioa=*/0375, &echo_device);
+
+    dorado_memory mem;
+    EXPECT(dorado_memory_init(&mem) == 0, "memory init failed");
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.io = &io;
+    cpu.mem = &mem;
+    cpu.ctask = 3;
+    cpu.task_tpc[3] = 0;
+    cpu.TIOA = 0375;
+    cpu.task_tioa[3] = 0375;
+    cpu.T = 0xBEEF;
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(dev_state.writes == 1, "writes=%d (expected 1)", dev_state.writes);
+    EXPECT(dev_state.last_write == 0xBEEF,
+           "last_write = 0x%X (expected 0xBEEF)", dev_state.last_write);
+    EXPECT(mem.last_fault == DM_FAULT_NONE,
+           "slow-IO Output_ T issued memory fault %d", (int)mem.last_fault);
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_output_t_store_shape_routes_slow_io\n");
+    return 0;
+}
+
 static int test_tioa_small_constant_all_low_bits(void)
 {
     static dorado_microcode mc;
@@ -6763,6 +6817,7 @@ int main(void)
     rc |= test_ldtpc_rdtpc();
     rc |= test_reschedule_trap();
     rc |= test_slow_io_routing();
+    rc |= test_output_t_store_shape_routes_slow_io();
     rc |= test_tioa_small_constant_all_low_bits();
     rc |= test_carry_preserved_on_logical();
     rc |= test_alufmrw_bit_mapping();

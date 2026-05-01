@@ -156,6 +156,7 @@ static void display_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
 {
     dorado_display *d = ctx;
     int t = task & 0xF;
+    uint8_t old_ram_keep = d->ram_keep;
 
     d->output_count++;
     d->output_task_count[t]++;
@@ -168,6 +169,24 @@ static void display_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
     if (tioa == DORADO_DISPLAY_TIOA_STATICS ||
         tioa == DORADO_DISPLAY_TIOA_TSTATICS) {
         d->statics = data;
+    } else if (tioa == DORADO_DISPLAY_TIOA_HRAM) {
+        /* HM §10.7/§10.9: HRam uses the DDC RAM-loading protocol.
+         * Keep' is latched by every command; while it is low, Dorado
+         * owns the RAM. LoadAddr and Write' take effect only if the
+         * previous command already had Keep' low. Write' is active low
+         * and auto-increments the Dorado-side address. */
+        if (!old_ram_keep) {
+            if (data & DORADO_DISPLAY_RAM_LOADADDR) {
+                d->ram_addr = (uint16_t)(data & (DORADO_DISPLAY_HRAM_WORDS - 1));
+            }
+            if (!(data & DORADO_DISPLAY_RAM_WRITE)) {
+                d->hram[d->ram_addr & (DORADO_DISPLAY_HRAM_WORDS - 1)] =
+                    (uint8_t)(data & 7u);
+                d->ram_addr =
+                    (uint16_t)((d->ram_addr + 1u) & (DORADO_DISPLAY_HRAM_WORDS - 1));
+            }
+        }
+        d->ram_keep = (data & DORADO_DISPLAY_RAM_KEEP) ? 1u : 0u;
     }
 
     /* DisplayMain.mc:

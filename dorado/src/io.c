@@ -50,3 +50,10 @@ void dorado_io_write(dorado_io *io, int task, uint8_t tioa, uint16_t data)
     if (!dev || !dev->write) return;
     dev->write(dev->ctx, task, tioa, data);
 }
+
+int dorado_io_has_write(const dorado_io *io, int task, uint8_t tioa)
+{
+    if (!io || task < 0 || task >= DORADO_IO_TASKS) return 0;
+    const dorado_io_device *dev = io->cells[task][tioa];
+    return dev && dev->write;
+}

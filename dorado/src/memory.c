@@ -351,6 +351,10 @@ void dorado_fault_clear(dorado_memory *mem)
     mem->last_fault_task  = 0;
     mem->last_fault_subtask = 0;
     mem->last_fault_ref_kind = DM_REF_NONE;
+    mem->last_fault_pc    = 0;
+    mem->last_fault_real_pc = 0;
+    mem->last_fault_membase = 0;
+    mem->last_fault_tioa  = 0;
 }
 
 void dorado_mcr_load(dorado_memory *mem, uint16_t a, uint16_t b)

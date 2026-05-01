@@ -171,6 +171,8 @@ static int test_display_wcb_flag_protocol(void)
     static dorado_display d;
     dorado_display_init(&d);
     dorado_display_attach_to_io(&d, &io);
+    dorado_io_write(&io, DORADO_DISPLAY_TASK_DHT,
+                    DORADO_DISPLAY_TIOA_STATICS, 0000);
 
     dorado_io_write(&io, DORADO_DISPLAY_TASK_AHT,
                     DORADO_DISPLAY_TIOA_AHTFLAG, 0002);
@@ -198,6 +200,35 @@ static int test_display_wcb_flag_protocol(void)
 
     printf("PASS  test_display_wcb_flag_protocol "
            "(DHT/AHT flag outputs drive DWT wakeups)\n");
+    return 0;
+}
+
+static int test_hram_load_protocol(void)
+{
+    static dorado_io io;
+    dorado_io_init(&io);
+    static dorado_display d;
+    dorado_display_init(&d);
+    dorado_display_attach_to_io(&d, &io);
+
+    dorado_io_write(&io, DORADO_DISPLAY_TASK_DHT,
+                    DORADO_DISPLAY_TIOA_HRAM, 000000);
+    dorado_io_write(&io, DORADO_DISPLAY_TASK_DHT,
+                    DORADO_DISPLAY_TIOA_HRAM,
+                    DORADO_DISPLAY_RAM_LOADADDR | DORADO_DISPLAY_RAM_WRITE | 0123);
+    EXPECT(d.ram_addr == 0123, "HRam address = 0o%o (expected 0123)",
+           d.ram_addr);
+
+    dorado_io_write(&io, DORADO_DISPLAY_TASK_DHT,
+                    DORADO_DISPLAY_TIOA_HRAM, 0005);
+    EXPECT(d.hram[0123] == 5, "HRam[0123] = %u", d.hram[0123]);
+    EXPECT(d.ram_addr == 0124, "HRam address did not auto-increment");
+
+    dorado_io_write(&io, DORADO_DISPLAY_TASK_DHT,
+                    DORADO_DISPLAY_TIOA_HRAM, DORADO_DISPLAY_RAM_KEEP);
+    EXPECT(d.ram_keep == 1, "HRam release did not restore video ownership");
+
+    printf("PASS  test_hram_load_protocol\n");
     return 0;
 }
 
@@ -318,6 +349,8 @@ static int test_scanline_tick_wakes_terminal_task(void)
     EXPECT(dorado_display_scanline_tick(&d) == -1,
            "scanline should not wake DHT before terminal output");
     EXPECT(d.scanline_ticks == 1, "scanline tick should still count");
+    dorado_io_write(&io, DORADO_DISPLAY_TASK_AHT,
+                    DORADO_DISPLAY_TIOA_TSTATICS, 0000);
 
     dorado_io_write(&io, DORADO_DISPLAY_TASK_AHT, 0x20, 0x1234);
     EXPECT(d.terminal_task == DORADO_DISPLAY_TASK_AHT,
@@ -413,6 +446,7 @@ int main(void)
     rc |= test_keyboard_words();
     rc |= test_attach_to_io();
     rc |= test_display_wcb_flag_protocol();
+    rc |= test_hram_load_protocol();
     rc |= test_fifo_push();
     rc |= test_snapshot_pgm();
     rc |= test_frame_clock();

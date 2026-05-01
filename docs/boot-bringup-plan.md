@@ -1237,6 +1237,29 @@ Three styles of test, used at every phase:
   `JAMHRAM`/`InitHRam` path against `DisplayAux.mc` and the map writes
   immediately before it, and determine why task 3 can run through MDS
   before bank 2 has been restored.
+- 2026-05-01 HRam protocol follow-up: rechecked the Sep 1981 Hardware
+  Manual display RAM-loading section and `DisplayAux.mc`'s
+  `LoadHRamLoop`/`LoadHRamRun`. The display model now has a minimal
+  HRam slow-IO loader for TIOA `0375`: `Keep'` low grants Dorado
+  ownership, `LoadAddr` latches the slow-IO address while owned,
+  `Write'` low writes a 3-bit HRam value, and writes auto-increment.
+  `test_hram_load_protocol` pins this. The fault trace also now prints
+  the decoded faulting microinstruction and raw IM words, so the next EB
+  run can distinguish a true runtime store instruction from a stale/late
+  memory-reference report.
+- 2026-05-01 slow-IO output follow-up: the `DisplayAux.mc`
+  `LoadHRamRun` loop and other display/disk sources use source-level
+  `Output_ T` forms. In the loaded image this can decode like an
+  alternate-source store-shaped instruction, but it must drive IOB at
+  the current TIOA instead of issuing a main-memory store. The CPU now
+  routes the narrow no-LC `Store<-T` shape to registered slow-I/O
+  writers, and `test_output_t_store_shape_routes_slow_io` pins it.
+  Result: the prior task-3 HRam fault is gone. A 30M-cycle
+  `AltoMesaDorado.eb!1` run now reaches `display outs=+1090` and
+  `scanline wakeups=+970`; the next blocker is task 0 fetching through
+  MDS at `VA=0x20004` (`pc=0o573`) after bank 2 has become vacant.
+  That points back to warm-start/LoadRam map restoration for the
+  Alto/Mesa bank, not to HRam slow-I/O.
 
 ## Cross-cutting: don't drift from "match the docs"
 

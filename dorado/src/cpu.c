@@ -3,6 +3,7 @@
 #include "memory.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define DORADO_JUNK_TASK          2
@@ -2314,6 +2315,22 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
         int io_task = (cpu->ctask != 0) ? 1 : 0;
         dorado_ref_kind kind = decode_ref_kind(u, io_task);
         if (kind != DM_REF_NONE) {
+            /* MicroD's `Output_ <source>` form appears in display and disk
+             * task code as an alternate-source store-shaped instruction,
+             * but source listings make clear it drives the slow-I/O bus,
+             * not main storage. The real store forms that write memory also
+             * load DBuf; in the decoded fields used here, the observed
+             * `Output_ T` shape has no destination load. Route that narrow
+             * form to the registered TIOA device before issuing a spurious
+             * memory store. */
+            if (kind == DM_REF_STORE && u->asel == 2 && u->lc == 0 &&
+                cpu->io &&
+                dorado_io_has_write(cpu->io, cpu->ctask,
+                                    (uint8_t)cpu->TIOA)) {
+                dorado_io_write(cpu->io, cpu->ctask,
+                                (uint8_t)cpu->TIOA, b);
+                goto memory_ref_done;
+            }
             /* SubTask OR's into MemBase[2:3] (HM page 88). MemBase[2:3]
              * in MSB-first 5-bit MemBase = LSB bits 2..1. So OR
              * (subtask & 3) << 1. Only effective for non-emulator. */
@@ -2340,6 +2357,30 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
             dorado_fault_kind ref_fault =
                 dorado_memory_ref_task(cpu->mem, kind, va, data, cpu->TIOA,
                                        (int)cpu->ctask, subtask);
+            if (ref_fault != DM_FAULT_NONE) {
+                cpu->mem->last_fault_pc = (uint16_t)(cpu->ifu_pcx & 0xFFFFu);
+                cpu->mem->last_fault_real_pc = cpu->real_PC;
+                cpu->mem->last_fault_membase = membase;
+                cpu->mem->last_fault_tioa = cpu->TIOA;
+                const char *ft = getenv("DORADO_FAULT_TRACE");
+                if (ft && ft[0] &&
+                    (strcmp(ft, "all") == 0 || cpu->ctask != 0)) {
+                    fprintf(stderr,
+                            "FAULT_CPU task=%o pc=0o%o mesa_pc=0x%04X "
+                            "mb=%02o br=%07X mar=%04X tioa=%03o "
+                            "T=%04X B=%04X kind=%d "
+                            "asel=%o lc=%o ff=%03o jcn=%03o "
+                            "iw=%06o/%06o/%06o\n",
+                            cpu->ctask & 017, cpu->real_PC,
+                            cpu->ifu_pcx & 0xFFFFu, membase & 037,
+                            br & 0x0FFFFFFFu, mar, cpu->TIOA & 0377,
+                            cpu->T, b, (int)kind,
+                            u->asel & 017, u->lc & 017,
+                            u->ff & 0377, u->jcn & 0377,
+                            u->iw0 & 0777777, u->iw1 & 0777777,
+                            u->iw2 & 0777777);
+                }
+            }
             /* HM page 46: a memory fault wakes up the fault task
              * (task 15). We propagate via wakeup_pending; the next
              * end-of-instruction scheduling round picks task 15 if
@@ -2353,6 +2394,7 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
             }
         }
     }
+memory_ref_done: ;
 
     /*
      * Branch decision uses the *pre-LC* register values per HM §4.4

@@ -346,14 +346,16 @@ A `Keep'` flipflop on each RAM gates the address mux:
 - `Keep' = 1` (true) → video system owns it (displaying).
 
 Output commands to a RAM include:
-- **`LoadAddr`**: if `Keep'` is *already* true (set by a previous
-  command), then IOB[4:15] is loaded into the RAM's address
-  register.
-- **`Write'`**: if `Keep'` is already true, write the data field
-  into the currently-addressed word; the address auto-increments
+- **`Keep'` low**: the Dorado has taken the RAM away from the video
+  path. The Sep 1981 Hardware Manual and display microcode both rely on
+  this as a multi-command state: take ownership first, then issue
+  address/data commands.
+- **`LoadAddr`**: if the Dorado already owns the RAM from a previous
+  command, IOB[4:15] is loaded into the RAM's address register.
+- **`Write'` low**: if the Dorado already owns the RAM, write the data
+  field into the currently-addressed word; the address auto-increments
   for fast sequential loading.
-- A RAM output command with `Keep' = false` (high) releases the RAM
-  back to the video system.
+- **`Keep'` high**: releases the RAM back to the video system.
 
 For the **Mixer**, the address is loaded from IOB[4:14] and a
 **Hi/Lo Select** bit comes from IOB[15]. Hi/Lo behaves as a low-
@@ -404,6 +406,14 @@ production: 0 = Alto-style, 1 = LF (large format / Star).
   Pd←Input currently returns the headless keyboard idle word.
 - **State buckets**: per-channel NLCB/CLCB (16×12-bit, A and B),
   HRam (1024×3-bit), Mixer (1024×24-bit), PixelClk, Statics.
+- **HRam slow-IO loading**: TIOA `0375` honors the
+  Keep'/LoadAddr/Write' protocol used by `DisplayAux.mc`; writes store
+  3-bit HRam entries and auto-increment the load address.
+- **`Output_ T` loader shape**: `DisplayAux.mc` emits source-level
+  `Output_ T` while loading HRam. In the loaded EB image this can look
+  like a store-shaped alternate-source instruction, so CPU execution
+  now routes the no-LC shape to the display slow-I/O writer instead of
+  issuing a bogus main-memory store.
 - **Per-channel FIFO** (256 words) for IOFetch← munches.
 - **PGM snapshot helper**.
 - **Headless keyboard words**: five complemented Alto-style words

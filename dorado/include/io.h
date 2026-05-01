@@ -73,4 +73,7 @@ uint16_t dorado_io_read(dorado_io *io, int task, uint8_t tioa,
 /* Write IOB at (task, TIOA). No-op if no device is registered. */
 void dorado_io_write(dorado_io *io, int task, uint8_t tioa, uint16_t data);
 
+/* True if a device with a write handler is registered at (task, TIOA). */
+int dorado_io_has_write(const dorado_io *io, int task, uint8_t tioa);
+
 #endif

@@ -1204,6 +1204,27 @@ action: trace `JAMHRAM`/`InitHRam` in
 the display horizontal task can run through MDS before bank 2 has been
 remapped.
 
+2026-05-01 HRam protocol follow-up: the Sep 1981 Hardware Manual
+display RAM-loading section and `DisplayAux.mc` `LoadHRamLoop` were
+rechecked. `src/display.c` now models the HRam slow-IO protocol for
+TIOA `0375`: `Keep'` low takes Dorado ownership, `LoadAddr` latches the
+address while owned, active-low `Write'` stores the 3-bit HRam word, and
+writes auto-increment. `test_hram_load_protocol` covers that path. The
+CPU fault trace now includes decoded `asel/lc/ff/jcn` and raw IM words
+for the faulting instruction, which is the next diagnostic for the
+remaining task-3 store fault.
+
+2026-05-01 `Output_ T` follow-up: the task-3 HRam fault is fixed. The
+display/disk microcode uses source-level `Output_ T`; in the loaded EB
+image the relevant instruction decodes as a store-shaped alternate
+source with no LC destination. `src/cpu.c` now treats that narrow shape
+as slow-I/O output when the current task/TIOA has a registered writer,
+and `test_output_t_store_shape_routes_slow_io` pins it. New EB
+checkpoint: `display outs=+1090`, `scanline wakeups=+970`, no task-3
+HRam fault. The remaining fault is task 0 fetching from MDS
+`VA=0x20004` at `pc=0o573` while `Map[0x200]` is vacant, so the next
+debug target is the warm-start/LoadRam map restoration for bank 2.
+
 ### Highest-leverage but hardest: fix Bootstrap streaming
 
 Currently bypassed by substituting canonical Initial.MB at BOOTSTAGE2.
