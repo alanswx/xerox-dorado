@@ -1174,6 +1174,16 @@ Three styles of test, used at every phase:
   Next target: trace loaded Mesa task initialization/wakeup ordering and
   stop probe-generated disk/display wakeups from reaching uninitialized
   task TPCs.
+- 2026-05-01 direct-EB display reset: the direct LoadRam takeover now
+  resets the modeled display controller as well as the disk controller,
+  so stale Initial display state cannot generate synthetic scanline
+  wakeups in the loaded world. The focused
+  `AltoMesaDorado.eb!1` run now stays in task 0 with no post-EB device
+  wakeups, `Memory: faults=0`, and `MCR=0x0004 nowake=0`; it halts at
+  `CPU_HALT_IFU_NOT_READY`, final `PC=0o4`. Hot PCs are
+  `0o4654/0o4656/0o4657` (`Mesa.mb!3:SETDLP`) and
+  `0o5724/0o5736`. The active blocker has moved from uninitialized
+  task wakeups to Mesa IFU startup/PCF semantics.
 
 ## Cross-cutting: don't drift from "match the docs"
 

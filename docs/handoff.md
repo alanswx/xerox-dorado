@@ -1134,6 +1134,21 @@ task `014` with TPC `0177037` after running task 0 hot at
 world's task initialization and wakeups, especially why DSK/display
 wakeups become ready before their TPCs are valid and before `PCF←B`.
 
+2026-05-01 update: the direct EB probe now also resets the modeled
+display controller at the LoadRam/IOReset takeover, matching the disk
+controller reset already done there. This removes Initial's stale
+terminal-task state from the loaded world. With
+`DORADO_ETHER_BOOT_IMAGE=../chm/microcode/AltoMesaDorado.eb!1
+./build/test_cpu`, the run no longer switches into an invalid DSK TPC:
+it stays in task 0, reports `Memory: faults=0`, `MCR=0x0004` with
+`nowake=0`, and no post-EB display/disk wakeups. The new blocker is
+inside the loaded Mesa/AltoMesa IFU startup path: it halts at
+`CPU_HALT_IFU_NOT_READY`, final `PC=0o4`, after hot task-0 PCs around
+`0o4654/0o4656/0o4657` (`Mesa.mb!3:SETDLP`) and `0o5724/0o5736`.
+Suggested first action: trace that Mesa IFU path against `Mesa.mb!3`
+symbols and IFU pause/PCF semantics; the I/O wakeup ordering bug is no
+longer the first direct-EB blocker.
+
 ### Highest-leverage but hardest: fix Bootstrap streaming
 
 Currently bypassed by substituting canonical Initial.MB at BOOTSTAGE2.
