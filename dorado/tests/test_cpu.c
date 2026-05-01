@@ -3387,6 +3387,19 @@ static int probe_full_boot_with_bootstrap(void)
            (unsigned long long)display_scanline_wakeups,
            (unsigned long long)disk.output_count,
            (unsigned long long)disk.input_count);
+    /* Diagnostic counters (gaps G1, D1) — surfacing silent drops so
+     * unmodelled paths become visible. Non-zero values point at
+     * tasks whose fast-IO routes / BB accesses we don't yet handle. */
+    printf("       Fast-IO drops: display_fifo_full=%u disk_fifo_full=%u "
+           "disk_fifo_empty=%u unrouted_iofetch=%u unrouted_iostore=%u\n",
+           fastio.drops_display_fifo_full,
+           fastio.drops_disk_fifo_full,
+           fastio.drops_disk_fifo_empty,
+           fastio.drops_unrouted_iofetch,
+           fastio.drops_unrouted_iostore);
+    printf("       BB drops: writes_to_eprom=%u riot_writes_dropped=%u\n",
+           bb.writes_to_eprom,
+           bb.riot_writes_dropped);
     printf("       Display outputs by task:");
     for (int t = 0; t < 16; t++) {
         if (display.output_task_count[t]) {

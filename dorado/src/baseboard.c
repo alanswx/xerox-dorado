@@ -219,8 +219,12 @@ static void riot_register_write(dorado_baseboard *bb, riot_chip *r,
         r->timer_underflowed = 0;
         r->int_flags        &= (uint8_t)~0x80;   /* clear TimerFlag */
         r->timer_int_enabled = (offset & 0x08) ? 1 : 0;
+        return;
     }
-    /* Other offsets: silently ignore. (gap D1) */
+    /* Other offsets: silently ignore. (gap D1)
+     * The 6532 RIOT chip has registers we don't decode (e.g. 0x04-0x07
+     * = read-only, 0x08-0x13 = aliases / reserved). Track drops so the
+     * BB-running probe can flag undecoded register accesses. */
     {
         dorado_baseboard *bb_active = baseboard_active;
         if (bb_active) bb_active->riot_writes_dropped++;
