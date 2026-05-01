@@ -336,6 +336,27 @@ for the as-built notes):
   - **C3** ⏳ research note in `docs/research/C3-ecc.md`. ECC
     polynomial documented (HM §5.12). Deferred — nothing in our
     current test inventory exercises ECC.
+- ⏳ **Phase 4** disk (research-complete; F1-F5 implementation
+  blocked on disk content):
+  - Pulled canonical disk sources: `DiskDefs.mc`, `DiskSubrs.mc`,
+    `DiskBootSoft.mc`, `DiskBootTransfer.mc`. Findings in
+    `docs/research/F-disk-phase3-sweep.md`.
+  - Two real issues identified:
+    1. **DiskMuff wire format discrepancy** — DiskDefs.mc spec has
+       muffAddr in low byte and clear bits at LSB 8-11; our model
+       and tests use high byte for addr and LSB 0-3 for clears.
+       Need a per-cycle disk trace to reconcile.
+    2. **Boot-stage disk failure is content, not model**: the
+       hard-microcode file InitialDisk reads (cyl 0, head 0,
+       sector 4) doesn't exist on `spruce-server.dsk300` (which
+       is an Alto Spruce pack). Same diagnosis as A1: the model
+       is correct; we lack canonical content. Workaround: Path B
+       (Ethernet) — see H1.
+- 🔢 **B3 sub-items landed** in Phase 7: PCX', DBuf. Remaining:
+  XorCarry, ModStkPBeforeW, MidasStrobe, RestoreStkP,
+  Hold&TaskSim, WF/RF, EventCntA-write,
+  RMaddr replace force-write (FA=0/2 FB=4-5 / FB=2-3),
+  MemBX, UseDMD, FreezeBC, LoadTestSyndrome, Multiply.
 
 ### A. Showstoppers blocking real boot
 
