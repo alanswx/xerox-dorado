@@ -156,6 +156,7 @@ static void task_save(dorado_cpu *cpu, uint16_t next_pc)
     cpu->task_tpc[t]     = next_pc;
     cpu->task_link[t]    = cpu->Link;
     cpu->task_membase[t] = (uint8_t)cpu->MemBase;
+    cpu->task_rbase[t]   = (uint8_t)cpu->RBase;
     cpu->task_tioa[t]    = (uint8_t)cpu->TIOA;
 }
 
@@ -169,6 +170,7 @@ static void task_load(dorado_cpu *cpu, int task)
     cpu->real_PC = cpu->task_tpc[t];
     cpu->Link    = cpu->task_link[t];
     cpu->MemBase = cpu->task_membase[t];
+    cpu->RBase   = cpu->task_rbase[t];
     cpu->TIOA    = cpu->task_tioa[t];
 }
 

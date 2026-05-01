@@ -2620,6 +2620,13 @@ static int probe_full_boot_with_bootstrap(void)
     uint8_t ether_bank2_lost_task = 0;
     dorado_map_entry ether_bank2_lost_entry = {0};
     uint64_t ether_bank2_remap_shims = 0;
+    uint64_t ether_br37_bad_cycle = 0;
+    uint16_t ether_br37_bad_pc = 0;
+    uint8_t ether_br37_bad_task = 0;
+    uint8_t ether_br37_bad_membase = 0;
+    uint16_t ether_br37_bad_t = 0;
+    uint32_t ether_br37_before = 0;
+    uint32_t ether_br37_after = 0;
     uint64_t post_eb_task_cycles[16] = {0};
     uint64_t post_eb_task_switches = 0;
     uint16_t post_eb_ready_or = 0;
@@ -2984,6 +2991,7 @@ static int probe_full_boot_with_bootstrap(void)
         uint8_t pre_membase = (uint8_t)cpu.MemBase;
         uint16_t pre_mcr = dorado_mcr_get(&mem);
         uint8_t pre_ifu_active = cpu.ifu_active;
+        uint32_t pre_br37 = dorado_br_get(&mem, 037);
         if (initial_substituted && is_imfetch &&
             (pre_pc == 06417 || (pre_pc >= 06407 && pre_pc <= 06431))) {
             /* Bring-up shim: the 7-wire terminal back-channel is not
@@ -3282,6 +3290,18 @@ static int probe_full_boot_with_bootstrap(void)
                 map_boot_probe_installed_storage(&mem);
                 map_boot_probe_bank_to(&mem, 0x200, 0, 256);
                 ether_bank2_remap_shims++;
+            }
+        }
+        if (ether_boot_injections && ether_br37_bad_cycle == 0) {
+            uint32_t br37 = dorado_br_get(&mem, 037);
+            if (br37 >= 0x00400000u) {
+                ether_br37_bad_cycle = bb.cycles;
+                ether_br37_bad_pc = pre_pc;
+                ether_br37_bad_task = pre_task;
+                ether_br37_bad_membase = pre_membase;
+                ether_br37_bad_t = pre_t;
+                ether_br37_before = pre_br37;
+                ether_br37_after = br37;
             }
         }
         if (trace_post_eb_step) {
@@ -3614,6 +3634,14 @@ static int probe_full_boot_with_bootstrap(void)
         if (ether_bank2_remap_shims) {
             printf("       Ether bank2 remap shims: %llu\n",
                    (unsigned long long)ether_bank2_remap_shims);
+        }
+        if (ether_br37_bad_cycle) {
+            printf("       Ether BR37 invalid at cycle=%llu task=%o pc=0o%o "
+                   "mb=%02o T=%04X BR37=%05X->%05X\n",
+                   (unsigned long long)ether_br37_bad_cycle,
+                   ether_br37_bad_task & 017, ether_br37_bad_pc,
+                   ether_br37_bad_membase & 037, ether_br37_bad_t,
+                   ether_br37_before, ether_br37_after);
         }
     }
     if (init_first_n > 0) {
@@ -4152,6 +4180,9 @@ static int probe_full_boot_with_bootstrap(void)
             printf("       AEmu BR regs: EmuBRHiReg/RM[0x18]=0x%04X "
                    "EmuXMBRHiReg/RM[0x19]=0x%04X\n",
                    cpu.RM[0x18], cpu.RM[0x19]);
+            printf("       Map config regs: VirtualBanks/RM[0x48]=0x%04X "
+                   "RealPages/RM[0x49]=0x%04X\n",
+                   cpu.RM[0x48], cpu.RM[0x49]);
             printf("       Display absolute low-core: DAStart[0420..0427]=");
             for (uint32_t i = 0; i < 8; i++) {
                 printf("%s%04X", (i == 0) ? "" : " ",
@@ -5657,7 +5688,9 @@ static int test_task_block_returns_to_emulator(void)
     dorado_cpu cpu;
     dorado_cpu_init(&cpu, &mc, 0);
     cpu.TIOA = 0x12;
+    cpu.RBase = 3;
     cpu.task_tioa[5] = 0x56;
+    cpu.task_rbase[5] = 7;
     dorado_cpu_set_task_tpc(&cpu, 5, 1);
     dorado_cpu_wakeup(&cpu, 5);
 
@@ -5667,6 +5700,9 @@ static int test_task_block_returns_to_emulator(void)
     EXPECT((cpu.TIOA & 0xFF) == 0x56,
            "task 5 should restore its own TIOA, got 0x%02X",
            cpu.TIOA & 0xFF);
+    EXPECT((cpu.RBase & 0xF) == 7,
+           "task 5 should restore its own RBase, got 0x%X",
+           cpu.RBase & 0xF);
 
     /* Step in task 5 — BLOCK=1 → Ready cleared, switch back. */
     dorado_cpu_step(&cpu);
@@ -5678,6 +5714,9 @@ static int test_task_block_returns_to_emulator(void)
     EXPECT((cpu.TIOA & 0xFF) == 0x12,
            "task 0 should restore its own TIOA, got 0x%02X",
            cpu.TIOA & 0xFF);
+    EXPECT((cpu.RBase & 0xF) == 3,
+           "task 0 should restore its own RBase, got 0x%X",
+           cpu.RBase & 0xF);
 
     printf("PASS  test_task_block_returns_to_emulator\n");
     return 0;

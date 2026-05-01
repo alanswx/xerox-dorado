@@ -486,6 +486,13 @@ read high while the controller is idle or processing a different block
 mode, and read low only while `Active` is set and the current
 `DiskControl` block operation matches the selected mode.
 
+2026-05-01 trace note: Pilot's `SetDriveAndSubSector` sends DriveTag
+words such as native `0x08f0`. The `0x0800` bit is `KSelect`'s
+"sectors do not evenly divide the disk" bookkeeping flag, not part of
+the drive's `tagSubSector` field. The model masks DriveTag decode to
+the documented tag-bus fields, so `0x08f0` still loads subsector count
+3 instead of count 35.
+
 ### KSTAT — drive/controller status
 
 | Addr | Signal      | Meaning                                              |

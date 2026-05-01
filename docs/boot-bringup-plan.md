@@ -836,9 +836,17 @@ HM §4.1, §4.2, Table 22.
 
 ### D.1 Per-task state replication  ✓ LANDED
 
-`task_t[16]`, `task_tpc[16]`, `task_link[16]`, `task_membase[16]`
-on `dorado_cpu`. Saved/restored by `task_save`/`task_load` in
-cpu.c. Q, ALUFM, StkP, ShC, Cnt, RBase are NOT per-task (HM §4.1).
+`task_t[16]`, `task_tpc[16]`, `task_link[16]`, `task_membase[16]`,
+`task_rbase[16]`, and `task_tioa[16]` on `dorado_cpu`.
+Saved/restored by `task_save`/`task_load` in cpu.c. Q, ALUFM, StkP,
+ShC, and Cnt are not per-task (HM §4.1; the manual names RBase with
+T, MemBase, and TIOA as task-specific).
+
+2026-05-01 note: the EB direct-load probe exposed this. AUT task 1 set
+`RBase=4`, then BLOCKed while task 0 resumed in `Start.mc`; without
+per-task RBase, `BrHi_ EmuBRHiReg` read `EORegs.VirtualBanks`
+(`RM[0x48]`) instead of `AEmRegs.EmuBRHiReg` (`RM[0x18]`), corrupting
+`BR37` from `0x20006` to `0x400006`.
 
 ### D.2 Wakeup latches + priority encoder  ✓ LANDED
 
@@ -852,7 +860,8 @@ function (FA=3 FB=6-7) for microcode.
 
 `task_schedule()` runs at end of every microinstruction. Switches
 iff (BNT > CTASK) OR (BLOCK=1 in non-emulator). On switch, save
-T/TPC/Link/MemBase to current task slot, load new task's slot.
+T/TPC/Link/MemBase/RBase/TIOA to current task slot, load new task's
+slot.
 
 **TBD:** Hold/tasking interaction (Hold isn't modeled).
 
@@ -1293,6 +1302,14 @@ Three styles of test, used at every phase:
   IFetch fault after the Code BR goes bad (`BR37=0xfff0006` in the
   summary); decode/trace the BR load path before adding more display
   behavior.
+- 2026-05-01 follow-up: RBase is now saved per task. This removed the
+  EB direct-load `BR37=0x400006` corruption caused by task 0 resuming
+  from `Start.mc` with task 1's `RBase=4`. The current framebuffer is
+  still all white (`display iofetch=0`, low-core `DAStart=0`), so the
+  display is waiting for software/disk progress rather than failing to
+  render FIFO data. The next disk trace showed Pilot DriveTag word
+  `0x08f0`; native bit `0x0800` is KSelect bookkeeping, so DriveTag
+  subsector-count decode now masks to the documented tag-bus field.
 
 ## Cross-cutting: don't drift from "match the docs"
 

@@ -45,8 +45,16 @@ you don't repeat them.
   Initial's final `mcr.noWake` load appears as `MCR=0xFEE7`; the
   emulator currently special-cases that as normal references enabled
   with only fault wakeups suppressed until the MCR active-low decode is
-  corrected from the source docs/schematics. The AEmu bypass
-  probe currently halts at `PC=0o7777`.
+  corrected from the source docs/schematics. The AEmu bypass now saves
+  RBase per task; this fixed an EB direct-load corruption where task 1's
+  `RBase=4` made task 0's `Start.mc` read `EORegs.VirtualBanks`
+  (`RM[0x48]`) instead of `AEmRegs.EmuBRHiReg` (`RM[0x18]`) and turned
+  `BR37=0x20006` into `0x400006`. The current framebuffer snapshot is
+  still all white (`display iofetch=0`, low-core `DAStart=0`), so
+  display is waiting on software/disk progress rather than failing to
+  render FIFO data. The latest disk trace showed Pilot DriveTag words
+  like `0x08f0`; bit `0x0800` is KSelect bookkeeping, so DriveTag
+  subsector-count decode now masks to the real tag-bus field.
 - **Repo:** `/Users/alans/Documents/development/Dorado`
 - **Most useful entry points to read:** `CLAUDE.md` (project mission),
   `dorado/CLAUDE.md` (code-side guide), `docs/INDEX.md` (doc map).

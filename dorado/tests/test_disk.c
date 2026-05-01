@@ -481,6 +481,17 @@ static int test_drive_select_subsector_count(void)
            "sectors_per_revolution=%d",
            ctl.drive[0].sectors_per_revolution);
 
+    /* Pilot keeps a non-even-sector flag in KSelect bit 4, which is
+     * carried as native bit 11 (0x0800) in the DriveTag word. It is
+     * not part of tagSubSector and must not turn count 3 into 35. */
+    dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG,
+                    (uint16_t)(0x0800u | (1u << 5) | (3u << 6) |
+                               (1u << 4)));
+    EXPECT(ctl.drive[0].subsector_count == 3,
+           "KSelect-flagged subsector_count=%d",
+           ctl.drive[0].subsector_count);
+    EXPECT(ctl.selected_drive == 0, "selected_drive=%d", ctl.selected_drive);
+
     for (int i = 0; i < 28; i++) dorado_disk_controller_advance_sector(&ctl);
     EXPECT(ctl.drive[0].cur_sector == 28,
            "cur_sector=%d before index", ctl.drive[0].cur_sector);

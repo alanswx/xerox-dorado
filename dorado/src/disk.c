@@ -422,17 +422,19 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
             switch (tag_type) {
             case 0: {
                 /* Drive Select / subsector count (HM page 100).
-                 * Tag[11:15] = drive select (5 bits, but bits 11:15
-                 * in MSB = bits 0..4 in LSB).
-                 * Tag[10] = "load subsector count" (LSB bit 5).
-                 * Tag[4:9] = subsector count (LSB bits 6..11). */
-                int drv_select = data & 0x1F;
-                if (data & (1u << 5)) {
-                    int count = (data >> 6) & 0x3F;
+                 * Only tagBus[0:11] is presented to the drive. Pilot
+                 * also carries KSelect bookkeeping in bit 11
+                 * (0x0800), so mask the fields instead of treating the
+                 * whole low 12 bits as the subsector count. */
+                uint16_t bus = data & 0x0FFFu;
+                int drv_select = bus & 0x0F;
+                if (bus & (1u << 5)) {
+                    int count = (bus >> 6) & 0x0F;
                     disk_set_subsector_count(&ctl->drive[ctl->selected_drive],
                                              count);
                 }
-                if (drv_select <= 3 && ctl->drive[drv_select].online) {
+                if ((bus & (1u << 4)) &&
+                    drv_select <= 3 && ctl->drive[drv_select].online) {
                     ctl->selected_drive = drv_select;
                     for (int i = 0; i < DORADO_DISK_NUM_DRIVES; i++) {
                         ctl->drive[i].selected = (i == drv_select) ? 1 : 0;

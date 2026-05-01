@@ -72,7 +72,7 @@ working document — flesh it out as the emulator forces us to learn more.
 | Reg | Width | Notes |
 |---|---|---|
 | **T\*** | 16b (+p) | Working register. Sources A/B/Md; loaded from Pd or Md. |
-| **RBase** | 4b | High nibble of RM address. Loaded from FF[4:7] or B[12:15]. |
+| **RBase\*** | 4b | High nibble of RM address. Loaded from FF[4:7] or B[12:15]. Saved per task. |
 | **StkP** | 8b | Stack pointer for STK. RSTK provides −4..+3 adjustment. |
 | **Q** | 16b | Shift register for Multiply/Divide. Functions Q lsh 1, Q rsh 1. |
 | **Cnt** | 16b | Decrement-and-test counter. Loaded from FF[4:7] (1..16) or from B. |
