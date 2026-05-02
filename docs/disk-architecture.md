@@ -755,5 +755,19 @@ software XOR the corrupted bits back to correct values.
    2000-cycle period could let `BootTransfer` time out before the next
    synthetic sector wakeup.
 
+10. **Alto status-loop handoff is still not understood.**
+    With cache-visible low-core probes, the active loaded-world path is
+    now clear: the real PilotDisk CSB at `IOBR+0177520` stays zero, so
+    PilotDisk is idle. Task 14 instead loops in the Alto disk
+    `ACmmdCheck`/`Read1Muff`/`Read20Muffs` region after the Ethernet
+    EB load. Focused 120M traces show only sector/index/status work and
+    DriveTag/ControlTag outputs; `DiskData` is never selected and FIFO
+    read/write counts stay zero. MDS `0523` is cache-visible as
+    `177776`, but the legacy `0521=0431` command pointer is not visible.
+    Fix: trace the Alto disk command fetch/clear edge in the relocated
+    AEmu path, then either repair the controller status bits that make
+    `ACmmdCheck` reject the command or implement the missing transfer
+    start sequence that should follow it.
+
 See `docs/io-systems-architecture.md` for a higher-level view of
 how disk fits into Slow I/O / Fast I/O / Tasking.

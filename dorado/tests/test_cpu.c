@@ -409,8 +409,8 @@ static int service_alto_disk_boot_shim(dorado_memory *mem,
                 if ((bases[j] & 0x0FFFFFFFu) == b) duplicate = 1;
             }
             if (duplicate) continue;
-            if (dorado_storage_at_va(mem, b + 0521u) == 0431u &&
-                dorado_storage_at_va(mem, b + 0433u) == 044000u) {
+            if (dorado_visible_word_at_va(mem, b + 0521u) == 0431u &&
+                dorado_visible_word_at_va(mem, b + 0433u) == 044000u) {
                 base = b;
                 found = 1;
                 break;
@@ -418,7 +418,7 @@ static int service_alto_disk_boot_shim(dorado_memory *mem,
         }
         if (!found) return 0;
     }
-    if (dorado_storage_at_va(mem, base + 0432u) & 07400u) return 0;
+    if (dorado_visible_word_at_va(mem, base + 0432u) & 07400u) return 0;
 
     if (boot_head < 0) boot_head = 0;
     if (boot_head >= pack->geometry.heads) {
@@ -450,7 +450,7 @@ static uint16_t boot_keyboard_word(const dorado_memory *mem, uint32_t off)
     if (!mem) return 0;
     uint32_t va = (dorado_br_get(mem, 031) + off) & 0x0FFFFFFFu;
     if ((size_t)va >= mem->storage_words) return 0;
-    return dorado_storage_at_va(mem, va);
+    return dorado_visible_word_at_va(mem, va);
 }
 
 static uint32_t boot_keyboard_base(const dorado_memory *mem)
@@ -3555,9 +3555,9 @@ static int probe_full_boot_with_bootstrap(void)
             post_loop_step_trace.etemp0 = cpu.RM[0x1A];
             post_loop_step_trace.etemp1 = cpu.RM[0x1B];
             post_loop_step_trace.etemp2 = cpu.RM[0x1C];
-            post_loop_step_trace.mem430 = dorado_storage_at_va(&mem, 0430u);
-            post_loop_step_trace.mem432 = dorado_storage_at_va(&mem, 0432u);
-            post_loop_step_trace.mem521 = dorado_storage_at_va(&mem, 0521u);
+            post_loop_step_trace.mem430 = dorado_visible_word_at_va(&mem, 0430u);
+            post_loop_step_trace.mem432 = dorado_visible_word_at_va(&mem, 0432u);
+            post_loop_step_trace.mem521 = dorado_visible_word_at_va(&mem, 0521u);
             post_loop_step_trace.disk_muff_addr = disk.muff_addr;
             post_loop_step_trace.disk_index_tw = disk.index_tw;
             post_loop_step_trace.disk_sector_tw = disk.sector_tw;
@@ -4328,10 +4328,10 @@ static int probe_full_boot_with_bootstrap(void)
                    end_off, end_va,
                    end_item[0] & 0177777, end_item[1] & 0177777,
                    end_item[2] & 0177777, end_item[3] & 0177777,
-                   dorado_storage_at_va(&mem, end_va) & 0177777,
-                   dorado_storage_at_va(&mem, end_va + 1) & 0177777,
-                   dorado_storage_at_va(&mem, end_va + 2) & 0177777,
-                   dorado_storage_at_va(&mem, end_va + 3) & 0177777);
+                   dorado_visible_word_at_va(&mem, end_va) & 0177777,
+                   dorado_visible_word_at_va(&mem, end_va + 1) & 0177777,
+                   dorado_visible_word_at_va(&mem, end_va + 2) & 0177777,
+                   dorado_visible_word_at_va(&mem, end_va + 3) & 0177777);
         }
     }
     /* Diagnostic counters (gaps G1, D1) — surfacing silent drops so
@@ -4841,15 +4841,30 @@ static int probe_full_boot_with_bootstrap(void)
                    m2fe->rp, m2fe->wp, m2fe->dirty, m2fe->ref);
         }
         {
-            printf("       CSB/IOCB: CSB.next=%04X CSB.cyl=%04X "
-                   "IOCB[0..15]=",
-                   dorado_storage_at_va(&mem, 0xFF50u),
-                   dorado_storage_at_va(&mem, 0xFF51u));
-            for (uint32_t i = 0; i < 16; i++) {
+            uint32_t iobr = dorado_br_get(&mem, 031);
+            uint32_t csb = 0177520u;
+            uint16_t abs_next = dorado_visible_word_at_va(&mem, csb);
+            uint16_t iobr_next = dorado_visible_word_at_va(&mem, iobr + csb);
+            printf("       CSB abs [next mask drive cyl]=");
+            for (uint32_t i = 0; i < 4; i++) {
                 printf("%s%04X", (i == 0) ? "" : " ",
-                       dorado_storage_at_va(&mem, 0x0119u + i));
+                       dorado_visible_word_at_va(&mem, csb + i));
             }
             printf("\n");
+            printf("       CSB IOBR [next mask drive cyl]=");
+            for (uint32_t i = 0; i < 4; i++) {
+                printf("%s%04X", (i == 0) ? "" : " ",
+                       dorado_visible_word_at_va(&mem, iobr + csb + i));
+            }
+            printf(" abs.next=%04X iobr.next=%04X\n", abs_next, iobr_next);
+            if (iobr_next & 1u) {
+                printf("       IOCB via IOBR+CSB.next [0..15]=");
+                for (uint32_t i = 0; i < 16; i++) {
+                    printf("%s%04X", (i == 0) ? "" : " ",
+                           dorado_visible_word_at_va(&mem, iobr + iobr_next + i));
+                }
+                printf("\n");
+            }
         }
         {
             uint32_t iobr = dorado_br_get(&mem, 031);
@@ -4864,23 +4879,23 @@ static int probe_full_boot_with_bootstrap(void)
             printf("       Display absolute low-core: DAStart[0420..0427]=");
             for (uint32_t i = 0; i < 8; i++) {
                 printf("%s%04X", (i == 0) ? "" : " ",
-                       dorado_storage_at_va(&mem, 0420u + i));
+                       dorado_visible_word_at_va(&mem, 0420u + i));
             }
             printf(" Cursor[0431..0450]=");
             for (uint32_t i = 0; i < 16; i++) {
                 printf("%s%04X", (i == 0) ? "" : " ",
-                       dorado_storage_at_va(&mem, 0431u + i));
+                       dorado_visible_word_at_va(&mem, 0431u + i));
             }
             printf("\n");
             printf("       Display IOBR low-core: DAStart[0420..0427]=");
             for (uint32_t i = 0; i < 8; i++) {
                 printf("%s%04X", (i == 0) ? "" : " ",
-                       dorado_storage_at_va(&mem, iobr + 0420u + i));
+                       dorado_visible_word_at_va(&mem, iobr + 0420u + i));
             }
             printf(" Cursor[0431..0450]=");
             for (uint32_t i = 0; i < 16; i++) {
                 printf("%s%04X", (i == 0) ? "" : " ",
-                       dorado_storage_at_va(&mem, iobr + 0431u + i));
+                       dorado_visible_word_at_va(&mem, iobr + 0431u + i));
             }
             printf("\n");
             {
@@ -4888,12 +4903,12 @@ static int probe_full_boot_with_bootstrap(void)
                 printf("       Alto MDS disk words: [0431..0440]=");
                 for (uint32_t i = 0; i < 8; i++) {
                     printf("%s%04X", (i == 0) ? "" : " ",
-                           dorado_storage_at_va(&mem, mds + 0431u + i));
+                           dorado_visible_word_at_va(&mem, mds + 0431u + i));
                 }
                 printf(" [0521..0523]=");
                 for (uint32_t i = 0; i < 3; i++) {
                     printf("%s%04X", (i == 0) ? "" : " ",
-                           dorado_storage_at_va(&mem, mds + 0521u + i));
+                           dorado_visible_word_at_va(&mem, mds + 0521u + i));
                 }
                 printf("\n");
             }

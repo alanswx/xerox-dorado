@@ -1473,3 +1473,19 @@ final MDS `[0431..0440]` and `[0521..0523]` are zero. The likely next
 debugging target is the command-handoff edge: watch stores to MDS
 `0431..0440`/`0521..0523` and the DSK task fetch path that should
 notice a nonzero command pointer and branch to `DoACmmd`.
+
+2026-05-02 cache-visible / CSB follow-up: storage-only probes were
+misleading for dirty cache lines. `dorado_visible_word_at_va()` now
+checks cache first, and the boot diagnostics use it for low-core,
+display, and disk handoff words. The important changed fact is that MDS
+`0523` is visible as `177776`; MDS `0521` and the legacy `0431` command
+block remain zero. The PilotDisk CSB theory was also checked: the real
+CSB is `0177520` relative to `IOBR` (`PilotDiskDefs.mc`), and the new
+diagnostic shows `IOBR+0177520 = [0000 0000 0000 0000]` while only the
+irrelevant absolute page reads `FFFF`. `DORADO_CSB_TRACE=1` confirms
+Initial/DSK clear `CSB.next` and no IOCB is posted. A 120M focused disk
+trace still never selects `DiskData`; it cycles through the Alto disk
+status/sector loop, and the display task outputs blank
+`COLORBITMAPNIL` scan lines with `DAStart=0`. Next target: the Alto
+`ACmmdCheck`/`Read20Muffs` status path after EB relocation, not
+PilotDisk CSB.

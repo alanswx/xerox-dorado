@@ -554,6 +554,16 @@ uint16_t dorado_storage_at_va(const dorado_memory *mem, uint32_t va)
     return mem->storage[phys];
 }
 
+uint16_t dorado_visible_word_at_va(const dorado_memory *mem, uint32_t va)
+{
+    int way;
+    if (dorado_cache_lookup(mem, va, &way)) {
+        const dorado_cache_line *line = &mem->cache[va_cache_row(va)].ways[way];
+        return line->data[va_cache_offset(va)];
+    }
+    return dorado_storage_at_va(mem, va);
+}
+
 /* Pick a way for a new fill in the row containing `va`. Prefer an
  * invalid way; otherwise the LRU way. Returns way index. Caller is
  * responsible for writing back the victim if it was dirty (call

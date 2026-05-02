@@ -1431,6 +1431,26 @@ posted where the current probe expects. Next step: trace the memory
 stores to MDS `0431..0440`/`0521..0523` and the `AltoLoop` fetch that
 decides whether to branch to `DoACmmd`.
 
+2026-05-02 cache-visible diagnostics update: dirty cache lines can hide
+boot handoff words from storage-only probes, so the harness now uses
+`dorado_visible_word_at_va()` for low-core/display/disk control-block
+diagnostics. This changed one important observation: MDS `0523` is
+cache-visible as `177776`, even though backing storage still reads zero.
+The old Alto `0521=0431` command pointer still never appears, so the
+first-sector shim remains inactive.
+
+The PilotDisk CSB hypothesis was checked against `PilotDiskDefs.mc` and
+`PilotDisk.mc`: `CSB.next` is at `0177520` relative to `IOBR`, not the
+absolute page. New diagnostics print both. Absolute `0177520` remains
+`FFFF`, but the real `IOBR+0177520` CSB is `[0000 0000 0000 0000]`;
+`DORADO_CSB_TRACE=1` shows Initial/DSK clearing it and no software
+posting an IOCB. Therefore the current blank screen is not blocked on
+PilotDisk command-chain setup. A 120M focused disk trace still loops in
+the Alto disk status/sector path with no `DiskData` transfer, while the
+display task spends its time in `COLORBITMAPNIL` and `DAStart` stays
+zero. Next step: debug the Alto `ACmmdCheck`/`Read20Muffs` status path
+and why it never reaches `DoACmmd`/data transfer for the boot command.
+
 These are weeks-of-work each, in rough order of effort:
 
 | Phase | Effort | Dependency      |

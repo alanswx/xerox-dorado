@@ -1254,6 +1254,49 @@ static int eth_mem_trace_enabled(void)
     return cached;
 }
 
+static int lowcore_trace_mode(void)
+{
+    static int cached = -1;
+    if (cached < 0) {
+        const char *env = getenv("DORADO_LOWCORE_TRACE");
+        cached = 0;
+        if (env && env[0] && env[0] != '0') {
+            cached = (strcmp(env, "all") == 0) ? 2 : 1;
+        }
+    }
+    return cached;
+}
+
+static int lowcore_trace_offset(uint32_t va, uint32_t base,
+                                uint16_t *out_off)
+{
+    uint32_t off = (va - base) & 0x0FFFFFFFu;
+    if ((off >= 0420u && off <= 0440u) ||
+        (off >= 0521u && off <= 0523u)) {
+        if (out_off) *out_off = (uint16_t)off;
+        return 1;
+    }
+    return 0;
+}
+
+static int csb_trace_enabled(void)
+{
+    static int cached = -1;
+    if (cached < 0) cached = getenv("DORADO_CSB_TRACE") ? 1 : 0;
+    return cached;
+}
+
+static int csb_trace_offset(uint32_t va, uint32_t iobr,
+                            uint16_t *out_off)
+{
+    uint32_t off = (va - iobr) & 0x0FFFFFFFu;
+    if (off >= 0177520u && off <= 0177523u) {
+        if (out_off) *out_off = (uint16_t)off;
+        return 1;
+    }
+    return 0;
+}
+
 static int rm_trace_enabled(void)
 {
     static int cached = -1;
@@ -2549,6 +2592,63 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                                        (int)cpu->ctask, subtask);
             if (ref_fault == DM_FAULT_NONE && ref_kind_loads_md(kind)) {
                 latch_task_md_from_memory(cpu);
+            }
+            {
+                int lowcore_mode = lowcore_trace_mode();
+                int lowcore_interesting =
+                    lowcore_mode == 2 ||
+                    kind == DM_REF_STORE || kind == DM_REF_IOSTORE;
+                uint16_t lowcore_off = 0;
+                const char *lowcore_base_name = NULL;
+                uint32_t lowcore_base = 0;
+                if (lowcore_mode && lowcore_interesting) {
+                    uint32_t bases[3] = {
+                        0,
+                        dorado_br_get(cpu->mem, 036),
+                        dorado_br_get(cpu->mem, 031),
+                    };
+                    const char *names[3] = { "abs", "mds", "iobr" };
+                    for (int bi = 0; bi < 3; bi++) {
+                        if (lowcore_trace_offset(va, bases[bi],
+                                                 &lowcore_off)) {
+                            lowcore_base = bases[bi] & 0x0FFFFFFFu;
+                            lowcore_base_name = names[bi];
+                            break;
+                        }
+                    }
+                }
+                if (lowcore_base_name) {
+                    fprintf(stderr,
+                            "LOWCORE task=%o pc=0o%o kind=%s base=%s:%07X "
+                            "off=0o%o va=%07X data=%06o visible=%06o "
+                            "mb=%02o rb=%02o sub=%o mar=%04X md=%06o "
+                            "tioa=%03o fault=%d\n",
+                            cpu->ctask & 017, cpu->real_PC,
+                            ref_kind_name(kind), lowcore_base_name,
+                            lowcore_base, lowcore_off, va & 0x0FFFFFFFu,
+                            data & 0177777,
+                            dorado_visible_word_at_va(cpu->mem, va) & 0177777,
+                            membase & 037, cpu->RBase & 017, subtask & 3,
+                            mar, cpu->mem->md & 0177777, cpu->TIOA & 0377,
+                            (int)ref_fault);
+                }
+            }
+            if (csb_trace_enabled()) {
+                uint32_t iobr = dorado_br_get(cpu->mem, 031);
+                uint16_t csb_off = 0;
+                if (csb_trace_offset(va, iobr, &csb_off)) {
+                    fprintf(stderr,
+                            "CSB task=%o pc=0o%o kind=%s off=0o%o va=%07X "
+                            "data=%06o visible=%06o mb=%02o rb=%02o sub=%o "
+                            "mar=%04X md=%06o tioa=%03o fault=%d\n",
+                            cpu->ctask & 017, cpu->real_PC,
+                            ref_kind_name(kind), csb_off,
+                            va & 0x0FFFFFFFu, data & 0177777,
+                            dorado_visible_word_at_va(cpu->mem, va) & 0177777,
+                            membase & 037, cpu->RBase & 017, subtask & 3,
+                            mar, cpu->mem->md & 0177777, cpu->TIOA & 0377,
+                            (int)ref_fault);
+                }
             }
             if (eth_mem_trace_enabled()) {
                 int packet_va = (va >= 0177400u && va <= 0177416u);

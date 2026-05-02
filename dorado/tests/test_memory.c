@@ -543,6 +543,11 @@ static int test_cache_store_no_map_dirty(void)
     dorado_memory_ref(&mem, DM_REF_STORE, 0x10, 0xBEEF, 0);
     EXPECT(dorado_map_get(&mem, 0)->dirty == 0,
            "Map.Dirty should be 0 after Store hit (set lazily on evict)");
+    EXPECT(dorado_visible_word_at_va(&mem, 0x10) == 0xBEEF,
+           "visible word after dirty store = 0x%04X, expected 0xBEEF",
+           dorado_visible_word_at_va(&mem, 0x10));
+    EXPECT(dorado_storage_at_va(&mem, 0x10) != 0xBEEF,
+           "storage should not see dirty cache store before flush");
 
     /* Flush← writes the dirty line back; NOW Map.Dirty must be set
      * (HM page 47: dirty-victim writeback sets Map.Ref AND Map.Dirty). */

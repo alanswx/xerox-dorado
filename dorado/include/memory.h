@@ -395,14 +395,20 @@ int      dorado_mcr_nowake(const dorado_memory *mem);
  * dorado_cache_lookup() returns 1 if the munch containing `va` is
  * cached, with *out_way (if non-NULL) set to the way index.
  *
+ * dorado_visible_word_at_va() reads the value a normal cached fetch
+ * would see if the munch is present in cache; otherwise it falls back
+ * to storage. It is a non-mutating diagnostic/helper path.
+ *
  * dorado_storage_at_va() bypasses the cache: translates VA via the
- * Map and returns the storage word. Used by tests that need to probe
- * "what's actually in storage" without going through the cache. The
- * map must be mounted; if the entry is Vacant the function returns
- * 0xFFFF (no fault is signaled — this is a probe, not a reference).
+ * Map and returns the backing storage word. Used by tests that need
+ * to probe "what's actually in storage" without going through the
+ * cache. The map must be mounted; if the entry is Vacant the function
+ * returns 0xFFFF (no fault is signaled — this is a probe, not a
+ * reference).
  */
 int      dorado_cache_lookup(const dorado_memory *mem, uint32_t va,
                              int *out_way);
+uint16_t dorado_visible_word_at_va(const dorado_memory *mem, uint32_t va);
 uint16_t dorado_storage_at_va(const dorado_memory *mem, uint32_t va);
 
 #endif
