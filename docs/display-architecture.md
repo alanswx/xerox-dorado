@@ -469,6 +469,14 @@ production: 0 = Alto-style, 1 = LF (large format / Star).
   `DAStart` or Alto command pointer at `VM 521`. Next display work is
   to follow the loaded Alto/Mesa software path that should install a
   DCB chain, while continuing disk and memory fidelity work.
+- **Forced-sector display check**: a diagnostic shim can force one
+  Spruce Trident sector into Alto `MDS` before the first AEmu IFU
+  fetch. Sector `0,0,4` runs without a memory fault and emits many DispY
+  slow-I/O outputs, but `DisplayMain.mc!1` reads low-core word `0420` as
+  the DCB-chain pointer at vertical retrace, and that word remains zero.
+  The resulting snapshot is all white and `display iofetch=0`; the
+  renderer is waiting for valid DCB/software state, not missing pixel
+  FIFO data.
 - **Terminal word-task wake target**: the synthetic WCB wakeup path now
   wakes AWT (`011`) when the active terminal horizontal task is AHT
   (`004`), and DWT (`013`) otherwise. This follows `DisplayMain.mc`'s

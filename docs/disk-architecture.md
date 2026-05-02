@@ -778,6 +778,18 @@ software XOR the corrupted bits back to correct values.
     transfer. `AMapHdwStatus` ORs in the `07400` done bits and later
     merges the current sector number, so observed `xF00`/`8F00` words
     are expected idle status snapshots. Keep fixing disk fidelity, but
+    do not treat this as a pending transfer.
+
+12. **2026-05-02 IFU force-shim result.** The EB-loaded AEmu path does
+    not naturally post `0521=0431`; low-core tracing sees idle/status
+    stores at `0522/0523` only. For bring-up experiments the harness can
+    force one selected Trident sector into Alto `MDS` at task-0
+    `STARTIFU` (`0o2220`), before the first Alto opcode fetch. This is
+    not disk emulation. It proves that putting nonzero code in Alto MDS
+    breaks the PC-zero IFU spin, but the default Spruce sector
+    `CHS=0,0,2` is not a valid OS boot sector for this path: execution
+    runs far enough to disturb display low-core, then corrupts MDS and
+    records a fetch fault. Use this as a content/protocol diagnostic, and
     do not treat this loop alone as proof that `DiskData` should have
     been selected.
 

@@ -1530,6 +1530,33 @@ at `VM 521`. The disk task is currently waiting honestly for work; next
 bring-up should trace the loaded IFU/software path that should either
 install the display DCB chain or post an Alto disk command block.
 
+2026-05-02 EB/AEmu IFU update: `DORADO_IFU_TRACE=1` now captures the
+post-LoadRam IFU arm/stop edge. The natural EB-loaded path keeps
+executing `STARTIFU` at `0o2201` with PCF/PCX zero, pauses at `0o2202`
+with opcode `000`, and never posts the old Alto `0521=0431` command
+pointer. A diagnostic-only force point at `0o2220` now loads the selected
+Trident/Alto sector into Alto `MDS` (`BR36`) immediately before the IFU
+fetch. With the Spruce-pack default `DORADO_ALTO_BOOT_CYL=0`,
+`DORADO_ALTO_BOOT_HEAD=0`, `DORADO_ALTO_BOOT_SECTOR=2`, the IFU spin
+stops and `DAStart` low-core words become nonzero-looking, but the
+sector is not a valid AEmu OS image: `BR36/MDS` is later corrupted to
+`0x3500000`, the CPU records one fetch fault there, and the display
+still reports `iofetch=0`. This moves the current boot blocker toward
+software content/protocol: find or build correct Alto/Dorado boot media,
+or implement enough Ethernet/disk software boot service that AEmu can
+load the OS code it expects.
+
+2026-05-02 forced-sector sweep update: with a 50M/80M budget, Spruce
+sectors `0,0,2`, `0,0,3`, `0,0,4`, and `0,0,8` were tried as the first
+Alto MDS payload. None generated display IOFetch. Sector 4 is the best
+diagnostic candidate because it does not fault and leaves task/display
+state active, but `DAStart[0420]` is still zero, so `DisplayMain.mc!1`
+takes `NoDCB` exactly as the source says it should. The snapshot saved
+from the sector-4 80M run is all white. Do not spend more time trying
+random Spruce sectors unless the goal is pack archaeology; the useful
+next step is to provide real bootable Alto/Dorado software content or a
+server protocol that supplies it.
+
 These are weeks-of-work each, in rough order of effort:
 
 | Phase | Effort | Dependency      |

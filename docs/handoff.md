@@ -1555,3 +1555,31 @@ There was no nonzero `DAStart` and no Alto command pointer at `VM 521`.
 Treat the current blank screen as a loaded-software handoff problem:
 find why the IFU/Mesa path does not install a display DCB chain or post
 an Alto disk command, rather than adding more FIFO/rendering behavior.
+
+2026-05-02 IFU/Alto sector force test: `DORADO_IFU_TRACE=1` now records
+post-LoadRam IFU arm/stop transitions and PCX hot spots. Without a
+software boot image the loaded AEmu path repeatedly starts IFU at
+PCF/PCX zero (`STARTIFU 0o2201`, pause at `0o2202`, opcode `000`), with
+the boot-parameter AC seed still in `STK[1..3]`; no `VM 521=0431`
+command pointer is posted, only idle/status writes to DiskBR
+`0522/0523`. The harness now has a probe-only force point at `0o2220`
+that loads one Trident sector into Alto `MDS` (`BR36`) before the IFU
+fetch. With the default Spruce candidate `CHS=0,0,2`, `alto-boot
+shims=1` and the IFU spin stops (`arms=2`, `stops=1`), and IOBR
+`DAStart` becomes nonzero-looking, but the sector is not a valid OS boot
+image: `MDS` is corrupted to `0x3500000`, one fetch fault occurs, and
+`display iofetch=0`. Treat this as evidence that the emulator can leave
+the empty-core loop when code exists, but we still need correct
+Alto/Dorado boot media or a real net/disk software boot path.
+
+2026-05-02 Spruce sector sweep: tried forced sectors `0,0,{2,3,4,8}`
+through the same `0o2220` IFU force point. Sector 2 faults at
+`MDS=0x3500000`; sectors 3 and 8 fall back into the PC-zero IFU spin.
+Sector 4 is the least bad: it runs to `PC=0o6612` with no memory fault
+and produces many display slow-I/O outputs (`TIOA 376/372/374/375/377`),
+but `DisplayMain.mc!1` fetches only low-core `DAStart` word `0420` as
+the DCB chain pointer, and that word remains zero. The generated
+`/tmp/dorado_eb_sector_4_80m.png` is all white (`unique=1`), and
+`display iofetch=0`. The nonzero words at `0423..` are string/data
+debris, not a valid DCB chain. This reinforces that Spruce is useful as
+a storage-format fixture, but not as the AEmu OS boot payload.

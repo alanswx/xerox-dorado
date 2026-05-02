@@ -413,8 +413,7 @@ static int service_alto_disk_boot_shim(dorado_memory *mem,
                 if ((bases[j] & 0x0FFFFFFFu) == b) duplicate = 1;
             }
             if (duplicate) continue;
-            if (dorado_visible_word_at_va(mem, b + 0521u) == 0431u &&
-                dorado_visible_word_at_va(mem, b + 0433u) == 044000u) {
+            if (dorado_visible_word_at_va(mem, b + 0521u) == 0431u) {
                 base = b;
                 found = 1;
                 break;
@@ -2725,6 +2724,7 @@ static int probe_full_boot_with_bootstrap(void)
     int post_eb_trace_enabled = test_u64_env("DORADO_POST_EB_TRACE", 0) != 0;
     int eth_reg_trace_enabled = test_u64_env("DORADO_ETH_REG_TRACE", 0) != 0;
     int lowcore_trace_enabled = test_u64_env("DORADO_LOWCORE_TRACE", 0) != 0;
+    int ifu_trace_enabled = test_u64_env("DORADO_IFU_TRACE", 0) != 0;
     int ethernet_boot_enabled = test_u64_env("DORADO_BOOT_ETHERNET", 1) != 0;
     uint64_t ethernet_wakeups = 0;
     const char *ether_boot_image = getenv("DORADO_ETHER_BOOT_IMAGE");
@@ -2814,6 +2814,23 @@ static int probe_full_boot_with_bootstrap(void)
     static uint16_t post_eb_task_pc_link[16][4096];
     static uint16_t post_eb_task_pc_mcr[16][4096];
     static uint32_t post_eb_task_pc_mar[16][4096];
+    struct ifu_trace_sample {
+        uint64_t cycle;
+        uint8_t task;
+        uint16_t pc, next_pc;
+        uint8_t active_before, active_after;
+        uint8_t opcode, length, n, alpha, beta;
+        uint16_t pcf_before, pcf_after;
+        uint16_t pcx_before, pcx_after;
+        uint16_t t, q, link, md;
+        uint8_t membase, rbase, stk_p;
+        uint16_t ac[4];
+    };
+#define IFU_TRACE_CAP 256
+    struct ifu_trace_sample ifu_trace[IFU_TRACE_CAP];
+    int ifu_trace_head = 0, ifu_trace_total = 0;
+    static uint32_t ifu_pcx_count[65536];
+    static uint8_t ifu_pcx_opcode[65536];
     uint64_t display_scanline_wakeups = 0;
     uint64_t display_invalid_tpc_wakeups = 0;
     uint64_t next_display_scanline_cycle = 0;
@@ -3203,6 +3220,8 @@ static int probe_full_boot_with_bootstrap(void)
         }
         uint16_t pre_mcr = dorado_mcr_get(&mem);
         uint8_t pre_ifu_active = cpu.ifu_active;
+        uint16_t pre_ifu_pcf = cpu.ifu_pcf;
+        uint16_t pre_ifu_pcx = cpu.ifu_pcx;
         uint32_t pre_br37 = dorado_br_get(&mem, 037);
         if (force_ether_mesa_boot && initial_substituted && is_imfetch &&
             !checksum_and_load_seen &&
@@ -3976,9 +3995,9 @@ static int probe_full_boot_with_bootstrap(void)
                                         alto_disk_boot_cyl,
                                         alto_disk_boot_head,
                                         alto_disk_boot_sector,
-                                        cpu.MemBase,
+                                        036,
                                         cpu.ctask == 0 &&
-                                            cpu.real_PC == 01017)) {
+                                            cpu.real_PC == 02220)) {
             alto_disk_boot_shims++;
         }
         service_boot_disk(&cpu, &disk, bb.cycles,
@@ -4069,6 +4088,42 @@ static int probe_full_boot_with_bootstrap(void)
                 post_eb_task_switches++;
             }
             post_eb_prev_task = pre_task;
+        }
+        if (ifu_trace_enabled && ether_loaded_world_cycle && is_imfetch &&
+            (pre_task == 0) &&
+            (pre_ifu_pcf != cpu.ifu_pcf ||
+             pre_ifu_pcx != cpu.ifu_pcx ||
+             pre_ifu_active != cpu.ifu_active)) {
+            struct ifu_trace_sample *it = &ifu_trace[ifu_trace_head];
+            it->cycle = bb.cycles;
+            it->task = pre_task;
+            it->pc = pre_pc;
+            it->next_pc = cpu.real_PC;
+            it->active_before = pre_ifu_active;
+            it->active_after = cpu.ifu_active;
+            it->opcode = cpu.ifu_opcode;
+            it->length = cpu.ifu_length;
+            it->n = cpu.ifu_n;
+            it->alpha = cpu.ifu_alpha;
+            it->beta = cpu.ifu_beta;
+            it->pcf_before = pre_ifu_pcf;
+            it->pcf_after = cpu.ifu_pcf;
+            it->pcx_before = pre_ifu_pcx;
+            it->pcx_after = cpu.ifu_pcx;
+            it->t = cpu.T;
+            it->q = cpu.Q;
+            it->link = cpu.Link;
+            it->md = mem.md;
+            it->membase = (uint8_t)cpu.MemBase;
+            it->rbase = (uint8_t)cpu.RBase;
+            it->stk_p = cpu.StkP;
+            for (int ac = 0; ac < 4; ac++) {
+                it->ac[ac] = cpu.STK[1 + ac];
+            }
+            ifu_trace_head = (ifu_trace_head + 1) % IFU_TRACE_CAP;
+            ifu_trace_total++;
+            ifu_pcx_count[cpu.ifu_pcx]++;
+            ifu_pcx_opcode[cpu.ifu_pcx] = cpu.ifu_opcode;
         }
 
         if (is_preset_probe) {
@@ -4526,6 +4581,48 @@ static int probe_full_boot_with_bootstrap(void)
                post_eb_last_ifu_stop_pc,
                post_eb_last_ifu_pcf,
                post_eb_last_ifu_pcx);
+        if (ifu_trace_enabled && ifu_trace_total > 0) {
+            int cap = IFU_TRACE_CAP;
+            int n = ifu_trace_total < cap ? ifu_trace_total : cap;
+            int start = (ifu_trace_total < cap) ? 0 : ifu_trace_head;
+            printf("       IFU trace last %d dispatch/start/stop events:\n", n);
+            for (int i = 0; i < n; i++) {
+                const struct ifu_trace_sample *it =
+                    &ifu_trace[(start + i) % cap];
+                printf("         cyc=%llu task=%o pc=0o%o->0o%o "
+                       "active=%u->%u PCF=0o%o->0o%o PCX=0o%o->0o%o "
+                       "op=%03o len=%u n=0o%o a=%03o b=%03o "
+                       "T=%06o Q=%06o Link=%06o Md=%06o "
+                       "mb=%02o rb=%02o StkP=%03o "
+                       "AC=%06o,%06o,%06o,%06o\n",
+                       (unsigned long long)it->cycle, it->task & 017,
+                       it->pc, it->next_pc,
+                       it->active_before, it->active_after,
+                       it->pcf_before, it->pcf_after,
+                       it->pcx_before, it->pcx_after,
+                       it->opcode, it->length, it->n,
+                       it->alpha, it->beta,
+                       it->t, it->q, it->link, it->md,
+                       it->membase & 037, it->rbase & 017, it->stk_p,
+                       it->ac[0], it->ac[1], it->ac[2], it->ac[3]);
+            }
+            printf("       IFU hot PCX:");
+            for (int rank = 0; rank < 12; rank++) {
+                uint32_t best_n = 0;
+                uint16_t best_pcx = 0;
+                for (uint32_t pcx = 0; pcx < 65536u; pcx++) {
+                    if (ifu_pcx_count[pcx] > best_n) {
+                        best_n = ifu_pcx_count[pcx];
+                        best_pcx = (uint16_t)pcx;
+                    }
+                }
+                if (!best_n) break;
+                printf(" 0o%o(op=%03o)x%u", best_pcx,
+                       ifu_pcx_opcode[best_pcx], best_n);
+                ifu_pcx_count[best_pcx] = 0;
+            }
+            printf("\n");
+        }
         if (post_loop_trace_n > 0) {
             int cap = (int)(sizeof post_loop_trace /
                             sizeof post_loop_trace[0]);
