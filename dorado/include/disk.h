@@ -219,6 +219,11 @@ typedef struct {
     uint64_t tag_writes;
     uint64_t fifo_writes;
     uint64_t fifo_reads;
+    uint64_t read_stream_starts;
+    uint64_t read_stream_start_failures;
+    uint64_t read_stream_sector_starts;
+    uint64_t read_stream_tag_starts;
+    uint64_t read_stream_muff_starts;
     uint8_t  last_output_tioa;
     uint16_t last_output_data;
     uint8_t  last_input_tioa;

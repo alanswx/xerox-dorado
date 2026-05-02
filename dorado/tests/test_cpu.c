@@ -384,7 +384,10 @@ static void seed_boot_keyboard_from_display(dorado_memory *mem,
 
 static int service_alto_disk_boot_shim(dorado_memory *mem,
                                        dorado_disk_pack *pack,
+                                       int boot_cyl,
                                        int boot_head,
+                                       int boot_sector,
+                                       int force_membase,
                                        int force_kwait)
 {
     if (!mem || !pack || !pack->sectors) return 0;
@@ -398,8 +401,10 @@ static int service_alto_disk_boot_shim(dorado_memory *mem,
         0,
         dorado_br_get(mem, 036),  /* MDS and Alto IOBR per ADefs.mc. */
         dorado_br_get(mem, 031),
+        dorado_br_get(mem, 030),
     };
-    uint32_t base = force_kwait ? (dorado_br_get(mem, 036) & 0x0FFFFFFFu) : 0;
+    uint32_t base = force_kwait ?
+        (dorado_br_get(mem, force_membase & 037) & 0x0FFFFFFFu) : 0;
     int found = force_kwait ? 1 : 0;
     if (!force_kwait) {
         for (size_t i = 0; i < sizeof bases / sizeof bases[0]; i++) {
@@ -420,11 +425,20 @@ static int service_alto_disk_boot_shim(dorado_memory *mem,
     }
     if (dorado_visible_word_at_va(mem, base + 0432u) & 07400u) return 0;
 
+    if (boot_cyl < 0) boot_cyl = 0;
+    if (boot_cyl >= pack->geometry.cylinders) {
+        boot_cyl = pack->geometry.cylinders - 1;
+    }
     if (boot_head < 0) boot_head = 0;
     if (boot_head >= pack->geometry.heads) {
         boot_head = pack->geometry.heads - 1;
     }
-    dorado_disk_sector *s = dorado_disk_pack_sector(pack, 0, boot_head, 0);
+    if (boot_sector < 0) boot_sector = 0;
+    if (boot_sector >= pack->geometry.sectors) {
+        boot_sector = pack->geometry.sectors - 1;
+    }
+    dorado_disk_sector *s = dorado_disk_pack_sector(pack, boot_cyl,
+                                                    boot_head, boot_sector);
     if (!s) return 0;
 
     for (int i = 0; i < DORADO_DISK_HEADER_WORDS; i++) {
@@ -2712,7 +2726,10 @@ static int probe_full_boot_with_bootstrap(void)
     uint64_t disk_wakeups = 0;
     uint64_t disk_normal_mode_shims = 0;
     uint64_t alto_disk_boot_shims = 0;
-    int alto_disk_boot_head = (int)test_u64_env("DORADO_ALTO_BOOT_HEAD", 18);
+    int alto_disk_boot_cyl = (int)test_u64_env("DORADO_ALTO_BOOT_CYL", 0);
+    int alto_disk_boot_head = (int)test_u64_env("DORADO_ALTO_BOOT_HEAD", 0);
+    int alto_disk_boot_sector =
+        (int)test_u64_env("DORADO_ALTO_BOOT_SECTOR", 2);
     uint64_t boot_identity_map_shims = 0;
     uint64_t ether_boot_injections = 0;
     uint16_t ether_boot_end = 0;
@@ -3882,10 +3899,12 @@ static int probe_full_boot_with_bootstrap(void)
         }
         if (ether_loaded_world_cycle && alto_disk_boot_shims == 0 &&
             service_alto_disk_boot_shim(&mem, &disk_pack,
+                                        alto_disk_boot_cyl,
                                         alto_disk_boot_head,
+                                        alto_disk_boot_sector,
+                                        cpu.MemBase,
                                         cpu.ctask == 0 &&
-                                            (cpu.real_PC == 01017 ||
-                                             cpu.real_PC == 05550))) {
+                                            cpu.real_PC == 01017)) {
             alto_disk_boot_shims++;
         }
         service_boot_disk(&cpu, &disk, bb.cycles,
@@ -4602,17 +4621,26 @@ static int probe_full_boot_with_bootstrap(void)
         }
     }
     printf("       Disk pack: %s, sector ticks=%llu wakeups=%llu "
-           "fifo reads=%llu writes=%llu normal-mode shims=%llu "
-           "alto-boot shims=%llu(head=%d) "
+           "fifo reads=%llu writes=%llu read streams=%llu "
+           "(fail=%llu sector=%llu tag=%llu muff=%llu) "
+           "normal-mode shims=%llu "
+           "alto-boot shims=%llu(CHS=%d,%d,%d) "
            "selected=%d CHS=(%d,%d,%d)\n",
            disk_pack_attached ? disk_pack.path : "(none)",
            (unsigned long long)disk_sector_ticks,
            (unsigned long long)disk_wakeups,
            (unsigned long long)disk.fifo_reads,
            (unsigned long long)disk.fifo_writes,
+           (unsigned long long)disk.read_stream_starts,
+           (unsigned long long)disk.read_stream_start_failures,
+           (unsigned long long)disk.read_stream_sector_starts,
+           (unsigned long long)disk.read_stream_tag_starts,
+           (unsigned long long)disk.read_stream_muff_starts,
            (unsigned long long)disk_normal_mode_shims,
            (unsigned long long)alto_disk_boot_shims,
+           alto_disk_boot_cyl,
            alto_disk_boot_head,
+           alto_disk_boot_sector,
            disk.selected_drive,
            disk.drive[disk.selected_drive].cur_cyl,
            disk.drive[disk.selected_drive].cur_head,
@@ -4910,6 +4938,11 @@ static int probe_full_boot_with_bootstrap(void)
                 for (uint32_t i = 0; i < 3; i++) {
                     printf("%s%04X", (i == 0) ? "" : " ",
                            dorado_visible_word_at_va(&mem, mds + 0521u + i));
+                }
+                printf(" [0001..0010]=");
+                for (uint32_t i = 0; i < 8; i++) {
+                    printf("%s%04X", (i == 0) ? "" : " ",
+                           dorado_visible_word_at_va(&mem, mds + 0001u + i));
                 }
                 printf("\n");
             }

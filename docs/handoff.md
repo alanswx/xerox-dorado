@@ -1467,12 +1467,13 @@ RAM setup. The late 80M trace is task 14 looping through the Alto disk
 status/sector path (`AltoLoop`, `Read1Muff`, `Read20Muffs` after EB
 relocation). It does not reach a `DiskData` transfer; `fifo reads=0`,
 `fifo writes=0`, and the display remains blank because `DAStart` is
-zero. The first-sector shim now checks absolute low memory plus Alto
-MDS (`BR36`) and `BR31`, but it still reports `alto-boot shims=0`;
-final MDS `[0431..0440]` and `[0521..0523]` are zero. The likely next
-debugging target is the command-handoff edge: watch stores to MDS
-`0431..0440`/`0521..0523` and the DSK task fetch path that should
-notice a nonzero command pointer and branch to `DoACmmd`.
+zero. The first-sector shim now checks absolute low memory, Alto MDS
+(`BR36`), `BR31`, and `BR30`, but it still reports
+`alto-boot shims=0`; final MDS `[0431..0440]` and `[0521..0523]` are
+zero. The likely next debugging target is the command-handoff edge:
+watch stores to the loaded-world low-core windows and the DSK task fetch
+path that should notice a nonzero command pointer and branch to
+`DoACmmd`.
 
 2026-05-02 cache-visible / CSB follow-up: storage-only probes were
 misleading for dirty cache lines. `dorado_visible_word_at_va()` now
@@ -1490,12 +1491,15 @@ status/sector loop, and the display task outputs blank
 `ACmmdCheck`/`Read20Muffs` status path after EB relocation, not
 PilotDisk CSB.
 
-2026-05-02 forced KWait correction: the probe-side AEmu first-sector
-shim's forced path was still writing absolute low memory. Since
-`ADefs.mc` makes Alto `IOBR` equal to `MDS`, the forced path now writes
-through BR `036` and is armed at loaded-world `KWait` (`0o5550`). An
-80M run now shows `alto-boot shims=1` and task 0 moves past the first
-disk wait, reaching the display/disk mix at `COLORBITMAPNIL`. The
-snapshot remains all white, and the real DSK task still later loops in
-`Read20Muffs`/status with zero `DiskData` FIFO reads, so this confirms
-the handoff shim only; it does not fix the real controller path.
+2026-05-02 forced-shim correction: the supposed loaded-world `KWait`
+at `0o5550` was a bad symbol match. A focused `DORADO_POST_EB_TRACE=1`
+run shows `0o5550` is a store/clear loop with `MemBase=30`, not the
+`AEm0.mc` disk wait. The harness no longer forces the first-sector shim
+there; it only keeps the older `0o1017` force point and the command
+block scan path. Current 80M runs are honest again:
+`alto-boot shims=0`, `fifo reads=0`, `read streams=0`, display remains
+`COLORBITMAPNIL`, and no command pointer has been observed. Also note
+that `spruce-server.dsk300` head 18/sector 0 is blank/free; the harness
+now has `DORADO_ALTO_BOOT_CYL`, `DORADO_ALTO_BOOT_HEAD`, and
+`DORADO_ALTO_BOOT_SECTOR` knobs, defaulting to local candidate
+`0,0,2`, but this only matters once a real command handoff is found.

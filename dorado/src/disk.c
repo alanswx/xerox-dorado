@@ -275,14 +275,24 @@ void dorado_disk_controller_refill_fifo(dorado_disk_controller *ctl)
     }
 }
 
-static void disk_begin_read_stream(dorado_disk_controller *ctl)
+static int disk_begin_read_stream(dorado_disk_controller *ctl)
 {
+    if (!ctl) return 0;
+    dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
+    if (!d->pack ||
+        !dorado_disk_pack_sector(d->pack, d->cur_cyl, d->cur_head,
+                                 disk_media_sector(d))) {
+        ctl->read_stream_start_failures++;
+        return 0;
+    }
     ctl->fifo_count = 0;
     ctl->fifo_head = 0;
     ctl->fifo_tail = 0;
     ctl->read_stream_index = 0;
     ctl->read_stream_active = 1;
+    ctl->read_stream_starts++;
     dorado_disk_controller_refill_fifo(ctl);
+    return ctl->read_stream_active || ctl->fifo_count > 0;
 }
 
 int dorado_disk_controller_wakeup_pending(const dorado_disk_controller *ctl)
@@ -344,8 +354,10 @@ void dorado_disk_controller_advance_sector(dorado_disk_controller *ctl)
     if ((ctl->active || ctl->enable_run) &&
         disk_control_has_transfer_op(ctl->control)) {
         /* Some op other than Done; reload FIFO with new sector. */
-        ctl->active = 1;
-        disk_begin_read_stream(ctl);
+        if (disk_begin_read_stream(ctl)) {
+            ctl->active = 1;
+            ctl->read_stream_sector_starts++;
+        }
     }
 }
 
@@ -512,14 +524,9 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
                 }
                 if (bus & (1u << 6)) {
                     /* Read — populate FIFO from current sector. */
-                    dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
-                    if (d->pack) {
-                        if (dorado_disk_pack_sector(d->pack, d->cur_cyl,
-                                                    d->cur_head,
-                                                    d->cur_sector)) {
-                            disk_begin_read_stream(ctl);
-                            ctl->active = 1;
-                        }
+                    if (disk_begin_read_stream(ctl)) {
+                        ctl->active = 1;
+                        ctl->read_stream_tag_starts++;
                     }
                 }
                 if (bus & (1u << 7)) {
@@ -576,8 +583,10 @@ static uint16_t disk_input(void *ctx, int task, uint8_t tioa, int *bad)
         case 003: bit = ctl->tag_tw; break;
         case 004:
             if (!ctl->rd_fifo_tw && !ctl->active && ctl->enable_run && d->pack) {
-                ctl->active = 1;
-                disk_begin_read_stream(ctl);
+                if (disk_begin_read_stream(ctl)) {
+                    ctl->active = 1;
+                    ctl->read_stream_muff_starts++;
+                }
             }
             bit = ctl->rd_fifo_tw;
             break;
