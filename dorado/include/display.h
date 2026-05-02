@@ -42,7 +42,7 @@
  * NOT modeled yet:
  *   - Pixel clock generation (we use a synthetic raster/vblank clock)
  *   - Real HSync/VSync waveform timing
- *   - 7-wire interface back-channel keyboard/mouse encoding
+ *   - Full 7-wire interface back-channel keyboard/mouse encoding
  *   - 24Bit color mode (3-channel via AMap+BMap+CMap)
  *   - Mixer modes A8B2 / BBypass / dDAC outputs
  *   - Interlace (OddField)
@@ -183,6 +183,10 @@ typedef struct {
      * 0..3 are the normal boot keyboard words; word 4 is Star-only. */
     uint16_t keyboard_words[DORADO_DISPLAY_KEY_WORDS];
     uint32_t boot_button_scanlines;  /* remaining terminal-status 1 bits */
+    uint8_t  terminal_msg_word;      /* next keyboard word message, 0..3 */
+    uint8_t  terminal_msg_bit;       /* next serial bit within 32-bit msg */
+    uint64_t terminal_bits;          /* serial keyboard bits served */
+    uint64_t terminal_messages;      /* complete keyboard messages served */
 
     /* Framebuffer: 808×606 mono, packed 8 pixels per byte, MSB = leftmost.
      * Phase 1: DWT/AWT IOFetch← drops words here as a backdoor;

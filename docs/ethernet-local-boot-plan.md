@@ -267,8 +267,9 @@ real Initial Ethernet tasks.
 - IFS or Gateway file service.
 - External Ethernet/TAP interface.
 - Wire-level phase encoding, real CRC, jamming, or exponential backoff.
-- Pure network OS boot. The OS boots locally from the mounted Trident pack for
-  this plan.
+- Pure network OS boot was a non-goal for the first pass, but it is now a
+  plausible fallback if the local pack is not bootable. It is a separate
+  second-stage AltoBoot/EFTP path, not the Initial microcode boot server.
 
 ## Main Risks
 
@@ -287,12 +288,19 @@ real Initial Ethernet tasks.
    Initial requests `0110`, the fake Ethernet device serves
    `AltoMesaDorado.eb!1`, the EB End item matches memory, and LoadRam
    jumps into Mesa/AEmu.
-2. Keep hardening the Ethernet packet path, but move the boot blocker to
-   local Alto disk boot. The current loop is AEmu `KWait` at `0o1017`,
-   waiting for status at Alto memory `0432`.
-3. Trace why the probe-written first-sector status `0F01` remains
-   visible in memory but does not move AEmu out of `KWait`.
-4. Replace the first-sector shim with real Dorado/Alto disk task
-   completion once the status/MD visibility issue is fixed.
-5. Use `/tmp/dorado_boot_display.pgm` as the headless visual artifact
-   while the disk boot advances toward display-list construction.
+2. The documentation splits the next stage into Alto-style software boot
+   from disk or Ethernet. Disk boot is still useful for Alto-pack testing, but
+   network boot needs a different protocol: BS/Quote selects the Alto
+   NetExec path, the loader sends a Mayday Pup (`244B`), and the server sends
+   EFTP Data/End packets (`30B`/`31B`).
+3. Keep `DORADO_ALTO_BOOT_ETHERNET=1` as a probe for the second-stage path.
+   The current focused run shows the final AEmu keyboard words as
+   `FFFE FFF7 FFFF FFFF`, but still records no post-LoadRam Dorado EOT/EIT
+   packets and still reaches the disk path. Trace the AEmu keyboard read and
+   `EBoot` branch next.
+4. Once AEmu demonstrably reaches the Alto Ethernet loader, implement the Alto
+   Ethernet/SIO surface exposed to the simulated Alto code, then add a minimal
+   Mayday/EFTP boot server that can serve a known boot file or NetExec image.
+5. Continue producing `/tmp/dorado_boot_display.pgm` as the headless visual
+   artifact while either disk or network software boot advances toward
+   display-list construction.

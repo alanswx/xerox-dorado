@@ -27,6 +27,29 @@ Remote source URLs:
 - https://xeroxparcarchive.computerhistory.org/_cd8_/pupgateway/calaveras/private/.EtherBoot.mesa%211.html
 - https://xeroxparcarchive.computerhistory.org/_cd8_/pup/.PUPPAPER.PRESS%211.pdf
 
+## Two Different Ethernet Boots
+
+The Dorado boot documentation describes two Ethernet boot layers that should
+not be conflated:
+
+1. **Initial microcode boot.** Initial loads emulator microcode, such as
+   `AltoMesaDorado.eb!1`, with `InitialEther.mc` and Pup types `264B`
+   (`MicrocodeBootRequest`) and `265B` (`MicrocodeBootReply`). This is the
+   path implemented by the current fake Dorado Ethernet controller.
+2. **Alto-style software boot.** After `LoadRam`, the loaded Alto emulator
+   performs an Alto-compatible software boot from disk or Ethernet. The
+   Apr-1980 Dorado booting memo says these conventions are the same as the
+   Alto: BS selects Ethernet boot, and BS+Quote requests the NetExec. The
+   local `EtherBoot.mesa!1` transcription shows this path starts with an Alto
+   "Mayday" Pup (`typeMayday = 244B`) and then receives the boot file by EFTP
+   Data/End packets (`30B`/`31B`) with Ack packets from the loader.
+
+The second path runs inside the Alto emulator, not Initial. It will require
+the Alto Ethernet/SIO hardware surface that AEmu exposes to Alto code, plus a
+minimal AltoBoot/EFTP server. Responding with Initial-style
+`MicrocodeBootReply` packets is not sufficient for a NetExec or OS software
+boot.
+
 ## Hardware Model
 
 The Dorado uses a 3 Mbit/s Alto-style Ethernet controller on the DskEth board.
@@ -308,3 +331,13 @@ from the VM `177400B` transmit packet buffer and EIT appears unable to
 round-trip received packet words through its page-zero buffer. The next
 hardware fidelity issue is therefore the non-emulator task memory path, not the
 Pup packet format.
+
+2026-05-02 update: the direct EB-loader path now gets into the loaded
+Alto/Mesa emulator. A new gated probe knob, `DORADO_ALTO_BOOT_ETHERNET=1`,
+attempts to hold the AEmu-visible BS key down, with Quote also down by default
+(`DORADO_ALTO_BOOT_QUOTE=1`), to exercise the documented Alto software
+Ethernet boot. The focused run still shows zero Dorado EOT/EIT traffic after
+LoadRam and still exercises the Alto disk path, so the next missing piece is
+not an Initial microcode server reply. The next investigation should trace the
+AEmu keyboard read/`EBoot` branch and then implement the Alto Ethernet/SIO
+surface plus Mayday/EFTP server once that branch is reached.

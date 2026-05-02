@@ -205,6 +205,27 @@ static void map_boot_probe_bank(dorado_memory *mem, uint32_t base_page,
     map_boot_probe_bank_to(mem, base_page, base_page, pages);
 }
 
+static void map_boot_probe_alto_mds_aliases(dorado_memory *mem)
+{
+    /* The direct EB/LoadRam shortcut bypasses InitMapWarm. Map the
+     * observed AltoMesa MDS aliases back onto the first 64K real words. */
+    map_boot_probe_bank_to(mem, 0x200, 0, 256);
+    map_boot_probe_bank_to(mem, dorado_map_index(0x3500000u), 0, 256);
+}
+
+static int boot_probe_alto_mds_aliases_ready(const dorado_memory *mem)
+{
+    uint32_t aliases[] = {0x200, dorado_map_index(0x3500000u)};
+    for (size_t ai = 0; ai < sizeof aliases / sizeof aliases[0]; ai++) {
+        uint32_t base = aliases[ai];
+        for (uint32_t pg = 0; pg < 256; pg++) {
+            const dorado_map_entry *m = dorado_map_get(mem, base + pg);
+            if (m->wp && m->dirty) return 0;
+        }
+    }
+    return 1;
+}
+
 static void map_boot_probe_installed_storage(dorado_memory *mem)
 {
     uint32_t pages = (uint32_t)(mem->storage_words / DM_PAGE_SIZE);
@@ -379,6 +400,33 @@ static void seed_boot_keyboard_from_display(dorado_memory *mem,
             seed_boot_keyboard_va(mem, va, value);
         }
     }
+}
+
+static void seed_boot_keyboard_words(dorado_memory *mem,
+                                     const uint16_t words[4])
+{
+    if (!mem || !mem->storage || !words) return;
+
+    uint32_t bases[] = {
+        0,
+        dorado_br_get(mem, 031),
+        dorado_br_get(mem, 036),
+    };
+
+    for (size_t b = 0; b < sizeof bases / sizeof bases[0]; b++) {
+        for (uint32_t word = 0; word < 4; word++) {
+            uint32_t va = (bases[b] + 0177034u + word) & 0x0FFFFFFFu;
+            seed_boot_keyboard_va(mem, va, words[word]);
+        }
+    }
+}
+
+static void set_alto_ether_boot_display_keys(dorado_display *display,
+                                             int quote_down)
+{
+    if (!display) return;
+    dorado_display_keyboard_set_key(display, DORADO_KEY_BS, 1);
+    dorado_display_keyboard_set_key(display, DORADO_KEY_QUOTE, quote_down);
 }
 
 static int service_alto_disk_boot_shim(dorado_memory *mem,
@@ -2755,6 +2803,7 @@ static int probe_full_boot_with_bootstrap(void)
     uint64_t ether_bank2_lost_cycle = 0;
     uint16_t ether_bank2_lost_pc = 0;
     uint8_t ether_bank2_lost_task = 0;
+    uint32_t ether_bank2_lost_index = 0;
     dorado_map_entry ether_bank2_lost_entry = {0};
     uint64_t ether_bank2_remap_shims = 0;
     uint64_t ether_br37_bad_cycle = 0;
@@ -2775,6 +2824,33 @@ static int probe_full_boot_with_bootstrap(void)
     uint16_t post_eb_last_ifu_stop_pc = 0;
     uint16_t post_eb_last_ifu_pcf = 0;
     uint16_t post_eb_last_ifu_pcx = 0;
+    struct post_eb_landmark {
+        uint16_t pc;
+        const char *name;
+        uint64_t count;
+        uint64_t first_cycle;
+        uint8_t first_task;
+        uint16_t first_t;
+        uint16_t first_link;
+        uint16_t first_mar;
+    } post_eb_landmarks[] = {
+        { 03573, "Mesa:STARTEMULATOR", 0, 0, 0, 0, 0, 0 },
+        { 03603, "Mesa:RESUMEEMULATOR", 0, 0, 0, 0, 0, 0 },
+        { 03656, "Mesa:ABOOT", 0, 0, 0, 0, 0, 0 },
+        { 03707, "Mesa:DISKBOOT", 0, 0, 0, 0, 0, 0 },
+        { 03734, "Mesa:KWAIT", 0, 0, 0, 0, 0, 0 },
+        { 05365, "Mesa:EBOOT", 0, 0, 0, 0, 0, 0 },
+        { 05341, "Mesa:ESIO", 0, 0, 0, 0, 0, 0 },
+        { 05354, "Mesa:SIOSTART", 0, 0, 0, 0, 0, 0 },
+        { 05355, "Mesa:SIORESET", 0, 0, 0, 0, 0, 0 },
+        { 05360, "Mesa:SIONOP", 0, 0, 0, 0, 0, 0 },
+        { 05142, "Mesa:EOTINITPC", 0, 0, 0, 0, 0, 0 },
+        { 05150, "Mesa:EITINITPC", 0, 0, 0, 0, 0, 0 },
+        { 05234, "Mesa:EOIDLE", 0, 0, 0, 0, 0, 0 },
+        { 05166, "Mesa:EIIDLE", 0, 0, 0, 0, 0, 0 },
+        { 05252, "Mesa:EWAIT", 0, 0, 0, 0, 0, 0 },
+        { 05321, "Mesa:EPOST", 0, 0, 0, 0, 0, 0 },
+    };
     struct post_eb_trace_sample {
         uint64_t cycle;
         uint8_t task, task_after;
@@ -2838,6 +2914,15 @@ static int probe_full_boot_with_bootstrap(void)
         test_u64_env("DORADO_TERMINAL_BOOT_SCANLINES", 0300);
     int terminal_boot_armed = 0;
     uint64_t keyboard_seed_count = 0;
+    uint64_t alto_ether_keyboard_seed_count = 0;
+    int force_alto_ether_boot =
+        test_u64_env("DORADO_ALTO_BOOT_ETHERNET", 0) != 0;
+    int force_alto_ether_quote =
+        force_alto_ether_boot &&
+        test_u64_env("DORADO_ALTO_BOOT_QUOTE", 1) != 0;
+    if (force_alto_ether_boot) {
+        set_alto_ether_boot_display_keys(&display, force_alto_ether_quote);
+    }
     uint64_t boot_parameter_seed_count = 0;
     int force_ether_mesa_boot =
         ethernet_boot_enabled &&
@@ -3266,19 +3351,23 @@ static int probe_full_boot_with_bootstrap(void)
              * emulator BRs to bank 2 (0x20000), so model that warm-map
              * result explicitly for the direct probe.
              */
-            map_boot_probe_bank_to(&mem, 0x200, 0, 256);
+            map_boot_probe_alto_mds_aliases(&mem);
             if (inject_ether_boot_image(&mem, ether_boot_image, 01000,
                                         &ether_boot_end, &ether_boot_sum,
                                         &ether_boot_start_pc)) {
                 (void)loadram_image_direct(&mc, &cpu, ether_boot_image,
                                            &ether_boot_start_pc);
                 map_boot_probe_installed_storage(&mem);
-                map_boot_probe_bank_to(&mem, 0x200, 0, 256);
+                map_boot_probe_alto_mds_aliases(&mem);
                 if (disk_pack_attached) {
                     dorado_disk_controller_init(&disk);
                     dorado_disk_controller_attach_drive(&disk, 0, &disk_pack);
                 }
                 dorado_display_init(&display);
+                if (force_alto_ether_boot) {
+                    set_alto_ether_boot_display_keys(
+                        &display, force_alto_ether_quote);
+                }
                 dorado_display_attach_to_io(&display, &io);
                 for (uint16_t rb = 0; rb < 0x100; rb += 0x10) {
                     cpu.RM[rb | 0x01] = ether_boot_end;
@@ -3300,6 +3389,9 @@ static int probe_full_boot_with_bootstrap(void)
                  * IFU/test-control state rather than inheriting a pending
                  * tick.
                  */
+                for (int task = 1; task < 16; task++) {
+                    cpu.task_tpc[task] = 0177777;
+                }
                 cpu.ready = 1u;
                 cpu.wakeup_pending = 0;
                 cpu.junk_tw_enabled = 0;
@@ -3776,17 +3868,32 @@ static int probe_full_boot_with_bootstrap(void)
             const dorado_map_entry *m200 = dorado_map_get(&mem, 0x200);
             const dorado_map_entry *m2fe = dorado_map_get(&mem, 0x2FE);
             const dorado_map_entry *m624 = dorado_map_get(&mem, 0x624);
+            uint32_t mds_alias_index = dorado_map_index(0x3500000u);
+            const dorado_map_entry *mmds = dorado_map_get(&mem, mds_alias_index);
             if ((m200->wp && m200->dirty) ||
                 (m2fe->wp && m2fe->dirty) ||
-                (m624->wp && m624->dirty)) {
+                (m624->wp && m624->dirty) ||
+                (mmds->wp && mmds->dirty)) {
                 if (ether_bank2_lost_cycle == 0) {
+                    const dorado_map_entry *lost = m200;
                     ether_bank2_lost_cycle = bb.cycles;
                     ether_bank2_lost_pc = pre_pc;
                     ether_bank2_lost_task = pre_task;
-                    ether_bank2_lost_entry = *m200;
+                    ether_bank2_lost_index = 0x200;
+                    if (m2fe->wp && m2fe->dirty) {
+                        lost = m2fe;
+                        ether_bank2_lost_index = 0x2FE;
+                    } else if (m624->wp && m624->dirty) {
+                        lost = m624;
+                        ether_bank2_lost_index = 0x624;
+                    } else if (mmds->wp && mmds->dirty) {
+                        lost = mmds;
+                        ether_bank2_lost_index = mds_alias_index;
+                    }
+                    ether_bank2_lost_entry = *lost;
                 }
                 map_boot_probe_installed_storage(&mem);
-                map_boot_probe_bank_to(&mem, 0x200, 0, 256);
+                map_boot_probe_alto_mds_aliases(&mem);
                 ether_bank2_remap_shims++;
             }
         }
@@ -3990,6 +4097,19 @@ static int probe_full_boot_with_bootstrap(void)
             seed_boot_keyboard_from_display(&mem, &display);
             keyboard_seed_count++;
         }
+        if (ether_loaded_world_cycle && force_alto_ether_boot &&
+            !cpu.ifu_active) {
+            uint16_t words[4] = {
+                0xFFFEu,  /* BS down: AEm0.mc branches to EBoot. */
+                force_alto_ether_quote ? 0xFFF7u : 0xFFFFu,
+                0xFFFFu,
+                0xFFFFu,
+            };
+            set_alto_ether_boot_display_keys(&display,
+                                             force_alto_ether_quote);
+            seed_boot_keyboard_words(&mem, words);
+            alto_ether_keyboard_seed_count++;
+        }
         if (ether_loaded_world_cycle && alto_disk_boot_shims == 0 &&
             service_alto_disk_boot_shim(&mem, &disk_pack,
                                         alto_disk_boot_cyl,
@@ -4030,6 +4150,10 @@ static int probe_full_boot_with_bootstrap(void)
                 terminal_boot_armed = 1;
             }
             uint16_t mask = dorado_display_scanline_wakeup_mask(&display);
+            if (ether_boot_injections &&
+                !boot_probe_alto_mds_aliases_ready(&mem)) {
+                mask = 0;
+            }
             for (int task = 0; task < 16; task++) {
                 if (mask & (1u << task)) {
                     if (cpu.task_tpc[task] == 0177777) {
@@ -4046,7 +4170,9 @@ static int probe_full_boot_with_bootstrap(void)
         }
         if (initial_substituted) {
             int dwt_subtask = 0;
-            if (dorado_display_dwt_wakeup(&display, &dwt_subtask)) {
+            if (dorado_display_dwt_wakeup(&display, &dwt_subtask) &&
+                (!ether_boot_injections ||
+                 boot_probe_alto_mds_aliases_ready(&mem))) {
                 int word_task =
                     display.terminal_task == DORADO_DISPLAY_TASK_AHT
                         ? DORADO_DISPLAY_TASK_AWT
@@ -4081,6 +4207,19 @@ static int probe_full_boot_with_bootstrap(void)
                 post_eb_task_pc_link[t][pre_pc] = pre_link;
                 post_eb_task_pc_mcr[t][pre_pc] = pre_mcr;
                 post_eb_task_pc_mar[t][pre_pc] = pre_mar;
+            }
+            for (size_t i = 0;
+                 i < sizeof post_eb_landmarks / sizeof post_eb_landmarks[0];
+                 i++) {
+                if (pre_pc != post_eb_landmarks[i].pc) continue;
+                if (post_eb_landmarks[i].count == 0) {
+                    post_eb_landmarks[i].first_cycle = bb.cycles;
+                    post_eb_landmarks[i].first_task = pre_task & 0xF;
+                    post_eb_landmarks[i].first_t = pre_t;
+                    post_eb_landmarks[i].first_link = pre_link;
+                    post_eb_landmarks[i].first_mar = (uint16_t)pre_mar;
+                }
+                post_eb_landmarks[i].count++;
             }
             post_eb_ready_or |= cpu.ready;
             post_eb_wakeup_or |= cpu.wakeup_pending;
@@ -4286,9 +4425,10 @@ static int probe_full_boot_with_bootstrap(void)
                (unsigned long long)ether_loaded_world_cycle);
         if (ether_bank2_lost_cycle) {
             printf("       Ether bank2 map lost at cycle=%llu task=%o pc=0o%o "
-                   "Map[0x200]=rp%04X wp%u d%u r%u\n",
+                   "Map[0x%X]=rp%04X wp%u d%u r%u\n",
                    (unsigned long long)ether_bank2_lost_cycle,
                    ether_bank2_lost_task & 017, ether_bank2_lost_pc,
+                   ether_bank2_lost_index,
                    ether_bank2_lost_entry.rp, ether_bank2_lost_entry.wp,
                    ether_bank2_lost_entry.dirty, ether_bank2_lost_entry.ref);
         }
@@ -4448,13 +4588,15 @@ static int probe_full_boot_with_bootstrap(void)
     }
     printf("       Task=%u TIOA=0x%02X display outs=%llu iofetch=%llu "
            "dwt wakeups=%llu scanline wakeups=%llu suppressed=%llu "
-           "disk outs=%llu ins=%llu\n",
+           "terminal bits=%llu msgs=%llu disk outs=%llu ins=%llu\n",
            cpu.ctask, cpu.TIOA & 0xFF,
            (unsigned long long)display.output_count,
            (unsigned long long)display.iofetch_count,
            (unsigned long long)display.dwt_wakeups,
            (unsigned long long)display_scanline_wakeups,
            (unsigned long long)display_invalid_tpc_wakeups,
+           (unsigned long long)display.terminal_bits,
+           (unsigned long long)display.terminal_messages,
            (unsigned long long)disk.output_count,
            (unsigned long long)disk.input_count);
     printf("       Ethernet: enabled=%d wakeups=%llu ctl0=%llu last0=0o%o "
@@ -4573,6 +4715,21 @@ static int probe_full_boot_with_bootstrap(void)
         printf(" switches=%llu ready_or=0x%04X wakeup_or=0x%04X\n",
                (unsigned long long)post_eb_task_switches,
                post_eb_ready_or, post_eb_wakeup_or);
+        printf("       Post-LoadRam Mesa/AEmu Ethernet landmarks:");
+        for (size_t i = 0;
+             i < sizeof post_eb_landmarks / sizeof post_eb_landmarks[0];
+             i++) {
+            if (!post_eb_landmarks[i].count) continue;
+            printf(" %s×%llu(first@%llu task=%o T=%04X Link=0o%o Mar=%05X)",
+                   post_eb_landmarks[i].name,
+                   (unsigned long long)post_eb_landmarks[i].count,
+                   (unsigned long long)post_eb_landmarks[i].first_cycle,
+                   post_eb_landmarks[i].first_task,
+                   post_eb_landmarks[i].first_t,
+                   post_eb_landmarks[i].first_link,
+                   post_eb_landmarks[i].first_mar);
+        }
+        printf("\n");
         printf("       Post-LoadRam IFU transitions: arms=%llu last_arm_pc=0o%o "
                "stops=%llu last_stop_pc=0o%o last_pcf=0o%o last_pcx=0o%o\n",
                (unsigned long long)post_eb_ifu_arm_count,
@@ -4891,6 +5048,10 @@ static int probe_full_boot_with_bootstrap(void)
                boot_keyboard_word(cpu.mem, 0177036u),
                boot_keyboard_word(cpu.mem, 0177037u));
     }
+    printf("       AEmu Ethernet boot keys: force=%d quote=%d seeds=%llu\n",
+           force_alto_ether_boot,
+           force_alto_ether_quote,
+           (unsigned long long)alto_ether_keyboard_seed_count);
     printf("       Boot parameter seeds=%llu force_mesa=%d STK[1..3]=%06o %06o %06o\n",
            (unsigned long long)boot_parameter_seed_count,
            force_ether_mesa_boot,
@@ -5069,16 +5230,21 @@ static int probe_full_boot_with_bootstrap(void)
             const dorado_map_entry *mff = dorado_map_get(&mem, 0xFF);
             const dorado_map_entry *m200 = dorado_map_get(&mem, 0x200);
             const dorado_map_entry *m2fe = dorado_map_get(&mem, 0x2FE);
+            uint32_t mds_alias_index = dorado_map_index(0x3500000u);
+            const dorado_map_entry *mmds = dorado_map_get(&mem, mds_alias_index);
             printf("       Map[0]=rp%04X wp%d d%d r%d "
                    "Map[1]=rp%04X wp%d d%d r%d "
                    "Map[0xFF]=rp%04X wp%d d%d r%d "
                    "Map[0x200]=rp%04X wp%d d%d r%d "
-                   "Map[0x2FE]=rp%04X wp%d d%d r%d\n",
+                   "Map[0x2FE]=rp%04X wp%d d%d r%d "
+                   "Map[0x%X]=rp%04X wp%d d%d r%d\n",
                    m0->rp, m0->wp, m0->dirty, m0->ref,
                    m1->rp, m1->wp, m1->dirty, m1->ref,
                    mff->rp, mff->wp, mff->dirty, mff->ref,
                    m200->rp, m200->wp, m200->dirty, m200->ref,
-                   m2fe->rp, m2fe->wp, m2fe->dirty, m2fe->ref);
+                   m2fe->rp, m2fe->wp, m2fe->dirty, m2fe->ref,
+                   mds_alias_index,
+                   mmds->rp, mmds->wp, mmds->dirty, mmds->ref);
         }
         {
             uint32_t iobr = dorado_br_get(&mem, 031);

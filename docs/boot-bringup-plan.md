@@ -1557,6 +1557,22 @@ random Spruce sectors unless the goal is pack archaeology; the useful
 next step is to provide real bootable Alto/Dorado software content or a
 server protocol that supplies it.
 
+2026-05-02 direct EB map/wakeup update: the direct `LoadRam` probe now
+maps both observed Alto MDS aliases (`0x20000` and the later
+`0x3500000` bank) back onto the first 64K real words. It also clears
+non-EMU task TPCs at the handoff and suppresses synthetic display
+scanline wakeups while `InitMap` has deliberately vacated those MDS
+aliases during its map rebuild. This removed the spurious display-task
+fault at `task=3 PC=0o4776 VA=0x3500116`; `DORADO_FAULT_TRACE=1/2`
+now emits no fault trace in the focused 32M run. The remaining state is
+not a display FIFO problem: the run reaches the loaded IFU path
+(`STARTIFU 0o2201`, pause at `0o2202`) and then spends its time around
+Alto/Mesa PC zero with `display iofetch=0`, no DWT wakeups, no
+post-LoadRam Dorado EOT/EIT traffic, and no nonzero `DAStart`. Next
+debugging target is the AEmu software boot handoff: prove whether the
+keyboard words drive the `EBoot` branch, then implement the Alto SIO /
+Mayday-EFTP path or provide a known-good local Alto boot image.
+
 These are weeks-of-work each, in rough order of effort:
 
 | Phase | Effort | Dependency      |

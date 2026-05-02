@@ -152,6 +152,27 @@ void dorado_display_boot_button(dorado_display *d, uint32_t scanlines)
     d->boot_button_scanlines = scanlines;
 }
 
+static uint16_t display_terminal_keyboard_bit(dorado_display *d)
+{
+    if (!d) return 0;
+
+    uint8_t word = (uint8_t)(d->terminal_msg_word & 3u);
+    uint8_t type = (uint8_t)(word + 1u);
+    uint16_t body = d->keyboard_words[word];
+    uint32_t msg = (1u << 31) | ((uint32_t)type << 24) |
+                   ((uint32_t)body << 8) | (1u << 7);
+    uint16_t bit = (uint16_t)((msg >> (31u - (d->terminal_msg_bit & 31u))) & 1u);
+
+    d->terminal_bits++;
+    d->terminal_msg_bit++;
+    if (d->terminal_msg_bit >= 32u) {
+        d->terminal_msg_bit = 0;
+        d->terminal_msg_word = (uint8_t)((word + 1u) & 3u);
+        d->terminal_messages++;
+    }
+    return bit;
+}
+
 /* Phase 1: a single permissive output handler that records the
  * (task, tioa, data) triple but does nothing semantically. The
  * real DDC has six (DispY) or eight (DispM) output devices, each
@@ -227,16 +248,19 @@ static uint16_t display_input(void *ctx, int task, uint8_t tioa, int *bad)
      *
      * DisplayAux.mc:DisplayInitConfig probes TStatus for DispM
      * presence, then DDCStatus/MufAddr=106 for monitor type. These
-     * are single status bits, not the Alto keyboard words. Return an
-     * idle zero stream for now: no DispM board, Alto monitor, no
-     * terminal start bit/boot-button message unless the headless
-     * terminal API has armed a boot-button hold. During such a hold
+     * are single status bits, not direct Alto keyboard words. EMU task
+     * probes should see no DispM board; DHT/AHT terminal tasks receive
+     * one serial keyboard bit per scan line. During a boot-button hold
      * the terminal jams the serial data bit to 1; DisplayAux.mc
      * interprets that as message type 17 and times the duration. */
     if (tioa == DORADO_DISPLAY_TIOA_TSTATUS) {
         if (d && d->boot_button_scanlines > 0) {
             d->boot_button_scanlines--;
             return 1;
+        }
+        if (d && (task == DORADO_DISPLAY_TASK_DHT ||
+                  task == DORADO_DISPLAY_TASK_AHT)) {
+            return display_terminal_keyboard_bit(d);
         }
         return 0;
     }

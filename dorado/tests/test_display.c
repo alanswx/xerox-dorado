@@ -172,7 +172,9 @@ static int test_attach_to_io(void)
     EXPECT(v == 0x0001, "boot TStatus second bit = 0x%X", v);
     v = dorado_io_read(&io, DORADO_DISPLAY_TASK_DHT,
                        DORADO_DISPLAY_TIOA_TSTATUS, &bad);
-    EXPECT(v == 0x0000, "boot TStatus should return idle after hold");
+    EXPECT(v == 0x0001, "keyboard serial stream should start after hold");
+    EXPECT(d.terminal_bits == 1, "terminal_bits = %llu (expected 1)",
+           (unsigned long long)d.terminal_bits);
 
     printf("PASS  test_attach_to_io (4 tasks routed, 2 writes counted, "
            "input=0x%X)\n", v);

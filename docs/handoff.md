@@ -1583,3 +1583,37 @@ the DCB chain pointer, and that word remains zero. The generated
 `display iofetch=0`. The nonzero words at `0423..` are string/data
 debris, not a valid DCB chain. This reinforces that Spruce is useful as
 a storage-format fixture, but not as the AEmu OS boot payload.
+
+2026-05-02 second-stage Ethernet boot check: re-read the Dorado booting
+memo, `InitialEther.mc`, `InitialMain.mc`, `AEm0.mc`, and the local
+`EtherBoot.mesa!1` transcription. The important distinction is now
+documented in `docs/ethernet-architecture.md`: Initial's Pup
+MicrocodeBoot (`264B`/`265B`) only loads emulator microcode. The
+post-LoadRam Alto/Mesa software boot uses Alto conventions; BS selects
+Ethernet boot, BS+Quote requests NetExec, and the Alto loader sends a
+Mayday Pup (`244B`) followed by EFTP Data/End (`30B`/`31B`). Added a
+gated probe, `DORADO_ALTO_BOOT_ETHERNET=1`, with Quote down by default
+via `DORADO_ALTO_BOOT_QUOTE=1`, and it seeds both the headless display
+keyboard state and the visible boot-key memory words. A focused 32M run
+with `DORADO_ETHER_BOOT_IMAGE=../chm/microcode/AltoMesaDorado.eb!1`
+ends with keyboard words `FFFE FFF7 FFFF FFFF`, but still shows zero
+post-LoadRam Dorado EOT/EIT traffic and still reaches the disk path
+(`alto-boot shims=1`, no Ethernet requests). Next: trace the exact AEmu
+keyboard read / `EBoot` branch point; after that, implement the Alto
+Ethernet/SIO surface and a Mayday/EFTP fake server rather than adding
+more Initial `MicrocodeBootReply` behavior.
+
+2026-05-02 direct EB map/wakeup follow-up: the focused
+`AltoMesaDorado.eb!1` run exposed a probe artifact in the direct
+LoadRam shortcut. The loaded `InitMap` path legitimately vacates the map
+while rebuilding it, but the harness was still able to synthesize display
+scanline wakeups into task 3 during that window. The probe now maps both
+observed Alto MDS aliases (`0x20000` and `0x3500000`) onto the first
+64K real words, clears non-EMU task TPCs at direct LoadRam handoff, and
+suppresses synthetic display task wakeups until those aliases are mapped
+again. This removes the previous DHT fault at
+`task=3 PC=0o4776 VA=0x3500116`; `DORADO_FAULT_TRACE=1/2` now produces
+no fault trace for the 32M focused run. The remaining state is an AEmu
+software boot problem: IFU arms at `0o2201`, pauses at `0o2202`, then
+the run remains around Alto PC zero with no display IOFetch and no
+post-LoadRam Ethernet traffic.
