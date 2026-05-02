@@ -321,20 +321,30 @@ static void service_boot_disk(dorado_cpu *cpu, dorado_disk_controller *disk,
     if (!disk || !disk->drive[0].pack) return;
     uint64_t sector_period = test_u64_env("DORADO_DISK_SECTOR_PERIOD", 512);
     if (sector_period == 0) sector_period = 1;
-    int seek_pending = disk->drive[disk->selected_drive].seek_in_progress > 0;
     /* Probe-only spindle service: the real drive/index/sector clocks
      * run independently of whether microcode is currently touching the
      * slow-IO ports. Keep that property here and let the controller's
      * own latch/mask state decide whether the DSK task should wake. */
     int disk_task_running = (cpu && cpu->ctask == DORADO_DISK_TASK);
-    int urgent_clock = seek_pending || disk->block_till_index;
-    if (!disk_task_running &&
-        ((urgent_clock && (disk->active || disk->enable_run)) ||
-         ((disk->active || disk->enable_run) && (cycle % sector_period) == 0))) {
+    if (!disk_task_running && (disk->active || disk->enable_run) &&
+        (cycle % sector_period) == 0) {
         dorado_disk_controller_advance_sector(disk);
         if (sector_ticks) (*sector_ticks)++;
     }
-    if (dorado_disk_controller_wakeup_pending(disk)) {
+    int disk_pending = dorado_disk_controller_wakeup_pending(disk);
+    if (disk_pending && cpu) {
+        uint16_t dsk_tpc = dorado_cpu_get_task_tpc(cpu, DORADO_DISK_TASK);
+        int only_spindle_tw =
+            (disk->index_tw || disk->sector_tw) &&
+            !disk->tag_tw && !disk->rd_fifo_tw && !disk->wr_fifo_tw;
+        int transfer_armed = disk->active || ((disk->control & 0xFFu) != 0);
+        if ((dsk_tpc == 05250 || dsk_tpc == 05252) &&
+            only_spindle_tw && !transfer_armed) {
+            disk_pending = 0;
+            cpu->wakeup_pending &= (uint16_t)~(1u << DORADO_DISK_TASK);
+        }
+    }
+    if (disk_pending) {
         dorado_cpu_wakeup(cpu, DORADO_DISK_TASK);
         if (wakeups) (*wakeups)++;
     }
@@ -2762,6 +2772,31 @@ static int probe_full_boot_with_bootstrap(void)
         uint32_t mar;
     } key_trace[48];
     int key_trace_n = 0;
+    struct post_loadram_loop_trace {
+        uint64_t cycle;
+        uint8_t task, task_after;
+        uint16_t pc, next_pc;
+        uint16_t task0_tpc_after, disk_tpc_after;
+        uint16_t t_before, t_after;
+        uint16_t q_before, q_after;
+        uint16_t link_before, link_after;
+        uint16_t md_before, md_after;
+        uint32_t mar_before, mar_after;
+        uint16_t ifu_pcf, ifu_pcx;
+        uint8_t stk_p;
+        uint16_t stack[8];
+        uint16_t r400, etemp0, etemp1, etemp2;
+        uint16_t mem430, mem432, mem521;
+        uint8_t disk_muff_addr, disk_index_tw, disk_sector_tw, disk_tag_tw;
+        uint8_t disk_rd_fifo_tw, disk_wr_fifo_tw;
+        uint8_t disk_enable_run, disk_active, disk_block_till_index;
+        uint8_t disk_fifo_count, disk_selected_drive;
+        uint16_t disk_control;
+        uint16_t disk_out_data, disk_in_data;
+        uint8_t disk_out_tioa, disk_in_tioa;
+        uint8_t disk_cur_cyl_lo, disk_cur_head, disk_cur_sector;
+    } post_loop_trace[96];
+    int post_loop_trace_head = 0, post_loop_trace_n = 0;
     struct boot_landmark {
         uint16_t pc;
         const char *name;
@@ -3448,6 +3483,59 @@ static int probe_full_boot_with_bootstrap(void)
         struct post_eb_trace_sample post_eb_step_trace;
         int trace_post_eb_step =
             post_eb_trace_enabled && ether_loaded_world_cycle && is_imfetch;
+        int trace_post_loop_step =
+            ether_loaded_world_cycle && is_imfetch && pre_task == 0 &&
+            (pre_pc == 01017 || pre_pc == 05250 ||
+             pre_pc == 05203 || pre_pc == 05246);
+        struct post_loadram_loop_trace post_loop_step_trace;
+        if (trace_post_loop_step) {
+            memset(&post_loop_step_trace, 0, sizeof post_loop_step_trace);
+            post_loop_step_trace.cycle = bb.cycles;
+            post_loop_step_trace.task = pre_task;
+            post_loop_step_trace.pc = pre_pc;
+            post_loop_step_trace.t_before = pre_t;
+            post_loop_step_trace.q_before = cpu.Q;
+            post_loop_step_trace.link_before = pre_link;
+            post_loop_step_trace.md_before = pre_md;
+            post_loop_step_trace.mar_before = pre_mar;
+            post_loop_step_trace.ifu_pcf = cpu.ifu_pcf;
+            post_loop_step_trace.ifu_pcx = cpu.ifu_pcx;
+            post_loop_step_trace.stk_p = (uint8_t)cpu.StkP;
+            for (int si = 0; si < 8; si++) {
+                post_loop_step_trace.stack[si] =
+                    cpu.STK[(uint8_t)(cpu.StkP - si)];
+            }
+            post_loop_step_trace.r400 = cpu.RM[0x10];
+            post_loop_step_trace.etemp0 = cpu.RM[0x1A];
+            post_loop_step_trace.etemp1 = cpu.RM[0x1B];
+            post_loop_step_trace.etemp2 = cpu.RM[0x1C];
+            post_loop_step_trace.mem430 = dorado_storage_at_va(&mem, 0430u);
+            post_loop_step_trace.mem432 = dorado_storage_at_va(&mem, 0432u);
+            post_loop_step_trace.mem521 = dorado_storage_at_va(&mem, 0521u);
+            post_loop_step_trace.disk_muff_addr = disk.muff_addr;
+            post_loop_step_trace.disk_index_tw = disk.index_tw;
+            post_loop_step_trace.disk_sector_tw = disk.sector_tw;
+            post_loop_step_trace.disk_tag_tw = disk.tag_tw;
+            post_loop_step_trace.disk_rd_fifo_tw = disk.rd_fifo_tw;
+            post_loop_step_trace.disk_wr_fifo_tw = disk.wr_fifo_tw;
+            post_loop_step_trace.disk_enable_run = disk.enable_run;
+            post_loop_step_trace.disk_active = disk.active;
+            post_loop_step_trace.disk_block_till_index = disk.block_till_index;
+            post_loop_step_trace.disk_fifo_count = (uint8_t)disk.fifo_count;
+            post_loop_step_trace.disk_selected_drive =
+                (uint8_t)disk.selected_drive;
+            post_loop_step_trace.disk_control = disk.control;
+            post_loop_step_trace.disk_out_tioa = disk.last_output_tioa;
+            post_loop_step_trace.disk_out_data = disk.last_output_data;
+            post_loop_step_trace.disk_in_tioa = disk.last_input_tioa;
+            post_loop_step_trace.disk_in_data = disk.last_input_data;
+            post_loop_step_trace.disk_cur_cyl_lo =
+                (uint8_t)(disk.drive[disk.selected_drive].cur_cyl & 0xFF);
+            post_loop_step_trace.disk_cur_head =
+                (uint8_t)(disk.drive[disk.selected_drive].cur_head & 0xFF);
+            post_loop_step_trace.disk_cur_sector =
+                (uint8_t)(disk.drive[disk.selected_drive].cur_sector & 0xFF);
+        }
         if (trace_post_eb_step) {
             memset(&post_eb_step_trace, 0, sizeof post_eb_step_trace);
             post_eb_step_trace.cycle = bb.cycles;
@@ -3480,6 +3568,27 @@ static int probe_full_boot_with_bootstrap(void)
 
         if (dorado_cpu_step(&cpu)) {
             halt_reason = (cpu_halt_reason)cpu.halt_reason;
+            if (trace_post_loop_step) {
+                post_loop_step_trace.next_pc = cpu.real_PC;
+                post_loop_step_trace.task_after = (uint8_t)cpu.ctask;
+                post_loop_step_trace.task0_tpc_after =
+                    dorado_cpu_get_task_tpc(&cpu, 0);
+                post_loop_step_trace.disk_tpc_after =
+                    dorado_cpu_get_task_tpc(&cpu, DORADO_DISK_TASK);
+                post_loop_step_trace.t_after = cpu.T;
+                post_loop_step_trace.q_after = cpu.Q;
+                post_loop_step_trace.link_after = cpu.Link;
+                post_loop_step_trace.md_after = mem.md;
+                post_loop_step_trace.mar_after = mem.mar;
+                post_loop_trace[post_loop_trace_head] = post_loop_step_trace;
+                post_loop_trace_head = (post_loop_trace_head + 1) %
+                                       (int)(sizeof post_loop_trace /
+                                             sizeof post_loop_trace[0]);
+                if (post_loop_trace_n < (int)(sizeof post_loop_trace /
+                                              sizeof post_loop_trace[0])) {
+                    post_loop_trace_n++;
+                }
+            }
             if (trace_post_eb_step) {
                 post_eb_step_trace.next_pc = cpu.real_PC;
                 post_eb_step_trace.t_after = cpu.T;
@@ -3574,6 +3683,27 @@ static int probe_full_boot_with_bootstrap(void)
                                  (int)(sizeof post_eb_trace /
                                        sizeof post_eb_trace[0]);
             post_eb_trace_total++;
+        }
+        if (trace_post_loop_step) {
+            post_loop_step_trace.next_pc = cpu.real_PC;
+            post_loop_step_trace.task_after = (uint8_t)cpu.ctask;
+            post_loop_step_trace.task0_tpc_after =
+                dorado_cpu_get_task_tpc(&cpu, 0);
+            post_loop_step_trace.disk_tpc_after =
+                dorado_cpu_get_task_tpc(&cpu, DORADO_DISK_TASK);
+            post_loop_step_trace.t_after = cpu.T;
+            post_loop_step_trace.q_after = cpu.Q;
+            post_loop_step_trace.link_after = cpu.Link;
+            post_loop_step_trace.md_after = mem.md;
+            post_loop_step_trace.mar_after = mem.mar;
+            post_loop_trace[post_loop_trace_head] = post_loop_step_trace;
+            post_loop_trace_head = (post_loop_trace_head + 1) %
+                                   (int)(sizeof post_loop_trace /
+                                         sizeof post_loop_trace[0]);
+            if (post_loop_trace_n < (int)(sizeof post_loop_trace /
+                                          sizeof post_loop_trace[0])) {
+                post_loop_trace_n++;
+            }
         }
         if (is_mcr_trace) {
             struct mcr_trace_sample *mt = &mcr_trace[mcr_trace_n++];
@@ -3925,7 +4055,7 @@ static int probe_full_boot_with_bootstrap(void)
         printf("       Boot identity-map shims: %llu\n",
                (unsigned long long)boot_identity_map_shims);
     }
-    if (ether_boot_injections) {
+    if (ether_boot_injections || ether_loaded_world_cycle) {
         printf("       Ether boot image injected: %s end=0x%04X sum=0x%04X "
                "start=0o%o\n",
                ether_boot_image, ether_boot_end, ether_boot_sum,
@@ -4010,7 +4140,7 @@ static int probe_full_boot_with_bootstrap(void)
     printf("       Dorado final state: PC=0o%o, T=0x%04X, Q=0x%04X, "
            "Link=0x%04X\n",
            cpu.real_PC, cpu.T, cpu.Q, cpu.Link);
-    if (ether_boot_injections) {
+    if (ether_boot_injections || ether_loaded_world_cycle) {
         static const uint16_t probe_addrs[] = {
             06000, 06001, 06002, 06012, 06100, 05021
         };
@@ -4198,7 +4328,7 @@ static int probe_full_boot_with_bootstrap(void)
                (unsigned long long)best_count);
     }
     printf("\n");
-    if (ether_boot_injections) {
+    if (ether_boot_injections || ether_loaded_world_cycle) {
         printf("       Post-EB device deltas: display outs=+%llu iofetch=+%llu "
                "dwt wakeups=+%llu scanline wakeups=+%llu "
                "disk outs=+%llu ins=+%llu disk wakeups=+%llu\n",
@@ -4229,6 +4359,65 @@ static int probe_full_boot_with_bootstrap(void)
                post_eb_last_ifu_stop_pc,
                post_eb_last_ifu_pcf,
                post_eb_last_ifu_pcx);
+        if (post_loop_trace_n > 0) {
+            int cap = (int)(sizeof post_loop_trace /
+                            sizeof post_loop_trace[0]);
+            int start = (post_loop_trace_n < cap) ? 0 : post_loop_trace_head;
+            printf("       Post-LoadRam loop trace last %d steps:\n",
+                   post_loop_trace_n);
+            for (int i = 0; i < post_loop_trace_n; i++) {
+                const struct post_loadram_loop_trace *kt =
+                    &post_loop_trace[(start + i) % cap];
+                printf("         cyc=%llu task=%o->%o pc=0o%o->0o%o "
+                       "T=%06o->%06o Q=%06o->%06o Link=%06o->%06o "
+                       "Md=%06o->%06o Mar=%07o->%07o "
+                       "PCF=%06o PCX=%06o StkP=%03o "
+                       "STK=%06o,%06o,%06o,%06o,%06o,%06o,%06o,%06o "
+                       "R400=%06o E0=%06o E1=%06o E2=%06o "
+                       "mem430=%06o mem432=%06o mem521=%06o "
+                       "TPC0=0o%o TPCd=0o%o "
+                       "disk muff=%03o tw=%u%u%u rf=%u wf=%u "
+                       "en=%u act=%u bti=%u ctl=%04X fifo=%u "
+                       "sel=%u CHSlo=(%u,%u,%u) dio=O%02o:%04X/I%02o:%04X\n",
+                       (unsigned long long)kt->cycle,
+                       kt->task, kt->task_after, kt->pc, kt->next_pc,
+                       kt->t_before & 0177777, kt->t_after & 0177777,
+                       kt->q_before & 0177777, kt->q_after & 0177777,
+                       kt->link_before & 0177777, kt->link_after & 0177777,
+                       kt->md_before & 0177777, kt->md_after & 0177777,
+                       kt->mar_before & 077777777,
+                       kt->mar_after & 077777777,
+                       kt->ifu_pcf & 0177777,
+                       kt->ifu_pcx & 0177777,
+                       kt->stk_p,
+                       kt->stack[0] & 0177777,
+                       kt->stack[1] & 0177777,
+                       kt->stack[2] & 0177777,
+                       kt->stack[3] & 0177777,
+                       kt->stack[4] & 0177777,
+                       kt->stack[5] & 0177777,
+                       kt->stack[6] & 0177777,
+                       kt->stack[7] & 0177777,
+                       kt->r400 & 0177777,
+                       kt->etemp0 & 0177777,
+                       kt->etemp1 & 0177777,
+                       kt->etemp2 & 0177777,
+                       kt->mem430 & 0177777,
+                       kt->mem432 & 0177777,
+                       kt->mem521 & 0177777,
+                       kt->task0_tpc_after, kt->disk_tpc_after,
+                       kt->disk_muff_addr, kt->disk_index_tw,
+                       kt->disk_sector_tw, kt->disk_tag_tw,
+                       kt->disk_rd_fifo_tw, kt->disk_wr_fifo_tw,
+                       kt->disk_enable_run, kt->disk_active,
+                       kt->disk_block_till_index, kt->disk_control,
+                       kt->disk_fifo_count, kt->disk_selected_drive,
+                       kt->disk_cur_cyl_lo, kt->disk_cur_head,
+                       kt->disk_cur_sector, kt->disk_out_tioa,
+                       kt->disk_out_data, kt->disk_in_tioa,
+                       kt->disk_in_data);
+            }
+        }
         if (post_eb_trace_enabled && post_eb_trace_total > 0) {
             int cap = (int)(sizeof post_eb_trace / sizeof post_eb_trace[0]);
             int n = post_eb_trace_total < cap ? post_eb_trace_total : cap;
@@ -4380,6 +4569,22 @@ static int probe_full_boot_with_bootstrap(void)
                (unsigned long long)disk.input_tioa_count[a & 0x0F]);
     }
     printf("\n");
+    printf("       Disk controller final: muff=%03o tw=%u%u%u rf=%u wf=%u "
+           "en=%u act=%u bti=%u ctl=%04X fifo=%u stream=%u idx=%d "
+           "selected=%d CHS=(%d,%d,%d) subsectors=%d seek=%d "
+           "dio=O%02o:%04X/I%02o:%04X\n",
+           disk.muff_addr, disk.index_tw, disk.sector_tw, disk.tag_tw,
+           disk.rd_fifo_tw, disk.wr_fifo_tw, disk.enable_run, disk.active,
+           disk.block_till_index, disk.control, disk.fifo_count,
+           disk.read_stream_active, disk.read_stream_index,
+           disk.selected_drive,
+           disk.drive[disk.selected_drive].cur_cyl,
+           disk.drive[disk.selected_drive].cur_head,
+           disk.drive[disk.selected_drive].cur_sector,
+           disk.drive[disk.selected_drive].sectors_per_revolution,
+           disk.drive[disk.selected_drive].seek_in_progress,
+           disk.last_output_tioa, disk.last_output_data,
+           disk.last_input_tioa, disk.last_input_data);
     if (cpu.mem) {
         printf("       Boot keyboard words seeded %llu times: "
                "IOBR=0x%05X 0177034=%04X 0177035=%04X "
