@@ -1625,3 +1625,18 @@ no fault trace for the 32M focused run. The remaining state is an AEmu
 software boot problem: IFU arms at `0o2201`, pauses at `0o2202`, then
 the run remains around Alto PC zero with no display IOFetch and no
 post-LoadRam Ethernet traffic.
+
+2026-05-02 MDS keyboard fix / no-shim disk probe: the keyboard seed
+helper now writes absolute memory, `IOBR` (`BR31`), and Alto `MDS`
+(`BR36`), and keeps the all-up words refreshed after the EB-loaded
+world starts unless `DORADO_ALTO_BOOT_ETHERNET=1` is explicitly forcing
+BS/Quote. This corrected the visible boot-key diagnostic to
+`FFFF FFFF FFFF FFFF`. Rerunning the focused 36M disk path with
+`DORADO_ALTO_BOOT_SHIM=0` still reports `alto-boot shims=0`,
+`fifo reads=0`, `read streams=3506`, `DiskControl=0100`,
+`rd_fifo_tw=1`, and no `VM 0521=0431` command pointer. The duplicate
+local EB file `chm/dorado/AltoMesaDorado.eb!2` gives the same loaded IM
+fingerprint and counters as `chm/microcode/AltoMesaDorado.eb!1`.
+Current blocker is therefore no longer keyboard visibility; it is the
+loaded software/IFU handoff or missing second-stage boot payload that
+should create a display DCB or post an Alto disk command.

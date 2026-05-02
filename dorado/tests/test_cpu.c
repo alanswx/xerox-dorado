@@ -32,6 +32,18 @@ static uint64_t test_u64_env(const char *name, uint64_t fallback)
     return (end && *end == '\0' && v > 0) ? (uint64_t)v : fallback;
 }
 
+static int test_bool_env(const char *name, int fallback)
+{
+    const char *s = getenv(name);
+    if (!s || !*s) return fallback;
+    if (strcmp(s, "0") == 0 || strcmp(s, "false") == 0 ||
+        strcmp(s, "FALSE") == 0 || strcmp(s, "no") == 0 ||
+        strcmp(s, "NO") == 0) {
+        return 0;
+    }
+    return 1;
+}
+
 static const char *test_str_env(const char *name, const char *fallback)
 {
     const char *s = getenv(name);
@@ -390,6 +402,7 @@ static void seed_boot_keyboard_from_display(dorado_memory *mem,
     uint32_t bases[] = {
         0,
         dorado_br_get(mem, 031),  /* IOBR: Initial reads through MemBase=IOBR. */
+        dorado_br_get(mem, 036),  /* MDS: AEmu reads Alto keyboard words here. */
     };
 
     for (size_t b = 0; b < sizeof bases / sizeof bases[0]; b++) {
@@ -2788,6 +2801,8 @@ static int probe_full_boot_with_bootstrap(void)
     int alto_disk_boot_head = (int)test_u64_env("DORADO_ALTO_BOOT_HEAD", 0);
     int alto_disk_boot_sector =
         (int)test_u64_env("DORADO_ALTO_BOOT_SECTOR", 2);
+    int alto_disk_boot_shim_enabled =
+        test_bool_env("DORADO_ALTO_BOOT_SHIM", 1);
     uint64_t boot_identity_map_shims = 0;
     uint64_t ether_boot_injections = 0;
     uint16_t ether_boot_end = 0;
@@ -4195,6 +4210,11 @@ static int probe_full_boot_with_bootstrap(void)
             seed_boot_keyboard_from_display(&mem, &display);
             keyboard_seed_count++;
         }
+        if (ether_loaded_world_cycle && !force_alto_ether_boot &&
+            !cpu.ifu_active) {
+            seed_boot_keyboard_from_display(&mem, &display);
+            keyboard_seed_count++;
+        }
         if (ether_loaded_world_cycle && force_alto_ether_boot &&
             !cpu.ifu_active) {
             uint16_t words[4] = {
@@ -4208,7 +4228,8 @@ static int probe_full_boot_with_bootstrap(void)
             seed_boot_keyboard_words(&mem, words);
             alto_ether_keyboard_seed_count++;
         }
-        if (ether_loaded_world_cycle && alto_disk_boot_shims == 0 &&
+        if (ether_loaded_world_cycle && alto_disk_boot_shim_enabled &&
+            alto_disk_boot_shims == 0 &&
             service_alto_disk_boot_shim(&mem, &disk_pack,
                                         alto_disk_boot_cyl,
                                         alto_disk_boot_head,
@@ -7908,6 +7929,63 @@ static int test_output_iostore_shape_routes_slow_io(void)
     return 0;
 }
 
+static int test_output_iostore_with_lc_routes_slow_io(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025;  mc.alufm_present[0] = 1;  /* B */
+
+    /* Disk's `Output_ KCmmd, Call[...]` path compiles as an IOStore
+     * shape while also loading a destination for the call plumbing.
+     * IOStore itself is still the device operation. */
+    mc.rm[1] = 0x0005;
+    mc.rm_present[1] = 1;
+    mc.im[0] = make_uinstr(/*rstk=*/1, /*aluf=*/0, /*bsel=*/1, /*lc=*/1,
+                           /*asel=*/1, 0, /*ff=*/0100, jcn_local(0));
+    mc.im_present[0] = 1;
+    mc.image_to_real[0] = 0;
+    mc.image_present[0] = 1;
+    mc.n_instructions = 1;
+
+    static dorado_io io;
+    dorado_io_init(&io);
+    static echo_dev dev_state;
+    memset(&dev_state, 0, sizeof dev_state);
+    static const dorado_io_device echo_device = {
+        .read = echo_read,
+        .write = echo_write,
+        .attention = NULL,
+        .ctx = &dev_state,
+        .name = "echo"
+    };
+    dorado_io_register(&io, /*task=*/14, /*tioa=*/010, &echo_device);
+
+    dorado_memory mem;
+    EXPECT(dorado_memory_init(&mem) == 0, "memory init failed");
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.io = &io;
+    cpu.mem = &mem;
+    cpu.ctask = 14;
+    cpu.task_tpc[14] = 0;
+    cpu.TIOA = 010;
+    cpu.task_tioa[14] = 010;
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(dev_state.writes == 1, "writes=%d (expected 1)", dev_state.writes);
+    EXPECT(dev_state.last_write == 0x0005,
+           "last_write = 0x%X (expected 0x0005)", dev_state.last_write);
+    EXPECT(mem.last_fault == DM_FAULT_NONE,
+           "slow-IO IOStore+LC issued memory fault %d",
+           (int)mem.last_fault);
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_output_iostore_with_lc_routes_slow_io\n");
+    return 0;
+}
+
 static int test_tioa_small_constant_all_low_bits(void)
 {
     static dorado_microcode mc;
@@ -8365,6 +8443,7 @@ int main(void)
     rc |= test_output_t_store_shape_routes_slow_io();
     rc |= test_output_rm_store_shape_routes_slow_io();
     rc |= test_output_iostore_shape_routes_slow_io();
+    rc |= test_output_iostore_with_lc_routes_slow_io();
     rc |= test_tioa_small_constant_all_low_bits();
     rc |= test_carry_preserved_on_logical();
     rc |= test_alufmrw_bit_mapping();

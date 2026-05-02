@@ -2571,8 +2571,8 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
              * not main storage; real stores that write memory also load
              * DBuf. Route no-LC stores to a registered TIOA device before
              * issuing a spurious memory store. */
-            if ((kind == DM_REF_STORE || kind == DM_REF_IOSTORE) &&
-                u->lc == 0 &&
+            if ((kind == DM_REF_IOSTORE ||
+                 (kind == DM_REF_STORE && u->lc == 0)) &&
                 cpu->io &&
                 dorado_io_has_write(cpu->io, cpu->ctask,
                                     (uint8_t)cpu->TIOA)) {

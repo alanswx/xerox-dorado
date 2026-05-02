@@ -1585,6 +1585,20 @@ run has `Memory: faults=0`, DSK gets most post-LoadRam cycles, and
 `SectorFound` is reached; it still does not select `DiskData`, and it
 falls into the later `EtherBooting` path.
 
+2026-05-02 keyboard/MDS correction: the headless boot-key shortcut now
+seeds the Alto `MDS` (`BR36`) keyboard window in addition to absolute
+memory and `IOBR`. It also refreshes the all-up keyboard words after
+the EB-loaded world starts, unless `DORADO_ALTO_BOOT_ETHERNET=1` is
+intentionally forcing BS/Quote. This fixed the misleading post-LoadRam
+keyboard diagnostic from `0000 0000 0000 0000` to
+`FFFF FFFF FFFF FFFF`. The no-shim 36M disk probe still does not post
+`VM 0521=0431` and still never selects `DiskData`; both local
+`AltoMesaDorado` EB copies (`chm/microcode/AltoMesaDorado.eb!1` and
+`chm/dorado/AltoMesaDorado.eb!2`) behave the same. Next debugging
+target: loaded-world software/IFU handoff and the exact path that
+should install a display DCB or request a second-stage Alto/Mesa boot
+payload.
+
 These are weeks-of-work each, in rough order of effort:
 
 | Phase | Effort | Dependency      |

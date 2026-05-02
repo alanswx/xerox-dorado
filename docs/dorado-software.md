@@ -176,6 +176,15 @@ This is the path we should target first because:
 - ContrAlto2 (`AltoInfo/Contralto2-2.0-Beta/Contralto/`) runs the same
   combination, so it's a working oracle for cross-validation.
 
+Current emulator status (2026-05-02): this remains the desired first
+recipe, but it is not a proven local boot yet. The harness can load both
+local `AltoMesaDorado` EB copies and keep the Alto keyboard words visible
+as all-up in MDS, but the loaded world does not yet post the legacy Alto
+disk command pointer at `VM 0521` and does not install a display DCB.
+Spruce is still a useful Trident pack-format fixture; do not assume it
+is sufficient by itself until the second-stage Alto/Mesa software boot
+payload or disk command handoff is identified.
+
 ### Recipe 2: Cedar Pilot world
 
 If you want to skip the disk entirely:
