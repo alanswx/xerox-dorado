@@ -1,0 +1,73 @@
+
+<<BasicCedar.bootmesa>>
+<<Copyright © 1984, 1985, 1986 by Xerox Corporation.  All rights reserved.>>
+<<Russ Atkinson (RRA) May 2, 1986 6:21:49 pm PDT>>
+
+VERSION: 6.0.0;
+UCODEDORADO: May 3, 1983 0000 GMT;
+
+<<Initialization sequence after the Nucleus:>>
+CONTROL: LoaderDriver;
+<<>>
+<<Until the boot file is a nucleus file (i.e. non-Pilot), we need to say IN for everything in the boot file that doesn't otherwise 
+have any MakeBoot input (Rollback.bootmesa does this for things inside Nucleus.df).>>
+IN:
+BCD[LoaderDriver],
+CODE[LoaderDriver],
+GLOBALFRAME[LoaderDriver];
+<<>>
+<<Process Data Area:>>
+PROCESSES: 200;
+<<RRA changed this from 150 on January 16, 1985 to be conservative.  The cost is small.>>
+<<State Vectors:>>
+<<Priority levels 5 and 7 are reserved for the Nucleus.  Priority 0 is reserved for the idle process.  If you add a (faultable) 
+process at that level, you must also add a state vector for it.  Note that a state vector is needed for every process that is 
+running, pre-empted, or faulting (page, frame, ...).  Processes waiting for conditions or monitor locks do not need state vectors.  
+RRA pushed up these numbers on May 2, 1986 to be conservative.>>
+STATEVECTORSIZE: 20;
+STATEVECTORCOUNT: 0, 2;  -- IdleProcess.
+STATEVECTORCOUNT: 1, 20;  -- Background.
+STATEVECTORCOUNT: 2, 32; -- Normal.
+STATEVECTORCOUNT: 3, 20;  -- Foreground.
+STATEVECTORCOUNT: 4, 12;  -- Client3.
+STATEVECTORCOUNT: 5, 4;  -- FaultHandlers
+STATEVECTORCOUNT: 6, 4;  -- RealTime
+STATEVECTORCOUNT: 7, 4;  -- SwatWatcher
+
+<<Frame Heap:>>
+FRAMEPAGES: 36;  -- RRA: you will be sorry if you don't make this large enough
+FRAMEWEIGHT: 0, 12;
+FRAMEWEIGHT: 1, 16;
+FRAMEWEIGHT: 2, 12;
+FRAMEWEIGHT: 3, 12;
+FRAMEWEIGHT: 4, 9;
+FRAMEWEIGHT: 5, 8;
+FRAMEWEIGHT: 6, 6;
+FRAMEWEIGHT: 7, 5;
+FRAMEWEIGHT: 8, 5;
+FRAMEWEIGHT: 9, 5;
+FRAMEWEIGHT: 10, 4;
+FRAMEWEIGHT: 11, 3;
+FRAMEWEIGHT: 12, 1;
+FRAMEWEIGHT: 13, 1;
+FRAMEWEIGHT: 14, 1;
+FRAMEWEIGHT: 15, 1;
+FRAMEWEIGHT: 16, 1;
+FRAMEWEIGHT: 17, 1;
+FRAMEWEIGHT: 18, 1;
+FRAMEWEIGHT: 19, 0;
+FRAMEWEIGHT: 20, 0;
+FRAMEWEIGHT: 21, 0;
+FRAMEWEIGHT: 22, 0;
+FRAMEWEIGHT: 23, 0;
+FRAMEWEIGHT: 24, 0;
+FRAMEWEIGHT: 25, 0;
+FRAMEWEIGHT: 26, 0;
+FRAMEWEIGHT: 27, 0;
+FRAMEWEIGHT: 28, 0;
+FRAMEWEIGHT: 29, 0;  -- "29" = PrincOps.LastAVSlot.
+
+GFT: 1024;
+MDSBASE: 1000B;
+CODEBASE: 1400B;
+

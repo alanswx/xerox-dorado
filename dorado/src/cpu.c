@@ -159,6 +159,10 @@ static void task_save(dorado_cpu *cpu, uint16_t next_pc)
     cpu->task_membase[t] = (uint8_t)cpu->MemBase;
     cpu->task_rbase[t]   = (uint8_t)cpu->RBase;
     cpu->task_tioa[t]    = (uint8_t)cpu->TIOA;
+    cpu->task_alu_zero[t] = cpu->alu_zero;
+    cpu->task_alu_lt0[t] = cpu->alu_lt0;
+    cpu->task_alu_carry[t] = cpu->alu_carry;
+    cpu->task_alu_overflow[t] = cpu->alu_overflow;
 }
 
 /* Load `task`'s saved state into the live registers. After this
@@ -173,6 +177,10 @@ static void task_load(dorado_cpu *cpu, int task)
     cpu->MemBase = cpu->task_membase[t];
     cpu->RBase   = cpu->task_rbase[t];
     cpu->TIOA    = cpu->task_tioa[t];
+    cpu->alu_zero = cpu->task_alu_zero[t];
+    cpu->alu_lt0 = cpu->task_alu_lt0[t];
+    cpu->alu_carry = cpu->task_alu_carry[t];
+    cpu->alu_overflow = cpu->task_alu_overflow[t];
 }
 
 /* End-of-instruction task scheduling. `next_pc` is the JCN-computed
@@ -1183,8 +1191,13 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
              * output. Manual bit 0 is the sign/MSB, so these map to
              * normal C right/left shifts over the uint16_t value. */
             switch (fc) {
-            case 0: /* Pd ← ALU rsh 1, Pd[0] ← 0 */
-                return (uint16_t)(alu >> 1);
+            case 0: /* Pd ← ALU rsh 1 */
+                /* InitialEther uses MicroD "RSH 1" on a negative
+                 * words-minus-one sentinel and then tests the sign in
+                 * the next instruction.  Preserve the C-side sign bit
+                 * here so the shipped boot microcode recognizes the
+                 * zero-data Ethernet terminator packet. */
+                return (uint16_t)((alu >> 1) | (alu & 0x8000u));
             case 1: /* Pd ← ALU rcy 1, Pd[0] ← ALU[15] */
                 return (uint16_t)((alu >> 1) | (alu << 15));
             case 2: /* Pd ← ALU brsh 1, Pd[0] ← ALUcarry */
@@ -1317,6 +1330,13 @@ static int rm_trace_enabled(void)
 {
     static int cached = -1;
     if (cached < 0) cached = getenv("DORADO_RM_TRACE") ? 1 : 0;
+    return cached;
+}
+
+static int initmap_trace_enabled(void)
+{
+    static int cached = -1;
+    if (cached < 0) cached = getenv("DORADO_INITMAP_TRACE") ? 1 : 0;
     return cached;
 }
 
@@ -2539,8 +2559,8 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
      * must keep the PREVIOUS instruction's values until next_pc has
      * read them; we capture the new values now and commit at the end
      * of execute_uinstr. */
-    uint8_t new_alu_zero = (alu == 0) ? 1 : 0;
-    uint8_t new_alu_lt0  = (alu & 0x8000) ? 1 : 0;
+    uint8_t new_alu_zero = 0;
+    uint8_t new_alu_lt0  = 0;
 
     /* Pd = ALU output (FF may then override or transform Pd, e.g. via
      * ALUFMRW or Pd←Cnt). FF post-effects also fire register loads
@@ -2552,6 +2572,8 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
         cpu->halt_reason = ff_halt;
         return 1;
     }
+    new_alu_zero = (pd == 0) ? 1 : 0;
+    new_alu_lt0  = (pd & 0x8000) ? 1 : 0;
 
     /*
      * Memory references. ASEL = 0..3 dispatch a memory operation
@@ -2743,6 +2765,24 @@ memory_ref_done: ;
         cpu->halted = 1;
         cpu->halt_reason = rc;
         return 1;
+    }
+
+    if (initmap_trace_enabled() &&
+        ((cpu->real_PC >= 03340 && cpu->real_PC <= 03353) ||
+         (cpu->real_PC >= 05550 && cpu->real_PC <= 05725))) {
+        fprintf(stderr,
+                "INITMAP_TRACE cyc=%llu pc=0o%o->0o%o T=%04X A=%04X B=%04X "
+                "Pd=%04X Link=0o%o Cnt=%04X aluZ=%u aluLT=%u "
+                "VB=%04X RP=%04X PPM=%04X Mod=%04X I0=%04X I1=%04X I2=%04X I17=%04X "
+                "Mar=%05X kind=%s fault=%d\n",
+                (unsigned long long)cpu->cycles, cpu->real_PC, np,
+                cpu->T, a, b, pd, cpu->Link, cpu->Cnt,
+                cpu->alu_zero, cpu->alu_lt0,
+                cpu->RM[0x48], cpu->RM[0x49], cpu->RM[0x4A], cpu->RM[0x4B],
+                cpu->RM[0x4C], cpu->RM[0x4D], cpu->RM[0x4E], cpu->RM[0x4F],
+                cpu->mem ? (cpu->mem->mar & 0x0FFFFFFFu) : 0,
+                cpu->mem ? ref_kind_name(cpu->mem->last_ref_kind) : "none",
+                cpu->mem ? (int)cpu->mem->last_fault : 0);
     }
 
     /* LC. */

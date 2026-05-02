@@ -1,0 +1,217 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<html>
+  <head>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+    <title>[_CD8_]&lt;doradosource>DoradoBootingImpl.bravo!1</title>
+  </head>
+  <body>
+    <div style="width: 442pt; margin-left: 84pt; margin-top: 0pt; text-align: justify">
+<span style="font: 10pt serif">Heading:</span></div>
+<div style="width: 442pt; margin-left: 84pt; margin-top: 0pt; text-align: left">
+<span style="font: 10pt serif">Dorado booting&mdash;implementation</span></div>
+<div style="width: 442pt; margin-left: 84pt; margin-top: 0pt; text-align: justify">
+<span style="font: 10pt serif">Page Numbers: Yes  X: 527  Y: 10.5"</span></div>
+<div style="width: 401pt; margin-left: 126pt; margin-top: 0pt; text-align: left">
+<span style="font: bold 12pt serif">Inter-Office Memorandum</span></div>
+<div style="width: 401pt; margin-left: 126pt; text-indent: -41pt; margin-top: 21pt; text-align: left">
+<span style="font: 8pt serif">To</span><span class="tab" val="168"></span><span style="font: 10pt serif">Dorado users</span><span class="tab" val="441"></span><span style="font: 8pt serif">Date</span><span class="tab" val="516"></span><span style="font: 10pt serif">February 19, 1983<br></span></div>
+<div style="width: 401pt; margin-left: 126pt; text-indent: -41pt; margin-top: 25pt; text-align: left">
+<span style="font: 8pt serif">From</span><span class="tab" val="168"></span><span style="font: 10pt serif">Ed Taft</span><span class="tab" val="441"></span><span style="font: 8pt serif">Location</span><span class="tab" val="516"></span><span style="font: 10pt serif">PARC/CSL<br></span></div>
+<div style="width: 474pt; margin-left: 126pt; text-indent: -41pt; margin-top: 25pt; text-align: left">
+<span style="font: 8pt serif">Subject</span><span class="tab" val="168"></span><span style="font: 10pt serif">Dorado booting&mdash;implementation</span><span class="tab" val="441"></span><span style="font: 8pt serif">File</span><span class="tab" val="516"></span><span style="font: 8pt serif">[Indigo]&lt;DoradoDocs&gt;DoradoBootingImpl.press</span><span style="font: 10pt serif"><br>(edition 5)</span></div>
+<div style="width: 512pt; margin-left: 14pt; margin-top: 14pt; text-align: left">
+<span style="font: 18pt monospace">XEROX</span><span style="font: 10pt serif">       </span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+</div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">This memo is a continuation of &lsquo;&lsquo;Dorado booting&mdash;operation&rsquo;&rsquo;, file [Indigo]&lt;DoradoDocs&gt;DoradoBooting.press.  This is a comprehensive description of how Dorado booting is implemented and how boot files and other components are constructed and maintained.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 22pt; text-align: left">
+<span style="font: bold 10pt serif">2.  How it works</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">The Dorado contains a microcomputer that performs several functions, including monitoring power and temperature, turning on and off the main power supplies and the disk drive, and initiating bootstrap sequences.  The microcomputer can sense the state of the boot button, and it controls the green light.  This microcomputer and attendant EProms and other logic are mounted on the BaseBoard, the bottom logic board in the machine.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">A 1-push boot is handled entirely by the Dorado microcode itself, with no action by the BaseBoard.  Multiple-push boots are handled by the BaseBoard.  A 3-push boot involves the following multiple-step sequence.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 16pt; text-align: left">
+<span style="font: italic 10pt serif">2.1  Loading Bootstrap microcode</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">The BaseBoard first halts the Dorado, issues an I/O reset, and resets or disables conditions that could interfere with initial bootstrapping (Hold, Fault task wakeup).  It then forcibly loads into the Dorado&rsquo;s control store a small (~50 instruction) microprogram called Bootstrap.  Finally, it starts the Dorado executing this microprogram.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Loading of Dorado microcode in this manner is very slow; therefore, the amount of microcode in Bootstrap is kept as small as possible.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 16pt; text-align: left">
+<span style="font: italic 10pt serif">2.2  Loading Initial microcode</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Next, the Bootstrap microprogram and the BaseBoard microcomputer cooperate to load into the Dorado&rsquo;s control store a somewhat larger (~800 instruction) microprogram called Initial.  (This is distinct from the microcode installed on the &lsquo;&lsquo;Initial&rsquo;&rsquo; region of the disk, described in previous sections.  The reason the same name is used is that much of the microcode is actually the same, and this &lsquo;&lsquo;Initial&rsquo;&rsquo; microprogram is generated from the same sources that produce files such as DoradoInitialDisk.eb.)</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Initial is stored as data in the BaseBoard&rsquo;s EProm.  It is read by the microcomputer and handed to the Dorado (via CPReg) at relatively high speed; the Boostrap microprogram copies this data into the Dorado&rsquo;s control store.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">When this operation is finished, the Boostrap microprogram gives control to the Initial microprogram it has loaded.  Bootstrap and Initial are arranged to occupy disjoint regions of the control store.  The BaseBoard then waits for the Dorado to complete the next step.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 16pt; text-align: left">
+<span style="font: italic 10pt serif">2.3  Initial execution</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Initial performs a number of operations.  First, it does a more thorough initialization of the Dorado.  It corrects parity in all registers and memories.  It initializes the memory system (cache, map, and storage) and puts it into a usable state.  Finally, it notifies the BaseBoard that this step has been completed successfully.  (This notification causes the BaseBoard to turn the green light continuously on.  If this event fails to occur within a reasonable time, the BaseBoard switches to the 2-flash indication.)</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Second, Initial enables the I/O tasks that it requires (disk, display, Ethernet, and junk tasks).  It then reads the keyboard in order to determine which emulator microcode to bootstrap and whether to get it from disk or Ethernet.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Third, Initial loads the selected microcode from disk or Ethernet into the Dorado&rsquo;s main memory.  (For Ethernet booting, this step employs the Pup Microcode Boot protocol, which is also used for booting Dolphins and is documented in [Maxc]&lt;Pup&gt;EtherBoot.press.)</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Finally, Initial calls the LoadRam procedure, which loads the emulator microcode from main memory into the Dorado&rsquo;s control store (IM and IFUM) and transfers control to its starting address.  The emulator microcode replaces Bootstrap and Initial.  LoadRam is a standard one-page microcode loading routine which is included in Initial and in every emulator.  It occupies the same region of control store in each microprogram.  Therefore, LoadRam can load a new microprogram without danger of overwriting itself.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 16pt; text-align: left">
+<span style="font: italic 10pt serif">2.4  Software bootstrap</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">When the emulator microcode is started&mdash;either as a result of the above sequence or by a 2-push boot&mdash;it does some further memory system initialization, including zeroing out all main storage.  It initializes all I/O devices.  Finally, in the case of an Alto emulator-based microprogram, it sets the disk partition to 5 (or to the number corresponding to a digit key which is pressed down), and then initiates an Alto-style software boot from either disk or Ethernet, according to the keys that are pressed down.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">A 1-push boot is detected and handled by the emulator microcode itself, without action by the BaseBoard.  It performs all actions described in the preceding paragraph except for zeroing memory and resetting the default disk partition.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">The Alto-style software boot is described in Alto documentation: the Alto Hardware manual ([Maxc]&lt;AltoDocs&gt;AltoHardware.press, section 3.3), the BuildBoot documentation (&lt;AltoDocs&gt;BuildBoot.tty), and the Alto Boot protocol specification (&lt;Pup&gt;AltoBoot.press).  The corresponding Pilot software boot is essentially undocumented, though some information is available from the Pilot Programmer&rsquo;s Manual.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 22pt; text-align: left">
+<span style="font: bold 10pt serif">3.  How it is put together</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">This section attempts to locate all microcode and software required for Dorado bootstrapping and to set forth procedures that might otherwise be forgotten.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 16pt; text-align: left">
+<span style="font: italic 10pt serif">3.1  Bootstrap, Initial, and BaseBoard microcomputer code</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">The Bootstrap and Initial microprograms and the BaseBoard microcomputer software are programmed into a set of EProms that are installed on the BaseBoard.  This programming is controlled by files on an Alto disk labelled &lsquo;&lsquo;Sosinski&mdash;DoradoProms&rsquo;&rsquo;.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">The sources and command files for the BaseBoard microcomputer code are kept in a dump-format file, [Indigo]&lt;DoradoSource&gt;DoradoBaseRom.dm.  The Dorado microcode (Bootstrap.mb and Initial.mb) are kept in [Indigo]&lt;Dorado&gt;Bootstrap.dm.  The following command files may be executed to perform the specified operations:</span></div>
+<div style="width: 403pt; margin-left: 105pt; margin-top: 10pt; text-align: justify">
+<span style="font: bold 10pt serif">@DoradoBaseRom-Compile.cm@.</span><span style="font: 10pt serif">  This assembles all the BaseBoard microcomputer code, executes all of the following command files, and prints a pile of listings.</span></div>
+<div style="width: 403pt; margin-left: 105pt; margin-top: 10pt; text-align: justify">
+<span style="font: bold 10pt serif">@GetNewDoradoUCode.cm@.</span><span style="font: 10pt serif">  This obtains Bootstrap.mb and Initial.mb from Indigo.  It then runs a program called MBtoBase.run, which converts the Dorado microcode into a form that can be loaded along with the BaseBoard microcomputer code.  (Bootstrap.mb is transformed into Boot0.mb and Initial.mb into Boot1.mb.)</span></div>
+<div style="width: 403pt; margin-left: 105pt; margin-top: 10pt; text-align: justify">
+<span style="font: bold 10pt serif">@DoradoBaseRom-Load.cm@.</span><span style="font: 10pt serif">  This binds and loads all the microcomputer code, along with Boot0 and Boot1.  Parameters in this command line control the placement of the various pieces (see below).  The output is DoradoBaseRom.mb, which may be used as input both by PNew (for EProm programming) and Midas (for BaseBoard microcomputer code debugging).</span></div>
+<div style="width: 403pt; margin-left: 105pt; margin-top: 10pt; text-align: justify">
+<span style="font: bold 10pt serif">@DoradoBaseRom-Blow.cm@.</span><span style="font: 10pt serif">  This controls the programming of the four BaseBoard EProms, which are Intel 2716s.  The EProms have starting memory addresses and BaseBoard coordinates listed in the following table, and are programmed in the order given:</span></div>
+<div style="width: 367pt; margin-left: 141pt; margin-top: 10pt; text-align: left">
+<span class="tab" val="48"></span><span style="font: italic 10pt serif">Rev. A</span><span class="tab" val="48"></span><span style="font: italic 10pt serif">Rev. B</span></div>
+<div style="width: 367pt; margin-left: 141pt; margin-top: 10pt; text-align: left">
+<span style="font: 10pt serif">F000</span><span class="tab" val="48"></span><span style="font: 10pt serif">c61</span><span class="tab" val="48"></span><span style="font: 10pt serif">c67<br>F800</span><span class="tab" val="48"></span><span style="font: 10pt serif">b61</span><span class="tab" val="48"></span><span style="font: 10pt serif">c68<br>C000</span><span class="tab" val="48"></span><span style="font: 10pt serif">f60</span><span class="tab" val="48"></span><span style="font: 10pt serif">b66<br>C800</span><span class="tab" val="48"></span><span style="font: 10pt serif">e60</span><span class="tab" val="48"></span><span style="font: 10pt serif">b61</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">The microcomputer code and Bootstrap and Initial microprograms are placed independently so as to minimize the number of EProms that have to be reprogrammed when a change is made.  Specifically, the microcomputer code and Bootstrap are contained in F000 and F800, while Initial and some tables that control loading of both Bootstrap and Initial are contained in C000 and C800.  This has the following consequences:</span></div>
+<div style="width: 403pt; margin-left: 105pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">If the microcomputer code is changed, F000 and F800 must be reprogrammed.</span></div>
+<div style="width: 403pt; margin-left: 105pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">If Initial is changed, C000 and C800 must be reprogrammed.</span></div>
+<div style="width: 403pt; margin-left: 105pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">If Bootstrap is changed (which is fairly unlikely), all four EProms must be reprogrammed.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">The Bootstrap and Initial microcode are assembled from sources in [Indigo]&lt;DoradoSource&gt;BootstrapSources.dm.  This must be done on a disk that already has the Pilot microcode environment, created by loading [Indigo]&lt;DoradoSource&gt;AEmuSources.dm and DMesaSources.dm, retrieving [Indigo]&lt;DoradoSource&gt;D1Lang.mc and D1Alu.mc, and executing @CedarMesaMake@.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 16pt; text-align: left">
+<span style="font: italic 10pt serif">3.2  LoadMB</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">The program LoadMB.run reads a Dorado MB-format file and does one of three things with it:</span></div>
+<div style="width: 403pt; margin-left: 105pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Immediately loads it into the Dorado&rsquo;s control store and starts it.</span></div>
+<div style="width: 403pt; margin-left: 105pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Creates an EB-format (Ether-bootable) file, for installation on boot servers.</span></div>
+<div style="width: 403pt; margin-left: 105pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Creates a BR-format file suitable for loading with BCPL programs.  The microcode image is loaded contiguously and pointed to by the static LoadRamImage.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Obviously, LoadMB can only run on a Dorado when performing the first function, but it can perform the latter two functions running on an Alto.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">The complete form of the LoadMB command line is:</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">&gt;LoadMB/</span><span style="font: italic 10pt serif">global-switches</span><span style="font: 10pt serif"> </span><span style="font: italic 10pt serif">InputFile</span><span style="font: 10pt serif">.mb </span><span style="font: italic 10pt serif">parameter</span><span style="font: 10pt serif">/</span><span style="font: italic 10pt serif">switch</span><span style="font: 10pt serif"> ...</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">If there are no global switches and no parameters, LoadMB simply loads the input file into the Dorado&rsquo;s control store and starts it at address 1070</span><span style="font: 8pt serif">B</span><span style="font: 10pt serif">, the standard &lsquo;&lsquo;soft restart&rsquo;&rsquo; entry point.  The Dorado is not booted, and control simply returns to the Executive in the same disk partition as before.  (The &lsquo;&lsquo;full bootstrap&rsquo;&rsquo; entry point, 1076, may be selected by means of the /S switch, described below.)</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">The global switches have the following effects:</span></div>
+<div style="width: 324pt; margin-left: 185pt; text-indent: -79pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">/B</span><span class="tab" val="48"></span><span style="font: 10pt serif">Writes the microcode onto a BR-format file, whose file name defaults to </span><span style="font: italic 10pt serif">InputFile</span><span style="font: 10pt serif">.br.</span></div>
+<div style="width: 324pt; margin-left: 185pt; text-indent: -79pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">/E</span><span class="tab" val="48"></span><span style="font: 10pt serif">Writes the microcode onto an EB-format file, whose file name defaults to </span><span style="font: italic 10pt serif">InputFile</span><span style="font: 10pt serif">.eb.</span></div>
+<div style="width: 324pt; margin-left: 185pt; text-indent: -79pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">/V</span><span class="tab" val="48"></span><span style="font: 10pt serif">Pauses and awaits confirmation after reading the MB file and before loading the Dorado&rsquo;s control store.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">The following parameters may be included on the command line:</span></div>
+<div style="width: 324pt; margin-left: 185pt; text-indent: -79pt; margin-top: 10pt; text-align: justify">
+<span style="font: italic 10pt serif">inputFile</span><span style="font: 10pt serif">/I</span><span class="tab" val="48"></span><span style="font: 10pt serif">Specifies an input file name (the /I is optional).</span></div>
+<div style="width: 324pt; margin-left: 185pt; text-indent: -79pt; margin-top: 10pt; text-align: justify">
+<span style="font: italic 10pt serif">label</span><span style="font: 10pt serif">/L</span><span class="tab" val="48"></span><span style="font: 10pt serif">Specifies the label name whose value is to be a pointer to the microcode image (rather than the default LoadRamImage).  This is applicable only in conjunction with the /B global switch.</span></div>
+<div style="width: 324pt; margin-left: 185pt; text-indent: -79pt; margin-top: 10pt; text-align: justify">
+<span style="font: italic 10pt serif">filename</span><span style="font: 10pt serif">/O</span><span class="tab" val="48"></span><span style="font: 10pt serif">Specifies the output file name, overriding the default implied by the global switch.  If neither /B nor /E has been specified, defaults to EB-format.</span></div>
+<div style="width: 324pt; margin-left: 185pt; text-indent: -79pt; margin-top: 10pt; text-align: justify">
+<span style="font: italic 10pt serif">address</span><span style="font: 10pt serif">/S</span><span class="tab" val="48"></span><span style="font: 10pt serif">Specifies the octal starting address of the microcode in the input file whose name </span><span style="font: italic 10pt serif">precedes</span><span style="font: 10pt serif"> this parameter.  If the microcode is being written to a file (BR or EB), this defaults to 1076, the address of the label InitMap (full bootstrap) in all emulators.  However, if the microcode is being loaded directly into the Dorado&rsquo;s control store, this defaults to 1070, the address of the label RestartEmulator, which bypasses the boot sequence.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">It is permissible to specify more than one input file.  In that case, LoadMB creates multiple microcode images concatenated together (and put in a single file if one is being written).  When the resulting file is read into memory and passed to LoadRam, only the first microcode image is loaded into the Dorado&rsquo;s control store and started; but that microcode is passed a pointer to the next microcode image.  This is how microcode overlays are managed.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">For example, the command:</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">&gt;LoadMB/e DoradoMesa.eb/o Mesa.mb 1076/s</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">reads microcode from Mesa.mb and creates an Ether-bootable file DoradoMesa.eb which has a starting address of 1076</span><span style="font: 8pt serif">B</span><span style="font: 10pt serif">.  The command:</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">&gt;LoadMB/e DoradoInitialMesa.eb/o InitialSelect.mb 406/s Mesa.mb 1076/s</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">creates an Ether-bootable file DoradoInitialMesa.eb consisting of InitialSelect.mb (with a starting address of 406</span><span style="font: 8pt serif">B</span><span style="font: 10pt serif">) followed by Mesa.mb (starting address 1076</span><span style="font: 8pt serif">B</span><span style="font: 10pt serif">).</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 16pt; text-align: left">
+<span style="font: italic 10pt serif">3.3  Installing emulator microcode on boot servers</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">At present, the only boot servers capable of booting Dorado and Dolphin microcode are the ones in Alto and Pilot Gateways and in IFSs.  Installing microcode boot files is best done by a Gateway maintainer.  The following instructions are for the Gateway maintainer&rsquo;s benefit and are therefore not tutorial.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Boot file numbers beginning with 3000 octal are set aside for microcode booting.  The Dolphin uses numbers starting at 3000, and the Dorado starting at 3100.  The current assignments for Dorado microcode boot files are:</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">3110</span><span class="tab" val="48"></span><span style="font: 10pt serif">DoradoMesa.eb<br>3111</span><span class="tab" val="48"></span><span style="font: 10pt serif">DoradoSmalltalk.eb<br>3112</span><span class="tab" val="48"></span><span style="font: 10pt serif">DoradoLisp.eb<br>3113</span><span class="tab" val="48"></span><span style="font: 10pt serif">DoradoCedar.eb<br>3114</span><span class="tab" val="48"></span><span style="font: 10pt serif">DoradoTest.eb</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">These correspondences must be established in the Gateway&rsquo;s parameter file (</span><span style="font: italic 10pt serif">gatewayName</span><span style="font: 10pt serif">.txt).</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">When a Dorado or Dolphin issues a microcode boot request, it specifies a microcode file number </span><span style="font: italic 10pt serif">offset</span><span style="font: 10pt serif">, and the server adds 3000 to it in order to select the correct boot file.  That is, the numbers 110 through 114 are wired into the Dorado&rsquo;s Initial microprogram for selecting Alto/Mesa, Smalltalk, Lisp, Cedar, and Test respectively.  However, the boot servers update these boot files using the normal boot update protocol (as opposed to the special microcode boot protocol), and use the regular boot file numbers beginning at 3000 while doing so.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">To update a microcode boot file, use LoadMB to create the desired EB-format file, and then use FTP to store it on the nearest Alto Gateway.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 16pt; text-align: left">
+<span style="font: italic 10pt serif">3.4  LoadRam</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">LoadRam is a microcode routine that is present in Initial and in all emulators.  It loads the Dorado&rsquo;s control store and registers (IM, IFUM, and RM) with microcode and data taken from main memory, and optionally starts it.  LoadRam may be invoked by opcodes in the Alto and Mesa instruction sets.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">The microcode is taken from an indefinitely long array of Items in main memory.  (An EB-format file consists of an overhead page followed by such an array.)  Each Item is a 4-word block, as follows:</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt sans-serif">Item: TYPE = MACHINE DEPENDENT RECORD<br>  [<br>  extraIM: [0..17B], unused: [0..777B], type: [0..7B],<br>  addr: WORD,<br>  word0: WORD,<br>  word1: WORD<br>  ]</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt sans-serif">ItemType: TYPE = {IM, IFUM, End, RM}</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">The array consists of any number of IM, IFUM, and RM items and is terminated by an End item.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">In an IM item, addr is the absolute IM address, word0 and word1 are the left and right halves of the data, and extraIM contains the concatenation of LHParityBad, RStk[0], RHParityBad, and Block.  In an IFUM item, addr is the IFUM address (including the instruction set number as the two high-order bits), and word0 and word1 are the left and right halves of the data.  In an RM item, addr is the RM address and word0 is the data.  (Any data for IM addresses 7600</span><span style="font: 8pt serif">B</span><span style="font: 10pt serif"> through 7677</span><span style="font: 8pt serif">B</span><span style="font: 10pt serif"> is ignored, as this is where the LoadRam microcode resides.  There must not be any data for RM addresses 32</span><span style="font: 8pt serif">B</span><span style="font: 10pt serif"> through 36</span><span style="font: 8pt serif">B</span><span style="font: 10pt serif">, else LoadRam will malfunction.)</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">In an End item, word0 is a checksum and word1 is the microcode starting address.  The checksum should be such that the two&rsquo;s-complement sum of all the words of all the items (including the End item) is zero.  LoadRam itself does not check the checksum; this is the responsibility of higher-level microcode or software.  (For example, before calling LoadRam, the Initial bootstrap program checks the checksum of the microcode that it loads from the disk or receives from a boot server.)</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">In the Mesa instruction set, LoadRam is opcode </span><span style="font: 10pt sans-serif">MISC 3</span><span style="font: 10pt serif">, and it is invoked by:</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt sans-serif">LoadRam[firstItemMinus1: LONG POINTER, flag: BOOLEAN]</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">where </span><span style="font: italic 10pt serif">firstItemMinus1</span><span style="font: 10pt serif"> points to the word </span><span style="font: italic 10pt serif">before</span><span style="font: 10pt serif"> the first Item of the array.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">In the Alto instruction set, LoadRam is opcode 61036</span><span style="font: 8pt serif">B</span><span style="font: 10pt serif">, and it accepts a </span><span style="font: italic 10pt serif">short</span><span style="font: 10pt serif"> pointer to the first Item (not ItemMinus1) in AC0 and the flag in AC1.  (These instructions are defined identically on the Dolphin, though of course the interpretation of the Items is different.)</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">The interpretation of </span><span style="font: italic 10pt serif">flag</span><span style="font: 10pt serif"> is as follows.  If </span><span style="font: italic 10pt serif">flag</span><span style="font: 10pt serif"> is </span><span style="font: 10pt sans-serif">TRUE</span><span style="font: 10pt serif">, LoadRam turns off tasking (and does in-line memory refresh on the Dolphin), loads the control store from the Item array, and jumps to the starting address given in the End item with tasking still turned off.  This operation is suitable for complete microcode replacement.  The only requirement is that the new microcode have LoadRam in the same place, since LoadRam will refuse to overwrite itself.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">If </span><span style="font: italic 10pt serif">flag</span><span style="font: 10pt serif"> is </span><span style="font: 10pt sans-serif">FALSE</span><span style="font: 10pt serif">, LoadRam leaves tasking on, loads the control store from the Item array, ignores the End block, and resumes normal emulation at the next opcode (Alto or Mesa).  This operation is intended for microcode overlays.  By convention, it must be assured that the new microcode is placed in such a way that it does not overwrite any existing microcode that is currently being executed by any task.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">If LoadRam returns, it passes back a pointer to the first word after the End block, which may be the beginning of another microcode image (e.g., an overlay).  More precisely, the Mesa LoadRam leaves a long pointer </span><span style="font: italic 10pt serif">above</span><span style="font: 10pt serif"> the top-of-stack, from where it can be recovered by doing two Inline.PUSHes.  (This pointer is </span><span style="font: italic 10pt serif">not</span><span style="font: 10pt serif"> offset by one.)  The Alto LoadRam simply returns the updated pointer in AC0.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 16pt; text-align: left">
+<span style="font: italic 10pt serif">3.5  Software-initiated boot</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">The effect of a user-initiated 3-push boot may also be invoked under program control.  At the microcode level, this is accomplished by executing Dorado manifold operation 2264</span><span style="font: 8pt serif">B</span><span style="font: 10pt serif"> and then halting.  Currently the only language-level access to this operation is ProcessorFace.BootButton in Pilot.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">During a software-initiated boot, it is possible to pass a boot parameter to Initial that specifies what microcode Initial is to load.  The parameter is a microcode file number, which is a boot file number minus 3000</span><span style="font: 8pt serif">B</span><span style="font: 10pt serif">.  At the time of the boot, the hardware stack must contain exactly three items (STK[1] through STK[3]): the microcode file number, a seal of 56623</span><span style="font: 8pt serif">B</span><span style="font: 10pt serif">, and a checksum whose value is such that the sum of the three words is zero.  The language-level access to this operation is MicrocodeBooting.BootSpecificMicrocode.</span></div>
+<script>function do_tabs() { // unit = px
+  var tabs = document.getElementsByClassName("tab");
+  for (var i = 0; i < tabs.length; ++i) {
+    var span = tabs[i];
+    var val = span.getAttribute("val");
+    if (val == null) console.log("Couldn't get val");
+    var rect = span.getBoundingClientRect();
+    var tabstop;
+    if (val > 0) tabstop = Math.ceil(rect.left / val) * val;
+    else tabstop = -val;
+    console.log("do_tabs", val, tabstop)
+    if (tabstop > 0) {
+      var width = tabstop - rect.left;
+      span.style.display = "inline-block";
+      span.style.width = width + "px";
+    }
+  }
+}
+do_tabs();
+</script>
+  </body>
+</html>

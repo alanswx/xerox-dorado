@@ -19,6 +19,11 @@ later.
   `PupMicrocodeBooter.mesa-2.html`, `BootServerDefs.mesa-2.html`,
   `EtherBoot.mesa-1.html`, `MicrocodeBooting.mesa-1.html`, and
   `PUPPAPER.PRESS-1.pdf`.
+- CHM Pup/Alto boot specs mirrored under `chm/pup/` and `chm/altodocs/`:
+  `ALTOBOOT.BRAVO!1.html`, `ETHERBOOT.BRAVO!1.html`,
+  `EFTPSPEC.BRAVO!1.html`, `PUPDEF.MAC!1.html`,
+  `PUPSPEC.PRESS!1.pdf`, `ETHERBOOT.TTY!2.html`, and
+  `NETEXEC.TTY!2.html`.
 
 Remote source URLs:
 
@@ -37,12 +42,20 @@ not be conflated:
    (`MicrocodeBootRequest`) and `265B` (`MicrocodeBootReply`). This is the
    path implemented by the current fake Dorado Ethernet controller.
 2. **Alto-style software boot.** After `LoadRam`, the loaded Alto emulator
-   performs an Alto-compatible software boot from disk or Ethernet. The
-   Apr-1980 Dorado booting memo says these conventions are the same as the
-   Alto: BS selects Ethernet boot, and BS+Quote requests the NetExec. The
-   local `EtherBoot.mesa!1` transcription shows this path starts with an Alto
-   "Mayday" Pup (`typeMayday = 244B`) and then receives the boot file by EFTP
-   Data/End packets (`30B`/`31B`) with Ack packets from the loader.
+   performs an Alto-compatible software boot from disk or Ethernet. The 1984
+   Dorado booting memo says these conventions are the same as the Alto: no BS
+   boots from disk, while BS selects Ethernet boot and BS+Quote requests the
+   NetExec. The local `EtherBoot.mesa!1` transcription shows this path starts
+   with an Alto "Mayday" Pup (`typeMayday = 244B`) and then receives the boot
+   file by EFTP Data/End packets (`30B`/`31B`) with Ack packets from the
+   loader.
+
+There is a third, Cedar-specific network route, but it is not the same as the
+Alto software boot. The Dorado booting memo says Cedar microcode boots
+software from local disk by loading the installed germ and physical volume
+boot file. To fetch Cedar software from Ethernet, real users first booted
+Alto/Mesa NetExec, then CedarNetExec, then the desired program. Keep that
+separate from both Initial MicrocodeBoot and AltoBoot/EFTP.
 
 The second path runs inside the Alto emulator, not Initial. It will require
 the Alto Ethernet/SIO hardware surface that AEmu exposes to Alto code, plus a
@@ -247,8 +260,10 @@ Implement the controller at the `EData`/`EControl` and EIT/EOT wakeup level:
 4. Parse request word 5 as the boot-file offset.
 5. Map the offset to a local EB file.
 6. Validate the EB header word is version `1`; then skip the first 256 words.
-7. Queue `MicrocodeBootReply` packets with the 255/255/258 chunk pattern and a
-   final zero-length reply.
+7. Queue `MicrocodeBootReply` packets with conservative 255-word chunks and a
+   final zero-length reply. The source server uses a 255/255/258 pattern, but
+   the current in-process fake stays below the maximum while the receive
+   boundary model is being hardened.
 8. Present queued receive packets through `EData` with normal data words first,
    then a dummy CRC word, then a status word whose low byte is zero and whose
    read asserts `IOAtten`.
@@ -292,14 +307,20 @@ payload words:
 | 11 | `RHost` |
 | 12 | `0B` |
 | 13 | `4B` |
-| 14 | `-1` |
-| 15.. | payload words |
+| 14.. | payload words |
 | after payload | dummy Ethernet CRC word |
 | final read | receiver status word with low byte zero and `IOAtten` asserted |
 
 The header/socket fields after word 5 are not all checked by Initial, but the
 values above mirror the request/reply relationship: destination is the Dorado's
 source socket and source is misc services.
+
+Important emulator detail: do not queue an explicit Pup checksum word before
+the payload for Initial's Ethernet input task. In the `InitialEther.mc` copy
+sequence, `EIPtr_ (Fetch_ 14S)+1` acts as the prefetch for the first payload
+word in the current memory pipeline. When the fake reply included a synthetic
+`177777` checksum word here, EIT copied that checksum into the EB stream as
+word zero and shifted the whole image.
 
 ## Open Items
 
@@ -332,12 +353,29 @@ round-trip received packet words through its page-zero buffer. The next
 hardware fidelity issue is therefore the non-emulator task memory path, not the
 Pup packet format.
 
-2026-05-02 update: the direct EB-loader path now gets into the loaded
-Alto/Mesa emulator. A new gated probe knob, `DORADO_ALTO_BOOT_ETHERNET=1`,
-attempts to hold the AEmu-visible BS key down, with Quote also down by default
-(`DORADO_ALTO_BOOT_QUOTE=1`), to exercise the documented Alto software
-Ethernet boot. The focused run still shows zero Dorado EOT/EIT traffic after
-LoadRam and still exercises the Alto disk path, so the next missing piece is
-not an Initial microcode server reply. The next investigation should trace the
-AEmu keyboard read/`EBoot` branch and then implement the Alto Ethernet/SIO
-surface plus Mayday/EFTP server once that branch is reached.
+2026-05-02 update: Initial now accepts the packet-level fake well enough to
+leave `AWAITETHERBOOTREPLY`, run the EB checksum/LoadRam path, and execute the
+loaded Alto/Mesa microcode world. The fixes were:
+
+- EIT needs device `IOAtten` to fire on the queued status word before the
+  status read, not only after a latched status read.
+- ALU branch-condition latches are task-local. EIT computes the terminator
+  `ALU<0` condition, blocks, and resumes later; a single global latch lets
+  other tasks clobber that condition before EIT's branch consumes it.
+- Initial's `RSH 1` length calculation relies on the negative zero-data
+  terminator staying negative in the next branch. The CPU model currently
+  preserves the sign bit for that MicroD form; this is a source-compatibility
+  observation that still needs reconciliation against the hardware-manual
+  wording.
+- The fake reply must expose 12 protocol words before payload, then the dummy
+  Ethernet CRC/status trailer. A synthetic Pup checksum word before payload is
+  copied as data.
+- The fake currently uses fixed 255-word chunks. This is intentionally below
+  the documented 258-word maximum while the receive model remains simplified.
+
+The next missing piece is post-LoadRam software boot/device behavior, not
+Initial MicrocodeBoot delivery. The focused run still shows sparse display
+output and no meaningful framebuffer content, with the loaded disk/display task
+mix active. A natural run needs roughly 61.4M Dorado cycles to enter the
+loaded world, so the probe default and focused commands now use a 140M-cycle
+budget; a 60M-cycle run stops in Initial's EB checksum loop before LoadRam.

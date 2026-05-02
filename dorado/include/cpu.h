@@ -245,6 +245,10 @@ typedef struct {
     uint8_t  task_tioa[16];
     uint16_t task_md[16];
     uint8_t  task_md_valid[16];
+    uint8_t  task_alu_zero[16];
+    uint8_t  task_alu_lt0[16];
+    uint8_t  task_alu_carry[16];
+    uint8_t  task_alu_overflow[16];
 
     /* SubTask (HM page 88). When an I/O device wakes a task, it
      * may present a 2-bit SubTask. The processor OR's
@@ -258,7 +262,9 @@ typedef struct {
     uint8_t  task_subtask[16];
 
     /* ALU branch-condition flags from the previous instruction.
-     * Updated whenever an ALU operation runs (HM Table 13). */
+     * Updated whenever an ALU operation runs (HM Table 13). These are
+     * task-local in hardware; the live fields below are saved/restored
+     * through task_alu_* on task switches. */
     uint8_t  alu_zero;          /* ALU = 0 */
     uint8_t  alu_lt0;           /* ALU < 0 (high bit set) */
     uint8_t  alu_carry;         /* saved carry-out */

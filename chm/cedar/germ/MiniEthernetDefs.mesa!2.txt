@@ -1,0 +1,49 @@
+
+<<File: MiniEthernetDefs.Mesa>>
+<<Last Edit: HGM  April 20, 1980  6:23 PM>>
+<<Andrew Birrell  October 28, 1983 3:51 pm>>
+
+DIRECTORY
+PupTypes USING [PupAddress, PupSocketID, PupType, Pair];
+
+MiniEthernetDefs: DEFINITIONS =
+
+BEGIN
+
+ActivateDriver: PROCEDURE [
+dataBuffer: LONG POINTER, length: CARDINAL,  -- Must be quad word aligned
+iocb: LONG POINTER,  -- 16 word block in first 64k, quad word aligned
+avoidCleanup: BOOLEAN _ FALSE]
+RETURNS [ok: BOOLEAN];
+
+KillDriver: PROCEDURE [avoidCleanup: BOOLEAN _ FALSE];
+
+GetEthernetHostNumber: PROCEDURE RETURNS [CARDINAL];
+GetEthernetNetNumber: PROCEDURE RETURNS [CARDINAL];  -- 0 if unknown
+
+DriverNotActive: ERROR;
+BufferOverflow: ERROR;
+
+SendPacket: PROCEDURE [
+dest: PupTypes.PupAddress,
+me: PupTypes.PupSocketID,
+type: PupTypes.PupType,
+id: PupTypes.Pair,
+data: LONG POINTER, bytes: CARDINAL];
+
+ReturnPacket: PROCEDURE [
+type: PupTypes.PupType,
+data: LONG POINTER, bytes: CARDINAL];
+
+<<returns -1 if timeout>>
+RecvPacket: PROCEDURE [
+source: LONG POINTER TO PupTypes.PupAddress,
+me: PupTypes.PupSocketID,
+data: LONG POINTER, words: CARDINAL,
+timeout: PROCEDURE RETURNS [BOOLEAN]]
+RETURNS [bytes: CARDINAL, id: PupTypes.Pair, type: PupTypes.PupType];
+
+timedOut: CARDINAL = LAST[CARDINAL];
+
+END.
+

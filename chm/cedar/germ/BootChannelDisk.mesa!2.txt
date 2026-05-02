@@ -1,0 +1,229 @@
+
+<<BootChannelDisk.mesa>>
+<<Last Edited by: Taft, July 21, 1983 5:09 pm>>
+<<Last Edited by: Sturgis, July 23, 1983 4:33 pm>>
+<<Last Edited by: Andrew Birrell, October 31, 1983 3:33 pm>>
+
+DIRECTORY
+Basics USING [DIVMOD, LongDivMod, LongMult],
+BootFile USING [Location, nullLink],
+BootChannel USING [Create, Operation, Handle, transferCleanup, transferWait],
+DiskFace USING[ Label ],
+GermPrivate USING [ Error ],
+MicrocodeVersion USING [VERSION],
+MPCodes USING [germDeviceError, germLabelCheck],
+PrincOps USING [PageCount, PageNumber],
+PrincOpsUtils USING [AddressForPageNumber, LowHalf],
+SA4000Face USING [
+Command, DeviceHandle, DiskAddress, GetDeviceAttributes, GetNextDevice,
+globalStateSize, Initialize, Initiate, nullDeviceHandle, Operation, operationSize,
+Poll, Recalibrate];
+
+BootChannelDisk: PROGRAM
+IMPORTS Basics, RemainingChannels: BootChannel, GermPrivate, MicrocodeVersion, PrincOpsUtils, SA4000Face
+EXPORTS BootChannel =
+
+<<Implementation of BootChannel for Cedar volume on SA4000.>>
+<<A single, serially reusable, channel is supported.>>
+BEGIN
+
+label1, label2: DiskFace.Label; -- HOW SHOULD THIS BE ALIGNED FOR FUTURE DISKS?
+pAllocateNext: LONG POINTER TO UNSPECIFIED; -- allocator for first 64K storage
+pLoc: POINTER TO BootFile.Location;
+tries: [0..triesMax];
+triesMax: CARDINAL = 8;
+movingHeads, sectorsPerTrack: CARDINAL;
+doubleBuffer: BOOLEAN;
+
+currentDiskAddress: SA4000Face.DiskAddress;
+currentFilePage: LONG CARDINAL;
+
+Operation: TYPE = RECORD [
+pOp: LONG POINTER TO SA4000Face.Operation,
+state: {idle, busy}];
+current, alternate: Operation;
+
+Create: PUBLIC PROCEDURE [
+pLocation: POINTER TO BootFile.Location, operation: BootChannel.Operation,
+dFirst64KStorage: LONG DESCRIPTOR FOR ARRAY OF WORD]
+RETURNS [BootChannel.Handle] =
+BEGIN
+pAllocateNext _ BASE[dFirst64KStorage]; -- reset first 64K allocator
+SELECT (pLoc _ pLocation).deviceType FROM
+= sa1000, sa4000 =>
+BEGIN
+da: SA4000Face.DiskAddress = LOOPHOLE[pLocation.diskFileID.firstLink];
+device: SA4000Face.DeviceHandle;
+<<Disable double buffering of commands on the Dandelion, because there seems to>>
+<<be some bug in the head or microcode that prevents it from working.>>
+doubleBuffer _ MicrocodeVersion.VERSION[].machineType # dandelion;
+current.pOp _ Allocate[SA4000Face.operationSize];
+current.state _ idle;
+alternate.pOp _ Allocate[SA4000Face.operationSize];
+alternate.state _ idle;
+SA4000Face.Initialize[0,
+LOOPHOLE[PrincOpsUtils.LowHalf[Allocate[SA4000Face.globalStateSize]]]];
+device _ SA4000Face.nullDeviceHandle;
+THROUGH [0..pLocation.deviceOrdinal] DO
+device _ SA4000Face.GetNextDevice[device] ENDLOOP;
+[movingHeads: movingHeads, sectorsPerTrack: sectorsPerTrack] _
+SA4000Face.GetDeviceAttributes[device];
+<<Initialize label>>
+currentDiskAddress _ da;
+current.pOp.labelPtr _ @label1;
+<<dataPtr, incrementDataPtr irrelevant>>
+current.pOp.command _ vr; -- read label (and ignore data)
+<<pageCount set in Transfer>>
+current.pOp.device _ device;
+TransferSA4000[page: NULL, count: 1]; -- fetch type, attribute fields
+TransferSA4000[page: NULL, count: BootChannel.transferWait];
+label1.fileID _ pLoc.diskFileID.fID;
+-- SetLabelFilePage[@label1, pLoc.diskFileID.firstPage];
+label1.filePage _ pLoc.diskFileID.firstPage;
+label1.dontCare _ BootFile.nullLink; --- so TransferSA4000 will use pOp.clientHeader
+label2 _ label1;
+currentFilePage _ pLoc.diskFileID.firstPage;
+<<Initialize remaining operation fields>>
+currentDiskAddress _ da; -- since transfer above incremented it
+<<labelPtr set above>>
+<<dataPtr set in Transfer>>
+current.pOp.incrementDataPtr _ TRUE;
+current.pOp.command _ SELECT operation FROM
+read => vvr,
+write => vvw,
+ENDCASE --rawRead-- => vrr;
+<<pageCount set in Transfer>>
+<<device set above>>
+alternate.pOp^ _ current.pOp^;
+alternate.pOp.labelPtr _ @label2;
+RETURN[TransferSA4000];
+END;
+ENDCASE => -- not anything I implement.  Pass it on.
+RETURN[RemainingChannels.Create[pLocation, operation, dFirst64KStorage]];
+END;
+
+TransferSA4000: PROCEDURE [page: PrincOps.PageNumber, count: PrincOps.PageCount] =
+BEGIN
+IF current.state=busy THEN Cleanup[];
+SELECT count FROM
+BootChannel.transferWait, BootChannel.transferCleanup =>
+IF doubleBuffer THEN
+BEGIN
+ExchangeCurAlt[];
+IF current.state=busy THEN Cleanup[];
+END;
+ENDCASE =>
+BEGIN
+current.pOp.dataPtr _ PrincOpsUtils.AddressForPageNumber[page];
+current.pOp.pageCount _ count;
+Initiate[];
+IF current.state=busy THEN Cleanup[];--wait for previous transfer to complete
+IF ~doubleBuffer THEN {ExchangeCurAlt[]; Cleanup[]};
+END;
+END;
+
+Initiate: PROCEDURE =
+BEGIN
+current.pOp.clientHeader _ currentDiskAddress;
+-- SetLabelFilePage[current.pOp.labelPtr, currentFilePage];
+current.pOp.labelPtr.filePage _ currentFilePage;
+current.pOp.labelPtr.dontCare _ BootFile.nullLink;
+IncrementDiskAddressAndPage[current.pOp.pageCount];
+SA4000Face.Initiate[current.pOp];
+current.state _ busy;
+ExchangeCurAlt[];
+END;
+
+Cleanup: PROCEDURE =
+BEGIN
+initialCount: CARDINAL _ LAST[CARDINAL];
+DO -- until count pages transferred
+DO -- until status~=inProgress
+SELECT SA4000Face.Poll[current.pOp] FROM
+inProgress => NULL;
+goodCompletion => GOTO TransferComplete;
+labelCheck =>
+IF current.pOp.labelPtr.dontCare~= BootFile.nullLink THEN
+BEGIN -- end of run on disk; chain to next run and resume transfer
+current.pOp.clientHeader _ LOOPHOLE[current.pOp.labelPtr.dontCare];
+GOTO RetryOperation;
+END
+ELSE GermPrivate.Error[MPCodes.germLabelCheck];
+ENDCASE -- other error -- =>
+BEGIN
+IF current.pOp.pageCount ~= initialCount THEN tries _ triesMax - 1
+ELSE
+SELECT tries _ tries - 1 FROM
+0 => GermPrivate.Error[MPCodes.germDeviceError];
+triesMax/2 => SA4000Face.Recalibrate[current.pOp.device];
+ENDCASE;
+initialCount _ current.pOp.pageCount;
+GOTO RetryOperation
+END;
+REPEAT RetryOperation => NULL;
+ENDLOOP;
+<<At this point we know the disk controller is dormant, since errors cause>>
+<<all pending transfers to be abandoned.  Therefore it is safe to fool with>>
+<<the label and the operation.>>
+currentDiskAddress _ current.pOp.clientHeader;
+-- currentFilePage _ GetLabelFilePage[current.pOp.labelPtr];
+currentFilePage _ current.pOp.labelPtr.filePage;
+Initiate[];
+<<Restart the alternate operation if there is one, since the head has forgotten it.>>
+IF current.state=busy THEN Initiate[] ELSE ExchangeCurAlt[];
+REPEAT TransferComplete =>
+BEGIN
+current.state _ idle;
+<<If this operation happened to finish at the end of a run of pages, we must>>
+<<manually follow the bootChainLink.  If the next operation has already been>>
+<<initiated, it will surely suffer a check error; wait for it to terminate,>>
+<<and then restart it at the correct place.>>
+IF current.pOp.labelPtr.dontCare # BootFile.nullLink AND
+current.pOp.labelPtr.dontCare # LOOPHOLE[current.pOp.clientHeader] THEN
+BEGIN
+currentDiskAddress _ LOOPHOLE[current.pOp.labelPtr.dontCare];
+-- currentFilePage _ GetLabelFilePage[current.pOp.labelPtr];
+currentFilePage _ current.pOp.labelPtr.filePage;
+IF alternate.state=busy THEN
+BEGIN
+ExchangeCurAlt[];
+WHILE SA4000Face.Poll[current.pOp] = inProgress DO ENDLOOP;
+Initiate[];
+END;
+END;
+END;
+ENDLOOP;
+END;
+
+IncrementDiskAddressAndPage: PROCEDURE [count: CARDINAL] = INLINE
+BEGIN
+virtualDA: LONG CARDINAL = count + currentDiskAddress.sector +
+Basics.LongMult[sectorsPerTrack,
+currentDiskAddress.head + movingHeads*currentDiskAddress.cylinder];
+c: CARDINAL;
+[c, currentDiskAddress.sector] _ Basics.LongDivMod[virtualDA, sectorsPerTrack];
+[currentDiskAddress.cylinder, currentDiskAddress.head] _ Basics.DIVMOD[c, movingHeads];
+currentFilePage _ currentFilePage+count;
+END;
+
+ExchangeCurAlt: PROCEDURE = INLINE
+BEGIN
+t: Operation _ current; current _ alternate; alternate _ t;
+END;
+
+<<Allocator for 16-word aligned storage in first64K>>
+Allocate: PROCEDURE [size: CARDINAL] RETURNS [lp: LONG POINTER TO UNSPECIFIED] =
+BEGIN pAllocateNext _ (lp _ pAllocateNext) + LONG[((size + 15)/16)*16] END;
+
+END.
+
+(For earlier log entries see Pilot 4.0 archive version.)
+June 23, 1980  2:31 PM        McJones        OISDisk,FilePageLabel=>PilotDisk
+August 13, 1980  6:02 PM        McJones        Read first label to determine attributes
+August 23, 1980  1:21 PM        McJones        Don't report labelCheck at end of run
+January 4, 1981  3:03 PM        Taft        Queue up to 2 operations at a time
+June 18, 1981  2:04 PM        Taft  Bug in pathological case of boot file chaining
+July 21, 1983 2:10 pm  Taft  Disable double-buffering of commands if running on Dandelion
+July 23, 1983 4:32 pm: Sturgis  also handle sa1000 device type
+July 28, 1983 2:54 pm: Andrew Birrell  wait for previous transfer after initiating second transfer
+October 31, 1983 2:45 pm: Andrew Birrell  convert to 5.0

@@ -1,0 +1,256 @@
+
+<<MiniEthernetDriver.mesa (last edited by: BLyon on: February 6, 1981  10:35 AM)>>
+<<Last Edited by: Birrell, October 31, 1983 3:23 pm>>
+DIRECTORY
+PrincOpsUtils USING [LongCOPY],
+EthernetOneFace,
+BufferDefs,
+DriverTypes USING [ethernetEncapsulationOffset],
+PupTypes,
+MiniEthernetDefs;
+
+MiniEthernetDriver: PROGRAM
+IMPORTS PrincOpsUtils, EthernetOneFace EXPORTS MiniEthernetDefs SHARES BufferDefs =
+
+BEGIN OPEN EthernetOneFace;
+
+active: BOOLEAN _ FALSE;
+last: {in, out, reset};
+knowBoardLocation: BOOLEAN _ FALSE;
+
+myHost: PupTypes.PupHostID;
+myNet: PupTypes.PupNetID;
+
+b: BufferDefs.PupBuffer; -- Global buffer for actual data transfers
+bufferSize: CARDINAL;
+ether: DeviceHandle;
+longIocb: ControlBlock;
+global: GlobalStatePtr;
+
+wordsPerPupHeader: CARDINAL = 11;
+bytesPerPupHeader: CARDINAL = wordsPerPupHeader*2;
+
+BoardLocationUnknown: PUBLIC ERROR = CODE;
+DriverNotActive: PUBLIC ERROR = CODE;
+BufferOverflow: PUBLIC ERROR = CODE;
+ReturnToStrangePlace: PUBLIC ERROR = CODE;
+
+ActivateDriver: PUBLIC PROCEDURE [
+dataBuffer: LONG POINTER, length: CARDINAL, iocb: LONG POINTER,
+avoidCleanup: BOOLEAN _ FALSE] RETURNS [BOOLEAN] =
+BEGIN
+p: LONG POINTER _ @b.encapsulation + DriverTypes.ethernetEncapsulationOffset;
+q: LONG POINTER _ b;
+fudge: LONG CARDINAL _ p - q;
+net, host: CARDINAL;
+IF ~FindTheBoard[] THEN RETURN[FALSE];
+knowBoardLocation _ TRUE;
+b _ dataBuffer - fudge;
+bufferSize _ length;
+longIocb _ iocb;
+[net, host] _ GetEthernet1Address[ether];
+myHost _ [host];
+myNet _ [net];
+IF ~avoidCleanup THEN AddCleanup[ether];
+<<allocate global storage>>
+TurnOn[ether, myHost, 0, 0, global];
+active _ TRUE;
+last _ reset;
+RETURN[TRUE];
+END;
+
+KillDriver: PUBLIC PROCEDURE [avoidCleanup: BOOLEAN _ FALSE] =
+BEGIN
+TurnOff[ether];
+IF ~avoidCleanup THEN RemoveCleanup[ether];
+knowBoardLocation _ FALSE;
+END;
+
+GetEthernetHostNumber: PUBLIC PROCEDURE RETURNS [CARDINAL] =
+BEGIN
+net, host: CARDINAL;
+IF NOT knowBoardLocation THEN ERROR BoardLocationUnknown;
+[net, host] _ GetEthernet1Address[ether];
+RETURN[host];
+END;
+
+GetEthernetNetNumber: PUBLIC PROCEDURE RETURNS [CARDINAL] =
+BEGIN
+net, host: CARDINAL;
+IF NOT knowBoardLocation THEN ERROR BoardLocationUnknown;
+[net, host] _ GetEthernet1Address[ether];
+RETURN[IF active THEN myNet ELSE net];
+END;
+
+FindTheBoard: PROCEDURE RETURNS [BOOLEAN] =
+BEGIN
+ether _ GetNextDevice[nullDeviceHandle];
+RETURN[ether # nullDeviceHandle];
+END;
+
+SendPacket: PUBLIC PROCEDURE [
+dest: PupTypes.PupAddress, me: PupTypes.PupSocketID, type: PupTypes.PupType,
+id: PupTypes.Pair, data: LONG POINTER, bytes: CARDINAL] =
+BEGIN
+words: CARDINAL _ 2 + wordsPerPupHeader + (bytes + 1)/2;
+IF ~active THEN ERROR DriverNotActive;
+IF words > bufferSize THEN ERROR BufferOverflow;
+<<Don't use constructor since that clobbers preceding 4 words>>
+b.encapsulation.ethernetOneDest _ dest.host;
+b.encapsulation.ethernetOneSource _ myHost;
+b.encapsulation.ethernetType _ pup;
+b.pupLength _ bytesPerPupHeader + bytes;
+b.pupTransportControl _ 0;
+b.pupType _ type;
+b.pupID _ id;
+b.dest _ dest;
+b.source _ [myNet, myHost, me];
+PrincOpsUtils.LongCOPY[to: @b.pupWords, from: data, nwords: (bytes + 1)/2];
+SetPupChecksum[b];
+last _ out;
+QueueOutput[
+ether, @b.encapsulation + DriverTypes.ethernetEncapsulationOffset, words,
+longIocb];
+THROUGH [0..LAST[CARDINAL]) DO
+IF GetStatus[longIocb] # pending THEN EXIT;
+REPEAT
+FINISHED =>
+BEGIN TurnOff[ether]; TurnOn[ether, myHost, 0, 0, global]; END;
+ENDLOOP;
+END;
+
+ReturnPacket: PUBLIC PROCEDURE [
+type: PupTypes.PupType, data: LONG POINTER, bytes: CARDINAL] =
+BEGIN
+words: CARDINAL _ 2 + wordsPerPupHeader + (bytes + 1)/2;
+temp: PupTypes.PupAddress;
+IF ~active THEN ERROR DriverNotActive;
+IF words > bufferSize THEN ERROR BufferOverflow;
+IF last # in THEN ERROR ReturnToStrangePlace;
+<<Don't use constructor since that clobbers preceding 4 words>>
+b.encapsulation.ethernetOneDest _ b.encapsulation.ethernetOneSource;
+b.encapsulation.ethernetOneSource _ myHost;
+b.encapsulation.ethernetType _ pup;
+b.pupLength _ bytesPerPupHeader + bytes;
+b.pupTransportControl _ 0;
+b.pupType _ type;
+temp _ b.dest;
+b.dest _ b.source;
+b.source _ temp;
+PrincOpsUtils.LongCOPY[to: @b.pupWords, from: data, nwords: (bytes + 1)/2];
+SetPupChecksum[b];
+last _ out;
+QueueOutput[
+ether, @b.encapsulation + DriverTypes.ethernetEncapsulationOffset, words,
+longIocb];
+THROUGH [0..LAST[CARDINAL]) DO
+IF GetStatus[longIocb] # pending THEN EXIT;
+REPEAT
+FINISHED =>
+BEGIN TurnOff[ether]; TurnOn[ether, myHost, 0, 0, global]; END;
+ENDLOOP;
+END;
+
+RecvPacket: PUBLIC PROCEDURE [
+source: LONG POINTER TO PupTypes.PupAddress, me: PupTypes.PupSocketID,
+data: LONG POINTER, words: CARDINAL, timeout: PROCEDURE RETURNS [BOOLEAN]]
+RETURNS [bytes: CARDINAL, id: PupTypes.Pair, type: PupTypes.PupType] =
+BEGIN
+IF ~active THEN ERROR DriverNotActive;
+DO
+QueueInput[
+ether, @b.encapsulation + DriverTypes.ethernetEncapsulationOffset,
+bufferSize, longIocb];
+UNTIL GetStatus[longIocb] # pending DO
+IF timeout[] THEN
+BEGIN
+TurnOff[ether];
+TurnOn[ether, myHost, 0, 0, global];
+last _ reset;
+RETURN[MiniEthernetDefs.timedOut, [0, 0], LOOPHOLE[0]];
+END;
+ENDLOOP;
+IF GetStatus[longIocb] # ok THEN LOOP;
+IF b.encapsulation.ethernetType # pup THEN LOOP;
+<<should check words that arrived against pupLength?>>
+<<check here for routing table if we ever get that complicated>>
+IF myNet # 0 AND myNet # b.dest.net AND b.dest.net # 0 THEN LOOP;
+IF myHost # b.dest.host THEN LOOP; -- Can't recv broadcast
+IF me # b.dest.socket THEN LOOP;
+IF source.net # 0 AND source.net # b.source.net AND b.source.net # 0 THEN
+LOOP;
+IF source.host # 0 AND source.host # b.source.host THEN LOOP;
+IF source.socket # [0, 0] AND source.socket # b.source.socket THEN LOOP;
+IF ~TestPupChecksum[b] THEN LOOP;
+IF myNet = 0 THEN myNet _ b.dest.net;
+IF (b.pupLength - bytesPerPupHeader) > words*2 THEN LOOP;
+bytes _ b.pupLength - bytesPerPupHeader;
+PrincOpsUtils.LongCOPY[to: data, from: @b.pupWords, nwords: (bytes + 1)/2];
+IF source.net = 0 THEN source.net _ b.source.net;
+IF source.host = 0 THEN source.host _ b.source.host;
+IF source.socket = [0, 0] THEN source.socket _ b.source.socket;
+last _ in;
+RETURN[bytes, b.pupID, b.pupType];
+ENDLOOP;
+END;
+
+checksum: {software} = software;
+
+SetPupChecksum: PUBLIC PROCEDURE [b: BufferDefs.PupBuffer] =
+BEGIN
+size: CARDINAL _ (b.pupLength - 1)/2;
+checksumLoc: LONG POINTER _ @b.pupLength + size;
+cs, t: CARDINAL;
+SELECT checksum FROM
+software =>
+BEGIN
+p: LONG POINTER TO ARRAY [0..0) OF WORD = LOOPHOLE[@b.pupLength];
+i: CARDINAL;
+cs _ 0;
+FOR i IN [0..size) DO
+t _ cs + p[i];
+cs _ (IF cs > t THEN t + 1 ELSE t);
+cs _ (IF cs >= 100000B THEN cs*2 + 1 ELSE cs*2);
+ENDLOOP;
+IF cs = 177777B THEN cs _ 0;
+checksumLoc^ _ cs;
+END;
+ENDCASE => NULL;
+END;
+
+TestPupChecksum: PUBLIC PROCEDURE [b: BufferDefs.PupBuffer] RETURNS [BOOLEAN] =
+BEGIN
+size: CARDINAL _ ((LOOPHOLE[b.pupLength - 1, CARDINAL])/2);
+checksumLoc: LONG POINTER _ @b.pupLength + size;
+cs, t: CARDINAL;
+IF checksumLoc^ = 177777B THEN RETURN[TRUE];
+SELECT checksum FROM
+software =>
+BEGIN
+p: LONG POINTER TO ARRAY [0..0) OF WORD = LOOPHOLE[@b.pupLength];
+i: CARDINAL;
+cs _ 0;
+FOR i IN [0..size) DO
+t _ cs + p[i];
+cs _ (IF cs > t THEN t + 1 ELSE t);
+cs _ (IF cs >= 100000B THEN cs*2 + 1 ELSE cs*2);
+ENDLOOP;
+IF cs = 177777B THEN cs _ 0;
+END;
+ENDCASE => NULL;
+RETURN[checksumLoc^ = cs];
+END;
+
+END.
+
+LOG
+Time: January 29, 1980  6:00 PM  By: Dalal  Action: fixed Core Software AR 2658.
+Time: February 7, 1980  11:18 PM  By: Knutsen  Action: ioPage now a long pointer.  Initialize host socket right.
+INTEGER Divide
+Time: February 9, 1980  2:43 PM  By: Knutsen/HGM  Action: fix clobber of 4 words before buffer
+Time: April 20, 1980  4:03 PM  By: HGM  Action: Faceification, add ReturnPacket and timedOut
+Time: April 28, 1980  7:36 PM  By: HGM  Action: Fix QueueOutput bug (again!) in RecvPacket
+Time: July 2, 1980  5:44 PM  By: HGM  Action: Delete "DriverTypes." in front of pupEthernetPacket
+Time: August 20, 1980  2:23 PM  By: BLyon  Action: renamed EthernetFace to EthernetOneFace.
+Time: October 31, 1983 3:22 pm  By: Birrell  Action: conversion to 5.0.
+

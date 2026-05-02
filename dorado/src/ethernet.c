@@ -202,9 +202,8 @@ static int eth_queue_boot_replies(dorado_ethernet *eth, uint16_t offset)
     size_t cap = 0;
     size_t pos = 0;
     uint16_t seq = 0;
-    int chunk_phase = 0;
     while (pos < payload_n) {
-        size_t max_words = (chunk_phase == 2) ? 258 : 255;
+        size_t max_words = 255;
         size_t n = payload_n - pos;
         if (n > max_words) n = max_words;
         if (!append_reply(eth, &cap, seq, &payload[pos], n)) {
@@ -214,7 +213,6 @@ static int eth_queue_boot_replies(dorado_ethernet *eth, uint16_t offset)
         }
         pos += n;
         seq++;
-        chunk_phase = (chunk_phase + 1) % 3;
     }
     free(payload);
 
@@ -333,10 +331,11 @@ static int eth_attention(void *ctx, int task, uint8_t tioa)
 {
     dorado_ethernet *eth = ctx;
     if (task == DORADO_ETHERNET_TASK_EIT &&
-        tioa == DORADO_ETHERNET_TIOA_DATA &&
-        eth->rx_attention_latched) {
-        eth->rx_attention_latched = 0;
-        return 1;
+        tioa == DORADO_ETHERNET_TIOA_DATA) {
+        if (eth->rx_attention_latched) {
+            eth->rx_attention_latched = 0;
+            return 1;
+        }
     }
     return 0;
 }

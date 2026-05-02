@@ -7,15 +7,21 @@ archives offer.
 
 ## TL;DR
 
-We already have everything needed to boot. Two viable paths:
+There are two hardware-like boot approaches worth pursuing. They share
+the same first half of the boot chain, but diverge after emulator
+microcode is running.
 
-1. **Alto-on-Dorado** (recommended for first boot): load
-   `chm/microcode/AltoMesaDorado.eb!1` as the emulator microcode and
-   mount `AltoInfo/ContrAlto2-beta/Disks/spruce-server.dsk300` as the
-   Trident T-300 disk pack. Our T-300 disk driver is compatible.
-2. **Cedar-on-Dorado**: load `chm/microcode/BasicCedarDorado.pb!1`
-   directly into memory — it's a self-contained Pilot world (microcode
-   + Cedar OS as a memory image), no disk needed.
+1. **Alto-emulator software boot** (recommended first): Initial loads
+   `AltoMesaDorado.eb` via the Dorado microcode boot protocol, then
+   the loaded Alto/Mesa emulator performs a normal Alto software boot
+   from either an emulated Alto disk partition or the Alto Ethernet
+   boot protocol. This is the path that can use Alto disk images and
+   the Spruce T-300 pack as validation fixtures.
+2. **Cedar/Pilot disk boot**: Initial loads Cedar microcode, then
+   Cedar boots a `Dorado.germ` and physical volume boot file from a
+   Pilot/Cedar disk volume. The CHM archive has the Dorado germ,
+   `BasicCedarDorado.boot`, and `BasicCedarDorado.pb`; this path is
+   more native to Cedar, but requires more Pilot volume knowledge.
 
 ## What "boot disk" means for the Dorado
 
@@ -29,16 +35,33 @@ EPROM Boot0  ──►  Bootstrap  ──►  Initial  ──►  emulator micro
 
 The first three stages (Boot0, Bootstrap, Initial) come from the
 BaseBoard ROM. Then **Initial loads emulator microcode** — typically
-either over Ethernet (`.eb` Ether-Bootable format), from disk, or from
-a Pilot Backup memory image (`.pb`). Once the emulator microcode is
-running, the OS reads from disk in its own format.
+either over Ethernet (`.eb` Ether-Bootable format), from the disk
+Initial region, or via an InitialSelect overlay. Once the emulator
+microcode is running, it performs a **second-stage software boot**.
 
 So "boot disk" can mean either:
-- A **Trident pack** holding files the emulator-OS reads (Alto Spruce
-  pack, Mesa world disk, etc.) — this is the disk hardware presents
-  to the emulator.
-- A **Pilot world** memory image — the OS state captured as a single
-  memory snapshot, loaded directly into RAM without any disk involved.
+- A **Dorado Initial region** containing emulator microcode for the
+  first-stage microcode boot.
+- An **Alto-emulated disk partition** on a Dorado Trident pack. The
+  Dorado user-ops memo says the Trident could hold many complete Alto
+  disks; Alto-emulator microcode selects one of those partitions and
+  boots it using Alto conventions.
+- A **Cedar/Pilot volume** containing a germ and physical volume boot
+  file.
+- A **Pilot Backup** memory image (`.pb`) that captures a complete
+  Pilot world and can bypass disk if we implement a loader for it.
+
+## Boot documents mirrored locally
+
+Primary Dorado/Alto/Pup/Pilot references now saved in the tree:
+
+| Area | Local files |
+|---|---|
+| Dorado boot operation/implementation | `chm/doradodocs/DoradoUserOps.memo!3.html`, `chm/doradosource/DoradoBooting.tioga!2.txt`, `chm/doradosource/DoradoBootingImpl.bravo!1.html`, `chm/doradodocs/DoradoBooting*.pdf` |
+| Dorado Initial/LoadRam/TriDisk sources | `chm/doradosource/BootstrapSources.dm!12_/`, `chm/doradosource/LoadMB.dm!6_/`, `chm/doradosource/TriDiskSources.dm!8_/`, `chm/doradomicrocode/loadmb/LoadMB.mesa!7.txt` |
+| Alto software boot and disk utilities | `chm/altodocs/ALTOHARDWARE.PRESS!2.pdf`, `chm/altodocs/ETHERBOOT.TTY!2.html`, `chm/altodocs/NETEXEC.TTY!2.html`, `chm/altodocs/COPYDISK.TTY!2.html`, `chm/altodocs/BFS.TTY!2.html` |
+| Pup/Alto boot protocols | `chm/pup/ALTOBOOT.BRAVO!1.html`, `chm/pup/ETHERBOOT.BRAVO!1.html`, `chm/pup/EFTPSPEC.BRAVO!1.html`, `chm/pup/PUPDEF.MAC!1.html`, `chm/pup/PUPSPEC.PRESS!1.pdf` |
+| Cedar/Pilot boot artifacts | `chm/cedar/basiccedar/BasicCedarDorado.boot!14`, `chm/cedar/basiccedar/BasicCedarDorado.loadmap!69.txt`, `chm/cedar/germ/Dorado.germ!4`, `chm/cedar/germ/Dorado.loadmap!1.txt`, `chm/cedar/germ/BootChannelDisk.mesa!2.txt`, `chm/cedar/germ/BootChannelEther.mesa!3.txt`, `chm/cedar/germ/MiniEthernet*.txt`, `chm/cedar/germ/OthelloDorado.boot!8` |
 
 ## Trident T-300 disk packs (locally available)
 
@@ -57,8 +80,10 @@ data words. Locally available pack files:
 
 `spruce-server.dsk300` is the right preserved Trident image format for
 drive validation. It is an Alto Spruce print-server pack, not known to
-contain Initial's private hard-microcode boot file at page 4, so the
-normal Initial disk boot may legitimately fall through to Ethernet.
+contain a Dorado Initial microcode region or a Cedar physical volume, so
+the normal Dorado hard-microcode disk boot may legitimately fall through
+to Ethernet. Treat it as an Alto-emulator software-boot fixture, not as
+a complete Dorado system pack.
 
 The other `.dsk` files (`games.dsk`, `bcpl.dsk`, `bravox.dsk`,
 `xmsmall.dsk`, etc.) are **Diablo 30 packs** (2.5 MB) used by ContrAlto.
@@ -114,11 +139,11 @@ patterns:
 
 ## What CHM does and does not have as raw disk packs
 
-**Trident packs (T-80, T-300):** none on either CHM mirror. The only
-known public Trident pack image is the Spruce T-300 we already have
+**Trident packs (T-80, T-300):** none obvious on either CHM mirror. The
+only known public Trident pack image is the Spruce T-300 we already have
 locally (`AltoInfo/ContrAlto2-beta/Disks/spruce-server.dsk300`).
-Dorado-era Mesa/Cedar worlds were distributed as `.eb`/`.pb` memory
-images, not as Trident packs.
+Dorado-era Mesa/Cedar boot artifacts are present as `.eb`, `.boot`,
+`.germ`, `.loadmap`, and `.pb` files rather than raw Dorado pack images.
 
 **Alto Diablo-30 packs (`.bfs` / `.altodisk` / `.copydisk`):** yes —
 9 of them in `_cd8_/basicdisks/` and `indigo/basicdisks/` on
@@ -159,22 +184,31 @@ controller. We have `AltoMesaDorado.eb`, `CedarDorado.eb`,
 
 ## Recommended boot recipes
 
-### Recipe 1: Alto-on-Dorado with Spruce pack
+### Recipe 1: Alto-emulator disk boot
 
-The minimum-viable first-boot:
+This is still the best first display target:
 
 1. Microcode: `chm/microcode/AltoMesaDorado.eb!1` — provides Alto
    emulator, Mesa, IFU dispatch, etc.
-2. Disk: mount `AltoInfo/ContrAlto2-beta/Disks/spruce-server.dsk300`
-   as Drive 0.
-3. Boot path: BB → Bootstrap → Initial → load `AltoMesaDorado` →
-   Alto-emulator runs Spruce.
+2. Microcode load path: Initial Ethernet MicrocodeBoot request offset
+   `110B`, full boot-file number `3110B`, then LoadRam starts the
+   emulator at the EB end-item start address.
+3. Software boot path: once Alto/Mesa microcode is running, boot with
+   BS up for disk, or BS plus boot-key combinations for Alto Ethernet
+   software boot.
+4. Disk target: an Alto-emulated disk partition on a Dorado Trident
+   pack. `spruce-server.dsk300` is the current T-300 fixture, but it is
+   not yet proven to contain the right bootable partition for our path.
 
 This is the path we should target first because:
 - We have every byte needed locally.
 - Our T-300 disk driver matches the pack format.
 - ContrAlto2 (`AltoInfo/Contralto2-2.0-Beta/Contralto/`) runs the same
   combination, so it's a working oracle for cross-validation.
+- The Dorado docs say Alto-emulator-based microcode performs a standard
+  Alto software boot. The local primary references are Alto Hardware
+  section 3.3, `ALTOBOOT`, `ETHERBOOT`, `EFTPSPEC`, `NETEXEC`, and
+  `COPYDISK`.
 
 Current emulator status (2026-05-02): this remains the desired first
 recipe, but it is not a proven local boot yet. The harness can load both
@@ -185,7 +219,45 @@ Spruce is still a useful Trident pack-format fixture; do not assume it
 is sufficient by itself until the second-stage Alto/Mesa software boot
 payload or disk command handoff is identified.
 
-### Recipe 2: Cedar Pilot world
+### Recipe 2: Alto-emulator Ethernet software boot
+
+This is the alternative if local Alto disk boot remains blocked:
+
+1. Load `AltoMesaDorado.eb` exactly as in Recipe 1.
+2. Present Alto boot-key state for Ethernet software boot. BS+Quote is
+   the NetExec path per Dorado boot docs.
+3. Implement the Alto boot server side using `chm/pup/ALTOBOOT`,
+   `chm/pup/ETHERBOOT`, and EFTP (`30B`/`31B` data/end packets) rather
+   than the Dorado Initial MicrocodeBoot protocol.
+4. Serve a small Alto boot file first, then NetExec or a disk utility
+   such as copydisk/scavenger once packet mechanics are stable.
+
+This does not require a local file-server volume at first, but it does
+require the Alto Ethernet surface exposed by AEmu after LoadRam. It is a
+different protocol from Initial's `264B`/`265B` microcode boot.
+
+### Recipe 3: Cedar/Pilot disk boot
+
+This is the more native Cedar path:
+
+1. Load `CedarDorado.eb` directly via Initial Ethernet MicrocodeBoot
+   offset `113B`, or use an InitialDisk/InitialEther Cedar variant.
+2. Provide a Pilot/Cedar disk volume with `Dorado.germ!4` and the
+   installed physical volume boot file.
+3. Use `BasicCedarDorado.boot!14` and
+   `BasicCedarDorado.loadmap!69.txt` as local references for the boot
+   file and symbol map.
+4. Use `BootChannelDisk.mesa`, `BootChannelEther.mesa`, and
+   `MiniEthernetDriver.mesa` as the source references for germ-level
+   disk and Ethernet channels.
+
+The Dorado booting memo is explicit that Cedar microcode does not do the
+Alto Ethernet software boot directly. To boot Cedar software over the
+network on real hardware, users first booted Alto/Mesa NetExec, then
+CedarNetExec, then the desired program. For our emulator, a local Cedar
+disk/germ path is likely cleaner than trying to fake that entire chain.
+
+### Recipe 4: Direct Pilot Backup world
 
 If you want to skip the disk entirely:
 
@@ -193,10 +265,13 @@ If you want to skip the disk entirely:
 2. Boot path: BB → Bootstrap → Initial → load Pilot world directly
    into memory → run.
 
-Needs a `.pb` loader (not yet implemented). Path of less code, but
-more upfront work.
+Needs a `.pb` loader (not yet implemented). This is probably not a
+simple EB loader extension: local byte checks show `BasicCedarDorado.pb`
+is not just a 256-word EB header followed by LoadRam items. Use the
+newly mirrored `BasicCedarDorado.boot` and loadmap as format clues, but
+expect to implement real Pilot Backup parsing.
 
-### Recipe 3: Native Dorado Mesa from `.MB` sources
+### Recipe 5: Native Dorado Mesa from `.MB` sources
 
 Load `chm/dorado/Mesa.mb!3` directly via our microcode loader (this
 is what `probe_aemu` does for Alto microcode). No disk needed for
@@ -223,12 +298,17 @@ the ground-truth oracle for Alto-mode execution.
 
 ## Summary
 
-We have everything. No archive download needed.
-
-- Microcode worlds: 17 `.eb`/`.pb`/`.mb` files in `chm/microcode/`
+- Microcode worlds: `.eb`/`.pb`/`.mb` files in `chm/microcode/`
   and `chm/dorado/`.
-- Disk packs: T-300 Alto pack (276 MB) ready to mount.
+- Alto software boot docs: now mirrored under `chm/altodocs/` and
+  `chm/pup/`.
+- Cedar/Pilot boot artifacts: now mirrored under `chm/cedar/`.
+- Disk packs: T-300 Alto pack (276 MB) ready as a drive fixture, but
+  not yet proven as a complete Dorado boot pack.
 - Cross-validation: ContrAlto2 source + binaries.
 
-When the emulator is ready, start with Recipe 1 (Alto-on-Dorado
-with Spruce pack) for the first boot demonstration.
+When the emulator is ready, start with Recipe 1 until either the
+Alto-emulated disk path is proven or blocked by missing pack contents.
+If blocked, Recipe 2 is the shortest network-first route to visible Alto
+software. Recipe 3 is the more accurate Cedar/Pilot route, but needs a
+Pilot volume model.

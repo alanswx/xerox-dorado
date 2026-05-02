@@ -1,9 +1,10 @@
 # Ethernet Bootstrap, Local OS Boot Plan
 
 Goal: make the normal Dorado boot path use Ethernet for the Initial-stage
-emulator microcode load, then boot the operating system from local emulated
-storage. This keeps the boot path hardware-like without requiring a full IFS,
-Gateway, or external Pup network before the display/disk path is stable.
+emulator microcode load, then choose one of two second-stage software boot
+routes: local Alto-emulated storage, or Alto Ethernet software boot. This keeps
+the first half hardware-like without requiring a full IFS, Gateway, or external
+Pup network before the display/disk path is stable.
 
 ## Target Path
 
@@ -14,8 +15,9 @@ BaseBoard ROM
   -> fake Ethernet MicrocodeBoot server
   -> AltoMesaDorado.eb emulator microcode loaded by Initial/LoadRam
   -> Alto emulator starts
-  -> local Trident T-300 pack mounted as drive 0
-  -> Alto/Spruce OS boots from disk
+  -> second-stage software boot
+       A: local Alto-emulated Trident partition
+       B: AltoBoot/EFTP server for NetExec or a small boot file
 ```
 
 First payloads:
@@ -23,14 +25,16 @@ First payloads:
 | Stage | Local artifact | Why |
 |---|---|---|
 | Initial Ethernet microcode payload | `chm/microcode/AltoMesaDorado.eb!1` first; compare with `chm/dorado/AltoMesaDorado.eb!2` | Small, directly matches the documented Dorado `3110B`/`110B` Mesa/Alto-emulator boot-file path. |
-| Local OS storage | `AltoInfo/ContrAlto2-beta/Disks/spruce-server.dsk300` | Known Trident T-300 pack image, already usable as a disk-controller validation target. |
+| Local OS storage | `AltoInfo/ContrAlto2-beta/Disks/spruce-server.dsk300` | Known Trident T-300 pack image, already usable as a disk-controller validation target. It is not yet proven to contain a bootable Alto-emulated Dorado partition. |
+| Alto software netboot docs | `chm/pup/ALTOBOOT.BRAVO!1.html`, `chm/pup/ETHERBOOT.BRAVO!1.html`, `chm/pup/EFTPSPEC.BRAVO!1.html`, `chm/altodocs/NETEXEC.TTY!2.html` | Primary references for the second-stage Alto Ethernet path after AEmu is running. |
 
 Fallback payloads:
 
 | Payload | Use |
 |---|---|
 | `chm/microcode/TestDorado.eb!1` or `chm/dorado/test/TestDorado.eb!5` | Smaller diagnostic payload if AEmu reaches too much unimplemented hardware. |
-| `chm/dorado/CedarDorado.eb!6` | Later Cedar emulator microcode path; likely needs more Pilot/storage work after LoadRam. |
+| `chm/dorado/CedarDorado.eb!6` | Later Cedar emulator microcode path; likely needs Pilot storage/germ work after LoadRam. |
+| `chm/cedar/basiccedar/BasicCedarDorado.boot!14` + `chm/cedar/germ/Dorado.germ!4` | Cedar/Pilot disk-boot references, not payloads for Initial's microcode boot request. |
 | `chm/microcode/BasicCedarDorado.pb!1` | Not for this path. It is a Pilot Backup memory image, useful for a future direct `.pb` loader. |
 
 ## Definition of Done
@@ -42,8 +46,10 @@ Fallback payloads:
    `BootDataPtr`, receives the zero-length terminator, and sets `SeqNo = -1`.
 5. Initial returns success from `EtherMicrocodeBoot` and calls `LoadRam`.
 6. Loaded emulator microcode starts without using the direct probe loader.
-7. Alto emulator accesses the local T-300 disk pack.
-8. We produce a display snapshot or equivalent trace showing post-emulator OS
+7. Alto emulator reaches the second-stage software boot decision.
+8. Either local disk boot reaches Alto disk reads, or Alto Ethernet software
+   boot emits the Mayday/AltoBoot request.
+9. We produce a display snapshot or equivalent trace showing post-emulator OS
    boot progress.
 
 ## Phase 1: Instrument the Current Initial Path
@@ -204,33 +210,95 @@ Tasks:
 
 Expected result: AEmu starts from Initial-loaded `AltoMesaDorado.eb!1`.
 
-## Phase 6: Boot the OS from Local Disk
+## Phase 6A: Boot Alto Software from Local Disk
 
-Purpose: continue from emulator microcode into local storage, not network OS
-boot.
+Purpose: continue from emulator microcode into local storage using the
+Alto-emulator disk conventions described in the Dorado booting docs.
 
 Tasks:
 
 1. Mount `AltoInfo/ContrAlto2-beta/Disks/spruce-server.dsk300` as drive 0.
 2. Ensure the boot mode handed to the Alto emulator selects local disk boot,
-   not Ethernet boot. If keyboard/back-channel is still incomplete, force this
-   in the probe only.
-3. Reuse existing disk traces:
+   not Ethernet software boot. If keyboard/back-channel is still incomplete,
+   force this in the probe only.
+3. Model the Alto-emulated disk command surface, not just raw Trident sectors.
+   Primary references:
+   - `chm/doradosource/TriDiskSources.dm!8_/TriDisk.mc.html` for the Alto
+     Trident KBLK/KCB shape,
+   - `chm/doradosource/AemuSources.dm!82_/AEm0.mc` and `ADefs.mc` for AEmu's
+     legacy Alto boot command block,
+   - `chm/altodocs/ALTOHARDWARE.PRESS!2.pdf` section 3.3 and `BFS.TTY!2.html`
+     for Alto disk/software expectations.
+4. Reuse existing disk traces:
    - DiskControl commands,
    - Format RAM setup,
    - seek/status path,
    - DiskData FIFO reads/writes.
-4. Produce periodic display snapshots after LoadRam:
+5. Produce periodic display snapshots after LoadRam:
    - at frame 1,
    - frame 10,
    - frame 100,
    - and on first non-gray/nonblank framebuffer change.
-5. Compare disk behavior with ContrAlto2 when the same `spruce-server.dsk300`
+6. Compare disk behavior with ContrAlto2 when the same `spruce-server.dsk300`
    pack is mounted.
 
 Expected result: visible post-emulator boot progress on the framebuffer, or a
 precise disk/display blocker with a trace that starts after successful Ethernet
 microcode load.
+
+## Phase 6B: Boot Alto Software from a Fake AltoBoot/EFTP Server
+
+Purpose: continue from emulator microcode into the Alto software Ethernet boot
+path if local Alto disk contents remain uncertain.
+
+Tasks:
+
+1. Preserve the Initial MicrocodeBoot fake server as-is. It serves Dorado EB
+   files with Pup types `264B`/`265B`; it is not the software boot server.
+2. Add tracing after LoadRam for the Alto Ethernet surface exposed by AEmu.
+   The expected first request is the Alto software boot "Mayday" path, not a
+   Dorado microcode boot request.
+3. Use these local references:
+   - `chm/pup/ALTOBOOT.BRAVO!1.html`,
+   - `chm/pup/ETHERBOOT.BRAVO!1.html`,
+   - `chm/pup/EFTPSPEC.BRAVO!1.html`,
+   - `chm/altodocs/ETHERBOOT.TTY!2.html`,
+   - `chm/altodocs/NETEXEC.TTY!2.html`.
+4. Serve a deliberately small Alto boot file first. Once packet sequencing and
+   memory deposit are stable, move to NetExec and then copydisk/scavenger.
+5. Keep this server in-process and deterministic, just like the Initial fake
+   server, until the emulator can boot headless reproducibly.
+
+Expected result: AEmu emits an Alto software boot request and accepts an EFTP
+boot file, giving us a post-LoadRam progress path even without a proven local
+Alto partition.
+
+## Phase 6C: Cedar/Pilot Local Disk Route
+
+Purpose: document the native Cedar route so we do not force Cedar through Alto
+software netboot semantics.
+
+Tasks:
+
+1. Load Cedar microcode via Initial offset `113B` (`CedarDorado.eb`), or start
+   from an InitialDisk/InitialEther Cedar variant once Initial selection is
+   robust.
+2. Model a Pilot/Cedar disk volume containing:
+   - `chm/cedar/germ/Dorado.germ!4`,
+   - a physical volume boot file such as
+     `chm/cedar/basiccedar/BasicCedarDorado.boot!14`.
+3. Use symbol/source references:
+   - `chm/cedar/germ/Dorado.loadmap!1.txt`,
+   - `chm/cedar/basiccedar/BasicCedarDorado.loadmap!69.txt`,
+   - `chm/cedar/germ/BootChannelDisk.mesa!2.txt`,
+   - `chm/cedar/germ/BootChannelEther.mesa!3.txt`,
+   - `chm/cedar/germ/MiniEthernetDriver.mesa!2.txt`.
+4. Do not assume Cedar supports the same direct Ethernet software boot as
+   Alto-emulator microcode. The Dorado booting memo says Cedar software
+   Ethernet boot goes through Alto/Mesa NetExec and CedarNetExec.
+
+Expected result: a native Pilot/Cedar boot path from local disk, separate from
+the Alto-emulator disk and AltoBoot/EFTP paths.
 
 ## Phase 7: Harden the Fake Server
 

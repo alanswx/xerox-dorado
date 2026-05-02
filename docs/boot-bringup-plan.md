@@ -33,9 +33,54 @@ For reference. Two end-to-end boot paths exist on real Dorado:
    stores it in main memory.
 8. **Initial calls LoadRam** which loads the emulator microcode from
    main memory into IM/IFUM. The emulator REPLACES Bootstrap+Initial.
-9. **Emulator runs.** Memory init, disk-partition reset, I/O init,
-   then initiates an Alto-style software boot from disk or Ethernet.
-10. **Software OS loads** (Alto OS, Pilot, etc.) from disk/Ethernet.
+9. **Emulator runs.** Memory init, disk-partition reset, I/O init, then
+   initiates the emulator-specific software boot. Alto-emulator-based
+   microcode follows Alto conventions: disk if BS is up, Ethernet boot if BS
+   is down with boot-key combinations. Cedar microcode instead loads the
+   installed germ and physical volume boot file from a Pilot/Cedar disk.
+10. **Software OS loads** (Alto OS, NetExec, Pilot/Cedar, etc.) from the
+   selected second-stage source.
+
+## Two current boot strategies
+
+### Strategy 1: Alto-emulator first
+
+This is the fastest route to visible output.
+
+1. Serve `AltoMesaDorado.eb` to Initial using the Dorado MicrocodeBoot
+   protocol (`264B` request, `265B` replies, offset `110B`/file `3110B`).
+2. Let LoadRam start the Alto/Mesa emulator.
+3. Boot Alto software either from a local Alto-emulated disk partition or from
+   an AltoBoot/EFTP fake server.
+4. Use `spruce-server.dsk300` as the current Trident fixture, but do not
+   assume it is a complete Dorado boot pack until the partition/boot contents
+   are proven.
+
+Primary local references:
+
+- `chm/doradosource/DoradoBooting.tioga!2.txt`
+- `chm/doradosource/DoradoBootingImpl.bravo!1.html`
+- `chm/doradosource/TriDiskSources.dm!8_/TriDisk.mc.html`
+- `chm/altodocs/ALTOHARDWARE.PRESS!2.pdf`
+- `chm/pup/ALTOBOOT.BRAVO!1.html`
+- `chm/pup/ETHERBOOT.BRAVO!1.html`
+- `chm/pup/EFTPSPEC.BRAVO!1.html`
+
+### Strategy 2: Cedar/Pilot local disk
+
+This is the native Cedar route, but it needs more Pilot volume machinery.
+
+1. Serve or load `CedarDorado.eb`.
+2. Provide a Pilot/Cedar volume containing `Dorado.germ` and a physical volume
+   boot file.
+3. Use `BasicCedarDorado.boot!14`, `BasicCedarDorado.loadmap!69.txt`,
+   `Dorado.germ!4`, and `Dorado.loadmap!1.txt` as local boot references.
+4. Use `BootChannelDisk.mesa`, `BootChannelEther.mesa`, and
+   `MiniEthernetDriver.mesa` to understand germ-level I/O.
+
+This path should not be conflated with Alto software Ethernet boot. The Dorado
+docs say Cedar software Ethernet boot was reached through Alto/Mesa NetExec
+and CedarNetExec, not directly from Cedar microcode.
 
 ### Path B: LoadMB (microcode self-load, while running)
 
@@ -1606,6 +1651,77 @@ almost exactly as `Initial.mb`, runs only a few post-LoadRam task
 cycles, and posts no display DCB or Alto disk command. Keep using the
 plain `AltoMesaDorado` EB files for the current loaded-world path, and
 treat the Initial-prefixed EB files as boot stages, not OS payloads.
+
+2026-05-02 real Ethernet MicrocodeBoot update: the natural Initial Ethernet
+path now gets past `AWAITETHERBOOTREPLY`, verifies the EB checksum, runs
+`LoadRam`, and enters the loaded Alto/Mesa disk/display task mix. The key fixes
+were in the packet-level fake and CPU tasking: EIT status attention must be
+visible before the status word is read; the fake reply must provide 12 protocol
+words before EB payload, not an extra synthetic Pup checksum word; fixed
+255-word chunks avoid the current simplified receive-boundary edge; Initial's
+terminator test currently requires `RSH 1` on the negative zero-data length
+sentinel to preserve the sign bit; and ALU branch-condition latches must be
+task-local. The last RSH point conflicts with the hardware manual wording as
+transcribed, so keep it marked as a MicroD/source compatibility observation
+until checked against the schematics/manual.
+
+Clean long-run summary after these fixes
+(`DORADO_BOOT_BUDGET=140000000 DORADO_ALTO_BOOT_ETHERNET=1
+DORADO_LOADRAM_TRACE=1 DORADO_POST_EB_TRACE=1 ./build/test_cpu`):
+
+- `Ethernet: requests=1 replies=69 rx_pos=18090/18090`, with EB end words in
+  VM matching the file: `[000002 000000 177730 001076]`.
+- `Boot landmarks` now include `LOADRAM@0o7600×1(first@61129739)`.
+- `LoadRam trace` records 67,976 task-0 steps and exits through
+  `0o7616->0o1076`, the EB End-item start address.
+- `Ether injection cycle=0 loaded-world cycle=61381762`; the loaded IM
+  fingerprints as Mesa (`Mesa.mb!3=6/6` sampled matches).
+- The loaded world runs real task traffic: task 0 disk/map code, task 4
+  display terminal code, task 14 AUT, and task 11 one-shot Ethernet code.
+
+Important correction: the older `Write IM fired 1792 times` diagnostic is the
+Bootstrap/Initial preload count, not proof that EB `LoadRam` ran. The reliable
+evidence is the `LOADRAM@0o7600` landmark, the `LoadRam trace`, and the
+post-LoadRam IM fingerprint.
+
+The current blocker is no longer Initial Ethernet delivery or LoadRam. Continue
+by debugging the post-LoadRam Alto/Mesa software boot handoff. In the current
+long run, forced BS/Quote keyboard seeding is active, but the loaded Mesa world
+does not arm the IFU (`Post-LoadRam IFU transitions: arms=0`), does not perform
+display `IOFetch`, and ends hot in task-14 `AUTSTART/ACCEPT/EIPLZ` plus task-0
+disk seek/map code. Memory reports 15 page faults from the loaded display/task
+mix, so the next investigation should focus on loaded-world map/BR setup and
+the Alto-style disk/Ethernet software boot path that should install a display
+DCB or fetch the next payload.
+
+2026-05-02 ALUFM handoff / next blocker update: `LoadRam.mc` records carry
+IM, IFUM, RM, and End items, but not ALUFM. The natural EB path therefore must
+inherit Initial's standard ALUFM table when the loaded image replaces Initial.
+Before doing that, `InitMem.mc:NextMapEntry` executed with ALUF[4] still equal
+to `A+B+1`; a trace at `0o3352` showed `A=0`, `B=0x40`, `Pd=0x41`, so
+`BRHi - VirtualBanks` never reached zero and the map walk ran past the intended
+VM range. Restoring the standard table at the first post-LoadRam loaded-world
+fetch leaves ALUF[4]=`0o62`, lets `InitMap` finish, and moves the run into the
+real Alto/Mesa disk path:
+
+- `DISKHARDMICROCODEBOOT`, `DODISKBLOCK`, and repeated `SECTORFOUND` are hit.
+- The mounted Spruce pack is active, with many disk sector streams and
+  task-14 disk I/O on TIOA 11/14.
+- IOBR-relative low core is no longer blank; `DAStart`/cursor words and Alto
+  MDS disk words contain non-`FFFF` data.
+- The IFU still does not arm, and display `IOFetch` remains zero.
+
+The new focused blocker is the Alto/Mesa memory bank handoff, not Ethernet
+delivery. The latest long run ends with task 0 fetching `VA=D24FE1E`, map index
+`24FE`, whose map entry has `rp=4057` while `RealPages=4000`.
+`InitMem.mc` documents that Alto-mode `GetEmulatorMapParams` returns the
+64K virtual bank for MDS in `T[4:15]`; `AEm0.mc:SetupBRs` then installs
+`EmuBRHiReg` into BR36/37 and the disk BR. Our trace has
+`EmuBRHiReg=0x0D24`, `BR36=BR37=BR30=0xD240000`, and `IOBR=0xD240180`.
+Next action: disassemble/trace compiled `GETEMULATORMAPPARAMS` around
+`0o2420` and the source implementation in `AEm0.mc` to decide whether
+`0x0D24` is the intended Alto bank, a decode/execution bug, or a map/storage
+wrap rule we are still missing.
 
 These are weeks-of-work each, in rough order of effort:
 

@@ -1,0 +1,285 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<html>
+  <head>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+    <title>[_CD8_]&lt;pup>ETHERBOOT.BRAVO!1</title>
+  </head>
+  <body>
+    <div style="width: 442pt; margin-left: 84pt; margin-top: 0pt; text-align: justify">
+<span style="font: 10pt serif">Heading:</span></div>
+<div style="width: 442pt; margin-left: 84pt; margin-top: 0pt; text-align: justify">
+<span style="font: 10pt serif">Ethernet Booting Protocols</span></div>
+<div style="width: 442pt; margin-left: 84pt; margin-top: 0pt; text-align: justify">
+<span style="font: 10pt serif">Page Numbers: Yes  X: 527  Y: 10.5"</span></div>
+<div style="width: 401pt; margin-left: 126pt; margin-top: 0pt; text-align: left">
+<span style="font: bold 12pt serif">Inter-Office Memorandum</span></div>
+<div style="width: 401pt; margin-left: 126pt; text-indent: -41pt; margin-top: 21pt; text-align: left">
+<span style="font: 8pt serif">To</span><span class="tab" val="168"></span><span style="font: 10pt serif">Communication Protocols</span><span class="tab" val="441"></span><span style="font: 8pt serif">Date</span><span class="tab" val="534"></span><span style="font: 10pt serif">November 21, 1980<br></span></div>
+<div style="width: 401pt; margin-left: 126pt; text-indent: -41pt; margin-top: 25pt; text-align: left">
+<span style="font: 8pt serif">From</span><span class="tab" val="168"></span><span style="font: 10pt serif">Ed Taft, David Boggs, Hal Murray</span><span class="tab" val="441"></span><span style="font: 8pt serif">Location</span><span class="tab" val="534"></span><span style="font: 10pt serif">Palo Alto<br></span></div>
+<div style="width: 401pt; margin-left: 126pt; text-indent: -41pt; margin-top: 25pt; text-align: left">
+<span style="font: 8pt serif">Subject</span><span class="tab" val="168"></span><span style="font: 10pt serif">Ethernet Boot Protocols</span><span class="tab" val="441"></span><span style="font: 8pt serif">Organization</span><span class="tab" val="534"></span><span style="font: 10pt serif">Parc/CSL, OPD/SDD<br></span></div>
+<div style="width: 512pt; margin-left: 14pt; margin-top: 14pt; text-align: left">
+<span style="font: 18pt monospace">XEROX</span><span style="font: 10pt serif">       </span></div>
+<div style="width: 442pt; margin-left: 84pt; margin-top: 30pt; text-align: left">
+<span style="font: 10pt serif">Filed on: [Maxc1]&lt;Pup&gt;EtherBoot.press</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+</div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">This memo describes the protocol by which Altos are boot-loaded over the Ethernet, the protocol used by Dolphins and Dorados for loading microcode, the protocol for discovering what boot files are available, the protocol for distributing the most recent version of a boot file to all boot servers, and the protocol for getting a boot server&rsquo;s statistics.  It supersedes [Maxc]&lt;Pup&gt;AltoBoot.press which contains only the subset of this information that is available to the universities.  The protocols described in this memo have been developed over several years, so don&rsquo;t be surprised if things appear a bit haphazard.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Because gateways are up 24 hours a day and are often located at places in the internet where many Ethernets come together, most gateways contain a boot server.  However it is important to understand that boot servers and gateways are logically two very different things which are only physically co-located for convenience.  There are gateways which aren&rsquo;t boot servers (e.g. Maxc1), and boot servers which aren&rsquo;t gateways (e.g. Peek).</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 22pt; text-align: justify">
+<span style="font: bold 10pt serif">Breath of Life</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">A Boot server periodically (every 5 seconds or so) sends a </span><span style="font: 8pt sans-serif">BreathOfLife</span><span style="font: 10pt serif"> packet on each directly-connected Ethernet.  This is not a Pup: it is a raw Ethernet packet with the Ethernet destination address set to a special value.  The remainder of the packet is an Alto Ethernet boot loader program.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">When an Alto is booted with the </span><span style="font: 8pt serif">BS</span><span style="font: 10pt serif"> key depressed, the boot microcode enables the Ethernet receiver to accept packets directed to host 377</span><span style="font: 8pt serif">B</span><span style="font: 10pt serif"> and copies them into memory beginning at location 1.  When a packet of type 602</span><span style="font: 8pt serif">B</span><span style="font: 10pt serif"> is received without error, the Alto then begins executing instructions at location 3.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">The current Alto Ethernet boot loader is contained in &lt;AltoSource&gt;EtherBoot.asm.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 22pt; text-align: justify">
+<span style="font: bold 10pt serif">Mayday</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">An Alto which wants to be boot-loaded broadcasts a Pup of type </span><span style="font: 8pt sans-serif">BootFileRequest</span><span style="font: 10pt serif"> to Miscellaneous Services sockets of all hosts on the directly-connected Ethernet.  The low-order 16 bits of the Pup </span><span style="font: 8pt serif">ID</span><span style="font: 10pt serif"> is the number of the boot file desired.  The Pup source port is the one to which the Alto wants the boot file sent.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Since the </span><span style="font: 8pt sans-serif">BootFileRequest</span><span style="font: 10pt serif"> Pup may be lost, it should be periodically retransmitted up to some maximum number of retries if no response is received at first.  EtherBoot retransmits about once a second for about 30 seconds.  The reason for giving up after a while is that perhaps it is getting no answer because its Ethernet interface is broken and is polluting the net whenever it transmits.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">The standard boot loader, when started at its normal address (3), reads one of the Alto keyboard words to determine the desired boot file number.  All keys up (except </span><span style="font: 8pt serif">BS</span><span style="font: 10pt serif">) corresponds to boot file number 0.  One-bits in this word are selected by depressing combinations of the following keys, listed most-significant bit first:</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 10pt; text-align: justify">
+<span style="font: 8pt serif">3  2  W  Q  S  A  9  I  X  O  L  ,  "  ]  BLANK-MIDDLE  BLANK-TOP</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">The Dolphin microcode uses an alternate starting address (5) to get to the NetExec after the microcode has been loaded from the Ethernet.  This requires that the desired boot file number (10B for the NetExec) be in AC0.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 22pt; text-align: justify">
+<span style="font: bold 10pt serif">EFTP</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">The actual transfer of a boot file is accomplished using the Pup </span><span style="font: 8pt serif">EFTP</span><span style="font: 10pt serif"> protocol.  A boot server receiving a request for a boot file it is willing to supply simply attempts to </span><span style="font: 8pt serif">EFTP</span><span style="font: 10pt serif"> that file to the port from which the </span><span style="font: 8pt sans-serif">BootFileRequest</span><span style="font: 10pt serif"> Pup arose.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Since several boot servers may respond to a single request, a server should be prepared for the </span><span style="font: 8pt serif">EFTP</span><span style="font: 10pt serif"> transmit attempt to fail.  When the Ethernet boot loader receives the first </span><span style="font: 8pt sans-serif">EFTPData</span><span style="font: 10pt serif"> Pup in response to its </span><span style="font: 8pt sans-serif">BootFileRequest</span><span style="font: 10pt serif">, it locks on to that source and ignores Pups from everywhere else.  Due to space limitations (254 words), it is unable to respond to other </span><span style="font: 8pt serif">EFTP</span><span style="font: 10pt serif"> transmissions with </span><span style="font: 8pt sans-serif">EFTPAbort</span><span style="font: 10pt serif"> Pups, as specified by protocol.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">There are two timeouts of interest here: the </span><span style="font: italic 10pt serif">abort timeout</span><span style="font: 10pt serif">, within which an ack must be received or the transfer is aborted, and the </span><span style="font: italic 10pt serif">retransmission timeout</span><span style="font: 10pt serif">, after which if an ack has not arrived the current data block is sent again.  Ideally the retransmission timeout should be adaptive: about 2 times the average response time, exponentially aged over the last 8 samples.  In any case it should be such as to retransmit a few times before the abort timeout takes.  The abort timeout should be a function of the available bandwidth of the path between the sender and receiver.  The table below lists recommended values.</span></div>
+<div style="width: 305pt; margin-left: 224pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">First Block</span><span class="tab" val="48"></span><span style="font: 10pt serif">Subsequent Blocks</span></div>
+<div style="width: 319pt; margin-left: 210pt; margin-top: 1pt; text-align: justify">
+<span style="font: 10pt serif">Abort</span><span class="tab" val="48"></span><span style="font: 10pt serif">Retrans</span><span class="tab" val="48"></span><span style="font: 10pt serif">Abort</span><span class="tab" val="48"></span><span style="font: 10pt serif">Retrans</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Fast net</span><span class="tab" val="48"></span><span style="font: 10pt serif">   500</span><span class="tab" val="48"></span><span style="font: 10pt serif">  100</span><span class="tab" val="48"></span><span style="font: 10pt serif"> 5000</span><span class="tab" val="48"></span><span style="font: 10pt serif">1000<br>Slow net</span><span class="tab" val="48"></span><span style="font: 10pt serif">10000</span><span class="tab" val="48"></span><span style="font: 10pt serif">2500</span><span class="tab" val="48"></span><span style="font: 10pt serif">10000</span><span class="tab" val="48"></span><span style="font: 10pt serif">2500</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 0pt; text-align: justify">
+<span style="font: 8pt serif">(I need to double check these.  /HGM May-80)</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">The timeouts for a slow net are suitable down to about 2400 bits/sec.  The retransmission timeouts listed are for </span><span style="font: 8pt serif">EFTP</span><span style="font: 10pt serif"> implementations which do not use an adaptive algorithm; the initial adaptive retransmission timeout may have to be reduced from its default value (typically 1 second) for the first block on a fast net.  A reasonable simplification is to assume that all nets except Ethernets are slow.  Even on an unloaded 9600 bits/sec line it takes several minutes to send a full core image boot file.  Boot servers should be able to boot an Alto over an Ethernet while simultaneously updating a boot server at the end of a slow phone line.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 22pt; text-align: justify">
+<span style="font: bold 10pt serif">Boot File Names and Numbers</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">String names and 16 bit numbers are both used to refer to boot files.  Servers deal mostly in boot file numbers: requests to send a boot file refer to it by number; servers compare the creation dates of files with identical names and numbers when distributing new versions.  The NetExec sorts its directory by name, keeping the number, date, and server host address as auxiliary information.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Boot file numbers less than 100000</span><span style="font: 8pt serif">B</span><span style="font: 10pt serif"> have a uniform meaning throughout the network, are updated automatically and are assigned by administrative fiat.  The remaining numbers are available for local use and do not propagate.  [Maxc]&lt;BootFiles&gt;BootDirectory.txt is the master directory of registered boot files.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Most gateways have a boot file with the name &lt;gatewayName&gt;.boot, with number 100000</span><span style="font: 8pt serif">B</span><span style="font: 10pt serif">.  This is intended for use by people developing new boot files.  A test version of a boot file stored there won&rsquo;t propagate.  It is also handy for experimenting and glitch chasing since there can&rsquo;t be any doubt about which boot server it came from.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 22pt; text-align: justify">
+<span style="font: bold 10pt serif">Boot Directory Information</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">When the EtherBoot mechanism was first developed it was only expected to handle a small number of files -- </span><span style="font: 8pt serif">DMT</span><span style="font: 10pt serif">, Scavenger, </span><span style="font: 8pt serif">FTP</span><span style="font: 10pt serif"> and a few others -- and key combinations were picked that were easy to remember and convenient for people with two hands and ten fingers.  Even so, it was difficult to remember the keys and the number of files grew to the point where this scheme was getting out of hand, so the NetExec was developed.  The NetExec was assigned one of the last convenient key combinations and it is now the standard way for humans to invoke other boot files.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">The NetExec discovers what boot files are available by broadcasting a Pup of type </span><span style="font: 8pt sans-serif">BootDirRequest</span><span style="font: 10pt serif"> to Miscellaneous Services sockets on all hosts on the directly-connected Ethernet.  Hosts that are boot servers respond with packets of type </span><span style="font: 8pt sans-serif">BootDirReply</span><span style="font: 10pt serif"> containing &lt;boot file number, date, boot file name&gt; tuples.  A boot server with lots of boot files may fill several </span><span style="font: 8pt sans-serif">BootDirReply</span><span style="font: 10pt serif"> Pups.  The NetExec builds a directory of &lt;boot file name, boot file number, date, host&gt; tuples from these responses.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 22pt; text-align: justify">
+<span style="font: bold 10pt serif">Boot File Update</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">At present there are two programs which implement boot servers: Gateways and Peek.  There are about 20 gateways in operation, and the number is growing.  It takes a few minutes per gateway to update one boot file (most gateways are at the end of slow phone lines).  Not all gateways are up all of the time.  There are probably 50 Peek disks in the world, each with some subset of the boot files that existed when the disk was built.  The owners of Peek disks are exhorted to rebuild their disks about once a month.  The result of this anarchy is that old versions of boot files persisted in the internet for years.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">A Boot file now includes the date on which it was built.  Boot servers periodically exchange boot file directories which include these dates.  When a new version of a boot file is stored onto any boot server, all other boot servers will soon discover this and automatically update their local copies.  The protocol is similar to that used by name servers to update the network directory.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">About once an hour and each time a new boot file arrives, each boot server broadcasts its boot file directory in a </span><span style="font: 8pt sans-serif">BootDirReply</span><span style="font: 10pt serif"> Pup to miscellaneous services sockets on all directly connected networks.  When a boot server receives one of these, it compares the dates of its local boot files with the dates in the Pup.  If the sender has a more recent version, then the receiver requests a copy using a </span><span style="font: 8pt sans-serif">BootFileRequest</span><span style="font: 10pt serif"> Pup.  If the receiver has a more recent version, then it should send a </span><span style="font: 8pt sans-serif">BootDirReply</span><span style="font: 10pt serif"> to cause the sender to update.  The same </span><span style="font: 8pt serif">EFTP</span><span style="font: 10pt serif"> protocol that is used to boot an Alto is used to move new versions among boot servers.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">If the date comparison is unguarded, a damaged file with a bogus date far in the future could propagate everywhere and it would be impossible to purge.  To protect against this, a file which claims to have been created in the future should be treated as if it had a date of zero, thus making it elegible for update by anyone.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">The automatic update mechanism has turned out to be quite robust.  In fact, it is almost impossible to switch back to an old version of a boot file if a new one doesn&rsquo;t work correctly.  If, for example, you use FTP to store it on a boot server, as soon as that server gets restarted it will notice that it has an old version and overwrite it with the (buggy) newer version from some nearby boot server.  To avoid this problem, GateControl smashes the date to "now" when it sends a file with a name ending in .boot.  There is no corresponding trick for microcode files or Pilot boot files.  You must rerun the program that creates the Ethernet format versions of these files.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 22pt; text-align: justify">
+<span style="font: bold 10pt serif">Boot File Format</span></div>
+<div style="width: 442pt; margin-left: 84pt; margin-top: 12pt; text-align: justify">
+<span style="font: 10pt serif">Except for two complications, the server doesn&rsquo;t understand the contents of a boot file.  The first is simply the creation date which is needed by the automatic update mechanism.  The second pertains to the format of the file.  Boot servers must transform S0-format files into B-format files.  See the BuildBoot documentation for the details.  In summary, the the first few words of a boot file contain:<br></span><span class="tab" val="24"></span><span style="font: 10pt serif">word 0: don&rsquo;t care<br></span><span class="tab" val="24"></span><span style="font: 10pt serif">word 1: 0  (if this is not 0, your file will get reformatted)<br></span><span class="tab" val="24"></span><span style="font: 10pt serif">word 2: don&rsquo;t care<br></span><span class="tab" val="24"></span><span style="font: 10pt serif">word 3: high order half of the creation time<br></span><span class="tab" val="24"></span><span style="font: 10pt serif">word 4: low order half of the creation time</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">In an Alto boot file, the first page is a disk boot loader.  It is considered ok for boot servers to clobber the leader page by frabricating one containing the correct creation date.  The idea is to avoid opening the thrash of opening the file in case contact is not established with the bootee.  Note that this means that BootFrom.~ Mumble won&rsquo;t work if Mumble.boot has been processed this way.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Microcode boot files and Pilot boot files are </span><span style="font: italic 10pt serif">encapsulated</span><span style="font: 10pt serif"> by adding a header page (which basically contains only the creation date) to the front of the file.  This allows the normal boot file update mechanism to automatically propagate new versions of microcode and Othello around the internet with no additional software.  The header page is discarded by the appropiate software.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">There is no checksum in boot files, so if the version on a boot server gets smashed (in such a way that the date remains reasonable), the damaged version may propogate around along with the valid one.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 22pt; text-align: justify">
+<span style="font: bold 10pt serif">Booting Microcode</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">When Dolphins and Dorados arrived, it became important to be able to get microcode as well as boot files from the network.  The following very simple protocol is used to boot microcode.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">A machine that needs microcode simply broadcasts a packet of type </span><span style="font: 8pt serif">MicrocodeRequest</span><span style="font: 10pt serif">.  The high half of its pupID contains the version number of the boot protocol.  Currently the only version supported is 1.  This may be expanded when new machines impose other requirements.  The low half of the pupID contains the microcode file number of the desired file.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">For version 1 of the protocol, a server willing to supply the data simply sends a sequence of packets of type </span><span style="font: 8pt serif">MicrocodeReply</span><span style="font: 10pt serif"> as fast as it can.  The high half of its pupID contains the version number (1) and the low half of the pupID contains the packet sequence number.  After all the data packets have been sent, the server sends an empty (0 data bytes) packet for an end marker.  There are no acknowledgments.  This protocol is used by Dolphins and Dorados.</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 0pt; text-align: justify">
+<span style="font: 8pt serif">Currently, the version 1 servers send packets containing 3*n words of data.  This constraint is imposed by the Rev L Dolphin EPROM microcode.  I&rsquo;d like to remove this restriction if I get a chance, so please don&rsquo;t take advantage of it unless you need to.  The Rev L Dolphin EPROM also requires the second word of the source socket to be 4.  /HGM May-80</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">This protocol depends upon the bootee being able to catch every packet of the sequence.  This normally works ok for Dolphins and Dorados because their Ethernet interfaces were designed to catch back to back packets.  It will not work on a </span><span style="font: italic 10pt serif">very</span><span style="font: 10pt serif"> heavily loaded net since occasional packets will be lost after they encounter 16 collisions.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 22pt; text-align: justify">
+<span style="font: bold 10pt serif">Booting Dolphin Microcode</span></div>
+<div style="width: 442pt; margin-left: 84pt; margin-top: 12pt; text-align: justify">
+<span style="font: 10pt serif">The hard part of loading microcode into a Dolphin is deciding which microcode to load.  The options are two dimensional: which microcode device drivers, and which emulator(s)?  To avoid what might otherwise become unmanagable chaos, the emulator microcode is packaged into interesting combinations, and loading microcode is split into three phases.</span></div>
+<div style="width: 442pt; margin-left: 84pt; margin-top: 12pt; text-align: justify">
+<span style="font: 10pt serif">When you poke the boot button, the </span><span style="font: italic 10pt serif">Boot microcode</span><span style="font: 10pt serif"> is copied from an EProm into control store.  It checks the processor a bit, and then tries to load the </span><span style="font: italic 10pt serif">Initial microcode</span><span style="font: 10pt serif"> from the disk.  If it runs into any problem, it tries to load Initial from the Ethernet.  </span><span style="font: 8pt serif">The normal trick for forcing a Dolphin to Etherboot is to cycle power off for a few seconds.  This makes the disk appear not ready for a minute or so.</span><span style="font: 10pt serif">  In either case, the same code (except for a different starting address) is loaded directly into control store.  Initial sets up memory, and if it was Etherbooted, it figures out which variant of the final microcode to load.  </span><span style="font: 8pt serif">Currently it does this by assuming that you want the Alto emulator, and looking at the clock speed on the display controller to decide if you are running on a SDD Dolphin, a CSL D0, or a TOR machine.</span><span style="font: 10pt serif">  The desired </span><span style="font: italic 10pt serif">emulator</span><span style="font: 10pt serif"> microcode is then loaded into main memory.  It is started using LoadRam.  LoadRam has been standardized across all microcode variants to simplify this process.</span></div>
+<div style="width: 442pt; margin-left: 84pt; margin-top: 12pt; text-align: justify">
+<span style="font: 10pt serif">EtherBoot is the module in the EProm and loads Initial from the Ethernet.  When control is passed to EtherBoot, it first dallys for a second or so to let you read the MP.  If the BootReason register contains anything other than a push button boot, the delay is lengthened to a minute or so to avoid flooding the Ethernet if the Ethernet board is sick.  (If the Ethernet board causes an H4 parity error, for example, the fault handler will put a number into the MP, dally for a second, and then reboot the machine.)  EtherBoot then locates the Ethernet board, and sets up the task asignments.  The emulator task, sets a timer to 10 seconds, starts the input task (which will initialize itself and wait for a packet), and then pokes the output task.  The output task broadcasts a request for microcode file number 0, and then goes to sleep.  (It&rsquo;s collision processor is quite primitive.)  When the first valid packet arrives, the input task will latch onto the the server&rsquo;s host number. Since memory has not yet been set up, the data words are stored directly into control store.  Notice that the EProm must be careful to avoid overwriting itself in case the packet is bad.  The problem is that the data must be stored somewhere before the status of the packet can be checked.  </span><span style="font: 8pt serif">In order to simplify things for EtherBoot, the boot server sends Pups that contain 3*n data words.</span><span style="font: 10pt serif">  Each time a packet arrives correctly, the input task resets the timer to 2 seconds.  As the data arrives, a checksum is accumulated.  When a jump block is encountered and the checksum is ok, Etherboot jumps to the designated location.  If anything goes wrong, for example a CRC error, the input task puts a number in the MP and goes back to the beginning.  In the background, the emulator task is decrementing the timer.  If it expires, the emulator will retry everything up to 15 times.</span></div>
+<div style="width: 442pt; margin-left: 84pt; margin-top: 12pt; text-align: justify">
+<span style="font: 10pt serif">EtherLoad is the module in Initial that loads the emulator microcode from the Ethernet.  It is very similar to EtherBoot, in particular, it does not use the normal Ethernet microcode.  EtherLoad&rsquo;s task is a bit simpler that EtherBoot&rsquo;s because it simply places the data into memory.  When an empty (0 data bytes) Pup arrives, EtherLoad checks the checksum, and it if is ok, it jumps to LoadRam.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 22pt; text-align: justify">
+<span style="font: bold 10pt serif">Booting Dorado Microcode</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Needless to say, booting a Dorado is quite complicated.  This description is quite brief.  For more information, see Ed Taft&rsquo;s memo.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">When a Dorado is powered up, a microcomputer in the baseboard goes into action.  If all goes well, it manages to get Initial (which is stored as data in a prom in it&rsquo;s address space) into the Dorado.  Initial then initializes the map and main memory, turns on the normal IO devices, and inspects the keyboard to determine which variant of the emulator microcode to load.  Initial then uses the microcode booting protocol to load the desired microcode into main memory and then uses LoadRam to load it into control store.  The emulator microcode will boot the software from the disk or Ethernet by testing the keyboard just like the Alto does.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 22pt; text-align: justify">
+<span style="font: bold 10pt serif">Microcode Files</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">By convention, the names of microcode boot files end in .eb.  In order to use the normal update mechanism to propogate new versions of microcode around the internet, microcode files are disguised as normal Alto format boot files.  See the previous section on Boot File Formats for the details of the first few words.  For simplicity, the server skips over the whole first page before it sends out the microcode, so there is plenty of spare room for other things.  The version 1 server requires that the first word of the boot file contain a 1.  </span><span style="font: 8pt serif">This restriction is likely to get removed or updated to contain more information, for example, the type of the target machine.</span><span style="font: 10pt serif">  The format of the rest of the file depends, of course, on the target machine.</span></div>
+<div style="width: 442pt; margin-left: 84pt; margin-top: 12pt; text-align: justify">
+<span style="font: 10pt serif">To avoid bolting arbitrary large constants into Proms, the boot server adds an offset to the microcode file number to translate it into a boot file number.  Currently the offset is 3000B.  The currently assigned microcode file numbers, the corresponding boot file numbers, and the file names are:</span></div>
+<div style="width: 405pt; margin-left: 121pt; margin-top: 0pt; text-align: left">
+<span style="font: 10pt monospace">  0  3000  Initial.eb  (9 packets)<br>  1  3001  AltoLF.eb  (45 packets)<br>  2  3002  AltoCSL.eb<br>  3  3003  PilotLF.eb<br>  4  3004  PilotCSL.eb<br>  5  3005  AltoTOR.eb<br>  7  3007  PilotTOR.eb<br>100  3100  DoradoMesa.eb<br>101  3101  DoradoSmalltalk.eb<br>102  3102  DoradoLisp.eb<br>103  3103  DoradoCedar.eb</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 22pt; text-align: justify">
+<span style="font: bold 10pt serif">Pilot Boot Files and the Ether Germ</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">For bootstrapping and/or working on a disk that has not yet been formatted, it is very convient to be able to load Pilot boot files over the Ethernet.  To support this, the Germ (Pilot boot loader) has an optional Ethernet driver.  It uses the normal </span><span style="font: 8pt serif">BootFileRequest</span><span style="font: 10pt serif">/</span><span style="font: 8pt serif">EFTP</span><span style="font: 10pt serif"> protocol.  Pilot boot files are frequently larger than a full Alto memory.  This is harmless since they won&rsquo;t run on an Alto anyway.  By convention, the names of Pilot format boot files end in .pb and the Germ is called Pilot.eg.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 22pt; text-align: justify">
+<span style="font: bold 10pt serif">MesaNetExec</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">The MesaNetExec is very similar to the </span><span style="font: 8pt serif">BCPL</span><span style="font: 10pt serif"> NetExec.  In addition, it contains logic to load Pilot boot files.  If the desired file name ends in .pb, the MesaNetExec doesn&rsquo;t actually load it, but instead it uses the normal </span><span style="font: 8pt serif">BootFileRequest</span><span style="font: 10pt serif">/</span><span style="font: 8pt serif">EFTP</span><span style="font: 10pt serif"> protocol to load the Germ and the appropriate microcode into main memory.  Next, it moves the Germ to hyperspace and then uses the LoadRam instruction to load the control store with the new microcode.  When the new microcode is started, it will start running the Germ which will finally load the specified Pilot boot file.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">If your Dolphin normally runs in Alto mode, this is the way to get to Othello so that you can install new microcode on your disk.  You can also use the MesaNetExec&rsquo;s </span><span style="font: 8pt serif">SetVersions</span><span style="font: 10pt serif"> command to select special debugging variants of the Germ and/or microcode.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 22pt; text-align: justify">
+<span style="font: bold 10pt serif">Server Statistics</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Boot servers may optionally keep statistics on their activities and make them available through the net.  A program requests a boot server&rsquo;s statistics by sending a Pup of type </span><span style="font: 8pt sans-serif">BootStatsRequest</span><span style="font: 10pt serif"> to the miscellaneous services socket, and the boot server responds by sending a Pup of type </span><span style="font: 8pt sans-serif">BootStatsReply</span><span style="font: 10pt serif"> containing the statistics.  The first word of the reply is a format version number which is incremented whenever the format changes.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 22pt; text-align: justify">
+<span style="font: bold 10pt serif">Pointers to other Documentation</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">When an Alto is hardware-booted over the Ethernet, all three of the steps (BreathOfLife, MayDay, </span><span style="font: 8pt serif">EFTP</span><span style="font: 10pt serif">) are executed.  A software-initiated boot may be accomplished by copying the boot loader into page 0 and jumping into it, thereby starting at the "Mayday" stage with the boot file number and host as optional arguments.  Further information may be found in the "EtherBoot" package documentation on [Maxc]&lt;AltoDocs&gt;EtherBoot.tty. </span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">The standard Alto Ethernet boot loader can load only B-format boot files.  A boot server must transform S0-format files into B-format files (by rearranging pages) before sending them.  Further information may be found in the "BuildBoot" subsystem documentation on [Maxc]&lt;AltoDocs&gt;BuildBoot.tty.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">[Ivy]&lt;DoradoDocs&gt;DoradoBooting.press contains detailed information about booting Dorados, including descriptions of when and how they get microcode and/or boot files from boot servers.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 22pt; text-align: justify">
+<span style="font: bold 10pt serif">Details</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">A Breath of life packet is a raw </span><span style="font: italic 10pt serif">(non-Pup) </span><span style="font: 10pt serif">Ethernet packet:</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Destination:</span><span class="tab" val="48"></span><span style="font: 10pt serif">377</span><span style="font: 8pt serif">B</span><span style="font: 10pt serif"><br>Type:</span><span class="tab" val="48"></span><span style="font: 10pt serif">602</span><span style="font: 8pt serif">B</span><span style="font: 10pt serif"><br>Contents:</span><span class="tab" val="48"></span><span style="font: 10pt serif">A boot loader program.</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">The starting address of the boot loader is the the third word of the packet (first content word) which will be address 3 in Alto memory.  The total packet length must not exceed 256 words.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Boot servers listen on the Miscellaneous Services socket (4) and handle some or all of the Pup types listed below.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 8pt sans-serif">BootFileRequest</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Pup Type:</span><span class="tab" val="48"></span><span style="font: 10pt serif">244</span><span style="font: 8pt serif">B</span><span style="font: 10pt serif"><br>Pup ID:</span><span class="tab" val="48"></span><span style="font: 10pt serif">Low 16 bits are the boot file number desired<br>Pup SPort:</span><span class="tab" val="48"></span><span style="font: 10pt serif">The port to which the boot file should be </span><span style="font: 8pt serif">EFTP</span><span style="font: 10pt serif">ed<br>Pup DPort:</span><span class="tab" val="48"></span><span style="font: 10pt serif">Miscellaneous services<br>Pup Contents:</span><span class="tab" val="48"></span><span style="font: 10pt serif">None</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">This packet is generated in several contexts: 1) by the Ether boot loader while booting an Alto, 2) by a boot server to update a local copy of a boot file, 3) by the MesaNetExec to get copies of the Germ and the appropiate microcode, and 4) by the Germ to load a Pilot boot file.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 8pt sans-serif">MicrocodeRequest</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Pup Type:</span><span class="tab" val="48"></span><span style="font: 10pt serif">264</span><span style="font: 8pt serif">B</span><span style="font: 10pt serif"><br>Pup ID:</span><span class="tab" val="48"></span><span style="font: 10pt serif">High 16 bits are the protocol version number (currently 1)<br></span><span class="tab" val="48"></span><span style="font: 10pt serif">Low 16 bits are the microcode file number desired<br>Pup SPort:</span><span class="tab" val="48"></span><span style="font: 10pt serif">The port to which the microcode file sent<br>Pup DPort:</span><span class="tab" val="48"></span><span style="font: 10pt serif">Miscellaneous services<br>Pup Contents:</span><span class="tab" val="48"></span><span style="font: 10pt serif">None</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">This packet is generated by Dolphins and Dorados that need microcode.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 8pt sans-serif">MicrocodeReply</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Pup Type:</span><span class="tab" val="48"></span><span style="font: 10pt serif">265</span><span style="font: 8pt serif">B</span><span style="font: 10pt serif"><br>Pup ID:</span><span class="tab" val="48"></span><span style="font: 10pt serif">High 16 bits are the protocol version number (currently 1)<br></span><span class="tab" val="48"></span><span style="font: 10pt serif">Low 16 bits are the packet sequence number<br>Pup SPort:</span><span class="tab" val="48"></span><span style="font: 10pt serif">The port from which the microcode request was sent<br>Pup DPort:</span><span class="tab" val="48"></span><span style="font: 10pt serif">Miscellaneous services<br>Pup Contents:</span><span class="tab" val="48"></span><span style="font: 10pt serif">data, or empty for an end marker</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">A cluster of these packets is generated by boot servers in response to a packet of type </span><span style="font: 8pt sans-serif">MicrocodeRequest</span><span style="font: 10pt serif">.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 8pt sans-serif">BootDirRequest</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Pup Type:</span><span class="tab" val="48"></span><span style="font: 10pt serif">257</span><span style="font: 8pt serif">B</span><span style="font: 10pt serif"><br>Pup DPort:</span><span class="tab" val="48"></span><span style="font: 10pt serif">Miscellaneous services<br>Pup Contents:</span><span class="tab" val="48"></span><span style="font: 10pt serif">None</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">This packet is generated by the NetExec to discover who the boot servers are and what files they have.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 8pt sans-serif">BootDirReply</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Pup Type:</span><span class="tab" val="48"></span><span style="font: 10pt serif">260</span><span style="font: 8pt serif">B</span></div>
+<div style="width: 308pt; margin-left: 221pt; text-indent: -99pt; margin-top: 0pt; text-align: justify">
+<span style="font: 10pt serif">Pup ID:</span><span class="tab" val="48"></span><span style="font: 10pt serif">if it is in reply to a </span><span style="font: 8pt sans-serif">BootDirRequest</span><span style="font: 10pt serif">, the </span><span style="font: 8pt serif">ID</span><span style="font: 10pt serif"> should match the request.</span></div>
+<div style="width: 308pt; margin-left: 221pt; text-indent: -99pt; margin-top: 0pt; text-align: justify">
+<span style="font: 10pt serif">Pup Contents:</span><span class="tab" val="48"></span><span style="font: 10pt serif">1 or more blocks of the following format:  A boot file number (the number that goes in the low 16 bits of a </span><span style="font: 8pt sans-serif">BootFileRequest</span><span style="font: 10pt serif"> Pup), an Alto format date (2 words), a boot file name in </span><span style="font: 8pt serif">BCPL</span><span style="font: 10pt serif"> string format.</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">This packet is generated 1) in response to a </span><span style="font: 8pt sans-serif">BootDirRequest</span><span style="font: 10pt serif">, 2) gratuitously broadcast every hour, and 3) in response to a </span><span style="font: 8pt sans-serif">BootDirReply</span><span style="font: 10pt serif"> advertising an older version of a local file.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 8pt sans-serif">KissOfDeath</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Pup Type:</span><span class="tab" val="48"></span><span style="font: 10pt serif">247</span><span style="font: 8pt serif">B</span></div>
+<div style="width: 308pt; margin-left: 221pt; text-indent: -99pt; margin-top: 0pt; text-align: justify">
+<span style="font: 10pt serif">Pup DPort:</span><span class="tab" val="48"></span><span style="font: 10pt serif">Miscellaneous services</span></div>
+<div style="width: 308pt; margin-left: 221pt; text-indent: -99pt; margin-top: 0pt; text-align: justify">
+<span style="font: 10pt serif">Pup SPort:</span><span class="tab" val="48"></span><span style="font: 10pt serif">The </span><span style="font: 8pt sans-serif">BootFileRequest</span><span style="font: 10pt serif"> Pup is sent to SPort.host on the local Ethernet.  If SPort.host is zero, it is broadcast.</span></div>
+<div style="width: 308pt; margin-left: 221pt; text-indent: -99pt; margin-top: 0pt; text-align: justify">
+<span style="font: 10pt serif">Pup ID:</span><span class="tab" val="48"></span><span style="font: 10pt serif">The low 16 bits contain the boot file number to put in the </span><span style="font: 8pt sans-serif">BootFileRequest</span><span style="font: 10pt serif"> Pup.</span></div>
+<div style="width: 308pt; margin-left: 221pt; text-indent: -99pt; margin-top: 0pt; text-align: justify">
+<span style="font: 10pt serif">Pup Contents:</span><span class="tab" val="48"></span><span style="font: 10pt serif">None</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 10pt; text-align: justify">
+<span style="font: 8pt serif">DMT</span><span style="font: 10pt serif"> is the only program which currently responds to </span><span style="font: 8pt sans-serif">KissOfDeath</span><span style="font: 10pt serif"> Pups and is used now only to run tests on the Ethernet.  We have a multiprocessor with about 125 6-</span><span style="font: 8pt serif">MIP</span><span style="font: 10pt serif"> </span><span style="font: 8pt serif">CPU</span><span style="font: 10pt serif">s on the second floor of Parc which is idle 16 hours a day just waiting for someone to figure out how to use it.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 8pt sans-serif">BootStatsRequest</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Pup Type:</span><span class="tab" val="48"></span><span style="font: 10pt serif">253</span><span style="font: 8pt serif">B</span></div>
+<div style="width: 308pt; margin-left: 221pt; text-indent: -99pt; margin-top: 0pt; text-align: justify">
+<span style="font: 10pt serif">Pup DPort:</span><span class="tab" val="48"></span><span style="font: 10pt serif">Miscellaneous services</span></div>
+<div style="width: 308pt; margin-left: 221pt; text-indent: -99pt; margin-top: 0pt; text-align: justify">
+<span style="font: 10pt serif">Pup Contents:</span><span class="tab" val="48"></span><span style="font: 10pt serif">None</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 8pt sans-serif">BootStatsReply</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Pup Type:</span><span class="tab" val="48"></span><span style="font: 10pt serif">254</span><span style="font: 8pt serif">B</span><span style="font: 10pt serif"><br>PupID:</span><span class="tab" val="48"></span><span style="font: 10pt serif">same as the </span><span style="font: 8pt sans-serif">BootStatsRequest</span><span style="font: 10pt serif"> that triggered it.</span></div>
+<div style="width: 308pt; margin-left: 221pt; text-indent: -99pt; margin-top: 0pt; text-align: justify">
+<span style="font: 10pt serif">Pup Contents:</span><span class="tab" val="48"></span><span style="font: 10pt serif">A version number to identify the format of the following words (current version = 1).  Followed by the number of boot files sent, followed by the number of boot directories sent, both in </span><span style="font: 8pt serif">BCPL</span><span style="font: 10pt serif"> double precision format.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 22pt; text-align: justify">
+<span style="font: bold 10pt serif">Revision History</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">October 17, 1976</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">First release</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">March 9, 1978</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Boot directory protocol added.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">December 31, 1978</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Automatic update protocol added.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">February 13, 1979</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Boot server statistics protocol added.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">May 15, 1980</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Microcode booting added, file name changed from AltoBoot to EterBoot.</span></div>
+<div style="width: 444pt; margin-left: 85pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">November 21, 1980</span></div>
+<div style="width: 408pt; margin-left: 121pt; margin-top: 10pt; text-align: justify">
+<span style="font: 10pt serif">Dolphin EProm requires second word of source socket to be 4.</span></div>
+<div style="width: 442pt; margin-left: 84pt; margin-top: 0pt; text-align: left">
+</div>
+<script>function do_tabs() { // unit = px
+  var tabs = document.getElementsByClassName("tab");
+  for (var i = 0; i < tabs.length; ++i) {
+    var span = tabs[i];
+    var val = span.getAttribute("val");
+    if (val == null) console.log("Couldn't get val");
+    var rect = span.getBoundingClientRect();
+    var tabstop;
+    if (val > 0) tabstop = Math.ceil(rect.left / val) * val;
+    else tabstop = -val;
+    console.log("do_tabs", val, tabstop)
+    if (tabstop > 0) {
+      var width = tabstop - rect.left;
+      span.style.display = "inline-block";
+      span.style.width = width + "px";
+    }
+  }
+}
+do_tabs();
+</script>
+  </body>
+</html>

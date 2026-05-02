@@ -1,0 +1,666 @@
+
+<<LoadMB.mesa:   Read Dorado MB file>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<taken from LoadMB.bcpl>>
+    <<Willie-Sue, April 21, 1988 1:23:20 pm PDT>>
+
+DIRECTORY
+Basics,
+BasicTime USING [ToPupTime],
+Commander,
+CommandTool,
+Convert USING [Error, CardFromRope],
+FS,
+IO,
+Loader USING [BCDBuildTime],
+MessageWindow USING [Append, Blink, Confirm],
+PrincOps USING [aLOADRAMJ, zMISC],
+PrincOpsUtils USING [LongZero],
+RefText,
+Rope,
+ViewerClasses USING [Viewer],
+ViewerIO USING [CreateViewerStreams],
+ViewerOps USING [EnumProc, ChangeColumn, EnumerateViewers, FindViewer, OpenIcon],
+VM USING [AddressForPageNumber, PagesForWords, SimpleAllocate];
+
+LoadMB: CEDAR MONITOR
+IMPORTS
+Basics, BasicTime, Commander, CommandTool, Convert, FS, IO, Loader, MessageWindow, PrincOpsUtils, RefText, Rope, ViewerIO, 
+ViewerOps, VM
+
+= BEGIN
+
+ROPE: TYPE = Rope.ROPE;
+STREAM: TYPE = IO.STREAM;
+Viewer: TYPE = ViewerClasses.Viewer;
+tsStream: STREAM;
+
+OneBit: TYPE = [0..1];
+
+CSItem: TYPE = MACHINE DEPENDENT RECORD[
+pe020(0: 0..0): OneBit,
+rstk0(0: 1..1): OneBit,
+pe2131(0: 2..2): OneBit,
+blk(0: 3..3): OneBit,
+zero(0: 4..4): OneBit _ 0,
+blank(0: 5..12): [0..377B] _ 0,        -- unused, leave zero for now
+type (0: 13..15): CSItemType,
+dataOrEnd (1): SELECT OVERLAID * FROM
+data => [
+addr (1): WORD,        -- address
+word0 (2): WORD,        -- left half (IM, IFUM) or entire value (RM)
+word1 (3): WORD        -- right half (IM, IFUM)
+],
+end => [
+endBlank (1): WORD,
+checksum (2): INTEGER,        -- checksum over entire item array
+startAddr (3): CARDINAL        -- starting address
+],
+ENDCASE
+];
+
+CSItemType: TYPE = MACHINE DEPENDENT {itemIM(0), itemIFUM(1), itemEnd(2), itemRM(3)};
+
+<<block types>>
+BlockType: TYPE = MACHINE DEPENDENT {
+mbEnd(0),        -- end of MB file
+mbData(1),        -- store memory data and increment location
+mbMemory(2),    -- set memory number and location
+mbFixup(3),        -- forward reference fixup
+mbMemoryName(4),    -- correlate memory name and number
+mbAddress(5),        -- define address symbol
+mbUndefined(6)        -- external reference
+};
+
+MBHeader: TYPE = BlockType;        -- block type
+
+MBData: TYPE = MACHINE DEPENDENT RECORD[
+sourceLine: CARDINAL,        -- source line number
+value: CARDINAL            -- left-adjusted data starts here
+];
+
+MBMemory: TYPE = MACHINE DEPENDENT RECORD[
+memNum: CARDINAL,        -- memory number
+location: CARDINAL            -- first location in memory
+<<name starts here - memory name>>
+];
+
+MBFixup: TYPE = MACHINE DEPENDENT RECORD[
+memNum: CARDINAL,        -- memory number
+location: CARDINAL,            -- location in memory
+firstBit: BYTE,                -- field to be stored into
+lastBit: BYTE,
+value: CARDINAL            -- value to be stored
+];
+
+MBMemoryName: TYPE = MACHINE DEPENDENT RECORD[
+memoryNum: CARDINAL,        -- memory number
+width: CARDINAL                -- memory width
+<<name starts here - memory name>>
+];
+
+MBAddress: TYPE = MACHINE DEPENDENT RECORD[
+memNum: CARDINAL,        -- memory number
+value: CARDINAL            -- address value
+<<name starts here - address symbol name>>
+];
+
+MBUndefined: TYPE = MACHINE DEPENDENT RECORD[
+memNum: CARDINAL,    -- memory number
+location: CARDINAL,        -- location in memory
+firstBit: BYTE,            -- field to be stored into
+lastBit: BYTE
+<<name starts here - external symbol name>>
+];
+
+maxMemoryNum: INTEGER = 50;
+etherVersionNumber: WORD = 1;  -- *** Change to 1 lshift 8 someday ***
+<<Defining an IMWord in the MB-file>>
+RStkWord: TYPE = MACHINE DEPENDENT RECORD[    -- first word in IM word
+SELECT OVERLAID * FROM
+r1 => [rstk: [0..17B], aluf: [0..17B], bsel: [0..7B], lc: [0..7B], asel01: [0..3] ],
+r2 => [rstk0: OneBit, rest0: [0..77777B] ],
+ENDCASE
+];
+
+ASelWord: TYPE = MACHINE DEPENDENT RECORD[    -- second word in IM word
+SELECT OVERLAID * FROM
+a1 => [asel2: OneBit, blk: OneBit, ff: [0..377B], jcn05: [0..77B] ],
+a2 => [asel2blk: [0..3], rest1: [0..37777B] ],
+ENDCASE
+];
+
+IMWord: TYPE = MACHINE DEPENDENT RECORD[        -- IM word, in MB file only
+rstk (0):  RStkWord,
+asel (1): ASelWord,
+jcn67 (2: 0..1): [0..3],
+pe020 (2: 2..2): OneBit,
+pe2131 (2: 3..3): OneBit,
+blank2 (2: 4..15): [0..7777B],
+blank3 (3: 0..3): [0..17B],
+absoluteAddr (3: 4..15): [0..7777B]
+];
+ 
+<<IFUMWord0: TYPE = MACHINE DEPENDENT RECORD[        -- IFUM word, in MB file>>
+<<blank (0: 0..4): 0,>>
+<<pa (0: 5..5): OneBit,>>
+<<ifad (0: 6..15): [0..1777B],        -- no need for internal stucture of this field>>
+<<];>>
+
+IFUMWord1: TYPE = MACHINE DEPENDENT RECORD[
+sgn (0: 0..0): OneBit,
+p0 (0: 1..1): OneBit,        -- only these are referenced
+p1 (0: 2..2): OneBit,        -- only these are referenced
+p2 (0: 3..3): OneBit,        -- only these are referenced
+len (0: 4..5): [0..3],
+rbaseB (0: 6..6): OneBit,
+memB (0: 7..9): [0..7],
+type (0: 10..11): [0..3],
+n (0: 12..15): [0..17B]
+];
+
+IFUMWord: TYPE = MACHINE DEPENDENT RECORD[
+word0: WORD,        -- no internal structure needed
+word1: IFUMWord1
+];
+
+-- masks defining contribution of each word to each parity bit for IFUMWord
+ifumW0P0: WORD = 1400B;
+ifumW0P1: WORD = 377B;
+ifumW0P2: WORD = 2000B;
+ifumW1P0: WORD = 317B;
+ifumW1P1: WORD = 0B;
+ifumW1P2: WORD = 107460B;
+
+RMWord: TYPE = WORD;        -- RM word, in MB file and in Item
+
+-- * * * * * * * * * * * * * * ** * * * * * * * * * * * * * *
+
+
+SrcFile: TYPE = REF SrcFileRec;
+
+SrcFileRec: TYPE = RECORD [    -- Input file descriptor
+next: SrcFile,
+name: ROPE,        -- -> complete file name string
+stream: STREAM,
+startAddr: CARDINAL _ 177777B        -- microcode starting address for this overlay
+];
+
+OutFile: TYPE = REF OutFileRec;
+OutFileRec: TYPE = RECORD [
+fullName: ROPE,
+shortName: ROPE,
+stream: STREAM
+];
+
+OutputFormat: TYPE = {immediate, brFormat, etherBootable};
+
+EBHeader: TYPE = MACHINE DEPENDENT RECORD[
+etherVersionNumber(0): WORD,
+mustBeZero(1): INT _ 0,
+creationDate(3): LONG CARDINAL,
+nameLen(5): INTEGER,
+maxNameLen (6): WORD,
+nameChars(7): PACKED ARRAY[0..0) OF CHAR
+];
+
+ParityWord: TYPE = MACHINE DEPENDENT RECORD[
+unused (0: 0..14): [0..77777B],
+parity (0: 15..15): OneBit
+];
+
+maxItems: INT = 4096+1024+256+1;  -- IM+IFUM+RM+End, enough for one full image
+itemArray: LONG POINTER TO WORD _ NIL;
+itemLength: CARDINAL = SIZE[CSItem];
+itemArrayLength: CARDINAL = maxItems*itemLength;
+nextItemAddr: LONG POINTER TO WORD;
+scratch: LONG POINTER;        -- will be 256 words long, used for writing EBHeader
+ebHeaderLength: INTEGER = 256;
+
+herald: ROPE = "\n  * * * * LoadMB of %g * * * *\n";
+textLine: REF TEXT _ NEW[TEXT[RefText.line]];
+ItemArrayOverflow: SIGNAL = CODE;
+
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Main: Commander.CommandProc = {
+argV: CommandTool.ArgumentVector _ CommandTool.Parse[cmd];
+wDir: ROPE _ CommandTool.CurrentWorkingDirectory[];
+outputFormat: OutputFormat _ immediate;
+outFile: OutFile;
+srcFileChain: SrcFile _ NIL;
+lastSrcFile: SrcFile _ NIL;
+defaultStartAddress: CARDINAL _ 177777B;
+verify: BOOL _ FALSE;
+lastFileName: ROPE;
+AnotherSrcFile: PROC[name: ROPE] = {
+sf: SrcFile _ NEW[SrcFileRec];
+sf.name _
+CommandTool.FileWithSearchRules[lastFileName, ".mb", cmd, FALSE];
+IF srcFileChain = NIL THEN srcFileChain _ lastSrcFile _ sf
+ELSE {
+lastSrcFile.next _ sf;
+lastSrcFile _ sf;
+};
+};
+
+tsStream _ TSStream["Dorado Microcode"];
+tsStream.PutF[herald, IO.time[Loader.BCDBuildTime[LoadMB.Main]]];
+IF itemArray = NIL THEN {
+itemStartI: LONG POINTER _ VM.AddressForPageNumber[VM.SimpleAllocate[VM.PagesForWords[itemArrayLength]].page];
+itemArray _ LOOPHOLE[itemStartI, LONG POINTER TO WORD];
+};
+TRUSTED { PrincOpsUtils.LongZero[itemArray, itemArrayLength] };
+IF scratch = NIL THEN
+scratch _ VM.AddressForPageNumber[VM.SimpleAllocate[1].page];
+
+FOR i: NAT IN [1..argV.argc) DO
+this: ROPE _ argV[i];
+SELECT this.Fetch[0] FROM
+IN ['0 .. '9] => {
+ok: BOOL _ TRUE;
+IF lastFileName = NIL THEN {
+tsStream.PutF[
+" start pos (%g) must follow source file - quitting\n", IO.rope[this]];
+RETURN;
+}
+ELSE {
+AnotherSrcFile[lastFileName];
+lastFileName _ NIL;
+};
+IF lastSrcFile = NIL THEN {
+tsStream.PutF[
+" start pos (%g) but no source file specified - quitting\n", IO.rope[this]];
+RETURN;
+};
+
+lastSrcFile.startAddr _ Convert.CardFromRope[this, 8 ! Convert.Error => {
+tsStream.PutF[" Conversion error trying %g - quitting\n", IO.rope[this]];
+ok _ FALSE;
+CONTINUE }; ];
+IF ~ok THEN RETURN;
+lastFileName _ NIL;
+};
+'- => {        -- switches
+FOR j: INT IN [1..this.Length[]) DO
+SELECT this.Fetch[j] FROM
+'B, 'b => {
+outputFormat _ brFormat;
+lastFileName _ NIL;
+};
+'E, 'e => {
+outputFormat _ etherBootable;
+lastFileName _ NIL;
+};
+'O, 'o => {
+ext: ROPE _ IF outputFormat = etherBootable THEN ".eb" ELSE ".br";
+outFile _ NEW[OutFileRec];
+outFile.fullName _ FS.ExpandName[lastFileName, wDir].fullFName;
+outFile.shortName _ ShortName[outFile.fullName];
+lastFileName _ NIL;
+};
+'V, 'v => verify _ TRUE;
+ENDCASE =>
+tsStream.PutF["\n Undefined switch: %g\n", IO.char[this.Fetch[j]] ];
+ENDLOOP;
+}
+ENDCASE    => {            -- filename
+IF lastFileName # NIL THEN AnotherSrcFile[lastFileName];
+lastFileName _ this;
+};
+ENDLOOP;
+
+IF lastFileName # NIL THEN AnotherSrcFile[lastFileName];
+
+IF srcFileChain = NIL THEN {
+tsStream.PutRope["\n No input file(s) specified - quitting\n"];
+RETURN
+};
+
+IF outputFormat = brFormat THEN {
+tsStream.PutRope["BR format not supported - quitting\n"];
+RETURN;
+};
+IF outFile = NIL AND outputFormat = etherBootable THEN
+OutFileNamesFromSrcFile[outFile _ NEW[OutFileRec], lastSrcFile.name, "eb"];
+
+defaultStartAddress _ 1076B;
+DoLoadMb[srcFileChain, outFile, defaultStartAddress, outputFormat, verify];
+};
+
+DoLoadMb: PROC[srcFileChain: SrcFile, outFile: OutFile,
+                defaultStartAddress: CARDINAL, outputFormat: OutputFormat, verify: BOOL ] = {
+totalItems: INT _ 0;
+itemsThisFile: INT;
+ok: BOOL;
+
+IF outFile # NIL THEN outFile.stream _
+FS.StreamOpen[fileName: outFile.fullName, accessOptions: $create, keep: 2];
+
+IF outputFormat = etherBootable THEN WriteEBHeader[outFile];
+
+FOR srcF: SrcFile _ srcFileChain, srcF.next UNTIL srcF = NIL DO
+BEGIN
+srcF.stream _ FS.StreamOpen[srcF.name ! FS.Error =>
+{ tsStream.PutRope[error.explanation]; GOTO cant} ];
+
+tsStream.PutF[" ******* Reading %g\n", IO.rope[srcF.name] ];
+[itemsThisFile, ok] _ ReadMBFile[srcF, tsStream];
+IF ~ok THEN {
+tsStream.PutRope["\n *** Errors encountered - quitting\n"];
+srcF.stream.Close[];
+IF outFile # NIL AND outFile.stream # NIL THEN outFile.stream.Close[];
+RETURN;
+};
+IF srcF.startAddr = 177777B THEN srcF.startAddr _ defaultStartAddress;
+srcF.stream.Close[];
+AppendEndItem[nextItemAddr, srcF.startAddr];
+totalItems _ totalItems + itemsThisFile + 1;        -- + 1 for endItem
+tsStream.PutF["\n %bB items read from %g; starting address = %bB\n",
+IO.int[totalItems], IO.rope[srcF.name], IO.int[srcF.startAddr]];
+
+IF outputFormat # immediate THEN TRUSTED {    -- write out the itemArray & re-use
+outFile.stream.UnsafePutBlock[
+[base: LOOPHOLE[itemArray], startIndex: 0, count: 2*totalItems*itemLength] ];
+PrincOpsUtils.LongZero[itemArray, totalItems*itemLength];
+};
+EXITS
+cant => NULL;
+END;
+ENDLOOP;
+IF outFile # NIL AND outFile.stream # NIL THEN {
+tsStream.PutF["\n %g bytes written on %g\n",
+IO.int[outFile.stream.GetLength[]], IO.rope[outFile.fullName]];
+outFile.stream.Close[];
+};
+tsStream.PutRope["\n\n ~~~~~~~ Finished ~~~~~~~\n"];
+IF outputFormat = immediate OR verify THEN {
+IF SomethingWorthSaving[] THEN RETURN;
+MessageWindow.Blink[];
+IF ~MessageWindow.Confirm["Confirm loading new microcode . . . "] THEN {
+    MessageWindow.Append["boot aborted."];
+    RETURN
+    };
+    LoadRamAndJump[LOOPHOLE[itemArray-1], 1];
+    };
+};
+
+    SomethingWorthSaving: PROC RETURNS [BOOL] = {
+        dirty: BOOL _ FALSE;
+        CheckDirty: ViewerOps.EnumProc = {
+            IF v.newVersion OR v.newFile THEN dirty _ TRUE ELSE RETURN;
+            IF v.offDeskTop THEN ViewerOps.ChangeColumn[v, left];
+            };
+        ViewerOps.EnumerateViewers[CheckDirty];
+        IF dirty THEN {
+            MessageWindow.Blink[];
+            IF ~MessageWindow.Confirm["Confirm discard of edits . . . "] THEN {
+                MessageWindow.Append["boot aborted."];
+                RETURN[TRUE]
+                };
+            };
+        RETURN[FALSE]
+        };
+
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ReadMBFile: PROC[srcFile: SrcFile, tsStream: STREAM] 
+    RETURNS[itemsThisFile: INT, ok: BOOL] = TRUSTED {
+memNum: INTEGER _ -1;
+addr, addrValue: CARDINAL _ 0;
+blockType: BlockType;
+memoryWidths: ARRAY [-2 .. maxMemoryNum) OF CARDINAL _ ALL[0];
+readStream: STREAM = srcFile.stream;
+memoryNumIM, memoryNumIFUM, memoryNumRM: INTEGER _ -2;
+nullMemoryNum: INTEGER = -1;
+tempI: LONG POINTER _ VM.AddressForPageNumber[VM.SimpleAllocate[1].page];
+temp: LONG POINTER TO WORD _ LOOPHOLE[tempI, LONG POINTER TO WORD];
+
+GetBlockTypeFromStrm: PROC[strm: STREAM] RETURNS[BlockType] = TRUSTED {
+blk: WORD _ GetWord[strm];
+RETURN[LOOPHOLE[blk, BlockType]];
+};
+
+itemsThisFile _ 0;
+ok _ TRUE;
+nextItemAddr _ itemArray;
+DO
+thisItemLength: INT _ itemLength;
+imItem: LONG POINTER TO CSItem;
+blockType _ GetBlockTypeFromStrm[readStream];
+imItem _ LOOPHOLE[nextItemAddr];
+
+SELECT blockType FROM
+mbEnd => RETURN[itemsThisFile, TRUE];
+
+mbData => {
+[] _ GetWord[readStream];        -- sourceLine, ignore
+IF memNum # nullMemoryNum THEN
+FOR i: CARDINAL IN [0..memoryWidths[memNum]) DO
+(temp+i)^ _ GetWord[readStream]; ENDLOOP;
+
+SELECT memNum FROM
+memoryNumIM => {
+mbDataBlock: LONG POINTER TO IMWord = LOOPHOLE[temp];
+rstk2Word: r2 RStkWord = LOOPHOLE[mbDataBlock.rstk];
+asel1Word: a1 ASelWord = LOOPHOLE[mbDataBlock.asel];
+asel2Word: a2 ASelWord = LOOPHOLE[mbDataBlock.asel];
+imItem.type _ itemIM;
+imItem.addr _ mbDataBlock.absoluteAddr;
+imItem.word0 _ (rstk2Word.rest0)*2 + asel1Word.asel2;
+imItem.word1 _ (asel2Word.rest1)*4 + mbDataBlock.jcn67;
+imItem.pe020 _ mbDataBlock.pe020;
+imItem.rstk0 _ rstk2Word.rstk0;
+imItem.pe2131 _ mbDataBlock.pe2131;
+imItem.blk _ asel1Word.blk;
+itemsThisFile _ itemsThisFile + 1;
+nextItemAddr _ nextItemAddr + itemLength;
+};
+memoryNumIFUM => {
+ifumDataBlock: LONG POINTER TO IFUMWord = LOOPHOLE[temp];
+imItem.type _ itemIFUM;
+imItem.addr _ addr;
+<<Despite what the manual says, the hardware really wants to see even parity - hence the "not" in the following statements>>
+ifumDataBlock.word1.p0 _
+NotOddParity[Basics.BITAND[ifumDataBlock.word0, ifumW0P0],
+Basics.BITAND[LOOPHOLE[ifumDataBlock.word1], ifumW1P0] ];
+ifumDataBlock.word1.p1 _
+NotOddParity[Basics.BITAND[ifumDataBlock.word0, ifumW0P1],
+Basics.BITAND[LOOPHOLE[ifumDataBlock.word1], ifumW1P1] ];
+ifumDataBlock.word1.p2 _
+NotOddParity[Basics.BITAND[ifumDataBlock.word0, ifumW0P2],
+Basics.BITAND[LOOPHOLE[ifumDataBlock.word1], ifumW1P2] ];
+
+imItem.word0 _ ifumDataBlock.word0;
+imItem.word1 _ LOOPHOLE[ifumDataBlock.word1];
+itemsThisFile _ itemsThisFile + 1;
+nextItemAddr _ nextItemAddr + itemLength;
+addr _ addr + 1;
+};
+memoryNumRM => {
+rmDataBlock: LONG POINTER TO RMWord = LOOPHOLE[temp];
+imItem.type _ itemRM;
+imItem.addr _ addr;
+imItem.word0 _ rmDataBlock^;
+itemsThisFile _ itemsThisFile + 1;
+nextItemAddr _ nextItemAddr + itemLength;
+addr _ addr +1;
+};
+nullMemoryNum =>
+tsStream.PutRope[" *** Data for unspecified memory\n"];
+ENDCASE => NULL;
+};
+
+mbMemory => {
+memNum _ GetInteger[readStream];
+IF memoryWidths[memNum] = 0 THEN {
+tsStream.PutF["\n *** Undefined memory (%g) - quitting\n", IO.int[memNum]];
+RETURN[itemsThisFile, FALSE]
+};
+addr _ GetInteger[readStream];
+};
+
+mbFixup => {
+tsStream.PutRope["Fixup block encountered in MB file - quitting\n"];
+RETURN[itemsThisFile, FALSE]
+};
+
+mbMemoryName => {
+newMemoryNum: INTEGER _ GetInteger[readStream];
+width: WORD _ GetWord[readStream];
+val: WORD _ width + 15;
+name: ROPE;
+ReadName[readStream, textLine];
+IF newMemoryNum > maxMemoryNum THEN {
+tsStream.PutF["\nNew MemoryNum (%g) is out of bounds", IO.int[newMemoryNum]];
+RETURN[itemsThisFile, FALSE];
+};
+memoryWidths[newMemoryNum] _ Basics.BITSHIFT[val, -4];
+name _ RefText.TrustTextAsRope[textLine];
+SELECT TRUE FROM
+name.Equal["IM", FALSE] => memoryNumIM _ newMemoryNum;
+name.Equal["IFUM", FALSE] => memoryNumIFUM _ newMemoryNum;
+name.Equal["RM", FALSE] => memoryNumRM _ newMemoryNum;
+ENDCASE =>
+tsStream.PutF["\n Other memory name (%g)\n", IO.rope[name]];
+};
+
+mbAddress => {
+[] _ GetWord[readStream];
+[] _ GetWord[readStream];
+[] _ ReadName[readStream, textLine];
+};
+
+mbUndefined => {
+tsStream.PutRope["Undefined symbol block encountered in MB file"];
+RETURN[itemsThisFile, FALSE];
+};
+
+ENDCASE => {
+tsStream.PutF["Unknown block type (%g) in MB file",
+IO.card[LOOPHOLE[blockType, CARDINAL]] ];
+RETURN[itemsThisFile, FALSE];
+};
+ENDLOOP;
+};
+
+LoadRamAndJump: PROC[itemArray: LONG POINTER, flag: CARDINAL] =
+<<IF (flag MOD 2)=1 THEN {jump to the start address in the new Ram image}>>
+<<Note: software must pass (pointer to first item)-1; must skip over it!!!>>
+    TRUSTED MACHINE CODE {PrincOps.zMISC, PrincOps.aLOADRAMJ};
+
+NotOddParity: PROC[w1, w2: WORD] RETURNS[notParity: OneBit] = {
+OPEN Basics;
+shft: WORD;
+final: WORD;
+value: WORD _ BITXOR[w1, w2];
+value _ BITXOR[value, BITSHIFT[value, -8]];        -- rshift
+value _ BITXOR[value, BITSHIFT[value, -4]];        -- rshift
+shft _ BITAND[value, 17B];
+final _ BITNOT[BITSHIFT[113151B, -shft]];
+RETURN[LOOPHOLE[final, ParityWord].parity];
+};
+
+AppendEndItem: PROC[
+    nextItemAddr: LONG POINTER TO WORD, startAddr: CARDINAL] = TRUSTED {
+endItemAddr: LONG POINTER TO end CSItem = LOOPHOLE[nextItemAddr];
+checksum: INTEGER _ 0;
+addr: LONG POINTER TO INTEGER _ LOOPHOLE[itemArray];
+wordsUsed: LONG CARDINAL =
+LOOPHOLE[nextItemAddr-itemArray+SIZE[CSItem], LONG CARDINAL];
+
+endItemAddr.type _ itemEnd;
+endItemAddr.startAddr _ startAddr;
+FOR i: LONG CARDINAL IN [0..wordsUsed) DO
+checksum _ checksum + (addr+i)^;
+ENDLOOP;
+endItemAddr.checksum _ - checksum;
+};
+
+WriteEBHeader: PROC[outFile: OutFile] = TRUSTED {
+of: FS.OpenFile = FS.OpenFileFromStream[outFile.stream];
+ebHeader: LONG POINTER TO EBHeader = LOOPHOLE[scratch];
+len: INTEGER = outFile.shortName.Length[];
+cdl: Basics.LongNumber = LOOPHOLE[BasicTime.ToPupTime[FS.GetInfo[of].created]];
+cdl2: Basics.LongNumber;
+cdl2.hi _ cdl.lo;
+cdl2.lo _ cdl.hi;        -- swap halves of date
+
+PrincOpsUtils.LongZero[scratch, ebHeaderLength];
+ebHeader.etherVersionNumber _ etherVersionNumber;
+ebHeader.creationDate _ LOOPHOLE[cdl2];
+ebHeader.nameLen _ len;
+ebHeader.maxNameLen _ Basics.BITAND[LOOPHOLE[len+1, WORD], 177776B];        -- ugh
+FOR i: INTEGER IN [0..len) DO
+ebHeader.nameChars[i] _ outFile.shortName.Fetch[i];
+ENDLOOP;
+outFile.stream.UnsafePutBlock[
+[base: LOOPHOLE[scratch], startIndex: 0, count: 2*ebHeaderLength]];
+};
+
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ReadName: PROC[in: STREAM, buffer: REF TEXT] = {
+<<Converts from the MB name format to a normal ref text.>>
+i: INTEGER _ 0;
+DO
+char: CHAR _ in.GetChar[];
+IF char = '\000 THEN {
+IF in.GetIndex[] MOD 2 = 1 THEN [] _ in.GetChar[];    -- stream is word (16-bit) oriented
+EXIT;
+};
+buffer[i] _ char;
+i _ i + 1;
+ENDLOOP;
+buffer.length _ i;
+};
+
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ShortName: PROC[fullName: ROPE] RETURNS[ROPE] = {
+<<strips the leading directory stuff from name>>
+cp: FS.ComponentPositions;
+fsName: ROPE;
+[fsName, cp, ] _ FS.ExpandName[fullName];
+RETURN[fsName.Substr[cp.base.start, cp.base.length+cp.ext.length+1]];    -- +1 for .
+};
+
+OutFileNamesFromSrcFile: PROC[outFile: OutFile, srcName, ext: ROPE] = {
+cp: FS.ComponentPositions;
+fsName: ROPE;
+baseName: ROPE;
+[fsName, cp, ] _ FS.ExpandName[srcName];
+IF cp.ext.length # 0 THEN baseName _ Rope.Substr[fsName, 0, cp.ext.start-1]
+ELSE baseName _ Rope.Substr[fsName, 0, cp.ver.start-1];
+outFile.fullName _ baseName.Cat[".", ext];
+outFile.shortName _ ShortName[outFile.fullName];
+};
+
+GetWord: PROC[in: STREAM] RETURNS[WORD] = {
+num: Basics.ShortNumber;
+num.hi _ LOOPHOLE[in.GetChar[]];
+num.lo _ LOOPHOLE[in.GetChar[]];
+RETURN[LOOPHOLE[num, WORD]];
+};
+
+GetInteger: PROC[in: STREAM] RETURNS[INTEGER] = {
+num: Basics.ShortNumber;
+num.hi _ LOOPHOLE[in.GetChar[]];
+num.lo _ LOOPHOLE[in.GetChar[]];
+RETURN[LOOPHOLE[num, INTEGER]];
+};
+
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TSStream: PROC[name: ROPE] RETURNS [IO.STREAM] = {
+v: ViewerClasses.Viewer _ ViewerOps.FindViewer[name];
+out: IO.STREAM _ ViewerIO.CreateViewerStreams[name, v].out;
+IF v#NIL THEN IF v.iconic THEN ViewerOps.OpenIcon[v];
+RETURN[out];
+};
+
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+GetIndex: PROC[strm: STREAM] RETURNS[INT] = { RETURN[strm.GetIndex[]] };
+
+-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Commander.Register["LoadMB", Main, "Reads and Loads a MicroBinary file"];
+
+END.
+

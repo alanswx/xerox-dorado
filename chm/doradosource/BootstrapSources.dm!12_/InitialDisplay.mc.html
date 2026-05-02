@@ -1,0 +1,11 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<html>
+  <head>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+    <title>File [_CD8_]&lt;doradosource>BootstrapSources.dm!12>InitialDisplay.mc</title>
+  </head>
+  <body>
+    <pre>
+*-----------------------------------------------------------Title[InitialDisplay.mc...June 19, 1982  11:45 AM...Taft];* Minimal Terminal Horizontal Task microcode:* Initializes HRam so that horizontal sync will be generated, and then* simply receives terminal messages and updates the keyboard words.*-----------------------------------------------------------Set[XTask, IP[DHT]];	* or AHTSubroutine;KnowRBase[THTRegion];THTInitPC:	T&larr; AHT, DisplayConfig, Branch[THTInitAHT, R&lt;0];	T&larr; DHT;	Wakeup[DHT], CoReturn;TopLevel;* DHT starts here	T&larr; Statics, Branch[THTInit1];	* Use DispY TIOASubroutine;THTInitAHT:	Wakeup[AHT], CoReturn;TopLevel;* AHT starts here	T&larr; TStatics, Branch[THTInit1];	* Use DispM TIOATHTInit1:	TIOA&larr; T;	RBase&larr; RBase[THTRegion];	T&larr; AllShutUp, Call[OutputGetsT]; * Disable WakeUps, Reset DDC	T&larr; DWTShutUp, Call[OutputGetsT]; * Enable DHT wakeups	PD&larr; DisplayConfig, MemBase&larr; IOBR;	TReg400C&larr; 400C, Branch[.+2, ALU&lt;0]; * Skip HRam setup if DispM in use	T&larr; A0, Call[InitHRam]; * Initialize HRam	TerminalHi&larr; A0, Cnt&larr; 5S;	TerminalLo&larr; A0, TIOA[TNLCB];	T&larr; (TReg400C) XOR (177434C);	* Initialize to all keys "up"	T&larr; (Store&larr; T)+1, DBuf&larr; -1C, Branch[., Cnt#0&amp;-1];	TVCWShadowReg&larr; VBlank, Branch[THTLast];* Main loop must do at least one Output to TNLCB per wakeup, and* must send vertical sync during 24B out of every 265B scan lines.THTPerScanLine:	Output&larr; TVCWShadowReg;	Call[ReadTerminal];* ReadTerminal returns with TIOA[NLCB], ALU = TFieldAreaReg (decremented)	PD&larr; (TVCWShadowReg) AND (VSync), Block, Branch[THTPerScanLine, ALU#0];	TVCWShadowReg&larr; (TVCWShadowReg) XOR (VSync), Branch[.+2, ALU#0];	TFieldAreaReg&larr; 24C, Branch[THTPerScanLine]; * Time for VSync&amp;VBlankTHTLast:	TFieldAreaReg&larr; 241C, Branch[THTPerScanLine]; * Time for VBlank</pre>
+  </body>
+</html>

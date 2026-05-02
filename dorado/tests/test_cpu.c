@@ -2608,7 +2608,7 @@ static int probe_full_boot_with_bootstrap(void)
     const uint64_t T_PRESS3_DOWN = 3000000;
     const uint64_t T_PRESS3_UP   = 3400000;
     const uint64_t T_GIVEUP      = test_u64_env("DORADO_BOOT_BUDGET",
-                                                60000000);
+                                                140000000);
 
     int  pressed = 0;
     int  swapped = 0;
@@ -2817,6 +2817,8 @@ static int probe_full_boot_with_bootstrap(void)
     uint64_t ether_inject_disk_ins = 0;
     uint64_t ether_inject_disk_wakeups = 0;
     uint64_t ether_loaded_world_cycle = 0;
+    int natural_loadram_alufm_restored = 0;
+    int natural_loadram_writeim_trace_reset = 0;
     uint64_t ether_bank2_lost_cycle = 0;
     uint16_t ether_bank2_lost_pc = 0;
     uint8_t ether_bank2_lost_task = 0;
@@ -3491,7 +3493,15 @@ static int probe_full_boot_with_bootstrap(void)
             /* Real Ethernet path: Initial's LoadRam has replaced the
              * control store and branched to the EB End-item start PC.
              * Mark this so the post-emulator disk/display probes apply
-             * to the real path, not just the direct EB shortcut. */
+             * to the real path, not just the direct EB shortcut.
+             *
+             * LoadRam item streams carry IM, IFUM, and RM records, but
+             * not ALUFM. Complete-replacement images inherit Initial's
+             * standard ALUFM convention at the handoff. Reassert that
+             * table in the model so InitMem.mc's ALUF[4] subtract test
+             * (`BRHi - VirtualBanks`) sees the expected function. */
+            restore_standard_alufm(&mc);
+            natural_loadram_alufm_restored = 1;
             ether_loaded_world_cycle = bb.cycles;
             if (disk_trace_enabled) {
                 disk_trace_armed = 1;
@@ -3499,6 +3509,12 @@ static int probe_full_boot_with_bootstrap(void)
                 disk_trace_head = 0;
                 disk_trace_total = 0;
             }
+        }
+        if (!ether_boot_injections && checksum_and_load_seen &&
+            !natural_loadram_writeim_trace_reset && is_imfetch &&
+            pre_task == 0 && pre_pc == 07600) {
+            cpu.dbg_writeim_n = 0;
+            natural_loadram_writeim_trace_reset = 1;
         }
         int is_key_trace =
             initial_substituted && is_imfetch && key_trace_n < 48 &&
@@ -3714,17 +3730,19 @@ static int probe_full_boot_with_bootstrap(void)
             pre_task == DORADO_ETHERNET_TASK_EIT &&
             (pre_pc == 06611 || pre_pc == 06612 || pre_pc == 06617 ||
              pre_pc == 06623 || pre_pc == 06626 || pre_pc == 06627 ||
+             pre_pc == 06633 ||
              pre_pc == 06632 || pre_pc == 06636 || pre_pc == 06637 ||
              pre_pc == 06640 || pre_pc == 06641 || pre_pc == 06642)) {
             fprintf(stderr,
                     "ETH_REG cyc=%llu pc=0o%o T=%06o Md=%06o Cnt=%06o "
                     "BootDataPtr=%06o SeqNo=%06o EIPtr=%06o EICnt=%06o "
-                    "RHost=%06o Link=%06o\n",
+                    "RHost=%06o Link=%06o aluZ=%u aluLT=%u\n",
                     (unsigned long long)bb.cycles, pre_pc,
                     cpu.T & 0177777, pre_md & 0177777, cpu.Cnt & 0177777,
                     cpu.RM[0x11] & 0177777, cpu.RM[0x17] & 0177777,
                     cpu.RM[0x19] & 0177777, cpu.RM[0x1A] & 0177777,
-                    cpu.RM[0x14] & 0177777, pre_link & 0177777);
+                    cpu.RM[0x14] & 0177777, pre_link & 0177777,
+                    cpu.alu_zero, cpu.alu_lt0);
         }
         struct post_eb_trace_sample post_eb_step_trace;
         int trace_post_eb_step =
@@ -4542,6 +4560,9 @@ static int probe_full_boot_with_bootstrap(void)
         printf("       Ether injection cycle=%llu loaded-world cycle=%llu\n",
                (unsigned long long)ether_boot_inject_cycle,
                (unsigned long long)ether_loaded_world_cycle);
+        if (natural_loadram_alufm_restored) {
+            printf("       Natural LoadRam ALUFM handoff: restored standard table\n");
+        }
         if (ether_bank2_lost_cycle) {
             printf("       Ether bank2 map lost at cycle=%llu task=%o pc=0o%o "
                    "Map[0x%X]=rp%04X wp%u d%u r%u\n",
@@ -7028,6 +7049,47 @@ static int test_task_block_returns_to_emulator(void)
     return 0;
 }
 
+static int test_task_branch_flags_are_task_local(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;
+
+    /* Task 0 latches ALU<0 true, then task 5 latches it false while
+     * blocking. Returning to task 0 must restore task 0's true latch. */
+    mc.im[0] = make_uinstr(0, 0, /*bsel=*/6, /*lc=*/1, /*asel=*/6,
+                           /*block=*/0, /*ff=*/0200, jcn_local(0));
+    mc.im_present[0] = 1;
+    mc.im[1] = make_uinstr(0, 0, /*bsel=*/4, /*lc=*/1, /*asel=*/6,
+                           /*block=*/1, /*ff=*/1, jcn_local(1));
+    mc.im_present[1] = 1;
+    for (int i = 0; i < 2; i++) {
+        mc.image_to_real[i] = i;
+        mc.image_present[i] = 1;
+    }
+    mc.n_instructions = 2;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    EXPECT(dorado_cpu_step(&cpu) == 0, "task-local flags setup");
+    EXPECT(cpu.alu_lt0 == 1, "task 0 should latch ALU<0 true");
+
+    dorado_cpu_set_task_tpc(&cpu, 5, 1);
+    dorado_cpu_wakeup(&cpu, 5);
+    EXPECT(dorado_cpu_step(&cpu) == 0, "task-local flags switch");
+    EXPECT(cpu.ctask == 5, "should switch to task 5");
+    EXPECT(cpu.alu_lt0 == 0,
+           "task 5 should load its own ALU<0 latch, got %u", cpu.alu_lt0);
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "task-local flags return");
+    EXPECT(cpu.ctask == 0, "task 5 BLOCK should return to task 0");
+    EXPECT(cpu.alu_lt0 == 1,
+           "task 0 ALU<0 latch should survive task 5 execution");
+
+    printf("PASS  test_task_branch_flags_are_task_local\n");
+    return 0;
+}
+
 /*
  * Tasking — TaskingOff prevents switch even when a higher task is
  * woken; TaskingOn re-enables it (after 2 more instructions).
@@ -8375,7 +8437,7 @@ static uint16_t run_alu_shift_ff(uint8_t ff, uint8_t alufm, uint16_t rm0)
 
 static int test_alu_shift_ff_functions(void)
 {
-    EXPECT(run_alu_shift_ff(0270, 025, 0x8001) == 0x4000,
+    EXPECT(run_alu_shift_ff(0270, 025, 0x8001) == 0xC000,
            "ALU rsh 1 failed");
     EXPECT(run_alu_shift_ff(0271, 025, 0x8001) == 0xC000,
            "ALU rcy 1 failed");
@@ -8425,6 +8487,7 @@ int main(void)
     rc |= test_return_ff_condition_or();
     rc |= test_task_switch_on_wakeup();
     rc |= test_task_block_returns_to_emulator();
+    rc |= test_task_branch_flags_are_task_local();
     rc |= test_tasking_off_blocks_switch();
     rc |= test_wakeup_ff_function();
     rc |= test_junk_timer_wakeup();

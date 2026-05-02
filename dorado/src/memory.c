@@ -941,7 +941,8 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
         e->dirty = (tioa >> 6) & 1;
         e->ref   = 0;
         if (map_trace_enabled() &&
-            (idx < 2 || idx == 0xFF || idx == 0x200 || idx == 0x201 ||
+            (idx < 2 || idx == 0x52 || idx == 0x56 ||
+             idx == 0xFF || idx == 0x200 || idx == 0x201 ||
              idx == 0x2FE || idx == 0x2FF)) {
             fprintf(stderr,
                     "MAP_TRACE task=%o va=%05X idx=%04X rp=%04X "
