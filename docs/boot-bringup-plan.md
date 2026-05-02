@@ -159,9 +159,11 @@ What works (continued)
   DHT/AHT/AWT/DWT, per-channel NLCB/CLCB, HRam/Mixer/Statics state
   buckets, per-channel FIFO, PGM snapshot, headless keyboard words,
   symbolic Alto key mapping from Palo's keyboard matrix, and a
-  vblank-based frame counter. DDC input currently returns the
-  headless keyboard idle word; the real 7-wire terminal back-channel
-  and keyboard message decoder are still missing. The boot probe writes
+  vblank-based frame counter. DDC input now returns idle single-bit
+  status/back-channel data so `DisplayInitConfig` sees no DispM board,
+  an Alto monitor, and no terminal start bit; the EMU task is routed
+  only for those display-probe TIOAs. The real 7-wire terminal
+  back-channel and keyboard message decoder are still missing. The boot probe writes
   a viewable PGM framebuffer snapshot to `/tmp/dorado_boot_display.pgm`
   by default, or to `DORADO_BOOT_SNAPSHOT` when that environment
   variable is set.
@@ -1470,6 +1472,31 @@ the Alto disk status/sector path with no `DiskData` transfer, while the
 display task spends its time in `COLORBITMAPNIL` and `DAStart` stays
 zero. Next step: debug the Alto `ACmmdCheck`/`Read20Muffs` status path
 and why it never reaches `DoACmmd`/data transfer for the boot command.
+
+2026-05-02 status-loop reinterpretation: original CHM
+`AltoDiabloDisk.mc` shows that the `AMapHdwStatus` path is expected to
+run while the Alto disk task is idle. It stores mapped status in `VM
+522`; with `VM 521` zero, the task should return through `EndAltoLoop`
+instead of branching to `DoACmmd`. The latest focus-4 trace matches
+that idle path: the controller has no read stream, no `DiskData` access,
+and `VM 522` receives sector-bearing statuses such as `6F00`, `7F00`,
+and `8F00`. Those are not themselves evidence of a failed transfer. The
+next practical step is to follow the loaded software that should install
+either an Alto disk command at `VM 521` or a display control block in
+`DAStart`; the disk task is waiting honestly for work.
+
+2026-05-02 display probe correction: original `DisplayAux.mc` shows
+`DisplayInitConfig` probes display status from the EMU task before the
+display tasks are selected. The emulator now routes just EMU
+`TStatus`/`DDCStatus`/`Statics` to the DDC model and returns idle
+single-bit status (`no DispM`, `Alto monitor`, no terminal start bit).
+The latest 80M run reports `DISPLAYCONFIG=0x0000`, display outputs
+mostly from DHT on DispY TIOAs, and only one AHT output. That removes a
+false hardware-configuration input, but the screen is still blank:
+`DAStart[0420..0427]=0`, `display iofetch=0`, and DWT's two wakeups do
+not correspond to a real DCB scanline fetch. Next debugging target is
+still the loaded software handoff that should populate `DAStart` or
+post an Alto disk command.
 
 These are weeks-of-work each, in rough order of effort:
 

@@ -325,8 +325,7 @@ static void service_boot_disk(dorado_cpu *cpu, dorado_disk_controller *disk,
      * run independently of whether microcode is currently touching the
      * slow-IO ports. Keep that property here and let the controller's
      * own latch/mask state decide whether the DSK task should wake. */
-    int disk_task_running = (cpu && cpu->ctask == DORADO_DISK_TASK);
-    if (!disk_task_running && (disk->active || disk->enable_run) &&
+    if ((disk->active || disk->enable_run) &&
         (cycle % sector_period) == 0) {
         dorado_disk_controller_advance_sector(disk);
         if (sector_ticks) (*sector_ticks)++;
@@ -400,7 +399,7 @@ static int service_alto_disk_boot_shim(dorado_memory *mem,
     uint32_t bases[] = {
         0,
         dorado_br_get(mem, 036),  /* MDS and Alto IOBR per ADefs.mc. */
-        dorado_br_get(mem, 031),
+        dorado_br_get(mem, 031),  /* ECBR in Alto mode; IOBR in PrincOps. */
         dorado_br_get(mem, 030),
     };
     uint32_t base = force_kwait ?
@@ -2788,6 +2787,7 @@ static int probe_full_boot_with_bootstrap(void)
         uint16_t dispatch_or_before, dispatch_or_after;
         uint16_t dispatch_pending_before, dispatch_pending_after;
         uint16_t rm_before[16], rm_after[16];
+        uint16_t disk_rm_before[16], disk_rm_after[16];
         uint8_t alufm_before[16], alufm_after[16];
         uint16_t ready_before, ready_after;
         uint16_t wakeup_before, wakeup_after;
@@ -3549,7 +3549,8 @@ static int probe_full_boot_with_bootstrap(void)
         int trace_post_loop_step =
             ether_loaded_world_cycle && is_imfetch && pre_task == 0 &&
             (pre_pc == 01017 || pre_pc == 05250 ||
-             pre_pc == 05203 || pre_pc == 05246);
+             pre_pc == 05203 || pre_pc == 05246 ||
+             (pre_pc >= 05540 && pre_pc <= 05610));
         struct post_loadram_loop_trace post_loop_step_trace;
         if (trace_post_loop_step) {
             memset(&post_loop_step_trace, 0, sizeof post_loop_step_trace);
@@ -3622,6 +3623,8 @@ static int probe_full_boot_with_bootstrap(void)
             post_eb_step_trace.dispatch_pending_before = cpu.dispatch_pending;
             for (int rr = 0; rr < 16; rr++)
                 post_eb_step_trace.rm_before[rr] = cpu.RM[0x40 + rr];
+            for (int rr = 0; rr < 16; rr++)
+                post_eb_step_trace.disk_rm_before[rr] = cpu.RM[0x50 + rr];
             for (int aa = 0; aa < 16; aa++)
                 post_eb_step_trace.alufm_before[aa] = mc.alufm[aa];
             post_eb_step_trace.ready_before = cpu.ready;
@@ -3673,6 +3676,8 @@ static int probe_full_boot_with_bootstrap(void)
                 post_eb_step_trace.dispatch_pending_after = cpu.dispatch_pending;
                 for (int rr = 0; rr < 16; rr++)
                     post_eb_step_trace.rm_after[rr] = cpu.RM[0x40 + rr];
+                for (int rr = 0; rr < 16; rr++)
+                    post_eb_step_trace.disk_rm_after[rr] = cpu.RM[0x50 + rr];
                 for (int aa = 0; aa < 16; aa++)
                     post_eb_step_trace.alufm_after[aa] = mc.alufm[aa];
                 post_eb_step_trace.ready_after = cpu.ready;
@@ -3738,6 +3743,8 @@ static int probe_full_boot_with_bootstrap(void)
             post_eb_step_trace.dispatch_pending_after = cpu.dispatch_pending;
             for (int rr = 0; rr < 16; rr++)
                 post_eb_step_trace.rm_after[rr] = cpu.RM[0x40 + rr];
+            for (int rr = 0; rr < 16; rr++)
+                post_eb_step_trace.disk_rm_after[rr] = cpu.RM[0x50 + rr];
             for (int aa = 0; aa < 16; aa++)
                 post_eb_step_trace.alufm_after[aa] = mc.alufm[aa];
             post_eb_step_trace.ready_after = cpu.ready;
@@ -4556,6 +4563,20 @@ static int probe_full_boot_with_bootstrap(void)
                         }
                     }
                 }
+                if (pt->task == DORADO_DISK_TASK ||
+                    (pt->pc >= 05720 && pt->pc <= 06720)) {
+                    printf(" DiskRM50-5F:");
+                    for (int rr = 0; rr < 16; rr++) {
+                        if (pt->disk_rm_before[rr] == pt->disk_rm_after[rr]) {
+                            printf(" %02X=%04X", 0x50 + rr,
+                                   pt->disk_rm_after[rr]);
+                        } else {
+                            printf(" %02X=%04X->%04X", 0x50 + rr,
+                                   pt->disk_rm_before[rr],
+                                   pt->disk_rm_after[rr]);
+                        }
+                    }
+                }
                 int alufm_changed = 0;
                 for (int aa = 0; aa < 16; aa++) {
                     if (pt->alufm_before[aa] != pt->alufm_after[aa]) {
@@ -4897,8 +4918,10 @@ static int probe_full_boot_with_bootstrap(void)
         }
         {
             uint32_t iobr = dorado_br_get(&mem, 031);
-            printf("       BRs: IOBR/BR31=0x%05X MDS/BR36=0x%05X Code/BR37=0x%05X\n",
-                   iobr, dorado_br_get(&mem, 036), dorado_br_get(&mem, 037));
+            uint32_t diskbr = dorado_br_get(&mem, 030);
+            printf("       BRs: BR30(DiskBR)=0x%05X BR31(ECBR/PrincOps IOBR)=0x%05X MDS/BR36=0x%05X Code/BR37=0x%05X\n",
+                   diskbr, iobr, dorado_br_get(&mem, 036),
+                   dorado_br_get(&mem, 037));
             printf("       AEmu BR regs: EmuBRHiReg/RM[0x18]=0x%04X "
                    "EmuXMBRHiReg/RM[0x19]=0x%04X\n",
                    cpu.RM[0x18], cpu.RM[0x19]);
@@ -4945,6 +4968,17 @@ static int probe_full_boot_with_bootstrap(void)
                            dorado_visible_word_at_va(&mem, mds + 0001u + i));
                 }
                 printf("\n");
+                printf("       DiskBR command windows: [0521..0523]=");
+                for (uint32_t i = 0; i < 3; i++) {
+                    printf("%s%04X", (i == 0) ? "" : " ",
+                           dorado_visible_word_at_va(&mem, diskbr + 0521u + i));
+                }
+                printf(" [0x8050..0x805F]=");
+                for (uint32_t i = 0; i < 16; i++) {
+                    printf("%s%04X", (i == 0) ? "" : " ",
+                           dorado_visible_word_at_va(&mem, diskbr + 0x8050u + i));
+                }
+                printf("\n");
             }
         }
     }
@@ -4956,6 +4990,11 @@ static int probe_full_boot_with_bootstrap(void)
     printf("\n");
     printf("       RM[0x10..0x1D]:");
     for (int r = 0x10; r <= 0x1D; r++) {
+        printf(" [%02X]=0x%04X", r, cpu.RM[r]);
+    }
+    printf("\n");
+    printf("       Disk RM[0x50..0x5F]:");
+    for (int r = 0x50; r <= 0x5F; r++) {
         printf(" [%02X]=0x%04X", r, cpu.RM[r]);
     }
     printf("\n");

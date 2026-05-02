@@ -1503,3 +1503,29 @@ that `spruce-server.dsk300` head 18/sector 0 is blank/free; the harness
 now has `DORADO_ALTO_BOOT_CYL`, `DORADO_ALTO_BOOT_HEAD`, and
 `DORADO_ALTO_BOOT_SECTOR` knobs, defaulting to local candidate
 `0,0,2`, but this only matters once a real command handoff is found.
+
+2026-05-02 AltoDiablo source check / status-loop correction: fetched and
+checked the original CHM `AltoDiabloDisk.mc` and `TriDisk.mc` sources.
+`AMapHdwStatus` reads KSTAT with `Read20Muffs`, maps
+`NotSelected|NotOnLine|NotReady` to Alto unit-not-ready, maps FIFO
+over/underflow to data-late, and then ORs in `07400` done bits. The
+late focused trace is not stuck in a failing transfer: `VM 521` is zero,
+task 14 is idling in `AltoLoop`, and the changing `xF00`/`8F00` word is
+the current mapped idle status written to `VM 522` with sector bits.
+There are still no `DiskData` reads because no active Alto command is
+posted. Disk remains incomplete, but the current boot/display blocker is
+now more likely the loaded-world software/display handoff than a pending
+read-FIFO bug.
+
+2026-05-02 DisplayInitConfig correction: `DisplayAux.mc` runs the
+display hardware probe in the EMU task, not DHT/AHT. The display device
+now routes only EMU task TIOAs `TStatus` (`0360`), `DDCStatus` (`0370`),
+and `Statics` (`0377`) so the probe sees an idle single-bit status bus
+instead of the floating bus / complemented keyboard word. An 80M run now
+ends with `DISPLAYCONFIG=0x0000`, DHT/DispY outputs dominating
+(`TIOA 376/374/372/375/377`), and AHT essentially idle. The display
+configuration is therefore more hardware-like, but `DAStart` is still
+zero and `display iofetch=0`; the DWT wakeups are initialization or
+spurious wakeups before any DCB exists. Continue by tracing the loaded
+software path that should write `DAStart` or post the Alto command at
+`VM 521`.

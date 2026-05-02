@@ -1271,7 +1271,8 @@ static int lowcore_trace_offset(uint32_t va, uint32_t base,
                                 uint16_t *out_off)
 {
     uint32_t off = (va - base) & 0x0FFFFFFFu;
-    if ((off >= 0420u && off <= 0440u) ||
+    if ((off >= 0001u && off <= 0010u) ||
+        (off >= 0420u && off <= 0440u) ||
         (off >= 0521u && off <= 0523u)) {
         if (out_off) *out_off = (uint16_t)off;
         return 1;
@@ -2602,13 +2603,16 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                 const char *lowcore_base_name = NULL;
                 uint32_t lowcore_base = 0;
                 if (lowcore_mode && lowcore_interesting) {
-                    uint32_t bases[3] = {
+                    uint32_t bases[4] = {
                         0,
+                        dorado_br_get(cpu->mem, 030),
                         dorado_br_get(cpu->mem, 036),
                         dorado_br_get(cpu->mem, 031),
                     };
-                    const char *names[3] = { "abs", "mds", "iobr" };
-                    for (int bi = 0; bi < 3; bi++) {
+                    const char *names[4] = {
+                        "abs", "br30", "br36/mds", "br31/ecbr"
+                    };
+                    for (int bi = 0; bi < 4; bi++) {
                         if (lowcore_trace_offset(va, bases[bi],
                                                  &lowcore_off)) {
                             lowcore_base = bases[bi] & 0x0FFFFFFFu;
@@ -2619,10 +2623,11 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                 }
                 if (lowcore_base_name) {
                     fprintf(stderr,
-                            "LOWCORE task=%o pc=0o%o kind=%s base=%s:%07X "
+                            "LOWCORE cyc=%llu task=%o pc=0o%o kind=%s base=%s:%07X "
                             "off=0o%o va=%07X data=%06o visible=%06o "
                             "mb=%02o rb=%02o sub=%o mar=%04X md=%06o "
                             "tioa=%03o fault=%d\n",
+                            (unsigned long long)cpu->cycles,
                             cpu->ctask & 017, cpu->real_PC,
                             ref_kind_name(kind), lowcore_base_name,
                             lowcore_base, lowcore_off, va & 0x0FFFFFFFu,

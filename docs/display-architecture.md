@@ -403,7 +403,14 @@ production: 0 = Alto-style, 1 = LF (large format / Star).
 - **Framebuffer**: 808×606 mono, 61206 bytes, MSB-leftmost packing.
 - **Slow-IO catch-all**: registered on tasks DHT/AHT/AWT/DWT. All
   Output←B accumulate into a buffered RIOB; counter tracks them.
-  Pd←Input currently returns the headless keyboard idle word.
+  Pd←Input currently returns an idle single-bit DDC/terminal status
+  stream: no DispM board, Alto monitor, no terminal message start bit.
+  The EMU task is also routed for only the `DisplayInitConfig`
+  registers (`TStatus`, `DDCStatus`, and `Statics`) so the hardware
+  configuration probe does not see the floating bus.
+  Headless keyboard words are still stored separately and are seeded
+  into boot low-core by the probe until the real 7-wire message stream
+  is modeled.
 - **State buckets**: per-channel NLCB/CLCB (16×12-bit, A and B),
   HRam (1024×3-bit), Mixer (1024×24-bit), PixelClk, Statics.
 - **HRam slow-IO loading**: TIOA `0375` honors the

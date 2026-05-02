@@ -213,16 +213,24 @@ static void display_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
 
 static uint16_t display_input(void *ctx, int task, uint8_t tioa, int *bad)
 {
-    dorado_display *d = ctx;
+    (void)ctx;
+    (void)task;
     if (bad) *bad = 0;
     /* Single input register on each board: DDC muffler / terminal
-     * back-channel readout (HM page 120, Table 25). Returning the
-     * last output word makes Initial's terminal task synthesize false
-     * key-down messages. Until the 7-wire back-channel is decoded,
-     * report idle/all-ones so boot keys stay "up". */
-    (void)task;
-    (void)tioa;
-    return dorado_display_keyboard_word(d, 0);
+     * back-channel readout (HM page 120, Table 25).
+     *
+     * DisplayAux.mc:DisplayInitConfig probes TStatus for DispM
+     * presence, then DDCStatus/MufAddr=106 for monitor type. These
+     * are single status bits, not the Alto keyboard words. Return an
+     * idle zero stream for now: no DispM board, Alto monitor, no
+     * terminal start bit/boot-button message. Headless keyboard words
+     * remain available through dorado_display_keyboard_word() and the
+     * current boot probe's explicit low-core seeding shim. */
+    if (tioa == DORADO_DISPLAY_TIOA_TSTATUS ||
+        tioa == DORADO_DISPLAY_TIOA_DDCSTATUS) {
+        return 0;
+    }
+    return 0;
 }
 
 void dorado_display_attach_to_io(dorado_display *d, dorado_io *io)
@@ -248,6 +256,13 @@ void dorado_display_attach_to_io(dorado_display *d, dorado_io *io)
             dorado_io_register(io, display_tasks[i], (uint8_t)tioa, &dev);
         }
     }
+
+    /* DisplayAux.mc:DisplayInitConfig runs in the emulator task before
+     * THT/DWT are selected. Route just the display-probe registers it
+     * touches, not the whole EMU slow-I/O space. */
+    dorado_io_register(io, 0, DORADO_DISPLAY_TIOA_TSTATUS, &dev);
+    dorado_io_register(io, 0, DORADO_DISPLAY_TIOA_DDCSTATUS, &dev);
+    dorado_io_register(io, 0, DORADO_DISPLAY_TIOA_STATICS, &dev);
     d->attached = 1;
 }
 

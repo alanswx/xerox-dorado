@@ -769,5 +769,17 @@ software XOR the corrupted bits back to correct values.
     `ACmmdCheck` reject the command or implement the missing transfer
     start sequence that should follow it.
 
+11. **2026-05-02 correction: late Alto loop is idle status polling.**
+    The original CHM `AltoDiabloDisk.mc` source says `AltoLoop` stores
+    current status in `VM 522`, then fetches `VM 521` and branches to
+    `DoACmmd` only if that command pointer is nonzero. The focused 80M
+    trace has `VM 521 == 0`; task 14 is therefore polling hardware
+    status and returning through `EndAltoLoop`, not rejecting an active
+    transfer. `AMapHdwStatus` ORs in the `07400` done bits and later
+    merges the current sector number, so observed `xF00`/`8F00` words
+    are expected idle status snapshots. Keep fixing disk fidelity, but
+    do not treat this loop alone as proof that `DiskData` should have
+    been selected.
+
 See `docs/io-systems-architecture.md` for a higher-level view of
 how disk fits into Slow I/O / Fast I/O / Tasking.
