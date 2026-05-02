@@ -414,7 +414,10 @@ static int service_alto_disk_boot_shim(dorado_memory *mem,
         store_boot_va(mem, 0001u + (uint32_t)i, s->data[i]);
     }
 
-    store_boot_va(mem, 0432u, 07401u); /* Done bit plus nonzero status byte. */
+    /* AEm0.mc KWait checks DoneStatus (07400) and then treats the low
+     * byte as error bits. A successful first-sector read is done with
+     * no low-byte errors. */
+    store_boot_va(mem, 0432u, 07400u);
     store_boot_va(mem, 0521u, 0);
     return 1;
 }

@@ -1434,17 +1434,18 @@ jumps into the loaded world. Two CPU/IFU fixes landed here:
   `IFUMRH` and stored in `ifum_hi`. The previous ordering corrupted the
   Mesa IFUM after Ethernet LoadRam.
 
-The full probe now runs to the budget without a CPU halt. It writes
-`/tmp/dorado_boot_display.pgm` around frame 31 and touches the display
-controller (`display outs=17304`), but still has `display iofetch=0`.
-The current hot loop is AEmu disk boot `KWait` (`0o1017` with
-`0o5250/0o5203/0o5246`), which `AEm0.mc` shows is waiting on status at
-Alto memory `0432`. The probe's first-sector Alto boot shim now fires
-on the real Ethernet path (`alto-boot shims=1`) and stores status
-`0F01`, but AEmu remains in `KWait`. Next debugging target: trace the
-`KWait` fetch/branch sequence and status-word visibility through
-Md/cache/map, then replace the shim with real Alto/Dorado disk command
-completion.
+The full probe now runs to the budget without a CPU halt. The current
+default 80M Ethernet run writes `/tmp/dorado_boot_display.pgm` at frame
+114 and touches the display controller heavily (`display outs=671639`),
+but still has `display iofetch=0`, `DAStart[0420..0427]=0`, and an
+all-white snapshot. It does not hit the old forced Alto `KWait` first-
+sector shim (`alto-boot shims=0`) and finishes around `PC=0o7321` in the
+display/disk task mix. The older shim path was corrected from
+`AEm0.mc`: `KWait` masks `DoneStatus` (`07400`) first and then treats
+the low byte as error bits, so a successful shimmed read must store
+`07400`, not `07401`. Next debugging target: continue the real
+Alto/Dorado disk command completion path that should eventually install
+the display control block chain.
 
 2026-05-01 AWT fast-I/O follow-up: the display word-task router now
 accepts both DWT (`013`) and AWT (`011`) for `IOFetch<-` delivery to the

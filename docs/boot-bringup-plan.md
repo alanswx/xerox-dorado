@@ -1406,12 +1406,14 @@ Initial requests boot file `0110`, receives `AltoMesaDorado.eb!1`,
 verifies the zero checksum, and `LoadRam` jumps to the EB End-item
 start address. The next blocker is no longer Ethernet or LoadRam.
 
-Current hot loop: AEmu disk boot `KWait` at `0o1017`, with the
-`0o5250/0o5203/0o5246` support loop. `AEm0.mc` shows this is waiting
-for status at Alto memory `0432`. The probe first-sector shim now fires
-on this real path and writes `0F01`, but the emulator remains in
-`KWait`, so the next coding pass should trace the status fetch/branch
-sequence and MD/cache/map visibility before adding more display logic.
+Current default 80M Ethernet run no longer halts and no longer reaches
+the old forced Alto `KWait` shim (`alto-boot shims=0`). It finishes in
+the display/disk task mix around `PC=0o7321`, with
+`display outs=671639`, `display iofetch=0`, `DAStart[0420..0427]=0`,
+and an all-white frame 114 snapshot. The older KWait shim path still
+has an important correction from `AEm0.mc`: it masks `DoneStatus`
+(`07400`) first, then treats the low byte as error bits, so a shimmed
+successful read must write `07400`, not `07401`.
 
 These are weeks-of-work each, in rough order of effort:
 
