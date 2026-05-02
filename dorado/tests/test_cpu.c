@@ -399,7 +399,7 @@ static int service_alto_disk_boot_shim(dorado_memory *mem,
         dorado_br_get(mem, 036),  /* MDS and Alto IOBR per ADefs.mc. */
         dorado_br_get(mem, 031),
     };
-    uint32_t base = 0;
+    uint32_t base = force_kwait ? (dorado_br_get(mem, 036) & 0x0FFFFFFFu) : 0;
     int found = force_kwait ? 1 : 0;
     if (!force_kwait) {
         for (size_t i = 0; i < sizeof bases / sizeof bases[0]; i++) {
@@ -3884,7 +3884,8 @@ static int probe_full_boot_with_bootstrap(void)
             service_alto_disk_boot_shim(&mem, &disk_pack,
                                         alto_disk_boot_head,
                                         cpu.ctask == 0 &&
-                                            cpu.real_PC == 01017)) {
+                                            (cpu.real_PC == 01017 ||
+                                             cpu.real_PC == 05550))) {
             alto_disk_boot_shims++;
         }
         service_boot_disk(&cpu, &disk, bb.cycles,

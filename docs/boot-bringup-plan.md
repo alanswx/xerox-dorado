@@ -1439,6 +1439,20 @@ cache-visible as `177776`, even though backing storage still reads zero.
 The old Alto `0521=0431` command pointer still never appears, so the
 first-sector shim remains inactive.
 
+2026-05-02 Alto KWait shim correction: the forced AEmu first-sector
+shim was still writing absolute low memory, but `ADefs.mc` sets Alto
+`IOBR` equal to `MDS` (BR `036`) after the loaded world is running. The
+forced path now writes via MDS and is armed at the loaded-world `KWait`
+PC (`0o5550`) as well as the older probe PC. An 80M run now reports
+`alto-boot shims=1`, task 0 moves beyond the first disk wait, and the
+run reaches the display/disk mix at `COLORBITMAPNIL` with many more
+display outputs (`TIOA 376/366/364/375`). The snapshot is still all
+white, so this only confirms the first handoff can be satisfied; it
+does not replace the real Alto disk controller path. The DSK task later
+remains hot around `0o6604/0o6611/0o6612` (`Read20Muffs`/status), with
+`fifo reads=0`, so the real next blocker is still the controller
+transfer/status model.
+
 The PilotDisk CSB hypothesis was checked against `PilotDiskDefs.mc` and
 `PilotDisk.mc`: `CSB.next` is at `0177520` relative to `IOBR`, not the
 absolute page. New diagnostics print both. Absolute `0177520` remains

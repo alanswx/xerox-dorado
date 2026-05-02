@@ -1489,3 +1489,13 @@ status/sector loop, and the display task outputs blank
 `COLORBITMAPNIL` scan lines with `DAStart=0`. Next target: the Alto
 `ACmmdCheck`/`Read20Muffs` status path after EB relocation, not
 PilotDisk CSB.
+
+2026-05-02 forced KWait correction: the probe-side AEmu first-sector
+shim's forced path was still writing absolute low memory. Since
+`ADefs.mc` makes Alto `IOBR` equal to `MDS`, the forced path now writes
+through BR `036` and is armed at loaded-world `KWait` (`0o5550`). An
+80M run now shows `alto-boot shims=1` and task 0 moves past the first
+disk wait, reaching the display/disk mix at `COLORBITMAPNIL`. The
+snapshot remains all white, and the real DSK task still later loops in
+`Read20Muffs`/status with zero `DiskData` FIFO reads, so this confirms
+the handoff shim only; it does not fix the real controller path.
