@@ -2773,6 +2773,8 @@ static int probe_full_boot_with_bootstrap(void)
     int eth_reg_trace_enabled = test_u64_env("DORADO_ETH_REG_TRACE", 0) != 0;
     int lowcore_trace_enabled = test_u64_env("DORADO_LOWCORE_TRACE", 0) != 0;
     int ifu_trace_enabled = test_u64_env("DORADO_IFU_TRACE", 0) != 0;
+    int boot_decision_trace_enabled =
+        test_u64_env("DORADO_BOOT_DECISION_TRACE", 0) != 0;
     int ethernet_boot_enabled = test_u64_env("DORADO_BOOT_ETHERNET", 1) != 0;
     uint64_t ethernet_wakeups = 0;
     const char *ether_boot_image = getenv("DORADO_ETHER_BOOT_IMAGE");
@@ -2834,6 +2836,8 @@ static int probe_full_boot_with_bootstrap(void)
         uint16_t first_link;
         uint16_t first_mar;
     } post_eb_landmarks[] = {
+        { 01076, "InitMap", 0, 0, 0, 0, 0, 0 },
+        { 04774, "Mesa:INITMAP", 0, 0, 0, 0, 0, 0 },
         { 03573, "Mesa:STARTEMULATOR", 0, 0, 0, 0, 0, 0 },
         { 03603, "Mesa:RESUMEEMULATOR", 0, 0, 0, 0, 0, 0 },
         { 03656, "Mesa:ABOOT", 0, 0, 0, 0, 0, 0 },
@@ -2850,6 +2854,25 @@ static int probe_full_boot_with_bootstrap(void)
         { 05166, "Mesa:EIIDLE", 0, 0, 0, 0, 0, 0 },
         { 05252, "Mesa:EWAIT", 0, 0, 0, 0, 0, 0 },
         { 05321, "Mesa:EPOST", 0, 0, 0, 0, 0, 0 },
+        { 02201, "Mesa:STARTIFU", 0, 0, 0, 0, 0, 0 },
+        { 05550, "Mesa:ACMMDEND", 0, 0, 0, 0, 0, 0 },
+        { 01133, "AEmu:STARTEMULATOR", 0, 0, 0, 0, 0, 0 },
+        { 01135, "AEmu:RESUMEEMULATOR", 0, 0, 0, 0, 0, 0 },
+        { 00741, "AEmu:ABOOT", 0, 0, 0, 0, 0, 0 },
+        { 00772, "AEmu:DISKBOOT", 0, 0, 0, 0, 0, 0 },
+        { 01017, "AEmu:KWAIT", 0, 0, 0, 0, 0, 0 },
+        { 02274, "AEmu:EBOOT", 0, 0, 0, 0, 0, 0 },
+        { 02250, "AEmu:ESIO", 0, 0, 0, 0, 0, 0 },
+        { 02263, "AEmu:SIOSTART", 0, 0, 0, 0, 0, 0 },
+        { 02264, "AEmu:SIORESET", 0, 0, 0, 0, 0, 0 },
+        { 02267, "AEmu:SIONOP", 0, 0, 0, 0, 0, 0 },
+        { 02051, "AEmu:EOTINITPC", 0, 0, 0, 0, 0, 0 },
+        { 02057, "AEmu:EITINITPC", 0, 0, 0, 0, 0, 0 },
+        { 02143, "AEmu:EOIDLE", 0, 0, 0, 0, 0, 0 },
+        { 02075, "AEmu:EIIDLE", 0, 0, 0, 0, 0, 0 },
+        { 02161, "AEmu:EWAIT", 0, 0, 0, 0, 0, 0 },
+        { 02230, "AEmu:EPOST", 0, 0, 0, 0, 0, 0 },
+        { 00006, "AEmu:STARTIFU", 0, 0, 0, 0, 0, 0 },
     };
     struct post_eb_trace_sample {
         uint64_t cycle;
@@ -2907,6 +2930,24 @@ static int probe_full_boot_with_bootstrap(void)
     int ifu_trace_head = 0, ifu_trace_total = 0;
     static uint32_t ifu_pcx_count[65536];
     static uint8_t ifu_pcx_opcode[65536];
+    struct post_eb_boot_decision_sample {
+        uint64_t cycle;
+        uint8_t task, task_after;
+        uint16_t pc, next_pc;
+        uint16_t t_before, t_after;
+        uint16_t q_before, q_after;
+        uint16_t link_before, link_after;
+        uint16_t md_before, md_after;
+        uint16_t pcf_before, pcf_after;
+        uint16_t pcx_before, pcx_after;
+        uint8_t ifu_active_before, ifu_active_after;
+        uint16_t rm_before[040];
+        uint16_t rm_after[040];
+    };
+#define POST_EB_BOOT_DECISION_CAP 160
+    struct post_eb_boot_decision_sample
+        post_eb_boot_decision[POST_EB_BOOT_DECISION_CAP];
+    int post_eb_boot_decision_n = 0;
     uint64_t display_scanline_wakeups = 0;
     uint64_t display_invalid_tpc_wakeups = 0;
     uint64_t next_display_scanline_cycle = 0;
@@ -3678,6 +3719,30 @@ static int probe_full_boot_with_bootstrap(void)
             (pre_pc == 01017 || pre_pc == 05250 ||
              pre_pc == 05203 || pre_pc == 05246 ||
              (pre_pc >= 05540 && pre_pc <= 05610));
+        int trace_boot_decision_step =
+            boot_decision_trace_enabled &&
+            ether_loaded_world_cycle && is_imfetch && pre_task == 0 &&
+            post_eb_boot_decision_n < POST_EB_BOOT_DECISION_CAP &&
+            ((pre_pc >= 03567 && pre_pc <= 03720) ||
+             pre_pc == 02201 || pre_pc == 05550);
+        struct post_eb_boot_decision_sample boot_decision_step_trace;
+        if (trace_boot_decision_step) {
+            memset(&boot_decision_step_trace, 0,
+                   sizeof boot_decision_step_trace);
+            boot_decision_step_trace.cycle = bb.cycles;
+            boot_decision_step_trace.task = pre_task;
+            boot_decision_step_trace.pc = pre_pc;
+            boot_decision_step_trace.t_before = pre_t;
+            boot_decision_step_trace.q_before = cpu.Q;
+            boot_decision_step_trace.link_before = pre_link;
+            boot_decision_step_trace.md_before = pre_md;
+            boot_decision_step_trace.pcf_before = cpu.ifu_pcf;
+            boot_decision_step_trace.pcx_before = cpu.ifu_pcx;
+            boot_decision_step_trace.ifu_active_before = cpu.ifu_active;
+            for (int rr = 0; rr < 040; rr++) {
+                boot_decision_step_trace.rm_before[rr] = cpu.RM[rr];
+            }
+        }
         struct post_loadram_loop_trace post_loop_step_trace;
         if (trace_post_loop_step) {
             memset(&post_loop_step_trace, 0, sizeof post_loop_step_trace);
@@ -3832,6 +3897,22 @@ static int probe_full_boot_with_bootstrap(void)
                                            sizeof post_eb_trace[0]);
                 post_eb_trace_total++;
             }
+            if (trace_boot_decision_step) {
+                boot_decision_step_trace.next_pc = cpu.real_PC;
+                boot_decision_step_trace.task_after = (uint8_t)cpu.ctask;
+                boot_decision_step_trace.t_after = cpu.T;
+                boot_decision_step_trace.q_after = cpu.Q;
+                boot_decision_step_trace.link_after = cpu.Link;
+                boot_decision_step_trace.md_after = mem.md;
+                boot_decision_step_trace.pcf_after = cpu.ifu_pcf;
+                boot_decision_step_trace.pcx_after = cpu.ifu_pcx;
+                boot_decision_step_trace.ifu_active_after = cpu.ifu_active;
+                for (int rr = 0; rr < 040; rr++) {
+                    boot_decision_step_trace.rm_after[rr] = cpu.RM[rr];
+                }
+                post_eb_boot_decision[post_eb_boot_decision_n++] =
+                    boot_decision_step_trace;
+            }
             break;
         }
         if (lowcore_trace_enabled && mem.last_ref_kind == DM_REF_STORE) {
@@ -3873,7 +3954,8 @@ static int probe_full_boot_with_bootstrap(void)
             if ((m200->wp && m200->dirty) ||
                 (m2fe->wp && m2fe->dirty) ||
                 (m624->wp && m624->dirty) ||
-                (mmds->wp && mmds->dirty)) {
+                (mmds->wp && mmds->dirty) ||
+                !boot_probe_alto_mds_aliases_ready(&mem)) {
                 if (ether_bank2_lost_cycle == 0) {
                     const dorado_map_entry *lost = m200;
                     ether_bank2_lost_cycle = bb.cycles;
@@ -3949,6 +4031,22 @@ static int probe_full_boot_with_bootstrap(void)
                                  (int)(sizeof post_eb_trace /
                                        sizeof post_eb_trace[0]);
             post_eb_trace_total++;
+        }
+        if (trace_boot_decision_step) {
+            boot_decision_step_trace.next_pc = cpu.real_PC;
+            boot_decision_step_trace.task_after = (uint8_t)cpu.ctask;
+            boot_decision_step_trace.t_after = cpu.T;
+            boot_decision_step_trace.q_after = cpu.Q;
+            boot_decision_step_trace.link_after = cpu.Link;
+            boot_decision_step_trace.md_after = mem.md;
+            boot_decision_step_trace.pcf_after = cpu.ifu_pcf;
+            boot_decision_step_trace.pcx_after = cpu.ifu_pcx;
+            boot_decision_step_trace.ifu_active_after = cpu.ifu_active;
+            for (int rr = 0; rr < 040; rr++) {
+                boot_decision_step_trace.rm_after[rr] = cpu.RM[rr];
+            }
+            post_eb_boot_decision[post_eb_boot_decision_n++] =
+                boot_decision_step_trace;
         }
         if (trace_post_loop_step) {
             post_loop_step_trace.next_pc = cpu.real_PC;
@@ -4738,6 +4836,51 @@ static int probe_full_boot_with_bootstrap(void)
                post_eb_last_ifu_stop_pc,
                post_eb_last_ifu_pcf,
                post_eb_last_ifu_pcx);
+        if (post_eb_boot_decision_n > 0) {
+            printf("       Post-LoadRam Mesa boot decision trace (%d steps):\n",
+                   post_eb_boot_decision_n);
+            for (int i = 0; i < post_eb_boot_decision_n; i++) {
+                const struct post_eb_boot_decision_sample *bt =
+                    &post_eb_boot_decision[i];
+                const char *sym = NULL;
+                for (int r = 0;
+                     r < (int)(sizeof ref_mcs / sizeof ref_mcs[0]);
+                     r++) {
+                    if (!ref_mcs[r].loaded) continue;
+                    sym = dorado_microcode_symbol_at_real(&ref_mcs[r].mc,
+                                                          bt->pc);
+                    if (sym) break;
+                }
+                printf("         cyc=%llu task=%o->%o pc=0o%o",
+                       (unsigned long long)bt->cycle,
+                       bt->task & 017, bt->task_after & 017, bt->pc);
+                if (sym) printf(":%s", sym);
+                printf(" ->0o%o T=%06o->%06o Q=%06o->%06o "
+                       "Md=%06o->%06o Link=%06o->%06o "
+                       "IFU=%u->%u PCF=0o%o->0o%o PCX=0o%o->0o%o "
+                       "RM20-37:",
+                       bt->next_pc,
+                       bt->t_before & 0177777, bt->t_after & 0177777,
+                       bt->q_before & 0177777, bt->q_after & 0177777,
+                       bt->md_before & 0177777, bt->md_after & 0177777,
+                       bt->link_before & 0177777,
+                       bt->link_after & 0177777,
+                       bt->ifu_active_before, bt->ifu_active_after,
+                       bt->pcf_before, bt->pcf_after,
+                       bt->pcx_before, bt->pcx_after);
+                for (int rr = 020; rr < 040; rr++) {
+                    if (bt->rm_before[rr] == bt->rm_after[rr]) {
+                        printf(" %02o=%06o", rr,
+                               bt->rm_after[rr] & 0177777);
+                    } else {
+                        printf(" %02o=%06o->%06o", rr,
+                               bt->rm_before[rr] & 0177777,
+                               bt->rm_after[rr] & 0177777);
+                    }
+                }
+                printf("\n");
+            }
+        }
         if (ifu_trace_enabled && ifu_trace_total > 0) {
             int cap = IFU_TRACE_CAP;
             int n = ifu_trace_total < cap ? ifu_trace_total : cap;

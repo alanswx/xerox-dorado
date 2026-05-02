@@ -61,6 +61,14 @@ you don't repeat them.
   conditional branch exits at `0o6605`. The remaining disk question is
   why the boot path keeps re-entering hard/status handling against the
   Spruce pack.
+  2026-05-02 update: the AltoMesa EB path now starts a simplified
+  Format-RAM read stream when `EnableRun` is set and `DiskRam[4]`
+  contains the standard read control tag (`0104`). The direct-EB MDS
+  alias guard now remaps the full `0x3500000` shortcut window, which
+  removes the `0x3500100` task-17 fault. Focused 36M runs now show
+  DSK taking most post-LoadRam cycles and hitting `SectorFound`, but
+  `DiskData` reads remain zero and the path falls through to
+  `EtherBooting`.
 - **Repo:** `/Users/alans/Documents/development/Dorado`
 - **Most useful entry points to read:** `CLAUDE.md` (project mission),
   `dorado/CLAUDE.md` (code-side guide), `docs/INDEX.md` (doc map).

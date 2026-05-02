@@ -247,6 +247,14 @@ commands rather than load IO data; to abort a transfer, load the
 control register *twice* (first load clears Active, second loads
 the new value).
 
+2026-05-02 EB bring-up note: the AltoMesa path loads the standard
+Format RAM table (`DiskRam[4] = 0104`, the read control tag command),
+sets `EnableRun`, then sits behind `BlockTillIndex` with
+`DiskControl = 0100`. Until the sequence PROM is fully modeled, the
+emulator treats a pending sector pulse with `EnableRun` plus that
+Format RAM read command as a read-stream start. This is a focused
+stand-in for read PROM step 03 and lets the FIFO path be exercised.
+
 ## Format RAM (HM page 98)
 
 16-word × 12-bit RAM. Loaded via `DiskRam` writes (auto-incrementing

@@ -322,6 +322,15 @@ static int disk_control_has_op(uint16_t control, unsigned op)
            (((control >> DORADO_DISK_CTRL_OP4_SHIFT) & DORADO_DISK_CTRL_OP_MASK) == op);
 }
 
+static int disk_format_ram_requests_read(const dorado_disk_controller *ctl)
+{
+    if (!ctl) return 0;
+    /* Format RAM word 4 is the read-op control tag command (HM §9,
+     * read sequence PROM step 03). The native 12-bit command used by
+     * Initial is 0104 octal: Control tag with Read set. */
+    return (ctl->format_ram[4] & (1u << 6)) != 0;
+}
+
 void dorado_disk_controller_advance_sector(dorado_disk_controller *ctl)
 {
     dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
@@ -352,7 +361,8 @@ void dorado_disk_controller_advance_sector(dorado_disk_controller *ctl)
      * sector's data. Phase 2 simplification: real hardware sequences
      * this via the read PROM. */
     if ((ctl->active || ctl->enable_run) &&
-        disk_control_has_transfer_op(ctl->control)) {
+        (disk_control_has_transfer_op(ctl->control) ||
+         disk_format_ram_requests_read(ctl))) {
         /* Some op other than Done; reload FIFO with new sector. */
         if (disk_begin_read_stream(ctl)) {
             ctl->active = 1;

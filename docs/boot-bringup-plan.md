@@ -1573,6 +1573,18 @@ debugging target is the AEmu software boot handoff: prove whether the
 keyboard words drive the `EBoot` branch, then implement the Alto SIO /
 Mayday-EFTP path or provide a known-good local Alto boot image.
 
+2026-05-02 disk/FIFO update: the AltoMesa EB path now reaches
+`DiskHardMicrocodeBoot` and `DoDiskBlock`, loads the standard Format
+RAM read table, and starts filling the disk FIFO via a temporary
+read-PROM shim keyed from `DiskRam[4] = 0104`. With that in place the
+controller reports `rd_fifo_tw=1`, `fifo=16`, and thousands of read
+stream starts. The direct-EB MDS map shortcut now checks and remaps the
+whole aliased `0x3500000` window, not only the first page, because the
+observed fault was at `0x3500100`. After that change the focused 36M
+run has `Memory: faults=0`, DSK gets most post-LoadRam cycles, and
+`SectorFound` is reached; it still does not select `DiskData`, and it
+falls into the later `EtherBooting` path.
+
 These are weeks-of-work each, in rough order of effort:
 
 | Phase | Effort | Dependency      |
