@@ -28,7 +28,7 @@ We have not yet pulled Press-to-PDF; once we do, the trap-vector
 encoding and EventCnt control bits should be transcribed here and
 the implementation completed.
 
-## Spec (provisional)
+## Spec
 
 State slots added to `dorado_cpu`:
 
@@ -52,10 +52,21 @@ FF wiring:
 | FA=1 FB=7 FC=1 | `B ← EventCntA'`                  | returns `~event_cnt_a` (was 0).         |
 | FA=1 FB=7 FC=4 | `B ← EventCntB'`                  | returns `~event_cnt_b` (was 0).         |
 
+Follow-up correction while debugging boot/display:
+
+- HM Table 20 says `IFUReset` halts/clears the IFU pipeline, clears
+  errors/testing features and `BrkPending`/`BrkIns`, and explicitly does
+  not clear `InsSet` or the reschedule condition.
+- `LoadRam.mc` relies on this: each IFUM item is addressed with
+  `InsSetOrEvent←B` + `BrkIns←B`, and the load path executes `IFUReset`
+  before the loaded emulator starts so the IFUM-addressing `BrkIns` state
+  is not treated as a pending breakpoint substitution.
+
 What is **not** yet implemented:
 
 - Breakpoint trap on the next IFU dispatch (the `brk_pending` flag
-  is set but never consumed).
+  is set by `BrkIns←B`, cleared by `IFUReset`, but not yet consumed by
+  opcode substitution/trap handling).
 - Event-counter ticking. The control bits are saved but no event
   source increments the counters.
 - Parity-error injection / IFU parity trap.
@@ -73,6 +84,8 @@ These pieces require either:
   - `EventCntB ← B` writes `event_cnt_b`.
   - `BrkIns ← B` sets `brk_pending` and `brk_opcode`.
   - `InsSetorEvent ← B` saves the control bits when B[0]=0.
+  - `IFUReset` clears `brk_pending`/`brk_opcode` and halts the IFU pipeline
+    without changing `ifu_insset`.
 
 ## Verification
 

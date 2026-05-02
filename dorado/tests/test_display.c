@@ -163,6 +163,17 @@ static int test_attach_to_io(void)
     EXPECT(v == 0x0000, "EMU TStatus input = 0x%X (expected idle 0)", v);
     EXPECT(bad == 0, "EMU TStatus should be routed for DisplayInitConfig");
 
+    dorado_display_boot_button(&d, 2);
+    v = dorado_io_read(&io, DORADO_DISPLAY_TASK_DHT,
+                       DORADO_DISPLAY_TIOA_TSTATUS, &bad);
+    EXPECT(v == 0x0001, "boot TStatus first bit = 0x%X", v);
+    v = dorado_io_read(&io, DORADO_DISPLAY_TASK_DHT,
+                       DORADO_DISPLAY_TIOA_TSTATUS, &bad);
+    EXPECT(v == 0x0001, "boot TStatus second bit = 0x%X", v);
+    v = dorado_io_read(&io, DORADO_DISPLAY_TASK_DHT,
+                       DORADO_DISPLAY_TIOA_TSTATUS, &bad);
+    EXPECT(v == 0x0000, "boot TStatus should return idle after hold");
+
     printf("PASS  test_attach_to_io (4 tasks routed, 2 writes counted, "
            "input=0x%X)\n", v);
     return 0;

@@ -241,6 +241,13 @@ typedef struct dorado_memory {
     uint8_t           last_fault_membase;
     uint8_t           last_fault_tioa;
 
+    /* Most recent storage reference, for bring-up diagnostics. */
+    dorado_ref_kind   last_ref_kind;
+    uint32_t          last_ref_va;
+    uint16_t          last_ref_b;
+    uint8_t           last_ref_task;
+    uint8_t           last_ref_subtask;
+
     /* Mar register — the most recent reference's VA. Used by
      * `ReadMap` (FA=0 FB=3 FC=1) to address the Map for read-back
      * (HM page 41: ReadMap delivers map[Mar] to B in the next

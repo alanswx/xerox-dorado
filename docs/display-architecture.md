@@ -441,6 +441,18 @@ production: 0 = Alto-style, 1 = LF (large format / Star).
   now lets this clock run continuously after Initial starts, matching
   the hardware fact that raster timing is independent of whether the
   Dorado has recently touched display slow I/O.
+- **Headless terminal boot button**: `DisplayAux.mc!1` reads one
+  serial terminal bit per scanline from `TStatus`, and a boot button
+  message is represented by jamming the boot message type (`17B`) high
+  long enough for `BootTimer`. `dorado_display_boot_button()` models
+  that for headless bring-up by returning serial-bit `1` from `TStatus`
+  for a bounded number of scanline reads, then returning idle zero.
+- **Invalid saved-TPC guard in the harness**: Initial/Mesa deliberately
+  writes the AHT saved TPC to `0177777` while task PCs are being
+  reinitialized. The current synthetic scanline clock clears stale
+  ready/wakeup bits instead of selecting a display task whose saved TPC
+  is still that sentinel. This is a probe-clock guard, not core Dorado
+  tasking behavior.
 - **Current DWT gap**: post-LoadRam `AltoMesaDorado.eb!1` schedules the
   terminal horizontal path and disk, but still produces
   `display iofetch=0`. Source from `_cd8_/doradomicrocode/` confirms
@@ -451,9 +463,12 @@ production: 0 = Alto-style, 1 = LF (large format / Star).
   (`TNLCB`) and `0367` (`TStatics`), never `0364` (`AHTFlag`), so no
   WCB is being handed to the word task. Low core display words
   `0420..0427` (`DAStart` / display area state) remain zero, which
-  explains the blank-scanline behavior. Next display work is to find why
-  the loaded Alto/Mesa software has not installed a DCB chain, while
-  continuing disk and memory fidelity work.
+  explains the blank-scanline behavior. A 100M-cycle low-core store
+  trace saw only clears of the display/disk windows and a later
+  `DiskBR+0523 = 177776` status store; it did not see a nonzero
+  `DAStart` or Alto command pointer at `VM 521`. Next display work is
+  to follow the loaded Alto/Mesa software path that should install a
+  DCB chain, while continuing disk and memory fidelity work.
 - **Terminal word-task wake target**: the synthetic WCB wakeup path now
   wakes AWT (`011`) when the active terminal horizontal task is AHT
   (`004`), and DWT (`013`) otherwise. This follows `DisplayMain.mc`'s

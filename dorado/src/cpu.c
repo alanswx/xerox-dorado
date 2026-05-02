@@ -964,11 +964,26 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                     mc_w->ifum_present[addr] = 1;
                 }
                 return pd;
-            case 6: /* IFUReset — clear IFU pipeline state and load the
-                     * IFU test-control register with 1 (HM §8.3), which
-                     * disables junk wakeups in the normal non-test state. */
-                cpu->ifu_insset = 0;
+            case 6: /* IFUReset — halt and clear the IFU pipeline, clear
+                     * BrkPending/BrkIns state, and load the IFU test-control
+                     * register with 1 (HM Table 20 / §6.8). Reschedule and
+                     * InsSet are explicitly not cleared. */
+                cpu->ifu_active = 0;
+                cpu->ifu_warmup = 0;
                 cpu->ifu_opcode = 0;
+                cpu->ifu_pcf = 0;
+                cpu->ifu_pcx = 0;
+                cpu->ifu_idcnt = 0;
+                cpu->ifu_alpha = 0;
+                cpu->ifu_beta = 0;
+                cpu->ifu_length = 0;
+                cpu->ifu_n = 0;
+                cpu->ifu_packed_a = 0;
+                cpu->ifu_sign = 0;
+                cpu->ifu_type_jump = 0;
+                cpu->ifu_type_pause = 0;
+                cpu->brk_pending = 0;
+                cpu->brk_opcode = 0;
                 junk_timer_ifutest_control(cpu, DORADO_B15_MASK);
                 return pd;
             case 7: /* BrkIns ← B (HM §4.10). Opcode ← B[0:7] and set

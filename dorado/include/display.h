@@ -182,6 +182,7 @@ typedef struct {
      * word format used by Initial: 1 = key up, 0 = key down. Word
      * 0..3 are the normal boot keyboard words; word 4 is Star-only. */
     uint16_t keyboard_words[DORADO_DISPLAY_KEY_WORDS];
+    uint32_t boot_button_scanlines;  /* remaining terminal-status 1 bits */
 
     /* Framebuffer: 808×606 mono, packed 8 pixels per byte, MSB = leftmost.
      * Phase 1: DWT/AWT IOFetch← drops words here as a backdoor;
@@ -241,6 +242,7 @@ void     dorado_display_keyboard_set_bit(dorado_display *d, int word,
 void     dorado_display_keyboard_set_key(dorado_display *d,
                                          dorado_display_key key,
                                          int down);
+void     dorado_display_boot_button(dorado_display *d, uint32_t scanlines);
 
 /*
  * Attach this display to a slow-IO routing table. Registers a single

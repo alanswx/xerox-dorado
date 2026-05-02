@@ -146,6 +146,12 @@ void dorado_display_keyboard_set_key(dorado_display *d,
     else      d->keyboard_words[word] |= mask;
 }
 
+void dorado_display_boot_button(dorado_display *d, uint32_t scanlines)
+{
+    if (!d) return;
+    d->boot_button_scanlines = scanlines;
+}
+
 /* Phase 1: a single permissive output handler that records the
  * (task, tioa, data) triple but does nothing semantically. The
  * real DDC has six (DispY) or eight (DispM) output devices, each
@@ -213,7 +219,7 @@ static void display_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
 
 static uint16_t display_input(void *ctx, int task, uint8_t tioa, int *bad)
 {
-    (void)ctx;
+    dorado_display *d = ctx;
     (void)task;
     if (bad) *bad = 0;
     /* Single input register on each board: DDC muffler / terminal
@@ -223,13 +229,18 @@ static uint16_t display_input(void *ctx, int task, uint8_t tioa, int *bad)
      * presence, then DDCStatus/MufAddr=106 for monitor type. These
      * are single status bits, not the Alto keyboard words. Return an
      * idle zero stream for now: no DispM board, Alto monitor, no
-     * terminal start bit/boot-button message. Headless keyboard words
-     * remain available through dorado_display_keyboard_word() and the
-     * current boot probe's explicit low-core seeding shim. */
-    if (tioa == DORADO_DISPLAY_TIOA_TSTATUS ||
-        tioa == DORADO_DISPLAY_TIOA_DDCSTATUS) {
+     * terminal start bit/boot-button message unless the headless
+     * terminal API has armed a boot-button hold. During such a hold
+     * the terminal jams the serial data bit to 1; DisplayAux.mc
+     * interprets that as message type 17 and times the duration. */
+    if (tioa == DORADO_DISPLAY_TIOA_TSTATUS) {
+        if (d && d->boot_button_scanlines > 0) {
+            d->boot_button_scanlines--;
+            return 1;
+        }
         return 0;
     }
+    if (tioa == DORADO_DISPLAY_TIOA_DDCSTATUS) return 0;
     return 0;
 }
 

@@ -355,6 +355,11 @@ void dorado_fault_clear(dorado_memory *mem)
     mem->last_fault_real_pc = 0;
     mem->last_fault_membase = 0;
     mem->last_fault_tioa  = 0;
+    mem->last_ref_kind = DM_REF_NONE;
+    mem->last_ref_va = 0;
+    mem->last_ref_b = 0;
+    mem->last_ref_task = 0;
+    mem->last_ref_subtask = 0;
 }
 
 void dorado_mcr_load(dorado_memory *mem, uint16_t a, uint16_t b)
@@ -701,6 +706,11 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
                                          int task, int subtask)
 {
     (void)subtask;     /* used only for fast-IO branches below */
+    mem->last_ref_kind = kind;
+    mem->last_ref_va = va;
+    mem->last_ref_b = b;
+    mem->last_ref_task = (uint8_t)(task & 017);
+    mem->last_ref_subtask = (uint8_t)(subtask & 3);
     /* Update Mar (most-recent reference VA). ReadMap (HM page 41)
      * uses this to look up the map entry. */
     mem->mar = va;

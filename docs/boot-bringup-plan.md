@@ -688,7 +688,9 @@ FF functions wired in cpu.c:
 - **`BrkIns←B`** (FA=1 FB=3 FC=7). Opcode ← B[0:7].
 - **`IFUMRH←B`** (FA=1 FB=3 FC=4). Writes ifum_lo[InsSet||Opcode].
 - **`IFUMLH←B`** (FA=1 FB=3 FC=5). Writes ifum_hi[…].
-- **`IFUReset`** (FA=1 FB=3 FC=6). Resets InsSet/Opcode.
+- **`IFUReset`** (FA=1 FB=3 FC=6). Halts/clears the IFU pipeline,
+  clears `BrkPending`/`BrkIns`, and disables IFU test/junk wakeups;
+  it does **not** clear `InsSet` or the reschedule condition (HM Table 20).
 - **`B←IFUMRH'`** (FA=1 FB=7 FC=2). Reads ~ifum_lo[…].
 - **`B←IFUMLH'`** (FA=1 FB=7 FC=3). Reads ~ifum_hi[…].
 
@@ -707,6 +709,10 @@ observable behavior with a 5-cycle warmup counter per HM page 67):
 
 - `PCF←B` (FA=1 FB=0 FC=0) sets the byte cursor, arms the IFU,
   loads `ifu_warmup = 5`.
+- `IFUReset` disarms the byte stream (`ifu_active=0`) and clears pending
+  `BrkIns` substitution. This matters after `LoadRam.mc`, which uses
+  `BrkIns←B` to address IFUM entries and then executes `IFUReset` so the
+  loaded emulator does not inherit a lurking breakpoint substitution.
 - Each CPU step decrements `ifu_warmup` while the IFU is active.
 - `ifu_fetch_byte(cpu, pc, *out_faulted)` fetches via
   `dorado_memory_ref(IFETCH)`, using BR[31] as the codebase. Sets
@@ -1497,6 +1503,32 @@ false hardware-configuration input, but the screen is still blank:
 not correspond to a real DCB scanline fetch. Next debugging target is
 still the loaded software handoff that should populate `DAStart` or
 post an Alto disk command.
+
+2026-05-02 terminal boot / low-core trace update: the display model now
+has a headless boot-button pulse that follows `DisplayAux.mc!1`'s
+terminal path: the boot message type (`17B`) is jammed high through
+`TStatus` for a bounded number of scanline reads, then the serial bit
+returns idle. With that pulse, the run leaves the idle display/IFU boot
+check and enters the loaded disk/display task mix. The previous halt at
+task 4 `PC=0177777` is also gone: Initial/Mesa intentionally writes the
+AHT saved TPC to that sentinel during task-PC initialization, and the
+synthetic scanline probe now clears stale display wakeups until a valid
+saved TPC exists. A 160M run now remains running at frame 246 with
+`display outs=276615`, `display iofetch=0`, DWT wakeups `2`,
+scanline wakeups `135241`, and only two invalid display wakeups
+suppressed.
+
+2026-05-02 low-core store trace: `DORADO_LOWCORE_TRACE=1` records the
+last memory reference through the memory layer and reports stores to the
+display/disk low-core windows through absolute memory, `DiskBR` (`030`),
+`IOBR` (`031`), and Alto `MDS` (`036`). The 100M trace confirms the
+blank screen is upstream of the FIFO/renderer: it sees zeroing of
+`0420..0450` and `0521..0523`, keyboard all-up words written at
+`0177034..0177041`, and one disk status store
+`DiskBR+0523 = 177776`, but no nonzero `DAStart` and no command pointer
+at `VM 521`. The disk task is currently waiting honestly for work; next
+bring-up should trace the loaded IFU/software path that should either
+install the display DCB chain or post an Alto disk command block.
 
 These are weeks-of-work each, in rough order of effort:
 

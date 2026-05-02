@@ -471,6 +471,14 @@ static uint32_t boot_keyboard_base(const dorado_memory *mem)
     return mem ? dorado_br_get(mem, 031) : 0;
 }
 
+static int trace_lowcore_offset(uint32_t off)
+{
+    if (off >= 0420u && off <= 0450u) return 1;       /* DAStart/cursor/DCB */
+    if (off >= 0521u && off <= 0523u) return 1;       /* Alto disk command */
+    if (off >= 0177034u && off <= 0177041u) return 1; /* keyboard words */
+    return 0;
+}
+
 /*
  * The CPU is single-task, no-IFU, no-memory. Tests construct
  * dorado_microcode structs directly with hand-built dorado_uinstr
@@ -2716,6 +2724,7 @@ static int probe_full_boot_with_bootstrap(void)
     int mcr_trace_enabled = test_u64_env("DORADO_MCR_TRACE", 0) != 0;
     int post_eb_trace_enabled = test_u64_env("DORADO_POST_EB_TRACE", 0) != 0;
     int eth_reg_trace_enabled = test_u64_env("DORADO_ETH_REG_TRACE", 0) != 0;
+    int lowcore_trace_enabled = test_u64_env("DORADO_LOWCORE_TRACE", 0) != 0;
     int ethernet_boot_enabled = test_u64_env("DORADO_BOOT_ETHERNET", 1) != 0;
     uint64_t ethernet_wakeups = 0;
     const char *ether_boot_image = getenv("DORADO_ETHER_BOOT_IMAGE");
@@ -2768,7 +2777,7 @@ static int probe_full_boot_with_bootstrap(void)
     uint16_t post_eb_last_ifu_pcx = 0;
     struct post_eb_trace_sample {
         uint64_t cycle;
-        uint8_t task;
+        uint8_t task, task_after;
         uint16_t pc, next_pc;
         uint16_t t_before, t_after;
         uint16_t q_before, q_after;
@@ -2791,6 +2800,9 @@ static int probe_full_boot_with_bootstrap(void)
         uint8_t alufm_before[16], alufm_after[16];
         uint16_t ready_before, ready_after;
         uint16_t wakeup_before, wakeup_after;
+        uint16_t task0_tpc_before, task0_tpc_after;
+        uint16_t aht_tpc_before, aht_tpc_after;
+        uint16_t disk_tpc_before, disk_tpc_after;
         uint16_t ifu_pcf_before, ifu_pcf_after;
         uint16_t ifu_pcx_before, ifu_pcx_after;
         cpu_halt_reason halt_reason;
@@ -2803,7 +2815,11 @@ static int probe_full_boot_with_bootstrap(void)
     static uint16_t post_eb_task_pc_mcr[16][4096];
     static uint32_t post_eb_task_pc_mar[16][4096];
     uint64_t display_scanline_wakeups = 0;
+    uint64_t display_invalid_tpc_wakeups = 0;
     uint64_t next_display_scanline_cycle = 0;
+    uint64_t terminal_boot_scanlines =
+        test_u64_env("DORADO_TERMINAL_BOOT_SCANLINES", 0300);
+    int terminal_boot_armed = 0;
     uint64_t keyboard_seed_count = 0;
     uint64_t boot_parameter_seed_count = 0;
     int force_ether_mesa_boot =
@@ -3629,10 +3645,17 @@ static int probe_full_boot_with_bootstrap(void)
                 post_eb_step_trace.alufm_before[aa] = mc.alufm[aa];
             post_eb_step_trace.ready_before = cpu.ready;
             post_eb_step_trace.wakeup_before = cpu.wakeup_pending;
+            post_eb_step_trace.task0_tpc_before =
+                dorado_cpu_get_task_tpc(&cpu, 0);
+            post_eb_step_trace.aht_tpc_before =
+                cpu.task_tpc[DORADO_DISPLAY_TASK_AHT];
+            post_eb_step_trace.disk_tpc_before =
+                dorado_cpu_get_task_tpc(&cpu, DORADO_DISK_TASK);
             post_eb_step_trace.ifu_pcf_before = cpu.ifu_pcf;
             post_eb_step_trace.ifu_pcx_before = cpu.ifu_pcx;
         }
 
+        mem.last_ref_kind = DM_REF_NONE;
         if (dorado_cpu_step(&cpu)) {
             halt_reason = (cpu_halt_reason)cpu.halt_reason;
             if (trace_post_loop_step) {
@@ -3658,6 +3681,7 @@ static int probe_full_boot_with_bootstrap(void)
             }
             if (trace_post_eb_step) {
                 post_eb_step_trace.next_pc = cpu.real_PC;
+                post_eb_step_trace.task_after = (uint8_t)cpu.ctask;
                 post_eb_step_trace.t_after = cpu.T;
                 post_eb_step_trace.q_after = cpu.Q;
                 post_eb_step_trace.link_after = cpu.Link;
@@ -3682,6 +3706,12 @@ static int probe_full_boot_with_bootstrap(void)
                     post_eb_step_trace.alufm_after[aa] = mc.alufm[aa];
                 post_eb_step_trace.ready_after = cpu.ready;
                 post_eb_step_trace.wakeup_after = cpu.wakeup_pending;
+                post_eb_step_trace.task0_tpc_after =
+                    dorado_cpu_get_task_tpc(&cpu, 0);
+                post_eb_step_trace.aht_tpc_after =
+                    cpu.task_tpc[DORADO_DISPLAY_TASK_AHT];
+                post_eb_step_trace.disk_tpc_after =
+                    dorado_cpu_get_task_tpc(&cpu, DORADO_DISK_TASK);
                 post_eb_step_trace.ifu_pcf_after = cpu.ifu_pcf;
                 post_eb_step_trace.ifu_pcx_after = cpu.ifu_pcx;
                 post_eb_step_trace.halt_reason = halt_reason;
@@ -3692,6 +3722,36 @@ static int probe_full_boot_with_bootstrap(void)
                 post_eb_trace_total++;
             }
             break;
+        }
+        if (lowcore_trace_enabled && mem.last_ref_kind == DM_REF_STORE) {
+            struct {
+                const char *name;
+                uint32_t base;
+            } bases[] = {
+                { "abs", 0 },
+                { "DiskBR", dorado_br_get(&mem, 030) },
+                { "IOBR", dorado_br_get(&mem, 031) },
+                { "MDS", dorado_br_get(&mem, 036) },
+            };
+            for (size_t bi = 0; bi < sizeof bases / sizeof bases[0]; bi++) {
+                uint32_t base = bases[bi].base & 0x0FFFFFFFu;
+                int duplicate = 0;
+                for (size_t bj = 0; bj < bi; bj++) {
+                    if ((bases[bj].base & 0x0FFFFFFFu) == base) duplicate = 1;
+                }
+                if (duplicate) continue;
+                uint32_t off = (mem.last_ref_va - base) & 0x0FFFFFFFu;
+                if (!trace_lowcore_offset(off)) continue;
+                fprintf(stderr,
+                        "LOWCORE_STORE cyc=%llu task=%o pc=0o%o->0o%o "
+                        "base=%s+0o%o va=%07X data=%06o "
+                        "RBase=%u MemBase=%u T=%06o Md=%06o\n",
+                        (unsigned long long)bb.cycles, pre_task & 017,
+                        pre_pc, cpu.real_PC, bases[bi].name, off,
+                        mem.last_ref_va & 0x0FFFFFFFu,
+                        mem.last_ref_b & 0177777, pre_rbase,
+                        pre_membase, pre_t & 0177777, pre_md & 0177777);
+            }
         }
         if (ether_boot_injections) {
             const dorado_map_entry *m200 = dorado_map_get(&mem, 0x200);
@@ -3725,6 +3785,7 @@ static int probe_full_boot_with_bootstrap(void)
         }
         if (trace_post_eb_step) {
             post_eb_step_trace.next_pc = cpu.real_PC;
+            post_eb_step_trace.task_after = (uint8_t)cpu.ctask;
             post_eb_step_trace.t_after = cpu.T;
             post_eb_step_trace.q_after = cpu.Q;
             post_eb_step_trace.link_after = cpu.Link;
@@ -3749,6 +3810,12 @@ static int probe_full_boot_with_bootstrap(void)
                 post_eb_step_trace.alufm_after[aa] = mc.alufm[aa];
             post_eb_step_trace.ready_after = cpu.ready;
             post_eb_step_trace.wakeup_after = cpu.wakeup_pending;
+            post_eb_step_trace.task0_tpc_after =
+                dorado_cpu_get_task_tpc(&cpu, 0);
+            post_eb_step_trace.aht_tpc_after =
+                cpu.task_tpc[DORADO_DISPLAY_TASK_AHT];
+            post_eb_step_trace.disk_tpc_after =
+                dorado_cpu_get_task_tpc(&cpu, DORADO_DISK_TASK);
             post_eb_step_trace.ifu_pcf_after = cpu.ifu_pcf;
             post_eb_step_trace.ifu_pcx_after = cpu.ifu_pcx;
             post_eb_trace[post_eb_trace_head] = post_eb_step_trace;
@@ -3937,9 +4004,21 @@ static int probe_full_boot_with_bootstrap(void)
             }
         }
         if (initial_substituted && bb.cycles >= next_display_scanline_cycle) {
+            if (!terminal_boot_armed && terminal_boot_scanlines > 0 &&
+                display.terminal_task != 0 && display.scanline_ticks > 8) {
+                dorado_display_boot_button(&display,
+                                           (uint32_t)terminal_boot_scanlines);
+                terminal_boot_armed = 1;
+            }
             uint16_t mask = dorado_display_scanline_wakeup_mask(&display);
             for (int task = 0; task < 16; task++) {
                 if (mask & (1u << task)) {
+                    if (cpu.task_tpc[task] == 0177777) {
+                        cpu.ready &= (uint16_t)~(1u << task);
+                        cpu.wakeup_pending &= (uint16_t)~(1u << task);
+                        display_invalid_tpc_wakeups++;
+                        continue;
+                    }
                     dorado_cpu_wakeup(&cpu, task);
                     display_scanline_wakeups++;
                 }
@@ -3953,8 +4032,15 @@ static int probe_full_boot_with_bootstrap(void)
                     display.terminal_task == DORADO_DISPLAY_TASK_AHT
                         ? DORADO_DISPLAY_TASK_AWT
                         : DORADO_DISPLAY_TASK_DWT;
-                dorado_cpu_set_subtask(&cpu, word_task, (uint8_t)dwt_subtask);
-                dorado_cpu_wakeup(&cpu, word_task);
+                if (cpu.task_tpc[word_task] == 0177777) {
+                    cpu.ready &= (uint16_t)~(1u << word_task);
+                    cpu.wakeup_pending &= (uint16_t)~(1u << word_task);
+                    display_invalid_tpc_wakeups++;
+                } else {
+                    dorado_cpu_set_subtask(&cpu, word_task,
+                                           (uint8_t)dwt_subtask);
+                    dorado_cpu_wakeup(&cpu, word_task);
+                }
             }
         }
         if (ether_loaded_world_cycle && is_imfetch) {
@@ -4306,13 +4392,14 @@ static int probe_full_boot_with_bootstrap(void)
         }
     }
     printf("       Task=%u TIOA=0x%02X display outs=%llu iofetch=%llu "
-           "dwt wakeups=%llu scanline wakeups=%llu "
+           "dwt wakeups=%llu scanline wakeups=%llu suppressed=%llu "
            "disk outs=%llu ins=%llu\n",
            cpu.ctask, cpu.TIOA & 0xFF,
            (unsigned long long)display.output_count,
            (unsigned long long)display.iofetch_count,
            (unsigned long long)display.dwt_wakeups,
            (unsigned long long)display_scanline_wakeups,
+           (unsigned long long)display_invalid_tpc_wakeups,
            (unsigned long long)disk.output_count,
            (unsigned long long)disk.input_count);
     printf("       Ethernet: enabled=%d wakeups=%llu ctl0=%llu last0=0o%o "
@@ -4517,8 +4604,9 @@ static int probe_full_boot_with_bootstrap(void)
                 if (pt->pc < IM_SIZE && mc.im_present[pt->pc]) {
                     dorado_format(&mc.im[pt->pc], dis, sizeof dis);
                 }
-                printf("         cyc=%llu task=%o pc=0o%o",
-                       (unsigned long long)pt->cycle, pt->task, pt->pc);
+                printf("         cyc=%llu task=%o->%o pc=0o%o",
+                       (unsigned long long)pt->cycle, pt->task,
+                       pt->task_after, pt->pc);
                 if (sym) printf(":%s", sym);
                 printf(" ->0o%o T=%04X->%04X Q=%04X->%04X "
                        "L=%04X->%04X Cnt=%04X->%04X ShC=%04X->%04X "
@@ -4526,7 +4614,9 @@ static int probe_full_boot_with_bootstrap(void)
                        "IFU a=%u->%u w=%u->%u PCF=0o%o->0o%o "
                        "PCX=0o%o->0o%o tasking=%u/%u->%u/%u "
                        "disp=%04X/%04X->%04X/%04X "
-                       "ready=%04X->%04X wake=%04X->%04X MCR=%04X->%04X "
+                       "ready=%04X->%04X wake=%04X->%04X "
+                       "TPC0=0o%o->0o%o TPCAHT=0o%o->0o%o TPCd=0o%o->0o%o "
+                       "MCR=%04X->%04X "
                        "MAR=%05X->%05X MD=%04X->%04X",
                        pt->next_pc,
                        pt->t_before, pt->t_after,
@@ -4546,6 +4636,9 @@ static int probe_full_boot_with_bootstrap(void)
                        pt->dispatch_or_after, pt->dispatch_pending_after,
                        pt->ready_before, pt->ready_after,
                        pt->wakeup_before, pt->wakeup_after,
+                       pt->task0_tpc_before, pt->task0_tpc_after,
+                       pt->aht_tpc_before, pt->aht_tpc_after,
+                       pt->disk_tpc_before, pt->disk_tpc_after,
                        pt->mcr_before, pt->mcr_after,
                        pt->mar_before, pt->mar_after,
                        pt->md_before, pt->md_after);
@@ -6710,11 +6803,29 @@ static int test_ifureset_disables_junk_timer(void)
 
     dorado_cpu cpu;
     dorado_cpu_init(&cpu, &mc, 0);
+    cpu.ifu_insset = 2;
+    cpu.ifu_opcode = 0xAB;
+    cpu.ifu_pcf = 01234;
+    cpu.ifu_pcx = 01230;
+    cpu.ifu_active = 1;
+    cpu.ifu_warmup = 3;
+    cpu.brk_pending = 1;
+    cpu.brk_opcode = 0xCD;
     cpu.junk_tw_enabled = 1;
     cpu.junk_tw_countdown = 1;
     cpu.wakeup_pending = (uint16_t)(1u << 2);
 
     EXPECT(dorado_cpu_step(&cpu) == 0, "IFUReset step");
+    EXPECT(cpu.ifu_insset == 2,
+           "IFUReset must preserve InsSet, got %u", cpu.ifu_insset);
+    EXPECT(cpu.ifu_active == 0,
+           "IFUReset should halt the IFU pipeline");
+    EXPECT(cpu.ifu_warmup == 0,
+           "IFUReset should clear IFU warmup");
+    EXPECT(cpu.brk_pending == 0,
+           "IFUReset should clear BrkPending");
+    EXPECT(cpu.brk_opcode == 0,
+           "IFUReset should clear BrkIns opcode");
     EXPECT(cpu.junk_tw_enabled == 0,
            "IFUReset should disable junk timer");
     EXPECT((cpu.wakeup_pending & (1u << 2)) == 0,

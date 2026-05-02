@@ -450,8 +450,10 @@ B10. **Reschedule / RescheduleNow** branch condition uses pending-wakeup
 as a proxy for non-emulator tasks; device-driven IOAttention not wired
 (line 1530).
 
-B11. **Breakpoints / parity / performance counters** not modeled
-(`BrkPending` ignored after `BrkIns←B`, line 858).
+B11. **Breakpoints / parity / performance counters** partially modeled:
+`BrkIns←B` sets `BrkPending`, and `IFUReset` now clears the pending
+breakpoint/BrkIns state while preserving `InsSet` per HM Table 20.
+The actual breakpoint substitution/trap path is still not modeled.
 
 ### C. Memory subsystem (`src/memory.c`, `include/memory.h`)
 
@@ -1529,3 +1531,27 @@ zero and `display iofetch=0`; the DWT wakeups are initialization or
 spurious wakeups before any DCB exists. Continue by tracing the loaded
 software path that should write `DAStart` or post the Alto command at
 `VM 521`.
+
+2026-05-02 terminal boot pulse / invalid-TPC guard: the display model
+now has a headless `dorado_display_boot_button()` helper. It follows
+`DisplayAux.mc!1` by returning terminal serial bit `1` from `TStatus`
+for a bounded number of scanline reads, enough for the boot message type
+`17B`, then returns idle zero. The long boot harness arms this only
+after the terminal display task has started. Initial/Mesa also sets the
+AHT saved TPC to `0177777` while reinitializing task PCs; the synthetic
+scanline clock now suppresses those stale display wakeups instead of
+selecting the sentinel address. A 160M run no longer halts there and
+finishes still running at frame 246 with `display outs=276615`,
+`display iofetch=0`, DWT wakeups `2`, scanline wakeups `135241`, and
+two invalid display wakeups suppressed.
+
+2026-05-02 low-core store trace: the memory layer records the last
+reference, and `DORADO_LOWCORE_TRACE=1` reports stores to the active
+display/disk low-core windows through absolute memory, `DiskBR` (`030`),
+`IOBR` (`031`), and Alto `MDS` (`036`). The 100M trace saw only clears
+of `0420..0450` and `0521..0523`, keyboard all-up writes at
+`0177034..0177041`, and a disk status write `DiskBR+0523 = 177776`.
+There was no nonzero `DAStart` and no Alto command pointer at `VM 521`.
+Treat the current blank screen as a loaded-software handoff problem:
+find why the IFU/Mesa path does not install a display DCB chain or post
+an Alto disk command, rather than adding more FIFO/rendering behavior.
