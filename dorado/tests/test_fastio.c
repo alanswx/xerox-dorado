@@ -127,14 +127,15 @@ static int test_dsk_iostore_to_memory(void)
 }
 
 /*
- * test_dwt_iofetch_to_display — main memory → IOFetch(DWT) → display
+ * test_display_word_iofetch_to_display — memory → IOFetch(DWT/AWT) → display
  * FIFO → framebuffer.
  *
- * Setup: plant pixel data in memory. Do IOFetch as DWT subtask 0. The
- * dispatcher pushes 16 words into display.fifo_a. Then render the
- * FIFO and verify pixels appear in the framebuffer.
+ * Setup: plant pixel data in memory. Do IOFetch as DWT subtask 0 and
+ * AWT subtask 2. The dispatcher pushes 16 words into the selected
+ * display FIFO. Then render channel A and verify pixels appear in the
+ * framebuffer.
  */
-static int test_dwt_iofetch_to_display(void)
+static int test_display_word_iofetch_to_display(void)
 {
     static dorado_memory mem;
     static dorado_display display;
@@ -160,8 +161,8 @@ static int test_dwt_iofetch_to_display(void)
      * mem[0x100..0x10F] and pushes into display.fifo_a. */
     dorado_fault_kind f = dorado_memory_ref_task(
         &mem, DM_REF_IOFETCH, 0x100, 0, 0,
-        /*task=*/013 /*DWT*/, /*subtask=*/0);
-    EXPECT(f == DM_FAULT_NONE, "IOFetch should succeed (fault=%d)", f);
+        /*task=*/DORADO_DISPLAY_TASK_DWT, /*subtask=*/0);
+    EXPECT(f == DM_FAULT_NONE, "DWT IOFetch should succeed (fault=%d)", f);
     /* FIFO should have 16 words. */
     int expected_count = 16;
     int actual_count = (display.fifo_a_head - display.fifo_a_tail + 256) % 256;
@@ -172,6 +173,21 @@ static int test_dwt_iofetch_to_display(void)
            display.fifo_a[0]);
     EXPECT(display.fifo_a[1] == 0x5555, "fifo_a[1] = 0x%X",
            display.fifo_a[1]);
+
+    /* AWT is the DispM terminal-interface word task. It uses the same
+     * DDC fast-output path; route it to the selected channel too. */
+    f = dorado_memory_ref_task(
+        &mem, DM_REF_IOFETCH, 0x100, 0, 0,
+        /*task=*/DORADO_DISPLAY_TASK_AWT, /*subtask=*/2);
+    EXPECT(f == DM_FAULT_NONE, "AWT IOFetch should succeed (fault=%d)", f);
+    actual_count = (display.fifo_b_head - display.fifo_b_tail + 256) % 256;
+    EXPECT(actual_count == expected_count,
+           "display FIFO B has %d words (expected %d)",
+           actual_count, expected_count);
+    EXPECT(display.fifo_b[0] == 0xAAAA, "fifo_b[0] = 0x%X",
+           display.fifo_b[0]);
+    EXPECT(router.drops_unrouted_iofetch == 0,
+           "display word IOFetch should not be unrouted");
 
     /* Render the FIFO into the framebuffer. */
     int dst_y = 0;
@@ -189,7 +205,8 @@ static int test_dwt_iofetch_to_display(void)
            display.fb[2]);
 
     dorado_memory_free(&mem);
-    printf("PASS  test_dwt_iofetch_to_display (memory → display FIFO → FB)\n");
+    printf("PASS  test_display_word_iofetch_to_display "
+           "(memory -> DWT/AWT display FIFO -> FB)\n");
     return 0;
 }
 
@@ -197,7 +214,7 @@ int main(void)
 {
     int rc = 0;
     rc |= test_dsk_iostore_to_memory();
-    rc |= test_dwt_iofetch_to_display();
+    rc |= test_display_word_iofetch_to_display();
     if (rc == 0) printf("\nAll fastio tests passed.\n");
     return rc;
 }

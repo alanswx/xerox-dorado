@@ -26,11 +26,13 @@ void dorado_fastio_dispatch(struct dorado_memory *mem,
     (void)mem; (void)va;
 
     switch (task) {
-    case 013:  /* DWT — display word task */
+    case DORADO_DISPLAY_TASK_AWT:
+    case DORADO_DISPLAY_TASK_DWT:
         if (kind == DM_REF_IOFETCH && r->display) {
             /* Push 16 words into the display FIFO for the channel
-             * selected by subtask (0 = A, 2 = B). DWT will then
-             * pump these into the framebuffer via the mixer. */
+             * selected by subtask (0 = A, 2 = B). DWT/AWT then
+             * pump these into the framebuffer via the mixer or the
+             * DispM terminal interface. */
             for (int i = 0; i < 16; i++) {
                 if (dorado_display_fifo_push(r->display, subtask,
                                              munch[i]) != 0) {
@@ -42,7 +44,7 @@ void dorado_fastio_dispatch(struct dorado_memory *mem,
                 }
             }
         } else if (kind == DM_REF_IOSTORE) {
-            /* IOStore from DWT: not used by display. */
+            /* IOStore from display word tasks is not used by DDC. */
             r->drops_unrouted_iostore++;
         }
         break;

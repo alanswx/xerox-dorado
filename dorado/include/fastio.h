@@ -9,7 +9,7 @@
  * Fast I/O dispatcher (HM §8). One callback that memory_ref invokes
  * on every IOFetch / IOStore. Dispatches to the right device based
  * on task ID:
- *   task 13₈ (DWT) → display FIFO (channel selected by subtask 0/2)
+ *   task 11₈ (AWT) / 13₈ (DWT) → display FIFO (subtask 0/2)
  *   task 14₈ (DSK) → disk controller FIFO
  *   anything else  → no-op
  *
@@ -29,7 +29,7 @@ typedef struct {
      * destination FIFO is full or there is no destination at all.
      * We don't model Hold yet — these counters at least make silent
      * drops detectable. */
-    uint32_t drops_display_fifo_full;   /* DWT IOFetch: display FIFO full */
+    uint32_t drops_display_fifo_full;   /* DWT/AWT IOFetch: display FIFO full */
     uint32_t drops_disk_fifo_full;      /* DSK IOFetch: disk FIFO full */
     uint32_t drops_disk_fifo_empty;     /* DSK IOStore: disk FIFO empty (zero-padded) */
     uint32_t drops_unrouted_iofetch;    /* IOFetch from a task with no device */

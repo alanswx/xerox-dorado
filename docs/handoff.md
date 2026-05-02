@@ -236,12 +236,12 @@ These all compile clean and pass:
 
 ### Fast I/O (`include/fastio.h`, `src/fastio.c`)
 - `fast_io_cb` on `dorado_memory` fires on IOFetch / IOStore.
-- `dorado_fastio_dispatch` routes by task: DWT → display FIFO,
+- `dorado_fastio_dispatch` routes by task: DWT/AWT → display FIFO,
   DSK → disk controller FIFO. Synchronous transport (one munch per
   ref, no cycle-accurate timing).
 - End-to-end test (`test_fastio.c`):
   - disk pack → FIFO → IOStore(DSK) → main memory ✅
-  - main memory → IOFetch(DWT) → display FIFO → framebuffer ✅
+  - main memory → IOFetch(DWT/AWT) → display FIFO → framebuffer ✅
 
 ## What works as a **probe** (informational, not pass/fail)
 
@@ -1445,3 +1445,16 @@ on the real Ethernet path (`alto-boot shims=1`) and stores status
 `KWait` fetch/branch sequence and status-word visibility through
 Md/cache/map, then replace the shim with real Alto/Dorado disk command
 completion.
+
+2026-05-01 AWT fast-I/O follow-up: the display word-task router now
+accepts both DWT (`013`) and AWT (`011`) for `IOFetch<-` delivery to the
+display FIFO, matching the `DisplayMain.mc` DHT/DWT vs THT/TWT split.
+`test_fastio` covers both routes. This did not unblock the screen: an
+80M full-bootstrap run reports frame 114, `display outs=671639`,
+`display iofetch=0`, `dwt wakeups=2`, `unrouted_iofetch=0`, and an
+all-white `/tmp/dorado_boot_display.pgm` (`unique=1`, `nonwhite=0`).
+Task-cycle counts show AWT only ran 31 cycles and DWT 1 cycle; low-core
+`DAStart[0420..0427]` remains zero. So the FIFO path is ready for both
+word tasks, but software has not yet installed a display control block.
+Continue with the AEmu disk/status `KWait` visibility problem rather
+than adding more framebuffer rendering behavior.

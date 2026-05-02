@@ -32,7 +32,7 @@
  * For Phase 1 (this header) we model just enough to:
  *   - Accept all DDC slow-IO writes without halting
  *   - Track NLCB / HRam / MixerModes / VCW state
- *   - Provide a simple framebuffer that DWT's IOFetch← writes pixel
+ *   - Provide a simple framebuffer that DWT/AWT IOFetch← writes pixel
  *     bytes into (skipping the mixer/HSync/VBlank waveform machinery)
  *   - Dump a PPM/PGM snapshot of the framebuffer for visual inspection
  *
@@ -182,8 +182,9 @@ typedef struct {
     uint16_t keyboard_words[DORADO_DISPLAY_KEY_WORDS];
 
     /* Framebuffer: 808×606 mono, packed 8 pixels per byte, MSB = leftmost.
-     * Phase 1: DWT's IOFetch← drops words here as a backdoor; eventually
-     * the mixer + waveform generator will populate this from the FIFO. */
+     * Phase 1: DWT/AWT IOFetch← drops words here as a backdoor;
+     * eventually the mixer + waveform generator will populate this
+     * from the FIFO. */
     uint8_t  fb[DORADO_DISPLAY_FB_BYTES];
 
     /* Scan position for synthetic time. The GUI may inspect/render the
@@ -201,9 +202,9 @@ typedef struct {
     uint8_t  next_wcb_flag[2];   /* set by DHT, cleared by DWT */
     uint8_t  current_wcb_flag[2];
 
-    /* DWT FIFO (per channel). 16 words × ~16 entries per spec; we use
-     * 256 to be generous. Filled by IOFetch←, drained by mixer (we
-     * draw to FB from here). */
+    /* Display word-task FIFO (per channel). 16 words × ~16 entries per
+     * spec; we use 256 to be generous. Filled by IOFetch←, drained by
+     * mixer (we draw to FB from here). */
     uint16_t fifo_a[256];
     uint16_t fifo_b[256];
     int      fifo_a_head, fifo_a_tail;
@@ -255,7 +256,7 @@ void dorado_display_attach_to_io(dorado_display *d, dorado_io *io);
 
 /*
  * Push a 16-bit word from main storage into the display FIFO. Used by
- * the IOFetch← path when DWT is the destination task.
+ * the IOFetch← path when DWT/AWT is the destination task.
  *
  * `subtask` (0 or 2) selects channel A or B. `word` is the data.
  * Returns 0 on success, -1 if FIFO full.

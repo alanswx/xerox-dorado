@@ -3411,6 +3411,19 @@ static int probe_full_boot_with_bootstrap(void)
                 (pre_pc >= 06500 && pre_pc <= 06507) ||
                 (pre_pc >= 07120 && pre_pc <= 07133);
         }
+        if (disk_trace_focus == 3) {
+            is_focused_disk_pc =
+                (pre_pc >= 07060 && pre_pc <= 07133) ||
+                (pre_pc >= 07200 && pre_pc <= 07207) ||
+                (pre_pc >= 06570 && pre_pc <= 06577) ||
+                pre_pc == 03500;
+        }
+        if (disk_trace_focus == 4) {
+            is_focused_disk_pc =
+                (pre_pc >= 05600 && pre_pc <= 05665) ||
+                (pre_pc >= 05740 && pre_pc <= 05755) ||
+                pre_pc == 03500;
+        }
         if (disk_trace_focus) is_disk_code_pc = is_focused_disk_pc;
         int is_disk_trace =
             disk_trace_enabled &&
@@ -4644,6 +4657,10 @@ static int probe_full_boot_with_bootstrap(void)
         printf("       Disk/BootTransfer trace:\n");
         for (int i = 0; i < disk_trace_n; i++) {
             const struct disk_trace_sample *dt = &disk_trace[i];
+            char dis[160] = "";
+            if (dt->pc < IM_SIZE && mc.im_present[dt->pc]) {
+                dorado_format(&mc.im[dt->pc], dis, sizeof dis);
+            }
             printf("         cyc=%llu task=%o pc=0o%o->0o%o "
                    "T=%04X->%04X Md=%04X->%04X Link=%04X->%04X "
                    "BC=z%u%u l%u%u c%u%u "
@@ -4683,6 +4700,8 @@ static int probe_full_boot_with_bootstrap(void)
                    dt->drm[010], dt->drm[011], dt->drm[012],
                    dt->drm[013], dt->drm[014], dt->drm[015],
                    dt->drm[016], dt->drm[017]);
+            if (dis[0]) printf(" {%s}", dis);
+            printf("\n");
         }
     }
     if (mcr_trace_n > 0) {

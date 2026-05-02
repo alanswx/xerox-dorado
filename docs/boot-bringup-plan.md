@@ -1366,6 +1366,16 @@ Three styles of test, used at every phase:
   relationship, but it does not change the current EB result: task 3 is
   still hot in `COLORBITMAPNIL`, `DAStart[0420..0427]` remains zero, and
   there are no display munches for fast I/O to fetch.
+- 2026-05-01 AWT fast-I/O follow-up: the fast-I/O router now treats AWT
+  (`011`) as the DispM peer of DWT (`013`) for display `IOFetch<-`
+  delivery. `test_fastio` covers both word tasks. An 80M full-bootstrap
+  run still has `display iofetch=0`, `unrouted_iofetch=0`,
+  `DAStart[0420..0427]=0`, and an all-white
+  `/tmp/dorado_boot_display.pgm`; AWT runs only briefly (`31` task
+  cycles) and no word task issues a real display munch. This rules out a
+  missing AWT FIFO route as the current blank-screen cause. Continue
+  debugging the upstream AEmu/Pilot disk/status path that should install
+  the display control block chain.
 
 ## Cross-cutting: don't drift from "match the docs"
 
