@@ -7121,6 +7121,115 @@ static int test_output_t_store_shape_routes_slow_io(void)
     return 0;
 }
 
+static int test_output_rm_store_shape_routes_slow_io(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025;  mc.alufm_present[0] = 1;  /* B */
+
+    /* Disk microcode uses `Output_ KCmmd`: a no-LC store-shaped slow
+     * I/O output whose source is not T. */
+    mc.rm[1] = 0x0005;
+    mc.rm_present[1] = 1;
+    mc.im[0] = make_uinstr(/*rstk=*/1, /*aluf=*/0, /*bsel=*/1, /*lc=*/0,
+                           /*asel=*/0, 0, /*ff=*/0300, jcn_local(0));
+    mc.im_present[0] = 1;
+    mc.image_to_real[0] = 0;
+    mc.image_present[0] = 1;
+    mc.n_instructions = 1;
+
+    static dorado_io io;
+    dorado_io_init(&io);
+    static echo_dev dev_state;
+    memset(&dev_state, 0, sizeof dev_state);
+    static const dorado_io_device echo_device = {
+        .read = echo_read,
+        .write = echo_write,
+        .attention = NULL,
+        .ctx = &dev_state,
+        .name = "echo"
+    };
+    dorado_io_register(&io, /*task=*/14, /*tioa=*/010, &echo_device);
+
+    dorado_memory mem;
+    EXPECT(dorado_memory_init(&mem) == 0, "memory init failed");
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.io = &io;
+    cpu.mem = &mem;
+    cpu.ctask = 14;
+    cpu.task_tpc[14] = 0;
+    cpu.TIOA = 010;
+    cpu.task_tioa[14] = 010;
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(dev_state.writes == 1, "writes=%d (expected 1)", dev_state.writes);
+    EXPECT(dev_state.last_write == 0x0005,
+           "last_write = 0x%X (expected 0x0005)", dev_state.last_write);
+    EXPECT(mem.last_fault == DM_FAULT_NONE,
+           "slow-IO Output_ RM issued memory fault %d", (int)mem.last_fault);
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_output_rm_store_shape_routes_slow_io\n");
+    return 0;
+}
+
+static int test_output_iostore_shape_routes_slow_io(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025;  mc.alufm_present[0] = 1;  /* B */
+
+    mc.rm[1] = 0x0005;
+    mc.rm_present[1] = 1;
+    mc.im[0] = make_uinstr(/*rstk=*/1, /*aluf=*/0, /*bsel=*/1, /*lc=*/0,
+                           /*asel=*/1, 0, /*ff=*/0100, jcn_local(0));
+    mc.im_present[0] = 1;
+    mc.image_to_real[0] = 0;
+    mc.image_present[0] = 1;
+    mc.n_instructions = 1;
+
+    static dorado_io io;
+    dorado_io_init(&io);
+    static echo_dev dev_state;
+    memset(&dev_state, 0, sizeof dev_state);
+    static const dorado_io_device echo_device = {
+        .read = echo_read,
+        .write = echo_write,
+        .attention = NULL,
+        .ctx = &dev_state,
+        .name = "echo"
+    };
+    dorado_io_register(&io, /*task=*/14, /*tioa=*/010, &echo_device);
+
+    dorado_memory mem;
+    EXPECT(dorado_memory_init(&mem) == 0, "memory init failed");
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.io = &io;
+    cpu.mem = &mem;
+    cpu.ctask = 14;
+    cpu.task_tpc[14] = 0;
+    cpu.TIOA = 010;
+    cpu.task_tioa[14] = 010;
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(dev_state.writes == 1, "writes=%d (expected 1)", dev_state.writes);
+    EXPECT(dev_state.last_write == 0x0005,
+           "last_write = 0x%X (expected 0x0005)", dev_state.last_write);
+    EXPECT(mem.last_fault == DM_FAULT_NONE,
+           "slow-IO Output_ IOStore issued memory fault %d",
+           (int)mem.last_fault);
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_output_iostore_shape_routes_slow_io\n");
+    return 0;
+}
+
 static int test_tioa_small_constant_all_low_bits(void)
 {
     static dorado_microcode mc;
@@ -7576,6 +7685,8 @@ int main(void)
     rc |= test_reschedule_trap();
     rc |= test_slow_io_routing();
     rc |= test_output_t_store_shape_routes_slow_io();
+    rc |= test_output_rm_store_shape_routes_slow_io();
+    rc |= test_output_iostore_shape_routes_slow_io();
     rc |= test_tioa_small_constant_all_low_bits();
     rc |= test_carry_preserved_on_logical();
     rc |= test_alufmrw_bit_mapping();

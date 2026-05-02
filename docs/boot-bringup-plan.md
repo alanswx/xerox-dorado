@@ -1252,6 +1252,15 @@ Three styles of test, used at every phase:
   hard-boot path is not producing a useful Dorado boot stream from the
   mounted Spruce Alto T-300 pack, or because command/FIFO timing is still
   too approximate for the real sequence-PROM path.
+- 2026-05-01 `Output_ <source>` follow-up: slow-I/O output routing is
+  now generalized from the display-only `Output_ T` shape to no-LC
+  store-shaped outputs with arbitrary sources, including the
+  non-emulator IOStore decode. Unit regressions cover `T`, `RM/STK`,
+  and IOStore-shaped output. A 70M disk trace still shows only
+  `DiskControl` outputs `0400`/`0100`, not `0005`, so the next task is
+  to map the compiled PilotDisk `Output_ KCmmd` sequence and determine
+  whether it is skipped/revoked or still decoded with the wrong TIOA or
+  source fields.
 - 2026-05-01 display/map follow-up: `DORADO_FAULT_TRACE=1` now records
   non-emulator memory-faulting task/ref/VA lines
   (`DORADO_FAULT_TRACE=all` includes task 0), and the final probe output

@@ -1392,6 +1392,18 @@ still either correct command/FIFO timing for the real sequence-PROM
 path or a known-good Dorado boot pack rather than the Spruce Alto T-300
 validation pack.
 
+Follow-up after `4c7ba86`: the CPU slow-I/O shim now routes no-LC
+store-shaped outputs for any source, including non-emulator `IOStore`
+decode, with regressions for `Output_ T`, `Output_ RM/STK`, and the
+IOStore-shaped case. This is the hardware-correct direction for
+source-level `Output_ <source>` forms, but it did **not** make the
+loaded boot trace emit `O10:0005`; the only DiskControl outputs still
+seen in a 70M disk trace are `0400` and `0100`. The next disk debug
+step is to identify the compiled instruction(s) corresponding to
+PilotDisk's `Output_ KCmmd, Call[UpdateSector]` and confirm whether
+they are skipped, revoked as "not in time", or using a TIOA/source
+shape we still decode incorrectly.
+
 2026-05-01 Ethernet bootstrap pass: added `dorado/include/ethernet.h`,
 `dorado/src/ethernet.c`, and `tests/test_ethernet.c`, plus device-level
 `IOAtten` callbacks in the slow-I/O table. `DORADO_BOOT_ETHERNET=1` is

@@ -2507,14 +2507,13 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
         dorado_ref_kind kind = decode_ref_kind(u, io_task);
         if (kind != DM_REF_NONE) {
             /* MicroD's `Output_ <source>` form appears in display and disk
-             * task code as an alternate-source store-shaped instruction,
-             * but source listings make clear it drives the slow-I/O bus,
-             * not main storage. The real store forms that write memory also
-             * load DBuf; in the decoded fields used here, the observed
-             * `Output_ T` shape has no destination load. Route that narrow
-             * form to the registered TIOA device before issuing a spurious
-             * memory store. */
-            if (kind == DM_REF_STORE && u->asel == 2 && u->lc == 0 &&
+             * task code as a store-shaped instruction with no destination
+             * load. Source listings make clear it drives the slow-I/O bus,
+             * not main storage; real stores that write memory also load
+             * DBuf. Route no-LC stores to a registered TIOA device before
+             * issuing a spurious memory store. */
+            if ((kind == DM_REF_STORE || kind == DM_REF_IOSTORE) &&
+                u->lc == 0 &&
                 cpu->io &&
                 dorado_io_has_write(cpu->io, cpu->ctask,
                                     (uint8_t)cpu->TIOA)) {
