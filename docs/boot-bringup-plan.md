@@ -1415,6 +1415,22 @@ has an important correction from `AEm0.mc`: it masks `DoneStatus`
 (`07400`) first, then treats the low byte as error bits, so a shimmed
 successful read must write `07400`, not `07401`.
 
+2026-05-02 disk trace update: `tests/test_cpu` now keeps the
+`DORADO_DISK_TRACE` buffer as a last-N ring instead of only the first
+8192 samples. This makes the late loaded-world disk loop visible. The
+current late trace is task 14 in the Alto disk loop/status path
+(`AEmu.mb` `AltoLoop`/`Read1Muff`/`Read20Muffs` region after relocation),
+not in a data-transfer loop: `fifo reads=0`, `fifo writes=0`,
+`DiskControl=0400/0100` setup values, and no `DiskData` reads. The
+temporary first-sector shim was made MDS-aware (`ADefs.mc` says Alto
+`IOBR` is `MDS`, BR `036`), but it still does not fire in the default
+run; final MDS low-core `[0431..0440]` and `[0521..0523]` are already
+zero. This suggests the DSK task is consuming/clearing the AEmu command
+before the harness shim sees it, or the command handoff is not being
+posted where the current probe expects. Next step: trace the memory
+stores to MDS `0431..0440`/`0521..0523` and the `AltoLoop` fetch that
+decides whether to branch to `DoACmmd`.
+
 These are weeks-of-work each, in rough order of effort:
 
 | Phase | Effort | Dependency      |

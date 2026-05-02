@@ -1459,3 +1459,17 @@ Task-cycle counts show AWT only ran 31 cycles and DWT 1 cycle; low-core
 word tasks, but software has not yet installed a display control block.
 Continue with the AEmu disk/status `KWait` visibility problem rather
 than adding more framebuffer rendering behavior.
+
+2026-05-02 disk trace ring / AEmu handoff update: the disk trace in
+`tests/test_cpu.c` now retains the last 8192 samples, so late
+loaded-world disk behavior is visible instead of only the initial Disk
+RAM setup. The late 80M trace is task 14 looping through the Alto disk
+status/sector path (`AltoLoop`, `Read1Muff`, `Read20Muffs` after EB
+relocation). It does not reach a `DiskData` transfer; `fifo reads=0`,
+`fifo writes=0`, and the display remains blank because `DAStart` is
+zero. The first-sector shim now checks absolute low memory plus Alto
+MDS (`BR36`) and `BR31`, but it still reports `alto-boot shims=0`;
+final MDS `[0431..0440]` and `[0521..0523]` are zero. The likely next
+debugging target is the command-handoff edge: watch stores to MDS
+`0431..0440`/`0521..0523` and the DSK task fetch path that should
+notice a nonzero command pointer and branch to `DoACmmd`.

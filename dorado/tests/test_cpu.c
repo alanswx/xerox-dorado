@@ -390,12 +390,35 @@ static int service_alto_disk_boot_shim(dorado_memory *mem,
     if (!mem || !pack || !pack->sectors) return 0;
 
     /* AEmu's Alto disk boot builds a legacy Alto command block at
-     * 0431 and posts its pointer in 0521.  Until the Alto/Dorado disk
-     * task is complete, satisfy just that first boot-sector read so we
-     * can keep CPU/display bring-up moving. */
-    if (!force_kwait && dorado_storage_at_va(mem, 0521u) != 0431u) return 0;
-    if (!force_kwait && dorado_storage_at_va(mem, 0433u) != 044000u) return 0;
-    if (dorado_storage_at_va(mem, 0432u) & 07400u) return 0;
+     * 0431 and posts its pointer in 0521, relative to MDS/IOBR in
+     * Alto mode.  Until the Alto/Dorado disk task is complete, satisfy
+     * just that first boot-sector read so CPU/display bring-up can keep
+     * moving. */
+    uint32_t bases[] = {
+        0,
+        dorado_br_get(mem, 036),  /* MDS and Alto IOBR per ADefs.mc. */
+        dorado_br_get(mem, 031),
+    };
+    uint32_t base = 0;
+    int found = force_kwait ? 1 : 0;
+    if (!force_kwait) {
+        for (size_t i = 0; i < sizeof bases / sizeof bases[0]; i++) {
+            uint32_t b = bases[i] & 0x0FFFFFFFu;
+            int duplicate = 0;
+            for (size_t j = 0; j < i; j++) {
+                if ((bases[j] & 0x0FFFFFFFu) == b) duplicate = 1;
+            }
+            if (duplicate) continue;
+            if (dorado_storage_at_va(mem, b + 0521u) == 0431u &&
+                dorado_storage_at_va(mem, b + 0433u) == 044000u) {
+                base = b;
+                found = 1;
+                break;
+            }
+        }
+        if (!found) return 0;
+    }
+    if (dorado_storage_at_va(mem, base + 0432u) & 07400u) return 0;
 
     if (boot_head < 0) boot_head = 0;
     if (boot_head >= pack->geometry.heads) {
@@ -405,20 +428,20 @@ static int service_alto_disk_boot_shim(dorado_memory *mem,
     if (!s) return 0;
 
     for (int i = 0; i < DORADO_DISK_HEADER_WORDS; i++) {
-        store_boot_va(mem, 0402u + (uint32_t)i, s->header[i]);
+        store_boot_va(mem, base + 0402u + (uint32_t)i, s->header[i]);
     }
     for (int i = 0; i < DORADO_DISK_LABEL_WORDS; i++) {
-        store_boot_va(mem, 0404u + (uint32_t)i, s->label[i]);
+        store_boot_va(mem, base + 0404u + (uint32_t)i, s->label[i]);
     }
     for (int i = 0; i < DORADO_DISK_DATA_WORDS; i++) {
-        store_boot_va(mem, 0001u + (uint32_t)i, s->data[i]);
+        store_boot_va(mem, base + 0001u + (uint32_t)i, s->data[i]);
     }
 
     /* AEm0.mc KWait checks DoneStatus (07400) and then treats the low
      * byte as error bits. A successful first-sector read is done with
      * no low-byte errors. */
-    store_boot_va(mem, 0432u, 07400u);
-    store_boot_va(mem, 0521u, 0);
+    store_boot_va(mem, base + 0432u, 07400u);
+    store_boot_va(mem, base + 0521u, 0);
     return 1;
 }
 
@@ -2879,6 +2902,8 @@ static int probe_full_boot_with_bootstrap(void)
         uint16_t storage_after_mar;
     } disk_trace[8192];
     int disk_trace_n = 0;
+    int disk_trace_head = 0;
+    int disk_trace_total = 0;
     int disk_trace_armed = 0;
     struct loadram_trace_sample {
         uint64_t cycle;
@@ -3242,6 +3267,8 @@ static int probe_full_boot_with_bootstrap(void)
                 if (disk_trace_enabled) {
                     disk_trace_armed = 1;
                     disk_trace_n = 0;            /* focus on loaded-world disk code */
+                    disk_trace_head = 0;
+                    disk_trace_total = 0;
                 }
             }
         }
@@ -3269,6 +3296,8 @@ static int probe_full_boot_with_bootstrap(void)
             if (disk_trace_enabled) {
                 disk_trace_armed = 1;
                 disk_trace_n = 0;
+                disk_trace_head = 0;
+                disk_trace_total = 0;
             }
         }
         int is_key_trace =
@@ -3302,6 +3331,8 @@ static int probe_full_boot_with_bootstrap(void)
             if (pre_pc == 07140) {
                 disk_trace_armed = 1;
                 disk_trace_n = 0;
+                disk_trace_head = 0;
+                disk_trace_total = 0;
                 if (boot_identity_map_shims == 0) {
                     map_boot_probe_bank(&mem, 0, 256);
                     boot_identity_map_shims++;
@@ -3423,8 +3454,7 @@ static int probe_full_boot_with_bootstrap(void)
         }
         if (disk_trace_focus == 4) {
             is_focused_disk_pc =
-                (pre_pc >= 05600 && pre_pc <= 05665) ||
-                (pre_pc >= 05740 && pre_pc <= 05755) ||
+                (pre_pc >= 05540 && pre_pc <= 05755) ||
                 pre_pc == 03500;
         }
         if (disk_trace_focus) is_disk_code_pc = is_focused_disk_pc;
@@ -3432,7 +3462,6 @@ static int probe_full_boot_with_bootstrap(void)
             disk_trace_enabled &&
             (disk_trace_armed || ether_loaded_world_cycle != 0) &&
             initial_substituted && is_imfetch &&
-            disk_trace_n < (int)(sizeof disk_trace / sizeof disk_trace[0]) &&
             ((pre_task == DORADO_DISK_TASK && is_disk_code_pc) ||
              (pre_task == 0 &&
               (ether_loaded_world_cycle != 0
@@ -3775,7 +3804,11 @@ static int probe_full_boot_with_bootstrap(void)
             lt->mcr_after = dorado_mcr_get(&mem);
         }
         if (is_disk_trace) {
-            struct disk_trace_sample *dt = &disk_trace[disk_trace_n++];
+            int cap = (int)(sizeof disk_trace / sizeof disk_trace[0]);
+            struct disk_trace_sample *dt = &disk_trace[disk_trace_head];
+            disk_trace_head = (disk_trace_head + 1) % cap;
+            if (disk_trace_n < cap) disk_trace_n++;
+            disk_trace_total++;
             dt->cycle = bb.cycles;
             dt->task = pre_task;
             dt->pc = pre_pc;
@@ -3847,6 +3880,13 @@ static int probe_full_boot_with_bootstrap(void)
             seed_boot_keyboard_from_display(&mem, &display);
             keyboard_seed_count++;
         }
+        if (ether_loaded_world_cycle && alto_disk_boot_shims == 0 &&
+            service_alto_disk_boot_shim(&mem, &disk_pack,
+                                        alto_disk_boot_head,
+                                        cpu.ctask == 0 &&
+                                            cpu.real_PC == 01017)) {
+            alto_disk_boot_shims++;
+        }
         service_boot_disk(&cpu, &disk, bb.cycles,
                           &disk_sector_ticks, &disk_wakeups);
         if (initial_substituted) {
@@ -3868,13 +3908,6 @@ static int probe_full_boot_with_bootstrap(void)
                     ethernet_wakeups++;
                 }
             }
-        }
-        if (ether_loaded_world_cycle && alto_disk_boot_shims == 0 &&
-            service_alto_disk_boot_shim(&mem, &disk_pack,
-                                        alto_disk_boot_head,
-                                        cpu.ctask == 0 &&
-                                            cpu.real_PC == 01017)) {
-            alto_disk_boot_shims++;
         }
         if (initial_substituted && bb.cycles >= next_display_scanline_cycle) {
             uint16_t mask = dorado_display_scanline_wakeup_mask(&display);
@@ -4657,9 +4690,13 @@ static int probe_full_boot_with_bootstrap(void)
         }
     }
     if (disk_trace_n > 0) {
-        printf("       Disk/BootTransfer trace:\n");
+        int cap = (int)(sizeof disk_trace / sizeof disk_trace[0]);
+        int start = disk_trace_total < cap ? 0 : disk_trace_head;
+        printf("       Disk/BootTransfer trace last %d of %d samples:\n",
+               disk_trace_n, disk_trace_total);
         for (int i = 0; i < disk_trace_n; i++) {
-            const struct disk_trace_sample *dt = &disk_trace[i];
+            const struct disk_trace_sample *dt =
+                &disk_trace[(start + i) % cap];
             char dis[160] = "";
             if (dt->pc < IM_SIZE && mc.im_present[dt->pc]) {
                 dorado_format(&mc.im[dt->pc], dis, sizeof dis);
@@ -4846,6 +4883,20 @@ static int probe_full_boot_with_bootstrap(void)
                        dorado_storage_at_va(&mem, iobr + 0431u + i));
             }
             printf("\n");
+            {
+                uint32_t mds = dorado_br_get(&mem, 036);
+                printf("       Alto MDS disk words: [0431..0440]=");
+                for (uint32_t i = 0; i < 8; i++) {
+                    printf("%s%04X", (i == 0) ? "" : " ",
+                           dorado_storage_at_va(&mem, mds + 0431u + i));
+                }
+                printf(" [0521..0523]=");
+                for (uint32_t i = 0; i < 3; i++) {
+                    printf("%s%04X", (i == 0) ? "" : " ",
+                           dorado_storage_at_va(&mem, mds + 0521u + i));
+                }
+                printf("\n");
+            }
         }
     }
     printf("       ALUFM after run:");
