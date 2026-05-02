@@ -964,10 +964,12 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                     mc_w->ifum_present[addr] = 1;
                 }
                 return pd;
-            case 6: /* IFUReset — clear IFU pipeline state. With no
-                     * pipeline yet, just reset our addressing regs. */
+            case 6: /* IFUReset — clear IFU pipeline state and load the
+                     * IFU test-control register with 1 (HM §8.3), which
+                     * disables junk wakeups in the normal non-test state. */
                 cpu->ifu_insset = 0;
                 cpu->ifu_opcode = 0;
+                junk_timer_ifutest_control(cpu, DORADO_B15_MASK);
                 return pd;
             case 7: /* BrkIns ← B (HM §4.10). Opcode ← B[0:7] and set
                      * BrkPending; the next IFU dispatch will trap to

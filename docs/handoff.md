@@ -24,7 +24,8 @@ you don't repeat them.
   BootMem,
   BootEmulator's first-64K clear loop, display/disk init, and the
   100 ms RTClock wait after MapBufBusy, Pipe5, Config, ALU one-bit
-  shift, memory-ref FF branch, `Store←T` A/Mar, and Junk timer fixes.
+  shift, memory-ref FF branch, `Store←T` A/Mar, Junk timer, and
+  IFUReset/IFUTest fixes.
   The full probe mounts `spruce-server.dsk300` when present. Because
   the DDC terminal back-channel is not modeled yet, the probe forces
   boot keys up and redirects the remaining false `GotBootKey` case to
@@ -54,7 +55,12 @@ you don't repeat them.
   display is waiting on software/disk progress rather than failing to
   render FIFO data. The latest disk trace showed Pilot DriveTag words
   like `0x08f0`; bit `0x0800` is KSelect bookkeeping, so DriveTag
-  subsector-count decode now masks to the real tag-bus field.
+  subsector-count decode now masks to the real tag-bus field. A 100M
+  full-boot disk trace also proved `Read20Muffs` exits correctly:
+  `KTemp0` shifts through `0x8000`, `ALU<0` latches, and the
+  conditional branch exits at `0o6605`. The remaining disk question is
+  why the boot path keeps re-entering hard/status handling against the
+  Spruce pack.
 - **Repo:** `/Users/alans/Documents/development/Dorado`
 - **Most useful entry points to read:** `CLAUDE.md` (project mission),
   `dorado/CLAUDE.md` (code-side guide), `docs/INDEX.md` (doc map).
@@ -1365,6 +1371,26 @@ reset. `DORADO_BOOT_BUDGET=120000000 DORADO_ETHER_BOOT_IMAGE=../chm/microcode/Al
 writes `/tmp/dorado_direct_eb.pgm` at frame 158 and finishes with no
 memory faults, but the image is still all white (`unique=1`,
 `nonwhite=0`) because display fast-I/O fetches remain `0`.
+
+2026-05-01 IFU/Junk + disk-loop follow-up: CHM source copies were added
+under `chm/doradomicrocode/doradomicrocodesources/Junk.mc!1` and
+`chm/dorado/expanded/BootstrapSources.dm/InitialJunk.mc`. `InitialJunk`
+confirms the early JNK task just acknowledges the junk TW and increments
+RTC counters. HM §8.3 says `IFUReset` loads `IFUTest` with 1; in the
+emulator that means setting Dorado bit 15 (`0x0001` in C-LSB layout),
+which disables the optional junk timer. Implementing that side effect
+stopped the 30M probe from being stolen by task 2/JNK at AEmu
+`NotReady`.
+
+The later 100M full-boot disk trace reached task 14 `Read20Muffs`
+many times, but it is not an infinite flag-shift bug. In the traced
+loop, `KTemp0` advances `0001, 0002, ... 4000, 8000`, the next
+instruction latches `ALU<0`, and the branch exits at `0o6605`.
+Current status is therefore: controller/status scanning works well
+enough to return to PilotDisk error handling; the missing piece is
+still either correct command/FIFO timing for the real sequence-PROM
+path or a known-good Dorado boot pack rather than the Spruce Alto T-300
+validation pack.
 
 2026-05-01 Ethernet bootstrap pass: added `dorado/include/ethernet.h`,
 `dorado/src/ethernet.c`, and `tests/test_ethernet.c`, plus device-level

@@ -2740,6 +2740,7 @@ static int probe_full_boot_with_bootstrap(void)
         uint8_t ifu_warmup_before, ifu_warmup_after;
         uint8_t tasking_on_before, tasking_on_after;
         uint8_t resume_delay_before, resume_delay_after;
+        uint16_t cnt_before, cnt_after;
         uint16_t shc_before, shc_after;
         uint16_t dispatch_or_before, dispatch_or_after;
         uint16_t dispatch_pending_before, dispatch_pending_after;
@@ -3553,6 +3554,7 @@ static int probe_full_boot_with_bootstrap(void)
             post_eb_step_trace.ifu_warmup_before = cpu.ifu_warmup;
             post_eb_step_trace.tasking_on_before = cpu.tasking_on;
             post_eb_step_trace.resume_delay_before = cpu.tasking_resume_delay;
+            post_eb_step_trace.cnt_before = cpu.Cnt;
             post_eb_step_trace.shc_before = cpu.ShC;
             post_eb_step_trace.dispatch_or_before = cpu.dispatch_or;
             post_eb_step_trace.dispatch_pending_before = cpu.dispatch_pending;
@@ -3603,6 +3605,7 @@ static int probe_full_boot_with_bootstrap(void)
                 post_eb_step_trace.ifu_warmup_after = cpu.ifu_warmup;
                 post_eb_step_trace.tasking_on_after = cpu.tasking_on;
                 post_eb_step_trace.resume_delay_after = cpu.tasking_resume_delay;
+                post_eb_step_trace.cnt_after = cpu.Cnt;
                 post_eb_step_trace.shc_after = cpu.ShC;
                 post_eb_step_trace.dispatch_or_after = cpu.dispatch_or;
                 post_eb_step_trace.dispatch_pending_after = cpu.dispatch_pending;
@@ -3667,6 +3670,7 @@ static int probe_full_boot_with_bootstrap(void)
             post_eb_step_trace.ifu_warmup_after = cpu.ifu_warmup;
             post_eb_step_trace.tasking_on_after = cpu.tasking_on;
             post_eb_step_trace.resume_delay_after = cpu.tasking_resume_delay;
+            post_eb_step_trace.cnt_after = cpu.Cnt;
             post_eb_step_trace.shc_after = cpu.ShC;
             post_eb_step_trace.dispatch_or_after = cpu.dispatch_or;
             post_eb_step_trace.dispatch_pending_after = cpu.dispatch_pending;
@@ -4441,7 +4445,8 @@ static int probe_full_boot_with_bootstrap(void)
                        (unsigned long long)pt->cycle, pt->task, pt->pc);
                 if (sym) printf(":%s", sym);
                 printf(" ->0o%o T=%04X->%04X Q=%04X->%04X "
-                       "L=%04X->%04X ShC=%04X->%04X RB=%u->%u MB=%u->%u "
+                       "L=%04X->%04X Cnt=%04X->%04X ShC=%04X->%04X "
+                       "RB=%u->%u MB=%u->%u "
                        "IFU a=%u->%u w=%u->%u PCF=0o%o->0o%o "
                        "PCX=0o%o->0o%o tasking=%u/%u->%u/%u "
                        "disp=%04X/%04X->%04X/%04X "
@@ -4451,6 +4456,7 @@ static int probe_full_boot_with_bootstrap(void)
                        pt->t_before, pt->t_after,
                        pt->q_before, pt->q_after,
                        pt->link_before, pt->link_after,
+                       pt->cnt_before, pt->cnt_after,
                        pt->shc_before, pt->shc_after,
                        pt->rbase_before, pt->rbase_after,
                        pt->membase_before, pt->membase_after,
@@ -6527,6 +6533,36 @@ static int test_ifutest_junk_timer_polarity(void)
     return 0;
 }
 
+static int test_ifureset_disables_junk_timer(void)
+{
+    dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;   /* B */
+
+    /* IFUReset is FA=1 FB=3 FC=6. HM §8.3 says it loads IFUTest with
+     * 1; in our C-LSB representation that sets Dorado bit 15 and
+     * disables periodic junk wakeups. */
+    mc.im[0] = make_uinstr(0, 0, 0, 0, 6, 0, 0136, jcn_local(1));
+    mc.im_present[0] = 1;
+    mc.im[1] = make_uinstr(0, 0, 0, 0, 6, 0, 0077, jcn_local(1));
+    mc.im_present[1] = 1;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.junk_tw_enabled = 1;
+    cpu.junk_tw_countdown = 1;
+    cpu.wakeup_pending = (uint16_t)(1u << 2);
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "IFUReset step");
+    EXPECT(cpu.junk_tw_enabled == 0,
+           "IFUReset should disable junk timer");
+    EXPECT((cpu.wakeup_pending & (1u << 2)) == 0,
+           "IFUReset should dismiss pending junk wakeup");
+
+    printf("PASS  test_ifureset_disables_junk_timer\n");
+    return 0;
+}
+
 /*
  * SubTask (HM page 88) — when a non-emulator task is woken with
  * SubTask=N, RBase[2:3] and MemBase[2:3] get OR'd with N. So an
@@ -7528,6 +7564,7 @@ int main(void)
     rc |= test_wakeup_ff_function();
     rc |= test_junk_timer_wakeup();
     rc |= test_ifutest_junk_timer_polarity();
+    rc |= test_ifureset_disables_junk_timer();
     rc |= test_subtask_or_rm();
     rc |= test_ifum_load_read();
     rc |= test_ifu_dispatch_synthetic();

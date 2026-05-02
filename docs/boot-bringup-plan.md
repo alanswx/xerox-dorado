@@ -1238,6 +1238,20 @@ Three styles of test, used at every phase:
   the disk/status/muffler path (`Read1Muff`, `Read20Muffs`,
   `SeekWait`, `WaitForSector`) and any remaining memory-map side effects
   those routines expect.
+- 2026-05-01 IFUReset/JNK follow-up: `Junk.mc!1` and
+  `InitialJunk.mc` are now saved locally under `chm/`. The source and
+  HM §8.3 agree that `IFUReset` loads `IFUTest` with 1. In the C word
+  layout this is Dorado bit 15 (`0x0001`), which disables optional junk
+  timer wakeups. Adding that side effect prevents the 30M bring-up probe
+  from being preempted into the JNK/AEmu NotReady path.
+- 2026-05-01 disk-loop correction: the suspected `Read20Muffs`
+  infinite loop is not the current bug. A 100M full-boot trace shows
+  `KTemp0` shifting through `0x8000`, `ALU<0` latching on the following
+  instruction, and the conditional branch exiting at `0o6605`. The disk
+  task is repeatedly returning to status/error handling because the
+  hard-boot path is not producing a useful Dorado boot stream from the
+  mounted Spruce Alto T-300 pack, or because command/FIFO timing is still
+  too approximate for the real sequence-PROM path.
 - 2026-05-01 display/map follow-up: `DORADO_FAULT_TRACE=1` now records
   non-emulator memory-faulting task/ref/VA lines
   (`DORADO_FAULT_TRACE=all` includes task 0), and the final probe output

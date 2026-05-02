@@ -190,6 +190,14 @@ FIFO data-pop code: either `KCmmdInTime` is being skipped/revoked before
 the controller sees it, or one more compiled `Output_ <source>` shape is
 still not routed through slow I/O.
 
+Full-boot trace correction (2026-05-01): the `Read20Muffs` helper is
+not currently stuck. Tracing the `0o6600..0o6612` loop shows the flag
+word in `KTemp0` shifting left until it reaches `0x8000`; the next
+instruction latches `ALU<0`, and the `ALU>=0` branch exits at `0o6605`
+as `DiskSubrs.mc!1` intends. Repeated appearances at `0o6604` in a
+budget-limited final state usually mean the disk task has re-entered
+status scanning, not that the loop's ALU/branch timing is broken.
+
 ## TIOA register map (HM §9 page 92)
 
 All on task 14₈. Other tasks **must not** select these TIOA addresses
