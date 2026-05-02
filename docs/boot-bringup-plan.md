@@ -1599,6 +1599,14 @@ target: loaded-world software/IFU handoff and the exact path that
 should install a display DCB or request a second-stage Alto/Mesa boot
 payload.
 
+2026-05-02 EB candidate check: injecting
+`chm/dorado/InitialAltoMesaDorado.eb!3` is not a substitute for the
+missing second-stage payload. It reports `start=0o406`, fingerprints
+almost exactly as `Initial.mb`, runs only a few post-LoadRam task
+cycles, and posts no display DCB or Alto disk command. Keep using the
+plain `AltoMesaDorado` EB files for the current loaded-world path, and
+treat the Initial-prefixed EB files as boot stages, not OS payloads.
+
 These are weeks-of-work each, in rough order of effort:
 
 | Phase | Effort | Dependency      |

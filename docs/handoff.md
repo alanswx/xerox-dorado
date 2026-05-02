@@ -1640,3 +1640,11 @@ fingerprint and counters as `chm/microcode/AltoMesaDorado.eb!1`.
 Current blocker is therefore no longer keyboard visibility; it is the
 loaded software/IFU handoff or missing second-stage boot payload that
 should create a display DCB or post an Alto disk command.
+
+2026-05-02 Initial-prefixed EB probe: `InitialAltoMesaDorado.eb!3`
+loads cleanly through the same injector but fingerprints as Initial
+microcode (`925/926` canonical Initial matches, `start=0o406`), not as
+the missing Alto/Mesa software payload. It produces no `VM 0521`
+command and no display DCB. Do not use the Initial-prefixed EB files as
+the next disk/display target except when explicitly testing Initial
+boot-stage behavior.
