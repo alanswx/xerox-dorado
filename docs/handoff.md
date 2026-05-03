@@ -1698,3 +1698,20 @@ also using `(DiskControl & 0xFF) != 0` as "transfer armed", so
 probe-only idle-sector-wakeup suppression. It now tests the four
 documented op fields instead. This should reduce false DSK wakeups while
 leaving real read/check/write commands wakeable.
+
+2026-05-02 CPU memory-form `Output<-B` correction: the next clean trace
+after removing the synthetic Format-RAM stream stopped at `pc=0o5751`,
+which disassembles to `DiskSubrs.mc:Read20MLoop`:
+`KTemp1_ (KTemp1)+1, Output_ KTemp1`. The compiled instruction has
+`ASEL=1`, `LC=RM/STK<-Pd`, and `FF=0036`; our earlier slow-I/O shim
+handled no-LC store/IOStore shapes but missed this narrow six-bit
+Table-11a `Output<-B` form under memory-reference ASELs. `cpu.c` now
+routes `FF&077 == 0036` to `dorado_io_write` and suppresses the false
+memory reference when the current task/TIOA has a registered writer.
+`test_output_b_memory_form_with_lc_routes_slow_io` covers the exact
+`Read20MLoop` shape. The focused CPU/full-boot probe now reports
+`Memory: faults=0`, reaches display slow-I/O activity, and writes
+`/tmp/dorado_boot_display.pgm`. Current late state is no longer the
+`Read20Muffs` CPU fault: task 0 is hot in the loaded Alto/Mesa path
+around `0o5073/0o5127/0o5175`, task 14 is still active in disk code, and
+display fast-I/O fetches remain zero.

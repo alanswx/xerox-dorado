@@ -190,6 +190,15 @@ FIFO data-pop code: either `KCmmdInTime` is being skipped/revoked before
 the controller sees it, or one more compiled `Output_ <source>` shape is
 still not routed through slow I/O.
 
+Follow-up (2026-05-02): one such missing compiled shape was found in
+`Read20Muffs`, not at the original `KCmmd` write. `Read20MLoop` compiles
+`Output_ KTemp1` as `ASEL=1`, `LC=RM/STK<-Pd`, `FF=0036`; the CPU now
+treats the low six FF bits as `Output<-B` for memory-reference ASELs and
+routes it to the current DiskMuff TIOA instead of issuing a storage
+reference. This removed the `pc=0o5751` memory fault. The disk path still
+needs the later command/DCB handoff debug because display fast-I/O fetch
+activity remains zero.
+
 Full-boot trace correction (2026-05-01): the `Read20Muffs` helper is
 not currently stuck. Tracing the `0o6600..0o6612` loop shows the flag
 word in `KTemp0` shifting left until it reaches `0x8000`; the next

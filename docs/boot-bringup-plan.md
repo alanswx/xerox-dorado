@@ -1760,6 +1760,27 @@ The previous low-byte test considered `0100` (`BlockTillIndex`) a
 transfer command, which kept idle sector/index wakeups noisy after the
 Format RAM load.
 
+CPU decode cleanup: the clean post-abort disk trace exposed a CPU
+slow-I/O decode bug rather than a new disk-controller gap. The
+`Read20Muffs` loop at `pc=0o5751` is source-level
+`KTemp1_ (KTemp1)+1, Output_ KTemp1`, compiled as `ASEL=1`,
+`LC=RM/STK<-Pd`, `FF=0036`. That is a memory-reference-shaped
+instruction carrying the narrow six-bit Table-11a `Output<-B` function.
+The emulator now routes `FF&077 == 0036` through the slow-I/O table and
+skips the false memory reference when a device is registered for the
+current task/TIOA. The regression is
+`test_output_b_memory_form_with_lc_routes_slow_io`.
+
+After this fix, the CPU/full-boot probe no longer reports the
+`task=14 pc=0o5751` memory fault. It runs with `Memory: faults=0`,
+shows substantial disk and display slow-I/O output, and writes a
+headless display snapshot at `/tmp/dorado_boot_display.pgm`. The
+remaining blocker has moved later: display fast-I/O `IOFetch` is still
+zero, task 0 is hot in the loaded Alto/Mesa path around
+`0o5073/0o5127/0o5175`, and task 14 remains active in disk code. Next
+work should follow the loaded software path that should either post
+usable disk work or install/activate a display DCB.
+
 These are weeks-of-work each, in rough order of effort:
 
 | Phase | Effort | Dependency      |

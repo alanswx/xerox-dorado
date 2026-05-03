@@ -465,6 +465,11 @@ static int ff_full_function_ok(const dorado_uinstr *u)
     return 1;
 }
 
+static int ff_is_output_b_memory_form(const dorado_uinstr *u)
+{
+    return ff_decode_ok(u) && u->asel <= 3 && ((u->ff & 077) == 0036);
+}
+
 /* HM Table 11a (FA=0 FB=0/1): "A[12:15] ← FF[4:7]" override. The
  * low nibble of the A-bus is replaced by FF[4:7] before the value
  * reaches the ALU.
@@ -721,6 +726,12 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                 break;
             case 075: /* TgetsMd */
                 return task_md(cpu);
+            case 036: /* Output ← B */
+                if (cpu->io) {
+                    dorado_io_write(cpu->io, cpu->ctask,
+                                    (uint8_t)cpu->TIOA, b);
+                }
+                break;
             default:
                 break;
             }
@@ -2603,6 +2614,12 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
         int io_task = (cpu->ctask != 0) ? 1 : 0;
         dorado_ref_kind kind = decode_ref_kind(u, io_task);
         if (kind != DM_REF_NONE) {
+            if (ff_is_output_b_memory_form(u) &&
+                cpu->io &&
+                dorado_io_has_write(cpu->io, cpu->ctask,
+                                    (uint8_t)cpu->TIOA)) {
+                goto memory_ref_done;
+            }
             /* MicroD's `Output_ <source>` form appears in display and disk
              * task code as a store-shaped instruction with no destination
              * load. Source listings make clear it drives the slow-I/O bus,
