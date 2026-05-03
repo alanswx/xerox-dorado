@@ -75,14 +75,14 @@ you don't repeat them.
   `DiskHardMicrocodeBoot`/`DoDiskBlock`, repeatedly finds sectors and
   streams disk records, and low-core through IOBR contains non-blank
   Alto display/disk data. It still does not boot Alto software or
-  display useful pixels: IFU arms remain zero, display `IOFetch`
-  remains zero, and the current decisive fault is task 0 fetching
-  `VA=D24FE1E` through map index `24FE`, whose real page is `4057`
-  just beyond the modeled `RealPages=4000` storage. `InitMem.mc` says
-  `GetEmulatorMapParams` supplies the Alto MDS 64K virtual bank; our
-  current `EmuBRHiReg=0x0D24` drives BR36/37/30 and needs to be traced
-  against `AEm0.mc` and the compiled Mesa image before touching disk
-  again.
+  display useful pixels: IFU arms remain zero and display `IOFetch`
+  remains zero. The latest memory change raises the modeled machine
+  from one 64K-chip/4MW storage module to two modules because the
+  loaded Alto/Mesa world maps real page `4057`, which is just beyond
+  the old `RealPages=4000` ceiling but valid on an `8000`-page
+  two-module machine. Re-run the 140M natural Ethernet boot and check
+  whether the old `VA=D24FE1E` storage fault is gone; if it is, return
+  to the disk/status path and display-list progress.
 - **Repo:** `/Users/alans/Documents/development/Dorado`
 - **Most useful entry points to read:** `CLAUDE.md` (project mission),
   `dorado/CLAUDE.md` (code-side guide), `docs/INDEX.md` (doc map).

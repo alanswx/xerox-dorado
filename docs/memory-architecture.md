@@ -571,11 +571,14 @@ MemBase — see HM §6.4.
 
 - Storage modules are fixed real-address ranges, not interleaved. HM
   page 59: a module stores 256K or 1M 64-bit quadwords depending on
-  chip generation. The C model now reports one present 64K-chip/4MW
-  module. `EMemDefs.mc` defines `ChipSize` in memory-control bits
+  chip generation. The C model now reports two present 64K-chip/4MW
+  modules. This matches the loaded Alto/Mesa world reaching real page
+  `0x4057`, which is just beyond a one-module `0x4000` page machine
+  but valid on a two-module machine. `EMemDefs.mc` defines `ChipSize`
+  in memory-control bits
   `b12,b13` (C bits 3..2) and present-module bits as M0=`0200`,
   M1=`0100`, M2=`0040`, M3=`0020`; the C model reports
-  `ChipSize=3` plus M0 present. The backing store is 4MW. After this
+  `ChipSize=3` plus M0/M1 present. The backing store is 8MW. After this
   correction the EB direct-load probe gets sane initial config
   (`R400=0x0100`) and moves BR31/BR36/BR37 from `0x10000` to
   `0x20000`. The later `Mar=0x2FE1F` checkpoint is now mapped and

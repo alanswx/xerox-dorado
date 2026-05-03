@@ -1357,6 +1357,13 @@ Three styles of test, used at every phase:
   white (`unique=1`, `nonwhite=0`). The display renderer itself is
   not blank: `/tmp/test_dorado_display.png` and
   `/tmp/test_dorado_render.png` contain nonwhite unit-test pixels.
+- 2026-05-02 storage sizing update: the natural Ethernet-loaded
+  Alto/Mesa image reached a task-0 fetch through map index `0x24FE`
+  with `RP=0x4057`. That page is outside the previous one-module
+  `RealPages=0x4000` model but inside a two-module Dorado. The memory
+  model now defaults to two 64K-chip/4MW modules, reports M0+M1 in
+  `Config'`, and backs 8MW of storage so Initial's map can legally
+  cover the observed page range.
 - Direct LoadRam shortcut correction: `InitMem.mc` says warm-start
   setup assumes the first 64K of **real** memory contains the Alto
   memory, then maps the emulator's virtual bank onto it. The EB

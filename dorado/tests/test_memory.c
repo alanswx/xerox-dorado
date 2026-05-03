@@ -188,18 +188,18 @@ static int test_storage_bounds(void)
     /* Map the low VA and the high VA to physical words that would
      * alias if real addresses were masked by the installed size. */
     dorado_map_set(&mem, /*va_page=*/0,      /*rp=*/0,      0, 0);
-    dorado_map_set(&mem, dorado_map_index(0x400042), /*rp=*/0x4000, 0, 0);
+    dorado_map_set(&mem, dorado_map_index(0x800042), /*rp=*/0x8000, 0, 0);
 
     /* Store at low address, then try a high address that used to wrap
      * to the same physical word. Flush first so a cache hit cannot
      * hide the physical-storage boundary. */
     dorado_memory_ref(&mem, DM_REF_STORE, 0x42, 0xBEEF, 0);
     dorado_memory_ref(&mem, DM_REF_FLUSH, 0x42, 0, 0);
-    /* DM_STORAGE_WORDS = 4 MW = 0x400000. Phys 0x400042 is in an
-     * absent module for the default one-module config and must fault,
+    /* DM_STORAGE_WORDS = 8 MW = 0x800000. Phys 0x800042 is in an
+     * absent module for the default two-module config and must fault,
      * not wrap to storage[0x42]. */
     dorado_fault_kind f =
-        dorado_memory_ref(&mem, DM_REF_FETCH, 0x400042, 0, 0);
+        dorado_memory_ref(&mem, DM_REF_FETCH, 0x800042, 0, 0);
     EXPECT(f == DM_FAULT_STORAGE_ERROR,
            "out-of-range fetch fault = %d, expected storage error", (int)f);
     EXPECT(mem.md != 0xBEEF,

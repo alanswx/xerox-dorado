@@ -441,16 +441,15 @@ uint16_t dorado_memory_config_word(const dorado_memory *mem)
      *
      * The CPU reads Config' active-low, so this helper returns the
      * high-true internal value and cpu.c complements it for B←Config'.
-     * Report the 64K-chip configuration for the default 4MW backing
+     * Report the 64K-chip configuration for the default backing
      * store. InitMem.mc derives pages-per-module as 0400 << (2*T);
-     * T=3 gives 040000 256-word pages, matching one 4MW module.
+     * T=3 gives 040000 256-word pages, matching each 4MW module.
      */
     enum {
-        module_words = 4 * 1024 * 1024,
         chip_size_64kx1 = 3,
     };
 
-    size_t modules = mem->storage_words / module_words;
+    size_t modules = mem->storage_words / DM_STORAGE_MODULE_WORDS;
     if (modules == 0 && mem->storage_words != 0) modules = 1;
     if (modules > 4) modules = 4;
 

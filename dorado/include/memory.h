@@ -51,7 +51,9 @@ typedef enum {
 
 #define DM_BR_COUNT      32
 #define DM_PIPE_DEPTH    16
-#define DM_STORAGE_WORDS (4 * 1024 * 1024)   /* 4 MW = 8 MB */
+#define DM_STORAGE_MODULE_WORDS (4 * 1024 * 1024)  /* 4 MW = 8 MB */
+#define DM_STORAGE_MODULES_DEFAULT 2
+#define DM_STORAGE_WORDS (DM_STORAGE_MODULE_WORDS * DM_STORAGE_MODULES_DEFAULT)
 
 /*
  * Cache (HM §5.11). 4096-word cache organized as 64 rows × 4 ways
