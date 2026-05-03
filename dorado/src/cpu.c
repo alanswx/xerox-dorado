@@ -1340,6 +1340,22 @@ static int initmap_trace_enabled(void)
     return cached;
 }
 
+static int map_cpu_trace_index(uint32_t idx)
+{
+    static int cached = -2;
+    if (cached == -2) {
+        const char *env = getenv("DORADO_MAP_TRACE_INDEX");
+        if (env && env[0]) {
+            char *end = NULL;
+            unsigned long v = strtoul(env, &end, 0);
+            cached = (end && *end == '\0') ? (int)(v & 0x3FFFu) : -1;
+        } else {
+            cached = -1;
+        }
+    }
+    return cached >= 0 && idx == (uint32_t)cached;
+}
+
 static void latch_task_md_from_memory(dorado_cpu *cpu)
 {
     if (cpu->mem) {
@@ -2630,6 +2646,21 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                                        (int)cpu->ctask, subtask);
             if (ref_fault == DM_FAULT_NONE && ref_kind_loads_md(kind)) {
                 latch_task_md_from_memory(cpu);
+            }
+            if (kind == DM_REF_MAP && map_cpu_trace_index(dorado_map_index(va))) {
+                fprintf(stderr,
+                        "MAP_CPU cyc=%llu task=%o pc=0o%o br=%07X mar=%04X "
+                        "va=%07X idx=%04X data=%06o tioa=%03o "
+                        "T=%04X A=%04X B=%04X Pd=%04X Link=0o%o "
+                        "rb=%02o mb=%02o sub=%o iw=%06o/%06o/%06o\n",
+                        (unsigned long long)cpu->cycles, cpu->ctask & 017,
+                        cpu->real_PC, br & 0x0FFFFFFFu, mar,
+                        va & 0x0FFFFFFFu, dorado_map_index(va),
+                        data & 0177777, cpu->TIOA & 0377,
+                        cpu->T, a, b, pd, cpu->Link,
+                        cpu->RBase & 017, membase & 037, subtask & 3,
+                        u->iw0 & 0777777, u->iw1 & 0777777,
+                        u->iw2 & 0777777);
             }
             {
                 int lowcore_mode = lowcore_trace_mode();
