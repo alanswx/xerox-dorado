@@ -17,6 +17,22 @@ static int map_trace_enabled(void)
     return cached;
 }
 
+static int map_trace_index_filter(uint32_t idx)
+{
+    static int cached = -2;
+    if (cached == -2) {
+        const char *env = getenv("DORADO_MAP_TRACE_INDEX");
+        if (env && env[0]) {
+            char *end = NULL;
+            unsigned long v = strtoul(env, &end, 0);
+            cached = (end && *end == '\0') ? (int)(v & (DM_MAP_ENTRIES - 1)) : -1;
+        } else {
+            cached = -1;
+        }
+    }
+    return cached >= 0 && idx == (uint32_t)cached;
+}
+
 static int fault_trace_mode(void)
 {
     static int cached = -1;
@@ -941,7 +957,8 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
         e->dirty = (tioa >> 6) & 1;
         e->ref   = 0;
         if (map_trace_enabled() &&
-            (idx < 2 || idx == 0x52 || idx == 0x56 ||
+            (map_trace_index_filter(idx) ||
+             idx < 2 || idx == 0x52 || idx == 0x56 ||
              idx == 0xFF || idx == 0x200 || idx == 0x201 ||
              idx == 0x2FE || idx == 0x2FF)) {
             fprintf(stderr,
