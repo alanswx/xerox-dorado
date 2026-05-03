@@ -1735,6 +1735,31 @@ disk controller is live (`rd_fifo_tw=1`, many DiskMuff/DiskTag accesses).
 The next blocker is not storage size: the disk task is still not reading
 `DiskData`, and display `IOFetch` remains zero.
 
+2026-05-02 DiskControl abort fix: a tight 107.2M trace captured the
+controller still `Active` while Initial was attempting the `0400`/`0100`
+DiskControl reset and Format RAM load sequence. HM page 97 says an
+output to `DiskControl` while `Active` clears the active sector
+transfer; the following output loads the new register value. The model
+now implements that first abort edge instead of loading the control word
+immediately. Re-run the long disk trace and check whether the controller
+now reaches a real `KCmmd`/`DiskControl` read or check command before
+any synthetic FIFO stream starts.
+
+Follow-up: the abort edge now behaves correctly, but the remaining
+synthetic FIFO stream was caused by treating Format RAM word 4 (`0104`)
+as a transfer request even while `DiskControl` remained `0100`
+(`BlockTillIndex`, no block ops). That shortcut has been removed:
+sector-driven and muffler-polled read streams now require non-zero
+`DiskControl` op fields. The next useful trace should be cleaner: no
+read stream should appear unless the loaded disk microcode really
+outputs a read/check command.
+
+Probe harness cleanup: `service_boot_disk` now treats a transfer as
+armed only when one of the four `DiskControl` op fields is non-zero.
+The previous low-byte test considered `0100` (`BlockTillIndex`) a
+transfer command, which kept idle sector/index wakeups noisy after the
+Format RAM load.
+
 These are weeks-of-work each, in rough order of effort:
 
 | Phase | Effort | Dependency      |

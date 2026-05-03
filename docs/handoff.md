@@ -1669,3 +1669,32 @@ the missing Alto/Mesa software payload. It produces no `VM 0521`
 command and no display DCB. Do not use the Initial-prefixed EB files as
 the next disk/display target except when explicitly testing Initial
 boot-stage behavior.
+
+2026-05-02 DiskControl abort correction: after the full 16MW storage
+fix, a tight 107.2M disk trace showed Initial loading the format RAM
+while the emulated disk controller was still `Active` from an earlier
+read-stream shortcut. HM page 97 says a `DiskControl` output while
+`Active` aborts the current sector transfer; only the following output
+loads the control register. `dorado/src/disk.c` now models that first
+abort edge by clearing `Active`, the read stream, FIFO contents, and
+FIFO wakeup latches without loading the new control word or zeroing the
+Format RAM address. The next run target is to confirm whether this lets
+the subsequent `0400`/`0100` reset and Format RAM load leave the
+controller idle until the real `KCmmd` command is issued.
+
+2026-05-02 transfer-start correction: the follow-up 107.2M trace showed
+the abort edge worked (`0400` cleared `Active`/FIFO, `0100` then loaded
+normally), but the older bring-up shortcut still started a read stream
+at the first unblocked sector using only `EnableRun` plus Format RAM
+word 4 (`0104`). That is not the HM page 97 transfer-start rule. The
+sector helper and `RdFifoTW` muffler fallback now require non-zero
+`DiskControl` op fields before starting a synthetic stream, so the next
+trace should expose whether the loaded disk microcode ever emits the
+real read/check `DiskControl` command.
+
+2026-05-02 spindle-wakeup harness correction: `service_boot_disk` was
+also using `(DiskControl & 0xFF) != 0` as "transfer armed", so
+`DiskControl=0100` (`BlockTillIndex`, no block ops) prevented the
+probe-only idle-sector-wakeup suppression. It now tests the four
+documented op fields instead. This should reduce false DSK wakeups while
+leaving real read/check/write commands wakeable.

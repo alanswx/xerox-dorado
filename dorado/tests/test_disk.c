@@ -210,6 +210,51 @@ static int test_controller_io_routing(void)
     return 0;
 }
 
+/* test_diskcontrol_active_abort — HM page 97 says a DiskControl
+ * output while Active aborts the sector transfer; the next output
+ * loads the control register. */
+static int test_diskcontrol_active_abort(void)
+{
+    static dorado_io io;
+    dorado_io_init(&io);
+    static dorado_disk_controller ctl;
+    dorado_disk_controller_init(&ctl);
+    dorado_disk_controller_attach_to_io(&ctl, &io);
+
+    ctl.active = 1;
+    ctl.read_stream_active = 1;
+    ctl.read_stream_index = 7;
+    ctl.fifo_count = 3;
+    ctl.fifo_head = 3;
+    ctl.rd_fifo_tw = 1;
+    ctl.control = 0x0123;
+    ctl.format_ram_addr = 9;
+
+    dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKCONTROL,
+                    DORADO_DISK_CTRL_CLR_ENABLE_RUN);
+    EXPECT(ctl.active == 0, "active should clear on abort");
+    EXPECT(ctl.read_stream_active == 0, "stream should stop on abort");
+    EXPECT(ctl.fifo_count == 0, "FIFO should clear on abort");
+    EXPECT(ctl.rd_fifo_tw == 0, "RdFifoTW should clear on abort");
+    EXPECT(ctl.control == 0x0123,
+           "aborting output must not load control, got 0x%X", ctl.control);
+    EXPECT(ctl.format_ram_addr == 9,
+           "aborting output must not reset RAM addr, got %d",
+           ctl.format_ram_addr);
+
+    dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKCONTROL,
+                    DORADO_DISK_CTRL_BLOCK_TILL_INDEX);
+    EXPECT(ctl.control == DORADO_DISK_CTRL_BLOCK_TILL_INDEX,
+           "second output should load control, got 0x%X", ctl.control);
+    EXPECT(ctl.format_ram_addr == 0,
+           "second output should zero RAM addr, got %d",
+           ctl.format_ram_addr);
+    EXPECT(ctl.block_till_index == 1, "BlockTillIndex should set");
+
+    printf("PASS  test_diskcontrol_active_abort (abort then load)\n");
+    return 0;
+}
+
 /* test_drive_attach — attaching a pack flips the drive online. */
 static int test_drive_attach(void)
 {
@@ -533,6 +578,7 @@ int main(void)
     rc |= test_pack_create_t80();
     rc |= test_pack_save_load();
     rc |= test_controller_io_routing();
+    rc |= test_diskcontrol_active_abort();
     rc |= test_drive_attach();
     rc |= test_tag_decoder();
     rc |= test_advance_sector();

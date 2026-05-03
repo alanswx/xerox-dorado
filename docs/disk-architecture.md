@@ -216,7 +216,8 @@ or the disk controller will malfunction.
 ## DiskControl register (HM page 97)
 
 Output to `DiskControl` zeros the Format RAM address register so
-subsequent `DiskRam` writes start at index 0.
+subsequent `DiskRam` writes start at index 0, unless the controller is
+currently `Active` (see the abort rule below).
 
 | B-bits | Meaning                                                       |
 |--------|---------------------------------------------------------------|
@@ -247,13 +248,20 @@ commands rather than load IO data; to abort a transfer, load the
 control register *twice* (first load clears Active, second loads
 the new value).
 
+2026-05-02 correction: the emulator now honors the first half of this
+two-write abort rule. A `DiskControl` output while `Active` clears the
+active transfer, read stream, FIFO, and FIFO task-wakeup latches, and
+does not load the new control word or reset the Format RAM address.
+The following `DiskControl` output performs the normal load/reset.
+
 2026-05-02 EB bring-up note: the AltoMesa path loads the standard
 Format RAM table (`DiskRam[4] = 0104`, the read control tag command),
 sets `EnableRun`, then sits behind `BlockTillIndex` with
-`DiskControl = 0100`. Until the sequence PROM is fully modeled, the
-emulator treats a pending sector pulse with `EnableRun` plus that
-Format RAM read command as a read-stream start. This is a focused
-stand-in for read PROM step 03 and lets the FIFO path be exercised.
+`DiskControl = 0100`. The emulator no longer treats the Format RAM read
+tag alone as a transfer request; HM page 97 says a sector transfer is
+initiated by non-zero `DiskControl` op fields. This keeps the
+controller idle until PilotDisk/AltoDisk actually issues a read/check
+command.
 
 ## Format RAM (HM page 98)
 

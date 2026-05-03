@@ -347,6 +347,18 @@ static int attach_default_trident_pack(dorado_disk_controller *disk,
     return 1;
 }
 
+static int disk_control_transfer_armed(uint16_t control)
+{
+    return (((control >> DORADO_DISK_CTRL_OP1_SHIFT) & DORADO_DISK_CTRL_OP_MASK) !=
+            DORADO_DISK_OP_DONE) ||
+           (((control >> DORADO_DISK_CTRL_OP2_SHIFT) & DORADO_DISK_CTRL_OP_MASK) !=
+            DORADO_DISK_OP_DONE) ||
+           (((control >> DORADO_DISK_CTRL_OP3_SHIFT) & DORADO_DISK_CTRL_OP_MASK) !=
+            DORADO_DISK_OP_DONE) ||
+           (((control >> DORADO_DISK_CTRL_OP4_SHIFT) & DORADO_DISK_CTRL_OP_MASK) !=
+            DORADO_DISK_OP_DONE);
+}
+
 static void service_boot_disk(dorado_cpu *cpu, dorado_disk_controller *disk,
                               uint64_t cycle, uint64_t *sector_ticks,
                               uint64_t *wakeups)
@@ -369,7 +381,8 @@ static void service_boot_disk(dorado_cpu *cpu, dorado_disk_controller *disk,
         int only_spindle_tw =
             (disk->index_tw || disk->sector_tw) &&
             !disk->tag_tw && !disk->rd_fifo_tw && !disk->wr_fifo_tw;
-        int transfer_armed = disk->active || ((disk->control & 0xFFu) != 0);
+        int transfer_armed =
+            disk->active || disk_control_transfer_armed(disk->control);
         if ((dsk_tpc == 05250 || dsk_tpc == 05252) &&
             only_spindle_tw && !transfer_armed) {
             disk_pending = 0;

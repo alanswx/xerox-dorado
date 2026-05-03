@@ -295,6 +295,16 @@ static int disk_begin_read_stream(dorado_disk_controller *ctl)
     return ctl->read_stream_active || ctl->fifo_count > 0;
 }
 
+static void disk_abort_active_transfer(dorado_disk_controller *ctl)
+{
+    ctl->active = 0;
+    ctl->read_stream_active = 0;
+    ctl->read_stream_index = 0;
+    ctl->fifo_head = ctl->fifo_tail = ctl->fifo_count = 0;
+    ctl->rd_fifo_tw = 0;
+    ctl->wr_fifo_tw = 0;
+}
+
 int dorado_disk_controller_wakeup_pending(const dorado_disk_controller *ctl)
 {
     if (!ctl) return 0;
@@ -320,15 +330,6 @@ static int disk_control_has_op(uint16_t control, unsigned op)
            (((control >> DORADO_DISK_CTRL_OP2_SHIFT) & DORADO_DISK_CTRL_OP_MASK) == op) ||
            (((control >> DORADO_DISK_CTRL_OP3_SHIFT) & DORADO_DISK_CTRL_OP_MASK) == op) ||
            (((control >> DORADO_DISK_CTRL_OP4_SHIFT) & DORADO_DISK_CTRL_OP_MASK) == op);
-}
-
-static int disk_format_ram_requests_read(const dorado_disk_controller *ctl)
-{
-    if (!ctl) return 0;
-    /* Format RAM word 4 is the read-op control tag command (HM §9,
-     * read sequence PROM step 03). The native 12-bit command used by
-     * Initial is 0104 octal: Control tag with Read set. */
-    return (ctl->format_ram[4] & (1u << 6)) != 0;
 }
 
 void dorado_disk_controller_advance_sector(dorado_disk_controller *ctl)
@@ -361,8 +362,7 @@ void dorado_disk_controller_advance_sector(dorado_disk_controller *ctl)
      * sector's data. Phase 2 simplification: real hardware sequences
      * this via the read PROM. */
     if ((ctl->active || ctl->enable_run) &&
-        (disk_control_has_transfer_op(ctl->control) ||
-         disk_format_ram_requests_read(ctl))) {
+        disk_control_has_transfer_op(ctl->control)) {
         /* Some op other than Done; reload FIFO with new sector. */
         if (disk_begin_read_stream(ctl)) {
             ctl->active = 1;
@@ -387,7 +387,16 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
         /* Output to control register zeros the format-RAM address
          * register (HM page 98) so subsequent DiskRam writes start
          * at index 0. ClearEnableRun is honored. SetDebugMode is
-         * honored. SetBlockTillIndex is honored. */
+         * honored. SetBlockTillIndex is honored.
+         *
+         * HM page 97: while Active, the first DiskControl output
+         * aborts the current sector transfer; the following output
+         * loads the register. Do not treat the aborting output as a
+         * new command load. */
+        if (ctl->active) {
+            disk_abort_active_transfer(ctl);
+            break;
+        }
         ctl->control = data;
         ctl->format_ram_addr = 0;
         if (data & DORADO_DISK_CTRL_CLR_ENABLE_RUN) ctl->enable_run = 0;
@@ -592,7 +601,8 @@ static uint16_t disk_input(void *ctx, int task, uint8_t tioa, int *bad)
         case 002: bit = ctl->sector_tw; break;
         case 003: bit = ctl->tag_tw; break;
         case 004:
-            if (!ctl->rd_fifo_tw && !ctl->active && ctl->enable_run && d->pack) {
+            if (!ctl->rd_fifo_tw && !ctl->active && ctl->enable_run &&
+                disk_control_has_transfer_op(ctl->control) && d->pack) {
                 if (disk_begin_read_stream(ctl)) {
                     ctl->active = 1;
                     ctl->read_stream_muff_starts++;
