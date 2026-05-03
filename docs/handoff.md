@@ -1770,3 +1770,23 @@ FIFO B is empty, no Fast-I/O drops, `Memory: faults=0`, and
 `/tmp/dorado_boot_display.pgm` is all white. Next debugging should stay
 on the loaded Alto/Mesa disk/software path that should populate
 `DAStart` and the Alto DCB chain.
+
+2026-05-03 DiskBoot/DSemu status: task-0 `DiskBoot` now successfully
+posts the old Alto KCB pointer. The missed write was `Store_ ETemp1,
+DBuf_ T` at real PC `0o5140`; stale display `TIOA=0370` made the CPU's
+store-shaped slow-I/O shortcut skip the real memory write. CPU execution
+now allows task-0 stores to proceed even if stale TIOA names a writer,
+with regression coverage in
+`test_task0_store_with_stale_tioa_updates_memory`. The 180M boot probe
+reports MDS `[0521..0524]=0119 0000 FFFF 0000`, i.e. `0521=0431` in
+octal.
+
+The remaining disk/display blocker moved later. The corrected disk trace
+shows task 14 polling the relocated DSemu KBLK at `MDS+0x8051` and
+storing status at `MDS+0x8052` (`Mar=D248051/D248052`), not consuming
+the old `0521` command pointer. `alto-boot shims=1` confirms the
+temporary first-sector path fired once, but after that no relocated
+command pointer appears and no `DiskData` FIFO transfer starts. Next:
+trace the loaded software path that should initialize/post the relocated
+KBLK around `0x8051`/`0x8054`; the old `0521` post is no longer the
+immediate failure.

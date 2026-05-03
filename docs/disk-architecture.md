@@ -818,5 +818,17 @@ software XOR the corrupted bits back to correct values.
     do not treat this loop alone as proof that `DiskData` should have
     been selected.
 
+13. **2026-05-03 old Alto post fixed; active KBLK is relocated.**
+    The old AEmu `DiskBoot` command pointer is now visible:
+    `MDS+0521 = 0431`. The missing write was a task-0 storage reference
+    suppressed by stale `TIOA`, not a disk-controller failure. The active
+    late disk loop, however, is polling `MDS+0x8051` and writing status
+    at `MDS+0x8052`; it does not consume `MDS+0521`. This matches a
+    relocated DSemu-style KBLK after the first-sector shim has advanced
+    the boot path. Current fix direction: find and repair the software or
+    microcode path that should post the relocated command pointer at
+    `0x8051`, then let the real disk controller path start `DiskData`
+    transfers from there.
+
 See `docs/io-systems-architecture.md` for a higher-level view of
 how disk fits into Slow I/O / Fast I/O / Tasking.

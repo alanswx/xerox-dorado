@@ -3071,6 +3071,17 @@ static int probe_full_boot_with_bootstrap(void)
         { 06553, "KSAMEDRIVE", 0, 0 },
         { 06572, "KCONTINUECMMD", 0, 0 },
         { 06561, "KCHECKSEEK", 0, 0 },
+        { 05434, "ALTOLOOP", 0, 0 },
+        { 05455, "AWASNTIDLE", 0, 0 },
+        { 05460, "DOACMMD", 0, 0 },
+        { 05536, "ACMMDINTIME", 0, 0 },
+        { 05550, "ACMMDEND", 0, 0 },
+        { 05672, "AFORGETCMMD", 0, 0 },
+        { 05742, "ENDALTOLOOP", 0, 0 },
+        { 05743, "READ1MUFF", 0, 0 },
+        { 05755, "DOMUFFOUTPUT", 0, 0 },
+        { 06030, "UPDATESECTOR", 0, 0 },
+        { 06065, "CLEARDISK", 0, 0 },
         { 07102, "KNORESTORE", 0, 0 },
         { 07133, "KWAITSECTOR", 0, 0 },
         { 07105, "KCMMDINTIME", 0, 0 },
@@ -3685,7 +3696,7 @@ static int probe_full_boot_with_bootstrap(void)
         }
         if (disk_trace_focus == 4) {
             is_focused_disk_pc =
-                (pre_pc >= 05540 && pre_pc <= 05755) ||
+                (pre_pc >= 05430 && pre_pc <= 05755) ||
                 pre_pc == 03500;
         }
         if (disk_trace_focus) is_disk_code_pc = is_focused_disk_pc;
@@ -5554,8 +5565,8 @@ static int probe_full_boot_with_bootstrap(void)
                     printf("%s%04X", (i == 0) ? "" : " ",
                            dorado_visible_word_at_va(&mem, mds + 0431u + i));
                 }
-                printf(" [0521..0523]=");
-                for (uint32_t i = 0; i < 3; i++) {
+                printf(" [0521..0524]=");
+                for (uint32_t i = 0; i < 4; i++) {
                     printf("%s%04X", (i == 0) ? "" : " ",
                            dorado_visible_word_at_va(&mem, mds + 0521u + i));
                 }
@@ -5565,8 +5576,8 @@ static int probe_full_boot_with_bootstrap(void)
                            dorado_visible_word_at_va(&mem, mds + 0001u + i));
                 }
                 printf("\n");
-                printf("       DiskBR command windows: [0521..0523]=");
-                for (uint32_t i = 0; i < 3; i++) {
+                printf("       DiskBR command windows: [0521..0524]=");
+                for (uint32_t i = 0; i < 4; i++) {
                     printf("%s%04X", (i == 0) ? "" : " ",
                            dorado_visible_word_at_va(&mem, diskbr + 0521u + i));
                 }
@@ -8049,6 +8060,64 @@ static int test_output_iostore_shape_routes_slow_io(void)
     return 0;
 }
 
+static int test_task0_store_with_stale_tioa_updates_memory(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025;  mc.alufm_present[0] = 1;  /* B */
+
+    /* AEm0.mc DiskBoot posts VM 0521 <- 0431 after task 0 has used
+     * display slow I/O, leaving TIOA at a display address. This is a
+     * real Store_ ..., DBuf_ T memory write, not an Output_ T. */
+    mc.rm[1] = 0521;
+    mc.rm_present[1] = 1;
+    mc.im[0] = make_uinstr(/*rstk=*/1, /*aluf=*/0, /*bsel=*/2, /*lc=*/0,
+                           /*asel=*/0, 0, /*ff=*/0016, jcn_long(0));
+    mc.im_present[0] = 1;
+    mc.image_to_real[0] = 0;
+    mc.image_present[0] = 1;
+    mc.n_instructions = 1;
+
+    static dorado_io io;
+    dorado_io_init(&io);
+    static echo_dev dev_state;
+    memset(&dev_state, 0, sizeof dev_state);
+    static const dorado_io_device echo_device = {
+        .read = echo_read,
+        .write = echo_write,
+        .attention = NULL,
+        .ctx = &dev_state,
+        .name = "echo"
+    };
+    dorado_io_register(&io, /*task=*/0, /*tioa=*/0370, &echo_device);
+
+    dorado_memory mem;
+    EXPECT(dorado_memory_init(&mem) == 0, "memory init failed");
+    dorado_map_set(&mem, dorado_map_index(0521), /*rp=*/0,
+                   /*wp=*/0, /*dirty=*/0);
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.io = &io;
+    cpu.mem = &mem;
+    cpu.ctask = 0;
+    cpu.TIOA = 0370;
+    cpu.task_tioa[0] = 0370;
+    cpu.T = 0431;
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(mem.last_fault == DM_FAULT_NONE,
+           "task0 store faulted with stale TIOA: %d", (int)mem.last_fault);
+    EXPECT(dorado_visible_word_at_va(&mem, 0521) == 0431,
+           "VM 0521 = 0o%o (expected 0431)",
+           dorado_visible_word_at_va(&mem, 0521));
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_task0_store_with_stale_tioa_updates_memory\n");
+    return 0;
+}
+
 static int test_output_iostore_with_lc_routes_slow_io(void)
 {
     static dorado_microcode mc;
@@ -8697,6 +8766,7 @@ int main(void)
     rc |= test_output_t_store_shape_routes_slow_io();
     rc |= test_output_rm_store_shape_routes_slow_io();
     rc |= test_output_iostore_shape_routes_slow_io();
+    rc |= test_task0_store_with_stale_tioa_updates_memory();
     rc |= test_output_iostore_with_lc_routes_slow_io();
     rc |= test_output_b_memory_form_with_lc_routes_slow_io();
     rc |= test_dwtstart_memory_form_routes_iofetch();

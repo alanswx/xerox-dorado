@@ -1316,7 +1316,7 @@ static int lowcore_trace_offset(uint32_t va, uint32_t base,
     uint32_t off = (va - base) & 0x0FFFFFFFu;
     if ((off >= 0001u && off <= 0010u) ||
         (off >= 0420u && off <= 0440u) ||
-        (off >= 0521u && off <= 0523u)) {
+        (off >= 0521u && off <= 0524u)) {
         if (out_off) *out_off = (uint16_t)off;
         return 1;
     }
@@ -2623,7 +2623,7 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                 cpu->io &&
                 dorado_io_has_write(cpu->io, cpu->ctask,
                                     (uint8_t)cpu->TIOA)) {
-                goto memory_ref_done;
+                if (cpu->ctask != 0) goto memory_ref_done;
             }
             /* MicroD's `Output_ <source>` form appears in display and disk
              * task code as a store-shaped instruction with no destination
@@ -2639,7 +2639,7 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                 dorado_io_write_subtask(cpu->io, cpu->ctask,
                                         cpu->task_subtask[cpu->ctask],
                                         (uint8_t)cpu->TIOA, b);
-                goto memory_ref_done;
+                if (cpu->ctask != 0) goto memory_ref_done;
             }
             /* SubTask OR's into MemBase[2:3] (HM page 88). MemBase[2:3]
              * in MSB-first 5-bit MemBase = LSB bits 2..1. So OR

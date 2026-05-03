@@ -1823,6 +1823,28 @@ words, FIFO B is empty, no Fast-I/O drops, `Memory: faults=0`, and the
 snapshot is still all white. Treat the display fetch/render path as
 available but starved of useful software display state.
 
+2026-05-03 DiskBoot pointer-post fix and relocated KBLK finding:
+AEmu `DiskBoot` really does execute the old Alto command-block post
+`VM 0521 <- 0431`. The emulator had been suppressing the task-0
+`Store_ ETemp1, DBuf_ T` at real PC `0o5140` because stale display
+`TIOA=0370` made the no-LC store look like slow I/O. Task 0 now lets
+storage references complete even when a stale TIOA writer is registered,
+and `test_task0_store_with_stale_tioa_updates_memory` covers the exact
+shape. An 180M probe now shows MDS `[0521..0524]=0119 0000 FFFF 0000`
+(`0x0119` is octal `0431`) and no memory faults.
+
+That exposed the next blocker: the active DSK task is no longer polling
+the old Alto KBLK. The late `DORADO_DISK_TRACE_FOCUS=4` ring shows task
+14 reading/writing `MDS+0x8051/0x8052` (`Mar=D248051/D248052`) and
+returning through the status loop; final `DiskBR [0x8050..0x805F]` has
+only a changing status word at `0x8052` and no command pointer at
+`0x8051`. The one-shot old Alto first-sector shim does fire once, but
+the loaded DSemu/relocated path still never posts the relocated command
+block. Next work should identify which loaded software or microcode is
+responsible for initializing the relocated KBLK (`0x8051`/`0x8054`) and
+why that path is not running, rather than continuing to chase the old
+`0521` location.
+
 These are weeks-of-work each, in rough order of effort:
 
 | Phase | Effort | Dependency      |
