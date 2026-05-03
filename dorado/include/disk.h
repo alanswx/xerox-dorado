@@ -224,6 +224,15 @@ typedef struct {
     uint64_t read_stream_sector_starts;
     uint64_t read_stream_tag_starts;
     uint64_t read_stream_muff_starts;
+    uint64_t control_loads;
+    uint64_t control_transfer_loads;
+    uint64_t control_abort_edges;
+    uint64_t index_tw_sets;
+    uint64_t index_tw_clears;
+    uint64_t sector_tw_sets;
+    uint64_t sector_tw_clears;
+    uint64_t tag_tw_sets;
+    uint64_t tag_tw_clears;
     uint8_t  last_output_tioa;
     uint16_t last_output_data;
     uint8_t  last_input_tioa;

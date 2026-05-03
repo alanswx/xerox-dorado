@@ -1891,6 +1891,24 @@ final CPU PC from `0o5764` to `0o6266`. The snapshot is still all white,
 progress, but the display trace is no longer polluted by non-display
 helper outputs.
 
+2026-05-03 disk bring-up correction: the late Mesa run is not using the
+standalone `AEmu.mb!2` disk PCs that an earlier note assumed. The active
+Ethernet-loaded Mesa image uses `ALTOLOOP=0o5434`,
+`DOACMMD=0o5460`, `DOALTOCMMD=0o5600`, and
+`AREADBADTW=0o5672`; `DORADO_DISK_TRACE_FOCUS=4` is the relevant focus
+for that path. The new `DORADO_DISK_TRACE_FOCUS=5` watches the
+standalone `AEmu.mb!2` addresses for source comparison only.
+
+The current split is clear. With `DORADO_ALTO_BOOT_SHIM=1`, task 0
+posts the old Alto `AEm0.mc` KCB (`DiskBR+0431..0440`, then
+`0521=0431`) and the shim satisfies it, allowing the IFU to start and
+the Mesa disk task to run later status/error paths. With
+`DORADO_ALTO_BOOT_SHIM=0`, task 0 never reaches that KCB construction in
+the 180M probe; the disk controller still records
+`control_transfer_loads=0` and `read streams=0`. Next implementation
+work should therefore focus on replacing the shim with real DiskControl
+command start/FIFO readiness, then rerun with the shim disabled.
+
 These are weeks-of-work each, in rough order of effort:
 
 | Phase | Effort | Dependency      |

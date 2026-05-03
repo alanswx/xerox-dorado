@@ -839,5 +839,28 @@ software XOR the corrupted bits back to correct values.
     emulation: controller FIFO read streams remain zero, and the later
     DSK path still needs a proper relocated KBLK/Trident command source.
 
+15. **2026-05-03 shim vs. real-controller split.**
+    The old Alto KCB path is now instrumented rather than guessed. With
+    the first-sector shim enabled, `DORADO_LOWCORE_TRACE=1` shows task 0
+    building the `AEm0.mc` command block at `DiskBR+0431..0440`,
+    clearing `0522`, setting `0523=-1`, and finally posting
+    `0521=0431`. The shim then satisfies that command directly from the
+    mounted Alto pack image. With `DORADO_ALTO_BOOT_SHIM=0`, the same
+    180M run does not reach the task-0 KCB construction; it only advances
+    the RTC/status path and the controller still reports
+    `control_transfer_loads=0` and `read streams=0`. Therefore the next
+    real boot fix is not to service another shortcut, but to make the
+    hardware DiskControl/format-RAM path accept the command once software
+    posts it, then remove the shim dependency.
+
+16. **2026-05-03 AEmu/Mesa symbol-map correction.**
+    `AEmu.mb!2` and the Ethernet-loaded Mesa image place the Alto disk
+    routines at different IM addresses. For the current Mesa boot image,
+    the useful labels are `ALTOLOOP=0o5434`, `DOACMMD=0o5460`,
+    `ACMMDINTIME=0o5536`, `DOALTOCMMD=0o5600`, and
+    `AREADBADTW=0o5672`. The standalone `AEmu.mb!2` addresses
+    (`AEMU_ALTOLOOP=0o4447`, etc.) are still useful for comparing
+    source, but should not be used to diagnose the active Mesa run.
+
 See `docs/io-systems-architecture.md` for a higher-level view of
 how disk fits into Slow I/O / Fast I/O / Tasking.

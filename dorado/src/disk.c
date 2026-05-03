@@ -344,6 +344,7 @@ void dorado_disk_controller_advance_sector(dorado_disk_controller *ctl)
         if (at_index) {
             d->seek_in_progress = 0;
             ctl->tag_tw = 1;
+            ctl->tag_tw_sets++;
         }
     }
 
@@ -351,11 +352,14 @@ void dorado_disk_controller_advance_sector(dorado_disk_controller *ctl)
         d->index_pulse = 1;
         ctl->index_tw = 1;
         ctl->sector_tw = 1;
+        ctl->index_tw_sets++;
+        ctl->sector_tw_sets++;
         ctl->block_till_index = 0;
     } else {
         d->index_pulse = 0;
         if (ctl->block_till_index) return;
         ctl->sector_tw = 1;
+        ctl->sector_tw_sets++;
     }
 
     /* If a transfer is active or queued by DiskControl, load the next
@@ -397,9 +401,12 @@ static void disk_output_b(void *ctx, int task, int subtask,
          * new command load. */
         if (ctl->active) {
             disk_abort_active_transfer(ctl);
+            ctl->control_abort_edges++;
             break;
         }
         ctl->control = data;
+        ctl->control_loads++;
+        if (disk_control_has_transfer_op(data)) ctl->control_transfer_loads++;
         ctl->format_ram_addr = 0;
         if (data & DORADO_DISK_CTRL_CLR_ENABLE_RUN) ctl->enable_run = 0;
         if (data & DORADO_DISK_CTRL_SET_DEBUG_MODE) ctl->debug_mode = 1;
@@ -414,9 +421,18 @@ static void disk_output_b(void *ctx, int task, int subtask,
          * byte and the wakeup/error clear controls to native octal
          * constants 04000, 02000, 01000, and 00400. */
         ctl->muff_addr = (uint8_t)(data & DORADO_DISK_MUFF_ADDR);
-        if (data & DORADO_DISK_MUFF_CLEAR_INDEX_TW) ctl->index_tw = 0;
-        if (data & DORADO_DISK_MUFF_CLEAR_SECTOR_TW) ctl->sector_tw = 0;
-        if (data & DORADO_DISK_MUFF_CLEAR_SEEKTAG_TW) ctl->tag_tw = 0;
+        if (data & DORADO_DISK_MUFF_CLEAR_INDEX_TW) {
+            if (ctl->index_tw) ctl->index_tw_clears++;
+            ctl->index_tw = 0;
+        }
+        if (data & DORADO_DISK_MUFF_CLEAR_SECTOR_TW) {
+            if (ctl->sector_tw) ctl->sector_tw_clears++;
+            ctl->sector_tw = 0;
+        }
+        if (data & DORADO_DISK_MUFF_CLEAR_SEEKTAG_TW) {
+            if (ctl->tag_tw) ctl->tag_tw_clears++;
+            ctl->tag_tw = 0;
+        }
         if (data & DORADO_DISK_MUFF_CLEAR_ERRORS) {
             ctl->rd_fifo_tw = 0;
             ctl->wr_fifo_tw = 0;
@@ -503,6 +519,7 @@ static void disk_output_b(void *ctx, int task, int subtask,
                     d->cur_head = head;  /* still record */
                 }
                 ctl->tag_tw = 1;          /* tag-completion wakeup */
+                ctl->tag_tw_sets++;
                 break;
             }
             case 2: {
@@ -559,7 +576,10 @@ static void disk_output_b(void *ctx, int task, int subtask,
                     ctl->wr_fifo_tw = 1;
                     ctl->active = 1;
                 }
-                if (!(bus & (1u << 1))) ctl->tag_tw = 1;
+                if (!(bus & (1u << 1))) {
+                    ctl->tag_tw = 1;
+                    ctl->tag_tw_sets++;
+                }
                 break;
             }
             default:

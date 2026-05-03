@@ -470,6 +470,23 @@ static int ff_is_output_b_memory_form(const dorado_uinstr *u)
     return ff_decode_ok(u) && u->asel <= 3 && ((u->ff & 077) == 0036);
 }
 
+static int ff_is_output_b_long_call_form(const dorado_uinstr *u)
+{
+    /* InitialDisk.mc/PilotDisk.mc emit `Output_ KCmmd,
+     * Call[UpdateSector]`; the compiled form is a long-call JCN, so
+     * ff_full_function_ok() deliberately rejects the normal FF
+     * function decode. The source-level Output side effect is still
+     * real and must reach DiskControl before the call. Keep the match
+     * to the observed non-memory shape instead of relaxing long-call
+     * FF decoding globally. */
+    return u->asel == 4 &&
+           u->bsel == 1 &&
+           u->lc == 6 &&
+           u->aluf == 013 &&
+           u->ff == 0327 &&
+           u->jcn == 0017;
+}
+
 /* HM Table 11a (FA=0 FB=0/1): "A[12:15] ← FF[4:7]" override. The
  * low nibble of the A-bus is replaced by FF[4:7] before the value
  * reaches the ALU.
@@ -697,6 +714,14 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
     int fa = ff_fa(u->ff), fb = ff_fb(u->ff), fc = ff_fc(u->ff);
     uint16_t pd = alu;
     *halt = 0;
+
+    if (ff_is_output_b_long_call_form(u) &&
+        cpu->io &&
+        dorado_io_has_write(cpu->io, cpu->ctask, (uint8_t)cpu->TIOA)) {
+        dorado_io_write_subtask(cpu->io, cpu->ctask,
+                                cpu->task_subtask[cpu->ctask],
+                                (uint8_t)cpu->TIOA, b);
+    }
 
     /* When BSEL produces a constant (BSEL >= 4), or when FF[0:1] picks
      * an alternate A source for memory references (ASEL=0..3 with
@@ -1316,7 +1341,8 @@ static int lowcore_trace_offset(uint32_t va, uint32_t base,
     uint32_t off = (va - base) & 0x0FFFFFFFu;
     if ((off >= 0001u && off <= 0010u) ||
         (off >= 0420u && off <= 0440u) ||
-        (off >= 0521u && off <= 0524u)) {
+        (off >= 0x0490u && off <= 0x0524u) ||
+        (off >= 0x0F70u && off <= 0x1020u)) {
         if (out_off) *out_off = (uint16_t)off;
         return 1;
     }

@@ -2822,6 +2822,11 @@ static int probe_full_boot_with_bootstrap(void)
                              file_exists_readable(ether_boot_image);
     uint64_t disk_sector_ticks = 0;
     uint64_t disk_wakeups = 0;
+    uint64_t pilot_csb_next_nonzero = 0;
+    uint64_t pilot_csb_next_first_cycle = 0;
+    uint64_t pilot_csb_next_last_cycle = 0;
+    uint16_t pilot_csb_next_first = 0;
+    uint16_t pilot_csb_next_last = 0;
     uint64_t disk_normal_mode_shims = 0;
     uint64_t alto_disk_boot_shims = 0;
     int alto_disk_boot_cyl = (int)test_u64_env("DORADO_ALTO_BOOT_CYL", 0);
@@ -3085,6 +3090,17 @@ static int probe_full_boot_with_bootstrap(void)
         { 06553, "KSAMEDRIVE", 0, 0 },
         { 06572, "KCONTINUECMMD", 0, 0 },
         { 06561, "KCHECKSEEK", 0, 0 },
+        { 04447, "AEMU_ALTOLOOP", 0, 0 },
+        { 04477, "AEMU_DOACMMD", 0, 0 },
+        { 04604, "AEMU_AWAITSECTOR", 0, 0 },
+        { 04615, "AEMU_ACMMDINTIME", 0, 0 },
+        { 04713, "AEMU_DOALTOCMMD", 0, 0 },
+        { 05014, "AEMU_AREADBADTW", 0, 0 },
+        { 05077, "AEMU_INITRAMDIABLO", 0, 0 },
+        { 05133, "AEMU_ENDALTOLOOP", 0, 0 },
+        { 05246, "AEMU_WAITFORSECTOR", 0, 0 },
+        { 05261, "AEMU_UPDATESECTOR", 0, 0 },
+        { 05326, "AEMU_CLEARDISK", 0, 0 },
         { 05434, "ALTOLOOP", 0, 0 },
         { 05455, "AWASNTIDLE", 0, 0 },
         { 05460, "DOACMMD", 0, 0 },
@@ -3713,6 +3729,11 @@ static int probe_full_boot_with_bootstrap(void)
                 (pre_pc >= 05430 && pre_pc <= 05755) ||
                 pre_pc == 03500;
         }
+        if (disk_trace_focus == 5) {
+            is_focused_disk_pc =
+                (pre_pc >= 04440 && pre_pc <= 05020) ||
+                (pre_pc >= 05240 && pre_pc <= 05335);
+        }
         if (disk_trace_focus) is_disk_code_pc = is_focused_disk_pc;
         int is_disk_trace =
             disk_trace_enabled &&
@@ -4338,6 +4359,20 @@ static int probe_full_boot_with_bootstrap(void)
         }
         service_boot_disk(&cpu, &disk, bb.cycles,
                           &disk_sector_ticks, &disk_wakeups);
+        if (initial_substituted && cpu.mem) {
+            uint32_t iobr_base = dorado_br_get(&mem, 031);
+            uint16_t csb_next =
+                dorado_visible_word_at_va(&mem, iobr_base + 0177520u);
+            if (csb_next != 0 && csb_next != 0xFFFFu) {
+                if (pilot_csb_next_nonzero == 0) {
+                    pilot_csb_next_first_cycle = bb.cycles;
+                    pilot_csb_next_first = csb_next;
+                }
+                pilot_csb_next_nonzero++;
+                pilot_csb_next_last_cycle = bb.cycles;
+                pilot_csb_next_last = csb_next;
+            }
+        }
         if (initial_substituted) {
             if (ethernet_boot_enabled &&
                 test_u64_env("DORADO_ETH_FORCE_ELOAD_ZERO", 1) != 0 &&
@@ -5346,6 +5381,25 @@ static int probe_full_boot_with_bootstrap(void)
                (unsigned long long)disk.input_tioa_count[a & 0x0F]);
     }
     printf("\n");
+    printf("       Disk control/TW counters: ctl loads=%llu transfer=%llu "
+           "aborts=%llu index set/clear=%llu/%llu "
+           "sector set/clear=%llu/%llu tag set/clear=%llu/%llu\n",
+           (unsigned long long)disk.control_loads,
+           (unsigned long long)disk.control_transfer_loads,
+           (unsigned long long)disk.control_abort_edges,
+           (unsigned long long)disk.index_tw_sets,
+           (unsigned long long)disk.index_tw_clears,
+           (unsigned long long)disk.sector_tw_sets,
+           (unsigned long long)disk.sector_tw_clears,
+           (unsigned long long)disk.tag_tw_sets,
+           (unsigned long long)disk.tag_tw_clears);
+    printf("       Pilot CSB.next watch: nonzero=%llu first=%04X@%llu "
+           "last=%04X@%llu\n",
+           (unsigned long long)pilot_csb_next_nonzero,
+           pilot_csb_next_first,
+           (unsigned long long)pilot_csb_next_first_cycle,
+           pilot_csb_next_last,
+           (unsigned long long)pilot_csb_next_last_cycle);
     printf("       Disk controller final: muff=%03o tw=%u%u%u rf=%u wf=%u "
            "en=%u act=%u bti=%u ctl=%04X fifo=%u stream=%u idx=%d "
            "selected=%d CHS=(%d,%d,%d) subsectors=%d seek=%d "
@@ -8251,6 +8305,56 @@ static int test_output_iostore_with_lc_routes_slow_io(void)
     return 0;
 }
 
+static int test_output_b_long_call_form_routes_slow_io(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[013] = 025;  mc.alufm_present[013] = 1;  /* B */
+
+    /* InitialDisk.mc/PilotDisk.mc:
+     *   Output_ KCmmd, Call[UpdateSector]
+     * compiles in Initial.mb at 0o7071 as this long-call shape. It
+     * must still drive DiskControl before branching to UpdateSector. */
+    mc.rm[1] = 0x00AC;
+    mc.rm_present[1] = 1;
+    mc.im[0] = make_uinstr(/*rstk=*/1, /*aluf=*/013, /*bsel=*/1, /*lc=*/6,
+                           /*asel=*/4, 0, /*ff=*/0327, /*jcn=*/0017);
+    mc.im_present[0] = 1;
+    mc.image_to_real[0] = 0;
+    mc.image_present[0] = 1;
+    mc.n_instructions = 1;
+
+    static dorado_io io;
+    dorado_io_init(&io);
+    static echo_dev dev_state;
+    memset(&dev_state, 0, sizeof dev_state);
+    static const dorado_io_device echo_device = {
+        .read = echo_read,
+        .write = echo_write,
+        .attention = NULL,
+        .ctx = &dev_state,
+        .name = "echo"
+    };
+    dorado_io_register(&io, /*task=*/14, /*tioa=*/010, &echo_device);
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.io = &io;
+    cpu.ctask = 14;
+    cpu.task_tpc[14] = 0;
+    cpu.TIOA = 010;
+    cpu.task_tioa[14] = 010;
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(dev_state.writes == 1, "writes=%d (expected 1)", dev_state.writes);
+    EXPECT(dev_state.last_write == 0x00AC,
+           "last_write = 0x%X (expected 0x00AC)", dev_state.last_write);
+
+    printf("PASS  test_output_b_long_call_form_routes_slow_io\n");
+    return 0;
+}
+
 static int test_output_b_memory_form_with_lc_routes_slow_io(void)
 {
     static dorado_microcode mc;
@@ -8844,6 +8948,7 @@ int main(void)
     rc |= test_output_iostore_shape_routes_slow_io();
     rc |= test_task0_store_with_stale_tioa_updates_memory();
     rc |= test_output_iostore_with_lc_routes_slow_io();
+    rc |= test_output_b_long_call_form_routes_slow_io();
     rc |= test_output_b_memory_form_with_lc_routes_slow_io();
     rc |= test_dwtstart_memory_form_routes_iofetch();
     rc |= test_tioa_small_constant_all_low_bits();
