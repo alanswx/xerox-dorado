@@ -199,6 +199,18 @@ static void display_output_b(void *ctx, int task, int subtask,
     if (tioa == DORADO_DISPLAY_TIOA_STATICS ||
         tioa == DORADO_DISPLAY_TIOA_TSTATICS) {
         d->statics = data;
+        if (data & DORADO_DISPLAY_STATICS_DWT_SHUTUP) {
+            memset(d->next_wcb_flag, 0, sizeof d->next_wcb_flag);
+            memset(d->current_wcb_flag, 0, sizeof d->current_wcb_flag);
+            d->fifo_a_head = d->fifo_a_tail = 0;
+            d->fifo_b_head = d->fifo_b_tail = 0;
+        }
+        if (data & DORADO_DISPLAY_STATICS_DHT_SHUTUP) {
+            d->raster_lt_enabled = 0;
+            memset(d->raster_next_wt_flag, 0, sizeof d->raster_next_wt_flag);
+            memset(d->raster_current_wt_flag, 0,
+                   sizeof d->raster_current_wt_flag);
+        }
     } else if (tioa == DORADO_DISPLAY_TIOA_HRAM) {
         /* HM §10.7/§10.9: HRam uses the DDC RAM-loading protocol.
          * Keep' is latched by every command; while it is low, Dorado
@@ -240,6 +252,26 @@ static void display_output_b(void *ctx, int task, int subtask,
         uint8_t cur = (uint8_t)(data & 1u);
         d->current_wcb_flag[channel] = cur;
         if (cur) d->next_wcb_flag[channel] = 0;
+    } else if (tioa == DORADO_DISPLAY_TIOA_RAST_TASKCMD) {
+        d->raster_taskcmd = data;
+        if (t == DORADO_DISPLAY_TASK_DHT) {
+            d->raster_lt_enabled =
+                (data & DORADO_DISPLAY_RAST_LT_SHUTUP) ? 0u : 1u;
+            if (data & DORADO_DISPLAY_RAST_CHAN_WANTS_WT) {
+                int ch = d->raster_next_channel & 3;
+                d->raster_next_wt_flag[ch] = 1;
+                d->raster_next_channel = (uint8_t)((ch + 1) & 3);
+            }
+        } else if (t == DORADO_DISPLAY_TASK_DWT) {
+            int ch = subtask & 3;
+            if (data & 1u) {
+                d->raster_current_wt_flag[ch] = 0;
+            }
+            if (data & DORADO_DISPLAY_RAST_WT_SHUTUP) {
+                d->raster_next_wt_flag[ch] = 0;
+                d->raster_current_wt_flag[ch] = 0;
+            }
+        }
     }
     /* TODO: dispatch by (task, tioa) to NLCB load / HRam load /
      * Mixer load / PixelClk / Statics / etc. */
@@ -291,12 +323,19 @@ void dorado_display_attach_to_io(dorado_display *d, dorado_io *io)
      *   011₈ = AWT (DispM terminal interface word task)
      *   013₈ = DWT (display word task)
      *
-     * Without yet-known TIOA assignments, register the device on every
-     * TIOA address for these tasks. Refine once we observe specific
-     * (task, TIOA) pairs in microcode traces. */
+     * DisplayDefs.mc puts the DDC/terminal devices at 0360..0377, and
+     * RastDefs.mc puts Monterey raster commands at 0320..0323. Do not
+     * claim unrelated TIOAs just because a task number is shared with
+     * display microcode; Mesa also retargets these task slots for helper
+     * code that can issue non-display Output commands. */
     int display_tasks[] = {3, 4, 011, 013};
     for (size_t i = 0; i < sizeof display_tasks / sizeof display_tasks[0]; i++) {
-        for (int tioa = 0; tioa < 256; tioa++) {
+        for (int tioa = 0360; tioa <= 0377; tioa++) {
+            dorado_io_register(io, display_tasks[i], (uint8_t)tioa, &dev);
+        }
+        for (int tioa = DORADO_DISPLAY_TIOA_RAST_SELCMD;
+             tioa <= DORADO_DISPLAY_TIOA_RAST_TASKCMD;
+             tioa++) {
             dorado_io_register(io, display_tasks[i], (uint8_t)tioa, &dev);
         }
     }
@@ -487,12 +526,32 @@ uint16_t dorado_display_scanline_wakeup_mask(dorado_display *d)
         d->terminal_wakeups++;
         mask |= (uint16_t)(1u << d->terminal_task);
     }
+    if (d->raster_lt_enabled) {
+        d->terminal_wakeups++;
+        mask |= (uint16_t)(1u << DORADO_DISPLAY_TASK_DHT);
+    }
     return mask;
 }
 
 int dorado_display_dwt_wakeup(dorado_display *d, int *subtask)
 {
     if (!d) return 0;
+    for (int ch = 0; ch < 4; ch++) {
+        int st = ch & 3;
+        if (d->raster_next_wt_flag[ch] && !d->raster_current_wt_flag[ch]) {
+            d->raster_next_wt_flag[ch] = 0;
+            d->raster_current_wt_flag[ch] = 1;
+            d->dwt_wakeups++;
+            if (subtask) *subtask = st;
+            return 1;
+        }
+        if (d->raster_current_wt_flag[ch] && display_fifo_free(d, st) >= 16) {
+            d->dwt_wakeups++;
+            if (subtask) *subtask = st;
+            return 1;
+        }
+    }
+
     if (d->statics & DORADO_DISPLAY_STATICS_DWT_SHUTUP) return 0;
 
     for (int ch = 0; ch < 2; ch++) {

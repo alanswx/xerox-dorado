@@ -67,11 +67,23 @@
 #define DORADO_DISPLAY_TIOA_DWTFLAG 0373
 #define DORADO_DISPLAY_TIOA_AHTFLAG 0364
 #define DORADO_DISPLAY_TIOA_AWTFLAG 0363
+#define DORADO_DISPLAY_TIOA_NLCB    0376
+#define DORADO_DISPLAY_TIOA_TNLCB   0366
 #define DORADO_DISPLAY_TIOA_STATICS 0377
 #define DORADO_DISPLAY_TIOA_TSTATICS 0367
 #define DORADO_DISPLAY_TIOA_HRAM    0375
 #define DORADO_DISPLAY_TIOA_DDCSTATUS 0370
 #define DORADO_DISPLAY_TIOA_TSTATUS 0360
+
+/* Monterey raster controller (`RastDefs.mc!5`). LT/WT are task-compatible
+ * with DHT/DWT but use their own command block. */
+#define DORADO_DISPLAY_TIOA_RAST_SELCMD  0320
+#define DORADO_DISPLAY_TIOA_RAST_ADDRCMD 0321
+#define DORADO_DISPLAY_TIOA_RAST_DATACMD 0322
+#define DORADO_DISPLAY_TIOA_RAST_TASKCMD 0323
+#define DORADO_DISPLAY_RAST_CHAN_WANTS_WT 0100000u
+#define DORADO_DISPLAY_RAST_WT_SHUTUP     0100000u
+#define DORADO_DISPLAY_RAST_LT_SHUTUP     0040000u
 
 #define DORADO_DISPLAY_RAM_KEEP     0100000u
 #define DORADO_DISPLAY_RAM_LOADADDR 0040000u
@@ -208,6 +220,16 @@ typedef struct {
     uint16_t next_count[2];
     uint8_t  next_wcb_flag[2];   /* set by DHT, cleared by DWT */
     uint8_t  current_wcb_flag[2];
+
+    /* Monterey raster LT/WT handoff (`RastMain.mc!6`). The raster word
+     * task supports four channels by SubTask; for now the renderer keeps
+     * A/B FIFOs, but preserving the four wake channels prevents the LT
+     * command protocol from collapsing into terminal-display state. */
+    uint8_t  raster_lt_enabled;
+    uint8_t  raster_next_wt_flag[4];
+    uint8_t  raster_current_wt_flag[4];
+    uint8_t  raster_next_channel;
+    uint16_t raster_taskcmd;
 
     /* Display word-task FIFO (per channel). 16 words × ~16 entries per
      * spec; we use 256 to be generous. Filled by IOFetch←, drained by

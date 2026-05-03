@@ -1868,6 +1868,29 @@ trace how the loaded Mesa/AEmu microcode hands task `013` from terminal
 `TChannelBR=021` to generic `AChannelBR=020`, and whether our synthetic
 DWT wakeup policy is causing an unintended generic-DWT run.
 
+2026-05-03 color/raster display source pass: pulled the missing CHM
+microcode sources for the path Mesa is now touching:
+`ColorDisplay.mc!1`, `RastDefs.mc!5`, `RastMain.mc!6`,
+`DMesaRastMiscDisp.mc!1`, and `DMesaRastMiscOps.mc!2`. They confirm
+three relevant facts. First, color display overrides `DHTInitPC` and
+uses the DHT/DWT task pair with DDC `NLCB`/`DHTFlag` commands. Second,
+Monterey raster uses LT task `003`, WT task `013`, and commands
+`0320..0323`; MISC `245` starts LT after checking an MRB seal. Third,
+the trace's task-13 TPC handoff to `0o6701` occurs through Mesa
+`TOUCH*` helper code, so task-number reuse is real and display slow-I/O
+must not claim unrelated TIOAs from those tasks.
+
+The display slow-I/O registration is now narrowed from "all TIOAs on
+tasks 3/4/11/13" to the documented display/raster command ranges
+`0360..0377` and `0320..0323`. That removes the false task-13
+TIOA `006` flood: a 180M focused probe drops display outputs from
+~1.55M to ~93K, task-13 display outputs from ~1.45M to 5, and moves the
+final CPU PC from `0o5764` to `0o6266`. The snapshot is still all white,
+`display iofetch=32` still contains all-zero words, and disk still has
+`read streams=0`; the next boot blocker remains real disk/software
+progress, but the display trace is no longer polluted by non-display
+helper outputs.
+
 These are weeks-of-work each, in rough order of effort:
 
 | Phase | Effort | Dependency      |

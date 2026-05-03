@@ -523,7 +523,9 @@ production: 0 = Alto-style, 1 = LF (large format / Star).
 What's not yet wired:
 
 - TIOA→command decoder (we don't yet know the numeric TIOA values
-  microcode emits; Phase 3 will trace them).
+  microcode emits outside the documented DDC/raster command ranges;
+  the model now deliberately claims only `0360..0377` and Monterey
+  raster `0320..0323` instead of all task-local TIOAs).
 - Pixel clock / waveform generation. The current vblank boundary is
   synthetic at the end of the modeled visible 808×606 raster; real
   blanking intervals still need to come from the DDC timing model.
@@ -534,3 +536,40 @@ What's not yet wired:
 
 See `docs/io-systems-architecture.md` for a higher-level view of
 how display fits into Slow I/O / Fast I/O / Tasking.
+
+## 2026-05-03 color/raster source follow-up
+
+Pulled local CHM copies of the color/raster microcode that the loaded
+Mesa image appears to use after startup:
+
+- `chm/doradomicrocode/doradomicrocodesources/ColorDisplay.mc!1`
+- `chm/doradomicrocode/doradomicrocodesources/RastDefs.mc!5`
+- `chm/doradomicrocode/doradomicrocodesources/RastMain.mc!6`
+- `chm/doradomicrocode/doradomicrocodesources/DMesaRastMiscDisp.mc!1`
+- `chm/doradomicrocode/doradomicrocodesources/DMesaRastMiscOps.mc!2`
+
+Important findings:
+
+- `ColorDisplay.mc!1` overrides `DHTInitPC` and uses the same DHT/DWT
+  task numbers, but initializes the color monitor control block path
+  before loading NLCB and setting `DHTFlag`.
+- `RastDefs.mc!5` defines Monterey raster commands at `SelCmd=0320`,
+  `AddrCmd=0321`, `DataCmd=0322`, and `TaskCmd=0323`; LT is task `3`,
+  WT is task `13`.
+- `DMesaRastMiscOps.mc!2` implements MISC `245` (`EmuStartLT`) to
+  initialize and wake the raster line task after checking the MRB seal.
+- The 180M trace shows Mesa also retargeting display task slots through
+  `TOUCH*` helper code. Task `013` receives TPC `0o6701`
+  (`COLORVSTOVSINIT`), after task `003/004/011/013` are temporarily set
+  to `0177777`. That looks like display-task-number reuse by Mesa
+  helper code, not ordinary terminal TWT progress.
+
+Implementation correction from this pass: `display_attach_to_io()` no
+longer registers the display device on every TIOA for display-numbered
+tasks. It claims the documented DDC/terminal range (`0360..0377`) and
+the Monterey raster range (`0320..0323`) only. Before this, task `013`
+helper writes at TIOA `006` were counted as display output, producing a
+false 1.45M-output display flood. After narrowing, the same 180M probe
+reports only 5 task-13 display outputs, final PC changes from `0o5764`
+to `0o6266`, but the framebuffer is still all white and the real disk
+FIFO path is still inactive.

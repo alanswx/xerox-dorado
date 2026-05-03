@@ -1810,3 +1810,18 @@ A-channel base, not the terminal channel base that should carry the Alto
 DCB bitmap stream. Next debug target: why task `013` transitions from
 terminal `TChannelBR=021` to `AChannelBR=020`, and whether the synthetic
 DWT wakeup rule is over-waking generic DWT.
+
+2026-05-03 color/raster source and TIOA-map correction: pulled
+`ColorDisplay.mc!1`, `RastDefs.mc!5`, `RastMain.mc!6`,
+`DMesaRastMiscDisp.mc!1`, and `DMesaRastMiscOps.mc!2` from the CHM
+microcode archive. `RastDefs` puts Monterey commands at `0320..0323`
+and `DMesaRastMiscOps` implements MISC `245` as "start LT"; the current
+180M trace does not use those TIOAs yet. More importantly, Mesa's
+`TOUCH*` helper code retargets display-numbered tasks, so the emulator
+must not treat every Output from task 3/4/11/13 as display hardware.
+`display_attach_to_io()` now registers only DDC/terminal `0360..0377`
+and raster `0320..0323`. Result: the false task-13 TIOA `006` display
+flood is gone (`[13]` display outputs drop from ~1.45M to 5), and the
+same 180M probe reaches final PC `0o6266` instead of `0o5764`. The
+screen is still all white and disk still has `read streams=0`; continue
+from the real disk/software boot path, with cleaner display counters.

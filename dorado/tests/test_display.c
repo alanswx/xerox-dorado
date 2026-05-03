@@ -135,16 +135,23 @@ static int test_attach_to_io(void)
     dorado_display_attach_to_io(&d, &io);
     EXPECT(d.attached == 1, "display.attached should be 1 after attach");
 
-    /* DHT (task 3) drives an Output←B at TIOA=0x42 with data 0xCAFE. */
-    dorado_io_write(&io, /*task=*/3, /*tioa=*/0x42, 0xCAFE);
+    /* DHT (task 3) drives an Output←B at a real DDC TIOA. */
+    dorado_io_write(&io, /*task=*/3, DORADO_DISPLAY_TIOA_NLCB, 0xCAFE);
     EXPECT(d.output_count == 1, "output_count = %llu (expected 1)",
            (unsigned long long)d.output_count);
     EXPECT(d.riob == 0xCAFE, "riob = 0x%X (expected 0xCAFE)", d.riob);
 
-    /* DWT (task 13₈ = 11 dec) drives another. */
-    dorado_io_write(&io, /*task=*/011, /*tioa=*/0x10, 0x1234);
+    /* DWT (task 13₈ = 11 dec) drives another real display command. */
+    dorado_io_write(&io, DORADO_DISPLAY_TASK_DWT,
+                    DORADO_DISPLAY_TIOA_DWTFLAG, 0x1234);
     EXPECT(d.output_count == 2, "output_count after second write = %llu",
            (unsigned long long)d.output_count);
+
+    /* Shared display task numbers are reused by Mesa helper code. An
+     * unrelated TIOA must not be claimed just because the task is DHT/DWT. */
+    dorado_io_write(&io, DORADO_DISPLAY_TASK_DWT, 0006, 0xBEEF);
+    EXPECT(d.output_count == 2, "unmapped display-task TIOA bumped count, "
+           "got %llu", (unsigned long long)d.output_count);
 
     /* Non-display task (e.g. EMU=0) is NOT routed to the display.
      * Verify by writing to it — it should be a no-op since no other
@@ -155,7 +162,7 @@ static int test_attach_to_io(void)
 
     /* Pd←Input from DDC reports idle single-bit terminal/status data. */
     int bad = -1;
-    uint16_t v = dorado_io_read(&io, 3, 0x42, &bad);
+    uint16_t v = dorado_io_read(&io, 3, DORADO_DISPLAY_TIOA_NLCB, &bad);
     EXPECT(v == 0x0000, "input = 0x%X (expected idle 0)", v);
     EXPECT(bad == 0, "parity should be good for mapped device, got bad=%d", bad);
 

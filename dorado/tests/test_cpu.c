@@ -2792,6 +2792,20 @@ static int probe_full_boot_with_bootstrap(void)
     struct preset_sample preset_last[64];
     int preset_first_n = 0;
     int preset_last_head = 0, preset_last_total = 0;
+    struct display_tpc_change {
+        uint64_t cycle;
+        uint8_t issuer_task;
+        uint8_t target_task;
+        uint16_t pc;
+        uint16_t old_tpc;
+        uint16_t new_tpc;
+        uint16_t link;
+        uint16_t t;
+        uint8_t rbase;
+        uint8_t membase;
+    };
+    struct display_tpc_change display_tpc_changes[96];
+    int display_tpc_change_n = 0;
     int preset_trace_enabled = test_u64_env("DORADO_PRESET_TRACE", 0) != 0;
     int disk_trace_enabled = test_u64_env("DORADO_DISK_TRACE", 0) != 0;
     int mcr_trace_enabled = test_u64_env("DORADO_MCR_TRACE", 0) != 0;
@@ -3890,6 +3904,9 @@ static int probe_full_boot_with_bootstrap(void)
             post_eb_step_trace.ifu_pcx_before = cpu.ifu_pcx;
         }
 
+        uint16_t pre_tpc_display[16];
+        for (int tt = 0; tt < 16; tt++) pre_tpc_display[tt] = cpu.task_tpc[tt];
+
         mem.last_ref_kind = DM_REF_NONE;
         if (dorado_cpu_step(&cpu)) {
             halt_reason = (cpu_halt_reason)cpu.halt_reason;
@@ -4005,6 +4022,37 @@ static int probe_full_boot_with_bootstrap(void)
                         mem.last_ref_va & 0x0FFFFFFFu,
                         mem.last_ref_b & 0177777, pre_rbase,
                         pre_membase, pre_t & 0177777, pre_md & 0177777);
+            }
+        }
+        {
+            const int display_tasks[] = {
+                DORADO_DISPLAY_TASK_DHT,
+                DORADO_DISPLAY_TASK_AHT,
+                DORADO_DISPLAY_TASK_AWT,
+                DORADO_DISPLAY_TASK_DWT,
+            };
+            for (size_t ti = 0;
+                 ti < sizeof display_tasks / sizeof display_tasks[0];
+                ti++) {
+                int task = display_tasks[ti] & 0xF;
+                if (task == (pre_task & 0xF)) continue;
+                if (cpu.task_tpc[task] == pre_tpc_display[task]) continue;
+                if (display_tpc_change_n <
+                    (int)(sizeof display_tpc_changes /
+                          sizeof display_tpc_changes[0])) {
+                    struct display_tpc_change *dc =
+                        &display_tpc_changes[display_tpc_change_n++];
+                    dc->cycle = bb.cycles;
+                    dc->issuer_task = (uint8_t)(pre_task & 0xF);
+                    dc->target_task = (uint8_t)task;
+                    dc->pc = pre_pc;
+                    dc->old_tpc = pre_tpc_display[task];
+                    dc->new_tpc = cpu.task_tpc[task];
+                    dc->link = pre_link;
+                    dc->t = pre_t;
+                    dc->rbase = pre_rbase;
+                    dc->membase = pre_membase;
+                }
             }
         }
         if (ether_boot_injections) {
@@ -4909,6 +4957,19 @@ static int probe_full_boot_with_bootstrap(void)
                (unsigned long long)best_count);
     }
     printf("\n");
+    if (display_tpc_change_n > 0) {
+        printf("       Display task TPC changes:");
+        for (int i = 0; i < display_tpc_change_n; i++) {
+            const struct display_tpc_change *dc = &display_tpc_changes[i];
+            printf(" #%d@%llu issuer=%o pc=0o%o target=%o "
+                   "0o%o->0o%o Link=0o%o T=0o%o RB=%02o MB=%02o",
+                   i, (unsigned long long)dc->cycle,
+                   dc->issuer_task, dc->pc, dc->target_task,
+                   dc->old_tpc, dc->new_tpc, dc->link, dc->t,
+                   dc->rbase, dc->membase);
+        }
+        printf("\n");
+    }
     if (ether_boot_injections || ether_loaded_world_cycle) {
         printf("       Post-EB device deltas: display outs=+%llu iofetch=+%llu "
                "dwt wakeups=+%llu scanline wakeups=+%llu "
