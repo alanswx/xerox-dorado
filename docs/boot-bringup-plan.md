@@ -1813,6 +1813,16 @@ and `/tmp/dorado_boot_display.pgm` is honestly all white. Next step is
 to follow why the loaded Alto/Mesa path has not yet installed a valid
 display DCB/`DAStart` before TWT starts fetching.
 
+2026-05-03 terminal-task latch follow-up: `DisplayAux.mc:DisplayInitConfig`
+first probes DispM, then chooses either DispY (`Statics`) or DispM
+(`TStatics`) as the terminal controller. The display model now latches
+the first DHT/AHT Statics/TStatics writer as the terminal horizontal task
+instead of letting later stale writes steal that role. Focused probe
+after the latch: frame 213, `display iofetch=32`, FIFO A has 32 zero
+words, FIFO B is empty, no Fast-I/O drops, `Memory: faults=0`, and the
+snapshot is still all white. Treat the display fetch/render path as
+available but starved of useful software display state.
+
 These are weeks-of-work each, in rough order of effort:
 
 | Phase | Effort | Dependency      |

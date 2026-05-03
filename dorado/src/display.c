@@ -194,7 +194,7 @@ static void display_output_b(void *ctx, int task, int subtask,
     if ((t == DORADO_DISPLAY_TASK_DHT || t == DORADO_DISPLAY_TASK_AHT) &&
         (tioa == DORADO_DISPLAY_TIOA_STATICS ||
          tioa == DORADO_DISPLAY_TIOA_TSTATICS)) {
-        d->terminal_task = t;
+        if (d->terminal_task == 0) d->terminal_task = t;
     }
     if (tioa == DORADO_DISPLAY_TIOA_STATICS ||
         tioa == DORADO_DISPLAY_TIOA_TSTATICS) {

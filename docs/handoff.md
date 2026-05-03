@@ -1759,3 +1759,14 @@ B-channel FIFO data; it reports `display iofetch=32`, FIFO A has 32
 zero words, and the framebuffer remains all white. That makes the next
 blocker a real boot/display-state problem: the word task is fetching
 blank data before a valid Alto DCB/`DAStart` chain is installed.
+
+2026-05-03 terminal-task latch follow-up: `DisplayAux.mc` chooses the
+terminal controller after probing DispM; a no-DispM boot should keep
+terminal work on DispY/DHT/DWT. The model now latches the first DHT/AHT
+`Statics`/`TStatics` writer as `terminal_task` instead of allowing later
+stale writes to retarget WCB wakeups. Focused probe result after the
+latch: frame 213, `display iofetch=32`, FIFO A contains 32 zero words,
+FIFO B is empty, no Fast-I/O drops, `Memory: faults=0`, and
+`/tmp/dorado_boot_display.pgm` is all white. Next debugging should stay
+on the loaded Alto/Mesa disk/software path that should populate
+`DAStart` and the Alto DCB chain.

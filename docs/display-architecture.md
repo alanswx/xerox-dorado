@@ -505,6 +505,14 @@ production: 0 = Alto-style, 1 = LF (large format / Star).
   callbacks now receive the task subtask, and DWT/AWT flag writes use
   that bus value. Terminal horizontal flag writes honor only the A/T
   NextWCB bit; B remains for non-terminal DWT use.
+- **Terminal controller selection**: `DisplayAux.mc:DisplayInitConfig`
+  decides whether THT/TWT should use DispY (`Statics`) or DispM
+  (`TStatics`) from the DispM probe and monitor status. The model latches
+  the first DHT/AHT Statics/TStatics writer as `terminal_task` so later
+  stale writes do not switch a no-DispM boot from DHT/DWT to AHT/AWT.
+  The latest full probe still fetches only 32 zero words into FIFO A and
+  produces an all-white PGM, which points back to missing software
+  display state (`DAStart`/DCB chain), not the WCB channel decode.
 
 **Phase 2**:
 - **`dorado_display_render_fifo()`**: drains the per-channel FIFO
