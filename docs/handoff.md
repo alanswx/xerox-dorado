@@ -76,13 +76,20 @@ you don't repeat them.
   streams disk records, and low-core through IOBR contains non-blank
   Alto display/disk data. It still does not boot Alto software or
   display useful pixels: IFU arms remain zero and display `IOFetch`
-  remains zero. The latest memory change raises the modeled machine
-  from one 64K-chip/4MW storage module to two modules because the
-  loaded Alto/Mesa world maps real page `4057`, which is just beyond
-  the old `RealPages=4000` ceiling but valid on an `8000`-page
-  two-module machine. Re-run the 140M natural Ethernet boot and check
-  whether the old `VA=D24FE1E` storage fault is gone; if it is, return
-  to the disk/status path and display-list progress.
+  remains zero. The latest memory change raises the modeled machine to
+  four 64K-chip/4MW storage modules. Two modules removed the first
+  `RealPages=4000` fault at real page `4057`, but a 140M fault trace
+  showed the loaded Alto/Mesa map also using real pages `EA40`/`EAC0`;
+  those are valid only on a full `0x10000`-page, 16MW Dorado. Re-run
+  the 140M natural Ethernet boot and check whether the high-real-page
+  storage faults are gone; if they are, return to the disk/data-transfer
+  path and display-list progress.
+  Follow-up: with four modules, the 140M probe reports
+  `Memory: faults=0`, `RealPages=0x0000` (the 16-bit representation of
+  64K real pages), `BR31=0xD240180`, and non-blank IOBR/MDS low core.
+  The remaining blocker is again disk/display handoff: DiskMuff/Tag I/O
+  is busy, `rd_fifo_tw=1`, but `DiskData` reads are still zero and
+  display `IOFetch` is still zero.
 - **Repo:** `/Users/alans/Documents/development/Dorado`
 - **Most useful entry points to read:** `CLAUDE.md` (project mission),
   `dorado/CLAUDE.md` (code-side guide), `docs/INDEX.md` (doc map).

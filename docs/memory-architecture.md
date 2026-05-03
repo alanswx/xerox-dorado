@@ -571,19 +571,16 @@ MemBase — see HM §6.4.
 
 - Storage modules are fixed real-address ranges, not interleaved. HM
   page 59: a module stores 256K or 1M 64-bit quadwords depending on
-  chip generation. The C model now reports two present 64K-chip/4MW
-  modules. This matches the loaded Alto/Mesa world reaching real page
-  `0x4057`, which is just beyond a one-module `0x4000` page machine
-  but valid on a two-module machine. `EMemDefs.mc` defines `ChipSize`
-  in memory-control bits
+  chip generation, and HM page 60 says a Dorado may have 1-4 modules.
+  The C model now reports four present 64K-chip/4MW modules. This
+  matches the loaded Alto/Mesa world reaching real pages `0xEA40` and
+  `0xEAC0`, which are valid only on the full `0x10000`-page, 16MW
+  machine. `EMemDefs.mc` defines `ChipSize` in memory-control bits
   `b12,b13` (C bits 3..2) and present-module bits as M0=`0200`,
   M1=`0100`, M2=`0040`, M3=`0020`; the C model reports
-  `ChipSize=3` plus M0/M1 present. The backing store is 8MW. After this
-  correction the EB direct-load probe gets sane initial config
-  (`R400=0x0100`) and moves BR31/BR36/BR37 from `0x10000` to
-  `0x20000`. The later `Mar=0x2FE1F` checkpoint is now mapped and
-  referenced successfully in the direct probe; the active blocker has
-  moved to task/display startup.
+  `ChipSize=3` plus M0-M3 present. The backing store is 16MW. The
+  microcode's `RealPages` register is 16 bits, so the full 64K-page
+  configuration appears there as `0x0000`.
 - References beyond installed storage report a storage/data fault in
   the C model; they do not wrap back into low storage.
 - 8 EC bits per 16-bit word (Hamming SEC + DED extension).

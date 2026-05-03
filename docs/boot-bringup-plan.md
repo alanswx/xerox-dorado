@@ -1718,17 +1718,22 @@ real Alto/Mesa disk path:
   MDS disk words contain non-`FFFF` data.
 - The IFU still does not arm, and display `IOFetch` remains zero.
 
-The new focused blocker is the Alto/Mesa memory bank handoff, not Ethernet
-delivery. The latest long run ends with task 0 fetching `VA=D24FE1E`, map index
-`24FE`, whose map entry has `rp=4057` while `RealPages=4000`.
-`InitMem.mc` documents that Alto-mode `GetEmulatorMapParams` returns the
-64K virtual bank for MDS in `T[4:15]`; `AEm0.mc:SetupBRs` then installs
-`EmuBRHiReg` into BR36/37 and the disk BR. Our trace has
-`EmuBRHiReg=0x0D24`, `BR36=BR37=BR30=0xD240000`, and `IOBR=0xD240180`.
-Next action: disassemble/trace compiled `GETEMULATORMAPPARAMS` around
-`0o2420` and the source implementation in `AEm0.mc` to decide whether
-`0x0D24` is the intended Alto bank, a decode/execution bug, or a map/storage
-wrap rule we are still missing.
+The first Alto/Mesa memory bank blocker was storage sizing, not a bad
+`GetEmulatorMapParams` value. A one-module model faulted at real page
+`4057`; a two-module model then showed the loaded map using real pages
+`EA40`/`EAC0` at `VA=D240xxx`. HM §5 allows four storage modules, and
+`InitMem.mc` derives `RealPages` from the Config' M0-M3 bits. The C model
+now reports all four 64K-chip/4MW modules (16MW total), so the next long
+run should verify that those high-real-page fetches no longer fault and
+then return to the disk-data/display-DCB path.
+
+2026-05-02 four-module verification: the 140M natural Ethernet boot now
+reports `Memory: faults=0`, with `RealPages=0x0000` because 64K pages wrap
+in the 16-bit `RealPages` register. Low core through IOBR and MDS is no
+longer blank (`DAStart[0421..]` and MDS disk words contain data), and the
+disk controller is live (`rd_fifo_tw=1`, many DiskMuff/DiskTag accesses).
+The next blocker is not storage size: the disk task is still not reading
+`DiskData`, and display `IOFetch` remains zero.
 
 These are weeks-of-work each, in rough order of effort:
 

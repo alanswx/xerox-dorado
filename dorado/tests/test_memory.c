@@ -179,7 +179,7 @@ static int test_prefetch_dummyref(void)
     return 0;
 }
 
-/* Test 6: Real storage does not wrap into missing modules. */
+/* Test 6: Real storage does not wrap across module boundaries. */
 static int test_storage_bounds(void)
 {
     static dorado_memory mem; memset(&mem, 0, sizeof mem);
@@ -188,22 +188,30 @@ static int test_storage_bounds(void)
     /* Map the low VA and the high VA to physical words that would
      * alias if real addresses were masked by the installed size. */
     dorado_map_set(&mem, /*va_page=*/0,      /*rp=*/0,      0, 0);
-    dorado_map_set(&mem, dorado_map_index(0x800042), /*rp=*/0x8000, 0, 0);
+    dorado_map_set(&mem, dorado_map_index(0x10042), /*rp=*/0x8000, 0, 0);
 
     /* Store at low address, then try a high address that used to wrap
      * to the same physical word. Flush first so a cache hit cannot
      * hide the physical-storage boundary. */
     dorado_memory_ref(&mem, DM_REF_STORE, 0x42, 0xBEEF, 0);
     dorado_memory_ref(&mem, DM_REF_FLUSH, 0x42, 0, 0);
-    /* DM_STORAGE_WORDS = 8 MW = 0x800000. Phys 0x800042 is in an
-     * absent module for the default two-module config and must fault,
-     * not wrap to storage[0x42]. */
+    /* DM_STORAGE_WORDS = 16 MW. Phys 0x800042 is in a different
+     * installed module and must not wrap to storage[0x42]. */
     dorado_fault_kind f =
-        dorado_memory_ref(&mem, DM_REF_FETCH, 0x800042, 0, 0);
-    EXPECT(f == DM_FAULT_STORAGE_ERROR,
-           "out-of-range fetch fault = %d, expected storage error", (int)f);
+        dorado_memory_ref(&mem, DM_REF_FETCH, 0x10042, 0, 0);
+    EXPECT(f == DM_FAULT_NONE,
+           "high-module fetch fault = %d, expected no fault", (int)f);
     EXPECT(mem.md != 0xBEEF,
-           "out-of-range fetch aliased low storage: Md = 0x%04X", mem.md);
+           "high-module fetch aliased low storage: Md = 0x%04X", mem.md);
+
+    size_t saved_words = mem.storage_words;
+    mem.storage_words = DM_STORAGE_WORDS - 0x100u;
+    dorado_map_set(&mem, dorado_map_index(0x20042), /*rp=*/0xFFFF, 0, 0);
+    f = dorado_memory_ref(&mem, DM_REF_FETCH, 0x20042, 0, 0);
+    EXPECT(f == DM_FAULT_STORAGE_ERROR,
+           "truncated-storage fetch fault = %d, expected storage error",
+           (int)f);
+    mem.storage_words = saved_words;
 
     dorado_memory_free(&mem);
     printf("PASS  test_storage_bounds\n");
