@@ -1845,6 +1845,29 @@ responsible for initializing the relocated KBLK (`0x8051`/`0x8054`) and
 why that path is not running, rather than continuing to chase the old
 `0521` location.
 
+2026-05-03 repeated old-Alto first-sector service: the bring-up harness
+now services each new `MDS+0521=0431` post instead of only the first one.
+This matches `AEm0.mc`'s retry loop better than the old one-shot shim and
+moved the 180M probe past the task-0 `KWAIT` loop. The run reaches
+`IFU active=1`, reports `alto-boot shims=2`, clears old MDS disk words
+(`[0431..0440]=0`, `[0521..0524]=0`), and ends around task `014`
+disk-status code (`PC=0o5764`) rather than task 0. It is still a
+bring-up shortcut: the real disk controller FIFO path still has
+`read streams=0`.
+
+Display status after the repeated disk service is more specific but not
+yet visible. The display probe now records the first and last display
+Fast-I/O munch VAs. The first IOFetch is from `BR21(TChannel)-1`
+(`D24FFFF`), but the later/final DWT stream is from
+`BR20(AChannel)=0x80008`; both munches are all zero, so
+`/tmp/dorado_boot_display.pgm` is still all white. `DisplayMain.mc!1`
+puts `TWTINITPC=0o6100`, `DWTINITPC=0o6107`, and `DWTSTART=0o6115`;
+the long-run task `013` hot PCs are not in that loop, and final
+`Task MemBase/TIOA` shows `[013]=020/373`. Next display work should
+trace how the loaded Mesa/AEmu microcode hands task `013` from terminal
+`TChannelBR=021` to generic `AChannelBR=020`, and whether our synthetic
+DWT wakeup policy is causing an unintended generic-DWT run.
+
 These are weeks-of-work each, in rough order of effort:
 
 | Phase | Effort | Dependency      |

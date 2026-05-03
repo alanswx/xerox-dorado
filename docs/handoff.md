@@ -1790,3 +1790,23 @@ command pointer appears and no `DiskData` FIFO transfer starts. Next:
 trace the loaded software path that should initialize/post the relocated
 KBLK around `0x8051`/`0x8054`; the old `0521` post is no longer the
 immediate failure.
+
+2026-05-03 repeated old-Alto disk shim follow-up: the harness now
+services each new `MDS+0521=0431` post instead of stopping after the
+first one. This matches `AEm0.mc`'s `DiskBootRetry` behavior and moves
+the 180M probe past task 0's old `KWAIT` loop. Current summary:
+`alto-boot shims=2`, `IFU active=1`, task 0 no longer dominates, final
+state is around task `014` disk status code (`PC=0o5764`), old MDS disk
+windows are clear, and the real disk FIFO path still has
+`read streams=0`.
+
+The display is still blank, but the failure is now sharper. New
+diagnostics show display IOFetch first at `D24FFFF` (`BR21/TChannel - 1`)
+and later at `0080008` (`BR20/AChannel`), with all-zero munch words.
+Compiled Mesa symbols put `TWTINITPC=0o6100`, `DWTINITPC=0o6107`, and
+`DWTSTART=0o6115`; the final task table shows task `013` as
+`MemBase/TIOA=020/373`, so the word task is fetching through the generic
+A-channel base, not the terminal channel base that should carry the Alto
+DCB bitmap stream. Next debug target: why task `013` transitions from
+terminal `TChannelBR=021` to `AChannelBR=020`, and whether the synthetic
+DWT wakeup rule is over-waking generic DWT.

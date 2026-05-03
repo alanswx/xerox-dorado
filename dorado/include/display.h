@@ -226,6 +226,10 @@ typedef struct {
     uint64_t output_task_count[16]; /* Output←B writes by task */
     uint64_t output_tioa_count[256]; /* Output←B writes by TIOA */
     uint64_t iofetch_count;      /* total IOFetch← munches received */
+    uint32_t first_iofetch_va;   /* diagnostic: VA of first display IOFetch */
+    uint32_t last_iofetch_va;    /* diagnostic: VA of most recent IOFetch */
+    uint16_t first_iofetch_words[16];
+    uint16_t last_iofetch_words[16];
     uint64_t nlcb_writes;        /* DHT NLCB outputs */
     uint64_t scanline_ticks;     /* synthetic horizontal timing ticks */
     uint64_t terminal_wakeups;   /* DHT/AHT wakeups requested */

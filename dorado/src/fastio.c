@@ -29,6 +29,16 @@ void dorado_fastio_dispatch(struct dorado_memory *mem,
     case DORADO_DISPLAY_TASK_AWT:
     case DORADO_DISPLAY_TASK_DWT:
         if (kind == DM_REF_IOFETCH && r->display) {
+            if (r->display->iofetch_count == 0) {
+                r->display->first_iofetch_va = va;
+                for (int i = 0; i < 16; i++) {
+                    r->display->first_iofetch_words[i] = munch[i];
+                }
+            }
+            r->display->last_iofetch_va = va;
+            for (int i = 0; i < 16; i++) {
+                r->display->last_iofetch_words[i] = munch[i];
+            }
             /* Push 16 words into the display FIFO for the channel
              * selected by subtask (0 = A, 2 = B). DWT/AWT then
              * pump these into the framebuffer via the mixer or the

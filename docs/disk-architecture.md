@@ -830,5 +830,14 @@ software XOR the corrupted bits back to correct values.
     `0x8051`, then let the real disk controller path start `DiskData`
     transfers from there.
 
+14. **2026-05-03 old Alto retry loop serviced repeatedly.**
+    The bring-up harness now responds to each new old-Alto
+    `MDS+0521=0431` post, instead of treating the first-sector helper as
+    one-shot. That matches `AEm0.mc`'s `DiskBootRetry` behavior and lets
+    the boot probe escape the old task-0 `KWAIT` loop (`alto-boot
+    shims=2`, final task no longer task 0). This is still not real disk
+    emulation: controller FIFO read streams remain zero, and the later
+    DSK path still needs a proper relocated KBLK/Trident command source.
+
 See `docs/io-systems-architecture.md` for a higher-level view of
 how disk fits into Slow I/O / Fast I/O / Tasking.

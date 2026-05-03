@@ -4279,7 +4279,6 @@ static int probe_full_boot_with_bootstrap(void)
             alto_ether_keyboard_seed_count++;
         }
         if (ether_loaded_world_cycle && alto_disk_boot_shim_enabled &&
-            alto_disk_boot_shims == 0 &&
             service_alto_disk_boot_shim(&mem, &disk_pack,
                                         alto_disk_boot_cyl,
                                         alto_disk_boot_head,
@@ -4804,6 +4803,19 @@ static int probe_full_boot_with_bootstrap(void)
            (unsigned long long)display.terminal_messages,
            (unsigned long long)disk.output_count,
            (unsigned long long)disk.input_count);
+    if (display.iofetch_count) {
+        printf("       Display IOFetch VA: first=%07X last=%07X first_words=",
+               display.first_iofetch_va & 0x0FFFFFFFu,
+               display.last_iofetch_va & 0x0FFFFFFFu);
+        for (int i = 0; i < 16; i++) {
+            printf("%s%04X", i ? "," : "", display.first_iofetch_words[i]);
+        }
+        printf(" last_words=");
+        for (int i = 0; i < 16; i++) {
+            printf("%s%04X", i ? "," : "", display.last_iofetch_words[i]);
+        }
+        printf("\n");
+    }
     printf("       Ethernet: enabled=%d wakeups=%llu ctl0=%llu last0=0o%o "
            "ctl6=%llu last6=0o%o ctl7=%llu last7=0o%o tx_words=%zu "
            "starts=%llu eops=%llu stops=%llu requests=%llu last_bfn=0o%o "
@@ -5527,7 +5539,10 @@ static int probe_full_boot_with_bootstrap(void)
         {
             uint32_t iobr = dorado_br_get(&mem, 031);
             uint32_t diskbr = dorado_br_get(&mem, 030);
-            printf("       BRs: BR30(DiskBR)=0x%05X BR31(ECBR/PrincOps IOBR)=0x%05X MDS/BR36=0x%05X Code/BR37=0x%05X\n",
+            printf("       BRs: BR20(AChannel)=0x%05X BR21(TChannel)=0x%05X "
+                   "BR30(DiskBR)=0x%05X BR31(ECBR/PrincOps IOBR)=0x%05X "
+                   "MDS/BR36=0x%05X Code/BR37=0x%05X\n",
+                   dorado_br_get(&mem, 020), dorado_br_get(&mem, 021),
                    diskbr, iobr, dorado_br_get(&mem, 036),
                    dorado_br_get(&mem, 037));
             printf("       AEmu BR regs: EmuBRHiReg/RM[0x18]=0x%04X "
