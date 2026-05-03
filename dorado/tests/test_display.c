@@ -204,9 +204,15 @@ static int test_display_wcb_flag_protocol(void)
     EXPECT(d.next_wcb_flag[0] == 0, "NextWCB should be consumed");
     EXPECT(d.current_wcb_flag[0] == 1, "CurrentWCB should be set");
 
+    EXPECT(dorado_display_dwt_wakeup(&d, &subtask) == 1,
+           "DWT wakeup should continue while CurrentWCB and FIFO space");
+    EXPECT(subtask == 0, "DWT subtask = %d (expected A/subtask 0)", subtask);
+
     dorado_io_write(&io, DORADO_DISPLAY_TASK_DWT,
                     DORADO_DISPLAY_TIOA_DWTFLAG, 0000);
     EXPECT(d.current_wcb_flag[0] == 0, "DWT Output_0 clears CurrentWCB");
+    EXPECT(dorado_display_dwt_wakeup(&d, &subtask) == 0,
+           "DWT wakeup should stop when no WCB flags are set");
 
     dorado_io_write(&io, DORADO_DISPLAY_TASK_DHT,
                     DORADO_DISPLAY_TIOA_DHTFLAG, 0004);

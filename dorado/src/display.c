@@ -326,6 +326,25 @@ int dorado_display_fifo_push(dorado_display *d, int subtask, uint16_t word)
     return 0;
 }
 
+static int display_fifo_free(const dorado_display *d, int subtask)
+{
+    int head, tail, cap;
+
+    if (!d) return 0;
+    cap = (int)(sizeof d->fifo_a / sizeof d->fifo_a[0]);
+    if (subtask == 0) {
+        head = d->fifo_a_head;
+        tail = d->fifo_a_tail;
+    } else {
+        head = d->fifo_b_head;
+        tail = d->fifo_b_tail;
+    }
+
+    int used = head - tail;
+    if (used < 0) used += cap;
+    return (cap - 1) - used;
+}
+
 void dorado_display_set_pixel(dorado_display *d, int x, int y, int pix)
 {
     if (x < 0 || x >= DORADO_DISPLAY_W) return;
@@ -473,6 +492,14 @@ int dorado_display_dwt_wakeup(dorado_display *d, int *subtask)
             d->current_wcb_flag[ch] = 1;
             d->dwt_wakeups++;
             if (subtask) *subtask = ch ? 2 : 0;
+            return 1;
+        }
+    }
+    for (int ch = 0; ch < 2; ch++) {
+        int st = ch ? 2 : 0;
+        if (d->current_wcb_flag[ch] && display_fifo_free(d, st) >= 16) {
+            d->dwt_wakeups++;
+            if (subtask) *subtask = st;
             return 1;
         }
     }

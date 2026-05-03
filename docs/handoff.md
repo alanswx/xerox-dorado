@@ -1715,3 +1715,15 @@ memory reference when the current task/TIOA has a registered writer.
 `Read20Muffs` CPU fault: task 0 is hot in the loaded Alto/Mesa path
 around `0o5073/0o5127/0o5175`, task 14 is still active in disk code, and
 display fast-I/O fetches remain zero.
+
+2026-05-02 DWT FIFO-available wakeup checkpoint: HM display wakeup
+logic is `WantsDWT = (NextWCBFlag && !CurrentWCBFlag) ||
+(CurrentWCBFlag && FIFOAvailable)`. The model now continues to wake the
+DWT/TWT word task while a current WCB is active and at least one
+16-word munch fits in the per-channel FIFO. `test_display_wcb_flag_protocol`
+covers this. A focused post-EB trace now produces many DWT wakeups, but
+`display iofetch` is still zero. The next concrete blocker is the
+compiled `DisplayMain.mc` `DWTStart` instruction at `0o6702`, source
+`AAddress_ (IOFetch_ AAddress)+(Output_ T), Block, Branch[DWTStart]`:
+decode says it should be an I/O-task `IOFetch`, so trace why that
+instruction is not reaching the fast-I/O display FIFO router.

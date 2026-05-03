@@ -483,6 +483,13 @@ production: 0 = Alto-style, 1 = LF (large format / Star).
   THT/TWT split. The current EB run is unchanged after this correction:
   task 3 remains in `COLORBITMAPNIL`, `DAStart` is still zero, and no
   real display munches are ready for fast I/O.
+- **DWT FIFO-available wakeups**: `dorado_display_dwt_wakeup()` now
+  implements both halves of the HM `WantsDWT` rule. A fresh NextWCB
+  hands the channel to CurrentWCB, and an active CurrentWCB keeps
+  requesting DWT/TWT service while the per-channel FIFO has room for a
+  16-word munch. This exposes the next boot blocker: DWT reaches the
+  `DWTStart` instruction that should issue `IOFetch_ AAddress`, but the
+  display fast-I/O counter remains zero.
 
 **Phase 2**:
 - **`dorado_display_render_fifo()`**: drains the per-channel FIFO

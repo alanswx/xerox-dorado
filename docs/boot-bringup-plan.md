@@ -1781,6 +1781,15 @@ zero, task 0 is hot in the loaded Alto/Mesa path around
 work should follow the loaded software path that should either post
 usable disk work or install/activate a display DCB.
 
+DWT wakeup follow-up: the display model now includes the second half of
+the HM `WantsDWT` rule, so a current WCB plus room for one 16-word munch
+keeps waking DWT/TWT. This changes the latest failure from "DWT does not
+wake" to "DWT wakes but its `DWTStart` `IOFetch_ AAddress` does not
+arrive at the fast-I/O display FIFO." Debug the exact loaded instruction
+at `PC=0o6702` (`FF=0136`, `ASEL=0`, `BLOCK`) against the CPU
+I/O-task memory-reference decode and the `dorado_memory` fast-I/O
+callback path.
+
 These are weeks-of-work each, in rough order of effort:
 
 | Phase | Effort | Dependency      |
