@@ -1727,3 +1727,20 @@ compiled `DisplayMain.mc` `DWTStart` instruction at `0o6702`, source
 `AAddress_ (IOFetch_ AAddress)+(Output_ T), Block, Branch[DWTStart]`:
 decode says it should be an I/O-task `IOFetch`, so trace why that
 instruction is not reaching the fast-I/O display FIFO router.
+
+2026-05-03 combined `Output_ T` + `IOFetch` fix: the DWT trace showed
+`0o6702` executing with `ref=none`, even though the isolated decode
+said `FF=0136`/`ASEL=0` should be `IOFetch`. Root cause was the
+`Read20MLoop` fix being too broad: it suppressed all memory-form
+`FF&077 == 0036` slow-I/O outputs when a TIOA writer was registered.
+`DisplayMain.mc` uses that exact low-six-bit `Output<-B` function in
+combination with a real `IOFetch_ AAddress`, so the CPU now suppresses
+only the non-IOFetch false memory references. The new regression
+`test_dwtstart_memory_form_routes_iofetch` verifies both sides of the
+combined instruction: display slow-I/O sees `Output_ T`, and fast-I/O
+receives the 16-word munch. The focused boot probe now reports
+`display iofetch=480` with `Memory: faults=0`. The generated
+`/tmp/dorado_boot_display.pgm` is still all white (`unique=1`,
+`nonwhite=0`), so the next blocker moved to display data/render timing:
+confirm whether the fetched munches are blank/white data, remain in the
+FIFO, or are being drained at the wrong synthetic scanline/frame phase.

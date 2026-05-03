@@ -1790,6 +1790,16 @@ at `PC=0o6702` (`FF=0136`, `ASEL=0`, `BLOCK`) against the CPU
 I/O-task memory-reference decode and the `dorado_memory` fast-I/O
 callback path.
 
+2026-05-03 DWT fast-I/O unblocked: `DWTStart` combines slow I/O and
+fast I/O in one memory-reference instruction. The prior memory-form
+`Output<-B` workaround masked that reference whenever the display
+registered a DWT slow-I/O writer. CPU execution now lets `FF=0136`,
+`ASEL=0` proceed as `IOFetch` while still emitting `Output_ T`. The
+full CPU probe now reaches `display iofetch=480` with no memory faults.
+The framebuffer snapshot remains all white, so the immediate next work
+is to inspect the DWT FIFO contents and the headless render schedule
+rather than CPU memory-reference decode.
+
 These are weeks-of-work each, in rough order of effort:
 
 | Phase | Effort | Dependency      |

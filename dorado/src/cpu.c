@@ -2615,6 +2615,7 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
         dorado_ref_kind kind = decode_ref_kind(u, io_task);
         if (kind != DM_REF_NONE) {
             if (ff_is_output_b_memory_form(u) &&
+                kind != DM_REF_IOFETCH &&
                 cpu->io &&
                 dorado_io_has_write(cpu->io, cpu->ctask,
                                     (uint8_t)cpu->TIOA)) {

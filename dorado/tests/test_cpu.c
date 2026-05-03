@@ -2934,6 +2934,8 @@ static int probe_full_boot_with_bootstrap(void)
         uint16_t disk_tpc_before, disk_tpc_after;
         uint16_t ifu_pcf_before, ifu_pcf_after;
         uint16_t ifu_pcx_before, ifu_pcx_after;
+        dorado_ref_kind ref_kind_after;
+        uint8_t ref_task_after, ref_subtask_after;
         cpu_halt_reason halt_reason;
     };
 #define POST_EB_TRACE_CAP 1024
@@ -3936,6 +3938,9 @@ static int probe_full_boot_with_bootstrap(void)
                     dorado_cpu_get_task_tpc(&cpu, DORADO_DISK_TASK);
                 post_eb_step_trace.ifu_pcf_after = cpu.ifu_pcf;
                 post_eb_step_trace.ifu_pcx_after = cpu.ifu_pcx;
+                post_eb_step_trace.ref_kind_after = mem.last_ref_kind;
+                post_eb_step_trace.ref_task_after = mem.last_ref_task;
+                post_eb_step_trace.ref_subtask_after = mem.last_ref_subtask;
                 post_eb_step_trace.halt_reason = halt_reason;
                 post_eb_trace[post_eb_trace_head] = post_eb_step_trace;
                 post_eb_trace_head = (post_eb_trace_head + 1) %
@@ -4072,6 +4077,9 @@ static int probe_full_boot_with_bootstrap(void)
                 dorado_cpu_get_task_tpc(&cpu, DORADO_DISK_TASK);
             post_eb_step_trace.ifu_pcf_after = cpu.ifu_pcf;
             post_eb_step_trace.ifu_pcx_after = cpu.ifu_pcx;
+            post_eb_step_trace.ref_kind_after = mem.last_ref_kind;
+            post_eb_step_trace.ref_task_after = mem.last_ref_task;
+            post_eb_step_trace.ref_subtask_after = mem.last_ref_subtask;
             post_eb_trace[post_eb_trace_head] = post_eb_step_trace;
             post_eb_trace_head = (post_eb_trace_head + 1) %
                                  (int)(sizeof post_eb_trace /
@@ -5068,7 +5076,7 @@ static int probe_full_boot_with_bootstrap(void)
                        "disp=%04X/%04X->%04X/%04X "
                        "ready=%04X->%04X wake=%04X->%04X "
                        "TPC0=0o%o->0o%o TPCAHT=0o%o->0o%o TPCd=0o%o->0o%o "
-                       "MCR=%04X->%04X "
+                       "MCR=%04X->%04X ref=%s/%o.%o "
                        "MAR=%05X->%05X MD=%04X->%04X",
                        pt->next_pc,
                        pt->t_before, pt->t_after,
@@ -5092,6 +5100,8 @@ static int probe_full_boot_with_bootstrap(void)
                        pt->aht_tpc_before, pt->aht_tpc_after,
                        pt->disk_tpc_before, pt->disk_tpc_after,
                        pt->mcr_before, pt->mcr_after,
+                       ref_kind_name(pt->ref_kind_after),
+                       pt->ref_task_after, pt->ref_subtask_after,
                        pt->mar_before, pt->mar_after,
                        pt->md_before, pt->md_after);
                 if ((pt->pc >= 01000 && pt->pc <= 01060) ||
@@ -8120,6 +8130,80 @@ static int test_output_b_memory_form_with_lc_routes_slow_io(void)
     return 0;
 }
 
+static int test_dwtstart_memory_form_routes_iofetch(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[2] = 014;  mc.alufm_present[2] = 1;  /* A+B */
+
+    /* DisplayMain.mc DWTStart:
+     *   AAddress_ (IOFetch_ AAddress)+(Output_ T), Block, Branch[DWTStart]
+     * Compiled in Mesa.mb as ASEL=0, FF=0136. HM Table 8a uses
+     * FF[0:1]=1 as IOFetch for I/O tasks; only the low six FF bits are
+     * available as side-effect decodes on memory-reference ASELs. */
+    mc.rm[0] = 0x0100;
+    mc.rm_present[0] = 1;
+    mc.im[0] = make_uinstr(/*rstk=*/0, /*aluf=*/2, /*bsel=*/2, /*lc=*/6,
+                           /*asel=*/0, /*block=*/1, /*ff=*/0136,
+                           jcn_local(0));
+    mc.im_present[0] = 1;
+    mc.image_to_real[0] = 0;
+    mc.image_present[0] = 1;
+    mc.n_instructions = 1;
+
+    dorado_memory mem;
+    EXPECT(dorado_memory_init(&mem) == 0, "memory init failed");
+    dorado_map_set(&mem, dorado_map_index(0x0100), /*rp=*/1,
+                   /*wp=*/0, /*dirty=*/0);
+    for (int i = 0; i < 16; i++) {
+        mem.storage[0x0100 + i] = (uint16_t)(0xA000 + i);
+    }
+
+    static dorado_display display;
+    static dorado_disk_controller disk;
+    static dorado_fastio_router fastio;
+    static dorado_io io;
+    dorado_io_init(&io);
+    dorado_display_init(&display);
+    dorado_display_attach_to_io(&display, &io);
+    dorado_disk_controller_init(&disk);
+    dorado_fastio_router_init(&fastio, &display, &disk);
+    mem.fast_io_cb = dorado_fastio_dispatch;
+    mem.fast_io_ctx = &fastio;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.io = &io;
+    cpu.mem = &mem;
+    cpu.ctask = DORADO_DISPLAY_TASK_DWT;
+    cpu.task_tpc[DORADO_DISPLAY_TASK_DWT] = 0;
+    cpu.MemBase = 0;
+    cpu.task_membase[DORADO_DISPLAY_TASK_DWT] = 0;
+    cpu.task_subtask[DORADO_DISPLAY_TASK_DWT] = 0;
+    cpu.TIOA = DORADO_DISPLAY_TIOA_DWTFLAG;
+    cpu.task_tioa[DORADO_DISPLAY_TASK_DWT] = DORADO_DISPLAY_TIOA_DWTFLAG;
+    cpu.T = 020;
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(mem.last_fault == DM_FAULT_NONE,
+           "DWTStart IOFetch faulted: %d", (int)mem.last_fault);
+    EXPECT(display.iofetch_count == 16,
+           "display iofetch_count=%llu (expected 16)",
+           (unsigned long long)display.iofetch_count);
+    EXPECT(display.output_count == 1,
+           "display output_count=%llu (expected combined Output_ T)",
+           (unsigned long long)display.output_count);
+    EXPECT(display.fifo_a[0] == 0xA000 && display.fifo_a[15] == 0xA00F,
+           "display FIFO did not receive the IOFetch munch");
+    EXPECT(cpu.RM[0] == 0x0110,
+           "AAddress=0x%04X (expected 0x0110)", cpu.RM[0]);
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_dwtstart_memory_form_routes_iofetch\n");
+    return 0;
+}
+
 static int test_tioa_small_constant_all_low_bits(void)
 {
     static dorado_microcode mc;
@@ -8580,6 +8664,7 @@ int main(void)
     rc |= test_output_iostore_shape_routes_slow_io();
     rc |= test_output_iostore_with_lc_routes_slow_io();
     rc |= test_output_b_memory_form_with_lc_routes_slow_io();
+    rc |= test_dwtstart_memory_form_routes_iofetch();
     rc |= test_tioa_small_constant_all_low_bits();
     rc |= test_carry_preserved_on_logical();
     rc |= test_alufmrw_bit_mapping();

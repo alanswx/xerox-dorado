@@ -490,6 +490,13 @@ production: 0 = Alto-style, 1 = LF (large format / Star).
   16-word munch. This exposes the next boot blocker: DWT reaches the
   `DWTStart` instruction that should issue `IOFetch_ AAddress`, but the
   display fast-I/O counter remains zero.
+- **Combined `Output_ T` + `IOFetch`**: `DWTStart` compiles as
+  `FF=0136`, `ASEL=0`, `BLOCK`. The low six FF bits are the
+  `Output<-B` side effect, while `FF[0:1]=1` selects `IOFetch` for an
+  I/O task. The CPU model now permits both operations in the same
+  instruction. Latest boot probe result: DWT delivers 480 display
+  fast-I/O words, but the PGM snapshot is still all white, so the next
+  display work is FIFO-content and render-phase tracing.
 
 **Phase 2**:
 - **`dorado_display_render_fifo()`**: drains the per-channel FIFO
