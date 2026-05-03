@@ -33,10 +33,10 @@
 #define DORADO_IO_TASKS  16
 #define DORADO_IO_ADDRS  256
 
-typedef uint16_t (*dorado_io_read_fn)(void *ctx, int task, uint8_t tioa,
-                                      int *out_bad_parity);
-typedef void     (*dorado_io_write_fn)(void *ctx, int task, uint8_t tioa,
-                                       uint16_t data);
+typedef uint16_t (*dorado_io_read_fn)(void *ctx, int task, int subtask,
+                                      uint8_t tioa, int *out_bad_parity);
+typedef void     (*dorado_io_write_fn)(void *ctx, int task, int subtask,
+                                       uint8_t tioa, uint16_t data);
 typedef int      (*dorado_io_attention_fn)(void *ctx, int task, uint8_t tioa);
 
 typedef struct {
@@ -71,9 +71,13 @@ void dorado_io_register_all_tasks(dorado_io *io, uint8_t tioa,
  * parity error. */
 uint16_t dorado_io_read(dorado_io *io, int task, uint8_t tioa,
                         int *out_bad_parity);
+uint16_t dorado_io_read_subtask(dorado_io *io, int task, int subtask,
+                                uint8_t tioa, int *out_bad_parity);
 
 /* Write IOB at (task, TIOA). No-op if no device is registered. */
 void dorado_io_write(dorado_io *io, int task, uint8_t tioa, uint16_t data);
+void dorado_io_write_subtask(dorado_io *io, int task, int subtask,
+                             uint8_t tioa, uint16_t data);
 
 /* True if a device with a write handler is registered at (task, TIOA). */
 int dorado_io_has_write(const dorado_io *io, int task, uint8_t tioa);

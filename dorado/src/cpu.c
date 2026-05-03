@@ -728,8 +728,9 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                 return task_md(cpu);
             case 036: /* Output ← B */
                 if (cpu->io) {
-                    dorado_io_write(cpu->io, cpu->ctask,
-                                    (uint8_t)cpu->TIOA, b);
+                    dorado_io_write_subtask(cpu->io, cpu->ctask,
+                                            cpu->task_subtask[cpu->ctask],
+                                            (uint8_t)cpu->TIOA, b);
                 }
                 break;
             default:
@@ -793,8 +794,9 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                 {
                     int bad = 0;
                     uint16_t v = cpu->io
-                        ? dorado_io_read(cpu->io, cpu->ctask,
-                                         (uint8_t)cpu->TIOA, &bad)
+                        ? dorado_io_read_subtask(cpu->io, cpu->ctask,
+                                                cpu->task_subtask[cpu->ctask],
+                                                (uint8_t)cpu->TIOA, &bad)
                         : (uint16_t)0xFFFF;
                     if (!cpu->io) bad = 1;
                     cpu->io_bad_parity = (uint8_t)bad;
@@ -807,8 +809,9 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                 {
                     int bad = 0;
                     uint16_t v = cpu->io
-                        ? dorado_io_read(cpu->io, cpu->ctask,
-                                         (uint8_t)cpu->TIOA, &bad)
+                        ? dorado_io_read_subtask(cpu->io, cpu->ctask,
+                                                cpu->task_subtask[cpu->ctask],
+                                                (uint8_t)cpu->TIOA, &bad)
                         : (uint16_t)0xFFFF;
                     (void)bad;
                     return v;
@@ -829,8 +832,9 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                      * onto IOB to the device addressed by TIOA. Routed
                      * through the slow-IO table; no-op if unmapped. */
                 if (cpu->io) {
-                    dorado_io_write(cpu->io, cpu->ctask,
-                                    (uint8_t)cpu->TIOA, b);
+                    dorado_io_write_subtask(cpu->io, cpu->ctask,
+                                            cpu->task_subtask[cpu->ctask],
+                                            (uint8_t)cpu->TIOA, b);
                 }
                 return pd;
             case 7: /* FlipMemBase */
@@ -2632,8 +2636,9 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                 cpu->io &&
                 dorado_io_has_write(cpu->io, cpu->ctask,
                                     (uint8_t)cpu->TIOA)) {
-                dorado_io_write(cpu->io, cpu->ctask,
-                                (uint8_t)cpu->TIOA, b);
+                dorado_io_write_subtask(cpu->io, cpu->ctask,
+                                        cpu->task_subtask[cpu->ctask],
+                                        (uint8_t)cpu->TIOA, b);
                 goto memory_ref_done;
             }
             /* SubTask OR's into MemBase[2:3] (HM page 88). MemBase[2:3]

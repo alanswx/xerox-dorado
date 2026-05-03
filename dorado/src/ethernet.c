@@ -251,9 +251,11 @@ static void eth_maybe_complete_tx(dorado_ethernet *eth)
     (void)eth_queue_boot_replies(eth, eth->last_boot_offset);
 }
 
-static uint16_t eth_read(void *ctx, int task, uint8_t tioa, int *bad)
+static uint16_t eth_read(void *ctx, int task, int subtask,
+                         uint8_t tioa, int *bad)
 {
     dorado_ethernet *eth = ctx;
+    (void)subtask;
     if (bad) *bad = 0;
     if (tioa == DORADO_ETHERNET_TIOA_CTL) {
         eth_trace(eth, "read", task, tioa, 0);
@@ -279,9 +281,11 @@ static uint16_t eth_read(void *ctx, int task, uint8_t tioa, int *bad)
     return word;
 }
 
-static void eth_write(void *ctx, int task, uint8_t tioa, uint16_t data)
+static void eth_write(void *ctx, int task, int subtask,
+                      uint8_t tioa, uint16_t data)
 {
     dorado_ethernet *eth = ctx;
+    (void)subtask;
     if (tioa == DORADO_ETHERNET_TIOA_CTL) {
         if (eth->control_writes[task & 0xF] == 0) {
             eth->first_control[task & 0xF] = data;

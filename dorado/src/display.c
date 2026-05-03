@@ -179,7 +179,8 @@ static uint16_t display_terminal_keyboard_bit(dorado_display *d)
  * decoded by TIOA. We don't yet know the numeric TIOA values
  * microcode uses; we'll fill them in once we trace probe_aemu's
  * display-task writes. For now everything just gets logged. */
-static void display_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
+static void display_output_b(void *ctx, int task, int subtask,
+                             uint8_t tioa, uint16_t data)
 {
     dorado_display *d = ctx;
     int t = task & 0xF;
@@ -190,7 +191,9 @@ static void display_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
     d->output_tioa_count[tioa]++;
     d->riob = data;     /* HM page 119: IOB stays in DDC RIOB until
                          * next output command */
-    if (t == DORADO_DISPLAY_TASK_DHT || t == DORADO_DISPLAY_TASK_AHT) {
+    if ((t == DORADO_DISPLAY_TASK_DHT || t == DORADO_DISPLAY_TASK_AHT) &&
+        (tioa == DORADO_DISPLAY_TIOA_STATICS ||
+         tioa == DORADO_DISPLAY_TIOA_TSTATICS)) {
         d->terminal_task = t;
     }
     if (tioa == DORADO_DISPLAY_TIOA_STATICS ||
@@ -224,12 +227,16 @@ static void display_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
      */
     if (tioa == DORADO_DISPLAY_TIOA_DHTFLAG ||
         tioa == DORADO_DISPLAY_TIOA_AHTFLAG) {
-        if (data & 0002u) d->next_wcb_flag[0] = 1;
-        if (data & 0004u) d->next_wcb_flag[1] = 1;
+        if (task == d->terminal_task) {
+            if (data & 0002u) d->next_wcb_flag[0] = 1;
+        } else {
+            if (data & 0002u) d->next_wcb_flag[0] = 1;
+            if (data & 0004u) d->next_wcb_flag[1] = 1;
+        }
         d->nlcb_writes++;
     } else if (tioa == DORADO_DISPLAY_TIOA_DWTFLAG ||
                tioa == DORADO_DISPLAY_TIOA_AWTFLAG) {
-        int channel = (data & 0x8000u) ? 1 : 0;
+        int channel = (subtask & 2) ? 1 : 0;
         uint8_t cur = (uint8_t)(data & 1u);
         d->current_wcb_flag[channel] = cur;
         if (cur) d->next_wcb_flag[channel] = 0;
@@ -238,10 +245,12 @@ static void display_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
      * Mixer load / PixelClk / Statics / etc. */
 }
 
-static uint16_t display_input(void *ctx, int task, uint8_t tioa, int *bad)
+static uint16_t display_input(void *ctx, int task, int subtask,
+                              uint8_t tioa, int *bad)
 {
     dorado_display *d = ctx;
     (void)task;
+    (void)subtask;
     if (bad) *bad = 0;
     /* Single input register on each board: DDC muffler / terminal
      * back-channel readout (HM page 120, Table 25).

@@ -214,12 +214,28 @@ static int test_display_wcb_flag_protocol(void)
     EXPECT(dorado_display_dwt_wakeup(&d, &subtask) == 0,
            "DWT wakeup should stop when no WCB flags are set");
 
+    dorado_io_write_subtask(&io, DORADO_DISPLAY_TASK_DWT, 0,
+                            DORADO_DISPLAY_TIOA_DWTFLAG, 0177777);
+    EXPECT(d.current_wcb_flag[0] == 1,
+           "DWT Output_-1 on subtask 0 should set channel A current");
+    EXPECT(d.current_wcb_flag[1] == 0,
+           "DWT Output_-1 on subtask 0 must not select channel B by sign bit");
+    dorado_io_write_subtask(&io, DORADO_DISPLAY_TASK_DWT, 0,
+                            DORADO_DISPLAY_TIOA_DWTFLAG, 0000);
+    EXPECT(d.current_wcb_flag[0] == 0,
+           "DWT Output_0 on subtask 0 clears channel A current");
+
+    d.terminal_task = 0;
     dorado_io_write(&io, DORADO_DISPLAY_TASK_DHT,
                     DORADO_DISPLAY_TIOA_DHTFLAG, 0004);
     EXPECT(d.next_wcb_flag[1] == 1, "channel B NextWCB should be set");
     EXPECT(dorado_display_dwt_wakeup(&d, &subtask) == 1,
            "DWT wakeup should be pending for channel B");
     EXPECT(subtask == 2, "DWT subtask = %d (expected B/subtask 2)", subtask);
+    dorado_io_write_subtask(&io, DORADO_DISPLAY_TASK_DWT, 2,
+                            DORADO_DISPLAY_TIOA_DWTFLAG, 0000);
+    EXPECT(d.current_wcb_flag[1] == 0,
+           "DWT Output_0 on subtask 2 clears channel B current");
 
     printf("PASS  test_display_wcb_flag_protocol "
            "(DHT/AHT flag outputs drive DWT wakeups)\n");

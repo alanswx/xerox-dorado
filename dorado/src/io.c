@@ -25,7 +25,14 @@ void dorado_io_register_all_tasks(dorado_io *io, uint8_t tioa,
 uint16_t dorado_io_read(dorado_io *io, int task, uint8_t tioa,
                         int *out_bad_parity)
 {
+    return dorado_io_read_subtask(io, task, 0, tioa, out_bad_parity);
+}
+
+uint16_t dorado_io_read_subtask(dorado_io *io, int task, int subtask,
+                                uint8_t tioa, int *out_bad_parity)
+{
     if (out_bad_parity) *out_bad_parity = 0;
+    subtask &= 3;
     if (!io || task < 0 || task >= DORADO_IO_TASKS) {
         if (out_bad_parity) *out_bad_parity = 1;
         return 0xFFFF;
@@ -40,15 +47,22 @@ uint16_t dorado_io_read(dorado_io *io, int task, uint8_t tioa,
         if (out_bad_parity) *out_bad_parity = 1;
         return 0xFFFF;
     }
-    return dev->read(dev->ctx, task, tioa, out_bad_parity);
+    return dev->read(dev->ctx, task, subtask, tioa, out_bad_parity);
 }
 
 void dorado_io_write(dorado_io *io, int task, uint8_t tioa, uint16_t data)
 {
+    dorado_io_write_subtask(io, task, 0, tioa, data);
+}
+
+void dorado_io_write_subtask(dorado_io *io, int task, int subtask,
+                             uint8_t tioa, uint16_t data)
+{
     if (!io || task < 0 || task >= DORADO_IO_TASKS) return;
+    subtask &= 3;
     const dorado_io_device *dev = io->cells[task][tioa];
     if (!dev || !dev->write) return;
-    dev->write(dev->ctx, task, tioa, data);
+    dev->write(dev->ctx, task, subtask, tioa, data);
 }
 
 int dorado_io_has_write(const dorado_io *io, int task, uint8_t tioa)

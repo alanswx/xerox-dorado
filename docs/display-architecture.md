@@ -497,6 +497,14 @@ production: 0 = Alto-style, 1 = LF (large format / Star).
   instruction. Latest boot probe result: DWT delivers 480 display
   fast-I/O words, but the PGM snapshot is still all white, so the next
   display work is FIFO-content and render-phase tracing.
+- **Slow-I/O subtask on WCB flags**: `DisplayMain.mc!1` says terminal
+  emulation is written as subtask-capable code, but it never expects a
+  B-channel command or B subtask. The emulator previously inferred the
+  current WCB channel from the output data sign bit, which misread
+  `Output_ AAddress` with `AAddress=-1` as channel B. Slow-I/O
+  callbacks now receive the task subtask, and DWT/AWT flag writes use
+  that bus value. Terminal horizontal flag writes honor only the A/T
+  NextWCB bit; B remains for non-terminal DWT use.
 
 **Phase 2**:
 - **`dorado_display_render_fifo()`**: drains the per-channel FIFO

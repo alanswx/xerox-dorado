@@ -1800,6 +1800,19 @@ The framebuffer snapshot remains all white, so the immediate next work
 is to inspect the DWT FIFO contents and the headless render schedule
 rather than CPU memory-reference decode.
 
+2026-05-03 display WCB subtask cleanup: FIFO inspection found the
+non-white snapshot pixels were not a boot image. They came from a
+spurious B-channel wake caused by treating the sign bit of
+`Output_ AAddress` as the channel selector. The source says Alto
+terminal TWT never uses B; the channel is selected by hardware subtask.
+Slow I/O callbacks now receive subtask, CPU slow-I/O read/write passes
+the task's current subtask, and DWT/AWT flag writes use that subtask for
+CurrentWCB. The terminal horizontal path masks BNextWCB. Current probe:
+`display iofetch=32`, FIFO A contains only zero words, FIFO B is empty,
+and `/tmp/dorado_boot_display.pgm` is honestly all white. Next step is
+to follow why the loaded Alto/Mesa path has not yet installed a valid
+display DCB/`DAStart` before TWT starts fetching.
+
 These are weeks-of-work each, in rough order of effort:
 
 | Phase | Effort | Dependency      |

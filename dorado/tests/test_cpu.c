@@ -4735,8 +4735,41 @@ static int probe_full_boot_with_bootstrap(void)
     const char *snapshot_path = test_str_env("DORADO_BOOT_SNAPSHOT",
                                              "/tmp/dorado_boot_display.pgm");
     if (cpu.mem && display.attached) {
+        int fifo_a_count =
+            (display.fifo_a_head - display.fifo_a_tail + 256) % 256;
+        int fifo_b_count =
+            (display.fifo_b_head - display.fifo_b_tail + 256) % 256;
+        printf("       Display FIFO before snapshot: A=%d h=%d t=%d B=%d h=%d t=%d",
+               fifo_a_count, display.fifo_a_head, display.fifo_a_tail,
+               fifo_b_count, display.fifo_b_head, display.fifo_b_tail);
+        if (fifo_a_count > 0) {
+            int idx = display.fifo_a_tail;
+            printf(" Awords=");
+            for (int i = 0; i < fifo_a_count && i < 8; i++) {
+                printf("%s%04X", i ? "," : "", display.fifo_a[idx]);
+                idx = (idx + 1) & 255;
+            }
+        }
+        if (fifo_b_count > 0) {
+            int idx = display.fifo_b_tail;
+            printf(" Bwords=");
+            for (int i = 0; i < fifo_b_count && i < 8; i++) {
+                printf("%s%04X", i ? "," : "", display.fifo_b[idx]);
+                idx = (idx + 1) & 255;
+            }
+        }
+        printf("\n");
         int dst_y = 0;
-        dorado_display_render_fifo(&display, 0, &dst_y);
+        int rendered_a = dorado_display_render_fifo(&display, 0, &dst_y);
+        int rendered_b = dorado_display_render_fifo(&display, 2, &dst_y);
+        int rendered = rendered_a + rendered_b;
+        int fb_nonzero = 0;
+        for (size_t i = 0; i < sizeof display.fb; i++) {
+            if (display.fb[i]) fb_nonzero++;
+        }
+        printf("       Display render: A_pixels=%d B_pixels=%d total=%d dst_y=%d "
+               "fb_nonzero_bytes=%d\n",
+               rendered_a, rendered_b, rendered, dst_y, fb_nonzero);
         dorado_display_vblank(&display);
         if (dorado_display_snapshot_pgm(&display, snapshot_path) == 0) {
             printf("       Display snapshot: frame=%llu %s\n",
@@ -7744,18 +7777,20 @@ typedef struct {
     int      reads;
 } echo_dev;
 
-static uint16_t echo_read(void *ctx, int task, uint8_t tioa, int *bad)
+static uint16_t echo_read(void *ctx, int task, int subtask,
+                          uint8_t tioa, int *bad)
 {
-    (void)task; (void)tioa;
+    (void)task; (void)subtask; (void)tioa;
     if (bad) *bad = 0;     /* good parity */
     echo_dev *d = ctx;
     d->reads++;
     return d->last_write;
 }
 
-static void echo_write(void *ctx, int task, uint8_t tioa, uint16_t v)
+static void echo_write(void *ctx, int task, int subtask,
+                       uint8_t tioa, uint16_t v)
 {
-    (void)task; (void)tioa;
+    (void)task; (void)subtask; (void)tioa;
     echo_dev *d = ctx;
     d->last_write = v;
     d->writes++;

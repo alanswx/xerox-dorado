@@ -1744,3 +1744,18 @@ receives the 16-word munch. The focused boot probe now reports
 `nonwhite=0`), so the next blocker moved to display data/render timing:
 confirm whether the fetched munches are blank/white data, remain in the
 FIFO, or are being drained at the wrong synthetic scanline/frame phase.
+
+2026-05-03 display subtask/WCB correction: FIFO tracing showed an
+apparent B-channel munch containing low-MDS words (`B17E 5253 ...`).
+`DisplayMain.mc!1` explicitly says Alto terminal emulation never expects
+a B-channel command or B subtask, so this was a model artifact: slow-I/O
+callbacks did not receive the processor subtask, and the display model
+was inferring the current WCB channel from the sign bit of `Output_
+AAddress` (`-1` selected B). Slow I/O now has subtask-aware read/write
+entry points, CPU slow I/O passes `task_subtask[ctask]`, and DWT/AWT
+current-WCB updates use the real subtask. The terminal horizontal task
+only honors the A/terminal NextWCB flag. The boot probe now has no
+B-channel FIFO data; it reports `display iofetch=32`, FIFO A has 32
+zero words, and the framebuffer remains all white. That makes the next
+blocker a real boot/display-state problem: the word task is fetching
+blank data before a valid Alto DCB/`DAStart` chain is installed.

@@ -373,7 +373,8 @@ void dorado_disk_controller_advance_sector(dorado_disk_controller *ctl)
 
 /* ─── Slow-IO command dispatch ───────────────────────────────────── */
 
-static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
+static void disk_output_b(void *ctx, int task, int subtask,
+                          uint8_t tioa, uint16_t data)
 {
     dorado_disk_controller *ctl = ctx;
     ctl->output_count++;
@@ -381,6 +382,7 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
     ctl->last_output_tioa = tioa;
     ctl->last_output_data = data;
     (void)task;
+    (void)subtask;
 
     switch (tioa) {
     case DORADO_DISK_TIOA_DISKCONTROL:
@@ -568,7 +570,8 @@ static void disk_output_b(void *ctx, int task, uint8_t tioa, uint16_t data)
     }
 }
 
-static uint16_t disk_input(void *ctx, int task, uint8_t tioa, int *bad)
+static uint16_t disk_input(void *ctx, int task, int subtask,
+                           uint8_t tioa, int *bad)
 {
     dorado_disk_controller *ctl = ctx;
     if (bad) *bad = 0;
@@ -576,6 +579,7 @@ static uint16_t disk_input(void *ctx, int task, uint8_t tioa, int *bad)
     ctl->input_tioa_count[tioa & 0x0F]++;
     ctl->last_input_tioa = tioa;
     (void)task;
+    (void)subtask;
 
     switch (tioa) {
     case DORADO_DISK_TIOA_DISKDATA:
