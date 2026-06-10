@@ -1,6 +1,7 @@
 #include "display.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 typedef struct {
@@ -393,6 +394,20 @@ static int display_fifo_free(const dorado_display *d, int subtask)
     return (cap - 1) - used;
 }
 
+/* Words currently queued in the FIFO (0 == empty). A refill wakeup for the
+ * Display Word Task is only meaningful while a scan line is actually being
+ * output (the display is draining the FIFO). At boot, with no display list,
+ * the FIFO is empty (used==0) and the controller is NOT consuming it, so it
+ * must not generate a refill wakeup — otherwise the DWT spins forever trying
+ * to refill an empty FIFO with no scan line, starving lower-priority tasks
+ * (notably the junk task that maintains the VM 430 RTC). The DWT is still
+ * started for a real scan line by the next->current WCB/raster edge. */
+static int display_fifo_used(const dorado_display *d, int subtask)
+{
+    int cap = (int)(sizeof d->fifo_a / sizeof d->fifo_a[0]);
+    return (cap - 1) - display_fifo_free(d, subtask);
+}
+
 void dorado_display_set_pixel(dorado_display *d, int x, int y, int pix)
 {
     if (x < 0 || x >= DORADO_DISPLAY_W) return;
@@ -545,7 +560,8 @@ int dorado_display_dwt_wakeup(dorado_display *d, int *subtask)
             if (subtask) *subtask = st;
             return 1;
         }
-        if (d->raster_current_wt_flag[ch] && display_fifo_free(d, st) >= 16) {
+        if (d->raster_current_wt_flag[ch] && display_fifo_used(d, st) > 0 &&
+            display_fifo_free(d, st) >= 16) {
             d->dwt_wakeups++;
             if (subtask) *subtask = st;
             return 1;
@@ -565,7 +581,8 @@ int dorado_display_dwt_wakeup(dorado_display *d, int *subtask)
     }
     for (int ch = 0; ch < 2; ch++) {
         int st = ch ? 2 : 0;
-        if (d->current_wcb_flag[ch] && display_fifo_free(d, st) >= 16) {
+        if (d->current_wcb_flag[ch] && display_fifo_used(d, st) > 0 &&
+            display_fifo_free(d, st) >= 16) {
             d->dwt_wakeups++;
             if (subtask) *subtask = st;
             return 1;

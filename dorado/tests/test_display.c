@@ -211,9 +211,18 @@ static int test_display_wcb_flag_protocol(void)
     EXPECT(d.next_wcb_flag[0] == 0, "NextWCB should be consumed");
     EXPECT(d.current_wcb_flag[0] == 1, "CurrentWCB should be set");
 
+    /* Refill wakeups fire while CurrentWCB is set and the FIFO is actively
+     * draining — i.e. it holds queued display data with room for more. A
+     * totally empty FIFO (no scan line in progress) must NOT generate a
+     * refill wakeup, or the DWT would spin trying to refill nothing,
+     * starving lower-priority tasks (e.g. the junk task / VM 430 RTC).
+     * Simulate the DWT having fetched a munch into the channel-A FIFO. */
+    dorado_display_fifo_push(&d, 0, 0x1234);
     EXPECT(dorado_display_dwt_wakeup(&d, &subtask) == 1,
-           "DWT wakeup should continue while CurrentWCB and FIFO space");
+           "DWT refill wakeup should fire while CurrentWCB set and FIFO draining");
     EXPECT(subtask == 0, "DWT subtask = %d (expected A/subtask 0)", subtask);
+    /* Drain the simulated munch back out before continuing the protocol. */
+    { int dy = 0; (void)dorado_display_render_fifo(&d, 0, &dy); }
 
     dorado_io_write(&io, DORADO_DISPLAY_TASK_DWT,
                     DORADO_DISPLAY_TIOA_DWTFLAG, 0000);
