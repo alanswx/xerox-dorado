@@ -609,8 +609,51 @@ Two concrete results:
      Command: `mb2eb -l out.eb 01076 Initial.mb kernel.mb memMisc.mb
      IfuComplex.mb AEmu.mb!2`.
 
-**UPDATE 2026-06-10 (later still): the real-Initial divergence is I/O tasks
-DERAILING post-LoadRam, not the RTC.** Traced the AEMUNOTREADY spin in the
+**UPDATE 2026-06-10 (deepest): the I/O-task derail is a WRONG-LAYER-SET
+microcode image, not missing hardware.** Traced the disk-task derail to its
+root:
+  * The disk task derails at **memMisc `0o6207`** (in the fast-I/O
+    `APDecSRN`/`FIOSubTaskXit` region). `0o6207` is a Long Jump
+    (`addr12 = (FF<<4)|(JCN&0xF) = (0o12<<4)|4 = 0o244`) to **`0o244`**,
+    which is an **empty/unpopulated IM location** in our merged world -> it
+    executes garbage and ends up wedged at the IFU not-ready trap `0o334`.
+    No memory fault is involved (DORADO_FAULT_TRACE shows none on the I/O
+    tasks); it is purely a jump to unloaded IM.
+  * Root cause: **`mb2eb -l` merged the wrong set of layers.** I merged
+    `Initial+kernel+memMisc+IfuComplex+AEmu` (what `probe_aemu` happens to
+    load), but those collide heavily (e.g. Initial/kernel/memMisc each place
+    a DIFFERENT instruction at `0o6207`; ~195 shared real addresses between
+    Initial and memMisc alone) AND they omit layers the Alto-emulator world
+    needs. The complete Alto-emulator world's real build (per
+    `chm/dorado/expanded/bootEmu.dm!3_/bootemu.dls`) is
+    `aemu + bitblt + atraps + eth + dsk + OISDDC + bootInitmem +
+    bootstrap2` - so `0o244` lives in one of `eth`/`dsk`/`atraps`/`OISDDC`,
+    which my merge never included. The merge "works" in the bypass only
+    because the bypass's code paths avoid the corrupted/missing addresses;
+    the real-Initial disk path hits `0o6207`.
+  * **`bootemu.mb` is the clean complete build** (single MicroD pass, 2307
+    instructions, NO collisions). Converting it (`mb2eb bootemu.mb`) and
+    booting via real Initial gets further in places (reaches `SIOSTART`,
+    `DISKBOOT`, `STARTIFU`) but it has **IFUM=0 in-image** (it rebuilds the
+    IFU decode tables at runtime from memory tables) and is a 1979-vintage
+    build; it currently spins elsewhere (task 6 at `NEWDCB`).
+
+**Conclusion / next direction:** the standalone-Alto bring-up is gated on
+having a *correct complete-world image*, not on a single missing-hardware
+feature. The 5-layer `mb2eb -l` merge is the wrong composition and should be
+abandoned for booting. Options: (a) use `bootemu.mb` and make the runtime
+IFUM-table load work (understand how the Alto world builds IFUM at startup);
+(b) obtain/build the modern complete Alto-emulator world from AemuSources via
+MicroD with the correct DIB set (aemu+bitblt+atraps+eth+dsk+OISDDC+
+bootInitmem+bootstrap2); (c) confirm whether `AltoMesaDorado.eb` (which loads
+cleanly with IFUM) actually exercises ABoot/EBoot or is purely the PrincOps/
+Mesa world. The SRN fix and everything below remain valid; this is purely
+about which microcode image we hand to LoadRam.
+
+---
+
+**Earlier framing - real-Initial divergence is I/O tasks DERAILING
+post-LoadRam, not the RTC.** Traced the AEMUNOTREADY spin in the
 real-Initial complete-world run:
   * The dominant spinner is **the disk task (DSK = task 0o14)** stuck at
     `0o334` (AEmuNotReady, the IFU not-ready trap, which does `IFUJump[0]`
