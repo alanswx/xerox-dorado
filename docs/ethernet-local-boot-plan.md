@@ -609,7 +609,39 @@ Two concrete results:
      Command: `mb2eb -l out.eb 01076 Initial.mb kernel.mb memMisc.mb
      IfuComplex.mb AEmu.mb!2`.
 
-**Remaining divergence (the active frontier):** booting `/tmp/AEmuFull.eb`
+**UPDATE 2026-06-10 (later still): the real-Initial divergence is I/O tasks
+DERAILING post-LoadRam, not the RTC.** Traced the AEMUNOTREADY spin in the
+real-Initial complete-world run:
+  * The dominant spinner is **the disk task (DSK = task 0o14)** stuck at
+    `0o334` (AEmuNotReady, the IFU not-ready trap, which does `IFUJump[0]`
+    and re-traps forever). Because DSK is high priority, it starves the
+    junk task (so RTC stays 0) and the emulator.
+  * DSK starts correctly (TPC=0o3001, runs real disk microcode at 0o3xxx)
+    but then **derails out of disk code into the emulator's opcode/trap
+    region**: a ring-buffer trace caught
+    `...0o3601 0o3606 0o3620 ... 0o6225 0o6207 -> 0o244 -> 0o224 -> 0o100
+    ... -> 0o334`. The disk source (`AltoDiabloDisk.mc`) contains NO
+    `IFUJump`, so this is a wrong branch/Return into emulator code, after
+    which it hits `DONTSKIP` (0o200) / opcode exits that `IFUJump` into the
+    not-ready wedge. Derail point ~`0o6207`.
+  * Disabling the disk (`DORADO_NO_DISK=1`, added to the probe) stops the
+    disk wedge - but then **the display task (DHT = task 3) derails the
+    same way**, spinning at `0o7606` (inside Initial's resident LoadRam
+    page) and again starving everything (RTC still 0).
+  * So it is **systemic**: in the real-Initial path the I/O tasks run their
+    proper microcode briefly then derail to wrong addresses; the bypass
+    (probe_aemu, same merged IM) does NOT - its disk/display tasks run
+    normally and the RTC ticks. Same IM => the difference is runtime state
+    the I/O tasks read (map/BRs/the control structures in memory that
+    Initial's handoff leaves vs. the clean state probe_aemu plants) or a
+    Link/Return corruption specific to the real path. **Next:** decode the
+    `~0o6207` disk-derail branch (is it a Return on a bad Link, or a
+    data-driven branch through a garbage KCB/display-list pointer?), and
+    check whether the I/O tasks are waking and running before ABoot
+    initializes their control blocks (display list at VM 420, KBLK at VM
+    521). This - not the RTC - is the real-Initial blocker.
+
+**Remaining divergence (earlier framing):** booting `/tmp/AEmuFull.eb`
 via **real Initial** (`DORADO_ETH_BOOT_110=/tmp/AEmuFull.eb`) loads and
 reaches StartEmulator -> ResumeEmulator -> SetupBRs/DoBRs -> InitTasks, but
 ends at **AEMUNOTREADY** (the IFU not-ready trap, `IFUJump[0]`) with

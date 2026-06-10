@@ -2768,7 +2768,12 @@ static int probe_full_boot_with_bootstrap(void)
             &ethernet,
             test_str_env("DORADO_ETH_EFTP_BOOT",
                          "../chm/bootfiles/NETEXEC.BOOT!8"));
-        disk_pack_attached = attach_default_trident_pack(&disk, &disk_pack);
+        /* DORADO_NO_DISK skips attaching the Trident pack so the disk task
+         * stays idle. Used to pursue the Ethernet software-boot path (ABoot
+         * with BS-down -> EBoot -> Mayday -> EFTP) without the disk task
+         * running disk microcode against the incomplete disk data path. */
+        if (!test_u64_env("DORADO_NO_DISK", 0))
+            disk_pack_attached = attach_default_trident_pack(&disk, &disk_pack);
         dorado_display_attach_to_io(&display, &io);
         dorado_disk_controller_attach_to_io(&disk, &io);
         dorado_ethernet_attach_to_io(&ethernet, &io);
