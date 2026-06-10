@@ -2585,7 +2585,20 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
      * (ASEL > 3, BSEL not constant, JCN not long). */
     {
         int ovr = ff_a_low_override(u);
-        if (ovr >= 0) a = (uint16_t)((a & 0xFFF0u) | (uint16_t)ovr);
+        if (ovr >= 0) {
+            /* Two distinct uses of "A[12:15] ← FF[4:7]":
+             *  - Full-function form (ASEL > 3, FA=0 FB<=1): the Dorado
+             *    SMALL CONSTANT `nS`. A is the 4-bit constant with
+             *    A[0:11] forced to 0 (e.g. `3S` yields 3). Reading
+             *    RM/STK and only overlaying the low nibble would leave
+             *    the register's high bits in A and corrupt the constant
+             *    (e.g. AEm0.mc `ETemp0_ (3S)+MD` computed ETemp0|3
+             *    instead of 3, hanging ABoot's RTC wait).
+             *  - Memory-reference A-override (ASEL 0/1): only the low
+             *    nibble of Mar is replaced; A[0:11] is preserved. */
+            if (u->asel > 3) a = (uint16_t)ovr;
+            else             a = (uint16_t)((a & 0xFFF0u) | (uint16_t)ovr);
+        }
     }
 
     /* ALU. */
@@ -2675,6 +2688,16 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                 membase |= (uint8_t)((cpu->task_subtask[cpu->ctask] & 3) << 1);
             }
             uint16_t mar = a;
+            /* A Map write (`Map← <flags>, MapBuf← rp`) addresses the map
+             * entry for the BR's own virtual page; the displacement is 0.
+             * AEmu's InitMem uses `Map_ 0S, MapBuf_ ITemp1` (ASEL=0,
+             * FF[0:1]=1 -> DM_REF_MAP) where the same RSTK register feeds
+             * both the A path and the MapBuf data (ITemp1, the real page).
+             * Without forcing Mar=0 the map entry would be written at
+             * BR+ITemp1, corrupting AEmu's one-to-one map setup and
+             * hanging InitMem's enumeration. (Initial's own map setup uses
+             * ASEL=2/DM_REF_STORE, so this does not affect it.) */
+            if (kind == DM_REF_MAP) mar = 0;
             /* InitMem.mc's NextMapEntry emits `DummyRef_ T, T_ MD`
              * to make the memory system add one page to the current
              * BR and report the resulting VA through VALo/VAHi

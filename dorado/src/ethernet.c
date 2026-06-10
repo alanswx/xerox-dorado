@@ -50,6 +50,8 @@ void dorado_ethernet_init(dorado_ethernet *eth)
         eth, 0113, "../chm/dorado/CedarDorado.eb!6");
     dorado_ethernet_set_boot_file(
         eth, 0114, "../chm/microcode/TestDorado.eb!1");
+    dorado_ethernet_set_eftp_boot_file(
+        eth, "../chm/bootfiles/NETEXEC.BOOT!8");
 }
 
 void dorado_ethernet_free(dorado_ethernet *eth)
@@ -72,6 +74,12 @@ void dorado_ethernet_set_boot_file(dorado_ethernet *eth,
     default: return;
     }
     snprintf(dst, 256, "%s", path);
+}
+
+void dorado_ethernet_set_eftp_boot_file(dorado_ethernet *eth, const char *path)
+{
+    if (!eth || !path) return;
+    snprintf(eth->eftp_boot_path, sizeof eth->eftp_boot_path, "%s", path);
 }
 
 static const char *eth_boot_path(const dorado_ethernet *eth, uint16_t offset)
@@ -224,12 +232,121 @@ static int eth_queue_boot_replies(dorado_ethernet *eth, uint16_t offset)
     return 1;
 }
 
+/* Build one EFTP packet (Data or End) addressed to the booting Alto on
+ * the EFTP receiver socket. Mirrors append_reply's on-wire delivery shape
+ * (12-word Ethernet/Pup header, payload, dummy trailer, attention status)
+ * but with EFTP Pup fields: type, sequence number in pupID+1, dest socket
+ * 20. EFTPSPEC: Pup overhead is 026 bytes, so length = 026 + 2*nwords. */
+static int append_eftp_packet(dorado_ethernet *eth, size_t *cap,
+                              uint16_t seq, uint16_t pup_type,
+                              const uint16_t *payload, size_t nwords)
+{
+    uint16_t lhost = eth->local_host;   /* booting Alto (destination) */
+    uint16_t rhost = eth->remote_host;  /* boot server (source)       */
+    uint16_t length = (uint16_t)(026 + 2 * nwords);
+    uint16_t header[12] = {
+        (uint16_t)((lhost << 8) | rhost),  /* etherAdr: dest||source   */
+        DORADO_PUP_TYPE_ETHERNET,          /* etherType = typePup      */
+        length,                            /* pupLength                */
+        pup_type,                          /* EFTP Data / End          */
+        00,                                /* pupID high               */
+        seq,                               /* pupID low = EFTP seq #   */
+        lhost,                             /* pupDNetHost = Alto, net 0 */
+        00,                                /* pupDSocket high          */
+        DORADO_EFTP_RECEIVER_SOCKET,       /* pupDSocket low = 20      */
+        rhost,                             /* pupSNetHost = server     */
+        00,                                /* pupSSocket high          */
+        04                                 /* pupSSocket low = misc    */
+    };
+    for (size_t i = 0; i < sizeof header / sizeof header[0]; i++) {
+        if (!append_rx_word(eth, cap, header[i], 0)) return 0;
+    }
+    for (size_t i = 0; i < nwords; i++) {
+        if (!append_rx_word(eth, cap, payload[i], 0)) return 0;
+    }
+    if (!append_rx_word(eth, cap, 0177777, 0)) return 0; /* nil Pup cksum */
+    if (!append_rx_word(eth, cap, 0, 1)) return 0;       /* good status   */
+    eth->eftp_replies_queued++;
+    return 1;
+}
+
+/* Queue the whole Alto boot file as an EFTP stream (Data packets seq 0..,
+ * then an End packet). The booting Alto Acks each packet; the in-process
+ * fake pre-queues the whole stream and absorbs the Acks. Unlike a
+ * microcode boot, the entire file is sent verbatim (no 256-word header
+ * skip): an Alto boot file is itself the loadable image. */
+static int eth_queue_eftp_boot(dorado_ethernet *eth, uint16_t bfn)
+{
+    (void)bfn;
+    if (!eth->eftp_boot_path[0]) return 0;
+    FILE *fp = fopen(eth->eftp_boot_path, "rb");
+    if (!fp) return 0;
+
+    size_t payload_cap = 16384;
+    uint16_t *payload = malloc(payload_cap * sizeof payload[0]);
+    if (!payload) { fclose(fp); return 0; }
+    size_t payload_n = 0;
+    for (;;) {
+        uint16_t word = 0;
+        int rc = read_be_word(fp, &word);
+        if (rc == 0) break;
+        if (rc < 0) { free(payload); fclose(fp); return 0; }
+        if (payload_n >= payload_cap) {
+            size_t ncap = payload_cap * 2;
+            uint16_t *nw = realloc(payload, ncap * sizeof payload[0]);
+            if (!nw) { free(payload); fclose(fp); return 0; }
+            payload = nw;
+            payload_cap = ncap;
+        }
+        payload[payload_n++] = word;
+    }
+    fclose(fp);
+
+    eth_clear_rx(eth);
+    size_t cap = 0;
+    size_t pos = 0;
+    uint16_t seq = 0;
+    while (pos < payload_n) {
+        size_t n = payload_n - pos;
+        if (n > DORADO_EFTP_DATA_WORDS) n = DORADO_EFTP_DATA_WORDS;
+        if (!append_eftp_packet(eth, &cap, seq, DORADO_PUP_TYPE_EFTP_DATA,
+                                &payload[pos], n)) {
+            free(payload);
+            eth_clear_rx(eth);
+            return 0;
+        }
+        pos += n;
+        seq++;
+    }
+    free(payload);
+
+    /* EFTPEnd carries the next sequence number and no data. */
+    if (!append_eftp_packet(eth, &cap, seq, DORADO_PUP_TYPE_EFTP_END,
+                            NULL, 0)) {
+        eth_clear_rx(eth);
+        return 0;
+    }
+    eth->rx_pos = 0;
+    return 1;
+}
+
 static void eth_maybe_complete_tx(dorado_ethernet *eth)
 {
     if (eth->tx_count < 13 || eth->tx_complete) return;
     eth->tx_complete = 1;
     eth->tx_active = 0;
     eth->tx_on = 0;
+    eth->last_tx_pup_type = eth->tx_words[3];
+
+    /* Stage-2: a Mayday Pup is the Alto software-boot request. Serve the
+     * configured Alto boot file as an EFTP stream. */
+    if (eth->tx_words[1] == DORADO_PUP_TYPE_ETHERNET &&
+        eth->tx_words[3] == DORADO_PUP_TYPE_MAYDAY) {
+        eth->eftp_requests_seen++;
+        eth->eftp_last_bfn = eth->tx_words[5];
+        (void)eth_queue_eftp_boot(eth, eth->eftp_last_bfn);
+        return;
+    }
 
     if (eth->tx_words[1] != DORADO_PUP_TYPE_ETHERNET ||
         eth->tx_words[3] != DORADO_PUP_TYPE_MICROCODE_BOOT_REQUEST) {

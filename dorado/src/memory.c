@@ -83,6 +83,19 @@ int dorado_memory_init(dorado_memory *mem)
 {
     memset(mem, 0, sizeof *mem);
     mem->storage_words = DM_STORAGE_WORDS;
+    /* The modeled storage size sets RealPages (config word). 4 modules
+     * (16MW) -> RealPages wraps to 0x0000; the Alto emulator's InitMem
+     * then cold-zeroes/enumerates the full 16MW (slow) and the RealPages=0
+     * wrap can confuse its map loop. DORADO_STORAGE_MODULES (1..4) lets a
+     * caller model a smaller machine; AEmu only needs one 4MW module. */
+    {
+        const char *m = getenv("DORADO_STORAGE_MODULES");
+        if (m) {
+            int n = atoi(m);
+            if (n >= 1 && n <= 4)
+                mem->storage_words = DM_STORAGE_MODULE_WORDS * (size_t)n;
+        }
+    }
     mem->storage = calloc(mem->storage_words, sizeof(uint16_t));
     if (!mem->storage) return -1;
 
@@ -736,12 +749,18 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
     uint16_t rp_pre       = mem->map[idx_snapshot].rp;
     uint8_t  flags_pre    = encode_map_flags(&mem->map[idx_snapshot]);
 
-    /* SRN selection (HM page 51-52). Without tasking we treat every
-     * caller as "task 0/15 emulator+fault." That means most refs use
-     * ProcSRN; the exceptions are I/O refs (IOFetch/IOStore) and
-     * PreFetch-with-miss, which use ASRN. We compute a tentative
-     * SRN here; PreFetch-miss may override below. */
-    int use_asrn = (kind == DM_REF_IOFETCH) || (kind == DM_REF_IOSTORE);
+    /* SRN selection (HM page 51-52). The pipe is a single 16-entry memory
+     * addressed by SRN; the emulator (task 0) and fault task (task 15) use
+     * ProcSRN, while all I/O tasks (1..14) use ASRN. This keeps an I/O
+     * task's references from clobbering the emulator's pipe entry when it
+     * preempts the emulator mid-reference-readback. Without this, an I/O
+     * task's Fetch/Store (kinds that are NOT IOFetch/IOStore) would land in
+     * pipe[ProcSRN] and corrupt e.g. InitMem's NextMapEntry VALo/VAHi
+     * readback (the DummyRef VA), hanging the map enumeration. PreFetch-
+     * with-miss also uses ASRN (handled below). */
+    int io_task_uses_asrn = (task != 0 && task != 017);
+    int use_asrn = io_task_uses_asrn ||
+                   (kind == DM_REF_IOFETCH) || (kind == DM_REF_IOSTORE);
     int prefetch_was_miss = 0;
     if (kind == DM_REF_PREFETCH) {
         if (!dorado_mcr_noref(mem) &&

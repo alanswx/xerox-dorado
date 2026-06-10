@@ -544,6 +544,17 @@ static uint32_t boot_keyboard_base(const dorado_memory *mem)
     return mem ? dorado_br_get(mem, 031) : 0;
 }
 
+/* Read a keyboard word at an explicit base (e.g. MDS=BR36 for the Alto
+ * emulator, whose IOBR aliases MDS rather than the Mesa IOBR=BR31). */
+static uint16_t boot_keyboard_word_at(const dorado_memory *mem,
+                                      uint32_t base, uint32_t off)
+{
+    if (!mem) return 0;
+    uint32_t va = (base + off) & 0x0FFFFFFFu;
+    if ((size_t)va >= mem->storage_words) return 0;
+    return dorado_visible_word_at_va(mem, va);
+}
+
 static int trace_lowcore_offset(uint32_t off)
 {
     if (off >= 0420u && off <= 0450u) return 1;       /* DAStart/cursor/DCB */
@@ -1986,6 +1997,28 @@ static int probe_aemu(void)
            "STARTEMULATOR(AEmu)=0o%o\n",
            bootemul_real, startemul_real);
 
+    /* Resolve the AEmu boot-decision symbols to real addresses so we can
+     * tell whether the world reaches the boot loader (ABoot/EBoot/DiskBoot)
+     * or falls straight into the opcode dispatch loop (AEmuNext). */
+    {
+        const char *names[] = { "INITTASKS", "ABOOT", "EBOOT", "DISKBOOT",
+                                "AEMUNEXT", "STARTMB" };
+        printf("       boot symbols:");
+        for (size_t k = 0; k < sizeof names / sizeof names[0]; k++) {
+            int img = (aemu_im_id >= 0)
+                ? mb_find_symbol_addr(&layers[n_layers-1].mb, aemu_im_id,
+                                      names[k]) : -1;
+            int real = -1;
+            if (img >= 0) {
+                const mb_memory *m = &layers[n_layers-1].mb.mems[aemu_im_id];
+                if (m->present[img])
+                    real = m->data[(size_t)img * m->width_words + 3] & 0xFFF;
+            }
+            printf(" %s=0o%o", names[k], real);
+        }
+        printf("\n");
+    }
+
     int real_start = mc.image_present[0] ? mc.image_to_real[0] : 0;
 
     /* Diagnostic: dump ALUFM contents. */
@@ -2004,8 +2037,12 @@ static int probe_aemu(void)
         for (int j = 0; j < n_layers; j++) mb_free(&layers[j].mb);
         return 0;
     }
-    /* Mount a few low pages identity-mapped, RW. */
-    for (uint32_t pg = 0; pg < 16; pg++) {
+    /* Mount the full 64K Alto-emulator MDS region (256 pages) identity-
+     * mapped, RW. ABoot fetches the keyboard words at VM 177034..177037
+     * (page 0o774) and stores the display list at VM 420; with only the
+     * low 16 pages mapped those refs page-fault into NOTEMUFAULT. The Alto
+     * emulator runs in one 64K MDS, so map all of it. */
+    for (uint32_t pg = 0; pg < 512; pg++) {
         dorado_map_set(&mem, pg, /*rp=*/(uint16_t)pg, /*wp=*/0, /*dirty=*/0);
     }
 
@@ -2034,6 +2071,33 @@ static int probe_aemu(void)
     cpu.ifu_active = 0;
     cpu.ifu_warmup = 0;
 
+    /* Attach the slow-IO bus + the in-process Ethernet controller (with the
+     * fake Pup/EFTP boot server) so ABoot's EBoot path has a device to
+     * drive. Without this, EBoot's EData/EControl refs hit the floating bus
+     * and the boot stalls. */
+    static dorado_io io;
+    dorado_io_init(&io);
+    static dorado_ethernet eth;
+    dorado_ethernet_init(&eth);
+    dorado_ethernet_set_eftp_boot_file(
+        &eth, test_str_env("DORADO_ETH_EFTP_BOOT",
+                           "../chm/bootfiles/CRTTEST.BOOT!1"));
+    dorado_ethernet_attach_to_io(&eth, &io);
+    cpu.io = &io;
+    int aemu_force_eboot = test_u64_env("DORADO_AEMU_EBOOT", 1) != 0;
+    /* The bypass skips Initial's emulator-handoff, which sets EmuBRHiReg
+     * (RM[0x18]) = the high half of MDS, from which SetupBRs derives MDS
+     * and the Ethernet base registers EIBR/EOBR = {EmuBRHiReg-1, ...}.
+     * EmuBRHiReg=1 puts MDS at page 256 and EIBR/EOBR in the low mapped
+     * region. NOTE: this alone is NOT enough to make EBoot succeed - it
+     * still faults at 0o2021 (a `MemBase<-FF` store) because EBoot also
+     * needs the full Initial-handoff state (all BRs, the Ethernet command
+     * blocks in memory, the EtherBoot bootloader copy). Reaching EBoot's
+     * Mayday from the bypass requires reproducing that handoff; the proper
+     * vehicle is real Initial -> emulator. Kept here as the documented
+     * frontier of the standalone-Alto bring-up. */
+    cpu.RM[0x18] = (uint16_t)test_u64_env("DORADO_AEMU_EMUBRHI", 1);
+
     /* Step manually. Record TWO trails: a "first" trail of the
      * earliest 64 PCs (so we see entry flow) and a "last" trail of
      * the most recent 64 PCs (so we see where it ended up). */
@@ -2045,12 +2109,62 @@ static int probe_aemu(void)
     int      last_head = 0, last_total = 0;
     cpu_halt_reason r = CPU_HALT_NONE;
     int loop_pc = -1, loop_count = 0;
-    int max_cycles = 200000;
+    /* ABoot's 100 ms RTC wait needs the Junk task to tick VM 430 ~3 times;
+     * with the DDA clock that is several thousand junk wakeups (~1M+
+     * cycles). Default stays small to keep `make test` fast; override with
+     * DORADO_AEMU_CYCLES to drive AEmu through ABoot's wait. */
+    int max_cycles = (int)test_u64_env("DORADO_AEMU_CYCLES", 200000);
+    uint64_t task_steps[16] = {0};
+    /* Per-cycle ring buffer of the most recent steps, for diagnosing the
+     * ABoot RTC-wait loop: task, PC, T, and the Md the step will see. */
+    #define CYCTR_N 80
+    struct { uint8_t task; uint16_t pc; uint16_t t; uint16_t md;
+             uint8_t lt0; uint8_t z; } cyctr[CYCTR_N];
+    int cyctr_head = 0, cyctr_total = 0;
+    int cyctr_enabled = test_u64_env("DORADO_AEMU_CYCTRACE", 0) != 0;
     for (int i = 0; i < max_cycles; i++) {
         if (first_n < FIRST_N) first_trail[first_n++] = cpu.real_PC;
         last_trail[last_head] = cpu.real_PC;
         last_head = (last_head + 1) % LAST_N;
         last_total++;
+        task_steps[cpu.ctask & 0xF]++;
+        if (aemu_force_eboot) {
+            /* Model the DDC keyboard back-channel: hold BS down so ABoot's
+             * `Branch[EBoot, R even]` selects Ethernet software boot. The
+             * Alto keyboard is active-low (0 = key down); BS is the LSB of
+             * VM 177034. ResumeEmulator zeroes these to all-up, so we must
+             * keep re-asserting BS-down for the read at ABoot. */
+            uint32_t kbd = (dorado_br_get(&mem, 036) + 0177034u)
+                           & 0x0FFFFFFFu;
+            store_boot_va(&mem, kbd, 0xFFFEu);
+        }
+        {
+            static int eboot_seen = 0, eboot_n = 0;
+            if (cyctr_enabled && cpu.ctask == 0 && cpu.real_PC == 02006)
+                eboot_seen = 1;
+            if (cyctr_enabled && eboot_seen && cpu.ctask == 0 &&
+                eboot_n < 40) {
+                char dis[160];
+                const char *s =
+                    dorado_microcode_symbol_at_real(&mc, cpu.real_PC);
+                dorado_format(&mc.im[cpu.real_PC], dis, sizeof dis);
+                fprintf(stderr, "EBOOT #%d pc=0o%o(%s) T=0x%04X "
+                        "md=0x%04X | %s\n",
+                        eboot_n, cpu.real_PC, s ? s : "", cpu.T,
+                        cpu.mem ? cpu.mem->md : 0, dis);
+                eboot_n++;
+            }
+        }
+        if (cyctr_enabled) {
+            cyctr[cyctr_head].task = (uint8_t)cpu.ctask;
+            cyctr[cyctr_head].pc = cpu.real_PC;
+            cyctr[cyctr_head].t = cpu.T;
+            cyctr[cyctr_head].md = cpu.mem ? cpu.mem->md : 0;
+            cyctr[cyctr_head].lt0 = cpu.alu_lt0;
+            cyctr[cyctr_head].z = cpu.alu_zero;
+            cyctr_head = (cyctr_head + 1) % CYCTR_N;
+            cyctr_total++;
+        }
         if ((int)cpu.real_PC == loop_pc) {
             if (++loop_count > 200) break;
         } else {
@@ -2062,6 +2176,26 @@ static int probe_aemu(void)
             break;
         }
     }
+    printf("       state: tasking_on=%d ctask=%o wakeup=0x%X "
+           "junk_en=%d junk_cd=%d task_steps[0]=%llu [2:JNK]=%llu\n",
+           cpu.tasking_on, cpu.ctask, cpu.wakeup_pending,
+           cpu.junk_tw_enabled, cpu.junk_tw_countdown,
+           (unsigned long long)task_steps[0],
+           (unsigned long long)task_steps[2]);
+    if (cyctr_enabled) {
+        int cn = cyctr_total < CYCTR_N ? cyctr_total : CYCTR_N;
+        int cf = cyctr_total < CYCTR_N ? 0 : cyctr_head;
+        printf("       per-cycle (last %d): [task pc T Md]\n        ", cn);
+        for (int i = 0; i < cn; i++) {
+            int idx = (cf + i) % CYCTR_N;
+            printf(" %o:%o(T%04X,M%04X,lt0=%d,z=%d)", cyctr[idx].task,
+                   cyctr[idx].pc, cyctr[idx].t, cyctr[idx].md,
+                   cyctr[idx].lt0, cyctr[idx].z);
+            if ((i % 3) == 2) printf("\n        ");
+        }
+        printf("\n");
+    }
+    #undef CYCTR_N
     int last_n = last_total < LAST_N ? last_total : LAST_N;
     int last_first = last_total < LAST_N ? 0 : last_head;
 
@@ -2119,6 +2253,31 @@ static int probe_aemu(void)
         char dis[256];
         dorado_format(u, dis, sizeof dis);
         printf("       offending uinstr: %s\n", dis);
+    }
+
+    /* Diagnose the final spin: disassemble the region around where it
+     * stalled, with symbols, so we can see what condition the loop waits
+     * on (memory Md, a device input, a branch condition, a wakeup, ...). */
+    {
+        /* ABoot's wait polls VM 430 (the Alto RTC) via MemBase=MDS. Read
+         * it back to confirm whether the JNK task is advancing it. */
+        uint32_t mds = dorado_br_get(&mem, 036);
+        uint32_t rtc_va = (mds + 0430u) & 0x0FFFFFFFu;
+        uint16_t rtc = (rtc_va < mem.storage_words)
+            ? dorado_visible_word_at_va(&mem, rtc_va) : 0xFFFF;
+        printf("       RTC: VM430 (MDS=0x%05X) = 0x%04X  ETemp0(target,"
+               "RM[0x1A])=0x%04X RBase=%o  (ABoot exits when VM430 > "
+               "target)\n", mds, rtc, cpu.RM[0x1A], cpu.RBase);
+    }
+    printf("       spin disasm (stalled at 0o%o, T=0x%04X Q=0x%04X "
+           "Cnt=0x%04X):\n",
+           cpu.real_PC, cpu.T, cpu.Q, cpu.Cnt);
+    for (int a = (int)cpu.real_PC - 2; a <= (int)cpu.real_PC + 020; a++) {
+        if (a < 0 || a >= 010000 || !mc.im_present[a]) continue;
+        char dis[256];
+        dorado_format(&mc.im[a], dis, sizeof dis);
+        const char *s = dorado_microcode_symbol_at_real(&mc, (uint16_t)a);
+        printf("         0o%-5o %-16s %s\n", a, s ? s : "", dis);
     }
 
     dorado_memory_free(&mem);
@@ -2603,6 +2762,12 @@ static int probe_full_boot_with_bootstrap(void)
             &ethernet, 0114,
             test_str_env("DORADO_ETH_BOOT_114",
                          "../chm/microcode/TestDorado.eb!1"));
+        /* Stage-2 Alto software boot file served on a Mayday request.
+         * Default NetExec; override to CRTTEST/NEWOS/etc. for bring-up. */
+        dorado_ethernet_set_eftp_boot_file(
+            &ethernet,
+            test_str_env("DORADO_ETH_EFTP_BOOT",
+                         "../chm/bootfiles/NETEXEC.BOOT!8"));
         disk_pack_attached = attach_default_trident_pack(&disk, &disk_pack);
         dorado_display_attach_to_io(&display, &io);
         dorado_disk_controller_attach_to_io(&disk, &io);
@@ -3420,6 +3585,34 @@ static int probe_full_boot_with_bootstrap(void)
         uint16_t pre_mcr = dorado_mcr_get(&mem);
         uint8_t pre_ifu_active = cpu.ifu_active;
         uint16_t pre_ifu_pcf = cpu.ifu_pcf;
+        /* AEmu InitMem NextMapEntry trace: watch the enumeration that
+         * does not terminate (DummyRef adds a page, BRHi/BRLo advance,
+         * end when VAHi==VirtualBanks). Log T(=VAHi at NextMap1), the
+         * current MemBase BR, VirtualBanks, and the DummyRef VA. */
+        static int nextmap_trace = -1;
+        if (nextmap_trace < 0)
+            nextmap_trace = test_u64_env("DORADO_NEXTMAP_TRACE", 0) ? 1 : 0;
+        if (nextmap_trace && pre_task == 0 && is_imfetch &&
+            ether_loaded_world_cycle) {
+            /* InitMem map enumeration progress (loaded world). NextMap1's
+             * subtract is at 0o3263 (`PD_ (BRHi_T)-VirtualBanks`); each
+             * enumeration ends when VAHi==VirtualBanks (0x40). Sample the
+             * peak VAHi reached per enumeration so a regression (the old
+             * I/O-task pipe-slot clobber that capped VAHi at ~3 and hung the
+             * loop, fixed by the ASRN SRN-selection change in memory.c)
+             * shows up immediately. Log when a new peak VAHi is seen. */
+            static long nm = 0;
+            static uint16_t peak_vahi = 0;
+            if (pre_pc == 03263) {
+                nm++;
+                if (pre_t > peak_vahi) {
+                    peak_vahi = pre_t;
+                    fprintf(stderr, "NEXTMAP nm=%ld peak_VAHi=0x%04X "
+                            "VirtualBanks=0x%04X\n",
+                            nm, peak_vahi, cpu.RM[0x48]);
+                }
+            }
+        }
         uint16_t pre_ifu_pcx = cpu.ifu_pcx;
         uint32_t pre_br37 = dorado_br_get(&mem, 037);
         if (force_ether_mesa_boot && initial_substituted && is_imfetch &&
@@ -4921,6 +5114,12 @@ static int probe_full_boot_with_bootstrap(void)
            ethernet.rx_pos, ethernet.rx_count,
            (unsigned long long)ethernet.data_writes,
            (unsigned long long)ethernet.data_reads);
+    printf("       Ethernet Stage-2: last_tx_pup=0o%o eftp_requests=%llu "
+           "eftp_last_bfn=0o%o eftp_replies=%llu\n",
+           ethernet.last_tx_pup_type,
+           (unsigned long long)ethernet.eftp_requests_seen,
+           ethernet.eftp_last_bfn,
+           (unsigned long long)ethernet.eftp_replies_queued);
     {
         const char *eb_path =
             ether_boot_path_for_offset(&ethernet, ethernet.last_boot_offset);
@@ -5431,6 +5630,18 @@ static int probe_full_boot_with_bootstrap(void)
            force_alto_ether_boot,
            force_alto_ether_quote,
            (unsigned long long)alto_ether_keyboard_seed_count);
+    if (cpu.mem) {
+        /* Alto emulator reads its keyboard via MemBase=MDS (BR36), not the
+         * Mesa IOBR (BR31). Report the words AEmu's ABoot actually reads. */
+        uint32_t mds = dorado_br_get(cpu.mem, 036);
+        printf("       AEmu MDS keyboard (BR36=0x%05X): "
+               "177034=%04X 177035=%04X 177036=%04X 177037=%04X\n",
+               mds,
+               boot_keyboard_word_at(cpu.mem, mds, 0177034u),
+               boot_keyboard_word_at(cpu.mem, mds, 0177035u),
+               boot_keyboard_word_at(cpu.mem, mds, 0177036u),
+               boot_keyboard_word_at(cpu.mem, mds, 0177037u));
+    }
     printf("       Boot parameter seeds=%llu force_mesa=%d STK[1..3]=%06o %06o %06o\n",
            (unsigned long long)boot_parameter_seed_count,
            force_ether_mesa_boot,
@@ -8827,10 +9038,16 @@ static uint16_t run_a_override(uint8_t ff, uint8_t bsel, uint16_t rm0)
 
 static int test_a_low_ff_override(void)
 {
-    /* FF = 0o005: FA=0 FB=0 FC=5; FF[4:7] = 5. BSEL=2 (T), so FF is
-     * a function. Expected: A[12:15] replaced with 5. */
-    EXPECT(run_a_override(0005, /*bsel=T*/2, 0xAAAA) == 0xAAA5,
-           "A[12:15]←FF[4:7] should rewrite low nibble");
+    /* FF = 0o005: FA=0 FB=0 FC=5; FF[4:7] = 5. BSEL=2 (T), ASEL=4
+     * (A←RM/STK), so FF is a function. This is the Dorado SMALL CONSTANT
+     * `nS`: A becomes {0,,FF[4:7]} = 5 — A[0:11] is forced to 0, not an
+     * overlay on RM/STK. (Proof it must zero: AEm0.mc `ETemp0_ (3S)+MD`
+     * reads and writes the same register; if the high bits were kept, the
+     * old register value would corrupt the constant and the canonical
+     * microcode could never work. Overlay-keeping-high applies only to the
+     * memory-reference Mar tweak, ASEL 0/1.) */
+    EXPECT(run_a_override(0005, /*bsel=T*/2, 0xAAAA) == 0x0005,
+           "FA=0 FB=0 small constant: A = 0,,FF[4:7]");
 
     /* Same FF, BSEL=4 (constant 0,,FF): FF is NOT interpreted as a
      * function — override must NOT fire. T = ALU(A=RM, ALUFM[0]=A) = RM. */
@@ -8843,11 +9060,10 @@ static int test_a_low_ff_override(void)
     EXPECT(run_a_override(0025, /*bsel=T*/2, 0xAAAA) == 0xAAAA,
            "FA=0 FB=2 must not trigger A-bus override");
 
-    /* FA=0 FB=1 also encodes the override (manual lists it as a paired
-     * variant of FB=0). FF=0o015 → FA=0 FB=1 FC=5; FF[4:7] = 0xD
-     * (because FB's LSB is the high bit of the FF[4:7] nibble). */
-    EXPECT(run_a_override(0015, /*bsel=T*/2, 0xAAAA) == 0xAAAD,
-           "FA=0 FB=1 must also trigger A-bus override");
+    /* FA=0 FB=1 is the paired small-constant variant. FF=0o015 →
+     * FF[4:7] = 0xD; A = {0,,0xD} = 0xD (high bits zeroed, same as FB=0). */
+    EXPECT(run_a_override(0015, /*bsel=T*/2, 0xAAAA) == 0x000D,
+           "FA=0 FB=1 small constant: A = 0,,FF[4:7]");
 
     printf("PASS  test_a_low_ff_override (gap B6)\n");
     return 0;
