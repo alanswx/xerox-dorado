@@ -609,6 +609,41 @@ Two concrete results:
      Command: `mb2eb -l out.eb 01076 Initial.mb kernel.mb memMisc.mb
      IfuComplex.mb AEmu.mb!2`.
 
+**UPDATE 2026-06-10 (DWT display-spin FIXED; RTC now isolated to the
+AltoMesaDorado junk task).** Real fix landed (commit "Display: only request
+DWT refill while the FIFO is actively draining"): the Display Word Task was
+woken every cycle while CurrentWCB/raster-WT was set and the FIFO had room,
+so at boot (empty FIFO, no display list) it spun forever and starved the junk
+task. Now the refill wakeup is gated on `display_fifo_used()>0` (data
+actually flowing); the DWT is still started for a real scan line by the
+next->current edge. In the real `AltoMesaDorado.eb` cold boot the display
+task now **idles instead of spinning** - measurable progress on the canonical
+Alto-exec world. Full suite green (display test updated to the draining
+contract).
+
+After the DWT fix, the real `AltoMesaDorado.eb` boot still has RTC=0 because
+its **junk task never accumulates RTClock / carries into VM 430** - but this
+is now isolated and is the Mesa-vs-AEmu world difference: `AltoMesaDorado.eb`
+is built with the PrincOps/Mesa register layout (DMesaDefs), so its Events
+region (RTClock/RTCDeltaLo/RTC430/RTCFrac) and Junk-task code are at
+different RM/IM addresses than the AEmu world (ADefs) whose symbols we have.
+The Junk-task RTC logic itself is understood (chm/.../Junk.mc: DDA, AckJunkTW_
+RTCDeltaLo with odd B[15]=enable, RTCCarry writes VM 430), and in the merged-
+AEmu BYPASS it works (writes VM 430 at 0o1271, counting 1,2,3,4). Resolving
+it in `AltoMesaDorado.eb` needs that world's symbol table / decompilation
+(the .eb carries no symbols).
+
+Confirmed the fork is fundamental:
+  * `AltoMesaDorado.eb` (canonical, clean, no collisions): display now idles
+    after the DWT fix; blocked only on the Mesa-layout junk-task RTC.
+  * AEmu merges (`AEmu.mb!2` alone, `Initial+AEmu`, 5-layer `AEmuFull.eb`):
+    the AEmu junk-task RTC works, but they wedge at the IFU-not-ready/
+    fast-IO-SRN region (0o7747 / 0o6207) from layer collisions / resident-
+    code mismatch. Not a clean world.
+Long-term fix: obtain `AltoMesaDorado.eb`'s symbols (or rebuild the modern
+complete Alto-emulator world via MicroD) to fix the junk-task RTC on the
+canonical image. SRN fix + DWT fix are both real and keep the suite green.
+
 **UPDATE 2026-06-10 (deep RTC dive - the two viable paths each have one
 blocker; it is a FORK).** Exhaustively traced why the real-Initial
 `AltoMesaDorado.eb` cold boot stalls at RTC=0. Findings (all experiments via
