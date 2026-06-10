@@ -609,7 +609,50 @@ Two concrete results:
      Command: `mb2eb -l out.eb 01076 Initial.mb kernel.mb memMisc.mb
      IfuComplex.mb AEmu.mb!2`.
 
-**UPDATE 2026-06-10 (deepest): the I/O-task derail is a WRONG-LAYER-SET
+**UPDATE 2026-06-10 (Nick reply - CORRECT IMAGE identified).** Nick (the
+first-hand Interlisp-D Dorado user) confirmed by email: *"Lisp.run runs with
+the AltoD1MC.eb microcode and loads the DoradoLispMC.EB from the current
+partition itself."* So **`AltoD1MC.eb` is the Alto-exec microcode** - the
+clean image we already validated (loads via real Initial with IFUM, no merge
+collisions). Our earlier validation showed `altod1mc.eb` loads to the same IM
+as `AltoMesaDorado.eb`, so **`AltoMesaDorado.eb` IS the Alto-exec world** (not
+"just Mesa"). This RETIRES the whole `mb2eb -l` layer-merge approach (wrong
+composition, collisions); the correct image is the prebuilt `AltoMesaDorado.eb`
+/ `altod1mc.eb`.
+
+Booting these via real Initial:
+  * `altod1mc.eb` starts at `0o1070` (RestartEmulator = SOFT restart, ETemp4=-1,
+    skips ABoot) - so it resumes a nonexistent program and spins at `StartIFU`
+    (IFU never ready, nothing to fetch). Wrong start for a cold boot; expected.
+  * `AltoMesaDorado.eb` starts at `0o1076` (InitMap = COLD boot) - this is the
+    right one: it runs InitMap -> StartEmulator -> SetupBRs -> InitTasks ->
+    ABoot, and reaches DiskBoot activity (`DODISKBLOCK`, `SECTORFOUND`). It is
+    gated only on **RTC=0** (ABoot's 100 ms wait).
+
+**The actual blocker (systemic): a high-priority I/O task spins and starves
+the junk task, so RTC (VM 430) never ticks.** For `AltoMesaDorado.eb` cold
+boot the junk timer is enabled at cyc=439, disabled at cyc=7M (pc=0o7623),
+and NEVER re-enabled - because the junk task (task 2, low priority) can't run:
+the **Display Word Task (DWT = task 0o13) spins at `0o6002`** (~1M hits),
+starving it. Earlier the disk task did the same. The bypass (probe_aemu, clean
+planted state - zeroed memory, 512-page map) does NOT have this; its I/O tasks
+idle and the junk task ticks the RTC. So in the real-Initial post-boot state
+the I/O tasks spin instead of idling. Likely cause: the I/O tasks read their
+control structures from memory (display list VM 420, KBLK VM 521) that ABoot
+has not yet zeroed (ABoot runs AFTER InitTasks wakes the I/O tasks), or our
+display/disk wakeup model doesn't let the task Block/idle. **Next:** determine
+why DWT does not Block at `0o6002` in the real-Initial path (display DWT
+wakeup stuck on, vs garbage display list) - this is the gate to RTC ticking,
+ABoot completing, and EBoot -> Mayday -> EFTP -> NetExec.
+
+Nick also confirmed: (a) Al/Josh's Dolphin NetExec is probably the same binary
+- worth trying as the served boot file; (b) a single `LISP.VIRTUALMEM` in the
+Lisp.run partition suffices (multi-partition swap is optional, /X switch);
+(c) decompiling `Lisp.run!6` + `Lisp.syms!4` could extract the disk/partition
+layout - a future task.
+
+**UPDATE 2026-06-10 (deepest, now partly SUPERSEDED by the Nick reply above -
+the merge approach is abandoned): the I/O-task derail is a WRONG-LAYER-SET
 microcode image, not missing hardware.** Traced the disk-task derail to its
 root:
   * The disk task derails at **memMisc `0o6207`** (in the fast-I/O
