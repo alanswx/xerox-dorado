@@ -9183,11 +9183,16 @@ int main(void)
     rc |= test_a_low_ff_override();
     rc |= test_b11_event_cnt_brk_state();
     rc |= test_pcx_b_source();
-    rc |= probe_bootstrap_pure();
-    rc |= probe_bootstrap();
-    rc |= probe_aemu();
-    rc |= probe_initial();
-    rc |= probe_full_boot();
+    /* DORADO_ONLY_FULLBOOT runs only the AltoMesaDorado real-Initial ether
+     * boot, skipping the other probe scenarios, so boot-time traces aren't
+     * confounded by their interleaved output / reset cycle counters. */
+    if (!test_u64_env("DORADO_ONLY_FULLBOOT", 0)) {
+        rc |= probe_bootstrap_pure();
+        rc |= probe_bootstrap();
+        rc |= probe_aemu();
+        rc |= probe_initial();
+        rc |= probe_full_boot();
+    }
     rc |= probe_full_boot_with_bootstrap();
     if (rc == 0) printf("\nAll CPU tests passed.\n");
     return rc;
