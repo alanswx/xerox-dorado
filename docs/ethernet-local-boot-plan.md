@@ -609,6 +609,39 @@ Two concrete results:
      Command: `mb2eb -l out.eb 01076 Initial.mb kernel.mb memMisc.mb
      IfuComplex.mb AEmu.mb!2`.
 
+**UPDATE 2026-06-10 (RTC DDA confirmed WORKING; blocker is junk-task
+starvation, not the DDA).** Disassembled the AltoMesaDorado junk task by
+tracing it with field decodes (no symbols needed): it runs the canonical
+`Junk.mc` loop (`JunkTaskLoop`/`JunkTaskCont`) at 0o3751-0o3776, with the
+correct constants (`RTCDeltaLo=0xC28F=0o141217`, `RTCDeltaHi=0x35=0o65`).
+Found the Events region at RM[0xB0] (RTClock), 0xB1 (RTCDeltaLo), 0xB2
+(RTC430), 0xB3 (RTCFrac) - NOT 0xD0 (the AEmu/ADefs guess); AltoMesaDorado
+uses a different RM layout. **RTClock accumulates correctly**: traced
+0x0035, 0x006A, 0x009F, ... 0x2968 (+0x35/iter), `junkEn=1`. So the DDA is
+fine; it just needs ~1260 iterations to overflow 16 bits and carry into
+VM 430 (RTCCarry).
+
+The blocker: the junk task runs only ~200-400 iterations then stops, before
+RTClock overflows, so VM 430 never increments and ABoot's wait never
+completes. It is NOT disabled (junkEn stays 1) - it is starved (a higher-
+priority task becomes continuously ready). But pinning the exact starver is
+hampered by the **multi-scenario probe**: the test driver runs several boot
+scenarios (bootstrap_pure / bootstrap / aemu / initial / main) whose
+`cpu->cycles` reset and whose stderr interleaves, so cycle-gated traces are
+unreliable. Reliable RTC debugging needs a dedicated single-scenario harness
+for just the AltoMesaDorado ether boot.
+
+Separately found a real (latent) bug: **XorSavedCarry / XorCarry / Carry20
+(FF FA=0 FB=2 FC=4/5/6) are stubbed no-ops** in cpu.c (~line 779). The junk
+DDA and multi-precision routines (UpdateCounters etc.) use XorSavedCarry for
+carry propagation; it is not the RTC blocker (RTClock accumulates without it)
+but should be implemented for arithmetic correctness.
+
+**Next:** (a) add a dedicated single-scenario AltoMesaDorado-boot harness so
+RTC traces are clean, then find/fix the junk-task starver; (b) implement
+XorSavedCarry/XorCarry/Carry20. The DWT fix below is the concrete win this
+round; SRN + DWT fixes keep the suite green.
+
 **UPDATE 2026-06-10 (DWT display-spin FIXED; RTC now isolated to the
 AltoMesaDorado junk task).** Real fix landed (commit "Display: only request
 DWT refill while the FIFO is actively draining"): the Display Word Task was
