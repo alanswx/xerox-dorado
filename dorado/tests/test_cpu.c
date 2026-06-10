@@ -4544,6 +4544,16 @@ static int probe_full_boot_with_bootstrap(void)
                                              force_alto_ether_quote);
             seed_boot_keyboard_words(&mem, words);
             alto_ether_keyboard_seed_count++;
+            /* DIAGNOSTIC (DORADO_FORCE_MDS_BANK=n): the loaded world's
+             * GetEmulatorMapParams returns a wild MDS bank (0xD24), which
+             * InitMap stores in EmuBRHiReg (RM[0x18]); SetupBRs then builds
+             * every emulator BR with that bad high half, sending all MDS-
+             * relative refs (keyboard, RTC VM430, display list) to garbage
+             * and crashing the boot. Force EmuBRHiReg to a sane bank during
+             * the boot so SetupBRs builds correct BRs - to test whether MDS
+             * corruption is the gate to reaching EBoot. */
+            uint64_t fmb = test_u64_env("DORADO_FORCE_MDS_BANK", 0);
+            if (fmb) cpu.RM[0x18] = (uint16_t)(fmb & 0x0FFF);
         }
         if (ether_loaded_world_cycle && alto_disk_boot_shim_enabled &&
             service_alto_disk_boot_shim(&mem, &disk_pack,

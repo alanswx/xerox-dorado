@@ -609,6 +609,40 @@ Two concrete results:
      Command: `mb2eb -l out.eb 01076 Initial.mb kernel.mb memMisc.mb
      IfuComplex.mb AEmu.mb!2`.
 
+**UPDATE 2026-06-10 (MDS corruption is a deep root; RTC works in isolation).**
+Two findings, building on the DWT fix:
+  1. **The multi-scenario probe was corrupting shared state.** Running the
+     AltoMesaDorado boot in isolation (`DORADO_ONLY_FULLBOOT=1`, skips the
+     earlier probe_* scenarios) makes the junk task run ~19295x and the boot
+     reach `ACMMDEND` (an Alto disk-command handler) - PAST ABoot's RTC wait.
+     So the RTC DDA advances and ABoot completes; the persistent RTC=0 was an
+     artifact of the other probe scenarios (shared display/io/ethernet
+     singletons + static counters), not an emulator bug.
+  2. **MDS (BR[036]) gets corrupted to 0xD240000.** `GetEmulatorMapParams`
+     (emulator-specific, only *referenced* in InitMem.mc - source NOT in our
+     local trees) returns a wild MDS bank `0xD24`; InitMap stores it in
+     `EmuBRHiReg` (RM[0x18]); `SetupBRs` (AEm0.mc DoBRs loop) then builds
+     EVERY emulator BR (0o34-0o37 etc.) with that bad high half. So all
+     MDS-relative refs - the keyboard (VM 177034), the RTC (VM 430), the
+     display list (VM 420) - land at wild/unmapped addresses (the
+     recurring `mar=D24FE1F`), the keyboard seed is lost, and the emulator
+     eventually crashes and the BaseBoard restarts it into Initial's
+     `DiskHardMicrocodeBoot`. The bypass (`probe_aemu`) only ever worked
+     because it *plants* `EmuBRHiReg=1`.
+
+**Diagnostic added (`DORADO_FORCE_MDS_BANK=n`):** forces `EmuBRHiReg`=n
+during boot so SetupBRs builds correct BRs. With it, `BR36(MDS)=0x10000`
+and the keyboard reads `177034=0xFFFE` (BS-down seed lands correctly) -
+confirming the MDS-corruption diagnosis. But the boot STILL restarts
+(DiskHardMicrocodeBoot), so MDS corruption is one root, not the only one -
+there is at least one more crash after MDS is corrected.
+
+**Next:** (a) obtain `GetEmulatorMapParams`'s source (it's the Alto-emulator
+module that should return the MDS bank - 0 per InitMem.mc comment, or the
+planted 1) to see why it yields 0xD24, OR rebuild the world via MicroD; (b)
+find the post-MDS crash. The SRN + DWT fixes and the ONLY_FULLBOOT /
+FORCE_MDS_BANK harness/diagnostic keep the suite green.
+
 **UPDATE 2026-06-10 (RTC DDA confirmed WORKING; blocker is junk-task
 starvation, not the DDA).** Disassembled the AltoMesaDorado junk task by
 tracing it with field decodes (no symbols needed): it runs the canonical
