@@ -34,6 +34,40 @@ register state in RM (256 × 16) plus an emulator-only stack STK (256 × 16).
 Everything cool happens at the microcode level — emulators are themselves
 microprograms.
 
+## Current status and active focus (June 2026)
+
+The microengine, memory subsystem, IFU, 16-way tasking, slow/fast-I/O
+routing, and the BaseBoard 6502 model all work and are test-covered. The
+full BaseBoard -> Bootstrap -> Initial boot chain runs.
+
+**Decision: boot over Ethernet, not disk.** No installed Pilot or Alto
+Dorado disk volume survives anywhere (the CHM archive is an IFS file dump,
+not bootable packs), and the disk controller's data-transfer path is
+incomplete. So the bring-up target is the network boot path. Note the
+two distinct Ethernet boot layers (see `docs/ethernet-architecture.md`):
+
+1. **Stage 1 - Initial microcode boot. WORKING.** Initial falls through
+   `DiskHardMicrocodeBoot` to `EtherMicrocodeBoot`; an in-process fake Pup
+   boot server (`dorado/src/ethernet.c`) serves `AltoMesaDorado.eb` via
+   Pup types `264B`/`265B`; Initial verifies the EB checksum, runs
+   `LoadRam`, and the loaded Alto/Mesa emulator microcode world starts.
+   Costs ~61 M cycles; probes use a 140 M-cycle budget. Still carries a
+   few probe-side guards (e.g. `DORADO_ETH_FORCE_ELOAD_ZERO`).
+
+2. **Stage 2 - software boot. NOT DONE - the active work.** The running
+   emulator must now load a real OS. The disk route is blocked on content
+   + the disk read path; the chosen route is **Alto-style Ethernet
+   software boot** (Mayday Pup `244B` + EFTP `30B`/`31B`), which needs the
+   Alto-side Ethernet/SIO surface the emulator exposes plus a small boot
+   file / NetExec to serve. Until booted software installs a display list,
+   the framebuffer renders blank.
+
+Detailed plan: `docs/ethernet-local-boot-plan.md`. Running state and the
+full punch list of remaining emulation gaps: `docs/handoff.md` and
+`dorado/CLAUDE.md`. Cedar/Pilot is a later target (Phase 6C) - the newest
+Dorado Cedar world that exists is 6.1 (`chm/cedar/cedar6.1/`); Cedar 7 was
+never built for Dorado.
+
 ## Why this is hard (read before scoping)
 
 - **No CPU instruction set in the conventional sense.** Dorado executes
@@ -232,17 +266,22 @@ Once Alto-on-Dorado works, switch to `chm/dorado/Mesa.mb!3` and bring
 up Pilot. From there, `chm/dorado/Cedar.mb!6` brings up Cedar; UnBug
 contains `DoradoLisp.MB` for the Lisp emulator if we want it.
 
-## Open questions to resolve before coding
+## Open questions (resolved)
 
-1. Which microcode revision do we target first — Mesa, or the simpler
-   Alto emulator? (Probably Alto: it's the smallest microprogram and the
-   least entangled with Mesa-specific Map/BR semantics.)
-2. Do we have a complete Mesa.mb binary in the local tree, or do we need
-   to fetch one from CHM? (Check `docs/chm-archive.md` once the indexer
-   sub-agent reports.)
-3. What disk format should we read — Trident T-80, T-300? How is the disk
-   image stored on CHM? (Hardware Manual §9 for the controller; CHM for
-   image files.)
-4. Display first or disk first for milestone 6? Display gives visible
-   output without disk imagery; disk is required to load anything real.
-   Recommend: display first (with a stub framebuffer), then disk.
+These were the original pre-coding questions; here is where each landed.
+
+1. **Which microcode first — Mesa or Alto?** Alto, as predicted. The
+   Ethernet path serves `AltoMesaDorado.eb` (the Alto emulator on Dorado);
+   it loads and starts via the real Initial -> LoadRam path.
+2. **Do we have the binaries locally?** Yes - `chm/dorado/` holds Mesa,
+   Cedar, AEmu, and the `.eb` netboot worlds; see `docs/chm-archive.md`.
+3. **Disk format — T-80 or T-300?** Both are modeled (ContrAlto/Bitsavers
+   byte layout, 2074-byte sectors). Moot for first boot: no installed
+   Dorado pack exists, so we boot over Ethernet instead.
+4. **Display vs disk first?** Display first (framebuffer is implemented).
+   It renders but stays blank until booted software installs a display
+   list, which is gated on Stage-2 software boot.
+
+The live open question is now Stage-2 software boot - see
+`docs/ethernet-local-boot-plan.md` Phases 6A/6B and the punch list in
+`docs/handoff.md`.

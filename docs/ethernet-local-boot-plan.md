@@ -37,6 +37,39 @@ Fallback payloads:
 | `chm/cedar/basiccedar/BasicCedarDorado.boot!14` + `chm/cedar/germ/Dorado.germ!4` | Cedar/Pilot disk-boot references, not payloads for Initial's microcode boot request. |
 | `chm/microcode/BasicCedarDorado.pb!1` | Not for this path. It is a Pilot Backup memory image, useful for a future direct `.pb` loader. |
 
+## Acquired Stage-2 payloads (2026-06-08)
+
+The Stage-2 boot payloads are now local in `chm/bootfiles/`, pulled from
+the CHM PARC/Alto archives; every file's size matches the index exactly.
+Two boot-file layouts are present: the small standalone tools lead with
+`01 05 ...`, the larger OS/NetExec images lead with `00 e5 ... 01 03`.
+
+Small standalone tools (self-contained Alto memory images, no OS/disk):
+
+| File | Size | Role |
+|---|---|---|
+| `CRTTEST.BOOT!1` | 7080 | Smallest standalone boot; draws on the CRT. Best first "do we get pixels" test. |
+| `DMT.BOOT!22` | 15430 | Display Memory Test; second small visible payload. |
+| `NETEXEC.BOOT!8` | 43640 | Canonical Alto Network Executive - the documented BS+Quote netboot target. |
+
+Full OS / environment net-boot images:
+
+| File | Size | Role |
+|---|---|---|
+| `NEWOS.BOOT!21` | 130560 | Full Alto Operating System (Exec desktop), net-bootable. |
+| `MesaNetExec.boot!1` | 130048 | Mesa environment network executive. |
+| `AlphaMesaMesaNetExec.boot!1` | 130048 | AlphaMesa/Mesa network executive. |
+| `CedarNetExec.boot!4` | 130560 | Cedar environment network executive (on-ramp to Cedar software). |
+| `MazeWar.boot!1` | 130048 | Demo; unmistakable visual "it really booted" payload. |
+
+The Mayday/EFTP server in Phase 6B can stream any of these directly. Start
+with `CRTTEST` (smallest, visible), then `NETEXEC`, then `NEWOS` for a full
+desktop. Full Alto *disk* images for the disk route + ContrAlto cross-
+validation already exist under `AltoInfo/ContrAlto2-beta/Disks/`
+(`games.dsk`, `nonprog.dsk`, `diag.dsk`, etc.). Protocol references local:
+`chm/pup/{ALTOBOOT,ETHERBOOT,EFTPSPEC}.BRAVO`,
+`chm/altodocs/{ETHERBOOT,NETEXEC}.TTY`.
+
 ## Definition of Done
 
 1. Initial reaches `EtherMicrocodeBoot`.
@@ -272,6 +305,482 @@ Tasks:
 Expected result: AEmu emits an Alto software boot request and accepts an EFTP
 boot file, giving us a post-LoadRam progress path even without a proven local
 Alto partition.
+
+### Client-side bring-up status (2026-06-08)
+
+Server side is done and unit-tested (see `ethernet-architecture.md`). The
+client side does not yet drive it. Findings from the forced-Ethernet probe
+(`DORADO_ALTO_BOOT_ETHERNET=1 DORADO_ALTO_BOOT_QUOTE=1 DORADO_ALTO_BOOT_SHIM=0
+DORADO_ETH_EFTP_BOOT=.../CRTTEST.BOOT!1 DORADO_BOOT_BUDGET=160000000`):
+
+- **Stage 1 still works**: microcode boot `requests=1 bfn=0110 replies=69`,
+  EB checksum matches, `LoadRam` runs, loaded world starts.
+- **No Mayday is sent**: `eftp_requests=0`, `last_tx_pup=0264`. The loaded
+  world never enters the Alto Ethernet software-boot path; it runs the
+  Alto-disk loop instead (`ENDALTOLOOP`, `READ1MUFF`, `AEMU_WAITFORSECTOR`).
+- **The boot-mode steering does not land.** `AEm0.mc` `ABoot` reads the
+  keyboard at VM `177034` (`T_ (R400) XOR 177434C`) and does
+  `Branch[EBoot, R even]` - EBoot only if the BS-key LSB of word `177034`
+  is 0 (down). `ResumeEmulator` first stores `-1` (all keys up) to
+  `177034..177037`, then `ABoot` waits ~100 ms for the terminal to update
+  them. We have no DDC keyboard back-channel (gap E2), so nothing updates
+  them, and the probe's seed is not reliably present at read time.
+- **Two concrete bugs to fix in the probe diagnostics / seeding:**
+  1. The Alto emulator reads its keyboard via `MemBase=MDS` (`BR[MDS,36]`,
+     and in Alto mode `IOBR == MDS`), **not** the Mesa `IOBR=BR31`. The
+     probe's `boot_keyboard_base`/`boot_keyboard_word` use BR31. A new
+     `boot_keyboard_word_at(mem, BR36, ...)` report was added; both bases
+     read `0000` at exit, so BS-down is not being held at `MDS+177034`.
+  2. **Open question that gates everything here:** the offset-`0110` world
+     ("AltoMesaDorado.eb") **fingerprints as Mesa** and runs Alto-disk code
+     at `0o5xxx` (`ALTOLOOP=0o5434`), whereas standalone `AEmu.mb!2` puts
+     `ABoot`/`AEMU_ALTOLOOP` at `0o44xx`. So the `AEm0.mc` `ABoot` decision
+     traced above may belong to a different world than the one actually
+     loaded. Before more keyboard-seed work, determine which emulator
+     offset `0110` loads and what *its* disk-vs-Ethernet software-boot
+     decision is (Mesa/Pilot boots Pilot from disk or via NetExec, a
+     different path than the Alto EtherBoot Mayday/EFTP).
+
+**Finding (2) RESOLVED (2026-06-08).** `AltoMesa.cm`
+(`chm/doradomicrocode/doradomicrocodesources/AltoMesa.cm!1`) shows offset
+`0110` ("AltoMesaDorado") is built `MicroD -nl Mesa` from the **Mesa
+emulator** modules (`AltoMesaArith/Faults/Jumps/LS/Process/RW/Xfer/...`)
+plus the Alto emulator as a *guest* instruction set (`AltoEmu`,
+`AltoDiabloDisk`, `AltoEther/AltoEtherEmu`) and I/O. It is therefore a
+**Mesa world that boots Pilot**, not a standalone Alto. Confirmed by the
+local boot sources for this world: `InitMem.mc`, `PilotInitMem.dib`,
+`DiskBootSoft.mc`, `DiskBootTransfer.mc` (Pilot disk boot) - and by the
+absence of `AEm0.mc` (the standalone Alto `ABoot`/`EBoot`/`DiskBoot`
+logic) from the module list. So this world never issues an Alto Mayday;
+the `AEm0.mc ABoot` analysis above applies to the *standalone* Alto
+emulator (`AEmu.mb`), which the standard netboot offsets do not load
+(3110=Mesa, 3111=Smalltalk, 3112=Lisp, 3113=Cedar, 3114=Test - no
+pure-Alto offset).
+
+**Consequence - the two Stage-2 routes are now clearly separate:**
+
+- **Route A (matches the loaded world): Mesa/Pilot disk boot.** The
+  offset-`0110` world wants `DiskBootSoft`/`DiskBootTransfer` to read a
+  Pilot physical volume + germ from disk. Blocked on: no Pilot Dorado
+  pack exists (established earlier) and the disk read-transfer path
+  (F1-F5). The EFTP/Mayday server does not apply here.
+- **Route B (what the EFTP/Mayday server + `chm/bootfiles/` payloads
+  serve): standalone Alto EtherBoot.** Needs a standalone Alto emulator
+  world loaded (e.g. `AEmu.mb` via the LoadMB/Path-B mechanism, like
+  `probe_aemu`), whose `AEm0.mc ABoot` reads the keyboard and branches to
+  `EBoot` -> Mayday. The server already answers this; the work is loading
+  that world and steering BS-down at `MDS+177034`.
+
+**Next step (decision required - see chat):** pick Route A or B. Route B
+is the one the new server unlocks and the one with content in hand
+(NetExec/CRTTest), but it requires bringing up a standalone-AEmu boot
+rather than the Mesa netboot world. Route A is the world that actually
+loads today but is blocked on Pilot disk content that does not exist.
+
+### EFTP server validated by simulation (2026-06-08)
+
+`test_ethernet.c::test_eftp_boot_full_transfer` simulates the booting
+Alto's `ReceiveEFTPPacket` loop against the server and reassembles the
+stream byte-for-byte (`CRTTEST.BOOT` 3540 words, `NETEXEC.BOOT` 21820
+words). So the EFTP transfer is proven correct independently of any
+on-machine bring-up; a future client failure is attributable to the
+client, not the wire protocol.
+
+### Route B on-machine status (2026-06-08) - root cause found
+
+Ran `probe_aemu` (standalone AEmu: Initial+kernel+memMisc+IfuComplex+AEmu
+direct-loaded, run from START/STARTEMULATOR) against the current engine
+and traced it to ground. Findings (probe now prints boot symbols, tasking
+/junk state, the RTC value, and a spin disassembly):
+
+- AEmu runs **much further than the old 203-cycle `JNKINITPC` halt**:
+  `STARTEMULATOR -> RESUMEEMULATOR -> SETUPBRS -> DOBRS -> InitTasks ->
+  ABoot`. Boot symbols (this load): `INITTASKS=0o1123 ABOOT=0o724
+  EBOOT=0o2006 DISKBOOT=0o2005 AEMUNEXT=0o745`.
+- It **stalls inside `ABoot` at real `0o736`** (10 instructions past
+  `ABOOT=0o724`) - the `T_(R400)+(30C); ... Fetch_ T, Branch[.-1, ALU>=0]`
+  **100 ms RTC wait loop**. `T=0x118 = 0o430` confirms it is polling the
+  Alto RTC at VM 430.
+- Tasking is on, the junk timer is enabled, and the **JNK task actually
+  runs (1261x)** - yet `VM430 = 0x0000` and never advances, so the wait
+  never exits.
+- **Root cause: `MDS = 0x00000`.** The bypass never establishes the
+  emulator-handoff state Initial provides (`EmuBRHiReg/RM[0x18]` should be
+  `0x0D24` -> `MDS=0xD240000`; map entries; RTClock init). With MDS and
+  the clock machinery uninitialized, the JNK task's MemBase-relative
+  clock store does not land at the VM 430 ABoot polls. So the blocker is
+  **not** a missing single emulator feature - it is that the standalone
+  -AEmu *bypass* skips Initial's setup.
+
+**Implication for "implement correctly":** the right vehicle is real
+`Initial -> emulator handoff`, which sets MDS/BRs/map/RTClock before
+`STARTEMULATOR`. Two ways to get there for *standalone* Alto:
+  1. **Serve a standalone-Alto `.eb` at netboot offset `0110`** so the
+     real Initial loads AEmu (not AltoMesa/Mesa) and hands off with full
+     setup, then AEmu reaches `ABoot`, EBoots, and drives the EFTP server.
+     Needs an AEmu `.eb` (we only have `AEmu.mb`; would require MicroD/
+     LoadMB-style `.eb` generation, or finding one in the archive).
+  2. **Faithfully reproduce Initial's emulator-handoff state in the
+     bypass** (plant `EmuBRHiReg`, map the MDS region, init RTClock) -
+     bounded but requires the JNK-task clock source to verify, which is
+     not in the local AEmu files.
+
+Until one of those lands, the validated EFTP server has no correctly
+-initialized client to answer on-machine. The EFTP transfer itself
+remains proven by `test_eftp_boot_full_transfer`.
+
+#### Update: ABoot's RTC wait analyzed (2026-06-08, cont'd)
+
+Re-examined the `0o736` stall with the Junk-task clock source
+(`chm/doradomicrocode/doradomicrocodesources/Junk.mc!1`). The RTClock is a
+DDA: each JNK wakeup adds ~0.84 to a 22-bit fraction; the Alto clock is
+VM 430 (high 16 bits) + `RTClock[0:9]` (low 10). VM 430 ticks only every
+~1000+ JNK wakeups. The JNK task runs with `MemBase=IOBR(=MDS)`, so even
+with `MDS=0` its VM 430 store lands at physical `0x430`, exactly where
+ABoot reads. So the mechanism is correct - it was just **starved of
+cycles**: the probe's 200k-cycle budget gave only ~1300 JNK wakeups
+(VM 430 = 1). `probe_aemu`'s budget is now `DORADO_AEMU_CYCLES`
+(default 200k). At 8M cycles JNK runs ~19k times and **VM 430 reaches 6**
+(past ABoot's +3 target) - yet ABoot **still loops at `0o736<->0o755`
+with `T=0o430`** (still reading VM 430). So passing the numeric target is
+not sufficient: the loop's compare is not seeing the advanced value.
+
+#### RESOLVED (2026-06-08, cont'd): it was a small-constant ALU bug
+
+A per-cycle trace of the loop disproved the Md-timing theory: it is pure
+task 0 (no interleave) and `Md` is read correctly. The real bug was in the
+**Dorado small constant `nS`**. ABoot's `ETemp0_ (3S)+MD` (real `0o751`,
+`ASEL=A<-RM/STK`, FA=0 FB=0, FF[4:7]=3) must compute `3 + Md`, but the
+emulator computed `(oldETemp0 | 3) + Md` because the FA=0 FB=0 A-override
+only overlaid the low nibble onto RM/STK instead of forcing
+`A = {0,,FF[4:7]}`. So the RTC target came out `0o423` instead of `3` and
+the wait could never end.
+
+Fix in `src/cpu.c` (A-bus override): for the full-function form
+(`ASEL > 3`, FA=0 FB<=1) A is now the small constant with `A[0:11]=0`; the
+memory-reference Mar tweak (`ASEL 0/1`) still keeps the high bits. Proof
+the zeroing is correct: `0o751` reads and writes the same register, so
+keeping the high bits would corrupt every `nS` constant and Taft's
+canonical microcode could not work. `test_a_low_ff_override` was corrected
+to the real-hardware semantics (it had encoded the wrong keep-high
+expectation). Full suite green. This is a broad fix - small constants on
+the A bus are pervasive, so it likely also helps the Mesa boot path.
+
+**Result:** ABoot now computes `ETemp0=3`, exits the RTC wait once VM 430
+passes 3 (~5M cycles), and standalone AEmu advances into the keyboard /
+disk-vs-Ethernet boot decision.
+
+#### probe_aemu environment built out (2026-06-08, cont'd)
+
+`probe_aemu` now attaches the slow-IO bus + the in-process Ethernet/EFTP
+controller, maps a 512-page MDS region, and (when `DORADO_AEMU_EBOOT=1`,
+default) holds BS down at `MDS+177034` to steer ABoot to Ethernet boot.
+With these the bring-up advances much further:
+
+1. Full MDS map fixed the `NOTEMUFAULT` page-fault on ABoot's keyboard
+   fetch (VM 177034). Without BS forced, AEmu now reaches `KWAIT` -
+   DiskBoot waiting on a (nonexistent) disk.
+2. With BS down it takes **EBoot** (`0o2006`) - the Alto Ethernet
+   software-boot path - and runs a few instructions before faulting at
+   `0o2021` (a `MemBase<-FF` store) back to `NOTEMUFAULT`.
+
+So AEmu reaches EBoot but cannot complete it: EBoot needs more of Initial's
+emulator-handoff than the bypass provides. Planting `EmuBRHiReg=1`
+(`DORADO_AEMU_EMUBRHI`) so EIBR/EOBR/MDS are coherent was necessary but
+not sufficient - EBoot also wants the Ethernet command blocks in memory
+and the EtherBoot bootloader copy. **Conclusion:** driving the validated
+EFTP server on-machine requires the *real* `Initial -> emulator` handoff,
+not the bypass; the bypass got us to EBoot for diagnosis but is the wrong
+vehicle to finish it.
+
+**Headline fix:** the Dorado **small-constant `nS`** A-bus bug
+(`src/cpu.c`) - A is now `{0,,FF[4:7]}` for the full-function form, not a
+low-nibble overlay on RM/STK. Broad (small constants are everywhere) and
+unblocked ABoot's RTC wait. `test_a_low_ff_override` corrected; suite green.
+
+#### Did it correctly: real Initial -> AEmu via an .eb (2026-06-08)
+
+Instead of the bypass, the standalone Alto emulator is now loaded the
+*real* way: a new `mb2eb` tool (`src/mb2eb.c`, `build/mb2eb in.mb out.eb`)
+converts a `.MB` into an Ethernet-boot `.eb` (LoadRam Item array + balanced
+checksum + InitMap start address `0o1076`), implementing the
+`LoadRam.mc!1` Item format (IM `word0=iw0`, `word1=FF,,JCN`, extraIM nibble
+`LHpar,,RSTK[0],,RHpar,,BLOCK`; IFUM `word0/1=ifum_lo/hi`; End checksum so
+the 16-bit sum of all payload words = 0).
+
+`build/mb2eb ../chm/dorado/AEmu.mb!2 /tmp/AEmu.eb` then
+`DORADO_ETH_BOOT_110=/tmp/AEmu.eb` in the full-boot probe: **real Initial
+requests `0110`, receives AEmu (38 reply packets), passes
+`CheckChecksumAndLoad`, runs `LoadRam`, and hands off to `InitMap`
+(`0o1076`)** - no bypass, no planted state. AEmu's own InitMem then runs
+(MDS=0x10000 set by real InitMap; ABoot's RTC target computes correctly as
+`ETemp0=3`).
+
+**New frontier:** AEmu's InitMem does **not terminate** its map
+enumeration. At 300M cycles `NEXTMAP1` (`0o3262`) has run ~2.2M times -
+far more than the 16384 VM pages (VirtualBanks=0x40 -> 64 banks x 256) it
+should enumerate once - while `0o4147`/`0o4120 (WAITFORMAPBUF)` spin. `mar`
+stays inside the 64K MDS region (`0x10000..0x1FFFF`), so this is the Alto
+64K map setup, not the 16MW zeroing. So `NextMapEntry`'s end-of-VM test
+`PD_ (BRHi_ T)-(VirtualBanks)` never fires - the bank counter never reaches
+VirtualBanks. Config seen: `VirtualBanks=0x40`, `RealPages=0x0000`
+(=64K pages/16MW, same as the Mesa boot), `faults=0`.
+
+This is the same class as Initial's own earlier `NextMapEntry` bug ("saw
+ALUF[4] as A+B+1 instead of subtract and overran enumeration"), now in the
+loaded emulator's copy.
+
+**FULLY LOCALIZED (2026-06-09, deep trace): two AEmu-InitMem map bugs.**
+A windowed PC trace gated to the loaded world (`DORADO_NEXTMAP_TRACE`,
+armed in bank 3, with `DORADO_STORAGE_MODULES=1`) shows the enumeration
+**does progress** - the BR climbs bank-to-bank correctly across crossings
+(`0x2FD50 -> 0x2FE50 -> 0x2FF50 -> 0x30050`). So it is NOT a VA-accumulate
+bug. The two real bugs:
+  1. **`IWriteMap` writes the map at VA = `BR + ITemp1`** (e.g.
+     `0x2FE50 + 0x2E0 = 0x30130`), using the real-page number `ITemp1` as
+     the address displacement. It should write the map entry for the BR's
+     own VA (the enumerated VM page) with `ITemp1` as the *data* (real
+     page). The map writes are FF-driven (IWRITEMAP1 `0o4113` FF=152,
+     IWRITEMAP `0o4140` FF=177, ASEL=A<-RM/STK - not an ASEL ref), so our
+     FF map-ref path is taking `Mar = A-bus = ITemp1` instead of Mar=0.
+  2. **The per-module loop never advances.** Region-4 regs across the run:
+     `ModMask` (RM[0x4B]) stays `0x8000` and `ITemp2` (RM[0x4E]) stays
+     `0x0003` - neither updates. So `MapModule`/`FindModule` either are not
+     reached or their `ITemp2_ (1S)-(PgsPerMod)` / `ModMask_ (ModMask)
+     LSH 1` writes do not take, and the loop remaps "module 0" forever,
+     never reaching `EndOfStorage`.
+Both are in AEmu's `InitMem` map/config code (FF-driven map writes +
+`MapModule`/`FindModule`), which our emulator has never validated because
+Initial's own map setup uses different code (`WRITEMAP`/`WAITFORMAPBUF`,
+confirmed working in the same run).
+
+**RESOLVED 2026-06-10 - InitMem hang fixed; boot now reaches DiskBoot.**
+The root cause of bug #2 was an **inter-task pipe-slot collision**, not a
+VA-carry or per-module-loop bug. Full trace chain:
+  * InitMem's `NextMapEntry` does `DummyRef_ T` then reads the resulting VA
+    back via `ITemp17_ VALo; T_ VAHi` (Pipe1/Pipe0 of `pipe[ProcSRN]`), and
+    rebuilds BR from it (`BrLo_ ITemp17; BrHi_ T`). Each pass advances BR by
+    one page; the enumeration ends when `VAHi==VirtualBanks(0x40)`.
+  * A ring-buffer trace caught the failure: between the DummyRef (0o3257,
+    `va=0x30850`, bank 3) and the `T_ VAHi` read (0o3261), `last_ref_va`
+    changed to `0x10150` with **no intervening task-0 instruction** - i.e. an
+    I/O task preempted, did a reference, and that reference landed in
+    `pipe[ProcSRN]`, clobbering the emulator's DummyRef VA. The readback then
+    got `VAHi=1` instead of 3, so BR dropped from bank 3 to bank 1 and the
+    bank counter cycled 1->2->3->1 forever, never reaching 0x40.
+  * Root cause in `memory.c`: SRN selection routed only `IOFetch`/`IOStore`
+    to ASRN; any **other** reference kind (Fetch/Store) from a non-emulator
+    task used `ProcSRN`. Per HM p.51-52 the emulator (task 0) and fault task
+    (task 15) use ProcSRN; **all I/O tasks (1..14) use ASRN**. Fix: select
+    ASRN whenever `task != 0 && task != 017` (or the kind is IOFetch/IOStore
+    or a prefetch miss). This keeps I/O-task references out of the emulator's
+    pipe entry.
+  * Result: VAHi now climbs monotonically to 0x40 (enumeration completes at
+    exactly 16384 entries x3 passes); the AEmu world reaches `StartEmulator`,
+    `ResumeEmulator`, and `DiskBoot`/`ABoot`, with all 16 tasks scheduling.
+    Full suite stays green. The bug #1 map-write `Mar=0` fix (below) is also
+    kept - it is independently correct.
+
+**UPDATE 2026-06-10 (later): the RTC issue was an INCOMPLETE-WORLD
+artifact; complete world boots much further.** The earlier RTC/junk-task
+stall was caused by booting an **incomplete** world: `/tmp/AEmu.eb` was
+`mb2eb` of `AEmu.mb!2` alone (2148 IM words = just the Alto-emulator layer)
+loaded over Initial's base, so the junk/IFU/trap code was Initial's,
+mismatched - producing a spurious tasking-off spin (0o7741-0o7747) and a
+junk task that never re-ran. A complete world needs all five layers
+(Initial+kernel+memMisc+IfuComplex+AEmu = ~14k IM words, like
+AltoMesaDorado.eb).
+
+Two concrete results:
+  1. **Complete world via the bypass `probe_aemu`** (loads all 5 layers,
+     enters at STARTEMULATOR), run with `DORADO_AEMU_CYCLES=25000000`: the
+     **RTC advances (VM430=4)**, ABoot's 100 ms wait passes, and the boot
+     becomes **fully multitasking** - disk task (`SEEKWAIT`/`ABADSECTOR`/
+     `SENDDRIVETAG`, disk outs=2450/ins=740), display task, ethernet-input
+     task (`EIRETN`) - reaching `NOTEMUFAULT` (0o4167) after disk activity.
+     The disk read hits `ABADSECTOR` because the disk data path is
+     incomplete (expected; we boot over Ethernet). So the SRN fix really did
+     unblock the emulator: the complete world runs through ABoot.
+  2. **New tool `mb2eb -l`** merges several `.mb` layers into one complete
+     `.eb` (base via `dorado_microcode_load`, rest via
+     `dorado_microcode_layer_load` - same as probe_aemu). Built
+     `/tmp/AEmuFull.eb` (IM=3968 IFUM=256 RM=123, 35 KB) from
+     Initial+kernel+memMisc+IfuComplex+AEmu.
+     Command: `mb2eb -l out.eb 01076 Initial.mb kernel.mb memMisc.mb
+     IfuComplex.mb AEmu.mb!2`.
+
+**Remaining divergence (the active frontier):** booting `/tmp/AEmuFull.eb`
+via **real Initial** (`DORADO_ETH_BOOT_110=/tmp/AEmuFull.eb`) loads and
+reaches StartEmulator -> ResumeEmulator -> SetupBRs/DoBRs -> InitTasks, but
+ends at **AEMUNOTREADY** (the IFU not-ready trap, `IFUJump[0]`) with
+**RTC=0** - i.e. the junk task does NOT tick the RTC on the real-Initial
+path, unlike the bypass. So the same merged IM behaves differently by entry
+path: the difference is the CPU/memory state Initial hands off vs the clean
+state probe_aemu plants. Two things to chase next:
+  (a) why the junk task ticks under probe_aemu but not under real Initial
+      (one-shot `Wakeup[JNK]` delivery / `junk_tw_enabled` after AEmu's
+      `IFUReset`; suspect the handoff state or an IFU-not-ready spin that
+      runs with tasking effectively off);
+  (b) AEMUNOTREADY itself - is the IFU spuriously stuck not-ready right
+      after the handoff (CODE/RCODE base register or PCF setup)?
+Once the real-Initial complete world ticks the RTC and runs opcodes, the
+BS-down keyboard seed (`DORADO_ALTO_BOOT_ETHERNET=1`) should drive ABoot to
+EBoot -> Mayday -> the byte-exact EFTP server (disk boot is expected to fail
+on `ABADSECTOR`).
+
+The SRN/pipe-slot fix and `mb2eb -l` are committed-quality and the full
+suite stays green.
+
+---
+
+**Next blocker (new frontier, 2026-06-10): the Alto RTC (VM 430) never
+advances.** AEmu now runs the emulator and stalls in `ABoot`/`DiskBoot`.
+Root cause, pinned by the probe:
+```
+RTC: VM430 (MDS=0x10000) = 0x0000  ETemp0(target,RM[0x1A])=0x0003
+     (ABoot exits when VM430 > target)
+```
+`ABoot` (AEm0.mc) reads VM 430 as the real-time clock and waits ~100 ms for
+it to advance (`ETemp0_ (3S)+MD; ... Fetch_ T, Branch[.-1, ALU>=0]`); then
+`DiskBoot`'s `KWait` likewise polls VM 430 for a ~1 s disk-status timeout
+(which, on timeout, falls through to `EBoot` -> Mayday/EFTP). VM 430 is
+maintained by the **Junk task (JNK)** via a DDA (region 13 `Events`:
+`RTClock`/`RTCDeltaLo`/`RTC430`/`RTCFrac`; copies `RTC430` -> VM 430). In our
+run the junk task (`JUNKTASKSTART/LOOP/CONT`) ran **exactly once** then never
+again, so VM 430 is stuck at 0 and ABoot spins forever (final PC 0o7742;
+`last_tx_pup=0o264`, `eftp_requests=0` - no Mayday issued yet).
+
+Deeper trace (DORADO_JUNK_TRACE) localizes it further. Our model already has
+a junk-timer-wakeup (`junk_timer_tick`, ~32 us, gated by `junk_tw_enabled`,
+enabled via `AckJunkTW<-B` B[15]=1, disabled by `IFUReset` which loads
+IFUTest=1 per HM Table 20). During the **Mesa** phase the junk task (task 2,
+`JUNKTASKCONT` 0o3753) runs every ~1000 cycles and Acks with B[15]=1 -
+correct. During the **AEmu** phase the junk timer is `enabled=0` (countdown
+frozen) and the junk task never runs again to re-enable it, so VM 430 stays
+0. The chain: AEmu `ResumeEmulator` does `IFUReset`, which both disables the
+junk timer AND clears the pending junk wakeup bit; `InitTasks` then issues a
+one-shot `Wakeup[JNK]`, which should make the junk task run once and re-enable
+periodic ticks - but in our run that re-enable never happens.
+
+So the remaining bug is a **wakeup-delivery/ordering issue around the AEmu
+boot's one-shot `Wakeup[JNK]`** (note: the probe runs multiple phases and
+`cpu->cycles` resets between them, which complicates tracing). Next steps:
+(a) trace whether `InitTasks`' `Wakeup[JNK]` bit survives to a task switch and
+the junk task actually runs once post-LoadRam; (b) confirm `IFUReset`'s
+clearing of the junk wakeup bit matches HM (it may clear the *current* tick
+but must not swallow a subsequently-issued explicit `Wakeup[JNK]`); (c) the
+exact JNK wakeup/loop body is in the Junk/Events display-group source, NOT in
+the `AemuSources.dm!82_` member we have (only ADefs/AEm0/AltoDiabloDisk/
+EMemDefs/InitMem/RegisterDefs/S-Group/Start) - fetch it from CHM if needed.
+Once the RTC advances, ABoot reads the keyboard and DiskBoot times out into
+EBoot -> Mayday -> the (already byte-exact) EFTP server.
+
+**UPDATE 2026-06-09 - bug #1 FIXED, bug #2 re-diagnosed.**
+  * **Bug #1 (map-write VA) is fixed.** `cpu.c` now forces `mar = 0` for
+    `DM_REF_MAP` refs (`Map_ 0S` addresses the BR's own VA, not A-bus =
+    `ITemp1`). This is semantically correct per `InitMem.mc` (`Map_ 0S,
+    MapBuf_ ITemp1`) and the full suite stays green - Initial's own map
+    setup uses `DM_REF_STORE`, so it is unaffected. The AEmu hot-PC count
+    at `0o4147` dropped from ~14M to ~7.7M, confirming the write path
+    changed.
+  * **Bug #2 is NOT the per-module loop - it is DummyRef/Pipe VA
+    accumulation, and the map-write fix shifted its symptom.** A decisive
+    trace at `NextMap1`'s subtract (`0o3263 PD_ (BRHi_ T)-(VirtualBanks)`,
+    ALUF=04, A=T=VAHi, B=VirtualBanks=0x40) and the following
+    `Return[ALU=0]` (`0o3271`) shows:
+      - the subtract is **correct**: `A(VAHi)=0x0000, B=0x0040 ->
+        alu_zero=0, alu_lt0=1`, so `Return[ALU=0]` correctly falls
+        through (it is NOT wrongly taken). The Return / ITemp2++ /
+        `FindModule` machinery is fine.
+      - **`VAHi (T) = 0` on every iteration.** Before the map-write fix
+        `VAHi` climbed 0..3; after it, `VAHi` is stuck at 0 (bank 0). The
+        DummyRef VA's offset wraps at `0x1000` instead of carrying into
+        the bank field at `0x10000`, so the enumeration never leaves bank
+        0 and `VAHi` never approaches `VirtualBanks(0x40)`. `ModMask`/
+        `ITemp2` looking "stuck" was a downstream consequence, not the
+        cause.
+    So the real remaining bug is the **DummyRef -> Pipe0/Pipe1 ->
+    ITemp17/T -> BRHi/BRLo round-trip**: the VA offset is not carrying
+    across the 16-bit boundary into the bank field. Likely a Pipe-slot
+    (ProcSRN) collision between the DummyRef's pushed VA and `IWriteMap`'s
+    map-ref push (now VA=BR after the fix), so `T_ VAHi`/`ITemp17_ VALo`
+    read the wrong slot. **Next (fresh eyes):** per-cycle trace of one
+    full `NextMapEntry` across a bank boundary - DummyRef VA -> which Pipe
+    slot it lands in -> what `Pipe0`/`Pipe1` return at `0o3257`/`0o3261` ->
+    BRHi/BRLo - against `InitMem.mc` and HM section 5.8 (Pipe). The
+    map-write fix is correct and should be kept regardless.
+
+**Earlier (partly superseded) note - "the spin is `Map1to1Loop`":** A register-window trace (region 4: VirtualBanks=0x40,
+RealPages=0x4000, PgsPerMod=0x4000 - all correct) shows the loop counter
+`ITemp1` climbing monotonically to 0xFFFF while the **enumeration bank
+`VAHi` only hovers 0..3 and resets** - i.e. `Map1to1Loop`'s `NextMapEntry`
+VA does not climb to `VirtualBanks(0x40)`; it wraps around ~256K (bank ~4).
+`ModMask=0x8000` constant is a red herring (that loop does not touch it),
+and `FindModule`'s `LSH 1` (FF=274 = FA=2 FB=7 FC=4) maps correctly to our
+`Pd <- ALU lsh 1`. The map is 16K entries (wraps at 4MW, bank 0x40), so
+not the map size either. The real bug is in the **DummyRef-based VA
+accumulation**: it climbs correctly through a bank (PIPE_TRACE showed VaLo
+0x7D00->0x8000->... in bank 0) but the BR round-trip loses bits near a
+boundary so the bank stops advancing toward 0x40 - and the wrap point is
+config-dependent (offset 0xF50->0x150 in the 4-module run vs bank-3/4 in
+the 1-module run), which points at a register clobber or a mis-evaluated
+condition in `NextMapEntry`/`Map1to1Loop`, not a fixed-bit mask. This needs
+a careful per-cycle trace of one full `NextMapEntry` (DummyRef VA -> Pipe0/
+Pipe1 -> ITemp17/T -> BRHi/BRLo) across a bank boundary, with fresh eyes.
+
+Superseded earlier note (the FindModule theory):
+**AEmu InitMem `FindModule` never reaches `EndOfStorage`.** The map enumeration is NOT a VA/VALo bug (a PIPE_TRACE
+showed `VaLo` climbing past 0x1000 correctly: `0x7D00,0x8000,0x8100...`),
+and it is NOT 16MW slowness (forcing one 4MW module via the new
+`DORADO_STORAGE_MODULES=1` gives `RealPages=0x4000`, `VirtualBanks=0x40`,
+`PgsPerMod=16384` - all correct - and it still loops). The real
+non-termination is in AEmu's `InitMem.GetMemConfig`/`FindModule` module
+loop (`InitMem.mc`), which our emulator has **never validated** because
+Initial used different map code (`PRESETMAP`/`WRITEMAP`). `FindModule` does
+`ModMask_ (ModMask) LSH 1, Branch[MapModule, R<0]`; `EndOfStorage` only
+fires when `PgsPerMod==0` (never). With our `ModMask` (built by
+`GetMemConfig` from the config word via `NOT(Config')`, `LSH 8`,
+`AND 0170000`) plus our `LSH 1`/`R<0` handling, `FindModule` keeps finding
+modules "present" and maps pages indefinitely (`NEXTMAP1` ran ~1.4M times
+vs the 16384 expected for one module). **Next:** trace `ModMask` across
+`FindModule` - confirm `(ModMask) LSH 1` actually shifts it toward 0 and
+that `R<0` after the shift detects exactly the present modules, and align
+the config-word module-bit positions (`module_bits` in
+`memory.c::dorado_memory_config_word` vs what `GetMemConfig` expects after
+`LSH 8 & 0170000`) so `EndOfStorage` is reached. This is config/shift-
+semantics work to do with fresh eyes against the HM config-word format.
+
+**Earlier per-cycle finding (superseded by the above):**
+`NextMapEntry` walks VM by doing
+`DummyRef_ T(=0o400)` ("let the memory system add a page"), reading the
+new VA back via `VAHi`(Pipe0)/`VALo`(Pipe1), then `BRHi_ VAHi; BRLo_ VALo`
+so the BR carries to the next page; it ends when `VAHi == VirtualBanks
+(0x40)`. Per-cycle traces (env `DORADO_NEXTMAP_TRACE`, `DORADO_DUMMYREF_TRACE`
+added to the probe/cpu) show the DummyRef VA climbs by `0x100`/page
+correctly **within a 12-bit offset** - `...0x10E50, 0x10F50` - then the BR
+**resets to `0x10150`** instead of carrying to `0x11050`. So the VA offset
+wraps at `0x1000` (16 pages) instead of carrying into the bank at
+`0x10000`; VAHi therefore never climbs to `0x40` and the loop never ends.
+The pipe push/read round-trips the full 28-bit VA and `psrn==proc_srn`, so
+the corruption is in the **BR offset between `NextMapEntry` and the next
+DummyRef** - i.e. during the `IWriteMap` (RMap_/Map<-) map read/write the
+loop does for each page, the enumeration BR's offset bits 9..11 get lost.
+Next: check whether our `RMap_`/`Map<-`/map-ref path disturbs the current
+MemBase BR (it must not), or whether `VALo`/`ITemp17`/`BRLo_` loses the
+high offset bits, so the VA carries `0x0FF00 -> 0x10000` into VAHi.
+
+Earlier (now-disproven) theory follows for the record:
+Most likely the **memory-pipeline/Md timing** (the B1/C1 Hold/Pipe gap):
+our model delivers a single global `Md` immediately, so when tasking
+interleaves fetches around the `Fetch_ T (0o755) ... read Md (0o736)`
+pair, the compare can read the wrong `Md`. The next step is a per-cycle
+trace of the loop (`T`, `Md`, `ETemp0` target, ALU result, branch taken,
+and whether a task switch lands between `0o755` and `0o736`) to confirm
+whether it is an Md-clobber, a moving target, or an ALU/condition decode
+issue. If it is the pipeline, implementing per-reference/per-task `Md`
+delivery (Hold/Pipe semantics) is the correct fix - and it is the same
+gap that makes AEmu's main dispatch loop unable to run, so it is the
+highest-leverage emulator feature to build next.
 
 ## Phase 6C: Cedar/Pilot Local Disk Route
 

@@ -92,6 +92,23 @@ Without flags: octal listing of every memory's contents, symbol-
 annotated. With `--disasm`: each IM entry also gets a one-line
 symbolic decode (RSTK/ALUF/BSEL/LC/ASEL/FF/JCN/BLOCK).
 
+### `mb2eb` — `.MB` → Ethernet-boot `.eb` converter (src/mb2eb.c)
+
+```
+mb2eb in.mb out.eb [start_addr_octal=1076]
+```
+
+Converts a MicroD `.MB` into an `.eb` image that the *real* Initial
+microprogram loads over Ethernet via `LoadRam` — the correct way to bring
+up a standalone emulator (e.g. `AEmu.mb`) with full Initial setup
+(MDS/BRs/map/RTClock) instead of a boot-bypass. Emits the `LoadRam.mc!1`
+Item array (IM `word0=iw0`, `word1=FF,,JCN`, extraIM `LHpar,,RSTK0,,RHpar,,
+BLOCK`; IFUM `word0/1=ifum_lo/hi`; RM `word0=value`), a 256-word header
+(`word0=1`), and a balancing End item whose checksum makes the 16-bit sum
+of all payload words zero (per Initial's `CheckChecksumAndLoad`). Serve the
+result with `DORADO_ETH_BOOT_110=out.eb` in the full-boot probe; Initial
+passes the checksum, `LoadRam`s it, and jumps to `InitMap` (`0o1076`).
+
 ### `bbdis` — BaseBoard 6502 ROM disassembler (src/bbdis.c)
 
 Standalone NMOS-6502 disassembler that loads a `.MB` ROM image
@@ -470,76 +487,63 @@ We will revisit when implementing the IFU.
 
 ## What's next
 
-Bootstrap probe now reaches the **shifter** at cycle 16. Priority is
-extending coverage of what real microcode hits — each step here pushes
-the probe further.
+The Bootstrap-era foundation is all done: shifter, Write IM, real
+BaseBoard 6502 + CPReg, the LoadDoradoCode handshake, FF function table,
+memory subsystem, IFU, and tasking are implemented and test-covered. The
+full BaseBoard -> Bootstrap -> Initial chain runs, and **Stage 1 Ethernet
+microcode boot works end to end** (Initial -> `EtherMicrocodeBoot` ->
+fake Pup server serves `AltoMesaDorado.eb` -> EB checksum -> `LoadRam` ->
+Alto/Mesa emulator world starts). For history on those earlier milestones
+see git log and `docs/handoff.md`.
 
-1. ~~Shifter — done.~~ See `shifter_output()` in `src/cpu.c`. ShC- and
-   FF-controlled paths both work; ShiftNoMask / ShiftLMask /
-   ShiftRMask / ShiftBothMasks all implemented. ShMd* variants stub
-   Md=0 until memory lands.
-2. ~~Read/Write IM, Read/Write TPC — stubbed (advance to .+1).~~ Real
-   IM mutation needs to land before Bootstrap can produce a working
-   Initial; see item 3.
-3. ~~CPReg I/O — **done correctly via real 6502**.~~ See
-   `src/baseboard.c`. We dropped in fake6502 (CC0 from
-   `C-Chads/MyLittle6502`), built the BaseBoard's 64K memory map
-   with five 6532 RIOT chips at the canonical addresses (0x400,
-   0x480, 0x500=CPReg, 0x580, 0x600), and load
-   `chm/dorado/doradobaserom.mb!13` as the canonical 64K ROM image.
-   The Dorado's `B←RWCPReg` reads from RIOT #3's PA||PB latches.
-   Bootstrap probe now runs against a real BaseBoard 6502 from its
-   reset vector at 0xF3A7.
+**Active focus: Stage 2 - boot OS software over Ethernet.** We boot over
+the net, not disk (no installed Dorado pack exists; the disk read path is
+incomplete). The plan lives in `docs/ethernet-local-boot-plan.md`; the
+ordered work to "fill in the rest" is:
 
-4. ~~BaseBoard cold boot~~ — **done**. With the analog-comparator
-   model in `update_analog_comparators()` (see `src/baseboard.c`)
-   producing in-spec voltage and current readings, the BB now runs
-   the full reset → CoolBoot → RebootDorado → SuppliesAllUp →
-   LoadDoradoCode → Continuous path. Verified by
-   `tests/test_baseboard.c::test_cold_boot_to_continuous`.
+1. **Harden Stage 1, remove probe guards.** Make EOT transmit the real
+   15-word request Initial built at VM `177400B` (today the fake accepts
+   an all-zero shape); drop `DORADO_ETH_FORCE_ELOAD_ZERO` and the BOOTSTAGE2
+   substitution. Verify the served EB matches Initial's memory buffer
+   word-for-word before `LoadRam` (plan Phase 4). See open items in
+   `docs/ethernet-architecture.md` "Bring-Up Notes".
 
-5. **Dorado-side LoadDoradoCode handshake — current blocker** ★ .
-   The BB enters LoadDoradoCode and does the full sequence (stop
-   Dorado via MCPBus, jam Boot0 microcode into MIR, start the
-   loader, stream Boot1 + Initial via CPReg). On our side, every
-   MCPBus write is silently swallowed and the Dorado microengine
-   sees nothing. To make this actually work we need:
-   - **MIR injection from BB.** `DoDoradoMicroInst` writes 5 bytes
-     to MIR0..MIR3 via MCPBus. We need the Dorado side to consume
-     those as the next `dorado_uinstr` and execute it.
-   - **Run/Halt control.** Bits in MCPBus `Control` field
-     (Freeze/Run/SetSS/ClrStop) gate microengine ticks. Right now
-     the Dorado runs unconditionally; needs a "stopped" mode the
-     BB can drive.
-   - **CPReg streaming.** SendIMBlockToDorado writes Boot1/Initial
-     bytes through CPReg. The Dorado-side Boot0 loader reads
-     `B←RWCPReg` repeatedly and uses Write IM to deposit them.
-     Both ends need to actually move bytes; right now neither does.
-   - **Real Write IM.** The Boot0 loader's whole job is to take
-     CPReg bytes and write them into IM. Our Write IM is currently
-     stubbed (PC-only).
+2. **Trace the post-LoadRam boot decision.** Confirm the loaded Alto
+   emulator's boot-mode select (no-BS = disk, BS = Ethernet, BS+Quote =
+   NetExec). The DDC keyboard back-channel is not modeled (gap E2), so the
+   selection is forced in the probe today; keep it probe-side until the
+   back-channel exists.
 
-5. **Actual IM writes** — currently advancing PC without writing.
-   For getting Bootstrap→Initial handoff working it matters: once
-   the BaseBoard is uploading Initial via CPReg, Bootstrap needs to
-   actually deposit the bytes into IM. Encode the 9-bit slice per
-   RSTK[2:3] (HM Figure 6) back into the `dorado_uinstr` at
-   `mc->im[Link & 0xFFF]`. Each Write IM updates 18 bits (one half)
-   selected by RSTK[3].
-4. **FF function table** — Tables 11a-e. Bootstrap is exercising a
-   handful right now (we silently ignore most of them, which is part
-   of why the spin loop doesn't make progress). Audit a probe trace
-   and implement the FF functions Bootstrap actually uses
-   (`Cnt←B`, `Cnt←small`, `Pointers←B`, `B←Link`, `Link←B`,
-   `B←RWCPReg`, `MidasStrobe←B`, `RBase←FF[4:7]`).
-5. **Memory subsystem** — by the time we boot Initial we'll have
-   touched `Fetch←` / `Store←`. See `docs/memory-architecture.md` for
-   the design plan; defer the cache / Map / Pipe until microcode
-   demands them. Initial first uses a flat 16-bit memory image.
-6. **IFU + tasking + Hold** — needed for emulator microcode (Mesa,
-   Cedar, Alto). Big chunk; defer until Initial runs end-to-end.
-7. **Disassembler polish** (lower priority — CPU consumes
-   `dorado_uinstr` directly):
-   - Sharper FF/JCN sub-decoding into named operations.
-   - ALUFM cross-reference (`ALUF=04(A+B)`).
-   - `.DLS`-format `--listing` mode for line-for-line MicroD diff.
+3. **Build the Alto-side Ethernet/SIO surface AEmu exposes.** This is the
+   Alto controller the *emulated* Alto code drives, distinct from the
+   Dorado Ethernet device Initial used in Stage 1. Until this exists the
+   running world cannot issue an Alto software-boot request.
+
+4. **Mayday/EFTP boot server - DONE (server side).** `src/ethernet.c`
+   now answers a Mayday Pup (`0244`) by streaming the configured Alto boot
+   file as EFTP Data packets (`030`, seq 0..) on receiver socket `020`,
+   then an EFTP End (`032`). Unit-tested in `tests/test_ethernet.c`
+   (`test_eftp_boot_reply_queue`); boot files are in `chm/bootfiles/`
+   (default `NETEXEC.BOOT`, override via `DORADO_ETH_EFTP_BOOT`). EFTP
+   types per EFTPSPEC: Data `030`, Ack `031`, End `032`, Abort `033`.
+   Still TODO here: the Ack-driven/dally handshake is shortcut (whole
+   stream pre-queued, Acks absorbed) - fine for the in-process fake, like
+   the Stage-1 server.
+
+5. **Get pixels.** Once software boots it installs an Alto DCB / `DAStart`
+   display-list chain; the framebuffer (already wired through the DWT/AWT
+   fast-I/O FIFO) should then render non-blank. Snapshot via
+   `/tmp/dorado_boot_display.pgm`.
+
+**Parallel / later gaps** (full list in `docs/handoff.md` "Known gaps"):
+
+- **Disk read transfer (F1-F5)** - the alternative Stage-2 route. Needed
+  only if we pursue disk boot or later run Othello to *create* a Pilot
+  pack. Blocked partly on content as well.
+- **Hold semantics (B1/C1)** - real engine stall on cache miss / Pipe
+  full. Boot-stage microcode runs with `mcr.disHold` so it doesn't need
+  Hold, but post-boot emulators (e.g. `probe_aemu`) do.
+- **Cedar/Pilot (Phase 6C)** - native germ + physical-volume boot from a
+  built disk; depends on the disk write path and Ethernet boot first.
+- **Disassembler polish** - sharper FF/JCN sub-decoding, ALUFM cross-
+  reference, `.DLS`-format `--listing` mode.

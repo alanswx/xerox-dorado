@@ -379,3 +379,36 @@ output and no meaningful framebuffer content, with the loaded disk/display task
 mix active. A natural run needs roughly 61.4M Dorado cycles to enter the
 loaded world, so the probe default and focused commands now use a 140M-cycle
 budget; a 60M-cycle run stops in Initial's EB checksum loop before LoadRam.
+
+2026-06-08 update: the Stage-2 Alto software-boot **server side** is now
+implemented in `src/ethernet.c`. The same in-process controller that serves
+Initial's microcode boot (Pup `0264`/`0265`) now also recognizes a Mayday
+Pup (`0244`) and streams the configured Alto boot file as an EFTP transfer:
+Data packets (`030`, sequence 0..) addressed to the EFTP receiver socket
+`020`, then an EFTP End (`032`). Boot files live in `chm/bootfiles/`
+(`NETEXEC.BOOT`, `CRTTEST.BOOT`, `DMT.BOOT`, `NEWOS.BOOT`, the Mesa/Cedar
+NetExecs). Selectable via `dorado_ethernet_set_eftp_boot_file()` /
+`DORADO_ETH_EFTP_BOOT`. Covered by `test_ethernet.c::test_eftp_boot_reply_queue`.
+EFTP Pup types corrected per EFTPSPEC: Data `030`, Ack `031`, End `032`,
+Abort `033` (an earlier note said "30B/31B Data/End").
+
+What is NOT yet done is the **client side**: the loaded AEmu world must
+actually (a) be steered to the Ethernet software-boot branch (boot-mode
+select; needs the DDC keyboard back-channel or a probe force), (b) transmit
+a real Mayday through its Alto-Ethernet emulation (ECBR/EIBR command blocks
+-> the same EOT/EData path), and (c) deposit the received EFTP stream into
+emulated-Alto memory and jump to it. The fake server pre-queues the whole
+EFTP stream and absorbs the Alto's Acks (no real dally handshake), matching
+the Stage-1 approach. End-to-end Alto software boot is therefore NOT yet
+proven; the server is in place and unit-tested so the client work can be
+traced against a correct responder.
+
+The server can now be **simulated end to end** without any Dorado
+microcode: `test_ethernet.c::test_eftp_boot_full_transfer` plays the
+booting Alto's `ReceiveEFTPPacket` loop (Mayday -> read Data packets in
+sequence, Ack each, stop at End) and reassembles the streamed image,
+asserting it is byte-for-byte identical to the boot file. It passes for
+`CRTTEST.BOOT` (3540 words) and `NETEXEC.BOOT` (21820 words). This is a
+reusable oracle: the EFTP transfer is proven correct independently of the
+unsolved client/world bring-up, so when a real Alto world drives the
+server we can attribute any failure to the client side, not the transfer.

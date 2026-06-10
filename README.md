@@ -24,7 +24,39 @@ The plan is two-phase:
 
 ## Status
 
-TBD
+The microengine is real and runs original PARC microcode. Working
+subsystems (all test-covered): the 34-bit microinstruction decoder, the
+ALU/ALUFM datapath, full JCN branching, the shifter, 16-way hardware
+tasking, the IFU, the memory subsystem (cache + Map + Pipe + BR), slow-
+and fast-I/O routing, and a real BaseBoard (6502 + RIOTs) that cold-boots
+the machine. Display, disk, and Ethernet have working device models.
+
+**Boot progress.** The full BaseBoard → Bootstrap → Initial chain runs.
+**Stage 1, Ethernet microcode boot, works end to end:** Initial falls
+through to `EtherMicrocodeBoot`, an in-process fake Pup boot server
+delivers `AltoMesaDorado.eb` (Pup types `264B`/`265B`), Initial verifies
+the EB checksum, calls `LoadRam`, and the loaded Alto/Mesa emulator
+microcode world starts (~61 M cycles in; run with a 140 M-cycle budget).
+
+**Active focus: Stage 2 — software boot.** Once the emulator microcode is
+running it must load an actual OS. The disk route is blocked on *content*
+(no preserved Pilot/Alto Dorado pack exists; see below) and on the disk
+controller's data-transfer path. The chosen route is therefore **Alto-
+style Ethernet software boot** (Mayday Pup `244B` + EFTP `30B`/`31B`),
+which needs the Alto-side Ethernet surface the emulator exposes plus a
+small boot file / NetExec to serve. The framebuffer renders but stays
+blank until a real display list is installed by booted software.
+
+There is **no shortcut disk image**: the CHM PARC archive is an IFS
+file-server dump, not a collection of bootable packs, so no installed
+Pilot or Alto Dorado volume exists to mount. A persistent disk would have
+to be *built* by running Othello inside the emulator — which itself
+depends on the Ethernet boot path landing first.
+
+See `docs/ethernet-architecture.md` and
+`docs/ethernet-local-boot-plan.md` for the protocol and the phased plan,
+`docs/handoff.md` for the running state, and `dorado/CLAUDE.md` for the
+code-side guide and the punch list of remaining emulation gaps.
 
 
 ## Build & run
