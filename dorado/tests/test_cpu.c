@@ -4591,7 +4591,10 @@ static int probe_full_boot_with_bootstrap(void)
                 }
             }
         }
-        if (initial_substituted && bb.cycles >= next_display_scanline_cycle) {
+        static int no_disp_wake = -1;
+        if (no_disp_wake < 0) no_disp_wake = test_u64_env("DORADO_NO_DISPLAY_WAKE", 0) ? 1 : 0;
+        if (!no_disp_wake &&
+            initial_substituted && bb.cycles >= next_display_scanline_cycle) {
             if (!terminal_boot_armed && terminal_boot_scanlines > 0 &&
                 display.terminal_task != 0 && display.scanline_ticks > 8) {
                 dorado_display_boot_button(&display,
@@ -4617,7 +4620,7 @@ static int probe_full_boot_with_bootstrap(void)
             }
             next_display_scanline_cycle = bb.cycles + 1000;
         }
-        if (initial_substituted) {
+        if (initial_substituted && !no_disp_wake) {
             int dwt_subtask = 0;
             if (dorado_display_dwt_wakeup(&display, &dwt_subtask) &&
                 (!ether_boot_injections ||

@@ -609,6 +609,51 @@ Two concrete results:
      Command: `mb2eb -l out.eb 01076 Initial.mb kernel.mb memMisc.mb
      IfuComplex.mb AEmu.mb!2`.
 
+**UPDATE 2026-06-10 (deep RTC dive - the two viable paths each have one
+blocker; it is a FORK).** Exhaustively traced why the real-Initial
+`AltoMesaDorado.eb` cold boot stalls at RTC=0. Findings (all experiments via
+new gates `DORADO_NO_DISPLAY_WAKE`, `DORADO_NO_DISK`):
+  * The RTC (VM 430) is written by the **junk task (task 2)**. In the
+    WORKING bypass (`probe_aemu`, merged AEmu layers) the junk task writes
+    VM 430 at PC **`0o1271`**, counting 1,2,3,4 (RTC ticks). In the
+    real-Initial `AltoMesaDorado.eb` path the junk task runs DIFFERENT code
+    (`0o3614`) and **never reaches `0o1271`** - nothing ever writes VM 430
+    (confirmed: zero stores to offset 0o430). So ABoot's 100 ms RTC wait
+    can never complete.
+  * Suppressing the display wakeups (`DORADO_NO_DISPLAY_WAKE`) lets the junk
+    task run far more (it was being starved by the DWT spin) but RTC is
+    STILL 0. Forcing the junk timer permanently enabled is STILL 0. So the
+    blocker is not (only) display starvation or the junk-timer-enable: the
+    `AltoMesaDorado` junk task simply does not run the VM-430 RTC code.
+  * Root: the bypass and the real-Initial path load **different microcode
+    worlds** (merged AEmu layers vs the prebuilt Mesa-based
+    `AltoMesaDorado.eb`); their junk tasks behave differently. The merged
+    AEmu junk task maintains the Alto VM-430 RTC; `AltoMesaDorado`'s junk
+    task (at `0o3614`) does not appear to (it is the PrincOps/Mesa junk
+    task maintaining `RTClock` in RM, read via the RCLK opcode, not VM 430).
+
+**This is a genuine fork:**
+  * **Bypass (merged AEmu, planted clean state):** RTC ticks, full
+    multitasking, reaches `NOTEMUFAULT`/disk activity - the FURTHEST any
+    path gets - BUT cannot EBoot (faults at `0o2021`, lacking Initial's
+    handoff: BRs, Ethernet command blocks, the EtherBoot bootloader copy).
+  * **Real-Initial `AltoMesaDorado.eb`:** has the full Initial handoff (can
+    EBoot), reaches ABoot/DiskBoot, BUT its junk task never ticks VM 430 so
+    ABoot's RTC wait hangs.
+  * **Real-Initial merged AEmu (`AEmuFull.eb`):** wrong composition
+    (collisions) - derails. Abandoned.
+
+**Open strategic question (may need Nick / deeper microcode work):** does
+`AltoMesaDorado.eb` (= AltoD1MC.eb, the confirmed Alto-exec) actually
+maintain the Alto VM-430 RTC under our boot, or does its ABoot use a
+different clock? If it should tick VM 430, why does its junk task sit at
+`0o3614` instead of the RTC code? Two candidate next directions:
+  (a) Decompile/trace `AltoMesaDorado`'s junk task to find its VM-430 RTC
+      code and why it is not reached (timer-wakeup routing / subtask).
+  (b) Make the working bypass do EBoot by planting the Initial-handoff
+      state it faults on (`0o2021` MemBase<-FF + BRs + Ether cmd blocks) -
+      potentially the faster route to actually serving NetExec over EFTP.
+
 **UPDATE 2026-06-10 (Nick reply - CORRECT IMAGE identified).** Nick (the
 first-hand Interlisp-D Dorado user) confirmed by email: *"Lisp.run runs with
 the AltoD1MC.eb microcode and loads the DoradoLispMC.EB from the current
