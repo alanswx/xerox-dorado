@@ -296,12 +296,18 @@ static uint16_t display_input(void *ctx, int task, int subtask,
      * the terminal jams the serial data bit to 1; DisplayAux.mc
      * interprets that as message type 17 and times the duration. */
     if (tioa == DORADO_DISPLAY_TIOA_TSTATUS) {
-        if (d && d->boot_button_scanlines > 0) {
-            d->boot_button_scanlines--;
-            return 1;
-        }
+        /* Only the terminal H task's per-scanline serial-bit read sees
+         * the keyboard stream (and the boot-button jam). The EMU
+         * task's DisplayInitConfig probes this register to detect a
+         * DispM board ("Nonzero => DispM board installed"); a jammed
+         * serial bit must not make a missing board appear, or the
+         * terminal gets assigned to the DispM AHT task and never runs. */
         if (d && (task == DORADO_DISPLAY_TASK_DHT ||
                   task == DORADO_DISPLAY_TASK_AHT)) {
+            if (d->boot_button_scanlines > 0) {
+                d->boot_button_scanlines--;
+                return 1;
+            }
             return display_terminal_keyboard_bit(d);
         }
         return 0;
