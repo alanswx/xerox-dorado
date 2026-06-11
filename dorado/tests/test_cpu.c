@@ -4747,10 +4747,15 @@ static int probe_full_boot_with_bootstrap(void)
                         fired = 1;
                         post_count = 24;
                         fprintf(stderr, "PCWATCH next:");
-                        fprintf(stderr, "PCWATCH hit 0o%lo cyc=%llu task=%o; "
+                        fprintf(stderr, "PCWATCH hit 0o%lo cyc=%llu task=%o "
+                                "T=%06o Q=%06o StkP=%03o "
+                                "STK1-4=%06o,%06o,%06o,%06o; "
                                 "trailing task:PCs:", watch_pc,
                                 (unsigned long long)bb.cycles,
-                                pre_task & 0xF);
+                                pre_task & 0xF, cpu.T, cpu.Q,
+                                cpu.StkP & 0xFF,
+                                cpu.STK[1], cpu.STK[2], cpu.STK[3],
+                                cpu.STK[4]);
                         int n = ring_n < 64 ? ring_n : 64;
                         for (int i = ring_n - n; i < ring_n; i++) {
                             uint16_t e = ring[i & 63];

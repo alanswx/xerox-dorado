@@ -519,24 +519,41 @@ static int ff_is_output_b_long_call_form(const dorado_uinstr *u)
  * Gated by ff_full_function_ok so that memory-ref ASEL=0..3 forms
  * (where FF[0:1] is an alt-A-source selector, not a function) are
  * not affected. */
-static int ff_a_low_override(const dorado_uinstr *u)
+/* FF-selected A sources (HM 3.5 p16: "The FF field can be used to
+ * select any of the following sources: FF[4:7] (small constant),
+ * RM/STK, Q, T, Md ... with references, these functions overrule
+ * RM/STK as the source"). Table 11a FB=0-1 is the small constant;
+ * FB=2 FC=0-3 selects RM/STK, T, Md, Q (the manual's Table 11a line
+ * prints FC=3 as "A<-0", but 3.5 lists Q and AEmu's `ETemp_ Q+1`
+ * (FF=0o23, ALUF=0o12) compiles through it — it is A<-Q).
+ * Returns 1 and sets *out when an override applies. */
+static int ff_a_override(const dorado_cpu *cpu, const dorado_uinstr *u,
+                         uint16_t *out)
 {
-    if (!ff_decode_ok(u)) return -1;
+    if (!ff_decode_ok(u)) return 0;
 
-    /* For memory-reference ASELs, FF[0:1] select the reference kind
-     * and do not participate in the FF function decode; the remaining
-     * six bits are decoded as functions 0..63. */
+    uint8_t f6;
     if (u->asel == 0 || u->asel == 1) {
-        uint8_t f = u->ff & 077;
-        int fb = (f >> 3) & 7;
-        if (fb <= 1) return u->ff & 0xF;
-        return -1;
+        /* Memory-reference subdecode: FF[0:1] select the reference
+         * kind; the low six bits decode as functions 0..63. */
+        f6 = (uint8_t)(u->ff & 077);
+    } else if (ff_full_function_ok(u) && ff_fa(u->ff) == 0) {
+        f6 = (uint8_t)(u->ff & 077);
+    } else {
+        return 0;
     }
 
-    if (!ff_full_function_ok(u)) return -1;
-    int fa = ff_fa(u->ff), fb = ff_fb(u->ff);
-    if (fa == 0 && fb <= 1) return u->ff & 0xF;
-    return -1;
+    int fb = (f6 >> 3) & 7, fc = f6 & 7;
+    if (fb <= 1) { *out = (uint16_t)(u->ff & 0xF); return 1; }
+    if (fb == 2) {
+        switch (fc) {
+        case 0: *out = 0; return 0;       /* A<-RM/STK — the default */
+        case 1: *out = cpu->T;        return 1;   /* A<-T  */
+        case 2: *out = task_md(cpu);  return 1;   /* A<-Md */
+        case 3: *out = cpu->Q;        return 1;   /* A<-Q  */
+        }
+    }
+    return 0;
 }
 
 static int ff_loads_link(const dorado_uinstr *u)
@@ -2632,6 +2649,12 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
     cpu->dispatch_pending = 0;
     uint16_t md_at_issue = task_md(cpu);
     uint8_t rbase_at_issue = cpu->RBase;
+    /* Memory references select their BR from the t1 (at-issue)
+     * MemBase; a same-instruction FF MemBase change (FlipMemBase is
+     * the reachable one on refs) lands at t3 for LATER instructions.
+     * AEmu's JSR-indirect `Fetch_ T, FlipMemBase` fetches the pointer
+     * via MDS and flips to CODE for the following BrLo_ T. */
+    uint8_t membase_at_issue = (uint8_t)(cpu->MemBase & 0x1F);
     /* IOAttention is a level tested at t1, BEFORE this instruction's
      * Pd←Input consumes the bus-register word (HM page 30; §11: "IOAtten
      * branches when a status word is present in the receiver bus
@@ -2643,6 +2666,15 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
         ? (uint8_t)dorado_io_attention(cpu->io, cpu->ctask,
                                        (uint8_t)cpu->TIOA)
         : 0;
+    if (getenv("DORADO_ATTEN_TRACE") && cpu->ctask == 7 &&
+        cpu->TIOA == 015) {
+        static long an = 0;
+        an++;
+        if (1) {
+            fprintf(stderr, "ATTEN pc=0o%o atten=%d\n",
+                    cpu->real_PC, cpu->io_atten_at_issue);
+        }
+    }
 
     /* B and A buses. FF may override B (Pipe / Link / CPReg / …). */
     uint16_t b = 0, a = 0;
@@ -2663,19 +2695,13 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
      * The override fires only when FF is interpreted as a function
      * (ASEL > 3, BSEL not constant, JCN not long). */
     {
-        int ovr = ff_a_low_override(u);
-        if (ovr >= 0) {
-            /* "A[12:15] ← FF[4:7]" is the Dorado SMALL CONSTANT `nS`:
-             * the FF decode puts the 4-bit constant on A with A[0:11]
-             * = 0. HM §3.5 (page 16): "The FF field can be used to
-             * select ... FF[4:7] (small constant) ... with references,
-             * these functions OVERRULE RM/STK as the source." So the
-             * constant fully replaces A both in the full-function form
-             * (`ETemp0_ (3S)+MD`) and on memory references
-             * (`Store_ EBLoc`, `Fetch_ 2S` — AltoEtherEmu.mc EBoot
-             * addresses the 600B ether block this way; overlaying only
-             * Mar's low nibble left R400's bits in the address). */
-            a = (uint16_t)ovr;
+        uint16_t ovr = 0;
+        if (ff_a_override(cpu, u, &ovr)) {
+            /* The FF-selected source fully replaces A (HM §3.5
+             * "overrule RM/STK as the source"), both in the
+             * full-function form (`ETemp0_ (3S)+MD`, `ETemp_ Q+1`)
+             * and on memory references (`Store_ EBLoc`). */
+            a = ovr;
         }
     }
 
@@ -2760,8 +2786,10 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
             }
             /* SubTask OR's into MemBase[2:3] (HM page 88). MemBase[2:3]
              * in MSB-first 5-bit MemBase = LSB bits 2..1. So OR
-             * (subtask & 3) << 1. Only effective for non-emulator. */
-            uint8_t membase = (uint8_t)(cpu->MemBase & 0x1F);
+             * (subtask & 3) << 1. Only effective for non-emulator.
+             * Use the at-issue MemBase: FF loads (FlipMemBase) in the
+             * same instruction must not redirect this reference. */
+            uint8_t membase = membase_at_issue;
             if (cpu->ctask != 0) {
                 membase |= (uint8_t)((cpu->task_subtask[cpu->ctask] & 3) << 1);
             }

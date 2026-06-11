@@ -58,6 +58,10 @@ typedef struct dorado_ethernet {
     uint8_t tx_cntdwn;
     uint8_t no_wakeups;
     uint8_t tx_complete;
+    uint32_t rx_hold;     /* RxBOP clear (WaitForBOP): EIT wakeups stay
+                           * off while the rejected packet's remaining
+                           * words drain past at wire speed. Counted in
+                           * wakeup-poll ticks, set by the discard. */
 
     uint16_t control_last[16];
     uint64_t control_writes[16];
@@ -106,8 +110,9 @@ void dorado_ethernet_set_boot_file(dorado_ethernet *eth,
 void dorado_ethernet_set_eftp_boot_file(dorado_ethernet *eth,
                                         const char *path);
 
-/* Returns a wakeup bitmask for EOT/EIT based on current controller state. */
-uint16_t dorado_ethernet_wakeup_mask(const dorado_ethernet *eth);
+/* Returns a wakeup bitmask for EOT/EIT based on current controller
+ * state. Non-const: ticks the post-WaitForBOP drain hold. */
+uint16_t dorado_ethernet_wakeup_mask(dorado_ethernet *eth);
 
 /* Stage-2: deliver one broadcast breath-of-life packet (Alto boot
  * loader, ether type 602B) if the receiver is on and idle. Returns 1

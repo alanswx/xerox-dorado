@@ -525,12 +525,25 @@ static void eth_write(void *ctx, int task, int subtask,
                 /* RxBOP' written 0 (WaitForBOP): discard the rest of
                  * the current packet; the controller sets RxBOP again
                  * when the first word of the next packet is available.
-                 * The prequeued stream discards synchronously. */
+                 * The prequeued stream discards synchronously, but the
+                 * REAL drain takes ~5.4 us per word (HM 11: words
+                 * emerge from the Fifo at wire speed) during which the
+                 * EIT sleeps and the emulated program catches up (the
+                 * EtherBoot loader re-arms eICLoc in that window; an
+                 * instant re-wakeup runs EIIdle with count=0, posts
+                 * CountZero, and eats the next packet's first word).
+                 * Model the drain as a wakeup-poll hold. */
+                uint32_t skipped = 0;
                 while (eth->rx_pos < eth->rx_count &&
                        !eth->rx_attention[eth->rx_pos]) {
                     eth->rx_pos++;
+                    skipped++;
                 }
-                if (eth->rx_pos < eth->rx_count) eth->rx_pos++;
+                if (eth->rx_pos < eth->rx_count) {
+                    eth->rx_pos++;
+                    skipped++;
+                }
+                eth->rx_hold = skipped * 170u;
             }
             eth->rx_on = on;
         }
@@ -557,6 +570,17 @@ static int eth_attention(void *ctx, int task, uint8_t tioa)
      * would deliver, not a latch. The CPU samples it at instruction
      * issue (cpu.c io_atten_at_issue). */
     dorado_ethernet *eth = ctx;
+    if (getenv("DORADO_ATTEN_TRACE")) {
+        static long n = 0;
+        n++;
+        if (eth->rx_pos < eth->rx_count) {
+            fprintf(stderr, "ETH_ATTEN task=%o tioa=%03o pos=%zu/%zu "
+                    "mark=%d\n", task & 017, tioa & 0377,
+                    eth->rx_pos, eth->rx_count,
+                    (eth->rx_pos < eth->rx_count && eth->rx_attention)
+                        ? eth->rx_attention[eth->rx_pos] : -1);
+        }
+    }
     if (task == DORADO_ETHERNET_TASK_EIT &&
         tioa == DORADO_ETHERNET_TIOA_DATA) {
         return eth->rx_pos < eth->rx_count &&
@@ -585,8 +609,9 @@ void dorado_ethernet_attach_to_io(dorado_ethernet *eth, dorado_io *io)
     dorado_io_register(io, 0, DORADO_ETHERNET_TIOA_CTL, &dev);
 }
 
-uint16_t dorado_ethernet_wakeup_mask(const dorado_ethernet *eth)
+uint16_t dorado_ethernet_wakeup_mask(dorado_ethernet *eth)
 {
+    if (eth->rx_hold) eth->rx_hold--;
     /* HM §11: "EOT wakeups occur when the bus register is empty, TxOn
      * is true, and TxEOP, TxCntDwn, and NoWakeups are false." The fake
      * consumes Output<-B immediately, so the bus register is always
@@ -598,7 +623,7 @@ uint16_t dorado_ethernet_wakeup_mask(const dorado_ethernet *eth)
     if (eth->tx_on && !eth->tx_eop && !eth->tx_cntdwn) {
         mask |= (uint16_t)(1u << DORADO_ETHERNET_TASK_EOT);
     }
-    if (eth->rx_on && eth->rx_pos < eth->rx_count) {
+    if (eth->rx_on && !eth->rx_hold && eth->rx_pos < eth->rx_count) {
         mask |= (uint16_t)(1u << DORADO_ETHERNET_TASK_EIT);
     }
     return mask;
