@@ -96,13 +96,24 @@ the boot still completes.
    completes, so the text DCB never appears. The delivery mechanism
    itself is verified working (EIR's RescheduleNow trap delivered
    interrupts at 91.8 M, handler ran, vectors at INTVEC are
-   installed). Next probe: why the poll loop stops calling the
-   0o2014 subroutine after 92.2 M - decode the cell the 0o1747 loop
-   polls (`lda 0 @...; mov# 0 0 szr; jmp .-2`) and find who is
-   supposed to write it (likely an interrupt handler or the ether
-   input - check for a missed wakeup chain). Ground-truth comparison
-   with ContrAlto (AltoInfo/, mono + dotnet available) is the
-   fallback.
+   installed). A 1.5 G-cycle run (23+ virtual seconds, RTC430
+   reaching 0o1121) shows NO further progress: the post-92.2 M state
+   is a quiescent polling dispatcher (VM 0o3214 loop + JSRII @M[1113]
+   = 0o2330, the RCLK deadline-compare sub) with NOTHING queued -
+   M[0o3315] = 0 (no timer armed; M[0o3316] = 0o430 is a stale
+   deadline), @M[0o3344] = 0 (event queue empty), NWW = 0o110402
+   (disabled + pending vertical bits). NetExec's keyboard/event
+   inflow rides on the vertical-interrupt handler (delivered twice,
+   at 91.8 M only), and its last critical section (DIR at 92198965,
+   VM 0o2020 inside the EIR;DIR sample-and-update sub at 0o2014-22)
+   never re-enables. NEXT STEP - ground truth: run NETEXEC.BOOT on
+   ContrAlto (AltoInfo/, mono + dotnet installed) and compare: does a
+   healthy NetExec keep interrupts enabled in its main loop, what is
+   in M[0o3315]/M[0o3344], and when does the banner DCB appear? The
+   divergence point (init era, 91.8-92.2 M equivalent) is where our
+   emulation drops something - candidates: a skip/carry subtlety in
+   the 0o2330 deadline compare (sub#/snc), or a missed state update
+   in the two interrupt deliveries' handler run.
 
 
 1. **Fault task storm + DASTART cleared.** With timing fixed, NetExec
