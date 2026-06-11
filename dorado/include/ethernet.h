@@ -15,6 +15,21 @@
 #define DORADO_PUP_TYPE_MICROCODE_BOOT_REQUEST 0264
 #define DORADO_PUP_TYPE_MICROCODE_BOOT_REPLY   0265
 
+/* EthC control register, HM §11 Figure 16 (manual bit n = C bit 15-n).
+ * Bits in a field are decoded only when the field's command-enable bit
+ * (low-true) is asserted. Observed microcode commands (InitialEther.mc):
+ * TurnOffRx=0o170377 TurnOffTx=0o7777 TurnOnRx=0o173377 TurnOnTx=0o47777
+ * SendEOP=0o67777 (TxOn+TxEOP) WaitForBOP=RxOn with RxBOP' clear. */
+#define DORADO_ETHC_TXCMDENBLN   0x8000  /* TxCmdEnbl' (low-true)    */
+#define DORADO_ETHC_TXON         0x4000
+#define DORADO_ETHC_TXEOP        0x2000
+#define DORADO_ETHC_TXCNTDWN     0x1000
+#define DORADO_ETHC_RXCMDENBLN   0x0800  /* RxCmdEnbl' (low-true)    */
+#define DORADO_ETHC_RXON         0x0400
+#define DORADO_ETHC_RXBOPN       0x0200  /* RxBOP'                   */
+#define DORADO_ETHC_TESTCMDENBLN 0x0080  /* TestCmdEnbl' (low-true)  */
+#define DORADO_ETHC_NOWAKEUPS    0x0010
+
 /* Stage-2 Alto software boot over Ethernet. The booting Alto (emulated by
  * AEmu) broadcasts a Mayday Pup to request a boot file, then receives the
  * file as an EFTP stream on socket 20. Constants from Taft's EtherBoot.asm
@@ -32,11 +47,17 @@ typedef struct dorado_ethernet {
     uint8_t local_host;
     uint8_t remote_host;
 
+    /* Controller control/status state (HM §11 "Control Register").
+     * tx_eop disables EOT wakeups; set by EOT after the last word of a
+     * packet, cleared by the controller (TxGone) when the packet has
+     * been sent. tx_cntdwn disables EOT wakeups until the next Pendulum
+     * tick (16 us); this fake clears it immediately. */
     uint8_t rx_on;
     uint8_t tx_on;
-    uint8_t tx_active;
+    uint8_t tx_eop;
+    uint8_t tx_cntdwn;
+    uint8_t no_wakeups;
     uint8_t tx_complete;
-    uint8_t rx_attention_latched;
 
     uint16_t control_last[16];
     uint64_t control_writes[16];
@@ -58,6 +79,7 @@ typedef struct dorado_ethernet {
     uint64_t eftp_requests_seen;
     uint64_t eftp_replies_queued;
     uint16_t eftp_last_bfn;
+    uint64_t bol_queued;
     char eftp_boot_path[256];
 
     uint16_t *rx_words;
@@ -86,5 +108,11 @@ void dorado_ethernet_set_eftp_boot_file(dorado_ethernet *eth,
 
 /* Returns a wakeup bitmask for EOT/EIT based on current controller state. */
 uint16_t dorado_ethernet_wakeup_mask(const dorado_ethernet *eth);
+
+/* Stage-2: deliver one broadcast breath-of-life packet (Alto boot
+ * loader, ether type 602B) if the receiver is on and idle. Returns 1
+ * if a packet was queued. Call periodically to model a boot server's
+ * rebroadcast. */
+int dorado_ethernet_breath_of_life(dorado_ethernet *eth);
 
 #endif

@@ -557,8 +557,10 @@ static uint16_t boot_keyboard_word_at(const dorado_memory *mem,
 
 static int trace_lowcore_offset(uint32_t off)
 {
+    if (off <= 020u) return 1;                        /* boot loader landing */
     if (off >= 0420u && off <= 0450u) return 1;       /* DAStart/cursor/DCB */
     if (off >= 0521u && off <= 0523u) return 1;       /* Alto disk command */
+    if (off >= 0600u && off <= 0777u) return 1;       /* Alto Ethernet block + page-1 loader */
     if (off >= 0177034u && off <= 0177041u) return 1; /* keyboard words */
     return 0;
 }
@@ -1426,9 +1428,11 @@ static int test_ifu_conditional_dispatch(void)
                    | ((uint16_t)((tpause_p)&1) << 5) \
                    | ((uint16_t)((tjump_p)&1) << 4) \
                    | ((uint16_t)((n)&0xF)) ))
+    /* RH stores IFaddr' LOW-TRUE; the macro takes the true entry-
+     * vector base and complements it (HM Table 20). */
     #define MK_RH(packed_a, ifaddr) \
         ((uint16_t)( ((uint16_t)((packed_a)&1) << 10) \
-                   | ((uint16_t)((ifaddr)&0x3FF)) ))
+                   | ((uint16_t)(~(ifaddr)&0x3FF)) ))
 
     /* INC opcode 0x10. IFaddr' = 0o20 → entries at IM[0o100..0o103]. */
     mc.ifum_hi[0x10] = MK_LH(0, 0, 1, 4, 1, 1, 017);
@@ -1560,9 +1564,11 @@ static int test_ifu_conditional_cond_true(void)
                    | ((uint16_t)((tpause_p)&1) << 5) \
                    | ((uint16_t)((tjump_p)&1) << 4) \
                    | ((uint16_t)((n)&0xF)) ))
+    /* RH stores IFaddr' LOW-TRUE; the macro takes the true entry-
+     * vector base and complements it (HM Table 20). */
     #define MK_RH(packed_a, ifaddr) \
         ((uint16_t)( ((uint16_t)((packed_a)&1) << 10) \
-                   | ((uint16_t)((ifaddr)&0x3FF)) ))
+                   | ((uint16_t)(~(ifaddr)&0x3FF)) ))
 
     /* INC opcode 0x10. */
     mc.ifum_hi[0x10] = MK_LH(0, 0, 1, 4, 1, 1, 017);
@@ -1657,6 +1663,13 @@ static int test_reschedule_trap(void)
         mc.im[0334 + n] = make_uinstr(0, 0, 2, 0, 6, 0, 0, jcn_ifu_n);
         mc.im_present[0334 + n] = 1;
     }
+    /* The trapped IFUJump still CONSUMES the next opcode (HM Table 20:
+     * the trap instruction executes "as though it were the first
+     * instruction of the rescheduled opcode"), so the byte stream's
+     * opcode 0 needs an IFUM entry: 1 byte long, IFaddr' = all ones. */
+    mc.ifum_lo[0] = 0x03FF;
+    mc.ifum_hi[0] = 0;
+    mc.ifum_present[0] = 1;
 
     int present_addrs[] = {0,1,2,3,4,5,6,7,
                            0314,0315,0316,0317,
@@ -2987,6 +3000,7 @@ static int probe_full_boot_with_bootstrap(void)
         test_u64_env("DORADO_BOOT_DECISION_TRACE", 0) != 0;
     int ethernet_boot_enabled = test_u64_env("DORADO_BOOT_ETHERNET", 1) != 0;
     uint64_t ethernet_wakeups = 0;
+    uint64_t next_bol_cycle = 0;
     const char *ether_boot_image = getenv("DORADO_ETHER_BOOT_IMAGE");
     int ether_boot_enabled = ether_boot_image && *ether_boot_image &&
                              file_exists_readable(ether_boot_image);
@@ -4213,6 +4227,25 @@ static int probe_full_boot_with_bootstrap(void)
             }
             break;
         }
+        {
+            static long sw_lo = -1, sw_hi = -1;
+            if (sw_lo == -1) {
+                const char *w = getenv("DORADO_STORE_WINDOW");
+                sw_lo = 0; sw_hi = 0;
+                if (w) sscanf(w, "%ld,%ld", &sw_lo, &sw_hi);
+            }
+            if (sw_hi && mem.last_ref_kind != DM_REF_NONE &&
+                bb.cycles >= (uint64_t)sw_lo && bb.cycles <= (uint64_t)sw_hi) {
+                fprintf(stderr,
+                        "REF_W cyc=%llu task=%o pc=0o%o kind=%d va=%07X "
+                        "data=%06o md=%06o mb=%02o\n",
+                        (unsigned long long)bb.cycles, pre_task & 017,
+                        pre_pc, (int)mem.last_ref_kind,
+                        mem.last_ref_va & 0x0FFFFFFFu,
+                        mem.last_ref_b & 0177777, mem.md & 0177777,
+                        pre_membase & 0x1F);
+            }
+        }
         if (lowcore_trace_enabled && mem.last_ref_kind == DM_REF_STORE) {
             struct {
                 const char *name;
@@ -4584,7 +4617,7 @@ static int probe_full_boot_with_bootstrap(void)
         if (initial_substituted) {
             if (ethernet_boot_enabled &&
                 test_u64_env("DORADO_ETH_FORCE_ELOAD_ZERO", 1) != 0 &&
-                ethernet.tx_active && ethernet.requests_seen == 0 &&
+                ethernet.tx_on && ethernet.requests_seen == 0 &&
                 ethernet.tx_count == 0 && ethernet.data_writes == 0 &&
                 cpu.RM[0x19] != 0) {
                 /* Bring-up guard: Initial's `ELoad_ A0` should clear this
@@ -4592,6 +4625,19 @@ static int probe_full_boot_with_bootstrap(void)
                  * initialization issue is fixed, keep EOT from taking the
                  * load-overflow stop path before it emits the request. */
                 cpu.RM[0x19] = 0;
+            }
+            /* Stage-2 boot server: once the loaded Alto world is up,
+             * periodically broadcast a breath-of-life packet (the Alto
+             * boot loader). AEmu's EBoot turns the receiver on and
+             * waits for one; the loader then Maydays for the boot
+             * file. Real boot servers rebroadcast every few seconds. */
+            if (force_alto_ether_boot && ether_loaded_world_cycle &&
+                bb.cycles >= next_bol_cycle) {
+                if (dorado_ethernet_breath_of_life(&ethernet)) {
+                    next_bol_cycle = bb.cycles + 2000000;
+                } else {
+                    next_bol_cycle = bb.cycles + 100000;
+                }
             }
             uint16_t eth_mask = dorado_ethernet_wakeup_mask(&ethernet);
             for (int task = 0; task < 16; task++) {
@@ -4669,6 +4715,51 @@ static int probe_full_boot_with_bootstrap(void)
                 post_eb_task_pc_link[t][pre_pc] = pre_link;
                 post_eb_task_pc_mcr[t][pre_pc] = pre_mcr;
                 post_eb_task_pc_mar[t][pre_pc] = pre_mar;
+            }
+            /* DORADO_PCWATCH=<octal pc>: dump the trailing task-0 PC
+             * window the first time task 0 executes that real PC
+             * post-LoadRam (one-shot flight recorder for derails). */
+            {
+                static long watch_pc = -2;
+                static uint16_t ring[64];
+                static int ring_n = 0;
+                static int fired = 0;
+                if (watch_pc == -2) {
+                    const char *w = getenv("DORADO_PCWATCH");
+                    watch_pc = w ? strtol(w, NULL, 8) : -1;
+                }
+                static long watch_after = -1;
+                if (watch_after == -1) {
+                    const char *w = getenv("DORADO_PCWATCH_AFTER");
+                    watch_after = w ? strtol(w, NULL, 0) : 0;
+                }
+                static int post_count = -1;
+                if (watch_pc >= 0) {
+                    ring[ring_n & 63] =
+                        (uint16_t)(pre_pc | ((pre_task & 0xF) << 12));
+                    ring_n++;
+                    if (post_count > 0) {
+                        fprintf(stderr, " %o:0o%o", pre_task & 0xF, pre_pc);
+                        if (--post_count == 0) fprintf(stderr, "\n");
+                    }
+                    if (!fired && pre_pc == (uint16_t)watch_pc &&
+                        bb.cycles >= (uint64_t)watch_after) {
+                        fired = 1;
+                        post_count = 24;
+                        fprintf(stderr, "PCWATCH next:");
+                        fprintf(stderr, "PCWATCH hit 0o%lo cyc=%llu task=%o; "
+                                "trailing task:PCs:", watch_pc,
+                                (unsigned long long)bb.cycles,
+                                pre_task & 0xF);
+                        int n = ring_n < 64 ? ring_n : 64;
+                        for (int i = ring_n - n; i < ring_n; i++) {
+                            uint16_t e = ring[i & 63];
+                            fprintf(stderr, " %o:0o%o",
+                                    (e >> 12) & 0xF, e & 0xFFF);
+                        }
+                        fprintf(stderr, "\n");
+                    }
+                }
             }
             for (size_t i = 0;
                  i < sizeof post_eb_landmarks / sizeof post_eb_landmarks[0];
@@ -5133,11 +5224,12 @@ static int probe_full_boot_with_bootstrap(void)
            (unsigned long long)ethernet.data_writes,
            (unsigned long long)ethernet.data_reads);
     printf("       Ethernet Stage-2: last_tx_pup=0o%o eftp_requests=%llu "
-           "eftp_last_bfn=0o%o eftp_replies=%llu\n",
+           "eftp_last_bfn=0o%o eftp_replies=%llu bol=%llu\n",
            ethernet.last_tx_pup_type,
            (unsigned long long)ethernet.eftp_requests_seen,
            ethernet.eftp_last_bfn,
-           (unsigned long long)ethernet.eftp_replies_queued);
+           (unsigned long long)ethernet.eftp_replies_queued,
+           (unsigned long long)ethernet.bol_queued);
     {
         const char *eb_path =
             ether_boot_path_for_offset(&ethernet, ethernet.last_boot_offset);
@@ -6687,44 +6779,59 @@ static int test_lc_forced_rm_write_address(void)
     memset(&mc, 0, sizeof mc);
     mc.alufm[0] = 025; mc.alufm_present[0] = 1;   /* B */
 
-    /* FF=0o042 is one of the "change RSTK for write" encodings:
-     * LC writes RM[RBase, FF[4:7]] even though BLOCK selects STK for
-     * the read side. */
-    mc.im[0] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/4, /*lc=*/6,
+    /* FF=0o042: HM Table 11a (FA=0 FB=4-5) — LC writes
+     * RM[RBase,,FF[4:7]] even though BLOCK selects STK for the read
+     * side. BSEL must not select a constant or FF is not decoded as a
+     * function at all (HM §3.6); B=T supplies the value via ALUFM[0]. */
+    mc.im[0] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/2, /*lc=*/6,
                            /*asel=*/6, /*block=*/1, /*ff=*/0042,
                            jcn_local(1));
     mc.im_present[0] = 1;
-    /* FF=0o225 is the Table 11d variant with the same forced-RM LC
-     * destination behavior. */
-    mc.im[1] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/4, /*lc=*/6,
-                           /*asel=*/6, /*block=*/1, /*ff=*/0225,
+    /* FF=0o225: HM Table 11d (FA=2 FB=2-3) — the write address becomes
+     * FF[4:7],,RSTK[0:3]: an arbitrary RM bank without loading RBase
+     * first (this is how AEmu's EndOfStorage reaches EmuBRHiReg). */
+    mc.im[1] = make_uinstr(/*rstk=*/03, /*aluf=*/0, /*bsel=*/2, /*lc=*/6,
+                           /*asel=*/6, /*block=*/0, /*ff=*/0225,
                            jcn_local(2));
     mc.im_present[1] = 1;
-    mc.im[2] = make_uinstr(0, 0, 2, 0, 6, 0, 0, jcn_local(2));
+    /* BSEL >= 4: FF is the B constant, NOT a function (HM §3.6), so no
+     * write-address override — the STK write proceeds normally. */
+    mc.im[2] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/4, /*lc=*/6,
+                           /*asel=*/6, /*block=*/1, /*ff=*/0042,
+                           jcn_local(3));
     mc.im_present[2] = 1;
-    for (int i = 0; i < 3; i++) {
+    mc.im[3] = make_uinstr(0, 0, 2, 0, 6, 0, 0, jcn_local(3));
+    mc.im_present[3] = 1;
+    for (int i = 0; i < 4; i++) {
         mc.image_to_real[i] = i;
         mc.image_present[i] = 1;
     }
-    mc.n_instructions = 3;
+    mc.n_instructions = 4;
 
     dorado_cpu cpu;
     dorado_cpu_init(&cpu, &mc, 0);
     cpu.RBase = 3;
     cpu.StkP = 7;
     cpu.STK[7] = 0xAAAA;
+    cpu.T = 0x1234;
 
     EXPECT(dorado_cpu_step(&cpu) == 0, "step forced RM write 0o042");
-    EXPECT(cpu.RM[0x32] == 0042,
+    EXPECT(cpu.RM[0x32] == 0x1234,
            "FF=0o042 should write RM[0x32], got 0x%04X", cpu.RM[0x32]);
     EXPECT(cpu.STK[7] == 0xAAAA,
            "forced RM write should not clobber STK[7]");
 
     EXPECT(dorado_cpu_step(&cpu) == 0, "step forced RM write 0o225");
-    EXPECT(cpu.RM[0x35] == 0225,
-           "FF=0o225 should write RM[0x35], got 0x%04X", cpu.RM[0x35]);
+    EXPECT(cpu.RM[0x53] == 0x1234,
+           "FF=0o225 RSTK=3 should write RM[0x53], got 0x%04X",
+           cpu.RM[0x53]);
     EXPECT(cpu.STK[7] == 0xAAAA,
            "Table 11d forced RM write should not clobber STK[7]");
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step BSEL-constant 0o042");
+    EXPECT(cpu.STK[7] == 0042,
+           "BSEL constant: no override, STK[7] written, got 0x%04X",
+           cpu.STK[7]);
 
     printf("PASS  test_lc_forced_rm_write_address\n");
     return 0;
@@ -7028,12 +7135,13 @@ static int test_bootstrap_ldf_dispatch(void)
  * `B←FaultInfo'` (FA=1 FB=6 FC=0 → FF=0o160) and verify the bus
  * value reflects NFaults=1, SRN=0, EmulatorFault=1.
  *
- * High-true FaultInfo for one fault from emulator at SRN 0:
- *   B[7]=1 (EmulatorFault) → bit 8 (LSB) = 0x100
- *   B[8:11]=SRN=0          → bits 4..7   = 0x000
- *   B[12:15]=NFaults=1     → bits 0..3   = 0x001
- *   high-true value        = 0x101
- *   on the bus (~)         = 0xFEFE
+ * High-true FaultInfo for one fault from emulator at SRN 0
+ * (field positions per AEmu EMemDefs.mc / HM §5 fault handling):
+ *   b8 = EmulatorFault = 1          → 0x0080
+ *   b9:11 = FaultCnt = 1-1 = 0      → 0x0000
+ *   B[12:15] = FirstFaultSRN = 0    → 0x0000
+ *   high-true value                 = 0x0080
+ *   on the bus (~)                  = 0xFF7F
  */
 static int test_cpu_fault_info_visible(void)
 {
@@ -7088,8 +7196,8 @@ static int test_cpu_fault_info_visible(void)
     /* Step 2: B ← FaultInfo'. T should land on the bus value. */
     EXPECT(dorado_cpu_step(&cpu) == 0, "FaultInfo step: %s",
            cpu_halt_reason_str(cpu.halt_reason));
-    EXPECT(cpu.T == 0xFEFE,
-           "T = 0x%04X, expected 0xFEFE (NFaults=1, SRN=0, Emul=1)",
+    EXPECT(cpu.T == 0xFF7F,
+           "T = 0x%04X, expected 0xFF7F (NFaults=1, SRN=0, Emul=1)",
            cpu.T);
     EXPECT(mem.fault_count == 0,
            "B<-FaultInfo' should clear faults, NFaults=%d",
@@ -7913,17 +8021,16 @@ static int test_ifum_load_read(void)
                "step %d failed: %s", i, cpu_halt_reason_str(cpu.halt_reason));
     }
 
-    /* InsSet should now be 2, opcode = 0xAB. IFUMRH writes the field
-     * half (hi) and IFUMLH writes the PackedAlpha/IFaddr half (lo).
-     * This is the same order LoadRam.mc uses for EB IFUM items:
-     * word0 -> IFUMLH, word1 -> IFUMRH. */
+    /* InsSet should now be 2, opcode = 0xAB. Per HM Table 11c,
+     * IFUMRH writes the address half (PackedA,,IFaddr' = ifum_lo)
+     * and IFUMLH writes the fields half (ifum_hi). */
     EXPECT(cpu.ifu_insset == 2, "InsSet = %d, expected 2", cpu.ifu_insset);
     EXPECT(cpu.ifu_opcode == 0xAB,
            "Opcode = 0x%02X, expected 0xAB", cpu.ifu_opcode);
-    EXPECT(mc.ifum_hi[0x2AB] == 0xCA00,
-           "ifum_hi[0x2AB] = 0x%04X, expected 0xCA00", mc.ifum_hi[0x2AB]);
-    EXPECT(mc.ifum_lo[0x2AB] == 0xBE00,
-           "ifum_lo[0x2AB] = 0x%04X, expected 0xBE00", mc.ifum_lo[0x2AB]);
+    EXPECT(mc.ifum_lo[0x2AB] == 0xCA00,
+           "ifum_lo[0x2AB] = 0x%04X, expected 0xCA00", mc.ifum_lo[0x2AB]);
+    EXPECT(mc.ifum_hi[0x2AB] == 0xBE00,
+           "ifum_hi[0x2AB] = 0x%04X, expected 0xBE00", mc.ifum_hi[0x2AB]);
 
     /* Other entries should be untouched. */
     EXPECT(mc.ifum_lo[0] == 0, "ifum_lo[0] should be untouched");
@@ -8070,9 +8177,11 @@ static int test_ifu_dispatch_synthetic(void)
                    | ((uint16_t)((tpause_p)&1) << 5) \
                    | ((uint16_t)((tjump_p)&1) << 4) \
                    | ((uint16_t)((n)&0xF)) ))
+    /* RH stores IFaddr' LOW-TRUE; the macro takes the true entry-
+     * vector base and complements it (HM Table 20). */
     #define MK_RH(packed_a, ifaddr) \
         ((uint16_t)( ((uint16_t)((packed_a)&1) << 10) \
-                   | ((uint16_t)((ifaddr)&0x3FF)) ))
+                   | ((uint16_t)(~(ifaddr)&0x3FF)) ))
 
     /* INC opcode 0x10. IFaddr' = 0o20 (= decimal 16). So entry 0
      * lands at TNIA = (0o20 << 2) | 0 = 0o100 (= decimal 64). */

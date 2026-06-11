@@ -341,16 +341,26 @@ static int stk_underflow_check(const dorado_uinstr *u)
 /* Compute the WRITE address for an RM/STK write. Same as rm_address
  * for everything except STK with the ModStkPBeforeW FF function in
  * play, which routes the write to the *adjusted* (post-delta) StkP. */
+static int ff_decode_ok(const dorado_uinstr *u);
+static int ff_full_function_ok(const dorado_uinstr *u);
+
+/* True when FF decodes to the Table 11a function `code` (low 6 bits),
+ * either as a full function with FA=0 or via the memory-reference
+ * subdecode (ASEL 0..3), where "FA is decoded as zero" (HM §3.9) and
+ * FF[0:1] selects the memory variant instead. */
+static int ff_is_table11a(const dorado_uinstr *u, uint8_t code, uint8_t mask)
+{
+    if (!ff_decode_ok(u)) return 0;
+    if ((u->ff & mask) != code) return 0;
+    return ((u->ff >> 6) & 3) == 0 || u->asel <= 3;
+}
+
 static int stk_write_address(const dorado_cpu *cpu, const dorado_uinstr *u)
 {
     if (!u->block || cpu->ctask != 0) return rm_address(cpu, u);
 
-    /* ModStkPBeforeW FF = FA=0 FB=2 FC=7 = 0o27 = 0x17 */
-    int fa = (u->ff >> 6) & 3;
-    int fb = (u->ff >> 3) & 7;
-    int fc = u->ff & 7;
-    int mod_before_w = (fa == 0 && fb == 2 && fc == 7);
-    if (!mod_before_w) return rm_address(cpu, u);
+    /* ModStkPBeforeW FF = FA=0 FB=2 FC=7 = 0o27 */
+    if (!ff_is_table11a(u, 0027, 0077)) return rm_address(cpu, u);
 
     int adjusted = (cpu->StkP + stk_signed_delta(u)) & 0xFF;
     return CPU_RMSTK_STK_BASE | adjusted;
@@ -361,14 +371,25 @@ static int lc_write_address(const dorado_cpu *cpu, const dorado_uinstr *u)
     int fa = (u->ff >> 6) & 3;
     int fb = (u->ff >> 3) & 7;
 
-    /* HM Table 11a/11d: these FF groups replace the LC destination's
-     * low RM address nibble with FF[4:7] while keeping the current
-     * RBase high nibble, and force the write into RM even when the
-     * instruction read STK. SubTask OR does not apply to this explicit
-     * write-region form. */
-    if ((fa == 0 && (fb == 4 || fb == 5)) ||
-        (fa == 2 && (fb == 2 || fb == 3))) {
+    /* Two FF groups change the RM address for the write portion of an
+     * instruction (HM §3.1 page 12); both force the write into RM even
+     * when the instruction read STK, and SubTask OR does not apply.
+     *
+     * HM Table 11a (FA=0 FB=4-5): "Replace RMaddr[0:3] by RBase[0:3]
+     * and RMaddr[4:7] by FF[4:7]" — same group of 16, register chosen
+     * by FF. Also reachable through the memory-reference subdecode. */
+    if (ff_is_table11a(u, 0040, 0060)) {
         return ((cpu->RBase & 0xF) << 4) | (u->ff & 0xF);
+    }
+    /* HM Table 11d (FA=2 FB=2-3): "Replace RMaddr[0:3] by FF[4:7] for
+     * write of RM" — i.e. the complete write address is
+     * FF[4:7],,RSTK[0:3]: an arbitrary RM bank without loading RBase
+     * first. AEmu's EndOfStorage uses this (FF=0o221) to write
+     * EmuBRHiReg/EmuXMBRHiReg in AEmRegs (bank 1) while RBase=EORegs.
+     * Full-function form only (FA=2 cannot appear in the memory-ref
+     * subdecode, where FA is decoded as zero). */
+    if (ff_full_function_ok(u) && fa == 2 && (fb == 2 || fb == 3)) {
+        return ((u->ff & 0xF) << 4) | (u->rstk & 0xF);
     }
 
     return stk_write_address(cpu, u);
@@ -586,7 +607,8 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
         switch (fc) {
         /* HM Table 11c FA=1 FB=6 FC=0 / page 51: FaultInfo' is the
          * inverted FaultInfo register (NFaults, SRNFirstFault,
-         * EmulatorFault). 0xFFFF = "no faults". */
+         * EmulatorFault). No-fault signature: the 3-bit FaultCnt
+         * field (b9:11) reads -1, i.e. high-true 0x0070. */
         case 0: *b = (uint16_t)~finfo;             /* FaultInfo' */
                 dorado_fault_clear(cpu->mem);
                 break;
@@ -627,20 +649,20 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
         case 1: /* B ← EventCntA' (HM §4.11). Active-low. */
                 *b = (uint16_t)~cpu->event_cnt_a;
                 break;
-        case 2: /* B ← IFUMRH' (field half, inverted). Address =
-                 * InsSet||Opcode (set by InsSetorEvent←B and
-                 * BrkIns←B). */
+        case 2: /* B ← IFUMRH' (address half — PackedA,,IFaddr' —
+                 * inverted). Address = InsSet||Opcode (set by
+                 * InsSetorEvent←B and BrkIns←B). */
                 if (cpu->mc) {
                     int addr = ((cpu->ifu_insset & 3) << 8) | cpu->ifu_opcode;
-                    *b = (uint16_t)~cpu->mc->ifum_hi[addr];
+                    *b = (uint16_t)~cpu->mc->ifum_lo[addr];
                 } else {
                     *b = 0xFFFF;
                 }
                 break;
-        case 3: /* B ← IFUMLH' (PackedAlpha,,IFaddr' half, inverted). */
+        case 3: /* B ← IFUMLH' (fields half, inverted). */
                 if (cpu->mc) {
                     int addr = ((cpu->ifu_insset & 3) << 8) | cpu->ifu_opcode;
-                    *b = (uint16_t)~cpu->mc->ifum_lo[addr];
+                    *b = (uint16_t)~cpu->mc->ifum_hi[addr];
                 } else {
                     *b = 0xFFFF;
                 }
@@ -732,37 +754,23 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
     int ff_is_function = ff_full_function_ok(u);
     if (!ff_is_function) {
         if (ff_decode_ok(u) && u->asel <= 3) {
-            /* HM Table 8a memory-reference forms use FF[0:1] for the
-             * memory source/operation select, but the lower six bits still
-             * carry simple Table-11a functions. LoadRam relies on this for
-             * `Q_ MD` (FF=0o373) and `BDispatch_ Q` (FF=0o371) while
-             * issuing Fetches. Keep this narrow so memory-ref branch
-             * encodings such as Initial's BootMem loop are not misdecoded as
-             * full 8-bit FF side effects. */
-            switch (u->ff & 077) {
-            case 070: /* BigBDispatch ← B */
-                cpu->dispatch_pending = b & 0xFF;
-                break;
-            case 071: /* BDispatch ← B */
-                cpu->dispatch_pending = b & 0x7;
-                break;
-            case 073: /* Q ← B */
-                cpu->Q = b;
-                break;
-            case 075: /* TgetsMd */
-                return task_md(cpu);
-            case 036: /* Output ← B */
-                if (cpu->io) {
-                    dorado_io_write_subtask(cpu->io, cpu->ctask,
-                                            cpu->task_subtask[cpu->ctask],
-                                            (uint8_t)cpu->TIOA, b);
-                }
-                break;
-            default:
-                break;
-            }
+            /* HM §3.9 (page 15): "When FF is ok and ASEL = 0 to 3,
+             * the decoding of FF as a function is forced to be in the
+             * range 0 to 63" — FF[0:1] selects the memory-reference
+             * variant, and the remaining six bits execute as the FULL
+             * Table 11a function set. LoadRam's `Q_ MD` (FF=0o373),
+             * `BDispatch_ Q` (FF=0o371) and AEmu's JSR-indirect
+             * `Fetch_ T, FlipMemBase` (FF=0o337) all depend on this;
+             * dropping any of them silently corrupts microcode flow
+             * (JSRix without the flip loads the jump target into the
+             * MDS base register). Re-dispatch through the FA=0 cases
+             * below with the low six bits. */
+            fa = 0;
+            fb = (u->ff >> 3) & 7;
+            fc = u->ff & 7;
+        } else {
+            return pd;
         }
-        return pd;
     }
 
     if (fa == 0) {
@@ -945,11 +953,30 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                 return pd;
             case 3: /* BrLo ← A — BR[MemBase][16:31] ← A[0:15]
                      * (HM Table 11c FA=1 FB=2 FC=3). */
-                if (cpu->mem) dorado_br_lo_load(cpu->mem, cpu->MemBase, a);
+                if (cpu->mem) {
+                    if (getenv("DORADO_BR_TRACE")) {
+                        fprintf(stderr,
+                                "BRLO_FF task=%o pc=0o%o mb=%02o a=%06o "
+                                "T=%06o md=%06o\n",
+                                cpu->ctask & 017, cpu->real_PC,
+                                cpu->MemBase & 0x1F, a, cpu->T,
+                                cpu->mem->md & 0177777);
+                    }
+                    dorado_br_lo_load(cpu->mem, cpu->MemBase, a);
+                }
                 return pd;
             case 4: /* BrHi ← A — BR[MemBase][4:15] ← A[4:15]
                      * (HM Table 11c FA=1 FB=2 FC=4). */
-                if (cpu->mem) dorado_br_hi_load(cpu->mem, cpu->MemBase, a);
+                if (cpu->mem) {
+                    if (getenv("DORADO_BR_TRACE")) {
+                        fprintf(stderr,
+                                "BRHI_FF task=%o pc=0o%o mb=%02o a=%06o "
+                                "rb=%02o\n",
+                                cpu->ctask & 017, cpu->real_PC,
+                                cpu->MemBase & 0x1F, a, cpu->RBase & 017);
+                    }
+                    dorado_br_hi_load(cpu->mem, cpu->MemBase, a);
+                }
                 return pd;
             case 5: /* LoadTestSyndrome */         return pd;
             case 6: /* LoadMcr[A,B] */
@@ -972,6 +999,15 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                      * microcode round-tripping the controls observes
                      * the value it wrote (gap B11 stub). */
                 if ((b >> 15) & 1) {
+                    if (getenv("DORADO_INSSET_TRACE")) {
+                        fprintf(stderr,
+                                "INSSET task=%o pc=0o%o b=%06o insset %u->%u "
+                                "link=0o%o T=%06o pcf=0o%o active=%u\n",
+                                cpu->ctask & 017, cpu->real_PC, b,
+                                cpu->ifu_insset & 3, (b >> 8) & 3,
+                                cpu->Link, cpu->T, cpu->ifu_pcf,
+                                cpu->ifu_active);
+                    }
                     cpu->ifu_insset = (uint8_t)((b >> 8) & 3);
                 } else {
                     cpu->event_cnt_ctrl_hi = (uint8_t)((b >> 8) & 0x0F);
@@ -982,33 +1018,39 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                 cpu->event_cnt_b = b;
                 return pd;
             case 2: /* Reschedule (HM Table 20). Cause a reschedule
-                     * trap on the second OR third successful IFUJump. */
+                     * trap on the second OR third successful IFUJump,
+                     * and set the (emulator-only) Reschedule branch
+                     * condition. */
                 cpu->reschedule_pending = 2;
+                cpu->reschedule_cond = 1;
                 return pd;
-            case 3: /* NoReschedule. Clear the pending Reschedule. */
+            case 3: /* NoReschedule. Turn off the Reschedule trap AND
+                     * branch condition (HM Table 20). */
                 cpu->reschedule_pending = 0;
+                cpu->reschedule_cond = 0;
                 return pd;
-            case 4: /* IFUMRH ← B (field half of IFUM entry).
-                     * Writes 16 bits: Sign←B.0, PE←B[1:3], Length'←B[4:5],
-                     * RBaseB'←B.6, MemB←B[7:9], TPause'←B.10,
-                     * TJump'←B.11, N←B[12:15]. */
-                if (cpu->mc) {
-                    dorado_microcode *mc_w = (dorado_microcode *)cpu->mc;
-                    int addr = ((cpu->ifu_insset & 3) << 8) | cpu->ifu_opcode;
-                    mc_w->ifum_hi[addr] = b;
-                    mc_w->ifum_present[addr] = 1;
-                }
-                return pd;
-            case 5: /* IFUMLH ← B (PackedAlpha,,IFaddr' half).
-                     * Writes 16 bits: Packed-α←B.5 and IFaddr'←B[6:15].
-                     * LoadRam.mc writes EB word0 through IFUMLH and word1
-                     * through IFUMRH; the in-memory form keeps those as
-                     * ifum_lo and ifum_hi respectively because dispatch
-                     * decodes IFaddr from lo and fields from hi. */
+            case 4: /* IFUMRH ← B (HM Table 11c): the ADDRESS half —
+                     * PackedA←B.5, IFaddr'←B[6:15]. Stored in ifum_lo
+                     * (which also receives .MB IFUM word 0; AEmu's
+                     * LDAipc proves word 0 carries IFaddr'). */
                 if (cpu->mc) {
                     dorado_microcode *mc_w = (dorado_microcode *)cpu->mc;
                     int addr = ((cpu->ifu_insset & 3) << 8) | cpu->ifu_opcode;
                     mc_w->ifum_lo[addr] = b;
+                    mc_w->ifum_present[addr] = 1;
+                }
+                return pd;
+            case 5: /* IFUMLH ← B (HM Table 11c): the FIELDS half —
+                     * Sign←B.0, PE[0:2]←B[1:3], Length'←B[4:5],
+                     * RBaseB'←B.6, MemB←B[7:9], TPause'←B.10,
+                     * TJump←B.11, N←B[12:15]. Stored in ifum_hi
+                     * (= .MB IFUM word 1; its bit 15 matches LDAipc's
+                     * Sign=1). LoadRam.mc writes the LH from item
+                     * word 0 and the RH from item word 1. */
+                if (cpu->mc) {
+                    dorado_microcode *mc_w = (dorado_microcode *)cpu->mc;
+                    int addr = ((cpu->ifu_insset & 3) << 8) | cpu->ifu_opcode;
+                    mc_w->ifum_hi[addr] = b;
                     mc_w->ifum_present[addr] = 1;
                 }
                 return pd;
@@ -1098,8 +1140,9 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
             return pd;
         }
         if (fb >= 2 && fb <= 3) {
-            /* Replace RMaddr[0:3] with RBase[0:3], RMaddr[4:7] with
-             * FF[4:7] — force RM write. We silently honor. */
+            /* HM Table 11d: write address becomes FF[4:7],,RSTK[0:3]
+             * (force RM write). Handled in lc_write_address(); RBase
+             * itself is NOT loaded. */
             return pd;
         }
         if (fb == 4) {
@@ -1894,20 +1937,20 @@ static int eval_branch_condition(dorado_cpu *cpu,
          * For now: emulator always returns 1 (no reschedule); other
          * tasks check their wakeup_pending bit. */
         if (cpu->ctask == 0) {
-            /* Emulator: Reschedule branch condition. True (= r=0
-             * after inversion to active-low) if the Reschedule
-             * flipflop is set. HM Table 20: "Also set the
-             * Reschedule branch condition (emulator only) to true."
-             * Per HM, RescheduleNow does NOT affect this branch
-             * condition, only the trap. So we report true only if
-             * pending was set by Reschedule (count=2 at issue). */
-            r = (cpu->reschedule_pending >= 2) ? 0 : 1;
+            /* Emulator: Reschedule branch condition — HIGH-true,
+             * unlike the non-emulator IOAtten' (HM Table 13 names it
+             * "IOAtten' (non-emulator) or ReSchedule (emulator)" —
+             * only IOAtten carries the prime). Set by the Reschedule
+             * FF, cleared only by NoReschedule; RescheduleNow does
+             * not affect it. AEmu's BLT exit test depends on the
+             * sense: inverted, every BLT word bails to
+             * AEmuReschedule and the sweep never advances. */
+            r = cpu->reschedule_cond ? 1 : 0;
         } else {
-            int io_attention = cpu->io
-                ? dorado_io_attention(cpu->io, cpu->ctask,
-                                      (uint8_t)cpu->TIOA)
-                : 0;
-            r = io_attention ? 0 : 1;
+            /* Level sampled at instruction issue (see execute_uinstr):
+             * a same-instruction Pd←Input must not shift the word
+             * IOAtten refers to. */
+            r = cpu->io_atten_at_issue ? 0 : 1;
         }
         break;
     default: r = 0;                                       break;
@@ -1986,15 +2029,18 @@ static void ifu_decode_lh(dorado_cpu *cpu, uint16_t lh)
     cpu->RBase = !((lh >> 9) & 1);
 }
 
-/* Decode an IFUM entry's low half (Table 20):
+/* Decode an IFUM entry's address half (IFUMRH, HM Table 20):
  *   bit 5 = Packed-α
- *   bits 6:15 = IFaddr' (10 bits — the 10-bit entry-vector base)
- * Returns IFaddr'. Sets ifu_packed_a. */
+ *   bits 6:15 = IFaddr' (10 bits, LOW-TRUE)
+ * Returns the true entry-vector base IFaddr = ~IFaddr'. Verified
+ * against AEmu.mb: opcode 045 (LDAipc) stores RH=0o1772; ~0o1772 &
+ * 0x3FF = 5, and LDAIPC's entry vector is at IM[5*4] = 0o24. Sets
+ * ifu_packed_a. */
 static uint16_t ifu_decode_rh(dorado_cpu *cpu, uint16_t rh)
 {
     cpu->ifu_packed_a = (rh >> 10) & 1;
-    /* IFaddr' bits 6:15 (MSB) = bits 9..0 (LSB) = rh & 0x3FF. */
-    return (uint16_t)(rh & 0x3FF);
+    /* IFaddr' bits 6:15 (MSB) = bits 9..0 (LSB), inverted. */
+    return (uint16_t)(~rh & 0x3FF);
 }
 
 /* Compute an IFU trap address. HM Table 14 footnote: "Ifu traps
@@ -2194,15 +2240,19 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
             }
 
             /* Reschedule trap (HM Table 20). Fires on a successful
-             * IFUJump (past NotReady) — even before the IFUM lookup
-             * is examined. */
+             * IFUJump (past NotReady). Note it does NOT return here:
+             * "The trap instruction is executed as though it were the
+             * first instruction of the rescheduled opcode, and <-Id
+             * and IFUJump will work as though that opcode were in
+             * progress" — so the IFU must still consume the next
+             * opcode (advance PCX/PCF, latch operands) exactly as for
+             * a normal dispatch; only the dispatch TARGET is replaced
+             * by the trap vector. AEmuReschedule then resumes via
+             * T_ NOT(PCX') -> PCF, re-entering the held-back opcode. */
+            int resched_trap = 0;
             if (cpu->reschedule_pending > 0) {
                 cpu->reschedule_pending--;
-                if (cpu->reschedule_pending == 0) {
-                    *next = ifu_trap_addr(0014, n_slot, cpu->ifu_insset);
-                    if (!ff_loads_link(u)) cpu->Link = (uint16_t)(cpu->real_PC + 1);
-                    return 0;
-                }
+                if (cpu->reschedule_pending == 0) resched_trap = 1;
             }
 
             /* Conditional IFUJump (HM page 33): if an FF-encoded
@@ -2227,6 +2277,21 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
             cpu->ifu_pcx     = cpu->ifu_pcf;
             int fetch_faulted = 0;
             uint8_t opcode   = ifu_fetch_byte(cpu, cpu->ifu_pcf, &fetch_faulted);
+            if (getenv("DORADO_IFUDISP_TRACE")) {
+                int adr = ((cpu->ifu_insset & 3) << 8) | opcode;
+                fprintf(stderr,
+                        "IFUDISP pc=0o%o pcf=0o%o br31=%05X op=%03o "
+                        "flt=%d n=%d insset=%u rh=%06o lh=%06o "
+                        "vec=0o%o\n",
+                        cpu->real_PC, cpu->ifu_pcf,
+                        cpu->mem ? dorado_br_get(cpu->mem, 31) : 0,
+                        opcode, fetch_faulted, n_slot,
+                        cpu->ifu_insset & 3,
+                        cpu->mc ? cpu->mc->ifum_lo[adr] : 0,
+                        cpu->mc ? cpu->mc->ifum_hi[adr] : 0,
+                        (unsigned)(((~(cpu->mc ? cpu->mc->ifum_lo[adr] : 0))
+                                    & 0x3FF) << 2));
+            }
             if (fetch_faulted) {
                 *next = ifu_trap_addr(0000, n_slot, cpu->ifu_insset);
                 if (!ff_loads_link(u)) cpu->Link = (uint16_t)(cpu->real_PC + 1);
@@ -2307,6 +2372,9 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
              * routing to entry n|1 of the vector. */
             int n_eff = n_slot | (cond_true ? 1 : 0);
             uint16_t tnia = (uint16_t)((ifaddr << 2) | n_eff);
+            if (resched_trap) {
+                tnia = ifu_trap_addr(0014, n_slot, cpu->ifu_insset);
+            }
 
             *next = (uint16_t)(tnia & 0xFFF);
             /* IFUJump always loads Link with CIA+1 (HM page 33). */
@@ -2564,6 +2632,17 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
     cpu->dispatch_pending = 0;
     uint16_t md_at_issue = task_md(cpu);
     uint8_t rbase_at_issue = cpu->RBase;
+    /* IOAttention is a level tested at t1, BEFORE this instruction's
+     * Pd←Input consumes the bus-register word (HM page 30; §11: "IOAtten
+     * branches when a status word is present in the receiver bus
+     * register"). AltoEther.mc relies on both phases: `EITemp2_ Input,
+     * Branch[EIPLZ, IOAtten]` tests the word being read, while the
+     * store in the input main loop tests the word the NEXT Input will
+     * read. Snapshot with the at-issue TIOA. */
+    cpu->io_atten_at_issue = (cpu->io && cpu->ctask != 0)
+        ? (uint8_t)dorado_io_attention(cpu->io, cpu->ctask,
+                                       (uint8_t)cpu->TIOA)
+        : 0;
 
     /* B and A buses. FF may override B (Pipe / Link / CPReg / …). */
     uint16_t b = 0, a = 0;
@@ -2586,18 +2665,17 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
     {
         int ovr = ff_a_low_override(u);
         if (ovr >= 0) {
-            /* Two distinct uses of "A[12:15] ← FF[4:7]":
-             *  - Full-function form (ASEL > 3, FA=0 FB<=1): the Dorado
-             *    SMALL CONSTANT `nS`. A is the 4-bit constant with
-             *    A[0:11] forced to 0 (e.g. `3S` yields 3). Reading
-             *    RM/STK and only overlaying the low nibble would leave
-             *    the register's high bits in A and corrupt the constant
-             *    (e.g. AEm0.mc `ETemp0_ (3S)+MD` computed ETemp0|3
-             *    instead of 3, hanging ABoot's RTC wait).
-             *  - Memory-reference A-override (ASEL 0/1): only the low
-             *    nibble of Mar is replaced; A[0:11] is preserved. */
-            if (u->asel > 3) a = (uint16_t)ovr;
-            else             a = (uint16_t)((a & 0xFFF0u) | (uint16_t)ovr);
+            /* "A[12:15] ← FF[4:7]" is the Dorado SMALL CONSTANT `nS`:
+             * the FF decode puts the 4-bit constant on A with A[0:11]
+             * = 0. HM §3.5 (page 16): "The FF field can be used to
+             * select ... FF[4:7] (small constant) ... with references,
+             * these functions OVERRULE RM/STK as the source." So the
+             * constant fully replaces A both in the full-function form
+             * (`ETemp0_ (3S)+MD`) and on memory references
+             * (`Store_ EBLoc`, `Fetch_ 2S` — AltoEtherEmu.mc EBoot
+             * addresses the 600B ether block this way; overlaying only
+             * Mar's low nibble left R400's bits in the address). */
+            a = (uint16_t)ovr;
         }
     }
 

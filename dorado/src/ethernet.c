@@ -4,25 +4,32 @@
 #include <stdlib.h>
 #include <string.h>
 
-static int eth_trace_enabled(void)
+/* DORADO_ETH_TRACE=1 traces the first 256 controller operations;
+ * larger values raise the cap. */
+static long eth_trace_cap(void)
 {
-    static int cached = -1;
-    if (cached < 0) cached = getenv("DORADO_ETH_TRACE") ? 1 : 0;
+    static long cached = -1;
+    if (cached < 0) {
+        const char *v = getenv("DORADO_ETH_TRACE");
+        cached = v ? strtol(v, NULL, 0) : 0;
+        if (cached == 1) cached = 256;
+    }
     return cached;
 }
 
 static void eth_trace(const dorado_ethernet *eth, const char *op,
                       int task, uint8_t tioa, uint16_t data)
 {
-    if (!eth_trace_enabled()) return;
+    long cap = eth_trace_cap();
+    if (!cap) return;
     uint64_t n = eth->control_writes[task & 0xF] + eth->data_writes +
                  eth->data_reads;
-    if (n > 256) return;
+    if (n > (uint64_t)cap) return;
     fprintf(stderr,
             "ETH %-5s task=%o tioa=%03o data=%06o rx_on=%u tx_on=%u "
-            "active=%u complete=%u tx_count=%zu rx=%zu/%zu\n",
+            "eop=%u complete=%u tx_count=%zu rx=%zu/%zu\n",
             op, task, tioa, data, eth->rx_on, eth->tx_on,
-            eth->tx_active, eth->tx_complete, eth->tx_count,
+            eth->tx_eop, eth->tx_complete, eth->tx_count,
             eth->rx_pos, eth->rx_count);
 }
 
@@ -34,7 +41,6 @@ static void eth_clear_rx(dorado_ethernet *eth)
     eth->rx_attention = NULL;
     eth->rx_count = 0;
     eth->rx_pos = 0;
-    eth->rx_attention_latched = 0;
 }
 
 void dorado_ethernet_init(dorado_ethernet *eth)
@@ -330,12 +336,59 @@ static int eth_queue_eftp_boot(dorado_ethernet *eth, uint16_t bfn)
     return 1;
 }
 
-static void eth_maybe_complete_tx(dorado_ethernet *eth)
+/* The Alto Ethernet boot loader, served as the payload of a
+ * "breath of life" packet (ether type 602B). Words [31B..426B] of
+ * `bootLoaderProgram` in EtherBoot.mesa (CHM, "Snitched from Taft's
+ * EtherBoot.asm"): word 0 is the ether dest/source header (filled in
+ * per packet), word 1 is typeBreathOfLife. The booting Alto stores the
+ * packet at VM 1..376B and jumps to location 3; the loader then reads
+ * the boot file number from keyboard word 177035, broadcasts a Mayday
+ * Pup, and receives the boot file by EFTP. */
+static const uint16_t eth_bol_loader[254] = {
+    0, 0602, 022574, 0100000, 040437, 0102000, 034431, 0164000,
+    061005, 0102460, 024567, 034572, 061006, 024565, 034570, 061006,
+    024564, 034566, 061006, 020565, 034565, 061005, 0125220, 046573,
+    020576, 061004, 0123400, 030551, 041211, 04416, 0, 01000,
+    026, 0244, 0, 0, 0, 0, 04, 0,
+    0, 020, 0177777, 055210, 025400, 0107000, 045400, 041411,
+    020547, 041207, 020544, 061004, 06531, 034517, 030544, 051606,
+    020510, 041605, 042526, 0102460, 041601, 020530, 061004, 021601,
+    0101014, 0414, 061020, 014737, 0773, 014517, 0754, 020517,
+    061004, 030402, 02402, 0, 0732, 034514, 0162414, 0746,
+    021001, 024511, 0106414, 0742, 021003, 0163400, 035005, 024501,
+    0106415, 0175014, 0733, 021000, 042465, 034457, 056445, 055775,
+    055776, 0101300, 041400, 020467, 041401, 020432, 041402, 0121400,
+    041403, 021006, 041411, 021007, 041412, 021010, 041413, 021011,
+    041406, 021012, 041407, 021013, 041410, 015414, 06427, 012434,
+    06426, 020421, 024437, 0134000, 030417, 02422, 0177035, 026,
+    0415, 0427, 0567, 0607, 0777, 0177751, 0177641, 0177600,
+    0225, 0177624, 01013, 0764, 0431, 0712, 0634, 0735,
+    0611, 0567, 0564, 0566, 036, 02, 03, 015,
+    030, 0377, 01000, 0177764, 0436, 054731, 050750, 020753,
+    040745, 0102460, 040737, 020762, 061004, 020734, 0105304, 0406,
+    020743, 0101014, 014741, 0772, 02712, 034754, 0167700, 0116415,
+    024752, 021001, 0106414, 0754, 021000, 024703, 0106414, 0750,
+    021003, 0163400, 024736, 0106405, 0404, 0121400, 0101404, 0740,
+    044714, 021005, 042732, 024664, 0122405, 0404, 0101405, 04404,
+    0727, 010656, 034654, 024403, 0120500, 0101404, 0777, 040662,
+    040664, 040664, 0102520, 061004, 020655, 0101015, 0776, 0106415,
+    01400, 014634, 0761, 020673, 061004, 0400, 061005, 0102000,
+    0143000, 034672, 024667, 0166400, 061005, 04670, 020663, 034664,
+    0164000, 0147000, 061005, 024762, 0132414, 0133000, 020636, 034416,
+    0101015, 0156415, 0131001, 0754, 024643, 044625, 0101015, 0750,
+    014623, 04644, 020634, 061004, 02000, 0176764
+};
+
+/* "Transmit" the buffered packet. Called when EOT sets TxEOP with words
+ * in the Fifo (HM §11: "the transmitter ends normally when the Fifo is
+ * empty and TxEOP is true"). Dispatches the packet to the in-process
+ * boot server, then models TxGone: "TxGone clears TxEOP to cause a
+ * wakeup at the end of each packet" — EOT's post-SendEOP Block wakes and
+ * it reads status / turns the transmitter off (InitialEther.mc EOStop). */
+static void eth_tx_packet_done(dorado_ethernet *eth)
 {
-    if (eth->tx_count < 13 || eth->tx_complete) return;
+    if (eth->tx_count < 4) return;     /* runt: no Pup header to dispatch */
     eth->tx_complete = 1;
-    eth->tx_active = 0;
-    eth->tx_on = 0;
     eth->last_tx_pup_type = eth->tx_words[3];
 
     /* Stage-2: a Mayday Pup is the Alto software-boot request. Serve the
@@ -368,6 +421,30 @@ static void eth_maybe_complete_tx(dorado_ethernet *eth)
     (void)eth_queue_boot_replies(eth, eth->last_boot_offset);
 }
 
+int dorado_ethernet_breath_of_life(dorado_ethernet *eth)
+{
+    /* Boot servers broadcast breath-of-life packets periodically; only
+     * deliver one when the receiver is listening and has consumed
+     * everything already queued (a real Alto discards them otherwise,
+     * and the prequeued reply streams must not be polluted). */
+    if (!eth->rx_on || eth->rx_pos < eth->rx_count) return 0;
+
+    eth_clear_rx(eth);
+    size_t cap = 0;
+    size_t n = sizeof eth_bol_loader / sizeof eth_bol_loader[0];
+    /* Word 0: ether dest,,source — broadcast from the boot server. */
+    uint16_t hdr = (uint16_t)((0 << 8) | eth->remote_host);
+    if (!append_rx_word(eth, &cap, hdr, 0)) return 0;
+    for (size_t i = 1; i < n; i++) {
+        if (!append_rx_word(eth, &cap, eth_bol_loader[i], 0)) return 0;
+    }
+    if (!append_rx_word(eth, &cap, 0, 0)) return 0;  /* dummy CRC   */
+    if (!append_rx_word(eth, &cap, 0, 1)) return 0;  /* good status */
+    eth->rx_pos = 0;
+    eth->bol_queued++;
+    return 1;
+}
+
 static uint16_t eth_read(void *ctx, int task, int subtask,
                          uint8_t tioa, int *bad)
 {
@@ -390,9 +467,6 @@ static uint16_t eth_read(void *ctx, int task, int subtask,
         return 0xFFFF;
     }
     uint16_t word = eth->rx_words[eth->rx_pos];
-    if (eth->rx_attention[eth->rx_pos]) {
-        eth->rx_attention_latched = 1;
-    }
     eth->rx_pos++;
     eth_trace(eth, "read", task, tioa, word);
     return word;
@@ -411,28 +485,57 @@ static void eth_write(void *ctx, int task, int subtask,
         eth->control_last[task & 0xF] = data;
         eth->control_writes[task & 0xF]++;
 
-        if (task == 0) {
-            /* Initial's ResetEther emits two off commands, then later
-             * TurnOnRx/TurnOnTx after building the request. Until the
-             * exact command encodings are decoded, use that sequence
-             * shape to arm the packet-level fake. */
-            if (eth->control_writes[0] >= 4) {
-                eth->rx_on = 1;
-                eth->tx_on = 1;
-                eth->tx_active = 1;
-                if (eth->tx_complete || eth->tx_count == 0) {
-                    eth->tx_complete = 0;
+        /* EthC control register, HM §11 Figure 16. The register is
+         * shared controller state; any task may write it (Initial
+         * drives it from the emulator task, EOT/EIT from their own). */
+        if (!(data & DORADO_ETHC_TXCMDENBLN)) {
+            uint8_t on = (data & DORADO_ETHC_TXON) != 0;
+            if (on && !eth->tx_on) {
+                eth->tx_starts++;
+                eth->tx_count = 0;
+                eth->tx_complete = 0;
+            }
+            if (!on && eth->tx_on) eth->tx_stops++;
+            eth->tx_on = on;
+            if (!on) {
+                /* "TxEOP/TxCntDwn cleared by TxOn = 0." Resetting the
+                 * transmitter also discards the Fifo. */
+                eth->tx_eop = 0;
+                eth->tx_cntdwn = 0;
+                eth->tx_count = 0;
+            } else {
+                eth->tx_eop = (data & DORADO_ETHC_TXEOP) != 0;
+                /* TxCntDwn delays wakeups until the next Pendulum tick
+                 * (16 us). This packet-level fake has no Pendulum;
+                 * treat the tick as already due so EWait loops simply
+                 * count down one iteration per wakeup. */
+                eth->tx_cntdwn = 0;
+                if (eth->tx_eop && eth->tx_count > 0) {
+                    eth_tx_packet_done(eth);
+                    /* TxGone: end of packet clears TxEOP, waking EOT. */
+                    eth->tx_eop = 0;
+                    eth->tx_eops++;
                     eth->tx_count = 0;
-                    eth->tx_starts++;
                 }
             }
-        } else if (task == DORADO_ETHERNET_TASK_EOT) {
-            if (eth->tx_count >= 15) {
-                eth->tx_eops++;
+        }
+        if (!(data & DORADO_ETHC_RXCMDENBLN)) {
+            uint8_t on = (data & DORADO_ETHC_RXON) != 0;
+            if (on && !(data & DORADO_ETHC_RXBOPN) && eth->rx_on) {
+                /* RxBOP' written 0 (WaitForBOP): discard the rest of
+                 * the current packet; the controller sets RxBOP again
+                 * when the first word of the next packet is available.
+                 * The prequeued stream discards synchronously. */
+                while (eth->rx_pos < eth->rx_count &&
+                       !eth->rx_attention[eth->rx_pos]) {
+                    eth->rx_pos++;
+                }
+                if (eth->rx_pos < eth->rx_count) eth->rx_pos++;
             }
-            eth_maybe_complete_tx(eth);
-        } else if (task == DORADO_ETHERNET_TASK_EIT) {
-            if (eth->rx_pos >= eth->rx_count) eth->rx_on = 0;
+            eth->rx_on = on;
+        }
+        if (!(data & DORADO_ETHC_TESTCMDENBLN)) {
+            eth->no_wakeups = (data & DORADO_ETHC_NOWAKEUPS) != 0;
         }
         return;
     }
@@ -444,19 +547,20 @@ static void eth_write(void *ctx, int task, int subtask,
         if (eth->tx_count < sizeof eth->tx_words / sizeof eth->tx_words[0]) {
             eth->tx_words[eth->tx_count++] = data;
         }
-        eth_maybe_complete_tx(eth);
     }
 }
 
 static int eth_attention(void *ctx, int task, uint8_t tioa)
 {
+    /* HM §11: "IOAtten branches when a status word is present in the
+     * receiver bus register" — a LEVEL on the word the next Pd←Input
+     * would deliver, not a latch. The CPU samples it at instruction
+     * issue (cpu.c io_atten_at_issue). */
     dorado_ethernet *eth = ctx;
     if (task == DORADO_ETHERNET_TASK_EIT &&
         tioa == DORADO_ETHERNET_TIOA_DATA) {
-        if (eth->rx_attention_latched) {
-            eth->rx_attention_latched = 0;
-            return 1;
-        }
+        return eth->rx_pos < eth->rx_count &&
+               eth->rx_attention[eth->rx_pos];
     }
     return 0;
 }
@@ -483,8 +587,15 @@ void dorado_ethernet_attach_to_io(dorado_ethernet *eth, dorado_io *io)
 
 uint16_t dorado_ethernet_wakeup_mask(const dorado_ethernet *eth)
 {
+    /* HM §11: "EOT wakeups occur when the bus register is empty, TxOn
+     * is true, and TxEOP, TxCntDwn, and NoWakeups are false." The fake
+     * consumes Output<-B immediately, so the bus register is always
+     * empty. "EIT wakeup requests occur when the bus register contains
+     * an interesting word" — RxOn and RxBOP true; RxBOP is modeled as
+     * implied by an undelivered word in the prequeued stream. */
     uint16_t mask = 0;
-    if (eth->tx_active && !eth->tx_complete && eth->tx_count < 15) {
+    if (eth->no_wakeups) return 0;
+    if (eth->tx_on && !eth->tx_eop && !eth->tx_cntdwn) {
         mask |= (uint16_t)(1u << DORADO_ETHERNET_TASK_EOT);
     }
     if (eth->rx_on && eth->rx_pos < eth->rx_count) {

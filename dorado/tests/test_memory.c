@@ -377,17 +377,18 @@ static int test_no_fault_refs(void)
 }
 
 /* Test 12: FaultInfo' tracks NFaults + SRN of first fault.
- * HM Table 11c FA=1 FB=6 FC=0 / page 51: FaultInfo' (and the
- * equivalent Pipe2') are the inverted FaultInfo register —
- * 0xFFFF when no faults, otherwise encodes count and SRN. */
+ * Field positions per AEmu EMemDefs.mc and HM §5 fault handling:
+ * b8 (0x0080) = EmulatorFault, b9:11 (0x0070) = FaultCnt where the
+ * 3-bit field holds (pending faults - 1) — all ones means none —
+ * and B[12:15] = FirstFaultSRN. */
 static int test_fault_info(void)
 {
     static dorado_memory mem; memset(&mem, 0, sizeof mem);
     EXPECT(dorado_memory_init(&mem) == 0, "init");
 
-    /* No faults yet → FaultInfo high-true value is 0. */
-    EXPECT(dorado_fault_info(&mem) == 0,
-           "fresh fault_info should be 0, got 0x%04X",
+    /* No faults yet → FaultCnt field reads -1 (all ones). */
+    EXPECT(dorado_fault_info(&mem) == 0x0070,
+           "fresh fault_info should be 0x0070, got 0x%04X",
            dorado_fault_info(&mem));
 
     /* All map entries are Vacant → first fetch faults. The pipe slot
@@ -407,16 +408,15 @@ static int test_fault_info(void)
            "first fault SRN should still be 0, got %d",
            (int)mem.fault_first_srn);
 
-    /* High-true FaultInfo: B[8:11]=SRN=0, B[12:15]=NFaults=2,
-     * B[7]=EmulatorFault=1. In C-LSB: bit 8 = 0x100, SRN<<4 = 0,
-     * count = 2 → 0x102. */
-    EXPECT(dorado_fault_info(&mem) == 0x102,
-           "fault_info = 0x%04X, expected 0x102",
+    /* Two emulator faults pending: EmulatorFault (0x0080) set,
+     * FaultCnt field = 2-1 = 1 (0x0010), FirstFaultSRN = 0. */
+    EXPECT(dorado_fault_info(&mem) == 0x0090,
+           "fault_info = 0x%04X, expected 0x0090",
            dorado_fault_info(&mem));
 
     /* Clear → back to no-fault. */
     dorado_fault_clear(&mem);
-    EXPECT(dorado_fault_info(&mem) == 0, "fault_info should be cleared");
+    EXPECT(dorado_fault_info(&mem) == 0x0070, "fault_info should be cleared");
     EXPECT(mem.last_fault == DM_FAULT_NONE, "last_fault should be cleared");
 
     dorado_memory_free(&mem);

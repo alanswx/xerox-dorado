@@ -66,6 +66,12 @@ typedef struct {
                                  * value the consumer needs. */
     uint16_t dispatch_or;        /* active one-cycle TNIA dispatch OR */
     uint16_t dispatch_pending;   /* dispatch OR value for next uinstr */
+    uint8_t io_atten_at_issue;   /* IOAttention level sampled at t1 of
+                                  * the current instruction (with the
+                                  * at-issue TIOA); the IOAtten' branch
+                                  * condition reads this so a same-
+                                  * instruction Pd←Input doesn't move
+                                  * the word the test refers to. */
     uint16_t TPC;               /* task PC (saved on switch) */
     uint16_t TIOA;              /* live 8-bit I/O address (Slow IO) */
 
@@ -121,6 +127,9 @@ typedef struct {
      * IFUJump traps. Also sets the IOAtten'/Reschedule branch
      * condition true for the emulator (task 0). */
     uint8_t  reschedule_pending;
+    uint8_t  reschedule_cond;    /* emulator Reschedule branch condition
+                                  * (HM Table 13/20): set by Reschedule,
+                                  * cleared only by NoReschedule. */
 
     /* Junk-task timer wakeup (HM §12.1). The IFU board raises the
      * Junk task wakeup every 32 us while enabled; AckJunkTW/IFUTest

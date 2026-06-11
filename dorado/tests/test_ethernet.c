@@ -24,12 +24,16 @@ static int test_microcode_boot_reply_queue(void)
     EXPECT(!bad, "EControl status parity");
     EXPECT((status >> 8) == 042, "local host status = 0x%04X", status);
 
-    dorado_io_write(&io, 0, DORADO_ETHERNET_TIOA_CTL, 1);
-    dorado_io_write(&io, 0, DORADO_ETHERNET_TIOA_CTL, 2);
-    dorado_io_write(&io, 0, DORADO_ETHERNET_TIOA_CTL, 3);
-    dorado_io_write(&io, 0, DORADO_ETHERNET_TIOA_CTL, 4);
+    /* InitialEther.mc sequence: ResetEther = TurnOffRx, TurnOffTx; then
+     * TurnOnRx, TurnOnTx (EthC encodings per HM Figure 16). */
+    dorado_io_write(&io, 0, DORADO_ETHERNET_TIOA_CTL, 0170377);
+    dorado_io_write(&io, 0, DORADO_ETHERNET_TIOA_CTL, 0007777);
+    EXPECT(dorado_ethernet_wakeup_mask(&eth) == 0,
+           "no wakeups with transmitter and receiver off");
+    dorado_io_write(&io, 0, DORADO_ETHERNET_TIOA_CTL, 0173377);
+    dorado_io_write(&io, 0, DORADO_ETHERNET_TIOA_CTL, 0047777);
     EXPECT(dorado_ethernet_wakeup_mask(&eth) & (1u << DORADO_ETHERNET_TASK_EOT),
-           "EOT wake after TurnOnTx-shaped control sequence");
+           "EOT wake after TurnOnTx");
 
     uint16_t req[15] = {
         042, 01000, 026, 0264, 01, 0110, 0, 0, 0, 0, 04, 042, 01, 01, 0177777
@@ -38,8 +42,20 @@ static int test_microcode_boot_reply_queue(void)
         dorado_io_write(&io, DORADO_ETHERNET_TASK_EOT,
                         DORADO_ETHERNET_TIOA_DATA, req[i]);
     }
+    /* SendEOP transmits the buffered packet; the controller's TxGone
+     * then clears TxEOP, producing EOT's end-of-packet wakeup. */
     dorado_io_write(&io, DORADO_ETHERNET_TASK_EOT,
-                    DORADO_ETHERNET_TIOA_CTL, 012345);
+                    DORADO_ETHERNET_TIOA_CTL, 0067777);
+    EXPECT(eth.tx_eop == 0, "TxGone clears TxEOP after transmission");
+    EXPECT(dorado_ethernet_wakeup_mask(&eth) & (1u << DORADO_ETHERNET_TASK_EOT),
+           "EOT end-of-packet wakeup");
+    /* EOStop: TurnOffTx; EOT wakeups must cease (this is what lets the
+     * loaded emulator world run with EOT blocked). */
+    dorado_io_write(&io, DORADO_ETHERNET_TASK_EOT,
+                    DORADO_ETHERNET_TIOA_CTL, 0007777);
+    EXPECT(!(dorado_ethernet_wakeup_mask(&eth) &
+             (1u << DORADO_ETHERNET_TASK_EOT)),
+           "no EOT wakeups after TurnOffTx");
 
     EXPECT(eth.requests_seen == 1, "requests_seen=%llu",
            (unsigned long long)eth.requests_seen);
@@ -64,13 +80,15 @@ static int test_microcode_boot_reply_queue(void)
     EXPECT(w2 == (uint16_t)(026 + 2 * 255), "first reply length 0o%o", w2);
     EXPECT(w3 == 0265, "reply type 0o%o", w3);
 
-    /* Drain through the first reply status word. */
+    /* Drain through the first reply status word. IOAtten is a level on
+     * the word the next read delivers (HM §11), so test before reading. */
     int saw_attention = 0;
     for (int i = 4; i < 12 + 255 + 2; i++) {
+        int attn = dorado_io_attention(&io, DORADO_ETHERNET_TASK_EIT,
+                                       DORADO_ETHERNET_TIOA_DATA);
         (void)dorado_io_read(&io, DORADO_ETHERNET_TASK_EIT,
                              DORADO_ETHERNET_TIOA_DATA, &bad);
-        if (dorado_io_attention(&io, DORADO_ETHERNET_TASK_EIT,
-                                DORADO_ETHERNET_TIOA_DATA)) {
+        if (attn) {
             saw_attention = 1;
             break;
         }
@@ -118,12 +136,14 @@ static int test_eftp_boot_reply_queue(void)
         042, 01000, 026, DORADO_PUP_TYPE_MAYDAY, 0, 0 /*bfn*/,
         0, 0, 04, 042, 0, 0, 0, 0, 0177777
     };
+    dorado_io_write(&io, DORADO_ETHERNET_TASK_EOT,
+                    DORADO_ETHERNET_TIOA_CTL, 0047777);   /* TurnOnTx  */
     for (int i = 0; i < 15; i++) {
         dorado_io_write(&io, DORADO_ETHERNET_TASK_EOT,
                         DORADO_ETHERNET_TIOA_DATA, mayday[i]);
     }
     dorado_io_write(&io, DORADO_ETHERNET_TASK_EOT,
-                    DORADO_ETHERNET_TIOA_CTL, 012345);
+                    DORADO_ETHERNET_TIOA_CTL, 0067777);   /* SendEOP   */
 
     EXPECT(eth.eftp_requests_seen == 1, "eftp_requests_seen=%llu",
            (unsigned long long)eth.eftp_requests_seen);
@@ -190,11 +210,13 @@ static int simulate_eftp_boot(const char *boot, long *out_words)
         042, 01000, 026, DORADO_PUP_TYPE_MAYDAY, 0, 0,
         0, 0, 04, 042, 0, 0, 0, 0, 0177777
     };
+    dorado_io_write(&io, DORADO_ETHERNET_TASK_EOT,
+                    DORADO_ETHERNET_TIOA_CTL, 0047777);   /* TurnOnTx */
     for (int i = 0; i < 15; i++)
         dorado_io_write(&io, DORADO_ETHERNET_TASK_EOT,
                         DORADO_ETHERNET_TIOA_DATA, mayday[i]);
     dorado_io_write(&io, DORADO_ETHERNET_TASK_EOT,
-                    DORADO_ETHERNET_TIOA_CTL, 012345);
+                    DORADO_ETHERNET_TIOA_CTL, 0067777);   /* SendEOP  */
     EXPECT(eth.eftp_requests_seen == 1, "server saw the Mayday");
 
     /* Client receive loop. */
@@ -209,11 +231,13 @@ static int simulate_eftp_boot(const char *boot, long *out_words)
         int n = 0, bad = 0;
         for (;;) {
             EXPECT(n < (int)(sizeof pkt / sizeof pkt[0]), "packet overflow");
+            /* IOAtten is a level on the word the next read delivers
+             * (HM §11): when true, this read returns the status word. */
+            int attn = dorado_io_attention(&io, DORADO_ETHERNET_TASK_EIT,
+                                           DORADO_ETHERNET_TIOA_DATA);
             pkt[n] = dorado_io_read(&io, DORADO_ETHERNET_TASK_EIT,
                                     DORADO_ETHERNET_TIOA_DATA, &bad);
             EXPECT(!bad, "rx underrun mid-packet (n=%d)", n);
-            int attn = dorado_io_attention(&io, DORADO_ETHERNET_TASK_EIT,
-                                           DORADO_ETHERNET_TIOA_DATA);
             n++;
             if (attn) break;        /* status word = end of packet */
         }
@@ -245,9 +269,13 @@ static int simulate_eftp_boot(const char *boot, long *out_words)
             042, 01000, 026, DORADO_PUP_TYPE_EFTP_ACK, 0, expected_seq,
             0, 0, 020, 042, 0, 0, 0, 0, 0177777
         };
+        dorado_io_write(&io, DORADO_ETHERNET_TASK_EOT,
+                        DORADO_ETHERNET_TIOA_CTL, 0047777); /* TurnOnTx */
         for (int i = 0; i < 15; i++)
             dorado_io_write(&io, DORADO_ETHERNET_TASK_EOT,
                             DORADO_ETHERNET_TIOA_DATA, ack[i]);
+        dorado_io_write(&io, DORADO_ETHERNET_TASK_EOT,
+                        DORADO_ETHERNET_TIOA_CTL, 0067777); /* SendEOP  */
         expected_seq++;
     }
     EXPECT(saw_end, "transfer ended with an EFTP End");

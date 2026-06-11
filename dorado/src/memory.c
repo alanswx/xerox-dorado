@@ -360,14 +360,19 @@ void dorado_proc_srn_set(dorado_memory *mem, uint8_t srn)
 
 uint16_t dorado_fault_info(const dorado_memory *mem)
 {
-    /* High-true register layout (HM Table 11c FA=1 FB=6 FC=0).
-     * MSB-first numbering: B[8:11]=SRN, B[12:15]=NFaults.
-     * In C-LSB form, B[8:11] = bits 4..7 (LSB), B[12:15] = bits 0..3. */
+    /* High-true FaultInfo register. Field positions per the microcode
+     * (AEmu EMemDefs.mc: fi.emuFault = b8 = 0x0080, fi.numfaults =
+     * b9:11 = 0x0070; FirstFaultSRN in B[12:15]) and HM §5 "Fault
+     * Handling": FaultCnt is a 3-bit counter that reads -1 (all ones)
+     * when no faults are pending — "FirstFaultSRN ... is loaded if
+     * FaultCnt is -1 (indicating no faults)" — i.e. the field holds
+     * (number of pending faults - 1). XMFaultTask.mc depends on all
+     * three: numfaults all-ones => no fault, all-zeros => exactly one,
+     * emuFault set => the emulator's reference faulted. */
     uint16_t srn   = (uint16_t)(mem->fault_first_srn & 0xF);
-    uint16_t nf    = (uint16_t)(mem->fault_count     & 0xF);
-    /* EmulatorFault flag: place at B[7] = LSB bit 8 (one bit above SRN). */
-    uint16_t efl   = (uint16_t)((mem->fault_emulator & 1) << 8);
-    return (uint16_t)(efl | (srn << 4) | nf);
+    uint16_t cnt   = (uint16_t)(((unsigned)mem->fault_count - 1u) & 7u);
+    uint16_t efl   = (uint16_t)((mem->fault_emulator & 1) << 7);
+    return (uint16_t)(efl | (cnt << 4) | srn);
 }
 
 void dorado_fault_clear(dorado_memory *mem)
@@ -856,6 +861,18 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
          * `B<-DBuf` FF source can return the most-recent Store's
          * value (gap B3 sub-item). */
         mem->dbuf = b;
+        {
+            static long lo = -1, hi = -1;
+            if (lo == -1) {
+                const char *w = getenv("DORADO_STORE_TRACE_VA");
+                lo = 0; hi = 0;
+                if (w) sscanf(w, "%lo,%lo", &lo, &hi);
+            }
+            if (hi && va >= (uint32_t)lo && va <= (uint32_t)hi) {
+                fprintf(stderr, "STORE_VA task=%o va=%07o data=%06o\n",
+                        task & 017, va & 0x0FFFFFFFu, b & 0177777);
+            }
+        }
         /* Hit *or* miss, the WP check happens via Map (translate).
          * Per HM page 45: Store-hit does NOT set Map.Dirty — that
          * only happens when the dirty munch is later chosen as
@@ -1034,14 +1051,14 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
                     e->ref, tioa & 0xFFu, srn & 0xF);
         }
 
-        /* Update FaultInfo register state. NFaults saturates at 15
-         * (4-bit field). The first uncleared fault locks in
-         * fault_first_srn. */
+        /* Update FaultInfo register state. The first uncleared fault
+         * locks in fault_first_srn; EmulatorFault is set when the
+         * emulator's reference faulted (XMFaultTask.mc dispatches
+         * NotEmuFault when it is clear). */
         if (mem->fault_count == 0) {
             mem->fault_first_srn = (uint8_t)(srn & 0xF);
-            /* Without tasking, every ref is "from the emulator." */
-            mem->fault_emulator  = 1;
         }
+        if (task == 0) mem->fault_emulator = 1;
         if (mem->fault_count < 0xF) mem->fault_count++;
     }
 
@@ -1081,6 +1098,11 @@ const dorado_map_entry *dorado_map_get(const dorado_memory *mem,
  * FA=1 FB=2 FC=3). The "lo" half of the 28-bit BR. */
 void dorado_br_lo_load(dorado_memory *mem, int membase, uint16_t a)
 {
+    if (getenv("DORADO_BR_TRACE")) {
+        fprintf(stderr, "BRLO mb=%02o a=%06o disbr=%d ref_task=%o\n",
+                membase & 0x1F, a, dorado_mcr_disbr(mem),
+                mem->last_ref_task & 017);
+    }
     if (dorado_mcr_disbr(mem)) return;
     uint32_t cur = mem->br[membase & 0x1F];
     cur = (cur & 0xFFFF0000u) | (uint32_t)a;
@@ -1094,6 +1116,11 @@ void dorado_br_lo_load(dorado_memory *mem, int membase, uint16_t a)
  * corresponds to BR_C bits 27..16 (the upper 12 bits). */
 void dorado_br_hi_load(dorado_memory *mem, int membase, uint16_t a)
 {
+    if (getenv("DORADO_BR_TRACE")) {
+        fprintf(stderr, "BRHI mb=%02o a=%06o disbr=%d ref_task=%o\n",
+                membase & 0x1F, a, dorado_mcr_disbr(mem),
+                mem->last_ref_task & 017);
+    }
     if (dorado_mcr_disbr(mem)) return;
     uint32_t cur = mem->br[membase & 0x1F];
     /* low 12 bits of A (manual A[4:15]) into bits 27..16 of BR. */

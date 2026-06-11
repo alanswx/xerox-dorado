@@ -20,7 +20,10 @@
  * {LHparityBad, RSTK[0], RHparityBad, BLOCK}.
  *   IM   : addr=real IM address, word0=iw0, word1=(FF<<8)|JCN.
  *          Ignored by LoadRam if addr is in LoadRamPage [7600..7677].
- *   IFUM : addr=IFUM index, word0=ifum_lo, word1=ifum_hi.
+ *   IFUM : addr=IFUM index, word0=LH (fields = .MB word 1),
+ *          word1=RH (PackedA,,IFaddr' = .MB word 0). LoadRam.mc:
+ *          "IFUMLH_ Q (Load LH from word0) ... IFUMRH_ LRTemp1 (Load
+ *          RH from word1)".
  *   RM   : addr=RM index, word0=RM value, word1=0.
  *   End  : word0=checksum, word1=start address.
  *
@@ -133,7 +136,7 @@ int main(int argc, char **argv)
     /* IFUM items. */
     for (int a = 0; a < 1024; a++) {
         if (!mc.ifum_present[a]) continue;
-        ITEM((0 << 12) | 1, a, mc.ifum_lo[a], mc.ifum_hi[a]);
+        ITEM((0 << 12) | 1, a, mc.ifum_hi[a], mc.ifum_lo[a]);
         n_ifum++;
     }
     /* RM items. */
