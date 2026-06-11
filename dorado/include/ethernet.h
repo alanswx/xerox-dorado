@@ -95,6 +95,13 @@ typedef struct dorado_ethernet {
     uint16_t eftp_seq;        /* seq of the packet currently on the wire */
     uint8_t eftp_state;       /* 0 idle, 1 data on wire, 2 End on wire,
                                * 3 dally End on wire */
+    uint16_t eftp_max_seq;    /* progress: highest seq ever delivered */
+    uint32_t eftp_resend_timer; /* EFTPSPEC sender retransmission: ticks
+                                 * until the current unacked packet is
+                                 * put back on the wire. Re-armed at
+                                 * each delivery; counts down only once
+                                 * the receiver has consumed (or lost)
+                                 * the previous copy. */
 
     uint16_t *rx_words;
     uint8_t  *rx_attention;

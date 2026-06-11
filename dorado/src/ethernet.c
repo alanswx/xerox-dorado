@@ -357,6 +357,17 @@ static int eth_eftp_deliver_current(dorado_ethernet *eth)
      * arming) spans tens of thousands of cycles; a real boot server's
      * turnaround is milliseconds. 60000 ticks ~ 2 ms. */
     eth->rx_hold = 60000;
+    /* EFTPSPEC: the sender retransmits an unacknowledged packet about
+     * once a second until the Ack arrives. The receiver depends on
+     * this — EtherBoot.asm's poll loop re-arms ePLoc on its own
+     * timeout, and that store can race the EIT's InDone post and wipe
+     * it; the lost packet is then recovered only by the sender's
+     * resend (a duplicate Data packet just gets re-Acked). Ticks are
+     * ~2 per microcycle; the loader's process-and-Ack window after
+     * InDone is ~650 K cycles (~1.3 M ticks), so 3 M ticks resends
+     * only when the receiver has really lost the packet. */
+    eth->eftp_resend_timer = 3000000;
+    if (eth->eftp_seq > eth->eftp_max_seq) eth->eftp_max_seq = eth->eftp_seq;
     return 1;
 }
 
@@ -449,6 +460,12 @@ static void eth_tx_packet_done(dorado_ethernet *eth)
     if (eth->tx_count < 4) return;     /* runt: no Pup header to dispatch */
     eth->tx_complete = 1;
     eth->last_tx_pup_type = eth->tx_words[3];
+    if (getenv("DORADO_ETH_TX_TRACE")) {
+        fprintf(stderr, "TX n=%zu:", eth->tx_count);
+        for (size_t i = 0; i < eth->tx_count && i < 14; i++)
+            fprintf(stderr, " %06o", eth->tx_words[i]);
+        fprintf(stderr, "\n");
+    }
 
     /* Stage-2: a Mayday Pup is the Alto software-boot request. Serve the
      * configured Alto boot file as a LOCK-STEP EFTP stream: packet 0
@@ -464,6 +481,12 @@ static void eth_tx_packet_done(dorado_ethernet *eth)
     }
     if (eth->tx_words[1] == DORADO_PUP_TYPE_ETHERNET &&
         eth->tx_words[3] == DORADO_PUP_TYPE_EFTP_ACK) {
+        if (getenv("DORADO_ETH_TX_TRACE")) {
+            fprintf(stderr, "TX_ACK n=%zu:", eth->tx_count);
+            for (size_t i = 0; i < eth->tx_count && i < 16; i++)
+                fprintf(stderr, " %06o", eth->tx_words[i]);
+            fprintf(stderr, " (server seq=%u)\n", eth->eftp_seq);
+        }
         eth_eftp_ack(eth, eth->tx_words[5]);
         return;
     }
@@ -687,6 +710,17 @@ void dorado_ethernet_attach_to_io(dorado_ethernet *eth, dorado_io *io)
 uint16_t dorado_ethernet_wakeup_mask(dorado_ethernet *eth)
 {
     if (eth->rx_hold) eth->rx_hold--;
+    /* EFTP sender retransmission (EFTPSPEC): once the receiver has
+     * consumed (or lost) the packet on the wire without Acking it,
+     * count down and put the same packet back. The timer only runs
+     * while the rx queue is drained — an undelivered copy is still
+     * "on the wire". */
+    if (eth->eftp_state != 0 && eth->eftp_words &&
+        !eth->rx_hold && eth->rx_pos >= eth->rx_count) {
+        if (eth->eftp_resend_timer > 0 && --eth->eftp_resend_timer == 0) {
+            (void)eth_eftp_deliver_current(eth);
+        }
+    }
     /* HM §11: "EOT wakeups occur when the bus register is empty, TxOn
      * is true, and TxEOP, TxCntDwn, and NoWakeups are false." The fake
      * consumes Output<-B immediately, so the bus register is always

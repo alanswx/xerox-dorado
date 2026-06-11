@@ -6,6 +6,17 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* Harness-driven trace window gate (see tests/test_cpu.c
+ * DORADO_TRACE_GATE). Nonzero only inside the requested cycle
+ * window; debug traces that lack a cycle counter check this. */
+int dorado_trace_gate = 0;
+
+/* Debug: see memory.c STORE_VA trace. */
+extern int dorado_mem_trace_pc;
+extern int dorado_mem_trace_pcx;
+extern int dorado_mem_trace_br31;
+extern int dorado_mem_trace_op;
+
 #define DORADO_JUNK_TASK          2
 #define DORADO_JUNK_TICK_CYCLES   1000  /* 32 us / 32 ns */
 #define DORADO_B15_MASK           0x0001u
@@ -904,11 +915,15 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
         }
         if (fb == 7) {
             switch (fc) {
-            case 0: /* BigBDispatch ← B */
-                cpu->dispatch_pending = b & 0xFF;
+            case 0: /* BigBDispatch ← B. HM §4.4 p32: loads Link
+                     * from B, then ORs Link[8:15] into TNIA during
+                     * the next instruction for this task. */
+                cpu->Link = b;
+                cpu->task_dispatch[cpu->ctask] = b & 0xFF;
                 return pd;
-            case 1: /* BDispatch ← B */
-                cpu->dispatch_pending = b & 0x7;
+            case 1: /* BDispatch ← B (8-way; Link[13:15]) */
+                cpu->Link = b;
+                cpu->task_dispatch[cpu->ctask] = b & 0x7;
                 return pd;
             case 2: /* Multiply */                 return pd;  /* TBD */
             case 3: /* Q ← B */
@@ -2294,7 +2309,8 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
             cpu->ifu_pcx     = cpu->ifu_pcf;
             int fetch_faulted = 0;
             uint8_t opcode   = ifu_fetch_byte(cpu, cpu->ifu_pcf, &fetch_faulted);
-            if (getenv("DORADO_IFUDISP_TRACE")) {
+            if (getenv("DORADO_IFUDISP_TRACE") &&
+                (dorado_trace_gate || !getenv("DORADO_TRACE_GATE"))) {
                 int adr = ((cpu->ifu_insset & 3) << 8) | opcode;
                 fprintf(stderr,
                         "IFUDISP pc=0o%o pcf=0o%o br31=%05X op=%03o "
@@ -2502,15 +2518,15 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
             }
             if (fn == 5) {
                 /* LdTPC←B (HM page 34): write task_tpc[B[12:15]]
-                 * from Link. "Dispatch-pending conditions for a
-                 * task whose TPC is loaded by LdTPC← are cleared"
-                 * — we don't model dispatches yet, so no-op there. */
+                 * from Link. "Any pending dispatch conditions for
+                 * that task are cleared" (HM p32 note). */
                 uint16_t b = 0;
                 if (!ff_override_b(cpu, u, &b)) {
                     int rc = b_bus(cpu, u, &b);
                     if (rc != 0) return rc;
                 }
                 int task = b & 0xF;
+                cpu->task_dispatch[task] = 0;
                 /* "An attempt to set TPC of the running task is
                  * unpredictable" — we just no-op the write in that
                  * case; for other tasks, write the saved-TPC slot
@@ -2637,6 +2653,10 @@ int dorado_cpu_step(dorado_cpu *cpu)
 static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
 {
     (void)from_im;
+    dorado_mem_trace_pc = cpu->real_PC;
+    dorado_mem_trace_pcx = cpu->ifu_pcx;
+    dorado_mem_trace_br31 = cpu->mem ? (int)dorado_br_get(cpu->mem, 31) : 0;
+    dorado_mem_trace_op = ((int)cpu->ifu_opcode << 8) | cpu->ifu_alpha;
 
     /* Snapshot Link before FF can modify it. Write IM (in next_pc) and
      * Subroutine Return both consume Link at instruction-issue time;
@@ -2645,8 +2665,8 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
      * consumer sees the *old* value while the new value lands for the
      * next instruction. We model this by capturing the entry value. */
     cpu->link_at_issue = cpu->Link;
-    cpu->dispatch_or = cpu->dispatch_pending;
-    cpu->dispatch_pending = 0;
+    cpu->dispatch_or = cpu->task_dispatch[cpu->ctask];
+    cpu->task_dispatch[cpu->ctask] = 0;
     uint16_t md_at_issue = task_md(cpu);
     uint8_t rbase_at_issue = cpu->RBase;
     /* Memory references select their BR from the t1 (at-issue)

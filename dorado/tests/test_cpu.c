@@ -4118,7 +4118,7 @@ static int probe_full_boot_with_bootstrap(void)
             post_eb_step_trace.cnt_before = cpu.Cnt;
             post_eb_step_trace.shc_before = cpu.ShC;
             post_eb_step_trace.dispatch_or_before = cpu.dispatch_or;
-            post_eb_step_trace.dispatch_pending_before = cpu.dispatch_pending;
+            post_eb_step_trace.dispatch_pending_before = cpu.task_dispatch[cpu.ctask];
             for (int rr = 0; rr < 16; rr++)
                 post_eb_step_trace.rm_before[rr] = cpu.RM[0x40 + rr];
             for (int rr = 0; rr < 16; rr++)
@@ -4182,7 +4182,7 @@ static int probe_full_boot_with_bootstrap(void)
                 post_eb_step_trace.cnt_after = cpu.Cnt;
                 post_eb_step_trace.shc_after = cpu.ShC;
                 post_eb_step_trace.dispatch_or_after = cpu.dispatch_or;
-                post_eb_step_trace.dispatch_pending_after = cpu.dispatch_pending;
+                post_eb_step_trace.dispatch_pending_after = cpu.task_dispatch[cpu.ctask];
                 for (int rr = 0; rr < 16; rr++)
                     post_eb_step_trace.rm_after[rr] = cpu.RM[0x40 + rr];
                 for (int rr = 0; rr < 16; rr++)
@@ -4226,6 +4226,17 @@ static int probe_full_boot_with_bootstrap(void)
                     boot_decision_step_trace;
             }
             break;
+        }
+        {
+            static long tg_lo = -1, tg_hi = -1;
+            if (tg_lo == -1) {
+                const char *w = getenv("DORADO_TRACE_GATE");
+                tg_lo = 0; tg_hi = 0;
+                if (w) sscanf(w, "%ld,%ld", &tg_lo, &tg_hi);
+            }
+            dorado_trace_gate =
+                (tg_hi && bb.cycles >= (uint64_t)tg_lo &&
+                 bb.cycles <= (uint64_t)tg_hi);
         }
         {
             static long sw_lo = -1, sw_hi = -1;
@@ -4371,7 +4382,7 @@ static int probe_full_boot_with_bootstrap(void)
             post_eb_step_trace.cnt_after = cpu.Cnt;
             post_eb_step_trace.shc_after = cpu.ShC;
             post_eb_step_trace.dispatch_or_after = cpu.dispatch_or;
-            post_eb_step_trace.dispatch_pending_after = cpu.dispatch_pending;
+            post_eb_step_trace.dispatch_pending_after = cpu.task_dispatch[cpu.ctask];
             for (int rr = 0; rr < 16; rr++)
                 post_eb_step_trace.rm_after[rr] = cpu.RM[0x40 + rr];
             for (int rr = 0; rr < 16; rr++)
@@ -5229,12 +5240,15 @@ static int probe_full_boot_with_bootstrap(void)
            (unsigned long long)ethernet.data_writes,
            (unsigned long long)ethernet.data_reads);
     printf("       Ethernet Stage-2: last_tx_pup=0o%o eftp_requests=%llu "
-           "eftp_last_bfn=0o%o eftp_replies=%llu bol=%llu\n",
+           "eftp_last_bfn=0o%o eftp_replies=%llu bol=%llu "
+           "state=%u seq=%u max_seq=%u pos=%zu/%zu\n",
            ethernet.last_tx_pup_type,
            (unsigned long long)ethernet.eftp_requests_seen,
            ethernet.eftp_last_bfn,
            (unsigned long long)ethernet.eftp_replies_queued,
-           (unsigned long long)ethernet.bol_queued);
+           (unsigned long long)ethernet.bol_queued,
+           ethernet.eftp_state, ethernet.eftp_seq, ethernet.eftp_max_seq,
+           ethernet.eftp_pos, ethernet.eftp_len);
     {
         const char *eb_path =
             ether_boot_path_for_offset(&ethernet, ethernet.last_boot_offset);

@@ -65,7 +65,17 @@ typedef struct {
                                  * B←RWCPReg) doesn't clobber the
                                  * value the consumer needs. */
     uint16_t dispatch_or;        /* active one-cycle TNIA dispatch OR */
-    uint16_t dispatch_pending;   /* dispatch OR value for next uinstr */
+    uint16_t task_dispatch[16];  /* per-task pending dispatch OR. HM
+                                  * §4.4 p32: the B dispatches load
+                                  * Link from B and OR Link bits into
+                                  * TNIA "during the next instruction
+                                  * for the task. Since Link is task-
+                                  * specific, this works correctly
+                                  * across task switching." A global
+                                  * latch would let an interleaved I/O
+                                  * task consume the emulator's
+                                  * dispatch (it did: AEmu Nova skips
+                                  * died whenever the EIT was busy). */
     uint8_t io_atten_at_issue;   /* IOAttention level sampled at t1 of
                                   * the current instruction (with the
                                   * at-issue TIOA); the IOAtten' branch
@@ -348,5 +358,9 @@ uint16_t dorado_cpu_get_task_tpc(const dorado_cpu *cpu, int task);
 /* SubTask: I/O devices set the task's SubTask before/at wakeup.
  * `subtask` is 2 bits (0..3); higher bits ignored. */
 void dorado_cpu_set_subtask(dorado_cpu *cpu, int task, uint8_t subtask);
+
+/* Harness-driven cycle-window gate for env-enabled debug traces
+ * (set by tests/test_cpu.c from DORADO_TRACE_GATE="lo,hi"). */
+extern int dorado_trace_gate;
 
 #endif

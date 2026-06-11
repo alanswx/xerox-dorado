@@ -4,6 +4,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* Debug: real IM address of the microinstruction issuing the
+ * current ref (set by cpu.c each instruction; trace-only). */
+int dorado_mem_trace_pc = 0;
+int dorado_mem_trace_pcx = 0;
+int dorado_mem_trace_br31 = 0;
+int dorado_mem_trace_op = 0;
+
 static uint32_t va_cache_row(uint32_t va);
 static int cache_pick_victim(dorado_memory *mem, uint32_t va);
 
@@ -869,8 +876,13 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
                 if (w) sscanf(w, "%lo,%lo", &lo, &hi);
             }
             if (hi && va >= (uint32_t)lo && va <= (uint32_t)hi) {
-                fprintf(stderr, "STORE_VA task=%o va=%07o data=%06o\n",
-                        task & 017, va & 0x0FFFFFFFu, b & 0177777);
+                fprintf(stderr,
+                        "STORE_VA task=%o pc=0o%o va=%07o data=%06o "
+                        "pcx=0o%o br31=0o%o op=0o%o\n",
+                        task & 017, dorado_mem_trace_pc,
+                        va & 0x0FFFFFFFu, b & 0177777,
+                        dorado_mem_trace_pcx, dorado_mem_trace_br31,
+                        dorado_mem_trace_op);
             }
         }
         /* Hit *or* miss, the WP check happens via Map (translate).
