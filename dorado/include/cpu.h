@@ -260,6 +260,16 @@ typedef struct {
                                  * stale until the next switch. */
     uint16_t task_link[16];
     uint8_t  task_membase[16];
+    int16_t  ifu_dispatch_rbase; /* RBase loaded by the IFU dispatch
+                                  * inside next_pc (HM p65: "RBase is
+                                  * loaded with 0 or 1 when the IFU
+                                  * dispatches to the first instruction
+                                  * of an opcode"); -1 = no dispatch
+                                  * this instruction. execute_uinstr
+                                  * applies it AFTER restoring the
+                                  * post-FF RBase, so the at-issue
+                                  * branch-condition juggling cannot
+                                  * wipe it out. */
     uint8_t  task_rbase[16];
     uint8_t  task_tioa[16];
     uint16_t task_md[16];
@@ -362,5 +372,6 @@ void dorado_cpu_set_subtask(dorado_cpu *cpu, int task, uint8_t subtask);
 /* Harness-driven cycle-window gate for env-enabled debug traces
  * (set by tests/test_cpu.c from DORADO_TRACE_GATE="lo,hi"). */
 extern int dorado_trace_gate;
+extern unsigned long long dorado_trace_cycle;
 
 #endif

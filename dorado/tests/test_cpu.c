@@ -4250,6 +4250,7 @@ static int probe_full_boot_with_bootstrap(void)
             dorado_trace_gate =
                 (tg_hi && bb.cycles >= (uint64_t)tg_lo &&
                  bb.cycles <= (uint64_t)tg_hi);
+            dorado_trace_cycle = bb.cycles;
         }
         {
             static long sw_lo = -1, sw_hi = -1;
@@ -5750,6 +5751,12 @@ static int probe_full_boot_with_bootstrap(void)
                dorado_visible_word_at_va(&mem, mds + 0453u),
                dorado_visible_word_at_va(&mem, mds + 0426u),
                dorado_visible_word_at_va(&mem, mds + 0427u));
+        printf("       Junk Events RM (region 0o13): RTClock=%06o "
+               "RTCDeltaLo=%06o RTC430=%06o RTCFrac=%06o [4..7]=%06o "
+               "%06o %06o %06o NWW=%06o\n",
+               cpu.RM[0260], cpu.RM[0261], cpu.RM[0262], cpu.RM[0263],
+               cpu.RM[0264], cpu.RM[0265], cpu.RM[0266], cpu.RM[0267],
+               cpu.RM[0023]);
         uint16_t dcb = dastart;
         for (int i = 0; i < 6 && dcb; i++) {
             uint16_t w0 = dorado_visible_word_at_va(&mem, mds + dcb);

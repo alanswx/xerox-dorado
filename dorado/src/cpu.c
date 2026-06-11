@@ -11,6 +11,9 @@
  * window; debug traces that lack a cycle counter check this. */
 int dorado_trace_gate = 0;
 
+/* Harness-maintained cycle counter for cpu-level debug prints. */
+unsigned long long dorado_trace_cycle = 0;
+
 /* Debug: see memory.c STORE_VA trace. */
 extern int dorado_mem_trace_pc;
 extern int dorado_mem_trace_pcx;
@@ -469,7 +472,27 @@ static void rm_stk_write(dorado_cpu *cpu, int idx, uint16_t value)
 {
     if (idx >= CPU_RMSTK_INVALID) return;
     if (idx >= CPU_RMSTK_STK_BASE) cpu->STK[idx & 0xFF] = value;
-    else                            cpu->RM[idx & 0xFF]  = value;
+    else {
+        {
+            static long watch = -2;
+            if (watch == -2) {
+                const char *w = getenv("DORADO_RM_WATCH");
+                watch = w ? strtol(w, NULL, 8) : -1;
+            }
+            if (watch >= 0 && (idx & 0xFF) == watch) {
+                static long n = 0;
+                if (n++ < 100)
+                    fprintf(stderr,
+                            "RM_WATCH cyc=%llu RM[%03lo]=%06o task=%o "
+                            "pc=0o%o rb=%02o pcx=0o%o op=%03o\n",
+                            dorado_trace_cycle, watch,
+                            value & 0177777, cpu->ctask,
+                            cpu->real_PC, cpu->RBase & 017,
+                            cpu->ifu_pcx, cpu->ifu_opcode);
+            }
+        }
+        cpu->RM[idx & 0xFF] = value;
+    }
 }
 
 /*
@@ -2071,8 +2094,14 @@ static void ifu_decode_lh(dorado_cpu *cpu, uint16_t lh)
     } else {
         cpu->MemBase = (uint8_t)(034 + memb12);
     }
-    /* RBaseB' is low-true; RBase ← RBaseB. */
+    /* RBaseB' is low-true; RBase ← RBaseB. Recorded separately:
+     * execute_uinstr saves/restores RBase around next_pc for the
+     * at-issue branch semantics, which would silently wipe this
+     * load (RCLK exits with RBase[RTClock]; the next opcode's CRY
+     * writes then landed on RTCDeltaLo, zeroing it and turning on
+     * the junk task's PC-sampling memory spray). */
     cpu->RBase = !((lh >> 9) & 1);
+    cpu->ifu_dispatch_rbase = (int16_t)cpu->RBase;
 }
 
 /* Decode an IFUM entry's address half (IFUMRH, HM Table 20):
@@ -2678,6 +2707,17 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
      * pipelined hardware reads Link at t1 and writes at t3, so the
      * consumer sees the *old* value while the new value lands for the
      * next instruction. We model this by capturing the entry value. */
+    if (dorado_trace_gate && getenv("DORADO_RBASE_TRACE")) {
+        static uint8_t prev_rb = 0xFF;
+        static int prev_task = -1;
+        if (cpu->ctask == 0 &&
+            (cpu->RBase != prev_rb || prev_task != 0)) {
+            fprintf(stderr, "RBASE task=0 pc=0o%o rb=%02o\n",
+                    cpu->real_PC, cpu->RBase & 017);
+            prev_rb = (uint8_t)cpu->RBase;
+        }
+        prev_task = cpu->ctask;
+    }
     cpu->link_at_issue = cpu->Link;
     cpu->dispatch_or = cpu->task_dispatch[cpu->ctask];
     cpu->task_dispatch[cpu->ctask] = 0;
@@ -3003,8 +3043,14 @@ memory_ref_done: ;
     uint16_t np = (uint16_t)(cpu->real_PC + 1);
     uint8_t rbase_after_ff = cpu->RBase;
     cpu->RBase = rbase_at_issue;
+    cpu->ifu_dispatch_rbase = -1;
     rc = next_pc(cpu, u, &np);
-    cpu->RBase = rbase_after_ff;
+    /* An IFU dispatch loads RBase from the IFUM entry at t0 of the
+     * entry instruction (HM p65) — after any FF RBase change in the
+     * IFUJump instruction itself. */
+    cpu->RBase = (cpu->ifu_dispatch_rbase >= 0)
+               ? (uint8_t)cpu->ifu_dispatch_rbase
+               : rbase_after_ff;
     if (rc != 0) {
         cpu->halted = 1;
         cpu->halt_reason = rc;
