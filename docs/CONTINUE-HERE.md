@@ -124,54 +124,38 @@ Notes:
 
 ## THE OPEN QUESTION (resume here)
 
-(The previous open question — mkone/sio — was the missing FF A-source
-overrides, fixed. The Mayday now transmits and the lock-step EFTP
-server answers.)
+State: Mayday transmits; the LOCK-STEP EFTP server answers (one packet
+on the wire, next released by its Ack; 60000-poll in-flight hold during
+which reads/IOAtten/wakeups see an empty wire); EFTP packets now carry
+the dummy hardware CRC word (12 hdr + 256 data + pup-cksum + CRC +
+status = 271 words) so the receive ends on AltoEther.mc's designed
+"buffer exactly full, T holds the CRC, next input is the status" path
+and posts InDone (0o377) cleanly WHEN it completes.
 
-Current state: the loader broadcasts the Mayday; the server (now
-LOCK-STEP per EFTPSPEC: one packet on the wire, next released by its
-Ack; `eftp_state/seq/pos` in dorado_ethernet) delivers packet 0 with a
-60000-poll "in flight" hold (reads/attention/wakeups see an empty wire
-until it expires — true server-turnaround latency). The EIT receives
-all 270 words... and the END-OF-PACKET BOUNDARY IS MISSED: the count
-runs out without the IOAtten branch firing at the store of word 269,
-so the EIT takes the buffer-full check, reads the status as data, and
-posts InBufOverflow instead of InDone. ~20 of 70 attempts get that
-far; the rest lose the packet earlier (a stale latched EIT wakeup
-ghost-runs during the hold: bad read 0xFFFF -> address filter reject ->
-WaitForBOP; now harmless to the queue but the wakeup-latch semantics
-deserve a real fix — the controller wakeup is a LEVEL, and a latched
-pending bit surviving the level drop is the root of several races; a
-naive clear in the harness broke the BoL receive, so model it in the
-cpu propery if attempted).
-
-Next probes:
-1. Why does atten[269] not fire at the W269 store? eth_attention is
-   gated on `!rx_hold` — verify rx_hold is 0 there (it should have
-   expired); check `io_atten_at_issue` sampling vs the EIT's
-   block/wakeup boundaries (the sample happens at instruction issue;
-   the store instruction follows a Block — TIOA at re-entry?).
-2. The posts: only 22 ePLoc posts for 70 attempts — 48 receives ended
-   with NO post at all. EIPost stores via ECBR (MemBase 0o31). Check
-   where those stores went (STORE_VA 0,10000000 to catch all).
-3. boot6 "accepts good input or buffer overrun" (rec1b's mysterious
-   ands) — an InBufOverflow post may actually be ACCEPTED; trace what
-   boot6 does after the 0o1377 post (the 1-word-short store means the
-   pup checksum landed where the loader looks for... nothing critical;
-   data words are all present).
-4. Packet sizing: our EFTP data packet is 12 hdr + 256 data + nil-pup-
-   cksum + status = 270 words; the real wire also has a hardware CRC
-   word between pup-cksum and status (271 total). The loader's
-   maxLength=269 expects 12+256+1; adding a dummy CRC word would make
-   the boundary land exactly like Stage-1's reply packets (which DO
-   carry a dummy CRC and work). STRONG CANDIDATE: append a dummy CRC
-   word in append_eftp_packet (then the count-exhaust store coincides
-   with atten like AltoEther.mc's comment describes).
-
-Debug: `DORADO_ETH_TRACE=999999999` full controller op trace;
-`DORADO_STORE_TRACE_VA="600,610"` posts/block stores (memory.c-level,
-catches stores in IFUJump-tailed instructions that REF_W misreports);
-`DORADO_ATTEN_TRACE=1` attention sampling (device+cpu lines adjacent).
+Remaining (one focused timing investigation): of ~70 Mayday attempts in
+a 400M-cycle budget, only ~21 packet-0 receives complete; the other ~49
+read ~200 of 271 words and then stop with NO post — consistent with the
+loader's boot4 poll loop giving up (jmp boot2 -> sio c3-reset -> EResI
+-> TurnOffRx) while the packet is still arriving, killing the EIT
+mid-receive. Numbers to reconcile:
+- The 60000-poll hold delays first-word arrival ~60K cycles; the EIT
+  then needs ~271 wakeup round-trips. Measure the full packet-0 arrival
+  time vs the loader's boot4 poll budget (the dsz timeout cell is the
+  Mayday pupID word, initially 0 -> 64K decrements, each poll iteration
+  ~5 opcodes; ALSO `dsz retries` = 30 retries).
+- The EOT posted OutDone 102x and LoadOverflow 4x for ~91 sends: the
+  transmitter is retrying internally sometimes (ELoad doubling). Find
+  what makes a send "fail" in those cases (EOAbrt? status read?).
+- Wakeup-per-word pacing: each EIT word costs a Block + harness wakeup
+  poll; if our scheduler adds latency per word the 271-word receive may
+  just be too slow vs the Alto-coded timeout. Consider reducing the
+  hold (it only needs to outlast the loader's re-arm, ~10-30K) and/or
+  letting the EIT batch multiple words per wakeup (real FIFO holds 16).
+- A stale latched EIT wakeup can still ghost-run during the hold (bad
+  read 0xFFFF -> filter reject -> WaitForBOP no-op). Root fix: model
+  wakeup-as-level in the cpu (a naive harness-side pending-clear broke
+  the BoL receive - the EIT legitimately holds a pending wake across
+  the loader's polls; be careful).
 
 ## After that (the rest of the chain, already built and unit-tested)
 

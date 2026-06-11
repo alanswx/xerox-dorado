@@ -273,6 +273,16 @@ static int append_eftp_packet(dorado_ethernet *eth, size_t *cap,
         if (!append_rx_word(eth, cap, payload[i], 0)) return 0;
     }
     if (!append_rx_word(eth, cap, 0177777, 0)) return 0; /* nil Pup cksum */
+    /* The hardware CRC word follows the Pup on the real wire (HM 11:
+     * "the receiver delivers first the CRC word and then a status
+     * word"). AltoEther.mc's receive depends on it: the loader's
+     * eICLoc=269 covers hdr+data+pup-cksum exactly; the loop then
+     * reads the CRC as its buffer-full extra word and the IOAtten test
+     * at that instruction sees the status next ("the word in T is the
+     * CRC and the next input is the status"). Without the CRC word the
+     * status arrives one slot early and every packet posts
+     * InBufOverflow instead of InDone. */
+    if (!append_rx_word(eth, cap, 0, 0)) return 0;       /* dummy HW CRC  */
     if (!append_rx_word(eth, cap, 0, 1)) return 0;       /* good status   */
     eth->eftp_replies_queued++;
     return 1;

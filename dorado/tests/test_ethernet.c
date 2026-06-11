@@ -254,9 +254,10 @@ static int simulate_eftp_boot(const char *boot, long *out_words)
             n++;
             if (attn) break;        /* status word = end of packet */
         }
-        /* Layout: 12 header + N payload + checksum + status. */
-        EXPECT(n >= 14, "short packet n=%d", n);
-        long npay = n - 14;
+        /* Layout: 12 header + N payload + pup checksum + HW CRC +
+         * status. */
+        EXPECT(n >= 15, "short packet n=%d", n);
+        long npay = n - 15;
         EXPECT(pkt[1] == 01000, "ether type 0o%o", pkt[1]);
         EXPECT(pkt[5] == expected_seq, "seq %u != expected %u",
                pkt[5], expected_seq);
