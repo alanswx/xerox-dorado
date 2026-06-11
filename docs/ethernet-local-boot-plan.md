@@ -609,8 +609,37 @@ Two concrete results:
      Command: `mb2eb -l out.eb 01076 Initial.mb kernel.mb memMisc.mb
      IfuComplex.mb AEmu.mb!2`.
 
+**UPDATE 2026-06-10c (CORRECTION - the carry hypothesis below is RETRACTED).**
+A direct hypothesis test disproved the carry story in UPDATE-b: forcing
+`alu_carry=1` at `GetEmulatorMapParams`' 2nd entry (0o3240) did NOT change its
+branch - call#2 still went to 0o4004 (a temporary `DORADO_FORCE_GEMP_CARRY`
+diagnostic printed `FORCE carry=1 ... n=2` then `after-0o3240 next pc=0o4004`).
+So 0o3240 is NOT a `Carry'`-conditional branch; the "fast" JCN there resolves
+to the correct caller-continuation for each call (call#1 -> 0o3256 = MapInitLoop
+continuation; call#2 -> 0o4004 = EndOfStorage continuation). The carry/zero
+difference at entry was real but NOT what drives the divergence.
+
+What remains VERIFIED:
+  - `AEmu.mb!2` is the complete Alto-emulator boot vehicle (see below).
+  - The boot derails before ABoot because every emulator BR is bank 0xD24
+    (SetupBRs @0o1176 reads `EmuBRHiReg`=0xD24 and BrHi's it into all BRs).
+  - `EmuBRHiReg`=0xD24 == Initial's STALE RM value, and the `.eb` loads no RM.
+  - EndOfStorage's `EmuBRHiReg_ T` (InitMem.mc line 78) is supposed to
+    overwrite it. The 2nd-call trace showed T=0x8000 at the EndOfStorage
+    continuation (0o4004=line75 `ITemp0_T`), then `T_ T AND 7777C` -> T=0,
+    which would set `EmuBRHiReg`=0 (correct!). Yet SetupBRs later reads 0xD24.
+  - LEADING (unconfirmed) hypothesis now: the `EmuBRHiReg_ T` write at line 78
+    is NOT actually reached on the boot path (the EndOfStorage continuation
+    stalls/branches away - the 2nd-call trace ended spinning at 0o4104), so
+    `EmuBRHiReg` keeps Initial's stale 0xD24. Next step: trace whether the
+    instruction that writes `EmuBRHiReg`'s RM slot executes post-LoadRam, and
+    if not, why the EndOfStorage path diverges before line 78.
+
+The carry-specific text below is left for history but is superseded by this
+correction.
+
 **UPDATE 2026-06-10b (AEmu.mb!2 is the boot vehicle; MDS=0xD24 traced to a
-carry-flag bug in InitMap). Complete instruction-level root cause.**
+carry-flag bug in InitMap). [SUPERSEDED by 2026-06-10c - carry part WRONG.]**
 
 Switched the boot vehicle from `AltoMesaDorado.eb` (Mesa world, DMesaDefs
 layout, no symbols) to **`AEmu.mb!2`** - which `mbdis` shows is the COMPLETE,
