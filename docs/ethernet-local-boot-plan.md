@@ -609,6 +609,61 @@ Two concrete results:
      Command: `mb2eb -l out.eb 01076 Initial.mb kernel.mb memMisc.mb
      IfuComplex.mb AEmu.mb!2`.
 
+**UPDATE 2026-06-10b (AEmu.mb!2 is the boot vehicle; MDS=0xD24 traced to a
+carry-flag bug in InitMap). Complete instruction-level root cause.**
+
+Switched the boot vehicle from `AltoMesaDorado.eb` (Mesa world, DMesaDefs
+layout, no symbols) to **`AEmu.mb!2`** - which `mbdis` shows is the COMPLETE,
+self-contained Alto-emulator world WITH symbols and the ADefs layout: it
+defines `GetEmulatorMapParams` (@0o3240), `ABoot` (@0o724), `EBoot` (@0o2006),
+`DiskBoot` (@0o2005), `InitMap`, `SetupBRs`, the junk/display/disk tasks, etc.
+Build the boot `.eb` with `mb2eb AEmu.mb!2 /tmp/aemu_only.eb 01076`; serve via
+`DORADO_ETH_BOOT_110=/tmp/aemu_only.eb` with `DORADO_ALTO_BOOT_ETHERNET=1
+DORADO_ONLY_FULLBOOT=1 DORADO_NO_DISK=1 DORADO_STORAGE_MODULES=1`.
+
+The boot now runs InitMap -> StartEmulator -> SetupBRs -> InitTasks, but
+derails BEFORE ABoot (task 0 spins at the 0o4000 trap; every ref shows the
+wild `mar=0xD24FE1F`). Full root-cause chain (all instruction-verified with
+temporary traces; the AEmu.mb!2 symbols made this tractable):
+
+1. The derail is because **all emulator base registers get bank 0xD24**.
+   `SetupBRs`' DoBRs loop (@0o1176) does `BrHi_ EmuBRHiReg` into every BR,
+   and `EmuBRHiReg` = 0xD24.
+2. `EmuBRHiReg` is set ONLY by InitMem.mc's `EndOfStorage`:
+   `Call[GetEmulatorMapParams]; T_ T AND 7777C; EmuBRHiReg_ T`. The `.eb`
+   loads NO RM (RM=0), so if this didn't run, EmuBRHiReg would keep Initial's
+   stale RM - but it DOES run.
+3. `GetEmulatorMapParams` is called twice: call#1 (MapInitLoop) returns
+   **T=0** (correct - InitMem.mc says it "should be 0 in all emulators except
+   Lisp"); call#2 (EndOfStorage) returns **T=0xD24** (wrong).
+4. The divergence is at `GetEmulatorMapParams`' first instruction (@0o3240):
+   it does a LOGICAL op and a `Carry'`-conditioned "fast" branch. Both calls
+   reach it with identical RBase (0o4) and identical A (0x0004) - so the
+   branch is decided purely by the CARRIED carry flag. Call#1 enters with
+   **carry=1** -> 0o3256 (returns 0); call#2 enters with **carry=0** -> 0o4004
+   (returns 0xD24).
+5. The carry entering call#2 is WRONG. A predecessor trace of the final
+   map-loop iteration shows carry transitioning **1 -> 0 across NextMapEntry
+   (0o3263 -> 0o3271)** and staying 0 through FindModule/EndOfStorage. On real
+   hardware EndOfStorage must leave carry=1 (so GetEmulatorMapParams returns 0
+   like call#1). The flip point is `NextMapEntry`'s 0o3263 (ALUF=4 ->
+   ALUFM[4]=0o111000, an ARITHMETIC op, ASEL=A<-T): in the final map-loop
+   iteration its carry-out is 0, but EndOfStorage needs carry=1.
+   (`GetEmulatorMapParams`@0o3240 itself is ALUFM[0]=0o12400 = op `B`, a
+   LOGICAL op that preserves caller carry and tests it - so the bug is the
+   carry NextMapEntry leaves, not 0o3240.) Likely an ALUFM[4] carry-out
+   computation error in cpu.c `alu_op`, or interaction with the long-known
+   stubbed `Carry20`/`XorSavedCarry` (cpu.c ~779) - HM Table 9.
+
+**Next step (focused):** disassemble `NextMapEntry`'s 0o3263-area ALU ops,
+determine the correct `Carry'` behavior per HM Table 9, and fix the carry
+update in cpu.c `alu_op`/the FF carry functions so EndOfStorage leaves
+carry=1. That makes `GetEmulatorMapParams` call#2 return 0, `EmuBRHiReg`=0,
+the BRs map to bank 0, and the boot should reach ABoot (then the BS-down
+keyboard seed -> EBoot -> Mayday -> EFTP -> NetExec). The earlier
+`DORADO_FORCE_MDS_BANK=1` diagnostic already confirms that with a sane MDS the
+keyboard reads BS-down correctly.
+
 **UPDATE 2026-06-10 (MDS corruption is a deep root; RTC works in isolation).**
 Two findings, building on the DWT fix:
   1. **The multi-scenario probe was corrupting shared state.** Running the
