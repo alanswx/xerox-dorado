@@ -18,7 +18,7 @@ extern int dorado_mem_trace_br31;
 extern int dorado_mem_trace_op;
 
 #define DORADO_JUNK_TASK          2
-#define DORADO_JUNK_TICK_CYCLES   1000  /* 32 us / 32 ns */
+#define DORADO_JUNK_TICK_CYCLES   533   /* 32 us / 60 ns microcycle */
 #define DORADO_B15_MASK           0x0001u
 
 /* Forward declarations for IFU helpers (defined later in this file). */
@@ -124,6 +124,13 @@ static int task_bnt(uint16_t avail)
 
 static void junk_timer_enable(dorado_cpu *cpu, int enable)
 {
+    if (getenv("DORADO_JUNK_TRACE") &&
+        cpu->junk_tw_enabled != (enable ? 1 : 0)) {
+        static long n = 0;
+        if (n++ < 200)
+            fprintf(stderr, "JUNK_EN %d task=%o pc=0o%o\n",
+                    enable ? 1 : 0, cpu->ctask, cpu->real_PC);
+    }
     cpu->wakeup_pending &= (uint16_t)~(1u << DORADO_JUNK_TASK);
     cpu->junk_tw_enabled = enable ? 1 : 0;
     if (cpu->junk_tw_enabled && cpu->junk_tw_countdown == 0) {
@@ -1106,7 +1113,14 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                 cpu->ifu_type_pause = 0;
                 cpu->brk_pending = 0;
                 cpu->brk_opcode = 0;
-                junk_timer_ifutest_control(cpu, DORADO_B15_MASK);
+                /* HM p67 IFUTest description: "load with 0 or do
+                 * IFUReset when not testing" - IFUReset clears the
+                 * test-control register, and "when IFUTest.15 is 0,
+                 * the junk wakeups occur" periodically. So IFUReset
+                 * ENABLES the 32 us junk timer (AEmu's ABoot relies
+                 * on this: its IFUReset precedes the junk task
+                 * maintaining RTClock at full rate). */
+                junk_timer_ifutest_control(cpu, 0);
                 return pd;
             case 7: /* BrkIns ← B (HM §4.10). Opcode ← B[0:7] and set
                      * BrkPending; the next IFU dispatch will trap to

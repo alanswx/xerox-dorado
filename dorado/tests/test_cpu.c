@@ -5735,6 +5735,35 @@ static int probe_full_boot_with_bootstrap(void)
            (unsigned long long)disk.sector_tw_clears,
            (unsigned long long)disk.tag_tw_sets,
            (unsigned long long)disk.tag_tw_clears);
+    {
+        /* Alto display/interrupt state at probe end: walk the DCB
+         * chain from DASTART (VM 420) and dump the page-1 interrupt
+         * cells (NWW shadow 453=ACTIVE, 452=WW) plus the vertical
+         * interrupt mask (421). All through MDS base. */
+        uint32_t mds = dorado_br_get(&mem, 036);
+        uint16_t dastart = dorado_visible_word_at_va(&mem, mds + 0420u);
+        printf("       Alto display: DASTART=%06o vmask=%06o WW=%06o "
+               "ACTIVE=%06o cursorX=%06o cursorY=%06o\n",
+               dastart,
+               dorado_visible_word_at_va(&mem, mds + 0421u),
+               dorado_visible_word_at_va(&mem, mds + 0452u),
+               dorado_visible_word_at_va(&mem, mds + 0453u),
+               dorado_visible_word_at_va(&mem, mds + 0426u),
+               dorado_visible_word_at_va(&mem, mds + 0427u));
+        uint16_t dcb = dastart;
+        for (int i = 0; i < 6 && dcb; i++) {
+            uint16_t w0 = dorado_visible_word_at_va(&mem, mds + dcb);
+            uint16_t w1 = dorado_visible_word_at_va(&mem, mds + dcb + 1u);
+            uint16_t w2 = dorado_visible_word_at_va(&mem, mds + dcb + 2u);
+            uint16_t w3 = dorado_visible_word_at_va(&mem, mds + dcb + 3u);
+            printf("       Alto DCB[%d]@%06o: next=%06o ctl=%06o "
+                   "(res=%d inv=%d htab=%d nwrds=%d) SA=%06o SLC=%d\n",
+                   i, dcb, w0, w1,
+                   (w1 >> 15) & 1, (w1 >> 14) & 1, (w1 >> 8) & 077,
+                   w1 & 0377, w2, w3);
+            dcb = w0;
+        }
+    }
     printf("       Pilot CSB.next watch: nonzero=%llu first=%04X@%llu "
            "last=%04X@%llu\n",
            (unsigned long long)pilot_csb_next_nonzero,
@@ -7843,15 +7872,15 @@ static int test_ifutest_junk_timer_polarity(void)
     return 0;
 }
 
-static int test_ifureset_disables_junk_timer(void)
+static int test_ifureset_enables_junk_timer(void)
 {
     dorado_microcode mc;
     memset(&mc, 0, sizeof mc);
     mc.alufm[0] = 025; mc.alufm_present[0] = 1;   /* B */
 
-    /* IFUReset is FA=1 FB=3 FC=6. HM §8.3 says it loads IFUTest with
-     * 1; in our C-LSB representation that sets Dorado bit 15 and
-     * disables periodic junk wakeups. */
+    /* IFUReset is FA=1 FB=3 FC=6. HM p67: IFUReset is equivalent to
+     * IFUTest<-0 ("load with 0 or do IFUReset when not testing"), and
+     * with IFUTest.15 = 0 the periodic junk wakeups are ENABLED. */
     mc.im[0] = make_uinstr(0, 0, 0, 0, 6, 0, 0136, jcn_local(1));
     mc.im_present[0] = 1;
     mc.im[1] = make_uinstr(0, 0, 0, 0, 6, 0, 0077, jcn_local(1));
@@ -7882,12 +7911,12 @@ static int test_ifureset_disables_junk_timer(void)
            "IFUReset should clear BrkPending");
     EXPECT(cpu.brk_opcode == 0,
            "IFUReset should clear BrkIns opcode");
-    EXPECT(cpu.junk_tw_enabled == 0,
-           "IFUReset should disable junk timer");
+    EXPECT(cpu.junk_tw_enabled == 1,
+           "IFUReset should leave the junk timer enabled (IFUTest=0)");
     EXPECT((cpu.wakeup_pending & (1u << 2)) == 0,
-           "IFUReset should dismiss pending junk wakeup");
+           "IFUReset should dismiss the pending junk wakeup");
 
-    printf("PASS  test_ifureset_disables_junk_timer\n");
+    printf("PASS  test_ifureset_enables_junk_timer\n");
     return 0;
 }
 
@@ -9308,7 +9337,7 @@ int main(void)
     rc |= test_wakeup_ff_function();
     rc |= test_junk_timer_wakeup();
     rc |= test_ifutest_junk_timer_polarity();
-    rc |= test_ifureset_disables_junk_timer();
+    rc |= test_ifureset_enables_junk_timer();
     rc |= test_subtask_or_rm();
     rc |= test_ifum_load_read();
     rc |= test_ifu_dispatch_synthetic();
