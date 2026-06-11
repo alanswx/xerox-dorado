@@ -64,6 +64,8 @@ void dorado_ethernet_free(dorado_ethernet *eth)
 {
     if (!eth) return;
     eth_clear_rx(eth);
+    free(eth->eftp_words);
+    eth->eftp_words = NULL;
 }
 
 void dorado_ethernet_set_boot_file(dorado_ethernet *eth,
@@ -308,32 +310,79 @@ static int eth_queue_eftp_boot(dorado_ethernet *eth, uint16_t bfn)
     }
     fclose(fp);
 
+    free(eth->eftp_words);
+    eth->eftp_words = payload;
+    eth->eftp_len = payload_n;
+    eth->eftp_pos = 0;
+    eth->eftp_seq = 0;
+    eth->eftp_state = 1;
+    return 1;
+}
+
+/* Put the current lock-step packet (per eftp_state/seq/pos) on the
+ * wire as the only rx content, with a short server-turnaround hold so
+ * the loader's poll loop is armed before the packet "arrives". */
+static int eth_eftp_deliver_current(dorado_ethernet *eth)
+{
     eth_clear_rx(eth);
     size_t cap = 0;
-    size_t pos = 0;
-    uint16_t seq = 0;
-    while (pos < payload_n) {
-        size_t n = payload_n - pos;
+    int ok;
+    if (eth->eftp_state == 1) {
+        size_t n = eth->eftp_len - eth->eftp_pos;
         if (n > DORADO_EFTP_DATA_WORDS) n = DORADO_EFTP_DATA_WORDS;
-        if (!append_eftp_packet(eth, &cap, seq, DORADO_PUP_TYPE_EFTP_DATA,
-                                &payload[pos], n)) {
-            free(payload);
-            eth_clear_rx(eth);
-            return 0;
-        }
-        pos += n;
-        seq++;
+        ok = append_eftp_packet(eth, &cap, eth->eftp_seq,
+                                DORADO_PUP_TYPE_EFTP_DATA,
+                                &eth->eftp_words[eth->eftp_pos], n);
+    } else {
+        /* End (state 2) and the dally End (state 3): no data. */
+        ok = append_eftp_packet(eth, &cap, eth->eftp_seq,
+                                DORADO_PUP_TYPE_EFTP_END, NULL, 0);
     }
-    free(payload);
-
-    /* EFTPEnd carries the next sequence number and no data. */
-    if (!append_eftp_packet(eth, &cap, seq, DORADO_PUP_TYPE_EFTP_END,
-                            NULL, 0)) {
-        eth_clear_rx(eth);
-        return 0;
-    }
+    if (!ok) { eth_clear_rx(eth); return 0; }
     eth->rx_pos = 0;
+    /* Server turnaround: hold EIT wakeups (in wakeup-poll ticks,
+     * ~1/BB-cycle) so a stale receiver-enable window cannot steal
+     * the packet before the loader re-arms its control block. The
+     * post-Mayday window (EOT wrap-up + DoEtherOutput return + boot3
+     * arming) spans tens of thousands of cycles; a real boot server's
+     * turnaround is milliseconds. 60000 ticks ~ 2 ms. */
+    eth->rx_hold = 60000;
     return 1;
+}
+
+/* Lock-step advance on the receiver's EFTP Ack (EFTPSPEC): the Ack
+ * for the packet on the wire releases the next Data packet, then the
+ * End, then one more End to close the receiver's dally. A duplicate
+ * Ack (older seq) retransmits the current packet. */
+static void eth_eftp_ack(dorado_ethernet *eth, uint16_t acked_seq)
+{
+    if (eth->eftp_state == 0 || !eth->eftp_words) return;
+    if (acked_seq != eth->eftp_seq) {
+        (void)eth_eftp_deliver_current(eth);   /* dup/old Ack: resend */
+        return;
+    }
+    switch (eth->eftp_state) {
+    case 1: {
+        size_t n = eth->eftp_len - eth->eftp_pos;
+        if (n > DORADO_EFTP_DATA_WORDS) n = DORADO_EFTP_DATA_WORDS;
+        eth->eftp_pos += n;
+        eth->eftp_seq++;
+        if (eth->eftp_pos >= eth->eftp_len) eth->eftp_state = 2;
+        break;
+    }
+    case 2:
+        /* The End was Acked; send one more End (dally close) with the
+         * next seq, then the transfer is over. */
+        eth->eftp_seq++;
+        eth->eftp_state = 3;
+        break;
+    case 3:
+    default:
+        eth->eftp_state = 0;
+        return;
+    }
+    (void)eth_eftp_deliver_current(eth);
+    if (eth->eftp_state == 3) eth->eftp_state = 0;
 }
 
 /* The Alto Ethernet boot loader, served as the payload of a
@@ -392,12 +441,20 @@ static void eth_tx_packet_done(dorado_ethernet *eth)
     eth->last_tx_pup_type = eth->tx_words[3];
 
     /* Stage-2: a Mayday Pup is the Alto software-boot request. Serve the
-     * configured Alto boot file as an EFTP stream. */
+     * configured Alto boot file as a LOCK-STEP EFTP stream: packet 0
+     * now, each next packet on the previous one's Ack. */
     if (eth->tx_words[1] == DORADO_PUP_TYPE_ETHERNET &&
         eth->tx_words[3] == DORADO_PUP_TYPE_MAYDAY) {
         eth->eftp_requests_seen++;
         eth->eftp_last_bfn = eth->tx_words[5];
-        (void)eth_queue_eftp_boot(eth, eth->eftp_last_bfn);
+        if (eth_queue_eftp_boot(eth, eth->eftp_last_bfn)) {
+            (void)eth_eftp_deliver_current(eth);
+        }
+        return;
+    }
+    if (eth->tx_words[1] == DORADO_PUP_TYPE_ETHERNET &&
+        eth->tx_words[3] == DORADO_PUP_TYPE_EFTP_ACK) {
+        eth_eftp_ack(eth, eth->tx_words[5]);
         return;
     }
 
@@ -428,6 +485,7 @@ int dorado_ethernet_breath_of_life(dorado_ethernet *eth)
      * everything already queued (a real Alto discards them otherwise,
      * and the prequeued reply streams must not be polluted). */
     if (!eth->rx_on || eth->rx_pos < eth->rx_count) return 0;
+    if (eth->eftp_state != 0) return 0;   /* EFTP transfer in flight */
 
     eth_clear_rx(eth);
     size_t cap = 0;
@@ -462,7 +520,9 @@ static uint16_t eth_read(void *ctx, int task, int subtask,
     }
 
     eth->data_reads++;
-    if (eth->rx_pos >= eth->rx_count) {
+    if (eth->rx_pos >= eth->rx_count || eth->rx_hold) {
+        /* rx_hold: the packet is still "on the wire" (network /
+         * server turnaround) — nothing has reached the bus register. */
         if (bad) *bad = 1;
         return 0xFFFF;
     }
@@ -533,17 +593,21 @@ static void eth_write(void *ctx, int task, int subtask,
                  * instant re-wakeup runs EIIdle with count=0, posts
                  * CountZero, and eats the next packet's first word).
                  * Model the drain as a wakeup-poll hold. */
-                uint32_t skipped = 0;
-                while (eth->rx_pos < eth->rx_count &&
-                       !eth->rx_attention[eth->rx_pos]) {
-                    eth->rx_pos++;
-                    skipped++;
+                if (!eth->rx_hold) {
+                    uint32_t skipped = 0;
+                    while (eth->rx_pos < eth->rx_count &&
+                           !eth->rx_attention[eth->rx_pos]) {
+                        eth->rx_pos++;
+                        skipped++;
+                    }
+                    if (eth->rx_pos < eth->rx_count) {
+                        eth->rx_pos++;
+                        skipped++;
+                    }
+                    eth->rx_hold = skipped * 170u;
                 }
-                if (eth->rx_pos < eth->rx_count) {
-                    eth->rx_pos++;
-                    skipped++;
-                }
-                eth->rx_hold = skipped * 170u;
+                /* During a hold nothing has arrived yet, so there is
+                 * nothing to discard: WaitForBOP just waits. */
             }
             eth->rx_on = on;
         }
@@ -583,7 +647,8 @@ static int eth_attention(void *ctx, int task, uint8_t tioa)
     }
     if (task == DORADO_ETHERNET_TASK_EIT &&
         tioa == DORADO_ETHERNET_TIOA_DATA) {
-        return eth->rx_pos < eth->rx_count &&
+        return !eth->rx_hold &&
+               eth->rx_pos < eth->rx_count &&
                eth->rx_attention[eth->rx_pos];
     }
     return 0;

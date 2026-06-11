@@ -124,42 +124,54 @@ Notes:
 
 ## THE OPEN QUESTION (resume here)
 
-The loader (Alto code, running correctly) reaches `DoEtherOutput`:
-`mkone 0 0; sio` — AC0 must be 1 (etherOutputCommand) so ESIO
-(AltoEtherEmu.mc) dispatches "01 -- Start transmitter" -> TurnOnTx ->
-EOT sends the 13-word Mayday at eOPLoc=0o37/eOCLoc=13 (verified correct
-in memory). Observed: no TurnOnTx is ever written; the flow behaves
-like `Branch[SIONop, ALU=0]` (control bits 0) — i.e. **AC0 = 0 after
-`mkone`**.
+(The previous open question — mkone/sio — was the missing FF A-source
+overrides, fixed. The Mayday now transmits and the lock-step EFTP
+server answers.)
 
-`mkone 0 0` = Nova `subzl 0 0` (0o102520): AC0 <- (0 - 0) with the
-carry trick, shifted left, = 1. AEmu emulates Nova arith opcodes
-(A-Group.mc, EmIFUArith entries, dispatch op=0o205 -> vector 0o274) via
-the Dorado shifter + the `Cry` register (AEmRegs) + XorSavedCarry /
-Carry20 ALU controls. Suspects, cheapest first:
+Current state: the loader broadcasts the Mayday; the server (now
+LOCK-STEP per EFTPSPEC: one packet on the wire, next released by its
+Ack; `eftp_state/seq/pos` in dorado_ethernet) delivers packet 0 with a
+60000-poll "in flight" hold (reads/attention/wakeups see an empty wire
+until it expires — true server-turnaround latency). The EIT receives
+all 270 words... and the END-OF-PACKET BOUNDARY IS MISSED: the count
+runs out without the IOAtten branch firing at the store of word 269,
+so the EIT takes the buffer-full check, reads the status as data, and
+posts InBufOverflow instead of InDone. ~20 of 70 attempts get that
+far; the rest lose the packet earlier (a stale latched EIT wakeup
+ghost-runs during the hold: bad read 0xFFFF -> address filter reject ->
+WaitForBOP; now harmless to the queue but the wakeup-latch semantics
+deserve a real fix — the controller wakeup is a LEVEL, and a latched
+pending bit surviving the level drop is the root of several races; a
+naive clear in the harness broke the BoL receive, so model it in the
+cpu propery if attempted).
 
-1. Our `XorSavedCarry` / `Carry20` FF decodes (HM Table 11a FB=2
-   FC=4/5/6) — are they implemented at all? (grep cpu.c: they sit in
-   the fa==0 fb==2 switch; check what they do to the ALUFM carry.)
-2. The shifter L/R/extended-17-bit semantics for the Nova carry||AC
-   rotate (A-Group computes result and skip from the Dorado shifter).
-3. The ALUFM entries A-Group expects (RestoreALUFM only restores
-   ALUFM[15]/[17]; the rest must hold the standard convention — see
-   `test_alufm_canonical_decoding`).
-4. `lda 1 k777` immediately before (PC-relative, k777 is an inline
-   literal at .+3) — verify AC1=0o777 and the delay loop `negl 1 0;
-   inc 0 0 szr; jmp .-1` terminates with AC0=0 as designed (it should:
-   the SIONop value 0 is then REPLACED by mkone — so if the sio sees 0,
-   maybe the mkone opcode 0o205's dispatch/handler is at fault, or the
-   skip semantics consumed the sio).
+Next probes:
+1. Why does atten[269] not fire at the W269 store? eth_attention is
+   gated on `!rx_hold` — verify rx_hold is 0 there (it should have
+   expired); check `io_atten_at_issue` sampling vs the EIT's
+   block/wakeup boundaries (the sample happens at instruction issue;
+   the store instruction follows a Block — TIOA at re-entry?).
+2. The posts: only 22 ePLoc posts for 70 attempts — 48 receives ended
+   with NO post at all. EIPost stores via ECBR (MemBase 0o31). Check
+   where those stores went (STORE_VA 0,10000000 to catch all).
+3. boot6 "accepts good input or buffer overrun" (rec1b's mysterious
+   ands) — an InBufOverflow post may actually be ACCEPTED; trace what
+   boot6 does after the 0o1377 post (the 1-word-short store means the
+   pup checksum landed where the loader looks for... nothing critical;
+   data words are all present).
+4. Packet sizing: our EFTP data packet is 12 hdr + 256 data + nil-pup-
+   cksum + status = 270 words; the real wire also has a hardware CRC
+   word between pup-cksum and status (271 total). The loader's
+   maxLength=269 expects 12+256+1; adding a dummy CRC word would make
+   the boundary land exactly like Stage-1's reply packets (which DO
+   carry a dummy CRC and work). STRONG CANDIDATE: append a dummy CRC
+   word in append_eftp_packet (then the count-exhaust store coincides
+   with atten like AltoEther.mc's comment describes).
 
-Debug recipe: `DORADO_IFUDISP_TRACE=1` prints every dispatch (op, pcf,
-br31, IFUM halves, vector). Find `op=205` dispatches with br31 around
-the DoEtherOutput page (the routine runs at Alto VM 0o712+; br31 will
-be 0o712-ish after the fixed jsr-indirect). Then `DORADO_PCWATCH=<vec>`
-`DORADO_PCWATCH_AFTER=<cyc>` dumps the trailing 64 and following 24
-micro-PCs around the first hit. STK[1..4] hold AC0..AC3 (spAC0..3 in
-AEmRegs give the StkP values).
+Debug: `DORADO_ETH_TRACE=999999999` full controller op trace;
+`DORADO_STORE_TRACE_VA="600,610"` posts/block stores (memory.c-level,
+catches stores in IFUJump-tailed instructions that REF_W misreports);
+`DORADO_ATTEN_TRACE=1` attention sampling (device+cpu lines adjacent).
 
 ## After that (the rest of the chain, already built and unit-tested)
 

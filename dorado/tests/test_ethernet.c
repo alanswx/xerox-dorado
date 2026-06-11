@@ -11,6 +11,13 @@
     if (!(cond)) FAIL(msg, ##__VA_ARGS__); \
 } while (0)
 
+/* Run down the server-turnaround hold (the packet is "in flight"
+ * until the wakeup poll has ticked it away). */
+static void eth_wait_arrival(dorado_ethernet *eth)
+{
+    for (int i = 0; i < 70000; i++) (void)dorado_ethernet_wakeup_mask(eth);
+}
+
 static int test_microcode_boot_reply_queue(void)
 {
     dorado_io io;
@@ -144,14 +151,19 @@ static int test_eftp_boot_reply_queue(void)
     }
     dorado_io_write(&io, DORADO_ETHERNET_TASK_EOT,
                     DORADO_ETHERNET_TIOA_CTL, 0067777);   /* SendEOP   */
+    eth_wait_arrival(&eth);
 
     EXPECT(eth.eftp_requests_seen == 1, "eftp_requests_seen=%llu",
            (unsigned long long)eth.eftp_requests_seen);
     EXPECT(eth.eftp_last_bfn == 0, "eftp_last_bfn=0o%o", eth.eftp_last_bfn);
     EXPECT(eth.requests_seen == 0, "Mayday must not be a microcode request");
-    EXPECT((long)eth.eftp_replies_queued == data_pkts + 1,
-           "queued=%llu want %ld (data) + 1 (end)",
-           (unsigned long long)eth.eftp_replies_queued, data_pkts);
+    /* Lock-step server: only packet 0 is on the wire at Mayday time;
+     * later packets are released by Acks. */
+    (void)data_pkts;
+    EXPECT((long)eth.eftp_replies_queued == 1,
+           "queued=%llu want 1 (lock-step packet 0)",
+           (unsigned long long)eth.eftp_replies_queued);
+    EXPECT(eth.eftp_state == 1, "transfer in flight");
 
     int bad = 0;
     uint16_t h[12];
@@ -217,6 +229,7 @@ static int simulate_eftp_boot(const char *boot, long *out_words)
                         DORADO_ETHERNET_TIOA_DATA, mayday[i]);
     dorado_io_write(&io, DORADO_ETHERNET_TASK_EOT,
                     DORADO_ETHERNET_TIOA_CTL, 0067777);   /* SendEOP  */
+    eth_wait_arrival(&eth);
     EXPECT(eth.eftp_requests_seen == 1, "server saw the Mayday");
 
     /* Client receive loop. */
@@ -276,6 +289,7 @@ static int simulate_eftp_boot(const char *boot, long *out_words)
                             DORADO_ETHERNET_TIOA_DATA, ack[i]);
         dorado_io_write(&io, DORADO_ETHERNET_TASK_EOT,
                         DORADO_ETHERNET_TIOA_CTL, 0067777); /* SendEOP  */
+        eth_wait_arrival(&eth);
         expected_seq++;
     }
     EXPECT(saw_end, "transfer ended with an EFTP End");

@@ -78,13 +78,23 @@ typedef struct dorado_ethernet {
     uint16_t last_boot_offset;
     uint16_t first_control[16];
 
-    /* Stage-2 EFTP boot server state. */
+    /* Stage-2 EFTP boot server state. The transfer is LOCK-STEP per
+     * EFTPSPEC: one Data packet on the wire at a time; the next is
+     * sent only when the receiver's Ack for the previous arrives
+     * (eth_tx_packet_done sees the Ack Pup). After the End packet's
+     * Ack, one more End is sent to close the dally. */
     uint16_t last_tx_pup_type;
     uint64_t eftp_requests_seen;
     uint64_t eftp_replies_queued;
     uint16_t eftp_last_bfn;
     uint64_t bol_queued;
     char eftp_boot_path[256];
+    uint16_t *eftp_words;     /* whole boot file, loaded at Mayday */
+    size_t eftp_len;
+    size_t eftp_pos;          /* next undelivered word */
+    uint16_t eftp_seq;        /* seq of the packet currently on the wire */
+    uint8_t eftp_state;       /* 0 idle, 1 data on wire, 2 End on wire,
+                               * 3 dally End on wire */
 
     uint16_t *rx_words;
     uint8_t  *rx_attention;
