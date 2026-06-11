@@ -92,10 +92,18 @@ the boot still completes.
    NetExec probes extended memory through those registers; AEmu
    emulates them via the XM write-protect fault path (XMFaultTask.mc),
    and our fault/restart plumbing re-faults the same access forever
-   instead of completing the emulated store/read. Start in
-   XMFaultTask.mc and the FaultInfo/Pipe state the FLT reads; check
-   whether the faulting task's restart (TPC rewrite? Md supply?)
-   matches what XMFaultTask.mc's exit expects.
+   instead of completing the emulated store/read. The emulation flow
+   (XMFaultTask.mc): the FLT saves FaultVal from DBuf and the
+   emulator's TPC, restarts the emulator at Fault0; Fault0 reads the
+   faulting VA from the Pipe, then XMBStoreOnly clears the page-0o377
+   write protect via `Map_ T, MapBuf_ FaultMapVal` + WaitForMapBuf,
+   performs the store itself, restores WP, and resumes at the NEXT
+   instruction via AEmuReschedule. A persistent loop therefore means
+   the WP-clear or the emulated store is not taking effect in our Map
+   model (the emulation's own Store_ re-faults), or the Pipe VA the
+   FLT reads is wrong. First check: does our `Map<-`/`MapBuf<-` write
+   path update the map entry's WP bit, and does `B<-Pipe0/Pipe1` at
+   the FLT's ProcSRN return the faulting VA?
 2. **No text DCB / blank framebuffer.** NetExec never created a
    non-zero-width DCB. May resolve once (1) is fixed. Independent
    quick win: the cursor bitmap at VM 0o431-0o446 IS populated and the
