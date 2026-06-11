@@ -5788,6 +5788,18 @@ static int probe_full_boot_with_bootstrap(void)
                cpu.RM[0260], cpu.RM[0261], cpu.RM[0262], cpu.RM[0263],
                cpu.RM[0264], cpu.RM[0265], cpu.RM[0266], cpu.RM[0267],
                cpu.RM[0023]);
+        printf("       NetExec cells: M[1113]=%06o M[3315]=%06o "
+               "M[3316]=%06o M[3344]=%06o @M[3344]=%06o M[1664]=%06o "
+               "@M[1664]=%06o\n",
+               dorado_visible_word_at_va(&mem, mds + 01113u),
+               dorado_visible_word_at_va(&mem, mds + 03315u),
+               dorado_visible_word_at_va(&mem, mds + 03316u),
+               dorado_visible_word_at_va(&mem, mds + 03344u),
+               dorado_visible_word_at_va(&mem, mds +
+                   dorado_visible_word_at_va(&mem, mds + 03344u)),
+               dorado_visible_word_at_va(&mem, mds + 01664u),
+               dorado_visible_word_at_va(&mem, mds +
+                   dorado_visible_word_at_va(&mem, mds + 01664u)));
         uint16_t dcb = dastart;
         for (int i = 0; i < 6 && dcb; i++) {
             uint16_t w0 = dorado_visible_word_at_va(&mem, mds + dcb);
