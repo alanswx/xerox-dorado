@@ -82,6 +82,29 @@ the boot still completes.
 
 ## Open questions (the active work)
 
+0. **NetExec stops opening interrupt windows at ~92.2 M cycles.**
+   (Newest finding, post dispatch-RBase fix.) NetExec's idle loop
+   polls cells (VM 0o1747/0o1755 poll loops, RCLK deadline compares
+   at 0o2330, dispatcher at 0o3214) and opens interrupt-delivery
+   windows via an `EIR; DIR` pair in a subroutine at VM 0o2014-0o2022.
+   `DORADO_PC_COUNT="3100,3101,3102,3113,756,314,307"` shows DIR=49,
+   EIR=51, BRI=2 executions ALL before 92.2 M, then never again -
+   while AEmuReschedule traps keep firing per display field (1264
+   traps, 1262 take RestartIFU because NWW has bit0 set = disabled).
+   1262 vertical interrupts go undelivered; NetExec's display/queue
+   machinery (which syncs DCB swaps to the vertical interrupt) never
+   completes, so the text DCB never appears. The delivery mechanism
+   itself is verified working (EIR's RescheduleNow trap delivered
+   interrupts at 91.8 M, handler ran, vectors at INTVEC are
+   installed). Next probe: why the poll loop stops calling the
+   0o2014 subroutine after 92.2 M - decode the cell the 0o1747 loop
+   polls (`lda 0 @...; mov# 0 0 szr; jmp .-2`) and find who is
+   supposed to write it (likely an interrupt handler or the ether
+   input - check for a missed wakeup chain). Ground-truth comparison
+   with ContrAlto (AltoInfo/, mono + dotnet available) is the
+   fallback.
+
+
 1. **Fault task storm + DASTART cleared.** With timing fixed, NetExec
    progresses further and the FLT task (17) burns 25 M cycles;
    DASTART reads 0 at probe end (earlier runs left a zero-width spacer
@@ -125,6 +148,15 @@ the boot still completes.
 - `DORADO_ETH_TX_TRACE=1` dumps every completed transmit packet (and
   TX_ACK lines with the server's lock-step seq).
 - `DORADO_JUNK_TRACE=1` logs junk-timer enable/disable transitions.
+- `DORADO_PC_COUNT="a,b,..."` (octal, max 8) counts task-0 executions
+  of specific real uPCs in the full-boot probe, printed at probe end
+  with last-execution cycles. AEmu reference points: DIR=3100,
+  EIR=3101, BRI=3102, DIRS=3113, interrupt delivery (PCLOC store)=756,
+  AEmuReschedule=314, RestartIFU=307.
+- `DORADO_RM_WATCH=<octal>` logs writes to one RM address with cycle,
+  uPC, RBase, PCX (cpu.c rm_stk_write).
+- `DORADO_RBASE_TRACE=1` + `DORADO_TRACE_GATE` logs task-0 RBase
+  transitions per instruction.
 - The probe summary prints `Ethernet Stage-2 ... state/seq/max_seq/pos`
   and an `Alto display:` block (DASTART, vmask, WW, ACTIVE, cursor,
   DCB chain walk).

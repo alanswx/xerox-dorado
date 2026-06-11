@@ -407,6 +407,10 @@ static void seed_boot_keyboard_va(dorado_memory *mem, uint32_t va,
     store_boot_va(mem, va, value);
 }
 
+static uint64_t *pc_count_n, *pc_count_last;
+static long *pc_count_pc;
+static int pc_count_k;
+
 static void seed_boot_keyboard_from_display(dorado_memory *mem,
                                             const dorado_display *display)
 {
@@ -4251,6 +4255,33 @@ static int probe_full_boot_with_bootstrap(void)
                 (tg_hi && bb.cycles >= (uint64_t)tg_lo &&
                  bb.cycles <= (uint64_t)tg_hi);
             dorado_trace_cycle = bb.cycles;
+            {
+                /* DORADO_PC_COUNT="a,b,..." (octal real PCs, max 8):
+                 * count task-0 executions and print at probe end. */
+                static long pcc[8]; static uint64_t pcc_n[8];
+                static uint64_t pcc_last[8];
+                static int pcc_k = -1;
+                if (pcc_k == -1) {
+                    pcc_k = 0;
+                    const char *w = getenv("DORADO_PC_COUNT");
+                    if (w) {
+                        char pbuf[128];
+                        strncpy(pbuf, w, sizeof pbuf - 1);
+                        pbuf[sizeof pbuf - 1] = 0;
+                        for (char *t = strtok(pbuf, ","); t && pcc_k < 8;
+                             t = strtok(NULL, ","))
+                            pcc[pcc_k++] = strtol(t, NULL, 8);
+                    }
+                }
+                for (int i = 0; i < pcc_k; i++)
+                    if (cpu.real_PC == (uint16_t)pcc[i] &&
+                        cpu.ctask == 0) {
+                        pcc_n[i]++;
+                        pcc_last[i] = bb.cycles;
+                    }
+                pc_count_n = pcc_n; pc_count_last = pcc_last;
+                pc_count_pc = pcc; pc_count_k = pcc_k;
+            }
         }
         {
             static long sw_lo = -1, sw_hi = -1;
@@ -5770,6 +5801,14 @@ static int probe_full_boot_with_bootstrap(void)
                    w1 & 0377, w2, w3);
             dcb = w0;
         }
+    }
+    if (pc_count_k > 0) {
+        printf("       PC counts:");
+        for (int i = 0; i < pc_count_k; i++)
+            printf(" 0o%lo=%llu(last@%llu)", pc_count_pc[i],
+                   (unsigned long long)pc_count_n[i],
+                   (unsigned long long)pc_count_last[i]);
+        printf("\n");
     }
     printf("       Pilot CSB.next watch: nonzero=%llu first=%04X@%llu "
            "last=%04X@%llu\n",
