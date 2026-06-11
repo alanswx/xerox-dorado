@@ -2141,15 +2141,28 @@ static int probe_aemu(void)
         last_head = (last_head + 1) % LAST_N;
         last_total++;
         task_steps[cpu.ctask & 0xF]++;
-        if (aemu_force_eboot) {
+        {
             /* Model the DDC keyboard back-channel: hold BS down so ABoot's
              * `Branch[EBoot, R even]` selects Ethernet software boot. The
              * Alto keyboard is active-low (0 = key down); BS is the LSB of
              * VM 177034. ResumeEmulator zeroes these to all-up, so we must
-             * keep re-asserting BS-down for the read at ABoot. */
-            uint32_t kbd = (dorado_br_get(&mem, 036) + 0177034u)
-                           & 0x0FFFFFFFu;
-            store_boot_va(&mem, kbd, 0xFFFEu);
+             * keep re-asserting BS-down for the read at ABoot. Release
+             * the key once EBoot (AEmu real 0o2006) has been entered:
+             * the booted software (e.g. NetExec) reads the same words
+             * interactively and must see a clean keyboard. */
+            static int aemu_eboot_entered = 0;
+            if (aemu_force_eboot && !aemu_eboot_entered &&
+                cpu.ctask == 0 && cpu.real_PC == 02006) {
+                aemu_eboot_entered = 1;
+                uint32_t kbd = (dorado_br_get(&mem, 036) + 0177034u)
+                               & 0x0FFFFFFFu;
+                store_boot_va(&mem, kbd, 0xFFFFu);
+            }
+            if (aemu_force_eboot && !aemu_eboot_entered) {
+                uint32_t kbd = (dorado_br_get(&mem, 036) + 0177034u)
+                               & 0x0FFFFFFFu;
+                store_boot_va(&mem, kbd, 0xFFFEu);
+            }
         }
         {
             static int eboot_seen = 0, eboot_n = 0;
@@ -4643,6 +4656,7 @@ static int probe_full_boot_with_bootstrap(void)
              * waits for one; the loader then Maydays for the boot
              * file. Real boot servers rebroadcast every few seconds. */
             if (force_alto_ether_boot && ether_loaded_world_cycle &&
+                ethernet.eftp_max_seq == 0 &&
                 bb.cycles >= next_bol_cycle) {
                 if (dorado_ethernet_breath_of_life(&ethernet)) {
                     next_bol_cycle = bb.cycles + 2000000;
