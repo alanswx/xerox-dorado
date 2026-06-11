@@ -106,14 +106,29 @@ the boot still completes.
    inflow rides on the vertical-interrupt handler (delivered twice,
    at 91.8 M only), and its last critical section (DIR at 92198965,
    VM 0o2020 inside the EIR;DIR sample-and-update sub at 0o2014-22)
-   never re-enables. NEXT STEP - ground truth: run NETEXEC.BOOT on
-   ContrAlto (AltoInfo/, mono + dotnet installed) and compare: does a
-   healthy NetExec keep interrupts enabled in its main loop, what is
-   in M[0o3315]/M[0o3344], and when does the banner DCB appear? The
-   divergence point (init era, 91.8-92.2 M equivalent) is where our
-   emulation drops something - candidates: a skip/carry subtlety in
-   the 0o2330 deadline compare (sub#/snc), or a missed state update
-   in the two interrupt deliveries' handler run.
+   never re-enables. RESOLVED TO A TIGHT TARGET via the
+   BCPL sources (now in chm/altosource/netexec.dm!4_/ and
+   contextsources.dm!1_/): NetExec.bcpl's AfterJunta builds exactly
+   our observed spacer DCB (height=42), enqueues six coroutine
+   contexts (Title, Command, GetTime, GetDir, GetName, WatchDog) on
+   ftpCtxQ, and loops CallContextList. Title() paints the banner
+   display streams on its FIRST resume after an initial Block() - and
+   it never resumes. Context.asm (the OS-less Context package) shows
+   the switch mechanics: resume = `jsr @1 2` (JSR indirect through
+   CTXStack frame offset 1, with an inline data word after the jsr);
+   Block() does `inc 3 3; sta 3 1 2` (save return+1 in the frame),
+   saves the stack pointer in CTXStack, and chains to CTXNext. The
+   observed "dispatcher" loop (VM 0o3214 + the RCLK compare at
+   0o2330) is ONE context spinning in `Block() repeatuntil
+   TimerHasExpired(...)` - its Block() is returning without cycling
+   the other contexts. NEXT: unit-test our emulation of the exact
+   instruction sequence in Context.asm (plain Nova `jsr @disp,2`
+   indirect-indexed EA, `inc 3 3`, frame stores via sta n,2; check
+   the JSR return-address convention against the inline-data word
+   after `jsr @1 2`) and trace one Block() round at the microcode
+   level. The statics CtxRunning/CtxCaller (.srel cells) likely map
+   to the dumped cells around M[0o1113]. ContrAlto ground truth
+   remains the fallback.
 
 
 1. **Fault task storm + DASTART cleared.** With timing fixed, NetExec
