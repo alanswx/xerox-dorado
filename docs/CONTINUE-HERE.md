@@ -85,10 +85,17 @@ the boot still completes.
 1. **Fault task storm + DASTART cleared.** With timing fixed, NetExec
    progresses further and the FLT task (17) burns 25 M cycles;
    DASTART reads 0 at probe end (earlier runs left a zero-width spacer
-   DCB at 0o176762 whose SLC evolved 42 -> 1). Suspect NetExec probes
-   memory extent (touch-until-fault) or our Map/fault path misbehaves
-   under its access pattern. Diagnose with the FLT task's hot PCs and
-   `DORADO_STORE_TRACE_VA` (now prints issuing uPC/PCX/BR31/op).
+   DCB at 0o176762 whose SLC evolved 42 -> 1). DIAGNOSED ONE LEVEL
+   DOWN: the FLT loops 1.48 M times at AEmu FAULTTASK/GETEMUFAULTPC
+   (real 0o4151/0o4040/0o4133/0o4134/0o4141) with mar=0o177756 — the
+   Alto-II XM bank-register page (bank reg for task N at 0o177740+N).
+   NetExec probes extended memory through those registers; AEmu
+   emulates them via the XM write-protect fault path (XMFaultTask.mc),
+   and our fault/restart plumbing re-faults the same access forever
+   instead of completing the emulated store/read. Start in
+   XMFaultTask.mc and the FaultInfo/Pipe state the FLT reads; check
+   whether the faulting task's restart (TPC rewrite? Md supply?)
+   matches what XMFaultTask.mc's exit expects.
 2. **No text DCB / blank framebuffer.** NetExec never created a
    non-zero-width DCB. May resolve once (1) is fixed. Independent
    quick win: the cursor bitmap at VM 0o431-0o446 IS populated and the
