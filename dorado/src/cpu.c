@@ -2828,16 +2828,17 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                 membase |= (uint8_t)((cpu->task_subtask[cpu->ctask] & 3) << 1);
             }
             uint16_t mar = a;
-            /* A Map write (`Map← <flags>, MapBuf← rp`) addresses the map
-             * entry for the BR's own virtual page; the displacement is 0.
-             * AEmu's InitMem uses `Map_ 0S, MapBuf_ ITemp1` (ASEL=0,
-             * FF[0:1]=1 -> DM_REF_MAP) where the same RSTK register feeds
-             * both the A path and the MapBuf data (ITemp1, the real page).
-             * Without forcing Mar=0 the map entry would be written at
-             * BR+ITemp1, corrupting AEmu's one-to-one map setup and
-             * hanging InitMem's enumeration. (Initial's own map setup uses
-             * ASEL=2/DM_REF_STORE, so this does not affect it.) */
-            if (kind == DM_REF_MAP) mar = 0;
+            /* Map references address the map entry for BR + Mar where
+             * Mar = the A bus like any other ref. The A bus already
+             * honors the memory-subdecode FF A-source overrides
+             * (ff_a_override): InitMem's `Map_ 0S, MapBuf_ ITemp1`
+             * has FF=100 (A <- small constant 0, so Mar=0 and the BR
+             * walks the pages), while XMFaultTask's `Map_ T,
+             * MapBuf_ FaultMapVal` has FF=121 (A <- T = the faulting
+             * VA, so the WP flags land on the right page). Forcing
+             * Mar=0 here (an old workaround predating ff_a_override)
+             * sent the XM write-protect clear to page 0, looping the
+             * fault task forever on NetExec's bank-register stores. */
             /* InitMem.mc's NextMapEntry emits `DummyRef_ T, T_ MD`
              * to make the memory system add one page to the current
              * BR and report the resulting VA through VALo/VAHi
