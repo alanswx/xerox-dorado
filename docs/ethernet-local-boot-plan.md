@@ -609,6 +609,45 @@ Two concrete results:
      Command: `mb2eb -l out.eb 01076 Initial.mb kernel.mb memMisc.mb
      IfuComplex.mb AEmu.mb!2`.
 
+**UPDATE 2026-06-10d (CONFIRMED root cause: an RBase/RM-region mismatch on
+InitMem's `EmuBRHiReg_ T` write). Supersedes the carry story (10c/10b).**
+
+`EmuBRHiReg` lives in the Alto-emulator register region `AEmRegs`
+(`RegisterDefs.mc`: `Set[rbAemRegs, 1]`), i.e. RBase=1, absolute RM slot
+0o30. Two accesses, instruction-verified by tracing the actual RM
+index/value:
+  - READ by SetupBRs @0o1176 with RBase=1 -> RM[0o30] = 0x0D24 (stale). This
+    is CORRECT addressing: ResumeEmulator does `RBase_ RBase[AEmRegs]` (=1)
+    before `Call[SetupBRs]`.
+  - WRITE by InitMem EndOfStorage's `EmuBRHiReg_ T` ran with **RBase=4** and
+    wrote RM[0o101] - the WRONG slot. InitMap set `RBase_ RBase[ITemp0]`
+    (ITemp0 is in the `EORegs` region, runtime RBase=4) and EndOfStorage's
+    `EmuBRHiReg_ T` has no RBase clause, so it executes at RBase=4. On real
+    hardware RBase must be 1 (AEmRegs) at that instruction; our emulator has
+    4, so the write lands in RM[0o101] and the real `EmuBRHiReg` (RM[0o30])
+    never gets the correct value (0).
+  - RM[0o30] keeps the stale 0x0D24 that was put there earlier (RM_WRITE at
+    pc=0o6440, RBase=1). SetupBRs reads it and BrHi's bank 0xD24 into every
+    emulator BR -> `mar=0xD24FE1F` -> the boot derails before ABoot.
+
+So the chain is: wrong RBase at `EmuBRHiReg_ T` -> EmuBRHiReg never updated
+-> all BRs = bank 0xD24 -> derail. NOT a carry bug (10c retraction stands;
+forcing carry changed nothing).
+
+OPEN QUESTION (the fix): why does our RBase fail to be 1 (AEmRegs) at
+EndOfStorage? The microcode reaches `EmuBRHiReg_ T` immediately after
+`Call[GetEmulatorMapParams]` (line 74), the emulator-specific subroutine
+whose SOURCE IS NOT in our trees. It almost certainly leaves RBase=AEmRegs
+as a side effect (it operates in the emulator's own register bank), and our
+1-instruction execution of it (@0o3240, which just sets T and returns to the
+caller continuation) does not. Likely fixes to investigate: (a) our handling
+of 0o3240's FF=0o200 (FA=2) RBase function; (b) whether `Call[
+GetEmulatorMapParams]` should run a body that sets RBase=1 (would require its
+source / a MicroD rebuild); (c) the Micro-assembler region->RBase resolution
+our model may not replicate. Once RBase=1 holds at `EmuBRHiReg_ T`, the write
+sets RM[0o30]=0, BRs map to bank 0, and the boot should reach ABoot ->
+(BS-down) EBoot -> Mayday -> EFTP -> NetExec.
+
 **UPDATE 2026-06-10c (CORRECTION - the carry hypothesis below is RETRACTED).**
 A direct hypothesis test disproved the carry story in UPDATE-b: forcing
 `alu_carry=1` at `GetEmulatorMapParams`' 2nd entry (0o3240) did NOT change its
