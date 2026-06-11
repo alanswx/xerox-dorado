@@ -274,8 +274,74 @@ static void display_output_b(void *ctx, int task, int subtask,
             }
         }
     }
-    /* TODO: dispatch by (task, tioa) to NLCB load / HRam load /
-     * Mixer load / PixelClk / Statics / etc. */
+    if (tioa == DORADO_DISPLAY_TIOA_NLCB ||
+        tioa == DORADO_DISPLAY_TIOA_TNLCB) {
+        /* DispY next-line control block (DisplayDefs.mc NLCB address
+         * constants): register select = data[0:3] (top 4 bits). */
+        unsigned reg = (data >> 12) & 0xF;
+        unsigned val = data & 0x0FFF;
+        if (getenv("DORADO_NLCB_TRACE")) {
+            static long n = 0;
+            if (reg != 0 && n++ < 600)
+                fprintf(stderr, "NLCB reg=%02o val=%04o raw=%06o\n",
+                        reg, val, data);
+        }
+        switch (reg) {
+        case 000:                       /* VCW */
+            if (data & 0002u) {         /* VSync: field restart */
+                d->nlcb_line = 0;
+                d->nlcb_field_odd = (uint8_t)(data & 1u);
+            }
+            break;
+        case 013:                       /* BPointer / CursorX */
+            /* The per-field CursorX output uses an IM-derived
+             * constant (DisplayMain.mc ReadIM[2]/[3] calibration)
+             * whose top bits land on register 13B in our decode; the
+             * BPointer reset writes value 0 through the same select,
+             * which maps harmlessly off-screen. */
+            /* fallthrough */
+        case 015:                       /* CursorX */
+            if (reg == 013 && val == 0) break;
+            d->nlcb_cursor_x = (uint16_t)val;
+            break;
+        case 016:                       /* CursorLo */
+            /* Every visible scanline ends with a CursorLo-tagged
+             * output (DisplayMain.mc: the NoCursor path emits the
+             * bare tag, the in-cursor path the data byte), so this is
+             * the per-line marker. CursorHi follows only on lines the
+             * cursor intersects. */
+            d->nlcb_cursor_lo = (uint8_t)(val & 0xFF);
+            d->nlcb_line++;
+            break;
+        case 017: {                     /* CursorHi: draw this line */
+            uint16_t row = (uint16_t)(((val & 0xFF) << 8) |
+                                      d->nlcb_cursor_lo);
+            if (row) {
+                /* The microcode sends X biased by a hardware constant
+                 * (DisplayMain.mc computes base - cursorX); resolve to
+                 * a screen X empirically: the bias puts cursorX=0 at
+                 * the raw value CURSOR_X_BIAS, with X increasing as
+                 * the raw value decreases. */
+                int x = (int)(DORADO_DISPLAY_CURSOR_X_BIAS
+                              - (int)d->nlcb_cursor_x);
+                int line = (int)d->nlcb_line - 1;
+                int y = line * 2 + (d->nlcb_field_odd & 1);
+                for (int b2 = 0; b2 < 16; b2++) {
+                    if ((row >> (15 - b2)) & 1) {
+                        dorado_display_set_pixel(d, x + b2, y, 1);
+                    }
+                }
+                d->cursor_rows_drawn++;
+            }
+            d->nlcb_cursor_lo = 0;
+            break;
+        }
+        default:
+            break;
+        }
+    }
+    /* TODO: dispatch by (task, tioa) to HRam load / Mixer load /
+     * PixelClk / Statics / etc. */
 }
 
 static uint16_t display_input(void *ctx, int task, int subtask,

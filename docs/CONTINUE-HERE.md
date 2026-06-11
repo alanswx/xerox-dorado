@@ -80,9 +80,35 @@ the boot still completes.
    cycles (32 us at the 60 ns microcycle; Junk.mc's RTCDelta math
    assumes exactly 32 us per wakeup).
 
+## FIRST PIXELS (2026-06-11, session 3)
+
+The virtual screen renders: the DispY NLCB cursor path is implemented
+in src/display.c (register select in the top 4 bits of each NLCB
+output; CursorLo = the per-scanline marker, CursorHi closes a cursor
+line and draws the 16-bit row; the per-field CursorX rides an
+IM-derived constant whose tag decodes as register 13B, screen x =
+2063 - value, calibrated against the EtherBoot loader's cursorX of
+531B). /tmp/dorado_boot_display.pgm now shows the boot loader's
+cursor sprite (the Ack-packet-as-bitmap PARC trick) at x=345 plus
+NetExec-era cursor rows. Vertical placement is approximate (the
+line counter tracks CursorLo writes since VSync; TopBorder biasing
+not yet calibrated). The probe prints "Display cursor:
+rows_drawn/last_x_raw/line/field"; DORADO_NLCB_TRACE=1 dumps decoded
+NLCB writes.
+
 ## Open questions (the active work)
 
-0. **NetExec stops opening interrupt windows at ~92.2 M cycles.**
+0a. **NetExec auto-runs its EtherBoot command.** NetExec1.bcpl's
+   MyEtherBoot ends with DisableInterrupts(); StartIO(3); copy the
+   boot loader to VM 1; goto 6 - and the observed window-opening loop
+   at VM 0o1747 (poll cell, SIO, jsr 0o2014) plus the EFTP machinery
+   (OpenEFTPSoc/ReceiveEFTPBlock with 1 s/10 s timeouts at NetExec1
+   lines 268-273) are boot-fetch machinery. NetExec is likely
+   auto-dispatching a boot (keys/BFN-derived) rather than sitting at
+   a prompt; the wire is silent because its sends stall on the dead
+   interrupt path below.
+
+0b. **NetExec stops opening interrupt windows at ~92.2 M cycles.**
    (Newest finding, post dispatch-RBase fix.) NetExec's idle loop
    polls cells (VM 0o1747/0o1755 poll loops, RCLK deadline compares
    at 0o2330, dispatcher at 0o3214) and opens interrupt-delivery

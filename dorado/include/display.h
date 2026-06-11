@@ -52,6 +52,10 @@
 #define DORADO_DISPLAY_H            606
 #define DORADO_DISPLAY_ROW_BYTES    ((DORADO_DISPLAY_W + 7) / 8)
 #define DORADO_DISPLAY_FB_BYTES     (DORADO_DISPLAY_ROW_BYTES * DORADO_DISPLAY_H)
+/* Raw NLCB CursorX value corresponding to screen x = 0 (the microcode
+ * sends a hardware-biased, descending value; calibrate against a known
+ * cursor position). */
+#define DORADO_DISPLAY_CURSOR_X_BIAS 2063
 
 #define DORADO_DISPLAY_NLCB_WORDS   16
 #define DORADO_DISPLAY_HRAM_WORDS   1024
@@ -253,6 +257,21 @@ typedef struct {
     uint16_t first_iofetch_words[16];
     uint16_t last_iofetch_words[16];
     uint64_t nlcb_writes;        /* DHT NLCB outputs */
+
+    /* DispY NLCB cursor rendering (DisplayDefs.mc: register select in
+     * the top 4 bits of each NLCB output, data in the low 12).
+     * Reg 0 = VCW (bit1 VSync, bit2 VBlank, bit0 field); reg 15B =
+     * CursorX; regs 16B/17B = CursorLo/CursorHi, one pair per visible
+     * scanline (DisplayMain.mc SendCursor / BeyondCursor — every line
+     * outputs a pair, zero when the cursor does not intersect). A
+     * CursorHi write closes the line: if the assembled 16-bit row is
+     * nonzero it is OR-drawn into the framebuffer at the tracked
+     * scanline, then the line counter advances. */
+    uint16_t nlcb_cursor_x;      /* last CursorX value (raw 12 bits) */
+    uint8_t  nlcb_cursor_lo;     /* pending CursorLo byte */
+    uint16_t nlcb_line;          /* scanlines since VSync */
+    uint8_t  nlcb_field_odd;     /* VCW bit 0 at VSync */
+    uint64_t cursor_rows_drawn;  /* nonzero cursor rows rendered */
     uint64_t scanline_ticks;     /* synthetic horizontal timing ticks */
     uint64_t terminal_wakeups;   /* DHT/AHT wakeups requested */
     uint64_t dwt_wakeups;        /* DWT wakeups requested */

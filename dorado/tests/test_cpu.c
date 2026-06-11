@@ -4688,8 +4688,15 @@ static int probe_full_boot_with_bootstrap(void)
              * waits for one; the loader then Maydays for the boot
              * file. Real boot servers rebroadcast every few seconds. */
             if (force_alto_ether_boot && ether_loaded_world_cycle &&
-                ethernet.eftp_max_seq == 0 &&
                 bb.cycles >= next_bol_cycle) {
+                /* Keep rebroadcasting even after the EFTP transfer:
+                 * a real Ethernet always carries background traffic
+                 * (breath-of-life, routing, name servers), and the
+                 * booted Pup package's level-1 init does an UNBOUNDED
+                 * synchronous receive (SIO + post poll, no timeout
+                 * armed) that only completes when ANY packet arrives.
+                 * On a silent wire NetExec hangs before its contexts
+                 * ever cycle. */
                 if (dorado_ethernet_breath_of_life(&ethernet)) {
                     next_bol_cycle = bb.cycles + 2000000;
                 } else {
@@ -5229,7 +5236,12 @@ static int probe_full_boot_with_bootstrap(void)
                rendered_a, rendered_b, rendered, dst_y, fb_nonzero);
         dorado_display_vblank(&display);
         if (dorado_display_snapshot_pgm(&display, snapshot_path) == 0) {
-            printf("       Display snapshot: frame=%llu %s\n",
+            printf("       Display cursor: rows_drawn=%llu last_x_raw=%06o "
+           "line=%u field=%u\n",
+           (unsigned long long)display.cursor_rows_drawn,
+           display.nlcb_cursor_x, display.nlcb_line,
+           display.nlcb_field_odd);
+    printf("       Display snapshot: frame=%llu %s\n",
                    (unsigned long long)dorado_display_frame(&display),
                    snapshot_path);
         } else {
@@ -5800,6 +5812,27 @@ static int probe_full_boot_with_bootstrap(void)
                dorado_visible_word_at_va(&mem, mds + 01664u),
                dorado_visible_word_at_va(&mem, mds +
                    dorado_visible_word_at_va(&mem, mds + 01664u)));
+        {
+            /* Walk NetExec's context ring: Context.asm's lvCtxRunning
+             * literal lives at VM 47740 (located by instruction
+             * pattern; see docs/CONTINUE-HERE.md). CTX!0=next,
+             * CTX!1=stack, CTX!2=stackMin; frame!1 = resume PC. */
+            uint16_t lv = dorado_visible_word_at_va(&mem, mds + 047740u);
+            uint16_t running = dorado_visible_word_at_va(&mem, mds + lv);
+            printf("       NetExec ctx: lvCtxRunning=%06o CtxRunning=%06o"
+                   "\n", lv, running);
+            uint16_t c = running;
+            for (int i = 0; i < 8 && c; i++) {
+                uint16_t nx = dorado_visible_word_at_va(&mem, mds + c);
+                uint16_t stk = dorado_visible_word_at_va(&mem,
+                                                         mds + c + 1u);
+                uint16_t resume = dorado_visible_word_at_va(&mem,
+                                                            mds + stk + 1u);
+                printf("       NetExec ctx[%d]@%06o: next=%06o stack=%06o"
+                       " resume=%06o\n", i, c, nx, stk, resume);
+                c = nx;
+            }
+        }
         uint16_t dcb = dastart;
         for (int i = 0; i < 6 && dcb; i++) {
             uint16_t w0 = dorado_visible_word_at_va(&mem, mds + dcb);
