@@ -228,6 +228,27 @@ STATE at end of session: 400M-cycle boot has healthy sysZone
 (42-line strip + 2x 38-word x 6-scanline bands at 142544B/140606B
 + tab bands), eftp_replies=88, fb still cursor-only (DWT renderer
 never paints the DCB text - separate gap).
+STANDALONE BINARY BOOTS THE BANNER (2026-06-12): SOLVED. The
+missing piece was the Mesa boot-parameter seed: the harness seeds
+STK[1]=0110 (boot file number), STK[2]=056623 (BootParameterSeal),
+STK[3]=0121045 during Initial (pre_pc 06170-06217 / 06406-06443,
+force_ether_mesa_boot defaults ON) so the loaded world selects the
+normal Mesa boot instead of falling into the cold/NoStorage path.
+Ported into src/machine.c. The standalone `dorado` binary now boots
+NetExec over Ethernet end-to-end: rx=1, bol=1, EFTP transfer
+complete (88 packets, seq 87), DASTART=176762, and the
+"-- XEROX BCPL Net Executive" banner rasterizes (2070 pixels,
+identical to the harness). Run:
+  ./build/dorado --eb /tmp/aemu_only.eb --cycles 130000000 \
+                 --out screen.pgm
+The diagnostic env knobs (DORADO_MACHINE_TRACE / _PCHIST /
+_INITMEM / _NO_ALUFM_RESTORE, config_word in --progress) remain
+for future bring-up. Decisive technique that found it: PC_COUNT +
+PCWATCH side-by-side between harness (works) and machine (NoStorage
+loop) - both hit InitMap 0o1011 with identical T=000025 but the
+harness arrived via the warm path (STK boot parameter present) and
+the machine via the cold path, diverging at the 0o1011 branch.
+
 STANDALONE EMULATOR (2026-06-12): the first runnable binary outside
 the test harness now exists. include/machine.h + src/machine.c lift
 the boot orchestration out of test_cpu.c's probe_full_boot_with_

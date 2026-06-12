@@ -422,6 +422,20 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
 
         uint16_t pre_pc = cpu->real_PC;
 
+        /* Seed Initial's boot parameter (STK[1]=boot file number,
+         * STK[2]=BootParameterSeal, STK[1]+STK[2]+STK[3]=0) so the
+         * loaded world selects the normal Mesa boot (110B) instead of
+         * falling into the cold/no-storage path. The 7-wire terminal
+         * back-channel that would carry this is not modeled. */
+        if (m->initial_substituted && is_imfetch &&
+            !m->checksum_and_load_seen &&
+            ((pre_pc >= 06170 && pre_pc <= 06217) ||
+             (pre_pc >= 06406 && pre_pc <= 06443))) {
+            cpu->STK[1] = 0110u;
+            cpu->STK[2] = 056623u;
+            cpu->STK[3] = 0121045u;
+        }
+
         /* Keep Initial's boot keys "up" until CheckChecksumAndLoad so it
          * falls through DiskHardMicrocodeBoot to EtherMicrocodeBoot.
          * (The 7-wire terminal back-channel is not modeled.) */
@@ -502,6 +516,19 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
             m->pchist[pre_pc]++;
             if (m->initseq_n < (int)(sizeof m->initseq / sizeof m->initseq[0]))
                 m->initseq[m->initseq_n++] = (uint16_t)pre_pc;
+        }
+
+        /* InitMem GotMapConfig/NoStorage register trace (env-gated):
+         * dump the registers feeding the storage-detect branch so the
+         * NoStorage divergence can be compared against the harness. */
+        if (m->ether_loaded_world_cycle && is_imfetch && cpu->ctask == 0 &&
+            pre_pc >= 01005 && pre_pc <= 01025 &&
+            getenv("DORADO_MACHINE_INITMEM")) {
+            fprintf(stderr,
+                    "INITMEM pc=0o%o T=%06o Q=%06o ShC=%06o Cnt=%06o "
+                    "aluZ=%u aluLT=%u link=0o%o\n",
+                    pre_pc, cpu->T, cpu->Q, cpu->ShC, cpu->Cnt,
+                    cpu->alu_zero, cpu->alu_lt0, cpu->Link);
         }
 
         if (dorado_cpu_step(cpu)) break;
