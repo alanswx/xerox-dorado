@@ -729,14 +729,36 @@ void dorado_machine_debug(dorado_machine *m)
             (uint16_t)~dorado_memory_config_word(&m->mem));
 }
 
+/* Flip one framebuffer pixel (XOR), for the mouse pointer. */
+static void fb_xor(dorado_display *d, int x, int y)
+{
+    if (x < 0 || x >= DORADO_DISPLAY_W || y < 0 || y >= DORADO_DISPLAY_H)
+        return;
+    d->fb[y * DORADO_DISPLAY_ROW_BYTES + (x >> 3)] ^=
+        (uint8_t)(1u << (7 - (x & 7)));
+}
+
 int dorado_machine_render_display_list(dorado_machine *m)
 {
     if (!m) return 0;
     dorado_memory *mem = &m->mem;
     dorado_display *disp = &m->display;
+
+    /* The rasterizer owns the whole frame: clear to white (0 = white,
+     * 1 = black), then paint everything. This avoids the smearing that
+     * came from never erasing the previous frame. */
+    memset(disp->fb, 0, sizeof disp->fb);
+
     uint32_t dmds = dorado_br_get(mem, 036);
     uint32_t dl = dorado_visible_word_at_va(mem, dmds + 0420u);
     int pixels = 0, y = 0;
+    /* Alto DCB (Hardware Manual; salto helloworld.asm):
+     *   w0 = next DCB (0 ends)
+     *   w1 = (res<<15) | (inverse<<14) | (HTAB<<8) | NWRDS
+     *        HTAB indents by 16*HTAB bits; NWRDS words/scanline (even)
+     *   w2 = SA  bitmap start word address (even)
+     *   w3 = SLC the block defines 2*SLC scanlines (SLC per field),
+     *            i.e. 2*SLC consecutive bitmap rows of NWRDS words. */
     for (int g = 0; g < 64 && dl > 1u && y < DORADO_DISPLAY_H; g++) {
         uint16_t c   = dorado_visible_word_at_va(mem, dmds + dl + 1u);
         uint16_t sa  = dorado_visible_word_at_va(mem, dmds + dl + 2u);
@@ -744,8 +766,8 @@ int dorado_machine_render_display_list(dorado_machine *m)
         int htab  = (c >> 8) & 077;
         int nwrds = c & 0377;
         int inv   = (c >> 14) & 1;
-        for (int s = 0; s < (int)slc * 2 && y < DORADO_DISPLAY_H; s++, y++) {
-            int row = s / 2;
+        int lines = (int)slc * 2;
+        for (int row = 0; row < lines && y < DORADO_DISPLAY_H; row++, y++) {
             for (int wi = 0; wi < nwrds; wi++) {
                 uint16_t bits = dorado_visible_word_at_va(
                     mem, dmds + sa + (uint32_t)(row * nwrds + wi));
@@ -761,6 +783,20 @@ int dorado_machine_render_display_list(dorado_machine *m)
             }
         }
         dl = dorado_visible_word_at_va(mem, dmds + dl);
+    }
+
+    /* Mouse pointer: a fixed NW-arrow XOR'd in at the host mouse
+     * position, so it is visible on any background and never smears
+     * (the frame is fully redrawn each time). */
+    if (m->mouse_present) {
+        static const uint16_t arrow[16] = {
+            0x8000, 0xC000, 0xE000, 0xF000, 0xF800, 0xFC00, 0xFE00, 0xFF00,
+            0xFF80, 0xF800, 0xD800, 0x8C00, 0x0C00, 0x0600, 0x0600, 0x0300,
+        };
+        for (int r = 0; r < 16; r++)
+            for (int b = 0; b < 16; b++)
+                if ((arrow[r] >> (15 - b)) & 1)
+                    fb_xor(disp, m->mouse_x + b, m->mouse_y + r);
     }
     return pixels;
 }
