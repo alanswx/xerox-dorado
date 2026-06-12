@@ -96,6 +96,52 @@ not yet calibrated). The probe prints "Display cursor:
 rows_drawn/last_x_raw/line/field"; DORADO_NLCB_TRACE=1 dumps decoded
 NLCB writes.
 
+## SESSION 4: THE PUP STACK IS ALIVE (2026-06-11 evening)
+
+The fake server now speaks enough Pup to wake NetExec's whole network
+stack. Sequence of unblocks, each verified by the TX trace:
+
+1. **The raw routing probe accepts a directed packet.** NetExec's
+   pre-context park (the VM 0o3205 raw listen) wants a DIRECTED Pup
+   (nonzero dest host), dest socket 60B, type in 200B..203B (the
+   GatewayInfo family - NOT time), and a length-consistent packet.
+   dorado_ethernet_time_broadcast() (misnamed now) sends a
+   GatewayInfoReply (201B) shaped for it, alternating dest socket
+   60B / psRouteInfo(2). Once accepted: THE CONTEXTS START, the
+   cursor changes from the boot-loader sprite to a solid 16x16 block
+   (fb_nonzero 53 -> 74), and NetExec begins SOCKET-LEVEL
+   TRANSMISSION - type 204B routing-info requests to net1/host1
+   psRouteInfo, from its socket 60B, retried continuously.
+2. **eth_tx_packet_done answers type-204B requests** by dest socket:
+   socket 2 -> GatewayInfoReply 201B with one routing tuple
+   <net 1, gw net 1, gw host 1 (server), hops 0>; socket 4 -> Alto
+   time reply 205B with an NTime body. Replies are directed to the
+   requestor's source port with dnet=0 ("this net") to dodge the
+   localNet bootstrap deadlock (a net-1-addressed reply gets
+   FORWARDED, not delivered, until localNet is learned - which the
+   reply itself teaches).
+3. NetExec LEARNED ITS NET: its requests changed from dnet=0/dhost=1
+   to net1/host1 after the socket-2 routing broadcasts.
+
+STILL OPEN (the current frontier):
+- The 204B routing requests never STOP - the replies reach the
+  machine (InDone + EIT consumption verified) but the requesting
+  context never consumes them. Removing the dummy-CRC trailer word
+  from replies reduced the retry rate substantially (EtherPupFilter's
+  length equality is sensitive to the trailer shape) but did not
+  satisfy it. Calibrate the exact on-wire length convention the
+  PBI/EtherPupFilter math expects: packetLength must equal
+  (pup.length+5) rshift 1; derive the eELoc/stored-words accounting
+  from AltoEther.mc's receive loop and match the trailer exactly.
+- ANOMALY worth chasing: NetExec re-transmits our replies VERBATIM
+  (ether word0 preserved with src=1, impossible for a normal send) -
+  every reply bounces once. Either our model's EOT path leaks rx
+  into tx, or the driver's eOB/eOPLoc gets pointed at the input PBI.
+  Find who builds that transmission (trace the EOT data-write era
+  after a delivery).
+- The banner DCB still never appears (Title context still parked
+  behind the unfinished routing exchange).
+
 ## Open questions (the active work)
 
 0a. **NetExec auto-runs its EtherBoot command.** NetExec1.bcpl's

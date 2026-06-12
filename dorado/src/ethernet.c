@@ -490,6 +490,62 @@ static void eth_tx_packet_done(dorado_ethernet *eth)
         eth_eftp_ack(eth, eth->tx_words[5]);
         return;
     }
+    if (eth->tx_words[1] == DORADO_PUP_TYPE_ETHERNET &&
+        (eth->tx_words[3] & 0377) == 0204) {
+        /* Type 204B request. NetExec uses 204B on two sockets:
+         * psRouteInfo (2) = routing-info request -> answer with a
+         * GatewayInfoReply (201B, routing tuples); psMiscServ (4) =
+         * Alto time request -> answer 205B with the NTime body.
+         * Reply directed to the requestor's source port. */
+        uint16_t req_src_host = (uint16_t)(eth->tx_words[0] & 0377);
+        uint16_t req_dsock_lo = eth->tx_words[8];
+        uint16_t req_ssock_hi = eth->tx_words[10];
+        uint16_t req_ssock_lo = eth->tx_words[11];
+        eth_clear_rx(eth);
+        size_t cap = 0;
+        static const uint16_t routing[2] = {
+            (uint16_t)((1 << 8) | 1),       /* target net 1, gw net 1 */
+            (uint16_t)((01 << 8) | 0)       /* gw host 1, hops 0      */
+        };
+        static const uint16_t ntime[5] = {
+            0x9C8Eu, 0x0000u, 0x0800u, 121u, 305u
+        };
+        const uint16_t *body = (req_dsock_lo == 02) ? routing : ntime;
+        int blen = (req_dsock_lo == 02) ? 2 : 5;
+        uint16_t rtype = (req_dsock_lo == 02) ? 0201 : 0205;
+        uint16_t hdr[12];
+        hdr[0]  = (uint16_t)((req_src_host << 8) | eth->remote_host);
+        hdr[1]  = DORADO_PUP_TYPE_ETHERNET;
+        hdr[2]  = (uint16_t)(026 + 2 * blen);
+        hdr[3]  = rtype;
+        hdr[4]  = eth->tx_words[4];
+        hdr[5]  = eth->tx_words[5];
+        hdr[6]  = req_src_host;     /* dnet 0 = "this net": must
+                                     * deliver locally even before the
+                                     * requestor learns its net number
+                                     * (otherwise the routing reply
+                                     * that would teach it localNet
+                                     * gets forwarded, a bootstrap
+                                     * deadlock). */
+        hdr[7]  = req_ssock_hi;
+        hdr[8]  = req_ssock_lo;
+        hdr[9]  = (uint16_t)((1 << 8) | eth->remote_host);
+        hdr[10] = eth->tx_words[7];
+        hdr[11] = eth->tx_words[8];
+        int ok = 1;
+        for (int i = 0; i < 12 && ok; i++)
+            ok = append_rx_word(eth, &cap, hdr[i], 0);
+        for (int i = 0; i < blen && ok; i++)
+            ok = append_rx_word(eth, &cap, body[i], 0);
+        if (ok) ok = append_rx_word(eth, &cap, 0177777, 0);
+        /* No dummy CRC word here: the Pup driver computes the packet
+         * length from the ending count, and EtherPupFilter requires
+         * (pup.length+5) rshift 1 == packetLength exactly; an extra
+         * word makes every reply silently fail the filter. */
+        if (ok) ok = append_rx_word(eth, &cap, 0, 1);
+        if (ok) { eth->rx_pos = 0; eth->time_bcasts++; }
+        return;
+    }
 
     if (eth->tx_words[1] != DORADO_PUP_TYPE_ETHERNET ||
         eth->tx_words[3] != DORADO_PUP_TYPE_MICROCODE_BOOT_REQUEST) {
@@ -533,6 +589,61 @@ int dorado_ethernet_breath_of_life(dorado_ethernet *eth)
     if (!append_rx_word(eth, &cap, 0, 1)) return 0;  /* good status */
     eth->rx_pos = 0;
     eth->bol_queued++;
+    return 1;
+}
+
+int dorado_ethernet_time_broadcast(dorado_ethernet *eth)
+{
+    /* A real PARC Ethernet always carries a time server. NetExec's
+     * startup raw-listens for an Alto time-protocol packet (Pup types
+     * 200B..203B family) before its contexts ever cycle; on a silent
+     * wire it waits forever. Broadcast an AltoTimeReply (201B) Pup
+     * the way a time server would, with the NTime body:
+     * time(2 words, seconds since 1-Jan-1901), zone(sign/hour/min),
+     * beginDST, endDST. */
+    if (!eth->rx_on || eth->rx_pos < eth->rx_count) return 0;
+    if (eth->eftp_state != 0) return 0;
+
+    eth_clear_rx(eth);
+    size_t cap = 0;
+    /* GatewayInfoReply body: 4-byte tuples of
+     * <targetNet, gatewayNet, gatewayHost, hopCount>. One tuple:
+     * net 1 is directly connected (hops 0) via the server. NetExec's
+     * routing probe (LocateNet 0) raw-listens for this to learn its
+     * local net number before its contexts run. */
+    static const uint16_t body[2] = {
+        (uint16_t)((1 << 8) | 1),               /* target 1, gw net 1 */
+        (uint16_t)((01 << 8) | 0)               /* gw host 1, hops 0  */
+    };
+    uint16_t hdr[12];
+    /* NetExec's raw listener (filter at VM 3227B..3303B of
+     * NETEXEC.BOOT) demands: InDone post, nonzero SOURCE host,
+     * nonzero (directed) DEST host, etherType Pup, a received-word
+     * count matching (pupLength+5) rshift 1, dSocket hi = 0 and
+     * lo = 60B, and Pup type in 200B..203B (the GatewayInfo family). */
+    hdr[0]  = (uint16_t)((eth->local_host << 8) | eth->remote_host);
+    hdr[1]  = DORADO_PUP_TYPE_ETHERNET;
+    hdr[2]  = (uint16_t)(026 + 2 * 2);                 /* pup length  */
+    hdr[3]  = 0201;                                    /* GwInfoReply */
+    hdr[4]  = 0; hdr[5] = 0;                           /* pup id      */
+    hdr[6]  = eth->local_host;                         /* dnet0,,dhost */
+    /* Alternate destination sockets: NetExec's pre-context raw
+     * routing probe listens on socket 60B (its fixed sequence-derived
+     * port), while the context-level GatewayListener owns psRouteInfo
+     * (socket 2). Serve both. */
+    hdr[7]  = 0;
+    hdr[8]  = (uint16_t)((eth->time_bcasts & 1) ? 02 : 060);
+    hdr[9]  = (uint16_t)((1 << 8) | eth->remote_host); /* snet1,,shost */
+    hdr[10] = 0; hdr[11] = 02;                         /* psRouteInfo */
+    for (int i = 0; i < 12; i++)
+        if (!append_rx_word(eth, &cap, hdr[i], 0)) return 0;
+    for (int i = 0; i < 2; i++)
+        if (!append_rx_word(eth, &cap, body[i], 0)) return 0;
+    if (!append_rx_word(eth, &cap, 0177777, 0)) return 0; /* no cksum */
+    if (!append_rx_word(eth, &cap, 0, 0)) return 0;       /* dummy CRC */
+    if (!append_rx_word(eth, &cap, 0, 1)) return 0;       /* status    */
+    eth->rx_pos = 0;
+    eth->time_bcasts++;
     return 1;
 }
 

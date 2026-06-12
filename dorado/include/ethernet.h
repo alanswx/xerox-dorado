@@ -88,6 +88,7 @@ typedef struct dorado_ethernet {
     uint64_t eftp_replies_queued;
     uint16_t eftp_last_bfn;
     uint64_t bol_queued;
+    uint64_t time_bcasts;     /* Alto time-reply broadcasts queued */
     char eftp_boot_path[256];
     uint16_t *eftp_words;     /* whole boot file, loaded at Mayday */
     size_t eftp_len;
@@ -136,5 +137,10 @@ uint16_t dorado_ethernet_wakeup_mask(dorado_ethernet *eth);
  * if a packet was queued. Call periodically to model a boot server's
  * rebroadcast. */
 int dorado_ethernet_breath_of_life(dorado_ethernet *eth);
+
+/* Stage-2: broadcast an Alto time-protocol reply (Pup type 201B), as
+ * a real network's time server would. NetExec's startup raw-listens
+ * for one before its contexts run. */
+int dorado_ethernet_time_broadcast(dorado_ethernet *eth);
 
 #endif

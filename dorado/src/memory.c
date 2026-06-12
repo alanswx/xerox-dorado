@@ -7,6 +7,7 @@
 /* Debug: real IM address of the microinstruction issuing the
  * current ref (set by cpu.c each instruction; trace-only). */
 int dorado_mem_trace_pc = 0;
+extern unsigned long long dorado_trace_cycle;
 int dorado_mem_trace_pcx = 0;
 int dorado_mem_trace_br31 = 0;
 int dorado_mem_trace_op = 0;
@@ -877,9 +878,10 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
             }
             if (hi && va >= (uint32_t)lo && va <= (uint32_t)hi) {
                 fprintf(stderr,
-                        "STORE_VA task=%o pc=0o%o va=%07o data=%06o "
-                        "pcx=0o%o br31=0o%o op=0o%o\n",
-                        task & 017, dorado_mem_trace_pc,
+                        "STORE_VA cyc=%llu task=%o pc=0o%o va=%07o "
+                        "data=%06o pcx=0o%o br31=0o%o op=0o%o\n",
+                        dorado_trace_cycle, task & 017,
+                        dorado_mem_trace_pc,
                         va & 0x0FFFFFFFu, b & 0177777,
                         dorado_mem_trace_pcx, dorado_mem_trace_br31,
                         dorado_mem_trace_op);

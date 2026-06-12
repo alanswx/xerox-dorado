@@ -4713,11 +4713,10 @@ static int probe_full_boot_with_bootstrap(void)
                  * armed) that only completes when ANY packet arrives.
                  * On a silent wire NetExec hangs before its contexts
                  * ever cycle. */
-                if (dorado_ethernet_breath_of_life(&ethernet)) {
-                    next_bol_cycle = bb.cycles + 2000000;
-                } else {
-                    next_bol_cycle = bb.cycles + 100000;
-                }
+                int sent = (ethernet.eftp_max_seq > 0)
+                    ? dorado_ethernet_time_broadcast(&ethernet)
+                    : dorado_ethernet_breath_of_life(&ethernet);
+                next_bol_cycle = bb.cycles + (sent ? 2000000 : 100000);
             }
             uint16_t eth_mask = dorado_ethernet_wakeup_mask(&ethernet);
             for (int task = 0; task < 16; task++) {
@@ -5323,6 +5322,8 @@ static int probe_full_boot_with_bootstrap(void)
            (unsigned long long)ethernet.bol_queued,
            ethernet.eftp_state, ethernet.eftp_seq, ethernet.eftp_max_seq,
            ethernet.eftp_pos, ethernet.eftp_len);
+    printf("       Ethernet time broadcasts: %llu\n",
+           (unsigned long long)ethernet.time_bcasts);
     {
         const char *eb_path =
             ether_boot_path_for_offset(&ethernet, ethernet.last_boot_offset);
@@ -5872,6 +5873,10 @@ static int probe_full_boot_with_bootstrap(void)
                 break;
             }
         }
+        printf("       NetExec raw-exch cells M[3140..3150]:");
+        for (uint32_t a3 = 03140u; a3 <= 03150u; a3++)
+            printf(" %06o", dorado_visible_word_at_va(&mem, mds + a3));
+        printf("\n");
         uint16_t dcb = dastart;
         for (int i = 0; i < 6 && dcb; i++) {
             uint16_t w0 = dorado_visible_word_at_va(&mem, mds + dcb);
