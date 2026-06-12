@@ -291,6 +291,14 @@ int main(int argc, char **argv)
         { "AND 1,0",          ALC(1,0,7), { 0146, 0123, 0, 0 }, 0 },
         /* AC3 <- AC3, no-op MOV to check PC advance only */
         { "MOV 3,3",          ALC(3,3,2), { 0, 0, 0, 077 }, 0 },
+        /* TODO memory-reference opcodes (STA/LDA/ISZ/DSZ - the suspect
+         * class). They do NOT dispatch correctly from the Start: cold
+         * entry: AEmu's MRI opcodes use special EmIFUReg/EmIFUPause IFU
+         * entries (auto-fetch operand + pause) that appear to need the
+         * StartEmulator IFUM setup this tool bypasses. ALC opcodes work
+         * because their IFUM entries are statically loaded. Resolve by
+         * either entering via StartEmulator or replaying its IFUM table
+         * writes before running. */
     };
     #undef ALC
     for (size_t i = 0; i < sizeof V / sizeof V[0]; i++) {
