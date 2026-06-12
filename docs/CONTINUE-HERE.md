@@ -194,6 +194,59 @@ InitializeContext works in general - something specifically
 corrupts ctx[0] (FeedEther, the 40-word eFSS context, the FIRST
 allocated+enqueued) between its init and the first resume.
 
+SESSION-10 (2026-06-12): FOUR more microarchitecture fixes, each
+verified and committed (d40d6aa, 30cbf0e):
+1. Multiply consumed the LATCHED Carry' instead of the live ALU
+   carry-out (MulSub's A0 entry steps are logical ZERO ops) - every
+   product gained a phantom 100000B partial term.
+2. BLOCK now clears the task's wakeup-request FF unconditionally
+   (HM p27). EOT's `Output_ TurnOffTx, Block` used to re-wake and
+   retransmit every packet ~13x; once the BCPL driver cleared
+   eOCLoc, the microcode posted CountZero (2377B) and EtherInterrupt
+   SysErr'd (the 92.3M-cycle crash). EFTP now sends exactly one
+   copy per Ack (88 replies for an 88-packet file, was 484).
+3. Divide/CDivide implemented (were no-ops): Pd<-ALU[1:15],,Q[0];
+   Q<-Q[1:15],,ALUcarry (CDivide: carry'). Stub made lenPup
+   unhalved -> 25 PBIs of 564 words -> sysZone exhausted -> Alloc
+   error 1801 at Title's 461-word display-line Allocate.
+4. ALU=0/ALU<0 branch flags latch from the ALU output, NOT from the
+   FF-transformed Pd (HM p30) - DivSub's FinalAdd remainder fixup
+   was being skipped.
+Probes added to the full-boot summary: BCPL stack walk from the
+swatted AC2, runtime code windows, sysZone boundary-tag census
+(zone base 123240B, min/max in hdr words 8/9, signed length word
+per block, negative = allocated). Forensic recipe that worked,
+repeatedly: STORE_TRACE_VA="700,707" -> swat cycle; then
+TRACE_GATE + IFUDISP_TRACE -> br31(hex)=Nova word PC of each
+dispatched opcode; disassemble NETEXEC.BOOT (1:1 file-word = VM
+word) at those addresses; JSRII (64400B) = call through M[M[.]];
+M[1303B]=lvSysErr; CallSwat=16251B; M[2..7]=77400B trap words;
+Sys.Errors (in OSSOURCES.DM!2, fetched local) decodes error codes
+(1801=zone full, 4267B=ecBadEtherStatus...).
+STATE at end of session: 400M-cycle boot has healthy sysZone
+(15858 alloc/6268 free), BOTH Title text bands in the DCB chain
+(42-line strip + 2x 38-word x 6-scanline bands at 142544B/140606B
++ tab bands), eftp_replies=88, fb still cursor-only (DWT renderer
+never paints the DCB text - separate gap).
+OPEN: one remaining swat, PC=21071B = return from `jsr @344,z`
+(the BCPL divide veneer) in FillWithDash's dash-count divide
+(NetExec.bcpl Title path, code at 21050B-21105B): AC-save shows
+AC0=2 (correct remainder of 93/7), AC1=135B (=93, quotient NEVER
+stored), AC2=7, AC3=157167B. BUT test_divx_aemu drives the exact
+same S-Group DIVx wrapper (STK-resident ACs, 93/7) and PASSES.
+So the in-vivo failure involves state the unit test lacks - prime
+suspects: (a) a mid-DivSub task switch clobbering shared Q or Cnt
+(EOT/EIT/display tasks interleave in vivo; check whether their
+microcode touches Q/Cnt and whether Cnt must be per-task), (b) the
+runtime veneer at M[344B] doing something beyond Nova DIV, (c) an
+IFU/Reschedule interaction at DIVx's IFUJump[0] tail. NEXT STEP:
+STORE_TRACE_VA="700,707" for the new swat cycle, then gated
+IFUDISP+ETHC trace around it; also dump runtime M[344B] veneer
+code via the code-window probe. After that swat falls: check
+whether Title's PutTemplate writes glyphs into the band bitmaps
+and make the DWT/display pipeline render the DCB chain (probe
+"Display render" still shows A_pixels=0).
+
 SESSION-9 ROOT CAUSE + FIX: **the Dorado Multiply FF function was
 a TBD no-op** (cpu.c FA=1 FB=7 FC=2). AEmu's Nova MUL microcode
 (Various.mc MulSub) steps on it; HM p23 gives the full semantics,
