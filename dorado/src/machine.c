@@ -460,7 +460,8 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
         if (m->checksum_and_load_seen && m->ether_loaded_world_cycle == 0 &&
             is_imfetch && pre_pc < IM_SIZE && m->mc.im_present[pre_pc] &&
             !(pre_pc >= 06000 && pre_pc < 07700)) {
-            restore_standard_alufm(&m->mc);
+            if (!getenv("DORADO_NO_ALUFM_RESTORE"))
+                restore_standard_alufm(&m->mc);
             m->ether_loaded_world_cycle = bb->cycles;
             /* Quiet the junk timer and drop any stale pending wakeups
              * at the LoadRam handoff so the high-priority I/O tasks do
@@ -632,6 +633,9 @@ void dorado_machine_debug(dorado_machine *m)
             (unsigned long long)e->bol_queued,
             (unsigned long long)e->time_bcasts,
             dastart, m->mem.storage_words);
+    fprintf(stderr, "[machine] config_word=0o%o (B<-Config'=0o%o)\n",
+            dorado_memory_config_word(&m->mem),
+            (uint16_t)~dorado_memory_config_word(&m->mem));
 }
 
 int dorado_machine_render_display_list(dorado_machine *m)

@@ -251,7 +251,40 @@ task 3 then task 2 spinning at 0o7003/0o234). Task 0 advances
 0o5400 -> 0o7116 -> 0o7012 then STALLS at ~0o7012 before turning on
 the Ethernet receiver (rx stays 0) or setting DASTART, so
 breath-of-life is never accepted (bol=0) and the banner never
-draws from the standalone path. FINDING-2 (deep trace via DORADO_MACHINE_PCHIST init sequence):
+draws from the standalone path. FINDING-3 (ROOT LOCALIZED to InitMem NoStorage): a side-by-side
+PC_COUNT comparison nails it. The harness and the standalone
+machine BOTH hit AEmu InitMap (0o1076) exactly once at cycle ~31M,
+but the harness then hits the loop addresses (0o7140/0o7167/0o5400/
+0o7012/0o7116) ZERO times while the machine loops there millions of
+times. The machine's init sequence shows it reaches 0o1011
+(GOTMAPCONFIG) and branches to 0o1017 (NOSTORAGE) - InitMem.mc
+decides NO storage modules are present and falls into the NoStorage
+breakpoint loop. InitMem.mc GotMapConfig does:
+  ModMask_ NOT(Config'); ... ModMask_ LSH[ModMask,10];
+  ModMask_ T_ (ModMask) AND (170000C);
+  ITemp1_ T, Branch[NoStorage, ALU=0];
+RULED OUT (each measured): Config' itself is CORRECT - the machine
+prints config_word=0o214 (= module-0 present + 64Kx1 chip), so
+NOT(Config')=0o214 and after LSH/AND it should be nonzero (storage
+present). Storage is correctly 1 module (4194304 words). Skipping
+restore_standard_alufm (DORADO_NO_ALUFM_RESTORE=1) does NOT change
+it. Fault-task park, identity-map shim: irrelevant. So config_word
+is right but the GotMapConfig computation still yields ALU=0 ->
+NoStorage. The remaining divergence is engine REGISTER STATE at the
+~6 GotMapConfig instructions (ModMask/ShC/T/ALU flags) - the
+machine and harness must differ in one register feeding the
+LSH/AND/ALU=0 test, OR in the SetDMuxAddress muffler reads
+(0o7000-0o7076) that run just before GotMapConfig (these set
+VirtualBanks and clobber T/XTemp17 via MidasStrobe; if the
+machine's muffler model returns different data the path differs).
+NEXT (decisive): instrument BOTH at GotMapConfig - dump ModMask,
+ShC, T, ALU=0 right before the Branch[NoStorage] in the harness
+(works) vs the machine (NoStorage) and diff the first differing
+register. Suspect the muffler/DMux read (SetDMuxAddress) since
+that is the least-tested path and runs immediately before.
+Tooling added: config_word in --progress debug;
+DORADO_NO_ALUFM_RESTORE=1 to A/B the ALUFM restore.
+OLD-FINDING-2 (DORADO_MACHINE_PCHIST init sequence):
 the world starts at AEmu InitMap (1070->1076), runs a long init
 clearing loop (4426 4436 4436 4437 x N), then DELEGATES to a shared
 InitMem routine in INITIAL's address range and gets stuck in a
