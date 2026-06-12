@@ -5849,6 +5849,29 @@ static int probe_full_boot_with_bootstrap(void)
                 c = nx;
             }
         }
+        {
+            /* Locate the Pup EtherNDB: InitAltoEther fills offsets
+             * 20..28 with pointers 600B..610B (lv ePLoc table). Scan
+             * VM for that run; eIB/eOB/eState live at offsets
+             * 17/18/19 just before it (PupAlEtha.asm NDB offsets). */
+            for (uint32_t a2 = 0400u; a2 < 0170000u; a2++) {
+                int hit = 1;
+                for (int k = 0; k < 9; k++) {
+                    if (dorado_visible_word_at_va(&mem, mds + a2 + k)
+                        != (uint16_t)(0600 + k)) { hit = 0; break; }
+                }
+                if (!hit) continue;
+                uint32_t ndb20 = a2;
+                printf("       Pup EtherNDB: lvEPLoc@%06o eIB=%06o "
+                       "eOB=%06o eState=%06o lastEPLoc=%06o oQhead=?"
+                       "\n", ndb20,
+                       dorado_visible_word_at_va(&mem, mds + ndb20 - 3u),
+                       dorado_visible_word_at_va(&mem, mds + ndb20 - 2u),
+                       dorado_visible_word_at_va(&mem, mds + ndb20 - 1u),
+                       dorado_visible_word_at_va(&mem, mds + ndb20 - 6u));
+                break;
+            }
+        }
         uint16_t dcb = dastart;
         for (int i = 0; i < 6 && dcb; i++) {
             uint16_t w0 = dorado_visible_word_at_va(&mem, mds + dcb);

@@ -159,10 +159,20 @@ NLCB writes.
    BECAUSE WW never got the ether bit. NEXT: single-step the FIRST
    SendEtherPacket call (the LocateNet routing probe during
    InitPupLevel1, before 92 M) - find why it never executes
-   CauseInterrupt's `sta 1,@.Wakeups`: either the eOB guard reads
-   nonzero garbage (NDB zeroing? our Zero/Allocate emulation), the
-   filter-walk diverts, or the Dequeue(pbiFreeQ) loopback path takes
-   an unexpected branch. The Alto-PC regions: SendEtherPacket around
+   CauseInterrupt's `sta 1,@.Wakeups`: RESOLVED ONE MORE STEP: the
+   probe now scans VM for the EtherNDB's ePLoc pointer table
+   (consecutive 600B..610B) and dumps eIB/eOB/eState - ALL ZERO at
+   probe end. eOB=0 means the guard would have passed; therefore the
+   flow diverts BEFORE the `Enqueue(oQ); if eOB eq 0 CauseInterrupt`
+   lines - inside the broadcast-loopback branch's filter walk
+   ((pf>>PF.predicate)(ipbi) = EtherPupFilter in PupAlEtha.asm), or
+   the MoveBlock cluster belongs to CompletePup's header/checksum
+   construction and SendEtherPacket is never reached at all. Probe
+   accordingly: trace the Alto PC from the MoveBlock cluster
+   (~92.199 M) forward instruction by instruction and identify the
+   divergent branch; suspect list: the Pup software checksum
+   (add-and-left-cycle per word - carry/cycle semantics), and
+   EtherPupFilter's hand-coded compares. The Alto-PC regions: SendEtherPacket around
    VM 0o315x-0o320x, CauseInterrupt would store @0o452.
 
 0b. **NetExec stops opening interrupt windows at ~92.2 M cycles.**
