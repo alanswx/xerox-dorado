@@ -228,6 +228,31 @@ STATE at end of session: 400M-cycle boot has healthy sysZone
 (42-line strip + 2x 38-word x 6-scanline bands at 142544B/140606B
 + tab bands), eftp_replies=88, fb still cursor-only (DWT renderer
 never paints the DCB text - separate gap).
+SESSION-10c: THE PAGE-ZERO CLOBBER IS A BAD BitBlt DESTINATION.
+The store that flattens M[344B] is BitBlt microcode: uPC 1201B=
+GRAYLOOP / 361B=STORELASTDST (AltoBitBlt.mc), i.e. a Nova BitBlt
+gray-fill writing word after word starting at BBDst~344B. BBDst is
+computed in BitBlt setup as DstY*DBMR (scan-line * raster, via
+Call[MulSub]) + DBCA(base), MemBase=BBDstBR. So the destination
+landed in page zero because EITHER (a) the DstY*DBMR offset or the
+base-add wrapped, or (b) NetExec passed a BBT whose DBCA/DBMR were
+already garbage. Recurs at EXACTLY 124,025,617 and 187,450,772 (a
+periodic Title-banner redraw via EraseBits->BitBlt); earlier
+redraws built the DCB bands correctly, so it is DATA-DEPENDENT - an
+arithmetic edge case, not a blanket BitBlt failure. BitBlt setup
+uses the just-fixed MulSub AND a `Branch[.+2, ALU=0]` skip-multiply
+test - both in recently-touched paths; re-audit in BitBlt context.
+NEXT STEP (concrete): gate to the failing BitBlt (cyc ~124,025,000),
+capture the BBT it reads. Setup fetches BBT words via Fetch_ 2S/3S/
+4S/5S/7S (DBCA/DBMR/DLX/DTY/DH) off MemBase=BBT pointer; print
+T/Q/DstY/DRast at GRAYLOOP entry (uPC ~1175-1202) to recover DstY,
+DBMR, DBCA and the final BBDst. If BBDst != DBCA+DstY*DBMR by hand,
+the bug is our address arithmetic; if it equals but DBCA~0, walk
+back to who built that BBT (CmdScanDisplay EraseBits / a display-
+stream bitmap base) and whether that base came from an earlier
+mis-multiply/divide. Identify the BitBlt caller via IFUDISP br31
+just before uPC enters the BitBlt trap / 1140B SETUPBRS.
+
 SESSION-10b: THE FillWithDash SWAT IS FULLY TRACED - it is page-zero
 corruption, not a divide bug:
 1. M[344B] is the OS page-zero DIV transfer vector (jsr @344,z from
