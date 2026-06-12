@@ -5880,6 +5880,49 @@ static int probe_full_boot_with_bootstrap(void)
         for (uint32_t a5 = 0700u; a5 <= 0707u; a5++)
             printf(" %06o", dorado_visible_word_at_va(&mem, mds + a5));
         printf("\n");
+        /* BCPL call-stack walk from the swatted AC2 (frame pointer).
+         * Alto BCPL frame: F!0 = caller's frame, F!1 = return PC. */
+        {
+            uint32_t f = dorado_visible_word_at_va(&mem, mds + 0702u);
+            for (int depth = 0; depth < 12 && f > 0400u && f < 0176000u;
+                 depth++) {
+                printf("       BCPL frame@%06o: caller=%06o retpc=%06o"
+                       " w2..w7:", f,
+                       dorado_visible_word_at_va(&mem, mds + f),
+                       dorado_visible_word_at_va(&mem, mds + f + 1u));
+                for (uint32_t k = 2; k <= 7; k++)
+                    printf(" %06o",
+                           dorado_visible_word_at_va(&mem, mds + f + k));
+                printf("\n");
+                f = dorado_visible_word_at_va(&mem, mds + f);
+            }
+            /* Runtime code windows: the pre-swat call site and the
+             * CallSwat entry, to compare against the boot file. */
+            {
+                static const uint32_t wins[][2] = {
+                    {010230u, 010u}, {010400u, 010u}, {016251u, 010u},
+                    {0174034u, 010u}, {02u, 06u},
+                };
+                for (size_t wi = 0; wi < sizeof wins / sizeof wins[0];
+                     wi++) {
+                    printf("       code@%06o:", wins[wi][0]);
+                    for (uint32_t k = 0; k < wins[wi][1]; k++)
+                        printf(" %06o", dorado_visible_word_at_va(
+                            &mem, mds + wins[wi][0] + k));
+                    printf("\n");
+                }
+            }
+            /* Raw stack window around the swatted frame (stack grows
+             * down; caller frames are above). Decode by hand. */
+            f = dorado_visible_word_at_va(&mem, mds + 0702u);
+            for (uint32_t row = f - 010u; row < f + 0120u; row += 010u) {
+                printf("       stk@%06o:", row);
+                for (uint32_t k = 0; k < 010u; k++)
+                    printf(" %06o",
+                           dorado_visible_word_at_va(&mem, mds + row + k));
+                printf("\n");
+            }
+        }
         printf("       NetExec statics M[1010..1020]:");
         for (uint32_t a4 = 01010u; a4 <= 01020u; a4++)
             printf(" %06o", dorado_visible_word_at_va(&mem, mds + a4));
@@ -7303,6 +7346,65 @@ static int test_memory_decode_uses_table8b_when_ff_not_ok(void)
 
     dorado_memory_free(&mem);
     printf("PASS  test_memory_decode_uses_table8b_when_ff_not_ok\n");
+    return 0;
+}
+
+/*
+ * test_mulsub_aemu — run AEmu's MulSub (Various.mc) against the
+ * Multiply FF (HM p23): Result <- ALUcarry,,ALU/2; Q <- ALU[15],,Q/2;
+ * next branch address OR 2 if pre-shift Q[14]. MulSub's entry steps
+ * are `XTemp17_ A0, Multiply` where A0 is ALUFM op 31 (logical ZERO);
+ * the live ALU carry there must be 0, NOT the latched Carry' branch
+ * flag — we poison the latched carry before each call to prove it.
+ */
+static int test_mulsub_aemu(void)
+{
+    static mb_file mb;
+    mb_init(&mb);
+    if (mb_load(&mb, "../chm/dorado/AEmu.mb!2") != MB_OK) {
+        printf("SKIP  test_mulsub_aemu (AEmu.mb not loadable)\n");
+        return 0;
+    }
+    static dorado_microcode mc;
+    if (dorado_microcode_load(&mb, &mc) != DM_OK) {
+        printf("SKIP  test_mulsub_aemu (microcode load failed)\n");
+        mb_free(&mb);
+        return 0;
+    }
+    int img = mb_find_symbol_addr(&mb, mb.im_id, "MULSUB");
+    EXPECT(img >= 0, "MULSUB symbol not found");
+    uint16_t entry = (uint16_t)mc.image_to_real[img];
+    /* Park the Return on an absent IM slot so the CPU halts there. */
+    uint16_t hole = 0;
+    for (uint16_t a2 = 1; a2 < IM_SIZE; a2++)
+        if (!mc.im_present[a2]) { hole = a2; break; }
+    EXPECT(hole != 0, "no absent IM slot for return parking");
+
+    static const struct { uint16_t m, q; } cases[] = {
+        { 3, 5 }, { 0xFFFF, 0xFFFF }, { 300, 200 },
+        { 0x8000, 2 }, { 0xABCD, 0x1234 }, { 0, 0x5555 },
+    };
+    for (size_t i2 = 0; i2 < sizeof cases / sizeof cases[0]; i2++) {
+        dorado_cpu cpu;
+        dorado_cpu_init(&cpu, &mc, entry);
+        cpu.T = cases[i2].m;          /* multiplicand */
+        cpu.Q = cases[i2].q;          /* multiplier */
+        cpu.RBase = 0;
+        cpu.Link = hole;
+        cpu.alu_carry = 1;            /* poison the latched carry */
+        for (int s = 0; s < 200 && !cpu.halted; s++)
+            dorado_cpu_step(&cpu);
+        EXPECT(cpu.halted && cpu.real_PC == hole,
+               "MulSub(%u,%u) did not return (PC=0o%o halted=%d)",
+               cases[i2].m, cases[i2].q, cpu.real_PC, cpu.halted);
+        uint32_t want = (uint32_t)cases[i2].m * cases[i2].q;
+        uint32_t got = ((uint32_t)cpu.T << 16) | cpu.Q;
+        EXPECT(got == want,
+               "MulSub(%u,%u) = 0x%08X, want 0x%08X",
+               cases[i2].m, cases[i2].q, got, want);
+    }
+    mb_free(&mb);
+    printf("PASS  test_mulsub_aemu (6 products, poisoned Carry)\n");
     return 0;
 }
 
@@ -9475,6 +9577,7 @@ int main(void)
     rc |= test_alt_store_t_uses_b_data();
     rc |= test_memory_decode_uses_table8b_when_ff_not_ok();
     rc |= test_bootstrap_ldf_dispatch();
+    rc |= test_mulsub_aemu();
     rc |= test_cpu_fault_info_visible();
     rc |= test_cpu_pipe4_no_error_baseline();
     rc |= test_bc_timing_previous_instr();

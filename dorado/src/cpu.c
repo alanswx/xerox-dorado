@@ -220,17 +220,20 @@ static uint16_t task_schedule(dorado_cpu *cpu, uint16_t next_pc,
         if (cpu->tasking_resume_delay == 0) cpu->tasking_on = 1;
     }
 
-    /* If the current task is non-emulator and blocked, clear Ready. */
+    /* If the current task is non-emulator and blocked, clear Ready.
+     * HM page 27: BLOCK also clears the device section's wakeup-
+     * request flip-flop for this task. Level-type requests (Ethernet,
+     * display) re-assert on the next cycle's device poll if service
+     * is still wanted, so the unconditional clear is safe — and
+     * required: EOT's `Output_ TurnOffTx, Block` (AltoEther.mc
+     * EOLast) must not see a wakeup latched earlier in the same
+     * instruction, or the output task spuriously re-enters EOIdle and
+     * retransmits the completed packet (the BCPL driver then finds
+     * eOCLoc=0, the microcode posts CountZero, and EtherInterrupt
+     * SysErrs with ecBadEtherStatus). */
     if (block_in_non_emulator) {
         cpu->ready &= (uint16_t)~(1u << cpu->ctask);
-        /* A terminal `Block, Branch[.]` has consumed the wakeup it was
-         * servicing. If a synthetic device asserted the bit again just
-         * before the terminal block, leaving it pending immediately
-         * re-enters code that expects to be asleep. Do not clear ordinary
-         * inter-word blocks; Ethernet input relies on those wakeups. */
-        if (next_pc == cpu->real_PC) {
-            cpu->wakeup_pending &= (uint16_t)~(1u << cpu->ctask);
-        }
+        cpu->wakeup_pending &= (uint16_t)~(1u << cpu->ctask);
     }
 
     /* If tasking is off, no switch — current task keeps running. */
@@ -2812,6 +2815,14 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
     uint8_t new_carry = cpu->alu_carry, new_ovf = cpu->alu_overflow;
     uint8_t is_arith = 0;
     uint16_t alu = alu_op(alufm_entry, a, b, &new_carry, &new_ovf, &is_arith);
+    /* The live ALU carry-out of THIS instruction (0 for logical ops):
+     * this is the "ALUcarry" consumed by the Multiply function and
+     * the brsh-1 LC form (HM p23). It is distinct from the latched
+     * Carry' branch condition below. MulSub's entry steps are
+     * `XTemp17_ A0, Multiply` where A0 is the *logical* ZERO op —
+     * feeding the latched carry there seeds the partial product with
+     * a phantom 0x8000 whenever the previous arithmetic op carried. */
+    uint8_t alu_live_carry = is_arith ? new_carry : 0;
     /* HM page 30: "Carry' and Overflow are the result of the last
      * *arithmetic* ALU operation". Logical ops must NOT update them —
      * preserve the previous values so subsequent Carry'/Overflow
@@ -2835,7 +2846,7 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
      * ALUFMRW or Pd←Cnt). FF post-effects also fire register loads
      * like Cnt←B, Link←B, RBase←FF[4:7], etc. */
     int ff_halt = 0;
-    uint16_t pd = ff_apply_post(cpu, u, a, b, alu, new_carry, &ff_halt);
+    uint16_t pd = ff_apply_post(cpu, u, a, b, alu, alu_live_carry, &ff_halt);
     if (ff_halt) {
         cpu->halted = 1;
         cpu->halt_reason = ff_halt;

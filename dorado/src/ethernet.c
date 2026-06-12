@@ -686,6 +686,18 @@ static void eth_write(void *ctx, int task, int subtask,
             eth->first_control[task & 0xF] = data;
         }
         eth_trace(eth, "write", task, tioa, data);
+        {
+            extern int dorado_trace_gate;
+            extern unsigned long long dorado_trace_cycle;
+            if (dorado_trace_gate && getenv("DORADO_ETHC_TRACE")) {
+                fprintf(stderr,
+                        "ETHC cyc=%llu task=%o ctl=%06o "
+                        "(txon=%d txeop=%d cnt=%zu) rxon=%d\n",
+                        dorado_trace_cycle, task & 017, data & 0177777,
+                        eth->tx_on, eth->tx_eop, eth->tx_count,
+                        eth->rx_on);
+            }
+        }
         eth->control_last[task & 0xF] = data;
         eth->control_writes[task & 0xF]++;
 
