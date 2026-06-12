@@ -624,7 +624,7 @@ int dorado_ethernet_time_broadcast(dorado_ethernet *eth)
     hdr[0]  = (uint16_t)((eth->local_host << 8) | eth->remote_host);
     hdr[1]  = DORADO_PUP_TYPE_ETHERNET;
     hdr[2]  = (uint16_t)(026 + 2 * 2);                 /* pup length  */
-    hdr[3]  = 0201;                                    /* GwInfoReply */
+    hdr[3]  = 0201;
     hdr[4]  = 0; hdr[5] = 0;                           /* pup id      */
     hdr[6]  = eth->local_host;                         /* dnet0,,dhost */
     /* Alternate destination sockets: NetExec's pre-context raw

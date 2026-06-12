@@ -143,6 +143,34 @@ service's own buffer/return area; the per-exchange pointer cells
 runtime, so static disassembly of the @-operands is unreliable -
 trace live.
 
+SESSION-6: THE RAW SERVICE'S STATE MACHINE IS DECODED. Live dispatch
+tracing through one full round (gate 92222590+) proves our reply
+passes EVERY filter check and dispatches by Pup type:
+- 201B -> handler at @M[0o3355]: inverts the 16-word cursor bitmap
+  (the observed solid-block cursor!), TURNS THE PACKET AROUND
+  (word0 byte-swap, dPort/sPort exchange, type <- M[0o3505]) and
+  transmits it back - the "verbatim echo" fully explained, it is the
+  service ANSWERING a ping.
+- 202B -> handler at @M[0o3407]: arms the deadline cell M[0o3315] =
+  RTC430 + M[0o3313](=207B ticks ~ 5.4 s).
+- 203B -> handler at @M[0o3325]: if armed, restores the saved ether
+  block (two MoveBlocks from the 0o3613/0o3646 save areas) and
+  RETURNS TO THE CALLER - the clean exit. (Sending 203B as FIRST
+  contact derails: nothing saved yet. A 203B mid-stream after 201B
+  pings showed no visible exit - sequencing not yet right; possibly
+  202B must arm first, or data must arrive between.)
+- The machine's own 204B requests to psRouteInfo share the same
+  socket 60B - they are THIS module's requests; body [0o401, 0o1000]
+  (= net1-host1 port + 0o1000?). WORKING HYPOTHESIS: FullBootBase
+  fetches something over the net at startup (page/image fetch or a
+  server handshake): request 204B, responses typed 200B..203B with
+  202B=start(arm timeout), data, 203B=done(restore+return). Next:
+  decode handlers @M[0o3352] (type 200B) and the 202B-then-data path
+  (where does a post-202B packet's BODY get copied?), and try the
+  sequence 201B, 202B, <payload?>, 203B. Identify the protocol by
+  finding FullBootBase's source (BuildBoot /B 300/N switches;
+  search AltoSource for FullBootBase.asm/bcpl or BuildBoot docs).
+
 STILL OPEN (the current frontier):
 - The 204B routing requests never STOP - the replies reach the
   machine (InDone + EIT consumption verified) but the requesting
