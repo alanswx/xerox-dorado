@@ -228,6 +228,18 @@ STATE at end of session: 400M-cycle boot has healthy sysZone
 (42-line strip + 2x 38-word x 6-scanline bands at 142544B/140606B
 + tab bands), eftp_replies=88, fb still cursor-only (DWT renderer
 never paints the DCB text - separate gap).
+SESSION-10d: REF_W (symbol-independent) CONFIRMS it. Per-ref dump
+(DORADO_STORE_WINDOW) at cyc 124,025,621: STORE (kind=5) at uPC
+1201B, MemBase=22B (Alto MDS bank, correct), BBDst=0xE4=344B,
+data=4154B; paired StoreLastDst at 361B writes 345B. Destination
+writes land at SCATTERED page-zero cells (413B,344B,345B) across
+scanlines, so the BBT's DBCA/DBMR are garbage. The store IS BitBlt
+(BITBLT=61024, BitBltA SD400+24); the UpdateSector symbol mismatch
+was external-symbol-file straddling. So the bug is upstream: a
+malformed BBT with a page-zero destination base. NEXT: dump the
+BBT words at BitBlt entry (Fetch 2S=DBCA,3S=DBMR off the BBT
+pointer) and trace who built that base.
+
 SESSION-10c: THE PAGE-ZERO CLOBBER IS A BAD BitBlt DESTINATION.
 The store that flattens M[344B] is BitBlt microcode: uPC 1201B=
 GRAYLOOP / 361B=STORELASTDST (AltoBitBlt.mc), i.e. a Nova BitBlt
