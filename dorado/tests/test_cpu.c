@@ -5882,6 +5882,22 @@ static int probe_full_boot_with_bootstrap(void)
                 break;
             }
         }
+        /* Alto interrupt vector (0o501-0o517) -> IST records. Each
+         * IST: [Prologue(2) saved(7) NewMask Stack StackMin InitPC].
+         * A garbage IST.Stack makes interrupt handlers run with
+         * their BCPL frame in page zero (Interrupt.asm IntEnt loads
+         * AC2 from .NStack). */
+        for (uint32_t ch = 0; ch < 15u; ch++) {
+            uint32_t ist = dorado_visible_word_at_va(&mem,
+                                                     mds + 0501u + ch);
+            if (ist == 0 || ist >= 0176000u) continue;
+            printf("       IntVec[%u] IST@%06o: mask=%06o stack=%06o "
+                   "stkmin=%06o initpc=%06o\n", ch, ist,
+                   dorado_visible_word_at_va(&mem, mds + ist + 9u),
+                   dorado_visible_word_at_va(&mem, mds + ist + 10u),
+                   dorado_visible_word_at_va(&mem, mds + ist + 11u),
+                   dorado_visible_word_at_va(&mem, mds + ist + 12u));
+        }
         printf("       Swat: OutLdRet=%06o dumperFlg@706=%06o "
                "AC-save[700..707]:",
                dorado_visible_word_at_va(&mem, mds + 03323u),

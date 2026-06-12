@@ -228,6 +228,41 @@ STATE at end of session: 400M-cycle boot has healthy sysZone
 (42-line strip + 2x 38-word x 6-scanline bands at 142544B/140606B
 + tab bands), eftp_replies=88, fb still cursor-only (DWT renderer
 never paints the DCB text - separate gap).
+SESSION-10b: THE FillWithDash SWAT IS FULLY TRACED - it is page-zero
+corruption, not a divide bug:
+1. M[344B] is the OS page-zero DIV transfer vector (jsr @344,z from
+   compiled BCPL x/y). FullBoot init sets it to 4155B (the divide
+   routine; word 4154B before it is a `jmp @1,2` thunk).
+2. At cycle 124,025,617 (and again 187,450,772) Nova code running
+   with its BCPL FRAME IN PAGE ZERO (AC2 ~ 270B-324B!) executes a
+   normal-looking store sequence (function at 12672B..13105B,
+   GetFrame size 42B, vec buffers IN FRAME at frame+const) whose
+   in-frame "region" writes land on 344B/345B, leaving M[344B]=4154B.
+3. Every divide thereafter goes jsr @344 -> jmp @1,2 -> resumes at
+   the previous call's nargs word -> executes 000002 = jmp 2,z ->
+   M[2]=77400B trap -> Swat at 190M. (The AC-save 2/135B/7 is just
+   the divide args/remainder mid-veneer; MulSub/DivSub/DIVx are all
+   CORRECT - test_mulsub_aemu, test_divsub_aemu, test_divx_aemu.)
+4. WHY is a frame in page zero: caller chain 23763B -> 12672B runs
+   on a stack already at ~270B. PRIME SUSPECT FOUND by the new
+   IntVec/IST probe (prints Alto interrupt vector 501B+ch -> IST
+   [mask Stack StackMin InitPC] at probe end): the LIVE Ethernet
+   interrupt IST (IntVec[1] @160224B, allocated in sysZone) has
+   **Stack=000000, InitPC=000002, mask=40B, StackMin=140102B** -
+   Stack and InitPC are garbage/zero. Interrupt.asm IntEnt loads
+   AC2 from IST.Stack, so an interrupt through this IST runs BCPL
+   handlers with frame ~0 -> page-zero spray. InitializeInterrupt
+   (InterruptInit.bcpl) sets Stack=region+length-4, InitPC=proc -
+   so either PupAlEthInit passed garbage, the IST got overwritten
+   later (it is in the zone - check who writes 160224B+10..12 via
+   STORE_TRACE_VA="160234,160236"), or our emulation corrupts the
+   region. NEXT STEP: trace stores to the IST fields; also check
+   IntVec[0]@2210, [8]@2132, [12]@7513 (look like stale resident
+   leftovers, possibly fine).
+5. Probe additions this session: IntVec/IST dump, sysZone census,
+   BCPL stack window, code windows. ETHC control-write trace env:
+   DORADO_ETHC_TRACE=1 (+TRACE_GATE).
+
 UPDATE (same session, post-commit): with the Divide fixes the boot
 now runs to cycle ~189.97M before the SAME FillWithDash swat
 (STORE_TRACE_VA="700,707" -> AC-save at 189968878-189970790;
