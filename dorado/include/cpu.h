@@ -310,6 +310,13 @@ typedef struct {
     int      halt_reason;
     int      cycles;            /* cycles executed */
 
+    /* Count of successful IFU opcode dispatches (each real IFUJump that
+     * reads an opcode and dispatches to its handler). Incremented in
+     * next_pc; NOT incremented for NotReady/warmup/fault traps. Used by
+     * differential-test harnesses (build/altodiff-dorado) to detect the
+     * "one opcode executed" boundary. */
+    uint64_t ifu_dispatch_count;
+
     /* Trace control. */
     int      trace;             /* if nonzero, print each step to trace_fp */
     void    *trace_fp;          /* FILE* (kept opaque to avoid forcing stdio.h) */

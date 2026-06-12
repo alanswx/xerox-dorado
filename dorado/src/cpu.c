@@ -2496,6 +2496,11 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
             }
             cpu->ifu_idcnt = 0;
 
+            /* A real opcode dispatch is now committed (past NotReady /
+             * warmup / fault). Count it so differential harnesses can
+             * detect the one-opcode boundary. */
+            cpu->ifu_dispatch_count++;
+
             /* Compute TNIA: TNIA[4:13] = IFaddr', TNIA[14:15] = n.
              * Conditional IFUJump OR's the condition into TNIA[15],
              * routing to entry n|1 of the vector. */
