@@ -1385,9 +1385,28 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                 return (uint16_t)(alu << 1);
             case 5: /* Pd ← ALU lcy 1 */
                 return (uint16_t)((alu << 1) | (alu >> 15));
-            case 6: /* Divide — partial placeholder until needed. */
-            case 7: /* CDivide — partial placeholder until needed. */
-                return pd;
+            case 6: { /* Divide (HM p23): Pd <- ALU[1:15],,Q[0];
+                       * Q <- Q[1:15],,ALUcarry. One non-restoring
+                       * divide step: the double-length value shifts
+                       * left through Pd and the quotient bit (the
+                       * carry of the T-divisor ALU op) enters Q[15].
+                       * AEmu's Nova DIV runs DivSub (Various.mc) on
+                       * this function; with it stubbed every BCPL
+                       * divide returned its input - InitPupLevel1's
+                       * lenPup=(pupOvBytes+pupDataBytes)/2 stayed
+                       * unhalved, 25 PBIs of 564 words exhausted
+                       * NetExec's sysZone, and Title's display-line
+                       * Allocate died with Alloc error 1801. */
+                uint16_t q0 = (uint16_t)((cpu->Q >> 15) & 1);
+                cpu->Q = (uint16_t)((cpu->Q << 1) | (alu_carry & 1));
+                return (uint16_t)((alu << 1) | q0);
+            }
+            case 7: { /* CDivide: as Divide but Q[15] <- ALUcarry'. */
+                uint16_t q0 = (uint16_t)((cpu->Q >> 15) & 1);
+                cpu->Q = (uint16_t)((cpu->Q << 1) |
+                                    ((alu_carry ^ 1) & 1));
+                return (uint16_t)((alu << 1) | q0);
+            }
             }
         }
     }
@@ -2852,8 +2871,15 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
         cpu->halt_reason = ff_halt;
         return 1;
     }
-    new_alu_zero = (pd == 0) ? 1 : 0;
-    new_alu_lt0  = (pd & 0x8000) ? 1 : 0;
+    /* HM page 30: the ALU=0 / ALU<0 branch conditions reflect the
+     * ALU output itself, NOT the value Pd delivers after an FF
+     * transform. Divide is the case that exposes the difference:
+     * `T-(XTemp17), Divide` latches the SIGN of the subtract for the
+     * next instruction's DblBranch[FinalAdd, OKExit, ALU<0] while Pd
+     * carries the left-shifted remainder (DivSub's final correction
+     * was skipped when these were latched from Pd). */
+    new_alu_zero = (alu == 0) ? 1 : 0;
+    new_alu_lt0  = (alu & 0x8000) ? 1 : 0;
 
     /*
      * Memory references. ASEL = 0..3 dispatch a memory operation

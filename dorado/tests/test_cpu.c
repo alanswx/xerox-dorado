@@ -4716,7 +4716,16 @@ static int probe_full_boot_with_bootstrap(void)
                 int sent = (ethernet.eftp_max_seq > 0)
                     ? dorado_ethernet_time_broadcast(&ethernet)
                     : dorado_ethernet_breath_of_life(&ethernet);
-                next_bol_cycle = bb.cycles + (sent ? 2000000 : 100000);
+                /* Post-boot, model a REALISTIC broadcast cadence. Real
+                 * gateways send routing info every 30 wall seconds;
+                 * blasting one every 2M cycles (~8/emulated-second)
+                 * drives the Pup package's per-packet processing hard
+                 * enough that sysZone allocations outpace frees and
+                 * NetExec dies with Alloc error 1801 (zone full). The
+                 * startup raw-listen needs only the first few. */
+                uint64_t interval = sent ? 2000000 : 100000;
+                if (sent && ethernet.time_bcasts > 3) interval = 50000000;
+                next_bol_cycle = bb.cycles + interval;
             }
             uint16_t eth_mask = dorado_ethernet_wakeup_mask(&ethernet);
             for (int task = 0; task < 16; task++) {
@@ -5921,6 +5930,48 @@ static int probe_full_boot_with_bootstrap(void)
                     printf(" %06o",
                            dorado_visible_word_at_va(&mem, mds + row + k));
                 printf("\n");
+            }
+        }
+        /* sysZone census. AfterJunta builds the zone right after buf;
+         * Alloc.bcpl ZN: [Allocate Free OutOfSpace MalFormed anchor(3)
+         * rover minAdr maxAdr], then blocks minAdr..maxAdr with a
+         * signed length word each (negative = allocated), ending at a
+         * dummy -1. Identify the zone via the Allocate-frame arg seen
+         * at the swat (0o123244) but locate it generically: scan for
+         * a plausible ZN near the post-buf region. */
+        {
+            uint32_t zn = 0123240u;
+            uint32_t minadr = dorado_visible_word_at_va(&mem, mds + zn + 8u);
+            uint32_t maxadr = dorado_visible_word_at_va(&mem, mds + zn + 9u);
+            printf("       zone hdr@%06o:", zn);
+            for (uint32_t k = 0; k < 10u; k++)
+                printf(" %06o", dorado_visible_word_at_va(&mem,
+                                                          mds + zn + k));
+            printf("\n");
+            if (minadr > zn && maxadr > minadr && maxadr < 0200000u) {
+                printf("       sysZone@%06o: min=%06o max=%06o "
+                       "(%u words)\n", zn, minadr, maxadr,
+                       maxadr - minadr);
+                uint32_t p = minadr;
+                uint32_t free_total = 0, alloc_total = 0;
+                int blocks = 0;
+                while (p < maxadr && blocks < 500) {
+                    uint16_t lw = dorado_visible_word_at_va(&mem, mds + p);
+                    if (lw == 0177777u || lw == 0) break;
+                    int neg = (lw & 0x8000u) != 0;
+                    uint32_t size = neg ? (uint32_t)(0x10000u - lw)
+                                        : (uint32_t)lw;
+                    if (size == 0 || size > maxadr - p + 1) break;
+                    if (neg) alloc_total += size; else free_total += size;
+                    if (size >= 100)
+                        printf("       zone blk@%06o %s %u\n", p,
+                               neg ? "ALLOC" : "free ", size);
+                    p += size;
+                    blocks++;
+                }
+                printf("       zone census: %d blocks, alloc=%u "
+                       "free=%u scan-end=%06o\n",
+                       blocks, alloc_total, free_total, p);
             }
         }
         printf("       NetExec statics M[1010..1020]:");
@@ -7405,6 +7456,118 @@ static int test_mulsub_aemu(void)
     }
     mb_free(&mb);
     printf("PASS  test_mulsub_aemu (6 products, poisoned Carry)\n");
+    return 0;
+}
+
+/*
+ * test_divsub_aemu — run AEmu's DivSub (Various.mc) against the
+ * Divide/CDivide FF functions (HM p23). Entry: T,,Q = dividend,
+ * XTemp17 (RM 17) = divisor; +1 return: T = remainder, Q = quotient.
+ * The divide loop branches on the LATCHED Carry', and the quotient
+ * bit entering Q[15] is the LIVE ALU carry of each step's subtract.
+ */
+static int test_divsub_aemu(void)
+{
+    static mb_file mb;
+    mb_init(&mb);
+    if (mb_load(&mb, "../chm/dorado/AEmu.mb!2") != MB_OK) {
+        printf("SKIP  test_divsub_aemu (AEmu.mb not loadable)\n");
+        return 0;
+    }
+    static dorado_microcode mc;
+    if (dorado_microcode_load(&mb, &mc) != DM_OK) {
+        printf("SKIP  test_divsub_aemu (microcode load failed)\n");
+        mb_free(&mb);
+        return 0;
+    }
+    int img = mb_find_symbol_addr(&mb, mb.im_id, "DIVSUB");
+    EXPECT(img >= 0, "DIVSUB symbol not found");
+    uint16_t entry = (uint16_t)mc.image_to_real[img];
+    uint16_t hole = 0;
+    for (uint16_t a2 = 1; a2 + 1 < IM_SIZE; a2++)
+        if (!mc.im_present[a2] && !mc.im_present[a2 + 1]) {
+            hole = a2;
+            break;
+        }
+    EXPECT(hole != 0, "no absent IM pair for return parking");
+
+    static const struct { uint32_t dvd; uint16_t dvs; } cases[] = {
+        { 554, 2 }, { 100, 7 }, { 0xFFFF, 1 },
+        { 0x12345678u, 0x7000 }, { 1, 2 }, { 65535u * 3u + 2u, 3 },
+        /* FillWithDash's (2,,135B)/7 - high word nonzero but no
+         * overflow; spurious +2 (divide check) returns swatted the
+         * NetExec banner draw. */
+        { 0x0002005Du, 7 }, { 0x7FFF0000u, 0x8000 },
+    };
+    for (size_t i2 = 0; i2 < sizeof cases / sizeof cases[0]; i2++) {
+        dorado_cpu cpu;
+        dorado_cpu_init(&cpu, &mc, entry);
+        cpu.T = (uint16_t)(cases[i2].dvd >> 16);
+        cpu.Q = (uint16_t)cases[i2].dvd;
+        cpu.RBase = 0;
+        cpu.RM[017] = cases[i2].dvs;
+        cpu.Link = hole;
+        cpu.alu_carry = 1;            /* poison the latched carry */
+        for (int s = 0; s < 300 && !cpu.halted; s++)
+            dorado_cpu_step(&cpu);
+        EXPECT(cpu.halted && cpu.real_PC == hole,
+               "DivSub(%lu,%u) bad return (PC=0o%o, want 0o%o)",
+               (unsigned long)cases[i2].dvd, cases[i2].dvs,
+               cpu.real_PC, hole);
+        uint16_t wq = (uint16_t)(cases[i2].dvd / cases[i2].dvs);
+        uint16_t wr = (uint16_t)(cases[i2].dvd % cases[i2].dvs);
+        EXPECT(cpu.Q == wq && cpu.T == wr,
+               "DivSub(%lu,%u) = q %u r %u, want q %u r %u",
+               (unsigned long)cases[i2].dvd, cases[i2].dvs,
+               cpu.Q, cpu.T, wq, wr);
+    }
+    mb_free(&mb);
+    printf("PASS  test_divsub_aemu (6 quotients, poisoned Carry)\n");
+    return 0;
+}
+
+/*
+ * test_divx_aemu — drive AEmu's full Nova DIV wrapper (S-Group.mc
+ * DIVx): ACs live on STK, StkP at AC0. [AC0,,AC1]/AC2 must leave
+ * AC1=quotient, AC0=remainder. Catches STK & +/- modifier ordering
+ * bugs that calling DivSub directly cannot (NetExec's FillWithDash
+ * divide left AC1 unstored and swatted on a phantom divide check).
+ */
+static int test_divx_aemu(void)
+{
+    static mb_file mb;
+    mb_init(&mb);
+    if (mb_load(&mb, "../chm/dorado/AEmu.mb!2") != MB_OK) {
+        printf("SKIP  test_divx_aemu (AEmu.mb not loadable)\n");
+        return 0;
+    }
+    static dorado_microcode mc;
+    if (dorado_microcode_load(&mb, &mc) != DM_OK) {
+        printf("SKIP  test_divx_aemu (microcode load failed)\n");
+        mb_free(&mb);
+        return 0;
+    }
+    int img = mb_find_symbol_addr(&mb, mb.im_id, "DIVX");
+    EXPECT(img >= 0, "DIVX symbol not found");
+    uint16_t entry = (uint16_t)mc.image_to_real[img];
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, entry);
+    cpu.StkP = 041;
+    cpu.STK[041] = 0;        /* AC0 = dividend high */
+    cpu.STK[042] = 93;       /* AC1 = dividend low  */
+    cpu.STK[043] = 7;        /* AC2 = divisor       */
+    cpu.RBase = 0;
+    cpu.alu_carry = 1;
+    for (int s = 0; s < 400 && !cpu.halted; s++)
+        dorado_cpu_step(&cpu);
+    /* The tail IFUJump halts (no IFU armed) — by then the AC stores
+     * are done. */
+    EXPECT(cpu.STK[042] == 13 && cpu.STK[041] == 2,
+           "DIVx 93/7: AC0=%u AC1=%u StkP=0o%o (want AC0=2 AC1=13)",
+           cpu.STK[041], cpu.STK[042], cpu.StkP);
+    mb_free(&mb);
+    printf("PASS  test_divx_aemu (93/7 via Nova DIV wrapper)\n");
     return 0;
 }
 
@@ -9578,6 +9741,8 @@ int main(void)
     rc |= test_memory_decode_uses_table8b_when_ff_not_ok();
     rc |= test_bootstrap_ldf_dispatch();
     rc |= test_mulsub_aemu();
+    rc |= test_divsub_aemu();
+    rc |= test_divx_aemu();
     rc |= test_cpu_fault_info_visible();
     rc |= test_cpu_pipe4_no_error_baseline();
     rc |= test_bc_timing_previous_instr();
