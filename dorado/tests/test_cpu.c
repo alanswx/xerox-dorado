@@ -5251,6 +5251,46 @@ static int probe_full_boot_with_bootstrap(void)
         int rendered_a = dorado_display_render_fifo(&display, 0, &dst_y);
         int rendered_b = dorado_display_render_fifo(&display, 2, &dst_y);
         int rendered = rendered_a + rendered_b;
+        /* Direct display-list rasterizer: walk DASTART -> DCB chain
+         * (Alto format) straight from memory and paint the framebuffer.
+         * This bypasses the not-yet-running DWT word task so we can see
+         * what NetExec actually drew into its display list. Alto DCB:
+         * w0=next, w1=ctl (b15 res, b14 inv, b8:13 HTAB words,
+         * b0:7 NWRDS), w2=SA bitmap word addr, w3=SLC scanlines. */
+        {
+            uint32_t dmds = dorado_br_get(&mem, 036);
+            uint32_t dl = dorado_visible_word_at_va(&mem, dmds + 0420u);
+            int dcb_pixels = 0, y = 0;
+            for (int g = 0; g < 64 && dl > 1u && y < DORADO_DISPLAY_H; g++) {
+                uint16_t c = dorado_visible_word_at_va(&mem, dmds + dl + 1u);
+                uint16_t sa = dorado_visible_word_at_va(&mem, dmds + dl + 2u);
+                uint16_t slc = dorado_visible_word_at_va(&mem, dmds + dl + 3u);
+                int htab = (c >> 8) & 077;
+                int nwrds = c & 0377;
+                int inv = (c >> 14) & 1;
+                /* Alto shows SLC scanlines, doubled vertically. */
+                for (int s = 0; s < (int)slc * 2 && y < DORADO_DISPLAY_H;
+                     s++, y++) {
+                    int row = s / 2;
+                    for (int wi = 0; wi < nwrds; wi++) {
+                        uint16_t bits = dorado_visible_word_at_va(
+                            &mem, dmds + sa + (uint32_t)(row * nwrds + wi));
+                        for (int b = 0; b < 16; b++) {
+                            int pix = (bits >> (15 - b)) & 1;
+                            if (inv) pix ^= 1;
+                            int x = (htab + wi) * 16 + b;
+                            if (x < DORADO_DISPLAY_W) {
+                                dorado_display_set_pixel(&display, x, y, pix);
+                                if (pix) dcb_pixels++;
+                            }
+                        }
+                    }
+                }
+                dl = dorado_visible_word_at_va(&mem, dmds + dl);
+            }
+            printf("       DCB rasterize: dl_pixels=%d last_y=%d\n",
+                   dcb_pixels, y);
+        }
         int fb_nonzero = 0;
         for (size_t i = 0; i < sizeof display.fb; i++) {
             if (display.fb[i]) fb_nonzero++;

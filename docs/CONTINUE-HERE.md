@@ -228,6 +228,32 @@ STATE at end of session: 400M-cycle boot has healthy sysZone
 (42-line strip + 2x 38-word x 6-scanline bands at 142544B/140606B
 + tab bands), eftp_replies=88, fb still cursor-only (DWT renderer
 never paints the DCB text - separate gap).
+MILESTONE (2026-06-12): FULL SCREEN DRAW ACHIEVED. The NetExec
+banner "-- XEROX BCPL Net Executive" + machine/date line now
+rasterizes to the framebuffer. Mechanism: a direct display-list
+rasterizer in probe_full_boot (tests/test_cpu.c, just before the
+snapshot) walks DASTART(VM 420)->DCB chain straight from MDS memory
+- Alto DCB format w0=next, w1=ctl(b15 res,b14 inv,b8:13 HTAB words,
+b0:7 NWRDS), w2=SA bitmap word addr, w3=SLC (scanlines, rendered
+x2 vertically) - and paints each DCB band with dorado_display_set_
+pixel (MSB=leftmost, 1=black). At a 124M-cycle budget (BEFORE the
+page-zero/divide crash at 124,025,617) NetExec is healthy and the
+display list holds two 38-word x 6-SLC text bands (the title +
+machine/date lines, DCB[1]@142540 DCB[2]@140602) over a 42-SLC
+blank strip. dl_pixels=2070. Snapshot: /tmp/dorado_dcb.pgm; ASCII
+reference checked in at docs/netexec-banner.txt.
+This is a SNAPSHOT rasterizer (reads the display list NetExec
+built); it is NOT the cycle-accurate DWT path. The real DWT word
+task still barely runs (iofetch=0, dwt_wakeups=1) because the DHT
+(task 3) does not repeatedly set the WCB/raster trigger flags that
+dorado_display_dwt_wakeup() needs - that remains the open item for
+a hardware-accurate live display. Two remaining gaps for a
+self-sustaining boot: (a) DHT->DWT wakeup chain (display.c
+next_wcb_flag/raster_next_wt_flag are set from DHTFlag/RAST_TASKCMD
+writes but the DHT isn't issuing them per scanline), and (b) the
+BitBlt page-zero destination crash at 124M (BBT with a page-zero
+DBCA; see SESSION-10d).
+
 SESSION-10d: REF_W (symbol-independent) CONFIRMS it. Per-ref dump
 (DORADO_STORE_WINDOW) at cyc 124,025,621: STORE (kind=5) at uPC
 1201B, MemBase=22B (Alto MDS bank, correct), BBDst=0xE4=344B,
