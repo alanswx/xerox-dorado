@@ -2401,7 +2401,7 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                 fprintf(stderr,
                         "IFUDISP pc=0o%o pcf=0o%o br31=%05X op=%03o "
                         "flt=%d n=%d insset=%u rh=%06o lh=%06o "
-                        "vec=0o%o\n",
+                        "vec=0o%o stkp=%03o acs=%06o,%06o,%06o,%06o\n",
                         cpu->real_PC, cpu->ifu_pcf,
                         cpu->mem ? dorado_br_get(cpu->mem, 31) : 0,
                         opcode, fetch_faulted, n_slot,
@@ -2409,7 +2409,12 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                         cpu->mc ? cpu->mc->ifum_lo[adr] : 0,
                         cpu->mc ? cpu->mc->ifum_hi[adr] : 0,
                         (unsigned)(((~(cpu->mc ? cpu->mc->ifum_lo[adr] : 0))
-                                    & 0x3FF) << 2));
+                                    & 0x3FF) << 2),
+                        cpu->StkP & 0xFF,
+                        cpu->STK[cpu->StkP & 0xFF],
+                        cpu->STK[(cpu->StkP + 1) & 0xFF],
+                        cpu->STK[(cpu->StkP + 2) & 0xFF],
+                        cpu->STK[(cpu->StkP + 3) & 0xFF]);
             }
             if (fetch_faulted) {
                 *next = ifu_trap_addr(0000, n_slot, cpu->ifu_insset);
