@@ -251,7 +251,30 @@ task 3 then task 2 spinning at 0o7003/0o234). Task 0 advances
 0o5400 -> 0o7116 -> 0o7012 then STALLS at ~0o7012 before turning on
 the Ethernet receiver (rx stays 0) or setting DASTART, so
 breath-of-life is never accepted (bol=0) and the banner never
-draws from the standalone path. FINDING (traced): the AEmu world DOES start (task 0 reaches AEmu
+draws from the standalone path. FINDING-2 (deep trace via DORADO_MACHINE_PCHIST init sequence):
+the world starts at AEmu InitMap (1070->1076), runs a long init
+clearing loop (4426 4436 4436 4437 x N), then DELEGATES to a shared
+InitMem routine in INITIAL's address range and gets stuck in a
+repeating loop: 7140 7167(x9) 7166 7172 7175 ... 7065 5400 5430
+5434 5450 5454 5470 5474 7066 7064 7160 7171 (these addresses are
+Initial/kernel leftovers; AEmu.mb has no code there, and
+aemu_only.eb is AEmu-ONLY so it relies on the substituted
+init_mc Initial/kernel/memMisc routines - the SAME setup the
+harness uses to reach the banner). Confirmed NOT the cause:
+storage is correctly 1 module (stwords=4194304); removing the
+fault-task park did not change it; the identity-map shim ran.
+So the loop is a shared InitMem/InitMap routine that terminates
+in the harness but not here. The remaining divergence is in the
+post-LoadRam world execution and needs a SIDE-BY-SIDE task-0 PC
+comparison: run the harness (test_cpu) with the identical env
+(DORADO_ALTO_BOOT_ETHERNET=1 DORADO_NO_DISK=1
+DORADO_ETH_BOOT_110=/tmp/aemu_only.eb DORADO_STORAGE_MODULES=1)
+and a focused PC trace over 5400/7140/7167, and diff against the
+machine's init sequence to find the first instruction where they
+diverge (likely a register/Cnt/ALUFM value feeding the loop's
+exit test). Tooling: DORADO_MACHINE_PCHIST=1 --progress dumps the
+machine's task-0 hot PCs + first-600 init sequence + storage size.
+OLD-FINDING: the AEmu world DOES start (task 0 reaches AEmu
 real 0o1070, which carries the Multiply FF), but it then LOOPS in
 KERNEL-level microcode at 0o7003-0o7167 (these addresses are
 present in kernel.mb/Initial.mb, ABSENT in AEmu.mb) instead of

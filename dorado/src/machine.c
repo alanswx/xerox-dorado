@@ -93,6 +93,8 @@ struct dorado_machine {
     uint64_t next_display_scanline_cycle;
 
     uint32_t pchist[4096];
+    uint16_t initseq[600];     /* first task-0 PCs after world-load */
+    int      initseq_n;
 };
 
 static const uint8_t standard_alufm[ALUFM_SIZE] = {
@@ -460,16 +462,12 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
             !(pre_pc >= 06000 && pre_pc < 07700)) {
             restore_standard_alufm(&m->mc);
             m->ether_loaded_world_cycle = bb->cycles;
-            /* The LoadRam reload replaced the control store, but the
-             * I/O tasks' saved TPCs still point into the OLD microcode.
-             * If they are woken now they run stale code, spin at high
-             * priority, and starve the emulator task before it can run
-             * the loaded world's Start and re-initialize each task.
-             * Park every non-emulator task (invalid TPC) and quiet the
-             * junk timer so task 0 runs first and sets them up itself. */
-            for (int task = 1; task < 16; task++)
-                cpu->task_tpc[task] = 0177777;
-            cpu->ready = 1u;
+            /* Quiet the junk timer and drop any stale pending wakeups
+             * at the LoadRam handoff so the high-priority I/O tasks do
+             * not run their pre-reload microcode and starve the
+             * emulator task. Do NOT invalidate task TPCs: the fault
+             * task (0o17) must remain runnable to service the map
+             * faults InitMem raises while it enumerates storage. */
             cpu->wakeup_pending = 0;
             cpu->junk_tw_enabled = 0;
             cpu->junk_tw_countdown = 0;
@@ -501,6 +499,8 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
         if (m->ether_loaded_world_cycle && is_imfetch && cpu->ctask == 0 &&
             pre_pc < 4096 && getenv("DORADO_MACHINE_PCHIST")) {
             m->pchist[pre_pc]++;
+            if (m->initseq_n < (int)(sizeof m->initseq / sizeof m->initseq[0]))
+                m->initseq[m->initseq_n++] = (uint16_t)pre_pc;
         }
 
         if (dorado_cpu_step(cpu)) break;
@@ -605,6 +605,12 @@ void dorado_machine_debug(dorado_machine *m)
         fprintf(stderr, "[machine] task-0 hot PCs:");
         for (int i = 0; i < 12 && top[i] >= 0; i++)
             fprintf(stderr, " 0o%o=%u", top[i], m->pchist[top[i]]);
+        fprintf(stderr, "\n[machine] task-0 init sequence (first %d):\n",
+                m->initseq_n);
+        for (int i = 0; i < m->initseq_n; i++) {
+            fprintf(stderr, " %o%s", m->initseq[i],
+                    (i % 16 == 15) ? "\n" : "");
+        }
         fprintf(stderr, "\n");
     }
     dorado_ethernet *e = &m->ethernet;
@@ -613,7 +619,7 @@ void dorado_machine_debug(dorado_machine *m)
     fprintf(stderr,
             "[machine] booted=%d cyc=%llu pc=0o%o tk=%u | eth: rx=%u tx=%u "
             "req=%llu repl=%llu eftp_r=%llu eftp_q=%llu seq=%u bol=%llu "
-            "time=%llu | DASTART=%06o\n",
+            "time=%llu | DASTART=%06o stwords=%zu\n",
             dorado_machine_booted(m),
             (unsigned long long)m->bb.cycles,
             m->cpu.real_PC, m->cpu.ctask,
@@ -625,7 +631,7 @@ void dorado_machine_debug(dorado_machine *m)
             e->eftp_max_seq,
             (unsigned long long)e->bol_queued,
             (unsigned long long)e->time_bcasts,
-            dastart);
+            dastart, m->mem.storage_words);
 }
 
 int dorado_machine_render_display_list(dorado_machine *m)
