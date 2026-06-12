@@ -243,22 +243,33 @@ corruption, not a divide bug:
    M[2]=77400B trap -> Swat at 190M. (The AC-save 2/135B/7 is just
    the divide args/remainder mid-veneer; MulSub/DivSub/DIVx are all
    CORRECT - test_mulsub_aemu, test_divsub_aemu, test_divx_aemu.)
-4. WHY is a frame in page zero: caller chain 23763B -> 12672B runs
-   on a stack already at ~270B. PRIME SUSPECT FOUND by the new
-   IntVec/IST probe (prints Alto interrupt vector 501B+ch -> IST
-   [mask Stack StackMin InitPC] at probe end): the LIVE Ethernet
-   interrupt IST (IntVec[1] @160224B, allocated in sysZone) has
-   **Stack=000000, InitPC=000002, mask=40B, StackMin=140102B** -
-   Stack and InitPC are garbage/zero. Interrupt.asm IntEnt loads
-   AC2 from IST.Stack, so an interrupt through this IST runs BCPL
-   handlers with frame ~0 -> page-zero spray. InitializeInterrupt
-   (InterruptInit.bcpl) sets Stack=region+length-4, InitPC=proc -
-   so either PupAlEthInit passed garbage, the IST got overwritten
-   later (it is in the zone - check who writes 160224B+10..12 via
-   STORE_TRACE_VA="160234,160236"), or our emulation corrupts the
-   region. NEXT STEP: trace stores to the IST fields; also check
-   IntVec[0]@2210, [8]@2132, [12]@7513 (look like stale resident
-   leftovers, possibly fine).
+4. WHY is a frame in page zero - CORRECTED after tracing: the
+   "IST with Stack=0" reading was WRONG. InitAltoEther
+   (PupAlEthInit.bcpl) redirects interruptVector!i to
+   `lv ndb>>EtherNDB.asmProlog` - M[502B]=160224B is the Ethernet
+   NDB's asm prologue, and the "Stack/InitPC" words I read were NDB
+   queue fields (STORE_TRACE on 160233-160240 shows them written
+   constantly by Enqueue/Dequeue at br31=50033B/50050B and a
+   counter at 50142B - normal). The REAL IST is at
+   ndb+lenEtherNDB, not yet inspected.
+   The corrected suspect: routine 4551B is the Context package's
+   Block/yield (AC2 <- ctx arg, ctx!1 <- suspended frame). The
+   bad slice ran inside a context resumed at cyc 124,016,575 whose
+   StkMin (M[335B]) was set to a HEALTHY 155303B, yet the BCPL
+   frame was ~270B: i.e. **the context's CTX.Stack field (ctx!1)
+   held ~270B garbage while CTX.StackMin (ctx!2) stayed intact**.
+   Context resume trusts ctx!1 with no bounds check, so execution
+   continued at a page-zero frame and its in-frame vec stores
+   flattened M[344B].
+   NEXT STEP: the corrupt context block is at ~155277B (StackMin
+   155303B = ctx+3+extra). Run STORE_TRACE_VA="155277,155304" to
+   catch who writes the bad ctx!1 (one 400M boot, watch values
+   ~270B), then trace that writer. Candidate mechanisms: a Block()
+   while already running on a clobbered frame (cascading), an
+   interrupt-path save storing a bad frame, or one of our
+   remaining microarchitecture gaps corrupting AC2 mid-slice.
+   Also identify which context 155277B is (walk the ctx ring at
+   probe end and print each ctx's Next/Stack/StackMin/proc).
 5. Probe additions this session: IntVec/IST dump, sysZone census,
    BCPL stack window, code windows. ETHC control-write trace env:
    DORADO_ETHC_TRACE=1 (+TRACE_GATE).
