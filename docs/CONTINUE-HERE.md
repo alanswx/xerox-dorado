@@ -228,6 +228,27 @@ STATE at end of session: 400M-cycle boot has healthy sysZone
 (42-line strip + 2x 38-word x 6-scanline bands at 142544B/140606B
 + tab bands), eftp_replies=88, fb still cursor-only (DWT renderer
 never paints the DCB text - separate gap).
+UPDATE (same session, post-commit): with the Divide fixes the boot
+now runs to cycle ~189.97M before the SAME FillWithDash swat
+(STORE_TRACE_VA="700,707" -> AC-save at 189968878-189970790;
+AC0=2 AC1=135B AC2=7 AC3=157167B PC=21071B). That is ~97M cycles
+(11+ emulated seconds) of healthy NetExec running - many Title
+banner redraws succeed before one divide dies, which all but
+proves an ASYNC interference (a task interleaving mid-DivSub).
+Junk.mc's `Q_ T` is in an emulator-only subroutine (ReadCounters),
+NOT the junk task body; DisplayMain.mc and AltoEther.mc contain no
+Q_/Cnt_ at all - so the obvious Q/Cnt clobber suspects are
+exonerated at the source level. NEXT: capture the microinstruction
+interleaving in the ~2000 cycles before the swat (gate
+189966000,189971000; need a per-cycle task+uPC trace - add one if
+DORADO_PCWATCH doesn't fit) and watch DivSub's Cnt/Q/latched-Carry
+across the interleaved task slices; verify our task-switch
+save/restore of the latched ALU branch flags vs HM, and whether
+Return/SCall skew interacts with a task switch at the Return
+boundary. The swat cycle moved 92.9M -> 190M with identical
+signature across the last two binaries, so it reproduces
+deterministically per build.
+
 OPEN: one remaining swat, PC=21071B = return from `jsr @344,z`
 (the BCPL divide veneer) in FillWithDash's dash-count divide
 (NetExec.bcpl Title path, code at 21050B-21105B): AC-save shows
