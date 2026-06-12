@@ -228,6 +228,41 @@ STATE at end of session: 400M-cycle boot has healthy sysZone
 (42-line strip + 2x 38-word x 6-scanline bands at 142544B/140606B
 + tab bands), eftp_replies=88, fb still cursor-only (DWT renderer
 never paints the DCB text - separate gap).
+STANDALONE EMULATOR (2026-06-12): the first runnable binary outside
+the test harness now exists. include/machine.h + src/machine.c lift
+the boot orchestration out of test_cpu.c's probe_full_boot_with_
+bootstrap into a reusable library (dorado_machine_create/run_until/
+render_display_list/booted/debug); src/dorado.c is the CLI frontend
+(build/dorado). Build: `make build/dorado`; run:
+  ./build/dorado --eb /tmp/aemu_only.eb --cycles 124000000 \
+                 --out screen.pgm --progress
+Status: boots the full hard chain through STAGE 1 (BaseBoard cold
+boot, 3 boot-button presses, Bootstrap swap @0o7740, canonical
+Initial substitution @0o7717, PresetMap identity-map shim @0o6222,
+CheckChecksumAndLoad @0o6460, LoadRam handoff -> world loaded @~32M,
+booted=1, eth requests=1 replies=63). Library sizes storage to one
+4MW module directly (no DORADO_STORAGE_MODULES dependency) and
+seeds boot keys / parks I/O tasks in-code.
+STAGE 2 remaining gap (precisely localized): at the LoadRam handoff
+the machine now parks tasks 1..15 (invalid TPC, junk off) and gates
+display wakeups on DASTART, so the EMULATOR task (0) runs in the
+loaded world instead of being starved by stale-TPC I/O tasks (was
+task 3 then task 2 spinning at 0o7003/0o234). Task 0 advances
+0o5400 -> 0o7116 -> 0o7012 then STALLS at ~0o7012 before turning on
+the Ethernet receiver (rx stays 0) or setting DASTART, so
+breath-of-life is never accepted (bol=0) and the banner never
+draws from the standalone path. NEXT: trace task 0 from world-load
+to the 0o7012 stall (DORADO_MACHINE_TRACE + a PC histogram) and
+compare against the harness's loaded-world init - the harness
+NATURAL path did NOT reset TPCs yet still reached the banner, so
+either (a) my world-loaded detection fires earlier than the
+harness's (restoring ALUFM / parking tasks mid-init), or (b) the
+loaded world needs an I/O task I parked (junk timer? fault task?)
+to make progress past 0o7012, or (c) the keyboard BS-down seed
+isn't seen at 0o7012's boot-decision read (MDS bank). The banner
+ITSELF renders correctly from the test harness (commit 6bbdf7d);
+this is purely about reproducing it from the standalone binary.
+
 MILESTONE (2026-06-12): FULL SCREEN DRAW ACHIEVED. The NetExec
 banner "-- XEROX BCPL Net Executive" + machine/date line now
 rasterizes to the framebuffer. Mechanism: a direct display-list
