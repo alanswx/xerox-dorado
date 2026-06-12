@@ -194,12 +194,22 @@ InitializeContext works in general - something specifically
 corrupts ctx[0] (FeedEther, the 40-word eFSS context, the FIRST
 allocated+enqueued) between its init and the first resume.
 
-NEXT (one command): DORADO_STORE_TRACE_VA="142476,142502" over a
-130 M run - catch every store to the FeedEther CTX words and find
-the corruptor (suspects: Allocate/Zero overlap in sysZone, the
-Enqueue chain, or a wild store from the ether/interrupt era; note
-the ctx sits at the TOP of sysZone next to the 1-word ftpCtxQ vec
-and AfterJunta's own stack frame - stkLim arithmetic!).
+THE CORRUPTOR IS CAUGHT (the one-command probe ran): the CTX life
+in stores: InitializeContext writes Next=0, StackMin=ctx+4,
+**Stack=0o142542 CORRECTLY** (cyc 92053271, br31=0o47764), ctx!3=ndb,
+Enqueue sets Next - and then at cyc 92095284 a Zero()/BLKS issued
+from caller code at ~VM 0o4536 wipes ctx+0 AND ctx+1 (CTX.Stack!).
+Later enqueues restore Next but Stack stays 0 -> the first resume
+crashes into Swat. The Zero belongs to a LATER Allocate (timing
+matches InitPupLevel1's `pupRT = Allocate(zone, n); Zero(pupRT, n)`,
+the 20+1-entry routing table) - **the zone allocator (Alloc package)
+returns a block overlapping the earlier FeedEther-context
+allocation on our emulator**. NEXT: REF_W window 92095200-92095400
+to get the exact zeroed range; reconstruct the Allocate sequence;
+find the emulation defect in the allocator's arithmetic (the Alloc
+package's compare/carry chain - the same instruction-semantics class
+as the BDispatch/RBase/Map bugs). Fix it, and the contexts run:
+Title paints the banner.
 
 ALSO AVAILABLE NOW: TeleSwat gives a REMOTE DEBUG CHANNEL into the
 parked machine (Fetch/Store/Swap) - the fake server can peek/poke
