@@ -5873,6 +5873,14 @@ static int probe_full_boot_with_bootstrap(void)
                 break;
             }
         }
+        printf("       NetExec statics M[1010..1020]:");
+        for (uint32_t a4 = 01010u; a4 <= 01020u; a4++)
+            printf(" %06o", dorado_visible_word_at_va(&mem, mds + a4));
+        printf(" M[1113]=%06o M[3344]=%06o @M[3344]=%06o\n",
+               dorado_visible_word_at_va(&mem, mds + 01113u),
+               dorado_visible_word_at_va(&mem, mds + 03344u),
+               dorado_visible_word_at_va(&mem, mds +
+                   dorado_visible_word_at_va(&mem, mds + 03344u)));
         printf("       NetExec raw-exch cells M[3140..3150]:");
         for (uint32_t a3 = 03140u; a3 <= 03150u; a3++)
             printf(" %06o", dorado_visible_word_at_va(&mem, mds + a3));

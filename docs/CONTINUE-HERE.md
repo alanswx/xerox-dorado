@@ -123,6 +123,26 @@ stack. Sequence of unblocks, each verified by the TX trace:
 3. NetExec LEARNED ITS NET: its requests changed from dnet=0/dhost=1
    to net1/host1 after the socket-2 routing broadcasts.
 
+SESSION-5 STRUCTURAL DISCOVERY: the module occupying VM ~0o1664-
+0o3667 with statics at M[0o1010..0o1113] is the FullBootBase
+RESIDENT (BuildNetExec.cm links "FullBootBase/J ... DiskBoot.Run/B
+300/N FullBootBase.xc/S 1411/V"): it provides MoveBlock
+(static M[0o1013] = 0o3513 - verified), the interrupt-window sub
+(0o2014), the channel handlers, the RCLK timer pump (M[0o1113] =
+0o2330), and the raw ether exchange service (M[0o1012] = 0o3203,
+entry chain 0o3203 -> JSRII @M[0o1017]=0o3530 -> the SIO+poll at
+0o3205-0o3232). The eternal loop never calls the Context package's
+Block (0o47701) - all its JSRII statics resolve inside the module -
+so the coroutine ring stays frozen (ring resume PCs identical across
+every run) while the bootbase service spins. NetExec's socket-level
+204B requests are emitted from THIS machinery (pre-context), not
+from the GatewayListener context. The received replies are stored at
+VM 0o3531+ (verified EIT stores) - into what appears to be the
+service's own buffer/return area; the per-exchange pointer cells
+(M[0o3144..0o3150] = 600B..610B) are also REUSED as scratch at
+runtime, so static disassembly of the @-operands is unreliable -
+trace live.
+
 STILL OPEN (the current frontier):
 - The 204B routing requests never STOP - the replies reach the
   machine (InDone + EIT consumption verified) but the requesting
