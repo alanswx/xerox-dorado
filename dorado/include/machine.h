@@ -67,6 +67,28 @@ dorado_display *dorado_machine_display(dorado_machine *m);
 /* Print a one-line Ethernet/EFTP/display state summary to stderr. */
 void dorado_machine_debug(dorado_machine *m);
 
+/* Set a host-translated key up/down (down != 0). The machine forces
+ * the boot keys until the Ethernet boot selection is complete; once
+ * NetExec is loading, these live key states are what the running world
+ * polls. */
+void dorado_machine_set_key(dorado_machine *m, dorado_display_key key,
+                            int down);
+
+/* 1 once the boot-key selection phase is over and live keyboard input
+ * is delivered to the running world. */
+int dorado_machine_interactive(const dorado_machine *m);
+
+/* Mouse button flags (Alto convention, matches UTILIN bit values). */
+#define DORADO_MOUSE_MIDDLE 0x1
+#define DORADO_MOUSE_RIGHT  0x2
+#define DORADO_MOUSE_LEFT   0x4
+
+/* Set the absolute mouse position (x in 0..807, y in 0..605) and button
+ * bitmask (DORADO_MOUSE_*). Written to the Alto low-core mouse cells
+ * (MOUSEX 0o424 / MOUSEY 0o425) and the UTILIN button word
+ * (0o177030..0o177033) once the world is interactive. */
+void dorado_machine_set_mouse(dorado_machine *m, int x, int y, int buttons);
+
 /* Rasterize the Alto display list (DASTART -> DCB chain) from memory
  * straight into the display framebuffer, independent of the DWT word
  * task. Returns the number of lit pixels painted. */

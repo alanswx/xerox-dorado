@@ -228,6 +228,34 @@ STATE at end of session: 400M-cycle boot has healthy sysZone
 (42-line strip + 2x 38-word x 6-scanline bands at 142544B/140606B
 + tab bands), eftp_replies=88, fb still cursor-only (DWT renderer
 never paints the DCB text - separate gap).
+LIVE SDL WINDOW + KEYBOARD + MOUSE (2026-06-12): the emulator now
+has a windowed frontend. `make sdl` builds build/dorado-sdl (SDL2,
+pure C; the core stays C99). It boots the machine and presents the
+808x606 Dorado display in a window, rasterizing the Alto display
+list from memory each frame; host keyboard is translated to the
+Alto key matrix and host mouse to the Alto mouse cells, both
+delivered to the running world once it is interactive. Run:
+  make sdl && ./build/dorado-sdl --eb /tmp/aemu_only.eb
+Flags: --eb --eftp --quote --no-alto-boot --scale N --speed CYCLES.
+F1 pauses; Cmd/Ctrl+Q quits. Machine API added (machine.h):
+dorado_machine_set_key (dorado_display_key), dorado_machine_set_mouse
+(x,y,buttons; MOUSEX 0o424 / MOUSEY 0o425, buttons UTILIN
+0o177030-0o177033 active-low, Left=4/Middle=1/Right=2 per ContrAlto),
+dorado_machine_interactive. The machine forces the boot keys
+(BS-down) until the EFTP transfer starts (eftp_max_seq>0 = boot
+selection done), then releases to live host input -- so typing
+reaches NetExec's command line. Mouse cells (MOUSEX/Y) and the
+ReadTerminal 7-wire message map were taken from AEmu DisplayAux.mc
+(msg types: 1-4 kbd 177034-177037, 5 buttons 177033/177030, 6 mouse
+deltaX/Y, MouseXLoc=424) and salto/ContrAlto. Headless `dorado`
+still renders the banner (2070 px) and all 10 suites pass after the
+seed-block change. NOTE: NetExec is keyboard-driven and may not move
+the cursor from the mouse; the mouse plumbing is correct for OSes
+that read MOUSEX/Y. Next: a windowed live display naturally wants
+the cycle-accurate DWT path (still iofetch=0) for an authentic
+self-refreshing screen rather than the per-frame display-list
+rasterizer; and an optional ImGui debug target.
+
 STANDALONE BINARY BOOTS THE BANNER (2026-06-12): SOLVED. The
 missing piece was the Mesa boot-parameter seed: the harness seeds
 STK[1]=0110 (boot file number), STK[2]=056623 (BootParameterSeal),

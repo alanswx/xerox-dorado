@@ -91,6 +91,11 @@ struct dorado_machine {
     uint64_t ether_loaded_world_cycle;
     uint64_t next_bol_cycle;
     uint64_t next_display_scanline_cycle;
+    int      keys_live;        /* 1 once boot selection is done and the
+                                * frontend's live keys drive the world */
+    int      mouse_present;    /* 1 once the frontend has set the mouse */
+    int      mouse_x, mouse_y; /* absolute mouse position (Alto coords) */
+    int      mouse_buttons;    /* DORADO_MOUSE_* bitmask                */
 
     uint32_t pchist[4096];
     uint16_t initseq[600];     /* first task-0 PCs after world-load */
@@ -144,6 +149,23 @@ static void machine_seed_keyboard(dorado_memory *mem, const uint16_t w[4])
             uint32_t va = (bases[b] + 0177034u + i) & 0x0FFFFFFFu;
             machine_store_va(mem, va, w[i]);
         }
+    }
+}
+
+/* Seed the Alto mouse cells: MOUSEX 0o424 / MOUSEY 0o425 (absolute
+ * position) and the UTILIN button word 0o177030..0o177033 (active-low
+ * ~buttons, matching ContrAlto's ~(buttons|keyset)). Written at each
+ * plausible base like the keyboard words. */
+static void machine_seed_mouse(dorado_memory *mem, int x, int y, int buttons)
+{
+    if (!mem || !mem->storage) return;
+    uint16_t bw = (uint16_t)~((unsigned)buttons & 07u);
+    uint32_t bases[] = { 0, dorado_br_get(mem, 031), dorado_br_get(mem, 036) };
+    for (size_t b = 0; b < sizeof bases / sizeof bases[0]; b++) {
+        machine_store_va(mem, (bases[b] + 0424u) & 0x0FFFFFFFu, (uint16_t)x);
+        machine_store_va(mem, (bases[b] + 0425u) & 0x0FFFFFFFu, (uint16_t)y);
+        for (uint32_t a = 0177030u; a <= 0177033u; a++)
+            machine_store_va(mem, (bases[b] + a) & 0x0FFFFFFFu, bw);
     }
 }
 
@@ -497,15 +519,34 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
          * not modeled, so write the polled words directly. */
         if (m->alto_ether_boot && m->ether_loaded_world_cycle &&
             !cpu->ifu_active) {
-            uint16_t w[4] = {
-                0xFFFEu,                                  /* BS down      */
-                m->alto_ether_quote ? 0xFFF7u : 0xFFFFu,  /* quote        */
-                0xFFFFu, 0xFFFFu,
-            };
-            dorado_display_keyboard_set_key(disp, DORADO_KEY_BS, 1);
-            dorado_display_keyboard_set_key(disp, DORADO_KEY_QUOTE,
-                                            m->alto_ether_quote);
-            machine_seed_keyboard(&m->mem, w);
+            if (eth->eftp_max_seq == 0) {
+                /* Boot-selection phase: hold BS (and quote) down so the
+                 * world picks the Ethernet software boot. */
+                uint16_t w[4] = {
+                    0xFFFEu,
+                    m->alto_ether_quote ? 0xFFF7u : 0xFFFFu,
+                    0xFFFFu, 0xFFFFu,
+                };
+                dorado_display_keyboard_set_key(disp, DORADO_KEY_BS, 1);
+                dorado_display_keyboard_set_key(disp, DORADO_KEY_QUOTE,
+                                                m->alto_ether_quote);
+                machine_seed_keyboard(&m->mem, w);
+            } else {
+                /* Interactive phase: the boot file is downloading, so
+                 * release the held boot keys and deliver the frontend's
+                 * live key state to the running world. */
+                if (!m->keys_live) {
+                    dorado_display_keyboard_all_up(disp);
+                    m->keys_live = 1;
+                }
+                uint16_t w[4];
+                for (int i = 0; i < 4; i++)
+                    w[i] = dorado_display_keyboard_word(disp, i);
+                machine_seed_keyboard(&m->mem, w);
+                if (m->mouse_present)
+                    machine_seed_mouse(&m->mem, m->mouse_x, m->mouse_y,
+                                       m->mouse_buttons);
+            }
         }
 
         /* Optional task-0 PC histogram of the loaded world (env-gated):
@@ -608,6 +649,29 @@ uint64_t dorado_machine_cycles(const dorado_machine *m)
 int dorado_machine_booted(const dorado_machine *m)
 {
     return m && m->ether_loaded_world_cycle != 0;
+}
+
+void dorado_machine_set_key(dorado_machine *m, dorado_display_key key,
+                            int down)
+{
+    if (!m) return;
+    dorado_display_keyboard_set_key(&m->display, key, down ? 1 : 0);
+}
+
+int dorado_machine_interactive(const dorado_machine *m)
+{
+    return m && m->keys_live;
+}
+
+void dorado_machine_set_mouse(dorado_machine *m, int x, int y, int buttons)
+{
+    if (!m) return;
+    if (x < 0) x = 0; else if (x > 807) x = 807;
+    if (y < 0) y = 0; else if (y > 605) y = 605;
+    m->mouse_present = 1;
+    m->mouse_x = x;
+    m->mouse_y = y;
+    m->mouse_buttons = buttons;
 }
 
 dorado_display *dorado_machine_display(dorado_machine *m)
