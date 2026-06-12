@@ -171,6 +171,42 @@ passes EVERY filter check and dispatches by Pup type:
   finding FullBootBase's source (BuildBoot /B 300/N switches;
   search AltoSource for FullBootBase.asm/bcpl or BuildBoot docs).
 
+SESSION-7 BREAKTHROUGH: THE MACHINE IS SITTING IN SWAT. The raw
+module is **TeleSwat** (TeleSwat.asm fetched into
+chm/altosource/buildboot.dm!2_/ along with FullBootInit/BootBase/
+SaveState): socket 60B, ptSwatStore=200B (poke), ptSwatFetch=201B
+(peek - the "echo" was a memory-read reply!), ptSwatSwap=202B,
+ptSwatSwapReply=203B; the solid-block cursor is the SWAT CURSOR
+(userCursor/swatCursor exchange); the eternal loop is TeleSwat's
+il1/il2 receive loop; OutLd at VM 0o3317, OutLdRet at VM 0o3323.
+
+THE CRASH: NetExec called CallSwat during startup. The swat-saved
+state (page 0o700 area: AC1=0o142476 = the first context,
+AC2=0o142502 = its CTX.StackMin VALUE, saved-PC-ish 0o47720 = inside
+CallContextList's runCtx `jsr @1 2`) plus the ring dump
+(ctx[0].Stack == 0) give the mechanism: **the first context's
+CTX.Stack word (VM 0o142477) is 0/corrupt at first resume**, so
+`jsr @(AC2=0)+1` jumps through M[1] (boot-loader residue) into
+garbage -> trap -> CallSwat -> TeleSwat. The OTHER contexts'
+CTX.Stack values are CORRECT (ctx[1] = pupLevel1Ctx has
+stack = ctx+0o253 = region+175-4 exactly per InitializeContext), so
+InitializeContext works in general - something specifically
+corrupts ctx[0] (FeedEther, the 40-word eFSS context, the FIRST
+allocated+enqueued) between its init and the first resume.
+
+NEXT (one command): DORADO_STORE_TRACE_VA="142476,142502" over a
+130 M run - catch every store to the FeedEther CTX words and find
+the corruptor (suspects: Allocate/Zero overlap in sysZone, the
+Enqueue chain, or a wild store from the ether/interrupt era; note
+the ctx sits at the TOP of sysZone next to the 1-word ftpCtxQ vec
+and AfterJunta's own stack frame - stkLim arithmetic!).
+
+ALSO AVAILABLE NOW: TeleSwat gives a REMOTE DEBUG CHANNEL into the
+parked machine (Fetch/Store/Swap) - the fake server can peek/poke
+arbitrary VM and even resume; and CallSwat's message argument (a
+BCPL string) is reachable from the swat frame for an exact error
+identification.
+
 STILL OPEN (the current frontier):
 - The 204B routing requests never STOP - the replies reach the
   machine (InDone + EIT consumption verified) but the requesting

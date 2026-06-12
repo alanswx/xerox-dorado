@@ -5873,6 +5873,13 @@ static int probe_full_boot_with_bootstrap(void)
                 break;
             }
         }
+        printf("       Swat: OutLdRet=%06o dumperFlg@706=%06o "
+               "AC-save[700..707]:",
+               dorado_visible_word_at_va(&mem, mds + 03323u),
+               dorado_visible_word_at_va(&mem, mds + 0706u));
+        for (uint32_t a5 = 0700u; a5 <= 0707u; a5++)
+            printf(" %06o", dorado_visible_word_at_va(&mem, mds + a5));
+        printf("\n");
         printf("       NetExec statics M[1010..1020]:");
         for (uint32_t a4 = 01010u; a4 <= 01020u; a4++)
             printf(" %06o", dorado_visible_word_at_va(&mem, mds + a4));
