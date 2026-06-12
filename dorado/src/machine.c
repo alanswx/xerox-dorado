@@ -91,6 +91,8 @@ struct dorado_machine {
     uint64_t ether_loaded_world_cycle;
     uint64_t next_bol_cycle;
     uint64_t next_display_scanline_cycle;
+
+    uint32_t pchist[4096];
 };
 
 static const uint8_t standard_alufm[ALUFM_SIZE] = {
@@ -493,6 +495,14 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
             machine_seed_keyboard(&m->mem, w);
         }
 
+        /* Optional task-0 PC histogram of the loaded world (env-gated):
+         * DORADO_MACHINE_PCHIST dumps the hottest emulator-task PCs at
+         * the end of the run, to localize a post-LoadRam stall. */
+        if (m->ether_loaded_world_cycle && is_imfetch && cpu->ctask == 0 &&
+            pre_pc < 4096 && getenv("DORADO_MACHINE_PCHIST")) {
+            m->pchist[pre_pc]++;
+        }
+
         if (dorado_cpu_step(cpu)) break;
 
         if (m->initial_substituted) {
@@ -580,6 +590,23 @@ dorado_display *dorado_machine_display(dorado_machine *m)
 void dorado_machine_debug(dorado_machine *m)
 {
     if (!m) return;
+    if (getenv("DORADO_MACHINE_PCHIST")) {
+        /* Top 12 hottest task-0 PCs in the loaded world. */
+        int top[12]; for (int i = 0; i < 12; i++) top[i] = -1;
+        for (int a = 0; a < 4096; a++) {
+            if (!m->pchist[a]) continue;
+            for (int s = 0; s < 12; s++) {
+                if (top[s] < 0 || m->pchist[a] > m->pchist[top[s]]) {
+                    for (int t = 11; t > s; t--) top[t] = top[t-1];
+                    top[s] = a; break;
+                }
+            }
+        }
+        fprintf(stderr, "[machine] task-0 hot PCs:");
+        for (int i = 0; i < 12 && top[i] >= 0; i++)
+            fprintf(stderr, " 0o%o=%u", top[i], m->pchist[top[i]]);
+        fprintf(stderr, "\n");
+    }
     dorado_ethernet *e = &m->ethernet;
     uint32_t mds = dorado_br_get(&m->mem, 036);
     uint16_t dastart = dorado_visible_word_at_va(&m->mem, mds + 0420u);

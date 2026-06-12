@@ -251,7 +251,27 @@ task 3 then task 2 spinning at 0o7003/0o234). Task 0 advances
 0o5400 -> 0o7116 -> 0o7012 then STALLS at ~0o7012 before turning on
 the Ethernet receiver (rx stays 0) or setting DASTART, so
 breath-of-life is never accepted (bol=0) and the banner never
-draws from the standalone path. NEXT: trace task 0 from world-load
+draws from the standalone path. FINDING (traced): the AEmu world DOES start (task 0 reaches AEmu
+real 0o1070, which carries the Multiply FF), but it then LOOPS in
+KERNEL-level microcode at 0o7003-0o7167 (these addresses are
+present in kernel.mb/Initial.mb, ABSENT in AEmu.mb) instead of
+completing its init and reaching EBoot. Hottest task-0 PC 0o7116
+(BLOCK=1 emulator op). So the world boots and faults/waits into a
+kernel handler rather than progressing - a different failure mode
+from the harness, which reaches the banner. Tooling added:
+DORADO_MACHINE_PCHIST=1 dumps the top task-0 PCs of the loaded
+world; DORADO_MACHINE_TRACE=1 logs boot-state transitions.
+NEXT: side-by-side compare the loaded-world execution against the
+harness (same env, DORADO_PC_COUNT) to find where they diverge -
+prime suspects: (a) my world-loaded detection fires mid-LoadRam
+(32M; CLAUDE.md notes the ether boot costs ~61M) so the
+task-park / ALUFM-restore happens too early and corrupts the
+world's init; (b) the world's emulator loop dispatches to an I/O
+task I parked (junk/fault) and waits in kernel for it; (c) an
+unhandled fault traps to the kernel handler at 0o7116. Try: defer
+the world-loaded handoff (task-park + ALUFM restore) until task 0
+actually reaches AEmu's start region for a sustained run, rather
+than the first non-Initial PC. OLD-NEXT: trace task 0 from world-load
 to the 0o7012 stall (DORADO_MACHINE_TRACE + a PC histogram) and
 compare against the harness's loaded-world init - the harness
 NATURAL path did NOT reset TPCs yet still reached the banner, so
