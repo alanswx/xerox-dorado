@@ -194,7 +194,28 @@ InitializeContext works in general - something specifically
 corrupts ctx[0] (FeedEther, the 40-word eFSS context, the FIRST
 allocated+enqueued) between its init and the first resume.
 
-SESSION-8 FORENSICS (the corruption, three layers down): the
+SESSION-9 ROOT CAUSE + FIX: **the Dorado Multiply FF function was
+a TBD no-op** (cpu.c FA=1 FB=7 FC=2). AEmu's Nova MUL microcode
+(Various.mc MulSub) steps on it; HM p23 gives the full semantics,
+now implemented: Result <- ALUcarry,,ALU/2; Q <- ALU[15],,Q/2; next
+branch address OR 2 if pre-shift Q[14] (per-task, via the
+task_dispatch plumbing). Every BCPL multiply was garbage before -
+CreateKeywordTable allocated 15 words instead of ~82 (verified via
+the SB length word at 0o142450: -16), LoadKT's second entry then
+overran into the first coroutine's CTX. Post-fix the boot moves
+STRICTLY FORWARD: the KT-overrun crash is gone, contexts run
+further, CallContextList returns to its caller (CtxRunning =
+dummyCtx at probe end), and a NEW later CallSwat happens with crash
+site ~VM 0o16277-0o16306 (the BCPL call veneer region; saved frame
+~0o172142). fb_nonzero=59 (a third cursor state). NEXT: same
+forensic loop on the new crash - dispatch-gate around the new
+OutLd call (find its cycle via STORE_TRACE on 0o3323/OutLdRet or
+the swat AC-save writes), identify the SysErr, fix the next
+emulation gap. Each iteration of this loop has removed exactly one
+fundamental microarchitecture bug (BDispatch, RBase, Map Mar, junk
+timer, Multiply...).
+
+SESSION-8 FORENSICS (led to the above) (the corruption, three layers down): the
 4-word Zero at VM 0o142474 is `Zero(ptr,4)` (BCPL veneer at VM
 0o4536) called from the keyword/boot-directory entry machinery at VM
 0o31675-0o32100 (timeline = AfterJunta's CreateKeywordTable/LoadKT,

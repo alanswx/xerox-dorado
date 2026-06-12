@@ -955,7 +955,28 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                 cpu->Link = b;
                 cpu->task_dispatch[cpu->ctask] = b & 0x7;
                 return pd;
-            case 2: /* Multiply */                 return pd;  /* TBD */
+            case 2: /* Multiply (HM §4.4 p32): "OR's Q[14] into
+                     * TNIA[14]. The value of Q[14] is captured in a
+                     * flipflop at t2 of the instruction containing
+                     * the Multiply function and is OR'ed into
+                     * TNIA[14] during the next instruction for the
+                     * same task." Manual bit 14 of Q = C-LSB bit 1;
+                     * TNIA[14] = bit 1 of the 12-bit address. AEmu's
+                     * Nova MUL microcode steps on this dispatch; with
+                     * it stubbed, every BCPL multiply returned
+                     * garbage (NetExec's keyword-table size collapsed
+                     * and its entries overran into the first
+                     * coroutine's CTX, crashing startup into Swat). */
+                cpu->task_dispatch[cpu->ctask] |=
+                    (uint16_t)(cpu->Q & 0x0002);
+                /* HM p23, the other two effects:
+                 *   Result <- ALUcarry,,ALU/2
+                 *   Q      <- ALU[15],,Q/2     (manual bit 15 = LSB)
+                 * The Q[14] dispatch capture above uses the PRE-shift
+                 * Q (captured at t2, before the t3 write). */
+                cpu->Q = (uint16_t)(((alu & 1) << 15) | (cpu->Q >> 1));
+                return (uint16_t)(((uint16_t)(alu_carry & 1) << 15) |
+                                  (alu >> 1));
             case 3: /* Q ← B */
                 cpu->Q = b;
                 return pd;
