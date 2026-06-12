@@ -96,9 +96,8 @@ int main(int argc, char **argv)
                    (unsigned long long)now);
         }
         if (progress) {
-            printf("  cycle %llu  booted=%d\n",
-                   (unsigned long long)now, dorado_machine_booted(m));
-            fflush(stdout);
+            dorado_machine_debug(m);
+            fflush(stderr);
         }
         if (now < target) break;   /* halted */
     }

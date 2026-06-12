@@ -458,6 +458,19 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
             !(pre_pc >= 06000 && pre_pc < 07700)) {
             restore_standard_alufm(&m->mc);
             m->ether_loaded_world_cycle = bb->cycles;
+            /* The LoadRam reload replaced the control store, but the
+             * I/O tasks' saved TPCs still point into the OLD microcode.
+             * If they are woken now they run stale code, spin at high
+             * priority, and starve the emulator task before it can run
+             * the loaded world's Start and re-initialize each task.
+             * Park every non-emulator task (invalid TPC) and quiet the
+             * junk timer so task 0 runs first and sets them up itself. */
+            for (int task = 1; task < 16; task++)
+                cpu->task_tpc[task] = 0177777;
+            cpu->ready = 1u;
+            cpu->wakeup_pending = 0;
+            cpu->junk_tw_enabled = 0;
+            cpu->junk_tw_countdown = 0;
             if (getenv("DORADO_MACHINE_TRACE"))
                 fprintf(stderr, "[machine] world loaded @cyc=%llu pc=0o%o\n",
                         (unsigned long long)bb->cycles, pre_pc);
@@ -513,8 +526,17 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
             }
 
             /* Display scan-line wakeups (DHT/AHT) and DWT word-task
-             * wakeups, every ~1000 cycles. */
-            if (bb->cycles >= m->next_display_scanline_cycle) {
+             * wakeups, every ~1000 cycles -- but only once the loaded
+             * world has installed a display list (DASTART at VM 0o420
+             * nonzero). Waking the display tasks before then runs the
+             * pre-LoadRam display microcode left in their stale TPCs,
+             * which spins at high priority and starves the emulator
+             * task before it can reach its boot decision. */
+            uint32_t dl_mds = dorado_br_get(&m->mem, 036);
+            uint16_t dl_head = dorado_visible_word_at_va(&m->mem,
+                                                         dl_mds + 0420u);
+            int display_active = (dl_head != 0 && dl_head != 0xFFFFu);
+            if (display_active && bb->cycles >= m->next_display_scanline_cycle) {
                 uint16_t mask = dorado_display_scanline_wakeup_mask(disp);
                 for (int task = 0; task < 16; task++) {
                     if (mask & (uint16_t)(1u << task)) {
@@ -525,7 +547,7 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                 m->next_display_scanline_cycle = bb->cycles + 1000;
             }
             int dwt_subtask = 0;
-            if (dorado_display_dwt_wakeup(disp, &dwt_subtask)) {
+            if (display_active && dorado_display_dwt_wakeup(disp, &dwt_subtask)) {
                 int word_task = disp->terminal_task == DORADO_DISPLAY_TASK_AHT
                                     ? DORADO_DISPLAY_TASK_AWT
                                     : DORADO_DISPLAY_TASK_DWT;
@@ -562,11 +584,13 @@ void dorado_machine_debug(dorado_machine *m)
     uint32_t mds = dorado_br_get(&m->mem, 036);
     uint16_t dastart = dorado_visible_word_at_va(&m->mem, mds + 0420u);
     fprintf(stderr,
-            "[machine] booted=%d cyc=%llu | eth: requests=%llu replies=%llu "
-            "eftp_req=%llu eftp_repl=%llu max_seq=%u bol=%llu time=%llu | "
-            "DASTART=%06o\n",
+            "[machine] booted=%d cyc=%llu pc=0o%o tk=%u | eth: rx=%u tx=%u "
+            "req=%llu repl=%llu eftp_r=%llu eftp_q=%llu seq=%u bol=%llu "
+            "time=%llu | DASTART=%06o\n",
             dorado_machine_booted(m),
             (unsigned long long)m->bb.cycles,
+            m->cpu.real_PC, m->cpu.ctask,
+            e->rx_on, e->tx_on,
             (unsigned long long)e->requests_seen,
             (unsigned long long)e->replies_queued,
             (unsigned long long)e->eftp_requests_seen,
