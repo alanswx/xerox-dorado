@@ -139,6 +139,32 @@ NLCB writes.
    handlers - verify our A-Group carry for those forms (a corrupted
    carry in the interrupted mainline would derail comparisons).
 
+0a3. **Final session-3 narrowing: the ether output never starts.**
+   Hard facts from store traces: M[0o452] (WW) is NEVER stored
+   post-LoadRam - so Interrupt.asm's CauseInterrupt (dir; WW |= mask;
+   eir) NEVER RUNS, hence SendEtherPacket's kick (`if eOB eq 0 then
+   CauseInterrupt(mask)`, PupAlEthb.bcpl line 70) is never reached or
+   its guard fails; consequently no ether interrupt, no output start,
+   no Mayday/routing-probe ever transmitted, and every higher layer
+   (GetTime/GetDir/GetName, the boot fetch) waits forever. The
+   dispatch trail shows SendEtherPacket's broadcast-loopback branch
+   executing (MoveBlock x3 + filter walk) and then the flow entering
+   an SIO + poll sequence at VM 0o3205-0o3232 whose shape matches
+   PupAlEtha.asm's StartEther start2 path (zero @ePLoc, zero @eLLoc,
+   lda outCmd, sio) followed by a deadline/event poll. The window
+   sub at VM 0o2014-0o2022 (lda @X; sub; sta @Y; EIR; DIR; sta @Z;
+   ret) runs to completion - the EIR;DIR pair is by-design and the
+   sub returns normally; the system legitimately runs
+   disabled-with-windows. 47 of 49 windows found nothing pending
+   BECAUSE WW never got the ether bit. NEXT: single-step the FIRST
+   SendEtherPacket call (the LocateNet routing probe during
+   InitPupLevel1, before 92 M) - find why it never executes
+   CauseInterrupt's `sta 1,@.Wakeups`: either the eOB guard reads
+   nonzero garbage (NDB zeroing? our Zero/Allocate emulation), the
+   filter-walk diverts, or the Dequeue(pbiFreeQ) loopback path takes
+   an unexpected branch. The Alto-PC regions: SendEtherPacket around
+   VM 0o315x-0o320x, CauseInterrupt would store @0o452.
+
 0b. **NetExec stops opening interrupt windows at ~92.2 M cycles.**
    (Newest finding, post dispatch-RBase fix.) NetExec's idle loop
    polls cells (VM 0o1747/0o1755 poll loops, RCLK deadline compares
