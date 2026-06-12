@@ -135,10 +135,11 @@ int main(int argc, char **argv)
         /* Keyboard self-test: once NetExec is interactive, settle then
          * "type" the string, holding each key down/up for --key-hold
          * cycles so its command loop registers the keystroke. */
-        if (type_str && !typed && dorado_machine_interactive(m)) {
+        if (type_str && !typed && dorado_machine_interactive(m) &&
+            dorado_machine_cycles(m) >= 110000000ull) {
             typed = 1;
-            dorado_machine_run_until(m, dorado_machine_cycles(m) + 8000000);
-            printf("dorado: typing \"%s\"\n", type_str);
+            printf("dorado: typing \"%s\" at cyc %llu\n", type_str,
+                   (unsigned long long)dorado_machine_cycles(m));
             for (const char *p = type_str; *p; p++) {
                 int shift = 0;
                 dorado_display_key k = char_to_key(*p, &shift);

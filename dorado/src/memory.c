@@ -900,6 +900,13 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
             break;
         }
         f = va_translate(mem, va, /*is_write=*/1, &phys);
+        /* Protected cell (machine bring-up guard): force the protected
+         * PHYSICAL word to its held value, regardless of which bank/VA
+         * reaches it. Holds the OS divide-transfer vector against the
+         * page-zero BitBlt spray that otherwise crashes the booted
+         * world; the real fix is in the BitBlt destination-BR math. */
+        if (mem->protect_active && (uint32_t)phys == mem->protect_phys)
+            b = mem->protect_val;
         if (f == DM_FAULT_NONE) {
             if (dorado_mcr_fdmiss(mem) ||
                 !dorado_cache_lookup(mem, va, &way)) {

@@ -93,6 +93,7 @@ struct dorado_machine {
     uint64_t next_display_scanline_cycle;
     int      keys_live;        /* 1 once boot selection is done and the
                                 * frontend's live keys drive the world */
+    int      divprot_set;      /* 1 once the divide-vector guard is armed */
     int      mouse_present;    /* 1 once the frontend has set the mouse */
     int      mouse_x, mouse_y; /* absolute mouse position (Alto coords) */
     int      mouse_buttons;    /* DORADO_MOUSE_* bitmask                */
@@ -547,6 +548,37 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                     machine_seed_mouse(&m->mem, m->mouse_x, m->mouse_y,
                                        m->mouse_buttons);
             }
+
+            /* Arm the divide-vector guard once NetExec is up (its OS
+             * init has set the M[0o344] divide transfer vector and the
+             * display list is installed). A periodic Title BitBlt later
+             * sprays the OS low core in page zero and would corrupt
+             * this vector, crashing the world; hold it steady until the
+             * BitBlt destination-BR bug is fixed. */
+            if (!m->divprot_set && eth->eftp_max_seq != 0) {
+                uint32_t mds = dorado_br_get(&m->mem, 036);
+                {
+                    uint32_t vva = (mds + 0344u) & 0x0FFFFFFFu;
+                    uint16_t vec = dorado_visible_word_at_va(&m->mem, vva);
+                    /* Wait until M[0o344] holds a plausible OS-resident
+                     * code address (the divide veneer), i.e. NetExec's
+                     * OS init has set the real divide transfer vector --
+                     * not a transient value from earlier in the boot. */
+                    if (vec >= 02000u && vec < 010000u) {
+                        const dorado_map_entry *e = dorado_map_get(
+                            &m->mem, dorado_map_index(vva));
+                        m->mem.protect_phys = (uint32_t)e->rp * DM_PAGE_SIZE
+                            + (vva & (DM_PAGE_SIZE - 1));
+                        m->mem.protect_val = vec;
+                        m->mem.protect_active = 1;
+                        m->divprot_set = 1;
+                        if (getenv("DORADO_MACHINE_TRACE"))
+                            fprintf(stderr, "[machine] divide-vector guard "
+                                    "M[0o344]=0o%o @cyc=%llu\n", vec,
+                                    (unsigned long long)bb->cycles);
+                    }
+                }
+            }
         }
 
         /* Optional task-0 PC histogram of the loaded world (env-gated):
@@ -727,6 +759,12 @@ void dorado_machine_debug(dorado_machine *m)
     fprintf(stderr, "[machine] config_word=0o%o (B<-Config'=0o%o)\n",
             dorado_memory_config_word(&m->mem),
             (uint16_t)~dorado_memory_config_word(&m->mem));
+    fprintf(stderr, "[machine] M[344]=0o%o (guard=%d) Swat-OutLdRet="
+            "0o%o AC700=0o%o\n",
+            dorado_visible_word_at_va(&m->mem, mds + 0344u),
+            m->mem.protect_active,
+            dorado_visible_word_at_va(&m->mem, mds + 03323u),
+            dorado_visible_word_at_va(&m->mem, mds + 0700u));
 }
 
 /* Flip one framebuffer pixel (XOR), for the mouse pointer. */

@@ -228,6 +228,24 @@ STATE at end of session: 400M-cycle boot has healthy sysZone
 (42-line strip + 2x 38-word x 6-scanline bands at 142544B/140606B
 + tab bands), eftp_replies=88, fb still cursor-only (DWT renderer
 never paints the DCB text - separate gap).
+DIVIDE-VECTOR GUARD keeps NetExec alive past the BitBlt crash
+(2026-06-12): the periodic Title BitBlt that sprays the OS low core
+in page zero corrupts the M[0o344] divide transfer vector, which is
+what crashed the booted world into Swat ~124-190M (the user saw
+"types a little bit then stops responding"). Mitigation: a
+physical-cell write guard in memory.c (protect_phys/protect_val,
+forced in the DM_REF_STORE path) armed by the machine once NetExec's
+OS init has set M[0o344] to a plausible OS-resident code address
+(0o2000..0o7777, captured ~63M). Verified: with the guard,
+M[0o344] stays 0o4155 and Swat OutLdRet=0 at 160M (not crashed);
+typing "Probe" at 110M echoes at the ">" prompt in a 200M snapshot.
+This is a BRING-UP WORKAROUND -- the real fix is the BitBlt
+destination-BR arithmetic (the dest base register BR[0o22] ends up
+~0 so MDS+offset lands in page zero; see the REF_W trace and the
+SESSION-10 BitBlt analysis). It guards only the divide vector; other
+sprayed cells (0o412/0o460 MASKTAB/0o526/0o574/0o642) are not yet
+protected but do not appear to crash the world.
+
 LIVE SDL WINDOW + KEYBOARD + MOUSE (2026-06-12): the emulator now
 has a windowed frontend. `make sdl` builds build/dorado-sdl (SDL2,
 pure C; the core stays C99). It boots the machine and presents the

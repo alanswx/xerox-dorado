@@ -209,6 +209,13 @@ typedef struct dorado_memory {
     uint16_t *storage;
     size_t    storage_words;
 
+    /* Optional protected cell: stores reaching physical word
+     * protect_phys are forced to protect_val while protect_active. A
+     * machine-level guard. */
+    int       protect_active;
+    uint32_t  protect_phys;
+    uint16_t  protect_val;
+
     /* Memory Control Register (MCR). Stored in normal C bit order for
      * the 16-bit value that microcode loads with LoadMcr[A,B]. */
     uint16_t mcr;
