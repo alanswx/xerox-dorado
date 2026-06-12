@@ -194,7 +194,31 @@ InitializeContext works in general - something specifically
 corrupts ctx[0] (FeedEther, the 40-word eFSS context, the FIRST
 allocated+enqueued) between its init and the first resume.
 
-THE CORRUPTOR IS CAUGHT (the one-command probe ran): the CTX life
+SESSION-8 FORENSICS (the corruption, three layers down): the
+4-word Zero at VM 0o142474 is `Zero(ptr,4)` (BCPL veneer at VM
+0o4536) called from the keyword/boot-directory entry machinery at VM
+0o31675-0o32100 (timeline = AfterJunta's CreateKeywordTable/LoadKT,
+~92.09 M). The getter at 0o31675 walks a keyed chain at q!5
+(node = [next@0, key@1, ...]; on key match `resultis node+1`) and
+MATCHED key 0o100000 against STALE memory: node = 0o142473 points
+into a just-recycled allocation. The legitimate history of that
+memory: a 4-word object (data 0o142471-74, sb 0o142470, length -5 -
+all CORRECT zone arithmetic, verified by store traces at cyc
+92060802+) was built with packed-field stores (field merges verified
+CORRECT - dorado/CLAUDE.md's "ShMd stubbed" note is STALE, the
+implementation merges real Md), then released at cyc 92078882+
+(-1 writes at 0o142470/71 from br31=0o50764 ~ AltoTimer region, then
+Enqueue(q, 0o142470) at br31=0o50033). The mystery: the lookup chain
+head q!5 contained 0o142473 (not the enqueued 0o142470) - find who
+wrote 0o142473 into the chain head. NEXT: identify q (frame!4 of the
+0o31675 call - dump via a PCWATCH at 0o31701 reading AC3, or trace
+the Enqueue at 92080914's queue argument), then STORE_TRACE the
+chain-head cell. Every software step verified so far is legal -
+expect ONE wrong emulated instruction upstream (the remaining
+unverified exotic: `dsz/isz @indirect`, the BCPL veneer's numargs
+walk, or a carry case in the 0o31707 sub# compare chain).
+
+PREVIOUS (superseded) NOTE: THE CORRUPTOR IS CAUGHT (the one-command probe ran): the CTX life
 in stores: InitializeContext writes Next=0, StackMin=ctx+4,
 **Stack=0o142542 CORRECTLY** (cyc 92053271, br31=0o47764), ctx!3=ndb,
 Enqueue sets Next - and then at cyc 92095284 a Zero()/BLKS issued
