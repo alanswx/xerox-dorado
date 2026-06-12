@@ -11,6 +11,9 @@ extern unsigned long long dorado_trace_cycle;
 int dorado_mem_trace_pcx = 0;
 int dorado_mem_trace_br31 = 0;
 int dorado_mem_trace_op = 0;
+int dorado_mem_trace_membase = 0;
+int dorado_mem_trace_br = 0;
+int dorado_mem_trace_mar = 0;
 
 static uint32_t va_cache_row(uint32_t va);
 static int cache_pick_victim(dorado_memory *mem, uint32_t va);
@@ -900,13 +903,42 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
             break;
         }
         f = va_translate(mem, va, /*is_write=*/1, &phys);
+        {
+            static long tp = -1;
+            if (tp == -1) {
+                const char *w = getenv("DORADO_STORE_TRACE_PHYS");
+                tp = w ? strtol(w, NULL, 8) : 0;
+            }
+            if (tp && (uint32_t)phys == (uint32_t)tp)
+                fprintf(stderr,
+                    "STORE_PHYS cyc=%llu task=%o pc=0o%o va=%07o "
+                    "phys=%07o data=0o%o mb=%o br=%07o mar=%06o\n",
+                    dorado_trace_cycle, task & 017, dorado_mem_trace_pc,
+                    va & 0x0FFFFFFFu, (unsigned)phys, b & 0177777,
+                    dorado_mem_trace_membase, (unsigned)dorado_mem_trace_br,
+                    dorado_mem_trace_mar & 0177777);
+        }
         /* Protected cell (machine bring-up guard): force the protected
          * PHYSICAL word to its held value, regardless of which bank/VA
-         * reaches it. Holds the OS divide-transfer vector against the
-         * page-zero BitBlt spray that otherwise crashes the booted
-         * world; the real fix is in the BitBlt destination-BR math. */
-        if (mem->protect_active && (uint32_t)phys == mem->protect_phys)
+         * reaches it. Holds the OS divide-transfer vector M[0o344]
+         * against a page-zero BitBlt gray-fill that otherwise corrupts
+         * it and crashes the booted world. NOTE: the BitBlt destination
+         * arithmetic is CORRECT and faithful to hardware (the
+         * bottom-to-top base-high decrement to -1 plus the 28-bit BR
+         * adder wrap lands the gray fill exactly where the BBT says);
+         * the real defect is upstream -- a malformed BBT whose
+         * destination base is already in page zero, traced to a corrupt
+         * BCPL context stack pointer (see docs/CONTINUE-HERE.md). */
+        if (mem->protect_active && (uint32_t)phys == mem->protect_phys) {
+            if (b != mem->protect_val && getenv("DORADO_M344_WATCH"))
+                fprintf(stderr,
+                    "M344_WRITE cyc=%llu task=%o pc=0o%o va=%07o "
+                    "phys=%07o data=0o%o (held 0o%o)\n",
+                    dorado_trace_cycle, task & 017, dorado_mem_trace_pc,
+                    va & 0x0FFFFFFFu, (unsigned)phys, b & 0177777,
+                    mem->protect_val & 0177777);
             b = mem->protect_val;
+        }
         if (f == DM_FAULT_NONE) {
             if (dorado_mcr_fdmiss(mem) ||
                 !dorado_cache_lookup(mem, va, &way)) {

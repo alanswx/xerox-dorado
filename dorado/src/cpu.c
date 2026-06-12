@@ -19,6 +19,9 @@ extern int dorado_mem_trace_pc;
 extern int dorado_mem_trace_pcx;
 extern int dorado_mem_trace_br31;
 extern int dorado_mem_trace_op;
+extern int dorado_mem_trace_membase;
+extern int dorado_mem_trace_br;
+extern int dorado_mem_trace_mar;
 
 #define DORADO_JUNK_TASK          2
 #define DORADO_JUNK_TICK_CYCLES   533   /* 32 us / 60 ns microcycle */
@@ -844,11 +847,11 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
             /* A-source overrides for memory ops. Mostly we skip these
              * since memory isn't modeled yet. */
             switch (fc) {
-            case 4: /* XorCarry — modifies ALUFM carry bit */
-            case 5: /* XorSavedCarry */
-            case 6: /* Carry20 — force carry into bit 12 */
-            case 7: /* ModStkPBeforeW */
-                return pd;       /* stub: silently honor */
+            case 4: /* XorCarry — applied to the ALU carry-in pre-ALU  */
+            case 5: /* XorSavedCarry — applied to carry-in pre-ALU     */
+            case 6: /* Carry20 — force carry into bit 12 (still TBD)   */
+            case 7: /* ModStkPBeforeW (handled in stk_write_address)   */
+                return pd;
             }
             return pd;
         }
@@ -1040,7 +1043,7 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
             case 3: /* BrLo ← A — BR[MemBase][16:31] ← A[0:15]
                      * (HM Table 11c FA=1 FB=2 FC=3). */
                 if (cpu->mem) {
-                    if (getenv("DORADO_BR_TRACE")) {
+                    if (getenv("DORADO_BR_TRACE") && (!getenv("DORADO_TRACE_GATE") || dorado_trace_gate)) {
                         fprintf(stderr,
                                 "BRLO_FF task=%o pc=0o%o mb=%02o a=%06o "
                                 "T=%06o md=%06o\n",
@@ -1054,12 +1057,14 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
             case 4: /* BrHi ← A — BR[MemBase][4:15] ← A[4:15]
                      * (HM Table 11c FA=1 FB=2 FC=4). */
                 if (cpu->mem) {
-                    if (getenv("DORADO_BR_TRACE")) {
+                    if (getenv("DORADO_BR_TRACE") && (!getenv("DORADO_TRACE_GATE") || dorado_trace_gate)) {
                         fprintf(stderr,
                                 "BRHI_FF task=%o pc=0o%o mb=%02o a=%06o "
-                                "rb=%02o\n",
+                                "rb=%02o EmuBRHi=0o%o EmuXMBRHi=0o%o "
+                                "Q=%06o\n",
                                 cpu->ctask & 017, cpu->real_PC,
-                                cpu->MemBase & 0x1F, a, cpu->RBase & 017);
+                                cpu->MemBase & 0x1F, a, cpu->RBase & 017,
+                                cpu->RM[030], cpu->RM[031], cpu->Q);
                     }
                     dorado_br_hi_load(cpu->mem, cpu->MemBase, a);
                 }
@@ -2836,6 +2841,32 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
     uint8_t alufm_entry = cpu->mc->alufm_present[aluf_idx]
                           ? cpu->mc->alufm[aluf_idx]
                           : 0;
+    /* XorCarry / XorSavedCarry (HM Table 11a, FA=0 FB=2 FC=4/5): modify
+     * this instruction's ALU carry-in for multi-precision arithmetic.
+     * XorSavedCarry XORs in the SAVED (previous instruction's) carry --
+     * the high-word add/subtract consumes the low word's carry-out. The
+     * BitBlt bottom-to-top base adjustment (T_ T-1, XorSavedCarry) and
+     * BBNormal (T_ T+EmuBRHiReg, XorSavedCarry) both rely on it; with it
+     * stubbed those 32-bit base computations dropped the inter-word
+     * carry. XorCarry flips the carry-in unconditionally. The carry bit
+     * is bit 5 of the ALUFM entry. */
+    {
+        int xfa, xfb, xfc, xok = 0;
+        if (ff_full_function_ok(u)) {
+            xfa = ff_fa(u->ff); xfb = ff_fb(u->ff); xfc = ff_fc(u->ff);
+            xok = 1;
+        } else if (ff_decode_ok(u) && u->asel <= 3) {
+            xfa = 0; xfb = (u->ff >> 3) & 7; xfc = u->ff & 7; xok = 1;
+        } else {
+            xfa = xfb = xfc = 0;
+        }
+        if (xok && xfa == 0 && xfb == 2) {
+            if (xfc == 5)       /* XorSavedCarry */
+                alufm_entry ^= (uint8_t)((cpu->alu_carry & 1) << 5);
+            else if (xfc == 4)  /* XorCarry */
+                alufm_entry ^= (uint8_t)(1u << 5);
+        }
+    }
     uint8_t new_carry = cpu->alu_carry, new_ovf = cpu->alu_overflow;
     uint8_t is_arith = 0;
     uint16_t alu = alu_op(alufm_entry, a, b, &new_carry, &new_ovf, &is_arith);
@@ -2956,6 +2987,9 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                         ? 0
                         : dorado_br_get(cpu->mem, membase);
             uint32_t va = (br + mar) & 0x0FFFFFFFu;
+            dorado_mem_trace_membase = membase;
+            dorado_mem_trace_br = (int)br;
+            dorado_mem_trace_mar = mar;
             int subtask = (int)(cpu->task_subtask[cpu->ctask] & 3);
             dorado_fault_kind ref_fault =
                 dorado_memory_ref_task(cpu->mem, kind, va, data, cpu->TIOA,

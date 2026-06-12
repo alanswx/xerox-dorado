@@ -552,10 +552,14 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
             /* Arm the divide-vector guard once NetExec is up (its OS
              * init has set the M[0o344] divide transfer vector and the
              * display list is installed). A periodic Title BitBlt later
-             * sprays the OS low core in page zero and would corrupt
-             * this vector, crashing the world; hold it steady until the
-             * BitBlt destination-BR bug is fixed. */
-            if (!m->divprot_set && eth->eftp_max_seq != 0) {
+             * gray-fills page-zero word 0o344 from a malformed BBT and
+             * would corrupt this vector, crashing the world on the next
+             * divide; hold it steady until the upstream BBT/context
+             * corruption is fixed (the BitBlt address math itself is
+             * correct -- see memory.c and docs/CONTINUE-HERE.md).
+             * DORADO_NO_DIVPROT disables the guard for diagnosis. */
+            if (!m->divprot_set && eth->eftp_max_seq != 0 &&
+                !getenv("DORADO_NO_DIVPROT")) {
                 uint32_t mds = dorado_br_get(&m->mem, 036);
                 {
                     uint32_t vva = (mds + 0344u) & 0x0FFFFFFFu;
@@ -765,6 +769,16 @@ void dorado_machine_debug(dorado_machine *m)
             m->mem.protect_active,
             dorado_visible_word_at_va(&m->mem, mds + 03323u),
             dorado_visible_word_at_va(&m->mem, mds + 0700u));
+    {
+        uint32_t v344 = (mds + 0344u) & 0x0FFFFFFFu;
+        uint32_t idx = dorado_map_index(v344);
+        const dorado_map_entry *e344 = dorado_map_get(&m->mem, idx);
+        fprintf(stderr, "[machine] MDS=0o%o v344=0o%o mapidx=0o%o "
+                "rp=0o%o phys=0o%o\n",
+                mds, v344, idx, e344->rp,
+                (unsigned)((uint32_t)e344->rp * DM_PAGE_SIZE
+                           + (v344 & (DM_PAGE_SIZE - 1))));
+    }
 }
 
 /* Flip one framebuffer pixel (XOR), for the mouse pointer. */

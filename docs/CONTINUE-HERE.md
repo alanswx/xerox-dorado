@@ -239,10 +239,12 @@ OS init has set M[0o344] to a plausible OS-resident code address
 (0o2000..0o7777, captured ~63M). Verified: with the guard,
 M[0o344] stays 0o4155 and Swat OutLdRet=0 at 160M (not crashed);
 typing "Probe" at 110M echoes at the ">" prompt in a 200M snapshot.
-This is a BRING-UP WORKAROUND -- the real fix is the BitBlt
-destination-BR arithmetic (the dest base register BR[0o22] ends up
-~0 so MDS+offset lands in page zero; see the REF_W trace and the
-SESSION-10 BitBlt analysis). It guards only the divide vector; other
+This is a BRING-UP WORKAROUND. (SESSION-11 UPDATE: the BitBlt
+destination-BR arithmetic is NOT the bug -- it is correct and
+faithful to hardware; BR[0o22] wraps to page zero because the BBT
+the caller passed already points there. The real fix is the
+upstream BBT/context corruption. See SESSION-11 below.) It guards
+only the divide vector; other
 sprayed cells (0o412/0o460 MASKTAB/0o526/0o574/0o642) are not yet
 protected but do not appear to crash the world.
 
@@ -431,6 +433,41 @@ next_wcb_flag/raster_next_wt_flag are set from DHTFlag/RAST_TASKCMD
 writes but the DHT isn't issuing them per scanline), and (b) the
 BitBlt page-zero destination crash at 124M (BBT with a page-zero
 DBCA; see SESSION-10d).
+
+SESSION-11 (2026-06-12): TWO RESULTS -- (a) implemented the stubbed
+XorCarry/XorSavedCarry FF functions (cpu.c); (b) PROVED the BitBlt
+destination-BR arithmetic is CORRECT, redirecting the page-zero hunt
+upstream. Do NOT keep chasing the "BitBlt destination-BR math" -- it
+is faithful to hardware. Evidence:
+- XorCarry/XorSavedCarry (HM Table 11a, FA=0 FB=2 FC=4/5) were
+  no-op stubs. Now implemented: they XOR the carry-in (bit 5 of the
+  ALUFM entry) before the ALU runs -- XorSavedCarry with the SAVED
+  (previous-instruction) carry, XorCarry unconditionally. The BitBlt
+  bottom-to-top base math (T_ T-1, XorSavedCarry; BBNormal
+  T_ T+EmuBRHiReg, XorSavedCarry) is the canonical user. All 10
+  suites pass; banner pixel count unchanged (1478 px at 124M, pre ==
+  post), so no regression.
+- Forensics on the M[0o344] corruptor (DORADO_STORE_TRACE_PHYS=344,
+  new phys-keyed store trace in memory.c): the legit OS write sets
+  M[0o344]=0o4155 (pc=0o1622, mb=36/MDS, br=0, mar=0o344) at ~64M;
+  the corruptor at cyc 122,993,593 is pc=0o1201 (GRAYLOOP), mb=22,
+  br=0o1777700642 (=0xFFF81A2: br_hi=0xFFF, br_lo=0x81A2), mar=0x7F42.
+  (br+mar) & 0x0FFFFFFF wraps at 2^28 to 0o344 -> writes 0o4154.
+- The XSC trace (PC range 0o1405-0o1426) shows the math is correct:
+  pc=0o1424 BBTemp-0x8000 BORROWS (savedC=0), so pc=0o1423
+  T_ T-1, XorSavedCarry correctly yields T=0o177777 (the intended
+  bottom-to-top bank decrement). The 12-bit br_hi + 28-bit BR-adder
+  wrap then brings the bank back to 0 exactly as real hardware does.
+  So va=0o344 is the FAITHFUL result of the given register inputs --
+  the destination base the BBT specified is itself in page zero.
+- CONCLUSION (confirms SESSION-10b/10d): the root is an upstream
+  malformed BBT whose destination is page zero, traced to a corrupt
+  BCPL context stack pointer (ctx!1) running with its frame in page
+  zero. The divide-vector guard stays as the bring-up workaround
+  (now also gated by DORADO_NO_DIVPROT for A/B testing); it is NOT a
+  microcode arithmetic bug. NEXT: resume SESSION-10b's hunt for who
+  writes the bad ctx!1 (STORE_TRACE_VA on the context block), i.e.
+  the allocator/context-overlap corruption, not the BitBlt.
 
 SESSION-10d: REF_W (symbol-independent) CONFIRMS it. Per-ref dump
 (DORADO_STORE_WINDOW) at cyc 124,025,621: STORE (kind=5) at uPC
