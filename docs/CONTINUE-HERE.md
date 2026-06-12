@@ -108,6 +108,37 @@ NLCB writes.
    a prompt; the wire is silent because its sends stall on the dead
    interrupt path below.
 
+0a2. **The parked context is FeedEther; the full causal chain.**
+   (Session-3 final state.) The context ring is live (CtxRunning
+   valid, 8 contexts walked by the probe) and the RUNNING context has
+   CTXStack=0 = first resume, never Blocked: that is FeedEther
+   (PupAlEthb.bcpl), the first context on ftpCtxQ. Its body:
+   CauseInterrupt to kick input arming, the tx-timeout branch
+   (DisableInterrupts; StartIO(reset); @ePLoc = 3 lshift 8;
+   EnableInterrupts), then Dismiss(4) repeat. The last EIR (92198761)
+   followed by the last DIR (92198965) is an Enable-of-pass-N then
+   Disable-of-pass-N+1 whose matching Enable never came - the flow
+   died inside that bracket or in Dismiss. Dismiss's expiry rides on
+   AltoTimer time, which advances off the 60 Hz vertical interrupt -
+   circular once interrupts latch disabled. Title/Command never get
+   their first resume, hence no banner DCBs.
+
+   EXPERIMENT (committed, env-gated): DORADO_FORCE_EIR_AT=<cycle>
+   clears NWW bit 0 (RM[023]) once at the given cycle. Result at
+   93 M: interrupt fabric comes alive - 1496 deliveries (was 2),
+   EIR/DIR cycling (1183/1181), cursor repainted continuously
+   (rows_drawn 657 -> 3712) - but BRI executes 1.87 M times
+   (delivery/dismiss storm; PCLOC re-delivery loop suspected) and the
+   banner still does not appear. Next probes: (1) why the BRI count
+   is 1000x the delivery count (check our BRI/PCLOC semantics:
+   BRI fetches WW then PCLOC with the T_ MD, Fetch_ T at-issue
+   pattern - verify the second fetch's Md routing); (2) catch the
+   exact death between FeedEther's Disable/Enable bracket with
+   IFUDISP gates at 92198965-92200000; (3) the Interrupt package's
+   IntEnt saves/restores the Nova CARRY through MOVL/MOVZR around
+   handlers - verify our A-Group carry for those forms (a corrupted
+   carry in the interrupted mainline would derail comparisons).
+
 0b. **NetExec stops opening interrupt windows at ~92.2 M cycles.**
    (Newest finding, post dispatch-RBase fix.) NetExec's idle loop
    polls cells (VM 0o1747/0o1755 poll loops, RCLK deadline compares

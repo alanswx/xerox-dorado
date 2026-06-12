@@ -4256,6 +4256,22 @@ static int probe_full_boot_with_bootstrap(void)
                  bb.cycles <= (uint64_t)tg_hi);
             dorado_trace_cycle = bb.cycles;
             {
+                /* EXPERIMENT (env-gated): force the Alto interrupt
+                 * system enabled once at a given cycle by clearing
+                 * NWW bit 0 (RM[023] = AEmu's NWW register). */
+                static long force_eir = -2;
+                if (force_eir == -2) {
+                    const char *w = getenv("DORADO_FORCE_EIR_AT");
+                    force_eir = w ? strtol(w, NULL, 0) : -1;
+                }
+                if (force_eir > 0 && bb.cycles >= (uint64_t)force_eir) {
+                    cpu.RM[0023] &= 0x7FFF;
+                    force_eir = -1;
+                    fprintf(stderr, "FORCE_EIR applied at cyc=%llu\n",
+                            (unsigned long long)bb.cycles);
+                }
+            }
+            {
                 /* DORADO_PC_COUNT="a,b,..." (octal real PCs, max 8):
                  * count task-0 executions and print at probe end. */
                 static long pcc[8]; static uint64_t pcc_n[8];
