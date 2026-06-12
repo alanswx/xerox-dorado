@@ -87,6 +87,10 @@ int main(int argc, char **argv)
 {
     int scale = 1;
     uint64_t cycles_per_frame = 400000;   /* emulated cycles per redraw */
+    long shots[64];                       /* frame numbers to snapshot   */
+    int n_shots = 0;
+    long max_shot = -1;
+    const char *shot_prefix = "dorado-frame";
 
     dorado_machine_config cfg;
     dorado_machine_config_default(&cfg);
@@ -100,9 +104,23 @@ int main(int argc, char **argv)
         else if (!strcmp(a, "--scale") && i + 1 < argc) scale = atoi(argv[++i]);
         else if (!strcmp(a, "--speed") && i + 1 < argc)
             cycles_per_frame = parse_u64(argv[++i], cycles_per_frame);
-        else if (!strcmp(a, "--help") || !strcmp(a, "-h")) {
+        else if (!strcmp(a, "--shot-prefix") && i + 1 < argc)
+            shot_prefix = argv[++i];
+        else if (!strcmp(a, "--screenshot") && i + 1 < argc) {
+            /* Comma-separated frame numbers, e.g. --screenshot 10,15,20.
+             * A PGM is written when the frame counter hits each one. */
+            char *list = argv[++i], *tok = strtok(list, ",");
+            while (tok && n_shots < (int)(sizeof shots / sizeof shots[0])) {
+                long f = strtol(tok, NULL, 0);
+                shots[n_shots++] = f;
+                if (f > max_shot) max_shot = f;
+                tok = strtok(NULL, ",");
+            }
+        } else if (!strcmp(a, "--help") || !strcmp(a, "-h")) {
             printf("usage: %s [--eb PATH] [--eftp PATH] [--quote] "
-                   "[--no-alto-boot] [--scale N] [--speed CYCLES]\n", argv[0]);
+                   "[--no-alto-boot] [--scale N] [--speed CYCLES]\n"
+                   "          [--screenshot F1,F2,...] [--shot-prefix NAME]\n",
+                   argv[0]);
             return 0;
         } else {
             fprintf(stderr, "dorado-sdl: unknown option '%s'\n", a);
@@ -123,20 +141,31 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    /* Try to open a real window; if that fails (e.g. headless / dummy
+     * video driver), fall back to a windowless mode that still runs the
+     * machine and writes the requested --screenshot frames. */
     SDL_Window *win = SDL_CreateWindow(
         "Xerox Dorado", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         DORADO_DISPLAY_W * scale, DORADO_DISPLAY_H * scale,
         SDL_WINDOW_ALLOW_HIGHDPI);
-    SDL_Renderer *ren = SDL_CreateRenderer(
-        win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    SDL_Texture *tex = SDL_CreateTexture(
+    SDL_Renderer *ren = win ? SDL_CreateRenderer(
+        win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC) : NULL;
+    SDL_Texture *tex = ren ? SDL_CreateTexture(
         ren, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
-        DORADO_DISPLAY_W, DORADO_DISPLAY_H);
-    if (!win || !ren || !tex) {
-        fprintf(stderr, "dorado-sdl: SDL setup failed: %s\n", SDL_GetError());
-        dorado_machine_destroy(m);
-        SDL_Quit();
-        return 1;
+        DORADO_DISPLAY_W, DORADO_DISPLAY_H) : NULL;
+    int headless = (!win || !ren || !tex);
+    if (headless) {
+        if (win && !ren) { SDL_DestroyWindow(win); win = NULL; }
+        if (n_shots == 0) {
+            fprintf(stderr, "dorado-sdl: no display available (%s) and no "
+                    "--screenshot frames requested; nothing to do.\n",
+                    SDL_GetError());
+            dorado_machine_destroy(m);
+            SDL_Quit();
+            return 1;
+        }
+        fprintf(stderr, "dorado-sdl: no display; running headless to "
+                "capture %d screenshot(s).\n", n_shots);
     }
 
     dorado_display *disp = dorado_machine_display(m);
@@ -145,6 +174,7 @@ int main(int argc, char **argv)
     int running = 1, paused = 0;
     int announced = 0;
     int mouse_buttons = 0;
+    long frame = 0;
     while (running) {
         SDL_Event e;
         while (SDL_PollEvent(&e)) {
@@ -200,37 +230,56 @@ int main(int argc, char **argv)
             }
         }
 
-        /* Rasterize the display list and convert the 1-bpp framebuffer
-         * to the ARGB texture (1 = black, 0 = white). */
+        /* Rasterize the display list into the framebuffer. */
         dorado_machine_render_display_list(m);
         const uint8_t *fb = disp->fb;
-        for (int y = 0; y < DORADO_DISPLAY_H; y++) {
-            const uint8_t *row = fb + y * DORADO_DISPLAY_ROW_BYTES;
-            uint32_t *out = pixels + y * DORADO_DISPLAY_W;
-            for (int x = 0; x < DORADO_DISPLAY_W; x++) {
-                int bit = (row[x >> 3] >> (7 - (x & 7))) & 1;
-                out[x] = bit ? 0xFF000000u : 0xFFFFFFFFu;
-            }
-        }
-        SDL_UpdateTexture(tex, NULL, pixels,
-                          DORADO_DISPLAY_W * (int)sizeof(uint32_t));
-        SDL_RenderClear(ren);
-        SDL_RenderCopy(ren, tex, NULL, NULL);
-        SDL_RenderPresent(ren);
 
-        char title[160];
-        snprintf(title, sizeof title,
-                 "Xerox Dorado  -  %llu cyc  -  %s%s",
-                 (unsigned long long)dorado_machine_cycles(m),
-                 dorado_machine_interactive(m) ? "running"
-                     : (dorado_machine_booted(m) ? "booting OS" : "boot"),
-                 paused ? "  [paused]" : "");
-        SDL_SetWindowTitle(win, title);
+        /* Write a snapshot if this frame was requested via --screenshot. */
+        for (int s = 0; s < n_shots; s++) {
+            if (shots[s] != frame) continue;
+            char path[256];
+            snprintf(path, sizeof path, "%s-%ld.pgm", shot_prefix, frame);
+            if (dorado_display_snapshot_pgm(disp, path) == 0)
+                printf("dorado-sdl: frame %ld (%llu cyc) -> %s\n", frame,
+                       (unsigned long long)dorado_machine_cycles(m), path);
+            else
+                fprintf(stderr, "dorado-sdl: failed to write %s\n", path);
+        }
+
+        if (!headless) {
+            uint32_t *px = pixels;
+            for (int y = 0; y < DORADO_DISPLAY_H; y++) {
+                const uint8_t *row = fb + y * DORADO_DISPLAY_ROW_BYTES;
+                uint32_t *out = px + y * DORADO_DISPLAY_W;
+                for (int x = 0; x < DORADO_DISPLAY_W; x++) {
+                    int bit = (row[x >> 3] >> (7 - (x & 7))) & 1;
+                    out[x] = bit ? 0xFF000000u : 0xFFFFFFFFu;
+                }
+            }
+            SDL_UpdateTexture(tex, NULL, pixels,
+                              DORADO_DISPLAY_W * (int)sizeof(uint32_t));
+            SDL_RenderClear(ren);
+            SDL_RenderCopy(ren, tex, NULL, NULL);
+            SDL_RenderPresent(ren);
+
+            char title[176];
+            snprintf(title, sizeof title,
+                     "Xerox Dorado  -  frame %ld  -  %llu cyc  -  %s%s",
+                     frame, (unsigned long long)dorado_machine_cycles(m),
+                     dorado_machine_interactive(m) ? "running"
+                         : (dorado_machine_booted(m) ? "booting OS" : "boot"),
+                     paused ? "  [paused]" : "");
+            SDL_SetWindowTitle(win, title);
+        }
+
+        /* In windowless mode, stop once the last requested frame is done. */
+        if (headless && frame >= max_shot) running = 0;
+        frame++;
     }
 
-    SDL_DestroyTexture(tex);
-    SDL_DestroyRenderer(ren);
-    SDL_DestroyWindow(win);
+    if (tex) SDL_DestroyTexture(tex);
+    if (ren) SDL_DestroyRenderer(ren);
+    if (win) SDL_DestroyWindow(win);
     SDL_Quit();
     dorado_machine_destroy(m);
     return 0;
