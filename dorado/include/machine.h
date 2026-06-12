@@ -1,0 +1,75 @@
+#ifndef DORADO_MACHINE_H_
+#define DORADO_MACHINE_H_
+
+/*
+ * dorado_machine — a runnable Dorado: BaseBoard + microengine + memory
+ * + IFU + tasking + slow/fast I/O + the in-process Ethernet boot server,
+ * wired together and driven by a single cycle clock. This is the
+ * orchestration that was previously trapped inside test_cpu.c's
+ * probe_full_boot_with_bootstrap, lifted into a reusable library so a
+ * standalone frontend (src/dorado.c) can boot and present the machine.
+ *
+ * The default config reproduces the Stage-2 Alto-style Ethernet software
+ * boot: BaseBoard -> Bootstrap -> Initial -> EtherMicrocodeBoot loads the
+ * Alto/Mesa emulator world, which then Maydays for NETEXEC.BOOT and runs
+ * the BCPL Net Executive.
+ */
+
+#include "display.h"
+
+#include <stdint.h>
+
+typedef struct dorado_machine dorado_machine;
+
+typedef struct dorado_machine_config {
+    /* Firmware / microcode source paths. NULL selects the built-in
+     * default (the canonical chm/ tree, relative to the dorado/ dir). */
+    const char *bb_rom;        /* doradobaserom.mb!13                  */
+    const char *bootstrap_mb;  /* Bootstrap.mb (BB-streamed loader)    */
+    const char *initial_mb;    /* Initial.mb (boot microcode)          */
+    const char *kernel_mb;     /* kernel.mb (fault task, dispatch)     */
+    const char *memmisc_mb;    /* memMisc.mb (memory primitives)       */
+    const char *ifu_mb;        /* IfuComplex.mb (IFU decode)           */
+    const char *eth_boot_110;  /* netboot world for boot-file 0110     */
+    const char *eftp_boot;     /* Stage-2 Alto boot file (NETEXEC.BOOT)*/
+
+    int alto_ether_boot;       /* 1 = drive the Stage-2 Alto ether boot
+                                *     (breath-of-life + EFTP server)   */
+    int alto_ether_quote;      /* DDC "quote" key state for boot select */
+    int no_disk;               /* 1 = leave the disk task idle         */
+    int storage_modules;       /* modeled storage size, 1..4 4MW modules.
+                                * 0 -> default 1. AEmu only needs one;
+                                * 4 modules wraps RealPages to 0 and
+                                * confuses InitMem. */
+} dorado_machine_config;
+
+/* Fill cfg with the default Alto-on-Dorado NetExec boot configuration. */
+void dorado_machine_config_default(dorado_machine_config *cfg);
+
+/* Create and cold-start a machine. Returns NULL if firmware/microcode
+ * could not be loaded (a message is printed to stderr). */
+dorado_machine *dorado_machine_create(const dorado_machine_config *cfg);
+void dorado_machine_destroy(dorado_machine *m);
+
+/* Advance the clock until cycle count reaches until_cycle (or the engine
+ * halts). Returns the cycle count actually reached. Call repeatedly to
+ * run a frame at a time. */
+uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle);
+
+uint64_t dorado_machine_cycles(const dorado_machine *m);
+
+/* 1 once Initial has LoadRam'd the Alto/Mesa world and it is running. */
+int dorado_machine_booted(const dorado_machine *m);
+
+/* The display device (for framebuffer access / snapshot). */
+dorado_display *dorado_machine_display(dorado_machine *m);
+
+/* Print a one-line Ethernet/EFTP/display state summary to stderr. */
+void dorado_machine_debug(dorado_machine *m);
+
+/* Rasterize the Alto display list (DASTART -> DCB chain) from memory
+ * straight into the display framebuffer, independent of the DWT word
+ * task. Returns the number of lit pixels painted. */
+int dorado_machine_render_display_list(dorado_machine *m);
+
+#endif /* DORADO_MACHINE_H_ */
