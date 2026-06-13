@@ -86,6 +86,8 @@ int main(int argc, char **argv)
             cfg.eth_boot_110 = argv[++i];
         } else if (!strcmp(a, "--eftp") && i + 1 < argc) {
             cfg.eftp_boot = argv[++i];
+        } else if (!strcmp(a, "--boot-file-number") && i + 1 < argc) {
+            cfg.boot_file_number = (uint16_t)strtoul(argv[++i], NULL, 8);
         } else if (!strcmp(a, "--out") && i + 1 < argc) {
             out = argv[++i];
         } else if (!strcmp(a, "--quote")) {
@@ -100,6 +102,7 @@ int main(int argc, char **argv)
             key_hold = parse_u64(argv[++i], key_hold);
         } else if (!strcmp(a, "--help") || !strcmp(a, "-h")) {
             printf("usage: %s [--cycles N] [--eb PATH] [--eftp PATH] "
+                   "[--boot-file-number OCTAL] "
                    "[--out PATH] [--quote] [--no-alto-boot] [--progress]\n",
                    argv[0]);
             return 0;

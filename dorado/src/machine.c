@@ -78,6 +78,7 @@ struct dorado_machine {
     int disk_attached;
     int alto_ether_boot;
     int alto_ether_quote;
+    uint16_t boot_file_number;
 
     /* Boot state machine. */
     int      pressed;
@@ -201,6 +202,7 @@ void dorado_machine_config_default(dorado_machine_config *cfg)
     cfg->alto_ether_quote = 0;
     cfg->no_disk = 1;
     cfg->storage_modules = 1;
+    cfg->boot_file_number = 0110;
 }
 
 static const char *pick(const char *v, const char *def)
@@ -226,6 +228,8 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
         cfg.no_disk          = user_cfg->no_disk;
         if (user_cfg->storage_modules)
             cfg.storage_modules = user_cfg->storage_modules;
+        if (user_cfg->boot_file_number)
+            cfg.boot_file_number = user_cfg->boot_file_number;
     }
     if (cfg.storage_modules < 1 || cfg.storage_modules > 4)
         cfg.storage_modules = 1;
@@ -234,6 +238,7 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
     if (!m) return NULL;
     m->alto_ether_boot  = cfg.alto_ether_boot;
     m->alto_ether_quote = cfg.alto_ether_quote;
+    m->boot_file_number = cfg.boot_file_number;
     m->pre_swap_cpreg   = 0;
 
     /* Bootstrap.MB -> bs_mc (the loader the BB streams in). */
@@ -316,7 +321,8 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
     dorado_display_init(&m->display);
     dorado_disk_controller_init(&m->disk);
     dorado_ethernet_init(&m->ethernet);
-    dorado_ethernet_set_boot_file(&m->ethernet, 0110, cfg.eth_boot_110);
+    dorado_ethernet_set_boot_file(&m->ethernet, cfg.boot_file_number,
+                                  cfg.eth_boot_110);
     dorado_ethernet_set_eftp_boot_file(&m->ethernet, cfg.eftp_boot);
 
     dorado_display_attach_to_io(&m->display, &m->io);
@@ -447,16 +453,20 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
 
         /* Seed Initial's boot parameter (STK[1]=boot file number,
          * STK[2]=BootParameterSeal, STK[1]+STK[2]+STK[3]=0) so the
-         * loaded world selects the normal Mesa boot (110B) instead of
-         * falling into the cold/no-storage path. The 7-wire terminal
-         * back-channel that would carry this is not modeled. */
+         * loaded world selects the normal Mesa boot instead of falling
+         * into the cold/no-storage path. The 7-wire terminal back-channel
+         * that would carry this is not modeled, so we plant it directly.
+         * The boot file number is configurable (see boot_file_number);
+         * STK[2] is the fixed BootParameterSeal and STK[3] is the
+         * checksum word that makes the three sum to 0 mod 2^16. */
         if (m->initial_substituted && is_imfetch &&
             !m->checksum_and_load_seen &&
             ((pre_pc >= 06170 && pre_pc <= 06217) ||
              (pre_pc >= 06406 && pre_pc <= 06443))) {
-            cpu->STK[1] = 0110u;
-            cpu->STK[2] = 056623u;
-            cpu->STK[3] = 0121045u;
+            uint16_t seal = 056623u;
+            cpu->STK[1] = m->boot_file_number;
+            cpu->STK[2] = seal;
+            cpu->STK[3] = (uint16_t)(0u - cpu->STK[1] - seal);
         }
 
         /* Keep Initial's boot keys "up" until CheckChecksumAndLoad so it

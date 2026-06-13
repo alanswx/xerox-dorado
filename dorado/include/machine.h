@@ -41,6 +41,13 @@ typedef struct dorado_machine_config {
                                 * 0 -> default 1. AEmu only needs one;
                                 * 4 modules wraps RealPages to 0 and
                                 * confuses InitMem. */
+    uint16_t boot_file_number; /* Mesa/Dorado boot file number, the first
+                                * word of the boot-parameter block Initial
+                                * normally derives from the boot button +
+                                * keyboard. Drives both the netboot file
+                                * Initial requests and the STK[1..3] seed
+                                * the loaded world reads. 0 -> default 0110
+                                * (the normal Mesa/Alto net boot). */
 } dorado_machine_config;
 
 /* Fill cfg with the default Alto-on-Dorado NetExec boot configuration. */

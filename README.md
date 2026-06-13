@@ -129,9 +129,21 @@ typing works. The Cedar microcode loads today but does not yet reach its
 prompt — that bring-up is tracked in `docs/cedar-boot-plan.md`.
 
 Flags: `--eb PATH` (emulator-microcode world), `--eftp PATH` (Stage-2 boot
-file), `--scale N` (window scale), `--speed CYCLES` (cycles/frame),
-`--quote`, `--no-alto-boot`, `--screenshot F1,F2,...`. Controls: **F1**
+file), `--boot-file-number OCTAL` (boot file number, default `110`),
+`--scale N` (window scale), `--speed CYCLES` (cycles/frame), `--quote`,
+`--no-alto-boot`, `--screenshot F1,F2,...`. Controls: **F1**
 pauses/resumes; **Cmd/Ctrl+Q** quits.
+
+`--boot-file-number` sets the Mesa/Dorado **boot file number** — the value
+a real machine derives from the boot button and keyboard and hands to the
+booting microcode. It is the first word of the three-word boot-parameter
+block (`STK[1..3]`: boot file number, `BootParameterSeal`, and a checksum
+word that makes the three sum to 0 mod 2^16); the emulator plants the
+block directly because the 7-wire terminal back-channel that would carry
+it is not modeled. The same number selects the netboot file Initial
+requests. The default `110` (octal) is the normal Mesa/Alto net boot and
+is what every path above uses — you only need this flag to experiment with
+a different boot file number.
 
 A headless build (`build/dorado`, same flags plus `--cycles N`,
 `--type STRING`, `--out screen.pgm`) renders to a PGM snapshot for

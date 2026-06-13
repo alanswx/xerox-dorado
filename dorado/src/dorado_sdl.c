@@ -99,6 +99,8 @@ int main(int argc, char **argv)
         const char *a = argv[i];
         if (!strcmp(a, "--eb") && i + 1 < argc)        cfg.eth_boot_110 = argv[++i];
         else if (!strcmp(a, "--eftp") && i + 1 < argc) cfg.eftp_boot = argv[++i];
+        else if (!strcmp(a, "--boot-file-number") && i + 1 < argc)
+            cfg.boot_file_number = (uint16_t)strtoul(argv[++i], NULL, 8);
         else if (!strcmp(a, "--quote"))                cfg.alto_ether_quote = 1;
         else if (!strcmp(a, "--no-alto-boot"))         cfg.alto_ether_boot = 0;
         else if (!strcmp(a, "--scale") && i + 1 < argc) scale = atoi(argv[++i]);
@@ -117,7 +119,8 @@ int main(int argc, char **argv)
                 tok = strtok(NULL, ",");
             }
         } else if (!strcmp(a, "--help") || !strcmp(a, "-h")) {
-            printf("usage: %s [--eb PATH] [--eftp PATH] [--quote] "
+            printf("usage: %s [--eb PATH] [--eftp PATH] "
+                   "[--boot-file-number OCTAL] [--quote] "
                    "[--no-alto-boot] [--scale N] [--speed CYCLES]\n"
                    "          [--screenshot F1,F2,...] [--shot-prefix NAME]\n",
                    argv[0]);
