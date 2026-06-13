@@ -38,24 +38,38 @@ delivers `AltoMesaDorado.eb` (Pup types `264B`/`265B`), Initial verifies
 the EB checksum, calls `LoadRam`, and the loaded Alto/Mesa emulator
 microcode world starts (~61 M cycles in; run with a 140 M-cycle budget).
 
-**Stage 2 — Ethernet software boot — works: NetExec runs interactively.**
-The running emulator microcode loads a real OS over the net (Alto-style
-Ethernet software boot: Mayday Pup `244B` + EFTP `30B`/`31B`, served by
-the in-process boot server). The **BCPL Net Executive** transfers over
-EFTP, starts, installs its display list, and renders its banner — and you
-can **type at its command line** (e.g. `help`) in the windowed frontend.
+**Stage 2 — Ethernet software boot — the BCPL Net Executive runs, with a
+working Pup network stack.** The loaded Alto/Mesa microcode boots NetExec
+over Alto-style Ethernet (Mayday Pup `244B` + EFTP `30B`/`31B`), which
+starts, installs its display list, and renders its banner — and you can
+**type at its command line** in the windowed frontend. NetExec's full Pup
+stack now functions against the in-process fake server: it **learns its
+network number** (gateway-info `200B`/`201B`), **sets its clock** to the
+host's real wall-clock time (Alto time `206B`/`207B`), and **discovers the
+boot-file directory** (`257B`/`260B`). All replies are spec-correct
+(verified against the Alto Pup driver source and the Living Computer
+Museum IFS server), including the Pup checksum and the hardware-CRC framing
+the AEmu receive microcode requires.
 
-A long-standing page-zero corruption that crashed the booted world on the
-first divide (the "types a little, then stops" failure) was traced to a
-microarchitecture bug — an instruction's `RBase← FF` change wrongly
-redirecting that same instruction's RM write — and fixed; the world is now
-stable for hundreds of millions of cycles. See the root-cause writeup at
-the top of `docs/CONTINUE-HERE.md`.
+**The documented Cedar-over-Ethernet chain works through the load.** Per
+the PARC booting memo, Cedar is reached by booting NetExec, then typing the
+name of the next boot file. With `--boot-dir` registering `CedarNetExec`,
+NetExec lists it under `?`, and selecting it Mayday-requests its boot-file
+number; the server serves `CedarNetExec.boot` and the EtherBoot loader
+pulls it in. CedarNetExec itself does not yet reach its prompt (it stalls
+in early startup) — that bring-up is the current frontier; see
+`docs/CONTINUE-HERE.md`.
+
+Two microarchitecture/protocol root causes fixed along the way: a page-zero
+corruption that crashed the booted world on the first divide (an
+instruction's `RBase← FF` change wrongly redirecting that same
+instruction's RM write), and socket replies being dropped because they
+omitted the trailing hardware-CRC word the receive microcode subtracts.
+Both are written up at the top of `docs/CONTINUE-HERE.md`.
 
 The disk route remains blocked on *content* (no preserved Pilot/Alto
 Dorado pack exists; see below) and the disk controller's data-transfer
-path, so Ethernet is the boot path. Bringing up a richer world
-(Pilot/Cedar) is the next frontier.
+path, so Ethernet is the boot path.
 
 There is **no shortcut disk image**: the CHM PARC archive is an IFS
 file-server dump, not a collection of bootable packs, so no installed
@@ -106,21 +120,69 @@ make worlds       # -> worlds/aemu.eb (the Alto-emulator world, from AEmu.mb)
 The Cedar/Mesa worlds need no generation — they are ready `.eb` files
 already checked into `../chm`.
 
-#### Boot paths (same binary, different `--eb` / `--eftp`)
+#### Boot recipes by environment
 
-The two payloads are the **emulator microcode** (`--eb`, loaded by Initial
-over the Dorado microcode boot) and the **Stage-2 boot file** (`--eftp`,
-fetched over EFTP by the loaded world). Pick a path:
+A run has two payloads: the **emulator microcode** (`--eb`, the world our
+substituted Initial delivers over the Dorado microcode boot) and the
+**Stage-2 software** (`--eftp`, fetched over EFTP by that world). The real
+Dorado picks its world by which microcode is installed on disk (booting
+memo §1.5: `InitialEtherAltoMesaDorado.eb` for Alto/Mesa,
+`InitialEtherSmalltalkDorado.eb` for Smalltalk, `CedarDorado.eb` for Cedar,
+etc.); here you choose it directly with `--eb`. Every recipe runs windowed
+(`build/dorado-sdl …`) or headless (`build/dorado … --cycles N --out
+screen.pgm`).
+
+| Environment | `--eb` emulator world | Status |
+|---|---|---|
+| Alto / Mesa | `worlds/aemu.eb` (≡ `AltoMesaDorado.eb`) | **works** |
+| Smalltalk-80/76 | `../chm/microcode/SmalltalkDorado.eb!1` | loads; needs an image (experimental) |
+| Cedar (Mesa VM) | via Alto/Mesa → CedarNetExec | in bring-up |
+| Interlisp-D (Lisp) | `DoradoLisp` (build from `chm/dorado/expanded/UnBug.bfs!1_/DoradoLisp.MB`) | experimental |
+
+**Alto / Mesa — works.** The Alto-emulator world runs the BCPL Net
+Executive and any Alto (`000405`-format) boot file:
 
 ```sh
-# Alto / BCPL Net Executive  — WORKS, interactive (type `help`, etc.)
-./build/dorado-sdl --eb worlds/aemu.eb \
-                   --eftp '../chm/bootfiles/NETEXEC.BOOT!8'
+# Net Executive — interactive: learns its net + the real time, lists the
+# boot directory under `?`, accepts typed commands at the `>` prompt
+./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/NETEXEC.BOOT!8'
 
-# Cedar (Mesa VM)  — IN BRING-UP (see docs/cedar-boot-plan.md, Phase 0+)
-./build/dorado-sdl --eb '../chm/dorado/CedarDorado.eb!6' \
-                   --eftp '../chm/bootfiles/CedarNetExec.boot!4'
+# CRTTEST — display test, renders a test pattern
+./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/CRTTEST.BOOT!1'
+
+# DMT — the diagnostic/idle program a diskless Alto boots
+./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/DMT.BOOT!22'
 ```
+
+**Cedar — through NetExec (the documented route).** The booting memo
+boots Cedar by getting into the Net Executive and typing `CedarNetExec`.
+Register that file with `--boot-dir` (next section) and select it at the
+`>` prompt. The chain works through the load; CedarNetExec's own startup is
+the current frontier. (`--eb '../chm/dorado/CedarDorado.eb!6'` is the
+separate *disk* Cedar-microcode path — it expects an installed germ +
+physical volume and stalls in `InitMem` over Ethernet.)
+
+```sh
+./build/dorado-sdl --eb worlds/aemu.eb \
+    --eftp '../chm/bootfiles/NETEXEC.BOOT!8' \
+    --boot-dir 'CedarNetExec.boot=111=../chm/bootfiles/CedarNetExec.boot!4'
+# then at the `>` prompt:  ?   (lists CedarNetExec)   then   CedarNetExec
+```
+
+**Smalltalk — experimental.** The Smalltalk emulator microcode loads
+through the boot chain, but Smalltalk needs its own loaded image to come up
+(none is wired yet):
+
+```sh
+./build/dorado-sdl --eb '../chm/microcode/SmalltalkDorado.eb!1' \
+                   --eftp '../chm/bootfiles/NETEXEC.BOOT!8'
+```
+
+**Mesa-format worlds (`000345`).** `CedarNetExec.boot`, `MesaNetExec.boot`,
+`AlphaMesaMesaNetExec.boot`, `MazeWar.boot`, and `NEWOS.BOOT` are the large
+(~64 K-word) Mesa boot files. They transfer in full but stall in early
+startup (the bring-up frontier). Serve any of them by name through NetExec
+with `--boot-dir`, e.g. `MesaNetExec.boot=112=../chm/bootfiles/MesaNetExec.boot!1`.
 
 #### Booting a second-stage file *through* NetExec (`--boot-dir`)
 
@@ -144,10 +206,10 @@ breath-of-life that loads NetExec itself uses boot file 0 and the plain
 `--eftp` file.)
 
 Booting takes a little while (the real BaseBoard → Bootstrap → Initial →
-Ethernet-microcode chain, then the EFTP transfer of the boot file); for
-the Alto path the banner and `>` prompt appear once it is up, after which
-typing works. The Cedar microcode loads today but does not yet reach its
-prompt — that bring-up is tracked in `docs/cedar-boot-plan.md`.
+Ethernet-microcode chain, then the EFTP transfer of the boot file); the
+Alto/Mesa banner and `>` prompt appear once it is up, after which typing
+works. A second-stage file you select (e.g. `CedarNetExec`) is itself a
+large transfer — give it a moment after the screen clears.
 
 Flags: `--eb PATH` (emulator-microcode world), `--eftp PATH` (Stage-2 boot
 file), `--boot-file-number OCTAL` (boot file number, default `110`),

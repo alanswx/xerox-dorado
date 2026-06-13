@@ -385,6 +385,21 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
     dorado_ethernet *eth = &m->ethernet;
 
     while (bb->cycles < until_cycle && !cpu->halted) {
+        /* Trace-gate cycle window (env DORADO_TRACE_GATE="lo,hi"), so the
+         * standalone binary can drive the same gated IFUDISP/BR/store
+         * traces as the test harness. Trace-only; no behavioral effect. */
+        {
+            static long tg_lo = -1, tg_hi = -1;
+            extern int dorado_trace_gate;
+            if (tg_lo == -1) {
+                const char *w = getenv("DORADO_TRACE_GATE");
+                tg_lo = 0; tg_hi = 0;
+                if (w) sscanf(w, "%ld,%ld", &tg_lo, &tg_hi);
+            }
+            dorado_trace_gate =
+                (tg_hi && bb->cycles >= (uint64_t)tg_lo &&
+                 bb->cycles <= (uint64_t)tg_hi);
+        }
         /* Boot-button schedule (three presses). */
         if (!m->pressed && bb->cycles >= T_PRESS1_DOWN &&
             bb->cycles < T_PRESS1_UP) {
