@@ -361,44 +361,51 @@ static int test_bootdir_reply_format(void)
            (unsigned long long)eth.bootdir_replies);
 
     int bad = 0;
-    uint16_t h[12];
-    for (int i = 0; i < 12; i++)
-        h[i] = dorado_io_read(&io, DORADO_ETHERNET_TASK_EIT,
-                              DORADO_ETHERNET_TIOA_DATA, &bad);
-    EXPECT(h[1] == 01000, "ether type 0o%o", h[1]);
-    EXPECT(h[3] == DORADO_PUP_TYPE_BOOTDIR_REPLY, "pup type 0o%o", h[3]);
+    /* Capture the whole reply: 12 Ethernet+Pup-header words, 12 content
+     * words (one BFD block), and the Pup checksum word. */
+    uint16_t pkt[26];
+    for (int i = 0; i < 25; i++)
+        pkt[i] = dorado_io_read(&io, DORADO_ETHERNET_TASK_EIT,
+                                DORADO_ETHERNET_TIOA_DATA, &bad);
+    EXPECT(pkt[1] == 01000, "ether type 0o%o", pkt[1]);
+    EXPECT(pkt[3] == DORADO_PUP_TYPE_BOOTDIR_REPLY, "pup type 0o%o", pkt[3]);
     /* One entry: bfn(1) + date(2) + name "CedarNetExec.boot" (17 chars ->
      * 18 bytes incl length -> 9 words) = 12 data words. length = 026+2*12. */
-    EXPECT(h[2] == (uint16_t)(026 + 2 * 12), "pup length 0o%o", h[2]);
-    EXPECT(h[6] == 042, "reply dPort host 0o%o (= requestor)", h[6]);
+    EXPECT(pkt[2] == (uint16_t)(026 + 2 * 12), "pup length 0o%o", pkt[2]);
+    EXPECT(pkt[6] == 042, "reply dPort host 0o%o (= requestor)", pkt[6]);
+    EXPECT(pkt[12] == 0111, "bfn 0o%o want 0o111", pkt[12]);
 
-    uint16_t bfn = dorado_io_read(&io, DORADO_ETHERNET_TASK_EIT,
-                                  DORADO_ETHERNET_TIOA_DATA, &bad);
-    EXPECT(bfn == 0111, "bfn 0o%o want 0o111", bfn);
-    uint16_t date_hi = dorado_io_read(&io, DORADO_ETHERNET_TASK_EIT,
-                                      DORADO_ETHERNET_TIOA_DATA, &bad);
-    uint16_t date_lo = dorado_io_read(&io, DORADO_ETHERNET_TASK_EIT,
-                                      DORADO_ETHERNET_TIOA_DATA, &bad);
-    /* Must be nonzero or NetExec treats the entry as a local command. */
-    EXPECT((date_hi | date_lo) != 0, "version date is nonzero");
-
-    /* Decode the BCPL string: first byte = length, then chars. */
-    uint16_t w0 = dorado_io_read(&io, DORADO_ETHERNET_TASK_EIT,
-                                 DORADO_ETHERNET_TIOA_DATA, &bad);
-    int slen = (w0 >> 8) & 0377;
+    /* BCPL string starts at content word 3 (pkt[15]): length byte, chars. */
+    int slen = (pkt[15] >> 8) & 0377;
     EXPECT(slen == 17, "name length %d want 17", slen);
     char name[64];
     int ni = 0;
-    name[ni++] = (char)(w0 & 0377);
+    name[ni++] = (char)(pkt[15] & 0377);
     int name_words = (slen + 1 + 1) / 2;
     for (int wi = 1; wi < name_words; wi++) {
-        uint16_t w = dorado_io_read(&io, DORADO_ETHERNET_TASK_EIT,
-                                    DORADO_ETHERNET_TIOA_DATA, &bad);
+        uint16_t w = pkt[15 + wi];
         name[ni++] = (char)((w >> 8) & 0377);
         name[ni++] = (char)(w & 0377);
     }
     name[slen] = '\0';
     EXPECT(strcmp(name, "CedarNetExec.boot") == 0, "name '%s'", name);
+
+    /* The Pup checksum must be a real value NetExec's Pup stack accepts,
+     * not the 0xFFFF "skip" sentinel (which it dropped). Recompute it
+     * receiver-side over the Pup proper, words [2,24), and compare. */
+    EXPECT(pkt[24] != 0177777, "checksum must be real, not skip sentinel");
+    {
+        uint32_t sum = 0;
+        for (int i = 2; i < 24; i++) {
+            sum += pkt[i];
+            sum = (uint16_t)(sum + ((sum & 0x10000u) >> 16));
+            sum = sum << 1;
+            sum = (uint16_t)(sum + ((sum & 0x10000u) >> 16));
+        }
+        if (sum == 0xFFFFu) sum = 0;
+        EXPECT(pkt[24] == (uint16_t)sum,
+               "Pup checksum 0o%o want 0o%o", pkt[24], (uint16_t)sum);
+    }
 
     /* Now a Mayday for that bfn must serve CedarNetExec.boot, not the
      * default NETEXEC. Independently size CedarNetExec to compare. */

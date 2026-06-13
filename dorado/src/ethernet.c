@@ -169,6 +169,26 @@ static int append_rx_word(dorado_ethernet *eth, size_t *cap,
     return 1;
 }
 
+/* Pup ones-complement checksum (HM/PupSpec; algorithm cross-checked
+ * against the Living Computer Museum IFS PUP.CalculateChecksum). Sum the
+ * Pup words [start, start+count) -- i.e. from the length word through the
+ * last content word, excluding the trailing checksum word -- with
+ * end-around carry and a left rotate after each add. 0xFFFF (negative
+ * zero) is normalized to 0. NetExec's BCPL Pup receive validates this;
+ * the 0xFFFF "no checksum" sentinel we used before was dropped. */
+static uint16_t pup_checksum(const uint16_t *w, size_t start, size_t count)
+{
+    uint32_t sum = 0;
+    for (size_t i = start; i < start + count; i++) {
+        sum += w[i];
+        sum = (uint16_t)(sum + ((sum & 0x10000u) >> 16));   /* end-around */
+        sum = sum << 1;
+        sum = (uint16_t)(sum + ((sum & 0x10000u) >> 16));   /* rotate left */
+    }
+    if (sum == 0xFFFFu) sum = 0;
+    return (uint16_t)sum;
+}
+
 static int append_reply(dorado_ethernet *eth, size_t *cap,
                         uint16_t seq, const uint16_t *payload,
                         size_t nwords)
@@ -663,7 +683,15 @@ static void eth_tx_packet_done(dorado_ethernet *eth)
             ok = append_rx_word(eth, &cap, hdr[i], 0);
         for (int i = 0; i < nd && ok; i++)
             ok = append_rx_word(eth, &cap, data[i], 0);
-        if (ok) ok = append_rx_word(eth, &cap, 0177777, 0);
+        /* Pup checksum over the Pup proper (word[2]=length through the
+         * last content word), excluding the 2 Ethernet-framing words and
+         * the checksum word itself. rx_count is now 12+nd, so the Pup
+         * spans indices [2, 12+nd). */
+        if (ok) {
+            uint16_t cks = pup_checksum(eth->rx_words, 2,
+                                        (size_t)(12 + nd) - 2);
+            ok = append_rx_word(eth, &cap, cks, 0);
+        }
         if (ok) ok = append_rx_word(eth, &cap, 0, 1);
         if (ok) { eth->rx_pos = 0; eth->bootdir_replies++; }
         if (getenv("DORADO_ETH_TX_TRACE"))
