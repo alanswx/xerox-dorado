@@ -37,6 +37,7 @@
 #include "cpu.h"
 #include "memory.h"
 #include "io.h"
+#include "altoref.h"
 
 #include <stdint.h>
 #include <stdio.h>
@@ -125,11 +126,13 @@ struct result {
     int      n_wr;
 };
 
-/* Run one opcode. mc must be the loaded layer stack; start_real = Start. */
+/* Run one opcode. mc must be the loaded layer stack; start_real = Start.
+ * pz (256 words) seeds page-zero memory before the opcode (NULL = all 0). */
 static struct result run_one(dorado_microcode *mc, int start_real,
                              dorado_memory *mem, dorado_io *io,
                              uint16_t opcode, uint16_t next_op,
-                             const uint16_t ac[4], int cry)
+                             const uint16_t ac[4], int cry,
+                             const uint16_t *pz)
 {
     struct result r;
     memset(&r, 0, sizeof r);
@@ -138,6 +141,8 @@ static struct result run_one(dorado_microcode *mc, int start_real,
     /* Reset memory state we touch (the MDS bank low window). */
     uint32_t bank = (uint32_t)EMU_BANK << 16;
     for (uint32_t w = 0; w < 0x400; w++) store_va(mem, bank | w, 0);
+    if (pz)
+        for (uint32_t w = 0; w < 0400; w++) store_va(mem, bank | w, pz[w]);
 
     /* Program: opcode under test at CODE_WORD, a benign follow-on so the
      * handler has a second opcode to dispatch (we stop before it runs). */
@@ -231,6 +236,104 @@ static void print_result(uint16_t op, const uint16_t in_ac[4], int in_cry,
     printf("\n");
 }
 
+/* Compare a Dorado result against the reference; report + count mismatches.
+ * Compares AC0-3, carry, and the single memory write. */
+static int diff_one(const char *label, uint16_t op, const uint16_t ac[4],
+                    int cry, const struct result *d,
+                    const alto_ref_result *ref)
+{
+    int bad = 0;
+    for (int i = 0; i < 4; i++) if (d->ac[i] != ref->ac[i]) bad = 1;
+    if ((d->cry & 1) != (ref->cry & 1)) bad = 1;
+    if (ref->wrote) {
+        int found = 0;
+        for (int k = 0; k < d->n_wr; k++)
+            if (d->wr_va[k] == ref->wr_addr && d->wr_val[k] == ref->wr_val)
+                found = 1;
+        if (!found) bad = 1;
+    } else if (d->n_wr != 0) {
+        bad = 1;
+    }
+    if (!d->ok) bad = 1;
+    if (bad) {
+        printf("MISMATCH %-10s OP=%06o in AC=%06o,%06o,%06o,%06o CRY=%d\n",
+               label, op, ac[0], ac[1], ac[2], ac[3], cry);
+        printf("   dorado AC=%06o,%06o,%06o,%06o CRY=%d WR=",
+               d->ac[0], d->ac[1], d->ac[2], d->ac[3], d->cry);
+        for (int k = 0; k < d->n_wr; k++)
+            printf("%s%04o:%06o", k ? "," : "", d->wr_va[k], d->wr_val[k]);
+        if (!d->ok) printf(" [%s]", d->status);
+        printf("\n   ref    AC=%06o,%06o,%06o,%06o CRY=%d WR=",
+               ref->ac[0], ref->ac[1], ref->ac[2], ref->ac[3], ref->cry);
+        if (ref->wrote) printf("%04o:%06o", ref->wr_addr, ref->wr_val);
+        printf("\n");
+    }
+    return bad ? 1 : 0;
+}
+
+/* Sweep the ALC matrix + memory-reference opcodes on both the real AEmu
+ * microcode and the spec reference; report divergences. */
+static int run_sweep(dorado_microcode *mc, int start_real,
+                     dorado_memory *mem, dorado_io *io)
+{
+    int total = 0, bad = 0;
+    static const uint16_t opsets[][4] = {
+        { 0, 0, 0, 0 },
+        { 1, 0177777, 0100000, 077777 },
+        { 052525, 0125252, 1, 0177777 },
+        { 0, 1, 0177777, 2 },
+        { 7, 7, 0, 0 },
+    };
+    int nset = (int)(sizeof opsets / sizeof opsets[0]);
+
+    /* ALC: acs=1, acd=2; sweep func/sh/cy/nl/cry_in; skip=0 (skip changes
+     * PC only, which run_one does not track precisely). */
+    for (int func = 0; func < 8; func++)
+    for (int si = 0; si < nset; si++)
+    for (int sh = 0; sh < 4; sh++)
+    for (int cyf = 0; cyf < 4; cyf++)
+    for (int nl = 0; nl < 2; nl++)
+    for (int cin = 0; cin < 2; cin++) {
+        uint16_t op = (uint16_t)(0100000u | (1u << 13) | (2u << 11) |
+                                 ((unsigned)func << 8) | ((unsigned)sh << 6) |
+                                 ((unsigned)cyf << 4) | ((unsigned)nl << 3));
+        const uint16_t *ac = opsets[si];
+        struct result d = run_one(mc, start_real, mem, io, op, 0, ac, cin, NULL);
+        uint16_t m[256]; memset(m, 0, sizeof m);
+        alto_ref_result ref = alto_ref_exec(op, ac, cin, m, (uint16_t)CODE_WORD);
+        total++;
+        bad += diff_one("ALC", op, ac, cin, &d, &ref);
+    }
+
+    /* Memory-reference: STA/LDA/ISZ/DSZ at page-zero 0o100 across data
+     * values; the data cell is preloaded (shared with the reference). */
+    static const uint16_t datavals[] = { 0, 1, 0177777, 0100000, 052525, 0177776 };
+    int ndv = (int)(sizeof datavals / sizeof datavals[0]);
+    struct { const char *name; uint16_t op; int loads_ac1; } mri[] = {
+        { "STA1",  (uint16_t)((2u << 13) | (1u << 11) | 0100), 0 },
+        { "LDA1",  (uint16_t)((1u << 13) | (1u << 11) | 0100), 1 },
+        { "ISZ",   (uint16_t)((2u << 11) | 0100), 0 },
+        { "DSZ",   (uint16_t)((3u << 11) | 0100), 0 },
+    };
+    for (int mi = 0; mi < 4; mi++)
+    for (int dv = 0; dv < ndv; dv++) {
+        uint16_t ac[4] = { 0, 012345, 0, 0 };
+        uint16_t pz[256]; memset(pz, 0, sizeof pz);
+        pz[0100] = datavals[dv];     /* the data cell ISZ/DSZ/LDA read */
+        struct result d = run_one(mc, start_real, mem, io, mri[mi].op, 0,
+                                  ac, 0, pz);
+        uint16_t m[256]; memset(m, 0, sizeof m);
+        m[0100] = datavals[dv];
+        alto_ref_result ref = alto_ref_exec(mri[mi].op, ac, 0, m,
+                                            (uint16_t)CODE_WORD);
+        total++;
+        bad += diff_one(mri[mi].name, mri[mi].op, ac, 0, &d, &ref);
+    }
+
+    printf("sweep: %d vectors, %d mismatches\n", total, bad);
+    return bad ? 1 : 0;
+}
+
 int main(int argc, char **argv)
 {
     static mb_file mbs[N_LAYERS];
@@ -296,10 +399,13 @@ int main(int argc, char **argv)
         };
         int cry = (int)strtol(argv[6], NULL, 8) & 1;
         struct result r = run_one(&mc, start_real, &mem, &io, op, next_op,
-                                  ac, cry);
+                                  ac, cry, NULL);
         print_result(op, ac, cry, &r);
         return 0;
     }
+
+    if (argc >= 2 && !strcmp(argv[1], "sweep"))
+        return run_sweep(&mc, start_real, &mem, &io);
 
     /* Built-in validation vectors. Nova ALC encoding (bit 0 = MSB):
      *   0o100000 | (ACS<<13) | (ACD<<11) | (func<<8) | (sh<<6) |
@@ -334,7 +440,7 @@ int main(int argc, char **argv)
     #undef ALC
     for (size_t i = 0; i < sizeof V / sizeof V[0]; i++) {
         struct result r = run_one(&mc, start_real, &mem, &io, V[i].op,
-                                  next_op, V[i].ac, V[i].cry);
+                                  next_op, V[i].ac, V[i].cry, NULL);
         printf("%-18s ", V[i].name);
         print_result(V[i].op, V[i].ac, V[i].cry, &r);
     }
