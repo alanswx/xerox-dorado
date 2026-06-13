@@ -1,5 +1,40 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## FRONTIER (2026-06-13f): CedarNetExec runs but busy-waits on an interrupt-driven page-0 cell that never updates
+
+After the pipe-fault fix (below) CedarNetExec RUNS: it dispatches Alto
+opcodes (IFUDISP insset=0 -- it is an Alto program, NOT a Mesa image),
+relocates, advances, then parks in a tight ~6-PC poll loop. The mouse
+cursor works and tracks (M[0o426/0o427] cursor cells set; M[0o420] DASTART
+=0o31426), but it never paints its menu -- the display bitmap stays
+uninitialized (page-0 garbage = the "noise"). User confirmed: typing,
+clicking, mouse-move all leave the cursor fine but draw nothing else.
+
+KEY FINDING (this session): the page-0 OS cells the loop reads
+(0o103/0o112/0o130/0o164, in the 0o100..0o170 block) are written EXACTLY
+ONCE -- at cyc ~63.79M by the loader (pc=0o1622) populating the boot
+image -- and NEVER again during the poll. So CedarNetExec is busy-waiting
+for an INTERRUPT HANDLER to update one of those cells, and that event never
+fires in our model. (Store trace confirms; note DORADO_STORE_TRACE_VA is
+NOT gated by DORADO_TRACE_GATE -- it shows all writes in the VA range.)
+Since the cursor tracks the mouse, mouse handling works; the missing event
+is most likely the RTC/interval-timer, keyboard, or display-vertical
+interrupt. NETEXEC (same Alto OS) gets past this and paints, so the lever
+is the delta: which interrupt/cell NETEXEC has that CedarNetExec waits on.
+
+NEXT (where the prior agent stalled -- it needs a Nova disassembler, not a
+microcode trace): decode the ~6-PC loop. VM PC = br31(hex) + pcf/2 from
+IFUDISP. Sampled loop br31 values: 05088, 05801, 00001, 00B49, 0717.
+CedarNetExec.boot loads 1:1 (file word N = VM word N), so disassemble it
+(Alto/Nova: LDA/STA/JMP/JSR/ISZ/DSZ/SIO+ALC) at those VM addrs to find the
+exact cell tested and branch taken; then identify which interrupt should
+write it (RTC at the page-1 timer cells? keyboard? DVI?) and whether our
+engine posts that interrupt to the running Alto world. Repro:
+  DORADO_IFUDISP_TRACE=1 DORADO_TRACE_GATE="146000000,146010000" \
+  ./build/dorado --eb worlds/aemu.eb \
+    --eftp '../chm/bootfiles/CedarNetExec.boot!4' --cycles 146050000
+  DORADO_STORE_TRACE_VA="0100,0170" ... (writes to the polled cells)
+
 ## FIXED (2026-06-13e): CedarNetExec's post-load hang was a Pipe-VA clobber on a page-377 map fault
 
 Forensic trace of the CedarNetExec hang (after the leader-page fix it loaded
