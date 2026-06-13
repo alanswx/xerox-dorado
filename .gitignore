@@ -55,3 +55,6 @@ build/coverage/
 
 # Reference clone of the Living Computer Museum IFS (Pup boot server), not part of this project
 IFS/
+
+# Temp display snapshots
+*.pgm
