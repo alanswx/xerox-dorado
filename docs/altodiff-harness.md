@@ -52,12 +52,29 @@ were async/tasking. Checked against the Dorado Hardware Manual (Sep 1981):
   line 6021, is persisting them to memory across the trap/restart, not
   evidence of sharing.)
 
-Net: the single-opcode emulation, the per-task state model, and the
-carry/condition handling are all verified correct (sweep + HM). The ctx1
-corruption is therefore in territory this harness cannot reach: a
-multi-cycle op edge case beyond the unit tests (a specific MUL/DIV or
-BitBlt config), or the interrupt-delivery / IFU-reschedule timing. Those
-need a different instrument than a single-opcode differential.
+**Multi-cycle MUL/DIV wrappers - verified correct.** test_divmul_sweep_aemu
+(tests/test_cpu.c) drives the full S-Group MULx (0o61020) and DIVx
+(0o61021) wrappers over a broad operand sweep against a C reference:
+6859 MUL + 3249 DIV combos, all pass. So MUL/DIV is clean across the
+operand space, not just the handful in test_divx_aemu.
+
+**BLT/BLKS analysis.** The handoff fingered a Zero()/BLKS wiping ctx+0/+1.
+Reading the S-Group.mc BLT(0o61005)/BLKS(0o61006) microcode confirms its
+own later conclusion: BLKS correctly fills exactly the block it is told to
+(first dest = AC1-count+1, count = -AC3); the corruption was the zone
+ALLOCATOR returning a block that OVERLAPS the context, then BLKS faithfully
+zeroing it. The allocator's arithmetic (ALC compares + carry chain + MUL)
+is precisely what the sweeps above verified correct.
+
+Net: the single-opcode emulation, every memory-reference addressing mode,
+the per-task state/carry model, and the multi-cycle MUL/DIV wrappers are
+all verified correct (sweep + HM + 10108-combo MUL/DIV test). The ctx1
+corruption is therefore in territory this harness cannot reach: an
+async/interrupt-timing interaction (a multi-cycle op -- BLT/BLKS/BitBlt --
+interrupted mid-transfer with a wrong saved-state restart, or the
+interrupt-delivery / IFU-reschedule path), not a steady-state computation.
+That needs a cycle-accurate in-vivo trace differential, a different
+instrument than this single-opcode harness.
 
 ## Status (salto oracle - shelved, see below)
 

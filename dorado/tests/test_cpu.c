@@ -7627,6 +7627,90 @@ static int test_divx_aemu(void)
     return 0;
 }
 
+/*
+ * test_divmul_sweep_aemu — broad operand sweep of the full Nova MUL and
+ * DIV wrappers (S-Group.mc MULx/DIVx), against a C reference. The
+ * single-opcode differential proved ALC/MRI correct; this hardens the
+ * multi-cycle MUL/DIV path that the BCPL runtime hammers (the in-vivo
+ * FillWithDash divide). MUL: [AC0,AC1] <- AC0 + AC1*AC2 (AC0 high).
+ * DIV (no overflow, AC0<AC2): AC1=quotient, AC0=remainder.
+ */
+static int test_divmul_sweep_aemu(void)
+{
+    static mb_file mb;
+    mb_init(&mb);
+    if (mb_load(&mb, "../chm/dorado/AEmu.mb!2") != MB_OK) {
+        printf("SKIP  test_divmul_sweep_aemu (AEmu.mb not loadable)\n");
+        return 0;
+    }
+    static dorado_microcode mc;
+    if (dorado_microcode_load(&mb, &mc) != DM_OK) {
+        printf("SKIP  test_divmul_sweep_aemu (microcode load failed)\n");
+        mb_free(&mb);
+        return 0;
+    }
+    int dimg = mb_find_symbol_addr(&mb, mb.im_id, "DIVX");
+    int mimg = mb_find_symbol_addr(&mb, mb.im_id, "MULX");
+    EXPECT(dimg >= 0 && mimg >= 0, "DIVX/MULX symbols not found");
+    uint16_t dentry = (uint16_t)mc.image_to_real[dimg];
+    uint16_t mentry = (uint16_t)mc.image_to_real[mimg];
+
+    static const uint16_t vals[] = {
+        0, 1, 2, 3, 7, 0177, 0100, 0xFF, 0x100, 0x7FFF, 0x8000,
+        0xABCD, 0xFFFF, 0xFFFE, 0125252, 052525, 13, 100, 1000,
+    };
+    int nv = (int)(sizeof vals / sizeof vals[0]);
+    int ndiv = 0, nmul = 0;
+
+    for (int a = 0; a < nv; a++)
+    for (int b = 0; b < nv; b++)
+    for (int c = 0; c < nv; c++) {
+        uint16_t AC0 = vals[a], AC1 = vals[b], AC2 = vals[c];
+
+        /* ---- MUL: [AC0,AC1] <- AC0 + AC1*AC2 ---- */
+        {
+            dorado_cpu cpu;
+            dorado_cpu_init(&cpu, &mc, mentry);
+            cpu.StkP = 041;
+            cpu.STK[041] = AC0; cpu.STK[042] = AC1; cpu.STK[043] = AC2;
+            cpu.RBase = 0; cpu.alu_carry = 1;
+            for (int s = 0; s < 400 && !cpu.halted; s++)
+                dorado_cpu_step(&cpu);
+            uint32_t want = (uint32_t)AC1 * AC2 + AC0;
+            uint16_t whi = (uint16_t)(want >> 16), wlo = (uint16_t)want;
+            EXPECT(cpu.STK[041] == whi && cpu.STK[042] == wlo &&
+                   cpu.STK[043] == AC2,
+                   "MULx %u+%u*%u: AC0=%u AC1=%u AC2=%u "
+                   "(want AC0=%u AC1=%u AC2=%u)",
+                   AC0, AC1, AC2, cpu.STK[041], cpu.STK[042], cpu.STK[043],
+                   whi, wlo, AC2);
+            nmul++;
+        }
+
+        /* ---- DIV: no-overflow cases only (AC0 < AC2, AC2 != 0) ---- */
+        if (AC2 != 0 && AC0 < AC2) {
+            uint32_t dvd = ((uint32_t)AC0 << 16) | AC1;
+            uint16_t wq = (uint16_t)(dvd / AC2), wr = (uint16_t)(dvd % AC2);
+            dorado_cpu cpu;
+            dorado_cpu_init(&cpu, &mc, dentry);
+            cpu.StkP = 041;
+            cpu.STK[041] = AC0; cpu.STK[042] = AC1; cpu.STK[043] = AC2;
+            cpu.RBase = 0; cpu.alu_carry = 1;
+            for (int s = 0; s < 400 && !cpu.halted; s++)
+                dorado_cpu_step(&cpu);
+            EXPECT(cpu.STK[042] == wq && cpu.STK[041] == wr,
+                   "DIVx [%u,,%u]/%u: AC1=%u AC0=%u (want q=%u r=%u)",
+                   AC0, AC1, AC2, cpu.STK[042], cpu.STK[041], wq, wr);
+            ndiv++;
+        }
+    }
+
+    mb_free(&mb);
+    printf("PASS  test_divmul_sweep_aemu (%d MUL + %d DIV operand combos)\n",
+           nmul, ndiv);
+    return 0;
+}
+
 static int test_bootstrap_ldf_dispatch(void)
 {
     static dorado_microcode mc;
@@ -9799,6 +9883,7 @@ int main(void)
     rc |= test_mulsub_aemu();
     rc |= test_divsub_aemu();
     rc |= test_divx_aemu();
+    rc |= test_divmul_sweep_aemu();
     rc |= test_cpu_fault_info_visible();
     rc |= test_cpu_pipe4_no_error_baseline();
     rc |= test_bc_timing_previous_instr();
