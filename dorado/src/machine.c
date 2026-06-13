@@ -674,6 +674,15 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                     : dorado_ethernet_breath_of_life(eth);
                 uint64_t interval = sent ? 2000000u : 100000u;
                 if (sent && eth->time_bcasts > 3) interval = 50000000u;
+                /* Once the world is loaded (post-EFTP), drop to the real
+                 * gateway-info cadence -- ~one every 30s per the Pup spec
+                 * (IFS GatewayInformationProtocol), not a flood. A flood
+                 * lands an input completion in EPLOC during the loaded
+                 * world's Tx-completion poll and derails CedarNetExec's
+                 * Ethernet init; one early packet (delivered when its Rx is
+                 * armed) is enough, and the 30s gap keeps subsequent
+                 * broadcasts clear of its Tx poll. 500M cyc ~ 30s @60ns. */
+                if (sent && eth->eftp_max_seq > 0) interval = 500000000u;
                 m->next_bol_cycle = bb->cycles + interval;
             }
 
