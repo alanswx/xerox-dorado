@@ -1,6 +1,38 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
-## NEXT FRONTIER (2026-06-13b): NetExec's interrupt-driven Pup receive does not deliver socket replies
+## RESOLVED + NEW FRONTIER (2026-06-13c): the whole NetExec chain works; CedarNetExec stalls on startup
+
+The interrupt-driven Pup-receive blocker below (2026-06-13b) is FIXED. Root
+cause: our socket-reply builders omitted the trailing hardware-CRC word
+that the AEmu receive microcode (AltoEther.mc EIEnd) unconditionally
+subtracts, so packetLength came out one short and EtherPupFilter rejected
+every reply. Adding the dummy CRC word (matching append_reply /
+append_eftp_packet) made it land. CONFIRMED end to end:
+- NetExec learns its net (banner [0#42#] -> [1#42#]) and sets its clock
+  (now the real host wall-clock time, derived from the host TZ/DST).
+- `?` lists CedarNetExec; typing it Mayday-requests bfn 111B; the server
+  serves CedarNetExec.boot; the EtherBoot loader takes over (screen clears).
+So the documented Cedar-over-Ethernet path (DoradoBooting 1.3: NetExec ->
+CedarNetExec) is functional through the load.
+
+NEW FRONTIER: CedarNetExec.boot ("XEROX Cedar Net Executive 6.0c", an
+Alto-format program -- readable Alto strings, references CedarDorado.eb /
+.eg germ / Othello / PhysicalVolumeBoot) transfers in full (65280 words,
+255 EFTP packets, eftp_q=257 seq=256) but does NOT come up: DASTART=0 (no
+display list), rx=0/tx=0 (no network I/O), PC wandering in page 0/1
+(0o101..0o665). It stalls BEFORE any network activity, so the receive fix
+does not affect it -- this is a fresh early-startup bring-up problem, like
+NetExec's page-zero bug was. Repro WITHOUT needing to type (serves it via
+the breath-of-life path, same loader + image):
+  cd dorado && ./build/dorado --eb worlds/aemu.eb \
+    --eftp '../chm/bootfiles/CedarNetExec.boot!4' --cycles 350000000 \
+    --progress 2>&1 | grep -iE 'pixels|DASTART|booted'
+Next: trace what CedarNetExec is doing in its page-0/1 spin loop (is it
+waiting on a device/memory cell that never changes, or did it crash into a
+loop?). Same forensic approach that cracked the receive bug. NETEXEC.BOOT
+disassembles 1:1 (file word = VM word); CedarNetExec.boot likewise.
+
+## NEXT FRONTIER (2026-06-13b): NetExec's interrupt-driven Pup receive does not deliver socket replies (FIXED -- see above)
 
 Goal: boot Cedar the documented way (DoradoBooting.tioga 1.3) -- get into
 the Alto NetExec, type `CedarNetExec<CR>`, which net-boots CedarNetExec
