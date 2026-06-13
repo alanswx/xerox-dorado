@@ -1,5 +1,82 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## NEXT FRONTIER (2026-06-13b): NetExec's interrupt-driven Pup receive does not deliver socket replies
+
+Goal: boot Cedar the documented way (DoradoBooting.tioga 1.3) -- get into
+the Alto NetExec, type `CedarNetExec<CR>`, which net-boots CedarNetExec
+(then Othello / the desired Cedar program). This needs NetExec's network
+stack to actually RECEIVE Pup socket replies. It currently does not.
+
+WHAT IS DONE AND COMMITTED (all spec-grounded, suites green, NETEXEC still
+boots to its prompt and typing works):
+- **Boot-directory protocol.** `--boot-dir NAME=BFN=PATH` (repeatable) ->
+  the fake server answers NetExec's BootDirReq (257B) with a BootDirReply
+  (260B) listing {bfn, date, BCPL name}, and serves the matching file by
+  boot file number on the follow-up Mayday (244B). The 260B packet is
+  byte-perfect vs the IFS boot server (PUP/MiscServicesProtocol.cs
+  SendBootDirectory + BCPLString.ToArray): BFD blocks at the first Pup
+  content word, name `[len][chars]` padded to even.
+- **Real Pup checksum.** `pup_checksum()` in ethernet.c (ones-complement
+  sum, end-around carry, left rotate, neg-zero normalize) ported from IFS
+  PUP.CalculateChecksum, stamped on the bootdir/gateway/time replies. The
+  old 0177777 "skip" sentinel is gone.
+- **Documented routing/time replies** replacing the dead 0204 handler:
+  GatewayInformationRequest 200B -> GatewayInformationResponse 201B whose
+  destination net teaches NetExec its net (PupRoute.bcpl
+  ProcessRouteInfoReply); AltoTimeRequest 206B -> AltoTimeResponse 207B
+  (was wrongly 205B, which InstallTime rejects).
+- `--boot-file-number` CLI flag; the STK boot-parameter block is now
+  configurable (machine.c) instead of hardcoded.
+
+THE DIAGNOSTIC THAT ISOLATES THE BLOCKER: with EVERY reply now byte- and
+type-correct (routing, time, bootdir), NONE land -- the banner still shows
+`[0#42#]` (net 0, UNLEARNED), "Date and time unknown", and `?` does not
+list CedarNetExec. So it is NOT a packet-format problem. The replies are
+READ (the DORADO_BOOTDIR_DEBUG "260b reply CONSUMED" line fires, which
+requires the receiver armed) but never delivered to NetExec's contexts
+(GatewayListener / GetTime / GetDir).
+
+WHY EFTP WORKS BUT THIS DOES NOT: the EFTP boot loader (Taft EtherBoot)
+POLLS ePLoc directly. NetExec's full driver is INTERRUPT-DRIVEN:
+`EtherInterrupt` in chm/altosource/pupsources.dm!4_/PupAlEthb.bcpl. So the
+EFTP transfer succeeding never exercised the interrupt-driven receive path
+NetExec uses.
+
+THE TWO CONCRETE SUSPECTS (both checkable by tracing the running NetExec):
+1. `EtherInterrupt` never fires -- AEmu posts the received-packet status
+   (the loader polls and sees it) but does not raise the Alto Ethernet
+   interrupt, so NetExec's handler never runs. The received packet sits in
+   the buffer unprocessed.
+2. `EtherInterrupt` fires but rejects -- PupAlEthb.bcpl accepts a packet
+   only when status `lastEPLoc eq 377b`; if AEmu posts any other value it
+   is "bad packet, throw it away." Then it runs the predicate filters
+   (EtherPupFilter: `(pup.length+5) rshift 1 eq packetLength &
+   EtherPBI.type eq typePup`) and enqueues to pbiIQ; the PupLevel1 context
+   (Pup1Init.bcpl) demuxes pbiIQ to the dest socket.
+
+KEY SOURCE (now in the tree): chm/altosource/pupsources.dm!4_/ --
+  PupAlEthb.bcpl (EtherInterrupt, FeedEther, EtherPupFilter),
+  PupRoute.bcpl (GatewayListener, ProcessRouteInfoReply, the routing
+  table), Pup1Init.bcpl (InitPupLevel1, the PupLevel1 demux context,
+  pbiIQ/socketQ). IFS reference clone (gitignored) at repo-root /IFS:
+  PUP/PUPProtocolDispatcher.cs (demux), PUP/Transport/Ethernet.cs,
+  PUP/Gateway/GatewayInformationProtocol.cs, PUP/MiscServicesProtocol.cs,
+  PUP/PUP.cs (PupType enum + CalculateChecksum).
+
+NEXT STEP: trace whether NetExec's EtherInterrupt runs when our reply
+arrives and what ePLoc status it sees. Find EtherInterrupt's VM address
+(disassemble NETEXEC.BOOT 1:1, or trace from the InitAltoEther interrupt
+setup), gate a STORE/IFUDISP trace around a 200B/206B/257B reply delivery,
+and confirm (a) the interrupt is taken, (b) the status word presented is
+0o377, (c) the packet reaches pbiIQ, (d) PupLevel1 demuxes it to the
+socket iQ. The first link that fails is the bug. Reproduce with:
+  cd dorado && DORADO_BOOTDIR_DEBUG=1 ./build/dorado --eb worlds/aemu.eb \
+    --eftp '../chm/bootfiles/NETEXEC.BOOT!8' \
+    --boot-dir 'CedarNetExec.boot=111=../chm/bootfiles/CedarNetExec.boot!4' \
+    --cycles 150000000 2>/tmp/bootdir.log
+(SDL: build/dorado-sdl, same flags; type `?` to list boot files, expect
+CedarNetExec once the receive path delivers.)
+
 ## ROOT CAUSE FOUND (2026-06-13): the page-zero / divide-vector corruption is FIXED
 
 The long-standing M[0o344] divide-vector clobber / page-zero BitBlt spray
