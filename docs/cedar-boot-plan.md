@@ -71,7 +71,36 @@ New work (in rough risk order):
 
 ## Phased plan
 
-### Phase 0 -- Re-baseline the Mesa microcode (small)
+### Phase 0 -- RESULTS (2026-06-13, started)
+Ran `CedarDorado.eb!6` through the existing Stage-1 path (same
+`dorado --eb` mechanism as the Alto world). Findings:
+- **Stage 1 works for Cedar**: the Cedar microcode is LoadRam'd exactly
+  like the Alto world (`booted=1 at cyc 32M`, `config_word=0o214` =
+  storage present, so NOT the NoStorage case).
+- **Then it loops in the shared kernel InitMem/InitMap** (task-0 PCs
+  `5400 5430 5434 5450 5454 5470 5474 7064 7066 7140 7160 7166 7167 7171
+  7172 7175`, plus `7003/7012`), never reaching the Ethernet boot
+  (`eftp_r=0 bol=0 DASTART=0`). Confirmed GENUINELY STUCK, not just slow:
+  still in the same loop at 200 M cycles (vs the Alto world, which reaches
+  NetExec by ~110 M).
+- This is the SAME loop the standalone Alto boot sat in before the **Mesa
+  boot-parameter STK seed** (`STK[1]=0110` boot-file number,
+  `STK[2]=056623` BootParameterSeal, `STK[3]=0121045`) got it past -- but
+  that seed is Alto-specific. So Cedar's loaded InitMap wants different
+  boot parameters / a different boot-mode select than the Alto world.
+
+Phase-0 punch list (-> Phase 1):
+1. Find Cedar's boot parameters: the CedarNetExec boot-file number and the
+   Cedar BootParameterSeal (vs the Alto `0110`/`056623`), and seed them in
+   the machine.c boot orchestration (or make the seed payload-selectable).
+2. Determine what the kernel InitMem loop is waiting on for the Cedar world
+   (it is past the storage-config check; likely a boot-mode / boot-param
+   branch or a timed/device wait), and what Cedar's InitMap expects that
+   the Alto InitMap did not.
+3. Only after it leaves InitMem does the Mesa-VM-proper bring-up (the IFU
+   startup / `SETDLP` blocker, virtual memory) begin.
+
+### Phase 0 -- method (re-baseline the Mesa microcode)
 Serve `CedarDorado.eb` through the existing Stage-1 path and run it on the
 *current* (fixed) emulator. Goal: a fresh map of how far the Mesa VM gets
 and where it stalls now, since the prior `SETDLP`/`IFU_NOT_READY` blocker
