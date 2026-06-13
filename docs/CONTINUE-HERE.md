@@ -20,15 +20,25 @@ BLT; STA3 @0o111; JMP 3`) that is NEVER reached. Load is faithful (live VM
 == file; full transfer lands). So: not corruption, not truncation, not a
 device poll.
 
-OPEN QUESTION being fixed now: the real loader is verbatim yet boots both
-on hardware, so our run diverges -- either (a) a content/format dispatch
-(should run the file[0o345] bootstrap before JMP@0) our AEmu execution
-takes wrong, or (b) a loader/bootstrap opcode mis-emulated only on the
-larger 64K transfer (suspects: SIO 0o61004, BLT 0o61005, which sit right at
-the derail `0o771: LDA0; 0o772: SIO; 0o773: JMP@0`). A focused agent is
-resolving this and applying a minimal verified fix; one fix unlocks all
-five Mesa-format worlds. Trace hooks now in machine.c: DORADO_TRACE_GATE,
-DORADO_VMDUMP (plus DORADO_IFUDISP_TRACE, DORADO_STORE_TRACE_VA).
+FIXED (commit a125bd4): it was neither (a) nor (b) -- it was a SERVER-side
+boot-file format issue. The standard Alto Ethernet loader loads only
+B-format files; a real boot server prepends a 256-word leader page to the
+non-B-format (000345 Mesa/Pilot) files before serving (ETHERBOOT.BRAVO).
+Our server (and the reference IFS server) sent them verbatim, so the image
+loaded shifted one page and M[0] got file page 1 (garbage 0o165054).
+`eth_queue_eftp_boot` now prepends a synthesized leader page (word0=0o405,
+word1=0) for any file whose word0==0o000345; B-format files are untouched
+(no regression). All five 000345 worlds now LOAD AND RUN into real code:
+CedarNetExec builds a ~50K-pixel display (was 0); MesaNetExec/MazeWar/NEWOS
+advance into real code with no page-0 runaway.
+
+NEW FRONTIER: the Mesa-format UI. They run now but do not reach a clean
+screen. CedarNetExec: DASTART != 0, ~50K px but the display is garbage/
+noise (display buffer not yet filled / blocked on display-list install +
+the keyboard back-channel, gap E2). MazeWar: DASTART != 0 but 0 px and PC
+wandering page 0 -- LESS far than CedarNetExec. So CedarNetExec is the best
+vehicle (furthest along, highest value). Trace hooks in machine.c:
+DORADO_TRACE_GATE, DORADO_VMDUMP, DORADO_IFUDISP_TRACE, DORADO_STORE_TRACE_VA.
 
 ## RESOLVED + NEW FRONTIER (2026-06-13c): the whole NetExec chain works; CedarNetExec stalls on startup
 
