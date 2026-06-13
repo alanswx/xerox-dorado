@@ -549,40 +549,11 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                                        m->mouse_buttons);
             }
 
-            /* Arm the divide-vector guard once NetExec is up (its OS
-             * init has set the M[0o344] divide transfer vector and the
-             * display list is installed). A periodic Title BitBlt later
-             * gray-fills page-zero word 0o344 from a malformed BBT and
-             * would corrupt this vector, crashing the world on the next
-             * divide; hold it steady until the upstream BBT/context
-             * corruption is fixed (the BitBlt address math itself is
-             * correct -- see memory.c and docs/CONTINUE-HERE.md).
-             * DORADO_NO_DIVPROT disables the guard for diagnosis. */
-            if (!m->divprot_set && eth->eftp_max_seq != 0 &&
-                !getenv("DORADO_NO_DIVPROT")) {
-                uint32_t mds = dorado_br_get(&m->mem, 036);
-                {
-                    uint32_t vva = (mds + 0344u) & 0x0FFFFFFFu;
-                    uint16_t vec = dorado_visible_word_at_va(&m->mem, vva);
-                    /* Wait until M[0o344] holds a plausible OS-resident
-                     * code address (the divide veneer), i.e. NetExec's
-                     * OS init has set the real divide transfer vector --
-                     * not a transient value from earlier in the boot. */
-                    if (vec >= 02000u && vec < 010000u) {
-                        const dorado_map_entry *e = dorado_map_get(
-                            &m->mem, dorado_map_index(vva));
-                        m->mem.protect_phys = (uint32_t)e->rp * DM_PAGE_SIZE
-                            + (vva & (DM_PAGE_SIZE - 1));
-                        m->mem.protect_val = vec;
-                        m->mem.protect_active = 1;
-                        m->divprot_set = 1;
-                        if (getenv("DORADO_MACHINE_TRACE"))
-                            fprintf(stderr, "[machine] divide-vector guard "
-                                    "M[0o344]=0o%o @cyc=%llu\n", vec,
-                                    (unsigned long long)bb->cycles);
-                    }
-                }
-            }
+            /* (The divide-vector guard was retired 2026-06-13: the
+             * page-zero BitBlt spray that corrupted M[0o344] is fixed at
+             * the source -- see the RM-write RBase-timing fix in cpu.c
+             * and docs/CONTINUE-HERE.md. The world is now stable to 200M
+             * with no guard.) */
         }
 
         /* Optional task-0 PC histogram of the loaded world (env-gated):

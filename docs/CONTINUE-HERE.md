@@ -1,4 +1,37 @@
-# Continuation handoff — Alto-on-Dorado boot bring-up (2026-06-11, session 2)
+# Continuation handoff — Alto-on-Dorado boot bring-up
+
+## ROOT CAUSE FOUND (2026-06-13): the page-zero / divide-vector corruption is FIXED
+
+The long-standing M[0o344] divide-vector clobber / page-zero BitBlt spray
+(chased across sessions 8-10b, papered over by the divide-vector guard,
+and the cause of the user's "types a little bit then stops responding")
+was a single microarchitecture bug, now fixed (commit cf129c1):
+
+  The RM/STK write address is latched at instruction issue, but the
+  emulator applied a same-instruction `RBase<-FF` change BEFORE the write.
+  AEmu BitBlt `BBNormal: BBTemp_ (BBTemp)+MD, RBase_ RBase[AEmRegs]`
+  computes the destination base (= displacement + DBCA) and stores it to
+  BBTemp in the BBRegs region; with the FF-changed RBase the result landed
+  in AEmRegs instead, so BBTemp kept displacement-only and DBCA was
+  DROPPED. The BitBlt destination then missed the bitmap and the
+  bottom-to-top gray fill sprayed page zero. Fix: the LC write uses the
+  issue-time RBase (cpu.c execute_uinstr).
+
+  Found via a forensic BBT dump (DORADO_BBT_TRACE at real 0o3124): the
+  BitBlt table was SANE (DBCA=0o122330, DBMR=46, DTY=0, DH=14) yet the
+  destination dropped DBCA -- isolating the RBase-in-same-instruction
+  write rather than garbage inputs. The single-opcode differential harness
+  (altodiff-dorado sweep, 20768 vectors) had first proven the steady-state
+  opcode emulation correct, narrowing the search to exactly this kind of
+  intra-instruction timing.
+
+VERIFIED: all 10 suites pass; with NO divide-vector guard
+(DORADO_NO_DIVPROT=1) the world is stable to 200M -- M[0o344] stays
+0o4155 (never 0o4154), Swat OutLdRet stays 0, typing "Probe" survives,
+the banner renders. The old ~190M FillWithDash Swat is also gone (same
+root). The divide-vector guard is now UNNECESSARY (being retired).
+
+# (original handoff below) Alto-on-Dorado boot bring-up (2026-06-11, session 2)
 
 Read this first if you are a fresh Claude session resuming the Dorado
 Alto-emulator boot work. Project-wide context is in `/CLAUDE.md` and
