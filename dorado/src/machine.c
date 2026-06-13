@@ -391,6 +391,8 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
         {
             static long tg_lo = -1, tg_hi = -1;
             extern int dorado_trace_gate;
+            extern unsigned long long dorado_trace_cycle;
+            dorado_trace_cycle = bb->cycles;
             if (tg_lo == -1) {
                 const char *w = getenv("DORADO_TRACE_GATE");
                 tg_lo = 0; tg_hi = 0;
@@ -399,6 +401,25 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
             dorado_trace_gate =
                 (tg_hi && bb->cycles >= (uint64_t)tg_lo &&
                  bb->cycles <= (uint64_t)tg_hi);
+        }
+        /* One-shot VM memory dump (env DORADO_VMDUMP="lo,hi,cycle"),
+         * trace-only. Dumps visible words [lo,hi) once at/after cycle. */
+        {
+            static long vd_lo = -2, vd_hi = 0, vd_cyc = 0;
+            if (vd_lo == -2) {
+                const char *w = getenv("DORADO_VMDUMP");
+                vd_lo = -1;
+                if (w) sscanf(w, "%li,%li,%li", &vd_lo, &vd_hi, &vd_cyc);
+            }
+            if (vd_lo >= 0 && bb->cycles >= (uint64_t)vd_cyc) {
+                fprintf(stderr, "[VMDUMP] cyc=%llu lo=0o%lo hi=0o%lo\n",
+                        (unsigned long long)bb->cycles,
+                        (unsigned long)vd_lo, (unsigned long)vd_hi);
+                for (long a = vd_lo; a < vd_hi; a++)
+                    fprintf(stderr, "  M[0o%lo] = 0o%06o\n", (unsigned long)a,
+                            dorado_visible_word_at_va(&m->mem, (uint32_t)a));
+                vd_lo = -1; /* one-shot */
+            }
         }
         /* Boot-button schedule (three presses). */
         if (!m->pressed && bb->cycles >= T_PRESS1_DOWN &&
