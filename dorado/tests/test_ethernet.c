@@ -429,12 +429,25 @@ static int test_bootdir_reply_format(void)
                     DORADO_ETHERNET_TIOA_CTL, 0067777);
     eth_wait_arrival(&eth);
     EXPECT(eth.eftp_last_bfn == 0111, "Mayday bfn 0o%o", eth.eftp_last_bfn);
-    EXPECT((long)eth.eftp_len == cedar_words,
-           "served %ld words, CedarNetExec has %ld",
+    /* CedarNetExec is a "000345 Mesa-format" boot file (image word 0 =
+     * 0o345 = "JMP 0o345", the Mesa relocation entry). The standard Alto
+     * Ethernet boot loader can load only B-format files, so the server
+     * encapsulates it by prepending a 256-word leader page (ETHERBOOT.BRAVO:
+     * "Pilot boot files are encapsulated by adding a header page to the
+     * front"). The served stream is therefore one page longer, begins with
+     * the synthesized leader (word 0 = 0o405 "JMP .+5", word 1 = 0), and
+     * carries the original image starting at word 256. */
+    EXPECT((long)eth.eftp_len == cedar_words + 256,
+           "served %ld words, CedarNetExec %ld + 256-word leader page",
            (long)eth.eftp_len, cedar_words);
+    EXPECT(eth.eftp_words[0] == 0000405 && eth.eftp_words[1] == 0,
+           "leader word0=0o%o word1=0o%o", eth.eftp_words[0], eth.eftp_words[1]);
+    EXPECT(eth.eftp_words[256] == 0000345,
+           "encapsulated image word0=0o%o (want 0o345)", eth.eftp_words[256]);
 
     printf("  BootDir: 260B reply advertises CedarNetExec.boot (bfn 0o111),"
-           " Mayday serves its %ld words\n", cedar_words);
+           " Mayday serves %ld words (image %ld + leader page)\n",
+           (long)eth.eftp_len, cedar_words);
     dorado_ethernet_free(&eth);
     return 0;
 }
