@@ -1195,10 +1195,23 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                 cpu->tasking_on = 0;
                 cpu->tasking_resume_delay = 0;
                 return pd;
-            case 3: /* TaskingOn — not immediately effective; "at
-                     * least two more instructions will be executed
-                     * by the same task before task switching can
-                     * occur" (HM page 27). */
+            case 3: /* TaskingOn — not immediately effective; HM p27:
+                     * "at least two more instructions will be executed
+                     * by the same task before task switching can occur."
+                     * CAVEAT (timing is approximate, not cycle-exact):
+                     * task_schedule() also decrements on THIS instruction
+                     * so the effective gate is one instruction, not two;
+                     * and the emulator does NOT model the separate HM
+                     * wakeup->execution latency ("two cycles", HM p27) --
+                     * dorado_cpu_wakeup() makes a wakeup eligible on the
+                     * very next instruction. These two approximations are
+                     * a CONSISTENT PAIR: the boot is tuned to them, so
+                     * changing one alone desyncs them (raising this to 3
+                     * spins the I/O tasks -- disk wakeups 170K -> 27M --
+                     * and the boot never reaches NetExec). A cycle-exact
+                     * model would fix BOTH the TaskingOn gate and the
+                     * 2-cycle wakeup latency together; that is the right
+                     * place to look for residual async-timing bugs. */
                 cpu->tasking_resume_delay = 2;
                 return pd;
             case 4: /* StkP ← B[8:15] */
