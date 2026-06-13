@@ -32,6 +32,33 @@ jsr @disp,2 indirect-indexed). Remaining suspects, now narrowed:
 - Async/tasking interactions (a mid-DivSub task switch clobbering shared
   Q/Cnt; NOT single-opcode-testable) -- the handoff's latest hypothesis.
 
+## Async/tasking hypotheses checked against the Dorado HM (all exonerated)
+
+After the single-opcode space came back clean, the remaining suspects
+were async/tasking. Checked against the Dorado Hardware Manual (Sep 1981):
+- **Shared Q/Cnt clobbered mid-DivSub**: already exonerated by the handoff
+  (DisplayMain.mc / AltoEther.mc have no `Q_`/`Cnt_`; Junk's `Q_` is in an
+  emulator-only sub). Cnt is confirmed not task-specific (HM line 1695),
+  but no I/O task writes it.
+- **Per-task ALU branch conditions / saved carry**: our emulator makes
+  Carry'/Overflow/ALU=0/ALU<0 and the saved carry-out per-task
+  (cpu.c task_save/task_load: task_alu_carry[16] etc.). VERIFIED CORRECT
+  by the HM: "The carry-out (task-specific) changes whenever an arithmetic
+  operation is performed" (line 1980) and the branch conditions "test the
+  ALU output of the previous instruction executed by the task" (line 2106).
+  So a task switch does NOT clobber the emulator's in-flight carry -- the
+  multi-precision DivSub/XorSavedCarry path is safe across preemption, as
+  on hardware. (The fault microcode's explicit save of ALU conditions,
+  line 6021, is persisting them to memory across the trap/restart, not
+  evidence of sharing.)
+
+Net: the single-opcode emulation, the per-task state model, and the
+carry/condition handling are all verified correct (sweep + HM). The ctx1
+corruption is therefore in territory this harness cannot reach: a
+multi-cycle op edge case beyond the unit tests (a specific MUL/DIV or
+BitBlt config), or the interrupt-delivery / IFU-reschedule timing. Those
+need a different instrument than a single-opcode differential.
+
 ## Status (salto oracle - shelved, see below)
 
 - **Dorado side: DONE** (committed). `dorado/src/altodiff_dorado.c` ->
