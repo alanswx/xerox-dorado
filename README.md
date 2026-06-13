@@ -38,14 +38,24 @@ delivers `AltoMesaDorado.eb` (Pup types `264B`/`265B`), Initial verifies
 the EB checksum, calls `LoadRam`, and the loaded Alto/Mesa emulator
 microcode world starts (~61 M cycles in; run with a 140 M-cycle budget).
 
-**Active focus: Stage 2 — software boot.** Once the emulator microcode is
-running it must load an actual OS. The disk route is blocked on *content*
-(no preserved Pilot/Alto Dorado pack exists; see below) and on the disk
-controller's data-transfer path. The chosen route is therefore **Alto-
-style Ethernet software boot** (Mayday Pup `244B` + EFTP `30B`/`31B`),
-which needs the Alto-side Ethernet surface the emulator exposes plus a
-small boot file / NetExec to serve. The framebuffer renders but stays
-blank until a real display list is installed by booted software.
+**Stage 2 — Ethernet software boot — works: NetExec runs interactively.**
+The running emulator microcode loads a real OS over the net (Alto-style
+Ethernet software boot: Mayday Pup `244B` + EFTP `30B`/`31B`, served by
+the in-process boot server). The **BCPL Net Executive** transfers over
+EFTP, starts, installs its display list, and renders its banner — and you
+can **type at its command line** (e.g. `help`) in the windowed frontend.
+
+A long-standing page-zero corruption that crashed the booted world on the
+first divide (the "types a little, then stops" failure) was traced to a
+microarchitecture bug — an instruction's `RBase← FF` change wrongly
+redirecting that same instruction's RM write — and fixed; the world is now
+stable for hundreds of millions of cycles. See the root-cause writeup at
+the top of `docs/CONTINUE-HERE.md`.
+
+The disk route remains blocked on *content* (no preserved Pilot/Alto
+Dorado pack exists; see below) and the disk controller's data-transfer
+path, so Ethernet is the boot path. Bringing up a richer world
+(Pilot/Cedar) is the next frontier.
 
 There is **no shortcut disk image**: the CHM PARC archive is an IFS
 file-server dump, not a collection of bootable packs, so no installed
@@ -63,11 +73,52 @@ code-side guide and the punch list of remaining emulation gaps.
 
 ```sh
 cd dorado
-make            # builds mbdis + four test binaries
-make test       # runs all four test suites
+make            # builds the headless emulator + tools + test binaries
+make test       # runs all test suites
 ```
 
-C99, no external dependencies. Tested on macOS (Apple clang).
+The core emulator is C99 with no external dependencies. Tested on macOS
+(Apple clang) and Linux.
+
+### Windowed frontend (SDL) — boot NetExec and type at it
+
+The `dorado-sdl` frontend opens an 808×606 window, rasterizes the Alto
+display list each frame, and feeds your keyboard and mouse to the running
+world. Once the **Net Executive** prompt appears you can type commands
+(`help`, etc.) just as on a real Alto.
+
+It needs **SDL2** (the core emulator does not):
+
+```sh
+# macOS:   brew install sdl2
+# Debian/Ubuntu:  sudo apt install libsdl2-dev
+```
+
+Build the bootable Alto-emulator world (once), then build and run the
+frontend from the `dorado/` directory:
+
+```sh
+cd dorado
+make build/mb2eb
+./build/mb2eb '../chm/dorado/AEmu.mb!2' /tmp/aemu_only.eb 01076   # -> /tmp/aemu_only.eb
+
+make sdl                                                          # -> build/dorado-sdl
+./build/dorado-sdl --eb /tmp/aemu_only.eb \
+                   --eftp '../chm/bootfiles/NETEXEC.BOOT!8'
+```
+
+Booting takes a little while (the real BaseBoard → Bootstrap → Initial →
+Ethernet-microcode chain, then the EFTP transfer of NetExec); the banner
+and `>` prompt appear once it is up, after which typing works.
+
+Flags: `--eb PATH` (boot-`0110` world), `--eftp PATH` (Stage-2 boot file),
+`--scale N` (window scale), `--speed CYCLES` (cycles/frame),
+`--quote`, `--no-alto-boot`, `--screenshot F1,F2,...`. Controls: **F1**
+pauses/resumes; **Cmd/Ctrl+Q** quits.
+
+A headless build (`build/dorado`, same flags plus `--cycles N`,
+`--type STRING`, `--out screen.pgm`) renders to a PGM snapshot for
+scripted/CI use.
 
 ## Repository layout
 
