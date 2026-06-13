@@ -1,5 +1,37 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## CORRECTED (2026-06-13g): CedarNetExec derails on an EPLOC race; the broadcast injector floods ~250x too fast
+
+Supersedes 2026-06-13f below (the "interrupt-driven cell" framing was WRONG
+-- those page-0 cells 0o103/0o112/0o130/0o164 are constant JSR-coroutine
+vectors, reached AFTER divergence, not a data-dependent wait). Real root
+cause: CedarNetExec's FIRST Ethernet init after the EFTP transfer (~141M,
+VM 0o634-0o777) does SIO TurnOnRx (waits for an input completion at
+EPLOC=VM 0o600) then SIO TurnOnTx (waits for OutDone=0o777 at the SAME
+EPLOC). Our periodic broadcast injector (dorado_ethernet_time_broadcast,
+machine.c ~670-677) feeds NETEXEC-tuned input packets into that same EPLOC;
+an input completion (or InBufOverflow 0o1377 from an over-large packet)
+landing during the Tx poll clobbers OutDone -> CedarNetExec takes a reset
+path (SIO=CmdAbort) -> JMP @0 into a page-0 coroutine dead loop. With
+broadcast OFF it hangs EARLIER on the Rx poll, so it needs an early packet
+but NOT during the Tx poll. NETEXEC's init tolerates the flood; CedarNetExec
+does not (it never reaches interrupt/display config: M[0o453]=0 vs NETEXEC's
+0o010403).
+
+THE CORRECT PROTOCOL (from IFS, quoting the Pup spec): gateway-info should
+broadcast ~ONE EVERY 30 SECONDS (IFS GatewayInformationProtocol.cs:135-149,
+Thread.Sleep(30000); the comment notes MazeWar "expects periodic updates");
+breath-of-life every few seconds. Our injector fires every 2M cycles
+(~120ms) then 50M (~3s) -- ~250x too fast. FIX DIRECTION: deliver the early
+packet CedarNetExec's Rx init needs, then back off to the real ~30s cadence
+so nothing lands during its Tx poll; also size injected packets to its
+input buffer (EICLOC=VM 0o604) so they post InDone 0o377 not InBufOverflow.
+A naive slow-down starves the Rx init; a naive tx_on gate is insufficient
+(the packet is already queued and read during Tx -- tried, did not help).
+Repro: `DORADO_STORE_TRACE_VA="0600,0600"` (the EPLOC race);
+`DORADO_VMDUMP="0450,0460,200000000"` (interrupt cells stay 0). Baseline is
+clean: 10/10, NETEXEC unaffected.
+
 ## FRONTIER (2026-06-13f): CedarNetExec runs but busy-waits on an interrupt-driven page-0 cell that never updates
 
 After the pipe-fault fix (below) CedarNetExec RUNS: it dispatches Alto

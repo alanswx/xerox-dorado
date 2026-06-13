@@ -1,4 +1,0 @@
-src/ethernet.c:1047:21: warning: variable 'n' set but not used [-Wunused-but-set-variable]
- 1047 |         static long n = 0;
-      |                     ^
-1 warning generated.

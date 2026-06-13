@@ -58,3 +58,6 @@ IFS/
 
 # Temp display snapshots
 *.pgm
+
+# Build error logs
+err.txt
