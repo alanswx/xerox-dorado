@@ -627,6 +627,14 @@ static void eth_tx_packet_done(dorado_ethernet *eth)
                                         (size_t)(12 + blen) - 2);
             ok = append_rx_word(eth, &cap, cks, 0);
         }
+        /* Hardware CRC trailer word (HM 11): the EIT receive loop
+         * (AltoEther.mc EIEnd) unconditionally drops ONE trailing word
+         * as the CRC before computing the ending count, so every packet
+         * must carry it. Without it EELoc is one too large, packetLength
+         * (=lenEtherPacket-EELoc) is one too small, and EtherPupFilter's
+         * length-equality check rejects the packet (sent to pbiFreeQ,
+         * never demuxed to the socket). Matches append_reply/eftp. */
+        if (ok) ok = append_rx_word(eth, &cap, 0, 0);
         if (ok) ok = append_rx_word(eth, &cap, 0, 1);
         if (ok) { eth->rx_pos = 0; eth->time_bcasts++; }
         if (getenv("DORADO_BOOTDIR_DEBUG"))
@@ -700,6 +708,10 @@ static void eth_tx_packet_done(dorado_ethernet *eth)
                                         (size_t)(12 + nd) - 2);
             ok = append_rx_word(eth, &cap, cks, 0);
         }
+        /* Hardware CRC trailer word (see the gateway/time reply above):
+         * the EIT receive loop drops one trailing CRC word, so without it
+         * packetLength is one short and EtherPupFilter rejects the reply. */
+        if (ok) ok = append_rx_word(eth, &cap, 0, 0);
         if (ok) ok = append_rx_word(eth, &cap, 0, 1);
         if (ok) { eth->rx_pos = 0; eth->bootdir_replies++; }
         if (getenv("DORADO_ETH_TX_TRACE"))
