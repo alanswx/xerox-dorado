@@ -35,6 +35,17 @@ static void eth_trace(const dorado_ethernet *eth, const char *op,
 
 static void eth_clear_rx(dorado_ethernet *eth)
 {
+    /* Debug: a reply the Alto has not finished reading (rx_pos < rx_count)
+     * being dropped here means the single shared rx buffer clobbered a
+     * pending socket reply before NetExec consumed it. */
+    if (getenv("DORADO_BOOTDIR_DEBUG") && eth->rx_words &&
+        eth->rx_pos < eth->rx_count) {
+        uint16_t ptype = eth->rx_count > 3 ? eth->rx_words[3] : 0;
+        fprintf(stderr,
+                "[bootdir] CLOBBER: dropping unread rx (pup type 0o%o, "
+                "read %zu/%zu words) before the Alto consumed it\n",
+                ptype, eth->rx_pos, eth->rx_count);
+    }
     free(eth->rx_words);
     free(eth->rx_attention);
     eth->rx_words = NULL;
@@ -497,6 +508,26 @@ static void eth_tx_packet_done(dorado_ethernet *eth)
             fprintf(stderr, " %06o", eth->tx_words[i]);
         fprintf(stderr, "\n");
     }
+    /* One line per Pup the Alto transmits: which socket protocol it is and
+     * (for a Mayday) the boot file number requested. Lets the log show the
+     * full request sequence NetExec issues. */
+    if (getenv("DORADO_BOOTDIR_DEBUG") && eth->tx_count >= 6 &&
+        eth->tx_words[1] == DORADO_PUP_TYPE_ETHERNET) {
+        uint16_t t = eth->tx_words[3];
+        const char *nm =
+            t == DORADO_PUP_TYPE_BOOTDIR_REQ   ? "BootDirReq(257)"   :
+            t == DORADO_PUP_TYPE_BOOTDIR_REPLY ? "BootDirReply(260)" :
+            t == DORADO_PUP_TYPE_MAYDAY        ? "Mayday(244)"       :
+            t == DORADO_PUP_TYPE_EFTP_ACK      ? "EFTP-Ack(031)"     :
+            t == DORADO_PUP_TYPE_MICROCODE_BOOT_REQUEST ? "uCodeBoot(264)" :
+            "other";
+        fprintf(stderr, "[bootdir] TX %s type=0o%o", nm, t);
+        if (t == DORADO_PUP_TYPE_MAYDAY)
+            fprintf(stderr, " bfn=0o%o -> serve %s", eth->tx_words[5],
+                    eth_bootdir_path(eth, eth->tx_words[5]) ? "directory file"
+                                                            : "default --eftp");
+        fprintf(stderr, "\n");
+    }
 
     /* Stage-2: a Mayday Pup is the Alto software-boot request. Serve the
      * configured Alto boot file as a LOCK-STEP EFTP stream: packet 0
@@ -638,6 +669,22 @@ static void eth_tx_packet_done(dorado_ethernet *eth)
         if (getenv("DORADO_ETH_TX_TRACE"))
             fprintf(stderr, "BOOTDIR reply: %d file(s), %d data words\n",
                     eth->bootdir_count, nd);
+        if (getenv("DORADO_BOOTDIR_DEBUG")) {
+            fprintf(stderr,
+                    "[bootdir] 257b BootDirReq #%llu from host=0o%o "
+                    "sPort=0o%o/0o%o/0o%o; rx_on=%d ok=%d. Reply 260b: "
+                    "id=0o%o/0o%o dPort=0o%o/0o%o/0o%o len=0o%o(%d data w) "
+                    "entries:",
+                    (unsigned long long)eth->bootdir_replies,
+                    (unsigned)(eth->tx_words[0] & 0377),
+                    eth->tx_words[9], eth->tx_words[10], eth->tx_words[11],
+                    eth->rx_on, ok,
+                    hdr[4], hdr[5], hdr[6], hdr[7], hdr[8], hdr[2], nd);
+            for (int e = 0; e < eth->bootdir_count; e++)
+                fprintf(stderr, " %s=0o%o", eth->bootdir[e].name,
+                        eth->bootdir[e].bfn);
+            fprintf(stderr, "\n");
+        }
         return;
     }
 
@@ -766,6 +813,13 @@ static uint16_t eth_read(void *ctx, int task, int subtask,
     }
     uint16_t word = eth->rx_words[eth->rx_pos];
     eth->rx_pos++;
+    /* Debug: note when the Alto finishes reading a BootDirReply, i.e. the
+     * 260B reply actually reached NetExec's GetDir (vs being clobbered or
+     * never delivered). word[3] is the Pup type of the queued packet. */
+    if (getenv("DORADO_BOOTDIR_DEBUG") && eth->rx_pos == eth->rx_count &&
+        eth->rx_count > 3 && eth->rx_words[3] == DORADO_PUP_TYPE_BOOTDIR_REPLY)
+        fprintf(stderr, "[bootdir] 260b reply CONSUMED by the Alto "
+                "(%zu words read)\n", eth->rx_count);
     eth_trace(eth, "read", task, tioa, word);
     return word;
 }
