@@ -8,7 +8,31 @@ suspect classes (per docs/CONTINUE-HERE.md SESSION-10b) are indirect/
 indexed addressing, skip edge cases, and the dsz/isz path implicated in
 the ctx!1 corruption.
 
-## Status
+## RESULT (2026-06-12): Dorado single-opcode Nova emulation is CORRECT
+
+The harness now uses a self-contained spec-derived Nova reference
+(`dorado/src/altoref.c`, from the Alto Hardware Manual May 1979 Sec 3),
+not salto. `altodiff-dorado sweep` diffs the real AEmu microcode against
+it over **2848 vectors, 0 mismatches**:
+- ALC: 8 functions x 4 shifts x 4 carry modes x no-load x operand
+  patterns x carry-in.
+- Memory-reference (LDA/STA/ISZ/DSZ) across data values in ALL addressing
+  modes: page-zero direct, page-zero indirect, AC2/AC3-indexed (incl.
+  sign-extended negative displacement), and indexed-indirect.
+The diff is fault-checked (breaking the reference's ADD -> 160 mismatches).
+
+So the ctx1 corruption bug is NOT in the single-opcode emulation of these
+classes -- including the handoff's prime suspects (dsz/isz @indirect,
+jsr @disp,2 indirect-indexed). Remaining suspects, now narrowed:
+- The S-group / augmented instructions (CYCLE, MUL/DIV [unit-tested],
+  BitBlt [arithmetic verified correct this session], the BCPL byte/string
+  veneers, JSRII) -- not yet swept.
+- Skip control-flow (not yet swept; affects PC not data, less likely for
+  a corrupted stack pointer).
+- Async/tasking interactions (a mid-DivSub task switch clobbering shared
+  Q/Cnt; NOT single-opcode-testable) -- the handoff's latest hypothesis.
+
+## Status (salto oracle - shelved, see below)
 
 - **Dorado side: DONE** (committed). `dorado/src/altodiff_dorado.c` ->
   `build/altodiff-dorado`. Runs one opcode through the real AEmu

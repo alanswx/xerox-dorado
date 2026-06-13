@@ -330,6 +330,64 @@ static int run_sweep(dorado_microcode *mc, int start_real,
         bad += diff_one(mri[mi].name, mri[mi].op, ac, 0, &d, &ref);
     }
 
+    /* Indirect page-zero (I=1): disp points to a page-zero cell holding
+     * the target address (one level; pointer bit 0 = 0 so no re-indirect).
+     * The handoff's prime suspect: dsz/isz @indirect. */
+    for (int mi = 0; mi < 4; mi++)
+    for (int dv = 0; dv < ndv; dv++) {
+        uint16_t op = (uint16_t)(mri[mi].op | (1u << 10));   /* set I bit */
+        uint16_t ac[4] = { 0, 012345, 0, 0 };
+        uint16_t pz[256]; memset(pz, 0, sizeof pz);
+        pz[0100] = 0150;             /* pointer -> page-zero target 0o150 */
+        pz[0150] = datavals[dv];     /* the actual data cell             */
+        struct result d = run_one(mc, start_real, mem, io, op, 0, ac, 0, pz);
+        uint16_t m[256]; memset(m, 0, sizeof m);
+        m[0100] = 0150; m[0150] = datavals[dv];
+        alto_ref_result ref = alto_ref_exec(op, ac, 0, m, (uint16_t)CODE_WORD);
+        total++;
+        char lbl[16]; snprintf(lbl, sizeof lbl, "%s@", mri[mi].name);
+        bad += diff_one(lbl, op, ac, 0, &d, &ref);
+    }
+
+    /* Indexed addressing (X=2 AC2-relative, X=3 AC3-relative), direct and
+     * indirect. The index AC is set so the effective address lands in
+     * page zero. Covers the "jsr @disp,2" indirect-indexed suspect (here
+     * exercised via LDA/STA/ISZ/DSZ so the data effect is checkable).
+     * Cases: (index_ac_val, disp) -- includes a negative (sign-extended)
+     * displacement. */
+    struct { int x; uint16_t idxval; uint16_t disp; } idxcase[] = {
+        { 2, 0100, 0 }, { 2, 0040, 0040 }, { 2, 0200, 0377 /* -1 -> 0177 */ },
+        { 3, 0100, 0 }, { 3, 0060, 0020 },
+    };
+    int nidx = (int)(sizeof idxcase / sizeof idxcase[0]);
+    for (int mi = 0; mi < 4; mi++)
+    for (int ic = 0; ic < nidx; ic++)
+    for (int ind = 0; ind < 2; ind++)
+    for (int dv = 0; dv < ndv; dv++) {
+        int x = idxcase[ic].x;
+        uint16_t disp = idxcase[ic].disp;
+        uint16_t mop = mri[mi].op & ~0xFFu;          /* strip page-zero disp */
+        mop = (uint16_t)(mop | ((unsigned)x << 8) | (ind << 10) | disp);
+        uint16_t ac[4] = { 0, 012345, 0, 0 };
+        ac[x] = idxcase[ic].idxval;                  /* the index AC      */
+        /* effective (pre-indirect) address, page zero */
+        uint16_t sext = (disp > 0200) ? (uint16_t)(disp + 0177400) : disp;
+        uint16_t ea = (uint16_t)((idxcase[ic].idxval + sext) & 0377);
+        uint16_t pz[256]; memset(pz, 0, sizeof pz);
+        uint16_t target = ea;
+        if (ind) { pz[ea] = 0160; target = 0160; }   /* pointer -> 0o160 */
+        pz[target] = datavals[dv];
+        struct result d = run_one(mc, start_real, mem, io, mop, 0, ac, 0, pz);
+        uint16_t m[256]; memset(m, 0, sizeof m);
+        if (ind) m[ea] = 0160;
+        m[target] = datavals[dv];
+        alto_ref_result ref = alto_ref_exec(mop, ac, 0, m, (uint16_t)CODE_WORD);
+        total++;
+        char lbl[16];
+        snprintf(lbl, sizeof lbl, "%s%s%d", mri[mi].name, ind ? "@" : ",", x);
+        bad += diff_one(lbl, mop, ac, 0, &d, &ref);
+    }
+
     printf("sweep: %d vectors, %d mismatches\n", total, bad);
     return bad ? 1 : 0;
 }
