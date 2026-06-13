@@ -140,6 +140,7 @@ int main(int argc, char **argv)
             typed = 1;
             printf("dorado: typing \"%s\" at cyc %llu\n", type_str,
                    (unsigned long long)dorado_machine_cycles(m));
+            int nk = 0;
             for (const char *p = type_str; *p; p++) {
                 int shift = 0;
                 dorado_display_key k = char_to_key(*p, &shift);
@@ -152,7 +153,18 @@ int main(int argc, char **argv)
                 if (shift) dorado_machine_set_key(m, DORADO_KEY_LSHIFT, 0);
                 dorado_machine_run_until(m,
                     dorado_machine_cycles(m) + key_hold);
+                /* Sustained-typing stress: idle a while after every 5
+                 * keys (batches), so the run spans well past the old
+                 * ~124M crash point with quiet gaps between bursts. */
+                if (++nk % 5 == 0) {
+                    printf("dorado: typed %d keys @cyc %llu\n", nk,
+                           (unsigned long long)dorado_machine_cycles(m));
+                    dorado_machine_run_until(m,
+                        dorado_machine_cycles(m) + 3000000ull);
+                }
             }
+            printf("dorado: typed %d keys total, last @cyc %llu\n", nk,
+                   (unsigned long long)dorado_machine_cycles(m));
         }
         if (progress) {
             dorado_machine_debug(m);
