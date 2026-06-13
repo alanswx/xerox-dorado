@@ -587,6 +587,17 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                         (unsigned long long)bb->cycles, pre_pc);
         }
 
+        /* Track the world's currently-posted Ethernet input-buffer size
+         * (EICLOC at Alto VM 604B, Alto HW Manual Sec 7) so the receiver
+         * can refuse to overflow it. The world re-posts this constantly and
+         * frequently parks it at 0 between exchanges; handing the receiver a
+         * packet bigger than the live buffer trips Input Buffer Overrun and
+         * derails it (observed deriling CedarNetExec). Before the world is
+         * loaded, 604B is not an Alto cell, so the gate stays disabled
+         * (world_rx_words = 0xFFFF from init). */
+        if (m->ether_loaded_world_cycle)
+            eth->world_rx_words = dorado_visible_word_at_va(&m->mem, 0604u);
+
         /* Seed BS-down into the Alto keyboard words so the loaded world
          * selects the Ethernet software boot (AEm0.mc branches to EBoot
          * -> Mayday -> NetExec). The 7-wire DDC keyboard back-channel is

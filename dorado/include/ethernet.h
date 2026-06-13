@@ -120,6 +120,18 @@ typedef struct dorado_ethernet {
     size_t rx_count;
     size_t rx_pos;
 
+    /* The emulated world's currently-posted Ethernet input-buffer size,
+     * in words -- EICLOC at Alto VM 604B (Alto HW Manual Sec 7). The world
+     * re-posts this constantly and frequently parks it at 0 (no receive
+     * buffer) between exchanges. If we hand the receiver a packet longer
+     * than the posted buffer, the AEmu input microcode posts "Input Buffer
+     * Overrun" (EPLOC[0-7]=2) and exits its input loop early, derailing the
+     * world. We therefore gate rx delivery on rx_count <= world_rx_words.
+     * machine.c refreshes this each step once the world is loaded; it stays
+     * 0xFFFF (no gate) during the Initial/EFTP microcode-boot phase, when
+     * 604B is not yet a meaningful Alto cell. */
+    uint16_t world_rx_words;
+
     char boot_110_path[256];
     char boot_111_path[256];
     char boot_113_path[256];
