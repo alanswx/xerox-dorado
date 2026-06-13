@@ -18,17 +18,34 @@ the ctx!1 corruption.
   validated against hand-computed Nova results. `altodiff-dorado ifum`
   dumps IFUM; `ALTODIFF_TRACE=1` traces steps.
 
-- **salto oracle: BUILDS + RUNS, injection WIP.**
+- **salto oracle: BUILDS + RUNS CONTINUOUSLY, injection WIP.**
   `AltoInfo/salto/src/altodiff_salto.c` -> `AltoInfo/salto/bin/altodiff-salto`.
-  It links salto's core, calls `alto_init("roms")`, and runs the Alto
-  microengine. REMAINING ISSUE: after reset + setting `cpu.r[rsel_pc]`,
-  the emulator does not fetch/execute the injected opcode (every vector
-  prints `[NO-DISPATCH]`: `emu_ir_count` never reaches 2). This is a
-  PC/fetch injection-timing problem (when does the Alto emulator read
-  cpu.r[6] for the fetch; soft_reset vs full reset semantics; the
-  cleared-memory JMP-0 self-loop at pc=0). Next: trace one fetch in
-  salto (emu.c f2_load_ir) and find the exact moment to set PC so the
-  first fetch lands on the injected opcode.
+  Links salto's core, `alto_init("roms")` + the non-SDL device inits,
+  `alto_reset()`. KEY FIX FOUND: the emulator task stalls after one fetch
+  because an I/O task (task_ksec = task 4, the disk sector task) wakes
+  perpetually and starves it. Setting `cpu.task_wakeup = (1 << task_emu)`
+  after reset (and NOT calling drive_init/disk_init) makes the emulator
+  run continuously -- a 200000-cycle slice now does 15816 fetches (was 1).
+  `cpu.task_wakeup = 0` fatals ("no tasks requesting service"); the
+  emulator needs its own wakeup bit.
+
+  TWO REMAINING ISSUES for clean per-opcode injection (both vectors still
+  print [NO-DISPATCH]):
+  1. run_one uses 1-cycle `alto_execute(CPU_MICROCYCLE_TIME)` slices,
+     which (unlike the big warmup slice) do not advance emu_ir_count to 2.
+     FIX: run one larger slice and break exactly at the target IR count --
+     add `int emu_ir_break_at;` and in emu.c f2_load_ir set
+     `alto_leave = 1` when `emu_ir_count >= emu_ir_break_at`; re-set
+     `cpu.task_wakeup = (1<<task_emu)` before each slice.
+  2. The emulator runs real boot/ROM code (warmup ended at pc=2, NOT
+     looping JMP 0 at 0), so "plant opcode at word 0 + set PC" does not
+     land. Need to inject at a clean inter-opcode boundary: break right
+     after an IR load, then OVERWRITE the just-fetched-but-not-executed
+     state is wrong (in-flight opcode clobbers). Better: get the emulator
+     into a known idle loop (e.g. fill memory with a self-loop branch to
+     a fixed address, let it settle there, then plant the test opcode at
+     that address and set ACs). Trace emu.c f2_load_ir + the PC (cpu.r[6])
+     handling to pick the injection point.
 
 ## salto build recipe (AltoInfo/ is gitignored - keep this)
 
