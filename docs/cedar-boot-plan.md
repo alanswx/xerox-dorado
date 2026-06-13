@@ -1,5 +1,21 @@
 # Plan: bring up Cedar (or a Mesa/Pilot world) on the emulator
 
+## UPDATE (2026-06-13c): the chain works through the load
+
+The NetExec -> CedarNetExec chain this plan describes is now FUNCTIONAL
+through the load. NetExec's full Pup stack works (it learns its net via
+gateway-info 200B/201B, sets the real clock via 206B/207B, and discovers
+the boot directory via 257B/260B -- all unblocked by fixing a dropped-
+reply bug: socket replies were short the trailing hardware-CRC word the
+AEmu receive microcode subtracts). With `--boot-dir` registering
+`CedarNetExec.boot`, NetExec lists it under `?`, and selecting it
+Mayday-requests its boot-file number; the server serves it and the
+EtherBoot loader pulls it in. The OPEN frontier is now one level deeper:
+`CedarNetExec.boot` itself transfers in full but stalls in early startup
+(no display, no network I/O, PC spinning in page 0/1). See
+`docs/CONTINUE-HERE.md` (top) for the full state. The original plan and its
+correction follow.
+
 Status: PLAN (2026-06-13). Written after the Alto/NetExec Ethernet boot
 landed end to end (NetExec boots and is interactive) and the page-zero /
 RBase-timing keystone bug was fixed. The next frontier is a Mesa-level
