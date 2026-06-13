@@ -942,14 +942,20 @@ static uint16_t eth_read(void *ctx, int task, int subtask,
 
     eth->data_reads++;
     if (eth->rx_pos >= eth->rx_count || eth->rx_hold ||
-        (eth->rx_pos == 0 && eth->rx_count > eth->world_rx_words)) {
+        (eth->rx_pos == 0 && eth->rx_count > eth->world_rx_words + 2u)) {
         /* rx_hold: the packet is still "on the wire" (network / server
          * turnaround) — nothing has reached the bus register.
-         * rx_count > world_rx_words: the world's currently-posted input
-         * buffer (EICLOC) is too small for this packet, so handing it over
-         * would trip Input Buffer Overrun (Alto HW Manual Sec 7). Hold it
-         * until the world re-posts a big-enough buffer. Only gate at the
-         * head of a packet (rx_pos==0) so an in-progress read finishes. */
+         * rx_count > world_rx_words + 2: the world's currently-posted input
+         * buffer (EICLOC) is too small for this packet's payload, so handing
+         * it over would trip Input Buffer Overrun (Alto HW Manual Sec 7).
+         * The +2 excludes the two trailer words every rx packet here appends
+         * (a dummy hardware CRC, then the attention/status word): the
+         * receiver reads those past the end of its posted buffer as the
+         * end-of-packet handshake, so they do not count against EICLOC. An
+         * EFTP Data packet is exactly EICLOC+2 (hdr+data+pup-cksum = EICLOC,
+         * plus CRC+status) and must pass. Hold it until the world re-posts a
+         * big-enough buffer; only gate at the head of a packet (rx_pos==0)
+         * so an in-progress read finishes. */
         if (bad) *bad = 1;
         return 0xFFFF;
     }
@@ -1146,11 +1152,14 @@ uint16_t dorado_ethernet_wakeup_mask(dorado_ethernet *eth)
         mask |= (uint16_t)(1u << DORADO_ETHERNET_TASK_EOT);
     }
     if (eth->rx_on && !eth->rx_hold && eth->rx_pos < eth->rx_count &&
-        !(eth->rx_pos == 0 && eth->rx_count > eth->world_rx_words)) {
-        /* Don't wake the input task for a packet larger than the world's
-         * currently-posted input buffer (EICLOC) -- it would overflow and
-         * derail the receive. Hold until the world re-posts a buffer that
-         * fits. See eth_read() and world_rx_words (Alto HW Manual Sec 7). */
+        !(eth->rx_pos == 0 && eth->rx_count > eth->world_rx_words + 2u)) {
+        /* Don't wake the input task for a packet whose payload is larger
+         * than the world's currently-posted input buffer (EICLOC) -- it
+         * would overflow and derail the receive. The +2 excludes the two
+         * trailer words (CRC + status) the receiver reads past its buffer as
+         * the end-of-packet handshake, so a correctly-sized EFTP Data packet
+         * (EICLOC+2 words) still passes. Hold until the world re-posts a
+         * buffer that fits. See eth_read() and world_rx_words (HM Sec 7). */
         mask |= (uint16_t)(1u << DORADO_ETHERNET_TASK_EIT);
     }
     return mask;
