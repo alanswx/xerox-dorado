@@ -29,23 +29,37 @@ the ctx!1 corruption.
   `cpu.task_wakeup = 0` fatals ("no tasks requesting service"); the
   emulator needs its own wakeup bit.
 
-  TWO REMAINING ISSUES for clean per-opcode injection (both vectors still
-  print [NO-DISPATCH]):
-  1. run_one uses 1-cycle `alto_execute(CPU_MICROCYCLE_TIME)` slices,
-     which (unlike the big warmup slice) do not advance emu_ir_count to 2.
-     FIX: run one larger slice and break exactly at the target IR count --
-     add `int emu_ir_break_at;` and in emu.c f2_load_ir set
-     `alto_leave = 1` when `emu_ir_count >= emu_ir_break_at`; re-set
-     `cpu.task_wakeup = (1<<task_emu)` before each slice.
-  2. The emulator runs real boot/ROM code (warmup ended at pc=2, NOT
-     looping JMP 0 at 0), so "plant opcode at word 0 + set PC" does not
-     land. Need to inject at a clean inter-opcode boundary: break right
-     after an IR load, then OVERWRITE the just-fetched-but-not-executed
-     state is wrong (in-flight opcode clobbers). Better: get the emulator
-     into a known idle loop (e.g. fill memory with a self-loop branch to
-     a fixed address, let it settle there, then plant the test opcode at
-     that address and set ACs). Trace emu.c f2_load_ir + the PC (cpu.r[6])
-     handling to pick the injection point.
+  Implemented and WORKING: the `emu_ir_break_at` hook (emu.c f2_load_ir
+  sets `alto_leave=1` at the target IR count) so a big slice stops after
+  N opcodes; and the emulator-only wakeup. Those are correct.
+
+  THE WALL (injection): salto's emulator BOOT owns memory. After reset
+  the boot microcode loads its own Nova program into low memory
+  (overwriting any fill) and runs ~15.8k instructions, then WAITS in
+  microcode (mpc ~0o612) polling the absent disk -- so it stops fetching
+  and never reaches an OS-level steady fetch loop. Concretely: filling
+  ALL memory with `JMP LIDLE` before the warmup does NOT take -- the
+  warmup still ends at pc=2 ir=1 (the boot's own code), and the
+  per-vector settle then does 0 fetches (emulator parked in the disk
+  wait). So debug_write_mem injection cannot land a clean single opcode.
+
+  THREE WAYS FORWARD (pick one):
+  (a) Boot-bypass: force the emulator microcode to its fetch-loop entry
+      directly -- set cpu.task_mpc[task_emu] to the Alto emulator's
+      "next instruction" microaddress and cpu.r[rsel_pc] to the opcode
+      address, bypassing boot. Needs the emulator START microaddress
+      (capture cpu.mpc at f2_load_ir during the boot burst, or find the
+      Alto-microcode START label). Risk: forcing mid-pipeline mpc.
+  (b) Real disk boot: attach a minimal bootable Alto disk so the boot
+      completes to an OS with a steady fetch loop, then inject. Heavier;
+      re-enables the disk (and the ksec-starvation, which the wakeup
+      mask handles).
+  (c) Pivot the ORACLE to a spec-derived Nova reference (the option not
+      taken at the build fork). ~150 lines of unambiguous Nova ALC+MRI
+      semantics from the published ISA, independent of the Dorado
+      microcode; spot-check against the already-validated Dorado ALC
+      results. Fastest path to a working Phase-3 sweep; keep salto as a
+      later gold-standard cross-check once (a)/(b) is solved.
 
 ## salto build recipe (AltoInfo/ is gitignored - keep this)
 
