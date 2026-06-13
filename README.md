@@ -136,7 +136,7 @@ screen.pgm`).
 |---|---|---|
 | Alto / Mesa | `worlds/aemu.eb` (≡ `AltoMesaDorado.eb`) | **works** — NETEXEC interactive, CRTTEST renders, DMT runs |
 | Smalltalk-80/76 | `../chm/microcode/SmalltalkDorado.eb!1` | microcode loads/idles; needs a Smalltalk image (not wired) |
-| Cedar (Mesa VM) | via Alto/Mesa → CedarNetExec | loads; stalls in CedarNetExec startup (frontier) |
+| Cedar (Mesa VM) | via Alto/Mesa → CedarNetExec | runs (no longer crashes) + builds a display; UI not yet up (frontier) |
 | Interlisp-D (Lisp) | `DoradoLisp` (build from `chm/dorado/expanded/UnBug.bfs!1_/DoradoLisp.MB`) | loads + draws a display, but it's garbage; needs a sysout |
 
 **Alto / Mesa — works.** The Alto-emulator world runs the BCPL Net
@@ -180,11 +180,14 @@ through the boot chain, but Smalltalk needs its own loaded image to come up
 
 **Mesa-format worlds (`000345`).** `CedarNetExec.boot`, `MesaNetExec.boot`,
 `AlphaMesaMesaNetExec.boot`, `MazeWar.boot`, and `NEWOS.BOOT` are the large
-(~64 K-word) Mesa boot files. All five transfer in full and then behave
-identically — the PC spins in page 0/1 with no display — so this is one
-shared early-startup bug, not a per-file problem (the bring-up frontier).
-Serve any of them by name through NetExec with `--boot-dir`, e.g.
-`MesaNetExec.boot=112=../chm/bootfiles/MesaNetExec.boot!1`.
+(~64 K-word) Mesa boot files. Unlike the Alto (`000405`) files, these are
+**not B-format** — a real boot server prepends a leader page before serving
+them (ETHERBOOT.BRAVO), which the server now does automatically for any
+`000345`-signature file. With that, all five **load and run into real code**
+(no more page-0 crash): CedarNetExec builds a ~50 K-pixel display. Reaching
+their actual UI/prompt (display-list install + the keyboard back-channel)
+is the next bring-up step. Serve any by name through NetExec with
+`--boot-dir`, e.g. `MesaNetExec.boot=112=../chm/bootfiles/MesaNetExec.boot!1`.
 
 #### Booting a second-stage file *through* NetExec (`--boot-dir`)
 
