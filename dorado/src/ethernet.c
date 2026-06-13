@@ -3,6 +3,62 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+
+/* Fill the 5-word Alto NTime body (32-bit time, zone word, begin/end DST)
+ * from the host clock so NetExec's banner shows the real wall-clock time.
+ * NetExec's WriteDate only accepts years 1983..2000 ("Date and time
+ * unknown" otherwise); the Gregorian calendar repeats every 28 years, so
+ * shifting the year back by 28 keeps the (undisplayed) year in range while
+ * the weekday/month/day/time stay correct. timegm() re-encodes the local
+ * broken-down time as seconds, and with zone=0 NetExec displays it
+ * verbatim. 2177452800 = seconds from the Alto epoch (1901-01-01) to the
+ * Unix epoch (1970-01-01). DORADO_ALTO_TIME (octal hi,lo) forces a fixed
+ * value for deterministic runs. */
+static void eth_fill_alto_time(uint16_t body[5])
+{
+    const char *fixed = getenv("DORADO_ALTO_TIME");
+    uint32_t at;
+    if (fixed) {
+        unsigned hi = 0, lo = 0;
+        sscanf(fixed, "%o,%o", &hi, &lo);
+        at = ((uint32_t)hi << 16) | (uint32_t)(lo & 0xFFFF);
+        body[0] = (uint16_t)(at >> 16);
+        body[1] = (uint16_t)(at & 0xFFFF);
+        body[2] = 0;
+        body[3] = 0;
+        body[4] = 0;
+        return;
+    }
+    /* The Alto time protocol carries GMT plus a timezone word (hours/
+     * minutes west of GMT) and a DST day-of-year window; NetExec displays
+     * GMT - zone, adding one hour when the date is inside the window. So:
+     * send true UTC, the fixed DST window (121..305), and a zone chosen so
+     * the banner shows THIS host's local wall-clock time:
+     *   display = UTC - zone + dstNow  ==>  zone = dstNow - offsetHours
+     * where offsetHours is the host's current GMT offset (negative west)
+     * and dstNow is 1 when today is in the window (what NetExec will add).
+     * This compensates correctly whether or not the host observes DST.
+     * Year shifted back 28 (a Gregorian repeat) to stay in NetExec's
+     * 1983..2000 window; the year is not displayed. 2177452800 = seconds
+     * from the Alto epoch (1901) to the Unix epoch (1970). */
+    time_t now = time(NULL);
+    struct tm lt = *localtime(&now);
+    int yday1 = lt.tm_yday + 1;
+    int64_t off_hours = ((int64_t)timegm(&lt) - (int64_t)now) / 3600;
+    int dst_now = (yday1 >= 121 && yday1 <= 305) ? 1 : 0;
+    int zone_h = (int)(dst_now - off_hours);
+    int sign = zone_h < 0 ? 1 : 0;
+    int zh = zone_h < 0 ? -zone_h : zone_h;
+    struct tm ut = *gmtime(&now);
+    ut.tm_year -= 28;
+    at = (uint32_t)((int64_t)timegm(&ut) + 2177452800LL);
+    body[0] = (uint16_t)(at >> 16);
+    body[1] = (uint16_t)(at & 0xFFFF);
+    body[2] = (uint16_t)((sign << 15) | ((zh & 0x7F) << 8));
+    body[3] = 121;
+    body[4] = 305;
+}
 
 /* DORADO_ETH_TRACE=1 traces the first 256 controller operations;
  * larger values raise the cap. */
@@ -596,7 +652,8 @@ static void eth_tx_packet_done(dorado_ethernet *eth)
             (uint16_t)((net << 8) | net),
             (uint16_t)((eth->remote_host << 8) | 0)
         };
-        uint16_t time_body[5] = { 0x9C8Eu, 0x0000u, 0x0800u, 121u, 305u };
+        uint16_t time_body[5];
+        eth_fill_alto_time(time_body);
         const uint16_t *body = is_gw ? gw_body : time_body;
         int blen = is_gw ? 2 : 5;
         uint16_t rtype = is_gw ? DORADO_PUP_TYPE_GATEWAY_REPLY
