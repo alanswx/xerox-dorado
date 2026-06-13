@@ -147,7 +147,7 @@ Executive and any Alto (`000405`-format) boot file:
 # boot directory under `?`, accepts typed commands at the `>` prompt
 ./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/NETEXEC.BOOT!8'
 
-# CRTTEST — display test, renders a test pattern
+# CRTTEST — CRT alignment/test patterns; press keys to cycle the patterns
 ./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/CRTTEST.BOOT!1'
 
 # DMT — the diagnostic/idle program a diskless Alto boots
