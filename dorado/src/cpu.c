@@ -2772,6 +2772,25 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
     dorado_mem_trace_br31 = cpu->mem ? (int)dorado_br_get(cpu->mem, 31) : 0;
     dorado_mem_trace_op = ((int)cpu->ifu_opcode << 8) | cpu->ifu_alpha;
 
+    /* BBT dump (env DORADO_BBT_TRACE): at AEmu BitBltA (real 0o13124)
+     * the BitBlt-table pointer is AC2 = STK[StkP+2]; dump the table
+     * (DBCA=w2, DBMR=w3, DLX=w4, DTY=w5, DW=w6, DH=w7) from the MDS bank
+     * so a corrupting BitBlt can be compared against a healthy one. */
+    if (cpu->real_PC == 03124 && cpu->ctask == 0 && cpu->mem &&
+        getenv("DORADO_BBT_TRACE")) {
+        uint16_t bbt = cpu->STK[(cpu->StkP + 2) & 0xFF];
+        uint32_t mds = dorado_br_get(cpu->mem, 036);
+        uint16_t w[8];
+        for (int i = 0; i < 8; i++)
+            w[i] = dorado_visible_word_at_va(cpu->mem,
+                       (mds + bbt + (uint32_t)i) & 0x0FFFFFFFu);
+        fprintf(stderr,
+            "BBT cyc=%llu bbt=0o%o func=0o%o DBCA=0o%o DBMR=0o%o "
+            "DLX=0o%o DTY=0o%o DW=0o%o DH=0o%o\n",
+            (unsigned long long)dorado_trace_cycle, bbt, w[0],
+            w[2], w[3], w[4], w[5], w[6], w[7]);
+    }
+
     /* Snapshot Link before FF can modify it. Write IM (in next_pc) and
      * Subroutine Return both consume Link at instruction-issue time;
      * B←RWCPReg / Link←B / B-dispatch all overwrite Link via FF. The
@@ -3190,8 +3209,22 @@ memory_ref_done: ;
                 cpu->mem ? (int)cpu->mem->last_fault : 0);
     }
 
-    /* LC. */
-    if ((rc = apply_lc(cpu, u, pd, md_at_issue)) != 0) {
+    /* LC. The RM/STK WRITE address is latched at instruction issue (the
+     * RSEL/RBase are read at t1), so a same-instruction RBase<-FF change
+     * (applied above for the *next* instruction) must NOT redirect this
+     * instruction's own write. AEmu's BitBlt destination setup
+     * `BBTemp_ (BBTemp)+MD, RBase_ RBase[AEmRegs]` depends on this: with
+     * the FF-changed RBase the write of (DBCA + displacement) lands in
+     * the wrong RM region (AEmRegs instead of BBRegs), so BBTemp keeps
+     * its pre-add value and DBCA is dropped -- the BitBlt destination
+     * base then misses its bitmap address and the gray fill sprays page
+     * zero (corrupting M[0o344]). Use the issue-time RBase for the write,
+     * matching the read (which already used it). */
+    uint8_t rbase_next_instr = cpu->RBase;
+    cpu->RBase = rbase_at_issue;
+    rc = apply_lc(cpu, u, pd, md_at_issue);
+    cpu->RBase = rbase_next_instr;
+    if (rc != 0) {
         cpu->halted = 1;
         cpu->halt_reason = rc;
         return 1;
