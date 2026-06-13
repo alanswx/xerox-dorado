@@ -118,6 +118,7 @@ struct result {
     uint16_t ac[4];
     int      cry;
     uint16_t pc;
+    uint16_t pcx;          /* IFU PCX at the 2nd dispatch (for skip)   */
     int      ok;            /* 1 = executed one opcode cleanly */
     const char *status;     /* "" or a fault/halt note */
     /* memory writes captured against a snapshot window */
@@ -211,6 +212,7 @@ static struct result run_one(dorado_microcode *mc, int start_real,
     r.cry   = (cpu.RM[RM_CRY] & 1);
     /* PC word = RCODE + (~PCX'>>1); approximate via RCODE for now. */
     r.pc    = cpu.RM[RM_RCODE];
+    r.pcx   = cpu.ifu_pcx;
 
     for (uint32_t w = 0; w < 0x400 && r.n_wr < 8; w++) {
         uint16_t now = load_va(mem, bank | w);
@@ -243,8 +245,10 @@ static int diff_one(const char *label, uint16_t op, const uint16_t ac[4],
                     const alto_ref_result *ref)
 {
     int bad = 0;
+    int d_skip = ((int)(d->pcx >> 1)) - 1;   /* pcx=2 -> 0, pcx=4 -> 1 */
     for (int i = 0; i < 4; i++) if (d->ac[i] != ref->ac[i]) bad = 1;
     if ((d->cry & 1) != (ref->cry & 1)) bad = 1;
+    if (d->ok && d_skip != ref->skip) bad = 1;
     if (ref->wrote) {
         int found = 0;
         for (int k = 0; k < d->n_wr; k++)
@@ -262,10 +266,12 @@ static int diff_one(const char *label, uint16_t op, const uint16_t ac[4],
                d->ac[0], d->ac[1], d->ac[2], d->ac[3], d->cry);
         for (int k = 0; k < d->n_wr; k++)
             printf("%s%04o:%06o", k ? "," : "", d->wr_va[k], d->wr_val[k]);
+        printf(" SKIP=%d", d_skip);
         if (!d->ok) printf(" [%s]", d->status);
         printf("\n   ref    AC=%06o,%06o,%06o,%06o CRY=%d WR=",
                ref->ac[0], ref->ac[1], ref->ac[2], ref->ac[3], ref->cry);
         if (ref->wrote) printf("%04o:%06o", ref->wr_addr, ref->wr_val);
+        printf(" SKIP=%d", ref->skip);
         printf("\n");
     }
     return bad ? 1 : 0;
@@ -277,6 +283,8 @@ static int run_sweep(dorado_microcode *mc, int start_real,
                      dorado_memory *mem, dorado_io *io)
 {
     int total = 0, bad = 0;
+    /* Skip is detected from the IFU PCX of the next opcode: pcx=2 (one
+     * word, no skip) vs pcx=4 (two words, skipped) -- see diff_one. */
     static const uint16_t opsets[][4] = {
         { 0, 0, 0, 0 },
         { 1, 0177777, 0100000, 077777 },
@@ -293,10 +301,12 @@ static int run_sweep(dorado_microcode *mc, int start_real,
     for (int sh = 0; sh < 4; sh++)
     for (int cyf = 0; cyf < 4; cyf++)
     for (int nl = 0; nl < 2; nl++)
+    for (int sk = 0; sk < 8; sk++)
     for (int cin = 0; cin < 2; cin++) {
         uint16_t op = (uint16_t)(0100000u | (1u << 13) | (2u << 11) |
                                  ((unsigned)func << 8) | ((unsigned)sh << 6) |
-                                 ((unsigned)cyf << 4) | ((unsigned)nl << 3));
+                                 ((unsigned)cyf << 4) | ((unsigned)nl << 3) |
+                                 (unsigned)sk);
         const uint16_t *ac = opsets[si];
         struct result d = run_one(mc, start_real, mem, io, op, 0, ac, cin, NULL);
         uint16_t m[256]; memset(m, 0, sizeof m);
