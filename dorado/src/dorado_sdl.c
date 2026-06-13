@@ -101,6 +101,12 @@ int main(int argc, char **argv)
         else if (!strcmp(a, "--eftp") && i + 1 < argc) cfg.eftp_boot = argv[++i];
         else if (!strcmp(a, "--boot-file-number") && i + 1 < argc)
             cfg.boot_file_number = (uint16_t)strtoul(argv[++i], NULL, 8);
+        else if (!strcmp(a, "--boot-dir") && i + 1 < argc) {
+            if (cfg.boot_dir_count <
+                (int)(sizeof cfg.boot_dir / sizeof cfg.boot_dir[0]))
+                cfg.boot_dir[cfg.boot_dir_count++] = argv[++i];
+            else { fprintf(stderr, "dorado-sdl: too many --boot-dir\n"); i++; }
+        }
         else if (!strcmp(a, "--quote"))                cfg.alto_ether_quote = 1;
         else if (!strcmp(a, "--no-alto-boot"))         cfg.alto_ether_boot = 0;
         else if (!strcmp(a, "--scale") && i + 1 < argc) scale = atoi(argv[++i]);
@@ -120,7 +126,8 @@ int main(int argc, char **argv)
             }
         } else if (!strcmp(a, "--help") || !strcmp(a, "-h")) {
             printf("usage: %s [--eb PATH] [--eftp PATH] "
-                   "[--boot-file-number OCTAL] [--quote] "
+                   "[--boot-file-number OCTAL] [--boot-dir NAME=BFN=PATH] "
+                   "[--quote] "
                    "[--no-alto-boot] [--scale N] [--speed CYCLES]\n"
                    "          [--screenshot F1,F2,...] [--shot-prefix NAME]\n",
                    argv[0]);

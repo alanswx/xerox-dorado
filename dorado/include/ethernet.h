@@ -36,6 +36,8 @@
  * (`docs/research/ethernet-netboot/downloads/EtherBoot.mesa-1.html`) and
  * EFTPSPEC (`chm/pup/EFTPSPEC.BRAVO!1`). */
 #define DORADO_PUP_TYPE_MAYDAY     0244   /* boot-file request */
+#define DORADO_PUP_TYPE_BOOTDIR_REQ   0257  /* NetExec: who has boot files? */
+#define DORADO_PUP_TYPE_BOOTDIR_REPLY 0260  /* server: {bfn,date,name} list */
 #define DORADO_PUP_TYPE_EFTP_DATA  030
 #define DORADO_PUP_TYPE_EFTP_ACK   031
 #define DORADO_PUP_TYPE_EFTP_END   032
@@ -113,6 +115,22 @@ typedef struct dorado_ethernet {
     char boot_111_path[256];
     char boot_113_path[256];
     char boot_114_path[256];
+
+    /* Stage-2 boot-file directory. The real NetExec broadcasts a
+     * BootDirReq (257B) to discover which boot files each server offers,
+     * then lets the user boot one by name. Each entry advertises a
+     * {boot file number, name, version date} tuple in our BootDirReply
+     * (260B) and supplies the file to EFTP when the matching Mayday
+     * (244B, ID = bfn) arrives. See ALTOBOOT.BRAVO and NetExec1.bcpl. */
+    struct {
+        uint16_t bfn;          /* boot file number (Mayday Pup ID low word) */
+        char     name[48];     /* boot file name; must end in ".boot"       */
+        char     path[256];    /* file served by EFTP for this bfn          */
+        uint16_t date_hi;      /* Alto-format date (version); MUST be       */
+        uint16_t date_lo;      /* nonzero or NetExec treats it as a local   */
+    } bootdir[8];              /* command, not a bootable file              */
+    int      bootdir_count;
+    uint64_t bootdir_replies;  /* stats: BootDirReply packets queued        */
 } dorado_ethernet;
 
 void dorado_ethernet_init(dorado_ethernet *eth);
@@ -127,6 +145,13 @@ void dorado_ethernet_set_boot_file(dorado_ethernet *eth,
  * response to a Mayday request (any boot-file number, for now). */
 void dorado_ethernet_set_eftp_boot_file(dorado_ethernet *eth,
                                         const char *path);
+
+/* Stage-2: register a boot file in the directory the fake boot server
+ * advertises to NetExec. `name` must end in ".boot"; `bfn` is the boot
+ * file number NetExec puts in its Mayday Pup ID when the user boots this
+ * file by name. The file at `path` is then EFTP-served for that bfn. */
+void dorado_ethernet_add_boot_dir(dorado_ethernet *eth, uint16_t bfn,
+                                  const char *name, const char *path);
 
 /* Returns a wakeup bitmask for EOT/EIT based on current controller
  * state. Non-const: ticks the post-WaitForBOP drain hold. */

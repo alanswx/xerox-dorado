@@ -41,6 +41,12 @@ typedef struct dorado_machine_config {
                                 * 0 -> default 1. AEmu only needs one;
                                 * 4 modules wraps RealPages to 0 and
                                 * confuses InitMem. */
+    const char *boot_dir[8];   /* Stage-2 boot-file directory entries the
+                                * fake boot server advertises to NetExec,
+                                * each "NAME=BFN=PATH" (BFN octal). NAME
+                                * must end in ".boot". Lets NetExec boot
+                                * e.g. CedarNetExec by name. */
+    int      boot_dir_count;
     uint16_t boot_file_number; /* Mesa/Dorado boot file number, the first
                                 * word of the boot-parameter block Initial
                                 * normally derives from the boot button +

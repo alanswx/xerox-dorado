@@ -90,6 +90,33 @@ void dorado_ethernet_set_eftp_boot_file(dorado_ethernet *eth, const char *path)
     snprintf(eth->eftp_boot_path, sizeof eth->eftp_boot_path, "%s", path);
 }
 
+void dorado_ethernet_add_boot_dir(dorado_ethernet *eth, uint16_t bfn,
+                                  const char *name, const char *path)
+{
+    if (!eth || !name || !path) return;
+    if (eth->bootdir_count >= (int)(sizeof eth->bootdir / sizeof eth->bootdir[0]))
+        return;
+    int i = eth->bootdir_count++;
+    eth->bootdir[i].bfn = bfn;
+    snprintf(eth->bootdir[i].name, sizeof eth->bootdir[i].name, "%s", name);
+    snprintf(eth->bootdir[i].path, sizeof eth->bootdir[i].path, "%s", path);
+    /* A fixed, nonzero version date (Alto epoch seconds, ~mid-1984). Must
+     * be nonzero: NetExec's LoadKT marks an entry "local" (a built-in
+     * command, not a bootable file) iff port==0 AND date==0. Matches the
+     * date our time-reply hands NetExec, so neither looks newer. */
+    eth->bootdir[i].date_hi = 0x9C8Eu;
+    eth->bootdir[i].date_lo = 0x0000u;
+}
+
+/* Map a Mayday boot file number to a directory file, if registered. */
+static const char *eth_bootdir_path(const dorado_ethernet *eth, uint16_t bfn)
+{
+    for (int i = 0; i < eth->bootdir_count; i++)
+        if (eth->bootdir[i].bfn == bfn)
+            return eth->bootdir[i].path;
+    return NULL;
+}
+
 static const char *eth_boot_path(const dorado_ethernet *eth, uint16_t offset)
 {
     switch (offset) {
@@ -295,9 +322,13 @@ static int append_eftp_packet(dorado_ethernet *eth, size_t *cap,
  * skip): an Alto boot file is itself the loadable image. */
 static int eth_queue_eftp_boot(dorado_ethernet *eth, uint16_t bfn)
 {
-    (void)bfn;
-    if (!eth->eftp_boot_path[0]) return 0;
-    FILE *fp = fopen(eth->eftp_boot_path, "rb");
+    /* A Mayday whose boot file number matches a directory entry (the user
+     * picked it by name in NetExec) serves that file; otherwise serve the
+     * default Stage-2 boot file (the breath-of-life Mayday carries bfn 0). */
+    const char *path = eth_bootdir_path(eth, bfn);
+    if (!path) path = eth->eftp_boot_path;
+    if (!path || !path[0]) return 0;
+    FILE *fp = fopen(path, "rb");
     if (!fp) return 0;
 
     size_t payload_cap = 16384;
@@ -544,6 +575,69 @@ static void eth_tx_packet_done(dorado_ethernet *eth)
          * word makes every reply silently fail the filter. */
         if (ok) ok = append_rx_word(eth, &cap, 0, 1);
         if (ok) { eth->rx_pos = 0; eth->time_bcasts++; }
+        return;
+    }
+
+    /* BootDirReq (257B): NetExec asking which boot files we offer. Reply
+     * 260B with one {bfn, date(2), name} block per directory entry so the
+     * user can boot any of them by name. Pup data starts at the first
+     * data word (`^` is 1-indexed in NetExec1.bcpl's InstallDir, so
+     * words^1 = data word 0), exactly like the time reply above. */
+    if (eth->tx_words[1] == DORADO_PUP_TYPE_ETHERNET &&
+        eth->tx_words[3] == DORADO_PUP_TYPE_BOOTDIR_REQ &&
+        eth->bootdir_count > 0) {
+        uint16_t req_src_host = (uint16_t)(eth->tx_words[0] & 0377);
+        eth_clear_rx(eth);
+        size_t cap = 0;
+
+        /* Serialize the BFD blocks first, to size pup.length. */
+        uint16_t data[256];
+        int nd = 0;
+        for (int e = 0; e < eth->bootdir_count; e++) {
+            const char *nm = eth->bootdir[e].name;
+            int len = (int)strlen(nm);
+            /* bfn + date(2) + ceil((len+1)/2) name words. */
+            int name_words = (len + 1 + 1) / 2;
+            if (nd + 3 + name_words > (int)(sizeof data / sizeof data[0]))
+                break;
+            data[nd++] = eth->bootdir[e].bfn;
+            data[nd++] = eth->bootdir[e].date_hi;
+            data[nd++] = eth->bootdir[e].date_lo;
+            /* BCPL string: byte0 = length, then chars, packed two per
+             * word big-endian, zero-padded to an even byte count. */
+            uint8_t sb[64];
+            int sn = 0;
+            sb[sn++] = (uint8_t)len;
+            for (int k = 0; k < len; k++) sb[sn++] = (uint8_t)nm[k];
+            if (sn & 1) sb[sn++] = 0;
+            for (int k = 0; k < sn; k += 2)
+                data[nd++] = (uint16_t)((sb[k] << 8) | sb[k + 1]);
+        }
+
+        uint16_t hdr[12];
+        hdr[0]  = (uint16_t)((req_src_host << 8) | eth->remote_host);
+        hdr[1]  = DORADO_PUP_TYPE_ETHERNET;
+        hdr[2]  = (uint16_t)(026 + 2 * nd);   /* pup.length, bytes */
+        hdr[3]  = DORADO_PUP_TYPE_BOOTDIR_REPLY;
+        hdr[4]  = eth->tx_words[4];           /* id matches the request */
+        hdr[5]  = eth->tx_words[5];
+        hdr[6]  = req_src_host;               /* dPort net.host (dnet 0) */
+        hdr[7]  = eth->tx_words[10];          /* dPort socket = requestor */
+        hdr[8]  = eth->tx_words[11];          /*   sPort socket           */
+        hdr[9]  = (uint16_t)((1 << 8) | eth->remote_host); /* sPort = us */
+        hdr[10] = eth->tx_words[7];           /* sPort socket = the misc- */
+        hdr[11] = eth->tx_words[8];           /*   services socket queried */
+        int ok = 1;
+        for (int i = 0; i < 12 && ok; i++)
+            ok = append_rx_word(eth, &cap, hdr[i], 0);
+        for (int i = 0; i < nd && ok; i++)
+            ok = append_rx_word(eth, &cap, data[i], 0);
+        if (ok) ok = append_rx_word(eth, &cap, 0177777, 0);
+        if (ok) ok = append_rx_word(eth, &cap, 0, 1);
+        if (ok) { eth->rx_pos = 0; eth->bootdir_replies++; }
+        if (getenv("DORADO_ETH_TX_TRACE"))
+            fprintf(stderr, "BOOTDIR reply: %d file(s), %d data words\n",
+                    eth->bootdir_count, nd);
         return;
     }
 

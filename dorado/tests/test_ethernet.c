@@ -1,6 +1,7 @@
 #include "ethernet.h"
 
 #include <stdio.h>
+#include <string.h>
 
 #define FAIL(msg, ...) do { \
     fprintf(stderr, "FAIL: %s:%d: " msg "\n", __FILE__, __LINE__, ##__VA_ARGS__); \
@@ -321,12 +322,123 @@ static int test_eftp_boot_full_transfer(void)
     return 0;
 }
 
+/* A BootDirReq (257B) from NetExec must draw a 260B BootDirReply listing
+ * each registered boot file as {bfn, date(2), BCPL-string name}, so the
+ * user can boot one by name. Validates the on-wire format and that a later
+ * Mayday for that bfn serves the right file. */
+static int test_bootdir_reply_format(void)
+{
+    dorado_io io;
+    dorado_ethernet eth;
+    dorado_io_init(&io);
+    dorado_ethernet_init(&eth);
+    /* A default Stage-2 file (served for the breath-of-life bfn 0) plus a
+     * directory entry for CedarNetExec at a distinct boot file number. */
+    dorado_ethernet_set_eftp_boot_file(&eth, "../chm/bootfiles/NETEXEC.BOOT!8");
+    const char *cedar = "../chm/bootfiles/CedarNetExec.boot!4";
+    dorado_ethernet_add_boot_dir(&eth, 0111, "CedarNetExec.boot", cedar);
+    dorado_ethernet_attach_to_io(&eth, &io);
+
+    /* BootDirReq Pup: etherType=typePup, pupType=257B, dPort socket = misc
+     * services (4), sPort host=042 socket-lo=020 (where the reply goes). */
+    uint16_t req[13] = {
+        042, 01000, 026, DORADO_PUP_TYPE_BOOTDIR_REQ,
+        0, 0,           /* id          */
+        0, 0, 04,       /* dPort: misc services socket */
+        042, 0, 020,    /* sPort: host 042, socket-lo 020 */
+        0177777
+    };
+    dorado_io_write(&io, DORADO_ETHERNET_TASK_EOT,
+                    DORADO_ETHERNET_TIOA_CTL, 0047777);   /* TurnOnTx */
+    for (int i = 0; i < 13; i++)
+        dorado_io_write(&io, DORADO_ETHERNET_TASK_EOT,
+                        DORADO_ETHERNET_TIOA_DATA, req[i]);
+    dorado_io_write(&io, DORADO_ETHERNET_TASK_EOT,
+                    DORADO_ETHERNET_TIOA_CTL, 0067777);   /* SendEOP */
+    eth_wait_arrival(&eth);
+
+    EXPECT(eth.bootdir_replies == 1, "bootdir_replies=%llu want 1",
+           (unsigned long long)eth.bootdir_replies);
+
+    int bad = 0;
+    uint16_t h[12];
+    for (int i = 0; i < 12; i++)
+        h[i] = dorado_io_read(&io, DORADO_ETHERNET_TASK_EIT,
+                              DORADO_ETHERNET_TIOA_DATA, &bad);
+    EXPECT(h[1] == 01000, "ether type 0o%o", h[1]);
+    EXPECT(h[3] == DORADO_PUP_TYPE_BOOTDIR_REPLY, "pup type 0o%o", h[3]);
+    /* One entry: bfn(1) + date(2) + name "CedarNetExec.boot" (17 chars ->
+     * 18 bytes incl length -> 9 words) = 12 data words. length = 026+2*12. */
+    EXPECT(h[2] == (uint16_t)(026 + 2 * 12), "pup length 0o%o", h[2]);
+    EXPECT(h[6] == 042, "reply dPort host 0o%o (= requestor)", h[6]);
+
+    uint16_t bfn = dorado_io_read(&io, DORADO_ETHERNET_TASK_EIT,
+                                  DORADO_ETHERNET_TIOA_DATA, &bad);
+    EXPECT(bfn == 0111, "bfn 0o%o want 0o111", bfn);
+    uint16_t date_hi = dorado_io_read(&io, DORADO_ETHERNET_TASK_EIT,
+                                      DORADO_ETHERNET_TIOA_DATA, &bad);
+    uint16_t date_lo = dorado_io_read(&io, DORADO_ETHERNET_TASK_EIT,
+                                      DORADO_ETHERNET_TIOA_DATA, &bad);
+    /* Must be nonzero or NetExec treats the entry as a local command. */
+    EXPECT((date_hi | date_lo) != 0, "version date is nonzero");
+
+    /* Decode the BCPL string: first byte = length, then chars. */
+    uint16_t w0 = dorado_io_read(&io, DORADO_ETHERNET_TASK_EIT,
+                                 DORADO_ETHERNET_TIOA_DATA, &bad);
+    int slen = (w0 >> 8) & 0377;
+    EXPECT(slen == 17, "name length %d want 17", slen);
+    char name[64];
+    int ni = 0;
+    name[ni++] = (char)(w0 & 0377);
+    int name_words = (slen + 1 + 1) / 2;
+    for (int wi = 1; wi < name_words; wi++) {
+        uint16_t w = dorado_io_read(&io, DORADO_ETHERNET_TASK_EIT,
+                                    DORADO_ETHERNET_TIOA_DATA, &bad);
+        name[ni++] = (char)((w >> 8) & 0377);
+        name[ni++] = (char)(w & 0377);
+    }
+    name[slen] = '\0';
+    EXPECT(strcmp(name, "CedarNetExec.boot") == 0, "name '%s'", name);
+
+    /* Now a Mayday for that bfn must serve CedarNetExec.boot, not the
+     * default NETEXEC. Independently size CedarNetExec to compare. */
+    FILE *fp = fopen(cedar, "rb");
+    EXPECT(fp != NULL, "open %s", cedar);
+    long cedar_words = 0;
+    for (;;) { int hi = fgetc(fp), lo = fgetc(fp);
+               if (hi == EOF || lo == EOF) break; cedar_words++; }
+    fclose(fp);
+
+    uint16_t mayday[15] = {
+        042, 01000, 026, DORADO_PUP_TYPE_MAYDAY, 0, 0111 /*bfn*/,
+        0, 0, 04, 042, 0, 0, 0, 0, 0177777
+    };
+    dorado_io_write(&io, DORADO_ETHERNET_TASK_EOT,
+                    DORADO_ETHERNET_TIOA_CTL, 0047777);
+    for (int i = 0; i < 15; i++)
+        dorado_io_write(&io, DORADO_ETHERNET_TASK_EOT,
+                        DORADO_ETHERNET_TIOA_DATA, mayday[i]);
+    dorado_io_write(&io, DORADO_ETHERNET_TASK_EOT,
+                    DORADO_ETHERNET_TIOA_CTL, 0067777);
+    eth_wait_arrival(&eth);
+    EXPECT(eth.eftp_last_bfn == 0111, "Mayday bfn 0o%o", eth.eftp_last_bfn);
+    EXPECT((long)eth.eftp_len == cedar_words,
+           "served %ld words, CedarNetExec has %ld",
+           (long)eth.eftp_len, cedar_words);
+
+    printf("  BootDir: 260B reply advertises CedarNetExec.boot (bfn 0o111),"
+           " Mayday serves its %ld words\n", cedar_words);
+    dorado_ethernet_free(&eth);
+    return 0;
+}
+
 int main(void)
 {
     int rc = 0;
     rc |= test_microcode_boot_reply_queue();
     rc |= test_eftp_boot_reply_queue();
     rc |= test_eftp_boot_full_transfer();
+    rc |= test_bootdir_reply_format();
     if (rc == 0) printf("All ethernet tests passed.\n");
     return rc;
 }

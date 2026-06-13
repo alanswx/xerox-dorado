@@ -122,6 +122,27 @@ fetched over EFTP by the loaded world). Pick a path:
                    --eftp '../chm/bootfiles/CedarNetExec.boot!4'
 ```
 
+#### Booting a second-stage file *through* NetExec (`--boot-dir`)
+
+The real NetExec is a network command processor: at its `>` prompt you
+type the *name* of another boot file (e.g. `CedarNetExec`) and it loads
+that next. NetExec discovers which files exist by broadcasting a
+**boot-directory probe** (Pup `257B`); boot servers answer (`260B`) with
+`{boot file number, date, name}` tuples. Register the files our fake
+server should advertise with `--boot-dir NAME=BFN=PATH` (repeatable; `BFN`
+octal, `NAME` must end in `.boot`):
+
+```sh
+./build/dorado-sdl --eb worlds/aemu.eb \
+    --eftp '../chm/bootfiles/NETEXEC.BOOT!8' \
+    --boot-dir 'CedarNetExec.boot=111=../chm/bootfiles/CedarNetExec.boot!4'
+```
+
+NetExec then lists `CedarNetExec` under `?`; typing it sends a Mayday for
+boot file `111B`, which the server serves from the registered path. (The
+breath-of-life that loads NetExec itself uses boot file 0 and the plain
+`--eftp` file.)
+
 Booting takes a little while (the real BaseBoard → Bootstrap → Initial →
 Ethernet-microcode chain, then the EFTP transfer of the boot file); for
 the Alto path the banner and `>` prompt appear once it is up, after which
@@ -130,6 +151,7 @@ prompt — that bring-up is tracked in `docs/cedar-boot-plan.md`.
 
 Flags: `--eb PATH` (emulator-microcode world), `--eftp PATH` (Stage-2 boot
 file), `--boot-file-number OCTAL` (boot file number, default `110`),
+`--boot-dir NAME=BFN=PATH` (advertise a boot file to NetExec; repeatable),
 `--scale N` (window scale), `--speed CYCLES` (cycles/frame), `--quote`,
 `--no-alto-boot`, `--screenshot F1,F2,...`. Controls: **F1**
 pauses/resumes; **Cmd/Ctrl+Q** quits.

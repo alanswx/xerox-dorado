@@ -230,6 +230,11 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
             cfg.storage_modules = user_cfg->storage_modules;
         if (user_cfg->boot_file_number)
             cfg.boot_file_number = user_cfg->boot_file_number;
+        cfg.boot_dir_count = user_cfg->boot_dir_count;
+        for (int i = 0; i < user_cfg->boot_dir_count &&
+                        i < (int)(sizeof cfg.boot_dir / sizeof cfg.boot_dir[0]);
+             i++)
+            cfg.boot_dir[i] = user_cfg->boot_dir[i];
     }
     if (cfg.storage_modules < 1 || cfg.storage_modules > 4)
         cfg.storage_modules = 1;
@@ -324,6 +329,28 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
     dorado_ethernet_set_boot_file(&m->ethernet, cfg.boot_file_number,
                                   cfg.eth_boot_110);
     dorado_ethernet_set_eftp_boot_file(&m->ethernet, cfg.eftp_boot);
+
+    /* Register the boot-file directory entries the fake server advertises
+     * to NetExec. Each is "NAME=BFN=PATH" (BFN octal). NAME must end in
+     * ".boot"; PATH may itself contain no '=' (file paths here do not). */
+    for (int i = 0; i < cfg.boot_dir_count; i++) {
+        const char *spec = cfg.boot_dir[i];
+        if (!spec) continue;
+        const char *eq1 = strchr(spec, '=');
+        if (!eq1) { fprintf(stderr, "dorado: bad --boot-dir '%s'\n", spec);
+                    continue; }
+        const char *eq2 = strchr(eq1 + 1, '=');
+        if (!eq2) { fprintf(stderr, "dorado: bad --boot-dir '%s'\n", spec);
+                    continue; }
+        char name[48];
+        size_t nlen = (size_t)(eq1 - spec);
+        if (nlen >= sizeof name) nlen = sizeof name - 1;
+        memcpy(name, spec, nlen);
+        name[nlen] = '\0';
+        uint16_t bfn = (uint16_t)strtoul(eq1 + 1, NULL, 8);
+        const char *path = eq2 + 1;
+        dorado_ethernet_add_boot_dir(&m->ethernet, bfn, name, path);
+    }
 
     dorado_display_attach_to_io(&m->display, &m->io);
     dorado_disk_controller_attach_to_io(&m->disk, &m->io);
