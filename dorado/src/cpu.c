@@ -676,8 +676,16 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
         case 0: *b = (uint16_t)~finfo;             /* FaultInfo' */
                 dorado_fault_clear(cpu->mem);
                 break;
-        case 1: *b = (uint16_t)((va >> 16) & 0x0FFF); break; /* Pipe0 = VaHi */
-        case 2: *b = (uint16_t)(va & 0xFFFF);      break;  /* Pipe1 = VaLo */
+        case 1: *b = (uint16_t)((va >> 16) & 0x0FFF);
+                if (dorado_trace_gate && getenv("DORADO_PIPEVA_TRACE"))
+                    fprintf(stderr, "PIPEVA pc=0o%o psrn=%d va=%07X (Pipe0/VaHi)\n",
+                            cpu->real_PC, psrn, va);
+                break; /* Pipe0 = VaHi */
+        case 2: *b = (uint16_t)(va & 0xFFFF);
+                if (dorado_trace_gate && getenv("DORADO_PIPEVA_TRACE"))
+                    fprintf(stderr, "PIPEVA pc=0o%o psrn=%d va=%07X (Pipe1/VaLo)\n",
+                            cpu->real_PC, psrn, va);
+                break;  /* Pipe1 = VaLo */
         /* Pipe2' is the same data as FaultInfo' (HM page 51:
          * "B←Pipe2' is simply a convenient decode for reading
          * [FaultInfo] back"). */
@@ -3138,11 +3146,12 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                 if (ft && ft[0] &&
                     (strcmp(ft, "all") == 0 || cpu->ctask != 0)) {
                     fprintf(stderr,
-                            "FAULT_CPU task=%o pc=0o%o mesa_pc=0x%04X "
+                            "FAULT_CPU cyc=%llu task=%o pc=0o%o mesa_pc=0x%04X "
                             "mb=%02o br=%07X mar=%04X tioa=%03o "
                             "T=%04X B=%04X kind=%d "
                             "asel=%o lc=%o ff=%03o jcn=%03o "
                             "iw=%06o/%06o/%06o\n",
+                            (unsigned long long)dorado_trace_cycle,
                             cpu->ctask & 017, cpu->real_PC,
                             cpu->ifu_pcx & 0xFFFFu, membase & 037,
                             br & 0x0FFFFFFFu, mar, cpu->TIOA & 0377,

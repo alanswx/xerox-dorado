@@ -1,5 +1,44 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## FIXED (2026-06-13e): CedarNetExec's post-load hang was a Pipe-VA clobber on a page-377 map fault
+
+Forensic trace of the CedarNetExec hang (after the leader-page fix it loaded
+but its display was noise and it did NO further work). Root cause found and
+FIXED (pipe_push in memory.c):
+
+- After load, CedarNetExec's Nova relocation BLT stores into MDS bank-0
+  page 377 (e.g. VA 0o177653 / 0xFFAB). AEmu intentionally write-protects
+  page 377 (XMFaultTask.mc), so the store map-faults. The handler's design
+  (Fault0) is: bank-register store (0o177740..) -> handle; any OTHER page-377
+  store -> IgnoreStore (drop it, restart). CedarNetExec's BLT hits "other".
+- Our engine instead ran Fault0 to `MapFault: Branch[.]` -- a self-loop --
+  and task 0 spun there forever (hot uPC real 0o4046), dispatching ZERO Alto
+  opcodes. The display "pixels" were stale residue; the VM was frozen.
+- Why: Fault0 reads the faulting VA from pipe[ProcSRN] (VAHi/VALo). The
+  faulting store pushed VA=0xFFAB into pipe[ProcSRN], but the very next IFU
+  prefetch (also task 0, same fixed ProcSRN slot) overwrote it with the next
+  opcode's VA (0x5034) BEFORE the fault task read it. So Fault0's page-377
+  test failed -> MapFault. On real Dorado consecutive refs get distinct SRNs
+  (16-entry ring), so the faulting entry survives at SRNFirstFault.
+- Fix: pipe_push now refuses to overwrite the first-faulting ProcSRN slot
+  while a fault is pending (released on dorado_fault_clear). ASRN ring
+  unaffected. `make test` 10/10; NETEXEC still boots (1490 px, no regression).
+
+RESULT: CedarNetExec now RUNS -- it dispatches Alto opcodes continuously,
+the Alto VM PC advances through real code, and it settles into an input/poll
+loop (br31 in {05033,05088,05801} + page-0 cells; it animates a counter at
+display word 0x2D61 and re-stores 0o177653 each pass, all IgnoreStore'd).
+
+NEW FRONTIER: it does not paint a clean menu. The display is still dense
+noise and rx=0/tx=0 (no network). DASTART(M[0o420])=0o31426 but the chain
+there does not parse as a clean Alto DCB (w2/SA=0o22 is page 0), so either
+CedarNetExec lays out its display differently than NETEXEC's BCPL DCBs, or it
+is parked waiting (keyboard/gap E2, or a clock/network event) before drawing.
+Next: identify the poll's exit condition (what page-0 cell it waits on and
+who should update it -- keyboard interrupt? RTC?), and whether the rasterizer
+must follow a different display structure. Trace hooks added: DORADO_PIPEVA_TRACE
+(prints pc/psrn/va at each B<-Pipe0/Pipe1 read) and a cycle stamp on FAULT_CPU.
+
 ## DIAGNOSED (2026-06-13d): CedarNetExec stall is a boot-loader handoff CRASH (fix in progress)
 
 Forensic trace nailed the CedarNetExec stall (and all four other 000345

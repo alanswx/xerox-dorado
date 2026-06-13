@@ -160,6 +160,23 @@ static void pipe_push(dorado_memory *mem, int srn, dorado_ref_kind kind,
                       uint32_t va, uint16_t rp_pre, uint8_t flags_pre)
 {
     srn &= (DM_PIPE_DEPTH - 1);
+    /* Preserve the first-faulting ProcSRN reference's pipe entry until the
+     * fault handler reads it. On real Dorado consecutive references get
+     * distinct SRNs (a 16-entry ring), so the faulting reference's slot
+     * survives any later reference made before the fault task runs. ASRN
+     * (I/O) references already cycle through distinct slots here, but the
+     * emulator and fault tasks share a single fixed ProcSRN slot, so without
+     * this guard the IFU prefetch of the next opcode (also task 0, ProcSRN)
+     * would clobber pipe[ProcSRN] (=SRNFirstFault) before AEmu's XMFaultTask
+     * Fault0 reads VAHi/VALo — making it take the page-377 store path to
+     * MapFault (an unhandled-fault hang) instead of IgnoreStore. Restricted
+     * to the ProcSRN slot so the ASRN ring still wraps normally. Released
+     * when the fault is cleared (dorado_fault_clear). */
+    if (mem->fault_count > 0 &&
+        srn == (int)(mem->fault_first_srn & (DM_PIPE_DEPTH - 1)) &&
+        srn == (int)(mem->proc_srn & (DM_PIPE_DEPTH - 1))) {
+        return;
+    }
     mem->pipe[srn].kind          = kind;
     mem->pipe[srn].va            = va;
     mem->pipe[srn].map_rp_pre    = rp_pre;
