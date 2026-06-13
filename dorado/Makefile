@@ -21,6 +21,15 @@ all: $(BINDIR)/dorado $(BINDIR)/mbdis $(BINDIR)/mb2eb $(BINDIR)/mctrace $(BINDIR
 $(BINDIR)/dorado: $(LIB_OBJS) $(OBJDIR)/machine.o $(OBJDIR)/dorado.o | $(BINDIR)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
+# Bootable microcode worlds, generated from the checked-in .mb sources via
+# mb2eb into worlds/ (kept in the tree so a run needs nothing in /tmp).
+# The Cedar/Mesa worlds are already ready .eb files in ../chm and need no
+# generation. Regenerate with `make worlds`.
+.PHONY: worlds
+worlds: $(BINDIR)/mb2eb
+	@mkdir -p worlds
+	$(BINDIR)/mb2eb '../chm/dorado/AEmu.mb!2' worlds/aemu.eb 01076
+
 # The SDL frontend links SDL2; build with `make sdl`.
 .PHONY: sdl
 sdl: $(BINDIR)/dorado-sdl

@@ -94,25 +94,42 @@ It needs **SDL2** (the core emulator does not):
 # Debian/Ubuntu:  sudo apt install libsdl2-dev
 ```
 
-Build the bootable Alto-emulator world (once), then build and run the
-frontend from the `dorado/` directory:
+Build the frontend and the bootable microcode worlds (all from the
+`dorado/` directory). The worlds live in the tree — nothing in `/tmp`:
 
 ```sh
 cd dorado
-make build/mb2eb
-./build/mb2eb '../chm/dorado/AEmu.mb!2' /tmp/aemu_only.eb 01076   # -> /tmp/aemu_only.eb
+make sdl          # -> build/dorado-sdl
+make worlds       # -> worlds/aemu.eb (the Alto-emulator world, from AEmu.mb)
+```
 
-make sdl                                                          # -> build/dorado-sdl
-./build/dorado-sdl --eb /tmp/aemu_only.eb \
+The Cedar/Mesa worlds need no generation — they are ready `.eb` files
+already checked into `../chm`.
+
+#### Boot paths (same binary, different `--eb` / `--eftp`)
+
+The two payloads are the **emulator microcode** (`--eb`, loaded by Initial
+over the Dorado microcode boot) and the **Stage-2 boot file** (`--eftp`,
+fetched over EFTP by the loaded world). Pick a path:
+
+```sh
+# Alto / BCPL Net Executive  — WORKS, interactive (type `help`, etc.)
+./build/dorado-sdl --eb worlds/aemu.eb \
                    --eftp '../chm/bootfiles/NETEXEC.BOOT!8'
+
+# Cedar (Mesa VM)  — IN BRING-UP (see docs/cedar-boot-plan.md, Phase 0+)
+./build/dorado-sdl --eb '../chm/dorado/CedarDorado.eb!6' \
+                   --eftp '../chm/bootfiles/CedarNetExec.boot!4'
 ```
 
 Booting takes a little while (the real BaseBoard → Bootstrap → Initial →
-Ethernet-microcode chain, then the EFTP transfer of NetExec); the banner
-and `>` prompt appear once it is up, after which typing works.
+Ethernet-microcode chain, then the EFTP transfer of the boot file); for
+the Alto path the banner and `>` prompt appear once it is up, after which
+typing works. The Cedar microcode loads today but does not yet reach its
+prompt — that bring-up is tracked in `docs/cedar-boot-plan.md`.
 
-Flags: `--eb PATH` (boot-`0110` world), `--eftp PATH` (Stage-2 boot file),
-`--scale N` (window scale), `--speed CYCLES` (cycles/frame),
+Flags: `--eb PATH` (emulator-microcode world), `--eftp PATH` (Stage-2 boot
+file), `--scale N` (window scale), `--speed CYCLES` (cycles/frame),
 `--quote`, `--no-alto-boot`, `--screenshot F1,F2,...`. Controls: **F1**
 pauses/resumes; **Cmd/Ctrl+Q** quits.
 
