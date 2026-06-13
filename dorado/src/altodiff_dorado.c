@@ -83,8 +83,17 @@ static void store_va(dorado_memory *mem, uint32_t va, uint16_t value)
     }
 }
 
+/* Read coherently: a matching valid cache line wins over storage, since
+ * the emulator's stores land in the cache before writeback. */
 static uint16_t load_va(dorado_memory *mem, uint32_t va)
 {
+    uint32_t row = (va >> 4) & DM_CACHE_ROW_MASK;
+    uint32_t tag = va >> 10;
+    uint32_t off = va & DM_CACHE_LINE_MASK;
+    for (int way = 0; way < DM_CACHE_WAYS; way++) {
+        const dorado_cache_line *line = &mem->cache[row].ways[way];
+        if (line->valid && line->tag == tag) return line->data[off];
+    }
     uint32_t idx = dorado_map_index(va);
     const dorado_map_entry *e = dorado_map_get(mem, idx);
     size_t phys = (size_t)e->rp * DM_PAGE_SIZE + (va & (DM_PAGE_SIZE - 1));
@@ -168,10 +177,16 @@ static struct result run_one(dorado_microcode *mc, int start_real,
     dorado_br_lo_load(mem, MEMBASE_MDS, 0);
 
     cpu.ifu_dispatch_count = 0;
+    int trace = getenv("ALTODIFF_TRACE") != NULL;
     int steps = 0, cap = 4000;
     cpu_halt_reason hr = CPU_HALT_NONE;
     for (; steps < cap; steps++) {
         if (cpu.ifu_dispatch_count >= 2) break;   /* one opcode done */
+        if (trace)
+            fprintf(stderr, "  step%-3d PC=0o%-5o tk=%d disp=%llu ifu(act=%d wu=%d op=0o%o pcf=0o%o)\n",
+                    steps, cpu.real_PC, cpu.ctask,
+                    (unsigned long long)cpu.ifu_dispatch_count,
+                    cpu.ifu_active, cpu.ifu_warmup, cpu.ifu_opcode, cpu.ifu_pcf);
         hr = dorado_cpu_step(&cpu);
         if (cpu.halted) break;
     }
@@ -245,6 +260,16 @@ int main(int argc, char **argv)
     }
     fprintf(stderr, "START real=0o%o\n", start_real);
 
+    /* Diagnostic: dump IFUM entries for an opcode range (insset 0). */
+    if (argc >= 2 && !strcmp(argv[1], "ifum")) {
+        for (int op = 0; op < 256; op++) {
+            if (mc.ifum_present[op])
+                printf("IFUM[%03o] present lo=%06o hi=%06o\n",
+                       op, mc.ifum_lo[op], mc.ifum_hi[op]);
+        }
+        return 0;
+    }
+
     static dorado_memory mem;
     if (dorado_memory_init(&mem) != 0) {
         printf("SKIP altodiff-dorado (mem init failed)\n");
@@ -291,14 +316,20 @@ int main(int argc, char **argv)
         { "AND 1,0",          ALC(1,0,7), { 0146, 0123, 0, 0 }, 0 },
         /* AC3 <- AC3, no-op MOV to check PC advance only */
         { "MOV 3,3",          ALC(3,3,2), { 0, 0, 0, 077 }, 0 },
-        /* TODO memory-reference opcodes (STA/LDA/ISZ/DSZ - the suspect
-         * class). They do NOT dispatch correctly from the Start: cold
-         * entry: AEmu's MRI opcodes use special EmIFUReg/EmIFUPause IFU
-         * entries (auto-fetch operand + pause) that appear to need the
-         * StartEmulator IFUM setup this tool bypasses. ALC opcodes work
-         * because their IFUM entries are statically loaded. Resolve by
-         * either entering via StartEmulator or replaying its IFUM table
-         * writes before running. */
+        /* Memory-reference (the suspect class). Nova MRI (bit 0 = MSB,
+         * salto include/emu.h): bit0=0; MFunc(bits1-2) 0=Jump 1=LDA
+         * 2=STA; JFunc(bits3-4) within Jump 0=JMP 1=JSR 2=ISZ 3=DSZ;
+         * DstAC bits3-4; I bit5; X(idx) bits6-7 (0=page zero); DISP
+         * bits8-15. So LDA r,d=(1<<13)|(r<<11)|d; STA r,d=(2<<13)|
+         * (r<<11)|d; ISZ d=(2<<11)|d; DSZ d=(3<<11)|d. */
+        /* mem[0o100] <- AC1 (page zero) */
+        { "STA 1,0100",       (uint16_t)((2u<<13)|(1u<<11)|0100), { 0, 012345, 0, 0 }, 0 },
+        /* AC1 <- mem[0o100] : preload happens below (see note); checks load */
+        { "LDA 1,0100",       (uint16_t)((1u<<13)|(1u<<11)|0100), { 0, 0, 0, 0 }, 0 },
+        /* mem[0o100]++, skip if 0 : 0 -> 1, WR=0100:1 */
+        { "ISZ 0100",         (uint16_t)((2u<<11)|0100), { 0, 0, 0, 0 }, 0 },
+        /* mem[0o100]--, skip if 0 : 0 -> 177777, WR=0100:177777 */
+        { "DSZ 0100",         (uint16_t)((3u<<11)|0100), { 0, 0, 0, 0 }, 0 },
     };
     #undef ALC
     for (size_t i = 0; i < sizeof V / sizeof V[0]; i++) {
