@@ -5,14 +5,49 @@ landed end to end (NetExec boots and is interactive) and the page-zero /
 RBase-timing keystone bug was fixed. The next frontier is a Mesa-level
 world: **Cedar 6.1**, via the same Ethernet boot chain one VM level up.
 
-## Strategy in one sentence
+## CORRECTION (2026-06-13): how Cedar actually boots over Ethernet
+
+The Dorado Booting memo (`chm/doradosource/DoradoBooting.tioga!2.txt`,
+section 1.3) is explicit: **Cedar microcode boots its software from the
+DISK** (germ -> physical volume boot file). **"Ethernet booting of
+software is possible only with Alto emulator-based microprograms, NOT with
+Cedar. To boot Cedar software from the Ethernet, you must first boot the
+NetExec using Alto/Mesa, then use the NetExec to call the CedarNetExec,
+then use the CedarNetExec to call the desired program."**
+
+So loading `CedarDorado.eb` directly (Phase 0 below) is the DISK path --
+the Cedar microcode starts and waits for a disk germ that we do not have,
+which is exactly why it loops forever in InitMem. That is expected, not a
+bug, and NOT the route to take over Ethernet.
+
+The real Ethernet route chains through the NetExec we already boot:
+
+```
+NetExec (Alto/Mesa microcode + NETEXEC.BOOT -- WORKS, interactive)
+  --> CedarNetExec   (NetExec boots CedarNetExec.boot over EFTP)
+  --> the Cedar program / world
+```
+
+This stays on the **Alto/Mesa microcode** and reuses the exact EFTP
+software-boot path that already serves `NETEXEC.BOOT`; we just hand it the
+next boot file. No direct Cedar-microcode load, no disk.
+
+## Strategy in one sentence (revised)
+
+From the working Alto/Mesa NetExec, chain-boot `CedarNetExec.boot` (and
+then the Cedar world) over the same EFTP path that already serves
+`NETEXEC.BOOT` -- staying on the Alto/Mesa microcode per the booting memo,
+rather than loading the Cedar microcode (which is the disk-only path).
+
+## (superseded) earlier strategy
 
 Reuse the *entire* working Alto-boot transport (Initial microcode boot +
 the in-process EFTP/Mayday boot server) and swap the two payloads for
 their Cedar equivalents; the only genuinely new engineering is making the
-**Mesa virtual machine microcode run** (Cedar executes Mesa bytecodes +
-the full Map/Pipe/BR virtual memory, where the Alto emulator used Nova +
-a small subset).
+**Mesa virtual machine microcode run**. -- This is the DISK path and is
+superseded by the correction above for the Ethernet route. (Direct Cedar
+microcode + Mesa VM bring-up is still the path if/when we pursue a built
+disk volume.)
 
 ## The boot chain — what changes, what is reused
 
@@ -89,16 +124,18 @@ Ran `CedarDorado.eb!6` through the existing Stage-1 path (same
   that seed is Alto-specific. So Cedar's loaded InitMap wants different
   boot parameters / a different boot-mode select than the Alto world.
 
-Phase-0 punch list (-> Phase 1):
-1. Find Cedar's boot parameters: the CedarNetExec boot-file number and the
-   Cedar BootParameterSeal (vs the Alto `0110`/`056623`), and seed them in
-   the machine.c boot orchestration (or make the seed payload-selectable).
-2. Determine what the kernel InitMem loop is waiting on for the Cedar world
-   (it is past the storage-config check; likely a boot-mode / boot-param
-   branch or a timed/device wait), and what Cedar's InitMap expects that
-   the Alto InitMap did not.
-3. Only after it leaves InitMem does the Mesa-VM-proper bring-up (the IFU
-   startup / `SETDLP` blocker, virtual memory) begin.
+UPDATE: this stall is EXPECTED, not a bug. Per the booting memo (see the
+CORRECTION at the top), a started Cedar microcode boots its software from
+DISK; with no disk germ it loops in InitMem forever. So this direct-Cedar-
+microcode route is the disk path, not the Ethernet route. The Ethernet
+route does NOT load `CedarDorado.eb` -- it chains NetExec -> CedarNetExec
+on the Alto/Mesa microcode (next).
+
+Revised next step (Ethernet route): from the working NetExec, boot
+`CedarNetExec.boot!4` over the same EFTP path that serves `NETEXEC.BOOT`
+(swap the `--eftp` file, or implement the NetExec "call CedarNetExec"
+chain), and observe what CedarNetExec does. The boot-parameter seed
+question is moot for this route -- we stay on the Alto/Mesa microcode.
 
 ### Phase 0 -- method (re-baseline the Mesa microcode)
 Serve `CedarDorado.eb` through the existing Stage-1 path and run it on the
