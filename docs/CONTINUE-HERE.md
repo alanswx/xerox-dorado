@@ -1,5 +1,35 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## DIAGNOSED (2026-06-13d): CedarNetExec stall is a boot-loader handoff CRASH (fix in progress)
+
+Forensic trace nailed the CedarNetExec stall (and all four other 000345
+Mesa-format boot files -- MesaNetExec, AlphaMesaMesaNetExec, MazeWar,
+NEWOS -- which all stall identically). It is NOT a device poll-wait: it is
+a CRASH. After the verbatim EtherBoot loader (`eth_bol_loader[254]`,
+ethernet.c:535; final `JMP@0` = the `02000` at ethernet.c:567) restores the
+boot file's saved page-0 (file words 0o400..0o777 -> M[0..0o377]) and does
+`JMP@0`, M[0] = file[0o400]:
+- NETEXEC.BOOT (works): file[0o400]=0o001311, a real low-memory code entry.
+- CedarNetExec.boot (crashes): file[0o400]=0o165054, a DATA pointer into
+  its boot-menu/file-descriptor table (records + strings at 0o165000+).
+  M[0o165054]=0, so JMP@0 runs a zero word -> trap -> the Alto PC runs away
+  through the page-0 pointer table forever (the "page-0 spin").
+CedarNetExec's header is 0o345 0o354 0o403 (NETEXEC: 0o405 0 0); file[0]=
+0o345 points at a relocation bootstrap at file[0o345] (`LDA1 0o110; COM 1,3;
+BLT; STA3 @0o111; JMP 3`) that is NEVER reached. Load is faithful (live VM
+== file; full transfer lands). So: not corruption, not truncation, not a
+device poll.
+
+OPEN QUESTION being fixed now: the real loader is verbatim yet boots both
+on hardware, so our run diverges -- either (a) a content/format dispatch
+(should run the file[0o345] bootstrap before JMP@0) our AEmu execution
+takes wrong, or (b) a loader/bootstrap opcode mis-emulated only on the
+larger 64K transfer (suspects: SIO 0o61004, BLT 0o61005, which sit right at
+the derail `0o771: LDA0; 0o772: SIO; 0o773: JMP@0`). A focused agent is
+resolving this and applying a minimal verified fix; one fix unlocks all
+five Mesa-format worlds. Trace hooks now in machine.c: DORADO_TRACE_GATE,
+DORADO_VMDUMP (plus DORADO_IFUDISP_TRACE, DORADO_STORE_TRACE_VA).
+
 ## RESOLVED + NEW FRONTIER (2026-06-13c): the whole NetExec chain works; CedarNetExec stalls on startup
 
 The interrupt-driven Pup-receive blocker below (2026-06-13b) is FIXED. Root
