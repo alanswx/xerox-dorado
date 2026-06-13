@@ -572,60 +572,68 @@ static void eth_tx_packet_done(dorado_ethernet *eth)
         eth_eftp_ack(eth, eth->tx_words[5]);
         return;
     }
+    /* GatewayInformationRequest (200B) and AltoTimeRequest (206B): the
+     * two socket requests NetExec broadcasts after boot. Answer each with
+     * the documented reply. The reply's DESTINATION NET is our network
+     * number -- this is how NetExec's PupLevel1/ProcessRouteInfoReply
+     * learn the directly-connected net (PupRoute.bcpl). Both replies share
+     * the same framing; only the type and body differ. Cross-checked
+     * against IFS GatewayInformationProtocol / MiscServicesProtocol. */
     if (eth->tx_words[1] == DORADO_PUP_TYPE_ETHERNET &&
-        (eth->tx_words[3] & 0377) == 0204) {
-        /* Type 204B request. NetExec uses 204B on two sockets:
-         * psRouteInfo (2) = routing-info request -> answer with a
-         * GatewayInfoReply (201B, routing tuples); psMiscServ (4) =
-         * Alto time request -> answer 205B with the NTime body.
-         * Reply directed to the requestor's source port. */
+        (eth->tx_words[3] == DORADO_PUP_TYPE_GATEWAY_REQ ||
+         eth->tx_words[3] == DORADO_PUP_TYPE_ALTOTIME_REQ)) {
+        int is_gw = (eth->tx_words[3] == DORADO_PUP_TYPE_GATEWAY_REQ);
         uint16_t req_src_host = (uint16_t)(eth->tx_words[0] & 0377);
-        uint16_t req_dsock_lo = eth->tx_words[8];
-        uint16_t req_ssock_hi = eth->tx_words[10];
-        uint16_t req_ssock_lo = eth->tx_words[11];
+        uint16_t net = DORADO_PUP_LOCAL_NET;
         eth_clear_rx(eth);
         size_t cap = 0;
-        static const uint16_t routing[2] = {
-            (uint16_t)((1 << 8) | 1),       /* target net 1, gw net 1 */
-            (uint16_t)((01 << 8) | 0)       /* gw host 1, hops 0      */
+
+        /* Gateway reply: one 4-byte routing block {targetNet, gatewayNet,
+         * gatewayHost, hopCount} -- net `net` is directly connected via
+         * the server (host remote_host), 0 hops. Time reply: the Alto
+         * NTime body (32-bit time, zone word, begin/end DST). */
+        uint16_t gw_body[2] = {
+            (uint16_t)((net << 8) | net),
+            (uint16_t)((eth->remote_host << 8) | 0)
         };
-        static const uint16_t ntime[5] = {
-            0x9C8Eu, 0x0000u, 0x0800u, 121u, 305u
-        };
-        const uint16_t *body = (req_dsock_lo == 02) ? routing : ntime;
-        int blen = (req_dsock_lo == 02) ? 2 : 5;
-        uint16_t rtype = (req_dsock_lo == 02) ? 0201 : 0205;
+        uint16_t time_body[5] = { 0x9C8Eu, 0x0000u, 0x0800u, 121u, 305u };
+        const uint16_t *body = is_gw ? gw_body : time_body;
+        int blen = is_gw ? 2 : 5;
+        uint16_t rtype = is_gw ? DORADO_PUP_TYPE_GATEWAY_REPLY
+                               : DORADO_PUP_TYPE_ALTOTIME_REPLY;
+
         uint16_t hdr[12];
         hdr[0]  = (uint16_t)((req_src_host << 8) | eth->remote_host);
         hdr[1]  = DORADO_PUP_TYPE_ETHERNET;
         hdr[2]  = (uint16_t)(026 + 2 * blen);
         hdr[3]  = rtype;
-        hdr[4]  = eth->tx_words[4];
+        hdr[4]  = eth->tx_words[4];                       /* id matches req */
         hdr[5]  = eth->tx_words[5];
-        hdr[6]  = req_src_host;     /* dnet 0 = "this net": must
-                                     * deliver locally even before the
-                                     * requestor learns its net number
-                                     * (otherwise the routing reply
-                                     * that would teach it localNet
-                                     * gets forwarded, a bootstrap
-                                     * deadlock). */
-        hdr[7]  = req_ssock_hi;
-        hdr[8]  = req_ssock_lo;
-        hdr[9]  = (uint16_t)((1 << 8) | eth->remote_host);
-        hdr[10] = eth->tx_words[7];
-        hdr[11] = eth->tx_words[8];
+        hdr[6]  = (uint16_t)((net << 8) | req_src_host);  /* dPort net.host:
+                                                           * net teaches
+                                                           * NetExec its net */
+        hdr[7]  = eth->tx_words[10];                       /* dPort socket = */
+        hdr[8]  = eth->tx_words[11];                       /*   requestor sPort */
+        hdr[9]  = (uint16_t)((net << 8) | eth->remote_host); /* sPort = server */
+        hdr[10] = eth->tx_words[7];                        /* sPort socket = */
+        hdr[11] = eth->tx_words[8];                        /*   queried socket */
         int ok = 1;
         for (int i = 0; i < 12 && ok; i++)
             ok = append_rx_word(eth, &cap, hdr[i], 0);
         for (int i = 0; i < blen && ok; i++)
             ok = append_rx_word(eth, &cap, body[i], 0);
-        if (ok) ok = append_rx_word(eth, &cap, 0177777, 0);
-        /* No dummy CRC word here: the Pup driver computes the packet
-         * length from the ending count, and EtherPupFilter requires
-         * (pup.length+5) rshift 1 == packetLength exactly; an extra
-         * word makes every reply silently fail the filter. */
+        if (ok) {
+            uint16_t cks = pup_checksum(eth->rx_words, 2,
+                                        (size_t)(12 + blen) - 2);
+            ok = append_rx_word(eth, &cap, cks, 0);
+        }
         if (ok) ok = append_rx_word(eth, &cap, 0, 1);
         if (ok) { eth->rx_pos = 0; eth->time_bcasts++; }
+        if (getenv("DORADO_BOOTDIR_DEBUG"))
+            fprintf(stderr, "[bootdir] %s req -> %s reply, dPort net=0o%o "
+                    "host=0o%o (teaches NetExec net 0o%o)\n",
+                    is_gw ? "200b GatewayInfo" : "206b AltoTime",
+                    is_gw ? "201b" : "207b", net, req_src_host, net);
         return;
     }
 

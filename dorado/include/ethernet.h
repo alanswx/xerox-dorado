@@ -38,6 +38,15 @@
 #define DORADO_PUP_TYPE_MAYDAY     0244   /* boot-file request */
 #define DORADO_PUP_TYPE_BOOTDIR_REQ   0257  /* NetExec: who has boot files? */
 #define DORADO_PUP_TYPE_BOOTDIR_REPLY 0260  /* server: {bfn,date,name} list */
+/* Routing / time, from the Pup type assignments (IFS PupType enum, octal):
+ * GatewayInformationRequest=200, Response=201; AltoTimeRequest=206,
+ * Response=207. NetExec's GatewayListener probes 200B to learn its net;
+ * the 201B reply's destination net teaches it (PupRoute.bcpl). */
+#define DORADO_PUP_TYPE_GATEWAY_REQ    0200
+#define DORADO_PUP_TYPE_GATEWAY_REPLY  0201
+#define DORADO_PUP_TYPE_ALTOTIME_REQ   0206
+#define DORADO_PUP_TYPE_ALTOTIME_REPLY 0207
+#define DORADO_PUP_LOCAL_NET           01    /* the network NetExec lives on */
 #define DORADO_PUP_TYPE_EFTP_DATA  030
 #define DORADO_PUP_TYPE_EFTP_ACK   031
 #define DORADO_PUP_TYPE_EFTP_END   032
