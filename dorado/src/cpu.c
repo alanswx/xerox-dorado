@@ -2866,12 +2866,8 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
         : 0;
     if (getenv("DORADO_ATTEN_TRACE") && cpu->ctask == 7 &&
         cpu->TIOA == 015) {
-        static long an = 0;
-        an++;
-        if (1) {
-            fprintf(stderr, "ATTEN pc=0o%o atten=%d\n",
-                    cpu->real_PC, cpu->io_atten_at_issue);
-        }
+        fprintf(stderr, "ATTEN pc=0o%o atten=%d\n",
+                cpu->real_PC, cpu->io_atten_at_issue);
     }
 
     /* B and A buses. FF may override B (Pipe / Link / CPReg / …). */
