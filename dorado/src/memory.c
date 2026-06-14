@@ -506,6 +506,78 @@ uint16_t dorado_memory_config_word(const dorado_memory *mem)
     return (uint16_t)(module_mask | (chip_size_64kx1 << 2));
 }
 
+/*-----------------------------------------------------------------------
+ * Diagnostic multiplexer ("DMux") / muffler model.
+ *
+ * Various.mc SetDMuxAddress shifts a DMux address into a hardware shift
+ * register MSB-first via `MidasStrobe<-T` (one address bit, T[4], per
+ * strobe; T is doubled each iteration). The leading strobe of a sequence
+ * carries the full address in T[4:15], so we capture it directly rather
+ * than reconstructing it bit-by-bit (which would depend on the exact
+ * strobe count of SetDMuxAddress's timing loop).
+ *
+ * After loading the address the microcode either:
+ *   - `UseDMD`  -> strobe the address into the BaseBoard manifold as a
+ *                  WRITE (Initial WriteManifold). No muffler read.
+ *   - `ALUFMem` -> read the selected muffler bit back as the SIGN of the
+ *                  ALU result (SetDMuxAddress's trailing
+ *                  `T_ XTemp17_ ALUFMem, Return`).
+ *
+ * InitMem.mc GetMemConfig uses two muffler reads to size memory:
+ *   DMux 0o1512 sign-set -> MapIs256K -> VirtualBanks = 2000C
+ *   DMux 0o1511 sign-set -> MapIs64K  -> VirtualBanks =  400C
+ *   neither set          -> MapIs16K  -> VirtualBanks =  100C
+ * VirtualBanks*256 is the number of map entries the cold InitMem loop
+ * (Map1to1Loop / CacheFlush / MapInitLoop, via EnumerateMap) enumerates.
+ * We model DM_MAP_ENTRIES = 16384 = 64 banks * 256 = VirtualBanks 100C,
+ * so both reads must return sign-CLEAR (MapIs16K). Modeling ALUFMem as
+ * the raw ALUFM register (the prior behavior) made the sign world-
+ * dependent garbage: AEmu happened to land sign-clear (16K, terminates)
+ * while Mesa landed sign-set (64K/256K, enumerates a space far larger
+ * than our map and never reaches INITMEMDONE).
+ *---------------------------------------------------------------------*/
+void dorado_memory_dmux_strobe(dorado_memory *mem, uint16_t b)
+{
+    if (!mem->dmux_pending) {
+        /* Leading strobe: B = T carries the DMux address in T[4:15]
+         * (the low 12 bits). */
+        mem->dmux_addr    = (uint16_t)(b & 0x0FFF);
+        mem->dmux_pending = 1;
+    }
+}
+
+void dorado_memory_dmux_use_dmd(dorado_memory *mem)
+{
+    /* UseDMD strobes the loaded DMux address into the BaseBoard manifold
+     * as a WRITE (Initial WriteManifold). Consume the pending address so
+     * it cannot leak into a subsequent unrelated ALUFMem read. */
+    mem->dmux_pending = 0;
+}
+
+int dorado_memory_dmux_pending(const dorado_memory *mem)
+{
+    return mem->dmux_pending;
+}
+
+uint16_t dorado_memory_dmux_read(dorado_memory *mem)
+{
+    uint16_t addr = mem->dmux_addr;
+    mem->dmux_pending = 0;
+
+    /* Muffler bit in the SIGN position (C bit 15). Our memory models the
+     * 16K-map / VirtualBanks=100C configuration, so report MapIs256K and
+     * MapIs64K as NOT asserted (sign clear) -- GetMemConfig then falls
+     * through to MapIs16K, the size that matches DM_MAP_ENTRIES and lets
+     * the cold InitMem loop terminate. No muffler is asserted for any
+     * other address either. */
+    switch (addr) {
+    case 01512:   /* MapIs256K muffler -- not asserted */
+    case 01511:   /* MapIs64K  muffler -- not asserted */
+    default:
+        return 0x0000;
+    }
+}
+
 /* Map index from VA: page-number portion for our 16K-map /
  * 256-word-page configuration. Keep this shared with cpu.c's ReadMap
  * path; Initial depends on ReadMap observing the same entry Map<- wrote. */

@@ -225,6 +225,25 @@ typedef struct dorado_memory {
      * Midas uses it to inspect pending stores. */
     uint16_t dbuf;
 
+    /* Diagnostic multiplexer ("DMux") address register and muffler
+     * read-back (HM testing/diagnostic facility; docs/io-systems-
+     * architecture.md "Muffler"). Microcode shifts a DMux address into
+     * this register MSB-first via `MidasStrobe<-B` (B[4] per strobe),
+     * then either:
+     *   - issues `UseDMD` to strobe the address into the BaseBoard
+     *     manifold as a WRITE (Initial WriteManifold:
+     *     BootstrapSources InitialMain.mc / InitialSelectMain.mc), or
+     *   - reads the selected muffler bit back as the SIGN of an
+     *     `ALUFMem` read (Various.mc SetDMuxAddress, used by
+     *     InitMem.mc GetMemConfig to size VirtualBanks).
+     * `dmux_pending` distinguishes "address just loaded, awaiting a
+     * UseDMD write or an ALUFMem muffler read" so the muffler override
+     * fires ONLY for a genuine SetDMuxAddress read and never for normal
+     * ALUFM (Pd<-ALUFMRW) accesses. `dmux_addr` holds the 12-bit
+     * DMux address (T[4:15]) captured on the leading strobe. */
+    uint16_t dmux_addr;
+    int      dmux_pending;
+
     /* Cache — interposed between processor refs and storage for
      * Fetch/Store/PreFetch/Flush. IOFetch/IOStore bypass the cache
      * (see HM page 39 IOFetch/IOStore semantics). */
@@ -395,6 +414,28 @@ void     dorado_fault_clear(dorado_memory *mem);
 /* High-true internal value for the hardware B←Config' source. The CPU
  * puts the complement of this on the B bus. */
 uint16_t dorado_memory_config_word(const dorado_memory *mem);
+
+/* Diagnostic-multiplexer ("DMux") / muffler model (see the dmux_addr /
+ * dmux_pending fields above).
+ *   _strobe: `MidasStrobe<-B`. Captures the DMux address (T[4:15]) on
+ *            the leading strobe of a shift sequence and arms a pending
+ *            read/write.
+ *   _use_dmd: `UseDMD`. Consumes the pending DMux address as a manifold
+ *            WRITE (Initial WriteManifold) -- no muffler read follows.
+ *   _pending: true iff a DMux address was loaded and not yet consumed.
+ *   _read:   consume the pending address as a muffler READ and return
+ *            the muffler word, with the selected bit in the SIGN
+ *            position (C bit 15) so InitMem.mc GetMemConfig's
+ *            Branch[...,R<0] evaluates correctly. Our memory models the
+ *            16K-map / VirtualBanks=100C (=16384 entries) configuration,
+ *            so both MapIs256K (DMux 0o1512) and MapIs64K (DMux 0o1511)
+ *            read sign-CLEAR, making GetMemConfig fall through to
+ *            MapIs16K -- the size that matches our map and lets the cold
+ *            InitMem loop terminate. */
+void     dorado_memory_dmux_strobe(dorado_memory *mem, uint16_t b);
+void     dorado_memory_dmux_use_dmd(dorado_memory *mem);
+int      dorado_memory_dmux_pending(const dorado_memory *mem);
+uint16_t dorado_memory_dmux_read(dorado_memory *mem);
 
 /* Load/read MCR. LoadMcr[A,B] takes Mcr[0:10] from A/MarMux and
  * Mcr[13:15] from B/BMux; manual bit numbers are MSB-first. */

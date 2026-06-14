@@ -1,5 +1,42 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## FIX (2026-06-14): muffler/DMux model unblocks AltoMesaDorado.eb past InitMem -> STARTEMULATOR
+
+**Root cause.** `AltoMesaDorado.eb` (= placed `chm/dorado/Mesa.mb!3`) entered `InitMap`
+(real PC `0o1076`) and hung forever in the cold `InitMem` map/storage-init loop
+(`MAP1TO1LOOP`/`IWRITEMAP`/`WAITFORMAPBUF`/`NEXTMAPENTRY`), never reaching `INITMEMDONE`
+`0o5706` or `STARTEMULATOR` `0o5021`; 0 opcode dispatches, 0 pixels. `worlds/aemu.eb` ran the
+byte-identical loop fine. The loop bound is `VirtualBanks` (entries enumerated =
+`VirtualBanks * 256`), set by `GetMemConfig` (`InitMem.mc`) from two diagnostic-multiplexer
+("muffler") reads issued by `SetDMuxAddress` (`Various.mc`): DMux `0o1512` sign-set ->
+`MapIs256K` (`VirtualBanks=2000C`), DMux `0o1511` sign-set -> `MapIs64K` (`400C`), neither ->
+`MapIs16K` (`100C` = 64 banks * 256 = 16384). The muffler bit arrives as the SIGN of
+`SetDMuxAddress`'s trailing `T_ XTemp17_ ALUFMem, Return`. We modeled `ALUFMem` as the raw
+ALUFM register, so the sign was world-dependent garbage: AEmu happened to land sign-CLEAR
+(16K, matches our `DM_MAP_ENTRIES=16384` map, loop terminates) while Mesa landed sign-SET
+(64K/256K, enumerates a space far larger than our map, never finishes). Both worlds were
+faithful; AEmu booted by luck of its ALUFM contents.
+
+**Fix.** Added a DMux/muffler model (`dmux_addr`/`dmux_pending` in `dorado_memory`,
+`dorado_memory_dmux_strobe/_use_dmd/_pending/_read` in `src/memory.c`). `MidasStrobe<-B`
+captures the DMux address (T[4:15]) on the leading strobe and arms a pending read/write;
+`UseDMD` consumes it as a manifold WRITE (Initial `WriteManifold`); a `Pd<-ALUFMem`/`ALUFMRW`
+read while pending returns the muffler word with the selected bit in the SIGN position. For
+our 16K-map config both `0o1512` and `0o1511` read sign-CLEAR, so `GetMemConfig` falls through
+to `MapIs16K` and the cold loop terminates. The `dmux_pending` gate (set only by a preceding
+`SetDMuxAddress` shift, cleared by the muffler read or by `UseDMD`) keeps normal
+`Pd<-ALUFMRW` ALUFM access (Bootstrap/Initial/emulator startup) untouched. `src/cpu.c` wires
+the `MidasStrobe`/`UseDMD`/`ALUFMem` handlers.
+
+**Result.** `AltoMesaDorado.eb!2` + NETEXEC now runs `InitMap` -> `TasksOff` ->
+`GetMemConfig`/`SetDMuxAddress` -> past `InitMemDone`/`StartEmulator`; task-0 hot PCs are now
+`GETPC`/`ABOOT`/`AMIDSTBOOT`/`READTERMINAL` (Alto-emulator routines only reachable via
+`STARTEMULATOR`), the InitMem map-loop PCs are gone from the hot list. Next blocker: the
+post-StartEmulator boot-selection wait (`ABOOT`/`READTERMINAL` reads the keyboard for the
+boot choice; the DDC keyboard back-channel / NETEXEC pull-through, gap E2, is not modeled), so
+still 1 IFU dispatch (`insset=0`) and 0 pixels. Regression gate green: `make test` 10/10;
+AEmu NETEXEC 1501 display-list pixels; Galaxian 121552 pixels.
+
 ## FINDING (2026-06-13): Cedar boots from disk; the Mesa VM is in AltoMesaDorado.eb, not worlds/aemu.eb
 
 Established this session from the Dorado Booting memo

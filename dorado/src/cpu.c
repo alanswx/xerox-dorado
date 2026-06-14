@@ -1195,8 +1195,19 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
         }
         if (fb == 4) {
             switch (fc) {
-            case 0: /* UseDMD */                   return pd;
-            case 1: /* MidasStrobe ← B */          return pd;
+            case 0: /* UseDMD — strobe the loaded DMux address into the
+                     * BaseBoard manifold as a WRITE (Initial
+                     * WriteManifold: InitialMain.mc/InitialSelectMain.mc).
+                     * Consumes the pending DMux address so it does not
+                     * leak into a later ALUFMem read. */
+                if (cpu->mem) dorado_memory_dmux_use_dmd(cpu->mem);
+                return pd;
+            case 1: /* MidasStrobe ← B — serially shift the DMux/muffler
+                     * address (Various.mc SetDMuxAddress;
+                     * Initial WriteManifold). Capture the address on the
+                     * leading strobe of a sequence. */
+                if (cpu->mem) dorado_memory_dmux_strobe(cpu->mem, b);
+                return pd;
             case 2: /* TaskingOff (HM page 27) — atomic; effective
                      * immediately. Subsequent instructions of the
                      * same task run without task switches. */
@@ -1287,6 +1298,21 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
             case 0: case 1: /* — */          return pd;
             case 2: /* Pd ← ALUFMRW */
             case 3: /* Pd ← ALUFMEM */
+                /* Diagnostic-muffler read (Various.mc SetDMuxAddress's
+                 * trailing `T_ XTemp17_ ALUFMem`): when a DMux address
+                 * was just loaded via MidasStrobe and not consumed by a
+                 * UseDMD manifold write, this ALUFMem read returns the
+                 * selected muffler bit in the SIGN, not the raw ALUFM
+                 * word. InitMem.mc GetMemConfig reads DMux 0o1512/0o1511
+                 * this way to size VirtualBanks. Intercept ONLY this
+                 * genuine muffler read; normal Pd<-ALUFMRW/ALUFMem ALUFM
+                 * access (Bootstrap/Initial/emulator startup) is
+                 * untouched because dmux_pending is set only by a
+                 * preceding SetDMuxAddress shift. */
+                if (cpu->mem && dorado_memory_dmux_pending(cpu->mem)) {
+                    pd = dorado_memory_dmux_read(cpu->mem);
+                    return pd;
+                }
                 /* Read current value to Pd. FC=2 also writes a new
                  * value from B; FC=3 is read-only. This distinction is
                  * visible in Mesa's SETDLP path, which reads ALUFM[0]
