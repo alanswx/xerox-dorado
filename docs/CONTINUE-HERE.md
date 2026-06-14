@@ -1,5 +1,46 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## STATUS (2026-06-14): canonical Mesa world boots NETEXEC; Mesa VM reached, stops at first XFER
+
+End-of-session state, on top of the muffler/DMux fix below.
+
+**IFUM half-word order fix (`a03c4c5`) -- the keystone.** `src/cpu.c`'s `IFUMLH<-B`/`IFUMRH<-B`
+FF handlers were inverted (wrote the wrong IFUM half) and `src/mb2eb.c` pre-swapped IFUM
+word0/word1 to compensate -- two bugs that cancelled for our self-built `worlds/aemu.eb` but
+loaded a *canonical* archive world (`AltoMesaDorado.eb`) IFUM-transposed. Opcode `045`
+(`LDAipc`) then dispatched to garbage vec `0o4470` (vs the real `0o1370`); the bogus fields
+word set `TPause'` (halting the IFU) and `RBase=0`, and it spun forever. Fixed atomically:
+swapped the four IFUMLH/IFUMRH read+write handlers to match `LoadRam.mc` (IFUMLH=address=
+`ifum_lo`, IFUMRH=fields=`ifum_hi`), emit canonical item order in `mb2eb.c`, corrected
+`test_cpu.c`'s `test_ifum_load_read` (it had encoded the bug), and REGENERATED `worlds/aemu.eb`.
+Now `AltoMesaDorado.eb!2` + NETEXEC paints (~1466 px); AEmu still green (NETEXEC 1482, Galaxian
+121552, suite 10/10). Foundational: every canonical Xerox world had been loading
+IFUM-transposed, masked only by the cancelling `mb2eb` pre-swap.
+
+**Mesa VM reached; stops at the first XFER.** Serving a Mesa-format (`0o345`) program
+(MazeWar/MesaNetExec/AlphaMesa) to `AltoMesaDorado.eb!2`: downloads fully, runs the Nova
+relocation bootstrap, switches to `insset=2` (the Mesa VM), and dispatches exactly 6 Mesa
+bytecodes at VM PC `0x5108` (`360,127,012,100,111,362`). The 6th, op `362` (XFER, microcode
+real PC `0o700`, IFUM vec `0o1270`), takes the trap path back to `insset=0` (Nova trap frame
+VM PC `0o26`) and never re-enters the Mesa VM -- a real microcode-driven transfer, not a halt.
+The boot prologue's first XFER traps out.
+
+**Mesa-VM source now LOCAL.** The 13 `DMesa*` modules (named `AltoMesa*` in `AltoMesa.cm` but
+`DMesa*` on disk) are pulled into `chm/doradomicrocode/doradomicrocodesources/`. `DMesaXfer.mc`
+holds the XFER chain: `Xfer`/`XferProc` (transfer through a control link), the traps
+`XferTrap`/`SavePCAndTrap`/`MTrap`, and `MGO` (enter Mesa from Alto) / `STOP` (exit Mesa to
+Alto) -- that `STOP` IS the `insset<-0` bounce. So op `362` -> `Xfer` -> `XferTrap` -> `STOP`.
+
+**Next blocker (op 362 XFER trap).** Decide: legitimate Mesa trap on missing world state (an
+unbound control link / global frame table the Pilot/germ runtime should have set up) vs an
+engine mis-model in the `Xfer` memory path. Read `DMesaXfer.mc` `Xfer`/`XferTrap` against a
+trace of what op `362` reads before trapping.
+
+**Also landed.** NetExec game menu (`87834cd`): `--boot-dir-all` (default) advertises all 29
+Alto B-format games via the `257B`/`260B` boot directory; boot NETEXEC and type a game name at
+the `>` prompt to boot it. 26 CHM-Murray Alto programs + games committed (`7f07cce`), each with
+a `make run-*` target. The Alto path stayed green at every step.
+
 ## FIX (2026-06-14): muffler/DMux model unblocks AltoMesaDorado.eb past InitMem -> STARTEMULATOR
 
 **Root cause.** `AltoMesaDorado.eb` (= placed `chm/dorado/Mesa.mb!3`) entered `InitMap`

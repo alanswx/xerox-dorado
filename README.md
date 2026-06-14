@@ -159,6 +159,17 @@ The Alto-emulator world runs the BCPL Net Executive and any Alto B-format
 ./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/DMT.BOOT!22'        # make run-dmt
 ```
 
+**NetExec game menu (`--boot-dir-all`, on by default).** Booting `NETEXEC.BOOT` with
+`--boot-dir-all` (the default when no explicit `--boot-dir` is given) makes the Net
+Executive advertise every Alto B-format boot file in `chm/bootfiles/` as a boot
+directory over the `257B`/`260B` boot-directory protocol. At the `>` prompt, type `?`
+to list the directory, then a game name (e.g. `Galaxian`) to boot it — NetExec sends a
+Mayday for that file, the in-process EFTP server streams it, and it boots over the
+emulated wire. Every asset is read-only (microcode + `.boot` files), so this "type a
+game name" experience is the natural shape for a future in-browser (Emscripten) demo.
+(The headless `--type` keystroke path can pre-fetch the directory; the full typed boot
+is driven via the SDL frontend.)
+
 Games and utilities downloaded from `https://xeroxalto.computerhistory.org/Io/Murray/`
 and verified Alto B-format (`0o002401`). Tested headless at 100 M cycles; pixel counts
 are snapshot display-list pixels from `dorado-screen.pgm`. All load at ~32 M cycles.
