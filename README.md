@@ -159,6 +159,64 @@ The Alto-emulator world runs the BCPL Net Executive and any Alto B-format
 ./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/DMT.BOOT!22'        # make run-dmt
 ```
 
+Games and utilities downloaded from `https://xeroxalto.computerhistory.org/Io/Murray/`
+and verified Alto B-format (`0o002401`). Tested headless at 100 M cycles; pixel counts
+are snapshot display-list pixels from `dorado-screen.pgm`. All load at ~32 M cycles.
+
+| Program | What it is | make target | Pixels at 100 M cyc |
+|---|---|---|---|
+| Galaxian.boot!1 | Space Invaders-style arcade (CHM Murray) | `run-galaxian` | 124,239 — paints |
+| MissileCommand.boot!1 | Missile Command arcade (CHM Murray) | `run-missilecommand` | 368,448 — paints |
+| PinBall.boot!1 | Pinball arcade (CHM Murray) | `run-pinball` | 85,117 — paints |
+| AstroRoids.boot!1 | Asteroids-style game (CHM Murray) | `run-astroids` | 163 — minimal (needs input/more cycles) |
+| Invaders.boot!1 | Space Invaders (CHM Murray) | `run-invaders` | 163 — minimal (needs input/more cycles) |
+| Reversi.boot!1 | Reversi board game (CHM Murray) | `run-reversi` | 831 — boots, minimal display |
+| Pool.boot!1 | Pool/billiards game (CHM Murray) | `run-pool` | 0 — boots, no display at 100 M cyc |
+| StarWars.boot!1 | Star Wars game (CHM Murray) | `run-starwars` | 0 — boots, no display at 100 M cyc |
+| Trek.boot!1 | Star Trek game (CHM Murray) | `run-trek` | 0 — boots, no display at 100 M cyc |
+| Boggs.boot!1 | Alto program (CHM Murray) | `run-boggs` | 0 — boots, no display at 100 M cyc |
+| EtherLoad.boot!1 | Ethernet boot loader utility (CHM Murray) | `run-etherload` | 365,073 — paints |
+| EDP.boot!1 | Ethernet diagnostic program (CHM Murray) | `run-edp` | 37,985 — paints |
+| KeyTest.boot!1 | Keyboard test utility (CHM Murray) | `run-keytest` | 25,424 — paints |
+| Calculator.boot!1 | On-screen calculator (CHM Murray) | `run-calculator` | 12,431 — paints |
+| MadTest.boot!1 | Memory/ALU diagnostic (CHM Murray) | `run-madtest` | 7,316 — paints |
+| PupTest.boot!1 | Pup network test (CHM Murray) | `run-puptest` | 6,814 — paints |
+| BFSTest.boot!1 | BFS filesystem test (CHM Murray) | `run-bfstest` | 6,802 — paints |
+| Scavenger.boot!1 | Disk scavenger/repair (CHM Murray) | `run-scavenger` | 4,032 — paints text UI |
+| DiEx.boot!1 | Disk exerciser (CHM Murray) | `run-diex` | 1,969 — minimal |
+| EtherWatch.boot!1 | Ethernet packet monitor (CHM Murray) | `run-etherwatch` | 965 — minimal text |
+| Messenger.boot!1 | Alto messaging client (CHM Murray) | `run-messenger` | 383 — minimal |
+| FTP.boot!1 | File Transfer Protocol client (CHM Murray) | `run-ftp` | 0 — boots, no display |
+| CopyDisk.boot!1 | Disk copy utility (CHM Murray) | `run-copydisk` | 0 — boots, no display |
+| GateControl.boot!1 | Gateway control utility (CHM Murray) | `run-gatecontrol` | 0 — boots, no display |
+| Clock.boot!1 | Alto clock display (CHM Murray) | `run-clock` | 0 — boots, no display |
+| ShowAIS.boot!1 | Show AIS data utility (CHM Murray) | `run-showais` | 0 — boots, no display |
+
+```sh
+# headline games — all paint without any keyboard input
+./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/Galaxian.boot!1'          # make run-galaxian
+./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/MissileCommand.boot!1'    # make run-missilecommand
+./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/PinBall.boot!1'           # make run-pinball
+
+# other games (load and start; may need keyboard/more cycles to show game screen)
+./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/AstroRoids.boot!1'        # make run-astroids
+./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/Invaders.boot!1'          # make run-invaders
+./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/Reversi.boot!1'           # make run-reversi
+./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/Pool.boot!1'              # make run-pool
+./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/StarWars.boot!1'          # make run-starwars
+./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/Trek.boot!1'              # make run-trek
+
+# utilities and diagnostics that paint (no network/disk needed for initial display)
+./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/EtherLoad.boot!1'         # make run-etherload
+./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/EDP.boot!1'               # make run-edp
+./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/KeyTest.boot!1'           # make run-keytest
+./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/Calculator.boot!1'        # make run-calculator
+./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/MadTest.boot!1'           # make run-madtest
+./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/Scavenger.boot!1'         # make run-scavenger
+./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/EtherWatch.boot!1'        # make run-etherwatch
+./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/FTP.boot!1'               # make run-ftp
+```
+
 ##### Group B — Cedar/Mesa emulator (`../chm/dorado/CedarDorado.eb!6`) — EXPERIMENTAL (boot path not yet complete)
 
 `CedarNetExec.boot`, `MesaNetExec.boot`, `AlphaMesaMesaNetExec.boot`,
