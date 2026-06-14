@@ -1,5 +1,50 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## FINDING (2026-06-13): Boot files come in TWO formats needing TWO different emulator microcodes; we had been using the wrong one for Mesa/Pilot files
+
+Established this session, with evidence. Dorado boot files split into two
+incompatible classes, distinguished by the first big-endian word of the
+file (`od -An -to2 -N2 FILE`, which prints the two bytes swapped):
+
+- **Alto B-format** — big-endian word0 = `0o405`; `od` shows `0o002401`.
+  These run on **AEmu**, the Alto emulator microcode at
+  `dorado/worlds/aemu.eb`. They WORK today. Files in `chm/bootfiles/`:
+  `NETEXEC.BOOT!8`, `CRTTEST.BOOT!1`, `DMT.BOOT!22`.
+- **Mesa/Pilot outload** — big-endian word0 = `0o345`; `od` shows
+  `0o162400`. These CANNOT run on AEmu — they need the **Cedar/Mesa
+  emulator microcode** at `../chm/dorado/CedarDorado.eb!6`. Files:
+  `CedarNetExec.boot!4`, `MesaNetExec.boot!1`, `AlphaMesaMesaNetExec.boot!1`,
+  `MazeWar.boot!1`, `NEWOS.BOOT!21`.
+
+Why this matters: we had been trying to boot `CedarNetExec` on AEmu, which
+is architecturally impossible. CedarNetExec is a Mesa/Pilot program — its
+own source `NXControl.mesa` hard-codes
+`microcodeFiles[Dorado] = "CedarDorado.eb"`. On AEmu the Ethernet EFTP
+download completes fine, but the Alto interpreter just mis-runs the Mesa
+bytecodes (the IFU instruction set stays `insset=0`), so nothing paints and
+nothing executes. (This corrects the earlier 2026-06-13g..e sessions below,
+which were chasing an EPLOC race / interrupt-cell hang while booting a
+Mesa-format file on the wrong microcode.)
+
+Switching `--eb` to `../chm/dorado/CedarDorado.eb!6` makes the Cedar
+microcode LOAD, but it does not yet run: it enters at `pc=0o1070`
+(RestartEmulator) with zero opcode dispatches. A real Cedar bring-up
+additionally needs:
+
+- the Cedar Initial image `../chm/dorado/InitialEtherCedarDorado.eb!3`,
+- the Pilot germ, and
+- a Stage-2 rework from the Alto BootViaNet / leader-page path to the
+  Pilot/germ net-boot.
+
+So **all Mesa-format boots (including MazeWar) are EXPERIMENTAL /
+not-yet-running**, pending that Cedar bring-up.
+
+Also fixed this session (both EFTP-transfer gating): commit `62a4fb9` added
+an EICLOC rx-delivery gate, and `858857b` corrected it to
+`rx_count > EICLOC + 2`. The off-by-two had been silently blocking the
+entire EFTP boot transfer; with it fixed the transfer now completes
+(1 boot Mayday + 254 Acks).
+
 ## CORRECTED (2026-06-13g): CedarNetExec derails on an EPLOC race; the broadcast injector floods ~250x too fast
 
 Supersedes 2026-06-13f below (the "interrupt-driven cell" framing was WRONG

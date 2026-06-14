@@ -132,42 +132,61 @@ etc.); here you choose it directly with `--eb`. Every recipe runs windowed
 (`build/dorado-sdl …`) or headless (`build/dorado … --cycles N --out
 screen.pgm`).
 
-| Environment | `--eb` emulator world | Status (verified) |
-|---|---|---|
-| Alto / Mesa | `worlds/aemu.eb` (≡ `AltoMesaDorado.eb`) | **works** — NETEXEC interactive, CRTTEST renders, DMT runs |
-| Smalltalk-80/76 | `../chm/microcode/SmalltalkDorado.eb!1` | microcode loads/idles; needs a Smalltalk image (not wired) |
-| Cedar (Mesa VM) | via Alto/Mesa → CedarNetExec | runs (no longer crashes) + builds a display; UI not yet up (frontier) |
-| Interlisp-D (Lisp) | `DoradoLisp` (build from `chm/dorado/expanded/UnBug.bfs!1_/DoradoLisp.MB`) | loads + draws a display, but it's garbage; needs a sysout |
+**A boot file's format dictates which microcode (`--eb`) it needs.** Check
+the first word of any boot file with `od -An -to2 -N2 FILE` (`od` prints the
+two bytes byte-swapped): `0o002401` is an **Alto B-format** file (word0 =
+`0o405`) and runs on the Alto emulator world `worlds/aemu.eb`; `0o162400`
+is a **Mesa/Pilot outload** (word0 = `0o345`) and needs the Cedar/Mesa
+emulator world `../chm/dorado/CedarDorado.eb!6`. A Mesa-format file cannot
+run on AEmu — the Alto interpreter just mis-runs its Mesa bytecodes (the IFU
+instruction set stays `insset=0`), so nothing paints and nothing executes.
 
-**Alto / Mesa — works.** The Alto-emulator world runs the BCPL Net
-Executive and any Alto (`000405`-format) boot file:
+##### Group A — Alto emulator (`worlds/aemu.eb`) — WORKING
+
+The Alto-emulator world runs the BCPL Net Executive and any Alto B-format
+(`0o002401`) boot file. These come up and are interactive today. Each has a
+`make run-…` shortcut (run from `dorado/`).
 
 ```sh
 # Net Executive — interactive: learns its net + the real time, lists the
 # boot directory under `?`, accepts typed commands at the `>` prompt
-./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/NETEXEC.BOOT!8'
+./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/NETEXEC.BOOT!8'     # make run-netexec
 
 # CRTTEST — CRT alignment/test patterns; press keys to cycle the patterns
-./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/CRTTEST.BOOT!1'
+./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/CRTTEST.BOOT!1'     # make run-crttest
 
 # DMT — the diagnostic/idle program a diskless Alto boots
-./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/DMT.BOOT!22'
+./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/DMT.BOOT!22'        # make run-dmt
 ```
 
-**Cedar — through NetExec (the documented route).** The booting memo
-boots Cedar by getting into the Net Executive and typing `CedarNetExec`.
-Register that file with `--boot-dir` (next section) and select it at the
-`>` prompt. The chain works through the load; CedarNetExec's own startup is
-the current frontier. (`--eb '../chm/dorado/CedarDorado.eb!6'` is the
-separate *disk* Cedar-microcode path — it expects an installed germ +
-physical volume and stalls in `InitMem` over Ethernet.)
+##### Group B — Cedar/Mesa emulator (`../chm/dorado/CedarDorado.eb!6`) — EXPERIMENTAL (boot path not yet complete)
+
+`CedarNetExec.boot`, `MesaNetExec.boot`, `AlphaMesaMesaNetExec.boot`,
+`MazeWar.boot`, and `NEWOS.BOOT` are large (~64 K-word) Mesa/Pilot outload
+(`0o162400`) files. They are Mesa/Pilot programs, **not** Alto programs —
+e.g. CedarNetExec's own source `NXControl.mesa` hard-codes
+`microcodeFiles[Dorado] = "CedarDorado.eb"`. They therefore need the
+Cedar/Mesa microcode world, **not** `worlds/aemu.eb`.
+
+These are **not yet working.** With `--eb '../chm/dorado/CedarDorado.eb!6'`
+the Cedar microcode LOADS but does not run (it enters at `pc=0o1070`
+RestartEmulator with zero opcode dispatches). A real Cedar bring-up
+additionally needs the Cedar Initial image
+`../chm/dorado/InitialEtherCedarDorado.eb!3`, the Pilot germ, and a Stage-2
+rework from the Alto BootViaNet/leader-page path to the Pilot/germ net-boot.
+The EFTP transfer itself does complete (1 boot Mayday + 254 Acks). Each has
+a `make run-…` shortcut (run from `dorado/`).
 
 ```sh
-./build/dorado-sdl --eb worlds/aemu.eb \
-    --eftp '../chm/bootfiles/NETEXEC.BOOT!8' \
-    --boot-dir 'CedarNetExec.boot=111=../chm/bootfiles/CedarNetExec.boot!4'
-# then at the `>` prompt:  ?   (lists CedarNetExec)   then   CedarNetExec
+# none of these run to a UI yet — they exercise the load path
+./build/dorado-sdl --eb '../chm/dorado/CedarDorado.eb!6' --eftp '../chm/bootfiles/CedarNetExec.boot!4'           # make run-cedarnetexec
+./build/dorado-sdl --eb '../chm/dorado/CedarDorado.eb!6' --eftp '../chm/bootfiles/MazeWar.boot!1'                # make run-mazewar
+./build/dorado-sdl --eb '../chm/dorado/CedarDorado.eb!6' --eftp '../chm/bootfiles/MesaNetExec.boot!1'            # make run-mesanetexec
+./build/dorado-sdl --eb '../chm/dorado/CedarDorado.eb!6' --eftp '../chm/bootfiles/NEWOS.BOOT!21'                 # make run-newos
+./build/dorado-sdl --eb '../chm/dorado/CedarDorado.eb!6' --eftp '../chm/bootfiles/AlphaMesaMesaNetExec.boot!1'
 ```
+
+##### Other worlds
 
 **Smalltalk — experimental.** The Smalltalk emulator microcode loads
 through the boot chain, but Smalltalk needs its own loaded image to come up
@@ -178,37 +197,33 @@ through the boot chain, but Smalltalk needs its own loaded image to come up
                    --eftp '../chm/bootfiles/NETEXEC.BOOT!8'
 ```
 
-**Mesa-format worlds (`000345`).** `CedarNetExec.boot`, `MesaNetExec.boot`,
-`AlphaMesaMesaNetExec.boot`, `MazeWar.boot`, and `NEWOS.BOOT` are the large
-(~64 K-word) Mesa boot files. Unlike the Alto (`000405`) files, these are
-**not B-format** — a real boot server prepends a leader page before serving
-them (ETHERBOOT.BRAVO), which the server now does automatically for any
-`000345`-signature file. With that, all five **load and run into real code**
-(no more page-0 crash): CedarNetExec builds a ~50 K-pixel display. Reaching
-their actual UI/prompt (display-list install + the keyboard back-channel)
-is the next bring-up step. Serve any by name through NetExec with
-`--boot-dir`, e.g. `MesaNetExec.boot=112=../chm/bootfiles/MesaNetExec.boot!1`.
+**Interlisp-D (Lisp).** Build `DoradoLisp` from
+`chm/dorado/expanded/UnBug.bfs!1_/DoradoLisp.MB`; it loads and draws a
+display, but the contents are garbage — it needs a sysout (not wired).
 
 #### Booting a second-stage file *through* NetExec (`--boot-dir`)
 
 The real NetExec is a network command processor: at its `>` prompt you
-type the *name* of another boot file (e.g. `CedarNetExec`) and it loads
-that next. NetExec discovers which files exist by broadcasting a
-**boot-directory probe** (Pup `257B`); boot servers answer (`260B`) with
-`{boot file number, date, name}` tuples. Register the files our fake
-server should advertise with `--boot-dir NAME=BFN=PATH` (repeatable; `BFN`
-octal, `NAME` must end in `.boot`):
+type the *name* of another boot file and it loads that next. NetExec
+discovers which files exist by broadcasting a **boot-directory probe** (Pup
+`257B`); boot servers answer (`260B`) with `{boot file number, date, name}`
+tuples. Register the files our fake server should advertise with
+`--boot-dir NAME=BFN=PATH` (repeatable; `BFN` octal, `NAME` must end in
+`.boot`):
 
 ```sh
 ./build/dorado-sdl --eb worlds/aemu.eb \
     --eftp '../chm/bootfiles/NETEXEC.BOOT!8' \
-    --boot-dir 'CedarNetExec.boot=111=../chm/bootfiles/CedarNetExec.boot!4'
+    --boot-dir 'CRTTEST.boot=111=../chm/bootfiles/CRTTEST.BOOT!1'
 ```
 
-NetExec then lists `CedarNetExec` under `?`; typing it sends a Mayday for
-boot file `111B`, which the server serves from the registered path. (The
-breath-of-life that loads NetExec itself uses boot file 0 and the plain
-`--eftp` file.)
+NetExec then lists the registered name under `?`; typing it sends a Mayday
+for that boot file number, which the server serves from the registered path.
+(The breath-of-life that loads NetExec itself uses boot file 0 and the plain
+`--eftp` file.) Note the file you chain to must itself be an Alto B-format
+file to run under the AEmu world — a Mesa-format file (e.g. `CedarNetExec`)
+downloads but will not execute on AEmu (see Group B above); it needs the
+Cedar/Mesa microcode world, which the NetExec chain does not switch to.
 
 Booting takes a little while (the real BaseBoard → Bootstrap → Initial →
 Ethernet-microcode chain, then the EFTP transfer of the boot file); the

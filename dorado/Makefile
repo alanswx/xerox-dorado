@@ -124,6 +124,35 @@ test: $(BINDIR)/test_mb $(BINDIR)/test_disasm $(BINDIR)/test_microcode $(BINDIR)
 clean:
 	rm -rf $(OBJDIR)
 
+# Interactive boot recipes (open an SDL window). Each builds the SDL
+# frontend then launches the right emulator-microcode world (--eb) plus a
+# Stage-2 boot file (--eftp). A boot file's format dictates its world:
+#   od -An -to2 -N2 FILE -> 0o002401 = Alto B-format -> worlds/aemu.eb
+#                           0o162400 = Mesa outload   -> CedarDorado.eb!6
+#
+# WORKING - Alto emulator world (worlds/aemu.eb): these come up interactive.
+.PHONY: run-netexec run-crttest run-dmt
+run-netexec: sdl
+	./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/NETEXEC.BOOT!8'
+run-crttest: sdl
+	./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/CRTTEST.BOOT!1'
+run-dmt: sdl
+	./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/DMT.BOOT!22'
+
+# EXPERIMENTAL - Cedar/Mesa emulator world (../chm/dorado/CedarDorado.eb!6):
+# these are Mesa/Pilot outload files. The boot path is INCOMPLETE - the
+# microcode loads but does not yet run (needs InitialEtherCedarDorado.eb,
+# the Pilot germ, and a Mesa-path Stage-2). They will not reach a UI yet.
+.PHONY: run-cedarnetexec run-mazewar run-mesanetexec run-newos
+run-cedarnetexec: sdl
+	./build/dorado-sdl --eb '../chm/dorado/CedarDorado.eb!6' --eftp '../chm/bootfiles/CedarNetExec.boot!4'
+run-mazewar: sdl
+	./build/dorado-sdl --eb '../chm/dorado/CedarDorado.eb!6' --eftp '../chm/bootfiles/MazeWar.boot!1'
+run-mesanetexec: sdl
+	./build/dorado-sdl --eb '../chm/dorado/CedarDorado.eb!6' --eftp '../chm/bootfiles/MesaNetExec.boot!1'
+run-newos: sdl
+	./build/dorado-sdl --eb '../chm/dorado/CedarDorado.eb!6' --eftp '../chm/bootfiles/NEWOS.BOOT!21'
+
 .PHONY: all clean test
 
 -include $(DEPS)
