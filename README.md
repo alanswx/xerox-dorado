@@ -170,6 +170,13 @@ game name" experience is the natural shape for a future in-browser (Emscripten) 
 (The headless `--type` keystroke path can pre-fetch the directory; the full typed boot
 is driven via the SDL frontend.)
 
+```sh
+# Game menu: boot the Net Executive with the full boot directory, then at the `>`
+# prompt type `?` to list the games and a name (e.g. Galaxian) to boot one.
+./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/NETEXEC.BOOT!8' --boot-dir-all
+# equivalently: make run-netexec   (the directory is advertised by default)
+```
+
 Games and utilities downloaded from `https://xeroxalto.computerhistory.org/Io/Murray/`
 and verified Alto B-format (`0o002401`). Tested headless at 100 M cycles; pixel counts
 are snapshot display-list pixels from `dorado-screen.pgm`. All load at ~32 M cycles.
