@@ -291,6 +291,11 @@ void     dorado_display_keyboard_set_bit(dorado_display *d, int word,
 void     dorado_display_keyboard_set_key(dorado_display *d,
                                          dorado_display_key key,
                                          int down);
+/* Map a textual key name (e.g. "bs", "quote", "ctrl", "return", or a
+ * single character like "a"/"5") to its dorado_display_key. Returns
+ * DORADO_KEY_NONE for an unrecognized name. Used to parse the boot-key
+ * chord from the command line. */
+dorado_display_key dorado_display_key_from_name(const char *name);
 void     dorado_display_boot_button(dorado_display *d, uint32_t scanlines);
 
 /*

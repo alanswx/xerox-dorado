@@ -47,6 +47,17 @@ typedef struct dorado_machine_config {
                                 * must end in ".boot". Lets NetExec boot
                                 * e.g. CedarNetExec by name. */
     int      boot_dir_count;
+    /* Boot-key chord held down through the Stage-2 boot-selection phase.
+     * Models the Dorado/Alto boot-reason chord (Booting memo): the loaded
+     * Alto/Mesa world polls these keys to choose its boot path (BS =
+     * Ethernet software boot, BS+Quote = NetExec; no key = disk). The DDC
+     * keyboard back-channel that would carry the chord is not modeled, so
+     * the machine seeds the polled keyboard words directly (gap E2). Empty
+     * (count 0) selects the default chord: BS, plus Quote iff
+     * alto_ether_quote -- byte-identical to the historic forced seeding. */
+    dorado_display_key boot_keys[8];
+    int      boot_keys_count;
+
     uint16_t boot_file_number; /* Mesa/Dorado boot file number, the first
                                 * word of the boot-parameter block Initial
                                 * normally derives from the boot button +

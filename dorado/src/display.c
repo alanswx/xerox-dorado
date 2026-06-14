@@ -147,6 +147,61 @@ void dorado_display_keyboard_set_key(dorado_display *d,
     else      d->keyboard_words[word] |= mask;
 }
 
+/* Boot-key chord name -> dorado_display_key. Covers the keys relevant to
+ * the Dorado/Alto boot-reason chord (HM/Booting memo: BS selects the
+ * Ethernet software boot, Quote selects NetExec) plus the common control
+ * keys; single-character names fall through to char_to_key-style mapping. */
+dorado_display_key dorado_display_key_from_name(const char *name)
+{
+    if (!name || !name[0]) return DORADO_KEY_NONE;
+    static const struct { const char *n; dorado_display_key k; } names[] = {
+        { "bs",     DORADO_KEY_BS },
+        { "quote",  DORADO_KEY_QUOTE },
+        { "ctrl",   DORADO_KEY_CTRL },
+        { "shift",  DORADO_KEY_LSHIFT },
+        { "lshift", DORADO_KEY_LSHIFT },
+        { "rshift", DORADO_KEY_RSHIFT },
+        { "lock",   DORADO_KEY_LOCK },
+        { "return", DORADO_KEY_RETURN },
+        { "esc",    DORADO_KEY_ESC },
+        { "tab",    DORADO_KEY_TAB },
+        { "del",    DORADO_KEY_DEL },
+        { "lf",     DORADO_KEY_LF },
+        { "space",  DORADO_KEY_SPACE },
+        { "arrow",  DORADO_KEY_ARROW },
+    };
+    for (size_t i = 0; i < sizeof names / sizeof names[0]; i++)
+        if (!strcmp(name, names[i].n)) return names[i].k;
+
+    /* Single character: letter or digit. */
+    if (name[1] == '\0') {
+        char c = name[0];
+        if (c >= 'A' && c <= 'Z') c = (char)(c - 'A' + 'a');
+        switch (c) {
+        case '0': return DORADO_KEY_0; case '1': return DORADO_KEY_1;
+        case '2': return DORADO_KEY_2; case '3': return DORADO_KEY_3;
+        case '4': return DORADO_KEY_4; case '5': return DORADO_KEY_5;
+        case '6': return DORADO_KEY_6; case '7': return DORADO_KEY_7;
+        case '8': return DORADO_KEY_8; case '9': return DORADO_KEY_9;
+        case 'a': return DORADO_KEY_A; case 'b': return DORADO_KEY_B;
+        case 'c': return DORADO_KEY_C; case 'd': return DORADO_KEY_D;
+        case 'e': return DORADO_KEY_E; case 'f': return DORADO_KEY_F;
+        case 'g': return DORADO_KEY_G; case 'h': return DORADO_KEY_H;
+        case 'i': return DORADO_KEY_I; case 'j': return DORADO_KEY_J;
+        case 'k': return DORADO_KEY_K; case 'l': return DORADO_KEY_L;
+        case 'm': return DORADO_KEY_M; case 'n': return DORADO_KEY_N;
+        case 'o': return DORADO_KEY_O; case 'p': return DORADO_KEY_P;
+        case 'q': return DORADO_KEY_Q; case 'r': return DORADO_KEY_R;
+        case 's': return DORADO_KEY_S; case 't': return DORADO_KEY_T;
+        case 'u': return DORADO_KEY_U; case 'v': return DORADO_KEY_V;
+        case 'w': return DORADO_KEY_W; case 'x': return DORADO_KEY_X;
+        case 'y': return DORADO_KEY_Y; case 'z': return DORADO_KEY_Z;
+        default: break;
+        }
+    }
+    return DORADO_KEY_NONE;
+}
+
 void dorado_display_boot_button(dorado_display *d, uint32_t scanlines)
 {
     if (!d) return;

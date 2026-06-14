@@ -83,6 +83,46 @@ static uint64_t parse_u64(const char *s, uint64_t def)
     return (end && *end == '\0') ? (uint64_t)v : def;
 }
 
+/* Parse a comma-separated boot-key chord (e.g. "bs" or "bs,quote") into
+ * cfg->boot_keys, replacing any prior chord. Returns 0 on success. */
+static int parse_boot_keys(const char *list, dorado_machine_config *cfg)
+{
+    char buf[256];
+    snprintf(buf, sizeof buf, "%s", list ? list : "");
+    cfg->boot_keys_count = 0;
+    for (char *tok = strtok(buf, ","); tok; tok = strtok(NULL, ",")) {
+        dorado_display_key k = dorado_display_key_from_name(tok);
+        if (k == DORADO_KEY_NONE) {
+            fprintf(stderr, "dorado-sdl: unknown boot key '%s'\n", tok);
+            return 2;
+        }
+        if (cfg->boot_keys_count <
+            (int)(sizeof cfg->boot_keys / sizeof cfg->boot_keys[0]))
+            cfg->boot_keys[cfg->boot_keys_count++] = k;
+    }
+    return 0;
+}
+
+/* Map a friendly --boot-reason to the boot-key chord (Booting memo: no
+ * key = disk, BS = Ethernet software boot, BS+Quote = NetExec). */
+static int parse_boot_reason(const char *r, dorado_machine_config *cfg)
+{
+    cfg->boot_keys_count = 0;
+    if (!strcmp(r, "ethernet")) {
+        cfg->boot_keys[cfg->boot_keys_count++] = DORADO_KEY_BS;
+    } else if (!strcmp(r, "netexec")) {
+        cfg->boot_keys[cfg->boot_keys_count++] = DORADO_KEY_BS;
+        cfg->boot_keys[cfg->boot_keys_count++] = DORADO_KEY_QUOTE;
+    } else if (!strcmp(r, "disk")) {
+        cfg->boot_keys[cfg->boot_keys_count++] = DORADO_KEY_NONE;
+    } else {
+        fprintf(stderr, "dorado-sdl: unknown --boot-reason '%s' "
+                "(ethernet|netexec|disk)\n", r);
+        return 2;
+    }
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
     int scale = 1;
@@ -108,6 +148,12 @@ int main(int argc, char **argv)
             else { fprintf(stderr, "dorado-sdl: too many --boot-dir\n"); i++; }
         }
         else if (!strcmp(a, "--quote"))                cfg.alto_ether_quote = 1;
+        else if (!strcmp(a, "--boot-keys") && i + 1 < argc) {
+            if (parse_boot_keys(argv[++i], &cfg)) return 2;
+        }
+        else if (!strcmp(a, "--boot-reason") && i + 1 < argc) {
+            if (parse_boot_reason(argv[++i], &cfg)) return 2;
+        }
         else if (!strcmp(a, "--no-alto-boot"))         cfg.alto_ether_boot = 0;
         else if (!strcmp(a, "--scale") && i + 1 < argc) scale = atoi(argv[++i]);
         else if (!strcmp(a, "--speed") && i + 1 < argc)
@@ -127,7 +173,8 @@ int main(int argc, char **argv)
         } else if (!strcmp(a, "--help") || !strcmp(a, "-h")) {
             printf("usage: %s [--eb PATH] [--eftp PATH] "
                    "[--boot-file-number OCTAL] [--boot-dir NAME=BFN=PATH] "
-                   "[--quote] "
+                   "[--quote] [--boot-keys K[,K...]] "
+                   "[--boot-reason ethernet|netexec|disk] "
                    "[--no-alto-boot] [--scale N] [--speed CYCLES]\n"
                    "          [--screenshot F1,F2,...] [--shot-prefix NAME]\n",
                    argv[0]);

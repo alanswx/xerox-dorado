@@ -80,6 +80,11 @@ struct dorado_machine {
     int alto_ether_quote;
     uint16_t boot_file_number;
 
+    /* Boot-key chord held down through Stage-2 boot selection (see
+     * dorado_machine_config.boot_keys). Resolved at create time. */
+    dorado_display_key boot_chord[8];
+    int      boot_chord_count;
+
     /* Boot state machine. */
     int      pressed;
     int      swapped;
@@ -152,6 +157,23 @@ static void machine_seed_keyboard(dorado_memory *mem, const uint16_t w[4])
             machine_store_va(mem, va, w[i]);
         }
     }
+}
+
+/* Drive the boot-key chord onto the DDC keyboard: clear all keys, then
+ * hold each chord key down. Returns the four resulting active-low Alto
+ * keyboard words via w[] so the caller can also seed them into the cells
+ * the loaded world polls (the DDC keyboard back-channel is not modeled;
+ * gap E2). With the default chord {BS} (+ Quote) this reproduces the
+ * historic forced seeding byte-for-byte. */
+static void machine_apply_boot_chord(dorado_display *disp,
+                                     const dorado_display_key *keys, int n,
+                                     uint16_t w[4])
+{
+    dorado_display_keyboard_all_up(disp);
+    for (int i = 0; i < n; i++)
+        dorado_display_keyboard_set_key(disp, keys[i], 1);
+    for (int i = 0; i < 4; i++)
+        w[i] = dorado_display_keyboard_word(disp, i);
 }
 
 /* Seed the Alto mouse cells: MOUSEX 0o424 / MOUSEY 0o425 (absolute
@@ -235,6 +257,11 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
                         i < (int)(sizeof cfg.boot_dir / sizeof cfg.boot_dir[0]);
              i++)
             cfg.boot_dir[i] = user_cfg->boot_dir[i];
+        cfg.boot_keys_count = user_cfg->boot_keys_count;
+        for (int i = 0; i < user_cfg->boot_keys_count &&
+                        i < (int)(sizeof cfg.boot_keys / sizeof cfg.boot_keys[0]);
+             i++)
+            cfg.boot_keys[i] = user_cfg->boot_keys[i];
     }
     if (cfg.storage_modules < 1 || cfg.storage_modules > 4)
         cfg.storage_modules = 1;
@@ -245,6 +272,25 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
     m->alto_ether_quote = cfg.alto_ether_quote;
     m->boot_file_number = cfg.boot_file_number;
     m->pre_swap_cpreg   = 0;
+
+    /* Resolve the boot-key chord. An explicit chord (from the frontend's
+     * --boot-keys / --boot-reason) is used verbatim; otherwise default to
+     * BS, and fold in Quote iff alto_ether_quote -- byte-identical to the
+     * historic forced BS-down (+Quote) seeding the regression gate locks
+     * in. (Booting memo: BS selects the Ethernet software boot, Quote
+     * NetExec.) */
+    m->boot_chord_count = 0;
+    if (cfg.boot_keys_count > 0) {
+        for (int i = 0; i < cfg.boot_keys_count &&
+                        m->boot_chord_count <
+                            (int)(sizeof m->boot_chord / sizeof m->boot_chord[0]);
+             i++)
+            m->boot_chord[m->boot_chord_count++] = cfg.boot_keys[i];
+    } else {
+        m->boot_chord[m->boot_chord_count++] = DORADO_KEY_BS;
+        if (cfg.alto_ether_quote)
+            m->boot_chord[m->boot_chord_count++] = DORADO_KEY_QUOTE;
+    }
 
     /* Bootstrap.MB -> bs_mc (the loader the BB streams in). */
     mb_init(&m->bs_mb);
@@ -503,12 +549,13 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
             if (getenv("DORADO_MACHINE_TRACE"))
                 fprintf(stderr, "[machine] Initial substituted @cyc=%llu\n",
                         (unsigned long long)bb->cycles);
-            /* Drive the Stage-2 boot decision toward NetExec via the
-             * DDC keyboard (BS down selects Ethernet software boot). */
+            /* Drive the Stage-2 boot decision via the DDC keyboard by
+             * holding the configured boot-key chord (default BS, which
+             * selects the Ethernet software boot). */
             if (m->alto_ether_boot) {
-                dorado_display_keyboard_set_key(disp, DORADO_KEY_BS, 1);
-                dorado_display_keyboard_set_key(disp, DORADO_KEY_QUOTE,
-                                                m->alto_ether_quote);
+                uint16_t w[4];
+                machine_apply_boot_chord(disp, m->boot_chord,
+                                         m->boot_chord_count, w);
             }
         }
 
@@ -605,16 +652,13 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
         if (m->alto_ether_boot && m->ether_loaded_world_cycle &&
             !cpu->ifu_active) {
             if (eth->eftp_max_seq == 0) {
-                /* Boot-selection phase: hold BS (and quote) down so the
-                 * world picks the Ethernet software boot. */
-                uint16_t w[4] = {
-                    0xFFFEu,
-                    m->alto_ether_quote ? 0xFFF7u : 0xFFFFu,
-                    0xFFFFu, 0xFFFFu,
-                };
-                dorado_display_keyboard_set_key(disp, DORADO_KEY_BS, 1);
-                dorado_display_keyboard_set_key(disp, DORADO_KEY_QUOTE,
-                                                m->alto_ether_quote);
+                /* Boot-selection phase: hold the boot-key chord down so the
+                 * world picks its boot path (default BS = Ethernet software
+                 * boot). The chord is applied to the DDC keyboard and its
+                 * Alto words are seeded into the polled cells (gap E2). */
+                uint16_t w[4];
+                machine_apply_boot_chord(disp, m->boot_chord,
+                                         m->boot_chord_count, w);
                 machine_seed_keyboard(&m->mem, w);
             } else {
                 /* Interactive phase: the boot file is downloading, so
