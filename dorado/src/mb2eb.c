@@ -136,7 +136,10 @@ int main(int argc, char **argv)
     /* IFUM items. */
     for (int a = 0; a < 1024; a++) {
         if (!mc.ifum_present[a]) continue;
-        ITEM((0 << 12) | 1, a, mc.ifum_hi[a], mc.ifum_lo[a]);
+        /* Canonical LoadRam.mc item order: word0 = address half (LH,
+         * IFUMLH←word0 → ifum_lo), word1 = fields half (RH,
+         * IFUMRH←word1 → ifum_hi). */
+        ITEM((0 << 12) | 1, a, mc.ifum_lo[a], mc.ifum_hi[a]);
         n_ifum++;
     }
     /* RM items. */

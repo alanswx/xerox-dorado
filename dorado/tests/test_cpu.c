@@ -8638,16 +8638,18 @@ static int test_ifum_load_read(void)
                "step %d failed: %s", i, cpu_halt_reason_str(cpu.halt_reason));
     }
 
-    /* InsSet should now be 2, opcode = 0xAB. Per HM Table 11c,
-     * IFUMRH writes the address half (PackedA,,IFaddr' = ifum_lo)
-     * and IFUMLH writes the fields half (ifum_hi). */
+    /* InsSet should now be 2, opcode = 0xAB. Per LoadRam.mc, IFUMRH
+     * writes the fields half (Sign,,...,,N = ifum_hi, item word1) and
+     * IFUMLH writes the address half (PackedAlpha,,IFaddr' = ifum_lo,
+     * item word0). IM[5] (IFUMRH←) wrote 0xCA00; IM[7] (IFUMLH←)
+     * wrote 0xBE00. */
     EXPECT(cpu.ifu_insset == 2, "InsSet = %d, expected 2", cpu.ifu_insset);
     EXPECT(cpu.ifu_opcode == 0xAB,
            "Opcode = 0x%02X, expected 0xAB", cpu.ifu_opcode);
-    EXPECT(mc.ifum_lo[0x2AB] == 0xCA00,
-           "ifum_lo[0x2AB] = 0x%04X, expected 0xCA00", mc.ifum_lo[0x2AB]);
-    EXPECT(mc.ifum_hi[0x2AB] == 0xBE00,
-           "ifum_hi[0x2AB] = 0x%04X, expected 0xBE00", mc.ifum_hi[0x2AB]);
+    EXPECT(mc.ifum_hi[0x2AB] == 0xCA00,
+           "ifum_hi[0x2AB] = 0x%04X, expected 0xCA00", mc.ifum_hi[0x2AB]);
+    EXPECT(mc.ifum_lo[0x2AB] == 0xBE00,
+           "ifum_lo[0x2AB] = 0x%04X, expected 0xBE00", mc.ifum_lo[0x2AB]);
 
     /* Other entries should be untouched. */
     EXPECT(mc.ifum_lo[0] == 0, "ifum_lo[0] should be untouched");

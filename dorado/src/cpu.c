@@ -721,20 +721,24 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
         case 1: /* B ← EventCntA' (HM §4.11). Active-low. */
                 *b = (uint16_t)~cpu->event_cnt_a;
                 break;
-        case 2: /* B ← IFUMRH' (address half — PackedA,,IFaddr' —
-                 * inverted). Address = InsSet||Opcode (set by
+        case 2: /* B ← IFUMRH' (fields half — Sign,,IPar,,Length',,
+                 * RBaseB',,MemB,,TPause',,TJump',,N — inverted). Per
+                 * LoadRam.mc the RH is the fields half (item word1),
+                 * stored in ifum_hi. Address = InsSet||Opcode (set by
                  * InsSetorEvent←B and BrkIns←B). */
                 if (cpu->mc) {
                     int addr = ((cpu->ifu_insset & 3) << 8) | cpu->ifu_opcode;
-                    *b = (uint16_t)~cpu->mc->ifum_lo[addr];
+                    *b = (uint16_t)~cpu->mc->ifum_hi[addr];
                 } else {
                     *b = 0xFFFF;
                 }
                 break;
-        case 3: /* B ← IFUMLH' (fields half, inverted). */
+        case 3: /* B ← IFUMLH' (address half — PackedAlpha,,IFaddr' —
+                 * inverted). Per LoadRam.mc the LH is the address half
+                 * (item word0), stored in ifum_lo. */
                 if (cpu->mc) {
                     int addr = ((cpu->ifu_insset & 3) << 8) | cpu->ifu_opcode;
-                    *b = (uint16_t)~cpu->mc->ifum_hi[addr];
+                    *b = (uint16_t)~cpu->mc->ifum_lo[addr];
                 } else {
                     *b = 0xFFFF;
                 }
@@ -1128,28 +1132,29 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                 cpu->reschedule_pending = 0;
                 cpu->reschedule_cond = 0;
                 return pd;
-            case 4: /* IFUMRH ← B (HM Table 11c): the ADDRESS half —
-                     * PackedA←B.5, IFaddr'←B[6:15]. Stored in ifum_lo
-                     * (which also receives .MB IFUM word 0; AEmu's
-                     * LDAipc proves word 0 carries IFaddr'). */
-                if (cpu->mc) {
-                    dorado_microcode *mc_w = (dorado_microcode *)cpu->mc;
-                    int addr = ((cpu->ifu_insset & 3) << 8) | cpu->ifu_opcode;
-                    mc_w->ifum_lo[addr] = b;
-                    mc_w->ifum_present[addr] = 1;
-                }
-                return pd;
-            case 5: /* IFUMLH ← B (HM Table 11c): the FIELDS half —
+            case 4: /* IFUMRH ← B (HM Table 11c): the FIELDS half —
                      * Sign←B.0, PE[0:2]←B[1:3], Length'←B[4:5],
                      * RBaseB'←B.6, MemB←B[7:9], TPause'←B.10,
                      * TJump←B.11, N←B[12:15]. Stored in ifum_hi
-                     * (= .MB IFUM word 1; its bit 15 matches LDAipc's
-                     * Sign=1). LoadRam.mc writes the LH from item
-                     * word 0 and the RH from item word 1. */
+                     * (= .MB IFUM word 1). Per LoadRam.mc, IFUMRH← is
+                     * loaded from item word1 (the fields half). */
                 if (cpu->mc) {
                     dorado_microcode *mc_w = (dorado_microcode *)cpu->mc;
                     int addr = ((cpu->ifu_insset & 3) << 8) | cpu->ifu_opcode;
                     mc_w->ifum_hi[addr] = b;
+                    mc_w->ifum_present[addr] = 1;
+                }
+                return pd;
+            case 5: /* IFUMLH ← B (HM Table 11c): the ADDRESS half —
+                     * PackedAlpha←B.5, IFaddr'←B[6:15]. Stored in
+                     * ifum_lo (= .MB IFUM word 0). Per LoadRam.mc,
+                     * IFUMLH← is loaded from item word0 (the address
+                     * half); AEmu's LDAipc proves word 0 carries
+                     * IFaddr'. */
+                if (cpu->mc) {
+                    dorado_microcode *mc_w = (dorado_microcode *)cpu->mc;
+                    int addr = ((cpu->ifu_insset & 3) << 8) | cpu->ifu_opcode;
+                    mc_w->ifum_lo[addr] = b;
                     mc_w->ifum_present[addr] = 1;
                 }
                 return pd;
