@@ -1,5 +1,7 @@
 #include "ethernet.h"
 
+#include <ctype.h>
+#include <dirent.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -174,6 +176,128 @@ void dorado_ethernet_add_boot_dir(dorado_ethernet *eth, uint16_t bfn,
      * date our time-reply hands NetExec, so neither looks newer. */
     eth->bootdir[i].date_hi = 0x9C8Eu;
     eth->bootdir[i].date_lo = 0x0000u;
+}
+
+/* True iff `bfn` is already used by a directory entry or is one of the
+ * microcode boot offsets (0o110-0o114) Initial requests over Ethernet. */
+static int eth_bfn_in_use(const dorado_ethernet *eth, uint16_t bfn)
+{
+    if (bfn >= 0110 && bfn <= 0114) return 1;
+    for (int i = 0; i < eth->bootdir_count; i++)
+        if (eth->bootdir[i].bfn == bfn) return 1;
+    return 0;
+}
+
+/* True iff a directory entry already advertises this name (case-sensitive,
+ * matching NetExec's keyword table). Lets explicit --boot-dir entries win. */
+static int eth_bootdir_has_name(const dorado_ethernet *eth, const char *name)
+{
+    for (int i = 0; i < eth->bootdir_count; i++)
+        if (strcmp(eth->bootdir[i].name, name) == 0) return 1;
+    return 0;
+}
+
+/* Read the first 16-bit big-endian word of `path` (the boot-file format
+ * tag: 0o405 = Alto B-format, 0o345 = Mesa outload). Returns -1 on error. */
+static long eth_boot_first_word(const char *path)
+{
+    FILE *fp = fopen(path, "rb");
+    if (!fp) return -1;
+    int hi = fgetc(fp), lo = fgetc(fp);
+    fclose(fp);
+    if (hi == EOF || lo == EOF) return -1;
+    return (long)(((unsigned)hi << 8) | (unsigned)lo);
+}
+
+/* Derive the advertised boot-file name from a filename: drop any trailing
+ * IFS "!<version>" suffix and normalize the extension to lower-case ".boot"
+ * (NetExec's InstallDir filters on a case-sensitive ".boot" suffix, and
+ * NetBoot appends ".boot" to what the user types). Returns 0 on success. */
+static int eth_derive_boot_name(const char *fname, char *out, size_t outcap)
+{
+    char base[64];
+    snprintf(base, sizeof base, "%s", fname);
+    char *bang = strchr(base, '!');           /* strip "!<version>" */
+    if (bang) *bang = '\0';
+    size_t n = strlen(base);
+    /* Require a ".boot" extension (any case); re-emit it lower-case. */
+    if (n < 5) return -1;
+    const char *ext = base + (n - 5);
+    if (strcasecmp(ext, ".boot") != 0) return -1;
+    base[n - 5] = '\0';                        /* trim extension */
+    if (base[0] == '\0') return -1;
+    snprintf(out, outcap, "%s.boot", base);
+    return 0;
+}
+
+/* qsort comparator: alphabetical by filename, so the advertised menu and
+ * auto-assigned bfns are deterministic regardless of readdir() order. */
+static int eth_name_cmp(const void *a, const void *b)
+{
+    /* a, b point at char[64] elements -- compare them directly. */
+    return strcmp((const char *)a, (const char *)b);
+}
+
+int dorado_ethernet_add_boot_dir_all(dorado_ethernet *eth, const char *dir)
+{
+    if (!eth || !dir) return 0;
+    DIR *d = opendir(dir);
+    if (!d) {
+        if (getenv("DORADO_BOOTDIR_DEBUG"))
+            fprintf(stderr, "[bootdir] add_boot_dir_all: cannot open %s\n", dir);
+        return 0;
+    }
+
+    /* Collect the *.boot filenames first, then sort, for a stable menu. */
+    char (*names)[64] = NULL;
+    int n = 0, cap = 0;
+    struct dirent *de;
+    while ((de = readdir(d)) != NULL) {
+        char tmp[64];
+        if (eth_derive_boot_name(de->d_name, tmp, sizeof tmp) != 0)
+            continue;
+        if (n >= cap) {
+            int nc = cap ? cap * 2 : 16;
+            char (*nn)[64] = realloc(names, (size_t)nc * sizeof names[0]);
+            if (!nn) break;
+            names = nn; cap = nc;
+        }
+        snprintf(names[n++], sizeof names[0], "%s", de->d_name);
+    }
+    closedir(d);
+    if (n > 1) qsort(names, (size_t)n, sizeof names[0], eth_name_cmp);
+
+    uint16_t next_bfn = 0200;   /* clear of 0o110-0o114 and the 0o111 the */
+                                /* CedarNetExec example uses              */
+    int added = 0;
+    for (int i = 0; i < n; i++) {
+        char advname[48];
+        if (eth_derive_boot_name(names[i], advname, sizeof advname) != 0)
+            continue;
+        if (eth_bootdir_has_name(eth, advname))
+            continue;                       /* explicit --boot-dir wins */
+
+        char path[256];
+        snprintf(path, sizeof path, "%s/%s", dir, names[i]);
+        long w0 = eth_boot_first_word(path);
+        if (w0 != 0405) {                   /* skip Mesa (0o345) and junk */
+            if (getenv("DORADO_BOOTDIR_DEBUG") && w0 >= 0)
+                fprintf(stderr, "[bootdir] skip %s (word0=0o%lo, not "
+                        "Alto B-format)\n", names[i], (unsigned long)w0);
+            continue;
+        }
+        while (eth_bfn_in_use(eth, next_bfn)) next_bfn++;
+        int before = eth->bootdir_count;
+        dorado_ethernet_add_boot_dir(eth, next_bfn, advname, path);
+        if (eth->bootdir_count == before) break;   /* table full */
+        if (getenv("DORADO_BOOTDIR_DEBUG"))
+            fprintf(stderr, "[bootdir] register %s as %s bfn=0o%o\n",
+                    names[i], advname, next_bfn);
+        next_bfn++;
+        added++;
+    }
+    free(names);
+    return added;
 }
 
 /* Map a Mayday boot file number to a directory file, if registered. */
@@ -736,15 +860,34 @@ static void eth_tx_packet_done(dorado_ethernet *eth)
         eth_clear_rx(eth);
         size_t cap = 0;
 
-        /* Serialize the BFD blocks first, to size pup.length. */
+        /* Serialize the BFD blocks first, to size pup.length. The whole
+         * directory may not fit in one Pup: NetExec posts a ~279-word input
+         * buffer (lenPBI; Pup1Init.bcpl), and a packet larger than the
+         * posted buffer is refused (Input Buffer Overrun). So emit at most
+         * BATCH_DATA_WORDS data words per reply, starting at bootdir_cursor,
+         * and advance the cursor. NetExec retransmits the BootDirReq several
+         * times per GetDir and its InstallDir accumulates entries across the
+         * replies (NetExec1.bcpl), so every entry is delivered over the run
+         * of requests even though no single reply lists them all. */
+        enum { BATCH_DATA_WORDS = 230 };
         uint16_t data[256];
         int nd = 0;
-        for (int e = 0; e < eth->bootdir_count; e++) {
+        int emitted = 0;
+        if (eth->bootdir_cursor >= (uint16_t)eth->bootdir_count)
+            eth->bootdir_cursor = 0;
+        int start = (int)eth->bootdir_cursor;
+        for (int s = 0; s < eth->bootdir_count; s++) {
+            int e = (start + s) % eth->bootdir_count;
             const char *nm = eth->bootdir[e].name;
             int len = (int)strlen(nm);
             /* bfn + date(2) + ceil((len+1)/2) name words. */
             int name_words = (len + 1 + 1) / 2;
-            if (nd + 3 + name_words > (int)(sizeof data / sizeof data[0]))
+            int blk = 3 + name_words;
+            if (blk > (int)(sizeof data / sizeof data[0]))
+                break;                          /* pathological single entry */
+            /* Stop once the batch is full, but always emit at least one
+             * entry so the cursor makes forward progress. */
+            if (emitted > 0 && nd + blk > BATCH_DATA_WORDS)
                 break;
             data[nd++] = eth->bootdir[e].bfn;
             data[nd++] = eth->bootdir[e].date_hi;
@@ -758,7 +901,10 @@ static void eth_tx_packet_done(dorado_ethernet *eth)
             if (sn & 1) sb[sn++] = 0;
             for (int k = 0; k < sn; k += 2)
                 data[nd++] = (uint16_t)((sb[k] << 8) | sb[k + 1]);
+            emitted++;
         }
+        eth->bootdir_cursor =
+            (uint16_t)((start + emitted) % eth->bootdir_count);
 
         uint16_t hdr[12];
         hdr[0]  = (uint16_t)((req_src_host << 8) | eth->remote_host);
@@ -794,22 +940,25 @@ static void eth_tx_packet_done(dorado_ethernet *eth)
         if (ok) ok = append_rx_word(eth, &cap, 0, 1);
         if (ok) { eth->rx_pos = 0; eth->bootdir_replies++; }
         if (getenv("DORADO_ETH_TX_TRACE"))
-            fprintf(stderr, "BOOTDIR reply: %d file(s), %d data words\n",
-                    eth->bootdir_count, nd);
+            fprintf(stderr, "BOOTDIR reply: %d of %d file(s), %d data words\n",
+                    emitted, eth->bootdir_count, nd);
         if (getenv("DORADO_BOOTDIR_DEBUG")) {
             fprintf(stderr,
                     "[bootdir] 257b BootDirReq #%llu from host=0o%o "
                     "sPort=0o%o/0o%o/0o%o; rx_on=%d ok=%d. Reply 260b: "
                     "id=0o%o/0o%o dPort=0o%o/0o%o/0o%o len=0o%o(%d data w) "
-                    "entries:",
+                    "%d of %d entries:",
                     (unsigned long long)eth->bootdir_replies,
                     (unsigned)(eth->tx_words[0] & 0377),
                     eth->tx_words[9], eth->tx_words[10], eth->tx_words[11],
                     eth->rx_on, ok,
-                    hdr[4], hdr[5], hdr[6], hdr[7], hdr[8], hdr[2], nd);
-            for (int e = 0; e < eth->bootdir_count; e++)
+                    hdr[4], hdr[5], hdr[6], hdr[7], hdr[8], hdr[2], nd,
+                    emitted, eth->bootdir_count);
+            for (int s = 0; s < emitted; s++) {
+                int e = (start + s) % eth->bootdir_count;
                 fprintf(stderr, " %s=0o%o", eth->bootdir[e].name,
                         eth->bootdir[e].bfn);
+            }
             fprintf(stderr, "\n");
         }
         return;

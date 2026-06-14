@@ -257,6 +257,7 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
                         i < (int)(sizeof cfg.boot_dir / sizeof cfg.boot_dir[0]);
              i++)
             cfg.boot_dir[i] = user_cfg->boot_dir[i];
+        cfg.boot_dir_all = user_cfg->boot_dir_all;
         cfg.boot_keys_count = user_cfg->boot_keys_count;
         for (int i = 0; i < user_cfg->boot_keys_count &&
                         i < (int)(sizeof cfg.boot_keys / sizeof cfg.boot_keys[0]);
@@ -396,6 +397,23 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
         uint16_t bfn = (uint16_t)strtoul(eq1 + 1, NULL, 8);
         const char *path = eq2 + 1;
         dorado_ethernet_add_boot_dir(&m->ethernet, bfn, name, path);
+    }
+
+    /* --boot-dir-all: auto-register every Alto B-format *.boot file in the
+     * directory holding the EFTP boot file (chm/bootfiles/), so NetExec's
+     * menu lists all the games. Explicit --boot-dir entries above take
+     * precedence (auto-register skips names already present). */
+    if (cfg.boot_dir_all && cfg.eftp_boot) {
+        char dir[256];
+        snprintf(dir, sizeof dir, "%s", cfg.eftp_boot);
+        char *slash = strrchr(dir, '/');
+        if (slash) *slash = '\0';
+        else snprintf(dir, sizeof dir, ".");
+        int n = dorado_ethernet_add_boot_dir_all(&m->ethernet, dir);
+        if (getenv("DORADO_BOOTDIR_DEBUG"))
+            fprintf(stderr, "[bootdir] --boot-dir-all: registered %d game(s) "
+                    "from %s (%d entries total)\n", n, dir,
+                    m->ethernet.bootdir_count);
     }
 
     dorado_display_attach_to_io(&m->display, &m->io);

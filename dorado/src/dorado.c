@@ -114,6 +114,7 @@ int main(int argc, char **argv)
     int progress = 0;
     const char *type_str = NULL;     /* keyboard self-test input */
     uint64_t key_hold = 600000;      /* cycles to hold each key down/up */
+    int boot_dir_all_opt = -1;       /* -1 auto, 0 off, 1 on */
 
     dorado_machine_config cfg;
     dorado_machine_config_default(&cfg);
@@ -133,6 +134,10 @@ int main(int argc, char **argv)
                 (int)(sizeof cfg.boot_dir / sizeof cfg.boot_dir[0]))
                 cfg.boot_dir[cfg.boot_dir_count++] = argv[++i];
             else { fprintf(stderr, "dorado: too many --boot-dir\n"); i++; }
+        } else if (!strcmp(a, "--boot-dir-all")) {
+            boot_dir_all_opt = 1;
+        } else if (!strcmp(a, "--no-boot-dir-all")) {
+            boot_dir_all_opt = 0;
         } else if (!strcmp(a, "--out") && i + 1 < argc) {
             out = argv[++i];
         } else if (!strcmp(a, "--quote")) {
@@ -152,6 +157,7 @@ int main(int argc, char **argv)
         } else if (!strcmp(a, "--help") || !strcmp(a, "-h")) {
             printf("usage: %s [--cycles N] [--eb PATH] [--eftp PATH] "
                    "[--boot-file-number OCTAL] [--boot-dir NAME=BFN=PATH] "
+                   "[--boot-dir-all] [--no-boot-dir-all] "
                    "[--out PATH] [--quote] [--boot-keys K[,K...]] "
                    "[--boot-reason ethernet|netexec|disk] "
                    "[--no-alto-boot] [--progress]\n"
@@ -166,6 +172,13 @@ int main(int argc, char **argv)
             return 2;
         }
     }
+
+    /* Auto-register all the games/utilities as a NetExec boot menu. Default
+     * on whenever no explicit --boot-dir was given, so the demo just works;
+     * --boot-dir-all/--no-boot-dir-all force it. The games are served only on
+     * demand (by name, via Mayday); NETEXEC still boots first. */
+    cfg.boot_dir_all = (boot_dir_all_opt >= 0) ? boot_dir_all_opt
+                                               : (cfg.boot_dir_count == 0);
 
     dorado_machine *m = dorado_machine_create(&cfg);
     if (!m) {

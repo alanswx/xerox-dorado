@@ -149,8 +149,17 @@ typedef struct dorado_ethernet {
         char     path[256];    /* file served by EFTP for this bfn          */
         uint16_t date_hi;      /* Alto-format date (version); MUST be       */
         uint16_t date_lo;      /* nonzero or NetExec treats it as a local   */
-    } bootdir[8];              /* command, not a bootable file              */
+    } bootdir[40];             /* command, not a bootable file. Sized to    */
+                               /* hold every Alto game/utility in            */
+                               /* chm/bootfiles/ (--boot-dir-all) plus a few */
+                               /* explicit --boot-dir entries.               */
     int      bootdir_count;
+    uint16_t bootdir_cursor;   /* round-robin pagination: the next entry to  */
+                               /* emit in a BootDirReply. The whole table    */
+                               /* can exceed one Pup (~266 data words); we    */
+                               /* split it across the BootDirReqs NetExec     */
+                               /* retransmits (~3 per GetDir) and its         */
+                               /* InstallDir accumulates them (NetExec1.bcpl).*/
     uint64_t bootdir_replies;  /* stats: BootDirReply packets queued        */
 } dorado_ethernet;
 
@@ -173,6 +182,18 @@ void dorado_ethernet_set_eftp_boot_file(dorado_ethernet *eth,
  * file by name. The file at `path` is then EFTP-served for that bfn. */
 void dorado_ethernet_add_boot_dir(dorado_ethernet *eth, uint16_t bfn,
                                   const char *name, const char *path);
+
+/* Stage-2: scan `dir` for `*.boot` files and register every one that is an
+ * Alto B-format image (big-endian word 0 = 0o405, runnable on the AEmu Alto
+ * emulator). Mesa-format files (word 0 = 0o345) are skipped -- they need the
+ * AltoMesaDorado path that isn't up yet. Each registered file gets an
+ * advertised name derived from its filename (version suffix stripped, the
+ * extension normalized to lower-case ".boot") and a unique auto-assigned
+ * boot file number that avoids the microcode boot offsets (0o110-0o114) and
+ * any bfn already in the directory. Returns the number of files registered.
+ * Files whose derived name is already present are skipped, so explicit
+ * dorado_ethernet_add_boot_dir() entries take precedence. */
+int dorado_ethernet_add_boot_dir_all(dorado_ethernet *eth, const char *dir);
 
 /* Returns a wakeup bitmask for EOT/EIT based on current controller
  * state. Non-const: ticks the post-WaitForBOP drain hold. */

@@ -448,6 +448,183 @@ static int test_bootdir_reply_format(void)
     return 0;
 }
 
+/* Send one BootDirReq and merge the entries from the (possibly paginated)
+ * BootDirReply into the name/bfn arrays, skipping ones already collected.
+ * Returns 0 on success. */
+static int collect_bootdir(dorado_io *io, dorado_ethernet *eth,
+                           char names[][48], uint16_t *bfns, int *count,
+                           int cap)
+{
+    uint16_t req[13] = {
+        042, 01000, 026, DORADO_PUP_TYPE_BOOTDIR_REQ,
+        0, 0, 0, 0, 04, 042, 0, 020, 0177777
+    };
+    dorado_io_write(io, DORADO_ETHERNET_TASK_EOT,
+                    DORADO_ETHERNET_TIOA_CTL, 0047777);
+    for (int i = 0; i < 13; i++)
+        dorado_io_write(io, DORADO_ETHERNET_TASK_EOT,
+                        DORADO_ETHERNET_TIOA_DATA, req[i]);
+    dorado_io_write(io, DORADO_ETHERNET_TASK_EOT,
+                    DORADO_ETHERNET_TIOA_CTL, 0067777);
+    eth_wait_arrival(eth);
+
+    int bad = 0;
+    uint16_t hdr[12];
+    for (int i = 0; i < 12; i++)
+        hdr[i] = dorado_io_read(io, DORADO_ETHERNET_TASK_EIT,
+                                DORADO_ETHERNET_TIOA_DATA, &bad);
+    if (hdr[3] != DORADO_PUP_TYPE_BOOTDIR_REPLY) return 1;
+    int nd = ((int)hdr[2] - 026) / 2;
+    if (nd < 0 || nd > 256) return 1;
+    uint16_t data[256];
+    for (int i = 0; i < nd; i++)
+        data[i] = dorado_io_read(io, DORADO_ETHERNET_TASK_EIT,
+                                 DORADO_ETHERNET_TIOA_DATA, &bad);
+
+    int ptr = 0;
+    while (ptr + 4 <= nd) {
+        uint16_t bfn = data[ptr];
+        int len = (data[ptr + 3] >> 8) & 0377;
+        int name_words = (len + 2) / 2;
+        char nm[48];
+        int ni = 0;
+        nm[ni++] = (char)(data[ptr + 3] & 0377);
+        for (int wi = 1; wi < name_words && ni < 47; wi++) {
+            uint16_t w = data[ptr + 3 + wi];
+            if (ni < 47) nm[ni++] = (char)((w >> 8) & 0377);
+            if (ni < 47) nm[ni++] = (char)(w & 0377);
+        }
+        if (len < 47) nm[len] = '\0'; else nm[47] = '\0';
+        /* Merge unless already present. */
+        int seen = 0;
+        for (int j = 0; j < *count; j++)
+            if (strcmp(names[j], nm) == 0) { seen = 1; break; }
+        if (!seen && *count < cap) {
+            snprintf(names[*count], 48, "%s", nm);
+            bfns[*count] = bfn;
+            (*count)++;
+        }
+        ptr += 3 + name_words;
+    }
+    return 0;
+}
+
+/* Auto-register every Alto B-format game in chm/bootfiles/ and verify the
+ * BootDirReply advertises them all (across the paginated replies NetExec's
+ * InstallDir accumulates), and that a Mayday for each bfn serves the right
+ * file verbatim. */
+static int test_bootdir_all_games(void)
+{
+    dorado_io io;
+    dorado_ethernet eth;
+    dorado_io_init(&io);
+    dorado_ethernet_init(&eth);
+    dorado_ethernet_attach_to_io(&eth, &io);
+
+    int added = dorado_ethernet_add_boot_dir_all(&eth, "../chm/bootfiles");
+    EXPECT(added >= 20, "auto-registered %d games (want >= 20)", added);
+    EXPECT(added == eth.bootdir_count, "count %d vs added %d",
+           eth.bootdir_count, added);
+
+    /* Every entry: name ends in lower-case ".boot", bfn unique and clear of
+     * the microcode boot offsets 0o110-0o114, and the file is B-format. */
+    for (int i = 0; i < eth.bootdir_count; i++) {
+        const char *nm = eth.bootdir[i].name;
+        size_t nl = strlen(nm);
+        EXPECT(nl > 5 && strcmp(nm + nl - 5, ".boot") == 0,
+               "entry %d name '%s' must end in .boot", i, nm);
+        uint16_t b = eth.bootdir[i].bfn;
+        EXPECT(!(b >= 0110 && b <= 0114),
+               "bfn 0o%o collides with microcode boot offsets", b);
+        for (int j = i + 1; j < eth.bootdir_count; j++)
+            EXPECT(eth.bootdir[j].bfn != b, "duplicate bfn 0o%o", b);
+    }
+
+    /* Known games present; known Mesa-format files (0o345) absent. */
+    int have_galaxian = 0, have_invaders = 0, have_missile = 0;
+    int have_cedar = 0, have_mazewar = 0;
+    for (int i = 0; i < eth.bootdir_count; i++) {
+        const char *nm = eth.bootdir[i].name;
+        if (!strcmp(nm, "Galaxian.boot"))       have_galaxian = 1;
+        if (!strcmp(nm, "Invaders.boot"))        have_invaders = 1;
+        if (!strcmp(nm, "MissileCommand.boot"))  have_missile = 1;
+        if (!strcmp(nm, "CedarNetExec.boot"))    have_cedar = 1;
+        if (!strcmp(nm, "MazeWar.boot"))         have_mazewar = 1;
+    }
+    EXPECT(have_galaxian, "Galaxian.boot must be advertised");
+    EXPECT(have_invaders, "Invaders.boot must be advertised");
+    EXPECT(have_missile, "MissileCommand.boot must be advertised");
+    EXPECT(!have_cedar, "CedarNetExec (Mesa 0o345) must be skipped");
+    EXPECT(!have_mazewar, "MazeWar (Mesa 0o345) must be skipped");
+
+    /* Drive several BootDirReqs and union the (paginated) replies; the
+     * advertised directory must cover every registered entry exactly. */
+    char rnames[64][48];
+    uint16_t rbfns[64];
+    int rcount = 0;
+    for (int r = 0; r < 8 && rcount < eth.bootdir_count; r++)
+        if (collect_bootdir(&io, &eth, rnames, rbfns, &rcount, 64))
+            FAIL("BootDirReq %d produced no reply", r);
+    EXPECT(rcount == eth.bootdir_count,
+           "advertised %d entries, registered %d", rcount, eth.bootdir_count);
+    for (int i = 0; i < eth.bootdir_count; i++) {
+        int found = 0;
+        for (int j = 0; j < rcount; j++)
+            if (strcmp(rnames[j], eth.bootdir[i].name) == 0 &&
+                rbfns[j] == eth.bootdir[i].bfn) { found = 1; break; }
+        EXPECT(found, "entry %s=0o%o missing from BootDirReply",
+               eth.bootdir[i].name, eth.bootdir[i].bfn);
+    }
+
+    /* A Mayday for each of a few games must serve that game verbatim. */
+    const char *probe[] = { "Galaxian.boot", "Invaders.boot",
+                            "MissileCommand.boot" };
+    for (int p = 0; p < 3; p++) {
+        uint16_t bfn = 0, want_words = 0;
+        char path[256] = "";
+        for (int i = 0; i < eth.bootdir_count; i++)
+            if (!strcmp(eth.bootdir[i].name, probe[p])) {
+                bfn = eth.bootdir[i].bfn;
+                snprintf(path, sizeof path, "%s", eth.bootdir[i].path);
+            }
+        EXPECT(bfn != 0, "no bfn for %s", probe[p]);
+        FILE *fp = fopen(path, "rb");
+        EXPECT(fp != NULL, "open %s", path);
+        long words = 0;
+        for (;;) { int hi = fgetc(fp), lo = fgetc(fp);
+                   if (hi == EOF || lo == EOF) break; words++; }
+        fclose(fp);
+        want_words = (uint16_t)words;
+
+        uint16_t mayday[15] = {
+            042, 01000, 026, DORADO_PUP_TYPE_MAYDAY, 0, bfn,
+            0, 0, 04, 042, 0, 0, 0, 0, 0177777
+        };
+        dorado_io_write(&io, DORADO_ETHERNET_TASK_EOT,
+                        DORADO_ETHERNET_TIOA_CTL, 0047777);
+        for (int i = 0; i < 15; i++)
+            dorado_io_write(&io, DORADO_ETHERNET_TASK_EOT,
+                            DORADO_ETHERNET_TIOA_DATA, mayday[i]);
+        dorado_io_write(&io, DORADO_ETHERNET_TASK_EOT,
+                        DORADO_ETHERNET_TIOA_CTL, 0067777);
+        eth_wait_arrival(&eth);
+        EXPECT(eth.eftp_last_bfn == bfn, "%s Mayday bfn 0o%o want 0o%o",
+               probe[p], eth.eftp_last_bfn, bfn);
+        EXPECT((long)eth.eftp_len == words,
+               "%s served %ld words, file %ld", probe[p],
+               (long)eth.eftp_len, words);
+        EXPECT(eth.eftp_words[0] == 0000405,
+               "%s served word0=0o%o (want 0o405 B-format)",
+               probe[p], eth.eftp_words[0]);
+        (void)want_words;
+    }
+
+    printf("  BootDirAll: advertised %d Alto B-format games across paginated"
+           " 260B replies; Mayday serves each verbatim\n", eth.bootdir_count);
+    dorado_ethernet_free(&eth);
+    return 0;
+}
+
 int main(void)
 {
     int rc = 0;
@@ -455,6 +632,7 @@ int main(void)
     rc |= test_eftp_boot_reply_queue();
     rc |= test_eftp_boot_full_transfer();
     rc |= test_bootdir_reply_format();
+    rc |= test_bootdir_all_games();
     if (rc == 0) printf("All ethernet tests passed.\n");
     return rc;
 }

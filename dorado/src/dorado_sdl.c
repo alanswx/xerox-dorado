@@ -131,6 +131,7 @@ int main(int argc, char **argv)
     int n_shots = 0;
     long max_shot = -1;
     const char *shot_prefix = "dorado-frame";
+    int boot_dir_all_opt = -1;            /* -1 auto, 0 off, 1 on */
 
     dorado_machine_config cfg;
     dorado_machine_config_default(&cfg);
@@ -147,6 +148,8 @@ int main(int argc, char **argv)
                 cfg.boot_dir[cfg.boot_dir_count++] = argv[++i];
             else { fprintf(stderr, "dorado-sdl: too many --boot-dir\n"); i++; }
         }
+        else if (!strcmp(a, "--boot-dir-all"))         boot_dir_all_opt = 1;
+        else if (!strcmp(a, "--no-boot-dir-all"))      boot_dir_all_opt = 0;
         else if (!strcmp(a, "--quote"))                cfg.alto_ether_quote = 1;
         else if (!strcmp(a, "--boot-keys") && i + 1 < argc) {
             if (parse_boot_keys(argv[++i], &cfg)) return 2;
@@ -173,6 +176,7 @@ int main(int argc, char **argv)
         } else if (!strcmp(a, "--help") || !strcmp(a, "-h")) {
             printf("usage: %s [--eb PATH] [--eftp PATH] "
                    "[--boot-file-number OCTAL] [--boot-dir NAME=BFN=PATH] "
+                   "[--boot-dir-all] [--no-boot-dir-all] "
                    "[--quote] [--boot-keys K[,K...]] "
                    "[--boot-reason ethernet|netexec|disk] "
                    "[--no-alto-boot] [--scale N] [--speed CYCLES]\n"
@@ -185,6 +189,12 @@ int main(int argc, char **argv)
         }
     }
     if (scale < 1) scale = 1;
+
+    /* Auto-register the games as a NetExec boot menu by default (off when an
+     * explicit --boot-dir is given); --boot-dir-all/--no-boot-dir-all force
+     * it. NETEXEC still boots first; games are served on demand by name. */
+    cfg.boot_dir_all = (boot_dir_all_opt >= 0) ? boot_dir_all_opt
+                                               : (cfg.boot_dir_count == 0);
 
     dorado_machine *m = dorado_machine_create(&cfg);
     if (!m) {

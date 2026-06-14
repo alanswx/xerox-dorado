@@ -47,6 +47,13 @@ typedef struct dorado_machine_config {
                                 * must end in ".boot". Lets NetExec boot
                                 * e.g. CedarNetExec by name. */
     int      boot_dir_count;
+    int      boot_dir_all;     /* 1 = also auto-register every Alto B-format
+                                * *.boot file found alongside eftp_boot (the
+                                * chm/bootfiles/ tree) as a directory entry,
+                                * so NetExec's menu lists all the games. The
+                                * --boot-dir-all flag; the standalone frontends
+                                * default it on when no explicit --boot-dir is
+                                * given so the demo "just works". */
     /* Boot-key chord held down through the Stage-2 boot-selection phase.
      * Models the Dorado/Alto boot-reason chord (Booting memo): the loaded
      * Alto/Mesa world polls these keys to choose its boot path (BS =
