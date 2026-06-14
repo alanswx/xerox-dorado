@@ -430,24 +430,20 @@ static int test_bootdir_reply_format(void)
     eth_wait_arrival(&eth);
     EXPECT(eth.eftp_last_bfn == 0111, "Mayday bfn 0o%o", eth.eftp_last_bfn);
     /* CedarNetExec is a "000345 Mesa-format" boot file (image word 0 =
-     * 0o345 = "JMP 0o345", the Mesa relocation entry). The standard Alto
-     * Ethernet boot loader can load only B-format files, so the server
-     * encapsulates it by prepending a 256-word leader page (ETHERBOOT.BRAVO:
-     * "Pilot boot files are encapsulated by adding a header page to the
-     * front"). The served stream is therefore one page longer, begins with
-     * the synthesized leader (word 0 = 0o405 "JMP .+5", word 1 = 0), and
-     * carries the original image starting at word 256. */
-    EXPECT((long)eth.eftp_len == cedar_words + 256,
-           "served %ld words, CedarNetExec %ld + 256-word leader page",
+     * 0o345 = "JMP 0o345", the Mesa relocation entry). It is the raw Mesa
+     * outload and is served VERBATIM: no synthetic B-format leader page is
+     * prepended (the Mesa world's own loader consumes the outload directly).
+     * The served stream is therefore exactly the file, word for word, and
+     * still begins with the Mesa relocation entry 0o345. */
+    EXPECT((long)eth.eftp_len == cedar_words,
+           "served %ld words verbatim, CedarNetExec %ld",
            (long)eth.eftp_len, cedar_words);
-    EXPECT(eth.eftp_words[0] == 0000405 && eth.eftp_words[1] == 0,
-           "leader word0=0o%o word1=0o%o", eth.eftp_words[0], eth.eftp_words[1]);
-    EXPECT(eth.eftp_words[256] == 0000345,
-           "encapsulated image word0=0o%o (want 0o345)", eth.eftp_words[256]);
+    EXPECT(eth.eftp_words[0] == 0000345,
+           "served image word0=0o%o (want 0o345, verbatim)", eth.eftp_words[0]);
 
     printf("  BootDir: 260B reply advertises CedarNetExec.boot (bfn 0o111),"
-           " Mayday serves %ld words (image %ld + leader page)\n",
-           (long)eth.eftp_len, cedar_words);
+           " Mayday serves %ld words verbatim (Mesa outload, no leader)\n",
+           (long)eth.eftp_len);
     dorado_ethernet_free(&eth);
     return 0;
 }

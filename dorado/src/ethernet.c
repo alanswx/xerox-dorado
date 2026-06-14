@@ -439,35 +439,26 @@ static int eth_queue_eftp_boot(dorado_ethernet *eth, uint16_t bfn)
     }
     fclose(fp);
 
-    /* S0/Pilot -> B-format encapsulation (ETHERBOOT.BRAVO, "Pointers to
-     * other Documentation"): the standard Alto Ethernet boot loader can
-     * load only B-format files. A real boot server transforms other files
-     * before sending; "Microcode boot files and Pilot boot files are
-     * encapsulated by adding a header page (which basically contains only
-     * the creation date) to the front of the file." The loader skips that
-     * leader page and loads the image from the next page on, letting the
-     * image's own page-0 relocation bootstrap (M[0]) run on the final
-     * JMP 0. A proper B-format file already starts with a disk-boot-loader
-     * leader page whose word 0 is "JMP .+5" (0o405, jumping over the
-     * creation-date words). An un-encapsulated Mesa/Pilot image instead
-     * starts with its memory page 0, whose word 0 is the Mesa relocation
-     * entry "JMP 0o345" (0o000345) -- the "000345 Mesa-format" boot files
-     * (CedarNetExec, MesaNetExec, NEWOS, MazeWar, ...). Those load one page
-     * low (M[0] := image page 1 = garbage) and derail on JMP 0 unless we
-     * prepend the missing leader page here, exactly as the boot server
-     * would. The leader's only loader-relevant field is word 1 = 0. */
-    if (payload_n >= 1 && payload[0] == 0000345) {
-        size_t ncap = payload_n + 256;
-        uint16_t *enc = malloc(ncap * sizeof enc[0]);
-        if (enc) {
-            for (size_t i = 0; i < 256; i++) enc[i] = 0;
-            enc[0] = 0000405;     /* leader: JMP .+5 over the date words */
-            memcpy(enc + 256, payload, payload_n * sizeof payload[0]);
-            free(payload);
-            payload = enc;
-            payload_n += 256;
-        }
-    }
+    /* Format-driven encapsulation, keyed on the served image's first word
+     * (ETHERBOOT.BRAVO, "Pointers to other Documentation"):
+     *
+     *  - Alto B-format (word 0 = 0o405 = "JMP .+5") is already a complete
+     *    disk-boot image: word 0 jumps over a 256-word leader page (the
+     *    creation-date words) to the loadable body. It is served VERBATIM
+     *    -- its own leader is already present. (NETEXEC, Galaxian, the Alto
+     *    games and tools.)
+     *
+     *  - Mesa/Pilot outload (word 0 = 0o345 = "JMP 0o345", the Mesa
+     *    relocation entry) is served VERBATIM too. It is the raw outload
+     *    the Mesa boot loader expects; the Mesa world (AltoMesaDorado)
+     *    loads it directly. Earlier bring-up prepended a synthetic 0o405
+     *    leader page to make the *Alto* B-format loader swallow a Mesa
+     *    image, but that mis-layers the two loaders: a Mesa outload must
+     *    reach the Mesa loader as-is, not be wrapped as a B-format file.
+     *
+     * So no synthetic leader is prepended for either format; the file is
+     * streamed exactly as stored. Both 0o405 (Alto) and 0o345 (Mesa) are
+     * served byte-for-byte. */
 
     free(eth->eftp_words);
     eth->eftp_words = payload;
