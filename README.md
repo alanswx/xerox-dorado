@@ -217,26 +217,39 @@ are snapshot display-list pixels from `dorado-screen.pgm`. All load at ~32 M cyc
 ./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/FTP.boot!1'               # make run-ftp
 ```
 
-##### Group B — Cedar/Mesa emulator (`../chm/dorado/CedarDorado.eb!6`) — EXPERIMENTAL (boot path not yet complete)
+##### Group B — Cedar/Mesa route — NOT YET WORKING (see `docs/CONTINUE-HERE.md` for the two paths forward)
 
 `CedarNetExec.boot`, `MesaNetExec.boot`, `AlphaMesaMesaNetExec.boot`,
-`MazeWar.boot`, and `NEWOS.BOOT` are large (~64 K-word) Mesa/Pilot outload
-(`0o162400`) files. They are Mesa/Pilot programs, **not** Alto programs —
-e.g. CedarNetExec's own source `NXControl.mesa` hard-codes
-`microcodeFiles[Dorado] = "CedarDorado.eb"`. They therefore need the
-Cedar/Mesa microcode world, **not** `worlds/aemu.eb`.
+`MazeWar.boot`, and `NEWOS.BOOT` are Mesa/Pilot outload (`0o162400`) files.
+They cannot run on `worlds/aemu.eb` (Alto/Nova only; Mesa bytecodes are
+decoded as Nova instructions, `insset=0`, nothing executes).
 
-These are **not yet working.** With `--eb '../chm/dorado/CedarDorado.eb!6'`
-the Cedar microcode LOADS but does not run (it enters at `pc=0o1070`
-RestartEmulator with zero opcode dispatches). A real Cedar bring-up
-additionally needs the Cedar Initial image
-`../chm/dorado/InitialEtherCedarDorado.eb!3`, the Pilot germ, and a Stage-2
-rework from the Alto BootViaNet/leader-page path to the Pilot/germ net-boot.
-The EFTP transfer itself does complete (1 boot Mayday + 254 Acks). Each has
-a `make run-…` shortcut (run from `dorado/`).
+**Key finding from the Dorado Booting memo §1.3:** Cedar software boots from
+*disk*, not Ethernet. Serving `CedarNetExec.boot` directly to `CedarDorado.eb`
+over EFTP is a category error — the Cedar microcode loads, enters BOOTORSTART
+(`pc=0o1070`), then hangs in a cold `InitMem` map-write loop (`IWRITEMAP`/
+`WAITFORMAPBUF`, hot PC `0o7116`), expecting a disk germ, zero opcode
+dispatches, never reaching any Ethernet software-boot handler.
+
+The memo's documented Ethernet route to Cedar is a three-stage chain using
+the **Alto/Mesa** microcode: NetExec -> CedarNetExec -> target.
+
+Two paths forward (both incomplete; see `docs/CONTINUE-HERE.md` for detail):
+
+- **Route A (recommended):** use `AltoMesaDorado.eb` (contains the full Mesa
+  VM, unlike `worlds/aemu.eb` which is Alto/Nova only) and chain through
+  NetExec. `AltoMesaDorado.eb!2` enters correctly at `pc=0o1076`; the boot
+  orchestration in `src/machine.c` / `src/ethernet.c` needs adaptation before
+  a Mesa-format second stage can run.
+- **Route B:** fix the Cedar microcode path directly — requires the `InitMem`
+  map-write Hold handshake in `src/memory.c` (see `dorado/CLAUDE.md` gaps
+  B1/C1) and a germ-Ethernet or disk boot channel (germ available at
+  `chm/cedar/germ/Dorado.germ!4`).
+
+The make targets below exercise the EFTP load path but do not reach a UI:
 
 ```sh
-# none of these run to a UI yet — they exercise the load path
+# load only — no UI yet
 ./build/dorado-sdl --eb '../chm/dorado/CedarDorado.eb!6' --eftp '../chm/bootfiles/CedarNetExec.boot!4'           # make run-cedarnetexec
 ./build/dorado-sdl --eb '../chm/dorado/CedarDorado.eb!6' --eftp '../chm/bootfiles/MazeWar.boot!1'                # make run-mazewar
 ./build/dorado-sdl --eb '../chm/dorado/CedarDorado.eb!6' --eftp '../chm/bootfiles/MesaNetExec.boot!1'            # make run-mesanetexec
@@ -278,10 +291,12 @@ tuples. Register the files our fake server should advertise with
 NetExec then lists the registered name under `?`; typing it sends a Mayday
 for that boot file number, which the server serves from the registered path.
 (The breath-of-life that loads NetExec itself uses boot file 0 and the plain
-`--eftp` file.) Note the file you chain to must itself be an Alto B-format
-file to run under the AEmu world — a Mesa-format file (e.g. `CedarNetExec`)
-downloads but will not execute on AEmu (see Group B above); it needs the
-Cedar/Mesa microcode world, which the NetExec chain does not switch to.
+`--eftp` file.) Note the file you chain to must be an Alto B-format file to run on
+`worlds/aemu.eb`. A Mesa-format file (e.g. `CedarNetExec`) downloads but
+will not execute there (see Group B above). The intended path for Mesa-format
+second stages is Route A: boot `AltoMesaDorado.eb` (which carries the full
+Mesa VM) rather than `worlds/aemu.eb`, then chain through NetExec — that
+path is not yet wired up.
 
 Booting takes a little while (the real BaseBoard → Bootstrap → Initial →
 Ethernet-microcode chain, then the EFTP transfer of the boot file); the

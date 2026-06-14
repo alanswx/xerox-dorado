@@ -1,5 +1,49 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## FINDING (2026-06-13): Cedar boots from disk; the Mesa VM is in AltoMesaDorado.eb, not worlds/aemu.eb
+
+Established this session from the Dorado Booting memo
+(`chm/doradosource/DoradoBooting.tioga!2.txt`, sections 1.1–1.4). This overturns the prior
+assumption that serving `CedarNetExec.boot` directly to `CedarDorado.eb` over EFTP is the
+right Cedar bring-up route.
+
+**Cedar microcode (`CedarDorado.eb`) boots software from disk, not Ethernet.** Memo §1.3:
+"Ethernet booting of software is possible only with Alto emulator-based microprograms, not
+with Cedar. To boot Cedar software from the Ethernet, you must first boot the NetExec using
+Alto/Mesa, then use the NetExec to call the CedarNetExec, then use the CedarNetExec to call
+the desired program." So serving `CedarNetExec.boot` over our EFTP/Mayday server directly
+to `CedarDorado.eb` was a category error: Cedar never listens for an Ethernet software boot.
+Observed: the Cedar microcode loads and enters at `pc=0o1070` (BOOTORSTART), then hangs in
+`InitMem`'s cold map-write loop (`IWRITEMAP`/`WAITFORMAPBUF`, hot PC `0o7116`), expecting a
+disk germ, zero opcode dispatches, never reaches GERMBOOT.
+
+**The Mesa VM lives in `AltoMesaDorado.eb`, not `worlds/aemu.eb`.** `worlds/aemu.eb` is
+Alto/Nova ONLY (no Mesa VM). That is why Mesa-format (`0o345`) boot files mis-run on it:
+the Alto interpreter decodes Mesa bytecodes as Nova opcodes (`insset=0`), nothing paints,
+nothing executes. The supported Ethernet route to Mesa or Cedar software is via
+`AltoMesaDorado.eb` (which carries the full Mesa VM) chained through NetExec.
+
+**Two routes going forward, both work-in-progress:**
+
+- **Route A (recommended):** `AltoMesaDorado.eb` -> NetExec -> CedarNetExec -> target.
+  Reuses the existing Ethernet transport. `AltoMesaDorado.eb!2` enters correctly at
+  `pc=0o1076` cold-bootstrap (unlike `CedarDorado.eb`'s stuck `0o1070`). Blocked on boot
+  orchestration in `src/machine.c` and `src/ethernet.c` being tuned for `worlds/aemu.eb`;
+  served a Mesa-format file it completes only 1 dispatch. Route A needs that orchestration
+  adapted — first validate with `AltoMesaDorado.eb + NETEXEC` (an Alto B-format file), then
+  fix the leader-page prepend and boot-select for a Mesa-format second stage. Not a zero-code
+  swap.
+
+- **Route B:** fix the Cedar microcode path directly. Requires (a) fixing the `InitMem`
+  map-write Hold handshake in `src/memory.c` (`IWRITEMAP`/`WAITFORMAPBUF` blocker; see
+  `dorado/CLAUDE.md` gaps B1/C1), and (b) a germ-Ethernet or disk boot channel. The Pilot
+  germ is present locally: `chm/cedar/germ/Dorado.germ!4`; the physical-volume boot file is
+  `chm/cedar/OthelloDorado.boot!8`. The ether-germ route avoids the incomplete disk write
+  path (`BootChannelEther.mesa` / `BootChannelDisk.mesa` sources are in `chm/cedar/`).
+
+See the finding immediately below for the two-format boot-file split that accompanied this
+session.
+
 ## FINDING (2026-06-13): Boot files come in TWO formats needing TWO different emulator microcodes; we had been using the wrong one for Mesa/Pilot files
 
 Established this session, with evidence. Dorado boot files split into two
