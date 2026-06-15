@@ -1,5 +1,89 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## ROUTE B (2026-06-15, session 3): PV descriptor fabricated + all 3 disk-read passes fed; the REAL GERMREMAP now runs; blocked on the 16K-map aliasing of MDS 76
+
+This session **fabricated a faithful PV root-page Descriptor and fed all
+three of DiskBootSoft's disk-read passes**, so the real microcode validated
+the descriptor (no MESAFAULT), read the germ, and ran the real
+`PilotBoot.GERMREMAP` relocation loop to completion. The germ does **not run
+yet**: GERMREMAP's relocation of the germ into **MDS 76** can't land because
+our **16K Map (MapIs16K)** aliases MDS 76 with low VAs. Regression gate green:
+`make test` 10/10; AEmu NETEXEC **1495**; Galaxian **121552** (exact);
+AltoMesaDorado NETEXEC **1490**; `make sdl` compiles.
+
+### What landed (committed)
+
+The disk-read interception lives in `src/machine.c` (gated on `--germ` +
+Cedar-only PC `0o7012`, so the Alto pixel gates are structurally
+untouched). At each `BootTransferLp` seal-fetch (real PC `0o7012`) with
+`IOCB.seal == IOCBSealValue`, read `IOCB.command` (VM `0o435`) and dispatch
+by pass, then KCmmdDone-complete (seal=0, pageCount=0, labelStatus=0 ->
+BootTransfer +2):
+1. **Descriptor (cmd `0o274`):** deposit `page0[0]=0o121212` (Desc.seal),
+   `page0[1]=6` (Desc.currentVersion); zero the germ DFID region
+   `0o32..0o43` (Desc.bi.germ; fID/firstPage/da all 0 -- the microcode
+   copies them into the IOCB but our fake completion bypasses the real
+   read). Source: `PilotBootDefs.mc`, `PhysicalVolumeFormat.mesa`.
+2. **Label (cmd `0o260`):** just complete (DiskBootSoft never inspects the
+   label contents).
+3. **Germ data (cmd `0o100254`):** deposit germ file word W -> VM
+   `IOCB.dataPtr+W` (dataPtr = BootDataPtr = baseGerm = `0o1000`, read
+   live), then advance `IOCB.dataPtr` by `0o400`/page (8192 words = `0o40`
+   pages -> dataPtr `0o1000`->`0o21000`) as the disk microcode would, so
+   GermBoot's `BootDataPtr_ MD` and GERMREMAP relocate exactly the loaded
+   extent.
+
+**Two real emulator fixes** were required and are the load-bearing part:
+- **`src/memory.c` `dorado_storage_store_at_va`** now clears stale *valid+
+  vacant* cache lines for the target VA (the old code used
+  `dorado_cache_lookup`, which *skips* vacant lines). The Mesa world leaves
+  VM page 0 vacant (null-trap); a stale valid+vacant line there satisfied
+  the seal-check fetch with 0 instead of our deposited `0o121212`. General
+  correctness fix; gate stayed green.
+- **`src/machine.c`** makes VM page 0 resident before depositing the
+  descriptor (the real descriptor DMA write would map-fault page 0 and the
+  fault handler makes it resident). It allocates a **genuinely free real
+  page** via the new `machine_find_free_rp()` -- page 0's existing `rp` is
+  aliased to a live high-VA page, and reusing it let that page's dirty
+  writeback clobber the descriptor (`storage[0]` went 0o121212 -> 0).
+
+### The precise NEW blocker (where it stops now)
+
+Flow after pass 3 (verified, task-0 real PCs): GermBoot ->
+`FINDENDMAPPEDVM`(`0o6724`) -> `GERMREMAPLP`(`0o2763`) loop (calls
+`SetBRForPage`/`TranslateMapEntry`/`FlushPage`/`WriteMapPage` from
+`DMesaMiscOps.mc`) -> `GERMREMAPDONE`(`0o2725`) -> the BLT copy loop
+(`Fetch_ RTemp5`@`0o2762` from MDS0, `Store_ T,DBuf_ MD`@`0o2761` to MDS76).
+**Task-0 stalls at the BLT Store `0o2761`** and the fault task (`0o17`)
+takes over (TPC `0o1606`) and never resolves. insset=1 (Cedar world is
+running), **no IFU dispatch / no XFER yet**.
+
+Root cause: the germ's resident pages (VA `0o17401000+`, MDS 76) are still
+**VACANT** at the stall (`rp=0 wp=1 dirty=1`). GERMREMAP's `WriteMapPage`
+*did* run for every page, but the Map index it writes, `(0o17401000>>8) &
+(DM_MAP_ENTRIES-1)` = `0o37002`, **ALIASES** low VAs (e.g. `0x3C0200`,
+`0x7C0200`, ...) because the Map is only **16384 entries** (`MapIs16K`,
+`DM_MAP_ENTRIES`) while the Mesa world's VA space (MDS 76 ~ VA 4M) far
+exceeds 16K pages. So the MDS-76 map writes collide with / are overwritten
+by other-VA entries, the germ destination stays vacant, and the BLT store
+faults.
+
+### NEXT PASS
+
+The descriptor + disk-read feed is DONE and faithful; the remaining work is
+the **Map size**. Two routes:
+(a) **Widen the Map** so MDS 76 doesn't alias: make `GetMemConfig`/the DMux
+    muffler report `MapIs64K` (or `256K`) and grow `DM_MAP_ENTRIES` to
+    `0o200000`+ so `0o17401000>>8 = 0o174010` is a *distinct* index. This is
+    the muffler/`SetDMuxAddress` path fixed in the 2026-06-14 DMux session
+    (currently pinned to 16K); raising it touches the whole memory model +
+    the cold InitMem loop bound, so revalidate the Alto gates carefully.
+(b) Audit `WriteMapPage`'s Map-write Hold handshake (gap B1/C1) -- but the
+    aliasing above is the dominant cause; (a) is the real fix.
+Repro: `./build/dorado --eb '../chm/dorado/CedarDorado.eb!6' --germ
+'../chm/cedar/germ/Dorado.germ!4' --cycles 90000000` -> the three
+`[machine] germ passN` lines print, then it relocates and stalls at the BLT.
+
 ## ROUTE B (2026-06-15, session 2): disk-completion mechanism PROVEN; germ-run blocked on the (remote) PV-root descriptor format
 
 This session **proved the IOCB completion mechanism empirically** and

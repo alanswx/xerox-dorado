@@ -109,16 +109,45 @@ struct dorado_machine {
     int      initseq_n;
 
     /* Pilot germ plant (Route B). When germ_path is set, the germ file
-     * image is loaded here at create and deposited into VM the first
-     * time the Cedar germ-boot disk-transfer spin is reached. */
+     * image is loaded here at create and fed to the real PilotBoot disk
+     * read passes the first time the Cedar germ-boot disk-transfer spin
+     * is reached. */
     uint16_t germ_words[8192]; /* Dorado.germ!4 = 32 pages * 256 words   */
     int      germ_word_count;
-    int      germ_planted;
+    int      germ_passes;      /* # of DiskBootSoft IOCB passes completed */
+    int      germ_descriptor_done; /* pass 1 (descriptor) completed       */
+    int      germ_label_done;      /* pass 2 (label) completed            */
+    int      germ_data_done;       /* pass 3 (germ file) completed        */
 };
 
 /* Pilot germ resident VM base (Dorado.loadmap GERM FILE MAP: file page
- * W -> VM word 0o17401000 + W, contiguous, no leader page). */
+ * W -> VM word 0o17401000 + W, contiguous, no leader page). This is the
+ * FINAL resident location, produced by PilotBoot.GERMREMAP. The microcode
+ * first reads the germ into the low-64K buffer at BootDataPtr=baseGerm
+ * (0o1000), validates the PV descriptor, then GERMREMAP relocates it. */
 #define GERM_VM_BASE 017401000u
+
+/* PilotBoot / DiskBootSoft / PilotDiskDefs constants (octal).
+ * IOCB is built at (R400)+31 = 0o431 with MemBase=IOBR (base 0), so the
+ * absolute VA of each field == 0o431 + field offset from PilotDiskDefs.mc. */
+#define IOCB_BASE_VA      0431u
+#define IOCB_SEAL_VA      0432u   /* IOCB.seal       (offset 1)  */
+#define IOCB_PAGECOUNT_VA 0434u   /* IOCB.pageCount  (offset 3)  */
+#define IOCB_COMMAND_VA   0435u   /* IOCB.command    (offset 4)  */
+#define IOCB_LABELSTAT_VA 0453u   /* IOCB.labelStatus(offset 22) */
+#define IOCB_DATAPTR_VA   0454u   /* IOCB.dataPtr lo (offset 23) */
+
+#define IOCB_SEAL_VALUE   0125377u /* IOCBSealValue (PilotDiskDefs.mc)    */
+
+/* DiskBootSoft.mc disk commands distinguishing the three read passes. */
+#define DISK_CMD_DESCRIPTOR 0274u   /* [check,read,read], descriptor->page 0 */
+#define DISK_CMD_LABEL      0260u   /* [check,read,none], first-page label    */
+#define DISK_CMD_GERMDATA   0100254u/* incrementDataPtr|[check,check,read]    */
+
+/* PilotBoot.mc: baseGerm = BootSwap.countSkip*wordsPerPage = 0o1000.
+ * GermBoot sets BootDataPtr_ baseGerm, so pass 3 reads the germ into the
+ * low-64K buffer starting here. */
+#define GERM_LOW_BUFFER   01000u
 
 static const uint8_t standard_alufm[ALUFM_SIZE] = {
     025, 000, 014, 054, 062, 022, 035, 027,
@@ -217,6 +246,28 @@ static void machine_identity_map_storage(dorado_memory *mem)
     for (uint32_t pg = 0; pg < pages; pg++) {
         dorado_map_set(mem, pg, (uint16_t)pg, /*wp=*/0, /*dirty=*/0);
     }
+}
+
+/* Find a real (physical) page not referenced by any resident Map entry.
+ * Models a Pilot fault handler allocating a free real page to back a
+ * faulting VM page. Returns the real-page number, or 0xFFFF if none. */
+static uint16_t machine_find_free_rp(const dorado_memory *mem)
+{
+    uint32_t total = (uint32_t)(mem->storage_words / DM_PAGE_SIZE);
+    if (total == 0) return 0xFFFF;
+    if (total > 0x10000u) total = 0x10000u; /* rp is 16-bit */
+    /* Mark every real page that a resident map entry uses. */
+    static uint8_t used[0x10000];
+    memset(used, 0, total);
+    for (uint32_t i = 0; i < DM_MAP_ENTRIES; i++) {
+        const dorado_map_entry *e = dorado_map_get(mem, i);
+        if (e->wp && e->dirty) continue;          /* vacant -- ignore */
+        if (e->rp < total) used[e->rp] = 1;
+    }
+    /* Allocate from the top so we avoid the low identity-mapped pages. */
+    for (uint32_t rp = total; rp-- > 0; )
+        if (!used[rp]) return (uint16_t)rp;
+    return 0xFFFF;
 }
 
 void dorado_machine_config_default(dorado_machine_config *cfg)
@@ -688,40 +739,126 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                         (unsigned long long)bb->cycles, pre_pc);
         }
 
-        /* Route B germ plant. The Cedar microcode's disk germ-boot
-         * (PilotBoot -> DiskBootSoft -> DiskBootTransfer) reads the Pilot
-         * germ off a physical-volume boot pack we do not have, then spins
-         * forever in BootTransferLp waiting for iocb.seal to clear (the
-         * RTC430 timeout never fires because the junk timer is quiesced at
-         * the LoadRam handoff). Real PC 0o7012 is that spin's seal-fetch
-         * micro-op; it is placed only in the Cedar/Mesa world (the Alto
-         * worlds never reach it), so gating here keeps the regression gate
-         * structurally untouched. When a germ image is loaded, deposit it
-         * into VM at its resident addresses (Dorado.loadmap GERM FILE MAP:
-         * file word W -> VM 0o17401000 + W, contiguous, no leader page).
+        /* Route B germ disk-read interception. The Cedar microcode's disk
+         * germ-boot is PilotBoot.GermBoot -> DiskBootSoft -> BootTransfer
+         * (DiskBootTransfer.mc). DiskBootSoft issues THREE disk-read passes
+         * against an IOCB at VM 0o431:
+         *   1. command 0o274  ([check,read,read])  -- read the PV root-page
+         *      Descriptor into memory page 0 (IOCB.dataPtr=0).
+         *   2. command 0o260  ([check,read,none])  -- read the first page's
+         *      label (no data) to learn the file type.
+         *   3. command 0o100254 (incrementDataPtr|[check,check,read]) -- read
+         *      the whole germ boot file into the low-64K buffer at
+         *      IOCB.dataPtr = BootDataPtr = baseGerm (0o1000), advancing
+         *      dataPtr by 0o400 per page.
+         * Each pass posts the IOCB (seal=IOCBSealValue) then spins in
+         * BootTransferLp at real PC 0o7012 (the seal-fetch) until the disk
+         * microcode clears iocb.seal. We have no boot pack and the disk data
+         * path is incomplete, so we FAKE each pass at the spin: deposit the
+         * data the real microcode expects, then KCmmdDone-complete the IOCB
+         * (seal=0, pageCount=0, labelStatus=0 -> BootTransfer returns +2,
+         * proven mechanic). The REAL microcode then validates the Descriptor
+         * (seal=0o121212, version=6 -- DiskBootSoft.mc), reads the germ,
+         * runs PilotBoot.GERMREMAP to relocate the germ into MDS 76 and
+         * XFERs into the germ wart -- we hand-roll none of that.
          *
-         * NOTE: depositing the germ is necessary but not yet sufficient to
-         * run it -- the germ executes as Mesa code (insset != 0) and needs
-         * the PilotBoot GERMREMAP map/MDS setup + the Mesa XFER handoff,
-         * whose microcode source is not in our tree. So this lands the
-         * resident image (verifiable by read-back) and is the scaffolding
-         * the handoff step builds on; see docs/CONTINUE-HERE.md. */
-        if (m->germ_word_count && !m->germ_planted &&
+         * PC 0o7012 is placed only in the Cedar/Mesa world (the Alto worlds
+         * never reach it), so this stays gated off the regression gate. */
+        if (m->germ_word_count && !m->germ_data_done &&
             m->ether_loaded_world_cycle && is_imfetch && cpu->ctask == 0 &&
             pre_pc == 07012) {
-            int landed = 0;
-            for (int w = 0; w < m->germ_word_count; w++) {
-                if (dorado_storage_store_at_va(&m->mem, GERM_VM_BASE + (uint32_t)w,
-                                               m->germ_words[w]) == 0)
-                    landed++;
+            uint16_t seal = dorado_visible_word_at_va(&m->mem, IOCB_SEAL_VA);
+            if (seal == (uint16_t)IOCB_SEAL_VALUE) {
+                uint16_t cmd = dorado_visible_word_at_va(&m->mem,
+                                                         IOCB_COMMAND_VA);
+                if (cmd == (uint16_t)DISK_CMD_DESCRIPTOR &&
+                    !m->germ_descriptor_done) {
+                    /* Pass 1: fabricate the PV root-page Descriptor in page 0.
+                     * PhysicalVolumeFormat.mesa / PilotBootDefs.mc:
+                     *   word 0  Desc.seal           = 121212B
+                     *   word 1  Desc.currentVersion = 6
+                     *   Desc.bi.germ (offset 0o32) = germ's DiskFileID
+                     *     {fID[5]@0, firstPage@5, da[2]@7} -- the microcode
+                     *     copies these into the IOCB but our fake completion
+                     *     bypasses the real disk read, so plain zeroes (germ
+                     *     file page 0, fID 0, da 0) suffice. */
+                    /* The Mesa world leaves VM page 0 vacant (its null-trap
+                     * page: wp=1,dirty=1). The real descriptor DMA write to
+                     * page 0 would map-fault and XMFaultTask would make the
+                     * page resident before the write lands; our fake bypasses
+                     * the disk DMA, so emulate that side effect by making
+                     * page 0 resident (identity rp 0, writable) before the
+                     * deposit. The microcode comment confirms DiskBootSoft
+                     * "clobbers memory page 0 by reading the root page into
+                     * it." */
+                    const dorado_map_entry *e0 = dorado_map_get(&m->mem, 0);
+                    if (e0->wp && e0->dirty) {
+                        /* Allocate a free real page (the existing e0->rp is
+                         * aliased to another live VM page in the Mesa map, so
+                         * reusing it lets that page's dirty writeback clobber
+                         * our descriptor). */
+                        uint16_t frp = machine_find_free_rp(&m->mem);
+                        if (frp == 0xFFFF) frp = e0->rp;
+                        dorado_map_set(&m->mem, 0, frp, /*wp=*/0, /*dirty=*/0);
+                    }
+                    for (uint32_t w = 0; w <= 0043u; w++)
+                        dorado_storage_store_at_va(&m->mem, w, 0);
+                    dorado_storage_store_at_va(&m->mem, 0, 0121212u);
+                    dorado_storage_store_at_va(&m->mem, 1, 06u);
+                    m->germ_descriptor_done = 1;
+                    fprintf(stderr,
+                        "[machine] germ pass1 (descriptor) @cyc=%llu: "
+                        "seal=0o121212 version=6 at page 0 "
+                        "(readback[0]=0o%o [1]=0o%o)\n",
+                        (unsigned long long)bb->cycles,
+                        dorado_visible_word_at_va(&m->mem, 0),
+                        dorado_visible_word_at_va(&m->mem, 1));
+                } else if (cmd == (uint16_t)DISK_CMD_LABEL &&
+                           !m->germ_label_done) {
+                    /* Pass 2: first-page label read (no data). DiskBootSoft
+                     * does not inspect the label contents, so just complete. */
+                    m->germ_label_done = 1;
+                    fprintf(stderr,
+                        "[machine] germ pass2 (label) @cyc=%llu: completed\n",
+                        (unsigned long long)bb->cycles);
+                } else if ((cmd == (uint16_t)DISK_CMD_GERMDATA) &&
+                           !m->germ_data_done) {
+                    /* Pass 3: read the germ file into the low buffer at
+                     * IOCB.dataPtr (= BootDataPtr = baseGerm 0o1000). Deposit
+                     * germ file word W -> VM dataPtr+W, then advance dataPtr
+                     * by 0o400 per page (as the disk microcode would) so
+                     * GermBoot reads BootDataPtr = dataPtr + 0o400*pages and
+                     * GERMREMAP relocates exactly the loaded extent. */
+                    uint16_t dptr = dorado_visible_word_at_va(&m->mem,
+                                                              IOCB_DATAPTR_VA);
+                    int landed = 0;
+                    for (int w = 0; w < m->germ_word_count; w++) {
+                        if (dorado_storage_store_at_va(&m->mem,
+                                (uint32_t)dptr + (uint32_t)w,
+                                m->germ_words[w]) == 0)
+                            landed++;
+                    }
+                    uint32_t pages = (uint32_t)(m->germ_word_count + 0377) / 0400u;
+                    uint16_t new_dptr = (uint16_t)(dptr + pages * 0400u);
+                    dorado_storage_store_at_va(&m->mem, IOCB_DATAPTR_VA,
+                                               new_dptr);
+                    m->germ_data_done = 1;
+                    fprintf(stderr,
+                        "[machine] germ pass3 (data) @cyc=%llu: %d/%d words "
+                        "at VM 0o%o+ (word0=0o%o), dataPtr 0o%o->0o%o\n",
+                        (unsigned long long)bb->cycles, landed,
+                        m->germ_word_count, dptr,
+                        dorado_visible_word_at_va(&m->mem, dptr),
+                        dptr, new_dptr);
+                }
+                /* KCmmdDone completion (proven): clear seal, zero pageCount
+                 * and labelStatus -> BootTransfer's post-spin check sees
+                 * pageCount==0 and returns +2 (success). */
+                dorado_storage_store_at_va(&m->mem, IOCB_SEAL_VA, 0);
+                dorado_storage_store_at_va(&m->mem, IOCB_PAGECOUNT_VA, 0);
+                dorado_storage_store_at_va(&m->mem, IOCB_LABELSTAT_VA, 0);
+                m->germ_passes++;
             }
-            m->germ_planted = 1;
-            fprintf(stderr,
-                    "[machine] germ planted @cyc=%llu: %d/%d words at VM "
-                    "0o%o+ (readback word0=0o%o)\n",
-                    (unsigned long long)bb->cycles, landed, m->germ_word_count,
-                    GERM_VM_BASE,
-                    dorado_visible_word_at_va(&m->mem, GERM_VM_BASE));
         }
 
         /* Track the world's currently-posted Ethernet input-buffer size

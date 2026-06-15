@@ -699,10 +699,19 @@ int dorado_storage_store_at_va(dorado_memory *mem, uint32_t va, uint16_t val)
         return -1;
     mem->storage[phys] = val;
     /* Keep the cache coherent: drop any line currently holding VA so the
-     * next fetch reloads the freshly deposited word from storage. */
-    int way;
-    if (dorado_cache_lookup(mem, va, &way))
-        mem->cache[va_cache_row(va)].ways[way].valid = 0;
+     * next fetch reloads the freshly deposited word from storage. Scan all
+     * ways by tag (not via dorado_cache_lookup, which skips VACANT lines):
+     * a page that was previously vacant (e.g. the Mesa null-trap page 0)
+     * can hold a stale valid+vacant line that would otherwise satisfy a
+     * later fetch with garbage instead of the word we just deposited. */
+    uint32_t tag = va_cache_tag(va);
+    dorado_cache_row *row = &mem->cache[va_cache_row(va)];
+    for (int w = 0; w < DM_CACHE_WAYS; w++) {
+        if (row->ways[w].valid && row->ways[w].tag == tag) {
+            row->ways[w].valid  = 0;
+            row->ways[w].vacant = 0;
+        }
+    }
     return 0;
 }
 
