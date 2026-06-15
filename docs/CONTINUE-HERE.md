@@ -1,5 +1,60 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## ROUTE B (2026-06-15, session 12): IFUM Length field is `notLength` (`~length`), not `length-1` -- fixed in `ifu_decode_lh`; germ jumps from 10 to **53 IFU dispatches** (past the op-`002` / SD[7] ControlFault); new blocker = germ stops dispatching after the 53rd bytecode and spins, having issued NO outbound Pup (does not yet reach its own Ethernet volume fetch)
+
+### The fix (committed `57b6d18`) -- microcode-grounded (`chm/microd/mdfields.d` TIFUM)
+
+`src/cpu.c ifu_decode_lh` decoded the 2-bit IFUM Length field as
+`ifu_length = lpr + 1`. Per `mdfields.d`'s `TIFUM` struct the field is
+**notLength** = `~length & 3`, so `length = ~lpr & 3` (field 2 -> len 1,
+1 -> len 2, 0 -> len 3). The old `lpr+1` form is correct ONLY for the
+length-2 case (field 1), which is why it survived every Alto gate (all
+Alto/Nova opcodes are 2 bytes). It mis-sized every length-1 and length-3
+opcode, corrupting the saved Mesa PC in `SavePCInFrame` for the
+PrincOps/Mesa instruction set (e.g. 1-byte `LFC4`/`NOOP`).
+
+Three synthetic IFU tests in `tests/test_cpu.c` (`test_ifu_conditional_
+dispatch`, `test_ifu_conditional_cond_true`, `test_ifu_dispatch_
+synthetic`) encoded their length-1 INC/HALT opcodes with the old
+`length_p = 0`; updated to `2` (notLength of length 1) so they assert the
+same intended opcode length under the corrected decode. Length-2 cases
+unchanged.
+
+### Result (verified)
+
+- Germ: **53 IFU dispatches** (was 10). It now executes a long run of real
+  Cedar/Mesa bytecodes (ops `263 170 071 256 343 060 056 264 163 070 100
+  050 374 364 331 020 022 350 111 164 344 304` ...).
+- **New blocker:** after the 53rd dispatch -- op `0o304` at real `pc=0o761`,
+  IFUM vec `0o764` -- the germ stops issuing opcodes and spins in microcode
+  for the rest of the 120M-cycle budget (0 further IFU dispatches).
+- **Does NOT yet reach its own Ethernet volume fetch.** The only outbound
+  TX (`DORADO_ETH_TX_TRACE`, n=13) fires at cyc < 31M -- that is Stage-1
+  `EtherMicrocodeBoot`'s request, before the world loads. The germ runs at
+  cyc 67M+ (pass3 data load @67.28M) and issues **zero** Pups; no outbound
+  `0244` Mayday. The 2 fetch faults (`pc=0o6023/0o6024`, va=0) are early
+  bootstrap-phase (cyc ~11.3M), unrelated to the germ.
+- 0 display pixels.
+
+Next: disassemble Cedar op `0o304` (insset=1) and trace the microcode at
+IFUM vec `0o764` / real `pc=0o761` to find why the germ halts dispatch
+there (waiting on a device/memory cell? a fault that self-loops? needs the
+keyboard/DDC back-channel to pick a boot mode?). Repro:
+`DORADO_IFUDISP_TRACE=1 ./build/dorado --eb '../chm/dorado/CedarDorado.eb!6'
+--germ '../chm/cedar/germ/Dorado.germ!4' --cycles 120000000`.
+
+### HARD REGRESSION GATE -- ALL GREEN
+
+1. `make test` = **10/10** suites (with the 3 test-encoding updates).
+2. AEmu NETEXEC @200M: **1481** px (band 1476-1505). PASS.
+3. Galaxian: **121553** px @160M (=121552 +/-1); 121641 @122M, 124239 @118M
+   -- animation-frame variance, NOT a regression (all Alto opcodes are
+   length-2, so the decode is bit-identical old vs new). PASS.
+4. AltoMesaDorado.eb!2 + NETEXEC: **1475/1484/1488** px @200/195/205M
+   (band 1466-1505; banner renders host time so it varies run-to-run;
+   menu renders). PASS.
+5. `make sdl` compiles.
+
 ## ROUTE B (2026-06-15, session 11): the boot XFER's `XferProc` now stores BootSwapGerm's saved-G (frame[0]) correctly (`0o4634`); `LoadGC` loads G correctly; the swap-trap loop is GONE; the germ now runs 10 bytecodes (was 6) -- 4 more after the prologue RET; new blocker = a later XFER (after the 10th bytecode, op `002`) hits a ControlFault into the still-empty SD trap table
 
 ### Root cause of the session-10 blocker (XferProc stored frame[0] = `0o10210` instead of `~0o4634`)
