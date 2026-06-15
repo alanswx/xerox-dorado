@@ -17,24 +17,32 @@ Now `AltoMesaDorado.eb!2` + NETEXEC paints (~1466 px); AEmu still green (NETEXEC
 121552, suite 10/10). Foundational: every canonical Xerox world had been loading
 IFUM-transposed, masked only by the cancelling `mb2eb` pre-swap.
 
-**Mesa VM reached; stops at the first XFER.** Serving a Mesa-format (`0o345`) program
-(MazeWar/MesaNetExec/AlphaMesa) to `AltoMesaDorado.eb!2`: downloads fully, runs the Nova
-relocation bootstrap, switches to `insset=2` (the Mesa VM), and dispatches exactly 6 Mesa
-bytecodes at VM PC `0x5108` (`360,127,012,100,111,362`). The 6th, op `362` (XFER, microcode
-real PC `0o700`, IFUM vec `0o1270`), takes the trap path back to `insset=0` (Nova trap frame
-VM PC `0o26`) and never re-enters the Mesa VM -- a real microcode-driven transfer, not a halt.
-The boot prologue's first XFER traps out.
+**Mesa VM reached and works; op 362 is `@STOP` (designed), not an XFER trap [CORRECTED].**
+Serving a Mesa-format (`0o345`) program (MazeWar) to `AltoMesaDorado.eb!2`: downloads fully,
+runs the Nova relocation bootstrap, switches to `insset=2` (the Mesa VM), and runs a 6-bytecode
+boot prologue at VM PC `0x5108` (`IWDC,RIL0,LL2,R0,WB,STOP`). The 6th, op `362`, is **`@STOP`** --
+the *designed* Mesa->Nova handoff, executed faithfully (`DMesaXfer.mc`: "save state and exit to
+Nova world", loads `T=MesaStopLoc=0o26`; no fault; the `insset>=2` byte order at `cpu.c:2159` is
+confirmed correct). So the Mesa VM genuinely works -- "stops at first XFER" was the wrong framing.
+The 13 `DMesa*` Mesa-VM modules (named `AltoMesa*` in `AltoMesa.cm`, `DMesa*` on disk) are local in
+`chm/doradomicrocode/doradomicrocodesources/`.
 
-**Mesa-VM source now LOCAL.** The 13 `DMesa*` modules (named `AltoMesa*` in `AltoMesa.cm` but
-`DMesa*` on disk) are pulled into `chm/doradomicrocode/doradomicrocodesources/`. `DMesaXfer.mc`
-holds the XFER chain: `Xfer`/`XferProc` (transfer through a control link), the traps
-`XferTrap`/`SavePCAndTrap`/`MTrap`, and `MGO` (enter Mesa from Alto) / `STOP` (exit Mesa to
-Alto) -- that `STOP` IS the `insset<-0` bounce. So op `362` -> `Xfer` -> `XferTrap` -> `STOP`.
+**Real Mesa blocker: two separate, larger items (neither a gated one-liner).** After `@STOP` the
+Nova world parks polling an I/O-completion control block; device confirmed = Ethernet (not
+RTC/keyboard). It splits:
+- **MazeWar / interrupt-driven `0o345` worlds:** receives DO complete (EPLOC `0o600` posts InDone
+  `0o377`, data lands in the posted buffer) but the OS waits on the IOCB status word (`mem[AC3+1]`,
+  e.g. `0o176217`) that the real `EtherInterrupt` (`PupAlEtha.asm`) writes -- which needs the
+  **Alto interrupt fabric modeled on AEmu**: NWW (`0o452`) + the emulator-microcode interrupt
+  check/vector through `0o500-0o517`. "OR EBLOC->NWW" is a no-op (EBLOC reads 0; capture it at the
+  exact post instant -- `StartEther` may set it transiently). Do not re-implement `EtherInterrupt`
+  in C (don't-invent-behavior).
+- **CedarNetExec:** a different loop polling EPLOC directly (no interrupt); Rx works but it awaits
+  Cedar-germ *server content*, so its path is the **Cedar germ/Pilot net-boot**
+  (`InitialEtherCedarDorado.eb!3` + `CedarDorado.eb!6` + germ), per the FINDING below -- not the
+  Alto receive interrupt.
 
-**Next blocker (op 362 XFER trap).** Decide: legitimate Mesa trap on missing world state (an
-unbound control link / global frame table the Pilot/germ runtime should have set up) vs an
-engine mis-model in the `Xfer` memory path. Read `DMesaXfer.mc` `Xfer`/`XferTrap` against a
-trace of what op `362` reads before trapping.
+(The `2026-06-13f` interrupt-cell framing was retracted by `13g`; don't rely on it.)
 
 **Also landed.** NetExec game menu (`87834cd`): `--boot-dir-all` (default) advertises all 29
 Alto B-format games via the `257B`/`260B` boot directory; boot NETEXEC and type a game name at
