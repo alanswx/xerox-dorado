@@ -1,5 +1,91 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## ROUTE B (2026-06-15, session 9): the prologue RET's ZeroDest is FIXED (two grounded bugs); the RET now reads the correct return link and returns cleanly into BootSwapGerm; new blocker = the frame-return LoadGC mis-loads G because the boot XFER stored BootSwapGerm's saved-G (frame[0]) wrong
+
+### Root cause of the session-8 blocker (RET reads a zero return link -> ZeroDest)
+
+TWO independent bugs, both in the shared Mesa-VM XFER path, masked each other:
+
+1. **`MemBase_ L` mis-decoded (emulator, HM Table 11d).** `MemBase_ L`
+   (L = base register 0) compiles to the **MemBaseX form** FF=`0o250`
+   (FA=2 FB=5 FC=0). Our `ff_apply_post` handler for "MemBaseX <- FF[6:7]"
+   reused the OLD MemBase bits: `(MemBase&0o30)|((MemBase>>1)&3)|((ff&3)<<3)`,
+   so with MemBase=MDS(`0o36`) it produced `0o33`, NOT 0 (=L). HM Table 11d
+   (FA=2): "MemBase[0]<-0, MemBase[1:2]<-MemBX[0:1], MemBase[3:4]<-FF[6:7]"
+   => `MemBase = ((MemBX&3)<<2)|(FF[6:7])` (the SAME construction the IFU
+   uses at the `MemB[0]==0` case). Fix in `src/cpu.c`. Effect: the local
+   frame base register L was never loaded with the allocated frame -> L=0 ->
+   SavePCInFrameIL computed SLink=0 -> the LFC4-called proc's returnLink
+   (`L[2]`) = 0 -> RET ZeroDest.
+
+2. **pipe_push fault-preservation guard blocked the emulator's OWN store
+   (emulator, HM page 51).** With #1 fixed, the RET then read return link
+   `0o20056` (still wrong). `SavePCInFrameIL` does `Store<-1S; SLink<- T AND
+   VALo` where `VALo` = `B<-Pipe1` (the VA of its own just-issued store, read
+   back from `pipe[ProcSRN]`). The session-7 guard that preserves the
+   first-faulting pipe entry was skipping **every** push to `pipe[ProcSRN]`
+   while `fault_count>0` (stuck at 15 in the Cedar path) -- including the
+   emulator's own `Store<-1S` -- so `VALo` read a stale IFU code VA
+   (`0o20057`) instead of the store's VA. HM page 51 ("IFU References"): the
+   hardware "disables IFU references when the processor is either making a
+   reference or doing ... B<-Pipei", so only the **asynchronous IFU
+   prefetch** can clobber the private slot, never the emulator's own ref.
+   Fix in `src/memory.c`: restrict the guard to `DM_REF_IFETCH`/
+   `DM_REF_PREFETCH`. Effect: `VALo` now reads the store's VA, SLink =
+   `0o3354` (BootSwapGerm's frame), RET reads `L[2]=0o3354` and returns.
+
+### Result (verified)
+
+- The prologue RET (op `343`) now reads return link `0o3354` and returns
+  cleanly into BootSwapGerm. **ZeroDest fault is GONE** (0 hits around the
+  RET). Control runs on into the frame-return path (XferDisp00 -> LoadGC).
+
+### HARD REGRESSION GATE
+
+1. `make test` = **10/10**.
+2. AEmu NETEXEC @200M: **1491** px (band 1476-1505). PASS.
+3. Galaxian @160M: **121553** px (=121552 +/-1). PASS.
+4. AltoMesaDorado.eb!2 + NETEXEC @200M: **1499-1502** px (3 runs).
+   NOTE: this shifted UP ~12 px from the HEAD baseline (1485-1495). Isolated:
+   the shift is ENTIRELY from the (correct, HM Table 11d) `MemBaseX<-FF[6:7]`
+   fix -- AltoMesaDorado also uses that FF form, and the old code gave a
+   buggy result there too. The pipe-guard fix alone reproduces the baseline
+   (1489-1496). The world still boots and renders the NetExec menu correctly;
+   the +12 px is benign NetExec host-time render-timing from a correct fix.
+   The AltoMesaDorado band should be recalibrated to ~1485-1502.
+5. `make sdl` compiles (links `build/dorado-sdl`; no `test_cpu.c:7709`
+   warning reproduces).
+
+### NEW blocker (session 10): frame-return LoadGC mis-loads G; BootSwapGerm's saved-G (frame[0]) was stored wrong at the boot XFER
+
+After the RET returns to BootSwapGerm (frame `0o3354`), `XferDisp00` calls
+`LoadGC` to restore G/Code from the frame's word 0 (the saved access
+link/G). But **frame[0] = `0o10210`**, not BootSwapGerm's G (~`0o4634`).
+LoadGC therefore reads a garbage global frame -> unbound/swap trap (T=`0o10`)
+-> MTRAP -> `SD[0o10]`=0 -> ZeroDest loop. **Still 6 IFU dispatches.**
+
+Where frame[0] got corrupted: at the **boot XFER's `XferProc`** (DMesaXfer.mc
+`L[0]_G`, line 766 `T_ (Store_ RTemp0)+1, DBuf_ T`). The stored G comes from
+line 765 `T_ VALo`, which reads the VA of the preceding line-763
+`DummyRef_ 0S` at G[0]. Traced (gated): that DummyRef referenced VA
+`0x3E1088` (lo `0o10210`) -- which matches NEITHER `BR[G].lo`=`0o4634` NOR
+`BR[Code].lo`=`0o16414` as loaded by the boot LoadGC (BRLO_FF trace:
+`0o3612` mb=01 a=`0o4634`; `0o3604` mb=37 a=`0o16414`; `0o3641` mb=37 hi=`0o76`).
+So the base register **selected/resolved at the line-763 DummyRef (real PC
+`0o4030`, MemBase shown =`0o1`=G)** is wrong -- the same MemBase/BR-resolution
+family as bug #1, but in the XFER setup. NEXT PASS: gate-trace the **at-issue
+MemBase index AND the resolved BR value** at PC `0o4030` (~cyc 67975051) plus
+every BR[1]/BR[037] load between the boot LoadGC and that DummyRef; decide
+MemBase-load timing vs a stray BR reload. (`0o4030` is not listed by
+`mbdis --disasm` -- likely a placement detail; find it via image index.)
+
+Repro: `DORADO_IFUDISP_TRACE=1 ./build/dorado --eb
+'../chm/dorado/CedarDorado.eb!6' --germ '../chm/cedar/germ/Dorado.germ!4'
+--cycles 80000000` -> 6 dispatches (LFC4/LI1/165/263/361/RET) then the
+LoadGC-trap loop; first XFER at cyc 67974929, RET at ~67975296. Useful gated
+traces: `DORADO_XFER_TRACE`, `DORADO_BR_TRACE`, `DORADO_PIPEVA_TRACE`
+(all need `DORADO_TRACE_GATE="lo,hi"`).
+
 ## ROUTE B (2026-06-15, session 8): germ FILE was loaded LITTLE-endian but Dorado memory is BIG-endian; fixing the byte order makes the first XFER complete and the germ now DISPATCHES Mesa bytecode (BootSwapGerm prologue runs); new blocker = the prologue's RET reads a zero return link
 
 ### Root cause of the post-MGo XFER/MTRAP loop (the session-7 blocker)

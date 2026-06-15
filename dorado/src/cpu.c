@@ -1290,9 +1290,16 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
         if (fb == 5) {
             switch (fc) {
             case 0: case 1: case 2: case 3:  /* MemBaseX ← FF[6:7] */
-                cpu->MemBase = (cpu->MemBase & 0x18) |
-                               ((cpu->MemBase >> 1) & 0x03) |
-                               ((u->ff & 0x03) << 3);
+                /* HM Table 11d (FA=2): MemBase[0]←0, MemBase[1:2]←MemBX[0:1],
+                 * MemBase[3:4]←FF[6:7]. In C-LSB the 5-bit MemBase is
+                 * ((MemBX[0:1])<<2) | FF[6:7], with the top bit (0x10)
+                 * forced 0. This is the same construction the IFU uses to
+                 * load a MemBX-relative MemBase (see the MemB[0]==0 case
+                 * below). The previous code reused the OLD MemBase bits,
+                 * so `MemBase_ L` (FF=0o250, MemBX=0) yielded 0o33 from MDS
+                 * instead of 0 (=L), corrupting the local frame base reg. */
+                cpu->MemBase = (uint8_t)(((cpu->MemBX & 0x3) << 2) |
+                                         (u->ff & 0x03));
                 return pd;
             case 4: case 5: case 6: case 7:  /* MemBX ← FF[6:7] — TBD */
                 return pd;

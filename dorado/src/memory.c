@@ -162,18 +162,28 @@ static void pipe_push(dorado_memory *mem, int srn, dorado_ref_kind kind,
 {
     srn &= (DM_PIPE_DEPTH - 1);
     /* Preserve the first-faulting ProcSRN reference's pipe entry until the
-     * fault handler reads it. On real Dorado consecutive references get
-     * distinct SRNs (a 16-entry ring), so the faulting reference's slot
-     * survives any later reference made before the fault task runs. ASRN
-     * (I/O) references already cycle through distinct slots here, but the
-     * emulator and fault tasks share a single fixed ProcSRN slot, so without
-     * this guard the IFU prefetch of the next opcode (also task 0, ProcSRN)
-     * would clobber pipe[ProcSRN] (=SRNFirstFault) before AEmu's XMFaultTask
-     * Fault0 reads VAHi/VALo — making it take the page-377 store path to
-     * MapFault (an unhandled-fault hang) instead of IgnoreStore. Restricted
-     * to the ProcSRN slot so the ASRN ring still wraps normally. Released
-     * when the fault is cleared (dorado_fault_clear). */
+     * fault handler reads it. On real Dorado the faulting reference's slot
+     * survives any *asynchronous IFU* reference made before the fault task
+     * runs: HM page 51 (Memory Section, "IFU References") says the hardware
+     * "disables IFU references when the processor is either making a
+     * reference or doing ... B<-Pipei", so an IFU prefetch can never clobber
+     * the emulator's private pipe entry in the cycle the emulator reads it
+     * back. The emulator and fault tasks share one fixed ProcSRN slot here,
+     * so without this guard the IFU prefetch of the next opcode (also task 0,
+     * ProcSRN) would clobber pipe[ProcSRN] (=SRNFirstFault) before AEmu's
+     * XMFaultTask Fault0 reads VAHi/VALo.
+     *
+     * The guard must apply ONLY to the asynchronous IFU references, NOT to
+     * the emulator's own Fetch/Store: a subsequent emulator reference to its
+     * private slot legitimately replaces the entry (the fault task has read
+     * it by then), and the shared Mesa-VM SavePCInFrameIL does
+     * `Store<-1S; SLink<- T AND VALo`, reading back its OWN store's VA via
+     * Pipe1 — blocking that store's push (when fault_count is still nonzero,
+     * as in the Cedar germ boot) left VALo reading a stale IFU code VA and
+     * corrupted the local-frame return link. Released when the fault is
+     * cleared (dorado_fault_clear). */
     if (mem->fault_count > 0 &&
+        (kind == DM_REF_IFETCH || kind == DM_REF_PREFETCH) &&
         srn == (int)(mem->fault_first_srn & (DM_PIPE_DEPTH - 1)) &&
         srn == (int)(mem->proc_srn & (DM_PIPE_DEPTH - 1))) {
         return;
