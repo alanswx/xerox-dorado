@@ -3111,7 +3111,26 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
             uint32_t br = dorado_mcr_disbr(cpu->mem)
                         ? 0
                         : dorado_br_get(cpu->mem, membase);
-            uint32_t va = (br + mar) & 0x0FFFFFFFu;
+            /* VA = BR[MemBase] + D, D unsigned (HM "Memory Addressing",
+             * page 37). For all references except LongFetch, D is the
+             * 16-bit Mar (= A bus). LongFetch forms the FULL 28-bit
+             * displacement: "the complete 28-bit VA is
+             * (B[4:15]^Mar[0:15]) + BR[MemBase]" (HM "Processor Memory
+             * References", LongFetch entry; also "LongFetch takes the
+             * low 16 bits of address from RM/STK and high 8 bits from
+             * B"). The high 12 bits of D come from B[4:15] (the low 12
+             * bits of the B register, B & 0o7777) and land in VA[4:15].
+             * GetLinkID (DMesaXfer.mc) reads code-segment external links
+             * at negative offsets C-(ID+1) via `LongFetch_ ~ID, B_ -1`:
+             * B=0o177777 supplies D[4:15]=0o7777 so D is a 28-bit -5 and
+             * VA = CP-5, instead of the 16-bit Mar (-5 as 0o177773)
+             * wrapping a bank-carry into VA[4:15] and reading the wrong
+             * page. Without B's high bits EFC/external calls fault. */
+            uint32_t disp = (kind == DM_REF_LONGFETCH)
+                          ? (((uint32_t)(b & 07777) << 16) |
+                             (uint32_t)(mar & 0xFFFFu))
+                          : (uint32_t)(mar & 0xFFFFu);
+            uint32_t va = (br + disp) & 0x0FFFFFFFu;
             dorado_mem_trace_membase = membase;
             dorado_mem_trace_br = (int)br;
             dorado_mem_trace_mar = mar;

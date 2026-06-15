@@ -1,5 +1,79 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## ROUTE B (2026-06-15, session 13): `LongFetch` ignored the high address bits from B -- fixed the VA computation in `src/cpu.c`; the EFC4 (op `0o304`) external-link read now lands at the right code-segment word; germ jumps from **53 to 113 IFU dispatches**, running through **3 code modules** of Pilot/germ startup; new blocker = another ControlFault on an indirect control link that resolves to 0
+
+### The stall: op `0o304` = EFC4 (External Function Call 4)
+
+Op `0o304` is row `30x` col 4 of `DMesaDefs.mc!2` `MesaOps[...]` = **EFC4**.
+Its handler (`DMesaXfer.mc!1` `IFUP[EFC4,1,G,N[4]]` -> `EFCM1`) does
+`Fetch_ 0S, Call[GetLinkID]` then XFERs through the fetched external
+control link. `GetLinkID` reads the external link at code-segment offset
+`~ID` (= `-(ID+1)` = -5 for EFC4) via **`LongFetch_ T, B_ RTemp0`** with
+`MemBase=Code`, RTemp0=-1. The link lives at the negative offset C-5
+(VA `CP-5` = `0o17416407`, which holds the valid link `0o000605`).
+
+### Root cause (emulator mis-model, HM-grounded)
+
+`src/cpu.c` computed every memory-reference VA as `va = br + mar`, where
+`mar` is only the **16-bit** A bus. For `LongFetch` that drops the high
+address bits. Per HM "Processor Memory References" (LongFetch entry):
+*"A fetch for which the complete 28-bit VA is `(B[4:15]^Mar[0:15]) +
+BR[MemBase]`"* and "LongFetch takes the low 16 bits of address from
+RM/STK and **high 8 bits from B**." With B=RTemp0=`0o177777`, the
+displacement is a full 28-bit `-5`, so VA = CP-5. Our model used only
+Mar=`0o177773` (-5 as unsigned 16 bits), so the bank-carry pushed VA up
+one 64K bank to `0o17616407` (verified: that page is zero), read md=0 ->
+DLink=0 -> ZeroDest -> ControlFault(7) -> SD[7]=0 -> infinite trap loop.
+
+### The fix (committed) -- HM-grounded
+
+`src/cpu.c` memory-ref VA: for `DM_REF_LONGFETCH`, form the displacement
+as `((B & 0o7777) << 16) | (Mar & 0xFFFF)` (B[4:15] supplies VA[4:15]);
+all other reference kinds keep the plain 16-bit Mar. Confirmed by VMDUMP:
+intended CP-5 (`0o17416407`) holds `0o000605`; the old wrapped address
+(`0o17616407`) holds 0. **Alto worlds stay correct** because their
+LongFetch high bits come out the same (only the high-B contribution is
+new, and microcode written for real HW always loads B for a LongFetch);
+all pixel gates unchanged within band.
+
+### Result (verified)
+
+- Germ: **113 IFU dispatches** (was 53). After EFC4 it XFERs into a new
+  module (br31 `3E1D0C` -> `3E0D58`, 57 dispatches), then a third
+  (`3E1382`, 3 dispatches), running real Pilot/germ startup bytecodes.
+- **New blocker:** after the 113th dispatch (op `0o343` RET, vec `0o1034`,
+  cyc 67978584) the returned control link `0o27132` is an **indirect**
+  link (tag=10); Xfer fetches the real link at VA `0o17427132` (MDS+`0o27132`,
+  *past* the 8192-word germ extent `<=0o17421000`) and gets **md=0** ->
+  ZeroDest -> ControlFault(7) at pc `0o1711` -> `SD[7]`=0 -> the same
+  `0o1700/0o1041/0o1026/0o2000/0o1600` trap loop, now much further along.
+- Still **no own outbound Pup** (`DORADO_ETH_TX_TRACE` shows only the
+  Stage-1 n=13 boot request at cyc<31M); 0 display pixels.
+
+### HARD REGRESSION GATE -- ALL GREEN
+
+1. `make test` = **10/10** suites.
+2. AEmu NETEXEC @200M: **1482** px (band 1476-1505). PASS.
+3. Galaxian @160M: **121553** px (=121552 +/-1). PASS.
+4. AltoMesaDorado.eb!2 + NETEXEC @200M: **1480** px (band 1466-1505). PASS.
+5. `make sdl` compiles.
+
+### NEXT PASS (session 14)
+
+Decode the RET (op `0o343`, the 113th dispatch) and the indirect control
+link `0o27132` it returns into. Is VA `0o17427132` (beyond the loaded germ)
+a location the germ binds during later startup (missing state we should
+seed), or is the returned link itself corrupt (another addressing/BR
+mis-model in the RET / frame-return path, the family of sessions 9-13)?
+The RET path: pc `0o150`(RET) -> `0o1034` -> `0o1053` -> `0o1026`(XferMD,
+DLink=md=`0o27132`) -> `0o1700`(Xfer) -> tag=10 indirect -> fetch
+`0o17427132` md=0 -> ControlFault. Repro:
+`DORADO_IFUDISP_TRACE=1 ./build/dorado --eb '../chm/dorado/CedarDorado.eb!6'
+--germ '../chm/cedar/germ/Dorado.germ!4' --cycles 120000000` -> 113
+dispatches; gated `DORADO_XFER_TRACE` at `67978584,67978720` shows the
+failing indirect XFER; `DORADO_VMDUMP="017427100,017427140,67978620"`
+dumps the (zero) indirect-link region.
+
 ## ROUTE B (2026-06-15, session 12): IFUM Length field is `notLength` (`~length`), not `length-1` -- fixed in `ifu_decode_lh`; germ jumps from 10 to **53 IFU dispatches** (past the op-`002` / SD[7] ControlFault); new blocker = germ stops dispatching after the 53rd bytecode and spins, having issued NO outbound Pup (does not yet reach its own Ethernet volume fetch)
 
 ### The fix (committed `57b6d18`) -- microcode-grounded (`chm/microd/mdfields.d` TIFUM)
