@@ -1,5 +1,104 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## ROUTE B (2026-06-15, session 2): disk-completion mechanism PROVEN; germ-run blocked on the (remote) PV-root descriptor format
+
+This session **proved the IOCB completion mechanism empirically** and
+**reverse-engineered the descriptor seal/version constants from the
+Cedar.mb disasm**, then pinned the precise remaining blocker: fabricating
+a *minimal* descriptor (seal+version only) is not enough — the real
+PilotBoot microcode then dereferences the PV-root descriptor's
+`bootingInfo`/`DFID` structure, which we cannot fabricate because that
+Pilot layout is not in any local source. No code committed this session
+beyond this doc (the experiment was kept under `DORADO_GERM_EXP` and
+reverted); regression gate verified: `make test` 10/10, `make sdl`
+compiles, tree byte-identical to green HEAD (`9d8ab2f`) so the
+AEmu/Galaxian/AltoMesaDorado pixel checks are structurally unaffected.
+
+### What is now KNOWN (new this session)
+
+1. **Completion mechanism PROVEN (the linchpin).** At the `BOOTTRANSFERLP`
+   spin, writing **IOCB.seal=0 (VM 0o432), IOCB.pageCount=0 (0o434),
+   IOCB.labelStatus=0 (0o453)** makes `BootTransfer` return **+2 success**:
+   the hot PCs `0o7012`/`0o7003` are LEFT (observed flow
+   `7012→7003→7013→7051→7052→7053→7033→7017`(`BootTransferDone`)`→6713`
+   back in `DiskBootSoft`). This matches `PilotDisk.mc` `KCmmdDone`
+   (line 336-338: "Zero IOCB.seal"). NOTE: my static JCN branch-polarity
+   read was inverted; trust this empirical result. (Do NOT confuse with
+   the `0o7012` branch to `BootTransferTimeout` real `0o7002` — the
+   conditional R-bit polarity makes seal-cleared advance to the
+   pageCount/labelStatus success check, not to the timeout.)
+2. **MemBase=25 (IOBR), base 0** during the whole disk boot, so absolute
+   VA == the microcode's offsets (the committed plant's absolute stores
+   are correct). IOCB base **VM 0o431**; fields (PilotDiskDefs offsets):
+   seal `0o432`, drive `0o433`, pageCount `0o434`, command `0o435`,
+   diskAddress `0o436-437`, headerPtr `0o442`(=`@0o440`),
+   labelPtr `0o447`(=`@0o461`), labelStatus `0o453`,
+   dataPtr `0o454-455`, diskLabel `0o461+`. `IOCBSealValue=0o125377`.
+3. **Pass-1 (descriptor) IOCB confirmed live:** command `0o274`
+   (`[check,read,read]`), pageCount `1`, dataPtr `0` → the PV root page is
+   read into **page 0 (VA 0)**; `Desc.seal` is at **VA 0**.
+4. **Descriptor constants reverse-engineered** (Cedar.mb `DiskBootSoft`
+   images 6547-6553, the seal/version check `BTemp0_ HighByte[DescSeal]`,
+   `OR LowByte`, `XOR seal`, `XOR DescCurrentVersionValue`):
+   **`DescSealValue = 0o121212`** (HighByte = byte `0o242` → `0o121000`,
+   LowByte = `0o212`), **`DescCurrentVersionValue = 0o6`**. A descriptor
+   that passes the check needs `page0[0]=0o121212`, `page0[1]=0o6`.
+5. **GERMREMAP located in the disasm** (Cedar.mb, module PilotBoot):
+   `FINDENDMAPPEDVM` img 6505 / real `0o6724`, `GERMREMAPLP` img 6511 /
+   real `0o2763`, `GERMREMAPLPE` img 6523 / `0o2723`, `GERMREMAPDONE`
+   img 6524 / `0o2725`. It uses global calls (`JCN=370`/`311` = map RAM
+   subroutines) to relocate pages and set up the Mesa map/MDS, then the
+   tail XFERs into `BootSwapGerm`. It only runs AFTER `DiskBootSoft`
+   returns +2, i.e. it is gated behind the descriptor blocker below.
+
+### The PRECISE remaining blocker
+
+Depositing seal+version only and KCmmdDone-completing each pass advances
+the real microcode past `BOOTTRANSFERLP`, but then it **XFERs/faults into
+the Mesa fault path and loops forever** in `MESAFAULT`(real `0o3210`) /
+`REQUEUE`(`0o1300`) / `CHECKSTKP`(`0o2020`) / `RESTOREALUFM`(`0o6740`),
+with **insset=0 (NO IFU dispatch — the germ never runs)**. Root cause:
+after the seal/version check, GERMBOOT/`DiskBootSoft` dereference the
+descriptor's **`bootingInfo` array of `DFID`s** (BTemp2-relative; the
+booted file's `DFID.da` (2-word DiskAddress), `DFID.fID` (File.ID),
+`DFID.firstPage`) which we left zero. The Pilot **PhysicalVolume root-page
+descriptor format** (the `bootingInfo`/`DFID`/`BootFileType` layout +
+the `BTemp2` offset GERMBOOT computes) is **not in any local source** —
+only `DiskBootSoft.mc` *references* those symbols; the defs live in the
+unavailable `PilotBoot.mc` / Pilot `PhysicalVolume.mesa`, and inside
+`GermDorado.bcd` (remote binary, per `chm/cross-reference.html`). So a
+faithful descriptor cannot be fabricated yet, and a blind steer past the
+descriptor leaves the Mesa map/MDS unmounted → the same fault loop.
+
+**WARNING for the next pass:** do NOT make the committed plant
+auto-complete the IOCB without a real descriptor — it derails into the
+`MESAFAULT` loop, which is *worse* than the current benign spin.
+
+### NEXT PASS — two concrete routes to finish
+
+(a) **Recover the descriptor layout.** Get the Pilot PhysicalVolume
+   root-page format: `bootingInfo: ARRAY BootFileType OF DFID`,
+   `DFID = [da: DiskAddress(2w), fID: File.ID, firstPage]`, and the
+   `Desc.seal`/version offsets — from `GermDorado.bcd`, a Pilot
+   `PhysicalVolume.mesa`, OR by reverse-engineering **GERMBOOT** (real
+   `0o6737+`, PilotBoot, in the Cedar.mb disasm) to learn the `BTemp2`
+   (bootingInfo offset) it computes and which descriptor cells it reads
+   before/after `DiskBootSoft`. Then fabricate a COMPLETE descriptor so
+   the 3 passes run and `GERMREMAP`+XFER fire. The faithful IOCB-level
+   disk hook (deposit per-pass data at the `0o7012` spin: descriptor for
+   cmd `0o274`, label for cmd `0o260`, the germ at `IOCB.dataPtr` for the
+   `0o1xx254` incrementDataPtr pass, then KCmmdDone-complete) is the right
+   vehicle — it is PROVEN to advance the real microcode past the spin.
+(b) **Decode GERMREMAP fully** (Cedar.mb images 6505-6531) + the
+   post-`DiskBootSoft` GERMBOOT tail to learn the exact map/MDS state it
+   needs, plant the germ at `BootDataPtr` (read live from `IOCB.dataPtr`
+   VM `0o454`, not the final `0o17401000`), and steer into the XFER.
+
+Repro of the proven completion (re-add the gated experiment from git
+history of this session, or):
+`DORADO_GERM_EXP=1 ./build/dorado --eb '../chm/dorado/CedarDorado.eb!6'
+ --germ '../chm/cedar/germ/Dorado.germ!4' --cycles 120000000`.
+
 ## ROUTE B (2026-06-15): CedarDorado reaches the disk GermBoot; germ-plant scaffolding landed; germ-run blocked on PilotBoot source
 
 Route B = Cedar/Mesa germ net-boot. This session **characterized the disk
