@@ -47,6 +47,14 @@ typedef enum {
     DM_REF_IOSTORE,         /* io task */
     DM_REF_IFETCH,
     DM_REF_FETCH,
+    /* RMap← (HM page 46-47): read a map entry. Encoded like Map← (ASEL=0,
+     * FF[0:1]=1) but carries the ReadMap function (FB=3, FC=1), which
+     * makes it a *read* — it snapshots the entry's previous contents into
+     * the pipe (Map'/Errors') and never modifies the entry or faults.
+     * Map← without that function is the write. Kept as a distinct kind so
+     * the memory model does not corrupt the scanned entries (e.g.
+     * PilotBoot.FindEndMappedVM's `RMap_ RTemp0` map scan). */
+    DM_REF_RMAP,
 } dorado_ref_kind;
 
 #define DM_BR_COUNT      32

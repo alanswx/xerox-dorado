@@ -1523,6 +1523,7 @@ static const char *ref_kind_name(dorado_ref_kind kind)
     case DM_REF_LONGFETCH: return "longfetch";
     case DM_REF_IOFETCH:   return "iofetch";
     case DM_REF_IOSTORE:   return "iostore";
+    case DM_REF_RMAP:      return "rmap";
     default:               return "?";
     }
 }
@@ -1784,7 +1785,19 @@ static dorado_ref_kind decode_ref_kind(const dorado_uinstr *u, int io_task)
         if (!ff_ok) return DM_REF_STORE;         /* HM Table 8b */
         switch (ff01) {
         case 0: return DM_REF_PREFETCH;
-        case 1: return io_task ? DM_REF_IOFETCH : DM_REF_MAP;
+        case 1:
+            if (io_task) return DM_REF_IOFETCH;
+            /* Distinguish RMap← (read) from Map← (write). Both are the
+             * ASEL=0/FF[0:1]=1 map reference; the read additionally
+             * carries the ReadMap function (FA forced 0, FB=3, FC=1 — the
+             * FF[2:7] subfield decodes to 0o31), e.g. Cedar's
+             * NewReadMapPage `RMap_ RTemp0` (FF=0o131) vs InitMem's map
+             * write `Map_ 0S, MapBuf_…` (FF=0o100). HM page 46-47: Map←
+             * writes B/TIOA into the entry; RMap← only returns previous
+             * contents in the pipe and must not modify the entry. */
+            if (((u->ff >> 3) & 7) == 3 && (u->ff & 7) == 1)
+                return DM_REF_RMAP;
+            return DM_REF_MAP;
         case 2: return DM_REF_LONGFETCH;
         case 3: return DM_REF_STORE;
         }

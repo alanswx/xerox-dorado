@@ -64,6 +64,7 @@ static const char *ref_kind_name(dorado_ref_kind kind)
     case DM_REF_IOSTORE:   return "iostore";
     case DM_REF_IFETCH:    return "ifetch";
     case DM_REF_FETCH:     return "fetch";
+    case DM_REF_RMAP:      return "rmap";
     }
     return "unknown";
 }

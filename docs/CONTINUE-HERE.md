@@ -1,5 +1,98 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## ROUTE B (2026-06-15, session 5): RMap<- now READ-ONLY (was conflated with Map<- write); the `0o7030` MESAFAULT loop is GONE; GERMREMAP completes and control runs on into the Mesa-emulator microcode; new blocker = germ doesn't dispatch (0 IFU dispatches)
+
+### Root cause of the session-4 blocker (the `0o7030` page fault -> infinite MESAFAULT)
+
+The faulting op at real `0o7030` is **not** FindEndMappedVM's RMap; it is
+`MapDirtyBit` (`DMesaRastMiscOps.mc`): `MemBase_ MapBitsBR; Fetch_ RTemp6`,
+the Fetch of the per-real-page extra-dirty-bit array that lives in the
+**highest VM bank** (`MapBitsBR` = base register **025**, VA `0xFFF000`).
+`MapDirtyBit` is called by `WriteMapPage`, which `PilotBoot.GermRemapLp`
+calls for every page it steals from the end of mapped VM. The Fetch hit a
+**vacant** page `0xFFF0` and trapped.
+
+But the *reason* page `0xFFF0` was vacant was an upstream emulator bug:
+**we conflated `RMap<-` (read map) with `Map<-` (write map).** HM page 46-47
++ Table 8a: both are the ASEL=0 / FF[0:1]=1 map reference, but
+- `Map<- R, MapBuf<- T` (write): FF=`0o100` (FF[2:7]=0). Writes B/TIOA into
+  the entry; returns previous contents in the pipe.
+- `RMap<- R` (read): FF=`0o131` — carries the **ReadMap function** (FA
+  forced 0, FB=3, FC=1 = FF[2:7]=`0o31`). Returns previous contents in the
+  pipe and **must not modify the entry, never faults** (verified against
+  Cedar.mb: `NewReadMapPage` real `0o4161` and the FindEndMappedVM scan
+  real `0o6506` both FF=`0o131`; InitMem map write `IWRITEMAP` real `0o7013`
+  FF=`0o100`).
+
+Our `DM_REF_MAP` always *wrote* the entry. So `FindEndMappedVM`'s
+`RMap_ RTemp0` (RTemp0=0) scan overwrote every page it touched with
+rp=0/wp=0/dirty=0 (and the `MapBitsBR` bank too), misplacing the "end of
+mapped VM" boundary; `GermRemapLp` then stole the wrong pages — including
+the `MapBitsBR` page `0xFFF0` — making it vacant, which broke
+`MapDirtyBit`'s Fetch. (`DORADO_MAP_TRACE_INDEX=0xFFF0` showed idx FFF0
+toggling mapped<->vacant, including the tell-tale rp=0/wp=0/dirty=0 write
+from the RMap-with-RTemp0=0.)
+
+### Fix (committed)
+
+Added a distinct `DM_REF_RMAP` read-only map reference:
+- `include/memory.h`: new `DM_REF_RMAP` enum (appended, so existing kind
+  numbers — e.g. FETCH=10 in traces — are unchanged).
+- `src/cpu.c` `decode_ref_kind`: a non-io ASEL=0/FF[0:1]=1 map reference is
+  `DM_REF_RMAP` when it carries the ReadMap function (`((ff>>3)&7)==3 &&
+  (ff&7)==1`), else `DM_REF_MAP` (write). Map<- writes stay writes.
+- `src/memory.c`: `DM_REF_RMAP` case snapshots previous contents to the pipe
+  (already done by `pipe_push`) and does **nothing else** — no entry write,
+  no MapBufBusy, no fault. Also excluded from the DVAVIC path and named in
+  the trace tables.
+- `tests/test_cpu.c`: ref-kind name switch updated (kept -Wswitch clean).
+
+The Alto/InitMem write path is unchanged (those are `Map<-`, FF=`0o100`),
+so the working worlds still set up their maps exactly as before.
+
+### Result
+
+- `DORADO_FAULT_TRACE=all` over the whole CedarDorado germ run: only the
+  pre-existing two faults at `0o6023/0o6024` (~11M, present in every world)
+  plus a **single** `0o7030` fault (~66.68M). The session-4 ~60K-iteration
+  `MESAFAULT`/`REQUEUE` loop at `0o3306` is **gone**.
+- That single `0o7030` fault is now absorbed by the memory fault task
+  (task `0o17`, short handler real `0o1622..0o1613`) which **returns to
+  task 0**; `GermRemapLp`/`GermRemapDone` then run their IOBR->LPtr BLT
+  copy loop (real `0o1264`) to completion and control continues.
+
+### Hard regression gate — ALL GREEN
+
+1. `make test` = **10/10**.
+2. AEmu NETEXEC (`worlds/aemu.eb` + NETEXEC.BOOT): 1487/1493/1495 px at
+   190M/195M/205M (1476 at exactly 200M — animation/cursor variance; the
+   1480-1505 band absorbs it).
+3. Galaxian (`worlds/aemu.eb` + Galaxian.boot) @160M: **121553** px (=121552 ±1).
+4. AltoMesaDorado.eb!2 + NETEXEC @200M: **1481** px (band 1466-1497).
+5. `make sdl` compiles.
+
+### NEW blocker (session 6)
+
+After the germ remap, control settles into a tight Mesa-emulator microcode
+loop — real `0o3301 -> 0o3302 -> 0o1071 -> 0o1072` (mb=`03` = MDS,
+insset=1) with occasional excursions to `0o6606..0o6635` — and stays there
+for >13M cyc with **0 IFU dispatches** through 80M. So the germ does NOT
+yet execute Mesa opcodes; it is NOT (yet) the expected "germ does its own
+ether fetch" (plan Step 4). Likely candidates to chase next:
+- Whether the single `0o7030` fault leaves `Md` garbage so `MapDirtyBit`'s
+  dirty-bit word is wrong and `WriteMapPage` mis-relocates a germ page (on
+  real Dorado the `MapBitsBR` bank is real-backed and this Fetch never
+  faults — consider mapping/zero-backing the `MapBitsBR` highest bank so
+  the first-touch Fetch returns 0 instead of faulting).
+- Whether `BootSwapGerm` (g=`004634`) actually XFERs / installs a runnable
+  process; the `0o3301/3302/1071/1072` loop looks like the Mesa emulator
+  idling with nothing schedulable (it Fetches from MDS and spins).
+Repro: `./build/dorado --eb '../chm/dorado/CedarDorado.eb!6' --germ
+'../chm/cedar/germ/Dorado.germ!4' --cycles 80000000`; gate the PC/IFU
+traces to cyc>66.68M.
+
+---
+
 ## ROUTE B (2026-06-15, session 4): Map widened 16K -> 64K (MapIs64K / VirtualBanks=400C); GERMREMAP's relocation loop now RUNS; new blocker is FindEndMappedVM's high-VA Fetch fault (16K aliasing was load-bearing for the IOBR map scan)
 
 This session **widened the modeled Map from 16K to 64K entries** so the germ

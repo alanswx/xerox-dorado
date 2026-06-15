@@ -71,6 +71,7 @@ static const char *ref_kind_trace_name(dorado_ref_kind kind)
     case DM_REF_IOSTORE:   return "iostore";
     case DM_REF_IFETCH:    return "ifetch";
     case DM_REF_FETCH:     return "fetch";
+    case DM_REF_RMAP:      return "rmap";
     }
     return "unknown";
 }
@@ -905,7 +906,8 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
     int srn = use_asrn ? mem->asrn : mem->proc_srn;
 
     if (dorado_mcr_dvavic(mem) &&
-        kind != DM_REF_MAP && kind != DM_REF_DUMMYREF && kind != DM_REF_NONE) {
+        kind != DM_REF_MAP && kind != DM_REF_RMAP &&
+        kind != DM_REF_DUMMYREF && kind != DM_REF_NONE) {
         int way = dorado_mcr_usemcrv(mem) ? dorado_mcr_victim(mem)
                                           : cache_pick_victim(mem, va);
         uint32_t pipe_va = cache_address_va(mem, va, way);
@@ -1196,6 +1198,15 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
         }
         break;
     }
+    case DM_REF_RMAP:
+        /* RMap← (HM page 46-47): read a map entry. The entry's PREVIOUS
+         * contents are already in the pipe (pipe_push above captured
+         * rp_pre/flags_pre, read back via Map'/Errors'/Pipe3'). Unlike
+         * Map←, RMap← does NOT write the entry, does not load MapBuf, and
+         * never faults — so a scan of vacant pages (e.g.
+         * PilotBoot.FindEndMappedVM) reads the vacant flag without
+         * corrupting the map or waking the fault task. */
+        break;
     case DM_REF_DUMMYREF:
         /* Pipe-only — already pushed above. */
         break;
