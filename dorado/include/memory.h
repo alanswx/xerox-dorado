@@ -99,12 +99,16 @@ typedef struct {
 } dorado_cache_row;
 
 /*
- * Map (HM §5 "The Map", page 44 ff.). We pick the 16K-map ×
- * 256-word page configuration: VA[10:23] indexes the map, VA[24:31]
- * is the page offset. Total VM = 2^22 words. (HM Table 16 lists
- * other configurations — page sizes 256/1024/4096 with map IC sizes
- * 16K/64K/256K. This is the smallest/default 4K-cache configuration
- * Initial's map setup appears to expect.)
+ * Map (HM §5 "The Map", page 44 ff.). We pick the 64K-map ×
+ * 256-word page configuration: VA[8:23] indexes the map (16 page
+ * bits), VA[24:31] is the page offset. Total VM = 2^24 words = 16 MW.
+ * (HM Table 16 lists other configurations — page sizes 256/1024/4096
+ * with map IC sizes 16K/64K/256K.) The Cedar/Mesa world relocates the
+ * Pilot germ to virtual page 0o174010 (= 64008), which exceeds a 16K
+ * map and would alias onto a low VA; the 64K map gives it a distinct
+ * index. InitMem.mc GetMemConfig is told MapIs64K (VirtualBanks=400C
+ * = 256 banks = 65536 entries) so the cold map-init loop enumerates
+ * exactly DM_MAP_ENTRIES entries and still terminates.
  *
  * Each map entry is a 16-bit real page number (RP) plus three flags:
  *   - WP    write-protected
@@ -115,7 +119,7 @@ typedef struct {
  *
  * Real address = (RP << 8) | VA[24:31]   (256-word pages).
  */
-#define DM_MAP_ENTRIES   (16 * 1024)         /* 16K map entries */
+#define DM_MAP_ENTRIES   (64 * 1024)         /* 64K map entries (VirtualBanks=400C) */
 #define DM_PAGE_SIZE     256                 /* 256-word pages */
 
 typedef struct {
@@ -427,11 +431,11 @@ uint16_t dorado_memory_config_word(const dorado_memory *mem);
  *            the muffler word, with the selected bit in the SIGN
  *            position (C bit 15) so InitMem.mc GetMemConfig's
  *            Branch[...,R<0] evaluates correctly. Our memory models the
- *            16K-map / VirtualBanks=100C (=16384 entries) configuration,
- *            so both MapIs256K (DMux 0o1512) and MapIs64K (DMux 0o1511)
- *            read sign-CLEAR, making GetMemConfig fall through to
- *            MapIs16K -- the size that matches our map and lets the cold
- *            InitMem loop terminate. */
+ *            64K-map / VirtualBanks=400C (=65536 entries) configuration,
+ *            so MapIs64K (DMux 0o1511) reads sign-SET and MapIs256K
+ *            (DMux 0o1512) sign-CLEAR, making GetMemConfig select
+ *            VirtualBanks=400C -- the size that matches DM_MAP_ENTRIES
+ *            and lets the cold InitMem loop terminate. */
 void     dorado_memory_dmux_strobe(dorado_memory *mem, uint16_t b);
 void     dorado_memory_dmux_use_dmd(dorado_memory *mem);
 int      dorado_memory_dmux_pending(const dorado_memory *mem);

@@ -529,12 +529,15 @@ uint16_t dorado_memory_config_word(const dorado_memory *mem)
  *   neither set          -> MapIs16K  -> VirtualBanks =  100C
  * VirtualBanks*256 is the number of map entries the cold InitMem loop
  * (Map1to1Loop / CacheFlush / MapInitLoop, via EnumerateMap) enumerates.
- * We model DM_MAP_ENTRIES = 16384 = 64 banks * 256 = VirtualBanks 100C,
- * so both reads must return sign-CLEAR (MapIs16K). Modeling ALUFMem as
- * the raw ALUFM register (the prior behavior) made the sign world-
- * dependent garbage: AEmu happened to land sign-clear (16K, terminates)
- * while Mesa landed sign-set (64K/256K, enumerates a space far larger
- * than our map and never reaches INITMEMDONE).
+ * We model DM_MAP_ENTRIES = 65536 = 256 banks * 256 = VirtualBanks 400C,
+ * so DMux 0o1511 (MapIs64K) must return sign-SET and 0o1512 (MapIs256K)
+ * sign-CLEAR; GotMapConfig then yields VirtualBanks=400C, exactly matching
+ * DM_MAP_ENTRIES so the cold InitMem loop enumerates the whole map and
+ * terminates. (A mismatch between VirtualBanks and DM_MAP_ENTRIES makes
+ * the loop run past the end of the map and spin forever -- the failure
+ * the 16K config originally fixed; the rule is VirtualBanks*256 ==
+ * DM_MAP_ENTRIES.) The germ relocates to virtual page 0o174010 (=64008),
+ * which the 64K map indexes distinctly instead of aliasing onto a low VA.
  *---------------------------------------------------------------------*/
 void dorado_memory_dmux_strobe(dorado_memory *mem, uint16_t b)
 {
@@ -565,20 +568,22 @@ uint16_t dorado_memory_dmux_read(dorado_memory *mem)
     mem->dmux_pending = 0;
 
     /* Muffler bit in the SIGN position (C bit 15). Our memory models the
-     * 16K-map / VirtualBanks=100C configuration, so report MapIs256K and
-     * MapIs64K as NOT asserted (sign clear) -- GetMemConfig then falls
-     * through to MapIs16K, the size that matches DM_MAP_ENTRIES and lets
-     * the cold InitMem loop terminate. No muffler is asserted for any
-     * other address either. */
+     * 64K-map / VirtualBanks=400C configuration, so report MapIs64K
+     * (DMux 0o1511) as ASSERTED (sign set) and MapIs256K (DMux 0o1512)
+     * as NOT asserted -- GetMemConfig then takes the MapIs64K branch and
+     * sets VirtualBanks=400C, the size that matches DM_MAP_ENTRIES (256
+     * banks * 256 = 65536) and lets the cold InitMem loop terminate. No
+     * muffler is asserted for any other address. */
     switch (addr) {
+    case 01511:   /* MapIs64K muffler -- asserted (64K map) */
+        return 0x8000;
     case 01512:   /* MapIs256K muffler -- not asserted */
-    case 01511:   /* MapIs64K  muffler -- not asserted */
     default:
         return 0x0000;
     }
 }
 
-/* Map index from VA: page-number portion for our 16K-map /
+/* Map index from VA: page-number portion for our 64K-map /
  * 256-word-page configuration. Keep this shared with cpu.c's ReadMap
  * path; Initial depends on ReadMap observing the same entry Map<- wrote. */
 uint32_t dorado_map_index(uint32_t va)

@@ -1,5 +1,90 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## ROUTE B (2026-06-15, session 4): Map widened 16K -> 64K (MapIs64K / VirtualBanks=400C); GERMREMAP's relocation loop now RUNS; new blocker is FindEndMappedVM's high-VA Fetch fault (16K aliasing was load-bearing for the IOBR map scan)
+
+This session **widened the modeled Map from 16K to 64K entries** so the germ
+relocation no longer collapses MDS 76 (germ VA `0o17401000`, page `0o174010`
+= 64008) onto a low aliased index. Cited to `InitMem.mc` `GetMemConfig` and
+the DMux/muffler (`Various.mc` `SetDMuxAddress`). Hard regression gate GREEN.
+
+### What changed (committed)
+
+- `include/memory.h`: `DM_MAP_ENTRIES` 16384 -> **65536** (64K map, 256-word
+  pages, VM = 2^24 = 16 MW). Comments updated. `dorado_memory.map[]` grows
+  from 128 KB to 512 KB inside the calloc'd machine struct (heap, safe).
+- `src/memory.c` `dorado_memory_dmux_read`: DMux **`0o1511` (MapIs64K) now
+  reports sign-SET (0x8000)**; `0o1512` (MapIs256K) stays sign-CLEAR. Per
+  `InitMem.mc` `GetMemConfig`: `0o1512` sign-set => 256K (`VirtualBanks=2000C`);
+  `0o1511` sign-set => **64K (`VirtualBanks=400C` = 256 banks)**; neither =>
+  16K. So `GetMemConfig` now selects `VirtualBanks=400C`, and `400C*256 =
+  65536 == DM_MAP_ENTRIES` (the loop-bound == map-size invariant that keeps
+  the cold `Map1to1Loop`/`MapInitLoop` from running off the end -- the same
+  invariant the 16K config preserved; a mismatch is what spun Mesa forever).
+
+### Hard regression gate (all GREEN)
+
+1. `make test` = **10/10** suites.
+2. AEmu NETEXEC (`worlds/aemu.eb`) -> **1482 px** (band 1480-1505), world
+   loads at cyc 32M (unchanged), budget **200M cyc** to reach paint.
+3. Galaxian -> **121552 px** (exact) at budget **150M-180M cyc** (the stable
+   attract screen; 120M=121641 / 200M=121554 are animation-frame variance).
+4. AltoMesaDorado.eb!2 + NETEXEC -> **1489 px** (band 1466-1497), budget 200M.
+5. `make sdl` compiles.
+
+The 4x-longer cold InitMem loop did NOT push world-load later (still 32M for
+the ether-loaded worlds; the InitMem 4x is inside the *loaded* world and
+still terminates and paints within 200M). 200M is a safe budget for all.
+
+### CedarDorado germ: how far it gets now
+
+`./build/dorado --eb '../chm/dorado/CedarDorado.eb!6' --germ
+'../chm/cedar/germ/Dorado.germ!4'`. The cold InitMem 4x pushes the 3 germ
+disk-read passes from ~53M to **~66.7M cyc** (descriptor/label/data all
+still land: seal `0o121212` v6, 8192/8192 germ words at VM `0o1000+`).
+
+**Progress vs the session-3 16K state:** the old blocker is GONE -- the
+`GermRemapDone` BLT store (`0o2761`) no longer faults and the fault task
+`0o17` no longer takes over. **GERMREMAP's relocation machinery now actually
+RUNS**: control reaches the DMesa map subroutines `SetBRForPage`/
+`TranslateMapEntry`/`MapDirtyBit` (real `0o7000`/`0o7020`/`0o7030`) called
+from `PilotBoot.FindEndMappedVM`(`0o6724`) / `GermRemapLp`(`0o2763`).
+
+**NEW blocker (the next pass):** task-0 takes a **page fault at real
+`0o7030`** -- a Fetch (`ASEL=0`, kind=10) via **MemBase=IOBR** to VA
+**`0x0FFF000`** (page `0xFFF0` = 65520) -- then diverts into the Mesa
+`MESAFAULT`->`REQUEUE` loop (real `0o3306`, mb=03, fetching VA 0; ~60K
+hits to end-of-run, **0 IFU dispatches**, no XFER to `BootSwapGerm`). Root
+cause: `FindEndMappedVM` scans UP through VAs (via IOBR) looking for the
+first VACANT page = the end of mapped real VM (`PilotBoot.mc`:
+`FindEndMappedVM: T_ RTemp2, Call[SetBRForPage]; RMap_ RTemp0,
+SCall[TranslateMapEntry]; Branch[GermRemapLpE]; ... Branch[FindEndMappedVM]`).
+With the **16K** map this scan ALIASED onto resident low pages and
+terminated early (illusory -- the per-page `WriteMapPage`s and the BLT then
+operated on aliased entries, which is why session-3's BLT faulted). With the
+**64K** map the scan walks the *real* VA space and reaches a genuinely
+vacant high page (`0xFFF0`, near the top of the 16 MW map / the IO region);
+our model **page-faults the Fetch** instead of letting `TranslateMapEntry`
+read the vacant map flags cleanly. On real Dorado `TranslateMapEntry` reads
+the entry via `RMap` (ReadMap, Mar-addressed) and the microcode TESTS the
+vacant flag -- it does not fault. So the next blocker is in the
+map-entry-read path, not the map size.
+
+### NEXT PASS
+
+Make `FindEndMappedVM`/`TranslateMapEntry`'s map-scan reference (real
+`0o7030`, `SetBRForPage`+`TranslateMapEntry` in `DMesaRastMiscOps.mc` /
+`PilotBoot.mc`) read the vacant high-VA map entry WITHOUT a CPU page fault,
+so the scan returns "found first vacant page" (the `+1` exit to
+`GermRemapLpE`) instead of trapping into `MESAFAULT`/`REQUEUE`. Then
+`GermRemapLp` relocates pages `RTemp3` down to the germ extent, `GermRemapDone`
+runs the IOBR->LPtr BLT into VM `0o17401000+`, and control XFERs into
+`BootSwapGerm` (g=`004634`) with `insset=1` (plan Step 4 = the running germ
+doing its OWN ether fetch of the volume). Repro:
+`DORADO_FAULT_TRACE=all ./build/dorado --eb '../chm/dorado/CedarDorado.eb!6'
+--germ '../chm/cedar/germ/Dorado.germ!4' --cycles 90000000 2>&1 |
+awk '/germ pass3/{p=1} p&&/FAULT_CPU/{print $4,$3,$6}' | sort | uniq -c`
+-> 1x `pc=0o7030 task=0 mb=25`, then ~60K x `pc=0o3306 task=0 mb=03`.
+
 ## ROUTE B (2026-06-15, session 3): PV descriptor fabricated + all 3 disk-read passes fed; the REAL GERMREMAP now runs; blocked on the 16K-map aliasing of MDS 76
 
 This session **fabricated a faithful PV root-page Descriptor and fed all
