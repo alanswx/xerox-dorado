@@ -3081,15 +3081,23 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
              * Mar=0 here (an old workaround predating ff_a_override)
              * sent the XM write-protect clear to page 0, looping the
              * fault task forever on NetExec's bank-register stores. */
-            /* InitMem.mc's NextMapEntry emits `DummyRef_ T, T_ MD`
-             * to make the memory system add one page to the current
-             * BR and report the resulting VA through VALo/VAHi
-             * (Pipe1/Pipe0). In the compiled Table-8a DummyRef shape
-             * this is the ASEL=1, LC=T<-Md form; use T as Mar for
-             * that source-level construct instead of RM/STK. */
-            if (kind == DM_REF_DUMMYREF && u->asel == 1 && u->lc == 3) {
-                mar = cpu->T;
-            }
+            /* DummyRef Mar = the A bus (Mar = a), exactly like any other
+             * processor ref. The displacement source is carried by the
+             * FF memory-subdecode A-source override (ff_a_override),
+             * which already landed in `a` above, NOT by a blanket
+             * asel/lc test:
+             *   - InitMem.mc NextMapEntry `DummyRef_ T, T_ MD` compiles
+             *     to asel=1,lc=3,FF=021 (FA=0 FB=2 FC=1 => A<-T), so the
+             *     override gives a = T and the memory system adds one page
+             *     to BR, reporting the VA via VALo/VAHi (Pipe1/Pipe0).
+             *   - DMesaXfer.mc XferProc `DummyRef_ 0S, T_ MD, StkP+1`
+             *     compiles to asel=1,lc=3,FF=000 (small const 0 => A<-0),
+             *     so a = 0 and the ref is BR[G]+0 = the global frame VA
+             *     (VALo = G, stored as L[0]). The old `mar=cpu->T` blanket
+             *     override caught BOTH (same asel/lc) and forced Mar=T for
+             *     XferProc, corrupting L[0] to G+T (0o4634+0o3354=0o10210)
+             *     and breaking the frame-return LoadGC. Microcode-grounded
+             *     (InitMem.mc!1 / DMesaXfer.mc!1) + HM Table 8a DummyRef. */
             uint16_t data = b;
             uint32_t br = dorado_mcr_disbr(cpu->mem)
                         ? 0

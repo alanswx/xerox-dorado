@@ -1,5 +1,91 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## ROUTE B (2026-06-15, session 11): the boot XFER's `XferProc` now stores BootSwapGerm's saved-G (frame[0]) correctly (`0o4634`); `LoadGC` loads G correctly; the swap-trap loop is GONE; the germ now runs 10 bytecodes (was 6) -- 4 more after the prologue RET; new blocker = a later XFER (after the 10th bytecode, op `002`) hits a ControlFault into the still-empty SD trap table
+
+### Root cause of the session-10 blocker (XferProc stored frame[0] = `0o10210` instead of `~0o4634`)
+
+ONE emulator mis-model, microcode-grounded. `DMesaXfer.mc!1` `XferProc`
+(PrincOps) does, after allocating the frame:
+
+```
+	RTemp0_ T, MemBase_ G;          * real 0o3360, FF=0o251 = MemBaseX G (BRX[G,1])
+	RTemp1_ (RTemp1)+(RTemp1);
+	DummyRef_ 0S, T_ MD, StkP+1;    * real 0o4030: Get VA of G[0]
+	...
+	T_ VALo;                        * T_ global frame pointer = lo(VA of G[0])
+	T_ (Store_ RTemp0)+1, DBuf_ T;  * L[0] _ G
+```
+
+`DummyRef_ 0S` references **BR[G] + 0**, so `VALo` = lo(BR[G]) = the global
+frame pointer (`0o4634`, loaded by the boot LoadGC). The compiled form is
+`asel=1 (Fetch<-RM/STK), lc=3 (T<-Md), FF=000` -- the displacement (A bus)
+is the small constant **0** carried by FF=000.
+
+`src/cpu.c` had a blanket DummyRef special case:
+`if (kind==DM_REF_DUMMYREF && asel==1 && lc==3) mar = cpu->T;`. It was added
+for InitMem.mc `NextMapEntry`'s `DummyRef_ T, T_ MD` (real `0o7000`), but
+that construct is `asel=1, lc=3, FF=021` (FA=0 FB=2 FC=1 = the memory-
+subdecode **A<-T** override). XferProc's DummyRef has the **same asel/lc**
+but `FF=000` (A<-0), so the blanket test caught BOTH and forced Mar=T for
+XferProc too: VA = BR[G] + T = `0o4634 + 0o3354` (T held the just-allocated
+local frame `0o3354`) = **`0o10210`**, the exact corrupt frame[0]. The
+frame-return LoadGC then read a garbage global frame -> swap/MTRAP loop.
+
+### Fix (committed) -- microcode-grounded (InitMem.mc!1 / DMesaXfer.mc!1) + HM Table 8a DummyRef
+
+`src/cpu.c`: **delete the `mar = cpu->T` blanket special case**; DummyRef Mar
+is just the A bus (`mar = a`), exactly like any processor ref. The
+displacement is already carried correctly by the FF memory-subdecode A-source
+override (`ff_a_override`, applied to `a` at the `a = ovr` line before the
+ref): InitMem's FF=021 -> `a = T`; XferProc's FF=000 -> `a = 0`. So both
+constructs now compute the right Mar without a per-construct hack. This is the
+**MemBaseX/BR-resolution family** the last two passes worked (the `MemBase_L`
+fix was BRX[L,0]; here the path runs through `MemBase_G` = BRX[G,1]), but the
+actual bug was the DummyRef displacement, not the MemBase decode (which
+correctly resolves G=1).
+
+**Why the Alto worlds stay correct:** the deleted hack was redundant for
+InitMem (ff_a_override already yields `a = T` for FF=021), and the Alto worlds
+do not run DMesaXfer's `DummyRef_ 0S`. The shared Mesa-VM XFER path is
+exercised by AltoMesaDorado, which stays green.
+
+### Result (verified)
+
+- `XferProc`'s DummyRef now references VA `0x3E099C` (lo `0o4634`, was
+  `0x3E1088`/`0o10210`); `VALo`/frame[0] = `0o4634` = BootSwapGerm's G.
+- The frame-return `LoadGC` loads G correctly; **the swap-trap loop is GONE**.
+- The germ runs **10 IFU dispatches** (was 6): the prologue
+  (LFC4/LI1/`165`/`263`/`361`/RET) returns cleanly into BootSwapGerm, which
+  then dispatches **4 more** bytecodes: op `100`, `000`, `000`, `002`.
+
+### HARD REGRESSION GATE -- ALL GREEN
+
+1. `make test` = **10/10** suites.
+2. AEmu NETEXEC @200M: **1493** px (band 1476-1505). PASS.
+3. Galaxian @160M: **121553** px (=121552 +/-1). PASS.
+4. AltoMesaDorado.eb!2 + NETEXEC @200M: **1490** px (band 1477-1502;
+   NetExec menu renders). PASS.
+5. `make sdl` compiles (no test_cpu.c:7709 warning reproduces; the line is a
+   plain printf).
+
+### NEW blocker (session 12): a later XFER (after the 10th bytecode, op `002`) ControlFaults into the empty SD trap table
+
+After op `002` (10th dispatch, pc `0o6`, vec `0o470`), control enters a Mesa
+XFER/trap loop: `XFER`(0o1700) / `XFERMD`(0o1026) / `SAVEPCANDTRAP`(0o2000) /
+`SAVEPCINFRAME`(0o1600) / `MTRAP`(0o1041), steady with **T=`0o7`**
+(= `sControlFault`). The XFER reads `SD[7]` and gets **md=0** (lva `0o17401107`)
+-> ZeroDest -> ControlFault(7) -> re-fault forever -- BootSwapGerm has not yet
+populated the SD trap handlers. So either op `002`'s XFER targets a legitimately
+unbound control link (germ/boot state not yet set up by these first 10
+bytecodes) or another emulator XFER mis-model surfaces only on this 11th
+transfer. NEXT PASS: decode op `002` (insset=1) and the control link it XFERs
+through (`DORADO_XFER_TRACE` gated ~67975700..67976000; the trap is T=`0o7`,
+md=0 at SD[7]). Repro:
+`DORADO_IFUDISP_TRACE=1 ./build/dorado --eb '../chm/dorado/CedarDorado.eb!6'
+--germ '../chm/cedar/germ/Dorado.germ!4' --cycles 80000000` -> 10 dispatches
+then the ControlFault loop; the first XFER is at cyc 67974929, the 10th
+dispatch ~67975700.
+
 ## ROUTE B (2026-06-15, session 9): the prologue RET's ZeroDest is FIXED (two grounded bugs); the RET now reads the correct return link and returns cleanly into BootSwapGerm; new blocker = the frame-return LoadGC mis-loads G because the boot XFER stored BootSwapGerm's saved-G (frame[0]) wrong
 
 ### Root cause of the session-8 blocker (RET reads a zero return link -> ZeroDest)
