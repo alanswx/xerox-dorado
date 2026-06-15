@@ -1,5 +1,127 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## ROUTE B (2026-06-15, session 14): the prior `BLTC`/`LSTF`-`alpha` hypothesis is REFUTED with hard evidence -- alpha is read CORRECTLY; the 113th-dispatch ControlFault is the germ resuming its saved boot-process via `LSTF`/`LoadState`, whose loaded DLink/SLink and the resumed proc's fsi are GENUINE germ data that reference MDS locations past the loaded 8192-word germ image. No emulator IFU/operand bug found; NO code change made (tree clean). Next blocker is upstream germ process-resume state.
+
+### What was tested and REFUTED (the session-13 lead)
+
+The session-13 handoff guessed the corruption was a `BLTC` block-transfer
+whose `dest` overlapped an `LSTF` state vector because `LSTF`'s `alpha`
+operand byte was mis-read (a sibling of the `notLength` IFU bug). Every
+part of that is wrong:
+
+1. **`BLTC` (op `0o354`) never dispatches.** The only block transfer in
+   the germ run is **`BLT` (op `0o352`)** at `br31=3E0D58` `pcf=0o455`
+   (opcode bytes verified by VMDUMP: `M[0o17406756]=0o003752`, low byte
+   `0o352`). `BLT`/`BLTC` are length-1 and take dest/count/source off the
+   Mesa eval stack -- they have NO `alpha` operand, so an alpha mis-read
+   cannot affect them. (Opcode map from `DMesaDefs.mc!2`: `BLT=0o352`,
+   `BLTC=0o354`, `LST=0o371`, `LSTF=0o372`, `RET=0o343`.)
+
+2. **`LSTF`'s `alpha` is read CORRECTLY = `0o007`.** `LSTF` (op `0o372`)
+   dispatches at `pcf=0o477`; VMDUMP `M[0o17406767]=0o167772` -> low byte
+   `0o372` (= LSTF), and `M[0o17406770]=0o003777` -> high byte (pcf=`0o500`,
+   even = high byte for insset<2) = `0o007`. The engine's `<-Id` delivers
+   N=1 (`xf.free`) on the first read and `alpha=0o007` on the second
+   (`ifu_consume_id`, `src/cpu.c`), exactly matching the code byte. The
+   state vector legitimately sits at `L+alpha = L+7`. `<-Id`/operand fetch
+   is FINE. (The germ ran 113 dispatches incl. many EFC/LFC proc calls
+   through the same `<-Id` path, all correct.)
+
+3. **`0o27132` is GENUINE germ data, faithfully loaded.** It lives in the
+   germ FILE at `MDS+0o7652` (big-endian `0o027132`, confirmed by reading
+   `Dorado.germ!4` directly), inside a static ~7-word-record array at
+   `MDS+0o7642..` (repeating `0o177660`/`0o55000,0o55001`/`0o3564`
+   pattern). `BLT` faithfully copies it; nothing corrupts it.
+
+### The real failure chain (re-diagnosed, traced live ~cyc 67.97-67.99M)
+
+The 113th dispatch is **`RET` (op `0o343`, vec `0o1034`)** at `br31=3E1382`,
+running inside a context the germ just **resumed via `LSTF`**:
+
+- `LSTF` (the only `LST*` in the whole run) runs `LoadState`/`LoadStack`
+  (`DMesaXfer.mc!1` line 980-1036): loads StkP/DLink/SLink/Stack from the
+  state block at `L+alpha`, then `MemBase_ MDS, Branch[Xfer]`.
+- The loaded **DLink = `0o173`** -> `Xfer` tag dispatch -> `XferDisp01`
+  (proc descriptor) -> `XferProc` (`DMesaXfer.mc!1` line 729): allocate a
+  frame, patch links, start the IFU.
+- `XferProc` reads the proc's **fsi** from its code-segment frame-size
+  word (`T_ DPF[T,10,10,MD]`, MD=`0o2323` -> right byte **fsi=`0o323`**).
+  `AllocSub` (`DMesaXfer.mc!1` line 539) fetches `AV[0o323]` (`AV=0o1000`,
+  so `MDS+0o1323`) = **0**, `BDispatch 0` -> tag-0 "good frame" -> returns
+  **frame = 0**. So the resumed proc runs in **L = MDS+0** (low core).
+  The proc runs 3 bytecodes (`067`, `210`=JB, `343`=RET).
+- `XferProc` stored the new frame's `L[2] = SLink` (= the LSTF-loaded
+  **source link `0o27132`**). With L=0, that store landed at `MDS+2`.
+- `RET` (`IFUP[RET,1,L,N[2]]`) fetches `L[2]` = `MDS+2` = `0o27132`,
+  XferMD sets DLink=`0o27132`, `Xfer` sees tag = `0o27132 & 3 = 2`
+  (INDIRECT) -> `XferDisp10`: `Fetch_ T` (MemBase=MDS) at **`MDS+0o27132`
+  = VA `0o17427132`**, which is **past the 8192-word germ** (germ occupies
+  `MDS+0o1000..0o21000`) -> **md=0** -> ZeroDest -> `ControlFault` (T=`0o7`)
+  -> `SD[7]`=0 -> the steady `0o1700/0o1026/0o1041/0o1600/0o2000` trap loop.
+
+NOTE: even with a proper (nonzero) frame, `RET` would still read
+`L[2]=SLink=0o27132`, so the **fatal** issue is the indirect SLink past
+the germ; the `fsi=0o323`/`frame=0` is a SEPARATE anomaly (the proc still
+runs). Both derive from the LSTF-loaded state block.
+
+### Verdict
+
+NOT an IFU `<-Id`/operand/`alpha` mis-model (refuted above), NOT a `BLTC`
+bug (no BLTC), NOT a load/BLT corruption (`0o27132` is genuine). The
+blocker is in the germ's **boot-process resume**: the state block that
+`LSTF` loads yields a DLink (`0o173`)/SLink (`0o27132`) and an fsi
+(`0o323`) that reference MDS locations past the loaded germ. Either (a)
+the germ is supposed to build/relocate more MDS state (frame heap / the
+target of indirect link `0o27132`, the global frame for DLink `0o173`'s
+gfi, and the `AV[0o323]` slot) BEFORE this resume, and an upstream
+emulator mis-model dropped that setup; or (b) the state block being
+resumed is sourced/relocated wrong. The AV free lists ARE initialized
+(verified vs the germ file: `AV[1]/AV[5]` show normal partial
+consumption, `AV[0]` consumed to a tag-2 indirect terminator `0o2`; germ
+chains terminate with tag-2 indirect markers `0o16/0o12/0o6`, never 0)
+-- so it is NOT a wholesale heap-init failure; it is specific to the
+`fsi=0o323` size class and the `0o27132`/`0o173` links.
+
+### NEXT PASS (session 15) -- where to dig
+
+This is genuinely the FIRST `LSTF` in the run and the first germ
+process-resume, so the bug (if emulator) is exercised only here and is
+gate-safe to chase (Alto worlds never run `LST*`). Concrete steps:
+
+1. **Read the `BLT` (op `0o352`, `pcf=0o455`) operands.** Source ran
+   `MDS+0o7642`, dest `MDS+0o2730` (from XFER trace). Confirm dest/count/
+   source popped off the stack are what the germ intends, i.e. that the
+   state block the LSTF later loads is sourced from the right place.
+   (Augment the `IFUDISP` trace to print `STK[stkp-1..stkp-3]`, the
+   popped args, since the current trace only prints `STK[stkp..+3]`.)
+2. **Decode the resumed proc.** DLink=`0o173` -> gfi -> `GFT[gfi]` global
+   frame (traced fetch `MDS+0o1406` -> `md=0o4700`) -> entry vector ->
+   code. Is `fsi=0o323` genuine for that proc, or is `GFT[gfi]`/the code
+   base (`LoadGC`) resolved wrong (the MemBase/BR family of sessions
+   9-13)? `DPF[T,10,10,MD]` right-byte extraction worked for 100+ earlier
+   proc calls, so suspect the proc identity (DLink/GFT), not DPF.
+3. **Is `MDS+0o27132` ever supposed to be bound?** Check whether the germ
+   writes a valid control link there during a setup step we mis-emulate
+   (gate a `DORADO_STORE_TRACE_VA` on `0o17427132` across the whole run).
+   If nothing ever writes it, the resume is premature/the state block is
+   wrong; if a store was dropped/faulted, that drop is the bug.
+
+Repro: `DORADO_IFUDISP_TRACE=1 ./build/dorado --eb
+'../chm/dorado/CedarDorado.eb!6' --germ '../chm/cedar/germ/Dorado.germ!4'
+--cycles 68100000` -> 113 dispatches; `RET` at cyc 67978584. Gated
+`DORADO_XFER_TRACE` with `DORADO_TRACE_GATE="67976000,67979000"` shows the
+LSTF LoadState, the `XferProc` alloc (frame=0), and the failing indirect
+`Xfer` at `MDS+0o27132`. Opcode/alpha bytes via
+`DORADO_VMDUMP="017406750,017406772,67978000"`.
+
+### REGRESSION GATE -- NOT RUN (no code change)
+
+Session 14 made **no emulator code change** (the prior hypothesis was
+refuted; any fix to the shared XFER/alloc/`<-Id` path would be
+speculative and risk the gate). `git status --short` clean except this
+doc. The 5-item gate is therefore unaffected from session-13's all-green
+state.
+
 ## ROUTE B (2026-06-15, session 13): `LongFetch` ignored the high address bits from B -- fixed the VA computation in `src/cpu.c`; the EFC4 (op `0o304`) external-link read now lands at the right code-segment word; germ jumps from **53 to 113 IFU dispatches**, running through **3 code modules** of Pilot/germ startup; new blocker = another ControlFault on an indirect control link that resolves to 0
 
 ### The stall: op `0o304` = EFC4 (External Function Call 4)
