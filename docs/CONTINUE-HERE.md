@@ -1,5 +1,83 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## ROUTE B (2026-06-15, session 8): germ FILE was loaded LITTLE-endian but Dorado memory is BIG-endian; fixing the byte order makes the first XFER complete and the germ now DISPATCHES Mesa bytecode (BootSwapGerm prologue runs); new blocker = the prologue's RET reads a zero return link
+
+### Root cause of the post-MGo XFER/MTRAP loop (the session-7 blocker)
+
+`MGo` (PrincOps, real `0o3740`) deliberately ends with `T_ sBoot, Branch[MTrap]`
+= the *designed* boot entry `Xfer[dst: Fetch[@SD[sBoot]]^, src: 0]`
+(`DMesaXfer.mc` MGo + MTrap + XferMD). So the XFER/MTRAP "loop" is the boot
+mechanism, not inherently a fault. The live first XFER (traced, gated):
+
+- `SD[sBoot]` (sBoot=`0o276`, SDLoc=`0o1100`, so VA MDS+`0o1376`=`0o17401376`)
+  read **correctly** = `0o401` = the BootSwapGerm proc descriptor
+  (tag=01, gfi=`RSH[0o401,6]`=4, ep=0). Germ data + fetch path were fine.
+- Xfer tag=01 -> `XferDisp01`: `T_ gfi+GFT` (GFT=`0o1400`) -> fetch **GFT[4]**
+  at VA `0o17401404`. It read `0o116011` -> global frame `0o116010`, which is
+  **past the 8192-word germ** -> `LoadGC`/`XferProc` read 0 for the frame/code
+  base -> **PC=0 -> ProcUnbound -> sUnbound (`0o13`)** trap. That trap XFERs
+  through `SD[13]`=0 -> ControlFault (`sControlFault=7`) -> `SD[7]`=0 ->
+  re-fault forever (the observed `XFER`/`XFERMD`/`SAVEPCANDTRAP`/`MTRAP` loop;
+  the germ never populates the SD trap handlers -- BootSwapGerm does that only
+  AFTER it runs).
+
+The germ's GFT[gfi] should have given BootSwapGerm's frame g=`0o4634`
+(`Dorado.loadmap`: ProcessorHead gfi1->`0o3400`, BootSwapGerm gfi4->`0o4634`,
+...). **Byte-swapping every GFT entry yields EXACTLY those loadmap frames**
+(GFT[1]`0o7`->`0o3400`, GFT[4]`0o116011`->`0o4634`, GFT[8]`0o30014`->`0o6060`,
+...), and BootSwapGerm's code-base-high word byte-swaps `0o37000`->`0o76`
+(= `pilotMDSHi`). So the germ FILE holds **big-endian** 16-bit words; our
+`--germ` plant read them little-endian (`b0|(b1<<8)`), corrupting every
+internal pointer.
+
+### Fix (committed) -- microcode/loadmap-grounded, one line
+
+`src/machine.c` germ load: `(b0<<8)|b1` (big-endian) instead of `b0|(b1<<8)`.
+Gated entirely on `--germ` (the `germ_words[]` buffer is used only by the germ
+plant), so the Alto worlds are byte-identical. Also added a gated
+`DORADO_XFER_TRACE` diagnostic in `src/cpu.c` (inert without the env + cycle
+gate) that prints pc/T/Q/md/last-ref-VA -- this is how the SD/GFT/frame fetches
+above were read; keep it for the next pass.
+
+### Result (verified)
+
+- First XFER now completes: GFT[4] reads `0o4634`, `LoadGC` loads G/Code, and
+  control reaches the IFU. **IFU dispatch count > 0** -- the germ runs its
+  BootSwapGerm prologue: 6 Mesa bytecodes dispatch (op `324`=LFC4, `057`=LI1,
+  `165`, `263`, `361`, `343`=**RET**) with br31=`3E1D0C` (germ code region),
+  `flt=0`.
+
+### HARD REGRESSION GATE -- ALL GREEN
+
+1. `make test` = 10/10 suites.
+2. AEmu NETEXEC @200M: **1476** px (band 1476-1505).
+3. Galaxian @160M: **121553** px (=121552 +/-1).
+4. AltoMesaDorado.eb!2 + NETEXEC @200M: **1478** px (band 1477-1497).
+5. `make sdl` compiles (only pre-existing `vendor/6502/fake6502.h` warnings;
+   no `test_cpu.c:7709` misleading-indentation warning reproduces).
+
+### NEW blocker (session 9): BootSwapGerm prologue's RET reads a zero return link
+
+After the 6-bytecode prologue, the trailing **RET** (op `343`) fetches its
+local frame's return link (`L[2]`) and gets **0** -> `XferMD` DLink=0 ->
+ZeroDest ControlFault (T=`0o7`) -> back into the `SD[7]`=0 trap loop (traced:
+cyc ~67975302 `XferMD` md=0, lva=`0o2`; then the steady `0o1700`/`0o1041`/
+`0o1026` loop resumes). So the germ now genuinely RUNS bytecode but the
+frame-link chain for the boot context is wrong: either (a) an emulator XFER
+frame-store mis-model (the boot `XferProc` does `Store_ T, DBuf_ SLink` =
+`L[2]_ SLink`; for the boot XFER SLink=0, and the LFC4 that calls the inner
+proc must store the caller frame into the inner frame's `L[2]` -- verify
+`XferProc`'s store + the LFC `RTemp4`/Alloc path), or (b) germ/boot state we
+still set up wrong (the local frame BootSwapGerm runs in is allocated by
+`XferProc` via `AllocSub` off the AV free list at MDS `0o1000`; AV head germ
+word 0 is now `0o3354` (BE) -- check AllocSub returns a valid frame). NEXT
+PASS: trace the LFC4 frame allocation + the inner proc's `L[2]` store (gated
+`DORADO_XFER_TRACE` around cyc 67974929..67975310) and the AV/Alloc path;
+decide emulator-XFER vs germ-state. Repro:
+`DORADO_IFUDISP_TRACE=1 ./build/dorado --eb '../chm/dorado/CedarDorado.eb!6'
+--germ '../chm/cedar/germ/Dorado.germ!4' --cycles 80000000` -> 6 dispatches
+then the RET trap loop; the first XFER is at cyc 67974929.
+
 ## ROUTE B (2026-06-15, session 7): germ relocation aliasing FIXED at the root (`Pipe4'`/`Errors'` flag-encoding bug); GermRemap now assigns DISTINCT real pages, control reaches MGo (Mesa emulator, insset=1); the de70f5e MapBitsBR hack is REMOVED (faithful Map now keeps the `0o7030` fault gone); new blocker = post-MGo XFER/MTRAP loop, 0 IFU dispatches
 
 ### Root cause found (the real bug, not the Map population)

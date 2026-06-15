@@ -479,9 +479,16 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
                     m->ethernet.bootdir_count);
     }
 
-    /* Route B germ plant: load the Pilot germ image (little-endian words,
-     * matching the disk pack convention in disk.c) for later deposit into
-     * VM. Failure is non-fatal -- it just leaves the plant disabled. */
+    /* Route B germ plant: load the Pilot germ image for later deposit into
+     * VM. The germ file holds big-endian 16-bit words: the Dorado memory
+     * word is (first byte << 8) | second byte. Proof: byte-swapping the
+     * germ's GFT entries (MDS 0o1400+) yields EXACTLY the global-frame
+     * addresses in Dorado.loadmap (gfi1->0o3400 ProcessorHead,
+     * gfi4->0o4634 BootSwapGerm, ...), and BootSwapGerm's code-base-high
+     * word byte-swaps to 0o76 = pilotMDSHi. Reading little-endian made
+     * GFT[gfi] point past the loaded germ, so the boot Xfer through
+     * SD[sBoot] took an sUnbound trap (microcode-grounded: DMesaXfer.mc
+     * LoadGC/XferProc). Failure is non-fatal -- it just disables the plant. */
     if (cfg.germ_path) {
         FILE *gf = fopen(cfg.germ_path, "rb");
         if (!gf) {
@@ -492,7 +499,7 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
             int b0, b1;
             while (n < (int)(sizeof m->germ_words / sizeof m->germ_words[0]) &&
                    (b0 = fgetc(gf)) != EOF && (b1 = fgetc(gf)) != EOF) {
-                m->germ_words[n++] = (uint16_t)(b0 | (b1 << 8));
+                m->germ_words[n++] = (uint16_t)((b0 << 8) | b1);
             }
             fclose(gf);
             m->germ_word_count = n;

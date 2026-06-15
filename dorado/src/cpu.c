@@ -2843,6 +2843,22 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
             w[2], w[3], w[4], w[5], w[6], w[7]);
     }
 
+    /* Route B diagnostic: trace the Mesa-VM XFER/trap path. Gated on
+     * DORADO_XFER_TRACE + the cycle window (DORADO_TRACE_GATE) + task 0,
+     * so it is inert for the Alto worlds and normal runs. Prints the
+     * real PC plus the memory state (last-ref VA + MD) so the SD/GFT/
+     * frame fetches in Xfer are visible. */
+    if (dorado_trace_gate && getenv("DORADO_XFER_TRACE") && cpu->ctask == 0) {
+        fprintf(stderr,
+                "XFER cyc=%llu pc=0o%o iset=%u T=0o%o Q=0o%o "
+                "md=0o%o lva=0o%o mb=0o%o rb=%02o\n",
+                (unsigned long long)dorado_trace_cycle, cpu->real_PC,
+                cpu->ifu_insset & 3, cpu->T, cpu->Q,
+                cpu->mem ? cpu->mem->md : 0,
+                cpu->mem ? (unsigned)cpu->mem->last_ref_va : 0,
+                cpu->MemBase & 037, cpu->RBase & 017);
+    }
+
     /* Snapshot Link before FF can modify it. Write IM (in next_pc) and
      * Subroutine Return both consume Link at instruction-issue time;
      * B←RWCPReg / Link←B / B-dispatch all overwrite Link via FF. The
