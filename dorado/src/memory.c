@@ -873,6 +873,36 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
     mem->last_ref_b = b;
     mem->last_ref_task = (uint8_t)(task & 017);
     mem->last_ref_subtask = (uint8_t)(subtask & 3);
+
+    /* MapBitsBR extra-dirty-bit array intercept (Cedar germ boot; see
+     * memory.h). The PrincOps map subroutines (DMesaRastMiscOps.mc
+     * MapDirtyBit / WriteMapPage / TranslateMapEntry) Fetch/Store the
+     * per-real-page extra-dirty-bit array via MapBitsBR (VA 0xFFF000). On
+     * real Dorado that array is reserved real memory: the Fetch never
+     * faults and the boot's relocation never disturbs it. Route those
+     * references to the dedicated buffer, bypassing the Map (so they never
+     * fault even after GermRemap vacates the VM page) and the cache. */
+    if (mem->mapbits_intercept &&
+        va >= mem->mapbits_lo && va < mem->mapbits_hi) {
+        uint32_t off = va - mem->mapbits_lo;
+        switch (kind) {
+        case DM_REF_FETCH:
+        case DM_REF_IFETCH:
+        case DM_REF_LONGFETCH:
+            mem->md = mem->mapbits_buf[off];
+            mem->mar = va;
+            return DM_FAULT_NONE;
+        case DM_REF_STORE:
+            mem->dbuf = b;
+            mem->mapbits_buf[off] = b;
+            mem->mar = va;
+            return DM_FAULT_NONE;
+        case DM_REF_PREFETCH:
+            return DM_FAULT_NONE;     /* never faults, no fill */
+        default:
+            break;                    /* Map<-/RMap<-/Flush/IO fall through */
+        }
+    }
     /* Update Mar (most-recent reference VA). ReadMap (HM page 41)
      * uses this to look up the map entry. */
     mem->mar = va;

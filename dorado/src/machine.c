@@ -270,6 +270,36 @@ static uint16_t machine_find_free_rp(const dorado_memory *mem)
     return 0xFFFF;
 }
 
+/* Enable the MapBitsBR extra-dirty-bit array intercept (DMesaDefs.mc:
+ * BR[MapBitsBR, 25]). The PrincOps (Pilot/Cedar) map subroutines keep a
+ * per-real-page "extra dirty bit" array referenced by this base register
+ * (DMesaRastMiscOps.mc MapDirtyBit / WriteMapPage / TranslateMapEntry:
+ * "allocates enough real memory to hold one bit for each page of real
+ * memory; the base register MapBitsBR references this bit array"). On real
+ * Dorado that array is reserved real memory whose Fetch never faults and
+ * which PilotBoot.GermRemap never disturbs. In our model the array's VM page
+ * (VA 0xFFF000) maps to an arbitrary real page that GermRemap both vacates
+ * (faulting the next MapDirtyBit Fetch) and steals into MDS 76. Route the
+ * array's VA range to a dedicated reserved buffer in the memory model (see
+ * memory.h), capturing the real-hardware invariant. Cedar/PrincOps only --
+ * the Alto worlds' DMesaMiscOps WriteMapPage never touches MapBitsBR. */
+#define MAPBITS_BASE_REG 025  /* DMesaDefs.mc BR[MapBitsBR, 25] (octal) */
+
+static void machine_enable_mapbits_intercept(dorado_machine *m)
+{
+    if (m->mem.mapbits_intercept) return;     /* already armed */
+    uint32_t base_va = dorado_br_get(&m->mem, MAPBITS_BASE_REG);
+    if (base_va == 0) return;                 /* not set up yet */
+    m->mem.mapbits_lo        = base_va;
+    m->mem.mapbits_hi        = base_va + DM_MAPBITS_WORDS;
+    memset(m->mem.mapbits_buf, 0, sizeof m->mem.mapbits_buf); /* fresh array */
+    m->mem.mapbits_intercept = 1;
+    fprintf(stderr,
+        "[machine] MapBitsBR array intercept armed: VA 0o%o..0o%o "
+        "(%d words reserved, no-fault)\n",
+        base_va, base_va + DM_MAPBITS_WORDS, DM_MAPBITS_WORDS);
+}
+
 void dorado_machine_config_default(dorado_machine_config *cfg)
 {
     if (!cfg) return;
@@ -805,6 +835,14 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                         dorado_storage_store_at_va(&m->mem, w, 0);
                     dorado_storage_store_at_va(&m->mem, 0, 0121212u);
                     dorado_storage_store_at_va(&m->mem, 1, 06u);
+                    /* Arm the PrincOps MapBitsBR extra-dirty-bit array
+                     * intercept so MapDirtyBit's Fetch/Store during GERMREMAP
+                     * hit a reserved buffer instead of page-faulting on the
+                     * vacant/stolen top VM bank (see
+                     * machine_enable_mapbits_intercept). GERMREMAP runs only
+                     * after all three passes return, so arming now is in time
+                     * (base reg 25 already holds 0xFFF000 by this point). */
+                    machine_enable_mapbits_intercept(m);
                     m->germ_descriptor_done = 1;
                     fprintf(stderr,
                         "[machine] germ pass1 (descriptor) @cyc=%llu: "

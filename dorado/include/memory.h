@@ -129,6 +129,9 @@ typedef struct {
  */
 #define DM_MAP_ENTRIES   (64 * 1024)         /* 64K map entries (VirtualBanks=400C) */
 #define DM_PAGE_SIZE     256                 /* 256-word pages */
+/* MapBitsBR extra-dirty-bit array: one bit per real page, 16 pages/word.
+ * Max real pages = 64K => 64K/16 = 4096 words (16 VM pages, 0xFFF0..0xFFFF). */
+#define DM_MAPBITS_WORDS 4096
 
 typedef struct {
     uint16_t rp;       /* 16-bit real page number */
@@ -255,6 +258,29 @@ typedef struct dorado_memory {
      * DMux address (T[4:15]) captured on the leading strobe. */
     uint16_t dmux_addr;
     int      dmux_pending;
+
+    /* PrincOps MapBitsBR extra-dirty-bit array intercept (Cedar germ boot
+     * only). The Pilot/Cedar map subroutines keep a per-real-page "extra
+     * dirty bit" array referenced by base register MapBitsBR (=25,
+     * DMesaDefs.mc) at VA 0xFFF000 -- the top of the 16 MW virtual space.
+     * Per DMesaRastMiscOps.mc that array is "real memory ... [holding] one
+     * bit for each page of real memory"; on real Dorado it is a reserved
+     * real-backed region whose Fetch never faults and which the boot's
+     * relocation never disturbs. In our model the enumeration maps that VM
+     * page to an arbitrary real page (e.g. rp 0), and PilotBoot.GermRemap's
+     * "steal pages from the end of mapped VM" loop both vacates it (making
+     * the next MapDirtyBit Fetch fault) and relocates its real page into
+     * MDS 76 (aliasing it with germ data). Modeling the array as a
+     * dedicated reserved buffer that bypasses the Map/cache captures the
+     * real-hardware invariant exactly: references in [lo,hi) read/write
+     * mapbits_buf, never fault, and survive any Map mutation. Alto worlds
+     * leave mapbits_intercept = 0 (their DMesaMiscOps WriteMapPage keeps
+     * the duplicate dirty bit in the real-page sign bit and never touches
+     * MapBitsBR), so this path is dead there. */
+    int      mapbits_intercept;
+    uint32_t mapbits_lo;            /* VA of MapBitsBR array base (0xFFF000) */
+    uint32_t mapbits_hi;            /* VA one past the array              */
+    uint16_t mapbits_buf[DM_MAPBITS_WORDS];
 
     /* Cache — interposed between processor refs and storage for
      * Fetch/Store/PreFetch/Flush. IOFetch/IOStore bypass the cache

@@ -1,5 +1,116 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## ROUTE B (2026-06-15, session 6): MapBitsBR `0o7030` fault ELIMINATED via a reserved-buffer intercept; germ now reaches GERMREMAP's relocation BLT; new blocker = the relocation aliases every MDS-76 germ page onto real page 0 (still 0 IFU dispatches)
+
+### What was fixed (committed)
+
+The session-5 residual `0o7030` fault was `MapDirtyBit` (`DMesaRastMiscOps.mc`):
+`MemBase_ MapBitsBR; Fetch_ RTemp6` -- the Fetch of the per-real-page
+extra-dirty-bit array referenced by base register **MapBitsBR (=25**,
+`DMesaDefs.mc` `BR[MapBitsBR, 25]`) at VA **0xFFF000** (the top of the 16 MW
+VM). Confirmed: base reg 25 is *deliberately* set to 0xFFF000 by the Cedar
+microcode (BRHI=0xFF @real `0o3756`, BRLO=0xF000 @real `0o3775`); this is the
+canonical MapBits location, not garbage. `MapDirtyBit` is reached during
+`PilotBoot.GermRemapLp` via `WriteMapPage`/`TranslateMapEntry`.
+
+Per `DMesaRastMiscOps.mc` the array is "real memory ... [holding] one bit for
+each page of real memory"; on real Dorado it is a reserved real-backed region
+whose Fetch never faults. In our model that VM page maps to an arbitrary real
+page that GermRemap vacates (faulting the Fetch). **Only the PrincOps/Cedar
+map subroutines use MapBitsBR** -- the Alto worlds use `DMesaMiscOps.mc`'s
+`WriteMapPage`, which keeps the duplicate dirty bit in the real-page *sign
+bit* and never touches MapBitsBR -- so the fix is naturally Cedar-only and the
+Alto pixel gates are structurally untouched.
+
+Fix: a **dedicated reserved-buffer intercept** in the memory model.
+- `include/memory.h`: `DM_MAPBITS_WORDS` (4096 = one bit per 64K real pages),
+  plus `mapbits_intercept`, `mapbits_lo/hi`, `mapbits_buf[]` in
+  `dorado_memory`.
+- `src/memory.c` `dorado_memory_ref_task`: at entry, references in
+  `[mapbits_lo, mapbits_hi)` route to `mapbits_buf` (Fetch->Md, Store->buf,
+  PreFetch no-op), bypassing Map + cache, **never faulting** and surviving any
+  Map mutation -- exactly the real-hardware invariant.
+- `src/machine.c` `machine_enable_mapbits_intercept`: armed at germ pass 1
+  (Cedar PC `0o7012`, where base reg 25 already holds 0xFFF000), reads the
+  live MapBitsBR base reg and arms the intercept. Inert without `--germ`
+  (`mapbits_intercept` stays 0), so Alto behavior is byte-identical.
+
+### Result
+
+- The `0o7030` MapBits fault is **GONE**. GermRemap now runs its full
+  `GermRemapLp` page-relocation loop and reaches `GermRemapDone`'s IOBR->LPtr
+  **BLT copy** into MDS 76.
+- New single fault at real **`0o2761`** (the BLT `Store_ T, DBuf_ MD`),
+  VA `0x3E16FF` (MDS 76, germ dest), absorbed. Still **0 IFU dispatches**.
+
+### Hard regression gate -- ALL GREEN
+
+1. `make test` = **10/10**.
+2. AEmu NETEXEC (`worlds/aemu.eb` + NETEXEC) @200M: **1476** px (band
+   1480-1505; 1476 is the known animation/cursor frame at exactly 200M).
+3. Galaxian @160M: **121553** px (= 121552 ±1).
+4. AltoMesaDorado.eb!2 + NETEXEC: **1483/1480/1477** @195/200/205M (band
+   1466-1497; the intercept is provably inert without `--germ`, so this is
+   pure NetExec host-time render variance).
+5. `make sdl` compiles.
+
+(No `test_cpu.c:7709` misleading-indentation warning reproduces under Apple
+clang 17 with the project's flags + `-Wmisleading-indentation`; the build is
+warning-clean except for pre-existing `vendor/6502/fake6502.h` ones. The
+code around 7709 is correctly indented.)
+
+### NEW blocker (session 7): GERMREMAP relocation aliases all MDS-76 germ pages onto real page 0 -> germ image destroyed -> REQUEUE spin
+
+The germ does NOT dispatch because the relocation produces a corrupt germ
+image. Diagnosis (precise):
+
+- `PilotBoot.GermRemapLp` "steals pages from the end of mapped VM" and remaps
+  them into MDS 76, then BLT-copies the germ. It reads each stolen page's
+  entry via `TranslateMapEntry` and writes it into the MDS-76 slot.
+- In our model **every MDS-76 germ entry ends up rp=0** (traced idx
+  `0x3E02..0x3E21`: all `rp=0000`, mostly `wp=0 dirty=1`, two `wp=1` ->
+  the `0o2761` BLT-store write-protect/page fault). All 32 germ pages
+  collapse onto real page 0, so the BLT overwrites itself and the germ image
+  in MDS 76 is garbage.
+- Root cause = the **inherited Map from Initial** maps the whole 64K-page VM
+  resident with aliasing: high VM pages map to low/`rp=0` real pages (traced
+  `0xFFF0 -> rp 0`), and some map to rp > 7777B which
+  `TranslateMapEntry`'s "crock" (`real page > 7777B => vacant`) returns as
+  vacant (rp 0 in Alto mode / wProtect&dirty in PrincOps). `FindEndMappedVM`
+  finds its boundary at `0xFFF1` and the stolen pages all yield rp 0.
+- On real Dorado real memory is far smaller than the 16 MW VM, so the boot's
+  mapped region is a small 1-to-1 working set (distinct valid rp <= 7777B) and
+  the stolen pages are distinct real pages. The MapBits island sits ABOVE the
+  vacant gap and is never stolen.
+
+**What was tried and did NOT work this session (reverted):**
+- Capping reported real-memory modules (`config_modules_max`): no effect --
+  the resident extent is set by the enumeration, not `RealPages`, and the
+  Cedar world warm-starts off Initial's map.
+- Forcing `RealPages=4096` via chip-size: no effect (warm start).
+- Manually vacating a `[0x1000, 0xFFEF]` "real-memory gap" to move the
+  `FindEndMappedVM` boundary: the boundary did not move to 0x1000 as modeled
+  (the steal geometry / inherited map state is not what a naive
+  first-vacant-from-0 scan predicts), so it only changed the failure (MDS-76
+  vacant instead of rp 0) without dispatching. The exact steal mechanics need
+  to be traced live before forcing a gap.
+
+**NEXT PASS:** fix the relocation so the stolen pages have distinct valid
+real pages. The likely correct lever is **how Initial (the bootstrap)
+populates the Map** -- it should map only the actual real-memory working set
+1-to-1 (distinct rp <= 7777B), leaving high VM vacant, instead of aliasing
+all 64K. Pages 0..0xFFF already map 1-to-1 (`rp=vp`, confirmed). Trace
+`GermRemapLp`'s live steal source (`RTemp2` boundary, the per-iteration
+`make-vacant` page, and the `RTemp4` entry written to each MDS-76 slot) at
+cyc > 66.7M to learn the true boundary before forcing the geometry. Repro:
+`DORADO_FAULT_TRACE=all ./build/dorado --eb '../chm/dorado/CedarDorado.eb!6'
+--germ '../chm/cedar/germ/Dorado.germ!4' --cycles 90000000` -> intercept
+armed, 3 germ passes, single `0o2761` BLT fault, 0 dispatches.
+`DORADO_MAP_TRACE=1 DORADO_MAP_TRACE_INDEX=0x3E10` shows the MDS-76 rp=0
+collapse.
+
+---
+
 ## ROUTE B (2026-06-15, session 5): RMap<- now READ-ONLY (was conflated with Map<- write); the `0o7030` MESAFAULT loop is GONE; GERMREMAP completes and control runs on into the Mesa-emulator microcode; new blocker = germ doesn't dispatch (0 IFU dispatches)
 
 ### Root cause of the session-4 blocker (the `0o7030` page fault -> infinite MESAFAULT)
