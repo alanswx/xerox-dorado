@@ -30,13 +30,20 @@ The 13 `DMesa*` Mesa-VM modules (named `AltoMesa*` in `AltoMesa.cm`, `DMesa*` on
 **Real Mesa blocker: two separate, larger items (neither a gated one-liner).** After `@STOP` the
 Nova world parks polling an I/O-completion control block; device confirmed = Ethernet (not
 RTC/keyboard). It splits:
-- **MazeWar / interrupt-driven `0o345` worlds:** receives DO complete (EPLOC `0o600` posts InDone
-  `0o377`, data lands in the posted buffer) but the OS waits on the IOCB status word (`mem[AC3+1]`,
-  e.g. `0o176217`) that the real `EtherInterrupt` (`PupAlEtha.asm`) writes -- which needs the
-  **Alto interrupt fabric modeled on AEmu**: NWW (`0o452`) + the emulator-microcode interrupt
-  check/vector through `0o500-0o517`. "OR EBLOC->NWW" is a no-op (EBLOC reads 0; capture it at the
-  exact post instant -- `StartEther` may set it transiently). Do not re-implement `EtherInterrupt`
-  in C (don't-invent-behavior).
+- **MazeWar / `0o345` worlds -- the Alto interrupt fabric is COMPLETE; the WORLD never arms it
+  [PINNED].** The interrupt machinery is already correct in our microengine: NWW (an RM register,
+  not memory `0o452`), the `AEmuReschedule` trap (`AEmuTrapBase+14`), the `Reschedule` FF, and the
+  `PCLOC`/`INTVEC` (`0o500`/`0o501`) vector path. The receive-completion microcode (`AltoEther.mc`
+  `EPost`) runs faithfully on the EIT (posts EPLOC `0o377`). But the world never set up the
+  interrupt CHANNEL: traced over a full MazeWar run, `EBLOC` (`0o601`), `ACTIVE` (`0o453`) and
+  `INTVEC` (`0o501`, the `EtherInterruptEntry` handler addr) are PERMANENTLY 0 and Nova `EIR` is
+  never reached for the ether channel. So `EPost`'s `NWW <- NWW OR EBLOC` ORs 0 -> no interrupt
+  ever fires. Forcing NWW from C would CRASH: `AEmuReschedule` vectors through `INTVEC(0o501)=0`
+  -> jump to page 0 (the documented runaway). So there is NO faithful C fix. The bare `0o345`
+  Pilot outload reaches its poll loop at VM `0x0FD2F` WITHOUT running the Pup interrupt-subsystem
+  init (channel-allocate + `EIR` + install the handler at `0o501`) -- work the **Pilot germ/nucleus**
+  is supposed to do. So this confirms the architectural conclusion: the `0o345` family needs the
+  germ/Pilot boot (Route B below), not any Alto-side interrupt change.
 - **CedarNetExec:** a different loop polling EPLOC directly (no interrupt); Rx works but it awaits
   Cedar-germ *server content*, so its path is the **Cedar germ/Pilot net-boot**
   (`InitialEtherCedarDorado.eb!3` + `CedarDorado.eb!6` + germ), per the FINDING below -- not the
