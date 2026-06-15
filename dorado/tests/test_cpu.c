@@ -7832,9 +7832,11 @@ static int test_cpu_pipe4_no_error_baseline(void)
     memset(&mc, 0, sizeof mc);
     mc.alufm[0] = 025; mc.alufm_present[0] = 1;   /* "B" */
 
-    /* B←Pipe4' = FA=1 FB=6 FC=5 = 0o165. HM page 51 says
-     * 0150361_8 XOR Pipe4' yields high-true fields, so no error
-     * reads as exactly 0150361_8 on the bus. */
+    /* B←Pipe4' = FA=1 FB=6 FC=5 = 0o165. The Pipe4'/Errors' word reads the
+     * old map entry's flags back COMPLEMENTED (EMemDefs.mc m1pipe4.wpdref =
+     * b0,b2,b3; DMesaMiscOps.mc TranslateMapEntry: "Previous flags
+     * (complemented)"), so the no-error/no-reference baseline (ref'=wProtect'=
+     * dirty'=1, no error/syndrome) is 0o170361. */
     mc.im[0] = make_uinstr(0, 0, 0, 1, 6, 0, 0165, jcn_local(0));
     mc.im_present[0] = 1;
     mc.image_to_real[0] = 0;
@@ -7850,8 +7852,8 @@ static int test_cpu_pipe4_no_error_baseline(void)
 
     EXPECT(dorado_cpu_step(&cpu) == 0, "Pipe4 step: %s",
            cpu_halt_reason_str(cpu.halt_reason));
-    EXPECT(cpu.T == 0150361,
-           "Pipe4' no-error baseline = 0o%o, expected 0o150361", cpu.T);
+    EXPECT(cpu.T == 0170361,
+           "Pipe4' no-error baseline = 0o%o, expected 0o170361", cpu.T);
 
     dorado_memory_free(&mem);
     printf("PASS  test_cpu_pipe4_no_error_baseline\n");

@@ -1,5 +1,81 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## ROUTE B (2026-06-15, session 7): germ relocation aliasing FIXED at the root (`Pipe4'`/`Errors'` flag-encoding bug); GermRemap now assigns DISTINCT real pages, control reaches MGo (Mesa emulator, insset=1); the de70f5e MapBitsBR hack is REMOVED (faithful Map now keeps the `0o7030` fault gone); new blocker = post-MGo XFER/MTRAP loop, 0 IFU dispatches
+
+### Root cause found (the real bug, not the Map population)
+
+The session-6 diagnosis ("Initial maps the whole 64K aliased; need to leave
+high VM Vacant") was a red herring. Traced the live steal: our InitMem map IS
+faithful (page N -> rp N 1-to-1, exactly matching real HW + the
+`TranslateMapEntry` "crock" for rp > 7777B that compensates for the boot's
+"no end test" real-memory scan -- see `DMesaMiscOps.mc`). The actual bug was in
+**`dorado_pipe4_at` (`src/memory.c`)**, the `Errors'`/`B<-Pipe4'` readback that
+`PilotBoot.FindEndMappedVM` -> `TranslateMapEntry` uses to classify a map entry
+Vacant vs resident:
+
+- The **ref bit (b0)** was hardcoded to `kind != DM_REF_NONE` instead of the
+  snapshotted map entry's actual Ref flag (`map_flags_pre & 4`). EMemDefs.mc:
+  `m1pipe4.wpdref = b0,b2,b3` (ref, wProtect, dirty are the map flags).
+- The **wProtect bit (b2)** had the wrong polarity: `dirty` (b3) was already
+  read back complemented (`Errors'` = active-low, "Previous flags
+  (complemented)" per `DMesaMiscOps.mc`) via baseline bit12=1, but wProtect was
+  NOT (baseline bit13=0). Fixed by setting baseline `0o150361 -> 0o170361`
+  (bit13=1) so wProtect' = NOT(wProtect) like dirty' and ref'.
+
+Effect of the bug: `TranslateMapEntry` classified **resident page 0** (wp=0,
+dirty=1, ref=1) as MapVacant and **genuinely-vacant page 0xFFFF** (wp=1,
+dirty=1) as MapNotVacant -- exactly inverted. So `FindEndMappedVM` stopped at
+boundary 0 and `GermRemapLp` stole pages from the TOP of VM (0xFFFF down),
+which the crock returns as rp=0 -> every MDS-76 germ page collapsed onto rp 0.
+
+(HM grounding: the `0o150361` baseline was never a literal HM quote --
+`pdftotext` finds no such constant; it is derived from EMemDefs.mc's Pipe4
+bit layout + the microcode's complemented-flag reading. Documented as such.)
+
+### Result (verified)
+
+- `FindEndMappedVM` now ascends page 0 -> ~4096 (boundary = the crock's first
+  rp>7777B page), `GermRemapLp` steals distinct pages 4095..4064, and the
+  MDS-76 germ-dest entries get DISTINCT real pages (idx 0x3E10 -> rp 0x0FEE).
+  No rp=0 collapse.
+- The single `0o7030` MapBitsBR fault is GONE **without** any intercept: with
+  the faithful classification the MapBitsBR bank (VA 0xFFF000, page 0xFFF0)
+  stays resident (rp 0xFFF0, not scanned/stolen by FindEndMappedVM/GermRemapLp,
+  which only touch pages <=4096), so MapDirtyBit's Fetch reads real-backed
+  storage and never faults. **The de70f5e `mapbits_buf` bypass hack is REMOVED**
+  (`mapbits_intercept`/`mapbits_lo`/`mapbits_hi`/`mapbits_buf`/`DM_MAPBITS_WORDS`
+  and `machine_enable_mapbits_intercept` all deleted). A/B test confirmed: with
+  the hack gated off the germ-dest rp and the post-relocation flow are
+  byte-identical, so the hack was redundant once the flags were fixed.
+- After GermRemapDone the BLT runs and control reaches **MGo (real 0o3740)**
+  with **insset=1** -- the Mesa emulator is now executing the germ's resident
+  code.
+
+### HARD REGRESSION GATE -- ALL GREEN
+
+1. `make test` = 10/10 (updated `test_pipe4_error_encoding` and
+   `test_cpu_pipe4_no_error_baseline` to the corrected `0o170361` baseline +
+   actual-ref semantics).
+2. AEmu NETEXEC @200M: 1483 px (band 1476-1505).
+3. Galaxian @160M: 121553 px (=121552 +/-1).
+4. AltoMesaDorado.eb!2 + NETEXEC @200M: 1485 px (band 1477-1497).
+5. `make sdl` compiles.
+
+### NEW blocker (session 8): post-MGo XFER/MTRAP loop, 0 IFU dispatches
+
+After MGo the Mesa emulator settles into a steady loop (real PCs, traced
+115M-120M): `XFER`(0o1700) / `XFERMD`(0o1026) / `SAVEPCANDTRAP`(0o2000) /
+`SAVEPCINFRAME`(0o1600) / `CHECKSTKP`(0o2020) / `MTRAP`(0o1041) -- a Mesa
+control-transfer that traps repeatedly, **0 IFU dispatches** (the germ never
+runs a bytecode via IFUJump). So GermRemap + the microcode handoff now work,
+but the germ's first XFER (likely starting the `BootSwapGerm` process, then
+its own Ethernet volume fetch -- plan Step 4) traps. Next pass: decode the
+XFER target / trap cause (is it `MTRAP` for an unimplemented/absent control
+link, a stack fault at `CHECKSTKP`, or the germ awaiting its ether boot
+channel?). Repro: `./build/dorado --eb '../chm/dorado/CedarDorado.eb!6' --germ
+'../chm/cedar/germ/Dorado.germ!4' --cycles 120000000`; the germ-dest distinct
+rp is observable via `DORADO_MAP_TRACE=1 DORADO_MAP_TRACE_INDEX=0x3E10`.
+
 ## ROUTE B (2026-06-15, session 6): MapBitsBR `0o7030` fault ELIMINATED via a reserved-buffer intercept; germ now reaches GERMREMAP's relocation BLT; new blocker = the relocation aliases every MDS-76 germ page onto real page 0 (still 0 IFU dispatches)
 
 ### What was fixed (committed)

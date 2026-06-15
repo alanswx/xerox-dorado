@@ -736,30 +736,36 @@ static int test_pipe4_error_encoding(void)
     EXPECT(dorado_memory_init(&mem) == 0, "init");
     dorado_map_set(&mem, 0, /*rp=*/0, 0, 0);
 
-    /* Issue a Fetch so slot 0 has kind != NONE. */
+    /* The pipe captures the PREVIOUS map entry's flags (ref/wProtect/dirty,
+     * EMemDefs.mc m1pipe4.wpdref = b0,b2,b3). The first Fetch misses and the
+     * cache fill sets Map.Ref=1; a second Fetch then snapshots ref=1 into the
+     * pipe. The corrected Pipe4' baseline is 0o170361 (sets the wProtect/
+     * dirty/ref positions so the high-true map flags read back complemented;
+     * see dorado_pipe4_at). */
+    dorado_memory_ref(&mem, DM_REF_FETCH, 0, 0, 0);
     dorado_memory_ref(&mem, DM_REF_FETCH, 0, 0, 0);
 
     uint16_t pipe4_no_err = dorado_pipe4_at(&mem, 0);
     /* High-true after XOR: bit 15 (ref) set, all others 0. */
-    EXPECT((uint16_t)(pipe4_no_err ^ 0150361u) == 0x8000,
+    EXPECT((uint16_t)(pipe4_no_err ^ 0170361u) == 0x8000,
            "Pipe4' XOR baseline = 0x%04X, expected 0x8000 (ref only)",
-           (uint16_t)(pipe4_no_err ^ 0150361u));
+           (uint16_t)(pipe4_no_err ^ 0170361u));
 
     /* Inject a MapTrouble. */
     dorado_pipe4_set_error(&mem, 0, PIPE4_ERR_MAP_TROUBLE, 0, 0);
     uint16_t pipe4_mt = dorado_pipe4_at(&mem, 0);
-    EXPECT((uint16_t)(pipe4_mt ^ 0150361u) == 0xC000,
+    EXPECT((uint16_t)(pipe4_mt ^ 0170361u) == 0xC000,
            "Pipe4' XOR baseline = 0x%04X, expected 0xC000 (ref+MapTrouble)",
-           (uint16_t)(pipe4_mt ^ 0150361u));
+           (uint16_t)(pipe4_mt ^ 0170361u));
 
     /* Inject MemError + syndrome. */
     dorado_pipe4_set_error(&mem, 0, PIPE4_ERR_MEM_ERROR, 0x55, 0);
     uint16_t pipe4_me = dorado_pipe4_at(&mem, 0);
     /* High-true: bit 15 (ref) | bit 14 (MapTrouble — sticky) |
      * bit 11 (MemError) | syndrome 0x55 in low byte. */
-    EXPECT((uint16_t)(pipe4_me ^ 0150361u) == 0xC855,
+    EXPECT((uint16_t)(pipe4_me ^ 0170361u) == 0xC855,
            "Pipe4' XOR baseline = 0x%04X, expected 0xC855",
-           (uint16_t)(pipe4_me ^ 0150361u));
+           (uint16_t)(pipe4_me ^ 0170361u));
 
     dorado_memory_free(&mem);
     printf("PASS  test_pipe4_error_encoding (gap C2)\n");

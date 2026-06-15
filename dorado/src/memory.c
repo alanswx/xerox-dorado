@@ -275,16 +275,29 @@ uint16_t dorado_pipe4_at(const dorado_memory *mem, int srn)
      * reference; Mesa's NewMemory.mc reads them through Errors'. */
     uint16_t ht = 0;
     uint8_t  e  = mem->pipe[slot].pipe4_errors;
-    uint8_t  mf = mem->pipe[slot].map_flags_pre;
-    if (mem->pipe[slot].kind != DM_REF_NONE) ht |= (uint16_t)(1u << 15);
-    if (e & PIPE4_ERR_MAP_TROUBLE)           ht |= (uint16_t)(1u << 14);
-    if (mf & 1u)                              ht |= (uint16_t)(1u << 13);
-    if (mf & 2u)                              ht |= (uint16_t)(1u << 12);
-    if (e & PIPE4_ERR_MEM_ERROR)             ht |= (uint16_t)(1u << 11);
-    if (e & PIPE4_ERR_EC_FAULT)              ht |= (uint16_t)(1u << 10);
+    uint8_t  mf = mem->pipe[slot].map_flags_pre;   /* b0=wp, b1=dirty, b2=ref */
+    /* The old map entry's flags (ref/wProtect/dirty) are read back through
+     * `Errors'` (= B<-Pipe4', active-low) "complemented" -- see
+     * DMesaMiscOps.mc TranslateMapEntry ("Previous flags (complemented)").
+     * The baseline 0o170361 sets the wProtect (b2/bit13) and dirty (b3/bit12)
+     * positions so the high-true map flags XOR to their complement:
+     *   Errors'.ref'      = NOT(ref)       (b0  / bit15, baseline 1)
+     *   Errors'.wProtect' = NOT(wProtect)  (b2  / bit13, baseline 1)
+     *   Errors'.dirty'    = NOT(dirty)     (b3  / bit12, baseline 1)
+     * so a Vacant entry (wProtect=1 AND dirty=1) reads wProtect'=dirty'=0 and
+     * RealPageInRange returns MapVacant, while a resident entry returns
+     * MapNotVacant. The error bits keep their present-true polarity (set when
+     * the fault is present) so the fault task's MapTrouble/MemError/EcFault
+     * reads through `Errors'` are unchanged. */
+    if (mf & 4u)                   ht |= (uint16_t)(1u << 15);  /* b0 ref      */
+    if (e & PIPE4_ERR_MAP_TROUBLE) ht |= (uint16_t)(1u << 14);  /* b1 MapTrouble */
+    if (mf & 1u)                   ht |= (uint16_t)(1u << 13);  /* b2 wProtect */
+    if (mf & 2u)                   ht |= (uint16_t)(1u << 12);  /* b3 dirty    */
+    if (e & PIPE4_ERR_MEM_ERROR)   ht |= (uint16_t)(1u << 11);  /* b4 MemError */
+    if (e & PIPE4_ERR_EC_FAULT)    ht |= (uint16_t)(1u << 10);  /* b5 EcFault  */
     ht |= (uint16_t)((mem->pipe[slot].pipe4_quadword & 3u) << 8);
     ht |= (uint16_t)mem->pipe[slot].pipe4_syndrome;
-    return (uint16_t)(0150361u ^ ht);
+    return (uint16_t)(0170361u ^ ht);
 }
 
 void dorado_pipe4_set_error(dorado_memory *mem, int srn,
@@ -874,35 +887,6 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
     mem->last_ref_task = (uint8_t)(task & 017);
     mem->last_ref_subtask = (uint8_t)(subtask & 3);
 
-    /* MapBitsBR extra-dirty-bit array intercept (Cedar germ boot; see
-     * memory.h). The PrincOps map subroutines (DMesaRastMiscOps.mc
-     * MapDirtyBit / WriteMapPage / TranslateMapEntry) Fetch/Store the
-     * per-real-page extra-dirty-bit array via MapBitsBR (VA 0xFFF000). On
-     * real Dorado that array is reserved real memory: the Fetch never
-     * faults and the boot's relocation never disturbs it. Route those
-     * references to the dedicated buffer, bypassing the Map (so they never
-     * fault even after GermRemap vacates the VM page) and the cache. */
-    if (mem->mapbits_intercept &&
-        va >= mem->mapbits_lo && va < mem->mapbits_hi) {
-        uint32_t off = va - mem->mapbits_lo;
-        switch (kind) {
-        case DM_REF_FETCH:
-        case DM_REF_IFETCH:
-        case DM_REF_LONGFETCH:
-            mem->md = mem->mapbits_buf[off];
-            mem->mar = va;
-            return DM_FAULT_NONE;
-        case DM_REF_STORE:
-            mem->dbuf = b;
-            mem->mapbits_buf[off] = b;
-            mem->mar = va;
-            return DM_FAULT_NONE;
-        case DM_REF_PREFETCH:
-            return DM_FAULT_NONE;     /* never faults, no fill */
-        default:
-            break;                    /* Map<-/RMap<-/Flush/IO fall through */
-        }
-    }
     /* Update Mar (most-recent reference VA). ReadMap (HM page 41)
      * uses this to look up the map entry. */
     mem->mar = va;
