@@ -1439,13 +1439,15 @@ static int test_ifu_conditional_dispatch(void)
         ((uint16_t)( ((uint16_t)((packed_a)&1) << 10) \
                    | ((uint16_t)(~(ifaddr)&0x3FF)) ))
 
-    /* INC opcode 0x10. IFaddr' = 0o20 → entries at IM[0o100..0o103]. */
-    mc.ifum_hi[0x10] = MK_LH(0, 0, 1, 4, 1, 1, 017);
+    /* INC opcode 0x10. IFaddr' = 0o20 → entries at IM[0o100..0o103].
+     * Length field is notLength = ~length & 3 (mdfields.d TIFUM); a
+     * 1-byte opcode → field 2. */
+    mc.ifum_hi[0x10] = MK_LH(0, 2, 1, 4, 1, 1, 017);
     mc.ifum_lo[0x10] = MK_RH(0, 0020);
     mc.ifum_present[0x10] = 1;
 
-    /* HALT opcode 0x20. IFaddr' = 0o40. */
-    mc.ifum_hi[0x20] = MK_LH(0, 0, 1, 4, 1, 1, 017);
+    /* HALT opcode 0x20. IFaddr' = 0o40. notLength field 2 = length 1. */
+    mc.ifum_hi[0x20] = MK_LH(0, 2, 1, 4, 1, 1, 017);
     mc.ifum_lo[0x20] = MK_RH(0, 0040);
     mc.ifum_present[0x20] = 1;
 
@@ -1575,8 +1577,9 @@ static int test_ifu_conditional_cond_true(void)
         ((uint16_t)( ((uint16_t)((packed_a)&1) << 10) \
                    | ((uint16_t)(~(ifaddr)&0x3FF)) ))
 
-    /* INC opcode 0x10. */
-    mc.ifum_hi[0x10] = MK_LH(0, 0, 1, 4, 1, 1, 017);
+    /* INC opcode 0x10. notLength field 2 = length 1 (one-byte opcode,
+     * mdfields.d TIFUM: field = ~length & 3). */
+    mc.ifum_hi[0x10] = MK_LH(0, 2, 1, 4, 1, 1, 017);
     mc.ifum_lo[0x10] = MK_RH(0, 0020);
     mc.ifum_present[0x10] = 1;
 
@@ -8779,10 +8782,11 @@ static int test_ifu_dispatch_synthetic(void)
     /* IFUM entries: opcode 0x10 (INC) and 0x20 (HALT) under InsSet=0. */
     /* Entry layout per Table 20:
      *   ifum_lo (RH): bit 5 = Packed-α, bits 6..15 = IFaddr' (10 bits)
-     *   ifum_hi (LH): bit 0=Sign, 1..3=Par, 4..5=Length', 6=RBaseB',
+     *   ifum_hi (LH): bit 0=Sign, 1..3=Par, 4..5=notLength, 6=RBaseB',
      *                 7..9=MemB, 10=TPause', 11=TJump', 12..15=N
      *
-     * For INC: Length'=00 (length=1), TPause'=1 (no pause, low-true),
+     * For INC: notLength=10 (=2 → length=1, per mdfields.d TIFUM:
+     * field = ~length & 3), TPause'=1 (no pause, low-true),
      * TJump'=1 (no jump, low-true), N=017, MemB=000, RBaseB'=1.
      *
      * In MSB-first bit numbering (0..15) → C-LSB representation:
@@ -8807,15 +8811,15 @@ static int test_ifu_dispatch_synthetic(void)
 
     /* INC opcode 0x10. IFaddr' = 0o20 (= decimal 16). So entry 0
      * lands at TNIA = (0o20 << 2) | 0 = 0o100 (= decimal 64). */
-    mc.ifum_hi[0x10] = MK_LH(0, /*Length'*/0, /*RBaseB'*/1,
+    mc.ifum_hi[0x10] = MK_LH(0, /*notLength*/2, /*RBaseB'*/1,
                              /*MemB*/4 /* MemB[0]=1, MemB[1:2]=00 → MemBase=034 */,
                              /*TPause'*/1, /*TJump'*/1, /*N*/017);
     mc.ifum_lo[0x10] = MK_RH(0, /*IFaddr'*/0020);
     mc.ifum_present[0x10] = 1;
 
     /* HALT opcode 0x20. IFaddr' = 0o40 (= decimal 32). Entry 0 →
-     * TNIA = (0o40 << 2) | 0 = 0o200. */
-    mc.ifum_hi[0x20] = MK_LH(0, 0, 1, 4, 1, 1, 017);
+     * TNIA = (0o40 << 2) | 0 = 0o200. notLength 2 = length 1. */
+    mc.ifum_hi[0x20] = MK_LH(0, 2, 1, 4, 1, 1, 017);
     mc.ifum_lo[0x20] = MK_RH(0, /*IFaddr'*/0040);
     mc.ifum_present[0x20] = 1;
 

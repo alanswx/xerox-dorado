@@ -2196,9 +2196,18 @@ static void ifu_decode_lh(dorado_cpu *cpu, uint16_t lh)
 {
     /* C-LSB reverses bit order: LSB-bit n = MSB-bit (15-n). */
     cpu->ifu_sign       = (lh >> 15) & 1;
-    /* Length' is low-true: 00→1 byte, 01→2, 10→3, 11→illegal. */
+    /* notLength (mdfields.d TIFUM): the 2-bit field holds the 1's
+     * complement of the opcode length, i.e. notLength = ~length & 3.
+     * So length = ~notLength & 3: notLength 2→len 1, 1→len 2, 0→len 3
+     * (3 unused). The earlier `lpr+1` form was only correct for the
+     * length-2 case (notLength=1), which is why it survived the Alto
+     * gate (Alto/Nova opcodes are 2 bytes); it mis-sized every length-1
+     * and length-3 opcode — fatal for the PrincOps/Mesa instruction set
+     * (e.g. LFC4/NOOP are 1 byte), where the over-long length makes ←Id
+     * read α as the "instruction length" and corrupts the saved Mesa PC
+     * in SavePCInFrame. */
     uint8_t lpr = (uint8_t)((lh >> 10) & 3);
-    cpu->ifu_length     = (uint8_t)(lpr + 1);
+    cpu->ifu_length     = (uint8_t)((~lpr) & 3);
     cpu->ifu_type_pause = !((lh >> 5) & 1);   /* TPause' low-true */
     cpu->ifu_type_jump  = !((lh >> 4) & 1);   /* TJump' low-true */
     cpu->ifu_n          = (uint8_t)(lh & 0xF);
