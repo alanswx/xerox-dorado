@@ -65,6 +65,15 @@ typedef struct dorado_machine_config {
     dorado_display_key boot_keys[8];
     int      boot_keys_count;
 
+    /* Route B (Cedar/Mesa germ net-boot): path to the Pilot germ image
+     * (default chm/cedar/germ/Dorado.germ!4). When set, the machine
+     * deposits the germ into VM at its resident addresses (0o17401000+)
+     * the first time the Cedar microcode reaches the disk germ-boot
+     * transfer spin -- the germ-plant that bypasses the (contentless)
+     * disk read. NULL leaves the plant disabled, so the Alto worlds in
+     * the regression gate are structurally untouched. */
+    const char *germ_path;
+
     uint16_t boot_file_number; /* Mesa/Dorado boot file number, the first
                                 * word of the boot-parameter block Initial
                                 * normally derives from the boot button +

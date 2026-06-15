@@ -107,7 +107,18 @@ struct dorado_machine {
     uint32_t pchist[4096];
     uint16_t initseq[600];     /* first task-0 PCs after world-load */
     int      initseq_n;
+
+    /* Pilot germ plant (Route B). When germ_path is set, the germ file
+     * image is loaded here at create and deposited into VM the first
+     * time the Cedar germ-boot disk-transfer spin is reached. */
+    uint16_t germ_words[8192]; /* Dorado.germ!4 = 32 pages * 256 words   */
+    int      germ_word_count;
+    int      germ_planted;
 };
+
+/* Pilot germ resident VM base (Dorado.loadmap GERM FILE MAP: file page
+ * W -> VM word 0o17401000 + W, contiguous, no leader page). */
+#define GERM_VM_BASE 017401000u
 
 static const uint8_t standard_alufm[ALUFM_SIZE] = {
     025, 000, 014, 054, 062, 022, 035, 027,
@@ -245,6 +256,7 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
         cfg.ifu_mb       = pick(user_cfg->ifu_mb,       cfg.ifu_mb);
         cfg.eth_boot_110 = pick(user_cfg->eth_boot_110, cfg.eth_boot_110);
         cfg.eftp_boot    = pick(user_cfg->eftp_boot,    cfg.eftp_boot);
+        cfg.germ_path    = pick(user_cfg->germ_path,    cfg.germ_path);
         cfg.alto_ether_boot  = user_cfg->alto_ether_boot;
         cfg.alto_ether_quote = user_cfg->alto_ether_quote;
         cfg.no_disk          = user_cfg->no_disk;
@@ -414,6 +426,30 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
             fprintf(stderr, "[bootdir] --boot-dir-all: registered %d game(s) "
                     "from %s (%d entries total)\n", n, dir,
                     m->ethernet.bootdir_count);
+    }
+
+    /* Route B germ plant: load the Pilot germ image (little-endian words,
+     * matching the disk pack convention in disk.c) for later deposit into
+     * VM. Failure is non-fatal -- it just leaves the plant disabled. */
+    if (cfg.germ_path) {
+        FILE *gf = fopen(cfg.germ_path, "rb");
+        if (!gf) {
+            fprintf(stderr, "dorado: cannot open germ '%s'; plant disabled\n",
+                    cfg.germ_path);
+        } else {
+            int n = 0;
+            int b0, b1;
+            while (n < (int)(sizeof m->germ_words / sizeof m->germ_words[0]) &&
+                   (b0 = fgetc(gf)) != EOF && (b1 = fgetc(gf)) != EOF) {
+                m->germ_words[n++] = (uint16_t)(b0 | (b1 << 8));
+            }
+            fclose(gf);
+            m->germ_word_count = n;
+            if (getenv("DORADO_MACHINE_TRACE"))
+                fprintf(stderr, "[machine] germ loaded: %d words from %s "
+                        "(word0=0o%o)\n", n, cfg.germ_path,
+                        n ? m->germ_words[0] : 0);
+        }
     }
 
     dorado_display_attach_to_io(&m->display, &m->io);
@@ -650,6 +686,42 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
             if (getenv("DORADO_MACHINE_TRACE"))
                 fprintf(stderr, "[machine] world loaded @cyc=%llu pc=0o%o\n",
                         (unsigned long long)bb->cycles, pre_pc);
+        }
+
+        /* Route B germ plant. The Cedar microcode's disk germ-boot
+         * (PilotBoot -> DiskBootSoft -> DiskBootTransfer) reads the Pilot
+         * germ off a physical-volume boot pack we do not have, then spins
+         * forever in BootTransferLp waiting for iocb.seal to clear (the
+         * RTC430 timeout never fires because the junk timer is quiesced at
+         * the LoadRam handoff). Real PC 0o7012 is that spin's seal-fetch
+         * micro-op; it is placed only in the Cedar/Mesa world (the Alto
+         * worlds never reach it), so gating here keeps the regression gate
+         * structurally untouched. When a germ image is loaded, deposit it
+         * into VM at its resident addresses (Dorado.loadmap GERM FILE MAP:
+         * file word W -> VM 0o17401000 + W, contiguous, no leader page).
+         *
+         * NOTE: depositing the germ is necessary but not yet sufficient to
+         * run it -- the germ executes as Mesa code (insset != 0) and needs
+         * the PilotBoot GERMREMAP map/MDS setup + the Mesa XFER handoff,
+         * whose microcode source is not in our tree. So this lands the
+         * resident image (verifiable by read-back) and is the scaffolding
+         * the handoff step builds on; see docs/CONTINUE-HERE.md. */
+        if (m->germ_word_count && !m->germ_planted &&
+            m->ether_loaded_world_cycle && is_imfetch && cpu->ctask == 0 &&
+            pre_pc == 07012) {
+            int landed = 0;
+            for (int w = 0; w < m->germ_word_count; w++) {
+                if (dorado_storage_store_at_va(&m->mem, GERM_VM_BASE + (uint32_t)w,
+                                               m->germ_words[w]) == 0)
+                    landed++;
+            }
+            m->germ_planted = 1;
+            fprintf(stderr,
+                    "[machine] germ planted @cyc=%llu: %d/%d words at VM "
+                    "0o%o+ (readback word0=0o%o)\n",
+                    (unsigned long long)bb->cycles, landed, m->germ_word_count,
+                    GERM_VM_BASE,
+                    dorado_visible_word_at_va(&m->mem, GERM_VM_BASE));
         }
 
         /* Track the world's currently-posted Ethernet input-buffer size

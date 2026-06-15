@@ -692,6 +692,20 @@ uint16_t dorado_storage_at_va(const dorado_memory *mem, uint32_t va)
     return mem->storage[phys];
 }
 
+int dorado_storage_store_at_va(dorado_memory *mem, uint32_t va, uint16_t val)
+{
+    size_t phys;
+    if (va_translate(mem, va, /*is_write=*/1, &phys) != DM_FAULT_NONE)
+        return -1;
+    mem->storage[phys] = val;
+    /* Keep the cache coherent: drop any line currently holding VA so the
+     * next fetch reloads the freshly deposited word from storage. */
+    int way;
+    if (dorado_cache_lookup(mem, va, &way))
+        mem->cache[va_cache_row(va)].ways[way].valid = 0;
+    return 0;
+}
+
 uint16_t dorado_visible_word_at_va(const dorado_memory *mem, uint32_t va)
 {
     int way;

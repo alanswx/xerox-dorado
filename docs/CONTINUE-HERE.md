@@ -1,5 +1,115 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## ROUTE B (2026-06-15): CedarDorado reaches the disk GermBoot; germ-plant scaffolding landed; germ-run blocked on PilotBoot source
+
+Route B = Cedar/Mesa germ net-boot. This session **characterized the disk
+germ-read fully** and **landed the regression-safe germ-plant scaffolding**
+(`--germ`, the VM deposit, the gated plant). The germ does **not run yet**:
+that needs the `PilotBoot` GERMREMAP / Mesa-XFER handoff microcode, whose
+source is not in our tree. Details below; regression gate stayed green.
+
+### STEP 1 — the disk germ-read, characterized (CedarDorado.eb!6)
+
+Flow (real PCs via `build/mbdis --disasm ../chm/dorado/Cedar.mb!6`, 4th col):
+`GERMBOOT`(0o6737, image 6463, module **PilotBoot**) → `DISKBOOTSOFT`(0o6700)
+→ `BOOTTRANSFER`(0o6160) → spins in `BootTransferLp`. Microcode SOURCE for
+the transfer is local: `chm/doradomicrocode/doradomicrocodesources/`
+`DiskBootSoft.mc!1` + `DiskBootTransfer.mc!1` (GERMBOOT/GERMREMAP itself is
+in `PilotBoot`, NOT local — see CedarMesa10MB.cm module list).
+
+- **(a) Disk command issued.** `DiskBootSoft` builds an IOCB at VM 0o431
+  (drive 0, pageCount, command, diskAddress, dataPtr, diskLabel) and posts
+  it to `CSB.next`; the PilotDisk microcode then drives the real slow-IO
+  sequence (confirmed empirically via the new `DORADO_DISK_TRACE`):
+  TIOA 0o14 DiskTag = DriveSelect drive 0 + cyl/head seek tags
+  (e.g. 0o104360); TIOA 0o13 DiskRam = load the read-sequencer Format RAM
+  (words 0,1,2,4,6,11,...,377; the last word sets EnableRun); TIOA 0o10
+  DiskControl = op-load (command `[check,read,read]`=0o274 etc.); TIOA 0o11
+  DiskMuff = TW-clears + EnableRun. Three IOCB passes: read the PV root page
+  (descriptor, seal/version checked) into page 0, then the first page's
+  label, then the whole boot file into memory at `BootDataPtr` page-by-page
+  following `bootChainLink`s (a `[-1,-1]` link = EOF).
+- **(b) Load target.** The germ’s resident VM is **0o17401000+** (loadmap,
+  see STEP 2). `DiskBootSoft` first stages it into a low-64K buffer at
+  `BootDataPtr` (IOCB.dataPtr); `PilotBoot.GERMREMAP` then relocates pages
+  to the resident addresses / sets up the Mesa map+MDS. In our run it never
+  gets past the FIRST pass (descriptor) because no pack responds.
+- **(c) The polled status / spin.** `BootTransfer` posts the IOCB and waits
+  for `iocb.seal` to be cleared by the disk microcode, with a ~2 s RTC430
+  timeout. Hot PCs: **0o7012** = the `Fetch_ EventTemp1, PD_ MD,
+  Branch[BootTransferTimeout, ALU>=0]` seal-fetch; **0o7003** = the
+  `PD_ (RTC430)-T-1, Branch[.-1, ALU#0]` timeout compare. It spins forever
+  because the junk timer / RTC430 is quiesced at the LoadRam handoff
+  (`machine.c`, `cpu->junk_tw_enabled = 0`), so the timeout never fires AND
+  no disk ever clears the seal. Confirmed: at 150 M cyc task-0 hot PCs are
+  `0o7012`/`0o7003` (~13 M hits each), `booted=1`, 0 dispatches, insset=0.
+- **(d) Post-read entry.** On success `BootTransfer` returns +2 →
+  `DiskBootSoft` returns +2 → `PilotBoot` runs `GERMREMAP`
+  (`GERMREMAPLP`/`GERMREMAPDONE`, images ~6511-6524) then XFERs into the
+  germ wart **`BootSwapGerm`** (loadmap global frame g=004634) as Mesa code.
+
+### STEP 2 — germ format + placement (Dorado.germ!4 + Dorado.loadmap!1.txt)
+
+- **Loadmap page numbers are OCTAL.** "Germ file pages: 40" = 32 decimal =
+  the 16384-byte / 8192-word file. The GERM FILE MAP maps **contiguously**:
+  **file word W → VM word 0o17401000 + W**, W in 0..8191. (Check: file page
+  13₈=11₁₀ → 0o17401000+11·0o400 = 0o17406400 ✓; page 33₈=27₁₀ →
+  0o17416400 ✓.) **No leader page** — file page 0 is real germ data.
+  word0 = 0o166006 (little-endian, matching disk.c’s pack word order).
+- **BootFile.Location** is a germ-INTERNAL Mesa global read by the germ’s
+  OWN `BootChannelEther.Create` (`chm/cedar/germ/BootChannelEther.mesa!3`):
+  it keys on `pLocation.deviceType = ethernet` + `pLocation.bootFileNumber`,
+  then runs exactly our Mayday/EFTP protocol (`bootFileSend`=244B + eData/
+  eAck/eEnd) to fetch the next stage. So it is consumed AFTER the germ is
+  running, when the germ fetches the volume over Ethernet — it is NOT part
+  of the microcode handoff. Its exact word offset needs the GermDorado.bcd
+  source (not local); it lives in the germ’s global-frame area (writable
+  once the germ is planted). Germ frames: BootChannelEther g=006150,
+  BootChannelDisk g=006100, MiniEthernetDriver g=006060, BootSwapGerm
+  g=004634.
+
+### STEP 3 — germ-plant: SCAFFOLDING landed, germ-run BLOCKED
+
+Implemented (gated, regression-safe):
+- `src/memory.c` `dorado_storage_store_at_va()` — VM deposit primitive
+  (translate + write storage + invalidate the stale cache line).
+- `dorado_machine_config.germ_path` + `--germ PATH` (`src/dorado.c`); the
+  machine loads the germ image at create (little-endian words).
+- `src/machine.c` gated plant: when task-0 first reaches the Cedar
+  germ-boot spin (real PC **0o7012**, which exists ONLY in the Cedar world
+  — the Alto worlds never reach it) and a germ is loaded, deposit
+  file word W → VM 0o17401000+W. Verified: `8192/8192 words at VM
+  0o17401000+ (readback word0=0o166006)` at cyc 53.2 M.
+- `src/disk.c` `DORADO_DISK_TRACE` diagnostic (the STEP-1 evidence above).
+
+**BLOCKER (why the germ doesn’t run yet).** Depositing the resident image
+is necessary but not sufficient. The germ runs as Mesa code (insset≠0) and
+needs the Mesa VM map+MDS set up so its logical addresses (MDS base
+0o3400000, code base 0o3401000) resolve to the loaded pages — that is what
+`PilotBoot.GERMREMAP` does, followed by the Mesa XFER into `BootSwapGerm`.
+**`PilotBoot.mc` is not in our local sources** (only DiskBootSoft/
+DiskBootTransfer are), so the remap+handoff cannot be reconstructed
+faithfully yet, and a blind PC-steer past the spin would derail (the map
+isn’t mounted for 0o17401000 in the Mesa sense). The alternative —
+satisfying the disk read so the REAL GERMREMAP runs — needs a synthesized
+PV root-page descriptor (seal/version + bootingInfo, layout in unavailable
+PilotDisk defs) plus the multi-run bootChainLink transfer = the incomplete
+disk data path the project deliberately avoided.
+
+**NEXT PASS:** either (1) obtain/reverse `PilotBoot` GERMREMAP from the
+Cedar.mb disasm (images ~6463-6532) to learn the map/MDS setup + the XFER
+that gives `BootSwapGerm` control with insset≠0, then steer there after the
+plant; or (2) reverse the PV root-page descriptor + DFID layout and emulate
+the BootTransfer disk read so the real microcode does the handoff. Once the
+germ runs, set BootFile.Location = {ethernet, bfn} so it fetches the volume
+over our EFTP/Mayday server (the step after this milestone).
+Repro: `DORADO_MACHINE_TRACE=1 ./build/dorado --eb '../chm/dorado/CedarDorado.eb!6' --germ '../chm/cedar/germ/Dorado.germ!4' --cycles 120000000`.
+
+Regression gate this session: `make test` 10/10; Galaxian 121552 (exact);
+NETEXEC/AltoMesaDorado within their wall-clock variance band (NetExec
+renders host time, so its px count varies run-to-run ~1466-1505 — verified
+inherent: the same binary gives 1488/1492/1497).
+
 ## STATUS (2026-06-14): canonical Mesa world boots NETEXEC; Mesa VM reached, stops at first XFER
 
 End-of-session state, on top of the muffler/DMux fix below.

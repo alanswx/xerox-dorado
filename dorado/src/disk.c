@@ -387,6 +387,9 @@ static void disk_output_b(void *ctx, int task, int subtask,
     ctl->last_output_data = data;
     (void)task;
     (void)subtask;
+    if (getenv("DORADO_DISK_TRACE"))
+        fprintf(stderr, "[disk] OUT tioa=0o%o data=0o%o (tk=%d)\n",
+                tioa, data, task);
 
     switch (tioa) {
     case DORADO_DISK_TIOA_DISKCONTROL:

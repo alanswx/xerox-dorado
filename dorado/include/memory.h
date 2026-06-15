@@ -468,4 +468,14 @@ int      dorado_cache_lookup(const dorado_memory *mem, uint32_t va,
 uint16_t dorado_visible_word_at_va(const dorado_memory *mem, uint32_t va);
 uint16_t dorado_storage_at_va(const dorado_memory *mem, uint32_t va);
 
+/* dorado_storage_store_at_va() is the write counterpart of
+ * dorado_storage_at_va(): it translates VA via the Map, writes `val`
+ * into backing storage, and invalidates any stale cache line holding
+ * VA so a subsequent fetch sees the new value. Used by the machine to
+ * deposit a boot image (e.g. the Pilot germ) straight into VM. The map
+ * must be mounted; returns 0 on success, -1 if the map entry is Vacant
+ * (no fault is signaled — this is a deposit, not a reference). */
+int      dorado_storage_store_at_va(dorado_memory *mem, uint32_t va,
+                                    uint16_t val);
+
 #endif
