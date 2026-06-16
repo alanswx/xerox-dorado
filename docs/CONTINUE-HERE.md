@@ -2897,3 +2897,53 @@ germ-6.1 hangs (155 dispatches, cyc 67992494 -> 200M, nothing runs after) on a F
 Consistent across microcode versions => it is either (a) an emulator bug in how a frame's code-base long pointer is laid out/resolved, or (b) a germ relocation/fixup step (rewriting code-pointer high words to the runtime MDS bank 0o76) that our flat germ load skips. NEXT: test forcing the LPtr high word 0o6530->0o76 (env-gated) -- if germ-6.1 then proceeds, it confirms the relocation/high-word hypothesis and points at the load-time fixup or the frame.code field-offset. (Defer the cpu.c/memory.c edit until the background schematic-audit agent finishes reading those files.)
 
 DEFAULT DEBUG TARGET going forward: germ-6.1 (`chm/cedar/germ-alt/Dorado.germ-6.1.6`) + CedarDorado.eb!6.
+
+## ROUTE B (2026-06-16, session 18d): high-word experiment CONFIRMS the germ-6.1 code-pointer bug (155 -> 5.9M dispatches) but it is not yet a clean boot
+
+EXPERIMENT (env-gated, since reverted): forced the single `BrHi<-A` load of
+`0o6530` to the runtime MDS bank `0o76`. Result: germ-6.1 jumps from **155
+to ~5.9 MILLION dispatches** -- it runs vastly more real boot code and
+reaches a different module (br31 3E1E10). So the wrong-high-word diagnosis
+is CONFIRMED: that LPtr must land in mapped MDS, not vacant bank `0o6530`.
+
+BUT it is not a clean fix and not yet a boot:
+- The substitution fires EXACTLY ONCE -> a single specific pointer, NOT a
+  systematic frame-layout mismatch.
+- Forcing only the high word makes the fetch read MDS+`0o615` -- the WRONG
+  data (the real target is TrapsImpl code at MDS+`0o6530`+offset). The germ
+  proceeds on bad state.
+- It STILL germERRORs (MP 810 then 821) after the 5.9M dispatches and never
+  reaches DoInLoad (only the Stage-1 ether TX; no germInLoad MP).
+
+ROOT (refined): the long pointer var at MDS+`0o4764` (TrapsImpl's
+`CodeBytesPtr`, read by `GetCodeBytes[frame][frame.pc]` to test the trap
+instr for zLDIV) holds `{low=0o615, high=0o6530}` and SHOULD hold the
+codebase `{low=0o6530, high=0o76}` = VA `0o17406530` (TrapsImpl code,
+mapped). BOTH words are wrong: `0o6530` (codebase-offset) sits in the HIGH
+slot, and `0o76` (MDS bank) is absent. The high word is STATIC germ-FILE
+data (never written at runtime); only the low word is patched 0o611->0o615
+(microcode pc 0o343). So this is a malformed code/long pointer the germ
+builds/holds -- either a germ-file value that needs a load-time fixup our
+flat germ-plant skips, or a `frame.code`/`PrincOpsUtils.Codebase`
+resolution our emulator mis-executes for Cedar 6.1 (whose "MDS relief"
+moved global frames out of MDS -- a candidate layout difference, though the
+single-fire count argues against a systematic layout bug). NEXT: find where
+the var is initialized -- trace the store at microcode pc 0o343 (the low
+0o615 patch) and what computes it; decode `PrincOpsUtils.Codebase` for
+Cedar 6.1; determine whether the high word should be set at runtime (a
+dropped store = emulator bug) or fixed at load (relocation). A correct fix
+must produce VA MDS+`0o6530`+offset, not MDS+`0o615`.
+
+## Schematic audit -- session-2 sweep (2nd background agent) findings
+- **NEW (high conf):** cache replacement is TRUE-LRU but the hardware (MemC
+  sheet 04 + HM Sec 5.7) is a 2-pointer Victim/NextVictim pseudo-LRU
+  ("not quite LRU"). `memory.c:761`/`:661`; the comment at `:659` ("HM
+  doesn't pin down LRU") is wrong. Benign for data correctness; affects
+  `B<-Pipe5` victim readback and Flush ordering. Worth fixing for fidelity.
+- Minor/benign: Link not smashed with CIA+1 after Write/Read IM / LdTPC and
+  RdTPC parks data in Link (`cpu.c:2763+`); StkError doesn't wake fault
+  task 15 (`cpu.c:442`, already noted).
+- Confirmed consistent: ContA03 JCN fn-decode (Return/RdTPC/LdTPC/RdIM/
+  WrIM), per-task Link/TPC save-restore, 28-bit BR/VA adder, fault-info SRN
+  latch. Still un-rastered: MemC 15-19, MemX 05-10/12/13/16/17, all MemD
+  (ECC/Pipe4), IFU bit-slices+PROM, DskEth/DispM/DispY.
