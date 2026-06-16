@@ -1,6 +1,6 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
-## ROUTE B (2026-06-16, session 16): bug 3 (`AV[0]=0o2`) FIXED at the root -- the `Q<-B` side-effect was missing for the Pipe external-B sources, so the Mesa `Q_ VALo` idiom never loaded Q. With it fixed the germ runs its real boot prologue (163 bytecodes -- LFC/EFC calls, DST state-dumps, no hardware faults), announces `germStarting` (MP 810), then hits an uncaught Mesa ERROR via a KFCB kernel call and deliberately halts (`SetMaintPanel` `germERROR`=821, then `JB 0` self-loop -- the ~21.9M dispatch count is that spin). Gate ALL GREEN. (See the session-17 NEXT-blocker section below; germ Mesa sources downloaded to `chm/cedar/germ-src/`.)
+## ROUTE B (2026-06-16, session 16): bug 3 (`AV[0]=0o2`) FIXED at the root -- the `Q<-B` side-effect was missing for the Pipe external-B sources, so the Mesa `Q_ VALo` idiom never loaded Q. With it fixed the germ runs its real boot prologue (163 bytecodes -- LFC/EFC calls, DST state-dumps, no hardware faults), announces `germStarting` (MP 810), then -- ROOT FOUND (session 17) -- hits the SAME `0o27132` ControlFault as session 14, now cleanly trapped (the germ installed SD handlers first), which raises an uncaught `SIGNAL ControlFault` -> germERROR (821) -> deliberate `JB 0` halt. So the WF+Q<-B fixes converted the old infinite trap-loop into a clean halt but the `0o27132` SLink-to-unbound-memory bug is unchanged and is THE blocker. Gate ALL GREEN. (See the session-17 NEXT-blocker section below; germ Mesa sources in `chm/cedar/germ-src/`.)
 
 ### Root cause (HM Table 7 asterisk, one missing case)
 
@@ -65,21 +65,48 @@ emulator mis-model surfacing as an uncaught signal) rather than the clean
 "no OS volume" path -- though a legitimate boot-channel failure is not
 ruled out.
 
-NEXT PASS: find what raises the ERROR. It is a software signal (KFCB),
-not a hardware fault. Trace back from the KFCB at pcf `0o735` / the DST at
-dispatch 56 (br31 `3E0D58`, vec `0o1110`) to the operation that failed,
-and decode it against the germ source now in `chm/cedar/germ-src/`:
-`bootswapgerm-indigo.mesa` (the boot flow: `SetMP[cGerm]` -> `DoInLoad`
--> JumpCall2), `mpcodes-indigo.mesa` (germStarting=810..germERROR=821,
-germNoServer=828 etc.), `pilotmp.mesa` (cGerm=900 family). The germ's
-`DoInLoad` loads the OS boot file via a BootChannel -- if it tried that
-and the channel/device path raised an error, that is the trigger and
-points to Stage-2 (`docs/ethernet-local-boot-plan.md`; Mayday/EFTP server
-built server-side). Repro: `DORADO_IFUDISP_TRACE=1 ./build/dorado --eb
-'../chm/dorado/CedarDorado.eb!6' --germ '../chm/cedar/germ/Dorado.germ!4'
---cycles 68000000` -> 163 real dispatches then the JB halt; the two
-`SetMaintPanel` values (810 then 821) are at real pc `0o4041` cyc
-67975655 / 67980386 (gated `DORADO_XFER_TRACE`).
+ROOT FOUND (session 17): the germERROR is the **same `0o27132` ControlFault
+as session 14**, now cleanly trapped instead of looping. Full chain:
+1. The germ runs its boot prologue and **installs its SD trap handlers**
+   (writes SD[7]=sControlFault, SD[8], SD[`0o13`]=sUnbound, ... at cyc
+   67978776-67979040; SD[7] <- `0o633` = TrapsImpl.ControlFaultTrap).
+2. TrapsImpl's `XferProc` stores **SLink=`0o27132`** into a new frame's
+   L[2] (return link) at MDS+`0o2346` (cyc 67978520, pc `0o4034`,
+   br31 `3E0D58`=TrapsImpl). `0o27132` is GENUINE germ data (session 14:
+   it lives in the germ file at MDS+`0o7652`, BLT-copied around).
+3. That frame RETs: pc `0o1034`(RET) -> reads L[2]=`0o27132` (cyc
+   67979221, lva `0o17403346`) -> `0o1026`(XferMD) DLink=`0o27132` ->
+   `0o1700`(Xfer) tag=2 indirect -> fetch MDS+`0o27132` (VA `0o17427132`)
+   = **0** -> ZeroDest -> **ControlFault (T=`0o7`)** (cyc 67979268).
+4. Now that SD[7] is bound, the ControlFault XFERs to
+   `TrapsImpl.ControlFaultTrap` -> `SIGNAL ControlFault[source]` (a
+   resumable PUBLIC SIGNAL, `trapsimpl-6.1.mesa` line 20/209). Uncaught ->
+   the germ's `SignalHandler` (`bootswapgerm-indigo.mesa` line ~550:
+   `SetMP[code]; Halt[]`) classifies it (JGEB/JLEB range checks) to the
+   generic **germERROR (821)** and does the `JB 0` halt.
+
+So my WF + Q<-B fixes advanced the germ PAST the point where it installs
+handlers, converting the old infinite ControlFault trap-loop (sessions
+8-14) into a clean germERROR halt -- but the **underlying `0o27132`
+SLink-to-unbound-memory bug is UNCHANGED** and is now THE blocker again.
+
+NEXT PASS -- resolve `0o27132` (the deep session-14 question, now with a
+sharper lead): the value `0o27132` sits at **offset +`0o10` in the static
+record at MDS+`0o7642`** that gets BLT'd into the state block. If that
+record is a PrincOps StateVector (word0=stkptr, word1=dest, word2=source,
+word3+=stk[]), then +`0o10` is a **stack element, NOT the source link**
+(which is word +2). So suspect the LSTF/LoadState (`DMesaXfer.mc`) reading
+the SLink from the wrong state-vector offset, OR `XferProc` taking the
+wrong word as SLink. Trace the SLink register (RTemp6) back from the
+`L[2]_ SLink` store (cyc 67978520, pc `0o4034`) through the XFER that set
+it, and compare against the state-vector layout. Confirm: nothing ever
+binds MDS+`0o27132` (verified -- only the boot zero-fill writes it). Repro:
+`DORADO_IFUDISP_TRACE=1 ./build/dorado --eb '../chm/dorado/CedarDorado.eb!6'
+--germ '../chm/cedar/germ/Dorado.germ!4' --cycles 68000000`; the
+ControlFault is at cyc 67979268 (gated `DORADO_XFER_TRACE` 67979150,
+67979330; the bad SLink store is `DORADO_STORE_TRACE_VA="017403346,
+017403346"` data=`027132`). Sources: `chm/cedar/germ-src/trapsimpl-6.1.mesa`
+(trap handlers), `bootswapgerm-indigo.mesa` (SignalHandler/boot flow).
 
 ### HARD REGRESSION GATE -- ALL GREEN
 1. `make test` = 10/10 suites.
