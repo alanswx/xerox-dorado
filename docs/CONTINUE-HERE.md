@@ -92,22 +92,36 @@ class as the `notLength` (session 12) and `TisId`/`alpha` (session 15)
 fixes.
 
 ### NEXT PASS: the downstream software germERROR (MP 821) at ~35M dispatches
-After the fix the germ runs ~35M dispatches then raises a generic germERROR
-(MP 821 = `cGermERROR`) and `JB 0` halts in a new module (br31=3E1E10),
-stack `...,0o1465,0o617,0o5`. This is NOT a memory fault (no page faults).
-Decode it: it is a Mesa SIGNAL/ERROR the germ classifies to the generic
-code (BootSwapGerm `SignalHandler`/`Error[cGermERROR]`), so likely either
-(a) another emulator mis-model surfacing as an uncaught signal further into
-the module-start chain, or (b) a legitimate boot-channel/OS dependency the
-germ-only setup can't satisfy yet. Trace where MP 821 is set (the KFCB
-classify dispatch) and what SIGNAL/condition precedes it; check whether the
-germ now reaches `ProcessRequests`/`DoInLoad` (it would then send a Mayday
-boot request -- watch `DORADO_ETH_TX_TRACE` for a germ-originated `0244`).
+After the fix the germ runs 188 real dispatches then raises a generic
+germERROR (MP 821 = `cGermERROR`) and `JB 0` halts. The signal is
+**`TrapsImpl.StartFault`** (`trapsimpl-6.1.mesa`: `StartFault: PUBLIC
+SIGNAL [dest: PROGRAM]`, raised by the `Start`/`StartCM` module-startup
+chain). TrapsImpl's `StartCM` recursively starts modules from the
+StartList; it raises `StartFault` when a module fails its start
+precondition -- cf. BootSwapGerm.StartModule: `IF @dest = NullGlobalFrame
+OR dest.started OR (control_dest.global[0]) # NullGlobalFrame THEN ERROR
+...`. So a module being started has a non-null `global[0]` (control link)
+or `started` flag where the chain expects null. The germ's SignalHandler
+(br31=3E1E10, the JGEB/JGB/JLEB classify dispatch, dispatches 177-188)
+maps the uncaught StartFault to the generic germERROR and halts.
+
+This is the SAME module-startup-chain wall as sessions 14-17 (StartCM /
+StartWithState / the static start-list + process descriptors). The
+codebase IFetch-Id fix removed the page-fault SYMPTOM (TrapsImpl can now
+read its own code without faulting) but the germ still cannot complete
+`StartCM`. NEXT PASS: trace which module's start precondition fails -- dump
+the `dest` GlobalFrame's `global[0]`/`started` at the StartFault, and decode
+the StartList the germ walks (header `pStartListHeader`, set by our germ
+pass1/3 plant in `src/machine.c`) against `germopsimpl.mesa` StartChain.
+Determine whether (a) our germ-plant builds the StartList/global-frame
+`started`/control-link state wrong, or (b) an emulator frame/global setup
+mis-model leaves `global[0]` non-null. The germ does NOT yet reach
+`DoInLoad` (only the Stage-1 ether TX; no germ-originated `0244` Mayday).
 Repro: `DORADO_IFUDISP_TRACE=1 ./build/dorado --eb
 '../chm/dorado/CedarDorado.eb!6' --germ
-'../chm/cedar/germ-alt/Dorado.germ-6.1.6' --cycles 200000000` -> ~35M
-dispatches; the germERROR/JB-0 settle is at the tail (br31=3E1E10, pc
-`0o150`).
+'../chm/cedar/germ-alt/Dorado.germ-6.1.6' --cycles 70000000` -> 188 real
+dispatches; TrapsImpl (br31=3E0D58) runs dispatches ~54-176 then FREE (op
+0o347) -> SignalHandler (br31=3E1E10) classify -> germERROR.
 
 ### HARD REGRESSION GATE -- ALL GREEN
 1. `make test` = 10/10 suites.
