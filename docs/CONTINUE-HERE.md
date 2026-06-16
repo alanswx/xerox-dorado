@@ -1,6 +1,6 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
-## ROUTE B (2026-06-16, session 19): codebase page-fault FIXED at the root -- a bare `IFetch_` was missing the HM-p.38 `BR[24:31]<-Id` replacement, so the Mesa read-double's field offset (alpha) was dropped and TrapsImpl read its codebase from G+0 instead of G+1. With the fix the germ-6.1 codebase read works and ALL page faults vanish; the germ advances **155 -> 188 real IFU dispatches** (TrapsImpl's startup now completes). Gate ALL GREEN. New blocker = the persistent "germ raises an uncaught signal during module startup -> germERROR (MP 821)" wall (the same family as germ!4's 0o27132).
+## ROUTE B (2026-06-16, session 19): codebase page-fault FIXED at the root -- a bare `IFetch_` was missing the HM-p.38 `BR[24:31]<-Id` replacement, so the Mesa read-double's field offset (alpha) was dropped and TrapsImpl read its codebase from G+0 instead of G+1. With the fix the germ-6.1 codebase read works and ALL page faults vanish; the germ advances **155 -> 188 real IFU dispatches** (TrapsImpl's startup now completes). Gate ALL GREEN. New blocker = an **sUnbound trap (SD[0o13]) on control link `0o26411`** (the same XferProc/SLink control-link wall as germ!4's 0o27132 -- but `0o26411` is RELOCATION-PRODUCED, not static germ data, so an emulator relocation bug is a live suspect).
 
 CORRECTION/HONESTY NOTE: an earlier draft of this entry (and commit 2bbe17c)
 said "155 -> ~35,000,000 dispatches." That 35M is the **JB-0 halt spin**
@@ -93,35 +93,48 @@ fixes.
 
 ### NEXT PASS: the downstream software germERROR (MP 821) at ~35M dispatches
 After the fix the germ runs 188 real dispatches then raises a generic
-germERROR (MP 821 = `cGermERROR`) and `JB 0` halts. The signal is
-**`TrapsImpl.StartFault`** (`trapsimpl-6.1.mesa`: `StartFault: PUBLIC
-SIGNAL [dest: PROGRAM]`, raised by the `Start`/`StartCM` module-startup
-chain). TrapsImpl's `StartCM` recursively starts modules from the
-StartList; it raises `StartFault` when a module fails its start
-precondition -- cf. BootSwapGerm.StartModule: `IF @dest = NullGlobalFrame
-OR dest.started OR (control_dest.global[0]) # NullGlobalFrame THEN ERROR
-...`. So a module being started has a non-null `global[0]` (control link)
-or `started` flag where the chain expects null. The germ's SignalHandler
-(br31=3E1E10, the JGEB/JGB/JLEB classify dispatch, dispatches 177-188)
-maps the uncaught StartFault to the generic germERROR and halts.
+germERROR (MP 821 = `cGermERROR`) and `JB 0` halts. TRACED TO THE ACTUAL
+FAULT (an earlier "StartFault" guess in this doc was WRONG): it is an
+**sUnbound trap (SD[`0o13`])** -- at cyc 67991921 `SavePCandTrap` (pc
+`0o2000`) fires with trap index **T=`0o13`** (= sUnbound; SD[`0o13`]=`0o631`
+= the TrapsImpl unbound handler). The germ XFERs through control link
+**`0o26411`** (a procedure link, tag=1) which is unbound -> trap ->
+TrapsImpl (reads the faulting instr via the now-fixed codebase read) ->
+raises an uncaught signal -> the germ's SignalHandler (br31=3E1E10, the
+JGEB/JGB/JLEB classify) maps it to the generic germERROR.
 
-This is the SAME module-startup-chain wall as sessions 14-17 (StartCM /
-StartWithState / the static start-list + process descriptors). The
-codebase IFetch-Id fix removed the page-fault SYMPTOM (TrapsImpl can now
-read its own code without faulting) but the germ still cannot complete
-`StartCM`. NEXT PASS: trace which module's start precondition fails -- dump
-the `dest` GlobalFrame's `global[0]`/`started` at the StartFault, and decode
-the StartList the germ walks (header `pStartListHeader`, set by our germ
-pass1/3 plant in `src/machine.c`) against `germopsimpl.mesa` StartChain.
-Determine whether (a) our germ-plant builds the StartList/global-frame
-`started`/control-link state wrong, or (b) an emulator frame/global setup
-mis-model leaves `global[0]` non-null. The germ does NOT yet reach
-`DoInLoad` (only the Stage-1 ether TX; no germ-originated `0244` Mayday).
-Repro: `DORADO_IFUDISP_TRACE=1 ./build/dorado --eb
-'../chm/dorado/CedarDorado.eb!6' --germ
-'../chm/cedar/germ-alt/Dorado.germ-6.1.6' --cycles 70000000` -> 188 real
-dispatches; TrapsImpl (br31=3E0D58) runs dispatches ~54-176 then FREE (op
-0o347) -> SignalHandler (br31=3E1E10) classify -> germERROR.
+Chain of `0o26411` (the unbound link):
+1. The germ's **relocation BLT (microcode pc `0o2761`)** writes `0o26411`
+   to many VM locations (`0o17412646`, `0o17412463`, `0o17411114`,
+   `0o17407740`, ... cyc 67913k-67935k) -- it is a RELOCATION-PRODUCED
+   control link, NOT static germ data. **`0o26411` is NOT in the germ file**
+   (vs session 17's `0o27132`, which WAS static germ data at file
+   MDS+`0o7652`). This is the key difference: a relocation-computed link,
+   so an emulator relocation/control-link bug is a live suspect, not just a
+   germ/OS-dependency dead-end.
+2. LSTF/`LoadStack` (pc `0o7040`/`0o7034`) loads a saved **state vector**
+   whose SLink = `0o26411` (read from a relocated location `0o17407740`).
+3. `XferProc` (pc `0o4034`, the same microcode that stored germ!4's
+   `0o27132`) stores SLink=`0o26411` into the new frame's L[2]
+   (`M[MDS+0o3346]`). The frame: L[0]=`0o4764` (= TrapsImpl's global frame
+   G, VALID), L[1]=`0o107`, **L[2]=`0o26411`** (the unbound SLink).
+4. RET/XFER through L[2] -> Xfer tag=1 (procedure) -> unbound -> trap.
+
+So the codebase IFetch-Id fix removed the page-fault SYMPTOM and advanced
+the germ to the SAME control-link-XFER wall as sessions 14-19, but now on a
+RELOCATION-PRODUCED link (`0o26411`) rather than a static one. NEXT PASS:
+examine the relocation BLT at pc `0o2761` -- what SOURCE value + relocation
+arithmetic yields `0o26411`, and whether the tag/high-word is correct (a
+control link relocated to tag=1 procedure when it should be a bound
+frame/proc link would be an emulator BLT/relocation bug). Cross-check
+`germopsimpl.mesa` (StartChain / start-list relocation) and whether the
+proc `0o26411` references a gfi whose global frame the germ-plant leaves
+unbound. The germ does NOT yet reach `DoInLoad` (only the Stage-1 ether TX;
+no germ `0244` Mayday). Repro: `DORADO_XFER_TRACE=1
+DORADO_TRACE_GATE="67990600,67992000"` shows LoadStack reading the state
+(SLink `0o26411`), `XferProc` (pc `0o4034`) storing it to L[2], and the
+SavePCandTrap (pc `0o2000`, T=`0o13`) at cyc 67991921. Relocation source:
+`DORADO_STORE_TRACE_VA` gated on a `0o2761` write of `data=026411`.
 
 ### HARD REGRESSION GATE -- ALL GREEN
 1. `make test` = 10/10 suites.
