@@ -29,6 +29,7 @@ extern int dorado_mem_trace_mar;
 
 /* Forward declarations for IFU helpers (defined later in this file). */
 static uint16_t ifu_consume_id(dorado_cpu *cpu);
+static uint16_t ifu_peek_id(const dorado_cpu *cpu);
 static uint8_t  ifu_fetch_byte(dorado_cpu *cpu, uint16_t pc, int *out_faulted);
 static uint16_t task_md(const dorado_cpu *cpu);
 
@@ -370,6 +371,7 @@ static int stk_underflow_check(const dorado_uinstr *u)
  * play, which routes the write to the *adjusted* (post-delta) StkP. */
 static int ff_decode_ok(const dorado_uinstr *u);
 static int ff_full_function_ok(const dorado_uinstr *u);
+static uint16_t field_desc_to_shc(uint16_t a, int is_write);
 
 /* True when FF decodes to the Table 11a function `code` (low 6 bits),
  * either as a full function with FA=0 or via the memory-reference
@@ -1257,8 +1259,12 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                 cpu->TIOA = (b >> 8) & 0xFF;       return pd;
             case 3: /* — */                        return pd;
             case 4: /* Hold&TaskSim ← B */         return pd;
-            case 5: /* WF ← A */                   return pd;  /* shifter ctrl TBD */
-            case 6: /* RF ← A */                   return pd;
+            case 5: /* WF ← A (load ShC with write-field controls) */
+                cpu->ShC = field_desc_to_shc(a, /*is_write=*/1);
+                return pd;
+            case 6: /* RF ← A (load ShC with read-field controls) */
+                cpu->ShC = field_desc_to_shc(a, /*is_write=*/0);
+                return pd;
             case 7: /* ShC ← B */
                 cpu->ShC = b;                      return pd;
             }
@@ -1758,6 +1764,38 @@ static uint16_t shifter_output(const dorado_cpu *cpu, const dorado_uinstr *u)
 
     uint16_t fill = with_md ? task_md(cpu) : 0;
     return (uint16_t)((lo16 & ~mask) | (fill & mask));
+}
+
+/*
+ * WF←A / RF←A: load ShC from a Mesa field descriptor (HM §3.8 "Shifter",
+ * FF 5/5=WFfoA, 5/6=RFfoA). The descriptor is A[8:15] = (P<<4)|S where
+ * P = position (A[8:11]) and S = size = width-1 (A[12:15]); ShC[2:3] (the
+ * SHA/SHB T-vs-RM/STK selects) load straight from A[2:3].
+ *
+ * The exact bit transform is the "Shift Register Control" hardware on
+ * ProcL sheet 18 (ProcL18.sil), which tabulates:
+ *        Shift Count   Right Mask    Left Mask
+ *   RF   P + S + 1     (don't care)  16 - S - 1
+ *   WF   16 - P - S - 1 16 - P - S - 1  P
+ * (16-x-1 = 15-x). ShC packing matches shifter_output(): C bit13=ShC[2],
+ * bit12=ShC[3], bits[11:8]=count, bits[7:4]=RMask, bits[3:0]=LMask.
+ */
+static uint16_t field_desc_to_shc(uint16_t a, int is_write)
+{
+    unsigned P = (a >> 4) & 0xF;        /* A[8:11]  position */
+    unsigned S = a & 0xF;               /* A[12:15] size = width-1 */
+    unsigned shc23 = (a >> 12) & 3;     /* A[2:3] -> ShC[2:3] */
+    unsigned count, lmask, rmask;
+    if (is_write) {
+        count = (15u - P - S) & 0xF;
+        rmask = (15u - P - S) & 0xF;
+        lmask = P & 0xF;
+    } else {
+        count = (P + S + 1u) & 0xF;
+        rmask = 0;                      /* don't care for RF (ShiftLMask) */
+        lmask = (15u - S) & 0xF;
+    }
+    return (uint16_t)((shc23 << 12) | (count << 8) | (rmask << 4) | lmask);
 }
 
 /*
@@ -2273,9 +2311,8 @@ static uint16_t ifu_trap_addr(int trap_base, int n_slot, int insset)
  * consumed, ←Id delivers Length forever (used by jump-fallthrough
  * calculations). For jump opcodes, we don't yet model the sequence
  * (it's normally consumed inside IFUJump). */
-static uint16_t ifu_consume_id(dorado_cpu *cpu)
+static uint16_t ifu_id_at(const dorado_cpu *cpu, uint8_t cnt)
 {
-    uint8_t cnt   = cpu->ifu_idcnt++;
     uint8_t len   = cpu->ifu_length;
     uint8_t n_supplied = (cpu->ifu_n != 017);
 
@@ -2311,6 +2348,21 @@ static uint16_t ifu_consume_id(dorado_cpu *cpu)
     }
     /* Out of operands → return Length. */
     return (uint16_t)cpu->ifu_length;
+}
+
+/* Deliver the next ←Id operand byte and advance the cursor. */
+static uint16_t ifu_consume_id(dorado_cpu *cpu)
+{
+    return ifu_id_at(cpu, cpu->ifu_idcnt++);
+}
+
+/* Peek the current ←Id operand byte WITHOUT advancing. Used by IFetch
+ * (HM page 38: "the IFU does not advance to the next item of ←Id for
+ * IFetch←") and by the TisId/RisId bus substitution, which reference the
+ * same Id item the accompanying advance consumes. */
+static uint16_t ifu_peek_id(const dorado_cpu *cpu)
+{
+    return ifu_id_at(cpu, cpu->ifu_idcnt);
 }
 
 /*
@@ -2949,6 +3001,44 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
         }
     }
 
+    /* TisId / RisId: the IFU operand byte (Id) replaces a register source
+     * on the bus (HM page 24 "Shifter" + Table 11a FA=0 FB=3 FC=4/5):
+     *   TisId (FC=5): Id replaces T   in A←T, B←T  (and shifter T input)
+     *   RisId (FC=4): Id replaces RM/STK in A←/B←RM/STK (and shifter)
+     * Also captures the Id byte for an IFetch in the same instruction
+     * (HM page 38: IFetch replaces BR[24:31] with Id). The advance of the
+     * ←Id cursor is done once, post-ALU, by the TisId/RisId case in
+     * ff_apply_post; here we only PEEK the current item, so both see the
+     * same byte. Without this, e.g. the Mesa WF opcode's
+     * `T_(IFetch_Stack&-1)+T, TisId` used the stale T on B (not α),
+     * computing the wrong field pointer and corrupting memory. */
+    uint16_t ifetch_id = 0;
+    int ifetch_id_valid = 0;
+    {
+        int s_fa = -1, s_fb = 0, s_fc = 0;
+        if (ff_full_function_ok(u)) {
+            s_fa = ff_fa(u->ff); s_fb = ff_fb(u->ff); s_fc = ff_fc(u->ff);
+        } else if (ff_decode_ok(u) && u->asel <= 3) {
+            s_fa = 0; s_fb = (u->ff >> 3) & 7; s_fc = u->ff & 7;
+        }
+        if (s_fa == 0 && s_fb == 3 && (s_fc == 4 || s_fc == 5)) {
+            uint16_t idb = ifu_peek_id(cpu);
+            ifetch_id = idb;
+            ifetch_id_valid = 1;
+            if (s_fc == 5) {                 /* TisId: Id replaces T */
+                if (u->bsel == 2) b = idb;   /* B←T */
+                if (u->asel == 6) a = idb;   /* A←T */
+            } else {                         /* RisId: Id replaces RM/STK */
+                if (u->bsel == 1) b = idb;   /* B←RM/STK */
+                if (u->asel == 4) a = idb;   /* A←RM/STK (explicit form) */
+            }
+            /* NOTE: for memory-reference ASEL (0/1) the A bus is the Mar
+             * source; TisId leaves it (replaces T, not the Mar) and RisId
+             * on such a ref is left advance-only until a concrete case
+             * proves the Mar should be replaced. */
+        }
+    }
+
     /* ALU. */
     /* On a barrel shift, the first three ALUFM address bits are forced
      * to 1 (HM §3.11), so the index becomes 14 or 15 (= 0o16 or 0o17)
@@ -3111,6 +3201,13 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
             uint32_t br = dorado_mcr_disbr(cpu->mem)
                         ? 0
                         : dorado_br_get(cpu->mem, membase);
+            /* IFetch← replaces BR[24:31] (the low byte of the base
+             * register) with the IFU Id byte (HM page 38). When BR's low
+             * byte is already 0 this is just BR + Mar + Id; in general it
+             * overwrites the low byte. The Id is the operand byte the
+             * accompanying TisId/RisId advances past (captured pre-ALU). */
+            if (kind == DM_REF_IFETCH && ifetch_id_valid)
+                br = (br & ~0xFFu) | (ifetch_id & 0xFFu);
             /* VA = BR[MemBase] + D, D unsigned (HM "Memory Addressing",
              * page 37). For all references except LongFetch, D is the
              * 16-bit Mar (= A bus). LongFetch forms the FULL 28-bit

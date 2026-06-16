@@ -1,5 +1,96 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## ROUTE B (2026-06-16, session 15): the 113-dispatch ControlFault is FIXED -- root-caused to TWO grounded emulator bugs in the Mesa field-opcode path and both fixed in `src/cpu.c`. (1) `WF<-A`/`RF<-A` were UNIMPLEMENTED STUBS; (2) `TisId`/`RisId` never substituted the IFU operand byte onto the bus (and `IFetch<-` never did the `BR[24:31]<-Id` replacement). With both fixed, the Mesa `WF` opcode `T_(IFetch_Stack&-1)+T, TisId` now computes the field pointer as `Stack&-1 + alpha` (was `Stack&-1 + staleT`), so it no longer corrupts `TrapsImpl`'s code base (`g[1]` stays `0o6530`, was clobbered to `0o11602`). The germ NO LONGER ControlFaults at the LSTF resume. NEW blocker found and PROVEN: a separate pre-existing bug seeds `AV[0]=0o2` (a self-looping AllocSub terminator) where the germ file has `0o6` (indirect->fsi 1); forcing `AV[0]=0o6` lets the germ run **~22 MILLION dispatches** of real boot code and settle into a HEALTHY wait loop (op `0o210` JB at pc `0o150`, NO trap PCs). Gate ALL GREEN.
+
+### The two fixed bugs (HM + schematic grounded)
+
+**Bug 1 -- `WF<-A`/`RF<-A` (load ShC from a Mesa field descriptor).**
+`src/cpu.c ff_apply_post` FF 5/5 and 5/6 were `/* shifter ctrl TBD */`
+no-ops, so the Mesa Read/Write-Field opcodes ran `ShMdBothMasks`/
+`ShiftLMask` against a STALE `ShC`. Implemented `field_desc_to_shc()`.
+The exact transform is NOT in any manual (both say only "transform the
+bits appropriately") -- it is the **"Shift Register Control" hardware on
+ProcL sheet 18** (`DoradoDocs/doradodrawings/ProcL-Rev-Ci.press!1.pdf`
+p.19, `ProcL18.sil`), which tabulates, for descriptor `A[8:15]=(P<<4)|S`
+(P=position `A[8:11]`, S=size=width-1 `A[12:15]`; `ShC[2:3]<-A[2:3]`):
+```
+        Shift Count    Right Mask     Left Mask
+   RF   P + S + 1      (don't care)   16 - S - 1
+   WF   16 - P - S - 1 16 - P - S - 1  P
+```
+(The PROM grab confirms the LMASK/RMASK PROMs are just count->mask
+tables; the field->count transform is hardwired combinational logic, not
+a PROM. Sources saved in `chm/doradosource/{ProcProms,IFUProms,
+DoradoProms}.bcpl`.)
+
+**Bug 2 -- `TisId`/`RisId` bus substitution + `IFetch<-` BR replacement.**
+HM p.24: "RFfoA and WFfoA ... also load ShC[2:3] from A[2:3]"; p.38:
+"IFetch<- -- A fetch for which BR[24:31] are replaced by Id from the IFU
+... the IFU does not advance ... so an accompanying TisId or RisId
+function is needed to advance." Our code consumed the Id post-ALU
+(advancing) but never put it on the bus, so the WF's `T_(IFetch_Stack&-1)
++T, TisId` used the STALE T on the B bus instead of `alpha`. Live trace
+(corrupting WF, cyc 67976936): `a=Stack&-1=0o4700, alpha=0, oldT=1` ->
+we computed `p=0o4700+1=0o4701` (= `g[1]` codebase) and wrote the field
+there; correct is `p=0o4700+alpha=0o4700` (= `g[0]`). Fix: a pre-ALU
+block peeks the current Id and substitutes it for the matching bus source
+(TisId: B<-T / A<-T; RisId: B<-RM / A<-RM explicit form), and the mem-ref
+VA does `BR=(BR&~0xFF)|Id` for `DM_REF_IFETCH`. The cursor still advances
+exactly once (the existing post-ALU `ff_apply_post` consume); the pre-ALU
+peek does NOT advance, so both see the same byte. Added `ifu_id_at()` +
+`ifu_peek_id()` (refactor of `ifu_consume_id`).
+
+GATE-SAFE / verified: the AEmu and AltoMesaDorado gate worlds never run
+`WF<-A`; the TisId/RisId substitution is HM-correct and the full gate
+stays green (NETEXEC 1481, Galaxian 121553, AltoMesaDorado 1489, 10/10
+tests, sdl compiles). The earlier transient NETEXEC 1472 was banner
+host-time render variance, not a regression (see memory
+`aemu-pixel-gate-not-ground-truth`).
+
+### NEW blocker (session 16) -- bug 3: `AV[0]` seeded with `0o2` not `0o6`
+
+After the WF fix the germ reaches the LSTF process-resume cleanly, which
+allocates an fsi-0 frame via `AllocSub` reading `AV[0]` (MDS+`0o1000`).
+But `AV[0]` has been overwritten with `0o2` -- a tag-2 indirect that
+`AllocSub` resolves to `RSH[0o4000+0o2,2]=AV[0]` (SELF -> infinite loop).
+The germ FILE's fsi-0 free list (head `0o3354`) terminates with `0o6`
+(tag-2 indirect -> fsi 1: `RSH[0o4000+0o6,2]=AV[1]`), the correct
+"fsi-0 exhausted, fall through to fsi 1". So `0o2` is wrong; `next_fsi`
+came out 0 instead of 1 (lost bit 2 = the `0o4`).
+
+PROOF this is THE next wall: env-forcing the `0o2`->`0o6` store made the
+germ jump from **110 -> ~21.9M dispatches** and run real boot code (RET,
+EFC/LFC calls, jumps, ALU/field ops -- ops 350/010/111/070/126/164/057/
+343/245/244/072/033/370/364) before settling into a healthy busy-wait
+(op `0o210` JB at pc `0o150`, br31 `3E1D0C` = BootSwapGerm; the XFER tail
+at 74.9M is ALL pc `0o150`, NO trap PCs). The germ is now WAITING (likely
+for the next boot phase / OS load / a device), not faulting.
+
+WHERE the bad `0o2` is written: a Store at **pc `0o271`** (the generic
+`0o263`->`0o271`->`0o272` fetch/modify/store helper) at cyc **67975458**,
+running inside **BootSwapGerm** (br31 `0o17416414`), stores `RM/STK=0o2`
+to `AV[0]`. This is PRE-EXISTING (A/B identical with the WF fix gated on/
+off), so it is a SEPARATE bug -- some BootSwapGerm AV-init/relocation
+arithmetic computes `0o2` where `0o6` is intended. NEXT PASS: trace the
+RM/STK source feeding the pc-`0o271` store back to where `next_fsi`/the
+terminator is computed (is it a field/shift dropping bit 2, or an
+off-by-one in the fsi-chain build?). Repro:
+`DORADO_IFUDISP_TRACE=1 ./build/dorado --eb '../chm/dorado/CedarDorado.eb!6'
+--germ '../chm/cedar/germ/Dorado.germ!4' --cycles 80000000` -> 110
+dispatches; `DORADO_STORE_TRACE_VA="017401000,017401000"` shows the
+`data=0o2` store at cyc 67975458 pc `0o271`. To watch the unblocked run,
+temporarily force the store (`if va==017401000 && b==2 then b=6` in
+`src/memory.c DM_REF_STORE`) -> ~22M dispatches. Germ file fsi-0 chain +
+terminator `0o6` are in `chm/cedar/germ/Dorado.germ!4` (head AV[0]=`0o3354`);
+loadmap FSI/next-FSI table in `chm/cedar/germ/Dorado.loadmap!1.txt`.
+
+### HARD REGRESSION GATE -- ALL GREEN
+1. `make test` = 10/10 suites.
+2. AEmu NETEXEC @200M: **1481** px (band 1476-1505). PASS.
+3. Galaxian @160M: **121553** px (=121552 +/-1). PASS.
+4. AltoMesaDorado.eb!2 + NETEXEC @200M: **1489** px. PASS.
+5. `make sdl` compiles.
+
 ## ROUTE B (2026-06-15, session 14): the prior `BLTC`/`LSTF`-`alpha` hypothesis is REFUTED with hard evidence -- alpha is read CORRECTLY; the 113th-dispatch ControlFault is the germ resuming its saved boot-process via `LSTF`/`LoadState`, whose loaded DLink/SLink and the resumed proc's fsi are GENUINE germ data that reference MDS locations past the loaded 8192-word germ image. No emulator IFU/operand bug found; NO code change made (tree clean). Next blocker is upstream germ process-resume state.
 
 ### What was tested and REFUTED (the session-13 lead)
