@@ -1710,7 +1710,8 @@ static int b_bus(const dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *out)
  *   4 (unused)       5 ShMdLMask     6 ShMdRMask     7 ShMdBothMasks
  *   "Sh" variants replace masked bits with 0; "ShMd" with Md (memory data).
  */
-static uint16_t shifter_output(const dorado_cpu *cpu, const dorado_uinstr *u)
+static uint16_t shifter_output(const dorado_cpu *cpu, const dorado_uinstr *u,
+                               uint16_t *out_mask, uint16_t *out_fill)
 {
     int rm_a   = rm_address(cpu, u);
     uint16_t r = (rm_a < CPU_RMSTK_INVALID) ? rm_stk_read(cpu, rm_a) : 0;
@@ -1769,8 +1770,14 @@ static uint16_t shifter_output(const dorado_cpu *cpu, const dorado_uinstr *u)
     default: mask = 0; with_md = 0; break;
     }
 
-    uint16_t fill = with_md ? task_md(cpu) : 0;
-    return (uint16_t)((lo16 & ~mask) | (fill & mask));
+    /* HM §3.11: the shifter places the UNMASKED cycled word (complemented)
+     * on the A bus; the LMask/RMask/Md merge happens in the Pd multiplexer
+     * AFTER the ALU. Return the unmasked word for the A bus / ALU branch
+     * conditions, and hand the mask + fill back so the caller can apply
+     * them to Pd post-ALU. */
+    if (out_mask) *out_mask = mask;
+    if (out_fill) *out_fill = with_md ? task_md(cpu) : 0;
+    return lo16;
 }
 
 /*
@@ -1918,9 +1925,17 @@ static int a_bus(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *out)
     case 6: /* A←T */
         *out = cpu->T;
         return 0;
-    case 7: /* Shift. A bus = ~shifter_output (low-true). */
-        *out = (uint16_t)~shifter_output(cpu, u);
+    case 7: { /* Shift. A bus = ~(unmasked cycled word) (low-true). The
+               * mask/Md merge is deferred to the Pd mux (post-ALU) per
+               * HM §3.11 so the ALU branch conditions see unmasked data. */
+        uint16_t sh_mask = 0, sh_fill = 0;
+        uint16_t sh = shifter_output(cpu, u, &sh_mask, &sh_fill);
+        cpu->shift_active = 1;
+        cpu->shift_mask = sh_mask;
+        cpu->shift_fill = sh_fill;
+        *out = (uint16_t)~sh;
         return 0;
+    }
     }
     return CPU_HALT_UNSUPPORTED_ASEL;
 }
@@ -3000,6 +3015,7 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
             return 1;
         }
     }
+    cpu->shift_active = 0;   /* set by a_bus() only for a barrel shift */
     if ((rc = a_bus(cpu, u, &a)) != 0) {
         cpu->halted = 1;
         cpu->halt_reason = rc;
@@ -3131,6 +3147,15 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
         cpu->halted = 1;
         cpu->halt_reason = ff_halt;
         return 1;
+    }
+    /* Barrel-shifter Pd-mux stage (HM §3.11): for a shift, the LMask/RMask/
+     * Md merge is applied to the ALU output HERE (after the ALU), so it
+     * affects only the value routed to T/RM via Pd -- NOT the ALU branch
+     * conditions below, which see the unmasked ALU output. (a_bus put the
+     * unmasked cycled word on A and recorded the mask/fill.) */
+    if (cpu->shift_active) {
+        pd = (uint16_t)((pd & ~cpu->shift_mask) |
+                        (cpu->shift_fill & cpu->shift_mask));
     }
     /* HM page 30: the ALU=0 / ALU<0 branch conditions reflect the
      * ALU output itself, NOT the value Pd delivers after an FF

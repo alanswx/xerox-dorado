@@ -299,6 +299,16 @@ typedef struct {
     uint8_t  alu_carry;         /* saved carry-out */
     uint8_t  alu_overflow;      /* signed overflow */
 
+    /* Transient (per-instruction) barrel-shifter Pd-mux state. HM §3.11:
+     * the shifter places its UNMASKED cycled word on the A bus; the
+     * mask/Md merge happens in the Pd multiplexer AFTER the ALU, so the
+     * ALU branch conditions see unmasked data. a_bus() records the mask
+     * and fill here for a shift (ASEL=7); execute_uinstr applies them to
+     * Pd after the ALU. */
+    uint8_t  shift_active;      /* this instruction is a barrel shift */
+    uint16_t shift_mask;        /* Pd-mux mask (1 = take from fill) */
+    uint16_t shift_fill;        /* masked-area source (0 or Md) */
+
     /* Hardware memories. RM, STK live in the CPU; IM/IFUM/ALUFM come
      * from the loaded microcode. */
     uint16_t RM[256];
