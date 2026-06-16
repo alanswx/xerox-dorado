@@ -1,6 +1,6 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
-## ROUTE B (2026-06-16, session 19): codebase page-fault FIXED at the root -- a bare `IFetch_` was missing the HM-p.38 `BR[24:31]<-Id` replacement, so the Mesa read-double's field offset (alpha) was dropped and TrapsImpl read its codebase from G+0 instead of G+1. With the fix the germ-6.1 codebase read works and ALL page faults vanish; the germ advances **155 -> 188 real IFU dispatches** (TrapsImpl's startup now completes). Gate ALL GREEN. New blocker = an **sUnbound trap (SD[0o13]) on control link `0o26411`** (the same XferProc/SLink control-link wall as germ!4's 0o27132 -- but `0o26411` is RELOCATION-PRODUCED, not static germ data, so an emulator relocation bug is a live suspect).
+## ROUTE B (2026-06-16, session 19): codebase page-fault FIXED at the root -- a bare `IFetch_` was missing the HM-p.38 `BR[24:31]<-Id` replacement, so the Mesa read-double's field offset (alpha) was dropped and TrapsImpl read its codebase from G+0 instead of G+1. With the fix the germ-6.1 codebase read works and ALL page faults vanish; the germ advances **155 -> 188 real IFU dispatches** (TrapsImpl's startup now completes). Gate ALL GREEN. New blocker = an **sUnbound trap (SD[0o13]) on control link `0o26411`** -- a GENUINE germ control link (germ file word 0o6740), the same XferProc/SLink control-link-to-unbound-module wall as germ!4's 0o27132. NOT an emulator bug (an earlier draft wrongly suspected a relocation bug -- that was a hex miscalc; 0o26411 = 0x2D09 IS in the germ file).
 
 CORRECTION/HONESTY NOTE: an earlier draft of this entry (and commit 2bbe17c)
 said "155 -> ~35,000,000 dispatches." That 35M is the **JB-0 halt spin**
@@ -103,38 +103,42 @@ TrapsImpl (reads the faulting instr via the now-fixed codebase read) ->
 raises an uncaught signal -> the germ's SignalHandler (br31=3E1E10, the
 JGEB/JGB/JLEB classify) maps it to the generic germERROR.
 
-Chain of `0o26411` (the unbound link):
-1. The germ's **relocation BLT (microcode pc `0o2761`)** writes `0o26411`
-   to many VM locations (`0o17412646`, `0o17412463`, `0o17411114`,
-   `0o17407740`, ... cyc 67913k-67935k) -- it is a RELOCATION-PRODUCED
-   control link, NOT static germ data. **`0o26411` is NOT in the germ file**
-   (vs session 17's `0o27132`, which WAS static germ data at file
-   MDS+`0o7652`). This is the key difference: a relocation-computed link,
-   so an emulator relocation/control-link bug is a live suspect, not just a
-   germ/OS-dependency dead-end.
+Chain of `0o26411` (the unbound link) -- CORRECTED:
+1. `0o26411` is **GENUINE static germ-file data** -- germ file word `0o6740`
+   reads big-endian `0o026411` (= 0x2D09). An earlier draft of this entry
+   wrongly said "NOT in the germ file / relocation-produced / emulator bug"
+   -- that was a hex miscalculation (`0o26411` was mistakenly treated as
+   0x2B09 instead of 0x2D09; the grep searched the wrong value). The germ's
+   pc-`0o2761` BLT is a **plain copy** (reads `md=0o26411`, writes it
+   unchanged) that relocates the germ image from its initial low-bank load
+   (BR[`0o31`], bank-0 `0o7740`) up to MDS (BR[`0o34`]). No relocation
+   arithmetic touches the value. So this is the SAME class as germ!4's
+   `0o27132`: a genuine germ control link, NOT an emulator-computed value.
 2. LSTF/`LoadStack` (pc `0o7040`/`0o7034`) loads a saved **state vector**
-   whose SLink = `0o26411` (read from a relocated location `0o17407740`).
+   whose SLink = `0o26411`.
 3. `XferProc` (pc `0o4034`, the same microcode that stored germ!4's
    `0o27132`) stores SLink=`0o26411` into the new frame's L[2]
    (`M[MDS+0o3346]`). The frame: L[0]=`0o4764` (= TrapsImpl's global frame
    G, VALID), L[1]=`0o107`, **L[2]=`0o26411`** (the unbound SLink).
-4. RET/XFER through L[2] -> Xfer tag=1 (procedure) -> unbound -> trap.
+4. RET/XFER through L[2] -> Xfer tag=1 (procedure, gfi field `0o26411>>2`)
+   -> the gfi's global frame is unbound in our germ-only setup -> trap.
 
-So the codebase IFetch-Id fix removed the page-fault SYMPTOM and advanced
-the germ to the SAME control-link-XFER wall as sessions 14-19, but now on a
-RELOCATION-PRODUCED link (`0o26411`) rather than a static one. NEXT PASS:
-examine the relocation BLT at pc `0o2761` -- what SOURCE value + relocation
-arithmetic yields `0o26411`, and whether the tag/high-word is correct (a
-control link relocated to tag=1 procedure when it should be a bound
-frame/proc link would be an emulator BLT/relocation bug). Cross-check
-`germopsimpl.mesa` (StartChain / start-list relocation) and whether the
-proc `0o26411` references a gfi whose global frame the germ-plant leaves
-unbound. The germ does NOT yet reach `DoInLoad` (only the Stage-1 ether TX;
-no germ `0244` Mayday). Repro: `DORADO_XFER_TRACE=1
-DORADO_TRACE_GATE="67990600,67992000"` shows LoadStack reading the state
-(SLink `0o26411`), `XferProc` (pc `0o4034`) storing it to L[2], and the
-SavePCandTrap (pc `0o2000`, T=`0o13`) at cyc 67991921. Relocation source:
-`DORADO_STORE_TRACE_VA` gated on a `0o2761` write of `data=026411`.
+So the codebase IFetch-Id fix removed a REAL emulator bug (the page-fault
+symptom) and advanced the germ to the SAME genuine germ-state wall as
+sessions 14-19: the germ resumes a saved boot-process / start-list whose
+control links (`0o27132` for germ!4, `0o26411` for germ-6.1) reference
+modules our germ-only environment never binds/starts. This is NOT a
+microengine bug -- both links are genuine germ data. NEXT PASS: decode the
+`0o26411` procedure link's gfi and determine whether the germ's module-
+startup chain (StartCM, `germopsimpl.mesa`) SHOULD have started/bound that
+module before resuming this process (an emulator start-chain gap we could
+fix) or whether it is a genuine Pilot/OS dependency (a Stage-2 boundary --
+the germ would bind it only after `DoInLoad` loads the OS). The germ does
+NOT yet reach `DoInLoad` (only the Stage-1 ether TX; no germ `0244`
+Mayday). Repro: `DORADO_XFER_TRACE=1 DORADO_TRACE_GATE="67990600,67992000"`
+shows LoadStack reading the state (SLink `0o26411`), `XferProc` (pc
+`0o4034`) storing it to L[2], and the SavePCandTrap (pc `0o2000`, T=`0o13`)
+at cyc 67991921.
 
 ### HARD REGRESSION GATE -- ALL GREEN
 1. `make test` = 10/10 suites.
