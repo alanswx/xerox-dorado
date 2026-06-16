@@ -112,7 +112,7 @@ struct dorado_machine {
      * image is loaded here at create and fed to the real PilotBoot disk
      * read passes the first time the Cedar germ-boot disk-transfer spin
      * is reached. */
-    uint16_t germ_words[8192]; /* Dorado.germ!4 = 32 pages * 256 words   */
+    uint16_t germ_words[16384]; /* Dorado.germ!4 = 32 pages; !6/Dorado10 larger */
     int      germ_word_count;
     int      germ_passes;      /* # of DiskBootSoft IOCB passes completed */
     int      germ_descriptor_done; /* pass 1 (descriptor) completed       */
