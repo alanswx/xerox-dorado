@@ -1,6 +1,6 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
-## ROUTE B (2026-06-16, session 16): bug 3 (`AV[0]=0o2`) FIXED at the root -- the `Q<-B` side-effect was missing for the Pipe external-B sources, so the Mesa `Q_ VALo` idiom never loaded Q. With it fixed the germ runs **~21.9M dispatches** of real boot code (no forcing) and settles into a healthy wait loop. Gate ALL GREEN.
+## ROUTE B (2026-06-16, session 16): bug 3 (`AV[0]=0o2`) FIXED at the root -- the `Q<-B` side-effect was missing for the Pipe external-B sources, so the Mesa `Q_ VALo` idiom never loaded Q. With it fixed the germ runs its real boot prologue (163 bytecodes -- LFC/EFC calls, DST state-dumps, no hardware faults), announces `germStarting` (MP 810), then hits an uncaught Mesa ERROR via a KFCB kernel call and deliberately halts (`SetMaintPanel` `germERROR`=821, then `JB 0` self-loop -- the ~21.9M dispatch count is that spin). Gate ALL GREEN. (See the session-17 NEXT-blocker section below; germ Mesa sources downloaded to `chm/cedar/germ-src/`.)
 
 ### Root cause (HM Table 7 asterisk, one missing case)
 
@@ -34,28 +34,52 @@ was just never wired for the pipe sources.)
 - No germ-originated outbound Pup yet (only the Stage-1 n=13 boot request
   at cyc<31M); 0 display pixels.
 
-### NEXT blocker (session 17) -- the germ idles in a tight JB self-loop awaiting an interrupt/reschedule
+### NEXT blocker (session 17) -- the germ raises germERROR (821) and deliberately halts
 
-After running its boot code the germ enters a **tight self-loop: a SINGLE
-bytecode, op `0o210` (JB) at pc `0o150`, jumping to itself** (br31
-`3E1D0C` BootSwapGerm). There is NO load/test/conditional in the loop, so
-it is NOT polling a memory cell -- it is an idle loop that can only be
-broken by an **interrupt / Mesa Reschedule** (a process wakeup). So the
-question is what should wake it: most likely (a) the interval/process
-timer interrupt (Mesa's tick-driven scheduler) which we may not be driving
-into the emulator-task Reschedule path, or (b) an I/O device wakeup for
-the boot channel delivering the OS volume (ties into
-`docs/ethernet-local-boot-plan.md` Stage-2; Mayday/EFTP server is built
-server-side). NEXT PASS: check the Reschedule/interrupt mechanism --
-does the germ install an interrupt handler / enable interrupts, and does
-our emulator deliver the timer/Wakeup that triggers `Reschedule` so the
-JB loop yields to the waiting boot process? Look at `DMesaProcess.mc`
-(NOTIFY/Reschedule/timer) and whether `RescheduleA`/the IT (interval
-timer) wakeup reaches the emulator task. The 21.9M dispatch count is
-almost entirely this JB spin. Repro: `DORADO_IFUDISP_TRACE=1
-./build/dorado --eb '../chm/dorado/CedarDorado.eb!6' --germ
-'../chm/cedar/germ/Dorado.germ!4' --cycles 90000000` -> ~22M dispatches
-ending in the pc-`0o150` JB self-loop (op `0o210`, vec `0o150`).
+DECODED (the JB self-loop is NOT an interrupt-wait -- it is a deliberate
+halt after an error). Sequence, fully traced + cross-referenced against
+the germ Mesa source (now downloaded to `chm/cedar/germ-src/`):
+
+1. The germ runs its real boot prologue -- **163 bytecodes**, br31
+   `3E1D0C` (BootSwapGerm) and `3E0D58`: LFC/EFC calls, RET, **DST (Dump
+   State, op `0o370`)**, comparisons. NO hardware faults anywhere
+   (`flt=0` throughout).
+2. Early it calls **`SetMaintPanel`** (MISC `alpha=0o10`) with MP code
+   **`0o1452`=810 = `germStarting`** ("germ entered") -- traced live at
+   the `MaintPanel_ T` instruction (real pc `0o4041`, cyc 67975655). So
+   the germ announces a healthy start.
+3. It then hits an error via a **`KFCB` (Kernel Function Call, op `0o347`,
+   pcf `0o735`)** -> the germ's error/trap path (DST + the classify
+   dispatch at pcf `0o3720..0o3756`, conditional `JGEB`/`JLEB` on an error
+   code), which loads **`LIW 0o1465`=821 = `germERROR`** ("unnamed
+   ERROR") and calls `SetMaintPanel` again (cyc 67980386, T=`0o1465`).
+4. Then **`JB 0`** (op `0o210`, disp 0 = jump-to-self) at pcf `0o3756` --
+   the germ's deliberate halt-after-error. The ~21.9M dispatch count is
+   almost entirely this JB spin.
+
+So the germ gets a long way (state-dumps, kernel calls) then raises an
+**uncaught Mesa ERROR**. It set the GENERIC `germERROR` (821), NOT a
+specific boot code (`germNoPhysicalBootFile`=824 / `germNoServer`=828 /
+`germBadBootFile`=823), which leans toward an UNEXPECTED condition (an
+emulator mis-model surfacing as an uncaught signal) rather than the clean
+"no OS volume" path -- though a legitimate boot-channel failure is not
+ruled out.
+
+NEXT PASS: find what raises the ERROR. It is a software signal (KFCB),
+not a hardware fault. Trace back from the KFCB at pcf `0o735` / the DST at
+dispatch 56 (br31 `3E0D58`, vec `0o1110`) to the operation that failed,
+and decode it against the germ source now in `chm/cedar/germ-src/`:
+`bootswapgerm-indigo.mesa` (the boot flow: `SetMP[cGerm]` -> `DoInLoad`
+-> JumpCall2), `mpcodes-indigo.mesa` (germStarting=810..germERROR=821,
+germNoServer=828 etc.), `pilotmp.mesa` (cGerm=900 family). The germ's
+`DoInLoad` loads the OS boot file via a BootChannel -- if it tried that
+and the channel/device path raised an error, that is the trigger and
+points to Stage-2 (`docs/ethernet-local-boot-plan.md`; Mayday/EFTP server
+built server-side). Repro: `DORADO_IFUDISP_TRACE=1 ./build/dorado --eb
+'../chm/dorado/CedarDorado.eb!6' --germ '../chm/cedar/germ/Dorado.germ!4'
+--cycles 68000000` -> 163 real dispatches then the JB halt; the two
+`SetMaintPanel` values (810 then 821) are at real pc `0o4041` cyc
+67975655 / 67980386 (gated `DORADO_XFER_TRACE`).
 
 ### HARD REGRESSION GATE -- ALL GREEN
 1. `make test` = 10/10 suites.
