@@ -90,6 +90,43 @@ handlers, converting the old infinite ControlFault trap-loop (sessions
 8-14) into a clean germERROR halt -- but the **underlying `0o27132`
 SLink-to-unbound-memory bug is UNCHANGED** and is now THE blocker again.
 
+MECHANISM FULLY DECODED (session 17, follow-up 2) -- source-grounded via
+`chm/cedar/germ-src/trapsimpl-6.1.mesa` + `germopsimpl.mesa`. The germ is
+running its **module-startup chain**: GermOpsImpl drives a **StartList**
+(from the boot-file header, `header.pStartListHeader`) -> `HeadStartChain.
+Start` -> `TrapsImpl.Start` -> `StartCM` (recursive over module deps,
+explaining the deep StkP ~`0o62`) -> **`TrapsImpl.StartWithState`**:
+```
+StartWithState: PROC [frame, state] = {
+  s: StateVector _ state^;
+  retFrame _ GetReturnLink[].frame;
+  s.dest _ MainBody[frame];                 -- DLink = module main body (=0o601, TrapsImpl)
+  SetReturnLink[s.source _ retFrame.returnlink];  -- SLink = CALLER frame's return link
+  RETURN WITH s };                           -- resume module (microcode LSTF/LoadState)
+```
+So **SLink=`0o27132` is `retFrame.returnlink`** -- the return link of the
+frame that called StartWithState (the StartCM/StartChain call chain). The
+resumed module (TrapsImpl main body) runs, then its RET XFERs through
+SLink=`0o27132` (tag-2 indirect) -> fetch unloaded MDS+`0o27132`=0 ->
+ControlFault -> germERROR. `0o27132` traces back to a control link in the
+germ's STATIC start-list data (germ file MDS+`0o7652`), copied via stores
+into frame L[2]/return-link slots, then propagated as the SLink.
+
+So the ControlFault is the germ's startup chain having a **return link
+(`0o27132`) into MDS that is never loaded/initialized** (resident-but-zero,
+past the `0o40`-page germ). NEXT PASS: decode the StartList format in
+`germopsimpl.mesa` (StartChain / pStartListHeader / `StartList.Base`) and
+whether `0o27132` is (a) a link into a non-resident germ/OS region the
+StartList shouldn't be starting yet, (b) a return link our emulator's
+call/return (SFC/LFC) mis-stored somewhere up the chain, or (c) a
+start-list our germ-plant set up wrong. Trace `retFrame` (the StartCM
+frame) and where its `returnlink` got `0o27132`: `DORADO_STORE_TRACE_VA`
+on the retFrame's L[2], and the StartList header from the boot-file header
+our germ-plant fakes (`src/machine.c` germ pass1/3). All germ sources are
+in `chm/cedar/germ-src/` (germopsimpl, trapsimpl, bootswapgerm, mpcodes,
+pilotmp).
+
+----
 SLink OFFSET VALIDATED (session 17, follow-up) -- the SLink read is
 CORRECT; `0o27132` is genuinely the SLink. NOT an emulator addressing bug.
 The LSTF `LoadState` (real `0o2362`) does `T_ RTemp0 + Add[sizeStack,2]C`
