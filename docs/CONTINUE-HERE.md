@@ -1,6 +1,35 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
-## ROUTE B (2026-06-16, session 19): germ-6.1 blocker ROOT-CAUSED to a codebase off-by-one (G+0 vs G+1); forcing it correct advances the germ 155 -> ~35M dispatches and ELIMINATES all page faults. The bug is operand-offset (alpha) handling for the codebase-read opcode; the value-matched reproducer is env-gated (`DORADO_GERM_LPTR_FIX`), the real fix is NOT yet landed.
+## ROUTE B (2026-06-16, session 19): germ-6.1 blocker FIXED at the root -- a bare `IFetch_` was missing the HM-p.38 `BR[24:31]<-Id` replacement, so the Mesa read-double's field offset (alpha) was dropped and TrapsImpl read its codebase from G+0 instead of G+1. With the fix the germ runs 155 -> ~35,000,000 dispatches and ALL page faults vanish. Gate ALL GREEN. New blocker = a downstream software germERROR (MP 821).
+
+### THE FIX (landed, HM page 38)
+`src/cpu.c`: an `IFetch_` is "a fetch for which BR[24:31] are replaced by
+Id from the IFU." That replacement happens for **EVERY** IFetch; an
+accompanying `TisId`/`RisId` is only needed to ADVANCE the ←Id cursor, NOT
+to make the replacement happen. The code gated the `BR[24:31]<-Id` mix-in
+(`ifetch_id_valid`) on a TisId/RisId function being present, so a **bare**
+`IFetch_ X` got no Id mix-in and read at offset 0. Fix: peek the current Id
+unconditionally and apply it for any `DM_REF_IFETCH` (the TisId/RisId block
+still does its separate bus substitution + advance). One line of intent:
+`uint16_t ifetch_id = ifu_peek_id(cpu); int ifetch_id_valid = 1;`.
+
+Why this is the codebase off-by-one: the Mesa read-double `RDB`
+(`DMesaRW.mc!1`: `T_ (IFetch_ Stack)+1`) reads `{[p+alpha], [p+alpha+1]}`
+where the field offset **alpha rides in via the Id** (no TisId). For
+`frame.code`, p = the global frame G and alpha = 1 (codebase at G+1). With
+the Id dropped, BR[MDS] low byte stayed 0, so the fetch landed at
+BR[MDS]+G = G+0 (the GFI word) instead of (BR[MDS]|1)+G = G+1
+(codebase-low). The fix puts alpha=1 back into BR[24:31], so the read
+lands at G+1 and the codebase resolves to VA 0o17406530 = 0x3E0D58 = the
+TrapsImpl code base (br31).
+
+GATE-SAFE: the Alto worlds run real AEmu microcode through the same IFetch
+path; with the fix Galaxian stays 121553 (exact), NETEXEC 1478,
+AltoMesaDorado 1479 (both in band), tests 10/10, sdl compiles. (Per HM the
+replacement is always correct, so any Alto IFetch already had a 0 Id where
+it relied on no mix-in; none regressed.)
+
+### Original root-cause writeup (now resolved by the fix above)
 
 ### The bug, fully grounded
 TrapsImpl (running, br31=`0o17406530`=0x3E0D58) reads its own 2-word
@@ -28,9 +57,8 @@ codebase pair is `{M[G+1], M[G+2]}` = `{0o6530, 0o76}` = VA `0o17406530` =
 computed CORRECTLY (microcode pc `0o4014` stores G=`0o4764`); only the
 +1 to skip the GFI word is missing.
 
-### Proof + payoff (env DORADO_GERM_LPTR_FIX, value-matched reproducer)
-Forcing BR[`0o34`] to the correct codebase `{lo=0o6530, hi=0o76}` (both
-words; session 18d only forced the high word and got wrong data):
+### Proof + payoff (the landed IFetch-Id fix)
+With the fix (`ifetch_id` peeked + applied for every IFetch):
 - germ jumps **155 -> ~35,000,000 IFU dispatches** (228,000x), reaching a
   NEW module (br31=3E1E10).
 - **ALL page faults vanish** (`DORADO_FAULT_TRACE=all` shows only the 2
@@ -39,37 +67,42 @@ words; session 18d only forced the high word and got wrong data):
 - It then raises a downstream **software** germERROR (MP 821, `0o1465` on
   the stack) and does the `JB 0` halt -- a different, non-memory blocker.
 
-### Where the +1 is dropped (the real fix, NOT yet found)
-The codebase-read opcode is in the pcf `0o1056..0o1062` region (TrapsImpl
-code VA ~`0o17407157`), ops `0o114` (RILP) / `0o124` (RFC) / `0o153` (SGDB)
--- the Mesa field-read family with a **packed alpha / field-offset** byte.
-The read-double (RD0/RDB, DMesaRW.mc!1) reads `{[p], [p+1]}` where the
-field offset rides in as `alpha`. The code byte dump shows the operand
-**alpha=`0o001`** sitting right after the opcode (`M[0o17407160]` low byte)
--- exactly the +1 the codebase needs -- but our read landed at offset 0.
-So the +1 (alpha=1) is being dropped/mis-applied for this opcode's
-addressing mode. This is the SAME IFU operand-byte class as the
-`notLength` (session 12) and `TisId`/`alpha` (session 15) fixes; the
-Alto-Mesa 3-byte-instruction ALIGNMENT rule (DMesaDefs.mc!2 note 2: "if the
-opcode is an even byte, the odd byte is ignored and alpha,,beta is taken
-from the next full word") is a prime suspect for the mis-read.
+### How it was traced (for the record)
+The codebase-read opcode is the Mesa read-double `RDB` (op `0o104`,
+`DMesaRW.mc!1`: `T_ (IFetch_ Stack)+1`), in the pcf `0o1056..0o1062` region
+(TrapsImpl code VA ~`0o17407157`). It reads `{[p+alpha], [p+alpha+1]}` with
+the field offset `alpha` carried by the IFU Id. The code-byte dump showed
+the operand **alpha=`0o001`** right after the opcode (`M[0o17407160]` low
+byte) -- exactly the +1 the codebase needs. Our emulator dropped it because
+the `BR[24:31]<-Id` mix-in was gated on a TisId/RisId being present; `RDB`
+has none. The bad read was at microcode pc `0o521/0o522`, cyc 67992448 (VA
+`0o17404764` = G+0; should be G+1 = `0o17404765`). Same IFU operand-byte
+class as the `notLength` (session 12) and `TisId`/`alpha` (session 15)
+fixes.
 
-NEXT PASS: disassemble the exact opcode handler for the codebase read
-(resolve the backwards code byte order: "right=even, left=odd", and the
-3-byte aligned-instruction alpha,,beta fetch), confirm whether our IFU
-delivers alpha=0 instead of 1 (operand-decode bug -> fixable in the IFU
-`<-Id`/alpha path) or the germ pushes `@frame.code`=G via LADRB/GADRB with
-a dropped +1. Repro: `DORADO_GERM_LPTR_FIX=1 DORADO_IFUDISP_TRACE=1
-./build/dorado --eb '../chm/dorado/CedarDorado.eb!6' --germ
+### NEXT PASS: the downstream software germERROR (MP 821) at ~35M dispatches
+After the fix the germ runs ~35M dispatches then raises a generic germERROR
+(MP 821 = `cGermERROR`) and `JB 0` halts in a new module (br31=3E1E10),
+stack `...,0o1465,0o617,0o5`. This is NOT a memory fault (no page faults).
+Decode it: it is a Mesa SIGNAL/ERROR the germ classifies to the generic
+code (BootSwapGerm `SignalHandler`/`Error[cGermERROR]`), so likely either
+(a) another emulator mis-model surfacing as an uncaught signal further into
+the module-start chain, or (b) a legitimate boot-channel/OS dependency the
+germ-only setup can't satisfy yet. Trace where MP 821 is set (the KFCB
+classify dispatch) and what SIGNAL/condition precedes it; check whether the
+germ now reaches `ProcessRequests`/`DoInLoad` (it would then send a Mayday
+boot request -- watch `DORADO_ETH_TX_TRACE` for a germ-originated `0244`).
+Repro: `DORADO_IFUDISP_TRACE=1 ./build/dorado --eb
+'../chm/dorado/CedarDorado.eb!6' --germ
 '../chm/cedar/germ-alt/Dorado.germ-6.1.6' --cycles 200000000` -> ~35M
-dispatches; the bad read is at microcode pc `0o521/0o522`, cyc 67992448
-(VA `0o17404764`); BR build at pc `0o701/0o702`. Then chase the downstream
-germERROR (MP 821) at ~35M.
+dispatches; the germERROR/JB-0 settle is at the tail (br31=3E1E10, pc
+`0o150`).
 
-### HARD REGRESSION GATE -- ALL GREEN (diagnostic off by default)
+### HARD REGRESSION GATE -- ALL GREEN
 1. `make test` = 10/10 suites.
-2. Galaxian @160M: 121553 px (exact). 3. AEmu NETEXEC: 1491 px (band).
-4. germ-6.1 baseline (env off): 155 dispatches (unchanged).
+2. Galaxian @160M: 121553 px (exact).
+3. AEmu NETEXEC: 1478 px (band); AltoMesaDorado.eb!2: 1479 px (band).
+4. germ-6.1: 155 -> ~35M dispatches (the fix; page faults eliminated).
 5. `make sdl` compiles.
 
 

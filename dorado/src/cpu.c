@@ -1064,24 +1064,6 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
             case 3: /* BrLo ← A — BR[MemBase][16:31] ← A[0:15]
                      * (HM Table 11c FA=1 FB=2 FC=3). */
                 if (cpu->mem) {
-                    /* DIAGNOSTIC (env DORADO_GERM_LPTR_FIX): reproducer for
-                     * the confirmed germ-6.1 codebase off-by-one (session 19,
-                     * docs/CONTINUE-HERE.md). TrapsImpl reads its 2-word
-                     * codebase LONG POINTER (frame.code) from global-frame
-                     * offset G+0 instead of G+1; per PrincOps (DMesaDefs.mc
-                     * line 203) G+0 is GFI,,codelinks and the codebase is at
-                     * G+1,G+2. So BR[0o34] is built as {lo=0o615,hi=0o6530}
-                     * (= {GFI, cb-lo}) instead of {lo=0o6530,hi=0o76} = the
-                     * TrapsImpl codebase VA 0o17406530 (= 0x3E0D58 = br31).
-                     * Forcing it correct advances the germ 155 -> ~35M
-                     * dispatches and eliminates ALL page faults (then a
-                     * downstream software germERROR remains). This hack
-                     * value-matches the one pointer to let the germ run past
-                     * the blocker; the real fix is the alpha/operand-offset
-                     * handling for the codebase-read opcode (NOT YET LANDED). */
-                    if (getenv("DORADO_GERM_LPTR_FIX") &&
-                        (cpu->MemBase & 0x1F) == 034 && a == 0615)
-                        a = 06530;
                     if (getenv("DORADO_BR_TRACE") && (!getenv("DORADO_TRACE_GATE") || dorado_trace_gate)) {
                         fprintf(stderr,
                                 "BRLO_FF task=%o pc=0o%o mb=%02o a=%06o "
@@ -1096,9 +1078,6 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
             case 4: /* BrHi ← A — BR[MemBase][4:15] ← A[4:15]
                      * (HM Table 11c FA=1 FB=2 FC=4). */
                 if (cpu->mem) {
-                    if (getenv("DORADO_GERM_LPTR_FIX") &&
-                        (cpu->MemBase & 0x1F) == 034 && a == 06530)
-                        a = 076;
                     if (getenv("DORADO_BR_TRACE") && (!getenv("DORADO_TRACE_GATE") || dorado_trace_gate)) {
                         fprintf(stderr,
                                 "BRHI_FF task=%o pc=0o%o mb=%02o a=%06o "
@@ -3067,19 +3046,32 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
         }
     }
 
-    /* TisId / RisId: the IFU operand byte (Id) replaces a register source
-     * on the bus (HM page 24 "Shifter" + Table 11a FA=0 FB=3 FC=4/5):
-     *   TisId (FC=5): Id replaces T   in A←T, B←T  (and shifter T input)
-     *   RisId (FC=4): Id replaces RM/STK in A←/B←RM/STK (and shifter)
-     * Also captures the Id byte for an IFetch in the same instruction
-     * (HM page 38: IFetch replaces BR[24:31] with Id). The advance of the
-     * ←Id cursor is done once, post-ALU, by the TisId/RisId case in
-     * ff_apply_post; here we only PEEK the current item, so both see the
-     * same byte. Without this, e.g. the Mesa WF opcode's
-     * `T_(IFetch_Stack&-1)+T, TisId` used the stale T on B (not α),
-     * computing the wrong field pointer and corrupting memory. */
-    uint16_t ifetch_id = 0;
-    int ifetch_id_valid = 0;
+    /* IFetch← Id (HM page 38): an IFetch← is "a fetch for which BR[24:31]
+     * are replaced by Id from the IFU." This replacement happens for
+     * EVERY IFetch← -- the Id (the current IFU operand byte, typically a
+     * field offset) is mixed into the base register's low byte. "The IFU
+     * does not advance to the next item of ←Id for IFetch←," so an
+     * accompanying TisId/RisId is needed only to ADVANCE the cursor, NOT
+     * to make the BR replacement happen. We therefore PEEK the current Id
+     * unconditionally here and apply it below for any DM_REF_IFETCH.
+     *
+     * Previously the replacement was gated on a TisId/RisId function being
+     * present, so a bare `IFetch_ X` (no TisId) got NO Id mix-in and read
+     * at offset 0. That is exactly the Mesa read-double / read-field path
+     * (e.g. RDB: `T_ (IFetch_ Stack)+1`, where the field offset α rides in
+     * via Id): the germ-6.1 `frame.code` codebase read landed at the
+     * global frame's G+0 (the GFI word) instead of G+1 (codebase-low),
+     * faulting on a vacant bank. See docs/CONTINUE-HERE.md session 19.
+     *
+     * TisId / RisId also substitute the Id onto a register bus source
+     * (HM page 24 + Table 11a FA=0 FB=3 FC=4/5):
+     *   TisId (FC=5): Id replaces T      in A←T / B←T
+     *   RisId (FC=4): Id replaces RM/STK in A←/B←RM/STK
+     * The cursor advance is done once, post-ALU, in ff_apply_post; here we
+     * only peek, so both the BR replacement and the bus sub see the same
+     * byte the advance later consumes. */
+    uint16_t ifetch_id = ifu_peek_id(cpu);
+    int ifetch_id_valid = 1;
     {
         int s_fa = -1, s_fb = 0, s_fc = 0;
         if (ff_full_function_ok(u)) {
@@ -3088,9 +3080,7 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
             s_fa = 0; s_fb = (u->ff >> 3) & 7; s_fc = u->ff & 7;
         }
         if (s_fa == 0 && s_fb == 3 && (s_fc == 4 || s_fc == 5)) {
-            uint16_t idb = ifu_peek_id(cpu);
-            ifetch_id = idb;
-            ifetch_id_valid = 1;
+            uint16_t idb = ifetch_id;        /* same peeked Id */
             if (s_fc == 5) {                 /* TisId: Id replaces T */
                 if (u->bsel == 2) b = idb;   /* B←T */
                 if (u->asel == 6) a = idb;   /* A←T */
