@@ -2187,6 +2187,17 @@ static int eval_branch_condition(dorado_cpu *cpu,
             r = cpu->io_atten_at_issue ? 0 : 1;
         }
         break;
+    case 7:
+        /* Overflow (HM Table 13 cond 7, reached via FF=067). HM §3.7:
+         * "Overflow, defined as carry-out from bit 0 unequal to carry-out
+         * from bit 1, is true iff a signed arithmetic operation yields an
+         * incorrect result." Latched like Carry' from the last arithmetic
+         * ALU op (alu_op computes it for A+B/A-B per the HM's stated
+         * limitation; preserved across logical ops). Was previously
+         * unimplemented (fell through to the default 0), so any microcode
+         * branching on Overflow silently took the false path. */
+        r = cpu->alu_overflow ? 1 : 0;
+        break;
     default: r = 0;                                       break;
     }
     return r;
