@@ -170,16 +170,19 @@ static int test_attach_to_io(void)
     EXPECT(v == 0x0000, "EMU TStatus input = 0x%X (expected idle 0)", v);
     EXPECT(bad == 0, "EMU TStatus should be routed for DisplayInitConfig");
 
+    /* The serial back-channel bit is gated onto IOB.00 (bit 0 = MSB =
+     * 0x8000), not the muffler line IOB.15 -- ReadTerminal reads
+     * "Data = IOB[0]" (QW1 / HM Table 25). */
     dorado_display_boot_button(&d, 2);
     v = dorado_io_read(&io, DORADO_DISPLAY_TASK_DHT,
                        DORADO_DISPLAY_TIOA_TSTATUS, &bad);
-    EXPECT(v == 0x0001, "boot TStatus first bit = 0x%X", v);
+    EXPECT(v == 0x8000, "boot TStatus first bit = 0x%X", v);
     v = dorado_io_read(&io, DORADO_DISPLAY_TASK_DHT,
                        DORADO_DISPLAY_TIOA_TSTATUS, &bad);
-    EXPECT(v == 0x0001, "boot TStatus second bit = 0x%X", v);
+    EXPECT(v == 0x8000, "boot TStatus second bit = 0x%X", v);
     v = dorado_io_read(&io, DORADO_DISPLAY_TASK_DHT,
                        DORADO_DISPLAY_TIOA_TSTATUS, &bad);
-    EXPECT(v == 0x0001, "keyboard serial stream should start after hold");
+    EXPECT(v == 0x8000, "keyboard serial stream should start after hold");
     EXPECT(d.terminal_bits == 1, "terminal_bits = %llu (expected 1)",
            (unsigned long long)d.terminal_bits);
 

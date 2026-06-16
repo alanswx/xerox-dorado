@@ -226,7 +226,12 @@ static uint16_t display_terminal_keyboard_bit(dorado_display *d)
         d->terminal_msg_word = (uint8_t)((word + 1u) & 3u);
         d->terminal_messages++;
     }
-    return bit;
+    /* HM Table 25 / DispY18,21, DispM10,21: the terminal serial back-
+     * channel bit (OISRcvdData) is gated onto IOB.00 (bit 0 = MSB),
+     * not the muffler line IOB.15. ReadTerminal (DisplayAux.mc) reads
+     * "Data = IOB[0]" and LCY-accumulates the 32-bit message MSB-first,
+     * so the live bit must sit at 0x8000. */
+    return bit ? 0x8000u : 0u;
 }
 
 /* Phase 1: a single permissive output handler that records the
@@ -427,7 +432,7 @@ static uint16_t display_input(void *ctx, int task, int subtask,
                   task == DORADO_DISPLAY_TASK_AHT)) {
             if (d->boot_button_scanlines > 0) {
                 d->boot_button_scanlines--;
-                return 1;
+                return 0x8000u;     /* boot-button jam on IOB.00 (MSB) */
             }
             return display_terminal_keyboard_bit(d);
         }
