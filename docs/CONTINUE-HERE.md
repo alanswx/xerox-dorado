@@ -2865,3 +2865,19 @@ microengine cause.
 Repro (germ 6.1): `DORADO_FAULT_TRACE=all ./build/dorado --eb '../chm/dorado/CedarDorado.eb!6'
 --germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6' --cycles 68500000` -> page fault at cyc
 67992494 pc 0o703 va=0xD580687. BR build: `DORADO_BR_TRACE=1 DORADO_TRACE_GATE="67992400,67992500"`.
+
+## ROUTE B (2026-06-16, session 18b): schematic-vs-emulator audit (background subagent) found 2 real microengine bugs -- both fixed
+
+A read-only subagent compared the high-res board drawings (DoradoDocs/doradodrawings, read as images) against the emulator and wrote `docs/schematic-audit.md`. It covered Processor (ProcL/ProcH) thoroughly and Control+Memory at the sheet+manual level; everything else checked was consistent. Two findings, both fixed and gate-clean:
+
+1. **Overflow branch condition (Table 13 cond 7) was unimplemented** -- `eval_branch_condition` had only conds 0-6 (default 0), so Overflow (FF=067) always read false. The flag was already computed/latched; wired cond 7 to `cpu->alu_overflow`. (commit 03df978)
+2. **Barrel-shifter masked BEFORE the ALU** instead of in the Pd mux. HM §3.11: the shifter puts the UNMASKED word on A; the LMask/RMask/Md merge is post-ALU, and "on a shift the ALU branch conditions apply to the unmasked ALU output." Fixed: `shifter_output` returns unmasked + hands back mask/fill; masking applied to Pd after the ALU. (commit dd78b63)
+
+Net gate effect: Galaxian 121553 (exact), NETEXEC 1467->1479 (back IN the 1476-1505 band -- the two fixes together are MORE correct than HEAD), 10/10 tests.
+
+NOTE: Neither audit fix unblocked the germs (germ!4 still germERRORs on 0o27132; germ 6.1 still faults at 155 dispatches on the bank-0o6530 long pointer). Both germ blockers remain "germ references memory we don't map/load" (validated NOT microengine bugs). So the remaining work is germ-state/load (relocation of high-bank pointers, or reaching DoInLoad to load the OS), not the microengine.
+
+Highest-value remaining raster-audit targets (subagent's recommendation): IFU IFUM Length/MemB/RBaseB decode (`ifu_decode_lh`), ContA03 JCN fn-decode, MemX VA-adder sheet.
+
+### Session 18 microengine bugs fixed (cumulative)
+WF/RF field opcodes (b7e803d), TisId/RisId+IFetch (b7e803d), Q<-B for Pipe sources (b89f3d5), Overflow branch cond (03df978), shifter Pd-mux masking (dd78b63). All HM/schematic-grounded, all gate-green. The germ advanced from faulting at dispatch 113 to running its full module-startup chain.
