@@ -38,33 +38,46 @@ microprograms.
 
 The microengine, memory subsystem, IFU, 16-way tasking, slow/fast-I/O
 routing, and the BaseBoard 6502 model all work and are test-covered. The
-full BaseBoard -> Bootstrap -> Initial boot chain runs.
+full BaseBoard -> Bootstrap -> Initial boot chain runs. The microengine has
+been thoroughly cross-checked against the board schematics
+(`docs/schematic-audit.md`); the recent bring-up fixed five real microengine
+bugs (WF/RF field opcodes, TisId/RisId + IFetch, Q<-B for Pipe sources, the
+Overflow branch condition, and shifter Pd-mux masking).
 
-**Decision: boot over Ethernet, not disk.** No installed Pilot or Alto
-Dorado disk volume survives anywhere (the CHM archive is an IFS file dump,
-not bootable packs), and the disk controller's data-transfer path is
-incomplete. So the bring-up target is the network boot path. Note the
-two distinct Ethernet boot layers (see `docs/ethernet-architecture.md`):
+**Boot over Ethernet, not disk.** No installed Pilot/Alto Dorado disk volume
+survives (the CHM archive is an IFS file dump, not bootable packs) and the
+disk read path is incomplete, so the bring-up target is the network boot
+path. There are **two software paths**; how to load every combination is in
+`docs/running-the-emulator.md`.
 
-1. **Stage 1 - Initial microcode boot. WORKING.** Initial falls through
-   `DiskHardMicrocodeBoot` to `EtherMicrocodeBoot`; an in-process fake Pup
-   boot server (`dorado/src/ethernet.c`) serves `AltoMesaDorado.eb` via
-   Pup types `264B`/`265B`; Initial verifies the EB checksum, runs
-   `LoadRam`, and the loaded Alto/Mesa emulator microcode world starts.
-   Costs ~61 M cycles; probes use a 140 M-cycle budget. Still carries a
-   few probe-side guards (e.g. `DORADO_ETH_FORCE_ELOAD_ZERO`).
+**Path A - Alto-on-Dorado: WORKING.** Initial netboots `worlds/aemu.eb`
+(the Alto emulator on Dorado), then the running Alto world software-boots an
+Alto boot file over the in-process fake Pup/EFTP server
+(`dorado/src/ethernet.c`; Mayday `244B` + EFTP `30B`/`31B`). Alto games and
+the NetExec menu come up and render. This is the validated path and the
+regression gate (`make run-galaxian`, `make run-netexec`, etc.).
 
-2. **Stage 2 - software boot. NOT DONE - the active work.** The running
-   emulator must now load a real OS. The disk route is blocked on content
-   + the disk read path; the chosen route is **Alto-style Ethernet
-   software boot** (Mayday Pup `244B` + EFTP `30B`/`31B`), which needs the
-   Alto-side Ethernet/SIO surface the emulator exposes plus a small boot
-   file / NetExec to serve. Until booted software installs a display list,
-   the framebuffer renders blank.
+**Path B - Cedar/Pilot germ: the ACTIVE bring-up.** Initial netboots
+`CedarDorado.eb` (the Cedar/Mesa microcode); the Pilot germ is planted into
+VM (`--germ`) and runs. The germ executes its boot prologue, installs its
+trap handlers, and drives its module-startup chain, but does NOT yet load an
+OS. **Germ and microcode versions must match** -- `CedarDorado.eb!6`
+(17-May-1984) is the build that shipped with Cedar 5.3/6.0/6.1, so the
+matched germ is `Dorado.germ-6.1.6` (Cedar 6.1), NOT the older
+`Dorado.germ!4` (Dec 1983, which faults early on a version mismatch). With
+the matched pair the blocker is germ-state: a single malformed code pointer
+(long-pointer high word holds the codebase value `0o6530` instead of the MDS
+bank `0o76`); forcing it correct lets the germ run ~5.9M bytecodes, so it is
+a confirmed, specific bug. Live detail + next step: `docs/CONTINUE-HERE.md`.
 
-Detailed plan: `docs/ethernet-local-boot-plan.md`. Running state and the
-full punch list of remaining emulation gaps: `docs/handoff.md` and
-`dorado/CLAUDE.md`. Cedar/Pilot is a later target (Phase 6C) - the newest
+The Stage-2 EFTP/Mayday boot server is ready and serves Cedar boot files
+(`CedarNetExec.boot`, `NEWOS.BOOT`, `OthelloDorado.boot`) byte-exact; the
+germ just needs to reach `DoInLoad` to request one.
+
+Plans/state: `docs/running-the-emulator.md` (how to run everything),
+`docs/CONTINUE-HERE.md` (live bring-up state), `docs/handoff.md` +
+`dorado/CLAUDE.md` (gaps), `docs/hardware-specs.md` (specs for unbuilt
+hardware), `docs/ethernet-local-boot-plan.md` (Stage-2 plan). The newest
 Dorado Cedar world that exists is 6.1 (`chm/cedar/cedar6.1/`); Cedar 7 was
 never built for Dorado.
 

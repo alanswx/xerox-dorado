@@ -51,21 +51,24 @@ boot-file directory** (`257B`/`260B`). All replies are spec-correct
 Museum IFS server), including the Pup checksum and the hardware-CRC framing
 the AEmu receive microcode requires.
 
-**The documented Cedar-over-Ethernet chain works through the load.** Per
-the PARC booting memo, Cedar is reached by booting NetExec, then typing the
-name of the next boot file. With `--boot-dir` registering `CedarNetExec`,
-NetExec lists it under `?`, and selecting it Mayday-requests its boot-file
-number; the server serves `CedarNetExec.boot` and the EtherBoot loader
-pulls it in. CedarNetExec itself does not yet reach its prompt (it stalls
-in early startup) — that bring-up is the current frontier; see
+**Cedar/Pilot germ boot (Route B) is the current frontier.** A second path
+loads the Cedar/Mesa microcode (`CedarDorado.eb`) and plants the Pilot
+**germ** into VM (`--germ`); the germ then loads an OS boot file. The full
+chain runs and the germ executes its boot prologue, installs its trap
+handlers, and drives its module-startup chain — but does not yet load an OS.
+Two findings shaped this: **germ and microcode versions must match**
+(`CedarDorado.eb!6` is the 1984 build shipped with Cedar 5.3/6.0/6.1, so the
+matched germ is `Dorado.germ-6.1.6`, not the older `Dorado.germ!4`); and the
+remaining blocker is germ-state — a single malformed code pointer whose
+high word is a codebase value instead of the MDS bank, confirmed because
+forcing it correct lets the germ run ~5.9M bytecodes. See
 `docs/CONTINUE-HERE.md`.
 
-Two microarchitecture/protocol root causes fixed along the way: a page-zero
-corruption that crashed the booted world on the first divide (an
-instruction's `RBase← FF` change wrongly redirecting that same
-instruction's RM write), and socket replies being dropped because they
-omitted the trailing hardware-CRC word the receive microcode subtracts.
-Both are written up at the top of `docs/CONTINUE-HERE.md`.
+Along the way the bring-up fixed **five real microengine bugs** — the Mesa
+`WF`/`RF` field opcodes, `TisId`/`RisId` + `IFetch` operand handling, the
+`Q←B` Pipe-source side-effect, the `Overflow` branch condition, and
+shifter Pd-mux masking — and the microengine was cross-checked against the
+board schematics (`docs/schematic-audit.md`).
 
 The disk route remains blocked on *content* (no preserved Pilot/Alto
 Dorado pack exists; see below) and the disk controller's data-transfer
@@ -77,10 +80,14 @@ Pilot or Alto Dorado volume exists to mount. A persistent disk would have
 to be *built* by running Othello inside the emulator — which itself
 depends on the Ethernet boot path landing first.
 
-See `docs/ethernet-architecture.md` and
+**`docs/running-the-emulator.md` is the runbook** — every software
+combination (microcode worlds, germs, OS/app boot files) and the exact
+command to load each. See also `docs/ethernet-architecture.md` and
 `docs/ethernet-local-boot-plan.md` for the protocol and the phased plan,
-`docs/handoff.md` for the running state, and `dorado/CLAUDE.md` for the
-code-side guide and the punch list of remaining emulation gaps.
+`docs/CONTINUE-HERE.md` for the live bring-up state, `docs/handoff.md` and
+`dorado/CLAUDE.md` for the code-side guide and the punch list of remaining
+emulation gaps, and `docs/schematic-audit.md` / `docs/hardware-specs.md`
+for the schematic audit and specs for unbuilt hardware.
 
 
 ## Build & run
