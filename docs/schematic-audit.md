@@ -1,5 +1,24 @@
 # Schematic vs. Emulator Audit — Processor data path
 
+## FINDINGS STATUS (2026-06)
+- **FIXED:** Finding 1 (Overflow branch cond), Finding 2 (shifter Pd-mux
+  masking), Finding 4 (Link smashed with CIA+1 after Write IM/Read IM/
+  Ld/RdTPC — commit `e0e430a`), Finding 6 (MapTrouble on Page/WP fault =
+  QW3), Finding 9 (keyboard bit on IOB.00 = QW1), Finding 10 (DWTFLAG
+  IOFetch pulse = QW2), Finding 13 (Overflow for all 5 arith ops = QW7).
+- **ALREADY IMPLEMENTED:** Finding 12 (SubTask into MemBase[2:3] — in the
+  ref path at `cpu.c:3221`; the finding only checked the RBase site).
+- **DEFERRED (low value / risk):** Finding 3 (true-LRU vs VNV pseudo-LRU —
+  benign for data correctness, fidelity only), Finding 5/11 (StkError
+  HOLD + fault-task wake — germ never hits StkError; full model = spec
+  HS9), Finding 7 (ASRN advance on I/O cache hits — "low real-world
+  impact, rarely exercised"; needs `started_map` plumbing in the memory
+  hot path), Finding 8 (Pipe4 baseline `0170361` vs `0150361` — the
+  current value is empirically boot-validated; couples with the unbuilt
+  ECC spec HS6), Finding 14 (`←Id` SG139 PROM — the PackedAlpha split is
+  already modeled; the TwoAlpha/jump-export remainder is medium-confidence
+  with no confirmed dependent path).
+
 Scope of this pass: I read the high-resolution board drawings in
 `DoradoDocs/doradodrawings/` as images and cross-checked them against the
 C emulator (`dorado/src/cpu.c`, `disasm.c`) and the Sep-1981 Hardware
