@@ -90,23 +90,46 @@ handlers, converting the old infinite ControlFault trap-loop (sessions
 8-14) into a clean germERROR halt -- but the **underlying `0o27132`
 SLink-to-unbound-memory bug is UNCHANGED** and is now THE blocker again.
 
-NEXT PASS -- resolve `0o27132` (the deep session-14 question, now with a
-sharper lead): the value `0o27132` sits at **offset +`0o10` in the static
-record at MDS+`0o7642`** that gets BLT'd into the state block. If that
-record is a PrincOps StateVector (word0=stkptr, word1=dest, word2=source,
-word3+=stk[]), then +`0o10` is a **stack element, NOT the source link**
-(which is word +2). So suspect the LSTF/LoadState (`DMesaXfer.mc`) reading
-the SLink from the wrong state-vector offset, OR `XferProc` taking the
-wrong word as SLink. Trace the SLink register (RTemp6) back from the
-`L[2]_ SLink` store (cyc 67978520, pc `0o4034`) through the XFER that set
-it, and compare against the state-vector layout. Confirm: nothing ever
-binds MDS+`0o27132` (verified -- only the boot zero-fill writes it). Repro:
-`DORADO_IFUDISP_TRACE=1 ./build/dorado --eb '../chm/dorado/CedarDorado.eb!6'
---germ '../chm/cedar/germ/Dorado.germ!4' --cycles 68000000`; the
-ControlFault is at cyc 67979268 (gated `DORADO_XFER_TRACE` 67979150,
-67979330; the bad SLink store is `DORADO_STORE_TRACE_VA="017403346,
-017403346"` data=`027132`). Sources: `chm/cedar/germ-src/trapsimpl-6.1.mesa`
-(trap handlers), `bootswapgerm-indigo.mesa` (SignalHandler/boot flow).
+SLink OFFSET VALIDATED (session 17, follow-up) -- the SLink read is
+CORRECT; `0o27132` is genuinely the SLink. NOT an emulator addressing bug.
+The LSTF `LoadState` (real `0o2362`) does `T_ RTemp0 + Add[sizeStack,2]C`
+with FF=`020` => sizeStack+2 = `0o20`, and `LoadStack` (real `0o7040`)
+fetches `RTemp0 + sizeStack+1` = `RTemp0+0o17`. Traced live: that fetch is
+at lva `0o2733`, so **RTemp0 = `0o2713`**, giving the state-vector control
+words: brk,,stkP = M[`0o2731`]=`0o7562`, DLink = M[`0o2732`]=`0o601`
+(a VALID TrapsImpl proc, tag=1 gfi=6 -- the resumed proc DID run), and
+**SLink = M[`0o2733`] = `0o27132`** (= block base+`0o20`, the correct
+source-link offset). So our emulator reads SLink from the right slot.
+
+The germ DELIBERATELY puts `0o27132` there: it BLTs a template
+(M[`0o2733`]<-`0o11420` at cyc 67977403) then OVERWRITES the DLink/SLink
+slots (M[`0o2732`]<-`0o601`, M[`0o2733`]<-`0o27132` at cyc 67977597,
+pc `0o224`, br31 TrapsImpl). `0o27132` is a COMPILE-TIME CONSTANT in the
+germ's static data (germ file MDS+`0o7652`). The target VA `0o17427132`
+is RESIDENT (map idx 3E53, rp 3E53, identity-mapped) but ZERO -- valid
+memory with nothing loaded there (it is past the 8192-word loaded germ).
+
+ANOMALY to chase: brk,,stkP=`0o7562` yields a loaded StkP ~`0o62` (50),
+far above the ~14 Mesa eval-stack max (the resumed proc shows stkp=`0o63`).
+A bogus StkP hints the whole resumed StateVector may be ill-formed.
+
+So the real question is now squarely a GERM-STATE / LOAD question, not an
+emulator microcode bug: WHY does the germ resume a process whose return
+link (`0o27132`) and StkP point at memory that is zero in our load?
+Hypotheses for NEXT PASS: (a) the germ image/MDS should be larger or
+extended at runtime (the boot file is 8192 words; `0o27132`=11866 is 3674
+words past it) -- check whether the germ allocates/inits MDS past
+`0o21000` (ResidentMemory.AllocateMDS in `bootswapgerm-indigo.mesa`, or a
+GERMREMAP step); (b) the static link `0o27132` needs RELOCATION at load
+that we skip (germ loaded flat 1:1 at MDS+`0o1000`); (c) this is a
+genuinely uninitialized/OS-resident link and the germ should not be
+resuming this context yet (trace the DST/SaveState at dispatches 56/144/145
+that built the saved state -- decode against `GermOpsImpl.mesa`, not yet
+downloaded). Repro: `DORADO_XFER_TRACE=1 DORADO_TRACE_GATE="67977660,
+67977700"` shows LoadState/LoadStack reading the block; the bad SLink
+store is `DORADO_STORE_TRACE_VA="017402733,017402733"` (data=`027132` at
+67977597); ControlFault at cyc 67979268. Sources in `chm/cedar/germ-src/`:
+`trapsimpl-6.1.mesa`, `bootswapgerm-indigo.mesa`.
 
 ### HARD REGRESSION GATE -- ALL GREEN
 1. `make test` = 10/10 suites.
