@@ -708,6 +708,13 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
         case 7: *b = dorado_pipe5_at(cpu->mem, psrn); break; /* Pipe5 */
         default: *b = 0;                           break;
         }
+        /* HM Table 7 asterisk: when an external B source is in play AND
+         * BSEL=3, the external value also lands in Q. This applies to the
+         * pipe sources too (same as the FB=7 block below) -- the Mesa
+         * `Q_ VALo` idiom (XferFree, `Q_ B<-Pipe1`) relies on it; without
+         * it the freed frame's VA-lo stayed in the old Q (=1), so the
+         * free linked garbage (AV[fsi]=Q+1=2) instead of the real frame. */
+        if (u->bsel == 3) cpu->Q = *b;
         return 1;
     }
     if (fb == 7) {

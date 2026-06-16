@@ -1,5 +1,62 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## ROUTE B (2026-06-16, session 16): bug 3 (`AV[0]=0o2`) FIXED at the root -- the `Q<-B` side-effect was missing for the Pipe external-B sources, so the Mesa `Q_ VALo` idiom never loaded Q. With it fixed the germ runs **~21.9M dispatches** of real boot code (no forcing) and settles into a healthy wait loop. Gate ALL GREEN.
+
+### Root cause (HM Table 7 asterisk, one missing case)
+
+`AV[0]` was seeded `0o2` because the XFER FREE path (`XferFreeQ`,
+`DMesaXfer.mc`) does `Q_ VALo` (= `Q_ B<-Pipe1`, the VA-lo of a preceding
+`DummyRef` to `frame-1`), then `RTemp0_ (Fetch_ Q)+1` and `AV[fsi]_
+RTemp0`. The pipe held the correct VA (`0x3F06E3` = `0o17603343`, traced
+via `DORADO_PIPEVA_TRACE`), and `B<-Pipe1` delivered VaLo=`0o3343` on the
+bus -- but **Q stayed `0o1`**, so `RTemp0 = Q+1 = 0o2` (the bad value) was
+stored as the freed frame instead of `0o3344`.
+
+`src/cpu.c ff_override_b`: HM Table 7 asterisk -- "when an external B
+source is in play AND BSEL=3, the external value also lands in Q" -- was
+applied ONLY in the FB=7 block (Link/CPReg, line ~794), NOT in the FB=6
+block (the Pipe/Config/FaultInfo sources). So `Q_ B<-Pipe1` (and any
+`Q_ B<-Pipe*`) delivered the value on B but never loaded Q. Fix: add the
+same `if (u->bsel == 3) cpu->Q = *b;` at the FB=6 block's return. (This is
+the same Q<-B mechanism Bootstrap's `Q_ Link` snapshot relies on -- it
+was just never wired for the pipe sources.)
+
+### Result (verified)
+
+- The free now stores the real freed frame `0o3344` to `AV[0]` (was `0o2`);
+  the fsi-0 free list is intact. The germ no longer self-loops in
+  `AllocSub`.
+- Germ: **21,942,131 IFU dispatches** (was 110) -- it runs the real
+  BootSwapGerm/Pilot boot code (RET, EFC/LFC calls, jumps, ALU/field ops)
+  and settles into a HEALTHY busy-wait: op `0o210` (JB) at pc `0o150`,
+  br31 `3E1D0C` (BootSwapGerm), `flt=0`, NO trap PCs. Stack at the wait:
+  `acs=0,0o1465,0o617,0`.
+- No germ-originated outbound Pup yet (only the Stage-1 n=13 boot request
+  at cyc<31M); 0 display pixels.
+
+### NEXT blocker (session 17) -- what the germ wait-loop is polling
+
+The germ reaches its boot wait loop (op `0o210` JB at pc `0o150` in
+BootSwapGerm) and spins -- this is the dominant contributor to the 21.9M
+dispatch count. It is WAITING, not faulting. Determine the wait condition:
+is it (a) a Mesa monitor/condition-variable wait for a process that should
+be woken by a device/timer interrupt we don't drive, (b) polling a memory
+cell a device should set, or (c) waiting for its boot channel to deliver
+the OS volume (ties into `docs/ethernet-local-boot-plan.md` Stage-2 -- the
+Mayday/EFTP boot server is built server-side)? Trace the loop body
+bytecodes and the cell(s) it reads at pc `0o150`; cross-ref the
+BootSwapGerm source for the boot poll/wait. Repro:
+`DORADO_IFUDISP_TRACE=1 ./build/dorado --eb '../chm/dorado/CedarDorado.eb!6'
+--germ '../chm/cedar/germ/Dorado.germ!4' --cycles 90000000` -> ~22M
+dispatches ending in the pc-`0o150` JB loop.
+
+### HARD REGRESSION GATE -- ALL GREEN
+1. `make test` = 10/10 suites.
+2. AEmu NETEXEC @200M: **1477** px (band 1476-1505). PASS.
+3. Galaxian @160M: **121553** px (=121552 +/-1). PASS.
+4. AltoMesaDorado.eb!2 + NETEXEC @200M: **1473** px. PASS.
+5. `make sdl` compiles.
+
 ## ROUTE B (2026-06-16, session 15): the 113-dispatch ControlFault is FIXED -- root-caused to TWO grounded emulator bugs in the Mesa field-opcode path and both fixed in `src/cpu.c`. (1) `WF<-A`/`RF<-A` were UNIMPLEMENTED STUBS; (2) `TisId`/`RisId` never substituted the IFU operand byte onto the bus (and `IFetch<-` never did the `BR[24:31]<-Id` replacement). With both fixed, the Mesa `WF` opcode `T_(IFetch_Stack&-1)+T, TisId` now computes the field pointer as `Stack&-1 + alpha` (was `Stack&-1 + staleT`), so it no longer corrupts `TrapsImpl`'s code base (`g[1]` stays `0o6530`, was clobbered to `0o11602`). The germ NO LONGER ControlFaults at the LSTF resume. NEW blocker found and PROVEN: a separate pre-existing bug seeds `AV[0]=0o2` (a self-looping AllocSub terminator) where the germ file has `0o6` (indirect->fsi 1); forcing `AV[0]=0o6` lets the germ run **~22 MILLION dispatches** of real boot code and settle into a HEALTHY wait loop (op `0o210` JB at pc `0o150`, NO trap PCs). Gate ALL GREEN.
 
 ### The two fixed bugs (HM + schematic grounded)
