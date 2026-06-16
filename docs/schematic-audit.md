@@ -545,3 +545,456 @@ Still **not** raster-read (highest-value first):
   emulator approximates with the fixed ~5-cycle warmup.
 - **DskEth, DispM, DispY** — disk/ethernet/display controllers vs
   `disk.c`/`ethernet.c`/`display.c` (lower priority).
+
+---
+
+# Session-3 sweep
+
+Goal of this session: read **every remaining schematic sheet** at least at
+the block level and finish the audit, then derive implementation specs
+(`docs/hardware-specs.md`). Sheets newly raster-read this session:
+
+- **MemC 15-19** (Miss/Hold, Ref decode, Pair, Next, FF decode) — the
+  cache hit/miss + Hold state machine.
+- **MemX 03/04/05/06/07/09/10/12/13/16/17** (SRN hand-off, parity-error
+  latch, Store-Transport/Map/Memory/Ec1/Ec2 automatons, Map RP slices,
+  MapTrouble/MapPE generation, Map RAM chips).
+- **MemD entire board** (Hamming generator sheet 04, checker sheet 05,
+  corrector + Pipe4 sheet 06, bit-slices, D-mem addressing) — the ECC
+  board. Plus HM Figure 11 (H-matrix / syndrome interpretation).
+- **IFU 01/02/03/05/06/07/08/09/10/23** — the F/G/H/J/M/X byte pipeline,
+  DV/fault latches, Mem-Req fill engine, jump-flush, and the SG139
+  `←Id` data-selector PROM.
+- **ContB 07/09/15** (control-store data RAMs, MIR readout + IM/Ram/Mem/Md
+  parity), **ProcH 01/11** (block diagram, Branch-condition RAM),
+  **ProcL 01/11/12/20/21/22/24/27** (ALUFM RAM, task logic, LC RAM, RM/STK
+  addressing, RBase/bypass, **Stk control + Overflow/Underflow**, parity).
+- **DskEth (all ~47 sheets)** — disk read/write sequence PROMs, Fire Code
+  ECC divider, FIFO, Tag/Drive control, sector timing, mufflers; and the
+  full **Ethernet** controller (registers, Rx/Tx FIFOs, F9401 CRC,
+  wakeups/IOAtten, status word).
+- **DispM/DispY (all sheets)** — slow-IO TIOA decode, NLCB/CLCB/HRam/Mixer,
+  DWT/WCB flag logic, the 7-wire terminal + keyboard back-channel.
+
+**Net new suspected discrepancies this session (9), plus the large
+structural approximations that feed the Phase-2 specs.** Three of the new
+findings are concrete, localized code bugs (MapTrouble Pipe4 bit, the
+keyboard back-channel bit position, and the DWTFLAG IOFetch-signal case);
+the rest are correctness gaps of varying severity. Two prior findings are
+**closed** by this session (Overflow now implemented; ModStkPBeforeW now
+implemented), and one scope correction matters (Link/TPC/CIA/TNIA are on
+**ContA**, not ContB — they remain schematic-unaudited).
+
+## Closures and scope corrections (read first)
+
+- **Finding 1 (Overflow branch condition) is CLOSED.** ProcH sheet 11
+  (Branch-condition RAM) latches `ResEqZero'/ResLtZero'/ALUCarry/Overflow'`
+  per task; `eval_branch_condition` now has `case 7` Overflow at
+  `cpu.c:2214`. The "always false" gap is fixed. (Finding 13 below is a
+  narrower residual: Overflow is *computed* for only 2 of the 5 arithmetic
+  ALU ops.)
+- **Handoff gap B3 "ModStkPBeforeW stub" is CLOSED.** ProcL sheet 24
+  shows the StkP-ALU pre-write adjust; `stk_write_address` (`cpu.c:387`)
+  implements FF=0o27 ModStkPBeforeW. Only **RestoreStkP** remains a stub
+  (Finding extends below).
+- **Scope correction — ContB has no Link/TPC.** The ContB board carries
+  control-store *data* RAMs (F415A bit-slices), IM address decode/chip
+  selects, MIR readout, and IM/RAM/Mem/Md parity. The microinstruction
+  next-address datapath — **CIA, CIAInc, TNIA, BNPC, the TPC RAM, and the
+  Link register** — lives on **ContA**, whose drawings are
+  `DoradoDocs/doradodrawings/ContA-Rev-Cd.press!1.pdf` (NOT yet raster-read
+  for the Link/TPC datapath; ContA 03/23/24/25 were read earlier but those
+  are JCN/Ready/Wakeup/TaskSwitch, not the CIA/TNIA/TPC RAM). Findings 4
+  (Link smash) and the per-task Link/TPC model were therefore checked
+  against HM §4.8 only, never the ContA silicon. **This is the single
+  remaining schematic-unaudited datapath.**
+- **TIOA map for the display is CONFIRMED, not guessed.** DispY18/DispY27
+  and DispM21/DispM29 give exact device numbers: DispY group `0370-0377`
+  (Statics 0377, NLCB 0376, HRam 0375, DHTFlag 0374, DWT 0373, MiniMix
+  0372, Status-input 0370); DispM terminal group `0360-0367` (AStatics
+  0367, NLCB 0366, AHTFlag 0364, AWT 0363, Status/keyboard 0360). The
+  emulator's `T`-prefixed macros match. (Latent note: on a DispY-only
+  machine 0366/0367 are DispY's Mixer/PixelClk output devices, which the
+  emulator always treats as DispM terminal regs — harmless for the current
+  no-DispM boot path.)
+
+## Finding 6 — MapTrouble Pipe4 bit not asserted on an ordinary Vacant / Write-Protect fault
+
+- **Board/sheet:** MemX sheet 13 (page 15), `MapTrouble` gate (g14,
+  MC121). `MapTrouble = WPviolation(CheckWP'·ReadOrWriteInMap'·MapWP') OR
+  Vacant(MapWP'·MapDirty'·preRfshInMem') OR MapPE`, latched into Pipe4
+  bit .01.
+- **What the hardware does:** HM §5 (md line 2374): "If previous map
+  contents indicated Vacant or had a parity error, Map Trouble will be true
+  in the pipe." So **every** vacant or write-protect reference sets the
+  Pipe4 MapTrouble bit for the faulting SRN, not just dirty-victim writeback
+  collisions.
+- **What the emulator does:** `va_translate` (`memory.c:634`) returns
+  `DM_FAULT_PAGE`/`DM_FAULT_WRITE_PROTECT`, but the Pipe4
+  `PIPE4_ERR_MAP_TROUBLE` bit is set **only** in `record_writeback_fault`
+  (`memory.c:838`) — i.e. only when a *dirty victim* is written back to a
+  now-WP/vacant page. The faulting reference itself never sets it.
+  `dorado_pipe4_at` (`memory.c:302`) maps `PIPE4_ERR_MAP_TROUBLE → bit 14`,
+  so the readback is correct *once the bit is set* — the gap is the trigger
+  condition.
+- **Possible error:** microcode reading `B←Pipe4'` / the `Errors'` field
+  after a vacant or WP fault sees notMapTrouble=1 (no trouble) where
+  hardware shows MapTrouble. The fault task's error-classification can
+  misroute. Bit position is right; only the set-condition is missing.
+- **Confidence:** **Medium-high.** Bit .01 = MapTrouble matches code; HM
+  line 2374 is explicit. Localized fix: in the fault path of
+  `dorado_memory_ref_task`, call `dorado_pipe4_set_error(mem, srn,
+  PIPE4_ERR_MAP_TROUBLE)` whenever `va_translate` returns PAGE or
+  WRITE_PROTECT, not only on writeback.
+
+## Finding 7 — ASRN advanced on I/O-task cache **hits** (should advance only when the ref starts the Map)
+
+- **Board/sheet:** MemX sheet 03 (page 5), ASRN assignment; HM §5
+  (md lines 2632-2638): "ASRN will be advanced … iff the reference *starts
+  the map*. A reference starts the map unless it is a DummyRef←, a cache
+  reference or PreFetch← that **hits**, or a Flush← that misses/clean-hits."
+- **What the emulator does:** `memory.c:1275-1282` advances ASRN for **all**
+  `use_asrn` references, with the comment "All ASRN-using refs start the
+  map." But `use_asrn` includes `io_task_uses_asrn` (`memory.c:919`, any
+  task 1-14), so an I/O task's plain `Fetch` that *hits* the cache advances
+  ASRN even though a hit does not start the map.
+- **Possible error:** ASRN ring drift for I/O tasks issuing
+  cache-hitting non-IOFetch fetches; the pipe slot an I/O task later reads
+  back can be off by one. Low real-world impact (I/O tasks normally use
+  IOFetch/IOStore, which *do* start the map), but the blanket comment is
+  wrong vs the schematic/HM rule.
+- **Confidence:** **Medium.** Logic gap is real; rarely exercised. Confirm
+  by tracing an I/O task that does a cache-hitting Fetch then reads its
+  ASRN-slot pipe.
+
+## Finding 8 — Pipe4 readback uses baseline `0170361` (code) where HM canon and the header say `0150361`; error-bit polarity inverted
+
+- **Board/sheet:** MemD sheet 06 (page 8), Pipe4 compose; HM §5.8
+  (md line 2585): "`150361₈ XOR Pipe4'` = high-true." `EMemDefs.mc`
+  confirms `notMapTrouble=b1, notMemError=b4, notEcFault=b5` (1 = OK).
+- **What the emulator does:** `dorado_pipe4_at` returns `0170361 ^ ht`
+  (`memory.c:310`), but the public header (`memory.h:386`) and the
+  in-file doc block (`memory.c:253`) **say `0o150361`**. The two baselines
+  differ only in **bit 2 (wProtect)** (Δ = 020000₈). Separately, the error
+  bits are stored with **1 = error present** (`if (e & PIPE4_ERR_MAP_TROUBLE)
+  ht |= 1u<<14`, likewise MemError/EcFault), the opposite of the
+  hardware/EMemDefs `not*` convention where 1 = OK; with the current
+  baseline a *clean* reference would read notMapTrouble/notMemError/
+  notEcFault = asserted.
+- **Possible error:** any microcode that classifies faults via the
+  `B←Pipe4'` error fields will misread them. Currently masked because the
+  Ethernet-boot bring-up never drives the fault-task error-classification
+  path, and the *map-flag* fields (ref/wProtect/dirty/vacant) are the
+  empirically boot-validated path. But code disagrees with its own
+  documentation and with HM.
+- **Confidence:** **Medium.** The `0170361` vs `0150361` discrepancy is a
+  clear code-vs-doc/HM mismatch (verify which the boot path actually
+  needs); the error-bit polarity is correct-to-fix only when ECC (Finding
+  group below / spec) lands. Adopt baseline `150361₈` and store `not*` in
+  1=OK polarity.
+
+## Finding 9 — Keyboard / terminal back-channel bit returned in the wrong IOB position (LSB instead of MSB)
+
+- **Board/sheet:** DispY sheet 18 (Slow-Input Interface) / DispY sheet 21
+  (OIS Terminal interface); DispM sheet 10/21/29. The terminal's serial
+  back-channel (`OISDataOut` on the 7-wire cable) is routed via the
+  BaseBoard, re-driven as `KeyboardData` (backpanel pin 177), clocked into
+  `OISRcvdData` and gated onto **`IOB.00`** (bit 0, MSB) of the Status
+  input device (TIOA 0370 DispY / 0360 DispM). Muffler readout lands on
+  `IOB.15`.
+- **What the hardware/microcode expects:** `DisplayAux.mc!1 ReadTerminal`
+  does `TerminalLo ← InputNoPE` with the comment "* Data = IOB[0]", then
+  `LCY` shift-accumulates the 32-bit terminal message MSB-first;
+  `DisplayInitConfig` likewise reads "Bit 0 = keyboard data bit."
+- **What the emulator does:** `display_terminal_keyboard_bit()`
+  (`display.c:211-230`) returns a bare `0/1`, and `display_input()`
+  (`display.c:432`) returns it directly → it lands in **bit 15 (0x0001,
+  LSB)**, the muffler position, not bit 0. The boot-button jam (also
+  `return 1`, `display.c:430`) is likewise in the wrong bit.
+- **Possible error:** real `ReadTerminal`/`DisplayInitConfig` microcode
+  would never see keyboard data, the boot chord, or the boot button. This
+  is precisely the path needed for **Stage-2 emulator-selection at boot
+  (gap E2)**. The fix is to return `bit ? 0x8000 : 0`.
+- **Confidence:** **High.** Confirmed by DispY18 (`OISRcvdData → IOB.00`)
+  and the `ReadTerminal` comment "* Data = IOB[0]". (Secondary, medium:
+  in the no-DispM config the emulator answers "no DispM" yet still delivers
+  keyboard bits only on 0360; in a DispY-only machine keyboard physically
+  arrives on the DispY Status device 0370. Deliver keyboard on the TIOA
+  that matches the board-presence answer.)
+
+## Finding 10 — DWTFLAG handler clears CurrentWCBFlag on every IOFetch pacing pulse (the `20c` "IOFetch signal" case is mis-decoded)
+
+- **Board/sheet:** DispY sheet 15 (Flag control logic) + DispY sheet 27
+  (DWT command format). For a DWT command (TIOA 0373/0363) RIOB decodes
+  three ways: `RIOB = 20c` (bit 11) → **IOFetch signal, do NOT touch the
+  WCB flags**; `RIOB = 1c` (bit 15) → Set CurrentWCBFlag and clear
+  NextWCBFlag; `RIOB = 0c` → clear CurrentWCBFlag.
+- **What the emulator does:** `display_output_b` (`display.c:305-310`):
+  ```c
+  } else if (tioa == DWTFLAG || tioa == AWTFLAG) {
+      int channel = (subtask & 2) ? 1 : 0;
+      uint8_t cur = (uint8_t)(data & 1u);
+      d->current_wcb_flag[channel] = cur;   /* data==020 → cur=0 → CLEAR */
+      if (cur) d->next_wcb_flag[channel] = 0;
+  }
+  ```
+  The DWT main loop issues `IOFetch← … + Output← T` with **`T = 20c`**
+  (`= 0x0010`) to pace the munch FIFO; `data & 1 == 0`, so the emulator
+  **clears CurrentWCBFlag on every IOFetch pulse** — exactly when the
+  hardware leaves the flags alone.
+- **Possible error:** the display-list "current WCB valid" flag is torn
+  down during normal FIFO refill; likely contributes to the
+  "480 fast-I/O words but FIFO content wrong / blank screen" symptom noted
+  in `docs/display-architecture.md`. Correct decode: `if (data & 0020u)
+  {/* IOFetch signal: don't touch flags */} else if (data & 1u) {cur=1;
+  next=0;} else {cur=0;}`.
+- **Confidence:** **Medium-high.** DispY15 truth table + DispY27 format are
+  explicit (bit 11 = IOFetch signal, bit 15 = Set/Clr CurrentWCB). The
+  DHTFLAG handler (`2c`→A, `4c`→B NextWCB) is correct.
+
+## Finding 11 — StkError does not HOLD, does not wake the fault task, and does not back out the offending instruction (extends Finding 5)
+
+- **Board/sheet:** ProcL sheet 24 (page 26), Stk Control + Overflow/
+  Underflow. `OVFLerr'`/`UFLerr'` OR into **StkError (label 94)** *and*
+  **PrHoldReq (label 87)**.
+- **What the hardware does:** HM §3.x "stack" (md lines 730-741):
+  "StkError generates **HOLD** and **wakes up the fault task (task 15)** …
+  so the instruction causing StkError **has not been executed** when the
+  fault task runs." So the StkP update *and* the RM/STK write must be
+  suppressed and the instruction re-run after the fault task handles it.
+- **What the emulator does:** `stk_apply_post` (`cpu.c:444-470`) only sets
+  the sticky `stk_und`/`stk_ovf` flags; it asserts no HOLD, raises no
+  task-15 wakeup, and **explicitly commits** the StkP update on error
+  (`cpu.c:467`, "Always update StkP, even on overflow/underflow"). The
+  RM/STK write from `apply_lc` also commits. Three sub-defects: (1) no
+  HOLD/PrHoldReq, (2) no task-15 wakeup, (3) the offending instruction's
+  StkP + RM write are not suppressed.
+- **Confidence:** **High.** This is the central stack-fault gap; needs the
+  fault-task entry path before stack-using emulators (Mesa) can fault
+  cleanly. (Related, **Medium**: ProcL 24's StkP ALU adds sign-extended
+  RSTK[1:3] to the **full 8-bit** StkP so a borrow/carry ripples into the
+  region bits StkP[0:1]; the emulator preserves the region separately and
+  wraps the offset mod 64 — `cpu.c:453,469` — differing only on the error
+  path, which under the fix should be aborted anyway. And RestoreStkP is
+  still a no-op stub, `cpu.c:1252 case 5: return pd;` — no `SavedStkP`
+  register exists.)
+
+## Finding 12 — SubTask is OR'd into RBase[2:3] only, not also into MemBase[2:3]
+
+- **Board/sheet:** ProcL sheet 12 (page 14), "Sub-Task wire-or logic":
+  `SubTask.0/.1` force **MemBase.2/.3** to 1's *as well as* RBase.2/.3.
+  HM p88 (slow-IO subtask) describes the same dual OR.
+- **What the emulator does:** `rm_address` ORs SubTask into RBase only
+  (`cpu.c:339`); the MemBase formation does not OR SubTask into bits 2:3.
+- **Possible error:** multi-subdevice I/O tasks (those that use SubTask to
+  fan a single task across sub-units) address the wrong base register for
+  *memory* references while addressing RM correctly. Affects only
+  subtask-using I/O microcode.
+- **Confidence:** **Low** (clear vs schematic/HM; no current path known to
+  use SubTask for MemBase).
+
+## Finding 13 — Overflow flag computed for only 2 of the 5 arithmetic ALU ops
+
+- **Board/sheet:** ProcH sheet 10 (page 12) ALU; HM (md line 1098):
+  Overflow = "carry-out from bit 0 unequal to carry-out from bit 1" — a
+  general property of any arithmetic op.
+- **What the emulator does:** `alu_op` (`cpu.c:1981-2050`) sets `overflow`
+  only for op 014 (A+B) and op 022 (A-B-1); ops 000 (A/A+1), 006 (2A),
+  036 (A-1) leave overflow at its default 0 (`cpu.c:1989`). Carry **is**
+  computed for all arithmetic ops.
+- **Possible error:** a microcode `Overflow` branch (now reachable since
+  Finding 1 is fixed) taken after 2A, A+1, or A-1 always reads false.
+  The existing audit's old "Overflow implemented correctly only for
+  A+B/A+B+1/A-B/A-B-1" note (HM) covers A+B and A-B-1; the residual is 2A
+  / A±1, which HM's general definition would still flag.
+- **Confidence:** **Low.** Microcode rarely branches Overflow after those
+  ops; latent wrong-false path.
+
+## Finding 14 — `←Id` operand-delivery sequence is hard-coded, not driven by the SG139 PROM; TwoAlpha and jump-export rows are missing
+
+- **Board/sheet:** IFU sheet 23 (page 25), IF Data Selector PROM (SG139),
+  addressed by `{N, TwoAlpha, JMP, Length[0:1]}`. Rows include the
+  TwoAlpha split `Alpha[0:3], Alpha[4:7]` (PROM addr 16/17/36/37) and the
+  "jumps export only length, no N on 2-byte jumps" rows (02/22/27).
+- **What the emulator does:** `ifu_id_at` (`cpu.c:2321`) hard-codes the
+  common 3-byte has-N sequence (N, α, β, then Length forever) — matching
+  PROM row 07 — but does **not** reproduce the TwoAlpha split or the
+  no-N-jump export rows; only InsSets 0/1 byte ordering is modeled
+  (`ifu_decode`).
+- **Possible error:** TwoAlpha opcodes and jump operand exports deliver
+  the wrong `←Id` datum. (The third-pass audit verified the Table-19 rows
+  the emulator *does* implement; this finding is the TwoAlpha/jump
+  remainder.)
+- **Confidence:** **Medium.** Confirm against an emulator world that uses
+  TwoAlpha opcodes (Mesa α-byte-pair forms).
+
+## Structural approximations (not point bugs — these drive the Phase-2 specs)
+
+These are whole subsystems the emulator collapses. Each is specced in
+`docs/hardware-specs.md`; here is the schematic-confirmed signal list so
+the audit record is complete.
+
+- **Cache Hold state machine + staged reference machine (gaps B1/C1).**
+  MemC sheet 15 (Miss/Hold) is a wide OR-tree of independent Hold requests
+  — `PipeHold, MDhold', DbufHold, IfuHold, MischHold, CBHold, RefHold,
+  MXHold` plus `SomeExtHold'` (`PrHoldReq/CHoldReq/ExtHoldReq`), all gated
+  by `DisHold`; `BLretry` re-runs the held microinstruction. MemC sheet 18
+  ("Next": PAIR/D/DBUF/MAP/ST) is the resource-allocation FSM
+  (`StartMap/AcanhaveMap/AcanhaveD/Dbusy/DbufBusy/Dbuf←/StartST/STfree/
+  AtookST/Afree/RefOutstanding'`) that decides when the next reference may
+  start. MemC sheet 16 carries the `MDhold'`/`DdataGood`/`MDPending`
+  interlock (processor sources `+MD` before the read completes → Hold).
+  MemC sheet 17 ("Pair") tracks the second beat of a paired reference.
+  Emulator: refs are atomic, `Md` delivered in the issuing cycle
+  (`memory.h:12-14`, `cpu.c:3278-3283` `latch_task_md_from_memory`
+  immediately), `dorado_mcr_dishold` is a no-op (`memory.c:476-487`); only
+  `MapBufBusy` (9-cycle timer, `memory.c:397-406`) exists. **The data-path
+  results are faithful; everything timing/back-pressure is absent.**
+
+- **Staged memory pipeline / SRN hand-off (gap C1).** MemX sheet 03 shifts
+  one reference's SRN through a latch ladder
+  `MapSrn→MemSrn→Ec1Srn→Ec2Srn` (MC141 chain); a fault is recorded against
+  the **Ec2-stage** SRN, many cycles after the Map read (HM line 2829: an
+  SRN can report MapTrouble before its predecessor reports SE/DE). MemX
+  sheets 05/06/07/09/10 are the Store-Transport / Map / Memory / Ec1 / Ec2
+  automatons (each a 3-4-bit `*State` F16 register sequencing a DRAM
+  controller / ECC stage). Emulator computes the fault synchronously on the
+  current SRN (`memory.c:881`) and composes FaultInfo statically
+  (`memory.c:413`); no per-stage SRN copies, no automaton states.
+
+- **MemD ECC / Hamming (gaps C2/C3).** MemD sheet 04 generates 8 check
+  bits per **quadword** (64 data bits) via MC163 9-input parity trees →
+  `EcOut.0..7` (C7 stored complemented; TestSyndrome XORed in on write).
+  Sheet 05 recomputes and forms the syndrome (`Syn0-3` point to the
+  erroneous bit, `Syn4-6` select the word with a 2-of-3 code
+  011/101/110/111, C0-C2 byte-symmetric, C7 = overall parity). Sheet 06:
+  `SingleError = odd syndrome parity`, `DoubleError = nonzero ∧ even
+  parity`; Pipe4 written "first DE, else last SE" (HM line 2853). The
+  canonical H-matrix is **HM Figure 11**. Emulator: storage is a flat
+  `uint16_t*` with no check bits (`memory.h:220`); no syndrome ever
+  computed; `LoadTestSyndrome` is a stub (`cpu.c:1093`); `pipe4_syndrome`
+  is always 0. Benign while no bit-errors are injected, but the diagnostic
+  path is dead.
+
+- **IFU F/G/H/J/M/X byte pipeline (gap B9).** IFU sheet 05 is the byte
+  bit-slice (F→FG→H&J→AlphaM→AlphaX→MUX) with per-level fault latches
+  (`FFault/GFault/HFault/JFault`); sheet 03 the DV latches
+  (`FDv/GDv/HDv/JDv/MDv`, "HLd = HDv'", `HDv/JDv` cleared by `ZapFGH`);
+  sheet 01 the fill engine (`WantIfuRef` when a hole exists ∧ `!RefOutstanding`
+  ∧ proc not using Mar → `Mar←PcF` → `IfuMemAck` → `IncPcF`, exactly one
+  outstanding ref); sheet 02 the jump-flush (`ZapFGH` from DoJump/NewGo,
+  plus the `OneByteJumpInJ` fast path); sheet 07 the exception priority
+  (`KFault=0/FGParity=4/Resched=14/NotReady=34/RamParity=74`, with
+  `KFault = JFault OR HFault·Length>1 OR FGFault·Length=3`); sheets 08/09/10
+  the PC pipeline (`PcF/PcFG/PcJ/PcM/PcX`). Emulator: a fixed
+  `ifu_warmup=5` countdown (`cpu.c:1034`), single `ifu_pcf`/`ifu_pcx`,
+  bytes fetched **live at dispatch** (`cpu.c:2568`), no jump-flush refill
+  penalty (`cpu.c:2659` falls straight through), faults surfaced at
+  dispatch rather than buffered per level. The trap vectors that *are*
+  emitted match sheet 07 (NotReady 0034, KFault/map-fault 0000, Reschedule
+  0014).
+
+- **Disk data-transfer path (gaps F1-F5).** DskEth sheet 09 holds the two
+  **SG139** read/write sequence PROMs (a20 read / a21 write), addressed by
+  a 5-bit PC, decoding to `ShiftIn/ShiftOut/ComputeECC/NextBlock/LoadTag/
+  LoadCnt/Tag←Ram/CntDone'`; a 12-bit format-RAM-loaded down-counter ticks
+  `WordClock'`. The full read/write PROM step tables are in HM §9.6.
+  Sheet 16 is the **Fire Code** LFSR with the polynomials silk-screened:
+  write `X^32+X^23+X^21+X^11+X^2+1`; read split `X^11+X^2+1 → ECC[0:10]`
+  and `X^21+1 → ECC[11:31]` (recovery math HM §9.10). Sheets 14/15 the
+  16×20 FIFO (16 data + 2 byte-parity + 2 type bits) with WriteTW/ReadTW
+  thresholds and Over/Underflow FFs; sheet 12 the per-drive LS169 sector
+  counters with index-vs-sector pulse-width discrimination (117 subsector
+  jumper). Sheet 18 the full muffler map (KSTATE 000-017, KSTAT 020-037,
+  KRAM/KTAG/KFIFO 040-117). Emulator (`disk.c`) short-circuits: dumps
+  header+label+data contiguously (`disk.c:245-276`), no sync/ECC words, no
+  per-block sequencing, FIFO is bare 16×16 with no parity/type, KSTAT
+  errors and KRAM/KTAG/KFIFO mufflers all return 0, sector advance is
+  poked synthetically.
+
+- **Ethernet controller (gap H1).** DskEth sheets 23-41 are a complete
+  Alto-compatible 3 Mb/s controller the emulator does not have (its
+  `ethernet.c` is an in-process Pup/EFTP fake). Registers: TIOA 15=EthD
+  (data), 16=EthC (control write / status read); tasks 6=EOT, 7=EIT. The
+  EthC control bits and the EOT/EIT wakeup-gating conditions in
+  `ethernet.h` **already match the schematic exactly** and can seed a real
+  controller. Missing pieces to add: EthD bus register, 16-deep Rx/Tx
+  FIFOs (F145A), F9401 CRC-16, the status-register read (bits 0-7 host
+  address, 8 RxOn, 9 TxOn, 10 LoopBack, 11 TxCollision, 12 NoWakeups,
+  13 TxDataLate, 14 SingleStep, 15 TxFifoPE), and `EthData.18`=EOP/IOAtten.
+
+## Found consistent (Session-3 additions)
+
+- **MemB / FF memory source-sink decode — MemC sheet 19.** `MemBase.0..4 →
+  MemB.0..4` with EnMemB'/DisBR gating matches `cpu.c` MemBase formation and
+  `dorado_mcr_disbr`. The `←Pipe0/1/2'/3'/4/5, ←Config', ←FaultInfo',
+  ProcSrn←, Mcr←, Cflags←, BrHi←/BrLo←` FF decode maps cleanly to the
+  implemented FF functions and the `memory.c` accessors; active-low
+  polarities (Pipe2'/3'/4', Config') handled. PipeAd SRN addressing matches
+  the SRN-indexed pipe.
+- **Ref-kind decode — MemC sheet 16 FIRST HALF.** The `(ASEL, FF.0mem'/
+  FF.1mem')` → {Fetch, IFetch, LongFetch, Store, Map, RMap, Prefetch,
+  DummyRef, Flush, IOFetch, IOStore} mapping is reproduced in the cpu.c ref
+  dispatch + `dorado_ref_kind` enum (the *kinds* are right; only the
+  Hold/Want gating around them is absent).
+- **Pipe4 field bit positions — MemX sheet 13 / MemD Figure 10.** ref=b0,
+  notMapTrouble=b1, wProtect=b2, dirty=b3, notMemError=b4, notEcFault=b5,
+  quadWord=b6:7, syndrome=b8:15 — `dorado_pipe4_at` (`memory.c:253-309`)
+  matches exactly (modulo Finding 8's baseline/polarity).
+- **Old-RP / old-flags snapshot into the pipe — MemX sheet 12.** The
+  "Pipe3 RAM" F145A capturing the pre-reference RP is modeled by
+  `map_rp_pre`/`map_flags_pre` (`memory.c:906`). `Map←` clears Ref and Ref
+  is excluded from map parity — consistent with the soft Ref handling.
+- **Branch-condition timing — ProcH sheet 11.** All four ALU conditions
+  registered per task in the BC RAM (read curr / write last), tested
+  against the *previous* instruction's ALU output (HM lines 1124-1126).
+  Emulator reads `alu_zero/lt0/carry/overflow` in `next_pc` before
+  committing the new values (`cpu.c:3429` vs `cpu.c:3496`); FreezeBC
+  suppresses the load (`cpu.c:3493`); conditions taken from raw `alu`, not
+  shifted `pd`. Correct.
+- **ALUFM RAM mapping — ProcL sheet 11.** `B[8]=carry / B[11:15]=op`
+  matches the `Pd←ALUFMRW` fix and the carry-bit-5/op-low-5 split in
+  `alu_op`. ASEL=7 shift forces the ALUF address to 16/17₈ — matches.
+- **LC write-source table — ProcL sheet 20.** The R/T write-source matrix
+  (Pd vs Md per LC[0:2], RbSelMd/TbSelMd) matches `apply_lc` cases 0-7
+  one-for-one, including the Md write sources (LC2 T←Md/RM←Pd, LC4 RM←Md,
+  LC5 T←Pd/RM←Md).
+- **RM/STK/T sizes + addressing — ProcL sheet 21.** RM/STK 256×8-bit, Tm
+  16×task (per-task T) — matches the emulator arrays. RBase is itself a RAM
+  addressed by LastNext (ProcL 22); the sequential read-at-issue /
+  write-at-end emulator subsumes the hardware Rm/Stk bypass without a
+  correctness issue. SubTask OR into RBase[2:3] matches (`cpu.c:339`) — but
+  see Finding 12 for the MemBase half.
+- **StkP ALU + underflow enumeration — ProcL sheet 24.** `StkP +
+  sign-extended RSTK[1:3]` matches `stk_signed_delta` (`cpu.c:358`); the
+  underflow `-1..-4 × StkP-value` cases match `stk_apply_post`; Pd←Pointers
+  StkOvf@Pd[8]/StkUnd@Pd[9] matches `cpu.c:1429`. (Error-path divergence is
+  Finding 11.)
+- **Disk control / tag / sector — DskEth sheets 08/10/12.** DiskControl op
+  fields `B[8:15]` = 4×2-bit (Done/Write/RdChk/Read) match `disk.c:315-333`;
+  EnableRun on format-RAM word 15 matches `disk.c:464`; DiskTag type-bit
+  encoding `B[0..3]=Drive/Cyl/Head/Ctrl` matches `disk.c:481`; the 117
+  subsector jumper + `117/(N+1)` cadence match `disk.c:10,240`.
+- **Ethernet control bits + wakeups — DskEth sheets 35/28/29.** Every
+  `DORADO_ETHC_*` constant in `ethernet.h:23-31` matches the schematic bit
+  positions; the EOT/EIT wakeup-gating conditions match
+  `dorado_ethernet_wakeup_mask`.
+- **Display register decodes — DispY sheets 09/13/14/22, DispM 12-19.**
+  NLCB `reg = data>>12 / val = data&0x0FFF` matches DispY27; VCW bit decode,
+  CLCB field layout (ItemSize unary, Resolution, ModeControl), HRam
+  Keep'/LoadAddr/Write' protocol, Statics DHT/DWTShutUp, the DWT
+  two-term wakeup rule, and the munch FIFO IOFetch path all match. The
+  Mixer/CMap/BMap/PixelClk/MiniMixer buckets are present-but-unhandled,
+  consistent with "not modeled" (gap E3). (Bugs: Findings 9, 10.)
+
+## Coverage — every sheet now examined
+
+With the Session-3 sweep, **every logic sheet on every CPU/IO board has
+been raster-read at least at the block level**, except the **ContA CIA/
+TNIA/BNPC/TPC-RAM/Link next-address datapath** (ContA 03/23/24/25 were read
+for JCN/Ready/Wakeup/TaskSwitch; the address-formation sheets were not, and
+ContB does **not** contain them — scope correction above). That is the one
+remaining schematic-unaudited datapath; Findings 4 and the per-task
+Link/TPC model rest on HM §4.8 alone. Everything else — Processor, Control
+data path, Memory (cache/Map/Pipe/ECC/automatons), IFU pipeline, Disk,
+Ethernet, Display — is now schematic-checked.
