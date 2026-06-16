@@ -1239,6 +1239,18 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
     }
 
     if (f != DM_FAULT_NONE) {
+        /* QW3 / HM Memory Section p.48 Table 17 "Fault Indications":
+         * PageFlt and WPFlt both set the Pipe4 MapTrouble bit (same
+         * encoding, distinguished by Pipe5 Store' + Pipe4 WP'). Set it
+         * here so a fault task reading B<-Pipe4'/Errors' sees MapTrouble
+         * on any vacant/write-protect reference, not just dirty-victim
+         * writeback (record_writeback_fault). Only the map-consulting
+         * ref kinds (fetch/store that miss, IOFetch, IOStore) ever reach
+         * here with f set; Flush<-/DummyRef<-/RMap<-/Map<-/PreFetch<-
+         * never set f, so the manual's "Flush and DummyRef never cause
+         * MapTrouble" constraint holds automatically. */
+        if (f == DM_FAULT_PAGE || f == DM_FAULT_WRITE_PROTECT)
+            dorado_pipe4_set_error(mem, srn, PIPE4_ERR_MAP_TROUBLE, 0, 0);
         mem->last_fault          = f;
         mem->last_fault_va       = va;
         mem->last_fault_task     = (uint8_t)(task & 017);

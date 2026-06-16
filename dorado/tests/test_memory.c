@@ -240,6 +240,11 @@ static int test_map_vacant_page_fault(void)
     EXPECT(dorado_pipe_va(&mem, 0) == 0x123,
            "pipe[0] = 0x%X, expected 0x123", dorado_pipe_va(&mem, 0));
 
+    /* QW3 / HM Table 17: a Page fault sets the Pipe4 MapTrouble bit. */
+    EXPECT(mem.pipe[0].pipe4_errors & PIPE4_ERR_MAP_TROUBLE,
+           "page fault should set Pipe4 MapTrouble, errors=0x%X",
+           mem.pipe[0].pipe4_errors);
+
     dorado_memory_free(&mem);
     printf("PASS  test_map_vacant_page_fault\n");
     return 0;
@@ -260,10 +265,21 @@ static int test_map_write_protect(void)
                                             0x10, 0, 0);
     EXPECT(f == DM_FAULT_NONE, "fetch on WP page should not fault");
 
+    /* QW3: a non-faulting reference must NOT set MapTrouble. */
+    EXPECT(!(mem.pipe[0].pipe4_errors & PIPE4_ERR_MAP_TROUBLE),
+           "clean fetch must not set MapTrouble, errors=0x%X",
+           mem.pipe[0].pipe4_errors);
+
     /* Store to a WP page faults. */
     f = dorado_memory_ref(&mem, DM_REF_STORE, 0x10, 0xBEEF, 0);
     EXPECT(f == DM_FAULT_WRITE_PROTECT,
            "expected WP fault, got %d", (int)f);
+
+    /* QW3 / HM Table 17: a WP fault sets the Pipe4 MapTrouble bit
+     * (same encoding as PageFlt, distinguished by Store'/WP'). */
+    EXPECT(mem.pipe[0].pipe4_errors & PIPE4_ERR_MAP_TROUBLE,
+           "WP fault should set Pipe4 MapTrouble, errors=0x%X",
+           mem.pipe[0].pipe4_errors);
 
     /* Storage must NOT have been modified. */
     EXPECT(mem.storage[0x10] == 0,
