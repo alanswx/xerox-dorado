@@ -128,17 +128,35 @@ symptom) and advanced the germ to the SAME genuine germ-state wall as
 sessions 14-19: the germ resumes a saved boot-process / start-list whose
 control links (`0o27132` for germ!4, `0o26411` for germ-6.1) reference
 modules our germ-only environment never binds/starts. This is NOT a
-microengine bug -- both links are genuine germ data. NEXT PASS: decode the
-`0o26411` procedure link's gfi and determine whether the germ's module-
-startup chain (StartCM, `germopsimpl.mesa`) SHOULD have started/bound that
-module before resuming this process (an emulator start-chain gap we could
-fix) or whether it is a genuine Pilot/OS dependency (a Stage-2 boundary --
-the germ would bind it only after `DoInLoad` loads the OS). The germ does
-NOT yet reach `DoInLoad` (only the Stage-1 ether TX; no germ `0244`
-Mayday). Repro: `DORADO_XFER_TRACE=1 DORADO_TRACE_GATE="67990600,67992000"`
-shows LoadStack reading the state (SLink `0o26411`), `XferProc` (pc
-`0o4034`) storing it to L[2], and the SavePCandTrap (pc `0o2000`, T=`0o13`)
-at cyc 67991921.
+microengine bug -- both links are genuine germ data.
+
+RESOLVED (session 19, follow-up): decoded the `0o26411` proc link fully.
+The Xfer microcode (DMesaXfer.mc!1 XferTagOdd/XferDisp01) extracts
+**gfi = link >> 6 = `0o26411` >> 6 = `0o264`** (=180) and indexes the GFT
+at base **MDS+`0o1400`** (1-word frame-pointer entries): GFT[gfi] =
+M[`0o1400`+gfi]. GFT[`0o264`] = M[MDS+`0o1664`] = **0** -> unbound -> trap.
+The germ's GFT binds **only 10 modules, gfi `0o1`..`0o12`** (all germ
+modules; TrapsImpl = gfi `0o6`, frame `0o4764`); GFT[`0o264`] is null IN
+THE GERM FILE ITSELF (file word `0o664` = 0). So gfi `0o264` is an
+**OS/Pilot module, not a germ module** -- the germ never binds it; Pilot
+binds it only after the OS loads. `0o26411` is therefore a genuine
+**unbound import** to the not-yet-loaded OS: a real Stage-2/OS-dependency
+boundary, NOT a fixable StartCM gap and NOT a microengine bug.
+
+OPEN QUESTION (the only remaining emulator angle): WHY does the germ's
+188-dispatch startup path reach a CALL to this unbound OS import before
+`DoInLoad`? Either (a) the germ legitimately calls it and expects it bound
+(genuine OS dependency -> the path forward is Stage-2: get the germ to
+`DoInLoad` so the OS supplies gfi `0o264`), or (b) an emulator control-flow
+mis-step earlier in the 188 dispatches branched the germ into this call
+when it should have skipped it. Distinguishing (a)/(b) needs decoding the
+188-dispatch path against `germopsimpl.mesa`/`bootswapgerm` -- a deep germ-
+state trace. The germ does NOT yet reach `DoInLoad` (only the Stage-1 ether
+TX; no germ `0244` Mayday). Repro: `DORADO_XFER_TRACE=1
+DORADO_TRACE_GATE="67990600,67992000"` (LoadStack reads SLink `0o26411`;
+XferProc pc `0o4034` stores it to L[2]; Xfer resolves gfi `0o264` ->
+GFT MDS+`0o1664`=0 -> SavePCandTrap pc `0o2000` T=`0o13` at cyc 67991921).
+GFT dump: `DORADO_VMDUMP="017401400,017401414,67991000"` (gfi 1..12 bound).
 
 ### HARD REGRESSION GATE -- ALL GREEN
 1. `make test` = 10/10 suites.
