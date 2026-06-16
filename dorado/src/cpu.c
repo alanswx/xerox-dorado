@@ -1064,6 +1064,24 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
             case 3: /* BrLo ← A — BR[MemBase][16:31] ← A[0:15]
                      * (HM Table 11c FA=1 FB=2 FC=3). */
                 if (cpu->mem) {
+                    /* DIAGNOSTIC (env DORADO_GERM_LPTR_FIX): reproducer for
+                     * the confirmed germ-6.1 codebase off-by-one (session 19,
+                     * docs/CONTINUE-HERE.md). TrapsImpl reads its 2-word
+                     * codebase LONG POINTER (frame.code) from global-frame
+                     * offset G+0 instead of G+1; per PrincOps (DMesaDefs.mc
+                     * line 203) G+0 is GFI,,codelinks and the codebase is at
+                     * G+1,G+2. So BR[0o34] is built as {lo=0o615,hi=0o6530}
+                     * (= {GFI, cb-lo}) instead of {lo=0o6530,hi=0o76} = the
+                     * TrapsImpl codebase VA 0o17406530 (= 0x3E0D58 = br31).
+                     * Forcing it correct advances the germ 155 -> ~35M
+                     * dispatches and eliminates ALL page faults (then a
+                     * downstream software germERROR remains). This hack
+                     * value-matches the one pointer to let the germ run past
+                     * the blocker; the real fix is the alpha/operand-offset
+                     * handling for the codebase-read opcode (NOT YET LANDED). */
+                    if (getenv("DORADO_GERM_LPTR_FIX") &&
+                        (cpu->MemBase & 0x1F) == 034 && a == 0615)
+                        a = 06530;
                     if (getenv("DORADO_BR_TRACE") && (!getenv("DORADO_TRACE_GATE") || dorado_trace_gate)) {
                         fprintf(stderr,
                                 "BRLO_FF task=%o pc=0o%o mb=%02o a=%06o "
@@ -1078,6 +1096,9 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
             case 4: /* BrHi ← A — BR[MemBase][4:15] ← A[4:15]
                      * (HM Table 11c FA=1 FB=2 FC=4). */
                 if (cpu->mem) {
+                    if (getenv("DORADO_GERM_LPTR_FIX") &&
+                        (cpu->MemBase & 0x1F) == 034 && a == 06530)
+                        a = 076;
                     if (getenv("DORADO_BR_TRACE") && (!getenv("DORADO_TRACE_GATE") || dorado_trace_gate)) {
                         fprintf(stderr,
                                 "BRHI_FF task=%o pc=0o%o mb=%02o a=%06o "

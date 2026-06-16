@@ -1,5 +1,78 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## ROUTE B (2026-06-16, session 19): germ-6.1 blocker ROOT-CAUSED to a codebase off-by-one (G+0 vs G+1); forcing it correct advances the germ 155 -> ~35M dispatches and ELIMINATES all page faults. The bug is operand-offset (alpha) handling for the codebase-read opcode; the value-matched reproducer is env-gated (`DORADO_GERM_LPTR_FIX`), the real fix is NOT yet landed.
+
+### The bug, fully grounded
+TrapsImpl (running, br31=`0o17406530`=0x3E0D58) reads its own 2-word
+**codebase LONG POINTER** (`frame.code`, via `GetCodeBytes[frame][frame.pc]`
+to test a trap instruction). It reads the pair from global-frame offset
+**G+0** when it must read **G+1**. Per PrincOps (DMesaDefs.mc!2 line 203,
+"Global frame configuration"):
+```
+  G      GFI,,code links(1 bit)
+  G+1    code base low      <-- the codebase LONG POINTER is here
+  G+2    code base high
+  G+3    global 0
+```
+VM dump at TrapsImpl's global frame (G=`0o4764`, VA `0o17404764`) confirms
+the 3-word `{GFI, cb-lo, cb-hi}` record exactly:
+```
+  M[0o4764]=0o000611 (GFI)   M[0o4765]=0o006530 (cb-lo)   M[0o4766]=0o000076 (cb-hi)
+  M[0o4770]=0o000711 (GFI)   M[0o4771]=0o007471 (cb-lo)   M[0o4772]=0o000076 (cb-hi)
+```
+The germ read the codebase pair at `{M[G], M[G+1]}` = `{0o615, 0o6530}` =
+`{GFI(patched), cb-lo}` and built BR[`0o34`] = bank `0o6530` -> VA
+`0xD580687`, a VACANT page -> page fault (155-dispatch hang). The correct
+codebase pair is `{M[G+1], M[G+2]}` = `{0o6530, 0o76}` = VA `0o17406530` =
+0x3E0D58 = **br31 itself** (the code base already in use). G itself is
+computed CORRECTLY (microcode pc `0o4014` stores G=`0o4764`); only the
++1 to skip the GFI word is missing.
+
+### Proof + payoff (env DORADO_GERM_LPTR_FIX, value-matched reproducer)
+Forcing BR[`0o34`] to the correct codebase `{lo=0o6530, hi=0o76}` (both
+words; session 18d only forced the high word and got wrong data):
+- germ jumps **155 -> ~35,000,000 IFU dispatches** (228,000x), reaching a
+  NEW module (br31=3E1E10).
+- **ALL page faults vanish** (`DORADO_FAULT_TRACE=all` shows only the 2
+  known early-bootstrap va=0 faults). The "germ references unmapped memory"
+  class of blocker is GONE.
+- It then raises a downstream **software** germERROR (MP 821, `0o1465` on
+  the stack) and does the `JB 0` halt -- a different, non-memory blocker.
+
+### Where the +1 is dropped (the real fix, NOT yet found)
+The codebase-read opcode is in the pcf `0o1056..0o1062` region (TrapsImpl
+code VA ~`0o17407157`), ops `0o114` (RILP) / `0o124` (RFC) / `0o153` (SGDB)
+-- the Mesa field-read family with a **packed alpha / field-offset** byte.
+The read-double (RD0/RDB, DMesaRW.mc!1) reads `{[p], [p+1]}` where the
+field offset rides in as `alpha`. The code byte dump shows the operand
+**alpha=`0o001`** sitting right after the opcode (`M[0o17407160]` low byte)
+-- exactly the +1 the codebase needs -- but our read landed at offset 0.
+So the +1 (alpha=1) is being dropped/mis-applied for this opcode's
+addressing mode. This is the SAME IFU operand-byte class as the
+`notLength` (session 12) and `TisId`/`alpha` (session 15) fixes; the
+Alto-Mesa 3-byte-instruction ALIGNMENT rule (DMesaDefs.mc!2 note 2: "if the
+opcode is an even byte, the odd byte is ignored and alpha,,beta is taken
+from the next full word") is a prime suspect for the mis-read.
+
+NEXT PASS: disassemble the exact opcode handler for the codebase read
+(resolve the backwards code byte order: "right=even, left=odd", and the
+3-byte aligned-instruction alpha,,beta fetch), confirm whether our IFU
+delivers alpha=0 instead of 1 (operand-decode bug -> fixable in the IFU
+`<-Id`/alpha path) or the germ pushes `@frame.code`=G via LADRB/GADRB with
+a dropped +1. Repro: `DORADO_GERM_LPTR_FIX=1 DORADO_IFUDISP_TRACE=1
+./build/dorado --eb '../chm/dorado/CedarDorado.eb!6' --germ
+'../chm/cedar/germ-alt/Dorado.germ-6.1.6' --cycles 200000000` -> ~35M
+dispatches; the bad read is at microcode pc `0o521/0o522`, cyc 67992448
+(VA `0o17404764`); BR build at pc `0o701/0o702`. Then chase the downstream
+germERROR (MP 821) at ~35M.
+
+### HARD REGRESSION GATE -- ALL GREEN (diagnostic off by default)
+1. `make test` = 10/10 suites.
+2. Galaxian @160M: 121553 px (exact). 3. AEmu NETEXEC: 1491 px (band).
+4. germ-6.1 baseline (env off): 155 dispatches (unchanged).
+5. `make sdl` compiles.
+
+
 ## ROUTE B (2026-06-16, session 16): bug 3 (`AV[0]=0o2`) FIXED at the root -- the `Q<-B` side-effect was missing for the Pipe external-B sources, so the Mesa `Q_ VALo` idiom never loaded Q. With it fixed the germ runs its real boot prologue (163 bytecodes -- LFC/EFC calls, DST state-dumps, no hardware faults), announces `germStarting` (MP 810), then -- ROOT FOUND (session 17) -- hits the SAME `0o27132` ControlFault as session 14, now cleanly trapped (the germ installed SD handlers first), which raises an uncaught `SIGNAL ControlFault` -> germERROR (821) -> deliberate `JB 0` halt. So the WF+Q<-B fixes converted the old infinite trap-loop into a clean halt but the `0o27132` SLink-to-unbound-memory bug is unchanged and is THE blocker. Gate ALL GREEN. (See the session-17 NEXT-blocker section below; germ Mesa sources in `chm/cedar/germ-src/`.)
 
 ### Root cause (HM Table 7 asterisk, one missing case)
