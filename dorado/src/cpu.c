@@ -2012,12 +2012,20 @@ static uint16_t alu_op(uint8_t alufm_entry, uint16_t a, uint16_t b,
         uint32_t r = (uint32_t)a + carry_in;
         result = (uint16_t)r;
         carry_out = (r >> 16) & 1;
+        /* HM §3.7 Overflow for all arithmetic ops (QW7): same-sign
+         * operands yielding a different-sign result. The increment
+         * (carry_in, 0/1) has sign bit 0. */
+        uint16_t sa = a & 0x8000, sr = (uint16_t)r & 0x8000;
+        overflow = (sa == 0 && sa != sr) ? 1 : 0;
         break;
     }
     case 006: { /* 2*A (+1 if carry_in) */
         uint32_t r = (uint32_t)a + a + carry_in;
         result = (uint16_t)r;
         carry_out = (r >> 16) & 1;
+        /* 2A = A+A: both addends share A's sign (QW7). */
+        uint16_t sa = a & 0x8000, sr = (uint16_t)r & 0x8000;
+        overflow = (sa != sr) ? 1 : 0;
         break;
     }
     case 014: { /* A + B (+1 if carry_in) */
@@ -2042,6 +2050,9 @@ static uint16_t alu_op(uint8_t alufm_entry, uint16_t a, uint16_t b,
         uint32_t r = (uint32_t)a + 0xFFFF + carry_in;
         result = (uint16_t)r;
         carry_out = (r >> 16) & 1;
+        /* A + (-1): second addend 0xFFFF has sign bit set (QW7). */
+        uint16_t sa = a & 0x8000, sr = (uint16_t)r & 0x8000;
+        overflow = (sa == 0x8000 && sa != sr) ? 1 : 0;
         break;
     }
     default:

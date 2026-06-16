@@ -9575,6 +9575,68 @@ static int test_carry_preserved_on_logical(void)
 }
 
 /*
+ * test_alu_overflow_all_arith — QW7 / HM §3.7. Overflow (carry into the
+ * sign bit != carry out of it) must be computed for every arithmetic
+ * ALU op, not just A+B / A-B-1. Drives 2A, A+1, and A-1 into the
+ * overflow corner and checks cpu.alu_overflow, plus a non-overflow case.
+ */
+static int test_alu_overflow_all_arith(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[1] = 006;  mc.alufm_present[1] = 1;   /* 2A            */
+    mc.alufm[2] = 040;  mc.alufm_present[2] = 1;   /* A + carry_in  */
+    mc.alufm[3] = 036;  mc.alufm_present[3] = 1;   /* A - 1         */
+
+    mc.rm[0] = 0x4000;  mc.rm_present[0] = 1;      /* 2A → 0x8000  ovf */
+    mc.rm[1] = 0x7FFF;  mc.rm_present[1] = 1;      /* A+1→ 0x8000  ovf */
+    mc.rm[2] = 0x8000;  mc.rm_present[2] = 1;      /* A-1→ 0x7FFF  ovf */
+    mc.rm[3] = 0x0001;  mc.rm_present[3] = 1;      /* 2A → 0x0002  no  */
+
+    /* BSEL=4 (const 0,,FF, FF=0 → B=0, FF not a function). A←RM/STK at
+     * the register RSTK selects. Each step jumps to the next slot. */
+    mc.im[0] = make_uinstr(/*rstk=*/0, /*aluf=*/1, 4, 0, /*asel=*/4, 0, 0,
+                           jcn_local(1));   mc.im_present[0] = 1;
+    mc.im[1] = make_uinstr(/*rstk=*/1, /*aluf=*/2, 4, 0, /*asel=*/4, 0, 0,
+                           jcn_local(2));   mc.im_present[1] = 1;
+    mc.im[2] = make_uinstr(/*rstk=*/2, /*aluf=*/3, 4, 0, /*asel=*/4, 0, 0,
+                           jcn_local(3));   mc.im_present[2] = 1;
+    mc.im[3] = make_uinstr(/*rstk=*/3, /*aluf=*/1, 4, 0, /*asel=*/4, 0, 0,
+                           jcn_local(4));   mc.im_present[3] = 1;
+    mc.im[4] = make_uinstr(0, 0, 4, 0, 4, 0, 0, jcn_local(4));
+    mc.im_present[4] = 1;
+
+    for (int i = 0; i < 5; i++) {
+        mc.image_to_real[i] = i;
+        mc.image_present[i] = 1;
+    }
+    mc.n_instructions = 5;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "2A step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.alu_overflow == 1, "2A 0x4000 should overflow, got %d",
+           cpu.alu_overflow);
+    EXPECT(dorado_cpu_step(&cpu) == 0, "A+1 step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.alu_overflow == 1, "A+1 0x7FFF should overflow, got %d",
+           cpu.alu_overflow);
+    EXPECT(dorado_cpu_step(&cpu) == 0, "A-1 step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.alu_overflow == 1, "A-1 0x8000 should overflow, got %d",
+           cpu.alu_overflow);
+    EXPECT(dorado_cpu_step(&cpu) == 0, "2A no-ovf step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.alu_overflow == 0, "2A 0x0001 must NOT overflow, got %d",
+           cpu.alu_overflow);
+
+    printf("PASS  test_alu_overflow_all_arith (2A / A+1 / A-1 overflow)\n");
+    return 0;
+}
+
+/*
  * test_alufmrw_bit_mapping — HM Table 11d: "ALUFMEM ← B.8, B[11:15]".
  * Manual MSB-first → C-LSB bit mapping is non-trivial. The runtime
  * Pd←ALUFMRW must reproduce the .MB pre-declared ALUFM convention
@@ -9926,6 +9988,7 @@ int main(void)
     rc |= test_dwtstart_memory_form_routes_iofetch();
     rc |= test_tioa_small_constant_all_low_bits();
     rc |= test_carry_preserved_on_logical();
+    rc |= test_alu_overflow_all_arith();
     rc |= test_alufmrw_bit_mapping();
     rc |= test_alufmem_is_read_only();
     rc |= test_alu_shift_ff_functions();
