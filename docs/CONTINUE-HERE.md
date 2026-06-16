@@ -2881,3 +2881,19 @@ Highest-value remaining raster-audit targets (subagent's recommendation): IFU IF
 
 ### Session 18 microengine bugs fixed (cumulative)
 WF/RF field opcodes (b7e803d), TisId/RisId+IFetch (b7e803d), Q<-B for Pipe sources (b89f3d5), Overflow branch cond (03df978), shifter Pd-mux masking (dd78b63). All HM/schematic-grounded, all gate-green. The germ advanced from faulting at dispatch 113 to running its full module-startup chain.
+
+## ROUTE B (2026-06-16, session 18c): memory-config / version-compatibility investigation
+
+Q: are we running an untested/incompatible memory config or germ+microcode pairing?
+
+FINDINGS:
+- **Memory config SIZE is compatible.** Our emulator advertises VirtualBanks=256 (the 64K-map / 64Kx1-chip config; `dorado_memory_config_word`, `DM_MAP_ENTRIES=65536`). The audit (MemX sheet 15) confirmed the map index is config-dependent (14/16/18 bits for 16K/64K/256K chips) and we model the middle (64K) one. germ-6.1's faulting page (idx 0x5806) is WITHIN that addressable map -- it is just VACANT, not out-of-range. So map size is not the incompatibility.
+- **Microcode version is NOT the issue for germ-6.1.** Our `CedarDorado.eb!6` is the 17-May-1984 build (checksum 8d9b44d4) -- the SAME file shipped in Cedar 5.3, 6.0, AND 6.1 (verified via cross-reference). Tested germ-6.1 against the 1984, 1986 (`CedarDorado.eb!3`) and 1987 (`!4`) microcode builds (downloaded to `chm/dorado-mc-alt/`): ALL THREE give the identical 155-dispatch fault. So the germ-6.1 blocker is version-independent.
+- **germ VERSION matters, though:** germ!4 (Dec 1983) PREDATES the 1984 microcode -> mismatched -> 0o27132 fault. **germ-6.1 (1986) + CedarDorado.eb (1984) is the matched Cedar-6.1 release pair** and is the correct debug target (gets to 155 dispatches).
+
+### germ-6.1 blocker, refined
+germ-6.1 hangs (155 dispatches, cyc 67992494 -> 200M, nothing runs after) on a Fetch via LPtr to VA 0xD580687 (bank 0o6530), a VACANT page never mapped by Initial or the germ. The long pointer is `{low=0o611, high=0o6530}` read from TrapsImpl's global frame (MDS+0o4764). TrapsImpl reads code bytes via a `CodeBytesPtr: LONG POINTER TO RawBytes` (`GetCodeBytes[frame][frame.pc]`, to test the trap instruction for zLDIV). The value `{0o611, 0o6530}` is exactly `{TrapsImpl.g[0]=GFI, g[1]=codebase-low}` -- when a code pointer should be the codebase `{g[1]=0o6530, g[2]=0o76}` = VA `0o17407345` (which IS mapped, full of germ code). So the high word is `0o6530` (a codebase-offset value) where the runtime MDS bank `0o76` is expected -- an **OFF-BY-ONE-WORD / wrong-high-word signature** in a code/long pointer. The high word `0o6530` is genuine germ-FILE data (deposited at germ load); the low word is patched 0o611->0o615 at runtime.
+
+Consistent across microcode versions => it is either (a) an emulator bug in how a frame's code-base long pointer is laid out/resolved, or (b) a germ relocation/fixup step (rewriting code-pointer high words to the runtime MDS bank 0o76) that our flat germ load skips. NEXT: test forcing the LPtr high word 0o6530->0o76 (env-gated) -- if germ-6.1 then proceeds, it confirms the relocation/high-word hypothesis and points at the load-time fixup or the frame.code field-offset. (Defer the cpu.c/memory.c edit until the background schematic-audit agent finishes reading those files.)
+
+DEFAULT DEBUG TARGET going forward: germ-6.1 (`chm/cedar/germ-alt/Dorado.germ-6.1.6`) + CedarDorado.eb!6.
