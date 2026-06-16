@@ -34,21 +34,28 @@ was just never wired for the pipe sources.)
 - No germ-originated outbound Pup yet (only the Stage-1 n=13 boot request
   at cyc<31M); 0 display pixels.
 
-### NEXT blocker (session 17) -- what the germ wait-loop is polling
+### NEXT blocker (session 17) -- the germ idles in a tight JB self-loop awaiting an interrupt/reschedule
 
-The germ reaches its boot wait loop (op `0o210` JB at pc `0o150` in
-BootSwapGerm) and spins -- this is the dominant contributor to the 21.9M
-dispatch count. It is WAITING, not faulting. Determine the wait condition:
-is it (a) a Mesa monitor/condition-variable wait for a process that should
-be woken by a device/timer interrupt we don't drive, (b) polling a memory
-cell a device should set, or (c) waiting for its boot channel to deliver
-the OS volume (ties into `docs/ethernet-local-boot-plan.md` Stage-2 -- the
-Mayday/EFTP boot server is built server-side)? Trace the loop body
-bytecodes and the cell(s) it reads at pc `0o150`; cross-ref the
-BootSwapGerm source for the boot poll/wait. Repro:
-`DORADO_IFUDISP_TRACE=1 ./build/dorado --eb '../chm/dorado/CedarDorado.eb!6'
---germ '../chm/cedar/germ/Dorado.germ!4' --cycles 90000000` -> ~22M
-dispatches ending in the pc-`0o150` JB loop.
+After running its boot code the germ enters a **tight self-loop: a SINGLE
+bytecode, op `0o210` (JB) at pc `0o150`, jumping to itself** (br31
+`3E1D0C` BootSwapGerm). There is NO load/test/conditional in the loop, so
+it is NOT polling a memory cell -- it is an idle loop that can only be
+broken by an **interrupt / Mesa Reschedule** (a process wakeup). So the
+question is what should wake it: most likely (a) the interval/process
+timer interrupt (Mesa's tick-driven scheduler) which we may not be driving
+into the emulator-task Reschedule path, or (b) an I/O device wakeup for
+the boot channel delivering the OS volume (ties into
+`docs/ethernet-local-boot-plan.md` Stage-2; Mayday/EFTP server is built
+server-side). NEXT PASS: check the Reschedule/interrupt mechanism --
+does the germ install an interrupt handler / enable interrupts, and does
+our emulator deliver the timer/Wakeup that triggers `Reschedule` so the
+JB loop yields to the waiting boot process? Look at `DMesaProcess.mc`
+(NOTIFY/Reschedule/timer) and whether `RescheduleA`/the IT (interval
+timer) wakeup reaches the emulator task. The 21.9M dispatch count is
+almost entirely this JB spin. Repro: `DORADO_IFUDISP_TRACE=1
+./build/dorado --eb '../chm/dorado/CedarDorado.eb!6' --germ
+'../chm/cedar/germ/Dorado.germ!4' --cycles 90000000` -> ~22M dispatches
+ending in the pc-`0o150` JB self-loop (op `0o210`, vec `0o150`).
 
 ### HARD REGRESSION GATE -- ALL GREEN
 1. `make test` = 10/10 suites.
