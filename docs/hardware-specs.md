@@ -281,12 +281,31 @@ and to deliver keyboard/mouse to a running OS.
   pushes < `MinimumPush`.
 
 ### What the emulator does today
-- `display_terminal_keyboard_bit()` (`display.c:211`) builds a message but
-  returns it in the wrong bit (QW1); `display_input()` returns an idle key
-  word otherwise; no mouse/button/boot-type messages; boot-button jam is a
-  bare `return 1` (`display.c:430`).
+- `display_terminal_keyboard_bit()` (`display.c:211`) builds a message and,
+  since QW1 (2026-06), returns it on `IOB.00` correctly; `display_input()`
+  returns an idle key word otherwise; no mouse/button/boot-type messages.
+- The boot-button jam returns `0x8000` on `IOB.00` (QW1).
 
-### Spec to implement
+### STATUS (2026-06, empirical): serial back-channel has no consumer yet
+Instrumenting `display_terminal_keyboard_bit()` during a full AEmu/NETEXEC
+boot shows it is **never called** -- the AEmu world's terminal task never
+runs `ReadTerminal` to decode the serial stream in our boot. The keyboard /
+boot-key / mouse state the running world reads is supplied by the
+**memory-seeding** path instead (`machine.c machine_seed_keyboard` /
+`machine_seed_mouse` + Initial STK boot-parameter seeding), which is
+gate-locked and works. Consequences:
+- **QW1 (bit position) was the real, bounded bug here and is done.** It
+  makes the serial readout correct for whenever a world *does* run
+  `ReadTerminal` (e.g. a future Cedar/Mesa terminal task).
+- The rest of HS4 below (serial shift-out queue for types 5/6/17, boot-key
+  chord over the serial wire) would be **dead code with no consumer today**,
+  so it is deferred per the "no speculative behavior" norm. Revisit only
+  when a world we run actually executes `ReadTerminal` (verify by
+  re-instrumenting; the probe is trivial to re-add).
+- Boot-key *selection* already works functionally via the memory-seeded
+  chord (`--boot-keys` / `machine_apply_boot_chord`); it is not blocked.
+
+### Spec to implement (deferred -- see STATUS above)
 1. A serial shift-out engine driven at scan-line rate (one bit per
    `display_scanline`/vblank tick — the emulator already advances a frame
    counter at vblank): hold a 32-bit `terminal_msg` and a `bit_index`; each
