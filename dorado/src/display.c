@@ -309,10 +309,24 @@ static void display_output_b(void *ctx, int task, int subtask,
         d->nlcb_writes++;
     } else if (tioa == DORADO_DISPLAY_TIOA_DWTFLAG ||
                tioa == DORADO_DISPLAY_TIOA_AWTFLAG) {
+        /* DispY15/27 DWT-command decode (DisplayMain.mc DWTStart /
+         * DWTAdjustWCBFlags). The DWT loop issues exactly three values:
+         *   Output_ 20 (0020) -- IOFetch pacing pulse ("a new munch is on
+         *                        its way"): do NOT touch the WCB flags.
+         *   Output_ 1  (0001) -- start of scan line: set CurrentWCB and
+         *                        clear NextWCB.
+         *   Output_ 0  (0000) -- scan line exhausted: clear CurrentWCB.
+         * Previously this did current = (data & 1), so every IOFetch
+         * pulse (0020, bit 0 clear) wrongly cleared CurrentWCB (QW2). */
         int channel = (subtask & 2) ? 1 : 0;
-        uint8_t cur = (uint8_t)(data & 1u);
-        d->current_wcb_flag[channel] = cur;
-        if (cur) d->next_wcb_flag[channel] = 0;
+        if (data & 0020u) {
+            /* IOFetch pacing: leave WCB flags untouched. */
+        } else if (data & 0001u) {
+            d->current_wcb_flag[channel] = 1;
+            d->next_wcb_flag[channel] = 0;
+        } else {
+            d->current_wcb_flag[channel] = 0;
+        }
     } else if (tioa == DORADO_DISPLAY_TIOA_RAST_TASKCMD) {
         d->raster_taskcmd = data;
         if (t == DORADO_DISPLAY_TASK_DHT) {

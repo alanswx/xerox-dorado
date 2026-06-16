@@ -233,12 +233,21 @@ static int test_display_wcb_flag_protocol(void)
     EXPECT(dorado_display_dwt_wakeup(&d, &subtask) == 0,
            "DWT wakeup should stop when no WCB flags are set");
 
+    /* Output_ 1 (DisplayMain.mc) sets CurrentWCB + clears NextWCB. */
     dorado_io_write_subtask(&io, DORADO_DISPLAY_TASK_DWT, 0,
-                            DORADO_DISPLAY_TIOA_DWTFLAG, 0177777);
+                            DORADO_DISPLAY_TIOA_DWTFLAG, 0001);
     EXPECT(d.current_wcb_flag[0] == 1,
-           "DWT Output_-1 on subtask 0 should set channel A current");
+           "DWT Output_1 on subtask 0 should set channel A current");
     EXPECT(d.current_wcb_flag[1] == 0,
-           "DWT Output_-1 on subtask 0 must not select channel B by sign bit");
+           "DWT Output_1 on subtask 0 must not select channel B");
+
+    /* QW2: Output_ 20 is the IOFetch pacing pulse -- it must NOT clear
+     * CurrentWCB (the bug was current = data & 1, so 0020 cleared it). */
+    dorado_io_write_subtask(&io, DORADO_DISPLAY_TASK_DWT, 0,
+                            DORADO_DISPLAY_TIOA_DWTFLAG, 0020);
+    EXPECT(d.current_wcb_flag[0] == 1,
+           "DWT Output_20 (IOFetch) must leave CurrentWCB set");
+
     dorado_io_write_subtask(&io, DORADO_DISPLAY_TASK_DWT, 0,
                             DORADO_DISPLAY_TIOA_DWTFLAG, 0000);
     EXPECT(d.current_wcb_flag[0] == 0,
