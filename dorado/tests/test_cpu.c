@@ -1776,7 +1776,10 @@ static int test_ldtpc_rdtpc(void)
     mc2.im[0] = make_uinstr(0, 0, /*bsel=*/4, /*lc=*/0, /*asel=*/6, 0,
                             /*ff=*/5, /*jcn=*/0x67);
     mc2.im_present[0] = 1;
-    mc2.im[1] = make_uinstr(0, 0, 2, 0, 6, 0, 0, jcn_local(1));
+    /* IM[1]: B←Link → T (ALUF=0=ALUFM[0]=B, LC=1=T←Pd, FF=0o177=B←Link,
+     * BSEL=2 non-constant so the full-function FF decodes). */
+    mc2.im[1] = make_uinstr(0, /*aluf=*/0, /*bsel=*/2, /*lc=*/1, /*asel=*/4,
+                            0, /*ff=*/0177, jcn_local(1));
     mc2.im_present[1] = 1;
     mc2.image_to_real[0] = 0; mc2.image_present[0] = 1;
     mc2.image_to_real[1] = 1; mc2.image_present[1] = 1;
@@ -1787,10 +1790,23 @@ static int test_ldtpc_rdtpc(void)
     cpu2.task_tpc[5] = 0xCAFE;
 
     EXPECT(dorado_cpu_step(&cpu2) == 0, "RdTPC step");
-    /* Link should now be ~0xCAFE = 0x3501. */
-    EXPECT(cpu2.Link == (uint16_t)~0xCAFE,
-           "RdTPC: Link = 0x%04X, expected 0x%04X (= ~0xCAFE)",
-           cpu2.Link, (uint16_t)~0xCAFE);
+    /* HM §4.8 (Finding 4): Link is smashed with CIA+1, and the ~tpc data
+     * rides the alternate B←Link path for the next cycle. */
+    EXPECT(cpu2.Link == (uint16_t)1,
+           "RdTPC: Link smashed with CIA+1 = 0x0001, got 0x%04X", cpu2.Link);
+    EXPECT(cpu2.b_link_read == (uint16_t)~0xCAFE,
+           "RdTPC: alt B←Link latch = 0x%04X, expected 0x%04X (= ~0xCAFE)",
+           cpu2.b_link_read, (uint16_t)~0xCAFE);
+    EXPECT(cpu2.b_link_read_valid == 1, "RdTPC: alt latch should be valid");
+
+    /* IM[1] reads B←Link → T; must deliver the latched ~0xCAFE, then the
+     * latch is consumed and Link reverts to its CIA+1 value. */
+    EXPECT(dorado_cpu_step(&cpu2) == 0, "B←Link readback step");
+    EXPECT(cpu2.T == (uint16_t)~0xCAFE,
+           "B←Link should deliver alt latch ~0xCAFE into T, got 0x%04X",
+           cpu2.T);
+    EXPECT(cpu2.b_link_read_valid == 0,
+           "alt latch should be consumed by B←Link");
 
     printf("PASS  test_ldtpc_rdtpc\n");
     return 0;

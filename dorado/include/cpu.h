@@ -64,6 +64,12 @@ typedef struct {
                                  * same-instruction Link←B (e.g.,
                                  * B←RWCPReg) doesn't clobber the
                                  * value the consumer needs. */
+    uint16_t b_link_read;        /* HM §4.8: RdTPC / Read IM deliver their
+                                  * data on the "alternate B←Link path" the
+                                  * NEXT cycle, while Link itself is smashed
+                                  * with CIA+1. This latch holds that data. */
+    uint8_t  b_link_read_valid;  /* 1 while b_link_read overrides B←Link */
+    uint8_t  b_link_read_age;    /* one-instruction lifetime aging */
     uint16_t dispatch_or;        /* active one-cycle TNIA dispatch OR */
     uint16_t task_dispatch[16];  /* per-task pending dispatch OR. HM
                                   * §4.4 p32: the B dispatches load

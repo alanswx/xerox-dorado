@@ -791,7 +791,17 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
             }
             cpu->Link = *b;
             break;
-        case 7: *b = cpu->Link;  break;  /* B ← Link */
+        case 7:                          /* B ← Link */
+            /* HM §4.8: after RdTPC / Read IM, the read data is delivered on
+             * the alternate B←Link path for one cycle (Link itself holds
+             * CIA+1). Consume the latch if pending, else read Link. */
+            if (cpu->b_link_read_valid) {
+                *b = cpu->b_link_read;
+                cpu->b_link_read_valid = 0;
+            } else {
+                *b = cpu->Link;
+            }
+            break;
         default: return 0;
         }
         /* HM Table 7 asterisk: "BSEL decode for Q←B is needed in
@@ -2771,6 +2781,10 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                 }
                 dorado_redecode_fields(dst);
                 mc_w->im_present[addr] = 1;
+                /* HM §4.8: "The Link register itself is smashed with CIA+1."
+                 * The IM write address came from link_at_issue, so the old
+                 * Link is no longer needed. */
+                cpu->Link = (uint16_t)(cpu->real_PC + 1);
                 *next = (uint16_t)(cpu->real_PC + 1);
                 return 0;
             }
@@ -2790,7 +2804,13 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                 uint16_t tpc = (task == cpu->ctask)
                              ? cpu->real_PC
                              : cpu->task_tpc[task];
-                cpu->Link = (uint16_t)~tpc;
+                /* HM §4.8: Link is smashed with CIA+1; the ~tpc data rides
+                 * the alternate B←Link path for the next cycle. (The
+                 * microcode's `B←Link, T←~B` reads it there.) */
+                cpu->Link = (uint16_t)(cpu->real_PC + 1);
+                cpu->b_link_read = (uint16_t)~tpc;
+                cpu->b_link_read_valid = 1;
+                cpu->b_link_read_age = 0;
                 *next = (uint16_t)(cpu->real_PC + 1);
                 return 0;
             }
@@ -2812,14 +2832,19 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                 if (task != cpu->ctask) {
                     cpu->task_tpc[task] = cpu->Link;
                 }
+                /* HM §4.8: Link is smashed with CIA+1 after the TPC write
+                 * (the write above consumed the old Link). */
+                cpu->Link = (uint16_t)(cpu->real_PC + 1);
                 *next = (uint16_t)(cpu->real_PC + 1);
                 return 0;
             }
             if (fn == 6) {
                 /* Read IM (HM §4.8). Stubbed: real implementation
                  * reads IM[Link[7:15]] byte-by-byte selected by
-                 * RSTK[2:3], placing inverted data on B in the next
-                 * instruction. Not yet exercised by tests. */
+                 * RSTK[2:3], placing inverted data on the alternate
+                 * B←Link path. Not yet exercised by tests. Link is
+                 * smashed with CIA+1 like the other IM/TPC accesses. */
+                cpu->Link = (uint16_t)(cpu->real_PC + 1);
                 *next = (uint16_t)(cpu->real_PC + 1);
                 return 0;
             }
@@ -2989,6 +3014,13 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
         prev_task = cpu->ctask;
     }
     cpu->link_at_issue = cpu->Link;
+    /* Age the alternate B←Link latch: it is valid only for the single
+     * instruction following the RdTPC/Read IM that set it. If that
+     * instruction did not consume it (no B←Link), expire it now. */
+    if (cpu->b_link_read_valid) {
+        if (cpu->b_link_read_age) cpu->b_link_read_valid = 0;
+        else cpu->b_link_read_age = 1;
+    }
     cpu->dispatch_or = cpu->task_dispatch[cpu->ctask];
     cpu->task_dispatch[cpu->ctask] = 0;
     uint16_t md_at_issue = task_md(cpu);
