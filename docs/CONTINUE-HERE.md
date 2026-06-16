@@ -1,6 +1,13 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
-## ROUTE B (2026-06-16, session 19): germ-6.1 blocker FIXED at the root -- a bare `IFetch_` was missing the HM-p.38 `BR[24:31]<-Id` replacement, so the Mesa read-double's field offset (alpha) was dropped and TrapsImpl read its codebase from G+0 instead of G+1. With the fix the germ runs 155 -> ~35,000,000 dispatches and ALL page faults vanish. Gate ALL GREEN. New blocker = a downstream software germERROR (MP 821).
+## ROUTE B (2026-06-16, session 19): codebase page-fault FIXED at the root -- a bare `IFetch_` was missing the HM-p.38 `BR[24:31]<-Id` replacement, so the Mesa read-double's field offset (alpha) was dropped and TrapsImpl read its codebase from G+0 instead of G+1. With the fix the germ-6.1 codebase read works and ALL page faults vanish; the germ advances **155 -> 188 real IFU dispatches** (TrapsImpl's startup now completes). Gate ALL GREEN. New blocker = the persistent "germ raises an uncaught signal during module startup -> germERROR (MP 821)" wall (the same family as germ!4's 0o27132).
+
+CORRECTION/HONESTY NOTE: an earlier draft of this entry (and commit 2bbe17c)
+said "155 -> ~35,000,000 dispatches." That 35M is the **JB-0 halt spin**
+after germERROR, NOT real work. The accurate progress is **155 -> 188 real
+dispatches** (count excluding the spin at pcf 0o5334). The fix is still a
+real, correct, gate-safe microengine bug fix that eliminates the codebase
+page fault; it just UNMASKS the next (signal) blocker rather than booting.
 
 ### THE FIX (landed, HM page 38)
 `src/cpu.c`: an `IFetch_` is "a fetch for which BR[24:31] are replaced by
@@ -59,13 +66,17 @@ computed CORRECTLY (microcode pc `0o4014` stores G=`0o4764`); only the
 
 ### Proof + payoff (the landed IFetch-Id fix)
 With the fix (`ifetch_id` peeked + applied for every IFetch):
-- germ jumps **155 -> ~35,000,000 IFU dispatches** (228,000x), reaching a
-  NEW module (br31=3E1E10).
 - **ALL page faults vanish** (`DORADO_FAULT_TRACE=all` shows only the 2
-  known early-bootstrap va=0 faults). The "germ references unmapped memory"
-  class of blocker is GONE.
-- It then raises a downstream **software** germERROR (MP 821, `0o1465` on
-  the stack) and does the `JB 0` halt -- a different, non-memory blocker.
+  known early-bootstrap va=0 faults). The codebase read now lands at G+1,
+  so the "germ references unmapped memory" blocker is GONE.
+- germ advances **155 -> 188 real IFU dispatches**: TrapsImpl's startup
+  body now runs to completion (~123 dispatches, ops incl. the codebase
+  read) and returns via FREE (op 0o347) to its caller (br31=3E1E10).
+- That caller is the germ's SignalHandler / error classifier (the
+  JGEB/JGB/JLEB range-check dispatch, dispatches 177-188), which maps the
+  raised condition to the generic **germERROR (MP 821 = `0o1465`)**, calls
+  SetMP, and does `JB 0`. The 35M total dispatch count is this halt spin
+  (pcf 0o5334), NOT progress.
 
 ### How it was traced (for the record)
 The codebase-read opcode is the Mesa read-double `RDB` (op `0o104`,
@@ -102,7 +113,8 @@ dispatches; the germERROR/JB-0 settle is at the tail (br31=3E1E10, pc
 1. `make test` = 10/10 suites.
 2. Galaxian @160M: 121553 px (exact).
 3. AEmu NETEXEC: 1478 px (band); AltoMesaDorado.eb!2: 1479 px (band).
-4. germ-6.1: 155 -> ~35M dispatches (the fix; page faults eliminated).
+4. germ-6.1: 155 -> 188 real dispatches; page faults eliminated; then the
+   germERROR/JB-0 halt spin (the 35M total is the spin, not progress).
 5. `make sdl` compiles.
 
 
