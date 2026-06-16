@@ -90,6 +90,40 @@ handlers, converting the old infinite ControlFault trap-loop (sessions
 8-14) into a clean germERROR halt -- but the **underlying `0o27132`
 SLink-to-unbound-memory bug is UNCHANGED** and is now THE blocker again.
 
+VALIDATION EXHAUSTED -- `0o27132` is NOT a microengine bug (session 17,
+follow-up 3). Every emulator path around this fault has been checked and
+is CORRECT: (1) the germ file loads flat 1:1 (verified vs GERM FILE MAP,
+0o40 pages); (2) `0o27132` is genuinely in the germ file at MDS+`0o7652`;
+(3) the BLT that copies the static process-descriptor record reads the
+intended source MDS+`0o7642` (germ-computed, stack value `0o7640` confirms
+intent), not a stray pointer; (4) the LSTF/LoadState reads SLink from the
+correct state-vector offset (block+`0o20`, validated vs LOADSTATE/LOADSTACK
+microcode); (5) no SD/IFU fault precedes it. So `0o27132` is a GENUINE germ
+control-link constant that the germ deliberately installs as a resumed
+process's SLink/return-link, and it references MDS+`0o27132` -- a
+resident-but-zero page PAST the entire loaded germ (data+code end at
+MDS+`0o21000`) that nothing ever initializes.
+
+CONCLUSION: this is a germ-LOAD / process-init / OS-dependency issue, not a
+microengine defect. The germ is starting modules / setting up initial
+Pilot processes from a static descriptor table (MDS+`0o7642`), and one
+descriptor's control link points to MDS+`0o27132` which is never loaded.
+Most likely it is (a) an OS-resident link that should only be live AFTER
+DoInLoad loads the OS (our germ never reaches DoInLoad -- it faults during
+its own module init), or (b) the germ relies on an MDS region / unbound
+import that Pilot fills, which our germ-only setup never provides. Getting
+PAST this is therefore Stage-2 territory (loading a real OS boot file via
+the boot channel), or requires identifying a germ MDS-init step that
+populates `0o27132` -- NOT a microcode/field/pipe fix. The 3 emulator bugs
+fixed this session (WF/RF, TisId/RisId+IFetch, Q<-B) were the real
+microengine defects on the path here; the germ now runs its full boot
+prologue + module-startup chain and stops at this genuine germ/OS-load
+boundary. NEXT real lever: bring up the Stage-2 OS load
+(`docs/ethernet-local-boot-plan.md`) so DoInLoad has an OS to inLoad, OR
+decode the static process-descriptor table (MDS+`0o7642`) against the germ
+process-init source to learn what `0o27132` should resolve to and whether
+the germ is meant to defer that process until after the OS loads.
+
 MECHANISM FULLY DECODED (session 17, follow-up 2) -- source-grounded via
 `chm/cedar/germ-src/trapsimpl-6.1.mesa` + `germopsimpl.mesa`. The germ is
 running its **module-startup chain**: GermOpsImpl drives a **StartList**
