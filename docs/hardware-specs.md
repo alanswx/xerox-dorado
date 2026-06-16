@@ -21,6 +21,16 @@ booted · **P2** fidelity / diagnostics / Phase-2 (Verilog) prerequisite.
 These are not subsystems; each is a few lines and several are boot-relevant.
 Listed here so they are not lost among the big specs.
 
+**Status (2026-06):** QW1 DONE (commit eeb5807), QW2 DONE (b2f0c72),
+QW3 DONE (d286f03, HW-Manual-validated), QW7 DONE (7780d32). QW6 was
+already implemented (the SubTask OR into MemBase[2:3] is in the ref path
+at `cpu.c:3221`, not missing -- the finding looked only at the RBase site
+`cpu.c:339`). Remaining: QW4 (P2, couples with ECC spec HS6 -- needs the
+RealPageInRange check confirmed first) and QW5 (P2, ASRN advance gating).
+All landed fixes were validated against the HW Manual and kept the gate
+green (make test 10/10, Galaxian 121553 exact, NETEXEC in band, germ-6.1
+reaches the identical 155-dispatch blocker).
+
 ### QW1 — Keyboard/terminal back-channel bit position (Finding 9, gap E2). **P0**
 - **Hardware (DispY18/21, DispM10/21):** terminal serial back-channel →
   `OISRcvdData` → gated onto **`IOB.00`** (bit 0, MSB) of the Status input
