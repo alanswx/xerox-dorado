@@ -1,5 +1,57 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## ROUTE B (2026-06-17, session 21): `RestoreStkP` FIXED -- Cedar starts Stage-1 Ethernet netboot again; Stage-2 EFTP still not reached
+
+### THE FIX (landed, `src/cpu.c` / `include/cpu.h`)
+The head-startup SFC failure was an emulator bug, but NOT the deeper
+`xf.push`/XFEREXIT theory below. The concrete missing hardware behavior was
+**`RestoreStkP`**: the emulator treated `FF=0o145` (FA=1 FB=4 FC=5) as a
+stub. Per HM §3.1, StkP is saved at t2 of an IFU-dispatched instruction and
+`RestoreStkP` reloads that saved value so restart-style traps can re-enter an
+opcode after partial stack motion.
+
+Implementation:
+- Added `cpu->ifu_saved_stkp`.
+- On successful IFU dispatch, save the pre-RSTK `StkP` before the
+  IFUJump instruction's post-cycle stack adjustment.
+- Implemented `RestoreStkP` for `FF=0o145` by reloading that saved value.
+- Added `test_restore_stkp_ff`.
+
+Why this matters: Mesa `SFC` (op `0o342`) pops its destination link. If the
+opcode traps on swapped code, `SavePCAndTrap` uses `RestoreStkP` before the
+opcode retry. Without it, the retry sees the stack one entry too low and the
+head-startup call path degenerates into NullControl / ControlFault. With the
+fix, the SFC retry preserves the head link.
+
+### Verification
+- `make test` passed before commit: all 10 emulator suites green.
+- After rebasing on `origin/main`, rebuilt and ran `dorado/build/test_cpu`;
+  all CPU tests passed, including `test_restore_stkp_ff`.
+- Long Cedar run starts the Ethernet microcode boot path:
+  `uCodeBoot(264)`, `req=1`, `repl=63`; Cedar world loads and the germ is
+  planted.
+
+### Current status / next blocker
+The emulator now starts **Stage-1 network boot** for Route B again, but the
+germ still does **not** reach Stage-2 EFTP / `DoInLoad`: `eftp_r=0` and the
+run spins at `pc=0o150` / `JB 0` after the planted germ run. So the previous
+SFC empty-stack symptom is fixed; the remaining work is the germ-state /
+load-boundary that prevents the germ from requesting `CedarNetExec.boot`.
+
+Repro for the current state:
+
+```sh
+DORADO_ETH_TX_TRACE=1 DORADO_BOOTDIR_DEBUG=1 \
+  ./build/dorado \
+  --eb '../chm/dorado/CedarDorado.eb!6' \
+  --germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6' \
+  --eftp '../chm/bootfiles/CedarNetExec.boot!4' \
+  --cycles 120000000 --progress
+```
+
+Expected current result: Stage-1 Ethernet boot traffic appears and the Cedar
+world/germ load completes, but no Stage-2 EFTP request is made yet.
+
 ## ROUTE B (2026-06-17, session 20): the +11 dest is FIXED at the root -- `RisID` never substituted the IFU Id (alpha) onto the **Mar** of a memory-reference, so `LADRB`/`GADRB`'s `DummyRef_ StackNoUfl&+1, RisID` computed `@s = L + StackNoUfl` (stale stack value 18) instead of `L + alpha` (=7). The germ now advances **188 -> 1187 real IFU dispatches** into a NEW germ module (`br31=3E15DC`, codebase `0o17412734`, 767 dispatches there) before raising a LATER germERROR. That LATER germERROR is now traced to a GENUINE OS boundary (2 handled sSwapTraps then a ControlFault on an OS-resident link `M[0o340]`=0), NOT another emulator bug -- so the RisID Mar fix was the real, last emulator bug on this path. Gate ALL GREEN. Details in the NEXT BLOCKER section below.
 
 ### THE FIX (landed, `src/cpu.c`) -- HM p.24 RisID + microcode-grounded
@@ -43,7 +95,7 @@ IFetch-Id).
    `asel 0/1` memory refs whose A source is the RM/STK default; the Alto
    worlds never run `LADRB`/`GADRB`, hence unchanged pixel counts.)
 
-### NEXT BLOCKER (ROOT FOUND -- emulator StkP bug in head-startup) -- the SFC that starts DiskHeadDorado pops an empty stack; XFEREXIT StkP-1 ate the link
+### SUPERSEDED NEXT BLOCKER (session 21 fixed the concrete StkP bug) -- the SFC that starts DiskHeadDorado pops an empty stack; XFEREXIT StkP-1 ate the link
 **CORRECTION (supersedes the "genuine OS boundary" reading below).** The
 germ source (`bootswapgerm-indigo.mesa` / germ-6.1) shows the boot order
 is, inside the germ's `Initialize`: set SD trap handlers ->
