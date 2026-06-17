@@ -1,6 +1,6 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
-## ROUTE B (2026-06-17, session 20): the +11 dest is FIXED at the root -- `RisID` never substituted the IFU Id (alpha) onto the **Mar** of a memory-reference, so `LADRB`/`GADRB`'s `DummyRef_ StackNoUfl&+1, RisID` computed `@s = L + StackNoUfl` (stale stack value 18) instead of `L + alpha` (=7). The germ now advances **188 -> 1187 real IFU dispatches** into a NEW germ module (`br31=3E15DC`, codebase `0o17412734`, 767 dispatches there) before raising a LATER germERROR (op `0o371` at pcf `0o2153`). Gate ALL GREEN.
+## ROUTE B (2026-06-17, session 20): the +11 dest is FIXED at the root -- `RisID` never substituted the IFU Id (alpha) onto the **Mar** of a memory-reference, so `LADRB`/`GADRB`'s `DummyRef_ StackNoUfl&+1, RisID` computed `@s = L + StackNoUfl` (stale stack value 18) instead of `L + alpha` (=7). The germ now advances **188 -> 1187 real IFU dispatches** into a NEW germ module (`br31=3E15DC`, codebase `0o17412734`, 767 dispatches there) before raising a LATER germERROR. That LATER germERROR is now traced to a GENUINE OS boundary (2 handled sSwapTraps then a ControlFault on an OS-resident link `M[0o340]`=0), NOT another emulator bug -- so the RisID Mar fix was the real, last emulator bug on this path. Gate ALL GREEN. Details in the NEXT BLOCKER section below.
 
 ### THE FIX (landed, `src/cpu.c`) -- HM p.24 RisID + microcode-grounded
 `LADRB` = `Push[L+alpha]` is implemented as `DummyRef_ StackNoUfl&+1,
@@ -43,7 +43,7 @@ IFetch-Id).
    `asel 0/1` memory refs whose A source is the RM/STK default; the Alto
    worlds never run `LADRB`/`GADRB`, hence unchanged pixel counts.)
 
-### NEXT BLOCKER (PARTIALLY diagnosed; root OPEN) -- a genuine sSwapTrap, then a start-chain recursion that germERRORs (two specific root-cause leads DISPROVEN)
+### NEXT BLOCKER (RESOLVED as genuine OS boundary) -- 2 handled sSwapTraps then a genuine ControlFault on an OS-resident link (two intermediate leads DISPROVEN en route)
 After 1187 clean dispatches (no hardware fault) the germ's
 **module-startup chain (StartCM/Start)** reaches a module whose code is
 marked **swapped-out** and resumes a saved StateVector whose control link
@@ -107,24 +107,50 @@ does not re-chase them):
   at 1187 real dispatches through 90M cycles), so the start chain FAILS to
   reach any module body.
 
-### NEXT PASS (genuinely open)
-Root-cause the start-chain FAILURE itself (no longer the state resume).
-Trace, microcode-level, the full CodeTrap->Start->StartCM->StartWithState
-recursion from op `0o371` (cyc ~67995189) to the germERROR, watching: (a)
-the 3 SwapTraps -- which frames, and does each clear+retry correctly or
-does one loop; (b) the ~50 AV allocations -- is AV being exhausted /
-double-allocated (the AV/AllocSub family, sessions 14/16), or a frame
-freed while live; (c) whether `StartCM`'s `cm.frame.started` guard is read
-correctly (a mis-read `started` bit -> re-starting a module -> the multi-
-frame SwapTrap grind). Decode against `germopsimpl.mesa` StartChain +
-`trapsimpl-6.1.mesa` CodeTrap/Start/StartCM. Whether this is an emulator
-bug (e.g. a `started`-flag field read, an AV bug) or a genuine OS-load
-dependency (the module's code segment is meant to be demand-loaded by
-Pilot, which a germ-only run cannot do) is STILL OPEN. Repro:
-`DORADO_XFER_TRACE=1 DORADO_TRACE_GATE="67995185,68050000"` -> 3 traps,
-~50 AV[0] reads (`lva=0o17401000`), 2 GFT[1] reads (`lva=0o17401401`);
-`DORADO_VMDUMP="017402640,017402702,67995985"` dumps the well-formed
-`0o2657` state (DLink=`0o101`, the resume is fine).
+### RESOLVED: the germERROR is a genuine ControlFault (OS-dependency), NOT an emulator bug
+The 3 traps in the recursion are, by their `SavePCAndTrap` T index
+(`DORADO_XFER_TRACE` pc `0o2000`): **#1 sSwapTrap (T=`0o10`, cyc 67995189),
+#2 sSwapTrap (T=`0o10`, cyc 68007090), #3 sControlFault (T=`0o7`, cyc
+68007741)**. The first two SwapTraps are handled cleanly (CodeTrap clears
+the out bit, Start recurses). The THIRD trap -- the one that becomes
+germERROR -- is a **ControlFault (ZeroDest)**: an XFER through a control
+link whose dest fetches 0.
+- The faulting link is the germ **indirect control link `0o342`** (tag 2),
+  read from TrapsImpl. `0o342` is GENUINE germ-file data: written by the
+  germ's own relocation BLT (pc `0o2761`, cyc 67943017) into
+  `M[0o17406747]`. Resolving it indirectly fetches `M[MDS+0o340/0o342]`
+  which is **0** -> ZeroDest -> ControlFault -> `SIGNAL ControlFault`
+  (trapsimpl-6.1.mesa) -> uncaught -> germ SignalHandler classifies it to
+  germERROR (MP `0o1465`) -> `JB 0`.
+- DECISIVE: `M[0o17400340]` (the indirect-link target) is **NEVER written
+  by the germ** in the entire run (only the cyc-66M boot memory-clear
+  zeroes it). It is a low-MDS system slot the germ expects to be live but
+  that only the OS/Pilot initializes. So this is the SAME genuine
+  control-link-to-resident-but-zero-memory wall session 17 validated --
+  now reached MUCH deeper (the RisID fix carried the germ from the shallow
+  `0o27132`/`0o26411` wall, which was MY BLT-overrun bug, through the full
+  StartWithState + 2 SwapTraps to this genuine one).
+
+So **the RisID Mar fix was the real (last) emulator bug on this path**; the
+residual germERROR is the genuine **Stage-2 / OS-load boundary** the
+project targets -- the germ's module-startup chain needs OS-resident
+bindings (`M[0o340]` and the swapped-out code segments) that a germ-only
+run cannot supply. The forward lever is unchanged: get the germ to
+`DoInLoad` so it requests a boot file over EFTP (the Stage-2 server is
+ready), per `docs/ethernet-local-boot-plan.md`.
+
+CONFIDENCE NOTE: the trap type (ControlFault), the link's genuine
+provenance, and `M[0o340]`=0-never-written are all solid + cross-checked.
+Two EARLIER intermediate hypotheses this session (an unbound link
+`0o177774`; a `-sizeStack` resume base) were DISPROVEN by instrumentation
+-- recorded above so they are not re-chased. The one residual thread if
+someone wants to be thorough: confirm the germ does not, in a correct run,
+populate `M[0o340]` via some MDS-init step we skip (cross-check
+`germopsimpl.mesa` low-MDS setup) -- but the evidence strongly favors
+OS-resident init. Repro: `DORADO_XFER_TRACE=1 DORADO_TRACE_GATE=
+"67995185,68050000"` (3 traps: 2x T=`0o10`, then T=`0o7` at cyc 68007741);
+`DORADO_STORE_TRACE_VA="017400340,017400340"` (M[0o340] never written);
+`DORADO_VMDUMP="017400340,017400346,68007740"` (target = 0).
 
 ## ROUTE B (2026-06-17, session 19 follow-up 6): the clobber is the Mesa BLT for `s _ state^` writing its DEST 11 words too high (0o2726 vs @s=0o2713). Source confirmed correct (state=0o7724, the static StateVector template). Root = the BLT dest (@s) computation is off by +11; exact cause NOT isolated. [SUPERSEDED by session 20 above: the +11 was the RisID Mar-substitution bug; the frame size (fsi 5) was correct and `s` is genuinely at offset 7.]
 
