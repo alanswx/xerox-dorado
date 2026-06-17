@@ -43,26 +43,59 @@ IFetch-Id).
    `asel 0/1` memory refs whose A source is the RM/STK default; the Alto
    worlds never run `LADRB`/`GADRB`, hence unchanged pixel counts.)
 
-### NEXT BLOCKER (new, NOT yet diagnosed) -- a LATER germERROR from module 3E15DC
-After 1187 clean dispatches the germ executes op `0o371` at pcf `0o2153`
-(br31 `3E15DC`, codebase `0o17412734`; preceding op `0o361` at pcf
-`0o2152`; the two bytes are `M[0o17414021]=0o170771` = `361,,371`) with
-`acs=000000,003334,000000,000006`, then jumps to the SignalHandler
-(`3E1E10` pcf `0o5334`), sets germERROR (MP `0o1465`=821) and `JB 0`
-halts. No hardware fault precedes it (flt=0 throughout). This is a
-genuinely NEW, much-later wall than session 19 -- the LADRB fix let the
-StartChain start ~767 more dispatches of a new module. NEXT PASS:
-(1) identify module `3E15DC` / op `0o371` (DST-family; `0o370`=DST) --
-disassemble the bytecodes at pcf `0o2140..0o2153` and cross-ref the germ
-StartChain in `chm/cedar/germ-src/germopsimpl.mesa`; (2) determine if the
-error is another emulator bug (a mis-modeled op surfacing in 3E15DC's
-init) or the genuine OS-dependency/Stage-2 boundary (the germ's module
-chain eventually needing OS-resident bindings, as sessions 14-19
-concluded). Repro: `DORADO_IFUDISP_TRACE=1 ./build/dorado --eb
-'../chm/dorado/CedarDorado.eb!6' --germ
-'../chm/cedar/germ-alt/Dorado.germ-6.1.6' --cycles 90000000` -> 1187 real
-dispatches then the pcf-`0o5334` spin; the error op is the LAST non-spin
-dispatch (pcf `0o2153`, op `0o371`, br31 `3E15DC`).
+### NEXT BLOCKER (DIAGNOSED) -- a genuine sSwapTrap, then a StartChain StateVector with an unbound control link (0o177774)
+After 1187 clean dispatches (no hardware fault) the germ's
+**module-startup chain (StartCM/Start)** reaches a module whose code is
+marked **swapped-out** and resumes a saved StateVector whose control link
+is **unbound** -> germERROR. Traced end-to-end:
+1. The last real opcode is op `0o371` (2-byte, operand `0o7`) at pcf
+   `0o2153` in module `br31=3E15DC` (codebase `0o17412734`). It XFERs to a
+   target whose global frame (MDS+`0o3400`) has **code-base-low =
+   `0o12735` (ODD)**. `LoadGC` tests "code base odd => swapped out"
+   (`Branch[CSegSwappedOut, R odd]`, DMesaXfer.mc) and raises
+   **`sSwapTrap` (T=`0o10`)** at `SavePCAndTrap` pc `0o2000` cyc 67995189.
+   This is GENUINE germ data: the odd `0o12735` is written by the germ's
+   own relocation BLT (pc `0o2761`, cyc 67969321) from the germ file --
+   the germ deliberately marks module code swapped-out and clears it
+   lazily on first call (no disk needed; the code is already resident).
+2. `pSD[sSwapTrap] = CodeTrap` (TrapsImpl): CodeTrap correctly clears the
+   out bit (stores `0o12734` EVEN at pc `0o343`, cyc 67995745) and calls
+   `Start[[frame]]` -> StartCM -> StartWithState, allocating frames
+   (AV[5], AV[6]) and recursing. ALL of this runs cleanly.
+3. Inside that recursion, a `StartWithState` `s _ state^` BLT (pc `0o3561`,
+   pcx `0o455`) copies the static StateVector template into `s`; one
+   copied slot holds **`0o177774`** (genuine template data, like the old
+   `0o26411`). `LoadState`/`Xfer` (pc `0o2372`/`0o1700`) then resumes `s`
+   with DLink/SLink = `0o177774`; gfi = `0o177774>>6` = `0o1777` (far past
+   the 128-entry GFT) -> unbound -> trap -> germ `SignalHandler`
+   (`3E1E10`) -> germERROR (MP `0o1465`=821) -> `JB 0` spin.
+
+So the SwapTrap is genuine and CORRECTLY handled (NOT a bug); the residual
+wall is the SAME class sessions 14-19 hit: the germ's StartChain resumes a
+boot-process StateVector whose control link references a module our
+germ-only environment never binds (an OS/Pilot-resident link, or a
+forward reference filled only after `DoInLoad` loads the OS). The RisID
+fix advanced the germ from the FIRST such wall (the `0o26411` one -- which
+was actually MY BLT-overrun clobbering the link) deep into the StartChain
+to a genuine one (`0o177774`).
+
+NEXT PASS (two angles, do both): (a) GENUINE-BOUNDARY check -- decode the
+StartChain end-state in `chm/cedar/germ-src/germopsimpl.mesa`
+(StartChain/pStartListHeader) + `trapsimpl-6.1.mesa` StartWithState: is
+resuming a state with an unbound link the INTENDED hand-off to the next
+boot phase (the germ expects a catch / should fall through to `DoInLoad`),
+which our germ-only setup doesn't provide? (b) EMULATOR-BUG check --
+`0o177774`=-4 is a suspiciously computed-looking value for a DLink; verify
+LoadState reads the DLink/SLink from the correct StateVector offset for
+THIS state's stkptr (the session-19-follow-up "ill-formed state / wrong
+offset" possibility), and that the template slot genuinely holds
+`0o177774` in the germ file vs being a copy/relocation artifact. Repro:
+`DORADO_IFUDISP_TRACE=1 ./build/dorado --eb '../chm/dorado/CedarDorado.eb!6'
+--germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6' --cycles 90000000` ->
+1187 real dispatches; `DORADO_XFER_TRACE=1 DORADO_TRACE_GATE=
+"67995189,67996100"` shows CodeTrap (SwapTrap T=`0o10`) -> Start recursion
+-> the `0o177774` Xfer; `DORADO_STORE_TRACE_VA="017402660,017402660"`
+shows the BLT (pc `0o3561`) copy the `0o177774` slot.
 
 ## ROUTE B (2026-06-17, session 19 follow-up 6): the clobber is the Mesa BLT for `s _ state^` writing its DEST 11 words too high (0o2726 vs @s=0o2713). Source confirmed correct (state=0o7724, the static StateVector template). Root = the BLT dest (@s) computation is off by +11; exact cause NOT isolated. [SUPERSEDED by session 20 above: the +11 was the RisID Mar-substitution bug; the frame size (fsi 5) was correct and `s` is genuinely at offset 7.]
 
