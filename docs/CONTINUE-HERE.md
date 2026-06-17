@@ -1,5 +1,53 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## ROUTE B (2026-06-17, session 22): `IFUReset` current-opcode state FIXED -- Cedar map restart now matches HM/Cedar microcode; remaining blocker is still germERROR before Stage-2 EFTP
+
+### THE FIX (landed locally, `src/cpu.c`)
+`IFUReset` was over-clearing the IFU state. It stopped future fetches, but
+also zeroed the current X-level opcode context (`PCX`, decoded operands,
+`Length`, `IdCnt`, etc.). Cedar's map-restart path explicitly relies on
+that state surviving:
+
+```text
+MapOpExit:
+    T_ ID, IFUReset, StkP+2, Branch[NewMapExit]; * ID = instruction length
+NewMapExit:
+    T_ T - (PCX') -1, branch[SetPCAndJump0];
+SetPCAndJump0:
+    Global, PCF_ T; ... IFUNext0;
+```
+
+This matches the Hardware Manual:
+- HM §6.2: `B<-PCX'` reads the PC of the current opcode, and `PCF<-B` does
+  not change `PCX`.
+- HM §6.2: after operands are consumed, `<-Id` returns `Length`; the manual
+  gives the same `T <- (Id) - (PCX') - 1; PCF<-T; ... IFUJump[0]` restart
+  sequence.
+- HM §6.6 says `IFUReset` clears IFU errors, prevents further IFU memory
+  references, and clears Brk/Test state; it does not say to destroy the
+  current opcode's `PCX`/`IdCnt` context. HM §6.10 also names `IdCnt` as
+  part of the current IFU state.
+
+Implementation: `IFUReset` now still makes the IFU passive and clears
+Brk/Test state, but preserves the current opcode context. The focused CPU
+test now checks that `PCX`, opcode, `IdCnt`, `alpha`, `beta`, `Length`, `N`,
+`PackedAlpha`, and `Sign` survive reset.
+
+### Verification
+- `make -C dorado` passed.
+- `./build/test_cpu` passed.
+- Cedar repro with `DORADO_IFUDISP_TRACE=1
+  DORADO_TRACE_GATE=68020500,68021200` now shows MISC `0o364` at
+  `pcf=0o5727` restarting at `pcf=0o5731` instead of redispatching itself.
+
+### Current status / next blocker
+This fixes the artificial IFU restart regression. It does **not** yet reach
+Stage-2 EFTP: a 100M-cycle Cedar run still has `eftp_r=0` and settles into
+the already-documented Mesa `JB 0` germERROR loop at `pcf=0o5334`,
+`op=0o210`, with MP/top-stack value `0o1465`. So the next investigation is
+still the session-21 germ/head-startup state problem, not Ethernet packet
+serving.
+
 ## ROUTE B (2026-06-17, session 21): `RestoreStkP` FIXED -- Cedar starts Stage-1 Ethernet netboot again; Stage-2 EFTP still not reached
 
 ### THE FIX (landed, `src/cpu.c` / `include/cpu.h`)

@@ -1180,21 +1180,21 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
             case 6: /* IFUReset — halt and clear the IFU pipeline, clear
                      * BrkPending/BrkIns state, and load the IFU test-control
                      * register with 1 (HM Table 20 / §6.8). Reschedule and
-                     * InsSet are explicitly not cleared. */
+                     * InsSet are explicitly not cleared.
+                     *
+                     * Preserve the current X-level opcode context. HM §6.2
+                     * says PCF<-B does not affect PCX, B<-PCX' keeps reading
+                     * the current opcode PC until IFUJump, and <-Id returns
+                     * Length after the operands are consumed. Cedar's map
+                     * restart path depends on that context surviving
+                     * IFUReset:
+                     *   T_ ID, IFUReset       * ID = instruction length
+                     *   T_ T-(PCX')-1
+                     *   PCF_ T; IFUJump       * restart at successor
+                     */
                 cpu->ifu_active = 0;
                 cpu->ifu_warmup = 0;
-                cpu->ifu_opcode = 0;
                 cpu->ifu_pcf = 0;
-                cpu->ifu_pcx = 0;
-                cpu->ifu_idcnt = 0;
-                cpu->ifu_alpha = 0;
-                cpu->ifu_beta = 0;
-                cpu->ifu_length = 0;
-                cpu->ifu_n = 0;
-                cpu->ifu_packed_a = 0;
-                cpu->ifu_sign = 0;
-                cpu->ifu_type_jump = 0;
-                cpu->ifu_type_pause = 0;
                 cpu->brk_pending = 0;
                 cpu->brk_opcode = 0;
                 /* HM p67 IFUTest description: "load with 0 or do

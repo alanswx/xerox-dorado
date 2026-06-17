@@ -8496,6 +8496,15 @@ static int test_ifureset_enables_junk_timer(void)
     cpu.ifu_opcode = 0xAB;
     cpu.ifu_pcf = 01234;
     cpu.ifu_pcx = 01230;
+    cpu.ifu_idcnt = 1;
+    cpu.ifu_alpha = 0151;
+    cpu.ifu_beta = 0123;
+    cpu.ifu_length = 2;
+    cpu.ifu_n = 017;
+    cpu.ifu_packed_a = 0;
+    cpu.ifu_sign = 1;
+    cpu.ifu_type_jump = 0;
+    cpu.ifu_type_pause = 0;
     cpu.ifu_active = 1;
     cpu.ifu_warmup = 3;
     cpu.brk_pending = 1;
@@ -8511,6 +8520,18 @@ static int test_ifureset_enables_junk_timer(void)
            "IFUReset should halt the IFU pipeline");
     EXPECT(cpu.ifu_warmup == 0,
            "IFUReset should clear IFU warmup");
+    EXPECT(cpu.ifu_pcx == 01230,
+           "IFUReset should preserve PCX for post-reset PCX' reads, got 0o%o",
+           cpu.ifu_pcx);
+    EXPECT(cpu.ifu_opcode == 0xAB,
+           "IFUReset should preserve current opcode, got 0x%02X",
+           cpu.ifu_opcode);
+    EXPECT(cpu.ifu_idcnt == 1,
+           "IFUReset should preserve IdCnt, got %u", cpu.ifu_idcnt);
+    EXPECT(cpu.ifu_alpha == 0151 && cpu.ifu_beta == 0123 &&
+           cpu.ifu_length == 2 && cpu.ifu_n == 017 &&
+           cpu.ifu_packed_a == 0 && cpu.ifu_sign == 1,
+           "IFUReset should preserve current <-Id context");
     EXPECT(cpu.brk_pending == 0,
            "IFUReset should clear BrkPending");
     EXPECT(cpu.brk_opcode == 0,
