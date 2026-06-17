@@ -1,5 +1,47 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## ROUTE B (2026-06-16, session 19 follow-up 5): PRECISE narrowing -- StartWithState's frame is allocated fsi 5 (27 words) but its StateVector local needs fsi 7 (39 words). The frame-size index read (entry vector) or the proc-entry resolution gives the wrong (too-small) fsi. NOTE: the loadmap on hand is germ!4, not germ-6.1, so per-proc frame numbers are approximate. Fix not yet landed.
+
+### Allocation trace (germ-6.1, decisive)
+- AV free-list heads (MDS+`0o1000`+, cyc 67990300): AV[0]=`0o3344`,
+  AV[1]=`0o2314`, AV[2]=`0o2430`, AV[3]=`0o2544`, AV[4]=`0o2620`,
+  AV[5]=`0o2704`, AV[6]=`0o3104`, **AV[7]=`0o42` (EMPTY -- fsi-7 free list is
+  a bare terminator)**, AV[9]=`0o3144`.
+- The call into StartWithState reads its frame-size word at
+  codebase+`0o11` = M[`0o17406541`] = `0o1005` = **AV[5] -> fsi 5** (XFER cyc
+  67990314 T=`0o5`, 67990320 reads AV[5]=`0o2704`). So our emulator allocates
+  StartWithState a **27-word (fsi 5) frame at `0o2704`**.
+- The StateVector copy `s _ state^` (pc `0o3537`) writes `s` ending at
+  `0o2746` -- past the 27-word frame (`0o2704..0o2737`) into retFrame
+  (`0o2740`), clobbering retFrame.returnlink at `0o2742`. A StateVector
+  local (~17-28 words, at a frame offset) needs a 35-39 word frame = fsi 7.
+- StateVector def (AltoMesaProcess.mc): PrincOps `sizeStack = 0o16 = 14`
+  stack words + stkp/dst/src control words.
+
+### Candidate roots (for the fix -- one of these)
+1. **Frame-size-index read off** (most concrete): XferProc reads the entry
+   vector frame-size word (`CP+2n+3` lower byte = fsi). We read entry n=3 ->
+   fsi 5. If the entry index `n` (from the proc link's epi) or the
+   `CP+2n+3` address is off, we get the wrong (too-small) fsi. Check the
+   proc-link epi extraction + the entry-vector indexing in the XferProc/
+   LFC microcode path against `DMesaXfer.mc`.
+2. **`@state` source pointer wrong**: the copy reads from `0o77xx` (source
+   `state` = `0o7724`), but `@Start.state` should be in Start's frame
+   (`~0o2744`, retFrame=`0o2740`). If `@state` (LADRB/param) is mis-computed
+   the copy reads a static template (with UnboundLink) AND lands wrong.
+3. **StateVector copy length / SIZE[StateVector]** too large (28 vs 17),
+   overrunning a correctly-sized frame.
+
+### NEXT PASS
+Get/derive the germ-6.1 frame layout (the !1 loadmap is germ!4 -- find a
+germ-6.1 loadmap or read StartWithState's entry-vector word directly from
+the running VM at codebase `0o17406530`). Then: verify StartWithState's
+CORRECT fsi vs our fsi 5, and trace the entry-index (epi) the LFC/SFC into
+StartWithState resolved. If our epi/entry-vector read is off-by-one (a
+sibling of the codebase G+0/G+1 and notLength bugs), that is the fixable
+emulator bug. Repro: alloc at cyc 67990314 (fsi=`0o5`), copy at pc `0o3537`
+cyc 67990602+, clobber M[`0o2742`] at cyc 67990672.
+
 ## ROUTE B (2026-06-16, session 19 follow-up 4): ROOT = StartWithState's frame is TOO SMALL for its StateVector local, so the `s := state^` copy overruns into the adjacent live frame (retFrame) and clobbers its return link. This is an fsi/frame-size bug (AV/AllocSub family, sessions 14/16). Fix not yet landed.
 
 ### The definitive mechanism
