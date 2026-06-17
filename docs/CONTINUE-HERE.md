@@ -43,7 +43,7 @@ IFetch-Id).
    `asel 0/1` memory refs whose A source is the RM/STK default; the Alto
    worlds never run `LADRB`/`GADRB`, hence unchanged pixel counts.)
 
-### NEXT BLOCKER (re-opened as an EMULATOR BUG in head-startup) -- germ ControlFaults during `Heads.Start[]`, BEFORE it reaches DoInLoad
+### NEXT BLOCKER (ROOT FOUND -- emulator StkP bug in head-startup) -- the SFC that starts DiskHeadDorado pops an empty stack; XFEREXIT StkP-1 ate the link
 **CORRECTION (supersedes the "genuine OS boundary" reading below).** The
 germ source (`bootswapgerm-indigo.mesa` / germ-6.1) shows the boot order
 is, inside the germ's `Initialize`: set SD trap handlers ->
@@ -57,25 +57,48 @@ is precisely why the germ never requests the OS. The faulting module is
 present (germ source: "We can't set up handlers to catch Frame, Page, and
 Write Faults because they require that the ProcessDataArea be already
 initialized, and it's not until Pilot comes to life"), a ControlFault
-during head-startup is an EMULATOR BUG, not an OS dependency. THE FAULT:
-the SwapTrap/CodeTrap head-start recursion follows an indirect control
-link `0o342` whose target `M[0o340]` is in the **uninitialized PrincOps
-page 0** (MDS `0..0o1000`, the PDA region) -- which the germ never writes
-(0 writes to low MDS in the whole run) and which the germ file does not
-contain (the germ file starts at AV=MDS+`0o1000`). `M[0o340]`=0 (NOT
-UnboundLink `0o26411`), so it is an UNbound (never-initialized) slot, not a
-deliberately-unbound OS import. NEXT PASS: pin which link/field the
-head-start recursion mis-computes -- decode `trapsimpl-6.1.mesa` CodeTrap +
-`germopsimpl.mesa` StartCM/StartWithState (and `bootswapgerm`
-SwapTrapHandler/StartModule) against the trace; the recursion follows
-`dest _ dest.link^` on an indirect link into page 0 where a correct run
-would resolve to ProcessorHeadDorado's body. Likely an emulator mis-read
-of the SwapTrap OTP (ReadOTP), the `dest.started` flag, or `dest.global[0]`
-in StartModule (the started/global-link checks gate cGermStartFault).
-Repro: `DORADO_XFER_TRACE=1 DORADO_TRACE_GATE="67995185,68050000"` -> 3
-traps (T=`0o10`,`0o10`,`0o7`); `DORADO_STORE_TRACE_VA="017400000,017400777"`
--> ZERO writes to low MDS; module map in `chm/cedar/germ/Dorado.loadmap!1.txt`
-(g=`0o3400` ProcessorHeadDorado, Unbound Imports DeviceCleanup/SoftwareTextBlt).
+during head-startup is an EMULATOR BUG, not an OS dependency.
+
+THE FAULT (VERIFIED via symbolic microcode + per-instruction StkP trace --
+this SUPERSEDES the earlier "indirect link 0o342 -> M[0o340]" reading,
+which was a misread: `md=0o342` was stale latched data and there is NO
+page-0 fetch). The head-startup runs `Call[<link>]` to start each head
+(germ-6.1 StartCM does `IF frame ~= cm.frame THEN Call[MainBody[cm.frame]]`,
+where `Call` = `zSFC`). At the **SFC** (op `0o342` -> `@SFC`, real
+pc `0o1054`) the eval stack SHOULD hold the head's proc link. Trace at the
+SFC opcode dispatch (cyc 68007693): **stkp=1, STK top = `0o201`** = a VALID
+proc link (tag 1, **gfi 2 = DiskHeadDorado**). But the `@SFC` handler
+(`DLink_ Stack&-1`) runs with **stkp=0** and pops 0 -> NullControl -> XFER
+(`0o1700`) -> **ZERODEST** (`0o1705`) -> TrapParamSLink -> ControlFault
+(T=`0o7`) -> germ SignalHandler -> germERROR.
+
+WHERE THE LINK IS LOST (per-instruction StkP, decisive): the preceding op
+(`0o372`, a KFCB-family kernel call that did an XFER -- 149 cycles, incl.
+SwapTrap #2) returns through **XFEREXIT**. `XferExitDispatch` increments
+StkP "in anticipation of pushing DLink and SLink"; the no-push case
+`XferExit:` does **`StkP-1`** to undo it. The trace shows StkP go 1->0
+across XFEREXIT (real pc `0o2010` XferExitTable -> `0o2026`), popping the
+head link `0o201` that the SFC (at pcf `0o437`, which op `0o372` jumps to)
+needs. So the StkP anticipation/undo accounting is off by one -- the link
+the SFC must pop is consumed by the XFEREXIT `StkP-1`, almost certainly
+because **SwapTrap #2 fired mid-XFER and our SavePCAndTrap/trap-resume did
+not preserve the anticipatory `StkP+1`** (XferDisp00/XferProc do `StkP+1`
+before the trap; the resume + XferExit `StkP-1` then over-decrements).
+
+NEXT PASS (the fix): verify the StkP across SwapTrap #2 -- does our
+`SavePCAndTrap` (real pc `0o2000`) save/restore StkP including the
+in-flight anticipatory `StkP+1`? Compare the StkP at: the `StkP+1` in
+XferDisp00/XferProc, the SavePCAndTrap save, the CodeTrap `RETURN WITH
+state` (LoadStack sets StkP from brk/stkP), and the XferExit `StkP-1`. The
+fix is likely in how the trap-save/LoadStack StkP interacts with the
+XFER's anticipatory increment. Repro: `DORADO_IFUDISP_TRACE=1
+DORADO_TRACE_GATE="68007400,68007742"` shows op `0o372` (stkp=0) then op
+`0o342` SFC dispatch (stkp=1, acs[0]=`0o201`); a per-instruction StkP trace
+across cyc 68007688..68007696 shows the XFEREXIT `StkP-1` (pc `0o2026`)
+drop stkp 1->0 before `@SFC` (pc `0o1054`). Module map:
+`chm/cedar/germ/Dorado.loadmap!1.txt` (gfi 2 = DiskHeadDorado g=`0o4524`).
+Symbolic microcode: `mbdis --disasm 'chm/dorado/Cedar.mb!6'` (real `0o1054`
+@SFC, `0o1700` XFER, `0o1705` ZERODEST, `0o2010` XFEREXITTABLE).
 
 ### (SUPERSEDED) earlier reading: "genuine OS boundary" -- 2 handled sSwapTraps then a ControlFault on an OS-resident link
 After 1187 clean dispatches (no hardware fault) the germ's
