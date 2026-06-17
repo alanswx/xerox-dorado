@@ -1,5 +1,50 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## ROUTE B (2026-06-16, session 19 follow-up 2): the StateVector is WELL-FORMED; SLink 0o26411 = UnboundLink. The germ resumes TrapsImpl with an UNBOUND source/return link, so finishing it traps -> germERROR. Two earlier claims CORRECTED.
+
+### Corrected facts (dumped the StateVector at MDS+0o2713)
+RTemp0 = `0o2713`; layout stack[0o2713..0o2730], brk,,stkP @ `0o2731`,
+DLink @ `0o2732`, SLink @ `0o2733`:
+- **stkP = `M[0o2731]` & 377 = `0o033407` & 377 = 7 -- VALID** (CORRECTION:
+  the earlier "bogus StkP ~50" was germ!4's `0o7562`, wrongly carried over).
+- **DLink = `0o601` -> gfi `0o6` = TrapsImpl -- VALID** (GFT[`0o6`]=`0o4764`).
+- **SLink = `0o26411`** -- the only anomalous field.
+
+### SLink 0o26411 = UnboundLink (confirmed)
+- The germ relocation BLT (pc `0o2761`) writes `0o26411` to MANY slots
+  (`0o17412646`,`0o17412463`,`0o17411114`,`0o17410140`,`0o17407740`,...).
+  One value splattered across many control-link slots = the signature of
+  **UnboundLink** (the loader fills every unbound-import slot with it).
+- gfi = `0o26411` >> 6 = 180, deliberately PAST the 128-entry GFT so any
+  call/return through it traps sUnbound -- exactly how UnboundLink is built.
+- The loadmap "Unbound Imports" are real germ imports (ProcessorHeadDorado:
+  DeviceCleanup, SoftwareTextBlt; DiskHead/EthernetHead: DeviceCleanup) --
+  OS procedures the germ leaves unbound, each slot = UnboundLink = `0o26411`.
+
+### So the actual question (narrowed, NOT yet an identified bug)
+The germ resumes TrapsImpl (DLink valid) with **source link = UnboundLink**.
+Per `DMesaXfer.mc` StartWithState (`s.source _ retFrame.returnlink`), the
+resumed module returns to retFrame.returnlink when its body finishes; here
+that is UnboundLink, so TrapsImpl's RET -> sUnbound -> TrapsImpl's sUnbound
+handler (SD[`0o13`]=`0o631`) -> uncaught signal -> germERROR. For the germ
+to boot, a module started in the StartCM/StartChain chain should return INTO
+the chain (eventually to Initialize -> Run -> DoInLoad), NOT to UnboundLink.
+So either:
+- (emulator) our call/return or StartWithState path computes retFrame /
+  retFrame.returnlink wrong, losing the chain back to Initialize; or
+- (germ-state) the germ legitimately resumes a top-level process whose
+  source is UnboundLink and TrapsImpl's unbound handler is SUPPOSED to
+  transfer to the next phase (not germERROR) -- which would need a catch /
+  state our germ-only setup doesn't provide.
+
+NEXT PASS: read `germopsimpl.mesa` StartChain/StartCM + `trapsimpl-6.1.mesa`
+sUnbound (UnboundProcedure) handler to learn the intended behavior of a
+module-start returning to UnboundLink; and trace retFrame (the frame whose
+returnlink is read as SLink) -- is its returnlink genuinely UnboundLink in
+VM (germ-state) or did our call chain drop the real return link (emulator)?
+Repro: dump the StateVector `DORADO_VMDUMP="017402713,017402734,67990800"`;
+LoadState/LoadStack at pc `0o2362`/`0o7040` (cyc 67990859/67990869).
+
 ## ROUTE B (2026-06-16, session 19 follow-up): "first trap" investigation -- NO spurious early trap; the unbound link 0o26411 has an OUT-OF-RANGE gfi (180 vs GFT=128) + the resumed StateVector has a bogus StkP, so the state is ILL-FORMED. This REOPENS the emulator-bug possibility (LSTF/LoadState reads the state wrong) -- the earlier "genuine OS dependency / Stage-2 boundary" conclusion was PREMATURE.
 
 ### What the first-trap trace showed
