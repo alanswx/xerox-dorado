@@ -72,26 +72,32 @@ proc link (tag 1, **gfi 2 = DiskHeadDorado**). But the `@SFC` handler
 (`0o1700`) -> **ZERODEST** (`0o1705`) -> TrapParamSLink -> ControlFault
 (T=`0o7`) -> germ SignalHandler -> germERROR.
 
-WHERE THE LINK IS LOST (per-instruction StkP, decisive): the preceding op
-(`0o372`, a KFCB-family kernel call that did an XFER -- 149 cycles, incl.
-SwapTrap #2) returns through **XFEREXIT**. `XferExitDispatch` increments
-StkP "in anticipation of pushing DLink and SLink"; the no-push case
-`XferExit:` does **`StkP-1`** to undo it. The trace shows StkP go 1->0
-across XFEREXIT (real pc `0o2010` XferExitTable -> `0o2026`), popping the
-head link `0o201` that the SFC (at pcf `0o437`, which op `0o372` jumps to)
-needs. So the StkP anticipation/undo accounting is off by one -- the link
-the SFC must pop is consumed by the XFEREXIT `StkP-1`, almost certainly
-because **SwapTrap #2 fired mid-XFER and our SavePCAndTrap/trap-resume did
-not preserve the anticipatory `StkP+1`** (XferDisp00/XferProc do `StkP+1`
-before the trap; the resume + XferExit `StkP-1` then over-decrements).
+WHERE THE LINK IS LOST (per-instruction StkP, decisive): the op before the
+SFC is op `0o372` (a KFCB-family kernel call, 149 cycles, did an XFER that
+RESUMES a context whose PC = pcf `0o437` = where the SFC is). That XFER
+returns through **XFEREXIT**. `XferExitDispatch` increments StkP "in
+anticipation of pushing DLink and SLink"; the no-push case `XferExit:` does
+**`StkP-1`** to undo it AND `IFUNext0` (dispatches the SFC). The trace
+shows StkP go 1->0 across XFEREXIT (real pc `0o2010` XferExitTable ->
+`0o2026` -> XferExit) -- popping the head link `0o201` that the resumed
+context's SFC needs. (NOTE: SwapTrap #2 is at cyc 68007090, BEFORE op
+`0o372` at 68007544 -- so the SwapTrap is not mid-op-0o372; the whole
+2-SwapTrap recursion led here, but this specific XFER is op `0o372`'s
+kernel-call resume.) So the StkP anticipation/undo accounting is off by one
+relative to the RESUMED context's stack -- the XFER restored the context
+(stack + StkP from the saved state via LoadStack), and the XferExit
+`StkP-1` then over-decrements, eating the SFC's link.
 
-NEXT PASS (the fix): verify the StkP across SwapTrap #2 -- does our
-`SavePCAndTrap` (real pc `0o2000`) save/restore StkP including the
-in-flight anticipatory `StkP+1`? Compare the StkP at: the `StkP+1` in
-XferDisp00/XferProc, the SavePCAndTrap save, the CodeTrap `RETURN WITH
-state` (LoadStack sets StkP from brk/stkP), and the XferExit `StkP-1`. The
-fix is likely in how the trap-save/LoadStack StkP interacts with the
-XFER's anticipatory increment. Repro: `DORADO_IFUDISP_TRACE=1
+NEXT PASS (the fix): trace StkP through op `0o372`'s XFER -- the
+anticipatory `StkP+1` (XferDisp00/XferProc), the context restore
+(LoadStack sets StkP from the resumed state's brk/stkP word), and the
+XferExit `StkP-1`. Determine whether our emulator's StkP after the restore
+is one too low (so XferExit's `-1` eats a real item) -- i.e. does LoadStack
+set StkP to the value that already accounts for the anticipatory `+1`, or
+should the `+1` survive the restore? Compare against the hardware
+convention (the resumed context's saved StkP vs the in-flight XFER's
+anticipation). The fix is likely in LoadStack's StkP load or XferExit's
+StkP-1 interaction with a resumed (LST/RET-WITH) context. Repro: `DORADO_IFUDISP_TRACE=1
 DORADO_TRACE_GATE="68007400,68007742"` shows op `0o372` (stkp=0) then op
 `0o342` SFC dispatch (stkp=1, acs[0]=`0o201`); a per-instruction StkP trace
 across cyc 68007688..68007696 shows the XFEREXIT `StkP-1` (pc `0o2026`)
