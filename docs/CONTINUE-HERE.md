@@ -1,6 +1,103 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
-## ROUTE B (2026-06-17, session 19 follow-up 6): the clobber is the Mesa BLT for `s _ state^` writing its DEST 11 words too high (0o2726 vs @s=0o2713). Source confirmed correct (state=0o7724, the static StateVector template). Root = the BLT dest (@s) computation is off by +11; exact cause NOT isolated.
+## ROUTE B (2026-06-17, session 20): the +11 dest is FIXED at the root -- `RisID` never substituted the IFU Id (alpha) onto the **Mar** of a memory-reference, so `LADRB`/`GADRB`'s `DummyRef_ StackNoUfl&+1, RisID` computed `@s = L + StackNoUfl` (stale stack value 18) instead of `L + alpha` (=7). The germ now advances **188 -> 1187 real IFU dispatches** into a NEW germ module (`br31=3E15DC`, codebase `0o17412734`, 767 dispatches there) before raising a LATER germERROR (op `0o371` at pcf `0o2153`). Gate ALL GREEN.
+
+### THE FIX (landed, `src/cpu.c`) -- HM p.24 RisID + microcode-grounded
+`LADRB` = `Push[L+alpha]` is implemented as `DummyRef_ StackNoUfl&+1,
+T_ MD, RisID` then `StackT_ VALo` (DMesaXfer.mc!1). The DummyRef forms
+VA = BR[L] + Mar, where the **Mar (A bus) is the RM/STK source** and
+`RisID` must overrule it with the IFU Id (= the operand byte alpha). Our
+`RisID` substitution only replaced the bus for the explicit register
+forms (`A<-RM/STK` asel=4, `B<-RM/STK` bsel=1); a code NOTE explicitly
+punted the memory-reference Mar case "until a concrete case proves the
+Mar should be replaced." `LADRB`/`GADRB` ARE that case -- the ONLY
+memory-ref users of `RisID` in the whole microcode (verified: the three
+`DummyRef_ Stack..., RisID` lines in DMesaXfer.mc are the only ones).
+Fix: capture whether `ff_a_override` left the A source as the RM/STK
+default (`a_is_rmstk_default`, asel 0/1 with no FF A-override), and in
+the RisID branch set `a = Id` for that case too. Same IFU-operand-byte
+family as the session-12/15/19 fixes (notLength, TisId/alpha, codebase
+IFetch-Id).
+
+### Proof (store-traced, decisive)
+- Ground truth: dumped StartWithState's Mesa code bytes -- the BLT
+  (op `0o352`) is at codebase+`0o455` (`M[0o17406756]` low byte), and the
+  instruction right before it is `[0o072, 0o007]` = **`LADRB alpha=0o7`**.
+  So `@s` belongs at frame offset 7 (= `0o2713`); the germ genuinely
+  places `s` at offset 7 and the fsi-5 (27-word) frame is CORRECT. (This
+  RESOLVES the session-19 follow-up 5 vs 6 tension: the frame size was
+  never wrong; the dest was misread by +11 because the Mar took the stale
+  StackNoUfl value 18 instead of alpha 7.)
+- With the fix, `DORADO_STORE_TRACE_VA="017402742,017402742"` shows the
+  BLT (pc `0o3537`) NO LONGER stores to retFrame.returnlink `0o2742` --
+  the old clobber (`0o26411` UnboundLink at cyc 67990672) is GONE. The
+  germ continues into the StartChain.
+
+### GATE -- ALL GREEN
+1. `make test` = 10/10 suites.
+2. Galaxian @160M: **121553** px (exact).
+3. AEmu NETEXEC @200M: **1481** px (band 1476-1505).
+4. germ-6.1: 188 -> **1187 real dispatches**; NO hardware fault (flt=0);
+   modules reached: 3E0D58 (TrapsImpl, 342 disp), **3E15DC (new, 767)**,
+   3E1E10 (SignalHandler, 78). (Gate-safe: the RisID Mar sub only fires on
+   `asel 0/1` memory refs whose A source is the RM/STK default; the Alto
+   worlds never run `LADRB`/`GADRB`, hence unchanged pixel counts.)
+
+### NEXT BLOCKER (DIAGNOSED) -- a genuine sSwapTrap, then a StartChain StateVector with an unbound control link (0o177774)
+After 1187 clean dispatches (no hardware fault) the germ's
+**module-startup chain (StartCM/Start)** reaches a module whose code is
+marked **swapped-out** and resumes a saved StateVector whose control link
+is **unbound** -> germERROR. Traced end-to-end:
+1. The last real opcode is op `0o371` (2-byte, operand `0o7`) at pcf
+   `0o2153` in module `br31=3E15DC` (codebase `0o17412734`). It XFERs to a
+   target whose global frame (MDS+`0o3400`) has **code-base-low =
+   `0o12735` (ODD)**. `LoadGC` tests "code base odd => swapped out"
+   (`Branch[CSegSwappedOut, R odd]`, DMesaXfer.mc) and raises
+   **`sSwapTrap` (T=`0o10`)** at `SavePCAndTrap` pc `0o2000` cyc 67995189.
+   This is GENUINE germ data: the odd `0o12735` is written by the germ's
+   own relocation BLT (pc `0o2761`, cyc 67969321) from the germ file --
+   the germ deliberately marks module code swapped-out and clears it
+   lazily on first call (no disk needed; the code is already resident).
+2. `pSD[sSwapTrap] = CodeTrap` (TrapsImpl): CodeTrap correctly clears the
+   out bit (stores `0o12734` EVEN at pc `0o343`, cyc 67995745) and calls
+   `Start[[frame]]` -> StartCM -> StartWithState, allocating frames
+   (AV[5], AV[6]) and recursing. ALL of this runs cleanly.
+3. Inside that recursion, a `StartWithState` `s _ state^` BLT (pc `0o3561`,
+   pcx `0o455`) copies the static StateVector template into `s`; one
+   copied slot holds **`0o177774`** (genuine template data, like the old
+   `0o26411`). `LoadState`/`Xfer` (pc `0o2372`/`0o1700`) then resumes `s`
+   with DLink/SLink = `0o177774`; gfi = `0o177774>>6` = `0o1777` (far past
+   the 128-entry GFT) -> unbound -> trap -> germ `SignalHandler`
+   (`3E1E10`) -> germERROR (MP `0o1465`=821) -> `JB 0` spin.
+
+So the SwapTrap is genuine and CORRECTLY handled (NOT a bug); the residual
+wall is the SAME class sessions 14-19 hit: the germ's StartChain resumes a
+boot-process StateVector whose control link references a module our
+germ-only environment never binds (an OS/Pilot-resident link, or a
+forward reference filled only after `DoInLoad` loads the OS). The RisID
+fix advanced the germ from the FIRST such wall (the `0o26411` one -- which
+was actually MY BLT-overrun clobbering the link) deep into the StartChain
+to a genuine one (`0o177774`).
+
+NEXT PASS (two angles, do both): (a) GENUINE-BOUNDARY check -- decode the
+StartChain end-state in `chm/cedar/germ-src/germopsimpl.mesa`
+(StartChain/pStartListHeader) + `trapsimpl-6.1.mesa` StartWithState: is
+resuming a state with an unbound link the INTENDED hand-off to the next
+boot phase (the germ expects a catch / should fall through to `DoInLoad`),
+which our germ-only setup doesn't provide? (b) EMULATOR-BUG check --
+`0o177774`=-4 is a suspiciously computed-looking value for a DLink; verify
+LoadState reads the DLink/SLink from the correct StateVector offset for
+THIS state's stkptr (the session-19-follow-up "ill-formed state / wrong
+offset" possibility), and that the template slot genuinely holds
+`0o177774` in the germ file vs being a copy/relocation artifact. Repro:
+`DORADO_IFUDISP_TRACE=1 ./build/dorado --eb '../chm/dorado/CedarDorado.eb!6'
+--germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6' --cycles 90000000` ->
+1187 real dispatches; `DORADO_XFER_TRACE=1 DORADO_TRACE_GATE=
+"67995189,67996100"` shows CodeTrap (SwapTrap T=`0o10`) -> Start recursion
+-> the `0o177774` Xfer; `DORADO_STORE_TRACE_VA="017402660,017402660"`
+shows the BLT (pc `0o3561`) copy the `0o177774` slot.
+
+## ROUTE B (2026-06-17, session 19 follow-up 6): the clobber is the Mesa BLT for `s _ state^` writing its DEST 11 words too high (0o2726 vs @s=0o2713). Source confirmed correct (state=0o7724, the static StateVector template). Root = the BLT dest (@s) computation is off by +11; exact cause NOT isolated. [SUPERSEDED by session 20 above: the +11 was the RisID Mar-substitution bug; the frame size (fsi 5) was correct and `s` is genuinely at offset 7.]
 
 ### Disassembly (added a DORADO_PCDIS microcode-disasm hook, cpu.c)
 - The copy is the Mesa **BLT opcode (op 0o352)** at StartWithState pcf 0o455

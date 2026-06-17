@@ -3078,6 +3078,7 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
     /* HM Table 11a (FA=0 FB=0/1): A[12:15] ← FF[4:7] (gap B6).
      * The override fires only when FF is interpreted as a function
      * (ASEL > 3, BSEL not constant, JCN not long). */
+    int a_is_rmstk_default = 0;
     {
         uint16_t ovr = 0;
         if (ff_a_override(cpu, u, &ovr)) {
@@ -3086,6 +3087,12 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
              * full-function form (`ETemp0_ (3S)+MD`, `ETemp_ Q+1`)
              * and on memory references (`Store_ EBLoc`). */
             a = ovr;
+        } else if (u->asel == 0 || u->asel == 1) {
+            /* Memory reference (asel 0/1) whose A bus / Mar source was
+             * NOT overridden by FF -- i.e. the Mar comes from RM/STK
+             * (a_bus default). RisId substitutes the Id onto this Mar
+             * (see the RisId block below). */
+            a_is_rmstk_default = 1;
         }
     }
 
@@ -3130,11 +3137,20 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
             } else {                         /* RisId: Id replaces RM/STK */
                 if (u->bsel == 1) b = idb;   /* B←RM/STK */
                 if (u->asel == 4) a = idb;   /* A←RM/STK (explicit form) */
+                /* Memory-reference ASEL (0/1): the A bus IS the Mar (the
+                 * reference displacement). When that Mar comes from RM/STK
+                 * (a_is_rmstk_default), RisId replaces it with the Id too.
+                 * This is the LADRB/GADRB case `DummyRef_ StackNoUfl&+1,
+                 * RisID` (DMesaXfer.mc) -- the ONLY memory-ref users of
+                 * RisId. `Push[L+alpha]` computes the local/global address
+                 * as BR[L/G] + Id(=alpha); without the Mar substitution the
+                 * DummyRef used the stale StackNoUfl value, so @s landed at
+                 * frame+StackNoUfl instead of frame+alpha and the Mesa
+                 * `s _ state^` BLT overran the caller frame's return link
+                 * with UnboundLink -> sUnbound -> germERROR. See
+                 * docs/CONTINUE-HERE.md session 19. */
+                if (a_is_rmstk_default) a = idb;
             }
-            /* NOTE: for memory-reference ASEL (0/1) the A bus is the Mar
-             * source; TisId leaves it (replaces T, not the Mar) and RisId
-             * on such a ref is left advance-only until a concrete case
-             * proves the Mar should be replaced. */
         }
     }
 
