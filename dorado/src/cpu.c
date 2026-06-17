@@ -1259,7 +1259,19 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                 return pd;
             case 4: /* StkP ← B[8:15] */
                 cpu->StkP = b & 0xFF;              return pd;
-            case 5: /* RestoreStkP */              return pd;
+            case 5: /* RestoreStkP (HM §3.1): reload the StkP value saved
+                     * when the current opcode was dispatched by the IFU, so
+                     * a trap can restart an opcode after partial stack motion
+                     * (e.g. SFC popping its destination link). */
+                if (getenv("DORADO_STKP_TRACE") &&
+                    (dorado_trace_gate || !getenv("DORADO_TRACE_GATE"))) {
+                    fprintf(stderr,
+                            "RESTORE_STKP cyc=%llu pc=0o%o old=%03o saved=%03o\n",
+                            (unsigned long long)dorado_trace_cycle,
+                            cpu->real_PC, cpu->StkP & 0377,
+                            cpu->ifu_saved_stkp & 0377);
+                }
+                cpu->StkP = cpu->ifu_saved_stkp;    return pd;
             case 6: /* Cnt ← B */
                 cpu->Cnt = b;                      return pd;
             case 7: /* Link ← B */
@@ -2587,27 +2599,6 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
             cpu->ifu_pcx     = cpu->ifu_pcf;
             int fetch_faulted = 0;
             uint8_t opcode   = ifu_fetch_byte(cpu, cpu->ifu_pcf, &fetch_faulted);
-            if (getenv("DORADO_IFUDISP_TRACE") &&
-                (dorado_trace_gate || !getenv("DORADO_TRACE_GATE"))) {
-                int adr = ((cpu->ifu_insset & 3) << 8) | opcode;
-                fprintf(stderr,
-                        "IFUDISP pc=0o%o pcf=0o%o br31=%05X op=%03o "
-                        "flt=%d n=%d insset=%u rh=%06o lh=%06o "
-                        "vec=0o%o stkp=%03o acs=%06o,%06o,%06o,%06o\n",
-                        cpu->real_PC, cpu->ifu_pcf,
-                        cpu->mem ? dorado_br_get(cpu->mem, 31) : 0,
-                        opcode, fetch_faulted, n_slot,
-                        cpu->ifu_insset & 3,
-                        cpu->mc ? cpu->mc->ifum_lo[adr] : 0,
-                        cpu->mc ? cpu->mc->ifum_hi[adr] : 0,
-                        (unsigned)(((~(cpu->mc ? cpu->mc->ifum_lo[adr] : 0))
-                                    & 0x3FF) << 2),
-                        cpu->StkP & 0xFF,
-                        cpu->STK[cpu->StkP & 0xFF],
-                        cpu->STK[(cpu->StkP + 1) & 0xFF],
-                        cpu->STK[(cpu->StkP + 2) & 0xFF],
-                        cpu->STK[(cpu->StkP + 3) & 0xFF]);
-            }
             if (fetch_faulted) {
                 *next = ifu_trap_addr(0000, n_slot, cpu->ifu_insset);
                 if (!ff_loads_link(u)) cpu->Link = (uint16_t)(cpu->real_PC + 1);
@@ -2648,6 +2639,26 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                 return 0;
             }
 
+            if (getenv("DORADO_IFUDISP_TRACE") &&
+                (dorado_trace_gate || !getenv("DORADO_TRACE_GATE"))) {
+                fprintf(stderr,
+                        "IFUDISP pc=0o%o pcf=0o%o br31=%05X op=%03o "
+                        "len=%u alpha=%03o beta=%03o flt=%d n=%d "
+                        "insset=%u rh=%06o lh=%06o vec=0o%o "
+                        "pc_after=0o%o stkp=%03o "
+                        "acs=%06o,%06o,%06o,%06o\n",
+                        cpu->real_PC, cpu->ifu_pcf,
+                        cpu->mem ? dorado_br_get(cpu->mem, 31) : 0,
+                        opcode, length, cpu->ifu_alpha, cpu->ifu_beta,
+                        fetch_faulted, n_slot, cpu->ifu_insset & 3,
+                        rh, lh, (unsigned)(ifaddr << 2), pc_after,
+                        cpu->StkP & 0xFF,
+                        cpu->STK[cpu->StkP & 0xFF],
+                        cpu->STK[(cpu->StkP + 1) & 0xFF],
+                        cpu->STK[(cpu->StkP + 2) & 0xFF],
+                        cpu->STK[(cpu->StkP + 3) & 0xFF]);
+            }
+
             /* Compute the next PCF for the *successor* opcode.
              * - regular: PCF = pc_after (next byte after operands)
              * - jump:    PCF = displacement-computed
@@ -2685,7 +2696,19 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
 
             /* A real opcode dispatch is now committed (past NotReady /
              * warmup / fault). Count it so differential harnesses can
-             * detect the one-opcode boundary. */
+             * detect the one-opcode boundary. HM §3.1 saves StkP at t2 of
+             * the IFU-dispatched instruction; RestoreStkP uses this value
+             * when restart-style traps re-enter an opcode. Capture the
+             * pre-RSTK value of the IFUJump instruction here, before this
+             * instruction's post-cycle stack adjustment is applied. */
+            cpu->ifu_saved_stkp = (uint8_t)(cpu->StkP & 0xFF);
+            if (getenv("DORADO_STKP_TRACE") &&
+                (dorado_trace_gate || !getenv("DORADO_TRACE_GATE"))) {
+                fprintf(stderr,
+                        "SAVE_STKP cyc=%llu pc=0o%o saved=%03o\n",
+                        (unsigned long long)dorado_trace_cycle,
+                        cpu->real_PC, cpu->ifu_saved_stkp & 0377);
+            }
             cpu->ifu_dispatch_count++;
 
             /* Compute TNIA: TNIA[4:13] = IFaddr', TNIA[14:15] = n.
@@ -3154,6 +3177,17 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
         }
     }
 
+    /* TEMP-INSTRUMENT: in the Xfer tag-dispatch region (real pc
+     * 0o1700..0o1721), the control link being dispatched rides the B bus
+     * (T_ BDispatch_ RTemp0). Print it to locate the null DLink that
+     * ZeroDest->ControlFaults during head-startup. */
+    if (dorado_trace_gate && getenv("DORADO_XLINK_TRACE") &&
+        cpu->ctask == 0 && cpu->real_PC >= 01700u && cpu->real_PC <= 01730u) {
+        fprintf(stderr, "XLINK cyc=%llu pc=0o%o T=0o%o a=0o%o b=0o%o md=0o%o\n",
+                (unsigned long long)dorado_trace_cycle, cpu->real_PC,
+                cpu->T, a, b, cpu->mem ? cpu->mem->md : 0);
+    }
+
     /* ALU. */
     /* On a barrel shift, the first three ALUFM address bits are forced
      * to 1 (HM §3.11), so the index becomes 14 or 15 (= 0o16 or 0o17)
@@ -3228,6 +3262,32 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
         cpu->halted = 1;
         cpu->halt_reason = ff_halt;
         return 1;
+    }
+    if (dorado_trace_gate && getenv("DORADO_STACK_TRACE") &&
+        cpu->ctask == 0 &&
+        ((cpu->real_PC >= 01020u && cpu->real_PC <= 01064u) ||
+         (cpu->real_PC >= 01700u && cpu->real_PC <= 01730u) ||
+         (cpu->real_PC >= 00220u && cpu->real_PC <= 00275u) ||
+         (cpu->real_PC >= 00600u && cpu->real_PC <= 00615u) ||
+         (cpu->real_PC >= 02020u && cpu->real_PC <= 02030u) ||
+         (cpu->real_PC >= 02360u && cpu->real_PC <= 02375u) ||
+         (cpu->real_PC >= 07030u && cpu->real_PC <= 07045u))) {
+        int ridx = rm_address(cpu, u);
+        int widx = lc_write_address(cpu, u);
+        fprintf(stderr,
+                "STACK_TRACE cyc=%llu pc=0o%o rstk=%02o block=%u "
+                "sp=%03o r=%03o w=%03o a=%06o b=%06o alu=%06o pd=%06o "
+                "T=%06o md=%06o stkp0=%06o stkp1=%06o stkm1=%06o "
+                "rm16=%06o rm17=%06o\n",
+                (unsigned long long)dorado_trace_cycle,
+                cpu->real_PC, u->rstk & 017, u->block & 1,
+                cpu->StkP & 0377, ridx & 0777, widx & 0777,
+                a & 0177777, b & 0177777, alu & 0177777, pd & 0177777,
+                cpu->T & 0177777, task_md(cpu) & 0177777,
+                cpu->STK[cpu->StkP & 0377] & 0177777,
+                cpu->STK[(cpu->StkP + 1) & 0377] & 0177777,
+                cpu->STK[(cpu->StkP - 1) & 0377] & 0177777,
+                cpu->RM[016] & 0177777, cpu->RM[017] & 0177777);
     }
     /* Barrel-shifter Pd-mux stage (HM §3.11): for a shift, the LMask/RMask/
      * Md merge is applied to the ALU output HERE (after the ALU), so it
@@ -3352,6 +3412,20 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                              (uint32_t)(mar & 0xFFFFu))
                           : (uint32_t)(mar & 0xFFFFu);
             uint32_t va = (br + disp) & 0x0FFFFFFFu;
+            /* TEMP-INSTRUMENT: in the Xfer tag-dispatch region (real pc
+             * 0o1700..0o1721), print the link being dispatched (A=RTemp0,
+             * B) + the fetched dest, to locate the null DLink that
+             * ZeroDest->ControlFaults during head-startup. */
+            if (dorado_trace_gate && getenv("DORADO_XLINK_TRACE") &&
+                cpu->ctask == 0 && cpu->real_PC >= 01700u &&
+                cpu->real_PC <= 01721u) {
+                fprintf(stderr,
+                        "XLINK cyc=%llu pc=0o%o kind=%d va=0o%o "
+                        "T=0o%o a=0o%o b=0o%o md=0o%o mb=0o%o\n",
+                        (unsigned long long)dorado_trace_cycle, cpu->real_PC,
+                        (int)kind, (unsigned)va, cpu->T, a, b,
+                        cpu->mem ? cpu->mem->md : 0, membase);
+            }
             dorado_mem_trace_membase = membase;
             dorado_mem_trace_br = (int)br;
             dorado_mem_trace_mar = mar;

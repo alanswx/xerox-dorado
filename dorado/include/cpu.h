@@ -162,6 +162,7 @@ typedef struct {
     uint8_t  ifu_sign;
     uint8_t  ifu_type_jump;     /* derived from TJump' */
     uint8_t  ifu_type_pause;    /* derived from TPause' */
+    uint8_t  ifu_saved_stkp;    /* StkP saved at IFU dispatch for RestoreStkP */
 
     /*
      * Breakpoints / parity / event counters — gap B11.

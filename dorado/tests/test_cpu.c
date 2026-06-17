@@ -7155,6 +7155,33 @@ static int test_stk_underflow_check(void)
     return 0;
 }
 
+static int test_restore_stkp_ff(void)
+{
+    dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;
+    mc.im[0] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/2,
+                           /*lc=*/0, /*asel=*/6, /*block=*/0,
+                           /*ff=*/0145, /* RestoreStkP */
+                           jcn_local(0));
+    mc.im_present[0] = 1;
+    mc.image_to_real[0] = 0; mc.image_present[0] = 1;
+    mc.n_instructions = 1;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.StkP = 0;
+    cpu.ifu_saved_stkp = 1;
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step RestoreStkP: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.StkP == 1, "RestoreStkP loaded StkP=%u, expected 1",
+           cpu.StkP);
+
+    printf("PASS  test_restore_stkp_ff\n");
+    return 0;
+}
+
 static int test_lc_forced_rm_write_address(void)
 {
     dorado_microcode mc;
@@ -9960,6 +9987,7 @@ int main(void)
     rc |= test_stk_pop_minus_4();
     rc |= test_stk_overflow();
     rc |= test_stk_underflow_check();
+    rc |= test_restore_stkp_ff();
     rc |= test_lc_forced_rm_write_address();
     rc |= test_cpu_memory_roundtrip();
     rc |= test_alt_fetch_t_lc_md_pipeline();
