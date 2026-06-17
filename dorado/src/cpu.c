@@ -2944,6 +2944,17 @@ int dorado_cpu_step(dorado_cpu *cpu)
 
     const dorado_uinstr *u = &cpu->mc->im[cpu->real_PC];
 
+    if (getenv("DORADO_PCDIS") && (!getenv("DORADO_TRACE_GATE") || dorado_trace_gate)) {
+        static long lo = -2, hi = 0;
+        if (lo == -2) { const char *w = getenv("DORADO_PCDIS");
+                        lo = 0; hi = 0; if (w) sscanf(w, "%lo,%lo", &lo, &hi); }
+        if ((long)cpu->real_PC >= lo && (long)cpu->real_PC <= hi) {
+            char buf[160];
+            dorado_format(u, buf, sizeof buf);
+            fprintf(stderr, "PCDIS %04o: %s\n", cpu->real_PC, buf);
+        }
+    }
+
     if (cpu->mc->im_breakpoint[cpu->real_PC]) {
         cpu->halted = 1;
         cpu->halt_reason = CPU_HALT_BREAKPOINT;

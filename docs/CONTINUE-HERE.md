@@ -1,5 +1,39 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## ROUTE B (2026-06-17, session 19 follow-up 6): the clobber is the Mesa BLT for `s _ state^` writing its DEST 11 words too high (0o2726 vs @s=0o2713). Source confirmed correct (state=0o7724, the static StateVector template). Root = the BLT dest (@s) computation is off by +11; exact cause NOT isolated.
+
+### Disassembly (added a DORADO_PCDIS microcode-disasm hook, cpu.c)
+- The copy is the Mesa **BLT opcode (op 0o352)** at StartWithState pcf 0o455
+  (DMesaRW.mc: `DoBLT` pops dest,count,source; copies `Fetch[base+source]^
+  -> StoreMDS[dest]^`). Microcode loop pc 0o3524 (Fetch src) <-> 0o3537
+  (Store dst) using FlipMemBase (FF=337) to toggle the src/dst base regs.
+- **Source is CORRECT**: state = `0o7724` = the static StateVector template
+  (legitimately UnboundLink-filled at the src-link offset).
+- **Dest is WRONG**: the BLT writes `0o2726..0o2746` (starts at 0o2726, an
+  offset-bug not a count-bug -- it does NOT write 0o2713..0o2725). `s`
+  belongs at `0o2713` (LSTF alpha=7, L=0o2704; a 17-word StateVector fits in
+  the 27-word fsi-5 frame at offset 7). Dest is off by exactly **+11
+  (0o13)**: written at frame offset 18 instead of 7. This overruns into
+  retFrame (0o2740), clobbering its return link.
+- At the BLT dispatch (pcf 0o455) acs=[`0o7724`,0,0,`0o6126`], stkp=3 -- the
+  dest `@s`/count are NOT plainly the simple stack values, so the dest is
+  computed in a way I could not fully trace.
+
+### Where it stands (honest)
+The germERROR is now traced end-to-end to "the BLT for `s _ state^` puts its
+dest 11 words too high, clobbering the caller frame's return link with
+UnboundLink." But the EXACT cause of the +11 (a mis-read BLT dest operand /
+local-address @s, a BR/MemBase base-reg off-by-11 in the FlipMemBase BLT, or
+a frame/offset interaction) is NOT isolated -- store/XFER/BR tracing did not
+converge, and the on-hand loadmap is germ!4 (not germ-6.1), so frame
+numbers are approximate. The clean way forward is a DIFFERENT technique:
+compare the BLT dest computation against `DMesaRW.mc DoBLT` step-by-step in
+the emulator (the new DORADO_PCDIS hook disassembles microcode at a pc
+range), or cross-check the StartWithState bytecode against a reference Mesa
+emulator's frame layout. Repro: DORADO_PCDIS="03520,03545"
+DORADO_TRACE_GATE="67990440,67990540"; the BLT is at pcf 0o455
+(br31=3E0D58); dest stores at pc 0o3537 (STORE_TRACE_VA 017402726..017402746).
+
 ## ROUTE B (2026-06-16, session 19 follow-up 5): PRECISE narrowing -- StartWithState's frame is allocated fsi 5 (27 words) but its StateVector local needs fsi 7 (39 words). The frame-size index read (entry vector) or the proc-entry resolution gives the wrong (too-small) fsi. NOTE: the loadmap on hand is germ!4, not germ-6.1, so per-proc frame numbers are approximate. Fix not yet landed.
 
 ### Allocation trace (germ-6.1, decisive)
