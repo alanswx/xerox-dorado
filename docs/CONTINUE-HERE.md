@@ -1,5 +1,41 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## ROUTE B (2026-06-16, session 19 follow-up 4): ROOT = StartWithState's frame is TOO SMALL for its StateVector local, so the `s := state^` copy overruns into the adjacent live frame (retFrame) and clobbers its return link. This is an fsi/frame-size bug (AV/AllocSub family, sessions 14/16). Fix not yet landed.
+
+### The definitive mechanism
+- `StartWithState` (TrapsImpl) has a local `s: StateVector`. Its first stmt
+  `s _ state^` is a block copy (microcode pc `0o3537`/`0o3524`) of the whole
+  StateVector (~17-28 words) into `s`.
+- `s` lives in StartWithState's frame; `retFrame` (Start's frame, the caller)
+  is the ADJACENT frame at MDS+`0o2740`. The copy's dest runs from ~`0o2726`
+  up THROUGH `0o2740`, so it overwrites retFrame's L[2] (return link) at
+  `0o2742`: the real `0o3234` becomes `0o26411` (UnboundLink, copied from the
+  static template region `0o77xx`).
+- StartWithState then reads retFrame.returnlink (now UnboundLink) into
+  `s.source` -> resumed module RETs through UnboundLink -> sUnbound trap ->
+  germERROR. (See follow-up 3 below for the store-by-store proof.)
+- **fsi -> frame size (loadmap):** fsi 0=7, 1=11, 2=15, 3=19, 4=23, 5=27,
+  6=31, 7=39 words. A proc with a StateVector local (~17-28w + 4 overhead)
+  needs a LARGE frame (fsi >= 5/6/7). If our emulator allocates a smaller
+  fsi for StartWithState, its StateVector local overruns the frame.
+
+### THE FIX (next pass -- narrowed to fsi/frame-size)
+Determine StartWithState's CORRECT frame-size index and compare to what our
+emulator allocates:
+- (likely) our XferProc/AllocSub reads StartWithState's fsi WRONG (too
+  small) from the code-segment frame-size word. XferProc does
+  `T_ DPF[T,10,10,MD]` (right byte = fsi); if the field extraction / the
+  entry-vector frame-size word is read off-by-one or the wrong byte, the
+  frame is undersized. Cross-check the DPF/fsi read in cpu.c against the
+  StartWithState entry (TrapsImpl gfi `0o6`, codebase `0o17406530`, frame-
+  size word at CP+2n+3 lower byte for entry n).
+- OR the AV free list / AllocSub returns an overlapping frame (the
+  AV[0]/free-list family from session 16). Dump AV (MDS+`0o1000`+) and the
+  two frames to confirm sizes/placement.
+Repro: the call into StartWithState is ~cyc 67990347 (AV read pc `0o4030`,
+XferProc pc `0o4014`/`0o4034`); the overrunning copy is pc `0o3537` cyc
+67990602+; the clobber of M[`0o2742`] is cyc 67990672 (see follow-up 3).
+
 ## ROUTE B (2026-06-16, session 19 follow-up 3): BUG LOCATION FOUND -- a block copy at microcode pc 0o3537 clobbers retFrame.returnlink (the real 0o3234) with UnboundLink (0o26411) BEFORE StartWithState reads it, so the resumed module's SLink becomes UnboundLink -> RET -> trap -> germERROR. This is a concrete clobber, traced store-by-store.
 
 ### The causal chain (store-traced, decisive)
