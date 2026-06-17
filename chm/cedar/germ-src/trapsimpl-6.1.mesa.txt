@@ -1,0 +1,319 @@
+
+-- TrapsImpl.mesa
+    -- Copyright c 1985 by Xerox Corporation.  All rights reserved.
+    -- Levin on September 20, 1983 11:12 am
+    -- Russ Atkinson (RRA) February 19, 1985 1:18:43 pm PST
+
+DIRECTORY
+    Basics USING [BYTE, RawBytes],
+    MesaRuntimeInit USING [],
+    PrincOps USING [ControlLink, ControlModule, Frame, FrameCodeBase, FrameHandle, GFT, GFTItem, GlobalFrameHandle, MainBodyIndex, NullControl, NullFrame, NullGlobalFrame, Port, PortHandle, PrefixHandle, sBoundsFault, sControlFault, SD, sDivideCheck, sError, sHardwareError, sPointerFault, sRestart, sStackError, sStart, sSwapTrap, StateVector, sUnbound, SVPointer, sWakeupError, sZeroDivisor, zAND, zDESCBS, zLDIV, zPORTI, zPORTO, zSFC],
+    PrincOpsUtils USING [Codebase, Free, GetReturnFrame, GetReturnLink, MyLocalFrame, ReadOTP, SetReturnFrame, SetReturnLink],
+    RuntimeError USING [];
+    
+TrapsImpl: PROGRAM
+    IMPORTS PrincOpsUtils
+    EXPORTS MesaRuntimeInit, RuntimeError
+    = BEGIN OPEN PrincOps;
+
+-- Types and Related Declarations
+    
+    CodeBytesPtr: TYPE = LONG POINTER TO Basics.RawBytes;
+    
+-- Exported to RuntimeError
+    
+    BoundsFault: PUBLIC ERROR = CODE;
+    ControlFault: PUBLIC SIGNAL [source: ControlLink] RETURNS [ControlLink] = CODE;
+    DivideCheck: PUBLIC SAFE SIGNAL = CODE;
+    HardwareError: PRIVATE ERROR = CODE;
+    LinkageFault: PUBLIC ERROR = CODE;
+    PointerFault: PUBLIC ERROR = CODE;
+    PortFault: PUBLIC ERROR = CODE;
+    StartFault: PUBLIC SIGNAL [dest: PROGRAM] = CODE;
+    StackError: PUBLIC ERROR = CODE;
+    UnboundProcedure: PUBLIC SIGNAL [dest: ControlLink] RETURNS [ControlLink] = CODE;
+    WakeupError: ERROR = CODE;
+    ZeroDivisor: PUBLIC SAFE SIGNAL = CODE;
+
+-- Exported to MesaRuntimeInit
+
+    Start: PUBLIC PROC [cm: PrincOps.ControlModule] = {
+        CM: PROGRAM ← LOOPHOLE[cm];
+        state: StateVector;
+        state ← STATE;
+        IF ~cm.multiple THEN {
+            OPEN f: cm.frame;
+            IF @f = NullGlobalFrame OR f.started THEN ERROR StartFault[CM];
+            StartCM[LOOPHOLE[f.global[0]], @f, @state];
+            IF ~f.started THEN {f.started ← TRUE; StartWithState[@f, @state]}
+            ELSE IF state.stkptr ~= 0 THEN SIGNAL StartFault[CM];
+            }
+        ELSE {
+            StartCM[cm, NIL, NIL];
+            IF state.stkptr ~= 0 THEN SIGNAL StartFault[CM];
+            };
+        };
+        
+-- Language support routines
+
+Restart: PUBLIC PROC [dest: GlobalFrameHandle] = {
+    stops: BOOL;
+    frame: FrameHandle;
+    IF dest = NullGlobalFrame THEN ERROR StartFault[LOOPHOLE[dest, PROGRAM]];
+    IF ~dest.started THEN Start[[frame[dest]]];
+    stops ← PrincOpsUtils.Codebase[dest].header.info.stops;
+    IF ~stops THEN ERROR StartFault[LOOPHOLE[dest, PROGRAM]];
+    IF (frame ← LOOPHOLE[dest.global[0]]) ~= NullFrame THEN {
+        frame.returnlink ← PrincOpsUtils.GetReturnLink[];
+        PrincOpsUtils.SetReturnFrame[frame]
+        }
+    };
+
+-- Internal Procedures to support language support routines
+
+StartCM: PROC [cm: ControlModule, frame: GlobalFrameHandle, state: SVPointer] = {
+    Call: PROC [ControlLink] = MACHINE CODE {zSFC};
+    SELECT TRUE FROM
+        cm = NullControl => RETURN;
+        cm.multiple => {
+            length: CARDINAL;
+            cm.multiple ← FALSE;
+            IF (length ← cm.list.nModules) = 0 THEN RETURN;
+            cm.list.nModules ← 0;
+            FOR i: CARDINAL IN [0..length) DO
+                StartCM[[frame[cm.list.frames[i]]], frame, state];
+                ENDLOOP;
+            PrincOpsUtils.Free[cm.list];
+            };
+        cm.frame.started => RETURN;
+        ENDCASE => {
+            control: ControlModule ← LOOPHOLE[cm.frame.global[0]];
+            IF control ~= cm THEN StartCM[control, frame, state];
+            IF ~cm.frame.started THEN {
+                cm.frame.started ← TRUE;
+                IF frame ~= cm.frame THEN Call[MainBody[cm.frame]]
+                ELSE StartWithState[frame, state];
+                };
+            };
+    };
+    
+StartWithState: PROC [frame: GlobalFrameHandle, state: PrincOps.SVPointer] = {
+    s: StateVector ← state^;
+    retFrame: FrameHandle ← PrincOpsUtils.GetReturnLink[].frame;
+    s.dest ← MainBody[frame];
+    PrincOpsUtils.SetReturnLink[s.source ← retFrame.returnlink];  -- allows stack trace if RETURN WITH s faults.
+    PrincOpsUtils.Free[retFrame];
+    RETURN WITH s
+    };
+    
+-- Trap Handlers
+
+BoundsFaultTrap: PROC = {
+    frame: FrameHandle;
+    state: RECORD [a: WORD, v: StateVector];
+    state.v ← STATE;
+    state.v.dest ← ControlLink[frame[frame ← PrincOpsUtils.GetReturnFrame[]]];
+    BumpPC[frame, 1];
+    state.v.stkptr ← state.v.stkptr - 1;
+    ERROR BoundsFault;  -- pc is advanced on this trap
+    -- RETURN WITH state.v
+    };
+    
+CodeTrap: PROC = {
+    dest: ControlLink;
+    state: StateVector;
+    frame: GlobalFrameHandle;
+    state ← STATE;
+    dest ← PrincOpsUtils.ReadOTP[];
+    state.dest ← PrincOpsUtils.GetReturnLink[];
+    DO
+        IF dest.proc THEN {frame ← GetFrame[GFT[dest.gfi]]; EXIT};
+        IF NOT dest.indirect THEN {frame ← dest.frame.accesslink; EXIT};
+        dest ← dest.link^;
+        ENDLOOP;
+    IF ~frame.started THEN Start[[frame[frame]]];
+    frame.code.out ← FALSE;
+    RETURN WITH state
+    };
+    
+DivideCheckTrap: PROC = {
+    frame: FrameHandle;
+    state: RECORD [a: WORD, v: StateVector];
+    state.v ← STATE;
+    state.v.dest ← ControlLink[frame[frame ← PrincOpsUtils.GetReturnFrame[]]];
+    BumpPC[frame, 1];
+    state.v.stkptr ← state.v.stkptr - 2;
+    SIGNAL DivideCheck; -- pc is advanced on this trap
+    RETURN WITH state.v
+    };
+    
+HardwareErrorTrap: PROC = {
+    state: RECORD [a, b: WORD, v: StateVector];
+    state.v ← STATE;
+    ERROR HardwareError
+    };
+    
+PointerFaultTrap: PROC = {
+    frame: FrameHandle;
+    state: RECORD [a: WORD, v: StateVector];
+    state.v ← STATE;
+    state.v.dest ← ControlLink[frame[frame ← PrincOpsUtils.GetReturnFrame[]]];
+    BumpPC[frame, 1];
+    ERROR PointerFault; -- pc is advanced on this trap
+    -- RETURN WITH state.v
+    };
+    
+StackErrorTrap: PROC = {
+    state: RECORD [a: WORD, v: StateVector];
+    foo: BOOL;
+    state.v ← STATE;
+    foo ← TRUE; -- The garbage with foo is so all the code for the next statement
+    -- looks like it is in this procedure
+    -- to the debugger (when it looks in the fine grain table)
+    IF foo THEN ERROR StackError
+    };
+    
+-- The following should be exported by InstructionsImpl, or, in Trinity, the ProcessorFace.
+
+OpcodeLengths: PACKED ARRAY [0..255] OF [0..3] = [
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 2, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 2, 3, 2, 2, 2, 3, 0, 0, 0,
+    1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 3, 3, 2, 1, 2, 1,
+    2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 3, 2, 3, 1, 1, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 1,
+    1, 1, 2, 2, 1, 1, 1, 2, 1, 1, 1, 1, 0, 0, 0, 0,
+    1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 1, 1, 1, 1, 1, 1,
+    1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 2, 1, 1, 2, 1, 1, 2, 2, 2, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 2, 2, 1, 1, 1, 2, 2, 2, 0, 2, 2, 1, 0];
+    
+UnboundProcedureTrap: PROC = {
+    sourceOp: Basics.BYTE;
+    frame: FrameHandle;
+    dest: ControlLink;
+    state: StateVector;
+    state ← STATE;
+    dest ← PrincOpsUtils.ReadOTP[];
+    state.dest ← ControlLink[frame[frame ← PrincOpsUtils.GetReturnFrame[]]];
+    BumpPC[frame, OpcodeLengths[sourceOp ← GetCodeBytes[frame][frame.pc]]];
+    IF sourceOp = zSFC OR sourceOp = zPORTO THEN state.stkptr ← state.stkptr - 1;
+    [] ← SIGNAL UnboundProcedure[dest];
+    RETURN WITH state
+    };
+    
+WakeupErrorTrap: PROC = {
+    state: RECORD [a, b: WORD, v: StateVector];
+    state.v ← STATE;
+    ERROR WakeupError
+    };
+    
+ZeroDivisorTrap: PROC = {
+    frame: FrameHandle;
+    state: RECORD [a: WORD, v: StateVector];
+    state.v ← STATE;
+    state.v.dest ← ControlLink[frame[frame ← PrincOpsUtils.GetReturnFrame[]]];
+    state.v.stkptr ← state.v.stkptr - (IF GetCodeBytes[frame][frame.pc] = zLDIV THEN 2 ELSE 1);
+    BumpPC[frame, 1];
+    SIGNAL ZeroDivisor; -- pc is advanced on this trap
+    RETURN WITH state.v
+    };
+    
+ControlFaultTrap: PROC = {
+    errorStart, savedState: StateVector;
+    sourceOp: Basics.BYTE;
+    PORTI: PROC = MACHINE CODE {zPORTI};
+    p, q: PortHandle;
+    sourceFrame, self: FrameHandle;
+    source: ControlLink;
+    savedState ← STATE;
+    self ← PrincOpsUtils.MyLocalFrame[];
+    sourceFrame ← self.returnlink.frame;
+    source ← PrincOpsUtils.ReadOTP[];
+    sourceOp ← GetCodeBytes[sourceFrame][sourceFrame.pc];
+    BumpPC[sourceFrame, OpcodeLengths[sourceOp]];
+    IF sourceOp = zPORTO
+        THEN {
+            savedState.stkptr ← savedState.stkptr - 1;
+            p ← source.port;
+            q ← p.dest.port;
+            IF q = NIL
+                THEN errorStart.stk[0] ← LOOPHOLE[LinkageFault]
+                ELSE {
+                    q^ ← Port[links[NullFrame, [indirect[port[p]]]]];
+                    errorStart.stk[0] ← LOOPHOLE[PortFault];
+                    };
+            errorStart.stk[1] ← 0; -- message
+            errorStart.instbyte ← 0;
+            errorStart.stkptr ← 2;
+            errorStart.source ← sourceFrame.returnlink;
+            -- lets UNWIND skip trapping frame
+            errorStart.dest ← LOOPHOLE[SD[sError]];
+            IF savedState.stkptr = 0 THEN RETURN WITH errorStart --  RESPONDING port
+            ELSE {
+                p.frame ← self;
+                TRANSFER WITH errorStart;
+                PORTI[];
+                p.frame ← sourceFrame;
+                savedState.stk[savedState.stkptr + 1] ← LOOPHOLE[savedState.source ← ControlLink[indirect[port[p]]]];
+                savedState.stk[savedState.stkptr] ← LOOPHOLE[savedState.dest ← p.dest];
+                RETURN WITH savedState
+                }
+            }
+        ELSE {-- not a port call
+            IF sourceOp = zSFC THEN savedState.stkptr ← savedState.stkptr - 1;
+            -- Assert: there is a (possibly stubbed) signaller
+            savedState.dest ← ControlLink[frame[sourceFrame]];
+            [] ← SIGNAL ControlFault[LOOPHOLE[sourceFrame]];
+            RETURN WITH savedState -- to press on
+            }
+    };
+    
+-- Internal procedures to support trap handlers
+    
+    BumpPC: PROC [f: FrameHandle, i: INTEGER] = INLINE {f.pc ← [f.pc + i]};
+    
+    GetCodeBytes: PROC [frame: FrameHandle] RETURNS [CodeBytesPtr] = INLINE {
+        RETURN[LOOPHOLE[frame.accesslink.code.longbase]]};
+        
+    MainBody: PROC [GlobalFrameHandle] RETURNS [ControlLink] =
+        MACHINE CODE {zDESCBS, MainBodyIndex};
+    
+    GetFrame: PROC [g: GFTItem] RETURNS [GlobalFrameHandle] = INLINE {
+        And: PROC [g: GFTItem, mask: GFTItem] RETURNS [GlobalFrameHandle] = 
+            MACHINE CODE {zAND};
+        maskFrame: GFTItem = [ep[data: 37777B, epbias: 0]];
+        RETURN[And[g, maskFrame]]
+        };
+    
+-- Initialization
+    
+    Initialize: PROC = {
+        pSD: POINTER TO ARRAY NAT OF PROC ANY RETURNS ANY ← LOOPHOLE[SD];
+        pSD[sBoundsFault] ← BoundsFaultTrap;
+        pSD[sControlFault] ← ControlFaultTrap;
+        pSD[sDivideCheck] ← DivideCheckTrap;
+        pSD[sHardwareError] ← HardwareErrorTrap;
+        pSD[sPointerFault] ← PointerFaultTrap;
+        pSD[sRestart] ← Restart;
+        pSD[sStackError] ← StackErrorTrap;
+        pSD[sStart] ← Start;
+        pSD[sSwapTrap] ← CodeTrap;
+        pSD[sUnbound] ← UnboundProcedureTrap;
+        pSD[sWakeupError] ← WakeupErrorTrap;
+        pSD[sZeroDivisor] ← ZeroDivisorTrap;
+        };
+            
+    Initialize[];
+    
+END.
+
+
+
+
+

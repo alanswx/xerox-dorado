@@ -1,0 +1,20 @@
+
+-- SoftwareTextBlt.mesa
+    -- Copyright c 1985 by Xerox Corporation.  All rights reserved.
+    -- Levin on April 8, 1983 6:10 pm
+    -- Russ Atkinson (RRA) January 29, 1985 1:06:33 am PST
+    -- Doug Wyatt, February 22, 1985 3:44:03 pm PST
+
+DIRECTORY
+    PrincOps USING [TextBltResult];
+
+SoftwareTextBlt: DEFINITIONS
+= BEGIN
+
+-- This is a temporary kludge to allow TextBlt to be implemented in Mesa. This procedure is called when a trap on unimplemented instruction is encountered and the instruction is TextBlt.
+
+TextBlt: PROC [index, bitPos, micaPos: CARDINAL, count: INTEGER, ptr: POINTER] 
+RETURNS [newIndex, newBitPos, newMicaPos: CARDINAL, newCount: INTEGER, 
+result: PrincOps.TextBltResult];
+
+END.

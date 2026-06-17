@@ -1,0 +1,55 @@
+-- PilotMP.mesa (last edited by: BLyon on: February 25, 1981  3:53 PM)k72(0,10368)\i3f5bI7f0Bi
+PilotMP: DEFINITIONS =e6(1792)\9f1 11f0
+BEGIN\f1 5f0
+-- Maintenance Panel codes displayed by Pilot (e.g. when going to debugger isn't appropriate).
+
+-- This is the source for Pilot codes found in MPCodes.bravo.
+
+-- This module has no interface items or records.  Do not include it in any other interfaces, and then it can be recompiled at any time.e6\i
+
+Code: TYPE = [0..10000);
+
+cGerm: Code = 900; -- germ entered
+  cGermAllocTrap: Code = 901; -- out of frames (Pilot bug)
+  cGermControlFault: Code = 902; -- unexpected trap or kernel function call (Pilot bug)
+  cGermStartFault: Code = 903; -- attempt to start an already started module (Pilot bug)
+  cGermMemoryFault: Code = 904; -- page or write protect fault encountered (Pilot bug)
+  cGermERROR: Code = 909; -- unnamed ERROR (Pilot bug)
+cGermAction: Code = 910; -- germ action running (e.g. inLoad, outLoad)
+  cGermBadPhysicalVolume: Code = 911; -- germ and physical volume have incompatible version numbers
+  cGermBadBootFile: Code = 912; -- germ and boot file have incompatible version numbers
+  cGermNoPhysicalBootFile: Code = 913; -- no physical boot file installed
+  cTeledebugServer: Code = 915; -- germ's teledebug server has control
+  cGermFinished: Code = 919; -- germ transferred control back to caller (who has hung)
+ cGermDriver: Code = 920; -- germ driver running (e.g. disk, ether)
+  cGermDeviceError: Code = 921; -- hard error on device being booted
+  cGermTimeout: Code = 922; -- operation on boot device no completed in expected time
+  cGermLabelCheck: Code = 923; -- broken link in chained boot file (try reinstalling)
+  cGermNoServer: Code = 924; -- no response to germ's request for ether boot file
+  cGermFunnyPacket: Code = 925; -- e.g. unexpected sequence number or size
+cControl: Code = 930; -- Pilot Control and MesaRuntime components being initialized
+  cBadBootFile: Code = 931; -- Pilot and StartPilot have incompatible version numbers
+  cEarlyTrap: Code = 932; -- runtime trap before appropriate trap handler set up (Pilot bug)
+  cCantSwap: Code = 935; -- debugger not correctly installed or too early in startup to find debugger
+  cHang: Code = 936; -- swap to debugger canceled do to use of "H" Keyswitch
+  cTimeNotAvailable: Code = 937; -- time not available (i.e. hardware clock failure and no ethernet)
+  cCleanup: Code = 938; -- running cleanup procedures, e.g. before world swap
+  cPowerOff: Code = 939; -- ProcessorFace.PowerOff called, and no power control relay
+cStorage: Code = 940; -- Pilot Store component being initialized
+  cDriveNotReady: Code = 947; -- waiting for disk drive to become ready
+  cScavenging: Code = 950; -- logical volume being scavenged, if necessary
+  cDeleteTemps: Code = 960; -- temporary files from previous run being deleted
+cMap: Code = 970; -- client and other non-bootloaded code being mapped
+cTransactionCrashRecovery: Code = 975; -- Transaction log being processed
+cCommunication: Code = 980; -- Pilot Communication component being initialized
+cFindPupAddress: Code = 981; -- trying to find a Pup / EthernetOne 8 bit address
+cClient: Code = 990; -- PilotClient.Run called\7f1 4f0 34f1i16f0I30f1i29f0I33f1i55f0I31f1i58f0I32f1i55f0I26f1i29f0I25f1i46f0I38f1i62f0I36f1i52f0I39f1i36f0I31f1i39f0I29f1i58f0I1f1i1f0I24f1i42f0I32f1i37f0I28f1i58f0I31f1i55f0I29f1i53f0I32f1i43f0I22f1i62f0I28f1i58f0I26f1i67f0I25f1i77f0I21f1i56f0I33f1i68f0I24f1i54f0I25f1i61f0I22f1i43f0I30f1i42f0I27f1i48f0I28f1i51f0I18f1i53f0I39f1i35f0I28f1i51f0I29f1i52f0I21f1i26f0I
+END.e6\f1 3f0
+LOGl4269d2999e36(635)\i
+Time: June 7, 1979  10:53 AM		By: McJones	Action: Created filel4269d2999e12\i62I
+Time: April 10, 1980  11:49 AM		By: Forrest	Action: Added cTeledebugServerl4269d2999\i
+Time: July 31, 1980  5:15 PM		By: Forrest	Action: Added cHangl4269d2999\i
+Time: August 27, 1980  4:36 PM		By: McJones	Action: Added cGermFinished, cCleanupl4269d2999\i
+Time: September 4, 1980  9:42 PM		By: Forrest	Action: Transactin Recoveryl4269d2999\i
+Time: November 10, 1980  6:10 PM		By: Forrest	Action: add cTimeNotAvailablel4269d2999\i
+Time: February 25, 1981  3:52 PM		By: BLyon	Action: add cFindPupAddressl4269d2999\i

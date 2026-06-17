@@ -1,0 +1,304 @@
+
+-- EthernetOneHeadDorado.mesa
+    -- Copyright c 1985, 1986 by Xerox Corporation.  All rights reserved.
+    -- Taft, February 13, 1983 1:20 pm
+    -- Levin, August 8, 1983 3:04 pm
+    -- Russ Atkinson (RRA) February 19, 1985 2:07:23 pm PST
+    -- Hal Murray, May 13, 1986 5:06:41 pm PDT
+
+-- Some modifications should be made to clean up multicast receiving, but they would cause
+-- incompatibilities in existing volumes (Germ, Othello, CoPilot, etc.)
+
+DIRECTORY
+    Basics USING [BITAND, bytesPerWord, HighByte, LowHalf],
+    DeviceCleanup USING [Item, Await],
+    DoradoInputOutput USING [Input, IOAddress, Output, ResetEther],
+    EthernetOneFace USING [HostArray, Status],
+    MPCodes USING [Code, ethernetHostChanged],
+    ProcessorFace USING [SetMP, ProcessorID, processorID];
+    
+EthernetOneHeadDorado: CEDAR PROGRAM
+    IMPORTS Basics, DeviceCleanup, DoradoInputOutput, ProcessorFace
+    EXPORTS EthernetOneFace = {
+    
+    BYTE: TYPE = [0..100H);
+    
+    HostArray: TYPE = EthernetOneFace.HostArray;
+    Status: TYPE = EthernetOneFace.Status;
+    
+    csb: Handle ← LOOPHOLE[LONG[177600B]];
+    
+    ControllerStatusBlock: TYPE = MACHINE DEPENDENT RECORD [
+        nextInput: ShortIocb,
+        inInterruptBit: WORD,
+        host: WORD ← 0FFFFH, -- <0 => compatability with old microcode
+        missed: CARDINAL,
+        lastInput: IOCB, -- valid IFF nextInput # NIL, not used by microcode
+        firstInterstices: ARRAY [6..10B) OF WORD ← ALL[0],
+        nextOutput: ShortIocb,
+        outInterruptBit: WORD,
+        minPacketSpacing: CARDINAL,
+        lastOutput: IOCB, -- valid IFF nextOutput # NIL, not used by microcode
+        secondInterstices: ARRAY [15B..30B) OF WORD ← ALL[0],
+        hosts: HostArray]; -- current set of hosts to which receiver code responds
+        
+    IOCB: TYPE = LONG POINTER TO IOControlBlock;
+    ShortIocb: TYPE = -- BASE RELATIVE-- POINTER TO IOControlBlock;
+    IOControlBlock: TYPE = MACHINE DEPENDENT RECORD [
+        next: ShortIocb,
+        completion: CompletionStatus,
+        used: CARDINAL, -- input only
+        load: CARDINAL, -- output only
+        words: CARDINAL,
+        buffer: LONG POINTER ];
+        
+    CompletionStatus: TYPE = MACHINE DEPENDENT RECORD [
+        microcode (0: 0..7): {pending (0), done (1), bufferOverflow (2), loadOverflow (3), killed(37)},
+        hardware (0: 8..15): SELECT OVERLAID * FROM
+            input => [
+                rxCollision (0: 8..8),
+                fill1 (0: 9..9),
+                rxDataLate (0: 10..10),
+                fill2 (0: 11..11),
+                rxCRCError (0: 12..12),
+                fill3 (0: 13..14),
+                rxIncTrans (0: 15..15): BOOLEAN],
+            output => [
+                rxOn (0: 8..8),
+                txOn (0: 9..9),
+                loopBack (0: 10..10),
+                txCollision (0: 11..11),
+                noWakeups (0: 12..12),
+                txDataLate (0: 13..13),
+                singleStep (0: 14..14),
+                txFifoPE (0: 15..15): BOOLEAN],
+            ENDCASE];
+            
+    inputErrorMask: input CompletionStatus = [
+        microcode: pending, 
+        hardware: input[rxCollision: TRUE, fill1: FALSE, rxDataLate: TRUE, fill2: FALSE,
+            rxCRCError: TRUE, fill3: FALSE, rxIncTrans: TRUE]];
+    outputErrorMask: output CompletionStatus = [
+        microcode: pending,
+        hardware: output[rxOn: FALSE, txOn: FALSE, loopBack: FALSE, txCollision: TRUE,
+            noWakeups: FALSE, txDataLate: TRUE, singleStep: FALSE, txFifoPE: TRUE]];
+    nullCompletion: CompletionStatus = LOOPHOLE[0];
+    
+    Command: TYPE = RECORD [WORD];
+    enableInput: Command = [173377B];
+    enableOutput: Command = [047777B];
+    control: DoradoInputOutput.IOAddress = 16B;
+    
+    -- The microcode assumes that NIL is 0.
+    
+    Shorten: PROCEDURE [iocb: IOCB] RETURNS [ShortIocb] = TRUSTED INLINE {
+        -- Maybe we should check to be sure that the high half is zero
+        RETURN[LOOPHOLE[Basics.LowHalf[LOOPHOLE[iocb]]]];
+        };
+        
+        
+    -- EXPORTed TYPEs
+    
+    Handle: PUBLIC TYPE = LONG POINTER TO ControllerStatusBlock;
+    ControlBlockRecord: PUBLIC TYPE = IOControlBlock;
+    
+    -- EXPORTed variables
+    
+    nullHandle: PUBLIC Handle ← NIL;
+    controlBlockSize: PUBLIC CARDINAL ← SIZE[IOControlBlock];
+    hearSelf: PUBLIC BOOLEAN ← TRUE;
+    
+    -- Non EXPORTed things.  Note that all the state information lives in the CSBs.
+    
+    QueueOutput: PUBLIC PROC [
+        handle: Handle, buffer: LONG POINTER, bytes: NAT, iocb: IOCB] = TRUSTED {
+        words: CARDINAL ← (bytes+Basics.bytesPerWord-1)/2; -- Round up
+        iocb^ ← [next: NIL, completion: nullCompletion, used: 0, load: 0, words: words,
+            buffer: buffer];
+        IF handle.nextOutput # NIL THEN handle.lastOutput.next ← Shorten[iocb];
+        IF handle.nextOutput = NIL AND iocb.completion = nullCompletion THEN {
+            handle.nextOutput ← Shorten[iocb];
+            DoradoInputOutput.Output[enableOutput, control]; };
+        handle.lastOutput ← iocb;
+        };
+        
+    QueueInput: PUBLIC PROC [
+        handle: Handle, buffer: LONG POINTER, bytes: NAT, iocb: IOCB] = TRUSTED {
+        words: CARDINAL ← (bytes+Basics.bytesPerWord-1)/2; -- Round up
+        iocb^ ← [next: NIL, completion: nullCompletion, used: 0, load: 0, words: words,
+            buffer: buffer];
+        IF handle.nextInput # NIL THEN handle.lastInput.next ← Shorten[iocb];
+        IF handle.nextInput = NIL AND iocb.completion = nullCompletion THEN
+            handle.nextInput ← Shorten[iocb];
+        handle.lastInput ← iocb;
+        };
+        
+    MarkKilled: PUBLIC PROC [iocb: IOCB] = TRUSTED {
+        iocb.completion.microcode ← killed;
+        };
+        
+    GetStatusAndLength: PUBLIC PROC [iocb: IOCB] RETURNS [status: Status, bytes: NAT] = TRUSTED {
+        SELECT iocb.completion.microcode FROM
+            pending => RETURN[pending, 0];
+            done => {
+                IF Basics.BITAND[
+                    LOOPHOLE[iocb.completion], LOOPHOLE[inputErrorMask] ]=0 THEN status ← ok
+                ELSE SELECT TRUE FROM
+                    iocb.completion.rxCollision => status ← otherError;
+                    iocb.completion.rxDataLate => status ← overrun;
+                    iocb.completion.rxCRCError =>
+                        status ← IF iocb.completion.rxIncTrans THEN crcAndBadAlignment ELSE crc;
+                    iocb.completion.rxIncTrans => status ← badAlignmentButOkCrc;
+                    ENDCASE => status ← otherError; };
+            bufferOverflow => status ← packetTooLong;
+            loadOverflow => status ← tooManyCollisions;
+            ENDCASE => status ← otherError;
+        bytes ← iocb.used*2;
+        };
+        
+    GetStatusAndCollisions: PUBLIC PROC [iocb: IOCB] RETURNS [status: Status, collisions: NAT] = TRUSTED {
+        SELECT iocb.completion.microcode FROM
+            pending => RETURN[pending, 0];
+            done => {
+                IF Basics.BITAND[LOOPHOLE[iocb.completion], LOOPHOLE[outputErrorMask] ]=0 THEN status ← ok
+                ELSE SELECT TRUE FROM
+                    iocb.completion.txCollision => status ← tooManyCollisions;
+                    iocb.completion.txDataLate => status ← underrun;
+                    iocb.completion.txFifoPE => status ← otherError;
+                    ENDCASE => status ← otherError; };
+            bufferOverflow => status ← packetTooLong;
+            loadOverflow => status ← tooManyCollisions;
+            ENDCASE => status ← otherError;
+        collisions ← SELECT iocb.load FROM
+            1 => 0,
+            3 => 1,
+            7 => 2,
+            17B => 3,
+            37B => 4,
+            77B => 5,
+            177B => 6,
+            377B => 7,
+            777B => 8,
+            1777B => 9,
+            3777B => 10,
+            7777B => 11,
+            17777B => 12,
+            37777B => 13,
+            77777B => 14,
+            177777B => 15,
+            ENDCASE => 16;
+        };
+        
+    GetPacketsMissed: PUBLIC PROC [handle: Handle] RETURNS [CARDINAL] = TRUSTED {
+        RETURN[handle.missed];
+        };
+        
+    GetNextDevice: PUBLIC PROC [handle: Handle] RETURNS [Handle] = TRUSTED {
+        RETURN[IF handle=nullHandle THEN csb ELSE nullHandle];
+        };
+        
+    GetHostNumber: PUBLIC PROC [handle: Handle] RETURNS [host: BYTE] = TRUSTED {
+        RETURN[Basics.HighByte[DoradoInputOutput.Input[control]]];
+        };
+        
+    once: BOOL ← FALSE;
+    TurnOn: PUBLIC PROC [handle: Handle, inInterrupt, outInterrupt: WORD] = TRUSTED {
+        me: BYTE ← GetHostNumber[handle];
+        DoradoInputOutput.ResetEther[];
+        IF ~once THEN {
+            once ← TRUE;
+            handle^ ← [
+                nextInput: NIL,
+                inInterruptBit: inInterrupt,
+                host: 0FFFFH,
+                missed: 0,
+                lastInput: NIL,
+                firstInterstices: ALL[0],
+                nextOutput: NIL,
+                outInterruptBit: outInterrupt,
+                minPacketSpacing: 500/32,
+                lastOutput: NIL,
+                secondInterstices: ALL[0],
+                hosts: ALL[FALSE] ]; };
+        handle.nextInput ← NIL;
+        handle.inInterruptBit ← inInterrupt;
+        handle.host ← 0FFFFH;
+        handle.nextOutput ← NIL;
+        handle.outInterruptBit ← outInterrupt;
+        handle.minPacketSpacing ← 500/32;
+        handle.hosts ← ALL[FALSE];
+        handle.hosts[0] ← TRUE;
+        handle.hosts[me] ← TRUE;
+        DoradoInputOutput.Output[enableInput, control];
+        };
+        
+    TurnOff: PUBLIC PROC [handle: Handle] = TRUSTED {
+        DoradoInputOutput.ResetEther[];
+        handle.nextInput ← NIL;
+        handle.nextOutput ← NIL;
+        };
+        
+    SetOutputDelay: PUBLIC PROC [handle: Handle, microseconds: CARDINAL] = TRUSTED {
+        handle.minPacketSpacing ← microseconds/32; };
+        
+    -- hosts is complete specification (including 0, if broadcasts are to be accepted), of the hosts whose input packets the microcode will accept. NIL => revert to normal mode
+    SetInputHosts: PUBLIC PROC [handle: Handle, hosts: LONG POINTER TO HostArray] = TRUSTED {
+        IF hosts = NIL THEN {
+            me: BYTE ← GetHostNumber[handle];
+            handle.hosts ← ALL[FALSE];
+            handle.hosts[0] ← TRUE;
+            handle.hosts[me] ← TRUE; }
+        ELSE handle.hosts ← hosts^;
+        };
+        
+    alreadyInitializedCleanup: BOOLEAN ← FALSE;
+    
+    savedCSB: ControllerStatusBlock;
+    
+    AddCleanup: PUBLIC PROC [handle: Handle] = TRUSTED {
+        processorID: ProcessorFace.ProcessorID ← ProcessorFace.processorID;
+        item: DeviceCleanup.Item;
+        originalHost: BYTE ← GetHostNumber[handle];
+        IF alreadyInitializedCleanup THEN RETURN;
+        alreadyInitializedCleanup ← TRUE;
+        DO
+            SELECT DeviceCleanup.Await[@item] FROM
+                kill => DoradoInputOutput.ResetEther[];
+                turnOff => {
+                    DoradoInputOutput.ResetEther[];
+                    savedCSB ← handle^;
+                    handle.nextInput ← NIL;
+                    handle.nextOutput ← NIL; };
+                turnOn => {
+                    me: BYTE ← Basics.HighByte[DoradoInputOutput.Input[control]];
+                    -- Note that this does NOT really put things back together.
+                    -- It simply smashes things to a safe state. The intention is that the driver
+                    -- will notice that nothing is happening and then call TurnOff+TurnOn to reset
+                    -- things. That allows Pilot to reset the GMT clock on the way back from the
+                    -- debugger without getting tangled up with the normal Ethernet driver.
+                    DoradoInputOutput.ResetEther[];
+                    IF processorID # ProcessorFace.processorID THEN
+                        ErrorHalt[MPCodes.ethernetHostChanged];  -- InLoaded on another machine?
+                    IF me # originalHost THEN
+                        ErrorHalt[MPCodes.ethernetHostChanged];  -- InLoaded on another machine?
+                    handle^ ← [
+                        nextInput: NIL,
+                        inInterruptBit: 0,
+                        host: 0FFFFH,
+                        missed: savedCSB.missed,
+                        lastInput: NIL,
+                        firstInterstices: ALL[0],
+                        nextOutput: NIL,
+                        outInterruptBit: 0,
+                        minPacketSpacing: savedCSB.minPacketSpacing,
+                        lastOutput: NIL,
+                        secondInterstices: ALL[0],
+                        hosts: savedCSB.hosts ];
+                    DoradoInputOutput.Output[enableInput, control]; };
+                ENDCASE;
+            ENDLOOP;
+        };
+        
+    ErrorHalt: PROC [code: MPCodes.Code] = INLINE { ProcessorFace.SetMP[code]; DO ENDLOOP };
+    
+    }.

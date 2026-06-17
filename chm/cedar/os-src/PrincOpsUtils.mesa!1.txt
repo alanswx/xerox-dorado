@@ -1,0 +1,339 @@
+
+-- PrincOpsUtils.mesa
+    -- Copyright c 1985 by Xerox Corporation.  All rights reserved.
+    -- Levin on September 20, 1983 10:57 am
+    -- Birrell, July 8, 1983 1:16 pm
+    -- Russ Atkinson (RRA) February 27, 1985 8:05:00 pm PST
+    -- Doug Wyatt, February 26, 1985 3:17:11 pm PST
+
+DIRECTORY
+    Basics,
+    PrincOps;
+
+-- Note to the casual reader:  The definitions in this interface are primarily intended for use by wizards.  General clients should probably look in the "Basics" interface for the operations they need before looking here.
+
+PrincOpsUtils: DEFINITIONS
+IMPORTS Basics
+= BEGIN OPEN PrincOps;
+-- Utilities for Basic Data Structures
+    -- Conversion among various memory size measures
+        
+        -- The following procedures are coded in an obscure way to avoid invoking software-implemented arithmetic.  This will all go away when the commented code sequences are introduced (in Trinity).
+    
+    PagesForWords: SAFE PROC [words: INT] RETURNS [pages: PageCount]
+        = TRUSTED INLINE {
+        RETURN[Basics.DoubleShiftRight[[li[li: words+(wordsPerPage-1)]], logWordsPerPage].li]
+        };
+        
+    WordsForPages: SAFE PROC [pages: PageCount] RETURNS [words: INT]
+        = TRUSTED INLINE {
+        RETURN[Basics.DoubleShiftLeft[[li[li: pages]], logWordsPerPage].li]
+        };
+        
+    PagesForBytes: SAFE PROC [bytes: INT] RETURNS [pages: PageCount]
+        = TRUSTED INLINE {
+        RETURN[Basics.DoubleShiftRight[[li[li: bytes+(bytesPerPage-1)]], logBytesPerPage].li]
+        };
+        
+    BytesForPages: SAFE PROC [pages: PageCount] RETURNS [bytes: INT]
+        = TRUSTED INLINE {
+        RETURN[Basics.DoubleShiftLeft[[li[li: pages]], logBytesPerPage].li]
+        };
+        
+    
+    -- Conversion among various memory address measures
+        
+        -- The following procedures are coded to avoid invoking software-implemented arithmetic.
+    
+    AddressForPageNumber: SAFE PROC [page: PageNumber] RETURNS [address: LONG POINTER]
+        = TRUSTED INLINE {
+        RETURN[Basics.DoubleShiftLeft[[li[li: page]], logWordsPerPage].lp]
+        };
+        
+    PageNumberForAddress: SAFE PROC [address: LONG POINTER] RETURNS [page: PageNumber]
+        = TRUSTED INLINE {
+        RETURN[Basics.DoubleShiftRight[ [lp[address]], logWordsPerPage].li]
+        };
+        
+    
+    -- Block copying utilities
+    
+    LongMove: PROC [from: LONG POINTER, nwords: CARDINAL, to: LONG POINTER]
+        = INLINE {
+        -- Trinity instructions will make this more efficient in the overlapping case.
+        Ordered: PROC [lp: LONG POINTER] RETURNS [LONG ORDERED POINTER] =
+            MACHINE CODE {};
+        IF Ordered[to] IN [Ordered[from]..Ordered[from]+nwords)
+            THEN FOR i: CARDINAL DECREASING IN [0..nwords) DO (to+i)^ ← (from+i)^; ENDLOOP
+            ELSE LongCopy[from: from, to: to, nwords: nwords];
+        };
+        
+    Copy: PROC [from: POINTER, nwords: CARDINAL, to: POINTER]
+        = MACHINE CODE {zBLT};
+        
+    ByteBlt: PROC [to, from: ByteBltBlock] RETURNS [nBytes: CARDINAL];
+        -- This will be a machine code procedure in Trinity.
+        
+    LongCopy: PROC [from: LONG POINTER, nwords: CARDINAL, to: LONG POINTER]
+        = MACHINE CODE {zBLTL};
+        
+    
+    -- Logic utilities (same as in Basics)
+    
+    BitOp: TYPE = PROC [WORD, WORD] RETURNS [WORD];
+        
+    BITAND: BitOp
+        = MACHINE CODE {zAND};
+        
+    BITOR: BitOp
+        = MACHINE CODE {zOR};
+        
+    BITXOR: BitOp
+        = MACHINE CODE {zXOR};
+        
+    BITNOT: PROC [WORD] RETURNS [WORD]
+        = MACHINE CODE {zLIN1; zXOR};
+        
+    BITSHIFT: PROC [value: WORD, count: INTEGER] RETURNS [WORD]
+        = MACHINE CODE {zSHIFT};
+        
+    
+    -- Long Pointer Manipulation
+    
+    LowHalf: PROC [u: LONG POINTER] RETURNS [POINTER]
+        = INLINE {RETURN[LOOPHOLE[LOOPHOLE[u, Basics.LongNumber].lo]]};
+        
+    HighHalf: PROC [u: LONG POINTER] RETURNS [CARDINAL]
+        = INLINE {RETURN[LOOPHOLE[u, Basics.LongNumber].hi]};
+        
+    MakeLongPointer: PROC [low: POINTER, high: CARDINAL] RETURNS [LONG POINTER]
+        = INLINE {
+        RETURN[LOOPHOLE[Basics.LongNumber[pair[lo: LOOPHOLE[low], hi: high]]]]};
+        
+    
+    -- Miscellaneous
+    
+    LongZero: PROC [where: LONG POINTER, nwords: CARDINAL]
+        = MACHINE CODE { zMISC, aZERO; zPOP; zPOP};
+        
+    PUSH: PROC RETURNS [WORD]
+        = MACHINE CODE {zPUSH};
+        
+    GetClockPulses: SAFE PROC RETURNS [CARD]
+        = TRUSTED MACHINE CODE {zMISC, aRCLK};
+        
+    VERSION: SAFE PROC RETURNS [VersionResult]
+        = TRUSTED MACHINE CODE {zMISC, aVERSION};
+        
+-- Utilities for BitBlt and TextBlt  (wizards only)
+    AlignedBBTable: PROC [ip: POINTER TO BBTableSpace] RETURNS [b: BBptr]
+        = INLINE {
+        align: TYPE = MACHINE DEPENDENT RECORD [
+            s: [0..WORD.LAST/BBTableAlignment), z: [0..BBTableAlignment)];
+        b ← LOOPHOLE[ip + BBTableAlignment - 1];
+        LOOPHOLE[b, align].z ← 0;
+        };
+        
+    BITBLT: PROC [ptr: BBptr]
+        = MACHINE CODE {zBITBLT};
+    
+    AlignedTextBltArg: PROC [ip: POINTER TO TextBltArgSpace] 
+RETURNS [p: POINTER TO TextBltArg]
+        = INLINE {
+        align: TYPE = MACHINE DEPENDENT RECORD [
+            s: [0..WORD.LAST/TextBltArgAlignment), z: [0..TextBltArgAlignment)];
+        p ← LOOPHOLE[ip + TextBltArgAlignment - 1];
+        LOOPHOLE[p, align].z ← 0;
+        };
+        
+    TextBlt: PROC [
+index: CARDINAL, bitPos: CARDINAL, micaPos: CARDINAL, 
+count: INTEGER, ptr: POINTER TO TextBltArg] 
+RETURNS [
+newIndex: CARDINAL, newBitPos: CARDINAL, newMicaPos: CARDINAL, 
+newCount: INTEGER, result: TextBltResult
+]
+        = MACHINE CODE {zMISC, aTEXTBLT};
+    
+-- Utilities for Xfer data structures  (wizards only)
+    -- Control links
+    
+    GetReturnLink: PROC RETURNS [ControlLink]
+        = MACHINE CODE {zLLB, returnOffset};
+        
+    SetReturnLink: PROC [ControlLink]
+        = MACHINE CODE {zSLB, returnOffset};
+        
+    IsBound: SAFE PROC [link: ControlLink] RETURNS [BOOL]
+        = TRUSTED INLINE {RETURN[link ~= UnboundLink AND link ~= NullLink]};
+        
+    
+    -- Local Frames
+    
+    GetReturnFrame: PROC RETURNS [FrameHandle]
+        = LOOPHOLE[GetReturnLink];
+        
+    SetReturnFrame: PROC [FrameHandle]
+        = LOOPHOLE[SetReturnLink];
+        
+    MyLocalFrame: PROC RETURNS [FrameHandle]
+        = MACHINE CODE {zLADRB, 0};
+        
+    MakeFsi: SAFE PROC [words: [0..MaxFrameSize]] RETURNS [fsi: FrameSizeIndex]
+        = TRUSTED INLINE {
+        FOR fsi IN [0..LastAVSlot) DO
+            IF FrameVec[fsi] >= words THEN RETURN;
+            ENDLOOP;
+        ERROR
+        };
+        
+    FrameSize: SAFE PROC [fsi: FrameSizeIndex[0..LargeReturnSlot)] 
+RETURNS [[0..MaxFrameSize]]
+        = TRUSTED INLINE {RETURN[FrameVec[fsi]]};
+        
+    
+    -- Global Frames
+    
+    MyGlobalFrame: PROC RETURNS [GlobalFrameHandle]
+        = MACHINE CODE {zGADRB, 0};
+        
+    GlobalFrame: SAFE PROC [link: ControlLink] RETURNS [GlobalFrameHandle];
+        
+    GlobalFrameAndEntryPoint: SAFE PROC [link: ControlLink] 
+RETURNS [gf: GlobalFrameHandle, ep: CARDINAL];
+        
+    
+    -- Code segments
+    
+    Codebase: PROC [frame: GlobalFrameHandle] RETURNS [PrefixHandle]
+        = INLINE { c: FrameCodeBase ← frame.code; c.out ← FALSE; RETURN[c.cseg] };
+        
+    
+    -- Allocation Vector
+    
+    Alloc: PROC [FrameSizeIndex] RETURNS [POINTER]
+        = MACHINE CODE {zALLOC};
+        
+    Free: PROC [POINTER]
+        = MACHINE CODE {zFREE};
+        
+-- Utilities for Process data structures  (wizards only)
+    ConditionPointer: TYPE = LONG POINTER TO CONDITION;
+    ShortConditionPointer: TYPE = POINTER TO CONDITION;
+    MonitorPointer: TYPE = LONG POINTER TO MONITORLOCK;
+    ShortMonitorPointer: TYPE = POINTER TO MONITORLOCK;
+    
+    -- Process Data Area access
+    
+    PsbHandleToIndex: SAFE PROC [handle: PsbHandle] RETURNS [PsbIndex]
+        = TRUSTED INLINE {RETURN[LOOPHOLE[handle, CARDINAL]/SIZE[ProcessStateBlock]]};
+        
+    PsbIndexToHandle: SAFE PROC [index: PsbIndex] RETURNS [PsbHandle]
+        = TRUSTED INLINE {RETURN[LOOPHOLE[index*SIZE[ProcessStateBlock]]]};
+        
+    PsbIndexToProcess: SAFE PROC [index: PsbIndex] RETURNS [PROCESS]
+        = TRUSTED INLINE {RETURN[LOOPHOLE[index]]};
+        
+    ProcessToPsbIndex: SAFE PROC [process: PROCESS] RETURNS [PsbIndex]
+        = TRUSTED INLINE {RETURN[LOOPHOLE[process]]};
+    
+    -- Monitors and Condition Variables
+    
+    Enter: PROC [ShortMonitorPointer] RETURNS [success: BOOL]
+        = MACHINE CODE {zME};
+        
+    LongEnter: PROC [MonitorPointer] RETURNS [success: BOOL]
+        = MACHINE CODE {zME};
+        
+    Exit: PROC [ShortMonitorPointer]
+        = MACHINE CODE {zMXD};
+        
+    LongExit: PROC [MonitorPointer]
+        = MACHINE CODE {zMXD};
+        
+    Wait: PROC [ShortMonitorPointer, ShortConditionPointer, --timeout:--CARDINAL]
+        = MACHINE CODE {zMXW};
+        
+    LongWait: PROC [MonitorPointer, ConditionPointer, --timeout:--CARDINAL]
+        = MACHINE CODE {zMXW};
+        
+    ReEnter: PROC [ShortMonitorPointer, ShortConditionPointer] RETURNS [success: BOOL]
+        = MACHINE CODE {zMRE};
+        
+    LongReEnter: PROC [MonitorPointer, ConditionPointer] RETURNS [success: BOOL]
+        = MACHINE CODE {zMRE};
+        
+    Notify: PROC [ShortConditionPointer]
+        = MACHINE CODE {zNOTIFY};
+        
+    LongNotify: PROC [ConditionPointer]
+        = MACHINE CODE {zNOTIFY};
+        
+    Broadcast: PROC [ShortConditionPointer]
+        = MACHINE CODE {zBCAST};
+        
+    LongBroadcast: PROC [ConditionPointer]
+        = MACHINE CODE {zBCAST};
+        
+    Requeue: PROC [from: QueueHandle, to: QueueHandle, p: PsbHandle]
+        = MACHINE CODE {zREQUEUE};
+        
+    EnableAndRequeue: PROC [from: QueueHandle, to: QueueHandle, p: PsbHandle]
+        = MACHINE CODE {
+        -- Note: this depends on having one instruction after enabling.
+        zDWDC;
+        zREQUEUE;
+        };
+    
+    -- Interrupts
+    
+    DisableInterrupts: PROC
+        = MACHINE CODE {zIWDC};
+        
+    EnableInterrupts: PROC
+        = MACHINE CODE {zDWDC};
+        
+    AllocateNakedCondition: PROC RETURNS [cv: ConditionPointer, mask: WORD];
+        -- This procedure allocates one of the sixteen naked notify condition variables, initializes it with the default timeout, and returns a long pointer and wakeup mask with an appropriate bit set.
+        
+    DeallocateNakedCondition: PROC [cv: ConditionPointer];
+        -- This procedure deallocates a naked notify condition variable previously allocated with AllocateNakedCondition.
+        
+-- Utilities for Virtual Memory Map  (wizards only)
+    -- Note: these utilities have been moved to VMInternal and BootFile.  They need to exist in two versions to allow for running on different machines.
+-- Miscellaneous  (wizards only)
+    WriteMDS: PROC [mdsi: CARDINAL]
+        = MACHINE CODE {zWR, MDSreg};
+    
+    ReadPSB: PROC RETURNS [currentProcess: PsbHandle]
+        = MACHINE CODE {zRR, PSBreg};
+        
+    WritePSB: PROC [currentProcess: PsbHandle]
+        = MACHINE CODE {zWR, PSBreg};
+    
+    ReadPTC: SAFE PROC RETURNS [time: Ticks]
+        = TRUSTED MACHINE CODE {zRR, PTCreg};
+        
+    WritePTC: SAFE PROC [time: Ticks]
+        = TRUSTED MACHINE CODE {zWR, PTCreg};
+    
+    ReadWDC: SAFE PROC RETURNS [countDisabled: CARDINAL]
+        = TRUSTED MACHINE CODE {zRR, WDCreg};
+        
+    WriteWDC: PROC [countDisabled: CARDINAL]
+        = MACHINE CODE {zWR, WDCreg};
+    
+    ReadATP, ReadOTP: PROC RETURNS [ControlLink]
+        = MACHINE CODE {zLLB, 3B};
+    
+    ReadXTS: SAFE PROC RETURNS [XferTrapStatus]
+        = TRUSTED MACHINE CODE {zRR, XTSreg};
+        
+    WriteXTS: PROC [XferTrapStatus]
+        = MACHINE CODE {zWR, XTSreg};
+    
+    ReadXTP: PROC RETURNS [ControlLink]
+        = MACHINE CODE {zLLB, 3};
+    
+
+END.

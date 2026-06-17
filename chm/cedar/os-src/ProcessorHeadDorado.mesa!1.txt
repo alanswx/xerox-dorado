@@ -1,0 +1,399 @@
+
+-- ProcessorHeadDorado.mesa
+    -- Copyright c 1985 by Xerox Corporation.  All rights reserved.
+    -- Taft, February 27, 1983 3:29 pm
+    -- Levin, August 8, 1983 3:09 pm
+    -- Birrell, November 1, 1983 10:15 am
+    -- Willie-Sue, January 31, 1985 4:07:27 pm PST
+    -- Russ Atkinson (RRA) February 27, 1985 8:30:52 pm PST
+    -- Doug Wyatt, April 24, 1985 9:29:12 pm PST
+
+DIRECTORY
+    Basics USING [BYTE, DivMod, LongDiv, LongMult],
+    DeviceCleanup USING [Await, Item, Perform, Reason],
+    DoradoInputOutput USING [GetMemConfig, Halt, pagesPerBank, RWMufMan],
+    MicrocodeBooting USING [BootFileNumber, MicrocodeType, nullBootFileNumber],
+    MPCodes USING [Code, emptyMP, powerOff],
+    PrincOps USING [aSETMP, aTEXTBLT, BitBltTable, BitBltTablePtr, ControlLink, FrameHandle, maxPagesInVM, PageCount, PageNumber, RealPageNumber, SD, StateVector, sUnimplemented, VersionResult, zMISC],
+    PrincOpsUtils USING [BITBLT, BITAND, BITOR, Copy, DisableInterrupts, EnableInterrupts, GetReturnFrame, GetReturnLink, LongCopy, MyLocalFrame],
+    ProcessorFace USING [GetClockPulses, gmtEpoch, GreenwichMeanTime, ProcessorID, SetMP],
+    SoftwareTextBlt USING [TextBlt],
+    TerminalDefs USING [Cursor, Position],
+    TrapSupport USING [BumpPC, OpTrapTable, opTrapTable];
+    
+ProcessorHeadDorado: MONITOR -- Protects GreenwichMeanTime calculation
+    IMPORTS Basics, DeviceCleanup, DoradoInputOutput, PrincOpsUtils, ProcessorFace, SoftwareTextBlt, TrapSupport
+    EXPORTS DoradoInputOutput, MicrocodeBooting, ProcessorFace
+    SHARES ProcessorFace = { OPEN DoradoInputOutput;
+
+-- ProcessorFace
+
+-- Initialization
+
+Go: PUBLIC SAFE PROC = CHECKED {
+    -- By now start trap has occurred and main-body code has run
+    };
+
+InitializeCleanup: PUBLIC SAFE PROC = TRUSTED {
+    OPEN DeviceCleanup;
+    item: Item;
+    reason: Reason;
+    DO
+        reason ← Await[@item];
+        SELECT reason FROM
+            turnOff, kill => gmtSimulated ← ProcessorFace.gmtEpoch;
+            ENDCASE
+        ENDLOOP
+    };
+
+-- Processor id
+
+processorID: PUBLIC ProcessorFace.ProcessorID ← GetProcessorID[];
+baseProcessorIDDorado: ProcessorFace.ProcessorID = [a: 0, b: 52612B, c: 100000B];
+GetProcessorID: PRIVATE PROC RETURNS [ProcessorFace.ProcessorID] = {
+    doradoSN: [0..377B] ← 0;
+    FOR i: CARDINAL IN [0..7] DO
+        doradoSN ← 2*doradoSN + RWMufMan[[useDMD: FALSE, dMuxAddr: 2220B+i]].dMuxData;
+        ENDLOOP;
+    RETURN[[a: baseProcessorIDDorado.a,
+        b: baseProcessorIDDorado.b,
+        c: baseProcessorIDDorado.c + doradoSN]] -- note most significant first
+    };
+    
+-- Real memory configuration
+
+dedicatedRealMemory: PUBLIC PrincOps.PageCount ← 0;
+
+firstSpecialRealPage: PUBLIC PrincOps.RealPageNumber ← 0;
+
+specialRealPages: PUBLIC PrincOps.PageCount ← 0;
+
+
+-- Virtual memory layout
+
+GetNextAvailableVM: PUBLIC SAFE PROC [page: PrincOps.PageNumber] RETURNS [firstPage: PrincOps.PageNumber, count: PrincOps.PageCount] = TRUSTED {
+    IF page < page1 THEN RETURN[page, page1 - page];
+    page ← MAX[page, page1 + 1];
+    IF page < page376B THEN RETURN[page, page376B - page];
+    page ← MAX[page, page376B + 1];
+    IF page < pageIO THEN RETURN[page, pageIO - page];
+    page ← MAX[page, pageIO + 1];
+    IF page < pageFirstUnimplemented THEN RETURN[page, pageFirstUnimplemented - page];
+    RETURN[LAST[PrincOps.PageNumber], 0]
+    };
+    
+useLongMapOps: PUBLIC BOOL ← TRUE;
+    -- The Dorado can use the long map ops.
+    
+-- I/O page for Alto-compatible display, cursor, mouse coords.
+-- NOTE: even though we declare this page off-limits, boot files may contain data for it.  Therefore, boot devices (disk and Ethernet) CANNOT use page1 for their CSBs.
+page1: PrincOps.PageNumber = 1B;
+
+-- I/O page for Alto-compatible keyboard/mouse bitmap
+page376B: PrincOps.PageNumber = 376B;
+
+-- I/O page for newly-written device microcode
+pageIO: PrincOps.PageNumber = 377B;
+
+-- First nonexistent VM page.
+pageFirstUnimplemented: PrincOps.PageNumber =
+    IF GetMemConfig[].virtualBanks > PrincOps.maxPagesInVM/pagesPerBank THEN
+        PrincOps.maxPagesInVM
+    ELSE Basics.LongMult[GetMemConfig[].virtualBanks, pagesPerBank];
+    
+-- Interval time
+microsecondsPerHundredPulses: PUBLIC CARDINAL ← 32*100;
+
+-- Naked notifies
+cvTimeoutMask: WORD = 100000B; -- Dorado microcode assumes level 0
+reservedNakedNotifyMask: PUBLIC WORD ← cvTimeoutMask;
+
+-- Condition variable time
+
+millisecondsPerTick: PUBLIC CARDINAL ← 40; -- the correct value is set by UserTerminalHead
+
+InitializeCVTimeouts: PROC = {
+    DIW: LONG POINTER TO WORD = LOOPHOLE[LONG[421B]];
+    DIW^ ← PrincOpsUtils.BITOR[DIW^, cvTimeoutMask];
+    };
+    
+-- Greenwich mean time
+
+GetGreenwichMeanTime: PUBLIC ENTRY SAFE PROC RETURNS [ProcessorFace.GreenwichMeanTime] = CHECKED{
+    OPEN ProcessorFace;
+    ENABLE UNWIND => NULL;
+    IF gmtSimulated ~= gmtEpoch THEN  {-- don't update clock unless it has been set
+        seconds: GreenwichMeanTime =
+            (GetClockPulses[] - pulsesGmtSimulated)/pulsesPerSecond;
+        pulsesGmtSimulated ← pulsesGmtSimulated + seconds*pulsesPerSecond;  -- long multiply!
+        gmtSimulated ← gmtSimulated + seconds;
+        };
+    RETURN[gmtSimulated]
+    };
+    
+SetGreenwichMeanTime: PUBLIC ENTRY SAFE PROC [gmt: ProcessorFace.GreenwichMeanTime] = CHECKED {
+    ENABLE UNWIND => NULL;
+    pulsesGmtSimulated ← ProcessorFace.GetClockPulses[];
+    gmtSimulated ← gmt
+    };
+    
+gmtSimulated: ProcessorFace.GreenwichMeanTime ← ProcessorFace.gmtEpoch;  -- => not set
+pulsesGmtSimulated: LONG CARDINAL;  -- interval timer value corresponding to gmtSimulated
+pulsesPerSecond: LONG CARDINAL =
+    Basics.LongDiv[1D6*100, microsecondsPerHundredPulses];
+
+-- Booting and power control
+
+BootButton: PUBLIC SAFE PROC = TRUSTED {
+    PrincOpsUtils.DisableInterrupts[];
+    [] ← RWMufMan[[useDMD: TRUE, dMuxAddr: 2264B]];  -- Request BaseBoard boot
+    DO ENDLOOP;
+    };
+    
+PowerOff: PUBLIC SAFE PROC [returnIfDisabled: BOOL ← FALSE] = TRUSTED {
+    OPEN ProcessorFace;
+    timeToGo: LONG INTEGER;
+    IF powerOffCount # 0 AND returnIfDisabled THEN RETURN;
+    PrincOpsUtils.DisableInterrupts[];
+    DeviceCleanup.Perform[turnOff];
+    DO
+        SetMP[MPCodes.powerOff];
+        IF powerOffCount = 0 THEN EXIT;
+        ENDLOOP;
+    timeToGo ← gmtAutomaticPowerOn - GetGreenwichMeanTime[];
+    -- Manifold 2262 turns the machine off indefinitely.
+    -- Manifold 2263 turns the machine off for a specified interval in units of 25.6 sec.
+    -- The interval must be left on the BMux when the machine halts.
+    SELECT TRUE FROM
+        gmtAutomaticPowerOn = gmtEpoch-1 =>
+            [] ← RWMufMan[[useDMD: TRUE, dMuxAddr: 2262B]];
+        timeToGo < 26 =>
+            BootButton[];
+        ENDCASE =>
+            [] ← RWMufMan[[useDMD: TRUE, dMuxAddr: IF timeToGo >= (200000B*256)/10 THEN 2262B ELSE 2263B]];
+    Halt[Basics.LongDiv[timeToGo * 10, 256]];
+    };
+    
+powerOffCount: INT ← 0;
+    
+DisablePowerOff: PUBLIC ENTRY SAFE PROC = TRUSTED {
+    -- Bumps the power off disable count.  This is useful during a critical operation to avoid power off operations.
+    powerOffCount ← powerOffCount + 1;
+    };
+    
+EnablePowerOff: PUBLIC ENTRY SAFE PROC = TRUSTED {
+    -- Decrements the power off disable count (pins at 0).
+    IF powerOffCount > 0 THEN powerOffCount ← powerOffCount - 1;
+    };
+    
+gmtAutomaticPowerOn: ProcessorFace.GreenwichMeanTime;
+
+SetAutomaticPowerOn: PUBLIC SAFE PROC [gmt: ProcessorFace.GreenwichMeanTime, externalEvent: BOOL] = TRUSTED {
+    gmtAutomaticPowerOn ← gmt};
+    
+ResetAutomaticPowerOn: PUBLIC SAFE PROC = TRUSTED {
+    gmtAutomaticPowerOn ← ProcessorFace.gmtEpoch - 1;  -- infinity
+    };
+    
+    
+-- MicrocodeBooting
+
+BootSpecificMicrocode: PUBLIC PROC [bfn: MicrocodeBooting.BootFileNumber] = {
+    microcodeBFNOffset: CARDINAL = 3000B; -- microcode boot server uses offset BFNs
+    ubfn: CARDINAL ← bfn-microcodeBFNOffset;
+    bootParameterSeal: CARDINAL = 56623B;
+    PushBootParams: PROC [ubfn, seal, checksum: CARDINAL] = MACHINE CODE {};
+    -- Push sealed and checksum boot file parameters on the stack for Initial to look at.
+    -- Note: in general calling BootButton with a non-empty stack would be illegal,
+    -- but is OK here because BootButton calls only machine code procedures.
+    IF bfn#MicrocodeBooting.nullBootFileNumber THEN
+        PushBootParams[ubfn, bootParameterSeal, 0-(ubfn+bootParameterSeal)];
+    BootButton[];
+    };
+    
+GetBootFileNumber: PUBLIC PROC [type: MicrocodeBooting.MicrocodeType] RETURNS [bfn: MicrocodeBooting.BootFileNumber] = {
+    RETURN[[
+        SELECT type FROM
+            altoMesa => 3110B,
+            lisp => 3112B,
+            smalltalk76 => 3111B,
+            smalltalk80 => MicrocodeBooting.nullBootFileNumber,
+            pilotMesa, cedarMesa => 3113B,
+            ENDCASE => MicrocodeBooting.nullBootFileNumber]];
+    };
+    
+    
+-- TrapSupport.
+
+UnimplementedInstruction: ERROR = CODE;
+
+Unimplemented: PROC = {
+    v: MACHINE DEPENDENT RECORD [a, b: UNSPECIFIED, state: PrincOps.StateVector];
+    v.state ← STATE;
+    ERROR UnimplementedInstruction;
+    };
+    
+trapTable: TrapSupport.OpTrapTable ←
+    [ALL[LOOPHOLE[Unimplemented]], ALL[LOOPHOLE[Unimplemented]]];
+    
+    
+-- Software assist for microcode
+-- assumes return link is a frame, and has been started.
+-- This trap procedure is called only if the Cedar TrapSupport microcode is NOT present.
+-- If the microcode IS present, it calls the appropriate trap routine directly.
+UnimplementedTrap: PROC = {
+    l: PrincOps.ControlLink;
+    code: LONG POINTER TO PACKED ARRAY [0..0) OF Basics.BYTE;
+    opcode: [0..400B);
+    state: PrincOps.StateVector;
+    state ← STATE;
+    state.source ← l ← PrincOpsUtils.GetReturnLink[];
+    code ← LOOPHOLE[l.frame.accesslink.code.longbase];
+    opcode ← code[l.frame.pc];
+    state.dest ← IF opcode # PrincOps.zMISC THEN TrapSupport.opTrapTable.main[opcode]
+        ELSE TrapSupport.opTrapTable.misc[code[l.frame.pc+1]];
+    -- If handler is fixed-frame, manually plant the return link.
+    -- (Microcode does that for traps, but not for ordinary XFERs to frames.)
+    IF ~state.dest.proc THEN state.dest.frame.returnlink ← l;
+    RETURN WITH state  -- Flush my frame and transfer to real trap handler
+    };
+    
+-- Handler for TEXTBLT trap.
+-- The opcode actually takes a pile of arguments and returns a pile of results.
+-- The trap handler is defined strangely in order to avoid needless pushing and popping.
+TEXTBLTTrap: PROC = {
+    -- TEXTBLT is a minimal-stack instruction, so no need to save state vector.
+    TextBlt: PROC = LOOPHOLE[SoftwareTextBlt.TextBlt];
+    TrapSupport.BumpPC[2];
+    TextBlt[];
+    };
+    
+-- Fixed-frame handler for SetMP trap.
+-- (Needs to be fixed-frame because SetMP may occur in contexts where
+-- frame allocation is impossible.)
+InitSetMPTrap: PROC = {
+    GetCode: PROC RETURNS [code: MPCodes.Code] = MACHINE CODE {};
+    code: MPCodes.Code;
+    cursorPtr: LONG POINTER TO TerminalDefs.Cursor = LOOPHOLE[LONG[431B]];
+    state: MACHINE DEPENDENT RECORD [a, b: UNSPECIFIED, v: PrincOps.StateVector];
+    
+    TrapSupport.opTrapTable.misc[PrincOps.aSETMP].frame ← PrincOpsUtils.MyLocalFrame[];
+    state.v ← STATE;
+    PrincOpsUtils.DisableInterrupts[];
+    
+    DO
+        state.v.dest ← PrincOpsUtils.GetReturnLink[];
+        PrincOpsUtils.EnableInterrupts[];
+        TRANSFER WITH state.v;
+        -- SetMP trap enters here with code on top of stack.
+        PrincOpsUtils.DisableInterrupts[];
+        code ← GetCode[];
+        state.v ← STATE;
+        TrapSupport.BumpPC[2];
+        IF code = MPCodes.emptyMP THEN cursorPtr^ ← savedCursor
+        ELSE {
+            -- I should use the procedures exported through TerminalFace to do this,
+            -- but DisplayHeadDorado may not have been STARTed yet (or may not exist).
+            cursorPosition: LONG POINTER TO TerminalDefs.Position = LOOPHOLE[LONG[426B]];
+            digit, digitOffset: CARDINAL;
+            cursorPosition^ ← [x: 304, y: 404];
+            FOR i: CARDINAL IN [0..15] DO cursorPtr[i] ← 0; ENDLOOP;
+            FOR i: CARDINAL DECREASING IN [0..2] DO
+                [code, digit] ← Basics.DivMod[code, 10];
+                digitOffset ← digit*5;
+                bbPtr^ ← [
+                    dst: [word: cursorPtr, bit: 5*i],
+                    dstBpl: 16,
+                    src: [word: @digitFont + digitOffset/16, bit: digitOffset MOD 16],
+                    srcDesc: [srcBpl[64]],
+                    width: 5, height: 6, flags: [disjoint: TRUE, dstFunc: or]];
+                PrincOpsUtils.BITBLT[bbPtr];
+                ENDLOOP;
+            };
+        ENDLOOP;
+    };
+    
+-- These belong in SETMPTrap's local frame, but are here in the global frame
+-- because if SETMPTrap's local frame is too large it causes frame allocation traps
+-- during early initialization when they can't be handled.
+-- Note: PrincOps BBTable must be 16-word aligned, but Dorado requires only 2-word.
+bbTable: ARRAY[0..SIZE[PrincOps.BitBltTable]+1) OF UNSPECIFIED;
+bbPtr: PrincOps.BitBltTablePtr = LOOPHOLE[PrincOpsUtils.BITAND[LOOPHOLE[@bbTable+1], 177776B] ];
+digitFont: ARRAY [0..24) OF CARDINAL ← [
+    -- Strike-format font, densely packed, characters 6 high, 5 wide
+        30614B,  61474B, 167461B, 117000B,
+        45222B, 112441B,    512B,  57000B,
+        54202B,  22471B, 141062B,  57000B,
+        64214B,  14405B,  21111B, 157000B,
+        44220B, 117645B,  22110B,  57000B,
+        31736B,  60430B, 142063B, 117000B];
+        
+-- SetCursorPattern stores a copy of the real cursor here, and the SetMP trap handler copies this into the real cursor whenever a code of emptyMP is posted, thereby restoring the client's cursor across world-swaps.  This can't be done by UserTerminalHeadDorado's cleanup procedure, because calls to cleanup procedures are surrounded by SetMPs, thereby clobbering the cursor.
+savedCursor: PUBLIC TerminalDefs.Cursor ← ALL[0];
+
+-- Trap support for Cedar-related opcodes
+
+LocalBlkZ: PROC [count: CARDINAL] = {
+    state: PrincOps.StateVector;
+    p: POINTER;
+    state ← STATE;
+    TrapSupport.BumpPC[2];
+    IF count # 0 THEN {
+        p ← @(PrincOpsUtils.GetReturnFrame[].local[0]);
+        p^ ← 0;
+        IF count#1 THEN PrincOpsUtils.Copy[from: p, to: p+1, nwords: count-1];
+        };
+    state.dest.frame ← PrincOpsUtils.GetReturnFrame[];
+    RETURN WITH state
+    };
+    
+LongBlkZ: PROC [p: LONG POINTER, count: CARDINAL] RETURNS [resultP: LONG POINTER] = {
+    state: PrincOps.StateVector;
+    state ← STATE;
+    TrapSupport.BumpPC[2];
+    IF count # 0 THEN {
+        p^ ← 0;
+        IF count#1 THEN PrincOpsUtils.LongCopy[from: p, to: p+1, nwords: count-1];
+        };
+    resultP ← p;
+    state.dest.frame ← PrincOpsUtils.MyLocalFrame[];
+    TRANSFER WITH state;
+    };
+    
+UVersion: PROC RETURNS [PrincOps.VersionResult] = {
+    TrapSupport.BumpPC[2];
+    RETURN [[
+        machineType: dorado, majorVersion: 0, unused: 0,
+        floatingPoint: FALSE, cedar: FALSE, releaseDate: ProcessorFace.gmtEpoch/86400]];
+    };
+    
+
+-- Initialization
+
+InitializeCVTimeouts[];
+PrincOps.SD[PrincOps.sUnimplemented] ← LOOPHOLE[UnimplementedTrap];
+PrincOps.SD[137B] ← LOOPHOLE[@trapTable];
+InitSetMPTrap[];
+TrapSupport.opTrapTable.misc[PrincOps.aTEXTBLT] ← LOOPHOLE[TEXTBLTTrap];
+TrapSupport.opTrapTable.misc[100B] ← LOOPHOLE[LocalBlkZ];
+TrapSupport.opTrapTable.misc[102B] ← LOOPHOLE[LongBlkZ];
+TrapSupport.opTrapTable.misc[104B] ← LOOPHOLE[UVersion];
+ResetAutomaticPowerOn[];
+
+}.
+
+December 5, 1980  5:39 PM	Taft	Convert for Dorado; mostly remove D0 I/O junk
+December 11, 1980  12:55 PM	Taft	Maint panel in cursor
+    9-Jun-81 18:59:01	Taft	Export savedCursor; use it when SetMP code = cClient
+    7-Jul-81 19:50:43	Taft	Use TrapSupport; pass TextBlt trap off to SoftwareTextBlt; fully implement GetNextAvailableVM; add PowerOff and residual stuff from GMTUsingIntervalTimer.
+17-Aug-81 13:55:50	Taft	Fixed frame handler for SetMP trap.
+21-Aug-81  9:54:25	Taft	BootButton now requests BaseBoard boot.
+26-Sep-81 13:22:52	Taft	Fix bug in PowerOff; fully implement SetAutomaticPowerOn.
+22-Jun-82 14:59:02	Taft	Implement and export MicrocodeBooting.
+14-Jul-82 12:36:50	Taft	Add trap support for LocalBlkZ, LongBlkZ, and UVersion opcodes.
+September 28, 1982 3:55 pm  Taft  Do arithmetic right in PowerOff
+February 13, 1983 1:21 pm  Taft  Remove machine code procs to DoradoInputOutput
+February 27, 1983 2:31 pm  Taft  Export HeadStartChain.Start; absorb TrapSupportImpl
+April 8, 1983 5:39 pm	Levin	Convert to Cedar Nucleus
+
+

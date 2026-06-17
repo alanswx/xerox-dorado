@@ -1,0 +1,650 @@
+-- Germ>BootSwapGerm.mesa
+-- Last Edited by: Taft, February 25, 1983 3:00 pm
+
+-- Note: I think the code in initialize assumes the machine starts the germ
+-- with memory mapped at address 0
+
+DIRECTORY
+  Boot USING [
+    bootPhysicalVolume, inLoad, Location, MDSIndex, outLoad, pRequest,
+    pInitialLink, ReadMDS, teledebug],
+  BootChannel USING [Create, Operation, Handle, Transfer, transferCleanup, transferWait],
+  BootFile USING [
+    Continuation, currentVersion, Entry, Header, InLoadMode, maxEntriesPerHeader,
+    maxEntriesPerTrailer, Trailer],
+  BootSwap USING [
+    countSkip, Initialize, InitializeMDS, mdsiGerm, pCountGerm, pMon,
+    ResponseKind],
+  Environment USING [Long, maxPagesInMDS, PageCount, PageNumber, wordsPerPage],
+  Frame USING [Free, GetReturnFrame, GetReturnLink],
+  HeadStartChain USING [Start],
+  Inline USING [BITAND],
+  Mopcodes USING [zRET, zSLB],
+  ProcessorFace USING [SetMP, Start],
+  PageMap USING [
+    Assoc, Flags, flagsClean, flagsVacant, GetF, RealPageNumber, SetF, Value,
+    valueVacant],
+  PhysicalVolumeFormat USING [currentVersion, Descriptor, Seal],
+  PilotMP USING [
+    cCantSwap, cGerm, cGermAction, cGermBadBootFile,
+    cGermBadPhysicalVolume, cGermControlFault, cGermDeviceError, cGermDriver,
+    cGermERROR, cGermFinished, cGermStartFault, Code],
+  PrincOps USING [
+    ControlLink, ControlModule, FrameHandle, GlobalFrameHandle, MainBodyIndex,
+    NullGlobalFrame, NullLink, returnOffset, StateVector, UnboundLink],
+  PrincOpsRuntime USING [GetFrame, GFT],
+  ProcessOperations USING [WriteWDC],
+  PSB USING [Monitor, UnlockedEmpty],
+  ResidentMemory USING [AllocateMDS, AllocateMDSInternal],
+  SDDefs USING [
+    sControlFault, SD, sError, sSignal, sStart, sSwapTrap],
+  Teledebug USING [Debug],
+  Trap USING [ReadOTP];
+
+BootSwapGerm: MONITOR LOCKS residentMemoryLock -- LOCKS BootSwap.pMon, --
+  IMPORTS
+    Boot, BC: BootChannel, BootSwap, Frame, Heads: HeadStartChain, Inline,
+    ProcessorFace, PageMap, PrincOpsRuntime, ProcessOperations,
+    importedResidentMemory: ResidentMemory, Teledebug, Trap
+  -- IMPORTs ResidentMemory so that we can use Pilot's during testing.
+
+  EXPORTS BootChannel, HeadStartChain, ResidentMemory
+  SHARES Boot, BootSwap, PageMap, ResidentMemory =
+  BEGIN OPEN BootChannel, BootFile, BootSwap, Environment, PageMap, PilotMP;
+  -- Do NOT save any status between DoOutLoad and DoInLoad relating to the request.
+  -- The next time everything in the outside world may have changed. 
+  -- The booting action defined by the Principles of Operation should include:
+  --   1. Put all usable real memory somewhere in virtual memory.
+  --   2. Read countGerm pages of a "boot swap germ" into virtual memory beginning at
+  --      page pageGerm+countSkip (steal real memory from high end to do this).
+  --   3. Set Boot.pRequest^ to [inLoad, locationOfBootFile].
+  --   4. Set WDC>0, NWW=0, MDS=pageGerm, STKP=0.
+  --   5. Xfer[dest: Boot.pInitialLink].
+
+  -- At present, buffer space allocated for the BootChannel's is reclaimed when the request is complete.  Currently only the BootChannelEther allocates buffer space.  When non-initial-booting operations via the ether are implemented, we will have to hang onto this buffer space forever.
+
+  countVM: PageCount = --ProcessorFace.?--40000B;
+  pageGerm: PageNumber = GetPageMDS[] + countSkip;
+    -- should be a constant engraved in stone (Boot?)
+  pageBuffer: PageNumber; -- page used to read/write boot file map.
+  pageGermKeep: PageNumber;
+    -- highest (mapped) page of germ VM that we retain for all time.
+  pageAfterGerm: PageNumber ← pageGerm + pCountGerm^;
+    -- current end of (mapped) germ storage (includes allocated buffer space,
+    -- doesn't include pageTemp).
+    -- Note that DoInLoad uses a scratch VM page at pageAfterGerm.
+
+  dFirst64KStorage: LONG DESCRIPTOR FOR ARRAY OF WORD = DESCRIPTOR[
+    LOOPHOLE[LONG[177200B], LONG POINTER], 200B];
+    -- a piece of the first 64K that we know nobody uses, for allocating IOCB's.
+    -- When the germ moves to the first 64K, this should be put in its global frame.
+
+  -- Boot: ENTRY PROC =
+  --   BEGIN
+  --   continuation: Continuation;
+  --   ProcessorFace.SetMP[cGerm];
+  --   continuation ← DoInLoad[BC.Create[@Boot.pRequest.location]];
+  --   pMon.state ← response; ++ i.e. not request
+  --   WITH continuation SELECT FROM
+  --     initial =>
+  --       BEGIN
+  --       pMon.responseKind ← initiated;
+  --       mon.message^ ← . . . boot parameter . . .;
+  --       Set up psb with mds, destination; requeue it
+  --       END;
+  --     resumptive =>
+  --       BEGIN
+  --       pMon.responseKind ← resumed;
+  --       NOTIFY pMon.condResponse
+  --       END;
+  --     ENDCASE =>
+  --       Error[cGermBadBootFile];
+  --   JumpCall0[OutLoadProcess]
+  --   END;
+
+  -- OutLoadProcess: INTERNAL PROC =
+  --   BEGIN
+  --   Condition: TYPE = MACHINE DEPENDENT RECORD [queue, timeout: UNSPECIFIED];
+  --   DO
+  --     Wait for request and process it
+  --     WHILE pMon.state~=request DO WAIT pMon.condRequest ENDLOOP;
+  --     ProcessorFace.SetMP[cGerm];
+  --     DoOutLoad[BC.Create[@Boot.pRequest.location], pMon.inLoadMode,
+  --       Continuation[
+  --         fill: 0,
+  --         vp: resumptive[condResponse: LOOPHOLE[pMon.condResponse, Condition].queue]]];
+  --     Send response
+  --     pMon.state ← response;
+  --     pMon.responseKind ← outLoaded;
+  --     NOTIFY pMon.condResponse
+  --     ENDLOOP
+  --   END;
+
+  Run: PROC = -- after the very first execution, the germ entry point is here
+    BEGIN
+    handle: BootChannel.Handle;
+    ProcessorFace.SetMP[cGermAction];
+    BootSwap.InitializeMDS[]; -- set pMon
+    DO
+      -- inLoad exits through JumpCall2, outLoad does explicit EXIT
+      -- bootPhysicalVolume turns itself into an inLoad
+      SELECT Boot.pRequest.action FROM
+	Boot.inLoad =>
+	  BEGIN
+	  continuation: Continuation;
+	  responseKind: BootSwap.ResponseKind;
+	  mdsiOther: Boot.MDSIndex;
+	  destOther: UNSPECIFIED;
+	  handle ← BC.Create[@Boot.pRequest.location, read, dFirst64KStorage];
+	  [continuation, pMon.pStartListHeader] ← DoInLoad[handle];
+	  WITH continuation SELECT FROM
+	    initial --[mdsi, destination]-- =>
+	      BEGIN
+	      responseKind ← initiated;
+	      mdsiOther ← mdsi;
+	      destOther ← destination
+	      END;
+	    resumptive --[mdsi, resumee]-- =>
+	      BEGIN
+	      responseKind ← resumed;
+	      mdsiOther ← mdsi;
+	      destOther ← resumee
+	      END;
+	    ENDCASE => Error[cGermBadBootFile];
+	  BootSwap.Initialize[mdsiOther]; -- set (pMon and) WriteMDS machinery
+	  pMon.responseKind ← responseKind;
+	  ProcessorFace.SetMP[cGermFinished];
+	  JumpCall2[arg1: mdsiOther, arg2: destOther, Proc: pMon.CrossMDSCall];
+	    -- free our frame
+	  END;
+	Boot.outLoad =>
+	  BEGIN
+	  handle ← BC.Create[@Boot.pRequest.location, write, dFirst64KStorage];
+	  DoOutLoad[handle, pMon.inLoadMode, pMon.continuation];
+	  pMon.responseKind ← outLoaded;
+	  EXIT;
+	  END;
+	Boot.bootPhysicalVolume =>
+	  BEGIN
+	  pvDesc: POINTER TO PhysicalVolumeFormat.Descriptor = PointerFromPage[
+	    pageBuffer];
+	  Boot.pRequest.location.diskFileID.da ← [0, 0]; --kludge!
+	  handle ← BC.Create[@Boot.pRequest.location, rawRead, dFirst64KStorage];
+	  Transfer[handle, pageBuffer, 1];
+ 	  Transfer[handle, NULL, transferWait];
+	  IF pvDesc.seal ~= PhysicalVolumeFormat.Seal OR pvDesc.version ~=
+	    PhysicalVolumeFormat.currentVersion THEN
+	    Error[cGermBadPhysicalVolume];
+	  Transfer[handle, 0, 0]; -- shut down channel
+	  Boot.pRequest.location.diskFileID ← pvDesc.bootingInfo[pilot];
+	  Boot.pRequest.action ← Boot.inLoad;
+	  -- now get the boot file and go
+	  END;
+	Boot.teledebug =>
+	  IF IsBound[Teledebug.Debug] THEN {
+	    Teledebug.Debug[pageBuffer, dFirst64KStorage]; EXIT}
+	  ELSE Error[cCantSwap];
+	ENDCASE => Error[cGermERROR];
+      ENDLOOP;
+    ProcessorFace.SetMP[cGermFinished];
+    END;
+
+  DoInLoad: PROC [channel: BootChannel.Handle]
+    RETURNS [continuation: Continuation, pStartListHeader: POINTER] =
+    BEGIN
+    inLoadMode: InLoadMode;
+    realPageTemp: RealPageNumber; -- SkipPageHack
+    count, countData, countGroup, countRemaining: PageCount;
+    page, pageLastMapped, pageNext, pageRun: PageNumber;
+    pBuffer: POINTER = PointerFromPage[pageBuffer];
+    nEntry: CARDINAL;
+    pEntry, pEntryGroup: POINTER TO Entry;
+    value: Value;
+    SkipPage: PROC = -- SkipPageHack
+      BEGIN
+      pageTemp: PageNumber = pageAfterGerm;
+      Assoc[pageTemp, Value[FALSE, flagsClean, realPageTemp]];
+      Transfer[channel, pageTemp, 1];
+      Transfer[channel, NULL, transferWait];
+      Assoc[pageTemp, valueVacant];
+      END; --
+    -- Read first page, containing header
+    Transfer[channel, pageBuffer, 1];
+    Transfer[channel, NULL, transferWait];
+    BEGIN OPEN header: LOOPHOLE[pBuffer, POINTER TO Header];
+    IF header.version ~= BootFile.currentVersion THEN Error[cGermBadBootFile];
+    pStartListHeader ← header.pStartListHeader;
+    SELECT (inLoadMode ← header.inLoadMode) FROM
+      load =>
+	BEGIN
+	CompactVM[];
+	pageLastMapped ← FIRST[PageNumber] + GetCountRunMapped[FIRST[PageNumber]] - 1;
+	realPageTemp ← PageMap.GetF[pageLastMapped].realPage; -- SkipPageHack
+	END;
+      restore => NULL
+      ENDCASE;
+    continuation ← header.continuation;
+    countData ← header.countData;
+    pEntryGroup ← @header.entries[0];
+    nEntry ← maxEntriesPerHeader;
+    END;
+    --
+    -- Restore real memory and hardware map from boot file, beginning
+    -- with data of first group
+    page ← 0; -- next page to restore
+    countRemaining ← countData;
+    DO
+      -- Calculate group size
+      countGroup ← MIN[nEntry, countRemaining];
+      -- Set up map entries to be vacant or nonvacant (and writable), as appropriate
+      pEntry ← pEntryGroup;
+      THROUGH [0..countGroup) DO
+	WHILE page < pEntry.page DO
+	  -- nongerm pages not in boot file are vacant
+	--IF ~InGerm[page] THEN
+	  IF ~(page IN [pageGerm..pageAfterGerm) OR page = 376B OR page = 377B)
+	    THEN
+	    BEGIN
+	    value ← SetF[page, valueVacant];
+	    IF inLoadMode = load AND ~IsVacant[value] THEN
+	      Assoc[pageLastMapped ← pageLastMapped + 1, value]
+	    END;
+	  page ← page + 1;
+	  ENDLOOP;
+	IF inLoadMode = restore THEN
+	  Assoc[page, Value[FALSE, flagsClean, pEntry.value.realPage]];
+	pEntry ← pEntry + SIZE[Entry];
+	page ← page + 1;
+	ENDLOOP;
+      -- Transfer data to nonvacant pages
+      pEntry ← pEntryGroup;
+      count ← countGroup;
+      WHILE count ~= 0 DO
+	-- find and transfer one run
+	pageNext ← pageRun ← pEntry.page;
+	IF pageRun = 376B OR pageRun = 377B THEN -- SkipPageHack
+	  {SkipPage[]; pEntry ← pEntry + SIZE[Entry]; count ← count - 1}
+	ELSE
+	  BEGIN
+	  DO -- until end of run found
+	    count ← count - 1;
+	    pageNext ← pageNext + 1;
+	    pEntry ← pEntry + SIZE[Entry];
+	    IF count = 0 OR pEntry.page ~= pageNext OR pageNext = 376B OR pageNext
+	      = 377B --SkipPageHack-- THEN EXIT;
+	    ENDLOOP;
+	  Transfer[channel, pageRun, pageNext - pageRun];
+	  END;
+	ENDLOOP; -- Restore map entries
+      Transfer[channel, NULL, transferWait];
+      pEntry ← pEntryGroup;
+      THROUGH [0..countGroup) DO
+	[] ← SetF[pEntry.page, pEntry.value];
+	pEntry ← pEntry + SIZE[Entry]
+	ENDLOOP;
+      -- Prepare for next group
+      countRemaining ← countRemaining - countGroup;
+      IF countRemaining = 0 THEN EXIT;
+      BEGIN OPEN trailer: LOOPHOLE[pBuffer, POINTER TO Trailer];
+      Transfer[channel, pageBuffer, 1];
+      Transfer[channel, NULL, transferWait];
+      IF trailer.version ~= BootFile.currentVersion THEN Error[cGermBadBootFile];
+      pEntryGroup ← @trailer.entries[0];
+      nEntry ← maxEntriesPerTrailer;
+      END;
+      ENDLOOP;
+    -- All groups are now loaded
+    Transfer[channel, NULL, transferCleanup];  -- final call to allow cleanup
+    SELECT inLoadMode FROM
+      load =>
+	BEGIN
+	-- Recover germ buffer storage:  We can't do this when non-initial-booting
+         -- operations via the ether are implemented.
+	FOR page DECREASING IN [pageGermKeep..pageAfterGerm) DO
+	  Assoc[pageLastMapped ← pageLastMapped + 1, SetF[page, valueVacant]];
+	  ENDLOOP;
+	pageAfterGerm ← pageGermKeep;
+	END;
+      restore => -- nongerm pages not in boot file are set vacant:
+	WHILE page < countVM DO
+	--IF ~InGerm[page] THEN
+	  IF ~(page IN [pageGerm..pageAfterGerm) OR page = 376B OR page = 377B)
+	    THEN Assoc[page, valueVacant];
+	  page ← page + 1;
+	  ENDLOOP;
+      ENDCASE;
+    END;
+
+  DoOutLoad: PROC [
+    channel: BootChannel.Handle, inLoadMode: InLoadMode,
+    continuation: Continuation] =
+    -- Assumptions: interrupts disabled, all devices quiesced
+    BEGIN
+    count, countData, countGroup, countRemaining: PageCount;
+    page, pageNext, pageRun: PageNumber;
+    pBuffer: POINTER = PointerFromPage[pageBuffer];
+    nEntry: CARDINAL;
+    pEntry, pEntryGroup: POINTER TO Entry; --
+    -- Construct header in first map page
+    -- Number of pages to save is total nonvacant minus those in germ
+    page ← countData ← 0;
+    DO
+      --IF ~IsVacant[PageMap.GetF[page]] THEN
+      IF ~ValueAnd[PageMap.GetF[page], valueVacant] = valueVacant THEN
+	countData ← countData + 1;
+      IF (page ← page + 1) = countVM THEN EXIT;
+      ENDLOOP;
+    countData ← countData - (pageAfterGerm - pageGerm) - 2 --i.e. 376B and 377B--;
+    BEGIN OPEN header: LOOPHOLE[pBuffer, POINTER TO Header];
+    header ← [creationDate:, -- fill this when we have a Pilot T.O.D clock?
+	pStartListHeader: NIL, inLoadMode: inLoadMode, continuation: continuation,
+	countData: countData, entries:];
+    pEntryGroup ← @header.entries[0];
+    nEntry ← maxEntriesPerHeader;
+    END;
+    --
+    -- Write sequence of (map, data) groups
+    page ← 0;
+    countRemaining ← countData;
+    DO
+      -- Calculate group size
+      countGroup ← MIN[nEntry, countRemaining]; -- Write map page
+      pEntry ← pEntryGroup;
+      THROUGH [0..countGroup) DO
+	page ← AdvancePage[page];
+	pEntry^ ← [page, PageMap.GetF[page]];
+	pEntry ← pEntry + SIZE[Entry];
+	page ← page + 1
+	ENDLOOP;
+      Transfer[channel, pageBuffer, 1]; -- Write data pages
+      pEntry ← pEntryGroup;
+      count ← countGroup;
+      WHILE count ~= 0 DO
+	-- find and transfer one run
+	pageNext ← pageRun ← pEntry.page;
+	DO
+	  -- until end of run found
+	  count ← count - 1;
+	  pageNext ← pageNext + 1;
+	  pEntry ← pEntry + SIZE[Entry];
+	  IF count = 0 OR pEntry.page ~= pageNext THEN EXIT;
+	  ENDLOOP;
+	Transfer[channel, pageRun, pageNext - pageRun];
+	ENDLOOP; -- Prepare for next group
+      Transfer[channel, NULL, transferWait];
+      countRemaining ← countRemaining - countGroup;
+      IF countRemaining = 0 THEN EXIT;
+      BEGIN OPEN trailer: LOOPHOLE[pBuffer, POINTER TO Trailer];
+      pEntryGroup ← @trailer.entries[0];
+      nEntry ← maxEntriesPerTrailer;
+      trailer ← [entries:]; -- set version and any other defaultable fields
+      END;
+      ENDLOOP;
+    Transfer[channel, NULL, transferCleanup]; -- final call to allow cleanup
+    END;
+
+  AdvancePage: PROC [page: PageNumber] RETURNS [PageNumber] =
+    -- Return first page at or after given page which is not vacant or part of the germ
+    BEGIN
+    --WHILE IsVacant[PageMap.GetF[page]] OR InGerm[page]
+    WHILE PageMap.GetF[page].flags = flagsVacant OR
+      (page IN [pageGerm..pageAfterGerm) OR page IN [376B..377B]) DO
+      page ← page + 1 ENDLOOP;
+    RETURN[page]
+    END;
+
+  -- Find all real pages currently mapped to virtual pages
+  --   and map contiguous virtual addresses starting at 0 to them
+  -- expansions of InGerm[] and IsVacant[] are for speed (compiler thinks
+  -- is has to fabricate actual booleans
+  -- Treat Page 1 like an IO page (i.e. never relocate) until the DCB is moved out of it.
+  CompactVM: PROC =
+    BEGIN
+    pageDest: PageNumber ← 0;
+    FOR pageSource: PageNumber IN [0..countVM) DO
+      value: Value;
+      IF pageSource IN [pageGerm..pageAfterGerm) OR pageSource IN [376B..377B] THEN LOOP;
+      IF pageSource = 1 THEN LOOP;
+--    IF ~IsVacant[value ← SetF[pageSource, valueVacant]] THEN LOOP;
+      IF (value ← SetF[pageSource, valueVacant]).flags=flagsVacant THEN LOOP;
+      value.flags.writeProtected ← FALSE;
+      Assoc[pageDest, value];  -- put back in the map 
+      WHILE ((pageDest ← pageDest + 1) IN [pageGerm..pageAfterGerm)
+             OR pageDest = 1 OR pageDest IN [376B..377B]) DO ENDLOOP;
+      ENDLOOP;
+    END;
+
+  -- Backstop Create routine to plug end of chain of BootChannel interfaces.
+  Create: PUBLIC PROC [
+    POINTER TO Boot.Location, BootChannel.Operation,
+    LONG DESCRIPTOR FOR ARRAY OF WORD]
+    RETURNS [handle: BootChannel.Handle] =
+    {Error[cGermDeviceError]; -- nobody implements this type of device!--};
+
+  -- Find length of run of virtual pages all mapped to real pages
+  GetCountRunMapped: PROC [pageStarting: PageNumber]
+    RETURNS [countReal: PageCount] =
+    BEGIN
+    FOR countReal ← 0, countReal + 1 DO
+      IF PageMap.GetF[pageStarting + countReal].flags=flagsVacant THEN EXIT
+      ENDLOOP
+    END;
+
+  GetPageMDS: PROC RETURNS [PageNumber] = {RETURN[Boot.ReadMDS[]*maxPagesInMDS]; };
+
+  IsVacant: PROC [value: Value] RETURNS [BOOLEAN] = INLINE {
+    RETURN[value.flags=flagsVacant]};
+
+  -- Virtual memory is from 0 through 0+countVM[]-1, except pages
+  -- p for which InGerm[p]=TRUE
+
+  -- The following procedure has been MANUALLY expanded inline, so changes
+  -- to it must be propagated
+  -- In particular, see code which sets countData in DoOutLoad
+
+  InGerm: PROC [page: PageNumber] RETURNS [BOOLEAN] = INLINE
+    BEGIN
+    RETURN[page IN [pageGerm..pageAfterGerm) OR page IN [376B..377B]]
+    END;
+
+  JumpCall0: PROC [Proc: PROC] = MACHINE CODE
+    BEGIN Mopcodes.zSLB, PrincOps.returnOffset; Mopcodes.zRET END;
+
+  JumpCall2: PROC [
+    arg1, arg2: UNSPECIFIED, Proc: PROC [UNSPECIFIED, UNSPECIFIED]] =
+    LOOPHOLE[JumpCall0];
+
+  PageFromLongPointer: PROC [p: LONG POINTER TO UNSPECIFIED]
+    RETURNS [PageNumber] =
+    {OPEN l: LOOPHOLE[p, Long]; RETURN[l.highbits*256 + l.lowbits/256]};
+
+  PageFromPointer: PROC [p: POINTER] RETURNS [page: PageNumber] =
+    {RETURN[LOOPHOLE[LOOPHOLE[p, CARDINAL]/wordsPerPage + GetPageMDS[]]]};
+
+  PointerFromPage: PROC [page: PageNumber] RETURNS [POINTER] = {
+    RETURN[LOOPHOLE[(page - GetPageMDS[])*wordsPerPage]]};
+
+  Start: PUBLIC PROC = { -- plug the start chain--};
+
+  Transfer: PUBLIC PROC [handle: BC.Handle, page: PageNumber, count: PageCount] =
+    -- Only public to make compiler happy
+    BEGIN
+    ProcessorFace.SetMP[cGermDriver];
+    BC.Transfer[handle, page, count];
+    ProcessorFace.SetMP[cGermAction];
+    END;
+
+  ValueAnd: PROC [Value, Value] RETURNS [Value] = LOOPHOLE[Inline.BITAND];
+
+  Error: SIGNAL [code: PilotMP.Code] = CODE;
+
+  --
+  -- Simple Mesa runtime
+  Halt: PROC = INLINE BEGIN DO ENDLOOP END;
+
+  -- We can't set up handlers to catch Frame, Page, and Write Faults because they require that the ProcessDataArea be already initialized, and it's not until Pilot comes to life.  If the germ is not working, try putting a Midas break at the fault handling code.
+
+  IsBound: PROC [link: UNSPECIFIED] RETURNS [BOOLEAN] = {
+    RETURN[link ~= PrincOps.UnboundLink AND link ~= PrincOps.NullLink]};
+
+  ControlFaultHandler: PROC = -- entered via sControlFault
+    BEGIN
+    state: RECORD [a, b: UNSPECIFIED, v: PrincOps.StateVector];
+    state.v ← STATE; -- resets stack pointer
+    ProcessorFace.SetMP[cGermControlFault];
+    Halt[]
+    END;
+
+  InitializeMonitor: PROC [monitor: LONG POINTER TO MONITORLOCK] =
+    {LOOPHOLE[monitor, LONG POINTER TO PSB.Monitor]^ ← PSB.UnlockedEmpty};
+
+  -- THIS DOES NOT HANDLE CONTROL MODULES (Single or Multiple)
+  -- Copy code from Traps when/if needed.
+  -- entered via sStart KFCB (or call from SwapTrapHandler)
+
+  StartModule: PROC [cm: PrincOps.ControlModule] =
+    BEGIN OPEN PrincOps;
+    control: GlobalFrameHandle;
+    state: StateVector;
+    state ← STATE;
+    IF ~cm.multiple THEN
+      BEGIN OPEN dest: cm.frame;
+      IF @dest = NullGlobalFrame OR dest.started OR (control ← dest.global[0]) #
+	NullGlobalFrame THEN ERROR Error[cGermStartFault];
+      -- IF (control←dest.global[0])#NullGlobalFrame AND ~control.started THEN
+      -- StartModule[[frame[control]]];
+      IF ~dest.started THEN
+	BEGIN
+	state.dest ← ControlLink[
+	  procedure[gfi: dest.gfi, ep: MainBodyIndex, tag: TRUE]];
+	state.source ← Frame.GetReturnLink[];
+	dest.started ← TRUE;
+	RETURN WITH state
+	END
+      ELSE IF state.stkptr # 0 THEN ERROR Error[cGermStartFault];
+      END
+    ELSE ERROR Error[cGermStartFault];
+    END;
+
+  SwapTrapHandler: PROC = -- entered via sSwapTrap
+    BEGIN OPEN PrincOps, PrincOpsRuntime;
+    dest: ControlLink;
+    state: StateVector;
+    frame: GlobalFrameHandle;
+    state ← STATE;
+    dest ← Trap.ReadOTP[];
+    state.dest ← Frame.GetReturnLink[];
+    state.source ← NullLink;
+    DO
+      SELECT TRUE FROM
+	dest.proc => {frame ← GetFrame[GFT[dest.gfi]]; EXIT};
+	dest.indirect => dest ← dest.link^;
+	ENDCASE -- frame -- => {frame ← dest.frame.accesslink; EXIT};
+      ENDLOOP;
+    IF ~frame.started THEN StartModule[[frame[frame]]];
+    frame.code.out ← FALSE;
+    RETURN WITH state;
+    END;
+
+  -- entered via sSignal or sError KFCB
+  SignalHandler: PROC [signal: SIGNAL, code: PilotMP.Code] =
+    { ProcessorFace.SetMP[code]; Halt[] };
+
+
+  --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  -- ResidentMemory implementation, for allocating storage in the germ's MDS.
+  -- AllocateMDS may be called only during module initialization!
+  -- (The configuration of memory must be static during inLoad and outLoad.
+  -- Also, spare real memory may not be available after the system is initially loaded)
+
+  residentMemoryLock: PUBLIC MONITORLOCK; -- (PRIVATE in interface)
+  allocateMDSInternal: PUBLIC --INTERNAL-- ResidentMemory.AllocateMDSInternal ←
+    [AllocateMDSLocal]; -- (PRIVATE in Interface)
+
+  -- Guaranteed not to do an ALLOC from the frame heap.
+  -- note the page is writable thanks to CompactVM
+  AllocateMDSLocal: PROC [pages: CARDINAL] RETURNS [p: POINTER TO UNSPECIFIED] =
+    BEGIN
+    p ← PointerFromPage[pageAfterGerm];
+    THROUGH [0..pages) DO
+      Assoc[
+	pageAfterGerm,
+	SetF[
+	  page: FIRST[PageNumber] + GetCountRunMapped[FIRST[PageNumber]] - 1,
+	  flagsNew: valueVacant]];
+      -- grab last real page (can only do during an initial boot (inLoadMode=inLoad))
+      pageAfterGerm ← pageAfterGerm + 1;
+      ENDLOOP;
+    END;
+
+  --~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  testing: BOOLEAN;  -- TRUE if we are running in a test environment on top of Pilot.
+  Initialize: PROC = -- Assume called from main body
+    -- Assume all SD entries zero
+    BEGIN OPEN SDDefs;
+    pSD: POINTER TO ARRAY [0..0) OF UNSPECIFIED ← SD;
+    state: PrincOps.StateVector;
+    mainbody: PrincOps.FrameHandle = Frame.GetReturnFrame[];
+    testing ← pageGerm ~= (mdsiGerm*maxPagesInMDS) + countSkip;
+      -- TRUE if not loaded in normal place
+    pSD[sControlFault] ← ControlFaultHandler;
+    pSD[sSwapTrap] ← SwapTrapHandler;
+    pSD[sSignal] ← pSD[sError] ← SignalHandler;
+    pSD[sStart] ← StartModule;
+    ProcessorFace.Start[];
+    InitializeMonitor[@residentMemoryLock];
+    --check to see if the page following the germ is already mapped.
+    --This may be the case with micfocode swapping
+    IF PageMap.GetF[pageAfterGerm].flags # PageMap.flagsVacant THEN
+      pageAfterGerm ← (pageBuffer ← pageAfterGerm) + 1
+    ELSE
+      pageBuffer ← PageFromPointer[importedResidentMemory.AllocateMDS[pages: 1]];
+    pageGermKeep ← pageAfterGerm;
+    -- we keep the buffer page forever, deallocate all else after each request.
+    -- We can't deallocate when non-initial-booting operations via the
+    --    ether are implemented.
+    Heads.Start[];     -- start the heads (face implementations)
+    state.instbyte ← state.stkptr ← 0;
+    -- Subsequent entries to the germ go directly to Run[]:
+    state.dest ←
+      Boot.pInitialLink^ ←
+                  LOOPHOLE[Run, PrincOps.ControlLink];
+    state.source ← mainbody.returnlink;
+    Frame.Free[mainbody];
+    RETURN WITH state -- to Run[], never to return to Initialize
+    END;
+
+  ProcessorFace.SetMP[cGerm]; -- let them know we are here
+  ProcessOperations.WriteWDC[1]; -- temporary hack for Dandelion...delete soon
+  Initialize[]; -- never returns
+
+  END.
+
+LOG
+For earlier log entries see Amargosa archive version.
+
+April 10, 1980  11:59 AM   Forrest   Implement call to Teledebug.Debug.
+
+April 17, 1980  12:44 AM   Forrest   Get teledebug from Boot not Bootswap
+
+April 17, 1980  10:39 PM   Luniewski   AllocateMDSPages=>AllocateMDS
+
+April 18, 1980  3:58 PM   Knutsen   Export allocateMDSInternal, residentMemoryLock
+
+May 15, 1980  6:18 PM   McJones   Mesa 6; call OISProcessorFace.Start; temporarily initialize WDC
+
+June 10, 1980  9:16 AM   Forrest   PrincOps traps/use physical volume Format
+
+June 23, 1980  2:42 PM   McJones   OISProcessorFace => ProcessorFace
+
+July 20, 1980  9:18 PM   Forrest   PrincOpsRuntime
+
+August 5, 1980  9:17 AM   Forrest   Add test for Page after germ being mapped, use GetFlags
+
+September 9, 1980  5:50 PM   Forrest/McJones   Add cGermFinished
+
+December 10, 1980  9:51 AM   Knutsen   New name for PSB.Monitor.
+
+February 4, 1981  11:37 AM   Knutsen   PrincOps fields changed names.  Fault Notification: deleted Alloc and Page trap handlers.
+
+March 21, 1981  8:10 PM   Taft   Transplant my changes from Mokelumne: deal with asynchronous Transfer I/O.

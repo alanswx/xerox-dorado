@@ -1,0 +1,14 @@
+-- HeadStartChain.mesa (last edited by: McJones on: February 8, 1980  10:10 AM)l4268d2998(635)\ig3f5bI14f0B1i
+HeadStartChain: DEFINITIONS =e6(1792)\g16f1 11f0
+BEGINe6\f1g5f0
+-- NOTE: When AR 3536 is fixed, the modules HeadStartChain, DriverStartChain, and StoreDriverStartChain may be replace with single module StartChain.e6\bg
+-- Mechanism used to implement starting extensible set of modules (e.g.  heads, drivers, test programs)e12\ig
+-- We refer to a member of the set of modules as a link''; we refer to the module wishing to start the set as the master link''.l3648d2998e6\ig
+-- Each link should export Start with a body consisting simply of a call on Start imported through a second instance of StartChain (e.g. IMPORTS RemainingHeads: StartChain).l3648d2998\ig137f1 7f0
+-- The master link should export Start with a body which just returns and should also contain a call on Start imported through a second instance of StartChain named EntireStartChain.l3648d2998\ig
+-- The machinery is completed with a configuration which sets up a chain of StartChain imports-exports from EntireStartChain, through each of the links, and back to the master link.l3648d2998\ig181I
+Start: PROCEDURE;l3648d2998e6\bg6B1f1 9f0
+-- Start the (rest of the) chainl4283d3633\ig
+END.e6\f1g3f0
+LOGl4269d2999e36(635)\ig
+Time: January 31, 1980  11:09 AM	By: McJones	Action: Create filel4269d2999e6\ig64I

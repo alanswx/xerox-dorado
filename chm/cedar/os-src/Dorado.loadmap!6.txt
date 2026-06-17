@@ -1,0 +1,148 @@
+
+Dorado.loadmap
+
+Loadmap for boot file: Dorado.germ   June 5, 1986 10:03:15 pm PDT
+Built by: Cedar MakeBoot of May 13, 1985 11:27:45 pm PDT
+
+Input BCDs:
+
+  GermDorado.bcd                           05-Jun-86 22:03:11 PDT
+
+Parameter File:
+
+  Germ.bootmesa                            07-Nov-83 10:51:39 PST
+
+Input Parameters:
+
+  Version = 0.0
+  Earliest acceptable microcode:
+
+  GFT length = 128
+  PDA pages = 1
+  Processes = 50
+  MDS base = page 3584 [3400000]
+  Code base = page 3586 [3401000]
+
+  Statevector length = 65535
+  Statevector counts:
+     0:  1
+     1:  1
+     2:  3
+     3:  1
+     4:  1
+     5:  3
+     6:  1
+     7:  1
+
+  Frame heap pages = 0
+  Frame distribution:  [ FSI (words): count, next FSI ]
+    0 (   7):  19, 1
+    1 (  11):  5, 2
+    2 (  15):  5, 3
+    3 (  19):  4, 4
+    4 (  23):  2, 5
+    5 (  27):  3, 6
+    6 (  31):  3, 7
+    7 (  39):  0, 8
+    8 (  47):  0, 9
+    9 (  55):  2, 10
+   10 (  67):  0, 11
+   11 (  79):  0, 0
+   12 (  95):  0, 13
+   13 ( 111):  0, 14
+   14 ( 127):  0, 15
+   15 ( 147):  0, 16
+   16 ( 171):  0, 17
+   17 ( 203):  0, 18
+   18 ( 252):  0, 0
+   19 ( 508):  0, 0
+   20 ( 764):  0, 0
+   21 (1020):  0, 0
+   22 (1276):  0, 0
+   23 (1532):  0, 0
+   24 (1788):  0, 0
+   25 (2044):  0, 0
+   26 (2554):  0, 0
+   27 (3068):  0, 0
+   28 (3580):  0, 0
+   29 (4092):  0, 0
+
+  Wart: BootSwapGerm
+
+  Resident:
+    ALL;
+
+  No Trap:
+    BootSwapGerm,
+    TrapsImpl,
+    GermSwapImpl;
+
+
+Global Frames for Modules in GermDorado.bcd:
+  New: g = 003400 ProcessorHeadDorado [100]
+  New: g = 004524 DiskHeadDorado [200]
+  New: g = 004634 EthernetOneHeadDorado [300]
+  New: g = 004720 BootSwapGerm [400]
+  New: g = 004740 GermSwapImpl [500]
+  New: g = 004764 TrapsImpl [600]
+  New: g = 004770 TeledebugImpl [700]
+  New: g = 005430 MiniEthernetOneDriver [1000]
+  New: g = 006160 BootChannelDisk [1100]
+  New: g = 006234 BootChannelEther [1200]
+
+
+Total of 10 modules, 11 GFIs
+
+Unbound Imports:
+  ProcessorHeadDorado:   DeviceCleanup[1], SoftwareTextBlt[0]
+  DiskHeadDorado:   DeviceCleanup[1]
+  EthernetOneHeadDorado:   DeviceCleanup[1]
+
+LOCAL FRAMES ALLOCATED:
+
+   0:  24
+   1:  5
+   2:  5
+   3:  4
+   4:  2
+   5:  3
+   6:  3
+   7:  0
+   8:  0
+   9:  2
+  10:  0
+  11:  0
+  12:  0
+  13:  0
+  14:  0
+  15:  0
+  16:  0
+  17:  0
+  18:  0
+  19:  0
+  20:  0
+  21:  0
+  22:  0
+  23:  0
+  24:  0
+  25:  0
+  26:  0
+  27:  0
+  28:  0
+  29:  0
+
+
+GERM FILE MAP
+
+ File      VM     Pages   Map    Type   Source[base,pages]
+ Page    Address (*=Pin) Flags
+     0  17401000      1*         data
+     1  17401400      1*         data
+     2  17402000      3*         data
+     5  17403400      6*         data
+    13  17406400     21*  W      code   GermDorado[3,21]
+    34  17417000      7*  W      code   GermDorado[24,7]
+
+
+Germ file pages: 43
+

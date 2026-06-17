@@ -1,0 +1,61 @@
+
+-- MPCodes.mesa
+-- last edited by Levin on June 20, 1983 5:14 pm
+-- Last edited by Andrew Birrell on May 6, 1983 1:25 pm
+
+MPCodes: DEFINITIONS =
+
+BEGIN
+
+Code: TYPE = CARDINAL;
+
+-- Miscellaneous codes (800-809)
+
+emptyMP: Code =  800;
+powerOff: Code = 801;
+
+-- Germ related codes (810-829)
+
+germStarting: Code = 810; -- germ entered or re-entered
+germOutLoad: Code = 811; -- writing outLoad file
+germInLoad: Code = 812; -- loading boot file or outLoad file
+germMapIO: Code = 813; -- preserving/restoring vacant VM map entries
+germFinished: Code = 814; -- germ transferred control back to client (who has hung)
+germTeledebugServer: Code = 815; -- teledebug server running
+-- spare: 816 --
+germControlFault: Code = 817; -- unexpected trap or kernel function call
+germStartFault: Code = 818; -- attempt to start an already started module
+-- spare 819 --
+-- 820 unused to avoid confusion with Pilot's 920 (germDriver)
+germERROR: Code = 821; -- unnamed ERROR 
+germBadPhysicalVolume: Code = 822; -- germ and physical volume have incompatible versions
+germBadBootFile: Code = 823; -- germ and boot file have incompatible version numbers
+germNoPhysicalBootFile: Code = 824; -- no physical boot file installed
+germDeviceError: Code = 825; -- hard error on device being booted
+germTimeout: Code = 826; -- operation on boot device no completed in expected time
+germLabelCheck: Code = 827; -- broken link in chained boot file (try reinstalling)
+germNoServer: Code = 828; -- no response to germ's request for ether boot file
+germFunnyPacket: Code = 829; -- e.g. unexpected sequence number or size
+
+-- Debugger related codes (830-839)
+
+cleaningUp: Code = 830;
+hanging: Code = 831;
+cantWorldSwap: Code = 832;
+
+-- Initialization codes (840-?)
+
+initializationStarted: Code = 840;
+incorrectMachineType: Code = 841;
+incorrectMicrocode: Code = 842;
+mesaRuntimeInitialized: Code = 845;
+vmInitialized: Code = 850;
+storageInitialized: Code = 855;
+fileInitialized: Code = 860;
+findPupAddress: Code = 861; -- Ethernet2 trying to find its Pup address
+ethernetHostChanged: Code = 862; -- ethernet host different at DeviceCleanup.TurnOn
+communicationInitialized: Code = 865;
+fsInitialized: Code = 870;
+
+END.
+

@@ -1,0 +1,139 @@
+-- PhysicalVolumeFormat.mesa (last edited by: McJones on: January 30, 1981  11:56 AM)
+
+DIRECTORY
+  Boot USING [nullDiskFileID, PVBootFiles],
+  Environment USING [wordsPerPage],
+  Inline USING [BITXOR],
+  System USING [FileID, LocalTimeParameters, nullID, PhysicalVolumeID, VolumeID];
+
+PhysicalVolumeFormat: DEFINITIONS IMPORTS Inline =
+  BEGIN
+
+  Handle: TYPE = LONG POINTER TO Descriptor;
+
+  seal, Seal: CARDINAL = 121212B;
+    -- word zero of a valid physical volume descriptor (root page)
+  currentVersion: CARDINAL = 6;
+    -- increment each time Descriptor below is reformatted
+
+  -- BEWARE: The descriptors defined below cannot be reformatted without invalidating ALL outstanding Pilot volumes.  Remember also that non-reconstructable information added to the physical volume root page descriptor must also be added to the subvolume end marker page descriptor below.
+
+  Descriptor: TYPE = MACHINE DEPENDENT RECORD [
+
+    -- The first page of the descriptor only holds information that is relatively static
+
+    seal(0): CARDINAL ← Seal, -- must be 1st field
+    version(1): CARDINAL ← currentVersion, -- must be 2nd field
+    labelLength(2): CARDINAL [0..physicalVolumeLabelLength) ← 0,
+    pvID(3): System.PhysicalVolumeID,
+    bootingInfo(10B): Boot.PVBootFiles ← nullPVBootFiles,
+      -- must be at this offset as the microcode knows where to find it.
+    label(54B): PACKED ARRAY [0..physicalVolumeLabelLength) OF CHARACTER ←
+      nullLabel | NULL,
+    subVolumeCount(100B): CARDINAL [0..maxSubVols),
+    subVolumeMarkerID(101B): System.FileID ← [System.nullID],
+    badPageCount(106B): PageCount ← 0,
+    maxBadPages(110B): PageCount ← Environment.wordsPerPage/SIZE[PageNumber],
+      -- TEMPORARY until multi-page bad page tables are implemented
+    onLineCount(112B): CARDINAL ← 0, -- TEMPORARILY unused.
+    subVolumes(113B): ARRAY [0..maxSubVols) OF SubVolumeDesc,
+    fill1(231B): ARRAY [0..374B - 231B) OF WORD ← ALL[0], -- fill to whole page
+    localTimeParametersValid(374B:0..15): BOOLEAN ← FALSE,
+    localTimeParameters(375B): System.LocalTimeParameters ←
+      LOOPHOLE[LONG[0]],
+    checksum(377B): CARDINAL ← 0, -- MUST be the last field of this page
+
+    -- followed, on immediately following pages, by a BadPageList with maxBadPages entries
+
+    badPageList(400B): BadPageListArray];
+
+  -- second page is the bad page list.  Must fill to two full pages.
+
+  -- Placing the bad page table within Descriptor is a temporary hack to get the bad page list out of the root page.  Eventually, it will be a separate entity and will be able to be longer than one page.  However, this requires that much code be changed.  Whenever the change is made, the following must be maintained: the bad page list must have the same ID and type as the root page and they must immediately follow the root page on the physical volume.
+
+  -- The following describes the bad page table
+  BadPageList: TYPE = LONG POINTER TO BadPageListArray;
+  BadPageListArray: TYPE = ARRAY [0..maxBadPages) OF PageNumber;
+    -- actual length is Descriptor.maxBadPages
+  maxBadPages: CARDINAL = Environment.wordsPerPage/SIZE[PageNumber];
+    -- current maximum number of bad pages permitted on a volume.  This number may only be increased and never decreased.
+
+  -- SubVolumeDesc as stored on disk in physical volume root page.
+  -- See SubVolume.Descriptor for in-memory form.
+  SubVolumeDesc: TYPE = MACHINE DEPENDENT RECORD [
+    lvID(0): System.VolumeID,
+    lvSize(5): PageCount,
+    lvPage(7): PageNumber,
+    pvPage(11B): PageNumber,
+    nPages(13B): PageCount];
+
+  PSMSeal: CARDINAL = 141414B; -- word zero of a valid subvolume end marker page
+  PSMCurrentVersion: CARDINAL = 0;
+    -- increment each time SubVolEndMarkerDesc is reformatted
+
+  -- The subvolume end marker page marks the end of each subvolume on a physical volume and contains non-reconstructable information from both the physical (following) and logical volume root pages, and a checksum.
+
+  PhysicalSubvolumeMarker: TYPE = MACHINE DEPENDENT RECORD [
+    seal(0): CARDINAL ← PSMSeal, -- must be 1st field
+    version(1): CARDINAL ← PSMCurrentVersion, -- must be 2nd field
+
+    -- Information (mainly) describing the physical volume:
+    pvID(2): System.PhysicalVolumeID,
+    label(7): PACKED ARRAY [0..physicalVolumeLabelLength) OF CHARACTER ←
+      nullLabel,
+    bootingInfo(33B): Boot.PVBootFiles ← nullPVBootFiles,
+    maxBadPages(77B): PageCount, -- size of bad page table for the physical volume
+    labelLength(101B:0..5): CARDINAL [0..physicalVolumeLabelLength) ← 0,
+
+    -- Information describing the preceding subvolume:
+    fill(101B:6..12): [0..128) ← 0,
+    svNumber(101B:13..15): CARDINAL [0..maxSubVols),
+      -- ordinal number of preceding subvolume 
+    descriptor(102B): SubVolumeDesc];
+      -- copy of descriptor for preceding subvolume
+
+  PageNumber: TYPE = LONG CARDINAL;
+  PageCount: TYPE = LONG CARDINAL;
+
+  descriptorSize: CARDINAL
+    [2*Environment.wordsPerPage..2*Environment.wordsPerPage] = SIZE[Descriptor];
+    -- compiler check
+
+  maxSubVols: CARDINAL [4..7] = 6;
+    -- maximum subvolumes on a physical volume.  Because the subVolumes array is just before the Fill area in the Descriptor, it is possible to increment this field so that the subVOlumes array effectively grows into the Fill area.
+
+  nullBadPage: PageNumber = 0;
+  nullLabel: PACKED ARRAY [0..physicalVolumeLabelLength) OF CHARACTER = ALL[0C];
+  nullPVBootFiles: Boot.PVBootFiles = ALL[Boot.nullDiskFileID];
+
+  physicalVolumeLabelLength: CARDINAL = 40;
+
+  rootPageNumber: PageNumber = 0;
+
+  IDCheckSum: PROCEDURE [pvID: System.PhysicalVolumeID]
+      RETURNS [CARDINAL] =
+    INLINE
+    BEGIN OPEN LOOPHOLE[pvID, RECORD [a, b, c, d, e: WORD]], Inline;
+    RETURN[BITXOR[BITXOR[BITXOR[BITXOR[a, b], c], d], e]]
+    END;
+
+  END.
+
+March 14, 1979  2:59 PM	Redell	Create file
+March 18, 1979  2:08 PM	Redell	Reformat descriptor; make machine dependent
+July 24, 1979  3:35 PM	Forrest	Add physical volume names, volume type, swattee, debugger, etc; make ID a type
+July 27, 1979  3:51 PM	Forrest	Move most of last change to LogicalVolume
+August 17, 1979  1:33 PM	Redell	Separate declarations of offline and online SubVolume Descriptors; add VolumeIDCheckSum
+September 18, 1979  11:41 AM	Fay	Add badPageList, boot file IDs (microcode, germ, pilot), and checksum to root page descriptor; add subvolume end marker page descriptor
+September 18, 1979  2:23 PM	Forrest	Split off part of subvolumeEndMarker and moved to LogicalVolume; rename and mess with lots of minor things
+September 18, 1979  3:44 PM	Forrest	Change to use PVBootFiles
+September 19, 1979  8:22 AM	Forrest	Add a couple of comments to Marker
+September 19, 1979  1:42 PM	Forrest	Add many default fields
+September 20, 1979  10:42 AM	Forrest	Change [1..n]'s to [0..n)'s
+January 25, 1980  7:29 PM	Forrest	Equate ID to SpecialVolume.PhyscialVolumeID
+January 27, 1980  7:43 AM	Forrest	Delete nullID and UniversalID from USING of System
+May 20, 1980  2:46 PM	Luniewski	PhysicalVolume=>PhysicalVolumeFormat; use ALL's in initializations
+June 16, 1980  10:32 AM	McJones	Changes to accommodate 48-bit processor ids, including additional XOR in IDCheckSum!
+September 17, 1980  2:18 PM	Luniewski	Changes to move bad page list off of the root page
+January 30, 1981  11:56 AM	McJones	Add LocalTimeParameters field to Descriptor
+January 30, 1981  11:56 AM	McJones	SystemExtras=>System

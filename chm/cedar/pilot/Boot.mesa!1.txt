@@ -1,0 +1,57 @@
+-- Boot.mesa (last edited by: Forrest on: July 15, 1980  10:10 PM)l4268d2998(635)\i3f5bI4f0Bi
+DIRECTORYl2999d2998e6(2048)\f1 9f0
+Device USING [Type],l3634d3633(0,7520)\7f1 5f0
+File USING [ID, nullID, PageNumber],l3634d3633\5f1 5f0
+Mopcodes USING [zEXCH, zLI1, zLP, zPOP],l3634d3633\9f1 5f0
+Volume USING [Type];l3634d3633\7f1 5f0
+Boot: DEFINITIONS =l4269d2998e6(635)\6f1 11f0
+BEGINl4269d2998e6\f1 5f0
+-- Basic request to germl3634e12(2048)\i24I
+Request: TYPE = MACHINE DEPENDENT RECORD [l2999\9f1 4f0 3f1 24f0
+action: Action, location: Location];l3634
+pRequest: POINTER TO Request = LOOPHOLE[1360B]; -- relative to germ's MDSl2999\10f1 10f0 11b8B8f1i26f0I
+-- NOTE: pRequest+SIZE[Request] must not be greater than 1400B, the start of the GFT.l2999e6\i3b4B11f1 4f0 59f1 3f0
+Action: TYPE = RECORD [CARDINAL];l2999e6\8f1 4f0 3f1 6f0 2f1 8f0
+inLoad: Action = [0]; -- restore volatile processor state from BootFile-format snapshotl3634\21f1i66f0I
+outLoad: Action = [1]; -- save volatile processor state in BootFile-format snapshotl3634\22f1i61f0I
+bootPhysicalVolume: Action = [2]; -- do inLoad using Location specified indirectly in pilot entry of PVBootFiles array of physical volume root page of disk specified by accompanying Locationl3634\33f1i157f0I
+teledebug: Action = [3];l3634
+noOp: Action = [4]; -- simply Enter and Exit germl3634\19f1 1i29f0I
+pInitialLink: POINTER--TO ControlDefs.ControlLink-- = LOOPHOLE[1376B]; -- itself an indirect control link within germ MDSl2999e6\14f1 7i30f0I3b8B8f1i51f0I
+-- Description of boot file locationl3634e12\i36I
+Location: TYPE = MACHINE DEPENDENT RECORD [l2999e6\10f1 4f0 3f1 24f0
+deviceType: Device.Type, -- e.g. diablo31, sa4000, ethernetl3634\12f1 6f0 6f1i35f0I
+deviceOrdinal: CARDINAL, -- position of device within all those of same typel3634\15f1 8f0 1f1i52f0I
+vp: SELECT OVERLAID * FROMl3634\4f1 15f0 3f1 4f0
+disk => [diskFileID: DiskFileID],l4269
+ethernet => [bootFileNumber: CARDINAL, net, host: CARDINAL ← 0],l4269\29f1 8f0 13f1 8f0
+any => [a, b, c, d, e, f, g, h: UNSPECIFIED],l4269\32b11B
+ENDCASE];l4269\f1 7f0
+-- NOTE: The notion of a device ordinal is intended to be a function purely of a hardware configuration, and not of the microcode or heads running on that configuration.  This eases the problem of microcode swapping.l2999e6\i3b4B209I
+DiskFileID: TYPE = MACHINE DEPENDENT RECORD [l2999e6\12f1 4f0 3f1 24f0
+fID: File.ID,l3634\5f1 4f0
+firstPage: File.PageNumber,l3634\11f1 4f0
+da: DiskAddress];l3634\4g4G
+DiskAddress: TYPE = PRIVATE RECORD [UNSPECIFIED, UNSPECIFIED];l4268d2998e6(0,11328)\g13f1 4f0 3f1 14f0 2f1 11f0 2f1 11f0
+-- Convention: a DiskFileID is null if its fID is nulll2999e6(2048)\i54I
+nullDiskFileID: DiskFileID = [File.nullID, 0, [0, 0]]; -- delete thisl2999e6\30f1 4f0 20f1i15f0I
+-- Description of boot files pointed to from root pages of physical and logical volumesl3634e12\i87I
+-- The following cannot be changed without invalidating all Pilot volumesl3634\i
+BootFileType: TYPE = {hardMicrocode, softMicrocode, germ, pilot, debugger, debuggee};l4269d2999k72(635)\14f1 4f0
+PVBootFiles: TYPE = ARRAY BootFileType[hardMicrocode..pilot] OF DiskFileID;l4269d2999e6k72\13f1 4f0 3f1 5f0 36f1 2f0
+LVBootFiles: TYPE = ARRAY BootFileType OF DiskFileID;l4269d2999e6k72\13f1 4f0 3f1 5f0 14f1 2f0
+VolumeType: TYPE = Volume.Type;l4269d2999e6k72\12f1 4f0 3f1 7f0
+-- Miscellaneous useful definitionsl3634e12(2048)\i35I
+LP: PROCEDURE [lowbits, highbits: UNSPECIFIED] RETURNS [LONG POINTER] =l2999e6\b2B2f1 9f0 21b11B2f1 7f0 2f1 12f0
+MACHINE CODE BEGIN END;l3634\f1 22f0
+MDSIndex: TYPE = [0..256);l2999e12
+ReadMDS: PROCEDURE RETURNS [MDSIndex] = -- HighHalf[LONG[LOOPHOLE[1, POINTER]]] triggers compiler bugl2999e12\b7B2f1 17f0 13f1i62f0I
+MACHINE CODE BEGIN Mopcodes.zLI1; Mopcodes.zLP; Mopcodes.zEXCH; Mopcodes.zPOP END;l3634\f1 18f0 1f1 9f0 6f1 9f0 5f1 9f0 7f1 9f0 5f1 3f0
+END.l2999e6\f1 3f0
+LOGl4269d2999e36(635)\i
+Time: September 13, 1979  6:03 PM	By: McJones	Action: Create filel4269d2999e12\i65I
+Time: January 25, 1980  4:22 PM	By: McJones	Action: Add bootPhysicalVolume and noOp Request's and ethernet Locationl4269d2999\i115I
+Time: January 25, 1980  6:37 PM	By: McJones	Action: Replace Location.device with Location.deviceType and .deviceOrdinall4269d2999\i119I
+Time: April 17, 1980  12:41 AM	By: Forrest	Action: Added teledebugl4269d2999\i66I
+Time: April 17, 1980  10:39 AM	By: Luniewski	Action: Added net and host to Location.ethernetl4269d2999\i92I
+Time: July 15, 1980  10:09 PM	By: Forrest	Action: Add NoOp; refer to Volume.Typel4269d2999\i80I
