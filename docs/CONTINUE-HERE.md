@@ -70,32 +70,52 @@ is **unbound** -> germERROR. Traced end-to-end:
    the 128-entry GFT) -> unbound -> trap -> germ `SignalHandler`
    (`3E1E10`) -> germERROR (MP `0o1465`=821) -> `JB 0` spin.
 
-So the SwapTrap is genuine and CORRECTLY handled (NOT a bug); the residual
-wall is the SAME class sessions 14-19 hit: the germ's StartChain resumes a
-boot-process StateVector whose control link references a module our
-germ-only environment never binds (an OS/Pilot-resident link, or a
-forward reference filled only after `DoInLoad` loads the OS). The RisID
-fix advanced the germ from the FIRST such wall (the `0o26411` one -- which
-was actually MY BLT-overrun clobbering the link) deep into the StartChain
-to a genuine one (`0o177774`).
+The SwapTrap is genuine and CORRECTLY handled (NOT a bug). The residual
+wall is an **EMULATOR BUG (not an OS boundary)** -- the trap/`RETURN WITH
+state` resume reads the StateVector from a base that is **-`0o16`
+(-sizeStack) too low**, so it picks a garbage DLink. CORRECTION: an earlier
+draft of this entry ("`0o177774` is a genuine unbound control link /
+Stage-2 boundary, same class as sessions 14-19") was WRONG -- `0o177774`
+is a STACK word of a WELL-FORMED state, mis-read as the DLink.
 
-NEXT PASS (two angles, do both): (a) GENUINE-BOUNDARY check -- decode the
-StartChain end-state in `chm/cedar/germ-src/germopsimpl.mesa`
-(StartChain/pStartListHeader) + `trapsimpl-6.1.mesa` StartWithState: is
-resuming a state with an unbound link the INTENDED hand-off to the next
-boot phase (the germ expects a catch / should fall through to `DoInLoad`),
-which our germ-only setup doesn't provide? (b) EMULATOR-BUG check --
-`0o177774`=-4 is a suspiciously computed-looking value for a DLink; verify
-LoadState reads the DLink/SLink from the correct StateVector offset for
-THIS state's stkptr (the session-19-follow-up "ill-formed state / wrong
-offset" possibility), and that the template slot genuinely holds
-`0o177774` in the germ file vs being a copy/relocation artifact. Repro:
-`DORADO_IFUDISP_TRACE=1 ./build/dorado --eb '../chm/dorado/CedarDorado.eb!6'
---germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6' --cycles 90000000` ->
-1187 real dispatches; `DORADO_XFER_TRACE=1 DORADO_TRACE_GATE=
-"67995189,67996100"` shows CodeTrap (SwapTrap T=`0o10`) -> Start recursion
--> the `0o177774` Xfer; `DORADO_STORE_TRACE_VA="017402660,017402660"`
-shows the BLT (pc `0o3561`) copy the `0o177774` slot.
+### THE PROOF (StateVector dump + double LoadStack, decisive)
+- `StartWithState` builds a WELL-FORMED StateVector at **`@s=0o2657`**:
+  stkP=`0` (M[`0o2675`]), **DLink=`0o101`** (M[`0o2676`], a valid MainBody
+  link), **SLink=`0o2314`** (M[`0o2677`]). It writes s.dest/s.source there
+  correctly (stores at pc `0o224`, cyc 67994959/67994993). stack[0]=`0o3400`
+  (M[`0o2657`]), stack[1]=`0o177774` (M[`0o2660`]).
+- The resume runs LoadStack **TWICE** (`DORADO_XFER_TRACE` cyc
+  67995940-67995987):
+  1. pc `0o7034`/`0o1476`/`0o1477` with base **`0o2657`** (CORRECT): reads
+     SLink `0o2677`=`0o2314`, DLink `0o2676`=`0o101`, stkP `0o2675`=`0`.
+  2. pc `0o1372`/`0o1373`/`0o2372` (LoadState) with base **`0o2641`**
+     (= `0o2657` - `0o16`, WRONG): reads brk/stkP from `0o2657`, **DLink
+     from `0o2660` = `0o177774`** (really stack[1] of the `0o2657` state),
+     then `Xfer` (pc `0o1700`) through `0o177774` -> gfi `0o1777` unbound
+     -> germERROR.
+- So a single state at `0o2657` is read at TWO bases differing by exactly
+  sizeStack (`0o16`); the second (trap-restore) path is `sizeStack` too
+  low. `mb=0o0` (MemBase=MDS) at pc `0o2372` shows RTemp0 is a FULL address
+  (`0o2641`) -- the trap-state-restore path, NOT the LST/LSTF `RTemp0_ ID`
+  alpha path.
+
+### THE FIX (next pass -- pin the microinstruction, then correct it)
+A sibling of the LADRB/RisID offset bug: a StateVector base off by
+-sizeStack in the trap/XferTrap resume. NEXT PASS: instrument LoadState
+entry (real pc `0o2362`/`0o2372`) and the trap-restore routine feeding it
+(pc `0o1430`->`0o1465`->`0o1372`->`0o1373`->`0o2372`) to log RTemp0 +
+MemBase, and find WHERE RTemp0 is set to `0o2641` instead of `0o2657`.
+Likely culprits: (a) `SavePCAndTrap`/`SaveState` saved the trap state at
+the wrong base (the SaveState "T = @state.data[0] = RTemp0+sizeStack+2"
+vs `@state` distinction -- something stored/read `@state` where it meant
+`@state.data`, off by sizeStack); (b) `XTSReg`/the trap state pointer is
+computed as `@state - sizeStack`. Cross-check `SaveState`, `LoadState`,
+and the SD/`XferTrap` resume in DMesaXfer.mc against the register trace.
+Repro: `DORADO_XFER_TRACE=1 DORADO_TRACE_GATE="67995189,67996100"`
+(CodeTrap SwapTrap T=`0o10` -> the double LoadStack -> the `0o2641`-based
+Xfer); `DORADO_VMDUMP="017402640,017402702,67995985"` dumps the
+well-formed `0o2657` state (DLink=`0o101`); the 2nd LoadStack (base
+`0o2641`) is at pc `0o1372`/`0o1373` cyc 67995976-67995982.
 
 ## ROUTE B (2026-06-17, session 19 follow-up 6): the clobber is the Mesa BLT for `s _ state^` writing its DEST 11 words too high (0o2726 vs @s=0o2713). Source confirmed correct (state=0o7724, the static StateVector template). Root = the BLT dest (@s) computation is off by +11; exact cause NOT isolated. [SUPERSEDED by session 20 above: the +11 was the RisID Mar-substitution bug; the frame size (fsi 5) was correct and `s` is genuinely at offset 7.]
 
