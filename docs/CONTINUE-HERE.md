@@ -43,7 +43,7 @@ IFetch-Id).
    `asel 0/1` memory refs whose A source is the RM/STK default; the Alto
    worlds never run `LADRB`/`GADRB`, hence unchanged pixel counts.)
 
-### NEXT BLOCKER (DIAGNOSED) -- a genuine sSwapTrap, then a StartChain StateVector with an unbound control link (0o177774)
+### NEXT BLOCKER (PARTIALLY diagnosed; root OPEN) -- a genuine sSwapTrap, then a start-chain recursion that germERRORs (two specific root-cause leads DISPROVEN)
 After 1187 clean dispatches (no hardware fault) the germ's
 **module-startup chain (StartCM/Start)** reaches a module whose code is
 marked **swapped-out** and resumes a saved StateVector whose control link
@@ -70,52 +70,61 @@ is **unbound** -> germERROR. Traced end-to-end:
    the 128-entry GFT) -> unbound -> trap -> germ `SignalHandler`
    (`3E1E10`) -> germERROR (MP `0o1465`=821) -> `JB 0` spin.
 
-The SwapTrap is genuine and CORRECTLY handled (NOT a bug). The residual
-wall is an **EMULATOR BUG (not an OS boundary)** -- the trap/`RETURN WITH
-state` resume reads the StateVector from a base that is **-`0o16`
-(-sizeStack) too low**, so it picks a garbage DLink. CORRECTION: an earlier
-draft of this entry ("`0o177774` is a genuine unbound control link /
-Stage-2 boundary, same class as sessions 14-19") was WRONG -- `0o177774`
-is a STACK word of a WELL-FORMED state, mis-read as the DLink.
+The SwapTrap is genuine and CORRECTLY handled. The germERROR root is
+**NOT YET PINNED** -- it lives in the post-SwapTrap start-chain/trap
+recursion, NOT in the state resume. TWO specific root-cause leads in
+earlier drafts of this entry were investigated with register-level
+instrumentation and **BOTH DISPROVEN** (recorded here so the next session
+does not re-chase them):
+- WRONG LEAD #1: "`0o177774` is a genuine unbound control link / Stage-2
+  OS boundary (sessions 14-19 class)." DISPROVEN: `0o177774` is just a
+  STACK word (`stack[1]`) of a well-formed StateVector, legitimately
+  loaded onto the eval stack by `XferNoBreak` ("Leave 2 words above TOS").
+- WRONG LEAD #2: "the trap/`RETURN WITH state` resume reads the state at a
+  base `-sizeStack` too low (`0o2641` vs `0o2657`), so DLink is garbage."
+  DISPROVEN by direct A-bus instrumentation: at `LoadState` (pc `0o2362`)
+  and `LoadStack` (pc `0o7040`) **RTemp0 = `0o7`** (the offset of `s` in
+  frame L=`0o2650`, MemBase=L), and the fetches land on the CORRECT
+  well-formed state -- SLink `0o2677`=`0o2314`, **DLink `0o2676`=`0o101`**
+  (valid), stkP `0o2675`=`0`. The reads at `0o2657`/`0o2660` are the
+  `XferNoBreak` 2-words-beyond-TOS stack load, not a wrong base. So the
+  resume is CORRECT and the Xfer goes through the valid DLink `0o101`.
 
-### THE PROOF (StateVector dump + double LoadStack, decisive)
-- `StartWithState` builds a WELL-FORMED StateVector at **`@s=0o2657`**:
-  stkP=`0` (M[`0o2675`]), **DLink=`0o101`** (M[`0o2676`], a valid MainBody
-  link), **SLink=`0o2314`** (M[`0o2677`]). It writes s.dest/s.source there
-  correctly (stores at pc `0o224`, cyc 67994959/67994993). stack[0]=`0o3400`
-  (M[`0o2657`]), stack[1]=`0o177774` (M[`0o2660`]).
-- The resume runs LoadStack **TWICE** (`DORADO_XFER_TRACE` cyc
-  67995940-67995987):
-  1. pc `0o7034`/`0o1476`/`0o1477` with base **`0o2657`** (CORRECT): reads
-     SLink `0o2677`=`0o2314`, DLink `0o2676`=`0o101`, stkP `0o2675`=`0`.
-  2. pc `0o1372`/`0o1373`/`0o2372` (LoadState) with base **`0o2641`**
-     (= `0o2657` - `0o16`, WRONG): reads brk/stkP from `0o2657`, **DLink
-     from `0o2660` = `0o177774`** (really stack[1] of the `0o2657` state),
-     then `Xfer` (pc `0o1700`) through `0o177774` -> gfi `0o1777` unbound
-     -> germERROR.
-- So a single state at `0o2657` is read at TWO bases differing by exactly
-  sizeStack (`0o16`); the second (trap-restore) path is `sizeStack` too
-  low. `mb=0o0` (MemBase=MDS) at pc `0o2372` shows RTemp0 is a FULL address
-  (`0o2641`) -- the trap-state-restore path, NOT the LST/LSTF `RTemp0_ ID`
-  alpha path.
+### WHAT IS ACTUALLY TRUE (instrumented, forward-traced)
+- `StartWithState` builds a well-formed StateVector at `@s=0o2657`
+  (DLink=`0o101`, SLink=`0o2314`, stkP=0) and `RETURN WITH s` resumes it
+  correctly, XFERing through **DLink=`0o101` = gfi 1** (proc link).
+- gfi 1 IS module `3E15DC` itself (codebase `0o17412734`); its global
+  frame G=`0o3400` had code-base-low `0o12735` (odd=swapped-out), which
+  CodeTrap cleared to `0o12734` (even) -- that store sticks (no re-set).
+- The XFER to gfi 1 then re-enters `XferProc`/`StartCM`, allocates a frame
+  (AV[0]=`0o3344`), and grinds the start chain: in the window after op
+  `0o371` there are **3 SavePCAndTraps (all sSwapTrap T=`0o10`)**, **~50
+  AV[0] allocations**, and the module codebase is read odd (`0o12735`) 4x
+  / even (`0o12734`) 7x -- i.e. SEVERAL global frames share codebase
+  `0o17412734` and each takes its own SwapTrap. After this bounded grind
+  the germ germERRORs **without ever dispatching a new IFU opcode** (stuck
+  at 1187 real dispatches through 90M cycles), so the start chain FAILS to
+  reach any module body.
 
-### THE FIX (next pass -- pin the microinstruction, then correct it)
-A sibling of the LADRB/RisID offset bug: a StateVector base off by
--sizeStack in the trap/XferTrap resume. NEXT PASS: instrument LoadState
-entry (real pc `0o2362`/`0o2372`) and the trap-restore routine feeding it
-(pc `0o1430`->`0o1465`->`0o1372`->`0o1373`->`0o2372`) to log RTemp0 +
-MemBase, and find WHERE RTemp0 is set to `0o2641` instead of `0o2657`.
-Likely culprits: (a) `SavePCAndTrap`/`SaveState` saved the trap state at
-the wrong base (the SaveState "T = @state.data[0] = RTemp0+sizeStack+2"
-vs `@state` distinction -- something stored/read `@state` where it meant
-`@state.data`, off by sizeStack); (b) `XTSReg`/the trap state pointer is
-computed as `@state - sizeStack`. Cross-check `SaveState`, `LoadState`,
-and the SD/`XferTrap` resume in DMesaXfer.mc against the register trace.
-Repro: `DORADO_XFER_TRACE=1 DORADO_TRACE_GATE="67995189,67996100"`
-(CodeTrap SwapTrap T=`0o10` -> the double LoadStack -> the `0o2641`-based
-Xfer); `DORADO_VMDUMP="017402640,017402702,67995985"` dumps the
-well-formed `0o2657` state (DLink=`0o101`); the 2nd LoadStack (base
-`0o2641`) is at pc `0o1372`/`0o1373` cyc 67995976-67995982.
+### NEXT PASS (genuinely open)
+Root-cause the start-chain FAILURE itself (no longer the state resume).
+Trace, microcode-level, the full CodeTrap->Start->StartCM->StartWithState
+recursion from op `0o371` (cyc ~67995189) to the germERROR, watching: (a)
+the 3 SwapTraps -- which frames, and does each clear+retry correctly or
+does one loop; (b) the ~50 AV allocations -- is AV being exhausted /
+double-allocated (the AV/AllocSub family, sessions 14/16), or a frame
+freed while live; (c) whether `StartCM`'s `cm.frame.started` guard is read
+correctly (a mis-read `started` bit -> re-starting a module -> the multi-
+frame SwapTrap grind). Decode against `germopsimpl.mesa` StartChain +
+`trapsimpl-6.1.mesa` CodeTrap/Start/StartCM. Whether this is an emulator
+bug (e.g. a `started`-flag field read, an AV bug) or a genuine OS-load
+dependency (the module's code segment is meant to be demand-loaded by
+Pilot, which a germ-only run cannot do) is STILL OPEN. Repro:
+`DORADO_XFER_TRACE=1 DORADO_TRACE_GATE="67995185,68050000"` -> 3 traps,
+~50 AV[0] reads (`lva=0o17401000`), 2 GFT[1] reads (`lva=0o17401401`);
+`DORADO_VMDUMP="017402640,017402702,67995985"` dumps the well-formed
+`0o2657` state (DLink=`0o101`, the resume is fine).
 
 ## ROUTE B (2026-06-17, session 19 follow-up 6): the clobber is the Mesa BLT for `s _ state^` writing its DEST 11 words too high (0o2726 vs @s=0o2713). Source confirmed correct (state=0o7724, the static StateVector template). Root = the BLT dest (@s) computation is off by +11; exact cause NOT isolated. [SUPERSEDED by session 20 above: the +11 was the RisID Mar-substitution bug; the frame size (fsi 5) was correct and `s` is genuinely at offset 7.]
 
