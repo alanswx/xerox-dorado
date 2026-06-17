@@ -43,7 +43,41 @@ IFetch-Id).
    `asel 0/1` memory refs whose A source is the RM/STK default; the Alto
    worlds never run `LADRB`/`GADRB`, hence unchanged pixel counts.)
 
-### NEXT BLOCKER (RESOLVED as genuine OS boundary) -- 2 handled sSwapTraps then a genuine ControlFault on an OS-resident link (two intermediate leads DISPROVEN en route)
+### NEXT BLOCKER (re-opened as an EMULATOR BUG in head-startup) -- germ ControlFaults during `Heads.Start[]`, BEFORE it reaches DoInLoad
+**CORRECTION (supersedes the "genuine OS boundary" reading below).** The
+germ source (`bootswapgerm-indigo.mesa` / germ-6.1) shows the boot order
+is, inside the germ's `Initialize`: set SD trap handlers ->
+`ProcessorFace.Start[]` -> **`Heads.Start[]`** (start the device heads:
+ProcessorHeadDorado, DiskHeadDorado, EthernetOneHeadDorado) -> `RETURN
+WITH state` to `Run[]` -> `DoInLoad[]` (the boot-file request over EFTP).
+So **head-startup happens BEFORE DoInLoad**, and we fault DURING it -- which
+is precisely why the germ never requests the OS. The faulting module is
+**ProcessorHeadDorado** (G=`0o3400`, the loadmap's first module = our
+`br31=3E15DC`). Since the germ is DESIGNED to start the heads with NO OS
+present (germ source: "We can't set up handlers to catch Frame, Page, and
+Write Faults because they require that the ProcessDataArea be already
+initialized, and it's not until Pilot comes to life"), a ControlFault
+during head-startup is an EMULATOR BUG, not an OS dependency. THE FAULT:
+the SwapTrap/CodeTrap head-start recursion follows an indirect control
+link `0o342` whose target `M[0o340]` is in the **uninitialized PrincOps
+page 0** (MDS `0..0o1000`, the PDA region) -- which the germ never writes
+(0 writes to low MDS in the whole run) and which the germ file does not
+contain (the germ file starts at AV=MDS+`0o1000`). `M[0o340]`=0 (NOT
+UnboundLink `0o26411`), so it is an UNbound (never-initialized) slot, not a
+deliberately-unbound OS import. NEXT PASS: pin which link/field the
+head-start recursion mis-computes -- decode `trapsimpl-6.1.mesa` CodeTrap +
+`germopsimpl.mesa` StartCM/StartWithState (and `bootswapgerm`
+SwapTrapHandler/StartModule) against the trace; the recursion follows
+`dest _ dest.link^` on an indirect link into page 0 where a correct run
+would resolve to ProcessorHeadDorado's body. Likely an emulator mis-read
+of the SwapTrap OTP (ReadOTP), the `dest.started` flag, or `dest.global[0]`
+in StartModule (the started/global-link checks gate cGermStartFault).
+Repro: `DORADO_XFER_TRACE=1 DORADO_TRACE_GATE="67995185,68050000"` -> 3
+traps (T=`0o10`,`0o10`,`0o7`); `DORADO_STORE_TRACE_VA="017400000,017400777"`
+-> ZERO writes to low MDS; module map in `chm/cedar/germ/Dorado.loadmap!1.txt`
+(g=`0o3400` ProcessorHeadDorado, Unbound Imports DeviceCleanup/SoftwareTextBlt).
+
+### (SUPERSEDED) earlier reading: "genuine OS boundary" -- 2 handled sSwapTraps then a ControlFault on an OS-resident link
 After 1187 clean dispatches (no hardware fault) the germ's
 **module-startup chain (StartCM/Start)** reaches a module whose code is
 marked **swapped-out** and resumes a saved StateVector whose control link
