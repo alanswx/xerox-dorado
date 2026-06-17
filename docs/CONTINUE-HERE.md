@@ -88,16 +88,39 @@ relative to the RESUMED context's stack -- the XFER restored the context
 (stack + StkP from the saved state via LoadStack), and the XferExit
 `StkP-1` then over-decrements, eating the SFC's link.
 
-NEXT PASS (the fix): trace StkP through op `0o372`'s XFER -- the
-anticipatory `StkP+1` (XferDisp00/XferProc), the context restore
-(LoadStack sets StkP from the resumed state's brk/stkP word), and the
-XferExit `StkP-1`. Determine whether our emulator's StkP after the restore
-is one too low (so XferExit's `-1` eats a real item) -- i.e. does LoadStack
-set StkP to the value that already accounts for the anticipatory `+1`, or
-should the `+1` survive the restore? Compare against the hardware
-convention (the resumed context's saved StkP vs the in-flight XFER's
-anticipation). The fix is likely in LoadStack's StkP load or XferExit's
-StkP-1 interaction with a resumed (LST/RET-WITH) context. Repro: `DORADO_IFUDISP_TRACE=1
+DEEPER TRACE (StkP, decisive -- the root recedes to xf.push/XFEREXIT):
+- op `0o372` is **@LST** (Load State, real `0o11114`); alpha=`0o6` (germ
+  code `M[0o17407044]` low byte), so it loads the state at L+`0o6`=`0o2656`.
+  That state has **stkP=0** (M[`0o2674`]) but the DiskHead link **`0o201`
+  at stack[0]** (M[`0o2656`]) -- so the link sits ABOVE TOS (scratch) and
+  the resumed SFC (stkP=0) can't reach it.
+- The state was written by **SaveState** (pc `0o2474`/`0o2430`, cyc
+  68007287-94): it saved `0o201` to stack[0] AND stkP=0. So when SaveState
+  ran, StkP was already 0 with `0o201` in the scratch slot -- the push that
+  should have made StkP=1 did not stick.
+- StkP trace upstream (cyc 68007150-68007295): **XferProc does `StkP+1`
+  (anticipation, pc `0o4077` cyc 68007221), then XFEREXIT does `StkP-1`
+  (pc `0o2026` cyc 68007261)** -> net 0. The link's `+1` is undone by the
+  no-push XFEREXIT path. The XferExitTable dispatch picks no-push (`StkP-1`)
+  vs push (XferPush, keeps DLink/SLink) based on **XferFlags `xf.push`**
+  (set in XferDisp10 indirect: `XferFlags_ (XferFlags) OR (xf.push)`).
+
+So the ROOT is the **`xf.push` / XFEREXIT push-vs-pop decision**: the
+germ's recursive StartCM (which suspends/resumes via SaveState/LST around
+the `Call[MainBody]`) expects the link to survive on the stack for the SFC,
+but our XFEREXIT takes the no-push `StkP-1` path and the SaveState then
+records stkP=0, so the LST resume + SFC pop hits an empty stack -> null ->
+ControlFault. NOT YET FIXED -- this is a deep, subtle StkP/XferFlags
+interaction across the XFER-anticipation, SaveState, and LST resume; a
+wrong change risks the green gate, so it needs careful `xf.push` semantics
+analysis (when should XFEREXIT push DLink/SLink vs StkP-1, and does our
+XferFlags get `xf.push` set for the germ's StartCM call path?) before any
+code change. Repro: `DORADO_XFER_TRACE=1
+DORADO_TRACE_GATE="68007150,68007300"` shows XferProc `StkP+1` (pc `0o4077`)
+then XFEREXIT `StkP-1` (pc `0o2026`); `DORADO_STORE_TRACE_VA=
+"017402674,017402674"` shows SaveState (pc `0o2430`) save stkP=0; @LST real
+`0o11114`, SaveState real `0o2440`, XferExitTable real `0o2010` (via
+`mbdis --disasm 'chm/dorado/Cedar.mb!6'`). Repro: `DORADO_IFUDISP_TRACE=1
 DORADO_TRACE_GATE="68007400,68007742"` shows op `0o372` (stkp=0) then op
 `0o342` SFC dispatch (stkp=1, acs[0]=`0o201`); a per-instruction StkP trace
 across cyc 68007688..68007696 shows the XFEREXIT `StkP-1` (pc `0o2026`)
