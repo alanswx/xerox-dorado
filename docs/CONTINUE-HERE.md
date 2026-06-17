@@ -1,5 +1,49 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## ROUTE B (2026-06-16, session 19 follow-up 3): BUG LOCATION FOUND -- a block copy at microcode pc 0o3537 clobbers retFrame.returnlink (the real 0o3234) with UnboundLink (0o26411) BEFORE StartWithState reads it, so the resumed module's SLink becomes UnboundLink -> RET -> trap -> germERROR. This is a concrete clobber, traced store-by-store.
+
+### The causal chain (store-traced, decisive)
+1. retFrame = `0o2740` (= GetReturnLink[].frame, read from M[`0o2710`]); its
+   return link is at L[2] = M[`0o2742`].
+2. A call (XferProc, microcode pc `0o4034`, cyc 67989736) sets
+   **M[`0o2742`] = `0o3234`** -- the REAL return link into the start chain.
+3. **microcode pc `0o3537` (a block copy) OVERWRITES M[`0o2742`] with
+   `0o26411` (UnboundLink) at cyc 67990672**, clobbering `0o3234`. The copy
+   runs dest `0o2726..0o2746`, source `0o77xx` (= dest + `0o4776`, the germ's
+   static template region where the relocation BLT splattered UnboundLink);
+   it writes UnboundLink to L[2] of the live frame at `0o2740`.
+4. `StartWithState` then reads retFrame.returnlink (now the clobbered
+   `0o26411`, fetched at pc `0o600` cyc 67990779 from M[`0o2742`]) and stores
+   it as `s.source` (pc `0o224`, cyc 67990784, to the StateVector SLink slot
+   M[`0o2733`]).
+5. LSTF resumes the module with SLink = UnboundLink; module RETs -> sUnbound
+   trap (SD[`0o13`]) -> germERROR.
+
+### What is pc 0o3537 / why does it overrun?
+pc `0o3537`/`0o3524` is a block-copy loop (TrapsImpl bytecode ~pcf `0o455`,
+br31 `0o17406530`) copying a static template from `0o77xx` into the frame/
+StateVector region `0o27xx`. Its dest range (`0o2726..0o2746`, ~17 words)
+RUNS INTO the live frame at `0o2740` (retFrame), overwriting L[2]. So either:
+- (emulator) the block copy's count/dest is wrong -- it copies too many
+  words or to the wrong base, overrunning retFrame (the same FSI/frame-size
+  family as sessions 14/16: a frame allocated too small, or a copy length
+  off); or
+- (germ-state/overlap) retFrame and the copy's dest legitimately abut and
+  the static template genuinely has UnboundLink there, in which case the
+  germ expects this and our frame placement (AllocSub/AV free list) put
+  retFrame where the template lands.
+
+NEXT PASS (the fix): identify the pc-`0o3537` opcode at TrapsImpl pcf ~`0o455`
+(disassemble / read the code bytes) and its intended dest+count; compare to
+what our emulator's block-move executes. Check StartWithState's frame size
+(fsi) and retFrame's placement -- is the gap (`0o2740`-copy_base) >= the
+copy length on real hardware? If our frame is too small or the copy too
+long, that overrun is the fixable emulator bug. Repro:
+`DORADO_STORE_TRACE_VA="017402742,017402742"` shows the XferProc set to
+`0o3234` (cyc 67989736) then the pc-`0o3537` clobber to `0o26411` (cyc
+67990672); `DORADO_XFER_TRACE` gated `67990600,67990790` shows the copy loop
+and the retFrame.returnlink fetch.
+
 ## ROUTE B (2026-06-16, session 19 follow-up 2): the StateVector is WELL-FORMED; SLink 0o26411 = UnboundLink. The germ resumes TrapsImpl with an UNBOUND source/return link, so finishing it traps -> germERROR. Two earlier claims CORRECTED.
 
 ### Corrected facts (dumped the StateVector at MDS+0o2713)
