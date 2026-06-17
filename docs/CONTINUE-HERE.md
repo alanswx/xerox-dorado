@@ -1,6 +1,70 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
-## ROUTE B (2026-06-17, session 19 follow-up 6): the clobber is the Mesa BLT for `s _ state^` writing its DEST 11 words too high (0o2726 vs @s=0o2713). Source confirmed correct (state=0o7724, the static StateVector template). Root = the BLT dest (@s) computation is off by +11; exact cause NOT isolated.
+## ROUTE B (2026-06-17, session 20): the +11 dest is FIXED at the root -- `RisID` never substituted the IFU Id (alpha) onto the **Mar** of a memory-reference, so `LADRB`/`GADRB`'s `DummyRef_ StackNoUfl&+1, RisID` computed `@s = L + StackNoUfl` (stale stack value 18) instead of `L + alpha` (=7). The germ now advances **188 -> 1187 real IFU dispatches** into a NEW germ module (`br31=3E15DC`, codebase `0o17412734`, 767 dispatches there) before raising a LATER germERROR (op `0o371` at pcf `0o2153`). Gate ALL GREEN.
+
+### THE FIX (landed, `src/cpu.c`) -- HM p.24 RisID + microcode-grounded
+`LADRB` = `Push[L+alpha]` is implemented as `DummyRef_ StackNoUfl&+1,
+T_ MD, RisID` then `StackT_ VALo` (DMesaXfer.mc!1). The DummyRef forms
+VA = BR[L] + Mar, where the **Mar (A bus) is the RM/STK source** and
+`RisID` must overrule it with the IFU Id (= the operand byte alpha). Our
+`RisID` substitution only replaced the bus for the explicit register
+forms (`A<-RM/STK` asel=4, `B<-RM/STK` bsel=1); a code NOTE explicitly
+punted the memory-reference Mar case "until a concrete case proves the
+Mar should be replaced." `LADRB`/`GADRB` ARE that case -- the ONLY
+memory-ref users of `RisID` in the whole microcode (verified: the three
+`DummyRef_ Stack..., RisID` lines in DMesaXfer.mc are the only ones).
+Fix: capture whether `ff_a_override` left the A source as the RM/STK
+default (`a_is_rmstk_default`, asel 0/1 with no FF A-override), and in
+the RisID branch set `a = Id` for that case too. Same IFU-operand-byte
+family as the session-12/15/19 fixes (notLength, TisId/alpha, codebase
+IFetch-Id).
+
+### Proof (store-traced, decisive)
+- Ground truth: dumped StartWithState's Mesa code bytes -- the BLT
+  (op `0o352`) is at codebase+`0o455` (`M[0o17406756]` low byte), and the
+  instruction right before it is `[0o072, 0o007]` = **`LADRB alpha=0o7`**.
+  So `@s` belongs at frame offset 7 (= `0o2713`); the germ genuinely
+  places `s` at offset 7 and the fsi-5 (27-word) frame is CORRECT. (This
+  RESOLVES the session-19 follow-up 5 vs 6 tension: the frame size was
+  never wrong; the dest was misread by +11 because the Mar took the stale
+  StackNoUfl value 18 instead of alpha 7.)
+- With the fix, `DORADO_STORE_TRACE_VA="017402742,017402742"` shows the
+  BLT (pc `0o3537`) NO LONGER stores to retFrame.returnlink `0o2742` --
+  the old clobber (`0o26411` UnboundLink at cyc 67990672) is GONE. The
+  germ continues into the StartChain.
+
+### GATE -- ALL GREEN
+1. `make test` = 10/10 suites.
+2. Galaxian @160M: **121553** px (exact).
+3. AEmu NETEXEC @200M: **1481** px (band 1476-1505).
+4. germ-6.1: 188 -> **1187 real dispatches**; NO hardware fault (flt=0);
+   modules reached: 3E0D58 (TrapsImpl, 342 disp), **3E15DC (new, 767)**,
+   3E1E10 (SignalHandler, 78). (Gate-safe: the RisID Mar sub only fires on
+   `asel 0/1` memory refs whose A source is the RM/STK default; the Alto
+   worlds never run `LADRB`/`GADRB`, hence unchanged pixel counts.)
+
+### NEXT BLOCKER (new, NOT yet diagnosed) -- a LATER germERROR from module 3E15DC
+After 1187 clean dispatches the germ executes op `0o371` at pcf `0o2153`
+(br31 `3E15DC`, codebase `0o17412734`; preceding op `0o361` at pcf
+`0o2152`; the two bytes are `M[0o17414021]=0o170771` = `361,,371`) with
+`acs=000000,003334,000000,000006`, then jumps to the SignalHandler
+(`3E1E10` pcf `0o5334`), sets germERROR (MP `0o1465`=821) and `JB 0`
+halts. No hardware fault precedes it (flt=0 throughout). This is a
+genuinely NEW, much-later wall than session 19 -- the LADRB fix let the
+StartChain start ~767 more dispatches of a new module. NEXT PASS:
+(1) identify module `3E15DC` / op `0o371` (DST-family; `0o370`=DST) --
+disassemble the bytecodes at pcf `0o2140..0o2153` and cross-ref the germ
+StartChain in `chm/cedar/germ-src/germopsimpl.mesa`; (2) determine if the
+error is another emulator bug (a mis-modeled op surfacing in 3E15DC's
+init) or the genuine OS-dependency/Stage-2 boundary (the germ's module
+chain eventually needing OS-resident bindings, as sessions 14-19
+concluded). Repro: `DORADO_IFUDISP_TRACE=1 ./build/dorado --eb
+'../chm/dorado/CedarDorado.eb!6' --germ
+'../chm/cedar/germ-alt/Dorado.germ-6.1.6' --cycles 90000000` -> 1187 real
+dispatches then the pcf-`0o5334` spin; the error op is the LAST non-spin
+dispatch (pcf `0o2153`, op `0o371`, br31 `3E15DC`).
+
+## ROUTE B (2026-06-17, session 19 follow-up 6): the clobber is the Mesa BLT for `s _ state^` writing its DEST 11 words too high (0o2726 vs @s=0o2713). Source confirmed correct (state=0o7724, the static StateVector template). Root = the BLT dest (@s) computation is off by +11; exact cause NOT isolated. [SUPERSEDED by session 20 above: the +11 was the RisID Mar-substitution bug; the frame size (fsi 5) was correct and `s` is genuinely at offset 7.]
 
 ### Disassembly (added a DORADO_PCDIS microcode-disasm hook, cpu.c)
 - The copy is the Mesa **BLT opcode (op 0o352)** at StartWithState pcf 0o455
