@@ -1,5 +1,49 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## ROUTE B (2026-06-16, session 19 follow-up): "first trap" investigation -- NO spurious early trap; the unbound link 0o26411 has an OUT-OF-RANGE gfi (180 vs GFT=128) + the resumed StateVector has a bogus StkP, so the state is ILL-FORMED. This REOPENS the emulator-bug possibility (LSTF/LoadState reads the state wrong) -- the earlier "genuine OS dependency / Stage-2 boundary" conclusion was PREMATURE.
+
+### What the first-trap trace showed
+- The germ takes only ONE real trap (`SavePCandTrap`, pc `0o2000`) in the
+  whole run: the sUnbound (T=`0o13`) at cyc 67991921 when it XFERs through
+  `0o26411`. There is NO spurious earlier trap. (An earlier `MTrap` at cyc
+  67988524, T=`0o276`, resolves to SD[`0o276`]=`0o401` -> gfi `0o4`, a BOUND
+  germ module -- handled, not a failure.) So the "a spurious trap cascades
+  into germERROR" hypothesis is REFUTED.
+- The germ runs cleanly until it RETs/XFERs through `0o26411`.
+
+### The sharper finding: 0o26411 is an INVALID link (state is ill-formed)
+- `Dorado.loadmap!1` says **GFT length = 128** (valid gfi 0..127). The Xfer
+  extracts gfi = `0o26411` >> 6 = `0o264` = **180**, which is OUT OF RANGE.
+  GFT[180] reads past the 128-entry table (MDS+`0o1664`, in the gfi
+  `0o200`+ region) = 0 -> unbound. (The extraction is correct: the bound
+  MTrap link `0o401` >> 6 = `0o4` indexes GFT correctly.)
+- The resumed StateVector also has **brk,,stkP = `0o7562`** -> a loaded StkP
+  ~`0o62` (50), far above the ~14 Mesa eval-stack max (session 19 anomaly).
+- Two malformed fields (out-of-range SLink gfi + impossible StkP) in the
+  SAME StateVector => the StateVector the germ resumes via **LSTF/LoadState**
+  is ILL-FORMED. `0o26411` is genuine germ-file data (word `0o6740`), but it
+  is being USED as a control link from a garbage state -- so either our
+  LoadState/LSTF reads the StateVector from the wrong place/offsets (a
+  fixable emulator bug, like the codebase off-by-one), or the germ saved a
+  bad state earlier (DST/SaveState), or it should not be resuming this state.
+
+### REVISED diagnosis + next step
+The earlier conclusion ("0o26411 is a genuine unbound OS import; Stage-2
+boundary") was PREMATURE -- an out-of-range gfi is not a normal forward
+reference, it is garbage. The likely culprit is the **LSTF/LoadState
+StateVector handling** (the same family as the WF/codebase emulator bugs).
+NEXT PASS: trace LSTF/LoadState/LoadStack -- WHERE the StateVector is read
+from (VM address), its full contents (stack, brk/stkP, DLink, SLink), and
+whether our LoadState reads the right offsets for Cedar 6.1's StateVector
+format (loadmap: "Statevector length = 65535", "Statevector counts" by FSI).
+Cross-check `DMesaXfer.mc!1` LoadState/LoadStack (real pc `0o2362`/`0o7040`)
+against the bytes. If the StateVector is read wrong, fixing it is the next
+real emulator bug; if the state is genuinely garbage in VM, trace the
+DST/SaveState that produced it. Repro: `DORADO_XFER_TRACE=1
+DORADO_TRACE_GATE="67990600,67992000"` (the LoadStack at pc `0o7040`/`0o7034`
+reads the state block; SLink `0o26411` lands in L[2] via XferProc pc
+`0o4034`).
+
 ## ROUTE B (2026-06-16, session 19): codebase page-fault FIXED at the root -- a bare `IFetch_` was missing the HM-p.38 `BR[24:31]<-Id` replacement, so the Mesa read-double's field offset (alpha) was dropped and TrapsImpl read its codebase from G+0 instead of G+1. With the fix the germ-6.1 codebase read works and ALL page faults vanish; the germ advances **155 -> 188 real IFU dispatches** (TrapsImpl's startup now completes). Gate ALL GREEN. New blocker = an **sUnbound trap (SD[0o13]) on control link `0o26411`** -- a GENUINE germ control link (germ file word 0o6740), the same XferProc/SLink control-link-to-unbound-module wall as germ!4's 0o27132. NOT an emulator bug (an earlier draft wrongly suspected a relocation bug -- that was a hex miscalc; 0o26411 = 0x2D09 IS in the germ file).
 
 CORRECTION/HONESTY NOTE: an earlier draft of this entry (and commit 2bbe17c)
