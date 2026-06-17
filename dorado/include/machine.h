@@ -73,6 +73,13 @@ typedef struct dorado_machine_config {
      * disk read. NULL leaves the plant disabled, so the Alto worlds in
      * the regression gate are structurally untouched. */
     const char *germ_path;
+    int      germ_netboot;     /* 1 = after the planted germ is resident,
+                                * seed GermSwap.pRequest as Ethernet inLoad
+                                * instead of PilotBoot's physical-volume
+                                * request. Experimental Route B shortcut. */
+    uint16_t germ_netboot_bfn; /* BootChannelEther boot file number. 0 asks
+                                * the fake EFTP server for its default
+                                * eftp_boot path. */
 
     uint16_t boot_file_number; /* Mesa/Dorado boot file number, the first
                                 * word of the boot-parameter block Initial

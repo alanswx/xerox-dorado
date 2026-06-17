@@ -15,6 +15,8 @@
  *     --eftp PATH       Stage-2 Alto boot file (default NETEXEC.BOOT)
  *     --germ PATH       Pilot germ image to plant into VM for the Cedar
  *                       germ-boot (Route B; e.g. Dorado.germ!4)
+ *     --germ-netboot-bfn OCTAL
+ *                       seed the planted germ's request as Ethernet inLoad
  *     --out PATH        snapshot PGM path (default dorado-screen.pgm)
  *     --quote           hold the DDC "quote" boot key
  *     --no-alto-boot    do not drive the Stage-2 Alto ether boot
@@ -131,6 +133,9 @@ int main(int argc, char **argv)
             cfg.eftp_boot = argv[++i];
         } else if (!strcmp(a, "--germ") && i + 1 < argc) {
             cfg.germ_path = argv[++i];
+        } else if (!strcmp(a, "--germ-netboot-bfn") && i + 1 < argc) {
+            cfg.germ_netboot = 1;
+            cfg.germ_netboot_bfn = (uint16_t)strtoul(argv[++i], NULL, 8);
         } else if (!strcmp(a, "--boot-file-number") && i + 1 < argc) {
             cfg.boot_file_number = (uint16_t)strtoul(argv[++i], NULL, 8);
         } else if (!strcmp(a, "--boot-dir") && i + 1 < argc) {
@@ -160,7 +165,7 @@ int main(int argc, char **argv)
             key_hold = parse_u64(argv[++i], key_hold);
         } else if (!strcmp(a, "--help") || !strcmp(a, "-h")) {
             printf("usage: %s [--cycles N] [--eb PATH] [--eftp PATH] "
-                   "[--germ PATH] "
+                   "[--germ PATH] [--germ-netboot-bfn OCTAL] "
                    "[--boot-file-number OCTAL] [--boot-dir NAME=BFN=PATH] "
                    "[--boot-dir-all] [--no-boot-dir-all] "
                    "[--out PATH] [--quote] [--boot-keys K[,K...]] "

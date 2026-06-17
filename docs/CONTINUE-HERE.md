@@ -3636,6 +3636,80 @@ Cedar 6.1; determine whether the high word should be set at runtime (a
 dropped store = emulator bug) or fixed at load (relocation). A correct fix
 must produce VA MDS+`0o6530`+offset, not MDS+`0o615`.
 
+## ROUTE B (2026-06-17): gated germ Ethernet-inLoad seed proves request selection, next blocker is germ Ethernet driver startup
+
+Added an opt-in shortcut to test the "skip physical volume, ask Ethernet
+directly" hypothesis:
+
+```
+./build/dorado --eb '../chm/dorado/CedarDorado.eb!6' \
+  --germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6' \
+  --germ-netboot-bfn 0 \
+  --eftp '../chm/bootfiles/CedarNetExec.boot!4' \
+  --cycles 90000000 --progress
+```
+
+Implementation is deliberately gated: `--germ-netboot-bfn OCTAL` waits until
+PilotBoot's real GERMREMAP has copied the request into resident MDS 76, then
+rewrites `GermSwap.pRequest` at `0o17401360` from the disk request to:
+
+```
+action = inLoad
+deviceType = ethernet      # Device.Type.ethernet = 0o5 from PilotBoot.mc
+deviceOrdinal = 0
+bootFileNumber = BFN       # 0 means the fake server's default --eftp file
+net = host = 0
+```
+
+Result: the seed fires and the memory dump confirms the request is correct:
+
+```
+[machine] germ netboot request seeded @cyc=67984995:
+  pRequest=0o17401360 action=inLoad device=ethernet bfn=0o0
+M[0o17401360] = 0o000000
+M[0o17401361] = 0o000005
+M[0o17401363] = 0o000000
+```
+
+But it is NOT booting yet. Ethernet stats remain `eftp_r=0`, and no
+Stage-2 `Mayday(244)` packet is transmitted. A focused IFU/XFER trace with
+the new diagnostic shows the first `pc=0o150` is only a Mesa microcode
+dispatch/branch address, not proof of a final hardware wait. More important:
+after the seed the germ briefly runs in the module-startup family
+(`br31=3E1E10`), then falls back into the known TrapsImpl/codebase region
+(`br31=3E0D58`) and loops through the same germ error/trap machinery already
+seen in the code-pointer bring-up.
+
+The Ethernet hardware is not being reached. An opt-in dump at the first
+post-seed `pc=0o150` confirms:
+
+```
+[machine] pRequest @0o17401360:
+  000000 000005 000000 000000 000000 000000 000000 000000
+[machine] EthernetOne CSB @0o177600:
+  000000 000000 000000 000000 000000 000000 000000 000000 ...
+```
+
+There are also no `EControl`/`EData` accesses after the seed. The
+schematic-derived Ethernet notes (`docs/schematic-audit.md` and
+`docs/ethernet-architecture.md`) say the modeled TIOA addresses and EIT/EOT
+wakeup bits already match the DskEth sheets; the missing FIFO/CRC/status work
+is real, but it is NOT the current blocker because `BootChannelEther.Create`
+has not reached `MiniEthernetDefs.ActivateDriver`/`EthernetOneHeadDorado`.
+
+Corrected interpretation: request selection is no longer the blocker, and the
+next blocker is not raw Ethernet hardware. It is still the germ-state /
+TrapsImpl code-pointer problem from the previous section: the germ reaches
+startup/error machinery before it can invoke the Ethernet boot channel. Next
+debug target: resolve the malformed code/long pointer at MDS+`0o4764` (or the
+missing load-time fixup that should form `{low=0o6530, high=0o76}`) and only
+then re-test `--germ-netboot-bfn`.
+
+Logs:
+- `/private/tmp/dorado_germ_netboot_bfn0_v2.log`
+- `/private/tmp/dorado_germ_netboot_dump.log`
+- `/private/tmp/dorado_germ_netboot_window.log`
+
 ## Schematic audit -- session-2 sweep (2nd background agent) findings
 - **NEW (high conf):** cache replacement is TRUE-LRU but the hardware (MemC
   sheet 04 + HM Sec 5.7) is a 2-pointer Victim/NextVictim pseudo-LRU

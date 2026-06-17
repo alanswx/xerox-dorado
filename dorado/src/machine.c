@@ -118,6 +118,10 @@ struct dorado_machine {
     int      germ_descriptor_done; /* pass 1 (descriptor) completed       */
     int      germ_label_done;      /* pass 2 (label) completed            */
     int      germ_data_done;       /* pass 3 (germ file) completed        */
+    int      germ_netboot;
+    uint16_t germ_netboot_bfn;
+    int      germ_netboot_seeded;
+    int      germ_netboot_diag_done;
 };
 
 /* Pilot germ resident VM base (Dorado.loadmap GERM FILE MAP: file page
@@ -148,6 +152,28 @@ struct dorado_machine {
  * GermBoot sets BootDataPtr_ baseGerm, so pass 3 reads the germ into the
  * low-64K buffer starting here. */
 #define GERM_LOW_BUFFER   01000u
+
+/* PilotBoot.mc / BootSwapGerm.mesa boot request layout. pRequest is a
+ * MDS-relative POINTER TO Request at 0o1360; after GERMREMAP the germ MDS
+ * is bank 0o76 (VA base 0o17400000). */
+#define GERM_MDS_BASE          (GERM_VM_BASE - GERM_LOW_BUFFER)
+#define GERM_REQUEST_VA        (GERM_MDS_BASE + 01360u)
+#define GERM_REQ_ACTION        0u
+#define GERM_REQ_DEVICE_TYPE   1u
+#define GERM_REQ_DEVICE_ORD    2u
+#define GERM_REQ_ETH_BFN       3u
+#define GERM_REQ_ETH_NET       4u
+#define GERM_REQ_ETH_HOST      5u
+
+#define GERM_ACT_INLOAD        0u
+#define GERM_ACT_BOOT_PV       2u
+#define GERM_DTYPE_SA4000      3u
+#define GERM_DTYPE_ETHERNET    5u
+
+/* EthernetOneHeadDorado.mesa fixes the controller status block at
+ * LONG[177600B]. Its first words should change when BootChannelEther gets
+ * as far as QueueInput/QueueOutput. */
+#define GERM_ETH_CSB_VA        0177600u
 
 static const uint8_t standard_alufm[ALUFM_SIZE] = {
     025, 000, 014, 054, 062, 022, 035, 027,
@@ -182,6 +208,43 @@ static void machine_store_va(dorado_memory *mem, uint32_t va, uint16_t value)
         dorado_cache_line *line = &mem->cache[row].ways[way];
         if (line->valid && line->tag == tag) line->data[off] = value;
     }
+}
+
+static void machine_dump_words(dorado_memory *mem, const char *label,
+                               uint32_t va, int count)
+{
+    fprintf(stderr, "[machine] %s @0o%o:", label, va);
+    for (int i = 0; i < count; i++) {
+        fprintf(stderr, " %06o",
+                dorado_visible_word_at_va(mem, va + (uint32_t)i));
+    }
+    fprintf(stderr, "\n");
+}
+
+static void machine_germ_netboot_diag(dorado_machine *m)
+{
+    dorado_cpu *cpu = &m->cpu;
+    dorado_memory *mem = &m->mem;
+    fprintf(stderr,
+            "[machine] germ-netboot diag @cyc=%llu pc=0o%o "
+            "dispatch=%llu MDS=0o%o MemBase=%02o RBase=%02o "
+            "StkP=%03o T=%06o Q=%06o Cnt=%06o Link=0o%o\n",
+            (unsigned long long)m->bb.cycles,
+            cpu->real_PC,
+            (unsigned long long)cpu->ifu_dispatch_count,
+            (unsigned)dorado_br_get(mem, 31),
+            cpu->MemBase & 037,
+            cpu->RBase & 017,
+            cpu->StkP & 0377,
+            cpu->T, cpu->Q, cpu->Cnt, cpu->Link);
+    machine_dump_words(mem, "pRequest", GERM_REQUEST_VA, 8);
+    machine_dump_words(mem, "EthernetOne CSB", GERM_ETH_CSB_VA, 16);
+    fprintf(stderr, "[machine] STK around StkP:");
+    for (int d = -8; d <= 8; d++) {
+        uint8_t sp = (uint8_t)(cpu->StkP + d);
+        fprintf(stderr, " [%03o]=%06o", sp, cpu->STK[sp]);
+    }
+    fprintf(stderr, "\n");
 }
 
 /* Seed the four Alto keyboard words (base+0177034..7) at each plausible
@@ -308,6 +371,8 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
         cfg.eth_boot_110 = pick(user_cfg->eth_boot_110, cfg.eth_boot_110);
         cfg.eftp_boot    = pick(user_cfg->eftp_boot,    cfg.eftp_boot);
         cfg.germ_path    = pick(user_cfg->germ_path,    cfg.germ_path);
+        cfg.germ_netboot = user_cfg->germ_netboot;
+        cfg.germ_netboot_bfn = user_cfg->germ_netboot_bfn;
         cfg.alto_ether_boot  = user_cfg->alto_ether_boot;
         cfg.alto_ether_quote = user_cfg->alto_ether_quote;
         cfg.no_disk          = user_cfg->no_disk;
@@ -335,6 +400,8 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
     m->alto_ether_boot  = cfg.alto_ether_boot;
     m->alto_ether_quote = cfg.alto_ether_quote;
     m->boot_file_number = cfg.boot_file_number;
+    m->germ_netboot     = cfg.germ_netboot;
+    m->germ_netboot_bfn = cfg.germ_netboot_bfn;
     m->pre_swap_cpreg   = 0;
 
     /* Resolve the boot-key chord. An explicit chord (from the frontend's
@@ -673,6 +740,13 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
 
         uint16_t pre_pc = cpu->real_PC;
 
+        if (m->germ_netboot_seeded && !m->germ_netboot_diag_done &&
+            getenv("DORADO_GERM_NETBOOT_TRACE") &&
+            is_imfetch && cpu->ctask == 0 && pre_pc == 0150) {
+            machine_germ_netboot_diag(m);
+            m->germ_netboot_diag_done = 1;
+        }
+
         /* Seed Initial's boot parameter (STK[1]=boot file number,
          * STK[2]=BootParameterSeal, STK[1]+STK[2]+STK[3]=0) so the
          * loaded world selects the normal Mesa boot instead of falling
@@ -865,6 +939,48 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                 dorado_storage_store_at_va(&m->mem, IOCB_PAGECOUNT_VA, 0);
                 dorado_storage_store_at_va(&m->mem, IOCB_LABELSTAT_VA, 0);
                 m->germ_passes++;
+            }
+        }
+
+        /* Experimental Route B shortcut: PilotBoot.mc seeds the germ with
+         * pRequest=[bootPhysicalVolume, sa4000, ...], which is faithful for
+         * disk boot but stalls us before Stage-2 Ethernet because no Dorado
+         * Pilot disk volume survives. BootSwapGerm's own documented initial
+         * contract accepts pRequest=[inLoad, locationOfBootFile]. When the
+         * option is enabled, wait until GERMREMAP has copied that request
+         * into resident MDS 76, then rewrite it to the Ethernet overlay:
+         *   Request.action = inLoad
+         *   Location.deviceType = ethernet
+         *   Location.deviceOrdinal = 0
+         *   Location.bootFileNumber = germ_netboot_bfn
+         *   Location.net/host = 0 (broadcast/any server)
+         * Inert unless --germ-netboot-bfn was supplied. */
+        if (m->germ_netboot && m->germ_data_done &&
+            !m->germ_netboot_seeded && m->ether_loaded_world_cycle &&
+            is_imfetch && cpu->ctask == 0) {
+            uint16_t action = dorado_visible_word_at_va(
+                &m->mem, GERM_REQUEST_VA + GERM_REQ_ACTION);
+            uint16_t dtype = dorado_visible_word_at_va(
+                &m->mem, GERM_REQUEST_VA + GERM_REQ_DEVICE_TYPE);
+            if (action == GERM_ACT_BOOT_PV && dtype == GERM_DTYPE_SA4000) {
+                machine_store_va(&m->mem, GERM_REQUEST_VA + GERM_REQ_ACTION,
+                                 GERM_ACT_INLOAD);
+                machine_store_va(&m->mem, GERM_REQUEST_VA + GERM_REQ_DEVICE_TYPE,
+                                 GERM_DTYPE_ETHERNET);
+                machine_store_va(&m->mem, GERM_REQUEST_VA + GERM_REQ_DEVICE_ORD,
+                                 0);
+                machine_store_va(&m->mem, GERM_REQUEST_VA + GERM_REQ_ETH_BFN,
+                                 m->germ_netboot_bfn);
+                machine_store_va(&m->mem, GERM_REQUEST_VA + GERM_REQ_ETH_NET,
+                                 0);
+                machine_store_va(&m->mem, GERM_REQUEST_VA + GERM_REQ_ETH_HOST,
+                                 0);
+                m->germ_netboot_seeded = 1;
+                fprintf(stderr,
+                    "[machine] germ netboot request seeded @cyc=%llu: "
+                    "pRequest=0o%o action=inLoad device=ethernet bfn=0o%o\n",
+                    (unsigned long long)bb->cycles, GERM_REQUEST_VA,
+                    m->germ_netboot_bfn);
             }
         }
 
