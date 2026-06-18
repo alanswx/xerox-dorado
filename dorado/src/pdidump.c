@@ -133,16 +133,42 @@ static void label_scan(const dorado_pdi *p, int list_files)
     }
 }
 
+static int extract_file(const dorado_pdi *p, uint32_t fid, const char *out)
+{
+    /* size the file, then read it in file-page order */
+    long pages = dorado_pdi_read_file(p, fid, NULL, 0);
+    if (pages <= 0) { fprintf(stderr, "FileID %u: no content pages\n", fid); return 1; }
+    size_t words = (size_t)pages * p->data_words;
+    uint16_t *buf = calloc(words, sizeof(uint16_t));
+    dorado_pdi_read_file(p, fid, buf, words);
+    FILE *f = fopen(out, "wb");
+    if (!f) { free(buf); fprintf(stderr, "cannot write %s\n", out); return 1; }
+    /* big-endian on disk; emit big-endian bytes */
+    for (size_t i = 0; i < words; i++) { fputc(buf[i] >> 8, f); fputc(buf[i] & 0xFF, f); }
+    fclose(f);
+    printf("extracted FileID=%u: %ld pages, %zu words -> %s (data word0=0%o, word1=0%o)\n",
+           fid, pages, words, out, buf[0], buf[1]);
+    free(buf);
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
     if (argc < 2) {
-        fprintf(stderr, "usage: %s <image.pdi> [--files] [--scan]\n", argv[0]);
+        fprintf(stderr, "usage: %s <image.pdi> [--files] [--scan] "
+                        "[--extract FILEID OUT]\n", argv[0]);
         return 2;
     }
     int files = 0, scan = 0;
+    uint32_t ext_fid = 0; const char *ext_out = NULL;
     for (int i = 2; i < argc; i++) {
         if (!strcmp(argv[i], "--files")) files = 1;
         else if (!strcmp(argv[i], "--scan")) scan = 1;
+        else if (!strcmp(argv[i], "--extract") && i + 2 < argc) {
+            ext_fid = (uint32_t)strtoul(argv[i + 1], NULL, 0);
+            ext_out = argv[i + 2];
+            i += 2;
+        }
     }
 
     dorado_pdi pdi;
@@ -158,6 +184,7 @@ int main(int argc, char **argv)
     dump_pv_root(&pdi);
     dump_subvolumes(&pdi);
     if (scan || files) label_scan(&pdi, files);
+    if (ext_out) extract_file(&pdi, ext_fid, ext_out);
 
     dorado_pdi_free(&pdi);
     return 0;

@@ -41,15 +41,32 @@ alongside the Alto mode rather than reshaping the existing one.
 
 ## 3. Phased plan
 
-### Phase 0 -- validate + land the assets (mostly DONE today)
-- [x] Pull + decompress `CedarDorado-boot.pdi`; confirm PARCDISK/Pilot header.
-- [x] Parse + validate the PV root (seal/version/physicalRoot/bootingInfo).
-- [ ] Merge PR #1 so the image + spec live in-tree (`CedarDisk/`).
-- [ ] Offline PDI inspector: a small CLI (`pdidump`, C in `dorado/src/`, or reuse
-      the Python parser) that dumps PV root, LV root(s), subvolume table, VAM,
-      and a label scan (file list with FileID + attributes). Deliverable: see
-      exactly where the germ (FileID 2) and bootFile (FileID 3) pages live, and
-      confirm the page checksums (`PARC_PILOT_FORMAT.md` §8).
+### Phase 0 -- validate + land the assets (DONE 2026-06-17)
+- [x] Pull + decompress `CedarDorado-boot.pdi`; confirm PARCDISK/Pilot header
+      (version 1, fsFamily 2, 1400 pages, 512-byte header, label(20)+data(512)
+      sectors).
+- [x] Parse + validate the PV root: seal `0o121212`, version 6, label
+      "CedarDorado", **checksum 0x765A matches our `dorado_pilot_checksum`**,
+      `bootingInfo[germ]`=FileID 2 (firstLink page 87), `[bootFile]`=FileID 3
+      (firstLink page 119). 1 subvolume, LV at physical page 84.
+- [x] Merge PR #1 (MERGED); assets in `CedarDisk/`.
+- [x] PDI loader + inspector + extractor + unit test built and committed:
+      `dorado/src/pdi.c`, `include/pdi.h`, `src/pdidump.c`, `tests/test_pdi.c`
+      (`build/pdidump <pdi> --files --scan --extract FILEID OUT`). Full suite
+      green.
+- [x] Label scan: germ (FileID 2) = 32 `data` pages (filePage 0..31) + 1
+      `logicalRoot` page; bootFile (FileID 3) = 1060 pages [119..1178].
+
+**FINDING (germ identity) -- the disk germ is NOT byte-identical to
+`Dorado.germ-6.1.6`.** Extracting FileID 2 in file-page order and comparing:
+page 0 matches except its LAST word; only **6/32** pages match `germ-6.1.6`,
+and the matching ones line up at the SAME page index (filePages 2,3,6,8,9,11).
+So it is a RELATED 6.x-family germ (shared constant/table pages), most likely
+the relocated/installed disk-resident form, not our standalone raw germ image.
+IMPLICATION: a disk boot must use the disk's OWN germ (FileID 2) + matched
+bootFile (FileID 3) as a set; do not substitute `--germ Dorado.germ-6.1.6`.
+OPEN: confirm the disk germ is Cedar-6.1 and matches `CedarDorado.eb!6`
+(the microcode we netboot in stage 1) before trusting a full disk boot.
 
 ### Phase 1 -- PDI loader + Pilot disk model in the emulator
 - [ ] `pdi.c`/`pdi.h`: load a PARCDISK `fsFamily=2` image into memory as an
