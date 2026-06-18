@@ -29,6 +29,43 @@ PARALLEL track that **sidesteps that bug**.
   `DISK_CMD_DESCRIPTOR`/`DISK_CMD_LABEL`/`DISK_CMD_GERMDATA` passes) to plant the
   germ. We extend that, plus add the Pilot disk format.
 
+## 1a. CRITICAL UPDATE (2026-06-17): disk path does NOT bypass the codeLink bug
+
+Tested the strategic premise directly: ran the germ with its DEFAULT request
+(`pRequest=[bootPhysicalVolume(2), sa4000(3)]`, no `--germ-netboot-bfn`) and
+traced where it goes. Result: it reaches `BootChannelDisk` (br31=3E1164, NOT
+BootChannelEther -- correct routing) but **germERRORs at the EXACT SAME
+codeLink** as the ethernet path: identical dispatches at BootChannelDisk pcf
+`0o42`-`0o54` (op 070/057/`zLLKB`344/100/255/055/`zRET`343), same stack values
+(`0o177774`, `0o3424`, `0o6200`), resolving `0o3424 -> 0o6200 -> TrapsImpl`
+(unbound) -> germERROR. No disk I/O is ever issued.
+
+So the `zLLKB #9` tail-call that fails is in **BootChannelDisk.Create itself**,
+hit REGARDLESS of device (sa4000 vs ethernet) -- NOT the ethernet-specific
+`RemainingChannels.Create` pass-through as earlier believed (note: codeLink #9
+= `0o3424` is a FRAME link, not the BootChannelEther proc link `0o1221` at
+index #2, so it was never the ethernet route). The codeLink resolution bug
+(CONTINUE-HERE follow-ups 5-9) is therefore the **shared blocker for BOTH disk
+and ethernet boot** -- the two tracks CONVERGE on it in `BootChannelDisk.Create`.
+
+CONSEQUENCES:
+- The disk track does NOT give a free parallel path around the codeLink bug.
+  The PDI foundation (loader/inspector/extractor/tests) is durable, correct
+  infrastructure and the disk image is the cleaner post-fix boot target, but
+  reaching a disk boot is GATED on the same codeLink-resolution fix.
+- Open sub-question this raises: does our emulator even take BootChannelDisk's
+  `SELECT deviceType FROM sa1000,sa4000 => ...` branch for sa4000(3), or does
+  it fall through? Both runs hit the same codeLink at the same PC, which hints
+  the failing call is in BootChannelDisk.Create's common prologue (before/at
+  the SELECT), reached identically either way.
+- TWO ways forward (not mutually exclusive): (A) fix the codeLink resolution
+  (unblocks BOTH disk and ethernet -- the real critical path); (B) a HIGH-LEVEL
+  disk interception that serves the PV root + germ + bootFile from the PDI
+  ABOVE the BootChannel layer (like the existing PC-`0o7012` germ-read fake),
+  bypassing the buggy `BootChannelDisk.Create` entirely to reach a Cedar boot
+  before the codeLink fix lands. (B) is more emulator-specific scaffolding but
+  could get pixels sooner.
+
 ## 2. The one real mismatch to bridge: Alto-Trident vs Pilot-Trident format
 
 Our disk model (`disk.h`) is the **Alto** Trident: 1024-word (2048-byte)
