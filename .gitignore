@@ -61,3 +61,4 @@ IFS/
 
 # Build error logs
 err.txt
+CedarDisk/*.pdi
