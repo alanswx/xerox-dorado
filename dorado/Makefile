@@ -34,6 +34,38 @@ worlds: $(BINDIR)/mb2eb
 .PHONY: sdl
 sdl: $(BINDIR)/dorado-sdl
 
+# WebAssembly frontend (Emscripten). `make web` builds web/index.html +
+# .js/.wasm/.data, with the SDL2 port and the boot files preloaded into the
+# virtual FS at the same paths the machine fopen()s. Requires emsdk on PATH
+# (`source ~/emsdk/emsdk_env.sh`). Serve web/ over http (file:// won't load
+# the .wasm). The boot files are preloaded read-only into MEMFS.
+EMCC      ?= emcc
+WEB_SRCS  := src/mb.c src/disasm.c src/microcode.c src/cpu.c src/baseboard.c \
+             src/memory.c src/io.c src/display.c src/disk.c src/ethernet.c \
+             src/fastio.c src/altoref.c src/machine.c src/dorado_web.c
+# _GNU_SOURCE exposes timegm()/strcasecmp() in Emscripten's musl sysroot;
+# macOS headers expose them by default, so the native build doesn't need it.
+WEB_CFLAGS := -std=c99 -D_GNU_SOURCE -O2 -Iinclude -Ivendor/6502 -sUSE_SDL=2
+WEB_LDFLAGS := -sUSE_SDL=2 -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=67108864 \
+               -sEXPORTED_RUNTIME_METHODS=ccall,cwrap \
+               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot \
+               --preload-file worlds/aemu.eb@/worlds/aemu.eb \
+               --preload-file ../chm/bootfiles@/chm/bootfiles \
+               --preload-file ../chm/dorado/doradobaserom.mb!13@/ucode/doradobaserom.mb!13 \
+               --preload-file ../chm/dorado/expanded/bootstrap.dm!20_/Bootstrap.mb@/ucode/Bootstrap.mb \
+               --preload-file ../chm/dorado/expanded/bootstrap.dm!20_/Initial.mb@/ucode/Initial.mb \
+               --preload-file ../chm/dorado/expanded/kernel.dm!38_/kernel.mb@/ucode/kernel.mb \
+               --preload-file ../chm/dorado/expanded/memMisc.dm!11_/memMisc.mb@/ucode/memMisc.mb \
+               --preload-file ../chm/dorado/expanded/Ifu.dm!51_/IfuComplex.mb@/ucode/IfuComplex.mb \
+               --shell-file src/web_shell.html
+
+.PHONY: web
+web: worlds | web-dir
+	$(EMCC) $(WEB_CFLAGS) $(WEB_SRCS) $(WEB_LDFLAGS) -o web/index.html
+
+web-dir:
+	@mkdir -p web
+
 $(OBJDIR)/dorado_sdl.o: src/dorado_sdl.c | $(OBJDIR)
 	$(CC) $(CFLAGS) $(SDL_CFLAGS) $(DEPFLAGS) -c -o $@ $<
 
@@ -219,6 +251,6 @@ run-mesanetexec: sdl
 run-newos: sdl
 	./build/dorado-sdl --eb '../chm/dorado/CedarDorado.eb!6' --eftp '../chm/bootfiles/NEWOS.BOOT!21'
 
-.PHONY: all clean test worlds sdl
+.PHONY: all clean test worlds sdl web web-dir
 
 -include $(DEPS)

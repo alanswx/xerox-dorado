@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Xerox Dorado Emulator</title>
+<style>
+  :root { color-scheme: dark; }
+  body {
+    margin: 0; background: #15171a; color: #d8dde3;
+    font: 14px/1.5 -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    display: flex; flex-direction: column; align-items: center; padding: 18px;
+  }
+  h1 { font-size: 20px; font-weight: 600; margin: 0 0 2px; }
+  .sub { color: #8b939c; font-size: 13px; margin: 0 0 14px; }
+  .sub a { color: #6db3f2; }
+  .bar {
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  label { color: #aeb6bf; }
+  select, button {
+    background: #23272e; color: #e6eaef; border: 1px solid #3a4049;
+    border-radius: 6px; padding: 6px 10px; font-size: 14px;
+  }
+  select:disabled { opacity: .5; }
+  button { cursor: pointer; }
+  button:hover { background: #2c323b; }
+  #frame { border: 1px solid #000; background: #fff; line-height: 0; }
+  /* Alto display is 808x606 1bpp; keep it crisp when scaled. */
+  canvas { image-rendering: pixelated; display: block; }
+  #status {
+    margin-top: 10px; min-height: 1.2em; color: #f0b86e; font-size: 13px;
+  }
+  .tips {
+    margin-top: 14px; max-width: 820px; color: #99a1aa; font-size: 13px;
+  }
+  .tips code {
+    background: #23272e; border: 1px solid #333a43; border-radius: 4px;
+    padding: 1px 5px; color: #cdd5de;
+  }
+  #spinner { color: #6db3f2; }
+</style>
+</head>
+<body>
+  <h1>Xerox Dorado</h1>
+  <p class="sub">PARC research workstation (1978) &mdash; running the Alto
+     emulator microcode on a software Dorado, in your browser.</p>
+
+  <div class="bar">
+    <label for="game">Boot:</label>
+    <select id="game" disabled onchange="bootSelected()">
+      <optgroup label="Network Executive">
+        <option value="/chm/bootfiles/NETEXEC.BOOT!8" data-menu="1" selected>NetExec menu (type a name)</option>
+      </optgroup>
+      <optgroup label="Games (render well)">
+        <option value="/chm/bootfiles/Galaxian.boot!1">Galaxian</option>
+        <option value="/chm/bootfiles/MissileCommand.boot!1">Missile Command</option>
+        <option value="/chm/bootfiles/PinBall.boot!1">Pinball</option>
+      </optgroup>
+      <optgroup label="Games (experimental)">
+        <option value="/chm/bootfiles/AstroRoids.boot!1">Asteroids</option>
+        <option value="/chm/bootfiles/Invaders.boot!1">Space Invaders</option>
+        <option value="/chm/bootfiles/Reversi.boot!1">Reversi</option>
+        <option value="/chm/bootfiles/Pool.boot!1">Pool</option>
+        <option value="/chm/bootfiles/StarWars.boot!1">Star Wars</option>
+        <option value="/chm/bootfiles/Trek.boot!1">Trek</option>
+        <option value="/chm/bootfiles/Boggs.boot!1">Boggs</option>
+      </optgroup>
+      <optgroup label="Utilities">
+        <option value="/chm/bootfiles/Calculator.boot!1">Calculator</option>
+        <option value="/chm/bootfiles/Clock.boot!1">Clock</option>
+        <option value="/chm/bootfiles/CRTTEST.BOOT!1">CRT Test</option>
+        <option value="/chm/bootfiles/KeyTest.boot!1">Key Test</option>
+      </optgroup>
+    </select>
+    <button id="pause" disabled onclick="togglePause()">Pause</button>
+    <span id="spinner"></span>
+  </div>
+
+  <div id="frame">
+    <canvas id="canvas" width="808" height="606" tabindex="-1"
+            oncontextmenu="event.preventDefault()"></canvas>
+  </div>
+  <div id="status">Loading emulator&hellip;</div>
+
+  <div class="tips">
+    Click the display to give it keyboard focus.
+    In the <b>NetExec menu</b>, type a program name (e.g. <code>Galaxian</code>)
+    and press <code>Return</code> to boot it; or pick one from the dropdown
+    above to boot it directly. <code>F1</code> pauses/resumes. The middle/right
+    mouse buttons map to the Alto's 3-button mouse.
+  </div>
+
+<script type="text/javascript">
+  var statusEl  = document.getElementById('status');
+  var spinnerEl = document.getElementById('spinner');
+  var gameSel   = document.getElementById('game');
+  var pauseBtn  = document.getElementById('pause');
+  var ready = false;
+  var paused = false;
+
+  function setStatus(t) { statusEl.textContent = t; }
+
+  function bootSelected() {
+    if (!ready) return;
+    var opt = gameSel.options[gameSel.selectedIndex];
+    var path = opt.value;
+    var menu = opt.getAttribute('data-menu') ? 1 : 0;
+    Module.ccall('dorado_web_boot', 'number', ['string', 'number'], [path, menu]);
+    paused = false; pauseBtn.textContent = 'Pause';
+    setStatus('Booting ' + opt.textContent.trim() + '… (give the display a moment)');
+    document.getElementById('canvas').focus();
+  }
+
+  function togglePause() {
+    if (!ready) return;
+    // Mirror the C-side F1 toggle by synthesizing an F1 keydown on the canvas.
+    var c = document.getElementById('canvas');
+    c.dispatchEvent(new KeyboardEvent('keydown', {key:'F1', code:'F1', keyCode:112, which:112, bubbles:true}));
+    paused = !paused;
+    pauseBtn.textContent = paused ? 'Resume' : 'Pause';
+  }
+
+  var Module = {
+    canvas: (function() {
+      var c = document.getElementById('canvas');
+      c.addEventListener('webglcontextlost', function(e) {
+        alert('WebGL context lost. Reload the page.'); e.preventDefault();
+      }, false);
+      return c;
+    })(),
+    print: function(text) { console.log(text); },
+    printErr: function(text) { console.error(text); },
+    setStatus: function(text) {
+      if (text) { spinnerEl.textContent = '⏳'; setStatus(text); }
+      else      { spinnerEl.textContent = ''; }
+    },
+    onRuntimeInitialized: function() {
+      ready = true;
+      gameSel.disabled = false;
+      pauseBtn.disabled = false;
+      spinnerEl.textContent = '';
+      setStatus('Booting NetExec… type a program name, or pick one above.');
+      document.getElementById('canvas').focus();
+    },
+  };
+  Module.setStatus('Downloading emulator…');
+</script>
+{{{ SCRIPT }}}
+</body>
+</html>
