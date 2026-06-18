@@ -64,8 +64,12 @@ void  write6502(ushort address, uint8 v)  { bb_write(address, v);    }
 static uint8_t riot_timer_current(const riot_chip *r, uint64_t now)
 {
     uint64_t elapsed = now - r->timer_load_cycle;
+    /* Before the firmware's first timer-load write the prescaler is 0
+     * (power-on state); treat it as 1 so a timer read can't divide by zero.
+     * timer_load_value is 0 then too, so this reports immediate underflow. */
+    uint64_t prescaler = r->timer_prescaler ? r->timer_prescaler : 1;
     if (!r->timer_underflowed) {
-        uint64_t ticks = elapsed / r->timer_prescaler;
+        uint64_t ticks = elapsed / prescaler;
         if (ticks <= r->timer_load_value) {
             return (uint8_t)(r->timer_load_value - ticks);
         }
@@ -83,7 +87,8 @@ static void riot_timer_tick(riot_chip *r, uint64_t now)
 {
     if (r->timer_underflowed) return;
     uint64_t elapsed = now - r->timer_load_cycle;
-    uint64_t ticks   = elapsed / r->timer_prescaler;
+    uint64_t prescaler = r->timer_prescaler ? r->timer_prescaler : 1;
+    uint64_t ticks   = elapsed / prescaler;
     if (ticks > r->timer_load_value) {
         r->timer_underflowed = 1;
         r->int_flags |= 0x80;     /* TimerFlag */
