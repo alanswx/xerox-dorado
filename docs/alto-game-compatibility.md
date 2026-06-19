@@ -45,26 +45,53 @@ MissileCommand delivers input to the machine (our XOR mouse-arrow tracks the
 cursor) but the game never reacts -- so it is **stuck, not idle-waiting for
 input**.
 
-## Conclusion + next lead
+## Deep trace of the MissileCommand stall (session 2026-06-18/19)
 
-The stall is at the **Alto-program level**: the games are being emulated, but
-MissileCommand/Pool spin in a loop that never advances the display -- they are
-waiting on an Alto timing/I-O feature that is not advancing.
+Instrumented the Alto-program level (`DORADO_IFUDISP_TRACE` for the Alto PC,
+`DORADO_FETCH_TRACE` for read VAs, `DORADO_MACHINE_PCHIST` extended to all
+tasks + a field/RTC handler watch, `DORADO_STORE_TRACE_VA` for writes). The
+stall is now fully characterized, and several hypotheses were tested and
+**ruled out**:
 
-Prime suspect: the Alto **vertical-field / real-time-clock (RTC)** path. AEmu
-emulates it (symbols `SETDISPLAYFIELDRATE`, `EVENFIELD`/`ENDOFFIELD`,
-`RTCCARRY`, `STARTCOUNTERS`, `THTNEWFIELD`, `DOCURSOR`), and the Dorado
-machine has no explicit Alto-level field/RTC interrupt wiring -- it only wakes
-the DHT/AHT/DWT display tasks (machine.c ~1101). If the field-rate / RTC
-counters the games poll for timing never tick (or tick wrong), animation
-loops freeze while static screens still render. Games that work (Galaxian,
-Boggs) likely use a different timing source or self-clock.
+- **Alto PC**: MC's emulated Alto pins in a 5-segment busy loop
+  (`br31` 0x5F2/0x366/0x360/0x60C/0x35E) for 1.3+ display fields -- no other
+  Alto code ever runs. Galaxian (works) runs 20+ segments continuously
+  (busy-drawing), and passes *through* 0x5F2/0x60C without blocking, so those
+  are a shared runtime routine MC gets stuck in.
+- **Polled words**: the loop reads exactly 9 low-memory words
+  (0o576,0o600,0o1153,0o1466,0o1537,0o1637,0o3016,0o3017,0o3020). All are
+  **constant across 2.4M cycles (~4 fields)**.
+- **Writers**: `STORE_TRACE_VA` over that region shows the only writes are the
+  boot-time memory clear (~cyc 11M, pc 0o6454); **after the world loads,
+  nothing ever writes those 9 words.** The updater never runs.
+- **RULED OUT - field/RTC**: the AEmu field/RTC handlers run for MC at the
+  *same* rate as Galaxian (ENDOFFIELD 96 vs 88, EVENFIELD/THTNEWFIELD ~97 vs
+  ~89, RTCCARRY 34 vs 34). The display field and RTC are processed fine.
+- **RULED OUT - Alto interrupts**: `INITIATEINT`/`RESCHEDPENDING` run **0**
+  times for *every* game incl. Galaxian -- no game uses Alto-level interrupts;
+  they busy-poll.
+- **RULED OUT - input polling**: MC reads **nothing** in the Alto I/O region
+  (0o177000+) during the stall -- it is not waiting on keyboard/mouse.
 
-### Next step
-Instrument at the Alto-program level: capture the emulated **Alto PC** spin
-during the MissileCommand stall and the **VA it polls** each iteration. If it
-is reading an RTC / field-count / interrupt word that our emulator leaves
-static, drive that path (verify EVENFIELD/ENDOFFIELD/RTCCARRY advance at the
-right cadence). Confirm against Galaxian, which does advance.
+### Conclusion
+MissileCommand has **deadlocked on internal state**: it set up 9 words during
+init, then entered a busy-wait for one of them to change, but the code that
+would change it never runs (it is itself stuck in the wait). Nothing external
+(field, RTC, interrupt, input) is involved. The most likely cause is that
+**MC's initialization computed a wait-loop value wrong** -- an Alto-opcode /
+AEmu emulation subtlety MC exercises that Galaxian does not -- leaving the
+loop's exit condition permanently unsatisfiable. Pool is the same shape
+(all-white, frozen); PinBall gameplay is presumably the same after start.
+
+### Next step (a real harness, not a quick patch)
+Two ways to find the exact wrong opcode/value:
+1. **ContrAlto cross-validation** (the project's stated strategy): run the
+   same boot file under ContrAlto2 and diff emulated-Alto architectural state
+   until it diverges. Pinpoints the opcode but needs a boot-file load path
+   into ContrAlto.
+2. **Manual back-trace**: disassemble MC's 5-segment loop, identify the exact
+   word + value its exit test wants, then back-trace (with the new traces) how
+   that word got its stuck value during MC init -- the opcode that produced
+   the wrong value is the bug.
 
 This is separate from the Cedar germ bring-up tracked in `CONTINUE-HERE.md`.

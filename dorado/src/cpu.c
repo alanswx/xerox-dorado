@@ -3436,6 +3436,16 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
             if (ref_fault == DM_FAULT_NONE && ref_kind_loads_md(kind)) {
                 latch_task_md_from_memory(cpu);
             }
+            /* DORADO_FETCH_TRACE: emulator-task (task 0) memory reads with
+             * VA + the value latched into Md. Gated by DORADO_TRACE_GATE so
+             * it can pinpoint the word a stalled Alto poll loop reads. */
+            if (dorado_trace_gate && cpu->ctask == 0 &&
+                ref_kind_loads_md(kind) && getenv("DORADO_FETCH_TRACE")) {
+                fprintf(stderr, "FETCH pc=0o%o kind=%d va=%07X md=0o%o "
+                        "br=%07X mar=%04X\n", cpu->real_PC, (int)kind, va,
+                        cpu->mem ? cpu->mem->md & 0177777 : 0,
+                        br & 0x0FFFFFFFu, mar);
+            }
             if (kind == DM_REF_MAP && map_cpu_trace_index(dorado_map_index(va))) {
                 fprintf(stderr,
                         "MAP_CPU cyc=%llu task=%o pc=0o%o br=%07X mar=%04X "

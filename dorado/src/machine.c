@@ -105,6 +105,7 @@ struct dorado_machine {
     int      mouse_buttons;    /* DORADO_MOUSE_* bitmask                */
 
     uint32_t pchist[4096];
+    uint32_t pchist_all[4096]; /* every task (DORADO_MACHINE_PCHIST) */
     uint16_t initseq[600];     /* first task-0 PCs after world-load */
     int      initseq_n;
 
@@ -1043,6 +1044,13 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
             if (m->initseq_n < (int)(sizeof m->initseq / sizeof m->initseq[0]))
                 m->initseq[m->initseq_n++] = (uint16_t)pre_pc;
         }
+        /* All-task variant: lets us check whether display/field handlers
+         * (ENDOFFIELD/EVENFIELD/RTCCARRY, which run in the display task,
+         * not task 0) actually execute for a stalled game. */
+        if (m->ether_loaded_world_cycle && is_imfetch && pre_pc < 4096 &&
+            getenv("DORADO_MACHINE_PCHIST")) {
+            m->pchist_all[pre_pc]++;
+        }
 
         /* InitMem GotMapConfig/NoStorage register trace (env-gated):
          * dump the registers feeding the storage-detect branch so the
@@ -1191,6 +1199,19 @@ void dorado_machine_debug(dorado_machine *m)
         fprintf(stderr, "[machine] task-0 hot PCs:");
         for (int i = 0; i < 12 && top[i] >= 0; i++)
             fprintf(stderr, " 0o%o=%u", top[i], m->pchist[top[i]]);
+        /* Did the AEmu display field / RTC handlers run at all (any task)?
+         * Real PCs from `mbdis --disasm AEmu.mb`. If these are 0 while the
+         * game spins, the field/clock event a game blocks on is not posted. */
+        static const struct { unsigned pc; const char *name; } fieldpc[] = {
+            {01745, "ENDOFFIELD"}, {03546, "EVENFIELD"},
+            {03756, "RTCCARRY"},   {01276, "STARTCOUNTERS"},
+            {01766, "THTNEWFIELD"},{01376, "SETDISPLAYFIELDRATE"},
+            {02326, "INITIATEINT"}, {02325, "RESCHEDPENDING"},
+        };
+        fprintf(stderr, "\n[machine] AEmu field/RTC handler hits (all tasks):");
+        for (size_t i = 0; i < sizeof fieldpc / sizeof fieldpc[0]; i++)
+            fprintf(stderr, " %s(0o%o)=%u", fieldpc[i].name, fieldpc[i].pc,
+                    fieldpc[i].pc < 4096 ? m->pchist_all[fieldpc[i].pc] : 0u);
         fprintf(stderr, "\n[machine] task-0 init sequence (first %d):\n",
                 m->initseq_n);
         for (int i = 0; i < m->initseq_n; i++) {
