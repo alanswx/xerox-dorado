@@ -1065,6 +1065,32 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                     cpu->alu_zero, cpu->alu_lt0, cpu->Link);
         }
 
+        /* DORADO_POKE="va,value,cycle" (octal): one-shot write of value to
+         * VA once bb->cycles >= cycle. Used to test which word unsticks a
+         * deadlocked Alto game loop (an exit-flag the game waits on). */
+        {
+            static int poke_done = -1;
+            static uint32_t poke_va; static uint16_t poke_val;
+            static uint64_t poke_cyc;
+            if (poke_done < 0) {
+                const char *p = getenv("DORADO_POKE");
+                poke_done = 0;
+                if (p) {
+                    unsigned long a=0,v=0; unsigned long long c=0;
+                    if (sscanf(p, "%lo,%lo,%llu", &a,&v,&c) == 3) {
+                        poke_va=(uint32_t)a; poke_val=(uint16_t)v; poke_cyc=c;
+                        poke_done = 0;
+                    } else poke_done = 1;
+                } else poke_done = 1;
+            }
+            if (poke_done == 0 && bb->cycles >= poke_cyc) {
+                dorado_storage_store_at_va(&m->mem, poke_va, poke_val);
+                fprintf(stderr, "[poke] M[%07o]=%06o at cyc=%llu\n",
+                        poke_va, poke_val, (unsigned long long)bb->cycles);
+                poke_done = 1;
+            }
+        }
+
         if (dorado_cpu_step(cpu)) break;
 
         if (m->initial_substituted) {

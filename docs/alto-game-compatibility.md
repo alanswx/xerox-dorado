@@ -129,12 +129,35 @@ must come from a **non-opcode source**: a memory mapping/aliasing slip, an
 I-O instruction (SIO/RCLK/keyboard) returning a wrong value during init, or a
 timing-dependent init path. Galaxian (works) avoids whatever MC's init does.
 
-### Next step (option 2, now well-motivated)
-Manual back-trace: disassemble MC's 5-segment loop (salto/tools/adasm.c, or
-read the Alto instruction words from VM) to find the exact word + value its
-exit test wants; then use `DORADO_FETCH_TRACE`/`DORADO_STORE_TRACE_VA` to
-back-trace how that word got its stuck value through MC init, and which
-init step (mapping / I-O / timing) produced the wrong value. That step is
-the bug.
+### Back-trace result (option 2): exit flag = M[0o1637], producer never sets it
+Decoded MC's loop: `op=0o202` = ALC `MOV# 0,0` no-load + skip-if-nonzero =
+"skip if AC0 != 0", where AC0 is loaded from a polled word. So the loop waits
+for a word to become **nonzero**. Two polled words are zero (0o1637, 0o600).
+
+Added `DORADO_POKE="va,value,cycle"` (one-shot VM write, env-gated). Poking
+**M[0o1637]=nonzero** at the stall makes MC execute **new code segments**
+(br31 0x41D/0x4D5/0x526 that never ran before) -- so **0o1637 is the loop's
+exit flag**. (Poking 0o600 does almost nothing.)
+
+Full write history of 0o1637 (to 150M): boot-clear 0 (24M); game-image load
+**0o31236** by the boot task (30M); then **every** subsequent write is 0 --
+pc=0o4000 (49M, the 64K boot clear), pc=0o1622 (75.9M, br31=3), task-7
+pc=0o2424 (77.7M), pc=0o42 (108M, br31=0o1736, the last writer before the
+stall). So in our run the flag is only ever nonzero as raw loaded image data;
+the **producer that should compute+store a nonzero value never does** -- it
+stores 0.
+
+Caveat: a *one-shot* poke does NOT unfreeze the display (MC runs a brief burst
+then re-blocks -- 368448 px unchanged). So 0o1637 is one gate in a **chain**;
+the real bug is whatever computes the value stored at 0o1637 (and siblings)
+as 0 when it should be nonzero. The last writer is pc=0o42 (an Alto STA, the
+producer storing AC -> 0o1637); AC is 0 there.
+
+### Next step
+Back-trace the **producer**: at pc=0o42 / cyc 108222471 (the last 0o1637
+write), find what computed the AC it stores (trace the few opcodes before the
+STA at br31=0o1736), and why that value is 0. That computation -- likely
+reading another flag/counter that is itself wrongly 0 -- chains back to the
+true root. The `DORADO_POKE`/`FETCH_TRACE`/`STORE_TRACE_VA` tools are in place.
 
 This is separate from the Cedar germ bring-up tracked in `CONTINUE-HERE.md`.
