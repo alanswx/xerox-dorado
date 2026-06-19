@@ -326,15 +326,37 @@ in ethernet.c so the terminal completion posts. Success test: EPLOC settles at
 change here risks the regression gate, so it needs the EPOST microcode trace
 first, not a guess.
 
-### Instruction-level trace (decisive scoping)
-`mbdis --disasm AEmu.mb`: EPOST (real 0o3460) is just `Store<-RM/STK` to
-EPLOC -- it stores a value the CALLER pre-computed. EIPOST (input post, real
-0o2435) computes it, starting at `FF=163` (a Dorado ethernet status/IO
-function) then `FF=360/036/004/304/077`. The posted high byte is the "post
-code": ours 0/1 (377/777), ContrAlto 5 (2777). So the bug is in how our
-emulator answers the ethernet status FF-function(s) EIPOST reads -- i.e. the
-Dorado ethernet status the AEmu ethernet-emulation microcode consumes. Fix =
-correct that status in cpu.c/io.c/ethernet.c so EIPOST computes post code 5.
-This is AEmu-microcode-grounded but requires a careful EIPOST register trace
-(what FF=163 returns vs what code 5 needs) to avoid regressing Galaxian/NetExec
-which traverse the same EIPOST path.
+### ROOT CAUSE (definitive, from the AEmu source)
+`chm/doradosource/AEmuSources-cedar6.0.dm!1_/EtherDefs.mc` defines the EPLOC
+post codes (high byte): **InDone=377, OutDone=777, InBufOverflow=1377,
+CountZero=2377, CmdAbort=2777**. So 2777 = "Command aborted by SIO".
+
+`AltoEtherEmu.mc` ESIO (the SIO emulator): function bits `11` = "Reset
+interface" -> `SIOReset: T_ ECmdBits; T_ T XOR (CmdAbort); Call[EPost]`.
+ECmdBits = EInCmd|EOutCmd = 6, so **AEmu posts ECmdBits XOR CmdAbort = 6 XOR
+2777 = 2771**. The real Alto (ContrAlto) posts the clean **2777**.
+
+MissileCommand's init does an ethernet receive that should time out, then
+SIO-resets and polls EPLOC for the CmdAbort post. **MC requires the clean
+2777; AEmu's 2771 (with the ECmdBits status bits set) is rejected, so MC
+re-arms and busy-waits forever.** Confirmed by the time-ordered EPLOC trace:
+MC's clears (pc=0o42/0o53) interleave with and wipe the posts, ending at 0.
+
+Two compounding factors, both AEmu/real-Alto emulation gaps:
+1. **CmdAbort value**: AEmu posts 2771, real Alto 2777 (the ECmdBits-XOR).
+2. **The re-arm race** (ethernet.c ~626): MC's EPLOC clear races/wipes the
+   InDone/CmdAbort post, so EPLOC ends 0.
+
+Forcing 2771->2777 at EPLOC advances MC past the poll but it then goes blank
+-- MC also needs the ethernet to be ACTUALLY reset by the SIO, not just the
+post value patched. So the fix is faithful emulation of the Alto ethernet
+SIO-reset/abort (reset the receiver + post clean CmdAbort + correct timing),
+not a value rewrite.
+
+### Why it's hard / risky
+The 2771-vs-2777 difference is in AEmu.mb microcode (a fixed Xerox constant,
+`T_ ECmdBits`), and the receiver-reset + race timing live in the AEmu<->Dorado
+ethernet path that Galaxian/NetExec also use. A correct fix means matching the
+real Alto's ethernet SIO-reset semantics without regressing them -- either a
+targeted AEmu microcode patch (SIOReset) or a faithful ethernet-reset emulation
+in ethernet.c. Both are deep; not a value rewrite.
