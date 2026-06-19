@@ -208,7 +208,27 @@ Findings:
   confirm: run our exact `.boot` in ContrAlto (needs a boot-server harness) or
   finish our disk-read path and watch 0o1637 reach a nonzero completion.
 
-### Fix direction
-Pursue the **Alto disk read path** (long-known incomplete gap) over the
-microengine: disk-dependent games (MC, likely Pool) wait on disk-completion
-flags our emulator never sets.
+### RETRACTION: the disk-dependency conclusion was wrong
+A read-watch on ContrAlto refutes it. ContrAlto's MC **Emulator task reads
+`0o1637` only 23x with the game vs 23x at idle** (OS baseline) -- it does NOT
+poll it; the *disk task* does (4586 -> 8500 reads). So in the run version
+`0o1637` is a disk-task variable, while in our boot version MC polls `0o1637`
+heavily as its own flag. Because the boot image is relocated +0o22400 and the
+OS occupies low memory differently, **`0o1637` is a different variable in the
+two builds** -- the "1122 written by DiskWord" finding does not apply to our
+boot MC. Disk dependency is NOT established.
+
+### Methodological wall + the only valid path
+ContrAlto running `missile.run` is a sound *behavioral* reference (proves MC
+works -> our bug) but is **not address-comparable** to our `MissileCommand.boot`
+(different layout; confirmed by the read-watch). A valid architectural diff
+needs the **same binary in both**:
+1. Run our exact `.boot` in ContrAlto -- needs a small Alto-3Mb boot-server
+   over ContrAlto's UDP encapsulation (our `ethernet.c` already implements the
+   boot protocol; port it). Then 0o1637 et al. map 1:1.
+2. OR disassemble `MissileCommand.boot` directly (same binary, no mapping
+   issue): decode the wait loop + the producer (Alto STA near br31=0o1736 /
+   the cyc-108M write) to see why the flag is computed 0. A small Nova
+   disassembler suffices.
+
+Either gives a clean root cause; the run-version reference alone cannot.
