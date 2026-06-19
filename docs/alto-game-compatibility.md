@@ -114,13 +114,27 @@ runs **20768 vectors with 0 mismatches** across:
 MC's loop reads 0o576..0o3020 (not the auto-increment range 0o20-0o37), so
 auto-increment is not implicated either.
 
-Remaining uncovered (and NOT modeled by `altoref`): the Alto-specific
-graphics/emulator opcodes -- `BITBLT` (0o60000), `CONVERT` (0o63400-ish),
-JSRII/JSRIS, the cycle/RCLK/SIO I-O group. These are the prime remaining
-suspects for a graphics game that deadlocks while simpler games run. Next:
-confirm whether MC's 5-segment loop executes any of these (decode the loop's
-Alto instructions), and if so extend `altoref` + the sweep to cover them, or
-disassemble MC's loop (salto/tools/adasm.c) to read the exit condition
-directly.
+Decoded MC's loop opcodes (from the IFU index distribution over the stall):
+`op=0o001` (96x, dominant) and `0o003` are **JMP** (PC-rel / AC3-rel);
+`0o202`/`0o245`/`0o344` are ALC; `0o041`/`0o045`/`0o055`/`0o071`/`0o131`/
+`0o142`/`0o151` are memory-reference. **All are opcodes the sweep validated
+or that are demonstrably working** -- the loop is *stable* (same 5 segments
+forever), so even its JMP targets compute correctly.
+
+### Refined conclusion
+The bug is **not** an Alto-opcode emulation error. MC's loop executes
+correctly; it spins because its **data** (the 9 words) holds wrong values
+set up earlier during init. Since the opcodes are correct, the wrong data
+must come from a **non-opcode source**: a memory mapping/aliasing slip, an
+I-O instruction (SIO/RCLK/keyboard) returning a wrong value during init, or a
+timing-dependent init path. Galaxian (works) avoids whatever MC's init does.
+
+### Next step (option 2, now well-motivated)
+Manual back-trace: disassemble MC's 5-segment loop (salto/tools/adasm.c, or
+read the Alto instruction words from VM) to find the exact word + value its
+exit test wants; then use `DORADO_FETCH_TRACE`/`DORADO_STORE_TRACE_VA` to
+back-trace how that word got its stuck value through MC init, and which
+init step (mapping / I-O / timing) produced the wrong value. That step is
+the bug.
 
 This is separate from the Cedar germ bring-up tracked in `CONTINUE-HERE.md`.
