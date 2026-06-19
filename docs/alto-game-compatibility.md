@@ -61,9 +61,14 @@ stall is now fully characterized, and several hypotheses were tested and
 - **Polled words**: the loop reads exactly 9 low-memory words
   (0o576,0o600,0o1153,0o1466,0o1537,0o1637,0o3016,0o3017,0o3020). All are
   **constant across 2.4M cycles (~4 fields)**.
-- **Writers**: `STORE_TRACE_VA` over that region shows the only writes are the
-  boot-time memory clear (~cyc 11M, pc 0o6454); **after the world loads,
-  nothing ever writes those 9 words.** The updater never runs.
+- **Writers**: the 9 words ARE written during init -- boot clear (~24M),
+  game-image load (`task=7 pc=0o6642`, ~30M), and further rewrites through
+  ~49M+ (incl. a `pc=0o4000` clear that is infrastructure -- identical 2^22
+  hits for working Galaxian, so not the bug). The point is that **during the
+  stall (150M+) the values are stable** (verified by gated reads at 150.0M /
+  151.2M / 152.4M): whatever should change one of them next never does.
+  (Correction: an earlier draft said "nothing writes them after boot" -- that
+  was a subset-range artifact; they are written through init, then freeze.)
 - **RULED OUT - field/RTC**: the AEmu field/RTC handlers run for MC at the
   *same* rate as Galaxian (ENDOFFIELD 96 vs 88, EVENFIELD/THTNEWFIELD ~97 vs
   ~89, RTCCARRY 34 vs 34). The display field and RTC are processed fine.
