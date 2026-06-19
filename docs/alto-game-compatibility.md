@@ -180,4 +180,35 @@ converge. Expected value per additional back-trace level is now low.
 
 This is separate from the Cedar germ bring-up tracked in `CONTINUE-HERE.md`.
 
-This is separate from the Cedar germ bring-up tracked in `CONTINUE-HERE.md`.
+## ContrAlto reference cross-validation (2026-06-19)
+
+Built a headless ContrAlto2 harness (`AltoInfo/contralto-headless/`, gitignored)
+that disk-boots an Alto pack and dumps the display + memory. Downloaded the
+bitsavers Alto disk images (`AltoInfo/bitsavers/`); `allgames.dsk` contains the
+Murray games as `.RUN` files and disk-boots cleanly in ContrAlto.
+
+DECISIVE: typing `missile` at the Executive runs **Missile Command 3.0** to a
+full attract screen in ContrAlto -- so **MC works on a reference Alto; its
+failure is our emulator's bug**, not the game/hardware. Our
+`MissileCommand.boot` is the *same build* (same title/strings).
+
+Findings:
+- **Layout**: our `.boot` loads MC's program image +0o22400 above ContrAlto's
+  `.run` (title strings line up at a constant offset). Address-level diffs are
+  only valid for fixed low-memory variables, not the relocated image.
+- **The exit flag is disk-written.** Instrumented ContrAlto memory: writes to
+  `M[0o1637]` are `0,100002,174575` (Emulator task) then **`1122` by the
+  DiskWord task**. MC's busy-wait flag is set by the **disk task** -- MC does a
+  disk op and waits for completion. Our emulator (Ethernet boot, incomplete
+  disk read path) never completes it, so 0o1637 stays 0 and MC hangs. Reframes
+  MC from a CPU/AEmu bug (0 per-opcode mismatches) to a **disk dependency**;
+  likely explains the whole "boots but never renders" class.
+- CAVEAT: ContrAlto runs `missile.run` loaded from disk by the OS, so that
+  DiskWord write could be the OS file-load, and boot/run layouts differ. To
+  confirm: run our exact `.boot` in ContrAlto (needs a boot-server harness) or
+  finish our disk-read path and watch 0o1637 reach a nonzero completion.
+
+### Fix direction
+Pursue the **Alto disk read path** (long-known incomplete gap) over the
+microengine: disk-dependent games (MC, likely Pool) wait on disk-completion
+flags our emulator never sets.
