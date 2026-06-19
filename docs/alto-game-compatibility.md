@@ -360,3 +360,22 @@ ethernet path that Galaxian/NetExec also use. A correct fix means matching the
 real Alto's ethernet SIO-reset semantics without regressing them -- either a
 targeted AEmu microcode patch (SIOReset) or a faithful ethernet-reset emulation
 in ethernet.c. Both are deep; not a value rewrite.
+
+### CmdAbort patch experiment (2026-06-19) -- ruled OUT the value as the cause
+Implemented + tested the AEmu microcode patch: at world-load, set the FF
+constant at IM `0o2477` (ECmdBits, the SIORESET feeder) from 6 to 0, so
+SIORESET posts the clean `2777` instead of `2771`. Verified the patch applies
+and EPLOC now posts `2777` (real-Alto value). It is **gate-safe** (Galaxian
+121553 exact; NetExec 1467 vs 1469, within noise).
+
+BUT it does **not** fix MC -- MC still stalls in the original 5-segment loop.
+So the CmdAbort post value (2771 vs 2777) is NOT the differentiator. With the
+same-binary ContrAlto reference, the genuinely-differing words are
+**0o600 (EPLOC), 0o576, 0o3016**; patching 0o600 to match still leaves 0o576
+(13207 vs 31) and 0o3016 (2616 vs 1537) different. Those are the Alto ethernet
+**input pointer/count** bookkeeping (EIPLoc/EICLoc family). They differ because
+our ethernet delivers packets with different counts/pointers/timing than a real
+Alto. MC reads that bookkeeping and diverges -- so the fix is matching the
+FULL Alto ethernet receive state (post + pointer + count + timing), not one
+value. The patch was reverted (correct but insufficient, and perturbs NetExec).
+Tree is clean; gate green.
