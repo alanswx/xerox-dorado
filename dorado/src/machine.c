@@ -1069,25 +1069,32 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
          * VA once bb->cycles >= cycle. Used to test which word unsticks a
          * deadlocked Alto game loop (an exit-flag the game waits on). */
         {
-            static int poke_done = -1;
+            static int poke_init = -1, poke_hold = 0, poke_fired = 0;
             static uint32_t poke_va; static uint16_t poke_val;
             static uint64_t poke_cyc;
-            if (poke_done < 0) {
+            if (poke_init < 0) {
+                /* "va,value,cycle[,hold]" (octal va/value, decimal cycle).
+                 * hold=1 enforces M[va]=value every step after cycle. */
                 const char *p = getenv("DORADO_POKE");
-                poke_done = 0;
+                poke_init = 0;
                 if (p) {
-                    unsigned long a=0,v=0; unsigned long long c=0;
-                    if (sscanf(p, "%lo,%lo,%llu", &a,&v,&c) == 3) {
-                        poke_va=(uint32_t)a; poke_val=(uint16_t)v; poke_cyc=c;
-                        poke_done = 0;
-                    } else poke_done = 1;
-                } else poke_done = 1;
+                    unsigned long a=0,v=0,h=0; unsigned long long c=0;
+                    int n = sscanf(p, "%lo,%lo,%llu,%lo", &a,&v,&c,&h);
+                    if (n >= 3) { poke_va=(uint32_t)a; poke_val=(uint16_t)v;
+                                  poke_cyc=c; poke_hold=(n>=4 && h); }
+                    else poke_init = 1;
+                } else poke_init = 1;
             }
-            if (poke_done == 0 && bb->cycles >= poke_cyc) {
-                dorado_storage_store_at_va(&m->mem, poke_va, poke_val);
-                fprintf(stderr, "[poke] M[%07o]=%06o at cyc=%llu\n",
-                        poke_va, poke_val, (unsigned long long)bb->cycles);
-                poke_done = 1;
+            if (poke_init == 0 && bb->cycles >= poke_cyc) {
+                if (!poke_fired || poke_hold) {
+                    dorado_storage_store_at_va(&m->mem, poke_va, poke_val);
+                    if (!poke_fired)
+                        fprintf(stderr, "[poke] M[%07o]=%06o at cyc=%llu hold=%d\n",
+                                poke_va, poke_val,
+                                (unsigned long long)bb->cycles, poke_hold);
+                    poke_fired = 1;
+                    if (!poke_hold) poke_init = 1;
+                }
             }
         }
 

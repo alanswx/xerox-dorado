@@ -153,11 +153,31 @@ the real bug is whatever computes the value stored at 0o1637 (and siblings)
 as 0 when it should be nonzero. The last writer is pc=0o42 (an Alto STA, the
 producer storing AC -> 0o1637); AC is 0 there.
 
-### Next step
-Back-trace the **producer**: at pc=0o42 / cyc 108222471 (the last 0o1637
-write), find what computed the AC it stores (trace the few opcodes before the
-STA at br31=0o1736), and why that value is 0. That computation -- likely
-reading another flag/counter that is itself wrongly 0 -- chains back to the
-true root. The `DORADO_POKE`/`FETCH_TRACE`/`STORE_TRACE_VA` tools are in place.
+### Forcing test (decisive negative): 0o1637 is NOT the root
+Extended `DORADO_POKE` with a hold mode ("va,value,cycle,1" = enforce every
+step). **Holding M[0o1637] nonzero from cyc 100M still does not render**
+(368448 px frozen at frames 300/400/500). So although poking 0o1637 changes
+control flow (new segments run), it is a downstream gate, not the blocker --
+the single-flag hypothesis is falsified. MC also never renders content at any
+point (blank -> black right after boot), so the failure is early-init.
+
+### Honest status
+The MC deadlock is a **multi-factor early-init failure**, not a single
+flag/opcode. Back-tracing it further is a full reverse-engineering effort on
+a 1980 game binary with **no source**, and forcing individual gates does not
+converge. Expected value per additional back-trace level is now low.
+
+### Realistic options (pick by appetite)
+1. **Get a reference** running MissileCommand (ContrAlto/salto) to learn what
+   it SHOULD do at the divergence point -- but ContrAlto net-boot needs a host
+   boot server, and neither trivially loads a `.boot`. Without a reference we
+   are guessing "correct" behavior.
+2. **Try a different broken game** (e.g. Pool -- distinct failure: 6 DCBs,
+   all-white) in case its root is simpler/shared.
+3. **Ship as-is**: the WASM build works with Galaxian, Reversi (playable),
+   Boggs, Asteroids, Invaders, and Pinball (instructions). MC/Pool/Pinball-
+   gameplay are known-hard early-init cases documented here.
+
+This is separate from the Cedar germ bring-up tracked in `CONTINUE-HERE.md`.
 
 This is separate from the Cedar germ bring-up tracked in `CONTINUE-HERE.md`.
