@@ -99,4 +99,28 @@ Two ways to find the exact wrong opcode/value:
    that word got its stuck value during MC init -- the opcode that produced
    the wrong value is the bug.
 
+### Cross-validation result (2026-06-19, option 1)
+Used the in-tree differential harness `altodiff-dorado` (runs one Alto opcode
+on the real AEmu microcode, diffs the architectural result -- AC0-3, carry,
+PC, memory writes -- against the spec-derived `altoref.c`; this is the
+in-tree equivalent of the ContrAlto opcode diff, and sidesteps ContrAlto's
+need for a host boot server to run a `.boot` file). `altodiff-dorado sweep`
+runs **20768 vectors with 0 mismatches** across:
+- all 8 ALC functions x shift/cycle/no-load/skip/carry,
+- STA/LDA/ISZ/DSZ page-zero, single-level indirect, and indexed
+  (AC2/AC3-relative, direct + indirect).
+
+**So MC's deadlock is NOT a per-opcode bug in the common Nova/Alto ISA.**
+MC's loop reads 0o576..0o3020 (not the auto-increment range 0o20-0o37), so
+auto-increment is not implicated either.
+
+Remaining uncovered (and NOT modeled by `altoref`): the Alto-specific
+graphics/emulator opcodes -- `BITBLT` (0o60000), `CONVERT` (0o63400-ish),
+JSRII/JSRIS, the cycle/RCLK/SIO I-O group. These are the prime remaining
+suspects for a graphics game that deadlocks while simpler games run. Next:
+confirm whether MC's 5-segment loop executes any of these (decode the loop's
+Alto instructions), and if so extend `altoref` + the sweep to cover them, or
+disassemble MC's loop (salto/tools/adasm.c) to read the exit condition
+directly.
+
 This is separate from the Cedar germ bring-up tracked in `CONTINUE-HERE.md`.
