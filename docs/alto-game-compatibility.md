@@ -302,6 +302,39 @@ Note the boot-path asymmetry: ContrAlto boots MC via the standard EtherBoot
 loader (our BootServer's breath-of-life), which leaves EPLOC=2777; our
 emulator boots via Dorado Initial -> AEmu -> NetExec, which leaves a different
 EPLOC state. MC (same binary) expects the EtherBoot completion convention.
-Candidate fixes: (a) fix our AEmu/ethernet InDone->EPLOC post + the re-arm
-race (ethernet.c ~626) so the completion sticks; or (b) make our boot path
-leave the EtherBoot-equivalent ethernet state MC reads.
+
+### Traced to the microcode routine (2026-06-19)
+The EPLOC post is done by the AEmu microcode routine **EPOST** (real PC
+`0o3460`; also EIPOST `0o2435`, EOPOST `0o2535` -- from `mbdis --disasm
+AEmu.mb`). EPOST reads a sequence of Dorado ethernet FF-functions (`163`,
+`360`, `036`, `004`, `304`, `077`) to compute the status word it posts to
+EPLOC. Our EPOST posts the intermediate `377`/`777` but **never the terminal
+`2777`** (which adds bit `0x400`, and bits 1-2 = the IOCMD-cleared 0o6 that
+ContrAlto's status register sets). So one of those FF-functions returns the
+wrong ethernet status/completion in our emulator (`cpu.c`/`io.c`/`ethernet.c`
+handling of the Dorado ethernet status functions EPOST reads).
+
+REFUTED fix attempts (do not re-try): poking the 3 words (memory, not event);
+disabling post-boot broadcasts (makes MC blank -- MC NEEDS the intermediate
+completions to reach black-fill).
+
+### Remaining work (precise, but deep)
+Trace EPOST's value computation against the live ethernet state to find which
+FF-function/status read diverges (377/777 vs 2777), then correct that handling
+in ethernet.c so the terminal completion posts. Success test: EPLOC settles at
+2777, MC reaches its attract, Galaxian (121553) / NetExec unchanged. A wrong
+change here risks the regression gate, so it needs the EPOST microcode trace
+first, not a guess.
+
+### Instruction-level trace (decisive scoping)
+`mbdis --disasm AEmu.mb`: EPOST (real 0o3460) is just `Store<-RM/STK` to
+EPLOC -- it stores a value the CALLER pre-computed. EIPOST (input post, real
+0o2435) computes it, starting at `FF=163` (a Dorado ethernet status/IO
+function) then `FF=360/036/004/304/077`. The posted high byte is the "post
+code": ours 0/1 (377/777), ContrAlto 5 (2777). So the bug is in how our
+emulator answers the ethernet status FF-function(s) EIPOST reads -- i.e. the
+Dorado ethernet status the AEmu ethernet-emulation microcode consumes. Fix =
+correct that status in cpu.c/io.c/ethernet.c so EIPOST computes post code 5.
+This is AEmu-microcode-grounded but requires a careful EIPOST register trace
+(what FF=163 returns vs what code 5 needs) to avoid regressing Galaxian/NetExec
+which traverse the same EIPOST path.
