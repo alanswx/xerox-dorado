@@ -287,5 +287,21 @@ re-arms ePLoc").
 Make our ethernet path post the proper EPLOC input-completion (the `2777`
 status the Alto ethernet microcode posts after the boot input completes),
 rather than leaving MC to re-arm/poll forever. Likely in `src/ethernet.c` /
-the AEmu input-completion handling. Verify by re-running MC: EPLOC should
-settle at the completion value and MC should reach its attract screen.
+the AEmu input-completion handling.
+
+CONFIRMED the fix is at the ethernet-EVENT level, not memory: holding all
+three words (0o600=2777, 0o576=13207, 0o3016=2616) at ContrAlto's values from
+cyc 100M does NOT reach the attract (MC goes blank, not its menu). So MC
+depends on the actual ethernet input-completion *flow/state*, not just the
+status words -- forcing the words pushes MC past the EPLOC poll but it then
+lacks the real completion and diverges. The fix must make the ethernet
+operation genuinely complete (post InDone -> EPLOC the way a real Alto does),
+not patch memory.
+
+Note the boot-path asymmetry: ContrAlto boots MC via the standard EtherBoot
+loader (our BootServer's breath-of-life), which leaves EPLOC=2777; our
+emulator boots via Dorado Initial -> AEmu -> NetExec, which leaves a different
+EPLOC state. MC (same binary) expects the EtherBoot completion convention.
+Candidate fixes: (a) fix our AEmu/ethernet InDone->EPLOC post + the re-arm
+race (ethernet.c ~626) so the completion sticks; or (b) make our boot path
+leave the EtherBoot-equivalent ethernet state MC reads.
