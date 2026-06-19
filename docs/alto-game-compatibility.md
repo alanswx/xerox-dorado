@@ -232,3 +232,40 @@ needs the **same binary in both**:
    disassembler suffices.
 
 Either gives a clean root cause; the run-version reference alone cannot.
+
+## ContrAlto boot server -> valid 1:1 cross-validation (2026-06-19)
+
+Built an in-process Alto-3Mbit netboot server INTO ContrAlto
+(`AltoInfo/Contralto2-2.0-Beta/ContraltoLib/IO/BootServer.cs`, an
+IPacketEncapsulation, env CA_BOOTSERVER/CA_NETBOOT/CA_BOOTSILENT). It
+broadcasts a standard breath-of-life (ether 0602) carrying the EtherBoot
+loader, answers the Alto's Mayday (Pup 0244) and streams the file via EFTP
+(Data 030/End 032, acked) -- mirrors `dorado/src/ethernet.c`. Result: **our
+EXACT `MissileCommand.boot` net-boots in ContrAlto and runs its full attract
+screen.** Same binary in both emulators => addresses correspond 1:1.
+
+Findings from the valid comparison (ContrAlto running OUR boot vs our stalled
+emulator):
+- **0o1637 was a red herring** -- it is 0 in the WORKING version too. All the
+  earlier 0o1637 analysis (poke, producer back-trace) was chasing a non-gate.
+- 6 of 9 polled words MATCH. The genuine differences are three boot-state
+  words: **0o600 (good 2777 / ours 0), 0o576 (13207 / 31), 0o3016 (2616 /
+  1537)**.
+- 0o600 is written by the **Ethernet task** during boot; it is set once to
+  2777 and persists (MC reaches the attract even with the boot server fully
+  silent afterward -- so NOT an ongoing-network dependency).
+- Poking 0o600=2777 in our emulator CHANGES MC's behavior (frozen-black ->
+  blank), confirming it is causal, but the three words are set together so a
+  single poke doesn't reach the attract.
+
+### Root (narrowed, valid)
+The divergence is **boot-environment state**: our boot path (Dorado Initial ->
+AEmu world -> NetExec -> EFTP) leaves MC's low-memory ethernet/boot words
+(0o600/0o576/0o3016) different from a real Alto boot-ROM netboot (BOL ->
+Mayday -> EFTP). MC reads those during init and diverges into the wait loop.
+
+### Next step (clean + valid)
+With the same binary in ContrAlto, trace what writes 0o600/0o576/0o3016 in the
+working boot (the Ethernet/boot task + the producer code), at addresses that
+now map 1:1 to our emulator -- then check why our boot path leaves them wrong.
+Tools: CA_WATCH (ContrAlto) + DORADO_STORE_TRACE_VA (ours).
