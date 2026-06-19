@@ -1262,6 +1262,15 @@ int dorado_machine_render_display_list(dorado_machine *m)
     uint32_t dmds = dorado_br_get(mem, 036);
     uint32_t dl = dorado_visible_word_at_va(mem, dmds + 0420u);
     int pixels = 0, y = 0;
+    /* DORADO_DCB_TRACE: dump the display-list structure + a bitmap hash per
+     * render call, so a non-painting game can be told apart (no DCB at all,
+     * vs a DCB whose bitmap never changes = frozen, vs changing = renderer
+     * bug). bmhash folds every rendered bitmap word; ndcb counts blocks. */
+    int dcb_trace = (getenv("DORADO_DCB_TRACE") != NULL);
+    uint32_t bmhash = 2166136261u; /* FNV-1a */
+    int ndcb = 0;
+    static unsigned long render_calls = 0;
+    render_calls++;
     /* Alto DCB (Hardware Manual; salto helloworld.asm):
      *   w0 = next DCB (0 ends)
      *   w1 = (res<<15) | (inverse<<14) | (HTAB<<8) | NWRDS
@@ -1277,10 +1286,16 @@ int dorado_machine_render_display_list(dorado_machine *m)
         int nwrds = c & 0377;
         int inv   = (c >> 14) & 1;
         int lines = (int)slc * 2;
+        if (dcb_trace && g < 4)
+            fprintf(stderr, "[dcb] call=%lu dl=%06o c=%06o(htab=%d nwrds=%d "
+                    "inv=%d res=%d) sa=%06o slc=%d lines=%d\n", render_calls,
+                    dl, c, htab, nwrds, inv, (c >> 15) & 1, sa, slc, lines);
+        ndcb++;
         for (int row = 0; row < lines && y < DORADO_DISPLAY_H; row++, y++) {
             for (int wi = 0; wi < nwrds; wi++) {
                 uint16_t bits = dorado_visible_word_at_va(
                     mem, dmds + sa + (uint32_t)(row * nwrds + wi));
+                if (dcb_trace) bmhash = (bmhash ^ bits) * 16777619u;
                 for (int b = 0; b < 16; b++) {
                     int pix = (bits >> (15 - b)) & 1;
                     if (inv) pix ^= 1;
@@ -1294,6 +1309,12 @@ int dorado_machine_render_display_list(dorado_machine *m)
         }
         dl = dorado_visible_word_at_va(mem, dmds + dl);
     }
+
+    if (dcb_trace)
+        fprintf(stderr, "[dcb] call=%lu DASTART=%06o dmds=%06o ndcb=%d "
+                "pixels=%d bmhash=%08x\n", render_calls,
+                dorado_visible_word_at_va(mem, dmds + 0420u), dmds, ndcb,
+                pixels, bmhash);
 
     /* Mouse pointer: a fixed NW-arrow XOR'd in at the host mouse
      * position, so it is visible on any background and never smears
