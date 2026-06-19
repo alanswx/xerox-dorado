@@ -264,8 +264,28 @@ AEmu world -> NetExec -> EFTP) leaves MC's low-memory ethernet/boot words
 (0o600/0o576/0o3016) different from a real Alto boot-ROM netboot (BOL ->
 Mayday -> EFTP). MC reads those during init and diverges into the wait loop.
 
-### Next step (clean + valid)
-With the same binary in ContrAlto, trace what writes 0o600/0o576/0o3016 in the
-working boot (the Ethernet/boot task + the producer code), at addresses that
-now map 1:1 to our emulator -- then check why our boot path leaves them wrong.
-Tools: CA_WATCH (ContrAlto) + DORADO_STORE_TRACE_VA (ours).
+### ROOT CAUSE (found): EPLOC ethernet-completion posting
+`0o600` is **EPLOC** (Ethernet Post Location; `0o604`=EICLOC, Alto HW Manual
+Sec 7). MC posts an ethernet input op and polls EPLOC for the completion
+status. Comparing the writes to EPLOC (same binary):
+- **ContrAlto (working):** the Ethernet microcode posts `377`, `777`, then the
+  final completion **`2777`** (Ethernet task). MC reads it and proceeds; EPLOC
+  ends at 2777.
+- **Ours:** our ethernet posts only the intermediate `377` (task 7) and `777`
+  (task 6) and **never the final `2777` completion**. MC's emulator task
+  (pc=0o42) therefore keeps **clearing EPLOC to 0 (204x)** and retrying, so it
+  ends at 0 and MC busy-waits forever.
+
+So MissileCommand hangs because **our emulator's ethernet never posts the
+final input-completion status to EPLOC** that a real Alto's ethernet
+microcode does. (The 0o576/0o3016 differences are downstream of this -- MC's
+ethernet-status bookkeeping.) This is consistent with the existing EPLOC
+caveats in machine.c (~1126) and ethernet.c (~626, "EtherBoot.asm's poll loop
+re-arms ePLoc").
+
+### Fix direction
+Make our ethernet path post the proper EPLOC input-completion (the `2777`
+status the Alto ethernet microcode posts after the boot input completes),
+rather than leaving MC to re-arm/poll forever. Likely in `src/ethernet.c` /
+the AEmu input-completion handling. Verify by re-running MC: EPLOC should
+settle at the completion value and MC should reach its attract screen.
