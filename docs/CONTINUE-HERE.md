@@ -1,5 +1,40 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## ROUTE B (2026-06-20): germ-netboot/DoInLoad WORKS — full boot-file transfer + loaded world runs
+
+The old "frontier is EFTP seq 1 / the CompactVM allocator" notes below are
+**superseded**. With the matched payload `chm/cedar/cedar6.1/BasicCedarDorado.boot!22`
+the germ now netboots end-to-end at the mechanism level:
+
+- The **entire** boot file transfers over the in-process EFTP server: all 1062
+  packets, `pos=271616/271616`, EFTP state advances to completion. The germ
+  posts a `RecvPacket` for every sequence (the "no second QueueInput" stall is
+  gone -- enabled by the IFUJump-StkP / Carry20 / dirty-victim / disk fixes
+  since 2026-06-18).
+- `DoInLoad` accepts the header (`germInLoad` 001452/4/6, no `germBadBootFile`),
+  copies the pages, and **starts the loaded world**: task 0 then runs Mesa
+  bytecodes (XFEREXIT / XFEREXITDISPATCH / MESAIFUNOTREADY dispatch machinery,
+  thousands of dispatches/window) through 1.4B cycles.
+
+Run it:
+```
+./build/dorado --no-alto-boot --eb '../chm/dorado/CedarDorado.eb!6' \
+  --germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6' \
+  --eftp '../chm/cedar/cedar6.1/BasicCedarDorado.boot!22' --germ-netboot-bfn 0
+```
+
+**New frontier = a renderable payload matched to the 6.1 germ.** BasicCedarDorado
+runs but installs no display list (`DASTART=0`) -- a minimal boot that doesn't
+paint (likely wants a system volume). The other candidates aren't accepted:
+`OthelloDorado.boot!8` -> `germBadBootFile` (001467); `CedarDorado.boot!59` ->
+0 packets served. Their headers start `062400` vs the accepted BasicCedar
+`063000`, i.e. they're not matched to the Cedar-6.1 germ. To get a *visible*
+netboot, source/extract a full renderable Cedar 6.1 BootFile (the disk path's
+renderable Cedar lives in `CedarDorado-boot.pdi`), or pursue the system-volume
+chain. The netboot transport + DoInLoad itself are no longer the blocker.
+
+
+
 ## 2026-06-20 (latest): Mesa Net Executive reaches an interactive prompt — NOT hung
 
 Investigated "Mesa Net Executive never gets to a prompt." It is **not hung**:
