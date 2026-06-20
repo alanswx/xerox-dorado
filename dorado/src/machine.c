@@ -1934,12 +1934,20 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                 }
             }
 
-            /* Disk: drive sector/index pulses from the cycle clock and wake
-             * the DSK task. The tick self-guards to a real Trident pack, so
-             * the PDI-shim Cedar boot (handled at the IOCB level) is not
-             * perturbed -- it only activates the authentic controller path
-             * once a real pack is mounted (plan D1/D4). */
-            if (dorado_disk_controller_tick(&m->disk, bb->cycles) &&
+            /* Disk: advance the clock-driven sector/index timing. Wake the DSK
+             * task ONLY for a real Trident pack. The PDI/Cedar boot is
+             * EMU-task-driven (DiskBootSoft/BootTransferLp run on task 0); the
+             * DSK-task disk driver isn't installed during the germ boot, so
+             * waking it runs its uninitialized TPC in a non-yielding busy-spin
+             * that starves the emulator task and freezes the boot. (That was a
+             * regression of the D1 wakeup on the experimental --disk-real PDI
+             * path; the default shim path never enabled it.) The PDI is still
+             * clock-ticked so the sector/index state the EMU boot transfer
+             * polls advances. */
+            int disk_advanced =
+                dorado_disk_controller_tick(&m->disk, bb->cycles);
+            if (disk_advanced &&
+                m->disk.drive[m->disk.selected_drive].pack &&
                 dorado_disk_controller_wakeup_pending(&m->disk) &&
                 cpu->task_tpc[DORADO_DISK_TASK] != 0177777) {
                 dorado_cpu_wakeup(cpu, DORADO_DISK_TASK);

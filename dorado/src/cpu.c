@@ -3537,6 +3537,15 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                 cpu->mem ? (unsigned)cpu->mem->last_ref_va : 0,
                 cpu->MemBase & 037);
     }
+    /* Which task executes the boot-transfer region? (DORADO_BOOTXFER_TRACE) */
+    if (dorado_trace_flag("DORADO_BOOTXFER_TRACE") &&
+        cpu->real_PC >= 07000 && cpu->real_PC <= 07015) {
+        fprintf(stderr, "BOOTXFER task=%o pc=0o%o T=0o%o md=0o%o lva=0o%o mb=0o%o\n",
+                cpu->ctask, cpu->real_PC, cpu->T,
+                cpu->mem ? cpu->mem->md : 0,
+                cpu->mem ? (unsigned)cpu->mem->last_ref_va : 0,
+                cpu->MemBase & 037);
+    }
 
     /* Snapshot Link before FF can modify it. Write IM (in next_pc) and
      * Subroutine Return both consume Link at instruction-issue time;

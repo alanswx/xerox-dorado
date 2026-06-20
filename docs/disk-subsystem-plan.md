@@ -305,6 +305,38 @@ and why the boot IOCB lands at 0o2000000 vs the shim path's 0o431) -- a delicate
 MemBase / long-pointer-resolution change in the memory subsystem that must not
 regress the working Cedar (shim) and Alto paths.
 
+### D4 fix (2026-06-20): the boot is EMU-task-driven; D1 DSK-wakeup starvation fixed
+
+Built a reliable source map: `mb2eb` converts `Cedar.mb!6` -> `/tmp/my_cedar.eb`,
+which boots Cedar identically (28k px), so its placement == `Cedar.mb` and
+`mbdis -r` is exact. With it, traced the deadlock by task:
+
+- **Task numbers:** task 0 = EMU (emulator, lowest priority), task 14₈ = DSK.
+- Under `--disk-real`, **task 0 (EMU) executed 0 instructions** in a 50M-cycle
+  window (vs 135073 on the shim path): it was **starved**. **Task 14 (DSK)**
+  busy-spun at real 0o7003/0o7012 = `BootTransferTimeout`/`BootLabelError` --
+  which is *EMU-task code* (`DiskBootTransfer.mc` has `Set[XTask, IP[EMU]]`).
+- Root cause: **the Cedar disk boot is EMU-task-driven** (PilotBoot `SCall`s
+  `DiskBootSoft`/`BootTransferLp` on task 0); the DSK-task disk driver isn't
+  installed during the germ boot. The D1 wakeup woke the DSK task on every
+  sector pulse; with its TPC uninitialised it ran a non-yielding busy-spin and
+  starved the lower-priority emulator -> the boot froze. (A regression of D1 on
+  the experimental `--disk-real` PDI path only; the default shim path never
+  enabled the wakeup.)
+
+**Fix:** wake the DSK task only for a real Trident **pack** (`->pack`), never for
+PDI media. Now `--disk-real` no longer freezes -- task 0 runs the boot transfer
+(135073 instr/window restored). Default path unchanged (tests green, Cedar shim
+28478px, Galaxian 121553px).
+
+**Remaining (next blocker):** with the emulator un-starved, the EMU boot transfer
+still doesn't complete the read -- it sets up the controller (STARTF, format RAM,
+block-till-index) but never issues a read op, times out, and the EMU task spins
+in **memory-map init** (`BeginMapInit`/`WaitForMapBuf`/`IWriteMap`). So the
+real-controller Cedar boot has further layered blockers (read-issue/completion,
+then map-buffer). Tools to continue: `mb2eb` + `mbdis -r` (reliable mapping),
+`DORADO_DSK_PC_TRACE`, `DORADO_BOOTXFER_TRACE`, `DORADO_DISK_SEQ`.
+
 ## 4. Dependencies & ordering notes
 
 - **D1 (timing) before D2 (read)** — the read PROM is clocked by the pulse model.
