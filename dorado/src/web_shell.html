@@ -58,6 +58,12 @@
         <option value="cedar">Cedar 6.1 (login prompt) &mdash; slow boot</option>
         <option value="mesa">Mesa Network Executive</option>
       </optgroup>
+      <optgroup label="Mesa programs (native Mesa world)">
+        <option value="mesa:/chm/bootfiles/PPong.boot!1">Polish Pong (game)</option>
+        <option value="mesa:/chm/bootfiles/MazeWar.boot!1">MazeWar (type a name)</option>
+        <option value="mesa:/chm/bootfiles/PupWatch.boot!1">PupWatch (network tool)</option>
+        <option value="mesa:/chm/bootfiles/TriEx.boot!1">Trident Exerciser</option>
+      </optgroup>
       <optgroup label="Games (render well)">
         <option value="/chm/bootfiles/Galaxian.boot!1">Galaxian</option>
         <option value="/chm/bootfiles/MissileCommand.boot!1">Missile Command</option>
@@ -126,9 +132,12 @@
       document.getElementById('canvas').focus();
       return;
     }
-    if (path === 'mesa') {
-      Module.ccall('dorado_web_boot_mesa', 'number', [], []);
-      setStatus('Booting the Mesa Network Executive (Alto/Mesa world)...');
+    if (path === 'mesa' || path.indexOf('mesa:') === 0) {
+      var mesaBoot = path === 'mesa' ? '' : path.slice(5);
+      Module.ccall('dorado_web_boot_mesa', 'number', ['string'], [mesaBoot]);
+      setStatus('Booting ' + opt.textContent.trim()
+                + ' on the Alto/Mesa world... (~15-25s to first paint; the '
+                + 'display freezes briefly while it fast-boots)');
       document.getElementById('canvas').focus();
       return;
     }

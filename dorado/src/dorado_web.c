@@ -53,6 +53,15 @@
 #define WEB_MESA_EB    "/worlds/AltoMesaDorado.eb"
 #define WEB_MESA_BOOT  WEB_BOOTDIR "/MesaNetExec.boot!1"
 
+/* Browser pacing. The per-frame display render + blit cost (~100ms) dwarfs the
+ * 60ns microcycle, so when the chunk is small the browser spends most of its
+ * time presenting, not emulating -- a world whose prompt is ~155M cycles in
+ * (Mesa) or ~640M (Cedar) then takes a minute to appear. Run large cycle
+ * chunks during boot (few renders => fast time-to-prompt), then drop to a small
+ * chunk on the first keystroke so interaction stays responsive. */
+#define WEB_CYCLES_BOOT         4000000u
+#define WEB_CYCLES_INTERACTIVE   400000u
+
 /* Single global app state - the frame() callback has no other way to reach
  * it under emscripten_set_main_loop. */
 static struct {
@@ -158,7 +167,7 @@ int dorado_web_boot(const char *eftp_path, int dir_all)
     app.paused    = 0;
     app.announced = 0;
     app.frame     = 0;
-    app.cycles_per_frame = 400000;
+    app.cycles_per_frame = WEB_CYCLES_BOOT;
     printf("dorado_web: booting %s (menu=%d)\n", cfg.eftp_boot, cfg.boot_dir_all);
     return 0;
 }
@@ -205,16 +214,18 @@ int dorado_web_boot_cedar(void)
     app.paused    = 0;
     app.announced = 0;
     app.frame     = 0;
-    app.cycles_per_frame = 400000;
+    app.cycles_per_frame = WEB_CYCLES_BOOT;
     printf("dorado_web: booting Cedar 6.1 (Pilot disk)\n");
     return 0;
 }
 
-/* (Re)create the machine as the Alto/Mesa world booting the Mesa Network
- * Executive over EFTP -- a non-Cedar Mesa/Pilot environment. Exported
- * (KEEPALIVE) so JS can ccall it. */
+/* (Re)create the machine as the Alto/Mesa world booting a Mesa/Pilot program
+ * over EFTP -- a non-Cedar Mesa environment. `eftp_path` selects the boot file
+ * (NULL/empty defaults to the Mesa Network Executive); the same AltoMesaDorado
+ * world also runs Mesa games/tools (PPong, MazeWar, PupWatch, TriEx). Exported
+ * (KEEPALIVE) so JS can ccall it with a string argument. */
 EMSCRIPTEN_KEEPALIVE
-int dorado_web_boot_mesa(void)
+int dorado_web_boot_mesa(const char *eftp_path)
 {
     if (app.m) {
         dorado_machine_destroy(app.m);
@@ -231,7 +242,7 @@ int dorado_web_boot_mesa(void)
     cfg.memmisc_mb   = WEB_MEMMISC;
     cfg.ifu_mb       = WEB_IFU;
     cfg.eth_boot_110 = WEB_MESA_EB;
-    cfg.eftp_boot    = WEB_MESA_BOOT;
+    cfg.eftp_boot    = (eftp_path && *eftp_path) ? eftp_path : WEB_MESA_BOOT;
     cfg.boot_dir_all = 0;
 
     app.m = dorado_machine_create(&cfg);
@@ -244,8 +255,8 @@ int dorado_web_boot_mesa(void)
     app.paused    = 0;
     app.announced = 0;
     app.frame     = 0;
-    app.cycles_per_frame = 400000;
-    printf("dorado_web: booting Mesa NetExec (AltoMesaDorado)\n");
+    app.cycles_per_frame = WEB_CYCLES_BOOT;
+    printf("dorado_web: booting Mesa world %s\n", cfg.eftp_boot);
     return 0;
 }
 
@@ -298,7 +309,13 @@ static void frame(void)
         }
     }
 
-    dorado_machine_render_display_list(app.m);
+    int rendered_px = dorado_machine_render_display_list(app.m);
+    /* Stay in fast-boot (large cycle chunks) while the screen is still blank,
+     * then switch to a responsive chunk once the world paints its UI (herald /
+     * prompt / game field). This is keyboard-independent: typing during the
+     * boot never slows the boot, and the prompt always appears on time. */
+    if (app.cycles_per_frame != WEB_CYCLES_INTERACTIVE && rendered_px > 700)
+        app.cycles_per_frame = WEB_CYCLES_INTERACTIVE;
     const uint8_t *fb = app.disp->fb;
 
     /* Present the active world's native raster (Alto 808x606, Cedar lf
@@ -332,7 +349,7 @@ static void frame(void)
 int main(void)
 {
     app.scale = 1;
-    app.cycles_per_frame = 400000;
+    app.cycles_per_frame = WEB_CYCLES_BOOT;
 
     if (dorado_web_boot(WEB_NETEXEC, 1) != 0)
         return 1;

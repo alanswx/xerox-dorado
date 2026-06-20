@@ -2173,6 +2173,7 @@ int dorado_machine_render_display_list(dorado_machine *m)
     int dcb_trace = dorado_trace_flag("DORADO_DCB_TRACE");
     uint32_t bmhash = 2166136261u; /* FNV-1a */
     int ndcb = 0;
+    int content_below_alto = 0; /* any pixel drawn past the Alto raster? */
     static unsigned long render_calls = 0;
     render_calls++;
     /* Alto DCB (Hardware Manual; salto helloworld.asm):
@@ -2208,7 +2209,11 @@ int dorado_machine_render_display_list(dorado_machine *m)
                     int x = (htab + wi) * 16 + b;
                     if (x < DORADO_DISPLAY_W) {
                         dorado_display_set_pixel(disp, x, y, pix);
-                        if (pix) pixels++;
+                        if (pix) {
+                            pixels++;
+                            if (y >= DORADO_DISPLAY_ALTO_H)
+                                content_below_alto = 1;
+                        }
                     }
                 }
             }
@@ -2223,9 +2228,13 @@ int dorado_machine_render_display_list(dorado_machine *m)
                 render_calls, dorado_visible_word_at_va(mem, dmds + 0420u),
                 dmds, ndcb, pixels, bmhash);
 
-    /* Alto-on-Dorado uses the smaller Alto raster. */
+    /* Alto-on-Dorado uses the smaller Alto raster, but some Mesa-world
+     * programs (e.g. PPong) paint a title/score band below the Alto's 606
+     * scanlines; present the full-height raster when content extends past it
+     * so it isn't clipped. Alto games stay at 808x606 (content never below). */
     disp->active_w = DORADO_DISPLAY_ALTO_W;
-    disp->active_h = DORADO_DISPLAY_ALTO_H;
+    disp->active_h = content_below_alto ? DORADO_DISPLAY_H
+                                        : DORADO_DISPLAY_ALTO_H;
     machine_overlay_mouse(m);
     return pixels;
 }

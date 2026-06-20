@@ -1,5 +1,33 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## 2026-06-20 (latest): Mesa Net Executive reaches an interactive prompt — NOT hung
+
+Investigated "Mesa Net Executive never gets to a prompt." It is **not hung**:
+it reaches a working interactive `>` prompt and echoes typed keystrokes. A 400M
+headless run renders the full herald
+
+```
+--- XEROX Mesa Net Executive 8.0 -------------- Saturday 20-Jun-98  1:24:58 pm ---
+------------------------------ Dorado [Dorado] 1#42# ------------------------------
+>
+```
+
+with a **live clock** (advances 1:24 -> 1:27 across the run) and a blinking
+cursor. `--type "abc" --type-at 160000000` echoes `> abc` at the prompt (3 keys,
+1526 -> 1572 px), so keyboard input reaches it via the normal Alto keyboard
+words (177034). The pc=0o2167 "spin" found earlier (busy-reading M[164747]=6) is
+the **normal keyboard-input idle loop** at the prompt, not a deadlock — the
+prompt simply appears late (~155M cycles), so in the browser it takes a while to
+show up and the small `>` in the lower-left is easy to miss. No code change
+needed; Path C is interactive. Repro:
+
+```
+./build/dorado --eb '../chm/dorado/AltoMesaDorado.eb!2' \
+  --eftp '../chm/bootfiles/MesaNetExec.boot!1' \
+  --type "abc" --type-at 160000000 --key-hold 4000000 \
+  --cycles 200000000 --out /tmp/mne-type.pgm
+```
+
 ## 2026-06-20 (later): Mesa text "solid block" font bug FIXED (shifter A-bus)
 
 The Mesa Network Executive (and any Mesa BitBlt/scan-converter text) rendered
