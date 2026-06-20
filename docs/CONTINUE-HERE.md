@@ -1,5 +1,22 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## 2026-06-20 (later): Mesa text "solid block" font bug FIXED (shifter A-bus)
+
+The Mesa Network Executive (and any Mesa BitBlt/scan-converter text) rendered
+glyphs as solid filled rectangles. Root cause: a real microengine bug in
+`ff_a_override()` (cpu.c). On a barrel shift, ASEL=7 puts ~(cycled word) on the
+A bus, but `ff_a_override` also ran and, for a ShC-controlled shift whose FF
+decoded as FA=0 FB=2 FC=3 (`FF=023`), returned "A<-Q", clobbering the cycled
+glyph word with Q(=0). The ALU then did `(NOT 0) OR B = 0177777` and the
+shifter edge-mask turned that into a solid `width`-bit run -> every glyph a
+filled box. Fix: `ff_a_override` returns 0 for ASEL=7 (the shifter owns the A
+bus). Herald now reads "XEROX Mesa Net Executive 8.0 ..." (1536 px vs ~4060
+solid); Galaxian 121553, Cedar login+keyboard, 11/11 tests unchanged. Found by
+tracing the herald draw to a tight microcode loop (a glyph bit 0100000 ->
+0177400 at the store; shift alu=0177777 with a=0) and cross-checking
+DMesaMiscOps.mc / BitBlt.mc (CHM) + PrincOps BitBltTable. This likely helps any
+Mesa world's text (the Mesa games Chat/Fly/PPong/... are worth re-checking).
+
 ## 2026-06-20: more boot files cached + a second OS pair (Mesa NetExec) boots
 
 Pulled the rest of the CHM `Io/Murray/` `.boot` collection into
