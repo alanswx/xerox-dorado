@@ -274,6 +274,35 @@ This is the writable foundation for D6 (Othello system-volume install, Lisp
   volume, `--pilot-disk`); no raw Alto/Diablo C format (that mapping is
   microcode). `--help` updated. 12/12 suites + Cedar + Galaxian unchanged.
 
+## 3d. D6 status (2026-06-20): blocked on separate OS-level frontiers, not the disk
+
+The write path (D5) + `--disk` (D7) are ready, but D6's two payloads can't run
+yet because each is gated on a *different* unfinished bring-up:
+- **Othello system-volume install:** booting `OthelloDorado.boot` needs the germ
+  **netboot / `DoInLoad`-over-Ethernet** path. Verified: the germ seeds the
+  request (`action=inLoad device=ethernet bfn=0`) but the load doesn't complete
+  (0 px) -- the documented `DoInLoad` control-flow frontier (`CONTINUE-HERE.md`).
+  Not disk-subsystem work.
+- **Interlisp-D pack:** needs the Alto NetExec + `Lisp.run` (BCPL) + an
+  Alto-format Trident pack -- the OS-level Lisp bring-up scoped in
+  `new-os-pairs-tasks.md`.
+So D6 is deferred behind those frontiers; the writable Trident pack
+infrastructure it needs is done and proven (D5/D7).
+
+## 3e. D2 status: read works; full sequence-PROM framing has no current consumer
+
+The read path boots Cedar through the controller (D4) via
+`dorado_disk_controller_read_page` draining the FIFO as contiguous
+header+label+data. The *full* read sequence-PROM framing (preamble/sync/data/
+ECC/postamble per Format RAM, 20-bit FIFO cell, ReadTW >=3/>=1 cadence) has **no
+current consumer**: the boot bridge uses `read_page`, and the wakeup-driven
+FIFO-read path it would feed only exists in the *authentic DSK-task disk
+processor* boot, which the germ doesn't install (see D4). Implementing the
+ECC-interleaved framing now would also have to re-frame `read_page` and risks the
+working boot for no functional gain. So D2's full framing is deferred as
+faithfulness work tied to the authentic-processor boot (D4 deeper architecture)
+and Phase-2 (Verilog) parity; the functional read path is complete.
+
 ## 3a. Progress log
 
 - **D0 (done, committed):** `DORADO_DISK_SEQ` structured trace + cached
