@@ -62,8 +62,15 @@ WEB_LDFLAGS := -sUSE_SDL=2 -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=67108864 \
                --preload-file ../chm/dorado/expanded/Ifu.dm!51_/IfuComplex.mb@/ucode/IfuComplex.mb \
                --shell-file src/web_shell.html
 
+# The Cedar web option preloads the Pilot/Cedar PDI disk image. The raw .pdi
+# is gitignored (large); the .gz is tracked, so decompress it on demand for
+# `make web` (and the GitHub Pages CI build, which only has the .gz).
+CEDAR_PDI := ../CedarDisk/CedarDorado-boot.pdi
+$(CEDAR_PDI): $(CEDAR_PDI).gz
+	gunzip -c $< > $@
+
 .PHONY: web
-web: worlds | web-dir
+web: worlds $(CEDAR_PDI) | web-dir
 	$(EMCC) $(WEB_CFLAGS) $(WEB_SRCS) $(WEB_LDFLAGS) -o web/index.html
 
 web-dir:
