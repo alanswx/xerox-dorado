@@ -524,10 +524,13 @@ int dorado_disk_controller_tick(dorado_disk_controller *ctl,
 {
     if (!ctl) return 0;
     dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
-    /* Only a real Trident pack is clock-driven. PDI media (Cedar boot) is
-     * completed at the IOCB level by the machine shim; ticking it would inject
-     * spurious DSK wakeups into that path. A spun-down/empty drive is idle. */
-    if (!d->pack || !d->online) return 0;
+    /* A real Trident pack is always clock-driven. PDI media is normally
+     * completed at the IOCB level by the machine shim (ticking it would inject
+     * spurious DSK wakeups), but under --disk-real (allow_pdi_timing) the DSK
+     * task drives PilotDisk.mc against the controller and the PDI must spin
+     * too. A spun-down/empty drive is idle. */
+    if (!d->online) return 0;
+    if (!d->pack && !(d->pdi && ctl->allow_pdi_timing)) return 0;
 
     int spr = disk_sector_pulse_count(d);
     if (spr <= 0) return 0;
@@ -812,11 +815,15 @@ static int disk_muffler_bit(dorado_disk_controller *ctl, uint8_t addr)
     case 017: return (ctl->selected_drive >> 1) & 1;
     case 021:
         /* DiskHeadDorado.Initialize classifies a T-80 by selecting head 5
-         * and then reading HeadOvfl through DMux. PDI media represents the
-         * Dorado Cedar boot volume as a 5-head T-80-style SA4000 volume, so
-         * report the classification overflow even though the high-level PDI
-         * backend does not model the physical head-select transient. */
-        return d->head_overflow || (d->pdi != NULL);
+         * and then reading HeadOvfl through DMux. On the shim path the PDI
+         * backend doesn't model the head-select transient, so report the
+         * classification overflow unconditionally. On the real path
+         * (--disk-real) PilotDisk does real head-selects, so report the actual
+         * head_overflow flag (set by the head tag when head >= heads) -- a
+         * persistent spurious overflow would make every read look like a head
+         * error and stall the setup loop (plan D4). */
+        return d->head_overflow ||
+               (d->pdi != NULL && !ctl->allow_pdi_timing);
     case 023: return !d->selected;
     case 024: return !d->online;
     case 025: return d->seek_in_progress || !d->online;
@@ -856,6 +863,8 @@ static uint16_t disk_input(void *ctx, int task, int subtask,
 
     case DORADO_DISK_TIOA_DISKMUFF: {
         int bit = disk_muffler_bit(ctl, ctl->muff_addr);
+        if (dorado_trace_flag("DORADO_DISK_MUFF_TRACE"))
+            fprintf(stderr, "[diskmuff] addr=0o%o -> %d\n", ctl->muff_addr, bit);
         /* HM pages 101-102: the selected muffler signal is driven on
          * IOB[15]. In this emulator's C word layout, Dorado bit 15 is
          * the low bit; DiskSubrs.mc tests Read1Muff with R odd. */

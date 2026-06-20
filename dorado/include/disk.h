@@ -227,6 +227,7 @@ typedef struct {
      * next_sector_cycle == 0 means the model is unarmed. */
     uint64_t next_sector_cycle;
     uint64_t timing_advances;        /* diagnostic: clock-driven pulses */
+    uint8_t  allow_pdi_timing;       /* tick PDI media too (--disk-real, D4) */
 
     uint8_t  index_tw;               /* index pulse since last clear */
     uint8_t  sector_tw;              /* sector pulse since last clear */

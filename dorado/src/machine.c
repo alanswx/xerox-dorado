@@ -82,6 +82,7 @@ struct dorado_machine {
     int pilot_pdi_stream_active;
     uint32_t pilot_pdi_next_page;
     int alto_ether_boot;
+    int disk_real;             /* drive the real disk controller (plan D4) */
     int alto_ether_quote;
     uint16_t boot_file_number;
 
@@ -959,6 +960,7 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
         cfg.germ_path    = pick(user_cfg->germ_path,    cfg.germ_path);
         cfg.pilot_disk_pdi = pick(user_cfg->pilot_disk_pdi,
                                   cfg.pilot_disk_pdi);
+        cfg.disk_real    = user_cfg->disk_real;
         cfg.germ_netboot = user_cfg->germ_netboot;
         cfg.germ_netboot_bfn = user_cfg->germ_netboot_bfn;
         cfg.alto_ether_boot  = user_cfg->alto_ether_boot;
@@ -986,6 +988,7 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
     dorado_machine *m = calloc(1, sizeof *m);
     if (!m) return NULL;
     m->alto_ether_boot  = cfg.alto_ether_boot;
+    m->disk_real        = cfg.disk_real;
     m->alto_ether_quote = cfg.alto_ether_quote;
     m->boot_file_number = cfg.boot_file_number;
     m->germ_netboot     = cfg.germ_netboot;
@@ -1111,6 +1114,7 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
         } else {
             m->pilot_pdi_loaded = 1;
             dorado_disk_controller_attach_pdi(&m->disk, 0, &m->pilot_pdi);
+            m->disk.allow_pdi_timing = (uint8_t)m->disk_real;  /* D4 */
             m->disk_attached = 1;
             if (dorado_trace_flag("DORADO_MACHINE_TRACE"))
                 fprintf(stderr, "[machine] Pilot PDI mounted: %s "
@@ -1636,7 +1640,10 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
         if (m->ether_loaded_world_cycle && !m->germ_word_count)
             eth->world_rx_words = dorado_visible_word_at_va(&m->mem, 0604u);
         if (m->germ_word_count) {
-            machine_germ_complete_disk_iocb(m);
+            /* --disk-real: let the DSK task drive PilotDisk.mc against the
+             * real controller instead of completing the IOCB here (plan D4). */
+            if (!m->disk_real)
+                machine_germ_complete_disk_iocb(m);
             machine_germ_seed_ethernet_header_page(m);
             machine_germ_complete_ethernet_tx(m);
             uint16_t next_input =

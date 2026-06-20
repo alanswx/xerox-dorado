@@ -74,6 +74,12 @@ typedef struct dorado_machine_config {
      * the regression gate are structurally untouched. */
     const char *germ_path;
     const char *pilot_disk_pdi; /* Route B Pilot/Cedar PDI disk image. */
+    int      disk_real;        /* 1 = drive the real disk controller for the
+                                * Pilot/Cedar boot: disable the IOCB-level PDI
+                                * completion shim, clock the PDI media, and let
+                                * the DSK task run PilotDisk.mc against the
+                                * controller. Off by default (the shim path is
+                                * the working Cedar boot). Plan D4. */
     int      germ_netboot;     /* 1 = after the planted germ is resident,
                                 * seed GermSwap.pRequest as Ethernet inLoad
                                 * instead of PilotBoot's physical-volume
