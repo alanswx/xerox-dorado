@@ -8,12 +8,15 @@ Hardware Manual but were dug out of the MicroD BCPL source.
 ## Build
 
 ```
-make           # builds build/mbdis and build/test_mb
-make test      # runs the integration tests
+make           # builds the emulator (build/dorado), tools, and test binaries
+make test      # runs the integration tests (11 binaries)
+make sdl       # windowed SDL frontend (build/dorado-sdl)
+make web       # WebAssembly frontend (needs emcc); make run-cedar boots Cedar
 make clean
 ```
 
-Pure C99, no external dependencies. clangd users: `compile_commands.json`
+The core emulator is pure C99, no external dependencies (SDL2 only for
+`make sdl`; Emscripten only for `make web`). clangd users: `compile_commands.json`
 in this directory keeps the language server happy.
 
 ## Layout
@@ -320,12 +323,15 @@ FF dispatcher (`ff_override_b()` + `ff_apply_post()`):
 
 ### Tests
 
-`make test` runs four binaries:
+`make test` runs 11 binaries: `test_pdi`, `test_mb`, `test_disasm`,
+`test_microcode`, `test_memory`, `test_display`, `test_disk`, `test_ethernet`,
+`test_fastio`, `test_cpu`, `test_baseboard`. Highlights:
 - `test_mb`        — loader against ftest.MB + every microcode in chm/dorado/
 - `test_disasm`    — decoder + field-width checks across ~25k µinstrs
 - `test_microcode` — placement (image→real) verified against ftest.DLS
 - `test_cpu`       — synthetic micrograms (T←const, increment loop, RM
-                     round-trip, unsupported-halt) + Bootstrap probe
+                     round-trip, unsupported-halt) + Bootstrap/AEmu probes
+- `test_pdi`       — Pilot/Cedar PARC Disk Image loader/inspector
 
 ## Format findings (not in the Hardware Manual)
 
@@ -496,54 +502,53 @@ fake Pup server serves `AltoMesaDorado.eb` -> EB checksum -> `LoadRam` ->
 Alto/Mesa emulator world starts). For history on those earlier milestones
 see git log and `docs/handoff.md`.
 
-**Active focus: Stage 2 - boot OS software over Ethernet.** We boot over
-the net, not disk (no installed Dorado pack exists; the disk read path is
-incomplete). The plan lives in `docs/ethernet-local-boot-plan.md`; the
-ordered work to "fill in the rest" is:
+**Both boot paths now run.** Stage 2 Alto software boot works end to end
+(NetExec + games come up, render, and take keyboard input over the fake
+Mayday/EFTP server), and **Cedar 6.1 boots to its SimpleTerminal login
+prompt** from the Pilot PDI disk image with a working keyboard
+(`make run-cedar`). The frontends (SDL + WebAssembly) present each world at
+its native raster. See the top-level `CLAUDE.md` status and
+`docs/CONTINUE-HERE.md` for the live state.
 
-1. **Harden Stage 1, remove probe guards.** Make EOT transmit the real
-   15-word request Initial built at VM `177400B` (today the fake accepts
-   an all-zero shape); drop `DORADO_ETH_FORCE_ELOAD_ZERO` and the BOOTSTAGE2
-   substitution. Verify the served EB matches Initial's memory buffer
-   word-for-word before `LoadRam` (plan Phase 4). See open items in
-   `docs/ethernet-architecture.md` "Bring-Up Notes".
+**Active focus: take Cedar past the login prompt and harden the disk path.**
+Remaining work, roughly ordered:
 
-2. **Trace the post-LoadRam boot decision.** Confirm the loaded Alto
-   emulator's boot-mode select (no-BS = disk, BS = Ethernet, BS+Quote =
-   NetExec). The DDC keyboard back-channel is not modeled (gap E2), so the
-   selection is forced in the probe today; keep it probe-side until the
-   back-channel exists.
+1. **Cedar login / system volume.** Cedar reports "No System Volume on
+   Dorado" -- the PDI is a boot file, not a full installed system volume. To
+   go further it needs a real system volume (build one with Othello) or a
+   logged-in herald path that doesn't require one. Figure out what the login
+   does next and what state it expects.
 
-3. **Build the Alto-side Ethernet/SIO surface AEmu exposes.** This is the
-   Alto controller the *emulated* Alto code drives, distinct from the
-   Dorado Ethernet device Initial used in Stage 1. Until this exists the
-   running world cannot issue an Alto software-boot request.
+2. **Real disk controller, not the PDI shim.** `--pilot-disk` completes
+   PDI-backed SA4000 IOCBs through a narrow bridge in `machine.c` over the
+   still-incomplete disk sequence-PROM / data-transfer path (gaps F1-F5).
+   Replacing the shim with a faithful controller is what a write path
+   (Othello, installing a volume) needs.
 
-4. **Mayday/EFTP boot server - DONE (server side).** `src/ethernet.c`
-   now answers a Mayday Pup (`0244`) by streaming the configured Alto boot
-   file as EFTP Data packets (`030`, seq 0..) on receiver socket `020`,
-   then an EFTP End (`032`). Unit-tested in `tests/test_ethernet.c`
-   (`test_eftp_boot_reply_queue`); boot files are in `chm/bootfiles/`
-   (default `NETEXEC.BOOT`, override via `DORADO_ETH_EFTP_BOOT`). EFTP
-   types per EFTPSPEC: Data `030`, Ack `031`, End `032`, Abort `033`.
-   Still TODO here: the Ack-driven/dally handshake is shortcut (whole
-   stream pre-queued, Acks absorbed) - fine for the in-process fake, like
-   the Stage-1 server.
+3. **Live display + interrupts for Cedar.** The display is rasterized in C
+   (`dorado_machine_render_display_list`) and the field interrupt is injected
+   directly (`machine_cedar_io` ORs `CSB.wakeupMask` into NWW). The authentic
+   path -- waking the Cedar display microcode tasks so the field handler posts
+   the notify itself -- is gated by `display_active` reading `MDS+0420` while
+   Cedar's CSB is at absolute `0420` (MDS!=0); reconcile that if the real
+   display-task path is pursued.
 
-5. **Get pixels.** Once software boots it installs an Alto DCB / `DAStart`
-   display-list chain; the framebuffer (already wired through the DWT/AWT
-   fast-I/O FIFO) should then render non-blank. Snapshot via
-   `/tmp/dorado_boot_display.pgm`.
+4. **Germ DoInLoad over Ethernet.** The EFTP/Mayday server serves Cedar boot
+   files byte-exact; if the germ is driven to request one (`--germ-netboot-bfn`)
+   it would boot over the net instead of the disk. Currently the disk path is
+   the working one.
 
 **Parallel / later gaps** (full list in `docs/handoff.md` "Known gaps"):
 
-- **Disk read transfer (F1-F5)** - the alternative Stage-2 route. Needed
-  only if we pursue disk boot or later run Othello to *create* a Pilot
-  pack. Blocked partly on content as well.
 - **Hold semantics (B1/C1)** - real engine stall on cache miss / Pipe
   full. Boot-stage microcode runs with `mcr.disHold` so it doesn't need
   Hold, but post-boot emulators (e.g. `probe_aemu`) do.
-- **Cedar/Pilot (Phase 6C)** - native germ + physical-volume boot from a
-  built disk; depends on the disk write path and Ethernet boot first.
 - **Disassembler polish** - sharper FF/JCN sub-decoding, ALUFM cross-
   reference, `.DLS`-format `--listing` mode.
+
+**Don't regress:** the EFTP RxOn-clear in `src/ethernet.c eth_write` is gated
+to the Cedar path (`eftp_wait_for_rx_arm`); ungating it drops the held
+lock-step EFTP packet on every Alto RxOn toggle and stalls the Alto boot
+mid-stream (Galaxian -> 0 px). The per-step trace `getenv()` calls are cached
+via `dorado_trace_flag()` (cpu.c) -- a ~2.7x speedup; keep new per-step trace
+checks on that helper, not raw `getenv()`.

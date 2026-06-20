@@ -40,14 +40,16 @@ The microengine, memory subsystem, IFU, 16-way tasking, slow/fast-I/O
 routing, and the BaseBoard 6502 model all work and are test-covered. The
 full BaseBoard -> Bootstrap -> Initial boot chain runs. The microengine has
 been thoroughly cross-checked against the board schematics
-(`docs/schematic-audit.md`); the recent bring-up fixed five real microengine
-bugs (WF/RF field opcodes, TisId/RisId + IFetch, Q<-B for Pipe sources, the
-Overflow branch condition, and shifter Pd-mux masking).
+(`docs/schematic-audit.md`); the bring-up fixed five real microengine bugs
+(WF/RF field opcodes, TisId/RisId + IFetch, Q<-B for Pipe sources, the
+Overflow branch condition, and shifter Pd-mux masking). The emulator runs
+~24 M microinstructions/s (≈1.4x the real 16.67 MIPS Dorado) after caching
+the per-step trace `getenv()` calls (`dorado_trace_flag`, ~2.7x speedup). It
+also builds to **WebAssembly** (`make web`) and auto-deploys to GitHub Pages
+(`.github/workflows/deploy-pages.yml`): a dropdown picks the Alto games,
+NetExec, or Cedar 6.1.
 
-**Boot over Ethernet, not disk.** No installed Pilot/Alto Dorado disk volume
-survives (the CHM archive is an IFS file dump, not bootable packs) and the
-disk read path is incomplete, so the bring-up target is the network boot
-path. There are **two software paths**; how to load every combination is in
+There are **two software paths**; how to load every combination is in
 `docs/running-the-emulator.md`.
 
 **Path A - Alto-on-Dorado: WORKING.** Initial netboots `worlds/aemu.eb`
@@ -55,24 +57,31 @@ path. There are **two software paths**; how to load every combination is in
 Alto boot file over the in-process fake Pup/EFTP server
 (`dorado/src/ethernet.c`; Mayday `244B` + EFTP `30B`/`31B`). Alto games and
 the NetExec menu come up and render. This is the validated path and the
-regression gate (`make run-galaxian`, `make run-netexec`, etc.).
+regression gate (`make run-galaxian` = 121553 px, `make run-netexec`, etc.).
+(Note: the EFTP RxOn-clear must stay gated to the Cedar path -- clearing the
+rx queue on every Alto RxOn toggle drops the held lock-step packet and
+stalls the Alto boot mid-stream; see `src/ethernet.c eth_write`.)
 
-**Path B - Cedar/Pilot germ: the ACTIVE bring-up.** Initial netboots
-`CedarDorado.eb` (the Cedar/Mesa microcode); the Pilot germ is planted into
-VM (`--germ`) and runs. The germ executes its boot prologue, installs its
-trap handlers, and drives its module-startup chain, but does NOT yet load an
-OS. **Germ and microcode versions must match** -- `CedarDorado.eb!6`
-(17-May-1984) is the build that shipped with Cedar 5.3/6.0/6.1, so the
-matched germ is `Dorado.germ-6.1.6` (Cedar 6.1), NOT the older
-`Dorado.germ!4` (Dec 1983, which faults early on a version mismatch). With
-the matched pair the blocker is germ-state: a single malformed code pointer
-(long-pointer high word holds the codebase value `0o6530` instead of the MDS
-bank `0o76`); forcing it correct lets the germ run ~5.9M bytecodes, so it is
-a confirmed, specific bug. Live detail + next step: `docs/CONTINUE-HERE.md`.
+**Path B - Cedar/Pilot: BOOTS TO THE LOGIN PROMPT.** Initial netboots
+`CedarDorado.eb!6` (the Cedar/Mesa microcode), the matched Pilot germ is
+planted into VM (`--germ`), and Cedar boots its Pilot **physical volume** from
+a PDI disk image (`--pilot-disk ../CedarDisk/CedarDorado-boot.pdi`,
+`--boot-reason disk`). The full chain reaches **Cedar 6.1.0's SimpleTerminal
+login prompt** ("Please login… / Name:"), and the **keyboard works**: typing a
+name + Return advances the login. Run it with `make run-cedar`. **Germ and
+microcode versions must match** -- `CedarDorado.eb!6` (17-May-1984) shipped
+with Cedar 5.3/6.0/6.1, so the matched germ is `Dorado.germ-6.1.6` (Cedar
+6.1), NOT the older `Dorado.germ!4` (Dec 1983, version-mismatch fault).
+Cedar's keyboard is delivered to KeyBits at absolute `LONG[177033B]` with a
+display vertical-field naked-notify driving SimpleTerminalImpl's watcher
+(`machine_cedar_io`; grounded in `TerminalDefs.mesa KeyName`,
+`TerminalHeadDorado.mesa`, HM Table 24). The framebuffer is 1024x808 and each
+world presents at its native raster (Alto 808x606, Cedar lf 1024x808). Live
+detail + next steps: `docs/CONTINUE-HERE.md`.
 
-The Stage-2 EFTP/Mayday boot server is ready and serves Cedar boot files
-(`CedarNetExec.boot`, `NEWOS.BOOT`, `OthelloDorado.boot`) byte-exact; the
-germ just needs to reach `DoInLoad` to request one.
+The Stage-2 EFTP/Mayday boot server also serves Cedar boot files
+(`CedarNetExec.boot`, `NEWOS.BOOT`, `OthelloDorado.boot`) byte-exact -- the
+next stage once the germ reaches `DoInLoad` over the net rather than the disk.
 
 Plans/state: `docs/running-the-emulator.md` (how to run everything),
 `docs/CONTINUE-HERE.md` (live bring-up state), `docs/handoff.md` +

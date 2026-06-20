@@ -6,9 +6,17 @@ and run everything from this directory.
 
 ```
 make           # build the emulator, tools, and tests
-make test      # run the integration tests (10 binaries)
+make test      # run the integration tests (11 binaries)
 make sdl       # build the windowed SDL frontend (build/dorado-sdl)
+make web       # build the WebAssembly frontend (needs emcc on PATH)
+make run-cedar # boot Cedar 6.1 to its login prompt (windowed)
 ```
+
+Two worlds run today: the **Alto** games / NetExec menu (below), and **Cedar
+6.1**, which boots from a Pilot disk image to its SimpleTerminal login prompt
+with working keyboard (`make run-cedar`; see the top-level `README.md` and
+`docs/running-the-emulator.md`). The same worlds are selectable in the
+WebAssembly build (`make web`).
 
 ## Game menu (NetExec)
 
@@ -29,8 +37,9 @@ make sdl
 `--boot-dir-all` auto-registers, as a NetExec directory, every boot file in
 the directory that holds the EFTP boot file (`../chm/bootfiles/`) whose first
 word is the Alto **B-format** tag `0o405` (runnable on the AEmu Alto
-emulator). Mesa-format files (`0o345`, e.g. `CedarNetExec.boot`) are skipped:
-they need the AltoMesaDorado path, which isn't up yet. The flag is **on by
+emulator). Mesa-format files (`0o345`, e.g. `CedarNetExec.boot`) are skipped
+from this Alto menu — Cedar/Mesa boots via its own disk/germ path
+(`make run-cedar`), not by chaining through the Alto NetExec. The flag is **on by
 default** when no explicit `--boot-dir` is given, so the demo just works;
 pass `--no-boot-dir-all` to turn it off, or `--boot-dir NAME=BFN=PATH` to
 register a single file by hand (which disables the auto-scan).

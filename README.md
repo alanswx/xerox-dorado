@@ -51,18 +51,31 @@ boot-file directory** (`257B`/`260B`). All replies are spec-correct
 Museum IFS server), including the Pup checksum and the hardware-CRC framing
 the AEmu receive microcode requires.
 
-**Cedar/Pilot germ boot (Route B) is the current frontier.** A second path
-loads the Cedar/Mesa microcode (`CedarDorado.eb`) and plants the Pilot
-**germ** into VM (`--germ`); the germ then loads an OS boot file. The full
-chain runs and the germ executes its boot prologue, installs its trap
-handlers, and drives its module-startup chain — but does not yet load an OS.
-Two findings shaped this: **germ and microcode versions must match**
-(`CedarDorado.eb!6` is the 1984 build shipped with Cedar 5.3/6.0/6.1, so the
-matched germ is `Dorado.germ-6.1.6`, not the older `Dorado.germ!4`); and the
-remaining blocker is germ-state — a single malformed code pointer whose
-high word is a codebase value instead of the MDS bank, confirmed because
-forcing it correct lets the germ run ~5.9M bytecodes. See
+**Cedar/Pilot (Route B) now boots to the login prompt.** A second path loads
+the Cedar/Mesa microcode (`CedarDorado.eb!6`), plants the matched Pilot
+**germ** (`--germ Dorado.germ-6.1.6`) into VM, and boots the Pilot/Cedar
+physical volume from a PDI disk image (`--pilot-disk`). The full chain —
+BaseBoard → Bootstrap → Initial → Cedar microcode → germ → Pilot → Cedar —
+reaches **Cedar 6.1.0's SimpleTerminal login prompt** ("Please login… /
+Name:"), and **keyboard input works**: typing a name and Return advances the
+login. (Germ and microcode versions must match: `CedarDorado.eb!6` is the
+1984 build shipped with Cedar 5.3/6.0/6.1, so the germ is `Dorado.germ-6.1.6`,
+not the older `Dorado.germ!4`.) Run it with `make run-cedar`; live state is in
 `docs/CONTINUE-HERE.md`.
+
+The keyboard for the native Cedar world is delivered to its KeyBits at
+absolute `LONG[177033B]` with a display vertical-field naked-notify driving
+`SimpleTerminalImpl`'s keyboard watcher — grounded in `TerminalDefs.mesa`
+(`KeyName`), `TerminalHeadDorado.mesa`, and HM Table 24 (the 7-wire
+back channel). The Cedar full-page "lf" monitor is **1024×808**; the
+framebuffer presents each world at its native raster (Alto 808×606, Cedar
+1024×808).
+
+**It runs in your browser.** A WebAssembly build (`make web`, deployed to
+GitHub Pages by `.github/workflows/deploy-pages.yml`) boots the Alto games,
+the NetExec menu, **and Cedar 6.1** — pick the world from a dropdown. The
+emulator runs ~24 M microinstructions/s (≈1.4× the real 16.67 MIPS Dorado)
+after a hot-path `getenv()` caching fix (~2.7× speedup).
 
 Along the way the bring-up fixed **five real microengine bugs** — the Mesa
 `WF`/`RF` field opcodes, `TisId`/`RisId` + `IFetch` operand handling, the
@@ -70,15 +83,12 @@ Along the way the bring-up fixed **five real microengine bugs** — the Mesa
 shifter Pd-mux masking — and the microengine was cross-checked against the
 board schematics (`docs/schematic-audit.md`).
 
-The disk route remains blocked on *content* (no preserved Pilot/Alto
-Dorado pack exists; see below) and the disk controller's data-transfer
-path, so Ethernet is the boot path.
-
-There is **no shortcut disk image**: the CHM PARC archive is an IFS
-file-server dump, not a collection of bootable packs, so no installed
-Pilot or Alto Dorado volume exists to mount. A persistent disk would have
-to be *built* by running Othello inside the emulator — which itself
-depends on the Ethernet boot path landing first.
+**Boot media.** The Alto worlds boot over the in-process fake Ethernet/EFTP
+server (no preserved Alto Dorado pack exists — the CHM PARC archive is an IFS
+file-server dump, not bootable packs). Cedar boots from a Pilot/Cedar **PDI**
+disk image (`CedarDisk/CedarDorado-boot.pdi`, served through a PDI-backed
+SA4000 bridge over the still-incomplete disk sequence-PROM path); the
+compressed image is tracked in-repo and decompressed on demand by `make web`.
 
 **`docs/running-the-emulator.md` is the runbook** — every software
 combination (microcode worlds, germs, OS/app boot files) and the exact
@@ -101,12 +111,24 @@ make test       # runs all test suites
 The core emulator is C99 with no external dependencies. Tested on macOS
 (Apple clang) and Linux.
 
-### Windowed frontend (SDL) — boot NetExec and type at it
+### In the browser (WebAssembly)
 
-The `dorado-sdl` frontend opens an 808×606 window, rasterizes the Alto
-display list each frame, and feeds your keyboard and mouse to the running
-world. Once the **Net Executive** prompt appears you can type commands
-(`help`, etc.) just as on a real Alto.
+`make web` (needs the Emscripten SDK on `PATH`) builds a WebAssembly build
+that runs entirely in the browser; the live build is published to GitHub
+Pages by `.github/workflows/deploy-pages.yml` on every push to `main`. A
+dropdown picks the world: the **NetExec** menu and Alto games, or **Cedar
+6.1** (boots to the login prompt — a slower boot; then click the display and
+type at `Name:`). Serve `dorado/web/` over http (a `file://` URL won't load
+the `.wasm`).
+
+### Windowed frontend (SDL) — boot a world and type at it
+
+The `dorado-sdl` frontend opens a window, rasterizes the display list each
+frame, and feeds your keyboard and mouse to the running world. It presents at
+each world's native raster — 808×606 for the Alto worlds, 1024×808 for the
+Cedar "lf" monitor — and resizes when you switch. Once a prompt appears (the
+Net Executive `>`, or Cedar's `Name:`) you can type, just as on the real
+machine.
 
 It needs **SDL2** (the core emulator does not):
 
@@ -242,45 +264,34 @@ are snapshot display-list pixels from `dorado-screen.pgm`. All load at ~32 M cyc
 ./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/FTP.boot!1'               # make run-ftp
 ```
 
-##### Group B — Cedar/Mesa route — NOT YET WORKING (see `docs/CONTINUE-HERE.md` for the two paths forward)
+##### Group B — Cedar 6.1 / Pilot — boots to the login prompt
 
-`CedarNetExec.boot`, `MesaNetExec.boot`, `AlphaMesaMesaNetExec.boot`,
-`MazeWar.boot`, and `NEWOS.BOOT` are Mesa/Pilot outload (`0o162400`) files.
-They cannot run on `worlds/aemu.eb` (Alto/Nova only; Mesa bytecodes are
-decoded as Nova instructions, `insset=0`, nothing executes).
-
-**Key finding from the Dorado Booting memo §1.3:** Cedar software boots from
-*disk*, not Ethernet. Serving `CedarNetExec.boot` directly to `CedarDorado.eb`
-over EFTP is a category error — the Cedar microcode loads, enters BOOTORSTART
-(`pc=0o1070`), then hangs in a cold `InitMem` map-write loop (`IWRITEMAP`/
-`WAITFORMAPBUF`, hot PC `0o7116`), expecting a disk germ, zero opcode
-dispatches, never reaching any Ethernet software-boot handler.
-
-The memo's documented Ethernet route to Cedar is a three-stage chain using
-the **Alto/Mesa** microcode: NetExec -> CedarNetExec -> target.
-
-Two paths forward (both incomplete; see `docs/CONTINUE-HERE.md` for detail):
-
-- **Route A (recommended):** use `AltoMesaDorado.eb` (contains the full Mesa
-  VM, unlike `worlds/aemu.eb` which is Alto/Nova only) and chain through
-  NetExec. `AltoMesaDorado.eb!2` enters correctly at `pc=0o1076`; the boot
-  orchestration in `src/machine.c` / `src/ethernet.c` needs adaptation before
-  a Mesa-format second stage can run.
-- **Route B:** fix the Cedar microcode path directly — requires the `InitMem`
-  map-write Hold handshake in `src/memory.c` (see `dorado/CLAUDE.md` gaps
-  B1/C1) and a germ-Ethernet or disk boot channel (germ available at
-  `chm/cedar/germ/Dorado.germ!4`).
-
-The make targets below exercise the EFTP load path but do not reach a UI:
+Cedar boots from a Pilot/Cedar physical volume, not over Ethernet (Dorado
+Booting memo §1.3). The emulator loads the Cedar microcode, plants the
+matched Pilot germ, and boots the bundled PDI disk image — reaching Cedar
+6.1.0's SimpleTerminal login prompt, where the **keyboard works**:
 
 ```sh
-# load only — no UI yet
-./build/dorado-sdl --eb '../chm/dorado/CedarDorado.eb!6' --eftp '../chm/bootfiles/CedarNetExec.boot!4'           # make run-cedarnetexec
-./build/dorado-sdl --eb '../chm/dorado/CedarDorado.eb!6' --eftp '../chm/bootfiles/MazeWar.boot!1'                # make run-mazewar
-./build/dorado-sdl --eb '../chm/dorado/CedarDorado.eb!6' --eftp '../chm/bootfiles/MesaNetExec.boot!1'            # make run-mesanetexec
-./build/dorado-sdl --eb '../chm/dorado/CedarDorado.eb!6' --eftp '../chm/bootfiles/NEWOS.BOOT!21'                 # make run-newos
-./build/dorado-sdl --eb '../chm/dorado/CedarDorado.eb!6' --eftp '../chm/bootfiles/AlphaMesaMesaNetExec.boot!1'
+make run-cedar          # windowed; type a name at the Name: prompt + Return
+
+# the same, by hand (the login prompt appears around 640 M cycles):
+./build/dorado-sdl --boot-reason disk --no-alto-boot \
+    --eb '../chm/dorado/CedarDorado.eb!6' \
+    --germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6' \
+    --pilot-disk '../CedarDisk/CedarDorado-boot.pdi'
+
+# headless self-test: echoes "abc" at the Name: prompt into /tmp/cedar.pgm
+make run-cedar-screenshot
 ```
+
+`--germ` plants the Pilot germ into VM and `--pilot-disk` mounts the PDI as
+drive 0; `--boot-reason disk` selects the disk boot (no boot-key chord).
+Germ and microcode versions must match (`CedarDorado.eb!6` ↔
+`Dorado.germ-6.1.6`). The Mesa/Pilot outload boot files (`CedarNetExec.boot`,
+`MesaNetExec.boot`, `NEWOS.BOOT`, …) are the *next* stage the germ would
+request once it reaches `DoInLoad`; the EFTP/Mayday server already serves
+them byte-exact, but the current bring-up boots Cedar from the disk image
+instead.
 
 ##### Other worlds
 
@@ -318,10 +329,9 @@ for that boot file number, which the server serves from the registered path.
 (The breath-of-life that loads NetExec itself uses boot file 0 and the plain
 `--eftp` file.) Note the file you chain to must be an Alto B-format file to run on
 `worlds/aemu.eb`. A Mesa-format file (e.g. `CedarNetExec`) downloads but
-will not execute there (see Group B above). The intended path for Mesa-format
-second stages is Route A: boot `AltoMesaDorado.eb` (which carries the full
-Mesa VM) rather than `worlds/aemu.eb`, then chain through NetExec — that
-path is not yet wired up.
+will not execute there — Mesa bytecodes are decoded as Nova instructions
+(`insset=0`). Cedar itself runs via the disk/germ path in Group B above, not
+by chaining a Mesa outload through the Alto NetExec.
 
 Booting takes a little while (the real BaseBoard → Bootstrap → Initial →
 Ethernet-microcode chain, then the EFTP transfer of the boot file); the
