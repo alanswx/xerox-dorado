@@ -215,6 +215,32 @@ sequence can be *started* correctly.
 
 ---
 
+## 3a. Progress log
+
+- **D0 (done, committed):** `DORADO_DISK_SEQ` structured trace + cached
+  trace-flag; command front-end confirmed complete.
+- **D1 (done, committed):** clock-driven sector/index timing
+  (`dorado_disk_controller_tick`, 3600 RPM) + DSK wakeup, self-guarded to a real
+  pack / `--disk-real` PDI. Removes reliance on synthetic `advance_sector`.
+- **D3 (done, committed, ahead of D2):** Fire Code ECC generate/check
+  (`dorado_disk_ecc_*`). Self-contained; consumed later by read framing + write.
+- **D4 (in progress):** `--disk-real` flag (off by default) disables the
+  IOCB-level PDI shim, clock-drives the PDI, and lets the DSK task run
+  PilotDisk.mc against the real controller. **Confirmed:** PilotDisk *does* drive
+  the controller (drive-select/head/cyl/control tags, STARTF + block-till-index
+  control loads, sector/index wakeups). **Blocker:** it loops in
+  `SetDriveAndSubSector`/`KIdleLoop` ("Don't know current cylinder ... block til
+  index and try again"), polling only IndexTW/SectorTW, and never issues a read.
+  It configures the cadence to **spr=29 (subsector count 3)**, so the pulse
+  cadence matches; the stall is in establishing drive/cylinder state for the
+  **SA4000** PDI volume on the real path. The remaining real-path work:
+  (a) the SA4000 drive-ready / current-cylinder establishment PilotDisk's idle
+  loop waits on; (b) the CHS->Pilot-page mapping for served data (the shim used
+  linear disk addresses and sidestepped this); (c) the framed read (D2) so
+  DoDiskBlock reads data+ECC correctly; (d) the status path (D4 proper). This is
+  the project's long-standing disk blocker and needs PilotDisk.mc-level
+  iteration. The shim remains the default working Cedar boot throughout.
+
 ## 4. Dependencies & ordering notes
 
 - **D1 (timing) before D2 (read)** — the read PROM is clocked by the pulse model.

@@ -364,10 +364,11 @@ static void disk_seq_trace(const dorado_disk_controller *ctl, const char *ev)
     if (!dorado_trace_flag("DORADO_DISK_SEQ")) return;
     const dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
     fprintf(stderr,
-            "[diskseq] %-10s drv=%d chs=%d/%d/%d ctrl=0o%o run=%d act=%d "
-            "fifo=%d/%d rdtw=%d wrtw=%d sectw=%d idxtw=%d tagtw=%d "
-            "stream=%d@%d seek=%d\n",
+            "[diskseq] %-10s drv=%d chs=%d/%d/%d spr=%d ssc=%d ctrl=0o%o "
+            "run=%d act=%d fifo=%d/%d rdtw=%d wrtw=%d sectw=%d idxtw=%d "
+            "tagtw=%d stream=%d@%d seek=%d\n",
             ev, ctl->selected_drive, d->cur_cyl, d->cur_head, d->cur_sector,
+            d->sectors_per_revolution, d->subsector_count,
             ctl->control, ctl->enable_run, ctl->active,
             ctl->fifo_count, DORADO_DISK_FIFO_WORDS,
             ctl->rd_fifo_tw, ctl->wr_fifo_tw, ctl->sector_tw,
