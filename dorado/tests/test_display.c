@@ -478,18 +478,22 @@ static int test_render_fifo(void)
     EXPECT(d.fb[DORADO_DISPLAY_ROW_BYTES] == 0,
            "row 1 byte 0 should still be 0");
 
-    /* Push more rows and render. */
-    for (int r = 0; r < 4; r++) {
+    /* Push more rows and render. Stay within the 256-word per-channel FIFO:
+     * at the 1024-px (64-word) line width, 3 rows = 192 words fit, but 4
+     * would exceed the ring's 255-word usable capacity. */
+    int extra_rows = 3;
+    for (int r = 0; r < extra_rows; r++) {
         for (int w = 0; w < row_words; w++) {
             uint16_t pat = ((r + w) & 1) ? 0x5555 : 0xAAAA;
             dorado_display_fifo_push(&d, 0, pat);
         }
     }
     rendered = dorado_display_render_fifo(&d, 0, &dst_y);
-    EXPECT(rendered >= 4 * DORADO_DISPLAY_W,
-           "after 4 more rows, rendered %d (expected ≥ %d)",
-           rendered, 4 * DORADO_DISPLAY_W);
-    EXPECT(dst_y >= 5, "dst_y advanced past 5, got %d", dst_y);
+    EXPECT(rendered >= extra_rows * DORADO_DISPLAY_W,
+           "after %d more rows, rendered %d (expected ≥ %d)",
+           extra_rows, rendered, extra_rows * DORADO_DISPLAY_W);
+    EXPECT(dst_y >= 1 + extra_rows, "dst_y advanced past %d, got %d",
+           1 + extra_rows, dst_y);
 
     /* Empty FIFO render = no-op. */
     int saved_y = dst_y;

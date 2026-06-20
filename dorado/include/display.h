@@ -36,8 +36,14 @@
  *     bytes into (skipping the mixer/HSync/VBlank waveform machinery)
  *   - Dump a PPM/PGM snapshot of the framebuffer for visual inspection
  *
- * Display geometry: 808×606 monochrome (Alto-style). 808 / 8 = 101
- * bytes per row, 101 × 606 = 61206 bytes total.
+ * Display geometry: the framebuffer is sized to the largest monitor the
+ * Dorado drives -- 1024×808 monochrome, the Cedar "lf" (large-format /
+ * full-page) monitor (TerminalHeadDorado.mesa: lfWordsPerLine=64 -> 1024 px,
+ * lfScanLines=808). The Alto-on-Dorado world uses a smaller 808×606 raster
+ * and renders into the top-left; render_display_list reports the per-world
+ * active extent in active_w/active_h so the frontends present at the world's
+ * native size rather than padding the smaller world. 1024 / 8 = 128 bytes
+ * per row, 128 × 808 = 103424 bytes total.
  *
  * NOT modeled yet:
  *   - Pixel clock generation (we use a synthetic raster/vblank clock)
@@ -48,10 +54,13 @@
  *   - Interlace (OddField)
  */
 
-#define DORADO_DISPLAY_W            808
-#define DORADO_DISPLAY_H            606
+#define DORADO_DISPLAY_W            1024  /* framebuffer max (Cedar lf monitor) */
+#define DORADO_DISPLAY_H            808
 #define DORADO_DISPLAY_ROW_BYTES    ((DORADO_DISPLAY_W + 7) / 8)
 #define DORADO_DISPLAY_FB_BYTES     (DORADO_DISPLAY_ROW_BYTES * DORADO_DISPLAY_H)
+/* The Alto-on-Dorado world's raster (smaller than the framebuffer). */
+#define DORADO_DISPLAY_ALTO_W       808
+#define DORADO_DISPLAY_ALTO_H       606
 /* Raw NLCB CursorX value corresponding to screen x = 0 (the microcode
  * sends a hardware-biased, descending value; calibrate against a known
  * cursor position). */
@@ -204,11 +213,18 @@ typedef struct {
     uint64_t terminal_bits;          /* serial keyboard bits served */
     uint64_t terminal_messages;      /* complete keyboard messages served */
 
-    /* Framebuffer: 808×606 mono, packed 8 pixels per byte, MSB = leftmost.
-     * Phase 1: DWT/AWT IOFetch← drops words here as a backdoor;
+    /* Framebuffer: up to 1024×808 mono, packed 8 pixels per byte, MSB =
+     * leftmost. Phase 1: DWT/AWT IOFetch← drops words here as a backdoor;
      * eventually the mixer + waveform generator will populate this
      * from the FIFO. */
     uint8_t  fb[DORADO_DISPLAY_FB_BYTES];
+
+    /* Active raster extent of the most recently rendered world, so the
+     * frontends present at the world's native size (Alto 808×606, Cedar lf
+     * 1024×808) instead of padding to the full framebuffer. Set by
+     * dorado_machine_render_display_list; 0 until the first render. */
+    int      active_w;
+    int      active_h;
 
     /* Scan position for synthetic time. The GUI may inspect/render the
      * framebuffer at any point, including mid-frame. frame_count only

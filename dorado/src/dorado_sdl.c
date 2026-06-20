@@ -252,6 +252,7 @@ int main(int argc, char **argv)
     int announced = 0;
     int mouse_buttons = 0;
     long frame = 0;
+    int win_w = DORADO_DISPLAY_W, win_h = DORADO_DISPLAY_H;  /* presented size */
     while (running) {
         SDL_Event e;
         while (SDL_PollEvent(&e)) {
@@ -324,19 +325,29 @@ int main(int argc, char **argv)
         }
 
         if (!headless) {
+            /* Present at the active world's native raster (Alto 808x606,
+             * Cedar lf 1024x808) instead of padding to the full framebuffer;
+             * resize the window when the world (and thus its size) changes. */
+            int aw = disp->active_w ? disp->active_w : DORADO_DISPLAY_W;
+            int ah = disp->active_h ? disp->active_h : DORADO_DISPLAY_H;
+            if (aw != win_w || ah != win_h) {
+                SDL_SetWindowSize(win, aw * scale, ah * scale);
+                win_w = aw; win_h = ah;
+            }
             uint32_t *px = pixels;
-            for (int y = 0; y < DORADO_DISPLAY_H; y++) {
+            for (int y = 0; y < ah; y++) {
                 const uint8_t *row = fb + y * DORADO_DISPLAY_ROW_BYTES;
                 uint32_t *out = px + y * DORADO_DISPLAY_W;
-                for (int x = 0; x < DORADO_DISPLAY_W; x++) {
+                for (int x = 0; x < aw; x++) {
                     int bit = (row[x >> 3] >> (7 - (x & 7))) & 1;
                     out[x] = bit ? 0xFF000000u : 0xFFFFFFFFu;
                 }
             }
             SDL_UpdateTexture(tex, NULL, pixels,
                               DORADO_DISPLAY_W * (int)sizeof(uint32_t));
+            SDL_Rect src = { 0, 0, aw, ah };
             SDL_RenderClear(ren);
-            SDL_RenderCopy(ren, tex, NULL, NULL);
+            SDL_RenderCopy(ren, tex, &src, NULL);
             SDL_RenderPresent(ren);
 
             char title[176];

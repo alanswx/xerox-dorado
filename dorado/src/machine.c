@@ -1956,8 +1956,8 @@ int dorado_machine_interactive(const dorado_machine *m)
 void dorado_machine_set_mouse(dorado_machine *m, int x, int y, int buttons)
 {
     if (!m) return;
-    if (x < 0) x = 0; else if (x > 807) x = 807;
-    if (y < 0) y = 0; else if (y > 605) y = 605;
+    if (x < 0) x = 0; else if (x > DORADO_DISPLAY_W - 1) x = DORADO_DISPLAY_W - 1;
+    if (y < 0) y = 0; else if (y > DORADO_DISPLAY_H - 1) y = DORADO_DISPLAY_H - 1;
     m->mouse_present = 1;
     m->mouse_x = x;
     m->mouse_y = y;
@@ -2159,6 +2159,9 @@ int dorado_machine_render_display_list(dorado_machine *m)
                         dorado_visible_word_at_va(mem, 0420u),
                         dorado_visible_word_at_va(mem, 0421u),
                         ndcb, pixels, bmhash);
+            /* Cedar drives the full-page "lf" monitor (1024x808). */
+            disp->active_w = DORADO_DISPLAY_W;
+            disp->active_h = DORADO_DISPLAY_H;
             machine_overlay_mouse(m);
             return pixels;
         }
@@ -2220,6 +2223,9 @@ int dorado_machine_render_display_list(dorado_machine *m)
                 render_calls, dorado_visible_word_at_va(mem, dmds + 0420u),
                 dmds, ndcb, pixels, bmhash);
 
+    /* Alto-on-Dorado uses the smaller Alto raster. */
+    disp->active_w = DORADO_DISPLAY_ALTO_W;
+    disp->active_h = DORADO_DISPLAY_ALTO_H;
     machine_overlay_mouse(m);
     return pixels;
 }

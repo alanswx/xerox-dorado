@@ -256,19 +256,30 @@ static void frame(void)
     dorado_machine_render_display_list(app.m);
     const uint8_t *fb = app.disp->fb;
 
+    /* Present the active world's native raster (Alto 808x606, Cedar lf
+     * 1024x808); resize the canvas/window when the world changes size. */
+    static int win_w = 0, win_h = 0;
+    int aw = app.disp->active_w ? app.disp->active_w : DORADO_DISPLAY_W;
+    int ah = app.disp->active_h ? app.disp->active_h : DORADO_DISPLAY_H;
+    if (aw != win_w || ah != win_h) {
+        SDL_SetWindowSize(app.win, aw, ah);
+        win_w = aw; win_h = ah;
+    }
+
     uint32_t *px = pixels;
-    for (int y = 0; y < DORADO_DISPLAY_H; y++) {
+    for (int y = 0; y < ah; y++) {
         const uint8_t *row = fb + y * DORADO_DISPLAY_ROW_BYTES;
         uint32_t *out = px + y * DORADO_DISPLAY_W;
-        for (int x = 0; x < DORADO_DISPLAY_W; x++) {
+        for (int x = 0; x < aw; x++) {
             int bit = (row[x >> 3] >> (7 - (x & 7))) & 1;
             out[x] = bit ? 0xFF000000u : 0xFFFFFFFFu;
         }
     }
     SDL_UpdateTexture(app.tex, NULL, pixels,
                       DORADO_DISPLAY_W * (int)sizeof(uint32_t));
+    SDL_Rect src = { 0, 0, aw, ah };
     SDL_RenderClear(app.ren);
-    SDL_RenderCopy(app.ren, app.tex, NULL, NULL);
+    SDL_RenderCopy(app.ren, app.tex, &src, NULL);
     SDL_RenderPresent(app.ren);
     app.frame++;
 }
