@@ -1,9 +1,43 @@
 #include "mb.h"
 #include "disasm.h"
+#include "microcode.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+/* -r ADDR: resolve a REAL IM address (as seen at runtime, post-MicroD
+ * placement) to the nearest preceding source label + offset. Handles a
+ * comma-separated list. Used to map runtime PC traces back to routines. */
+static int resolve_real_addrs(const mb_file *mb, const char *list)
+{
+    static dorado_microcode mc;
+    if (dorado_microcode_load(mb, &mc) != DM_OK) {
+        fprintf(stderr, "real-symbol: microcode placement failed\n");
+        return 1;
+    }
+    char buf[256];
+    snprintf(buf, sizeof buf, "%s", list);
+    for (char *tok = strtok(buf, ","); tok; tok = strtok(NULL, ",")) {
+        int target;
+        if (tok[0] == '0' && (tok[1] == 'o' || tok[1] == 'O'))
+            target = (int)strtol(tok + 2, NULL, 8);   /* 0o.. octal */
+        else
+            target = (int)strtol(tok, NULL, 0);        /* decimal/hex/leading-0 octal */
+        const char *name = NULL;
+        int at = target;
+        for (; at >= 0; at--) {
+            name = dorado_microcode_symbol_at_real(&mc, at);
+            if (name) break;
+        }
+        if (name)
+            printf("real 0o%o (%d): %s+0o%o\n",
+                   target, target, name, target - at);
+        else
+            printf("real 0o%o (%d): <no preceding label>\n", target, target);
+    }
+    return 0;
+}
 
 /*
  * mbdis -- print a .MB file in MicroD-listing-like form.
@@ -123,6 +157,7 @@ int main(int argc, char **argv)
     int symbolic = 0;
     int list_symbols = 0;
     const char *only_mem = NULL;
+    const char *real_list = NULL;
     const char *path = NULL;
 
     for (int i = 1; i < argc; i++) {
@@ -130,6 +165,10 @@ int main(int argc, char **argv)
         if (!strcmp(a, "-s") || !strcmp(a, "--summary")) summary_only = 1;
         else if (!strcmp(a, "-d") || !strcmp(a, "--disasm")) symbolic = 1;
         else if (!strcmp(a, "-y") || !strcmp(a, "--symbols")) list_symbols = 1;
+        else if (!strcmp(a, "-r") || !strcmp(a, "--real")) {
+            if (++i >= argc) { usage(argv[0]); return 2; }
+            real_list = argv[i];
+        }
         else if (!strcmp(a, "-m") || !strcmp(a, "--memory")) {
             if (++i >= argc) { usage(argv[0]); return 2; }
             only_mem = argv[i];
@@ -154,6 +193,12 @@ int main(int argc, char **argv)
     }
 
     print_summary(&mb);
+
+    if (real_list) {
+        int rc = resolve_real_addrs(&mb, real_list);
+        mb_free(&mb);
+        return rc;
+    }
 
     if (list_symbols) {
         print_symbols(&mb);

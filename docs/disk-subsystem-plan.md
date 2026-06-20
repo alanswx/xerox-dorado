@@ -267,6 +267,32 @@ and determine why the posted IOCB isn't on the CSB chain the processor reads
 (germ/boot IOCB-linking, or a MemBase-relative CSB the emulator resolves
 differently). This is microcode-level archaeology, well-isolated but open-ended.
 
+### D4 root cause (2026-06-20): CSB/IOCB memory-visibility, not the controller
+
+Added `mbdis -r ADDR[,ADDR...]` (real-IM-address -> nearest source label via the
+loader's image_to_real). Validated: the loaded `CedarDorado.eb!6` placement
+matches `Cedar.mb!6` (exact-zero offsets on disk-boot labels). It maps the
+DSK-task (task 14₈) spin precisely:
+
+- The dominant ~45M-iteration loop at real **0o7002/0o7003 = `BootTransferTimeout`**
+  and **0o7011-0o7013 = `BootLabelError`** -- both in `DiskBootTransfer.mc`.
+- `BootTransferLp` posts the boot IOCB with `csb.next <- iocb; iocb.seal <-
+  IOCBSealValue`, then waits up to ~2s (RTC430) for the seal to clear; on
+  timeout it falls to `BootTransferTimeout` ("disk probably not on-line") and
+  retries forever.
+
+Root cause (trace lva/MemBase): the poster/seal-wait runs at **MemBase 0o34**
+(reads iocb.seal at `lva=0o2000006`, IOCB up at ~0o2000000), while the disk
+IOCB processor's idle loop reads **`CSB.next` at `lva=0o177520` via MemBase 0o31
+and gets 0**. The IOCB posting is not visible to the processor, so the command
+never executes -> timeout -> retry. This is a **CSB/IOCB memory-visibility
+problem between the two MemBase paths** (MemBase/long-pointer resolution or
+cache coherence), *above* the disk controller -- the controller itself drives
+fine (D1) and the boot is past the BootChannelDisk codeLink bug. Next: trace the
+physical addresses the `csb.next` write (MemBase 0o34) and read (MemBase 0o31)
+resolve to and reconcile them (and the IOCB-at-0o2000000 vs shim-path-0o431
+location). This is a memory-subsystem investigation, not controller work.
+
 ## 4. Dependencies & ordering notes
 
 - **D1 (timing) before D2 (read)** — the read PROM is clocked by the pulse model.
