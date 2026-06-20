@@ -733,6 +733,16 @@ static int ff_a_override(const dorado_cpu *cpu, const dorado_uinstr *u,
 {
     if (!ff_decode_ok(u)) return 0;
 
+    /* ASEL=7 selects the barrel shifter as the A-bus source (HM §3.11), so an
+     * FF A-source override (A<-T/Md/Q, or A[12:15]<-FF[4:7]) cannot apply --
+     * the shifter owns A. The FF field on a shift carries shift control / a
+     * carry modifier instead. Without this guard a ShC-controlled shift whose
+     * FF happens to decode as FA=0 FB=2 FC=1..3 (e.g. ShMdBothMasks with
+     * FF=023 -> "A<-Q") clobbered the cycled word with Q, so the Mesa BitBlt /
+     * text scan-converter (DMesaMiscOps) wrote (NOT 0) OR B = all-ones and
+     * every glyph came out as a solid block. */
+    if (u->asel == 7) return 0;
+
     uint8_t f6;
     if (u->asel == 0 || u->asel == 1) {
         /* Memory-reference subdecode: FF[0:1] select the reference
