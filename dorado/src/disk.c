@@ -482,6 +482,43 @@ void dorado_disk_controller_advance_sector(dorado_disk_controller *ctl)
     }
 }
 
+int dorado_disk_controller_tick(dorado_disk_controller *ctl,
+                                uint64_t now_cycles)
+{
+    if (!ctl) return 0;
+    dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
+    /* Only a real Trident pack is clock-driven. PDI media (Cedar boot) is
+     * completed at the IOCB level by the machine shim; ticking it would inject
+     * spurious DSK wakeups into that path. A spun-down/empty drive is idle. */
+    if (!d->pack || !d->online) return 0;
+
+    int spr = disk_sector_pulse_count(d);
+    if (spr <= 0) return 0;
+    uint64_t cps = DORADO_DISK_CYCLES_PER_REV / (uint64_t)spr;
+    if (cps == 0) cps = 1;
+
+    /* Arm on first tick relative to the current cycle. */
+    if (ctl->next_sector_cycle == 0) {
+        ctl->next_sector_cycle = now_cycles + cps;
+        return 0;
+    }
+
+    int advanced = 0;
+    /* Bounded catch-up: if the caller jumped far ahead (headless
+     * fast-forward), emit a few pulses then resync rather than storm. */
+    int guard = 0;
+    while (now_cycles >= ctl->next_sector_cycle && guard++ < 64) {
+        dorado_disk_controller_advance_sector(ctl);
+        ctl->timing_advances++;
+        ctl->next_sector_cycle += cps;
+        advanced = 1;
+    }
+    if (now_cycles >= ctl->next_sector_cycle) {
+        ctl->next_sector_cycle = now_cycles + cps;   /* fell behind: resync */
+    }
+    return advanced;
+}
+
 /* ─── Slow-IO command dispatch ───────────────────────────────────── */
 
 static void disk_output_b(void *ctx, int task, int subtask,

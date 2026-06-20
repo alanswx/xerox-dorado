@@ -180,6 +180,12 @@ void dorado_disk_drive_attach_pack(dorado_disk_drive *drv,
 #define DORADO_DISK_FIFO_WORDS        16
 #define DORADO_DISK_NUM_DRIVES         4
 
+/* Drive rotation: Trident spins at 3600 RPM = 16.67 ms/rev; at the 60 ns
+ * Dorado microcycle that is ~277778 cycles/rev. Sector pulses divide this by
+ * the drive's sectors-per-revolution (HM §9.2). Used by the clock-driven
+ * timing model (dorado_disk_controller_tick). */
+#define DORADO_DISK_CYCLES_PER_REV    277778u
+
 typedef struct {
     /* Slow-IO state (HM §9). */
     uint16_t control;                /* DiskControl bit field */
@@ -208,6 +214,11 @@ typedef struct {
     /* Wakeup conditions (HM page 95–97). The microcode reads these
      * via the muffler system (DiskMuff input) to determine why it
      * was woken. */
+    /* Clock-driven sector/index timing (dorado_disk_controller_tick).
+     * next_sector_cycle == 0 means the model is unarmed. */
+    uint64_t next_sector_cycle;
+    uint64_t timing_advances;        /* diagnostic: clock-driven pulses */
+
     uint8_t  index_tw;               /* index pulse since last clear */
     uint8_t  sector_tw;              /* sector pulse since last clear */
     uint8_t  tag_tw;                 /* tag command completed */
@@ -265,6 +276,15 @@ int dorado_disk_controller_wakeup_pending(const dorado_disk_controller *ctl);
  * the FIFO if the controller is in a read state. Synthetic helper —
  * real hardware sequences this from the format-RAM sequence PROM. */
 void dorado_disk_controller_advance_sector(dorado_disk_controller *ctl);
+
+/* Clock-driven timing model: advance the selected drive's sector/index
+ * pulses based on the elapsed cycle count (3600 RPM, see
+ * DORADO_DISK_CYCLES_PER_REV). Call once per machine step with the current
+ * cycle count. Only ticks for a real Trident pack (->pack); PDI media is
+ * completed at the IOCB level by the machine shim and must not be perturbed.
+ * Returns nonzero if at least one sector pulse fired this call. */
+int dorado_disk_controller_tick(dorado_disk_controller *ctl,
+                                uint64_t now_cycles);
 
 /* Diagnostic DMux read for DiskHeadDorado's RWMufMan path. Handles
  * DMux addresses 02000 + DiskHeadDorado.MufflerAddress and returns the

@@ -1926,6 +1926,17 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                     dorado_cpu_wakeup(cpu, word_task);
                 }
             }
+
+            /* Disk: drive sector/index pulses from the cycle clock and wake
+             * the DSK task. The tick self-guards to a real Trident pack, so
+             * the PDI-shim Cedar boot (handled at the IOCB level) is not
+             * perturbed -- it only activates the authentic controller path
+             * once a real pack is mounted (plan D1/D4). */
+            if (dorado_disk_controller_tick(&m->disk, bb->cycles) &&
+                dorado_disk_controller_wakeup_pending(&m->disk) &&
+                cpu->task_tpc[DORADO_DISK_TASK] != 0177777) {
+                dorado_cpu_wakeup(cpu, DORADO_DISK_TASK);
+            }
         }
     }
     return bb->cycles;

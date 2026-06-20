@@ -702,6 +702,72 @@ static int test_drive_select_subsector_count(void)
     return 0;
 }
 
+/* test_clock_timing — dorado_disk_controller_tick advances sector/index
+ * pulses from the cycle clock at the 3600 RPM cadence, and only for a real
+ * pack (PDI media stays idle so the IOCB shim path isn't perturbed). */
+static int test_clock_timing(void)
+{
+    static dorado_disk_controller ctl;
+    dorado_disk_controller_init(&ctl);
+
+    static dorado_disk_pack pack;
+    EXPECT(dorado_disk_pack_create(&pack, &DORADO_DISK_T80) == 0, "create");
+    dorado_disk_controller_attach_drive(&ctl, 0, &pack);
+
+    int spr = ctl.drive[0].sectors_per_revolution;   /* 29 (count 3) */
+    EXPECT(spr > 0, "sectors_per_rev=%d", spr);
+    uint64_t cps = DORADO_DISK_CYCLES_PER_REV / (uint64_t)spr;
+
+    /* First tick only arms the model (relative to 'now'); no pulse yet. */
+    uint64_t now = 1000000;
+    EXPECT(dorado_disk_controller_tick(&ctl, now) == 0, "first tick arms only");
+    EXPECT(ctl.drive[0].cur_sector == 0, "no advance on arm");
+
+    /* Before the first boundary: still no pulse. */
+    EXPECT(dorado_disk_controller_tick(&ctl, now + cps - 1) == 0,
+           "no pulse before boundary");
+
+    /* At the boundary: exactly one sector pulse. */
+    EXPECT(dorado_disk_controller_tick(&ctl, now + cps) == 1, "pulse at boundary");
+    EXPECT(ctl.drive[0].cur_sector == 1, "cur_sector=%d", ctl.drive[0].cur_sector);
+    EXPECT(ctl.sector_tw == 1, "sector_tw set");
+
+    /* Run a full revolution worth of cycles; expect a wrap to index. */
+    ctl.index_tw = 0;
+    uint64_t end = now + (uint64_t)DORADO_DISK_CYCLES_PER_REV + cps;
+    for (uint64_t c = now + cps + 1; c <= end; c++)
+        dorado_disk_controller_tick(&ctl, c);
+    EXPECT(ctl.index_tw == 1, "index_tw should fire within one revolution");
+    EXPECT(ctl.timing_advances >= (uint64_t)spr,
+           "timing_advances=%llu (>= %d)",
+           (unsigned long long)ctl.timing_advances, spr);
+
+    /* PDI media must NOT be clock-driven. */
+    static dorado_disk_controller pctl;
+    dorado_disk_controller_init(&pctl);
+    dorado_pdi pdi;
+    memset(&pdi, 0, sizeof pdi);
+    pdi.version = 1; pdi.fs_family = DORADO_PDI_FS_PILOT;
+    pdi.page_count = 8;
+    pdi.label_words = DORADO_PILOT_LABEL_WORDS;
+    pdi.data_words = DORADO_PILOT_DATA_WORDS;
+    pdi.labels = calloc((size_t)pdi.page_count * pdi.label_words, 2);
+    pdi.data = calloc((size_t)pdi.page_count * pdi.data_words, 2);
+    EXPECT(pdi.labels && pdi.data, "alloc pdi");
+    dorado_disk_controller_attach_pdi(&pctl, 0, &pdi);
+    for (uint64_t c = 0; c < 2 * DORADO_DISK_CYCLES_PER_REV; c += 137)
+        EXPECT(dorado_disk_controller_tick(&pctl, c) == 0,
+               "PDI media must not clock-tick");
+    EXPECT(pctl.timing_advances == 0, "PDI timing_advances=%llu",
+           (unsigned long long)pctl.timing_advances);
+    free(pdi.labels); free(pdi.data);
+
+    dorado_disk_pack_free(&pack);
+    printf("PASS  test_clock_timing (3600 RPM sector/index pulses, "
+           "PDI idle)\n");
+    return 0;
+}
+
 int main(void)
 {
     int rc = 0;
@@ -716,6 +782,7 @@ int main(void)
     rc |= test_advance_sector();
     rc |= test_block_till_index();
     rc |= test_drive_select_subsector_count();
+    rc |= test_clock_timing();
     if (rc == 0) printf("\nAll disk tests passed.\n");
     return rc;
 }
