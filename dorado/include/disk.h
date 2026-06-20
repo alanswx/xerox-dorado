@@ -234,6 +234,15 @@ typedef struct {
     int      fifo_count;
     uint8_t  read_stream_active;     /* current sector is streaming into FIFO */
     int      read_stream_index;      /* word index in header+label+data */
+    const dorado_disk_sector *read_stream_sector; /* sector latched at
+                                      * stream start. A read transfers ONE
+                                      * sector's data field; the microcode drain
+                                      * (Block per word + task switching) spans
+                                      * many emulated sector pulses, so refills
+                                      * must keep serving the sector the read
+                                      * began on, not the drive's advancing
+                                      * cur_sector (else the data block mixes
+                                      * adjacent sectors). NULL for PDI media. */
     uint8_t  read_block_framing;     /* 1 = interleave per-block trailing words
                                       * (2 garbage + 2 ECC) after each of the
                                       * header/label/data blocks, as the real

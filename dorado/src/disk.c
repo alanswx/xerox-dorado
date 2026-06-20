@@ -478,11 +478,11 @@ void dorado_disk_controller_refill_fifo(dorado_disk_controller *ctl)
         ctl->read_stream_active = 0;
         return;
     }
-    dorado_disk_sector *s = NULL;
-    if (d->pack) {
-        s = dorado_disk_pack_sector(
-            d->pack, d->cur_cyl, d->cur_head, disk_media_sector(d));
-    }
+    /* Serve the sector latched at stream start (begin_read_stream), not the
+     * drive's current sector -- a single read transfers one sector's data
+     * field, but the emulated drive's cur_sector advances during the long
+     * (Block-per-word) microcode drain. */
+    const dorado_disk_sector *s = ctl->read_stream_sector;
     if (d->pack && !s) {
         ctl->read_stream_active = 0;
         return;
@@ -526,6 +526,12 @@ static int disk_begin_read_stream(dorado_disk_controller *ctl)
     ctl->read_stream_index = 0;
     ctl->read_stream_active = 1;
     ctl->read_stream_starts++;
+    /* Latch the sector being read: the drain spans many emulated sector pulses,
+     * so refills must keep serving this sector, not the advancing cur_sector. */
+    ctl->read_stream_sector = d->pack
+        ? dorado_disk_pack_sector(d->pack, d->cur_cyl, d->cur_head,
+                                  disk_media_sector(d))
+        : NULL;
     dorado_disk_controller_refill_fifo(ctl);
     disk_seq_trace(ctl, "read-start");
     return ctl->read_stream_active || ctl->fifo_count > 0;
