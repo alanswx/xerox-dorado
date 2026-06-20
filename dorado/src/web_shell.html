@@ -53,6 +53,9 @@
       <optgroup label="Network Executive">
         <option value="/chm/bootfiles/NETEXEC.BOOT!8" data-menu="1" selected>NetExec menu (type a name)</option>
       </optgroup>
+      <optgroup label="Cedar / Pilot (Mesa)">
+        <option value="cedar">Cedar 6.1 (login prompt) &mdash; slow boot</option>
+      </optgroup>
       <optgroup label="Games (render well)">
         <option value="/chm/bootfiles/Galaxian.boot!1">Galaxian</option>
         <option value="/chm/bootfiles/MissileCommand.boot!1">Missile Command</option>
@@ -90,6 +93,11 @@
     and press <code>Return</code> to boot it; or pick one from the dropdown
     above to boot it directly. <code>F1</code> pauses/resumes. The middle/right
     mouse buttons map to the Alto's 3-button mouse.
+    <br><br>
+    Pick <b>Cedar 6.1</b> to boot the real Cedar/Mesa environment from a Pilot
+    disk image instead of the Alto emulator. It is a much longer boot (a minute
+    or two) and ends at a <code>Please login ... / Name:</code> prompt &mdash;
+    click the display and type a name, then <code>Return</code>.
   </div>
 
 <script type="text/javascript">
@@ -106,9 +114,16 @@
     if (!ready) return;
     var opt = gameSel.options[gameSel.selectedIndex];
     var path = opt.value;
+    paused = false; pauseBtn.textContent = 'Pause';
+    if (path === 'cedar') {
+      Module.ccall('dorado_web_boot_cedar', 'number', [], []);
+      setStatus('Booting Cedar 6.1 from the Pilot disk... this takes a minute '
+                + 'or two to reach the login prompt. Then type a name at Name:.');
+      document.getElementById('canvas').focus();
+      return;
+    }
     var menu = opt.getAttribute('data-menu') ? 1 : 0;
     Module.ccall('dorado_web_boot', 'number', ['string', 'number'], [path, menu]);
-    paused = false; pauseBtn.textContent = 'Pause';
     setStatus('Booting ' + opt.textContent.trim() + '... (give the display a moment)');
     document.getElementById('canvas').focus();
   }

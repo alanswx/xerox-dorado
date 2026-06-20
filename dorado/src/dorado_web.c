@@ -40,6 +40,13 @@
 #define WEB_MEMMISC    "/ucode/memMisc.mb"
 #define WEB_IFU        "/ucode/IfuComplex.mb"
 
+/* Route B - native Cedar/Pilot: the Cedar microcode world, the matched Pilot
+ * germ, and the bootable Pilot/Cedar PDI disk image (preloaded by `make web`).
+ * Boots to Cedar 6.1's SimpleTerminal login prompt. */
+#define WEB_CEDAR_EB   "/worlds/CedarDorado.eb"
+#define WEB_CEDAR_GERM "/worlds/Dorado.germ-6.1.6"
+#define WEB_CEDAR_PDI  "/worlds/CedarDorado-boot.pdi"
+
 /* Single global app state - the frame() callback has no other way to reach
  * it under emscripten_set_main_loop. */
 static struct {
@@ -145,7 +152,55 @@ int dorado_web_boot(const char *eftp_path, int dir_all)
     app.paused    = 0;
     app.announced = 0;
     app.frame     = 0;
+    app.cycles_per_frame = 400000;
     printf("dorado_web: booting %s (menu=%d)\n", cfg.eftp_boot, cfg.boot_dir_all);
+    return 0;
+}
+
+/* (Re)create the machine as the native Cedar/Pilot world: Initial netboots the
+ * Cedar microcode, the matched Pilot germ is planted, and the Pilot/Cedar PDI
+ * is mounted as drive 0. Boots (no boot-key chord = disk) to Cedar 6.1's
+ * SimpleTerminal login prompt -- type at the Name: prompt once it appears.
+ * Exported (KEEPALIVE) so JS can ccall it. Reaching the prompt is ~640M
+ * cycles, so allow a minute or two in the browser. */
+EMSCRIPTEN_KEEPALIVE
+int dorado_web_boot_cedar(void)
+{
+    if (app.m) {
+        dorado_machine_destroy(app.m);
+        app.m = NULL;
+        app.disp = NULL;
+    }
+
+    dorado_machine_config cfg;
+    dorado_machine_config_default(&cfg);
+    cfg.bb_rom       = WEB_BB_ROM;
+    cfg.bootstrap_mb = WEB_BOOTSTRAP;
+    cfg.initial_mb   = WEB_INITIAL;
+    cfg.kernel_mb    = WEB_KERNEL;
+    cfg.memmisc_mb   = WEB_MEMMISC;
+    cfg.ifu_mb       = WEB_IFU;
+    cfg.eth_boot_110 = WEB_CEDAR_EB;
+    cfg.germ_path    = WEB_CEDAR_GERM;
+    cfg.pilot_disk_pdi = WEB_CEDAR_PDI;
+    cfg.eftp_boot    = NULL;          /* Cedar boots from the PDI, not EFTP */
+    cfg.alto_ether_boot = 0;          /* native Cedar, not Alto-on-Dorado   */
+    cfg.boot_dir_all = 0;
+    cfg.boot_keys[0] = DORADO_KEY_NONE;  /* no chord = disk boot reason */
+    cfg.boot_keys_count = 1;
+
+    app.m = dorado_machine_create(&cfg);
+    if (!app.m) {
+        fprintf(stderr, "dorado_web: failed to create Cedar machine\n");
+        return 1;
+    }
+    app.disp      = dorado_machine_display(app.m);
+    app.mouse_buttons = 0;
+    app.paused    = 0;
+    app.announced = 0;
+    app.frame     = 0;
+    app.cycles_per_frame = 400000;
+    printf("dorado_web: booting Cedar 6.1 (Pilot disk)\n");
     return 0;
 }
 

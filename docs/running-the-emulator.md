@@ -24,7 +24,7 @@ BaseBoard ROM ─► Bootstrap ─► Initial ─► [microcode world] ─► [O
 
 | Path | Microcode world | Second stage | Status |
 |---|---|---|---|
-| **A. Alto-on-Dorado** | `worlds/aemu.eb` (AEmu) | Alto boot file over EFTP | Was working; **currently renders 0px in the dirty tree** (pre-existing regression — see `docs/CONTINUE-HERE.md`) |
+| **A. Alto-on-Dorado** | `worlds/aemu.eb` (AEmu) | Alto boot file over EFTP | **Working** — Galaxian 121553 px, NetExec menu renders |
 | **B. Cedar/Pilot germ** | `CedarDorado.eb` | `Dorado.germ` → Pilot disk | **Boots Cedar 6.1 to the SimpleTerminal login prompt; keyboard input works** |
 
 Both stages share an in-process fake Pup/EFTP boot server (`src/ethernet.c`)

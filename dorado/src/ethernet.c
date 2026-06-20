@@ -1330,12 +1330,21 @@ static void eth_write(void *ctx, int task, int subtask,
                 /* During a hold nothing has arrived yet, so there is
                  * nothing to discard: WaitForBOP just waits. */
             }
-            if (!on) {
+            if (!on && eth->eftp_wait_for_rx_arm) {
                 /* HM §11: clearing RxOn resets the receiver; no more
                  * wakeups are generated and queued/current words are
                  * discarded until the receiver is re-armed at a packet
                  * boundary. This packet-level model has no wire FIFO, so
-                 * discard the queued packet stream immediately. */
+                 * discard the queued packet stream immediately.
+                 *
+                 * Only for the Cedar/Pilot germ (eftp_wait_for_rx_arm), whose
+                 * IOCB-gated delivery re-arms per input buffer. The Alto
+                 * EtherBoot loader toggles RxOn off/on between EFTP packets
+                 * while the fake server holds the next (already-delivered)
+                 * lock-step packet on the wire; discarding it there drops the
+                 * packet the Alto is about to read, stalling the boot
+                 * mid-stream. The Alto path therefore keeps the held packet
+                 * (matching the pre-regression behavior). */
                 eth_clear_rx(eth);
             }
             eth->rx_on = on;

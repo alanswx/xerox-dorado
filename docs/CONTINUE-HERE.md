@@ -73,15 +73,23 @@ window, etc. -- left direct). Result: 200M-cycle Cedar run 22.8s -> 8.4s
 (**~23.9M cycles/sec, ~1.43x real-time**; the real Dorado is 16.67 MIPS).
 Cedar boot-to-login now ~27s instead of ~73s. All unit tests still pass.
 
-### KNOWN PRE-EXISTING REGRESSION (not from this work): Alto Path A renders 0px
+### Alto Path A regression -- FIXED (was: 0px)
 
-The Alto-on-Dorado regression gate is currently broken **in the dirty tree,
-independent of the keyboard/perf changes here**: `--eb worlds/aemu.eb --eftp
-Galaxian.boot!1 --cycles 160000000` renders 0 display-list pixels (gate
-expects ~121553). Proven pre-existing by disabling `machine_cedar_io` and
-rebuilding -- still 0px. Someone should bisect the dirty tree (the prior
-Cedar-focused session) to find where Path A's post-LoadRam display list
-stopped being installed. Do not assume the keyboard/getenv work caused it.
+Path A (Alto-on-Dorado: Galaxian/NetExec/games) had regressed to 0 display-
+list pixels in the dirty tree. Bisected against the last clean commit
+(`3154d9c`) via a worktree: with HEAD's cpu/memory the Alto rendered fine, so
+the microengine was clean; adding HEAD's `ethernet.c` reproduced the 0px.
+Root cause: `eth_write` (RxOn control) was changed to call `eth_clear_rx()`
+whenever the world clears RxOn (modeling "HM §11 clearing RxOn resets the
+receiver"). The Alto EtherBoot loader toggles RxOn off/on between EFTP
+packets while the in-process fake server holds the next lock-step packet on
+the wire; discarding it there dropped the packet the Alto was about to read,
+stalling the boot at ~seq 7 of the EFTP stream (`DASTART=0`, 0px). The base
+never cleared rx on RxOn-off. Fix: gate that `eth_clear_rx()` to the
+Cedar/Pilot germ path (`eftp_wait_for_rx_arm`), whose IOCB-gated delivery
+re-arms per input buffer and needs it; the Alto path keeps the held packet,
+matching pre-regression behavior. Galaxian back to 121553 px, NetExec ~1463,
+Cedar unaffected. The fix is one line in `dorado/src/ethernet.c`.
 
 ### Verify
 
