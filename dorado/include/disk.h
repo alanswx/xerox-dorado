@@ -77,6 +77,15 @@ typedef struct {
 extern const dorado_disk_geometry DORADO_DISK_T80;
 extern const dorado_disk_geometry DORADO_DISK_T300;
 
+/* ─── Fire Code ECC (HM §9.10) ──────────────────────────────────────
+ * P(X) = X^32 + X^23 + X^21 + X^11 + X^2 + 1, a 32-stage LFSR. Generates the
+ * 2-word check value for a block (header / label / data) and checks it.
+ * Returns 0 = no error, 1 = mismatch. */
+void dorado_disk_ecc_compute(const uint16_t *words, int n,
+                             uint16_t *ecc_hi, uint16_t *ecc_lo);
+int  dorado_disk_ecc_check(const uint16_t *words, int n,
+                           uint16_t ecc_hi, uint16_t ecc_lo);
+
 /* ─── Disk pack ─────────────────────────────────────────────────── */
 
 typedef struct {

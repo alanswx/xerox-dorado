@@ -13,6 +13,43 @@ extern int dorado_trace_flag(const char *name);
 const dorado_disk_geometry DORADO_DISK_T80  = { 815, 5, 9 };
 const dorado_disk_geometry DORADO_DISK_T300 = { 815, 19, 9 };
 
+/* ─── Fire Code ECC (HM §9.10, DskEth sheet 16) ─────────────────────
+ * Polynomial P(X) = X^32 + X^23 + X^21 + X^11 + X^2 + 1 implemented as a
+ * 32-stage LFSR. The feedback taps (X powers below 32) are at bits
+ * {0, 2, 11, 21, 23}. Data is fed MSB-first; after the data the register
+ * holds the 2-word check value. We generate-and-check (the on-disk packs we
+ * have carry no stored ECC), so the implementation is self-consistent rather
+ * than bit-matched to a physical drive; single-burst recovery (HM §9.10
+ * Chinese-Remainder) is deferred until microcode faults on an injected error
+ * (plan D3). */
+#define DORADO_DISK_ECC_TAPS \
+    ((1u << 0) | (1u << 2) | (1u << 11) | (1u << 21) | (1u << 23))
+
+void dorado_disk_ecc_compute(const uint16_t *words, int n,
+                             uint16_t *ecc_hi, uint16_t *ecc_lo)
+{
+    uint32_t reg = 0;
+    for (int i = 0; i < n; i++) {
+        uint16_t w = words[i];
+        for (int b = 15; b >= 0; b--) {
+            int bit = (w >> b) & 1;
+            int fb  = bit ^ (int)((reg >> 31) & 1u);
+            reg <<= 1;
+            if (fb) reg ^= DORADO_DISK_ECC_TAPS;
+        }
+    }
+    if (ecc_hi) *ecc_hi = (uint16_t)(reg >> 16);
+    if (ecc_lo) *ecc_lo = (uint16_t)(reg & 0xFFFFu);
+}
+
+int dorado_disk_ecc_check(const uint16_t *words, int n,
+                          uint16_t ecc_hi, uint16_t ecc_lo)
+{
+    uint16_t chi = 0, clo = 0;
+    dorado_disk_ecc_compute(words, n, &chi, &clo);
+    return (chi == ecc_hi && clo == ecc_lo) ? 0 : 1;   /* 0 = ok, 1 = error */
+}
+
 #define DORADO_DISK_SUBSECTOR_PULSES_PER_REV 117
 
 #define DORADO_DISK_TAG_DRIVE    0x8000u

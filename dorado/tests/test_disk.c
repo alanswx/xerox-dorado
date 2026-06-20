@@ -768,10 +768,53 @@ static int test_clock_timing(void)
     return 0;
 }
 
+/* test_fire_code_ecc — the Fire Code ECC generates a stable 2-word check,
+ * verifies clean data, and flags a single-bit corruption. */
+static int test_fire_code_ecc(void)
+{
+    /* A representative data block (use the header+label sizes). */
+    uint16_t data[1024];
+    for (int i = 0; i < 1024; i++) data[i] = (uint16_t)(0x1357u * (i + 1));
+
+    uint16_t hi = 0, lo = 0;
+    dorado_disk_ecc_compute(data, 1024, &hi, &lo);
+
+    /* Stable: recomputation matches. */
+    uint16_t hi2 = 0, lo2 = 0;
+    dorado_disk_ecc_compute(data, 1024, &hi2, &lo2);
+    EXPECT(hi == hi2 && lo == lo2, "ECC not stable: 0x%04X%04X vs 0x%04X%04X",
+           hi, lo, hi2, lo2);
+
+    /* Clean data checks OK (0). */
+    EXPECT(dorado_disk_ecc_check(data, 1024, hi, lo) == 0,
+           "clean data should check OK");
+
+    /* A non-trivial block produces non-zero ECC (vanishingly unlikely 0). */
+    EXPECT(!(hi == 0 && lo == 0), "ECC should be non-zero for this block");
+
+    /* Single-bit corruption is detected. */
+    data[500] ^= 0x0040u;
+    EXPECT(dorado_disk_ecc_check(data, 1024, hi, lo) == 1,
+           "1-bit corruption should flag an error");
+    data[500] ^= 0x0040u;   /* restore */
+
+    /* A different block gives a different ECC. */
+    uint16_t hdr[2] = { 0x0001, 0x0002 };
+    uint16_t ghi = 0, glo = 0;
+    dorado_disk_ecc_compute(hdr, 2, &ghi, &glo);
+    EXPECT(!(ghi == hi && glo == lo), "distinct blocks should differ in ECC");
+    EXPECT(dorado_disk_ecc_check(hdr, 2, ghi, glo) == 0, "header ECC OK");
+
+    printf("PASS  test_fire_code_ecc (generate/check/corruption, "
+           "ecc=0x%04X%04X)\n", hi, lo);
+    return 0;
+}
+
 int main(void)
 {
     int rc = 0;
     rc |= test_pack_create_t80();
+    rc |= test_fire_code_ecc();
     rc |= test_pack_save_load();
     rc |= test_controller_io_routing();
     rc |= test_diskcontrol_active_abort();
