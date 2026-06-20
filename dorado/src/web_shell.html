@@ -54,8 +54,9 @@
       <optgroup label="Network Executive">
         <option value="/chm/bootfiles/NETEXEC.BOOT!8" data-menu="1" selected>NetExec menu (type a name)</option>
       </optgroup>
-      <optgroup label="Cedar / Pilot (Mesa)">
+      <optgroup label="Cedar / Mesa (Pilot)">
         <option value="cedar">Cedar 6.1 (login prompt) &mdash; slow boot</option>
+        <option value="mesa">Mesa Network Executive</option>
       </optgroup>
       <optgroup label="Games (render well)">
         <option value="/chm/bootfiles/Galaxian.boot!1">Galaxian</option>
@@ -72,10 +73,12 @@
         <option value="/chm/bootfiles/Boggs.boot!1">Boggs</option>
       </optgroup>
       <optgroup label="Utilities">
+        <option value="/chm/bootfiles/Neptune.boot!1">Neptune (disk tool)</option>
         <option value="/chm/bootfiles/Calculator.boot!1">Calculator</option>
         <option value="/chm/bootfiles/Clock.boot!1">Clock</option>
         <option value="/chm/bootfiles/CRTTEST.BOOT!1">CRT Test</option>
         <option value="/chm/bootfiles/KeyTest.boot!1">Key Test</option>
+        <option value="/chm/bootfiles/What.boot!1">What</option>
       </optgroup>
     </select>
     <button id="pause" disabled onclick="togglePause()">Pause</button>
@@ -120,6 +123,12 @@
       Module.ccall('dorado_web_boot_cedar', 'number', [], []);
       setStatus('Booting Cedar 6.1 from the Pilot disk... this takes a minute '
                 + 'or two to reach the login prompt. Then type a name at Name:.');
+      document.getElementById('canvas').focus();
+      return;
+    }
+    if (path === 'mesa') {
+      Module.ccall('dorado_web_boot_mesa', 'number', [], []);
+      setStatus('Booting the Mesa Network Executive (Alto/Mesa world)...');
       document.getElementById('canvas').focus();
       return;
     }

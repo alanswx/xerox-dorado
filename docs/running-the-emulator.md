@@ -26,6 +26,7 @@ BaseBoard ROM ─► Bootstrap ─► Initial ─► [microcode world] ─► [O
 |---|---|---|---|
 | **A. Alto-on-Dorado** | `worlds/aemu.eb` (AEmu) | Alto boot file over EFTP | **Working** — Galaxian 121553 px, NetExec menu renders |
 | **B. Cedar/Pilot germ** | `CedarDorado.eb` | `Dorado.germ` → Pilot disk | **Boots Cedar 6.1 to the SimpleTerminal login prompt; keyboard input works** |
+| **C. Alto/Mesa** | `AltoMesaDorado.eb!2` | `MesaNetExec.boot` over EFTP | **Boots the Mesa Network Executive; renders its herald** (`./build/dorado-sdl --eb '../chm/dorado/AltoMesaDorado.eb!2' --eftp '../chm/bootfiles/MesaNetExec.boot!1'`) |
 
 Both stages share an in-process fake Pup/EFTP boot server (`src/ethernet.c`)
 so no real network is needed: `--eftp PATH` registers the boot file the

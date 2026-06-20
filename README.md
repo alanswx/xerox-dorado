@@ -238,6 +238,10 @@ are snapshot display-list pixels from `dorado-screen.pgm`. All load at ~32 M cyc
 | GateControl.boot!1 | Gateway control utility (CHM Murray) | `run-gatecontrol` | 0 — boots, no display |
 | Clock.boot!1 | Alto clock display (CHM Murray) | `run-clock` | 0 — boots, no display |
 | ShowAIS.boot!1 | Show AIS data utility (CHM Murray) | `run-showais` | 0 — boots, no display |
+| Neptune.boot!1 | Alto disk/file tool (CHM Murray) | — | 14,158 — paints init screen |
+| What.boot!1 | Alto info utility (CHM Murray) | — | 301 — minimal |
+| Johnsson.boot!1 | Alto program (CHM Murray) | — | 0 — boots, no display |
+| Kal.boot!1 | Alto calendar (CHM Murray) | — | 0 — boots, no display |
 
 ```sh
 # headline games — all paint without any keyboard input
@@ -292,6 +296,25 @@ Germ and microcode versions must match (`CedarDorado.eb!6` ↔
 request once it reaches `DoInLoad`; the EFTP/Mayday server already serves
 them byte-exact, but the current bring-up boots Cedar from the disk image
 instead.
+
+##### Group C — Mesa Network Executive — boots and paints its herald
+
+The **Alto/Mesa** world (`AltoMesaDorado.eb!2`, the full Mesa VM, not the
+Alto/Nova-only `aemu.eb`) boots the **Mesa Network Executive** over EFTP — a
+Mesa/Pilot environment, Cedar's sibling. It loads the whole outload, installs
+an Alto-style display list, and renders its herald + cursor:
+
+```sh
+./build/dorado-sdl --eb '../chm/dorado/AltoMesaDorado.eb!2' \
+    --eftp '../chm/bootfiles/MesaNetExec.boot!1'
+```
+
+In the WebAssembly build this is the "Mesa Network Executive" dropdown entry.
+The Mesa-format games/utilities in `chm/bootfiles/` (`Chat`, `Fly`, `PPong`,
+`Pupwatch`, `TriEx`, `Murray` — first word `0o345`) need this Mesa world too,
+but currently load without painting (likely need input or to be launched from
+the Mesa NetExec). Pilot OS outloads (`NEWOS.BOOT`) want the germ/disk path
+like Cedar, not EFTP.
 
 ##### Other worlds
 

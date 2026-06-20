@@ -47,6 +47,12 @@
 #define WEB_CEDAR_GERM "/worlds/Dorado.germ-6.1.6"
 #define WEB_CEDAR_PDI  "/worlds/CedarDorado-boot.pdi"
 
+/* Alto/Mesa world: the full Mesa VM microcode (vs aemu.eb, Alto/Nova only).
+ * Boots the Mesa Network Executive (a Mesa/Pilot environment, sibling of
+ * Cedar) over EFTP. */
+#define WEB_MESA_EB    "/worlds/AltoMesaDorado.eb"
+#define WEB_MESA_BOOT  WEB_BOOTDIR "/MesaNetExec.boot!1"
+
 /* Single global app state - the frame() callback has no other way to reach
  * it under emscripten_set_main_loop. */
 static struct {
@@ -201,6 +207,45 @@ int dorado_web_boot_cedar(void)
     app.frame     = 0;
     app.cycles_per_frame = 400000;
     printf("dorado_web: booting Cedar 6.1 (Pilot disk)\n");
+    return 0;
+}
+
+/* (Re)create the machine as the Alto/Mesa world booting the Mesa Network
+ * Executive over EFTP -- a non-Cedar Mesa/Pilot environment. Exported
+ * (KEEPALIVE) so JS can ccall it. */
+EMSCRIPTEN_KEEPALIVE
+int dorado_web_boot_mesa(void)
+{
+    if (app.m) {
+        dorado_machine_destroy(app.m);
+        app.m = NULL;
+        app.disp = NULL;
+    }
+
+    dorado_machine_config cfg;
+    dorado_machine_config_default(&cfg);
+    cfg.bb_rom       = WEB_BB_ROM;
+    cfg.bootstrap_mb = WEB_BOOTSTRAP;
+    cfg.initial_mb   = WEB_INITIAL;
+    cfg.kernel_mb    = WEB_KERNEL;
+    cfg.memmisc_mb   = WEB_MEMMISC;
+    cfg.ifu_mb       = WEB_IFU;
+    cfg.eth_boot_110 = WEB_MESA_EB;
+    cfg.eftp_boot    = WEB_MESA_BOOT;
+    cfg.boot_dir_all = 0;
+
+    app.m = dorado_machine_create(&cfg);
+    if (!app.m) {
+        fprintf(stderr, "dorado_web: failed to create Mesa machine\n");
+        return 1;
+    }
+    app.disp      = dorado_machine_display(app.m);
+    app.mouse_buttons = 0;
+    app.paused    = 0;
+    app.announced = 0;
+    app.frame     = 0;
+    app.cycles_per_frame = 400000;
+    printf("dorado_web: booting Mesa NetExec (AltoMesaDorado)\n");
     return 0;
 }
 

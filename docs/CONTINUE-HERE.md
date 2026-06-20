@@ -1,5 +1,35 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## 2026-06-20: more boot files cached + a second OS pair (Mesa NetExec) boots
+
+Pulled the rest of the CHM `Io/Murray/` `.boot` collection into
+`chm/bootfiles/` and the WebAssembly bundle. Of the new files, four are Alto
+B-format (run on `worlds/aemu.eb`): **Neptune** (the Alto disk tool — renders a
+real "Neptune Initialization Parameters" screen, ~14k px), **What** (~301 px),
+and **Johnsson** / **Kal** (load at 32M but paint nothing by 160M, like
+several existing games that need keyboard input). Six are Mesa-format
+(`0o345`): Chat, Fly, Murray, PPong, Pupwatch, TriEx — they need a Mesa world,
+not AEmu, so they are skipped by the Alto NetExec auto-menu. (The DLion/Star
+`.boot` files in Murray were left out — different machine.)
+
+**Non-Cedar OS pairs tried:**
+- **`AltoMesaDorado.eb!2` + `MesaNetExec.boot!1` WORKS** — the Mesa Network
+  Executive (a Mesa/Pilot environment, Cedar's sibling) boots over EFTP,
+  installs an Alto-style display list (`DASTART` nonzero) and renders its
+  herald + cursor (~3990 px). Now a web boot option (`dorado_web_boot_mesa`,
+  "Mesa Network Executive" in the dropdown).
+- `AltoMesaDorado.eb!2` + `NEWOS.BOOT` (a Pilot OS): 0 px — like Cedar it wants
+  a germ / physical-volume boot, not an EFTP outload.
+- `SmalltalkDorado.eb!1`: 0 px — needs a Smalltalk image (none in the archive).
+- `AltoMesaDorado.eb!2` + Mesa games (e.g. Chat): load but paint nothing by
+  200M — probably need input / to be launched from the Mesa NetExec.
+
+So there are now **three** boot stories: Alto (AEmu + games, working), Mesa
+(AltoMesaDorado + MesaNetExec, herald), and Cedar (CedarDorado + germ + PDI,
+login prompt). The WASM bundle grew to ~4 MB. Next: make the Mesa/Cedar worlds
+interactive (verify keyboard reaches MesaNetExec; get Cedar past login), and
+the Pilot-OS pairs (NEWOS) need the disk/germ path, not EFTP.
+
 ## ROUTE B (2026-06-19 LATEST): Cedar 6.1 boots to the login prompt and accepts keyboard input; emulator sped up 2.7x
 
 **Cedar 6.1.0 now boots all the way to its SimpleTerminal login prompt and is
