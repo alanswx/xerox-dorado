@@ -23,15 +23,19 @@ Run it:
   --eftp '../chm/cedar/cedar6.1/BasicCedarDorado.boot!22' --germ-netboot-bfn 0
 ```
 
-**New frontier = a renderable payload matched to the 6.1 germ.** BasicCedarDorado
-runs but installs no display list (`DASTART=0`) -- a minimal boot that doesn't
-paint (likely wants a system volume). The other candidates aren't accepted:
-`OthelloDorado.boot!8` -> `germBadBootFile` (001467); `CedarDorado.boot!59` ->
-0 packets served. Their headers start `062400` vs the accepted BasicCedar
-`063000`, i.e. they're not matched to the Cedar-6.1 germ. To get a *visible*
-netboot, source/extract a full renderable Cedar 6.1 BootFile (the disk path's
-renderable Cedar lives in `CedarDorado-boot.pdi`), or pursue the system-volume
-chain. The netboot transport + DoInLoad itself are no longer the blocker.
+**New frontier = boot *context*, not the payload.** Decisive test: the PDI's own
+`bootFile` (fileID=3, `pdidump --extract 3`) is **byte-identical** to
+`BasicCedarDorado.boot!22` (header `063000 141530...`, 271360 words). That exact
+boot file **renders the Cedar login when booted from the PDI (disk path, 28k px)
+but not when netbooted** -- netbooted it runs Mesa bytecodes yet installs no
+display list (`DASTART=0`). So the render gap is the **physical-volume boot
+context** the disk path establishes (volume/MDS state Cedar needs to paint, even
+under "No System Volume"), which the Ethernet `DoInLoad` path doesn't set up --
+not a payload problem. (`OthelloDorado.boot!8` -> `germBadBootFile`,
+`CedarDorado.boot!59` -> not served: those are separately version-mismatched,
+header `062400` vs `063000`.) The netboot transport + DoInLoad are solid; the
+remaining work is reconciling the net-boot path's post-load VM/volume context
+with the disk path's so the loaded Cedar paints.
 
 
 
