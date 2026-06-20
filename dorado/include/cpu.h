@@ -162,7 +162,8 @@ typedef struct {
     uint8_t  ifu_sign;
     uint8_t  ifu_type_jump;     /* derived from TJump' */
     uint8_t  ifu_type_pause;    /* derived from TPause' */
-    uint8_t  ifu_saved_stkp;    /* StkP saved at IFU dispatch for RestoreStkP */
+    uint8_t  ifu_saved_stkp;    /* post-IFUJump StkP saved for RestoreStkP */
+    uint8_t  ifu_save_stkp_pending;
 
     /*
      * Breakpoints / parity / event counters — gap B11.
@@ -397,5 +398,10 @@ void dorado_cpu_set_subtask(dorado_cpu *cpu, int task, uint8_t subtask);
  * (set by tests/test_cpu.c from DORADO_TRACE_GATE="lo,hi"). */
 extern int dorado_trace_gate;
 extern unsigned long long dorado_trace_cycle;
+
+/* Cached boolean test of a trace environment variable (DORADO_*_TRACE etc.).
+ * Caches by string-literal pointer; pass only literals used as on/off flags,
+ * never value-returning env vars. See src/cpu.c. */
+int dorado_trace_flag(const char *name);
 
 #endif

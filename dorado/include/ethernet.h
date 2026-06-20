@@ -46,6 +46,8 @@
 #define DORADO_PUP_TYPE_GATEWAY_REPLY  0201
 #define DORADO_PUP_TYPE_ALTOTIME_REQ   0206
 #define DORADO_PUP_TYPE_ALTOTIME_REPLY 0207
+#define DORADO_PUP_TYPE_ADDRESS_LOOKUP 0223
+#define DORADO_PUP_TYPE_ADDRESS_REPLY  0224
 #define DORADO_PUP_LOCAL_NET           01    /* the network NetExec lives on */
 #define DORADO_PUP_TYPE_EFTP_DATA  030
 #define DORADO_PUP_TYPE_EFTP_ACK   031
@@ -98,6 +100,8 @@ typedef struct dorado_ethernet {
     uint64_t eftp_requests_seen;
     uint64_t eftp_replies_queued;
     uint16_t eftp_last_bfn;
+    uint16_t eftp_dest_socket_hi;
+    uint16_t eftp_dest_socket_lo;
     uint64_t bol_queued;
     uint64_t time_bcasts;     /* Alto time-reply broadcasts queued */
     char eftp_boot_path[256];
@@ -108,6 +112,11 @@ typedef struct dorado_ethernet {
     uint8_t eftp_state;       /* 0 idle, 1 data on wire, 2 End on wire,
                                * 3 dally End on wire */
     uint16_t eftp_max_seq;    /* progress: highest seq ever delivered */
+    uint32_t eftp_turnaround_ticks; /* fake server delay before EIT wake */
+    uint8_t eftp_wait_for_rx_arm; /* defer EFTP packet delivery until
+                                   * the world has posted an input buffer */
+    uint8_t eftp_rx_armed;
+    uint8_t eftp_delivery_deferred;
     uint32_t eftp_resend_timer; /* EFTPSPEC sender retransmission: ticks
                                  * until the current unacked packet is
                                  * put back on the wire. Re-armed at
@@ -166,6 +175,8 @@ typedef struct dorado_ethernet {
 void dorado_ethernet_init(dorado_ethernet *eth);
 void dorado_ethernet_free(dorado_ethernet *eth);
 void dorado_ethernet_attach_to_io(dorado_ethernet *eth, dorado_io *io);
+void dorado_ethernet_direct_transmit(dorado_ethernet *eth,
+                                     const uint16_t *words, size_t nwords);
 
 void dorado_ethernet_set_boot_file(dorado_ethernet *eth,
                                    uint16_t offset,
@@ -175,6 +186,10 @@ void dorado_ethernet_set_boot_file(dorado_ethernet *eth,
  * response to a Mayday request (any boot-file number, for now). */
 void dorado_ethernet_set_eftp_boot_file(dorado_ethernet *eth,
                                         const char *path);
+
+/* Optional Stage-2 delivery gate for clients such as the Cedar/Pilot germ
+ * that post Ethernet input IOCBs through a controller status block. */
+void dorado_ethernet_set_eftp_rx_armed(dorado_ethernet *eth, int armed);
 
 /* Stage-2: register a boot file in the directory the fake boot server
  * advertises to NetExec. `name` must end in ".boot"; `bfn` is the boot

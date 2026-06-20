@@ -73,6 +73,7 @@ typedef struct dorado_machine_config {
      * disk read. NULL leaves the plant disabled, so the Alto worlds in
      * the regression gate are structurally untouched. */
     const char *germ_path;
+    const char *pilot_disk_pdi; /* Route B Pilot/Cedar PDI disk image. */
     int      germ_netboot;     /* 1 = after the planted germ is resident,
                                 * seed GermSwap.pRequest as Ethernet inLoad
                                 * instead of PilotBoot's physical-volume
@@ -136,9 +137,10 @@ int dorado_machine_interactive(const dorado_machine *m);
  * (0o177030..0o177033) once the world is interactive. */
 void dorado_machine_set_mouse(dorado_machine *m, int x, int y, int buttons);
 
-/* Rasterize the Alto display list (DASTART -> DCB chain) from memory
- * straight into the display framebuffer, independent of the DWT word
- * task. Returns the number of lit pixels painted. */
+/* Rasterize the installed display chain from memory straight into the
+ * display framebuffer, independent of the DWT word task. Supports Cedar's
+ * TerminalHeadDorado low-core CSB/DCB and the Alto DASTART DCB chain.
+ * Returns the number of lit pixels painted. */
 int dorado_machine_render_display_list(dorado_machine *m);
 
 #endif /* DORADO_MACHINE_H_ */

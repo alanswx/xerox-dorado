@@ -15,6 +15,7 @@
  *     --eftp PATH       Stage-2 Alto boot file (default NETEXEC.BOOT)
  *     --germ PATH       Pilot germ image to plant into VM for the Cedar
  *                       germ-boot (Route B; e.g. Dorado.germ!4)
+ *     --pilot-disk PATH Pilot/Cedar PDI disk image to mount as drive 0
  *     --germ-netboot-bfn OCTAL
  *                       seed the planted germ's request as Ethernet inLoad
  *     --out PATH        snapshot PGM path (default dorado-screen.pgm)
@@ -118,6 +119,8 @@ int main(int argc, char **argv)
     int progress = 0;
     const char *type_str = NULL;     /* keyboard self-test input */
     uint64_t key_hold = 600000;      /* cycles to hold each key down/up */
+    uint64_t type_at = 110000000ull; /* cycle to begin typing (Alto default;
+                                      * Cedar login prompt is ~650M) */
     int boot_dir_all_opt = -1;       /* -1 auto, 0 off, 1 on */
 
     dorado_machine_config cfg;
@@ -133,6 +136,8 @@ int main(int argc, char **argv)
             cfg.eftp_boot = argv[++i];
         } else if (!strcmp(a, "--germ") && i + 1 < argc) {
             cfg.germ_path = argv[++i];
+        } else if (!strcmp(a, "--pilot-disk") && i + 1 < argc) {
+            cfg.pilot_disk_pdi = argv[++i];
         } else if (!strcmp(a, "--germ-netboot-bfn") && i + 1 < argc) {
             cfg.germ_netboot = 1;
             cfg.germ_netboot_bfn = (uint16_t)strtoul(argv[++i], NULL, 8);
@@ -163,9 +168,12 @@ int main(int argc, char **argv)
             type_str = argv[++i];
         } else if (!strcmp(a, "--key-hold") && i + 1 < argc) {
             key_hold = parse_u64(argv[++i], key_hold);
+        } else if (!strcmp(a, "--type-at") && i + 1 < argc) {
+            type_at = parse_u64(argv[++i], type_at);
         } else if (!strcmp(a, "--help") || !strcmp(a, "-h")) {
             printf("usage: %s [--cycles N] [--eb PATH] [--eftp PATH] "
                    "[--germ PATH] [--germ-netboot-bfn OCTAL] "
+                   "[--pilot-disk PATH] "
                    "[--boot-file-number OCTAL] [--boot-dir NAME=BFN=PATH] "
                    "[--boot-dir-all] [--no-boot-dir-all] "
                    "[--out PATH] [--quote] [--boot-keys K[,K...]] "
@@ -216,8 +224,8 @@ int main(int argc, char **argv)
         /* Keyboard self-test: once NetExec is interactive, settle then
          * "type" the string, holding each key down/up for --key-hold
          * cycles so its command loop registers the keystroke. */
-        if (type_str && !typed && dorado_machine_interactive(m) &&
-            dorado_machine_cycles(m) >= 110000000ull) {
+        if (type_str && !typed && dorado_machine_booted(m) &&
+            dorado_machine_cycles(m) >= type_at) {
             typed = 1;
             printf("dorado: typing \"%s\" at cyc %llu\n", type_str,
                    (unsigned long long)dorado_machine_cycles(m));
@@ -254,7 +262,7 @@ int main(int argc, char **argv)
         if (now < target) break;   /* halted */
     }
 
-    if (progress) dorado_machine_debug(m);
+    if (progress || getenv("DORADO_FINAL_DEBUG")) dorado_machine_debug(m);
     int pixels = dorado_machine_render_display_list(m);
     dorado_display *disp = dorado_machine_display(m);
     dorado_display_vblank(disp);

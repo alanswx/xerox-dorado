@@ -1,5 +1,7 @@
 #include "disk.h"
 
+#include "pdi.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -168,10 +170,13 @@ void dorado_disk_drive_attach_pack(dorado_disk_drive *drv,
                                    dorado_disk_pack *pack)
 {
     drv->pack    = pack;
+    drv->pdi     = NULL;
     drv->online  = (pack != NULL) ? 1 : 0;
+    drv->read_only = pack ? pack->read_only : 0;
     drv->cur_cyl = 0;
     drv->cur_head = 0;
     drv->cur_sector = 0;
+    drv->head_overflow = 0;
     if (pack && drv->sectors_per_revolution <= 0) {
         drv->sectors_per_revolution = pack->geometry.sectors;
     }
@@ -201,6 +206,23 @@ void dorado_disk_controller_attach_drive(dorado_disk_controller *ctl,
     dorado_disk_drive_attach_pack(&ctl->drive[slot], pack);
 }
 
+void dorado_disk_controller_attach_pdi(dorado_disk_controller *ctl,
+                                       int slot,
+                                       const dorado_pdi *pdi)
+{
+    if (!ctl || slot < 0 || slot >= DORADO_DISK_NUM_DRIVES) return;
+    dorado_disk_drive *d = &ctl->drive[slot];
+    d->pack = NULL;
+    d->pdi = pdi;
+    d->online = (pdi != NULL) ? 1 : 0;
+    d->read_only = 1;
+    d->cur_cyl = 0;
+    d->cur_head = 0;
+    d->cur_sector = 0;
+    d->head_overflow = 0;
+    if (pdi) d->sectors_per_revolution = 28;
+}
+
 static uint16_t disk_sector_word(const dorado_disk_sector *s, int idx)
 {
     if (idx < DORADO_DISK_HEADER_WORDS) {
@@ -217,10 +239,61 @@ static uint16_t disk_sector_word(const dorado_disk_sector *s, int idx)
     return 0;
 }
 
+static int disk_drive_has_media(const dorado_disk_drive *d)
+{
+    return d && (d->pack || d->pdi);
+}
+
+static int disk_drive_heads(const dorado_disk_drive *d)
+{
+    if (d->pack) return d->pack->geometry.heads;
+    if (d->pdi) return 5; /* Dorado Cedar PDI is a T-80-style Pilot volume. */
+    return 0;
+}
+
+static int disk_drive_sectors(const dorado_disk_drive *d)
+{
+    if (d->pack) return d->pack->geometry.sectors;
+    if (d->pdi) return 28; /* DiskHeadDorado modelSectors for SA4000. */
+    return 0;
+}
+
+static uint32_t disk_pdi_page_number(const dorado_disk_drive *d)
+{
+    int sectors = disk_drive_sectors(d);
+    if (sectors <= 0) sectors = 28;
+
+    /* DiskHeadDorado exposes drive 0 as a "system80": one logical head
+     * whose cylinder number is physicalCylinder*5+head. BootFile links in
+     * the PDI root are raw virtual disk addresses, so this maps the tag state
+     * back to that linear Pilot page number. */
+    return (uint32_t)d->cur_cyl * (uint32_t)sectors +
+           (uint32_t)(d->cur_sector % sectors);
+}
+
+static uint16_t disk_pdi_word(const dorado_disk_drive *d, int idx)
+{
+    if (!d || !d->pdi) return 0;
+    uint32_t page = disk_pdi_page_number(d);
+    const uint16_t *label = dorado_pdi_page_label(d->pdi, page);
+    const uint16_t *data = dorado_pdi_page_data(d->pdi, page);
+    if (!label || !data) return 0;
+
+    if (idx < DORADO_DISK_HEADER_WORDS) {
+        return (idx == 0) ? (uint16_t)page : 0;
+    }
+    idx -= DORADO_DISK_HEADER_WORDS;
+    if (idx < d->pdi->label_words) return label[idx];
+    idx -= d->pdi->label_words;
+    if (idx < d->pdi->data_words) return data[idx];
+    return 0;
+}
+
 static int disk_sector_pulse_count(const dorado_disk_drive *d)
 {
     if (d->sectors_per_revolution > 0) return d->sectors_per_revolution;
     if (d->pack && d->pack->geometry.sectors > 0) return d->pack->geometry.sectors;
+    if (d->pdi) return 28;
     return 1;
 }
 
@@ -246,23 +319,29 @@ void dorado_disk_controller_refill_fifo(dorado_disk_controller *ctl)
 {
     if (!ctl || !ctl->read_stream_active) return;
     dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
-    if (!d->pack) {
+    if (!disk_drive_has_media(d)) {
         ctl->read_stream_active = 0;
         return;
     }
-    dorado_disk_sector *s = dorado_disk_pack_sector(
-        d->pack, d->cur_cyl, d->cur_head, disk_media_sector(d));
-    if (!s) {
+    dorado_disk_sector *s = NULL;
+    if (d->pack) {
+        s = dorado_disk_pack_sector(
+            d->pack, d->cur_cyl, d->cur_head, disk_media_sector(d));
+    }
+    if (d->pack && !s) {
         ctl->read_stream_active = 0;
         return;
     }
 
-    const int total = DORADO_DISK_HEADER_WORDS +
-                      DORADO_DISK_LABEL_WORDS +
-                      DORADO_DISK_DATA_WORDS;
+    const int total = d->pdi ?
+        (DORADO_DISK_HEADER_WORDS + d->pdi->label_words + d->pdi->data_words) :
+        (DORADO_DISK_HEADER_WORDS + DORADO_DISK_LABEL_WORDS +
+         DORADO_DISK_DATA_WORDS);
     while (ctl->fifo_count < DORADO_DISK_FIFO_WORDS &&
            ctl->read_stream_index < total) {
-        ctl->fifo[ctl->fifo_head] = disk_sector_word(s, ctl->read_stream_index);
+        ctl->fifo[ctl->fifo_head] = d->pdi ?
+            disk_pdi_word(d, ctl->read_stream_index) :
+            disk_sector_word(s, ctl->read_stream_index);
         ctl->fifo_head = (ctl->fifo_head + 1) % DORADO_DISK_FIFO_WORDS;
         ctl->fifo_count++;
         ctl->read_stream_index++;
@@ -279,9 +358,11 @@ static int disk_begin_read_stream(dorado_disk_controller *ctl)
 {
     if (!ctl) return 0;
     dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
-    if (!d->pack ||
-        !dorado_disk_pack_sector(d->pack, d->cur_cyl, d->cur_head,
-                                 disk_media_sector(d))) {
+    if (!disk_drive_has_media(d) ||
+        (d->pack &&
+         !dorado_disk_pack_sector(d->pack, d->cur_cyl, d->cur_head,
+                                  disk_media_sector(d))) ||
+        (d->pdi && !dorado_pdi_page_data(d->pdi, disk_pdi_page_number(d)))) {
         ctl->read_stream_start_failures++;
         return 0;
     }
@@ -335,7 +416,7 @@ static int disk_control_has_op(uint16_t control, unsigned op)
 void dorado_disk_controller_advance_sector(dorado_disk_controller *ctl)
 {
     dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
-    if (!d->pack) return;
+    if (!disk_drive_has_media(d)) return;
     d->cur_sector = (d->cur_sector + 1) % disk_sector_pulse_count(d);
     int at_index = (d->cur_sector == 0);
 
@@ -515,11 +596,13 @@ static void disk_output_b(void *ctx, int task, int subtask,
                  * Tag[9] = direction (LSB 6). */
                 int head = bus & 0x3F;
                 dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
-                if (d->pack && head < d->pack->geometry.heads) {
+                int heads = disk_drive_heads(d);
+                if (heads > 0 && head < heads) {
                     d->cur_head = head;
-                } else if (d->pack) {
-                    /* Invalid head — would set HeadOvfl on hardware. */
+                    d->head_overflow = 0;
+                } else if (disk_drive_has_media(d)) {
                     d->cur_head = head;  /* still record */
+                    d->head_overflow = 1;
                 }
                 ctl->tag_tw = 1;          /* tag-completion wakeup */
                 ctl->tag_tw_sets++;
@@ -530,7 +613,7 @@ static void disk_output_b(void *ctx, int task, int subtask,
                  * cylinder number (LSB 0..11). */
                 int cyl = bus;
                 dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
-                if (d->pack && cyl < d->pack->geometry.cylinders) {
+                if (disk_drive_has_media(d)) {
                     d->cur_cyl = cyl;
                     d->cur_sector = 0;       /* lose sector sync on seek */
                     d->seek_in_progress = disk_sector_pulse_count(d);
@@ -593,6 +676,55 @@ static void disk_output_b(void *ctx, int task, int subtask,
     }
 }
 
+static int disk_muffler_bit(dorado_disk_controller *ctl, uint8_t addr)
+{
+    dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
+    switch (addr) {
+    case 001: return ctl->index_tw;
+    case 002: return ctl->sector_tw;
+    case 003: return ctl->tag_tw;
+    case 004:
+        if (!ctl->rd_fifo_tw && !ctl->active && ctl->enable_run &&
+            disk_control_has_transfer_op(ctl->control) &&
+            disk_drive_has_media(d)) {
+            if (disk_begin_read_stream(ctl)) {
+                ctl->active = 1;
+                ctl->read_stream_muff_starts++;
+            }
+        }
+        return ctl->rd_fifo_tw;
+    case 005: return ctl->wr_fifo_tw;
+    case 010: return ctl->enable_run;
+    case 011: return ctl->debug_mode;
+    case 012:
+        return !(ctl->active &&
+                 disk_control_has_op(ctl->control, DORADO_DISK_OP_READ));
+    case 013:
+        return !(ctl->active &&
+                 disk_control_has_op(ctl->control, DORADO_DISK_OP_WRITE));
+    case 014:
+        return !(ctl->active &&
+                 disk_control_has_op(ctl->control, DORADO_DISK_OP_RDCHK));
+    case 015: return ctl->active;
+    case 016: return ctl->selected_drive & 1;
+    case 017: return (ctl->selected_drive >> 1) & 1;
+    case 021:
+        /* DiskHeadDorado.Initialize classifies a T-80 by selecting head 5
+         * and then reading HeadOvfl through DMux. PDI media represents the
+         * Dorado Cedar boot volume as a 5-head T-80-style SA4000 volume, so
+         * report the classification overflow even though the high-level PDI
+         * backend does not model the physical head-select transient. */
+        return d->head_overflow || (d->pdi != NULL);
+    case 023: return !d->selected;
+    case 024: return !d->online;
+    case 025: return d->seek_in_progress || !d->online;
+    case 032: return d->read_only;
+    case 036:
+    case 037: return 0;
+    default: return 0;
+    }
+}
+
 static uint16_t disk_input(void *ctx, int task, int subtask,
                            uint8_t tioa, int *bad)
 {
@@ -621,48 +753,7 @@ static uint16_t disk_input(void *ctx, int task, int subtask,
         return 0xFFFF;
 
     case DORADO_DISK_TIOA_DISKMUFF: {
-        int bit = 0;
-        dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
-        switch (ctl->muff_addr) {
-        case 001: bit = ctl->index_tw; break;
-        case 002: bit = ctl->sector_tw; break;
-        case 003: bit = ctl->tag_tw; break;
-        case 004:
-            if (!ctl->rd_fifo_tw && !ctl->active && ctl->enable_run &&
-                disk_control_has_transfer_op(ctl->control) && d->pack) {
-                if (disk_begin_read_stream(ctl)) {
-                    ctl->active = 1;
-                    ctl->read_stream_muff_starts++;
-                }
-            }
-            bit = ctl->rd_fifo_tw;
-            break;
-        case 005: bit = ctl->wr_fifo_tw; break;
-        case 010: bit = ctl->enable_run; break;
-        case 011: bit = ctl->debug_mode; break;
-        case 012:
-            bit = !(ctl->active &&
-                    disk_control_has_op(ctl->control, DORADO_DISK_OP_READ));
-            break;
-        case 013:
-            bit = !(ctl->active &&
-                    disk_control_has_op(ctl->control, DORADO_DISK_OP_WRITE));
-            break;
-        case 014:
-            bit = !(ctl->active &&
-                    disk_control_has_op(ctl->control, DORADO_DISK_OP_RDCHK));
-            break;
-        case 015: bit = ctl->active; break;
-        case 016: bit = ctl->selected_drive & 1; break;
-        case 017: bit = (ctl->selected_drive >> 1) & 1; break;
-        case 023: bit = !d->selected; break;
-        case 024: bit = !d->online; break;
-        case 025: bit = d->seek_in_progress || !d->online; break;
-        case 032: bit = d->read_only; break;
-        case 036:
-        case 037: bit = 0; break;
-        default: bit = 0; break;
-        }
+        int bit = disk_muffler_bit(ctl, ctl->muff_addr);
         /* HM pages 101-102: the selected muffler signal is driven on
          * IOB[15]. In this emulator's C word layout, Dorado bit 15 is
          * the low bit; DiskSubrs.mc tests Read1Muff with R odd. */
@@ -676,6 +767,15 @@ static uint16_t disk_input(void *ctx, int task, int subtask,
     if (bad) *bad = 1;
     ctl->last_input_data = 0xFFFF;
     return 0xFFFF;
+}
+
+uint16_t dorado_disk_controller_dmux_read(dorado_disk_controller *ctl,
+                                          uint16_t addr, int *handled)
+{
+    if (handled) *handled = 0;
+    if (!ctl || addr < 02000 || addr > 02037) return 0;
+    if (handled) *handled = 1;
+    return disk_muffler_bit(ctl, (uint8_t)(addr - 02000)) ? 0x8000u : 0x0000u;
 }
 
 void dorado_disk_controller_attach_to_io(dorado_disk_controller *ctl,

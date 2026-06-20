@@ -743,8 +743,9 @@ static int test_dirty_victim_wp_fault(void)
 
 /*
  * test_pipe4_error_encoding (gap C2) — verifies dorado_pipe4_at()
- * encodes per-slot error state into the mixed-polarity Pipe4' word
- * such that XOR with 0o150361 yields the high-true semantic value.
+ * encodes per-slot error state into the mixed-polarity Pipe4' word.
+ * Previous map flags use the 0o170361 XOR transform; notMapTrouble is
+ * asserted in the raw polarity consumed by DMesaFaults.mc.
  */
 static int test_pipe4_error_encoding(void)
 {
@@ -762,26 +763,36 @@ static int test_pipe4_error_encoding(void)
     dorado_memory_ref(&mem, DM_REF_FETCH, 0, 0, 0);
 
     uint16_t pipe4_no_err = dorado_pipe4_at(&mem, 0);
-    /* High-true after XOR: bit 15 (ref) set, all others 0. */
-    EXPECT((uint16_t)(pipe4_no_err ^ 0170361u) == 0x8000,
-           "Pipe4' XOR baseline = 0x%04X, expected 0x8000 (ref only)",
-           (uint16_t)(pipe4_no_err ^ 0170361u));
+    /* Previous-flag high-true after XOR: bit 15 (ref) set. The raw
+     * notMapTrouble bit is 0 for "not a map-trouble fault". */
+    EXPECT((uint16_t)((pipe4_no_err ^ 0170361u) & ~(1u << 14)) == 0x8000,
+           "Pipe4' XOR previous flags = 0x%04X, expected 0x8000 (ref only)",
+           (uint16_t)((pipe4_no_err ^ 0170361u) & ~(1u << 14)));
+    EXPECT((pipe4_no_err & (1u << 14)) == 0,
+           "Pipe4' raw notMapTrouble = 0x%04X, expected bit clear",
+           pipe4_no_err);
 
     /* Inject a MapTrouble. */
     dorado_pipe4_set_error(&mem, 0, PIPE4_ERR_MAP_TROUBLE, 0, 0);
     uint16_t pipe4_mt = dorado_pipe4_at(&mem, 0);
-    EXPECT((uint16_t)(pipe4_mt ^ 0170361u) == 0xC000,
-           "Pipe4' XOR baseline = 0x%04X, expected 0xC000 (ref+MapTrouble)",
-           (uint16_t)(pipe4_mt ^ 0170361u));
+    EXPECT((uint16_t)((pipe4_mt ^ 0170361u) & ~(1u << 14)) == 0x8000,
+           "Pipe4' XOR previous flags = 0x%04X, expected 0x8000",
+           (uint16_t)((pipe4_mt ^ 0170361u) & ~(1u << 14)));
+    EXPECT((pipe4_mt & (1u << 14)) != 0,
+           "Pipe4' raw notMapTrouble = 0x%04X, expected bit set",
+           pipe4_mt);
 
     /* Inject MemError + syndrome. */
     dorado_pipe4_set_error(&mem, 0, PIPE4_ERR_MEM_ERROR, 0x55, 0);
     uint16_t pipe4_me = dorado_pipe4_at(&mem, 0);
-    /* High-true: bit 15 (ref) | bit 14 (MapTrouble — sticky) |
-     * bit 11 (MemError) | syndrome 0x55 in low byte. */
-    EXPECT((uint16_t)(pipe4_me ^ 0170361u) == 0xC855,
-           "Pipe4' XOR baseline = 0x%04X, expected 0xC855",
-           (uint16_t)(pipe4_me ^ 0170361u));
+    /* High-true previous/error fields after XOR, excluding the raw
+     * notMapTrouble bit: bit 15 (ref), bit 11 (MemError), syndrome 0x55. */
+    EXPECT((uint16_t)((pipe4_me ^ 0170361u) & ~(1u << 14)) == 0x8855,
+           "Pipe4' XOR fields = 0x%04X, expected 0x8855",
+           (uint16_t)((pipe4_me ^ 0170361u) & ~(1u << 14)));
+    EXPECT((pipe4_me & (1u << 14)) != 0,
+           "Pipe4' raw notMapTrouble = 0x%04X, expected bit set",
+           pipe4_me);
 
     dorado_memory_free(&mem);
     printf("PASS  test_pipe4_error_encoding (gap C2)\n");
@@ -816,10 +827,9 @@ static int test_dirty_victim_pipe4_map_trouble(void)
     dorado_memory_ref(&mem, DM_REF_FETCH, 0x1000, 0, 0);
 
     uint16_t pipe4 = dorado_pipe4_at(&mem, mem.proc_srn);
-    uint16_t high_true = (uint16_t)(pipe4 ^ 0150361u);
-    EXPECT(high_true & (1u << 14),
-           "Pipe4 high-true = 0x%04X — expected MapTrouble bit set",
-           high_true);
+    EXPECT(pipe4 & (1u << 14),
+           "Pipe4' raw notMapTrouble = 0x%04X — expected MapTrouble bit set",
+           pipe4);
 
     dorado_memory_free(&mem);
     printf("PASS  test_dirty_victim_pipe4_map_trouble (gap C2)\n");

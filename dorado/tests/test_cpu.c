@@ -7048,7 +7048,7 @@ static int test_stk_push(void)
     EXPECT(dorado_cpu_step(&cpu) == 0, "step: %s",
            cpu_halt_reason_str(cpu.halt_reason));
     EXPECT(cpu.StkP == 6, "after push, StkP = %u (expected 6)", cpu.StkP);
-    /* Read used unadjusted StkP=5; LC wrote to STK[5] (default — no
+    /* Read used unadjusted StkP=5; LC wrote to STK[5] (default -- no
      * ModStkPBeforeW). Value written = ALU = B = STK[5] = 0xCAFE.
      * So STK[5] = 0xCAFE still. */
     EXPECT(cpu.STK[5] == 0xCAFE, "STK[5] = 0x%04X (expected 0xCAFE)", cpu.STK[5]);
@@ -7106,9 +7106,9 @@ static int test_stk_pop_minus_4(void)
 
 static int test_stk_overflow(void)
 {
-    /* StkP[2:7] = 077 (max in region), RSTK[1:3]=1 → would go to 0o100,
+    /* StkP[2:7] = 077 (max in region), RSTK[1:3]=1 -> would go to 0o100,
      * which crosses into next region. Real hardware sets StkOvf and
-     * generates StkError; we just set the flag. */
+     * wakes the fault task for StkError. */
     dorado_microcode mc;
     memset(&mc, 0, sizeof mc);
     mc.alufm[0] = 025; mc.alufm_present[0] = 1;
@@ -7125,8 +7125,15 @@ static int test_stk_overflow(void)
            cpu_halt_reason_str(cpu.halt_reason));
     EXPECT(cpu.stk_ovf == 1, "StkOvf should be set on push past 077");
     EXPECT(cpu.stk_und == 0, "StkUnd should NOT be set");
+    EXPECT(cpu.StkP == 077, "StkP should be held at 077, got 0o%o",
+           cpu.StkP);
+    EXPECT((cpu.wakeup_pending & (1u << 15)) != 0 ||
+           (cpu.ready & (1u << 15)) != 0 ||
+           cpu.ctask == 15,
+           "stack overflow should wake task 15 (ctask=%u ready=0x%04X wake=0x%04X)",
+           cpu.ctask, cpu.ready, cpu.wakeup_pending);
 
-    printf("PASS  test_stk_overflow (077 + 1 sets StkOvf)\n");
+    printf("PASS  test_stk_overflow (077 + 1 sets StkOvf and wakes task 15)\n");
     return 0;
 }
 
@@ -7150,8 +7157,15 @@ static int test_stk_underflow_check(void)
     EXPECT(dorado_cpu_step(&cpu) == 0, "step: %s",
            cpu_halt_reason_str(cpu.halt_reason));
     EXPECT(cpu.stk_und == 1, "StkUnd should be set on -1 to StkP=1");
+    EXPECT(cpu.StkP == 1, "StkP should be held at 1, got 0o%o",
+           cpu.StkP);
+    EXPECT((cpu.wakeup_pending & (1u << 15)) != 0 ||
+           (cpu.ready & (1u << 15)) != 0 ||
+           cpu.ctask == 15,
+           "stack underflow should wake task 15 (ctask=%u ready=0x%04X wake=0x%04X)",
+           cpu.ctask, cpu.ready, cpu.wakeup_pending);
 
-    printf("PASS  test_stk_underflow_check (StkP=1, -1, RSTK[0]=1 → StkUnd)\n");
+    printf("PASS  test_stk_underflow_check (StkP=1, -1 wakes task 15)\n");
     return 0;
 }
 
@@ -7180,6 +7194,72 @@ static int test_restore_stkp_ff(void)
 
     printf("PASS  test_restore_stkp_ff\n");
     return 0;
+}
+
+static int test_ifujump_saves_post_rstk_stkp(void)
+{
+    dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;
+
+    /* Successful IFUJump with RSTK=1. RestoreStkP must see the stack
+     * pointer handed to the dispatched opcode, after this instruction's
+     * post-cycle stack update. */
+    mc.im[0] = make_uinstr(/*rstk=*/01, /*aluf=*/0, /*bsel=*/2,
+                           /*lc=*/0, /*asel=*/6, /*block=*/1,
+                           /*ff=*/0, /*jcn=*/0x27);
+    mc.im_present[0] = 1;
+    mc.image_to_real[0] = 0; mc.image_present[0] = 1;
+    mc.n_instructions = 1;
+
+    #define MK_LH_LOCAL(sign, length_p, rbaseb_p, memb, tpause_p, tjump_p, n) \
+        ((uint16_t)( ((uint16_t)((sign)&1) << 15) \
+                   | ((uint16_t)((length_p)&3) << 10) \
+                   | ((uint16_t)((rbaseb_p)&1) << 9) \
+                   | ((uint16_t)((memb)&7) << 6) \
+                   | ((uint16_t)((tpause_p)&1) << 5) \
+                   | ((uint16_t)((tjump_p)&1) << 4) \
+                   | ((uint16_t)((n)&0xF)) ))
+    #define MK_RH_LOCAL(packed_a, ifaddr) \
+        ((uint16_t)( ((uint16_t)((packed_a)&1) << 10) \
+                   | ((uint16_t)(~(ifaddr)&0x3FF)) ))
+
+    mc.ifum_hi[0x10] = MK_LH_LOCAL(0, /*notLength*/2, /*RBaseB'*/1,
+                                   /*MemB*/4, /*TPause'*/1,
+                                   /*TJump'*/1, /*N*/017);
+    mc.ifum_lo[0x10] = MK_RH_LOCAL(0, /*IFaddr'*/0020);
+    mc.ifum_present[0x10] = 1;
+
+    static dorado_memory mem;
+    EXPECT(dorado_memory_init(&mem) == 0, "memory init");
+    dorado_map_set(&mem, 0, /*rp=*/0, /*wp=*/0, /*dirty=*/0);
+    dorado_br_lo_load(&mem, 31, 0);
+    dorado_br_hi_load(&mem, 31, 0);
+    mem.storage[0] = 0x1000;  /* opcode 0x10 at byte PCF=0 */
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.mem = &mem;
+    cpu.ifu_active = 1;
+    cpu.ifu_warmup = 0;
+    cpu.ifu_pcf = 0;
+    cpu.StkP = 4;
+    cpu.ifu_saved_stkp = 0;
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "IFUJump step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.StkP == 5, "post IFUJump StkP=%u, expected 5", cpu.StkP);
+    EXPECT(cpu.ifu_saved_stkp == 5,
+           "IFUJump saved StkP=%u, expected post-RSTK value 5",
+           cpu.ifu_saved_stkp);
+    EXPECT(cpu.real_PC == 0100, "IFUJump target PC=0o%o, expected 0o100",
+           cpu.real_PC);
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_ifujump_saves_post_rstk_stkp\n");
+    return 0;
+    #undef MK_LH_LOCAL
+    #undef MK_RH_LOCAL
 }
 
 static int test_lc_forced_rm_write_address(void)
@@ -7881,8 +7961,8 @@ static int test_cpu_pipe4_no_error_baseline(void)
     /* B←Pipe4' = FA=1 FB=6 FC=5 = 0o165. The Pipe4'/Errors' word reads the
      * old map entry's flags back COMPLEMENTED (EMemDefs.mc m1pipe4.wpdref =
      * b0,b2,b3; DMesaMiscOps.mc TranslateMapEntry: "Previous flags
-     * (complemented)"), so the no-error/no-reference baseline (ref'=wProtect'=
-     * dirty'=1, no error/syndrome) is 0o170361. */
+     * (complemented)"). The previous-map flags use the 0o170361 XOR
+     * transform; raw notMapTrouble is clear when there is no MapTrouble. */
     mc.im[0] = make_uinstr(0, 0, 0, 1, 6, 0, 0165, jcn_local(0));
     mc.im_present[0] = 1;
     mc.image_to_real[0] = 0;
@@ -7898,8 +7978,11 @@ static int test_cpu_pipe4_no_error_baseline(void)
 
     EXPECT(dorado_cpu_step(&cpu) == 0, "Pipe4 step: %s",
            cpu_halt_reason_str(cpu.halt_reason));
-    EXPECT(cpu.T == 0170361,
-           "Pipe4' no-error baseline = 0o%o, expected 0o170361", cpu.T);
+    EXPECT(((cpu.T ^ 0170361u) & ~(1u << 14)) == 0,
+           "Pipe4' previous flags = 0x%04X, expected no previous flags",
+           (uint16_t)((cpu.T ^ 0170361u) & ~(1u << 14)));
+    EXPECT((cpu.T & (1u << 14)) == 0,
+           "Pipe4' raw notMapTrouble = 0o%o, expected bit clear", cpu.T);
 
     dorado_memory_free(&mem);
     printf("PASS  test_cpu_pipe4_no_error_baseline\n");
@@ -9546,6 +9629,39 @@ static int test_tioa_small_constant_all_low_bits(void)
     return 0;
 }
 
+static int test_carry20_ff_function(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 000;  mc.alufm_present[0] = 1;  /* A */
+    mc.alufm[1] = 040;  mc.alufm_present[1] = 1;  /* A+1 */
+    mc.im[0] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/2, /*lc=*/1,
+                           /*asel=*/6, 0, /*ff=*/0026, jcn_local(0));
+    mc.im_present[0] = 1;
+    mc.image_to_real[0] = 0;
+    mc.image_present[0] = 1;
+    mc.n_instructions = 1;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.T = 01210;
+    EXPECT(dorado_cpu_step(&cpu) == 0, "Carry20 A step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.T == 01230, "Carry20 A produced 0o%o, expected 0o1230", cpu.T);
+
+    mc.im[0].aluf = 1;
+    dorado_cpu_init(&cpu, &mc, 0);
+    cpu.T = 017;
+    EXPECT(dorado_cpu_step(&cpu) == 0, "Carry20 A+1 step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.T == 020,
+           "Carry20 must not double an existing low-nibble carry: got 0o%o",
+           cpu.T);
+
+    printf("PASS  test_carry20_ff_function\n");
+    return 0;
+}
+
 /*
  * test_carry_preserved_on_logical — HM page 30: "Carry' and Overflow
  * are the result of the last *arithmetic* ALU operation". A logical
@@ -9697,6 +9813,71 @@ static int test_alu_overflow_all_arith(void)
            cpu.alu_overflow);
 
     printf("PASS  test_alu_overflow_all_arith (2A / A+1 / A-1 overflow)\n");
+    return 0;
+}
+
+/*
+ * test_overflow_prime_branch_condition — HM Table 13 / FF=067 exposes
+ * Overflow' to the branch-condition RAM. The ALU latch remains
+ * positive-true internally, but JCN condition 7 must see the primed
+ * hardware condition. Cedar's signed compare microcode depends on the
+ * no-overflow case selecting the true/odd target.
+ */
+static int test_overflow_prime_branch_condition(void)
+{
+    static dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[1] = 006;  mc.alufm_present[1] = 1;   /* 2A */
+
+    /* IM[0]: compute 2A from RM[0], then fall through to IM[1]. */
+    mc.im[0] = make_uinstr(/*rstk=*/0, /*aluf=*/1, /*bsel=*/4, /*lc=*/0,
+                           /*asel=*/4, 0, /*ff=*/0, jcn_local(1));
+    mc.im_present[0] = 1;
+
+    /* IM[1]: FF-encoded conditional on Overflow' (FF=0o067). With local
+     * branch target 4, the FF condition ORs TNIA[15]: R=0 goes to IM[4],
+     * R=1 goes to IM[5]. BSEL<4 keeps FF available as a function. */
+    mc.alufm[0] = 025;  mc.alufm_present[0] = 1;   /* B */
+    mc.im[1] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/1, /*lc=*/0,
+                           /*asel=*/4, 0, /*ff=*/0067, jcn_local(4));
+    mc.im_present[1] = 1;
+
+    mc.im[4] = make_uinstr(0, 0, 4, 0, 4, 0, 0, jcn_local(4));
+    mc.im_present[4] = 1;
+    mc.im[5] = make_uinstr(0, 0, 4, 0, 4, 0, 0, jcn_local(5));
+    mc.im_present[5] = 1;
+
+    for (int i = 0; i < 6; i++) {
+        mc.image_to_real[i] = i;
+        mc.image_present[i] = 1;
+    }
+    mc.n_instructions = 6;
+
+    dorado_cpu cpu;
+
+    mc.rm[0] = 0x0001;  mc.rm_present[0] = 1;      /* 2A: no overflow */
+    dorado_cpu_init(&cpu, &mc, 0);
+    EXPECT(dorado_cpu_step(&cpu) == 0, "no-ovf arithmetic step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.alu_overflow == 0, "expected raw overflow latch clear");
+    EXPECT(dorado_cpu_step(&cpu) == 0, "no-ovf branch step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.real_PC == 5,
+           "Overflow' no-overflow case should branch to odd target 5, got 0o%o",
+           cpu.real_PC);
+
+    mc.rm[0] = 0x4000;                              /* 2A: overflow */
+    dorado_cpu_init(&cpu, &mc, 0);
+    EXPECT(dorado_cpu_step(&cpu) == 0, "ovf arithmetic step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.alu_overflow == 1, "expected raw overflow latch set");
+    EXPECT(dorado_cpu_step(&cpu) == 0, "ovf branch step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.real_PC == 4,
+           "Overflow' overflow case should branch to even target 4, got 0o%o",
+           cpu.real_PC);
+
+    printf("PASS  test_overflow_prime_branch_condition (JCN cond 7 is Overflow')\n");
     return 0;
 }
 
@@ -9972,7 +10153,7 @@ static uint16_t run_alu_shift_ff(uint8_t ff, uint8_t alufm, uint16_t rm0)
 
 static int test_alu_shift_ff_functions(void)
 {
-    EXPECT(run_alu_shift_ff(0270, 025, 0x8001) == 0xC000,
+    EXPECT(run_alu_shift_ff(0270, 025, 0x8001) == 0x4000,
            "ALU rsh 1 failed");
     EXPECT(run_alu_shift_ff(0271, 025, 0x8001) == 0xC000,
            "ALU rcy 1 failed");
@@ -10009,6 +10190,7 @@ int main(void)
     rc |= test_stk_overflow();
     rc |= test_stk_underflow_check();
     rc |= test_restore_stkp_ff();
+    rc |= test_ifujump_saves_post_rstk_stkp();
     rc |= test_lc_forced_rm_write_address();
     rc |= test_cpu_memory_roundtrip();
     rc |= test_alt_fetch_t_lc_md_pipeline();
@@ -10052,8 +10234,10 @@ int main(void)
     rc |= test_output_b_memory_form_with_lc_routes_slow_io();
     rc |= test_dwtstart_memory_form_routes_iofetch();
     rc |= test_tioa_small_constant_all_low_bits();
+    rc |= test_carry20_ff_function();
     rc |= test_carry_preserved_on_logical();
     rc |= test_alu_overflow_all_arith();
+    rc |= test_overflow_prime_branch_condition();
     rc |= test_alufmrw_bit_mapping();
     rc |= test_alufmem_is_read_only();
     rc |= test_alu_shift_ff_functions();

@@ -24,8 +24,8 @@ BaseBoard ROM ─► Bootstrap ─► Initial ─► [microcode world] ─► [O
 
 | Path | Microcode world | Second stage | Status |
 |---|---|---|---|
-| **A. Alto-on-Dorado** | `worlds/aemu.eb` (AEmu) | Alto boot file over EFTP | **Working** — renders pixels |
-| **B. Cedar/Pilot germ** | `CedarDorado.eb` | `Dorado.germ` → OS boot file | In bring-up — germ runs but doesn't boot an OS yet |
+| **A. Alto-on-Dorado** | `worlds/aemu.eb` (AEmu) | Alto boot file over EFTP | Was working; **currently renders 0px in the dirty tree** (pre-existing regression — see `docs/CONTINUE-HERE.md`) |
+| **B. Cedar/Pilot germ** | `CedarDorado.eb` | `Dorado.germ` → Pilot disk | **Boots Cedar 6.1 to the SimpleTerminal login prompt; keyboard input works** |
 
 Both stages share an in-process fake Pup/EFTP boot server (`src/ethernet.c`)
 so no real network is needed: `--eftp PATH` registers the boot file the
@@ -104,17 +104,51 @@ what the directory server advertises.
 
 ### Path B — Cedar/Pilot germ (in bring-up)
 
-Use the **matched** pair (Cedar 6.1 germ + the Cedar microcode):
+Use the **matched** pair (Cedar 6.1 germ + the Cedar microcode) with the
+Pilot/Cedar PDI mounted as drive 0:
 ```
 cd dorado
-./build/dorado --eb '../chm/dorado/CedarDorado.eb!6' \
+./build/dorado --boot-reason disk \
+               --no-alto-boot \
+               --eb '../chm/dorado/CedarDorado.eb!6' \
                --germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6' \
-               --cycles 90000000
+               --pilot-disk '../CedarDisk/CedarDorado-boot.pdi' \
+               --cycles 1200000000
 ```
 This boots the BaseBoard→Bootstrap→Initial chain, Initial netboots the Cedar
-world, and the germ is planted into VM and runs. It does **not** yet boot an
-OS (see Status below). When it does reach `DoInLoad`, point `--eftp` at a
-Cedar boot file, e.g. `--eftp '../chm/bootfiles/CedarNetExec.boot!4'`.
+world, the germ is planted into VM, the Pilot disk path runs, and Cedar boots
+to its **SimpleTerminal login prompt** ("Please login ... / Name:"). The
+headless run writes `dorado-screen.pgm` at exit.
+
+**Keyboard works.** Type at the `Name:` prompt in `make run-cedar`; the live
+keys are delivered to Cedar's KeyBits at absolute `LONG[177033B]` and a
+display vertical-field naked-notify wakes its keyboard watcher (see
+`machine_cedar_io` in `src/machine.c`). Headless self-test (echoes `abc` at
+the prompt; the login appears around 640M cycles):
+
+```
+./build/dorado --boot-reason disk --no-alto-boot \
+  --eb '../chm/dorado/CedarDorado.eb!6' \
+  --germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6' \
+  --pilot-disk '../CedarDisk/CedarDorado-boot.pdi' \
+  --type "abc" --type-at 655000000 --key-hold 4000000 \
+  --cycles 700000000 --out /tmp/cedar-type.pgm
+```
+
+The emulator runs ~23.9M cycles/sec (~1.4x the real 16.67 MIPS Dorado) after
+the per-step `getenv()` caching fix, so the login prompt appears in ~27s.
+
+SDL command for the same path:
+```
+make run-cedar
+```
+The SDL window is blank until roughly 650M emulated cycles; the Makefile uses
+`--speed 4000000` so pixels usually appear around frame 160. For a headless
+SDL proof image:
+```
+make run-cedar-screenshot
+```
+which writes `/tmp/dorado-sdl-cedar-300.pgm`.
 
 The older `Dorado.germ!4` is the historical default but is version-mismatched
 with the 1984 microcode; prefer `Dorado.germ-6.1.6`.

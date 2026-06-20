@@ -14,6 +14,26 @@ int dorado_trace_gate = 0;
 /* Harness-maintained cycle counter for cpu-level debug prints. */
 unsigned long long dorado_trace_cycle = 0;
 
+/* Cached boolean test of a trace environment variable. dorado_trace_flag() rescans the
+ * whole environment on every call; with a populated shell environment the
+ * per-microinstruction trace checks below cost ~2.4x of total run time. Trace
+ * flags never change during a run, so cache the result keyed by the call
+ * site's (string-literal) name pointer -- a pointer compare, no rescan. Pass
+ * only string literals (boolean DORADO_*_TRACE flags); value-returning
+ * dorado_trace_flag() calls must stay direct. */
+int dorado_trace_flag(const char *name)
+{
+    enum { TRACE_FLAG_CACHE = 128 };
+    static const char *keys[TRACE_FLAG_CACHE];
+    static signed char vals[TRACE_FLAG_CACHE];
+    static int n = 0;
+    for (int i = 0; i < n; i++)
+        if (keys[i] == name) return vals[i];
+    int v = getenv(name) ? 1 : 0;
+    if (n < TRACE_FLAG_CACHE) { keys[n] = name; vals[n] = (signed char)v; n++; }
+    return v;
+}
+
 /* Debug: see memory.c STORE_VA trace. */
 extern int dorado_mem_trace_pc;
 extern int dorado_mem_trace_pcx;
@@ -26,6 +46,18 @@ extern int dorado_mem_trace_mar;
 #define DORADO_JUNK_TASK          2
 #define DORADO_JUNK_TICK_CYCLES   533   /* 32 us / 60 ns microcycle */
 #define DORADO_B15_MASK           0x0001u
+
+/* Trace-only raw RM slots that have been useful during Cedar bring-up.
+ * Do not treat these as architectural aliases: Mesa/Cedar Midas labels are
+ * bank-relative and RBase-sensitive. */
+#define DORADO_RM_CAND_000        0000
+#define DORADO_RM_CAND_006        0006
+#define DORADO_RM_CAND_025        0025
+#define DORADO_RM_CAND_026        0026
+#define DORADO_RM_RT_CLOCK        0165
+#define DORADO_RM_RTC_DELTA_LO    0166
+#define DORADO_RM_RTC_430         0167
+#define DORADO_RM_WAKEUP_TIME     0274
 
 /* Forward declarations for IFU helpers (defined later in this file). */
 static uint16_t ifu_consume_id(dorado_cpu *cpu);
@@ -131,7 +163,7 @@ static int task_bnt(uint16_t avail)
 
 static void junk_timer_enable(dorado_cpu *cpu, int enable)
 {
-    if (getenv("DORADO_JUNK_TRACE") &&
+    if (dorado_trace_flag("DORADO_JUNK_TRACE") &&
         cpu->junk_tw_enabled != (enable ? 1 : 0)) {
         static long n = 0;
         if (n++ < 200)
@@ -171,6 +203,27 @@ static void junk_timer_tick(dorado_cpu *cpu)
         cpu->wakeup_pending |= (uint16_t)(1u << DORADO_JUNK_TASK);
         cpu->junk_tw_countdown = DORADO_JUNK_TICK_CYCLES;
     }
+}
+
+static int rtc_trace_enabled(void)
+{
+    static int cached = -1;
+    if (cached < 0) cached = getenv("DORADO_RTC_TRACE") ? 1 : 0;
+    return cached;
+}
+
+static int resched_trace_enabled(void)
+{
+    static int cached = -1;
+    if (cached < 0) cached = getenv("DORADO_RESCHED_TRACE") ? 1 : 0;
+    return cached;
+}
+
+static int timer_trace_enabled(void)
+{
+    static int cached = -1;
+    if (cached < 0) cached = getenv("DORADO_TIMER_TRACE") ? 1 : 0;
+    return cached;
 }
 
 /* Save the current task's live state into task_*[ctask], using
@@ -264,6 +317,16 @@ static uint16_t task_schedule(dorado_cpu *cpu, uint16_t next_pc,
 
     /* Save current state, then jump to BNT. The wakeup is
      * acknowledged (cleared) and the new task is now Ready. */
+    if (dorado_trace_flag("DORADO_TASK_TRACE") &&
+        (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+        fprintf(stderr,
+                "TASK_SWITCH cyc=%llu from=%o to=%o next=0o%o "
+                "ready=%04X wake=%04X tpc_to=0o%o\n",
+                (unsigned long long)dorado_trace_cycle,
+                cpu->ctask & 017, bnt & 017, next_pc & 07777,
+                cpu->ready, cpu->wakeup_pending,
+                cpu->task_tpc[bnt] & 07777);
+    }
     task_save(cpu, next_pc);
     cpu->wakeup_pending &= (uint16_t)~(1u << bnt);
     cpu->ready          |= (uint16_t)(1u << bnt);
@@ -325,9 +388,6 @@ void dorado_cpu_trace(dorado_cpu *cpu, void *fp)
 
 static int rm_address(const dorado_cpu *cpu, const dorado_uinstr *u)
 {
-    /* Read address — for STK this is always unadjusted StkP. The
-     * write-side ModStkPBeforeW case is handled in apply_lc via
-     * stk_write_address(). */
     if (u->block && cpu->ctask == 0) {
         return CPU_RMSTK_STK_BASE | (cpu->StkP & 0xFF);
     }
@@ -439,34 +499,74 @@ static int lc_write_address(const dorado_cpu *cpu, const dorado_uinstr *u)
  * "These get cleared (i.e., recomputed) when the next stack
  * operation is executed by the emulator").
  *
- * For now we don't model the HOLD + fault-task wake — we just set
- * the flags so Pd←Pointers can read them. */
+ * We model the observable fault-task wake by raising task 15 when
+ * either flag is set; the fault microcode reads the flags via
+ * Pd←Pointers. */
+static int stk_error_check(const dorado_cpu *cpu, const dorado_uinstr *u,
+                           int *underflow_out, int *overflow_out)
+{
+    int underflow = 0, overflow = 0;
+    if (!u->block || cpu->ctask != 0) {
+        if (underflow_out) *underflow_out = 0;
+        if (overflow_out) *overflow_out = 0;
+        return 0;
+    }
+    int delta = stk_signed_delta(u);
+    if (delta == 0 && !stk_underflow_check(u)) {
+        if (underflow_out) *underflow_out = 0;
+        if (overflow_out) *overflow_out = 0;
+        return 0;
+    }
+
+    /* Compute the new in-region offset (StkP[2:7], 6 bits) and check
+     * for over/underflow. The region selector StkP[0:1] is preserved
+     * across normal pushes/pops — overflow signals at the boundary. */
+    int offset = cpu->StkP & 0x3F;     /* StkP[2:7] in bits 5..0 */
+    int new_off = offset + delta;
+    if (new_off < 0) underflow = 1;
+    if (new_off > 077) overflow = 1;
+    if (stk_underflow_check(u) && (new_off & 0x3F) == 0 && new_off >= 0)
+        underflow = 1;
+    if (underflow_out) *underflow_out = underflow;
+    if (overflow_out) *overflow_out = overflow;
+    return underflow || overflow;
+}
+
+static void stk_signal_error(dorado_cpu *cpu, int underflow, int overflow)
+{
+    cpu->stk_und = (uint8_t)underflow;
+    cpu->stk_ovf = (uint8_t)overflow;
+    cpu->wakeup_pending |= (uint16_t)(1u << 15);
+}
+
 static void stk_apply_post(dorado_cpu *cpu, const dorado_uinstr *u)
 {
     if (!u->block || cpu->ctask != 0) return;
     int delta = stk_signed_delta(u);
     if (delta == 0 && !stk_underflow_check(u)) return;
 
-    /* Compute the new in-region offset (StkP[2:7], 6 bits) and check
-     * for over/underflow. The region selector StkP[0:1] is preserved
-     * across normal pushes/pops — overflow signals at the boundary. */
-    int region = cpu->StkP & 0xC0;     /* StkP[0:1] in bits 7,6 */
-    int offset = cpu->StkP & 0x3F;     /* StkP[2:7] in bits 5..0 */
-    int new_off = offset + delta;
     int underflow = 0, overflow = 0;
-    if (new_off < 0) underflow = 1;
-    if (new_off > 077) overflow = 1;
-    if (stk_underflow_check(u) && (new_off & 0x3F) == 0 && new_off >= 0)
-        underflow = 1;
+    (void)stk_error_check(cpu, u, &underflow, &overflow);
 
     /* StkUnd / StkOvf are sticky-recomputed: if this op didn't trip
      * either, clear them. */
     cpu->stk_und = (uint8_t)underflow;
     cpu->stk_ovf = (uint8_t)overflow;
 
-    /* Always update StkP, even on overflow/underflow (HM doesn't say
-     * to suppress; the fault task is what makes it visible). */
+    int region = cpu->StkP & 0xC0;     /* StkP[0:1] in bits 7,6 */
+    int offset = cpu->StkP & 0x3F;     /* StkP[2:7] in bits 5..0 */
+    int new_off = offset + delta;
+    uint8_t old_stkp = cpu->StkP;
     cpu->StkP = (uint8_t)(region | (new_off & 0x3F));
+    if (dorado_trace_flag("DORADO_STKP_TRACE") &&
+        (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+        fprintf(stderr,
+                "STKP_POST cyc=%llu pc=0o%o rstk=%02o delta=%+d old=%03o new=%03o und=%d ovf=%d\n",
+                (unsigned long long)dorado_trace_cycle,
+                cpu->real_PC, u->rstk & 017, delta,
+                old_stkp & 0377, cpu->StkP & 0377,
+                underflow, overflow);
+    }
 }
 
 static uint16_t rm_stk_read(const dorado_cpu *cpu, int idx)
@@ -476,27 +576,66 @@ static uint16_t rm_stk_read(const dorado_cpu *cpu, int idx)
     return cpu->RM[idx & 0xFF];
 }
 
+static int trace_membase_matches(int membase)
+{
+    static int cached = -2;
+    if (cached == -2) {
+        const char *w = getenv("DORADO_BR_TRACE_MB");
+        cached = w ? (int)strtol(w, NULL, 8) : -1;
+    }
+    return cached < 0 || ((membase & 0x1F) == (cached & 0x1F));
+}
+
+static int rm_watch_matches(int idx)
+{
+    static int parsed = 0;
+    static int count = 0;
+    static long watch[32];
+
+    if (!parsed) {
+        const char *w = getenv("DORADO_RM_WATCH");
+        parsed = 1;
+        while (w && *w && count < (int)(sizeof watch / sizeof watch[0])) {
+            char *end = NULL;
+            watch[count] = strtol(w, &end, 8);
+            if (end == w) break;
+            count++;
+            w = (*end == ',') ? end + 1 : end;
+            if (*w != ',') {
+                while (*w == ' ' || *w == '\t') w++;
+                if (*w == ',') w++;
+            }
+        }
+    }
+
+    for (int i = 0; i < count; i++) {
+        if ((idx & 0xFF) == (watch[i] & 0xFF)) return 1;
+    }
+    return 0;
+}
+
 static void rm_stk_write(dorado_cpu *cpu, int idx, uint16_t value)
 {
     if (idx >= CPU_RMSTK_INVALID) return;
     if (idx >= CPU_RMSTK_STK_BASE) cpu->STK[idx & 0xFF] = value;
     else {
-        {
-            static long watch = -2;
-            if (watch == -2) {
-                const char *w = getenv("DORADO_RM_WATCH");
-                watch = w ? strtol(w, NULL, 8) : -1;
+        if (rm_watch_matches(idx) &&
+            (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+            static long n = 0;
+            static long limit = -2;
+            if (limit == -2) {
+                const char *w = getenv("DORADO_RM_WATCH_LIMIT");
+                limit = w ? strtol(w, NULL, 0) : 100;
             }
-            if (watch >= 0 && (idx & 0xFF) == watch) {
-                static long n = 0;
-                if (n++ < 100)
-                    fprintf(stderr,
-                            "RM_WATCH cyc=%llu RM[%03lo]=%06o task=%o "
-                            "pc=0o%o rb=%02o pcx=0o%o op=%03o\n",
-                            dorado_trace_cycle, watch,
-                            value & 0177777, cpu->ctask,
-                            cpu->real_PC, cpu->RBase & 017,
-                            cpu->ifu_pcx, cpu->ifu_opcode);
+            if (limit <= 0 || n++ < limit) {
+                fprintf(stderr,
+                        "RM_WATCH cyc=%llu RM[%03o]=%06o task=%o "
+                        "pc=0o%o rb=%02o pcx=0o%o pcf=0o%o op=%03o\n",
+                        dorado_trace_cycle, idx & 0377,
+                        value & 0177777, cpu->ctask,
+                        cpu->real_PC, cpu->RBase & 017,
+                        cpu->ifu_pcx, cpu->ifu_pcf,
+                        cpu->ifu_opcode);
             }
         }
         cpu->RM[idx & 0xFF] = value;
@@ -533,6 +672,19 @@ static int ff_full_function_ok(const dorado_uinstr *u)
      * FF=0o363 meaning Store + Cnt=0&-1, not Wakeup[3]. */
     if (u->asel <= 3) return 0;
     return 1;
+}
+
+static int ff_fa0_fb2_fc_ok(const dorado_uinstr *u, int fc)
+{
+    if (ff_full_function_ok(u)) {
+        return ff_fa(u->ff) == 0 && ff_fb(u->ff) == 2 && ff_fc(u->ff) == fc;
+    }
+
+    if (ff_decode_ok(u) && u->asel <= 3) {
+        return ((u->ff >> 3) & 7) == 2 && (u->ff & 7) == fc;
+    }
+
+    return 0;
 }
 
 static int ff_is_output_b_memory_form(const dorado_uinstr *u)
@@ -676,22 +828,41 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
          * EmulatorFault). No-fault signature: the 3-bit FaultCnt
          * field (b9:11) reads -1, i.e. high-true 0x0070. */
         case 0: *b = (uint16_t)~finfo;             /* FaultInfo' */
+                if (dorado_trace_flag("DORADO_FAULTREG_TRACE") &&
+                    (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+                    fprintf(stderr,
+                            "FAULTREG cyc=%llu task=%o pc=0o%o src=FaultInfo' "
+                            "finfo=%04X b=%04X clear=1\n",
+                            (unsigned long long)dorado_trace_cycle,
+                            cpu->ctask & 017, cpu->real_PC & 07777,
+                            finfo, *b);
+                }
                 dorado_fault_clear(cpu->mem);
                 break;
         case 1: *b = (uint16_t)((va >> 16) & 0x0FFF);
-                if (dorado_trace_gate && getenv("DORADO_PIPEVA_TRACE"))
+                if (dorado_trace_gate && dorado_trace_flag("DORADO_PIPEVA_TRACE"))
                     fprintf(stderr, "PIPEVA pc=0o%o psrn=%d va=%07X (Pipe0/VaHi)\n",
                             cpu->real_PC, psrn, va);
                 break; /* Pipe0 = VaHi */
         case 2: *b = (uint16_t)(va & 0xFFFF);
-                if (dorado_trace_gate && getenv("DORADO_PIPEVA_TRACE"))
+                if (dorado_trace_gate && dorado_trace_flag("DORADO_PIPEVA_TRACE"))
                     fprintf(stderr, "PIPEVA pc=0o%o psrn=%d va=%07X (Pipe1/VaLo)\n",
                             cpu->real_PC, psrn, va);
                 break;  /* Pipe1 = VaLo */
         /* Pipe2' is the same data as FaultInfo' (HM page 51:
          * "B←Pipe2' is simply a convenient decode for reading
          * [FaultInfo] back"). */
-        case 3: *b = (uint16_t)~finfo;             break;  /* Pipe2' */
+        case 3: *b = (uint16_t)~finfo;
+                if (dorado_trace_flag("DORADO_FAULTREG_TRACE") &&
+                    (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+                    fprintf(stderr,
+                            "FAULTREG cyc=%llu task=%o pc=0o%o src=Pipe2' "
+                            "finfo=%04X b=%04X clear=0\n",
+                            (unsigned long long)dorado_trace_cycle,
+                            cpu->ctask & 017, cpu->real_PC & 07777,
+                            finfo, *b);
+                }
+                break;  /* Pipe2' */
         /* Pipe3' / Map' is the inverted snapshot of the old real page
          * number for the selected SRN. NewMemory.mc reads old map
          * flags separately through Errors' / Pipe4'. */
@@ -702,6 +873,21 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
          * MapTrouble from a dirty-victim writeback (gap C4) shows
          * up here. */
         case 5: *b = dorado_pipe4_at(cpu->mem, psrn);
+                if (dorado_trace_flag("DORADO_FAULTREG_TRACE") &&
+                    (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+                    fprintf(stderr,
+                            "FAULTREG cyc=%llu task=%o pc=0o%o src=Pipe4' "
+                            "psrn=%o b=%04X va=0o%o kind=%d "
+                            "oldrp=0o%o oldflags=%o last=%d lastva=0o%o\n",
+                            (unsigned long long)dorado_trace_cycle,
+                            cpu->ctask & 017, cpu->real_PC & 07777,
+                            psrn & 017, *b, va,
+                            (int)cpu->mem->pipe[psrn & 017].kind,
+                            dorado_pipe_map_rp_at(cpu->mem, psrn),
+                            dorado_pipe_map_flags_at(cpu->mem, psrn) & 07,
+                            (int)cpu->mem->last_fault,
+                            cpu->mem->last_fault_va & 0x0FFFFFFFu);
+                }
                 break;                              /* Pipe4' (errors) */
         case 6: *b = (uint16_t)~dorado_memory_config_word(cpu->mem);
                 break;                             /* Config' */
@@ -1074,7 +1260,9 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
             case 3: /* BrLo ← A — BR[MemBase][16:31] ← A[0:15]
                      * (HM Table 11c FA=1 FB=2 FC=3). */
                 if (cpu->mem) {
-                    if (getenv("DORADO_BR_TRACE") && (!getenv("DORADO_TRACE_GATE") || dorado_trace_gate)) {
+                    if (dorado_trace_flag("DORADO_BR_TRACE") &&
+                        trace_membase_matches(cpu->MemBase) &&
+                        (!dorado_trace_flag("DORADO_TRACE_GATE") || dorado_trace_gate)) {
                         fprintf(stderr,
                                 "BRLO_FF task=%o pc=0o%o mb=%02o a=%06o "
                                 "T=%06o md=%06o\n",
@@ -1088,7 +1276,9 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
             case 4: /* BrHi ← A — BR[MemBase][4:15] ← A[4:15]
                      * (HM Table 11c FA=1 FB=2 FC=4). */
                 if (cpu->mem) {
-                    if (getenv("DORADO_BR_TRACE") && (!getenv("DORADO_TRACE_GATE") || dorado_trace_gate)) {
+                    if (dorado_trace_flag("DORADO_BR_TRACE") &&
+                        trace_membase_matches(cpu->MemBase) &&
+                        (!dorado_trace_flag("DORADO_TRACE_GATE") || dorado_trace_gate)) {
                         fprintf(stderr,
                                 "BRHI_FF task=%o pc=0o%o mb=%02o a=%06o "
                                 "rb=%02o EmuBRHi=0o%o EmuXMBRHi=0o%o "
@@ -1121,7 +1311,7 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                      * microcode round-tripping the controls observes
                      * the value it wrote (gap B11 stub). */
                 if ((b >> 15) & 1) {
-                    if (getenv("DORADO_INSSET_TRACE")) {
+                    if (dorado_trace_flag("DORADO_INSSET_TRACE")) {
                         fprintf(stderr,
                                 "INSSET task=%o pc=0o%o b=%06o insset %u->%u "
                                 "link=0o%o T=%06o pcf=0o%o active=%u\n",
@@ -1145,9 +1335,41 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                      * condition. */
                 cpu->reschedule_pending = 2;
                 cpu->reschedule_cond = 1;
+                if (resched_trace_enabled() &&
+                    (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+                    fprintf(stderr,
+                            "RESCHED_SET cyc=%llu task=%o pc=0o%o "
+                            "rb=%02o T=%06o pd=%06o "
+                            "rm000=%06o rm006=%06o rm025=%06o rm026=%06o\n",
+                            (unsigned long long)dorado_trace_cycle,
+                            cpu->ctask & 017, cpu->real_PC & 07777,
+                            cpu->RBase & 017, cpu->T & 0177777,
+                            pd & 0177777,
+                            cpu->RM[DORADO_RM_CAND_000] & 0177777,
+                            cpu->RM[DORADO_RM_CAND_006] & 0177777,
+                            cpu->RM[DORADO_RM_CAND_025] & 0177777,
+                            cpu->RM[DORADO_RM_CAND_026] & 0177777);
+                }
                 return pd;
             case 3: /* NoReschedule. Turn off the Reschedule trap AND
                      * branch condition (HM Table 20). */
+                if (resched_trace_enabled() &&
+                    (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE")) &&
+                    (cpu->reschedule_pending || cpu->reschedule_cond ||
+                    dorado_trace_flag("DORADO_RESCHED_CLR_TRACE"))) {
+                    fprintf(stderr,
+                            "RESCHED_CLR cyc=%llu task=%o pc=0o%o "
+                            "pending=%u cond=%u rb=%02o T=%06o "
+                            "rm000=%06o rm006=%06o rm025=%06o rm026=%06o\n",
+                            (unsigned long long)dorado_trace_cycle,
+                            cpu->ctask & 017, cpu->real_PC & 07777,
+                            cpu->reschedule_pending, cpu->reschedule_cond,
+                            cpu->RBase & 017, cpu->T & 0177777,
+                            cpu->RM[DORADO_RM_CAND_000] & 0177777,
+                            cpu->RM[DORADO_RM_CAND_006] & 0177777,
+                            cpu->RM[DORADO_RM_CAND_025] & 0177777,
+                            cpu->RM[DORADO_RM_CAND_026] & 0177777);
+                }
                 cpu->reschedule_pending = 0;
                 cpu->reschedule_cond = 0;
                 return pd;
@@ -1263,8 +1485,8 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                      * when the current opcode was dispatched by the IFU, so
                      * a trap can restart an opcode after partial stack motion
                      * (e.g. SFC popping its destination link). */
-                if (getenv("DORADO_STKP_TRACE") &&
-                    (dorado_trace_gate || !getenv("DORADO_TRACE_GATE"))) {
+                if (dorado_trace_flag("DORADO_STKP_TRACE") &&
+                    (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
                     fprintf(stderr,
                             "RESTORE_STKP cyc=%llu pc=0o%o old=%03o saved=%03o\n",
                             (unsigned long long)dorado_trace_cycle,
@@ -1453,6 +1675,16 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                 pd |= (uint16_t)((cpu->stk_und & 1) << 6);
                 /* RBase (4 bits) at manual Pd[12:15] = C-LSB bits 3..0 */
                 pd |= (uint16_t)(cpu->RBase & 0xF);
+                if (dorado_trace_flag("DORADO_FAULTREG_TRACE") &&
+                    (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+                    fprintf(stderr,
+                            "FAULTREG cyc=%llu task=%o pc=0o%o src=Pointers "
+                            "pd=%04X ovf=%u und=%u mb=%02o rb=%02o\n",
+                            (unsigned long long)dorado_trace_cycle,
+                            cpu->ctask & 017, cpu->real_PC & 07777,
+                            pd, cpu->stk_ovf & 1, cpu->stk_und & 1,
+                            cpu->MemBase & 037, cpu->RBase & 017);
+                }
                 return pd;
             case 6: /* Pd ← TIOA&StkP */
                 pd = (uint16_t)((cpu->TIOA << 8) | cpu->StkP);
@@ -1467,12 +1699,9 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
              * normal C right/left shifts over the uint16_t value. */
             switch (fc) {
             case 0: /* Pd ← ALU rsh 1 */
-                /* InitialEther uses MicroD "RSH 1" on a negative
-                 * words-minus-one sentinel and then tests the sign in
-                 * the next instruction.  Preserve the C-side sign bit
-                 * here so the shipped boot microcode recognizes the
-                 * zero-data Ethernet terminator packet. */
-                return (uint16_t)((alu >> 1) | (alu & 0x8000u));
+                /* HM p.22: logical right shift, 0 onto Pd[0].
+                 * MesaInterrupt uses this to walk WDC's wakeup bits. */
+                return (uint16_t)(alu >> 1);
             case 1: /* Pd ← ALU rcy 1, Pd[0] ← ALU[15] */
                 return (uint16_t)((alu >> 1) | (alu << 15));
             case 2: /* Pd ← ALU brsh 1, Pd[0] ← ALUcarry */
@@ -2001,6 +2230,7 @@ static int alu_op_is_arithmetic(uint8_t op)
 }
 
 static uint16_t alu_op(uint8_t alufm_entry, uint16_t a, uint16_t b,
+                       int carry20,
                        uint8_t *out_carry, uint8_t *out_overflow,
                        uint8_t *out_is_arith)
 {
@@ -2031,7 +2261,9 @@ static uint16_t alu_op(uint8_t alufm_entry, uint16_t a, uint16_t b,
 
     /* Arithmetic. carry_in is added. */
     case 000: { /* A (+1 if carry_in) */
+        uint8_t low_carry = (uint8_t)(((a & 0xFu) + carry_in) >> 4);
         uint32_t r = (uint32_t)a + carry_in;
+        if (carry20 && !low_carry) r += 0x10u;
         result = (uint16_t)r;
         carry_out = (r >> 16) & 1;
         /* HM §3.7 Overflow for all arithmetic ops (QW7): same-sign
@@ -2042,7 +2274,9 @@ static uint16_t alu_op(uint8_t alufm_entry, uint16_t a, uint16_t b,
         break;
     }
     case 006: { /* 2*A (+1 if carry_in) */
+        uint8_t low_carry = (uint8_t)((((a & 0xFu) << 1) + carry_in) >> 4);
         uint32_t r = (uint32_t)a + a + carry_in;
+        if (carry20 && !low_carry) r += 0x10u;
         result = (uint16_t)r;
         carry_out = (r >> 16) & 1;
         /* 2A = A+A: both addends share A's sign (QW7). */
@@ -2051,7 +2285,9 @@ static uint16_t alu_op(uint8_t alufm_entry, uint16_t a, uint16_t b,
         break;
     }
     case 014: { /* A + B (+1 if carry_in) */
+        uint8_t low_carry = (uint8_t)(((a & 0xFu) + (b & 0xFu) + carry_in) >> 4);
         uint32_t r = (uint32_t)a + b + carry_in;
+        if (carry20 && !low_carry) r += 0x10u;
         result = (uint16_t)r;
         carry_out = (r >> 16) & 1;
         /* signed-overflow: HM §3.7 "Overflow ... iff a signed
@@ -2061,7 +2297,9 @@ static uint16_t alu_op(uint8_t alufm_entry, uint16_t a, uint16_t b,
         break;
     }
     case 022: { /* A - B - 1 + carry_in (so carry=1 → A-B) */
+        uint8_t low_carry = (uint8_t)(((a & 0xFu) + ((uint16_t)~b & 0xFu) + carry_in) >> 4);
         uint32_t r = (uint32_t)a + (uint16_t)~b + carry_in;
+        if (carry20 && !low_carry) r += 0x10u;
         result = (uint16_t)r;
         carry_out = (r >> 16) & 1;
         uint16_t sa = a & 0x8000, sb = (~b) & 0x8000, sr = (uint16_t)r & 0x8000;
@@ -2069,7 +2307,9 @@ static uint16_t alu_op(uint8_t alufm_entry, uint16_t a, uint16_t b,
         break;
     }
     case 036: { /* A - 1 (+ carry_in) */
+        uint8_t low_carry = (uint8_t)(((a & 0xFu) + 0xFu + carry_in) >> 4);
         uint32_t r = (uint32_t)a + 0xFFFF + carry_in;
+        if (carry20 && !low_carry) r += 0x10u;
         result = (uint16_t)r;
         carry_out = (r >> 16) & 1;
         /* A + (-1): second addend 0xFFFF has sign bit set (QW7). */
@@ -2236,17 +2476,27 @@ static int eval_branch_condition(dorado_cpu *cpu,
         }
         break;
     case 7:
-        /* Overflow (HM Table 13 cond 7, reached via FF=067). HM §3.7:
-         * "Overflow, defined as carry-out from bit 0 unequal to carry-out
-         * from bit 1, is true iff a signed arithmetic operation yields an
-         * incorrect result." Latched like Carry' from the last arithmetic
-         * ALU op (alu_op computes it for A+B/A-B per the HM's stated
-         * limitation; preserved across logical ops). Was previously
-         * unimplemented (fell through to the default 0), so any microcode
-         * branching on Overflow silently took the false path. */
-        r = cpu->alu_overflow ? 1 : 0;
+        /* Overflow' (HM Table 13 FF=067). The branch-condition RAM
+         * latches the low-true overflow signal from the ALU board; the
+         * Cedar Mesa jump microcode names this condition `Overflow'` and
+         * depends on the no-overflow case selecting the true branch in the
+         * signed-compare repair path. Keep cpu->alu_overflow itself
+         * positive-true for diagnostics/tests, but expose the primed
+         * hardware branch condition here. */
+        r = cpu->alu_overflow ? 0 : 1;
         break;
     default: r = 0;                                       break;
+    }
+    if (dorado_trace_flag("DORADO_COND_TRACE") &&
+        (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+        uint16_t rv = (rm_a < CPU_RMSTK_INVALID) ? rm_stk_read(cpu, rm_a) : 0;
+        fprintf(stderr,
+                "COND cyc=%llu pc=0o%o cond=%d r=%d alu0=%u alu<0=%u "
+                "carry=%u ovf=%u cnt=%06o rm_a=%03o rv=%06o stkp=%03o\n",
+                (unsigned long long)dorado_trace_cycle, cpu->real_PC,
+                cond & 7, r, cpu->alu_zero, cpu->alu_lt0,
+                cpu->alu_carry, cpu->alu_overflow, cpu->Cnt,
+                rm_a & 0377, rv, cpu->StkP & 0377);
     }
     return r;
 }
@@ -2573,6 +2823,20 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
              * T_ NOT(PCX') -> PCF, re-entering the held-back opcode. */
             int resched_trap = 0;
             if (cpu->reschedule_pending > 0) {
+                if (resched_trace_enabled() &&
+                    (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+                    fprintf(stderr,
+                            "RESCHED_IFU cyc=%llu pc=0o%o pcf=0o%o "
+                            "pending_before=%u cond=%u "
+                            "rm000=%06o rm006=%06o rm025=%06o rm026=%06o\n",
+                            (unsigned long long)dorado_trace_cycle,
+                            cpu->real_PC & 07777, cpu->ifu_pcf & 0177777,
+                            cpu->reschedule_pending, cpu->reschedule_cond,
+                            cpu->RM[DORADO_RM_CAND_000] & 0177777,
+                            cpu->RM[DORADO_RM_CAND_006] & 0177777,
+                            cpu->RM[DORADO_RM_CAND_025] & 0177777,
+                            cpu->RM[DORADO_RM_CAND_026] & 0177777);
+                }
                 cpu->reschedule_pending--;
                 if (cpu->reschedule_pending == 0) resched_trap = 1;
             }
@@ -2639,8 +2903,8 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                 return 0;
             }
 
-            if (getenv("DORADO_IFUDISP_TRACE") &&
-                (dorado_trace_gate || !getenv("DORADO_TRACE_GATE"))) {
+            if (dorado_trace_flag("DORADO_IFUDISP_TRACE") &&
+                (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
                 fprintf(stderr,
                         "IFUDISP pc=0o%o pcf=0o%o br31=%05X op=%03o "
                         "len=%u alpha=%03o beta=%03o flt=%d n=%d "
@@ -2657,6 +2921,129 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                         cpu->STK[(cpu->StkP + 1) & 0xFF],
                         cpu->STK[(cpu->StkP + 2) & 0xFF],
                         cpu->STK[(cpu->StkP + 3) & 0xFF]);
+            }
+            if (opcode == 0365 && cpu->mem &&
+                dorado_trace_flag("DORADO_BITBLT_TRACE") &&
+                (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+                uint32_t mds = dorado_br_get(cpu->mem, 036);
+                fprintf(stderr,
+                        "BITBLT_DISP cyc=%llu pc=0o%o pcf=0o%o "
+                        "br30=0o%o br31=0o%o br36=0o%o mb=%02o rb=%02o "
+                        "stkp=%03o acs=%06o,%06o,%06o,%06o,%06o,%06o\n",
+                        (unsigned long long)dorado_trace_cycle,
+                        cpu->real_PC, cpu->ifu_pcf,
+                        dorado_br_get(cpu->mem, 30),
+                        dorado_br_get(cpu->mem, 31), mds,
+                        cpu->MemBase & 037, cpu->RBase & 017,
+                        cpu->StkP & 0xFF,
+                        cpu->STK[cpu->StkP & 0xFF],
+                        cpu->STK[(cpu->StkP + 1) & 0xFF],
+                        cpu->STK[(cpu->StkP + 2) & 0xFF],
+                        cpu->STK[(cpu->StkP + 3) & 0xFF],
+                        cpu->STK[(cpu->StkP + 4) & 0xFF],
+                        cpu->STK[(cpu->StkP + 5) & 0xFF]);
+
+                for (int s = 0; s < 4; s++) {
+                    uint16_t ptr = cpu->STK[(cpu->StkP + s) & 0xFF];
+                    uint32_t va = (mds + ptr) & 0x0FFFFFFFu;
+                    fprintf(stderr, "BITBLT_BBT stk+%d ptr=0o%o va=0o%o:",
+                            s, ptr, va);
+                    for (int i = 0; i < 12; i++) {
+                        fprintf(stderr, " %06o",
+                                dorado_visible_word_at_va(cpu->mem,
+                                                          va + (uint32_t)i));
+                    }
+                    fprintf(stderr, "\n");
+                }
+                fprintf(stderr, "BITBLT_LOW @0o426:");
+                for (uint32_t i = 0; i < 24; i++) {
+                    fprintf(stderr, " %06o",
+                            dorado_visible_word_at_va(cpu->mem, 0426u + i));
+                }
+                fprintf(stderr, "\n");
+            }
+            if (opcode == 0364 && cpu->ifu_alpha == 0011 &&
+                dorado_trace_flag("DORADO_RCLK_TRACE") &&
+                (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+                fprintf(stderr,
+                        "RCLK_DISP cyc=%llu pc=0o%o pcf=0o%o "
+                        "rtclock=%06o rtc_delta=%06o rtc430=%06o "
+                        "stkp=%03o acs=%06o,%06o,%06o,%06o\n",
+                        (unsigned long long)dorado_trace_cycle,
+                        cpu->real_PC, cpu->ifu_pcf,
+                        cpu->RM[0260], cpu->RM[0261], cpu->RM[0262],
+                        cpu->StkP & 0xFF,
+                        cpu->STK[cpu->StkP & 0xFF],
+                        cpu->STK[(cpu->StkP + 1) & 0xFF],
+                        cpu->STK[(cpu->StkP + 2) & 0xFF],
+                        cpu->STK[(cpu->StkP + 3) & 0xFF]);
+            }
+            if (opcode == 0364 && cpu->ifu_alpha == 0255 &&
+                timer_trace_enabled() &&
+                (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+                fprintf(stderr,
+                        "SETIT_DISP cyc=%llu pc=0o%o pcf=0o%o "
+                        "br31=%05X rtclock=%06o wake=%06o rtc430=%06o "
+                        "stkp=%03o acs=%06o,%06o,%06o,%06o\n",
+                        (unsigned long long)dorado_trace_cycle,
+                        cpu->real_PC, cpu->ifu_pcf,
+                        cpu->mem ? dorado_br_get(cpu->mem, 31) : 0,
+                        cpu->RM[DORADO_RM_RT_CLOCK],
+                        cpu->RM[DORADO_RM_WAKEUP_TIME],
+                        cpu->RM[DORADO_RM_RTC_430],
+                        cpu->StkP & 0xFF,
+                        cpu->STK[cpu->StkP & 0xFF],
+                        cpu->STK[(cpu->StkP + 1) & 0xFF],
+                        cpu->STK[(cpu->StkP + 2) & 0xFF],
+                        cpu->STK[(cpu->StkP + 3) & 0xFF]);
+            }
+            if (opcode == 0364 && cpu->ifu_alpha == 0010 &&
+                dorado_trace_flag("DORADO_SETMP_TRACE") &&
+                (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+                uint32_t mds = cpu->mem ? dorado_br_get(cpu->mem, 036) : 0;
+                fprintf(stderr,
+                        "SETMP_DISP cyc=%llu pc=0o%o pcf=0o%o "
+                        "br31=%05X stkp=%03o code=%06o "
+                        "acs=%06o,%06o,%06o,%06o\n",
+                        (unsigned long long)dorado_trace_cycle,
+                        cpu->real_PC, cpu->ifu_pcf,
+                        cpu->mem ? dorado_br_get(cpu->mem, 31) : 0,
+                        cpu->StkP & 0xFF,
+                        cpu->STK[cpu->StkP & 0xFF],
+                        cpu->STK[cpu->StkP & 0xFF],
+                        cpu->STK[(cpu->StkP + 1) & 0xFF],
+                        cpu->STK[(cpu->StkP + 2) & 0xFF],
+                        cpu->STK[(cpu->StkP + 3) & 0xFF]);
+                if (dorado_trace_flag("DORADO_SETMP_TRACE_DETAIL")) {
+                    fprintf(stderr,
+                            "SETMP_DETAIL cyc=%llu MDS=0o%o MemBase=%02o "
+                            "RBase=%02o T=%06o Q=%06o Cnt=%06o Link=0o%o "
+                            "BR[030]=0o%o BR[031]=0o%o "
+                            "BR[036]=0o%o BR[037]=0o%o STK:",
+                            (unsigned long long)dorado_trace_cycle,
+                            mds, cpu->MemBase & 037, cpu->RBase & 017,
+                            cpu->T, cpu->Q, cpu->Cnt, cpu->Link,
+                            cpu->mem ? dorado_br_get(cpu->mem, 030) : 0,
+                            cpu->mem ? dorado_br_get(cpu->mem, 031) : 0,
+                            mds,
+                            cpu->mem ? dorado_br_get(cpu->mem, 037) : 0);
+                    for (int i = -8; i <= 8; i++) {
+                        uint8_t sp = (uint8_t)(cpu->StkP + i);
+                        fprintf(stderr, " [%03o]=%06o", sp, cpu->STK[sp]);
+                    }
+                    fprintf(stderr, "\n");
+                    if (cpu->mem) {
+                        uint16_t lf = cpu->STK[(cpu->StkP + 1) & 0xFF];
+                        uint32_t lfv = (mds + lf) & 0x0FFFFFFFu;
+                        fprintf(stderr, "SETMP_LF @0o%o:", lfv);
+                        for (uint32_t i = 0; i < 16; i++) {
+                            fprintf(stderr, " %06o",
+                                    dorado_visible_word_at_va(cpu->mem,
+                                                              lfv + i));
+                        }
+                        fprintf(stderr, "\n");
+                    }
+                }
             }
 
             /* Compute the next PCF for the *successor* opcode.
@@ -2696,19 +3083,11 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
 
             /* A real opcode dispatch is now committed (past NotReady /
              * warmup / fault). Count it so differential harnesses can
-             * detect the one-opcode boundary. HM §3.1 saves StkP at t2 of
-             * the IFU-dispatched instruction; RestoreStkP uses this value
-             * when restart-style traps re-enter an opcode. Capture the
-             * pre-RSTK value of the IFUJump instruction here, before this
-             * instruction's post-cycle stack adjustment is applied. */
-            cpu->ifu_saved_stkp = (uint8_t)(cpu->StkP & 0xFF);
-            if (getenv("DORADO_STKP_TRACE") &&
-                (dorado_trace_gate || !getenv("DORADO_TRACE_GATE"))) {
-                fprintf(stderr,
-                        "SAVE_STKP cyc=%llu pc=0o%o saved=%03o\n",
-                        (unsigned long long)dorado_trace_cycle,
-                        cpu->real_PC, cpu->ifu_saved_stkp & 0377);
-            }
+             * detect the one-opcode boundary. RestoreStkP must see the
+             * stack state handed to the dispatched opcode, including this
+             * IFUJump instruction's own RSTK update; defer the capture
+             * until after stk_apply_post(). */
+            cpu->ifu_save_stkp_pending = 1;
             cpu->ifu_dispatch_count++;
 
             /* Compute TNIA: TNIA[4:13] = IFaddr', TNIA[14:15] = n.
@@ -2718,6 +3097,20 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
             uint16_t tnia = (uint16_t)((ifaddr << 2) | n_eff);
             if (resched_trap) {
                 tnia = ifu_trap_addr(0014, n_slot, cpu->ifu_insset);
+                if (resched_trace_enabled() &&
+                    (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+                    fprintf(stderr,
+                            "RESCHED_TRAP cyc=%llu pc=0o%o tnia=0o%o "
+                            "insset=%u n=%d "
+                            "rm000=%06o rm006=%06o rm025=%06o rm026=%06o\n",
+                            (unsigned long long)dorado_trace_cycle,
+                            cpu->real_PC & 07777, tnia & 07777,
+                            cpu->ifu_insset & 3, n_slot,
+                            cpu->RM[DORADO_RM_CAND_000] & 0177777,
+                            cpu->RM[DORADO_RM_CAND_006] & 0177777,
+                            cpu->RM[DORADO_RM_CAND_025] & 0177777,
+                            cpu->RM[DORADO_RM_CAND_026] & 0177777);
+                }
             }
 
             *next = (uint16_t)(tnia & 0xFFF);
@@ -2854,6 +3247,15 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                  * so when we switch to that task it picks up there. */
                 if (task != cpu->ctask) {
                     cpu->task_tpc[task] = cpu->Link;
+                    if (dorado_trace_flag("DORADO_TASK_TRACE") &&
+                        (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+                        fprintf(stderr,
+                                "TPC_WRITE cyc=%llu task=%o value=0o%o "
+                                "pc=0o%o ctask=%o\n",
+                                (unsigned long long)dorado_trace_cycle,
+                                task & 017, cpu->Link & 07777,
+                                cpu->real_PC & 07777, cpu->ctask & 017);
+                    }
                 }
                 /* HM §4.8: Link is smashed with CIA+1 after the TPC write
                  * (the write above consumed the old Link). */
@@ -2967,14 +3369,60 @@ int dorado_cpu_step(dorado_cpu *cpu)
 
     const dorado_uinstr *u = &cpu->mc->im[cpu->real_PC];
 
-    if (getenv("DORADO_PCDIS") && (!getenv("DORADO_TRACE_GATE") || dorado_trace_gate)) {
-        static long lo = -2, hi = 0;
+    if (dorado_trace_flag("DORADO_PCDIS") && (!dorado_trace_flag("DORADO_TRACE_GATE") || dorado_trace_gate)) {
+        static long lo = -2, hi = 0, count = 0, limit = -2;
         if (lo == -2) { const char *w = getenv("DORADO_PCDIS");
                         lo = 0; hi = 0; if (w) sscanf(w, "%lo,%lo", &lo, &hi); }
+        if (limit == -2) { const char *w = getenv("DORADO_PCDIS_LIMIT");
+                           limit = w ? strtol(w, NULL, 0) : 0; }
         if ((long)cpu->real_PC >= lo && (long)cpu->real_PC <= hi) {
-            char buf[160];
-            dorado_format(u, buf, sizeof buf);
-            fprintf(stderr, "PCDIS %04o: %s\n", cpu->real_PC, buf);
+            if (limit <= 0 || count < limit) {
+                char buf[160];
+                dorado_format(u, buf, sizeof buf);
+                fprintf(stderr,
+                        "PCDIS cyc=%llu task=%o pc=%04o pcf=0o%o "
+                        "rb=%02o mb=0o%x stkp=%03o T=%06o Q=%06o "
+                        "rm000=%06o rm006=%06o rm025=%06o rm026=%06o : %s\n",
+                        (unsigned long long)dorado_trace_cycle,
+                        cpu->ctask & 017, cpu->real_PC,
+                        cpu->ifu_pcf & 0177777, cpu->RBase & 017,
+                        cpu->MemBase & 0xf, cpu->StkP & 0377,
+                        cpu->T & 0177777, cpu->Q & 0177777,
+                        cpu->RM[DORADO_RM_CAND_000] & 0177777,
+                        cpu->RM[DORADO_RM_CAND_006] & 0177777,
+                        cpu->RM[DORADO_RM_CAND_025] & 0177777,
+                        cpu->RM[DORADO_RM_CAND_026] & 0177777,
+                        buf);
+            }
+            count++;
+        }
+    }
+
+    if (dorado_trace_flag("DORADO_ALLOC_TRACE") &&
+        (cpu->real_PC == 03301 || cpu->real_PC == 03302 ||
+         cpu->real_PC == 01071 || cpu->real_PC == 01072) &&
+        (!dorado_trace_flag("DORADO_TRACE_GATE") || dorado_trace_gate)) {
+        static long alloc_trace_count = 0;
+        static long alloc_trace_limit = -2;
+        if (alloc_trace_limit == -2) {
+            const char *w = getenv("DORADO_ALLOC_TRACE_LIMIT");
+            alloc_trace_limit = w ? strtol(w, NULL, 0) : 256;
+        }
+        if (alloc_trace_limit < 0 || alloc_trace_count++ < alloc_trace_limit) {
+            uint32_t br = cpu->mem ? dorado_br_get(cpu->mem, cpu->MemBase & 037) : 0;
+            fprintf(stderr,
+                    "ALLOC_TRACE cyc=%llu task=%o pc=0o%o T=0o%o Q=0o%o "
+                    "md=0o%o mar=0o%o va=0o%o mb=0o%o br=0o%o "
+                    "br3=0o%o br36=0o%o rb=0o%o stkp=%03o\n",
+                    (unsigned long long)dorado_trace_cycle, cpu->ctask & 017,
+                    cpu->real_PC, cpu->T & 0177777, cpu->Q & 0177777,
+                    cpu->mem ? (cpu->mem->md & 0177777) : 0,
+                    cpu->mem ? (cpu->mem->mar & 0x0FFFFFFFu) : 0,
+                    cpu->mem ? ((br + cpu->mem->mar) & 0x0FFFFFFFu) : 0,
+                    cpu->MemBase & 037, br,
+                    cpu->mem ? dorado_br_get(cpu->mem, 3) : 0,
+                    cpu->mem ? dorado_br_get(cpu->mem, 036) : 0,
+                    cpu->RBase & 017, cpu->StkP & 0377);
         }
     }
 
@@ -2987,9 +3435,48 @@ int dorado_cpu_step(dorado_cpu *cpu)
     return execute_uinstr(cpu, u, 1 /* from IM */);
 }
 
+static int desc_trace_pc(uint16_t pc)
+{
+    switch (pc) {
+    case 01264: case 01265: case 01300:
+    case 03210: case 03253: case 03256:
+    case 03266: case 03267: case 03271:
+    case 03272: case 03273: case 03275:
+    case 03276: case 03277:
+    case 03301: case 03302: case 03304:
+    case 03306: case 03307: case 03311:
+    case 03312: case 03314:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+static int check_trace_pc(uint16_t pc)
+{
+    switch (pc) {
+    case 00414: case 00530: case 00600: case 00725:
+    case 01065: case 01400:
+    case 01501: case 01502: case 01503: case 01504:
+    case 01505: case 01506: case 01507: case 01510:
+    case 01511: case 01512:
+    case 03211: case 03212: case 03213: case 03216:
+    case 03317: case 03322: case 03323: case 03326:
+    case 03327: case 03331: case 03332: case 03335:
+    case 03336:
+    case 03422: case 03423: case 03424: case 03425:
+    case 03426: case 03427: case 03430: case 03431:
+    case 03432: case 03433: case 03434: case 03435:
+    case 03441: case 03442: case 03445:
+    case 03453: case 03455:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
 static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
 {
-    (void)from_im;
     dorado_mem_trace_pc = cpu->real_PC;
     dorado_mem_trace_pcx = cpu->ifu_pcx;
     dorado_mem_trace_br31 = cpu->mem ? (int)dorado_br_get(cpu->mem, 31) : 0;
@@ -3000,7 +3487,7 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
      * (DBCA=w2, DBMR=w3, DLX=w4, DTY=w5, DW=w6, DH=w7) from the MDS bank
      * so a corrupting BitBlt can be compared against a healthy one. */
     if (cpu->real_PC == 03124 && cpu->ctask == 0 && cpu->mem &&
-        getenv("DORADO_BBT_TRACE")) {
+        dorado_trace_flag("DORADO_BBT_TRACE")) {
         uint16_t bbt = cpu->STK[(cpu->StkP + 2) & 0xFF];
         uint32_t mds = dorado_br_get(cpu->mem, 036);
         uint16_t w[8];
@@ -3019,7 +3506,7 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
      * so it is inert for the Alto worlds and normal runs. Prints the
      * real PC plus the memory state (last-ref VA + MD) so the SD/GFT/
      * frame fetches in Xfer are visible. */
-    if (dorado_trace_gate && getenv("DORADO_XFER_TRACE") && cpu->ctask == 0) {
+    if (dorado_trace_gate && dorado_trace_flag("DORADO_XFER_TRACE") && cpu->ctask == 0) {
         fprintf(stderr,
                 "XFER cyc=%llu pc=0o%o iset=%u T=0o%o Q=0o%o "
                 "md=0o%o lva=0o%o mb=0o%o rb=%02o\n",
@@ -3036,7 +3523,7 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
      * pipelined hardware reads Link at t1 and writes at t3, so the
      * consumer sees the *old* value while the new value lands for the
      * next instruction. We model this by capturing the entry value. */
-    if (dorado_trace_gate && getenv("DORADO_RBASE_TRACE")) {
+    if (dorado_trace_gate && dorado_trace_flag("DORADO_RBASE_TRACE")) {
         static uint8_t prev_rb = 0xFF;
         static int prev_task = -1;
         if (cpu->ctask == 0 &&
@@ -3047,6 +3534,40 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
         }
         prev_task = cpu->ctask;
     }
+
+    int stk_underflow = 0, stk_overflow = 0;
+    if (stk_error_check(cpu, u, &stk_underflow, &stk_overflow)) {
+        stk_signal_error(cpu, stk_underflow, stk_overflow);
+        if (dorado_trace_flag("DORADO_STKP_TRACE") &&
+            (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+            fprintf(stderr,
+                    "STK_ERROR_HOLD cyc=%llu pc=0o%o rstk=%02o "
+                    "stkp=%03o und=%d ovf=%d\n",
+                    (unsigned long long)dorado_trace_cycle,
+                    cpu->real_PC, u->rstk & 017, cpu->StkP & 0377,
+                    stk_underflow, stk_overflow);
+        }
+
+        cpu->prev_PC = cpu->real_PC;
+        if (from_im) junk_timer_tick(cpu);
+
+        cpu->real_PC = task_schedule(cpu, cpu->real_PC, 0);
+
+        if (from_im) {
+            cpu->cycles++;
+            if (cpu->mem) dorado_memory_tick(cpu->mem);
+            if (cpu->baseboard && cpu->baseboard_cycles_per_uop > 0) {
+                baseboard_run(cpu->baseboard,
+                              cpu->baseboard_cycles_per_uop);
+            }
+        }
+
+        if (cpu->ifu_active && cpu->ifu_warmup > 0) {
+            cpu->ifu_warmup--;
+        }
+        return 0;
+    }
+
     cpu->link_at_issue = cpu->Link;
     /* Age the alternate B←Link latch: it is valid only for the single
      * instruction following the RdTPC/Read IM that set it. If that
@@ -3076,7 +3597,7 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
         ? (uint8_t)dorado_io_attention(cpu->io, cpu->ctask,
                                        (uint8_t)cpu->TIOA)
         : 0;
-    if (getenv("DORADO_ATTEN_TRACE") && cpu->ctask == 7 &&
+    if (dorado_trace_flag("DORADO_ATTEN_TRACE") && cpu->ctask == 7 &&
         cpu->TIOA == 015) {
         fprintf(stderr, "ATTEN pc=0o%o atten=%d\n",
                 cpu->real_PC, cpu->io_atten_at_issue);
@@ -3181,7 +3702,7 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
      * 0o1700..0o1721), the control link being dispatched rides the B bus
      * (T_ BDispatch_ RTemp0). Print it to locate the null DLink that
      * ZeroDest->ControlFaults during head-startup. */
-    if (dorado_trace_gate && getenv("DORADO_XLINK_TRACE") &&
+    if (dorado_trace_gate && dorado_trace_flag("DORADO_XLINK_TRACE") &&
         cpu->ctask == 0 && cpu->real_PC >= 01700u && cpu->real_PC <= 01730u) {
         fprintf(stderr, "XLINK cyc=%llu pc=0o%o T=0o%o a=0o%o b=0o%o md=0o%o\n",
                 (unsigned long long)dorado_trace_cycle, cpu->real_PC,
@@ -3197,7 +3718,10 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
     uint8_t alufm_entry = cpu->mc->alufm_present[aluf_idx]
                           ? cpu->mc->alufm[aluf_idx]
                           : 0;
-    /* XorCarry / XorSavedCarry (HM Table 11a, FA=0 FB=2 FC=4/5): modify
+    /* XorCarry / XorSavedCarry / Carry20 (HM Table 11a, FA=0 FB=2):
+     * modify this instruction's ALU carry handling.
+     *
+     * XorCarry / XorSavedCarry (FC=4/5) modify
      * this instruction's ALU carry-in for multi-precision arithmetic.
      * XorSavedCarry XORs in the SAVED (previous instruction's) carry --
      * the high-word add/subtract consumes the low word's carry-out. The
@@ -3205,7 +3729,12 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
      * BBNormal (T_ T+EmuBRHiReg, XorSavedCarry) both rely on it; with it
      * stubbed those 32-bit base computations dropped the inter-word
      * carry. XorCarry flips the carry-in unconditionally. The carry bit
-     * is bit 5 of the ALUFM entry. */
+     * is bit 5 of the ALUFM entry.
+     *
+     * Carry20 (FC=6) forces the internal carry into the octal-020 bit;
+     * NewSetBRAndFlushPage depends on it to step across 020-word cache
+     * munches while using B for unrelated data. */
+    int carry20 = ff_fa0_fb2_fc_ok(u, 6);
     {
         int xfa, xfb, xfc, xok = 0;
         if (ff_full_function_ok(u)) {
@@ -3225,7 +3754,8 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
     }
     uint8_t new_carry = cpu->alu_carry, new_ovf = cpu->alu_overflow;
     uint8_t is_arith = 0;
-    uint16_t alu = alu_op(alufm_entry, a, b, &new_carry, &new_ovf, &is_arith);
+    uint16_t alu = alu_op(alufm_entry, a, b, carry20,
+                          &new_carry, &new_ovf, &is_arith);
     /* The live ALU carry-out of THIS instruction (0 for logical ops):
      * this is the "ALUcarry" consumed by the Multiply function and
      * the brsh-1 LC form (HM p23). It is distinct from the latched
@@ -3241,6 +3771,28 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
     if (!is_arith) {
         new_carry = cpu->alu_carry;
         new_ovf   = cpu->alu_overflow;
+    }
+
+    if (rtc_trace_enabled() &&
+        (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE")) &&
+        cpu->ctask == DORADO_JUNK_TASK &&
+        cpu->real_PC >= 06600u && cpu->real_PC <= 06620u) {
+        fprintf(stderr,
+                "RTC_TRACE cyc=%llu pc=0o%o rb=%02o mb=%02o "
+                "rstk=%02o lc=%o ff=%03o jcn=%03o "
+                "a=%06o b=%06o T=%06o alu=%06o "
+                "rt=%06o wake=%06o rtc430=%06o rm025=%06o "
+                "ready=%04X wakepend=%04X\n",
+                (unsigned long long)dorado_trace_cycle,
+                cpu->real_PC & 07777, cpu->RBase & 017,
+                cpu->MemBase & 037, u->rstk & 017, u->lc & 7,
+                u->ff & 0377, u->jcn & 0377, a & 0177777,
+                b & 0177777, cpu->T & 0177777, alu & 0177777,
+                cpu->RM[DORADO_RM_RT_CLOCK] & 0177777,
+                cpu->RM[DORADO_RM_WAKEUP_TIME] & 0177777,
+                cpu->RM[DORADO_RM_RTC_430] & 0177777,
+                cpu->RM[DORADO_RM_CAND_025] & 0177777,
+                cpu->ready, cpu->wakeup_pending);
     }
 
     /*
@@ -3263,14 +3815,19 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
         cpu->halt_reason = ff_halt;
         return 1;
     }
-    if (dorado_trace_gate && getenv("DORADO_STACK_TRACE") &&
+    if (dorado_trace_gate && dorado_trace_flag("DORADO_STACK_TRACE") &&
         cpu->ctask == 0 &&
         ((cpu->real_PC >= 01020u && cpu->real_PC <= 01064u) ||
+         (cpu->real_PC >= 01360u && cpu->real_PC <= 01475u) ||
          (cpu->real_PC >= 01700u && cpu->real_PC <= 01730u) ||
+         (cpu->real_PC >= 00120u && cpu->real_PC <= 00155u) ||
          (cpu->real_PC >= 00220u && cpu->real_PC <= 00275u) ||
+         (cpu->real_PC >= 00330u && cpu->real_PC <= 00500u) ||
+         (cpu->real_PC >= 00500u && cpu->real_PC <= 00540u) ||
          (cpu->real_PC >= 00600u && cpu->real_PC <= 00615u) ||
          (cpu->real_PC >= 02020u && cpu->real_PC <= 02030u) ||
          (cpu->real_PC >= 02360u && cpu->real_PC <= 02375u) ||
+         (cpu->real_PC >= 03600u && cpu->real_PC <= 04100u) ||
          (cpu->real_PC >= 07030u && cpu->real_PC <= 07045u))) {
         int ridx = rm_address(cpu, u);
         int widx = lc_write_address(cpu, u);
@@ -3278,6 +3835,9 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                 "STACK_TRACE cyc=%llu pc=0o%o rstk=%02o block=%u "
                 "sp=%03o r=%03o w=%03o a=%06o b=%06o alu=%06o pd=%06o "
                 "T=%06o md=%06o stkp0=%06o stkp1=%06o stkm1=%06o "
+                "stk0=%06o stk1=%06o stk2=%06o stk3=%06o stk4=%06o "
+                "stk5=%06o stk6=%06o stk7=%06o stk10=%06o "
+                "rm03=%06o rm04=%06o rm13=%06o rm14=%06o rm15=%06o "
                 "rm16=%06o rm17=%06o\n",
                 (unsigned long long)dorado_trace_cycle,
                 cpu->real_PC, u->rstk & 017, u->block & 1,
@@ -3287,6 +3847,14 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                 cpu->STK[cpu->StkP & 0377] & 0177777,
                 cpu->STK[(cpu->StkP + 1) & 0377] & 0177777,
                 cpu->STK[(cpu->StkP - 1) & 0377] & 0177777,
+                cpu->STK[000] & 0177777, cpu->STK[001] & 0177777,
+                cpu->STK[002] & 0177777, cpu->STK[003] & 0177777,
+                cpu->STK[004] & 0177777, cpu->STK[005] & 0177777,
+                cpu->STK[006] & 0177777, cpu->STK[007] & 0177777,
+                cpu->STK[010] & 0177777,
+                cpu->RM[003] & 0177777, cpu->RM[004] & 0177777,
+                cpu->RM[013] & 0177777, cpu->RM[014] & 0177777,
+                cpu->RM[015] & 0177777,
                 cpu->RM[016] & 0177777, cpu->RM[017] & 0177777);
     }
     /* Barrel-shifter Pd-mux stage (HM §3.11): for a shift, the LMask/RMask/
@@ -3412,11 +3980,47 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                              (uint32_t)(mar & 0xFFFFu))
                           : (uint32_t)(mar & 0xFFFFu);
             uint32_t va = (br + disp) & 0x0FFFFFFFu;
+            if (dorado_trace_gate && dorado_trace_flag("DORADO_DESC_TRACE") &&
+                cpu->ctask == 0 && desc_trace_pc(cpu->real_PC)) {
+                fprintf(stderr,
+                        "DESC_TRACE cyc=%llu pc=0o%o kind=%s va=0o%o "
+                        "mb=0o%o br=0o%o mar=0o%o disp=0o%o "
+                        "T=0o%o Q=0o%o a=0o%o b=0o%o md=0o%o "
+                        "rb=0o%o stkp=%03o "
+                        "stk[-2..4]=%06o,%06o,%06o,%06o,%06o,%06o,%06o "
+                        "br0=0o%o br1=0o%o br2=0o%o br3=0o%o "
+                        "br34=0o%o br35=0o%o br36=0o%o br37=0o%o "
+                        "br31=0o%o\n",
+                        (unsigned long long)dorado_trace_cycle,
+                        cpu->real_PC, ref_kind_name(kind),
+                        va & 0x0FFFFFFFu, membase & 037,
+                        br & 0x0FFFFFFFu, mar & 0177777,
+                        disp & 0x0FFFFFFFu, cpu->T & 0177777,
+                        cpu->Q & 0177777, a & 0177777, b & 0177777,
+                        cpu->mem->md & 0177777, cpu->RBase & 017,
+                        cpu->StkP & 0377,
+                        cpu->STK[(cpu->StkP - 2) & 0377] & 0177777,
+                        cpu->STK[(cpu->StkP - 1) & 0377] & 0177777,
+                        cpu->STK[cpu->StkP & 0377] & 0177777,
+                        cpu->STK[(cpu->StkP + 1) & 0377] & 0177777,
+                        cpu->STK[(cpu->StkP + 2) & 0377] & 0177777,
+                        cpu->STK[(cpu->StkP + 3) & 0377] & 0177777,
+                        cpu->STK[(cpu->StkP + 4) & 0377] & 0177777,
+                        dorado_br_get(cpu->mem, 0),
+                        dorado_br_get(cpu->mem, 1),
+                        dorado_br_get(cpu->mem, 2),
+                        dorado_br_get(cpu->mem, 3),
+                        dorado_br_get(cpu->mem, 034),
+                        dorado_br_get(cpu->mem, 035),
+                        dorado_br_get(cpu->mem, 036),
+                        dorado_br_get(cpu->mem, 037),
+                        dorado_br_get(cpu->mem, 031));
+            }
             /* TEMP-INSTRUMENT: in the Xfer tag-dispatch region (real pc
              * 0o1700..0o1721), print the link being dispatched (A=RTemp0,
              * B) + the fetched dest, to locate the null DLink that
              * ZeroDest->ControlFaults during head-startup. */
-            if (dorado_trace_gate && getenv("DORADO_XLINK_TRACE") &&
+            if (dorado_trace_gate && dorado_trace_flag("DORADO_XLINK_TRACE") &&
                 cpu->ctask == 0 && cpu->real_PC >= 01700u &&
                 cpu->real_PC <= 01721u) {
                 fprintf(stderr,
@@ -3430,11 +4034,25 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
             dorado_mem_trace_br = (int)br;
             dorado_mem_trace_mar = mar;
             int subtask = (int)(cpu->task_subtask[cpu->ctask] & 3);
+            uint8_t fault_count_before = cpu->mem->fault_count;
             dorado_fault_kind ref_fault =
                 dorado_memory_ref_task(cpu->mem, kind, va, data, cpu->TIOA,
                                        (int)cpu->ctask, subtask);
+            int recorded_fault =
+                (ref_fault != DM_FAULT_NONE) ||
+                (cpu->mem->fault_count != fault_count_before);
             if (ref_fault == DM_FAULT_NONE && ref_kind_loads_md(kind)) {
                 latch_task_md_from_memory(cpu);
+            }
+            /* DORADO_FETCH_TRACE: emulator-task (task 0) memory reads with
+             * VA + the value latched into Md. Gated by DORADO_TRACE_GATE so
+             * it can pinpoint the word a stalled Alto poll loop reads. */
+            if (dorado_trace_gate && cpu->ctask == 0 &&
+                ref_kind_loads_md(kind) && dorado_trace_flag("DORADO_FETCH_TRACE")) {
+                fprintf(stderr, "FETCH pc=0o%o kind=%d va=%07X md=0o%o "
+                        "br=%07X mar=%04X\n", cpu->real_PC, (int)kind, va,
+                        cpu->mem ? cpu->mem->md & 0177777 : 0,
+                        br & 0x0FFFFFFFu, mar);
             }
             if (kind == DM_REF_MAP && map_cpu_trace_index(dorado_map_index(va))) {
                 fprintf(stderr,
@@ -3538,6 +4156,7 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                 cpu->mem->last_fault_tioa = cpu->TIOA;
                 const char *ft = getenv("DORADO_FAULT_TRACE");
                 if (ft && ft[0] &&
+                    (!dorado_trace_flag("DORADO_TRACE_GATE") || dorado_trace_gate) &&
                     (strcmp(ft, "all") == 0 || cpu->ctask != 0)) {
                     fprintf(stderr,
                             "FAULT_CPU cyc=%llu task=%o pc=0o%o mesa_pc=0x%04X "
@@ -3564,7 +4183,7 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
              * tasking turns on. Tests that read FaultInfo on the
              * faulting task must disable tasking before the fault
              * (test_cpu_fault_info_visible). */
-            if (ref_fault != DM_FAULT_NONE && !dorado_mcr_nowake(cpu->mem)) {
+            if (recorded_fault && !dorado_mcr_nowake(cpu->mem)) {
                 cpu->wakeup_pending |= (uint16_t)(1u << 15);
             }
         }
@@ -3592,6 +4211,57 @@ memory_ref_done: ;
         cpu->halted = 1;
         cpu->halt_reason = rc;
         return 1;
+    }
+
+    if (dorado_trace_gate && dorado_trace_flag("DORADO_CHECK_TRACE") &&
+        cpu->ctask == 0 && check_trace_pc(cpu->real_PC)) {
+        int ridx = rm_address(cpu, u);
+        int widx = lc_write_address(cpu, u);
+        uint16_t rv = (ridx < CPU_RMSTK_INVALID)
+                    ? rm_stk_read(cpu, ridx) : 0;
+        fprintf(stderr,
+                "CHECK_TRACE cyc=%llu pc=0o%o->0o%o pcf=0o%o op=%03o "
+                "rstk=%02o block=%u r=%03o rv=%06o w=%03o "
+                "disp_in=%03o disp_next=%03o "
+                "sp=%03o a=%06o b=%06o alu=%06o pd=%06o "
+                "T=%06o Q=%06o md=%06o "
+                "bc_in[z=%u lt=%u cy=%u ov=%u cnt=%06o] "
+                "bc_out[z=%u lt=%u cy=%u ov=%u] "
+                "stk[-2..5]=%06o,%06o,%06o,%06o,%06o,%06o,%06o,%06o "
+                "rm01=%06o rm02=%06o rm03=%06o rm04=%06o "
+                "rm05=%06o rm06=%06o rm07=%06o "
+                "rm13=%06o rm14=%06o rm15=%06o rm16=%06o "
+                "mb=%02o rb=%02o br3=0o%o br36=0o%o br37=0o%o\n",
+                (unsigned long long)dorado_trace_cycle,
+                cpu->real_PC, np, cpu->ifu_pcf & 0177777,
+                cpu->ifu_opcode & 0377, u->rstk & 017, u->block & 1,
+                ridx & 0777, rv & 0177777, widx & 0777,
+                cpu->dispatch_or & 0777,
+                cpu->task_dispatch[cpu->ctask] & 0777,
+                cpu->StkP & 0377, a & 0177777, b & 0177777,
+                alu & 0177777, pd & 0177777, cpu->T & 0177777,
+                cpu->Q & 0177777, task_md(cpu) & 0177777,
+                cpu->alu_zero, cpu->alu_lt0, cpu->alu_carry,
+                cpu->alu_overflow, cpu->Cnt & 0177777,
+                new_alu_zero, new_alu_lt0, new_carry, new_ovf,
+                cpu->STK[(cpu->StkP - 2) & 0377] & 0177777,
+                cpu->STK[(cpu->StkP - 1) & 0377] & 0177777,
+                cpu->STK[cpu->StkP & 0377] & 0177777,
+                cpu->STK[(cpu->StkP + 1) & 0377] & 0177777,
+                cpu->STK[(cpu->StkP + 2) & 0377] & 0177777,
+                cpu->STK[(cpu->StkP + 3) & 0377] & 0177777,
+                cpu->STK[(cpu->StkP + 4) & 0377] & 0177777,
+                cpu->STK[(cpu->StkP + 5) & 0377] & 0177777,
+                cpu->RM[001] & 0177777, cpu->RM[002] & 0177777,
+                cpu->RM[003] & 0177777, cpu->RM[004] & 0177777,
+                cpu->RM[005] & 0177777, cpu->RM[006] & 0177777,
+                cpu->RM[007] & 0177777,
+                cpu->RM[013] & 0177777, cpu->RM[014] & 0177777,
+                cpu->RM[015] & 0177777, cpu->RM[016] & 0177777,
+                cpu->MemBase & 037, cpu->RBase & 017,
+                cpu->mem ? dorado_br_get(cpu->mem, 3) : 0,
+                cpu->mem ? dorado_br_get(cpu->mem, 036) : 0,
+                cpu->mem ? dorado_br_get(cpu->mem, 037) : 0);
     }
 
     if (initmap_trace_enabled() &&
@@ -3636,6 +4306,17 @@ memory_ref_done: ;
     /* Post-instruction StkP update + StkOvf/StkUnd recompute (HM
      * Table 6 / page 11). For BLOCK=0 instructions this is a no-op. */
     stk_apply_post(cpu, u);
+    if (cpu->ifu_save_stkp_pending) {
+        cpu->ifu_saved_stkp = (uint8_t)(cpu->StkP & 0xFF);
+        cpu->ifu_save_stkp_pending = 0;
+        if (dorado_trace_flag("DORADO_STKP_TRACE") &&
+            (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+            fprintf(stderr,
+                    "SAVE_STKP cyc=%llu pc=0o%o saved=%03o\n",
+                    (unsigned long long)dorado_trace_cycle,
+                    cpu->real_PC, cpu->ifu_saved_stkp & 0377);
+        }
+    }
 
     /* Commit branch-condition flags (HM page 30, "loaded into the RAM
      * at t3"). After this, the next instruction's next_pc reads these

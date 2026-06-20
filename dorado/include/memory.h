@@ -326,6 +326,13 @@ typedef struct dorado_memory {
                        int task, int subtask, uint32_t va,
                        uint16_t munch[16], void *ctx);
     void *fast_io_ctx;
+
+    /* Optional diagnostic-muffler provider for non-memory DMux addresses
+     * such as the disk controller's DskEth status manifold. The callback
+     * returns a word with the selected muffler bit in the sign position
+     * and sets *handled when it recognizes the address. */
+    uint16_t (*dmux_cb)(uint16_t addr, int *handled, void *ctx);
+    void *dmux_ctx;
 } dorado_memory;
 
 /* Initialize: allocate storage array, zero registers + pipe.

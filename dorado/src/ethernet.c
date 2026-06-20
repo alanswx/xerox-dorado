@@ -110,6 +110,7 @@ static void eth_clear_rx(dorado_ethernet *eth)
     eth->rx_attention = NULL;
     eth->rx_count = 0;
     eth->rx_pos = 0;
+    eth->rx_hold = 0;
 }
 
 void dorado_ethernet_init(dorado_ethernet *eth)
@@ -118,6 +119,8 @@ void dorado_ethernet_init(dorado_ethernet *eth)
     eth->local_host = 042;
     eth->remote_host = 01;
     eth->world_rx_words = 0xFFFFu;  /* no rx-size gate until the world posts EICLOC */
+    eth->eftp_turnaround_ticks = 60000;
+    eth->eftp_dest_socket_lo = DORADO_EFTP_RECEIVER_SOCKET;
     dorado_ethernet_set_boot_file(
         eth, 0110, "../chm/microcode/AltoMesaDorado.eb!1");
     dorado_ethernet_set_boot_file(
@@ -492,15 +495,17 @@ static int append_eftp_packet(dorado_ethernet *eth, size_t *cap,
     uint16_t rhost = eth->remote_host;  /* boot server (source)       */
     uint16_t length = (uint16_t)(026 + 2 * nwords);
     uint16_t header[12] = {
-        (uint16_t)((lhost << 8) | rhost),  /* etherAdr: dest||source   */
+        (uint16_t)(eth->eftp_wait_for_rx_arm ?
+                   lhost : ((lhost << 8) | rhost)),
+                                            /* etherAdr / EthernetOne dest */
         DORADO_PUP_TYPE_ETHERNET,          /* etherType = typePup      */
         length,                            /* pupLength                */
         pup_type,                          /* EFTP Data / End          */
         00,                                /* pupID high               */
         seq,                               /* pupID low = EFTP seq #   */
         lhost,                             /* pupDNetHost = Alto, net 0 */
-        00,                                /* pupDSocket high          */
-        DORADO_EFTP_RECEIVER_SOCKET,       /* pupDSocket low = 20      */
+        eth->eftp_dest_socket_hi,          /* pupDSocket from Mayday   */
+        eth->eftp_dest_socket_lo,
         rhost,                             /* pupSNetHost = server     */
         00,                                /* pupSSocket high          */
         04                                 /* pupSSocket low = misc    */
@@ -547,6 +552,14 @@ static int eth_queue_eftp_boot(dorado_ethernet *eth, uint16_t bfn)
     uint16_t *payload = malloc(payload_cap * sizeof payload[0]);
     if (!payload) { fclose(fp); return 0; }
     size_t payload_n = 0;
+    if (eth->eftp_wait_for_rx_arm) {
+        /* BootChannelEther.StartRecving always discards the first EFTP
+         * packet as the Alto boot-loader page, then returns EFTPGetClump
+         * to BootSwapGerm.DoInLoad. Route B therefore needs a disposable
+         * 512-byte leader so seq 1 is the real boot-file header. */
+        for (size_t i = 0; i < DORADO_EFTP_DATA_WORDS; i++)
+            payload[payload_n++] = 0;
+    }
     for (;;) {
         uint16_t word = 0;
         int rc = read_be_word(fp, &word);
@@ -599,20 +612,42 @@ static int eth_queue_eftp_boot(dorado_ethernet *eth, uint16_t bfn)
 static int eth_eftp_deliver_current(dorado_ethernet *eth)
 {
     eth_clear_rx(eth);
+    if (eth->eftp_wait_for_rx_arm && !eth->eftp_rx_armed) {
+        eth->eftp_delivery_deferred = 1;
+        eth->eftp_resend_timer = 0;
+        if (getenv("DORADO_EFTP_TRACE")) {
+            fprintf(stderr,
+                    "EFTP_DEFER state=%u seq=%u pos=%zu/%zu armed=%u\n",
+                    eth->eftp_state, eth->eftp_seq,
+                    eth->eftp_pos, eth->eftp_len, eth->eftp_rx_armed);
+        }
+        return 1;
+    }
     size_t cap = 0;
     int ok;
+    size_t n = 0;
+    uint16_t pup_type = DORADO_PUP_TYPE_EFTP_END;
     if (eth->eftp_state == 1) {
-        size_t n = eth->eftp_len - eth->eftp_pos;
+        n = eth->eftp_len - eth->eftp_pos;
         if (n > DORADO_EFTP_DATA_WORDS) n = DORADO_EFTP_DATA_WORDS;
+        pup_type = DORADO_PUP_TYPE_EFTP_DATA;
         ok = append_eftp_packet(eth, &cap, eth->eftp_seq,
-                                DORADO_PUP_TYPE_EFTP_DATA,
+                                pup_type,
                                 &eth->eftp_words[eth->eftp_pos], n);
     } else {
         /* End (state 2) and the dally End (state 3): no data. */
         ok = append_eftp_packet(eth, &cap, eth->eftp_seq,
-                                DORADO_PUP_TYPE_EFTP_END, NULL, 0);
+                                pup_type, NULL, 0);
     }
     if (!ok) { eth_clear_rx(eth); return 0; }
+    if (getenv("DORADO_EFTP_TRACE")) {
+        fprintf(stderr,
+                "EFTP_DELIVER type=0o%o state=%u seq=%u data_words=%zu "
+                "packet_words=%zu pos=%zu/%zu armed=%u\n",
+                pup_type, eth->eftp_state, eth->eftp_seq, n,
+                eth->rx_count, eth->eftp_pos, eth->eftp_len,
+                eth->eftp_rx_armed);
+    }
     eth->rx_pos = 0;
     /* Server turnaround: hold EIT wakeups (in wakeup-poll ticks,
      * ~1/BB-cycle) so a stale receiver-enable window cannot steal
@@ -620,7 +655,8 @@ static int eth_eftp_deliver_current(dorado_ethernet *eth)
      * post-Mayday window (EOT wrap-up + DoEtherOutput return + boot3
      * arming) spans tens of thousands of cycles; a real boot server's
      * turnaround is milliseconds. 60000 ticks ~ 2 ms. */
-    eth->rx_hold = 60000;
+    eth->rx_hold = eth->eftp_turnaround_ticks;
+    eth->eftp_delivery_deferred = 0;
     /* EFTPSPEC: the sender retransmits an unacknowledged packet about
      * once a second until the Ack arrives. The receiver depends on
      * this — EtherBoot.asm's poll loop re-arms ePLoc on its own
@@ -635,6 +671,16 @@ static int eth_eftp_deliver_current(dorado_ethernet *eth)
     return 1;
 }
 
+void dorado_ethernet_set_eftp_rx_armed(dorado_ethernet *eth, int armed)
+{
+    int was_armed = eth->eftp_rx_armed != 0;
+    eth->eftp_rx_armed = armed ? 1 : 0;
+    if (eth->eftp_wait_for_rx_arm && eth->eftp_rx_armed && !was_armed &&
+        eth->eftp_delivery_deferred && eth->eftp_state != 0 && eth->eftp_words) {
+        (void)eth_eftp_deliver_current(eth);
+    }
+}
+
 /* Lock-step advance on the receiver's EFTP Ack (EFTPSPEC): the Ack
  * for the packet on the wire releases the next Data packet, then the
  * End, then one more End to close the receiver's dally. A duplicate
@@ -642,6 +688,12 @@ static int eth_eftp_deliver_current(dorado_ethernet *eth)
 static void eth_eftp_ack(dorado_ethernet *eth, uint16_t acked_seq)
 {
     if (eth->eftp_state == 0 || !eth->eftp_words) return;
+    if (getenv("DORADO_EFTP_TRACE")) {
+        fprintf(stderr,
+                "EFTP_ACK_IN ack=%u state=%u seq=%u pos=%zu/%zu\n",
+                acked_seq, eth->eftp_state, eth->eftp_seq,
+                eth->eftp_pos, eth->eftp_len);
+    }
     if (acked_seq != eth->eftp_seq) {
         (void)eth_eftp_deliver_current(eth);   /* dup/old Ack: resend */
         return;
@@ -666,6 +718,13 @@ static void eth_eftp_ack(dorado_ethernet *eth, uint16_t acked_seq)
         eth->eftp_state = 0;
         return;
     }
+    if (getenv("DORADO_EFTP_TRACE")) {
+        fprintf(stderr,
+                "EFTP_ACK_ADV state=%u seq=%u pos=%zu/%zu\n",
+                eth->eftp_state, eth->eftp_seq,
+                eth->eftp_pos, eth->eftp_len);
+    }
+    if (eth->eftp_wait_for_rx_arm) eth->eftp_rx_armed = 0;
     (void)eth_eftp_deliver_current(eth);
     if (eth->eftp_state == 3) eth->eftp_state = 0;
 }
@@ -726,7 +785,7 @@ static void eth_tx_packet_done(dorado_ethernet *eth)
     eth->last_tx_pup_type = eth->tx_words[3];
     if (getenv("DORADO_ETH_TX_TRACE")) {
         fprintf(stderr, "TX n=%zu:", eth->tx_count);
-        for (size_t i = 0; i < eth->tx_count && i < 14; i++)
+        for (size_t i = 0; i < eth->tx_count && i < 32; i++)
             fprintf(stderr, " %06o", eth->tx_words[i]);
         fprintf(stderr, "\n");
     }
@@ -758,6 +817,10 @@ static void eth_tx_packet_done(dorado_ethernet *eth)
         eth->tx_words[3] == DORADO_PUP_TYPE_MAYDAY) {
         eth->eftp_requests_seen++;
         eth->eftp_last_bfn = eth->tx_words[5];
+        eth->eftp_dest_socket_hi = eth->tx_words[10];
+        eth->eftp_dest_socket_lo = eth->tx_words[11];
+        if (eth->eftp_dest_socket_hi == 0 && eth->eftp_dest_socket_lo == 0)
+            eth->eftp_dest_socket_lo = DORADO_EFTP_RECEIVER_SOCKET;
         if (eth_queue_eftp_boot(eth, eth->eftp_last_bfn)) {
             (void)eth_eftp_deliver_current(eth);
         }
@@ -845,6 +908,55 @@ static void eth_tx_packet_done(dorado_ethernet *eth)
                     "host=0o%o (teaches NetExec net 0o%o)\n",
                     is_gw ? "200b GatewayInfo" : "206b AltoTime",
                     is_gw ? "201b" : "207b", net, req_src_host, net);
+        return;
+    }
+
+    /* AddressLookup (223B), socket 4 Misc Services. NetExec's GetName
+     * sends the local net/host in the body and InstallName expects an
+     * AddressIs (224B) whose entire data section is the host name bytes
+     * (no leading string length). Cedar/Pilot reaches the same service
+     * during post-boot Pup naming. */
+    if (eth->tx_words[1] == DORADO_PUP_TYPE_ETHERNET &&
+        eth->tx_words[3] == DORADO_PUP_TYPE_ADDRESS_LOOKUP) {
+        static const uint8_t name[] = { 'D', 'o', 'r', 'a', 'd', 'o' };
+        uint16_t req_src_host = (uint16_t)(eth->tx_words[0] & 0377);
+        uint16_t net = DORADO_PUP_LOCAL_NET;
+        eth_clear_rx(eth);
+        size_t cap = 0;
+
+        uint16_t hdr[12];
+        hdr[0]  = (uint16_t)((req_src_host << 8) | eth->remote_host);
+        hdr[1]  = DORADO_PUP_TYPE_ETHERNET;
+        hdr[2]  = (uint16_t)(026 + sizeof name);
+        hdr[3]  = DORADO_PUP_TYPE_ADDRESS_REPLY;
+        hdr[4]  = eth->tx_words[4];
+        hdr[5]  = eth->tx_words[5];
+        hdr[6]  = (uint16_t)((net << 8) | req_src_host);
+        hdr[7]  = eth->tx_words[10];
+        hdr[8]  = eth->tx_words[11];
+        hdr[9]  = (uint16_t)((net << 8) | eth->remote_host);
+        hdr[10] = eth->tx_words[7];
+        hdr[11] = eth->tx_words[8];
+        int ok = 1;
+        for (int i = 0; i < 12 && ok; i++)
+            ok = append_rx_word(eth, &cap, hdr[i], 0);
+        for (size_t i = 0; i < sizeof name && ok; i += 2) {
+            uint16_t w = (uint16_t)(name[i] << 8);
+            if (i + 1 < sizeof name) w |= name[i + 1];
+            ok = append_rx_word(eth, &cap, w, 0);
+        }
+        if (ok) {
+            size_t body_words = (sizeof name + 1u) / 2u;
+            uint16_t cks = pup_checksum(eth->rx_words, 2,
+                                        (size_t)(12 + body_words) - 2);
+            ok = append_rx_word(eth, &cap, cks, 0);
+        }
+        if (ok) ok = append_rx_word(eth, &cap, 0, 0);
+        if (ok) ok = append_rx_word(eth, &cap, 0, 1);
+        if (ok) { eth->rx_pos = 0; eth->time_bcasts++; }
+        if (getenv("DORADO_ETH_TX_TRACE"))
+            fprintf(stderr, "ADDRESSLOOKUP reply: host=0o%o name=Dorado\n",
+                    req_src_host);
         return;
     }
 
@@ -982,6 +1094,23 @@ static void eth_tx_packet_done(dorado_ethernet *eth)
     eth->requests_seen++;
     eth->last_boot_offset = eth->tx_words[5];
     (void)eth_queue_boot_replies(eth, eth->last_boot_offset);
+}
+
+void dorado_ethernet_direct_transmit(dorado_ethernet *eth,
+                                     const uint16_t *words, size_t nwords)
+{
+    if (!eth || !words) return;
+    if (nwords > sizeof eth->tx_words / sizeof eth->tx_words[0])
+        nwords = sizeof eth->tx_words / sizeof eth->tx_words[0];
+    for (size_t i = 0; i < nwords; i++)
+        eth->tx_words[i] = words[i];
+    eth->tx_count = nwords;
+    eth->tx_starts++;
+    eth_tx_packet_done(eth);
+    eth->tx_eops++;
+    eth->tx_count = 0;
+    eth->tx_on = 0;
+    eth->tx_eop = 0;
 }
 
 int dorado_ethernet_breath_of_life(dorado_ethernet *eth)
@@ -1201,6 +1330,14 @@ static void eth_write(void *ctx, int task, int subtask,
                 /* During a hold nothing has arrived yet, so there is
                  * nothing to discard: WaitForBOP just waits. */
             }
+            if (!on) {
+                /* HM §11: clearing RxOn resets the receiver; no more
+                 * wakeups are generated and queued/current words are
+                 * discarded until the receiver is re-armed at a packet
+                 * boundary. This packet-level model has no wire FIFO, so
+                 * discard the queued packet stream immediately. */
+                eth_clear_rx(eth);
+            }
             eth->rx_on = on;
         }
         if (!(data & DORADO_ETHC_TESTCMDENBLN)) {
@@ -1227,8 +1364,6 @@ static int eth_attention(void *ctx, int task, uint8_t tioa)
      * issue (cpu.c io_atten_at_issue). */
     dorado_ethernet *eth = ctx;
     if (getenv("DORADO_ATTEN_TRACE")) {
-        static long n = 0;
-        n++;
         if (eth->rx_pos < eth->rx_count) {
             fprintf(stderr, "ETH_ATTEN task=%o tioa=%03o pos=%zu/%zu "
                     "mark=%d\n", task & 017, tioa & 0377,
@@ -1268,6 +1403,7 @@ void dorado_ethernet_attach_to_io(dorado_ethernet *eth, dorado_io *io)
 
 uint16_t dorado_ethernet_wakeup_mask(dorado_ethernet *eth)
 {
+    static uint64_t wake_trace_count;
     if (eth->rx_hold) eth->rx_hold--;
     /* EFTP sender retransmission (EFTPSPEC): once the receiver has
      * consumed (or lost) the packet on the wire without Acking it,
@@ -1301,6 +1437,29 @@ uint16_t dorado_ethernet_wakeup_mask(dorado_ethernet *eth)
          * (EICLOC+2 words) still passes. Hold until the world re-posts a
          * buffer that fits. See eth_read() and world_rx_words (HM Sec 7). */
         mask |= (uint16_t)(1u << DORADO_ETHERNET_TASK_EIT);
+    }
+    if (getenv("DORADO_ETH_WAKE_TRACE") &&
+        (eth->rx_count || eth->tx_on || eth->no_wakeups) &&
+        (wake_trace_count++ % 1024u) == 0) {
+        extern int dorado_trace_gate;
+        extern unsigned long long dorado_trace_cycle;
+        if (!dorado_trace_gate) {
+            fprintf(stderr,
+                    "ETH_WAKE mask=%04x rx_on=%u hold=%u no_wake=%u "
+                    "rx=%zu/%zu world=%u tx_on=%u eop=%u cntdwn=%u\n",
+                    mask, eth->rx_on, eth->rx_hold, eth->no_wakeups,
+                    eth->rx_pos, eth->rx_count, eth->world_rx_words,
+                    eth->tx_on, eth->tx_eop, eth->tx_cntdwn);
+        } else {
+            fprintf(stderr,
+                    "ETH_WAKE cyc=%llu mask=%04x rx_on=%u hold=%u "
+                    "no_wake=%u rx=%zu/%zu world=%u tx_on=%u eop=%u "
+                    "cntdwn=%u\n",
+                    dorado_trace_cycle, mask, eth->rx_on, eth->rx_hold,
+                    eth->no_wakeups, eth->rx_pos, eth->rx_count,
+                    eth->world_rx_words, eth->tx_on, eth->tx_eop,
+                    eth->tx_cntdwn);
+        }
     }
     return mask;
 }

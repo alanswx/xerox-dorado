@@ -7,7 +7,8 @@
  * memory each frame. Host keyboard input is translated to the Alto key
  * matrix and delivered to the running world once it is interactive.
  *
- *   dorado-sdl [--eb PATH] [--eftp PATH] [--quote] [--no-alto-boot]
+ *   dorado-sdl [--eb PATH] [--eftp PATH] [--germ PATH]
+ *              [--pilot-disk PATH] [--quote] [--no-alto-boot]
  *              [--scale N] [--speed CYCLES]
  *
  * Controls: type normally once NetExec is up. F1 pauses/resumes the
@@ -140,6 +141,13 @@ int main(int argc, char **argv)
         const char *a = argv[i];
         if (!strcmp(a, "--eb") && i + 1 < argc)        cfg.eth_boot_110 = argv[++i];
         else if (!strcmp(a, "--eftp") && i + 1 < argc) cfg.eftp_boot = argv[++i];
+        else if (!strcmp(a, "--germ") && i + 1 < argc) cfg.germ_path = argv[++i];
+        else if (!strcmp(a, "--pilot-disk") && i + 1 < argc)
+            cfg.pilot_disk_pdi = argv[++i];
+        else if (!strcmp(a, "--germ-netboot-bfn") && i + 1 < argc) {
+            cfg.germ_netboot = 1;
+            cfg.germ_netboot_bfn = (uint16_t)strtoul(argv[++i], NULL, 8);
+        }
         else if (!strcmp(a, "--boot-file-number") && i + 1 < argc)
             cfg.boot_file_number = (uint16_t)strtoul(argv[++i], NULL, 8);
         else if (!strcmp(a, "--boot-dir") && i + 1 < argc) {
@@ -175,6 +183,8 @@ int main(int argc, char **argv)
             }
         } else if (!strcmp(a, "--help") || !strcmp(a, "-h")) {
             printf("usage: %s [--eb PATH] [--eftp PATH] "
+                   "[--germ PATH] [--pilot-disk PATH] "
+                   "[--germ-netboot-bfn OCTAL] "
                    "[--boot-file-number OCTAL] [--boot-dir NAME=BFN=PATH] "
                    "[--boot-dir-all] [--no-boot-dir-all] "
                    "[--quote] [--boot-keys K[,K...]] "

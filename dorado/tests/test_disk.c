@@ -1,5 +1,6 @@
 #include "disk.h"
 #include "io.h"
+#include "pdi.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -273,6 +274,135 @@ static int test_drive_attach(void)
 
     dorado_disk_pack_free(&pack);
     printf("PASS  test_drive_attach (drive 0 online, drives 1..3 offline)\n");
+    return 0;
+}
+
+/* test_dmux_muffler_read — DiskHeadDorado reads the disk muffler
+ * through DMux addresses 02000..02037 during controller discovery. */
+static int test_dmux_muffler_read(void)
+{
+    dorado_disk_controller ctl;
+    dorado_disk_controller_init(&ctl);
+
+    int handled = -1;
+    uint16_t v = dorado_disk_controller_dmux_read(&ctl, 01777, &handled);
+    EXPECT(handled == 0, "DMux 01777 should not be handled");
+    EXPECT(v == 0, "unhandled DMux read should return 0, got 0x%X", v);
+
+    handled = 0;
+    v = dorado_disk_controller_dmux_read(&ctl, 02023, &handled);
+    EXPECT(handled == 1, "DMux 02023 should be handled");
+    EXPECT(v == 0x0000, "selected drive NotSelected' = 0x%X", v);
+
+    handled = 0;
+    v = dorado_disk_controller_dmux_read(&ctl, 02024, &handled);
+    EXPECT(handled == 1, "DMux 02024 should be handled");
+    EXPECT(v == 0x8000, "offline drive NotOnline' = 0x%X", v);
+
+    dorado_disk_pack pack;
+    EXPECT(dorado_disk_pack_create(&pack, &DORADO_DISK_T80) == 0,
+           "create T-80");
+    dorado_disk_controller_attach_drive(&ctl, 0, &pack);
+
+    handled = 0;
+    v = dorado_disk_controller_dmux_read(&ctl, 02024, &handled);
+    EXPECT(handled == 1, "DMux 02024 online should be handled");
+    EXPECT(v == 0x0000, "online drive NotOnline' = 0x%X", v);
+
+    ctl.enable_run = 1;
+    handled = 0;
+    v = dorado_disk_controller_dmux_read(&ctl, 02010, &handled);
+    EXPECT(handled == 1, "DMux 02010 should be handled");
+    EXPECT(v == 0x8000, "EnableRun DMux bit = 0x%X", v);
+
+    handled = 0;
+    v = dorado_disk_controller_dmux_read(&ctl, 02021, &handled);
+    EXPECT(handled == 1, "DMux 02021 should be handled");
+    EXPECT(v == 0x0000, "HeadOvfl starts clear = 0x%X", v);
+
+    handled = 0;
+    v = dorado_disk_controller_dmux_read(&ctl, 02037, &handled);
+    EXPECT(handled == 1, "DMux 02037 should be handled");
+    EXPECT(v == 0x0000, "ReadError DMux bit 02037 = 0x%X", v);
+
+    dorado_disk_pack_free(&pack);
+    printf("PASS  test_dmux_muffler_read (DMux 02000..02037 disk bits)\n");
+    return 0;
+}
+
+/* test_pdi_fifo_read — Pilot/Cedar PDI pages are exposed as
+ * header+label+256 data words, using DiskHeadDorado's system80 page
+ * address mapping (logical cylinder * 28 + sector). */
+static int test_pdi_fifo_read(void)
+{
+    static dorado_io io;
+    dorado_io_init(&io);
+    static dorado_disk_controller ctl;
+    dorado_disk_controller_init(&ctl);
+    dorado_disk_controller_attach_to_io(&ctl, &io);
+
+    dorado_pdi pdi;
+    memset(&pdi, 0, sizeof pdi);
+    pdi.version = 1;
+    pdi.fs_family = DORADO_PDI_FS_PILOT;
+    pdi.page_count = 140;
+    pdi.label_words = DORADO_PILOT_LABEL_WORDS;
+    pdi.data_words = DORADO_PILOT_DATA_WORDS;
+    pdi.labels = calloc((size_t)pdi.page_count * pdi.label_words,
+                        sizeof(uint16_t));
+    pdi.data = calloc((size_t)pdi.page_count * pdi.data_words,
+                      sizeof(uint16_t));
+    EXPECT(pdi.labels && pdi.data, "alloc synthetic PDI");
+
+    const uint32_t page = 119;
+    pdi.labels[(size_t)page * pdi.label_words + 0] = 0xCAFE;
+    pdi.labels[(size_t)page * pdi.label_words + 9] = 0xBABE;
+    pdi.data[(size_t)page * pdi.data_words + 0] = 0x1234;
+    pdi.data[(size_t)page * pdi.data_words + 255] = 0x5678;
+
+    dorado_disk_controller_attach_pdi(&ctl, 0, &pdi);
+    EXPECT(ctl.drive[0].online == 1, "PDI drive online");
+    EXPECT(ctl.drive[0].read_only == 1, "PDI drive read-only");
+    int handled = 0;
+    uint16_t hv = dorado_disk_controller_dmux_read(&ctl, 02021, &handled);
+    EXPECT(handled == 1 && hv == 0x8000,
+           "PDI drive should classify as T-80 HeadOvfl, handled=%d v=0x%X",
+           handled, hv);
+
+    ctl.drive[0].cur_cyl = 4;
+    ctl.drive[0].cur_sector = 7;
+    dorado_io_write(&io, DORADO_DISK_TASK,
+                    DORADO_DISK_TIOA_DISKCONTROL,
+                    (uint16_t)(3u << DORADO_DISK_CTRL_OP1_SHIFT));
+    dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG,
+                    (uint16_t)(TAG_CONTROL | (1u << 6)));
+
+    int bad = -1;
+    uint16_t v = dorado_io_read(&io, DORADO_DISK_TASK,
+                                DORADO_DISK_TIOA_DISKDATA, &bad);
+    EXPECT(v == page, "PDI synthetic header word0=0x%X", v);
+    (void)dorado_io_read(&io, DORADO_DISK_TASK,
+                         DORADO_DISK_TIOA_DISKDATA, &bad);
+    v = dorado_io_read(&io, DORADO_DISK_TASK,
+                       DORADO_DISK_TIOA_DISKDATA, &bad);
+    EXPECT(v == 0xCAFE, "PDI label[0]=0x%X", v);
+    for (int i = 1; i < DORADO_PILOT_LABEL_WORDS; i++) {
+        v = dorado_io_read(&io, DORADO_DISK_TASK,
+                           DORADO_DISK_TIOA_DISKDATA, &bad);
+    }
+    EXPECT(v == 0xBABE, "PDI label[9]=0x%X", v);
+    v = dorado_io_read(&io, DORADO_DISK_TASK,
+                       DORADO_DISK_TIOA_DISKDATA, &bad);
+    EXPECT(v == 0x1234, "PDI data[0]=0x%X", v);
+    for (int i = 1; i < DORADO_PILOT_DATA_WORDS; i++) {
+        v = dorado_io_read(&io, DORADO_DISK_TASK,
+                           DORADO_DISK_TIOA_DISKDATA, &bad);
+    }
+    EXPECT(v == 0x5678, "PDI data[255]=0x%X", v);
+
+    free(pdi.labels);
+    free(pdi.data);
+    printf("PASS  test_pdi_fifo_read (PDI page -> header/label/data FIFO)\n");
     return 0;
 }
 
@@ -580,6 +710,8 @@ int main(void)
     rc |= test_controller_io_routing();
     rc |= test_diskcontrol_active_abort();
     rc |= test_drive_attach();
+    rc |= test_dmux_muffler_read();
+    rc |= test_pdi_fifo_read();
     rc |= test_tag_decoder();
     rc |= test_advance_sector();
     rc |= test_block_till_index();

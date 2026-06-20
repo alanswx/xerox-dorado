@@ -14,6 +14,8 @@ int dorado_mem_trace_op = 0;
 int dorado_mem_trace_membase = 0;
 int dorado_mem_trace_br = 0;
 int dorado_mem_trace_mar = 0;
+extern int dorado_trace_gate;
+extern int dorado_trace_flag(const char *name); /* cached getenv (see cpu.c) */
 
 static uint32_t va_cache_row(uint32_t va);
 static int cache_pick_victim(dorado_memory *mem, uint32_t va);
@@ -55,6 +57,11 @@ static int fault_trace_mode(void)
         }
     }
     return cached;
+}
+
+static int trace_gate_open(void)
+{
+    return dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE");
 }
 
 static const char *ref_kind_trace_name(dorado_ref_kind kind)
@@ -269,8 +276,9 @@ uint16_t dorado_pipe5_at(const dorado_memory *mem, int srn)
  *   bit 10: notEcFault     (b5)
  *   bits 9..8: quadWord    (b6:7)
  *   bits 7..0: syndrome    (b8:15)
- * The `0o150361 XOR Pipe4'` invariant gives the no-error baseline
- * `0o150361` = `0xD0F1`. */
+ * The previous-map flags use the `0o170361 XOR Pipe4'` transform below.
+ * The active-low error bits are then forced to the raw polarity consumed
+ * by the fault task. */
 uint16_t dorado_pipe4_at(const dorado_memory *mem, int srn)
 {
     int slot = srn & (DM_PIPE_DEPTH - 1);
@@ -296,18 +304,22 @@ uint16_t dorado_pipe4_at(const dorado_memory *mem, int srn)
      *   Errors'.dirty'    = NOT(dirty)     (b3  / bit12, baseline 1)
      * so a Vacant entry (wProtect=1 AND dirty=1) reads wProtect'=dirty'=0 and
      * RealPageInRange returns MapVacant, while a resident entry returns
-     * MapNotVacant. The error bits keep their present-true polarity (set when
-     * the fault is present) so the fault task's MapTrouble/MemError/EcFault
-     * reads through `Errors'` are unchanged. */
+     * MapNotVacant. */
     if (mf & 4u)                   ht |= (uint16_t)(1u << 15);  /* b0 ref      */
-    if (e & PIPE4_ERR_MAP_TROUBLE) ht |= (uint16_t)(1u << 14);  /* b1 MapTrouble */
     if (mf & 1u)                   ht |= (uint16_t)(1u << 13);  /* b2 wProtect */
     if (mf & 2u)                   ht |= (uint16_t)(1u << 12);  /* b3 dirty    */
     if (e & PIPE4_ERR_MEM_ERROR)   ht |= (uint16_t)(1u << 11);  /* b4 MemError */
     if (e & PIPE4_ERR_EC_FAULT)    ht |= (uint16_t)(1u << 10);  /* b5 EcFault  */
     ht |= (uint16_t)((mem->pipe[slot].pipe4_quadword & 3u) << 8);
     ht |= (uint16_t)mem->pipe[slot].pipe4_syndrome;
-    return (uint16_t)(0170361u ^ ht);
+    uint16_t raw = (uint16_t)(0170361u ^ ht);
+    /* DMesaFaults.mc does `FltErrors_ NOT (Errors')`, then tests
+     * `pipe4.notMapTrouble`. Therefore raw Pipe4'/Errors' bit b1 must be
+     * 1 for MapTrouble and 0 for "not map trouble". The previous-map-flag
+     * XOR above can otherwise leave this bit dependent on the baseline. */
+    if (e & PIPE4_ERR_MAP_TROUBLE) raw |= (uint16_t)(1u << 14);
+    else raw &= (uint16_t)~(1u << 14);
+    return raw;
 }
 
 void dorado_pipe4_set_error(dorado_memory *mem, int srn,
@@ -591,6 +603,22 @@ uint16_t dorado_memory_dmux_read(dorado_memory *mem)
     uint16_t addr = mem->dmux_addr;
     mem->dmux_pending = 0;
 
+    if (mem->dmux_cb) {
+        int handled = 0;
+        uint16_t v = mem->dmux_cb(addr, &handled, mem->dmux_ctx);
+        if (handled) {
+            if (dorado_trace_flag("DORADO_DMUX_TRACE"))
+                fprintf(stderr, "DMUX_READ addr=0o%o -> 0o%o (device)\n",
+                        addr, v);
+            return v;
+        }
+    }
+
+    if (dorado_trace_flag("DORADO_DMUX_TRACE")) {
+        uint16_t v = (addr == 01511) ? 0x8000u : 0x0000u;
+        fprintf(stderr, "DMUX_READ addr=0o%o -> 0o%o\n", addr, v);
+    }
+
     /* Muffler bit in the SIGN position (C bit 15). Our memory models the
      * 64K-map / VirtualBanks=400C configuration, so report MapIs64K
      * (DMux 0o1511) as ASSERTED (sign set) and MapIs256K (DMux 0o1512)
@@ -817,24 +845,43 @@ static dorado_fault_kind cache_writeback_line(dorado_memory *mem,
     return f;
 }
 
+static uint32_t cache_line_va_base(const dorado_memory *mem,
+                                   int row_idx, int way)
+{
+    const dorado_cache_line *line = &mem->cache[row_idx].ways[way];
+    return (line->tag << 10) | ((uint32_t)row_idx << 4);
+}
+
 /* Note (gap C4): a dirty-victim writeback whose Map says the page is
- * now WP or Vacant is reported via this return value. Record it as a
- * fault on the *triggering* reference's SRN. The Pipe4 syndrome is
- * also updated so microcode reading `B<-Pipe4'` sees MapTrouble for
- * that slot (gap C2). */
+ * now WP or Vacant is reported as a fault on the *triggering*
+ * reference's SRN. Unlike a direct reference fault, the writeback fault
+ * is discovered while servicing a miss/flush, so record FaultInfo here;
+ * the CPU notices the fault-count change after the memory reference and
+ * wakes the fault task. Pipe4 also gets MapTrouble so microcode reading
+ * `B<-Pipe4'` can classify the slot (gap C2). */
 static void record_writeback_fault(dorado_memory *mem,
-                                   dorado_fault_kind f, int srn)
+                                   dorado_fault_kind f, int srn,
+                                   uint32_t victim_va)
 {
     if (f == DM_FAULT_NONE) return;
+    if (dorado_trace_flag("DORADO_FAULT_TRACE")) {
+        uint32_t idx = dorado_map_index(victim_va);
+        const dorado_map_entry *e = &mem->map[idx];
+        fprintf(stderr,
+                "FAULT_TRACE cyc=%llu kind=dirty-victim f=%d srn=%u "
+                "victim_va=%07o victim_idx=%04X rp=%04X wp=%u dirty=%u ref=%u "
+                "count_before=%u first=%u emu=%u\n",
+                (unsigned long long)dorado_trace_cycle,
+                (int)f, srn & 0xF, victim_va & 0x0FFFFFFFu,
+                idx, e->rp, e->wp, e->dirty, e->ref, mem->fault_count,
+                mem->fault_first_srn & 0xF, mem->fault_emulator & 1);
+    }
     if (mem->fault_count == 0) {
         mem->fault_first_srn = (uint8_t)(srn & 0xF);
         mem->fault_emulator  = 1;
     }
     if (mem->fault_count < 0xF) mem->fault_count++;
-    mem->last_fault    = f;
-    /* mem->last_fault_va is left as the triggering ref's VA — that's
-     * what microcode reads via Pipe0/Pipe1. The dirty-victim VA is
-     * recoverable from cache state if needed. */
+    mem->last_fault = f;
     dorado_pipe4_set_error(mem, srn, PIPE4_ERR_MAP_TROUBLE, 0, 0);
 }
 
@@ -976,14 +1023,36 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
             if (f == DM_FAULT_NONE) {
                 int victim = cache_pick_victim(mem, va);
                 {
+                    uint32_t victim_va =
+                        cache_line_va_base(mem, va_cache_row(va), victim);
                     dorado_fault_kind wbf =
                         cache_writeback_line(mem, va_cache_row(va), victim);
-                    record_writeback_fault(mem, wbf, srn);
+                    record_writeback_fault(mem, wbf, srn, victim_va);
                 }
                 cache_fill(mem, va, victim);
                 mem->md = mem->cache[va_cache_row(va)].ways[victim]
                               .data[va_cache_offset(va)];
                 cache_select(mem, va, victim, srn);
+            }
+        }
+        {
+            static long lo = -1, hi = -1;
+            if (lo == -1) {
+                const char *w = getenv("DORADO_LOAD_TRACE_VA");
+                lo = 0; hi = 0;
+                if (w) sscanf(w, "%lo,%lo", &lo, &hi);
+            }
+            if (f == DM_FAULT_NONE && hi && trace_gate_open() &&
+                va >= (uint32_t)lo && va <= (uint32_t)hi) {
+                fprintf(stderr,
+                        "LOAD_VA cyc=%llu task=%o pc=0o%o va=%07o "
+                        "data=%06o kind=%s pcx=0o%o br31=0o%o op=0o%o\n",
+                        dorado_trace_cycle, task & 017,
+                        dorado_mem_trace_pc,
+                        va & 0x0FFFFFFFu, mem->md & 0177777,
+                        ref_kind_trace_name(kind),
+                        dorado_mem_trace_pcx, dorado_mem_trace_br31,
+                        dorado_mem_trace_op);
             }
         }
         break;
@@ -997,9 +1066,11 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
             if (va_translate(mem, va, /*is_write=*/0, &phys_pf) == DM_FAULT_NONE) {
                 int victim = cache_pick_victim(mem, va);
                 {
+                    uint32_t victim_va =
+                        cache_line_va_base(mem, va_cache_row(va), victim);
                     dorado_fault_kind wbf =
                         cache_writeback_line(mem, va_cache_row(va), victim);
-                    record_writeback_fault(mem, wbf, srn);
+                    record_writeback_fault(mem, wbf, srn, victim_va);
                 }
                 cache_fill(mem, va, victim);
                 cache_select(mem, va, victim, srn);
@@ -1022,7 +1093,8 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
                 lo = 0; hi = 0;
                 if (w) sscanf(w, "%lo,%lo", &lo, &hi);
             }
-            if (hi && va >= (uint32_t)lo && va <= (uint32_t)hi) {
+            if (hi && trace_gate_open() &&
+                va >= (uint32_t)lo && va <= (uint32_t)hi) {
                 fprintf(stderr,
                         "STORE_VA cyc=%llu task=%o pc=0o%o va=%07o "
                         "data=%06o pcx=0o%o br31=0o%o op=0o%o\n",
@@ -1073,7 +1145,7 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
          * destination base is already in page zero, traced to a corrupt
          * BCPL context stack pointer (see docs/CONTINUE-HERE.md). */
         if (mem->protect_active && (uint32_t)phys == mem->protect_phys) {
-            if (b != mem->protect_val && getenv("DORADO_M344_WATCH"))
+            if (b != mem->protect_val && dorado_trace_flag("DORADO_M344_WATCH"))
                 fprintf(stderr,
                     "M344_WRITE cyc=%llu task=%o pc=0o%o va=%07o "
                     "phys=%07o data=0o%o (held 0o%o)\n",
@@ -1088,9 +1160,11 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
                 /* Miss: write-allocate. Fill, then write into the line. */
                 way = cache_pick_victim(mem, va);
                 {
+                    uint32_t victim_va =
+                        cache_line_va_base(mem, va_cache_row(va), way);
                     dorado_fault_kind wbf =
                         cache_writeback_line(mem, va_cache_row(va), way);
-                    record_writeback_fault(mem, wbf, srn);
+                    record_writeback_fault(mem, wbf, srn, victim_va);
                 }
                 cache_fill(mem, va, way);
             }
@@ -1181,6 +1255,10 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
          * into the pipe). */
         uint32_t idx = dorado_map_index(va);
         dorado_map_entry *e = &mem->map[idx];
+        uint16_t old_rp = e->rp;
+        unsigned old_wp = e->wp;
+        unsigned old_dirty = e->dirty;
+        unsigned old_ref = e->ref;
         e->rp    = b;
         /* TIOA[0:1] in manual = bits 0 (MSB) and 1 = C-LSB bits 7,6
          * of an 8-bit TIOA. */
@@ -1188,15 +1266,23 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
         e->dirty = (tioa >> 6) & 1;
         e->ref   = 0;
         if (map_trace_enabled() &&
+            (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE")) &&
             (map_trace_index_filter(idx) ||
              idx < 2 || idx == 0x52 || idx == 0x56 ||
              idx == 0xFF || idx == 0x200 || idx == 0x201 ||
              idx == 0x2FE || idx == 0x2FF)) {
             fprintf(stderr,
-                    "MAP_TRACE task=%o va=%05X idx=%04X rp=%04X "
-                    "wp=%u dirty=%u tioa=%02X\n",
-                    task & 017, va & 0x0FFFFFFFu, idx, e->rp,
-                    e->wp, e->dirty, tioa & 0xFFu);
+                    "MAP_TRACE cyc=%llu task=%o pc=0o%o pcf=0o%o op=0o%o "
+                    "mb=%02o br=%07o mar=%04o va=%05X idx=%04X "
+                    "old=rp:%04X/wp:%u/d:%u/r:%u new=rp:%04X/wp:%u/d:%u "
+                    "tioa=%02X\n",
+                    (unsigned long long)dorado_trace_cycle,
+                    task & 017, dorado_mem_trace_pc, dorado_mem_trace_pcx,
+                    dorado_mem_trace_op, dorado_mem_trace_membase & 037,
+                    dorado_mem_trace_br & 017777777,
+                    dorado_mem_trace_mar & 0177777,
+                    va & 0x0FFFFFFFu, idx, old_rp, old_wp, old_dirty,
+                    old_ref, e->rp, e->wp, e->dirty, tioa & 0xFFu);
         }
         mem->pipe[srn & (DM_PIPE_DEPTH - 1)].mapbuf_busy = 1;
         mem->mapbuf_busy_slot = srn & (DM_PIPE_DEPTH - 1);
@@ -1210,13 +1296,36 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
          * reference: writes back, sets Map.Ref AND Map.Dirty. */
         int way;
         if (dorado_cache_lookup(mem, va, &way)) {
+            if (dorado_trace_flag("DORADO_FLUSH_TRACE") &&
+                map_trace_index_filter(dorado_map_index(va))) {
+                const dorado_cache_line *line =
+                    &mem->cache[va_cache_row(va)].ways[way];
+                fprintf(stderr,
+                        "FLUSH_TRACE cyc=%llu task=%o pc=0o%o va=%07o idx=%04X "
+                        "way=%d dirty=%u valid=%u tag=%05X\n",
+                        (unsigned long long)dorado_trace_cycle,
+                        task & 017, dorado_mem_trace_pc,
+                        va & 0x0FFFFFFFu, dorado_map_index(va),
+                        way, line->dirty, line->valid, line->tag);
+            }
+            uint32_t victim_va =
+                cache_line_va_base(mem, va_cache_row(va), way);
             dorado_fault_kind wbf =
                 cache_writeback_line(mem, va_cache_row(va), way);
-            record_writeback_fault(mem, wbf, srn);
+            record_writeback_fault(mem, wbf, srn, victim_va);
             mem->cache[va_cache_row(va)].ways[way].valid = 0;
             mem->cache[va_cache_row(va)].ways[way].vacant = 1;
             cache_select(mem, va, way, srn);
         } else {
+            if (dorado_trace_flag("DORADO_FLUSH_TRACE") &&
+                map_trace_index_filter(dorado_map_index(va))) {
+                fprintf(stderr,
+                        "FLUSH_TRACE cyc=%llu task=%o pc=0o%o va=%07o idx=%04X "
+                        "miss\n",
+                        (unsigned long long)dorado_trace_cycle,
+                        task & 017, dorado_mem_trace_pc,
+                        va & 0x0FFFFFFFu, dorado_map_index(va));
+            }
             way = cache_pick_victim(mem, va);
             cache_select(mem, va, way, srn);
         }
@@ -1257,7 +1366,8 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
         mem->last_fault_subtask  = (uint8_t)(subtask & 3);
         mem->last_fault_ref_kind = kind;
         int fault_trace = fault_trace_mode();
-        if (fault_trace && (fault_trace > 1 || task != 0)) {
+        if (fault_trace && trace_gate_open() &&
+            (fault_trace > 1 || task != 0)) {
             uint32_t idx = dorado_map_index(va);
             const dorado_map_entry *e = &mem->map[idx];
             fprintf(stderr,
@@ -1311,13 +1421,24 @@ const dorado_map_entry *dorado_map_get(const dorado_memory *mem,
     return &mem->map[va_page & (DM_MAP_ENTRIES - 1)];
 }
 
+static int br_trace_membase_matches(int membase)
+{
+    static int cached = -2;
+    if (cached == -2) {
+        const char *w = getenv("DORADO_BR_TRACE_MB");
+        cached = w ? (int)strtol(w, NULL, 8) : -1;
+    }
+    return cached < 0 || ((membase & 0x1F) == (cached & 0x1F));
+}
+
 /* BrLo←A loads BR[MemBase][16:31] ← A[0:15] (HM page 37, Table 11c
  * FA=1 FB=2 FC=3). The "lo" half of the 28-bit BR. */
 void dorado_br_lo_load(dorado_memory *mem, int membase, uint16_t a)
 {
-    if (getenv("DORADO_BR_TRACE")) {
-        fprintf(stderr, "BRLO mb=%02o a=%06o disbr=%d ref_task=%o\n",
-                membase & 0x1F, a, dorado_mcr_disbr(mem),
+    if (dorado_trace_flag("DORADO_BR_TRACE") && trace_gate_open() &&
+        br_trace_membase_matches(membase)) {
+        fprintf(stderr, "BRLO cyc=%llu mb=%02o a=%06o disbr=%d ref_task=%o\n",
+                dorado_trace_cycle, membase & 0x1F, a, dorado_mcr_disbr(mem),
                 mem->last_ref_task & 017);
     }
     if (dorado_mcr_disbr(mem)) return;
@@ -1333,9 +1454,10 @@ void dorado_br_lo_load(dorado_memory *mem, int membase, uint16_t a)
  * corresponds to BR_C bits 27..16 (the upper 12 bits). */
 void dorado_br_hi_load(dorado_memory *mem, int membase, uint16_t a)
 {
-    if (getenv("DORADO_BR_TRACE")) {
-        fprintf(stderr, "BRHI mb=%02o a=%06o disbr=%d ref_task=%o\n",
-                membase & 0x1F, a, dorado_mcr_disbr(mem),
+    if (dorado_trace_flag("DORADO_BR_TRACE") && trace_gate_open() &&
+        br_trace_membase_matches(membase)) {
+        fprintf(stderr, "BRHI cyc=%llu mb=%02o a=%06o disbr=%d ref_task=%o\n",
+                dorado_trace_cycle, membase & 0x1F, a, dorado_mcr_disbr(mem),
                 mem->last_ref_task & 017);
     }
     if (dorado_mcr_disbr(mem)) return;

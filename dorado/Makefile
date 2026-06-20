@@ -10,9 +10,9 @@ BINDIR  := build
 SDL_CFLAGS := $(shell sdl2-config --cflags 2>/dev/null)
 SDL_LIBS   := $(shell sdl2-config --libs 2>/dev/null)
 
-MB_OBJS   := $(OBJDIR)/mb.o $(OBJDIR)/disasm.o $(OBJDIR)/microcode.o $(OBJDIR)/cpu.o $(OBJDIR)/baseboard.o $(OBJDIR)/memory.o $(OBJDIR)/io.o $(OBJDIR)/display.o $(OBJDIR)/disk.o $(OBJDIR)/ethernet.o $(OBJDIR)/fastio.o $(OBJDIR)/mbdis.o
-LIB_OBJS  := $(OBJDIR)/mb.o $(OBJDIR)/disasm.o $(OBJDIR)/microcode.o $(OBJDIR)/cpu.o $(OBJDIR)/baseboard.o $(OBJDIR)/memory.o $(OBJDIR)/io.o $(OBJDIR)/display.o $(OBJDIR)/disk.o $(OBJDIR)/ethernet.o $(OBJDIR)/fastio.o $(OBJDIR)/altoref.o
-EXTRA_OBJS := $(OBJDIR)/mctrace.o $(OBJDIR)/bbtrace.o $(OBJDIR)/bbdis.o $(OBJDIR)/pdi.o $(OBJDIR)/pdidump.o $(OBJDIR)/test_pdi.o $(OBJDIR)/machine.o $(OBJDIR)/dorado.o $(OBJDIR)/test_mb.o $(OBJDIR)/test_disasm.o $(OBJDIR)/test_microcode.o $(OBJDIR)/test_cpu.o $(OBJDIR)/test_baseboard.o $(OBJDIR)/test_memory.o $(OBJDIR)/test_display.o $(OBJDIR)/test_disk.o $(OBJDIR)/test_ethernet.o $(OBJDIR)/test_fastio.o $(OBJDIR)/audit_alufm.o $(OBJDIR)/altodiff_dorado.o
+MB_OBJS   := $(OBJDIR)/mb.o $(OBJDIR)/disasm.o $(OBJDIR)/microcode.o $(OBJDIR)/cpu.o $(OBJDIR)/baseboard.o $(OBJDIR)/memory.o $(OBJDIR)/io.o $(OBJDIR)/display.o $(OBJDIR)/disk.o $(OBJDIR)/ethernet.o $(OBJDIR)/fastio.o $(OBJDIR)/pdi.o $(OBJDIR)/mbdis.o
+LIB_OBJS  := $(OBJDIR)/mb.o $(OBJDIR)/disasm.o $(OBJDIR)/microcode.o $(OBJDIR)/cpu.o $(OBJDIR)/baseboard.o $(OBJDIR)/memory.o $(OBJDIR)/io.o $(OBJDIR)/display.o $(OBJDIR)/disk.o $(OBJDIR)/ethernet.o $(OBJDIR)/fastio.o $(OBJDIR)/altoref.o $(OBJDIR)/pdi.o
+EXTRA_OBJS := $(OBJDIR)/mctrace.o $(OBJDIR)/bbtrace.o $(OBJDIR)/bbdis.o $(OBJDIR)/pdi.o $(OBJDIR)/pdidump.o $(OBJDIR)/test_pdi.o $(OBJDIR)/machine.o $(OBJDIR)/dorado.o $(OBJDIR)/dorado_web.o $(OBJDIR)/test_mb.o $(OBJDIR)/test_disasm.o $(OBJDIR)/test_microcode.o $(OBJDIR)/test_cpu.o $(OBJDIR)/test_baseboard.o $(OBJDIR)/test_memory.o $(OBJDIR)/test_display.o $(OBJDIR)/test_disk.o $(OBJDIR)/test_ethernet.o $(OBJDIR)/test_fastio.o $(OBJDIR)/audit_alufm.o $(OBJDIR)/altodiff_dorado.o
 DEPS := $(sort $(MB_OBJS) $(LIB_OBJS) $(EXTRA_OBJS))
 DEPS := $(DEPS:.o=.d)
 
@@ -33,6 +33,38 @@ worlds: $(BINDIR)/mb2eb
 # The SDL frontend links SDL2; build with `make sdl`.
 .PHONY: sdl
 sdl: $(BINDIR)/dorado-sdl
+
+# WebAssembly frontend (Emscripten). `make web` builds web/index.html +
+# .js/.wasm/.data, with the SDL2 port and the boot files preloaded into the
+# virtual FS at the same paths the machine fopen()s. Requires emsdk on PATH
+# (`source ~/emsdk/emsdk_env.sh`). Serve web/ over http (file:// won't load
+# the .wasm). The boot files are preloaded read-only into MEMFS.
+EMCC      ?= emcc
+WEB_SRCS  := src/mb.c src/disasm.c src/microcode.c src/cpu.c src/baseboard.c \
+             src/memory.c src/io.c src/display.c src/disk.c src/ethernet.c \
+             src/fastio.c src/altoref.c src/pdi.c src/machine.c src/dorado_web.c
+# _GNU_SOURCE exposes timegm()/strcasecmp() in Emscripten's musl sysroot;
+# macOS headers expose them by default, so the native build doesn't need it.
+WEB_CFLAGS := -std=c99 -D_GNU_SOURCE -O2 -Iinclude -Ivendor/6502 -sUSE_SDL=2
+WEB_LDFLAGS := -sUSE_SDL=2 -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=67108864 \
+               -sEXPORTED_RUNTIME_METHODS=ccall,cwrap \
+               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot \
+               --preload-file worlds/aemu.eb@/worlds/aemu.eb \
+               --preload-file ../chm/bootfiles@/chm/bootfiles \
+               --preload-file ../chm/dorado/doradobaserom.mb!13@/ucode/doradobaserom.mb!13 \
+               --preload-file ../chm/dorado/expanded/bootstrap.dm!20_/Bootstrap.mb@/ucode/Bootstrap.mb \
+               --preload-file ../chm/dorado/expanded/bootstrap.dm!20_/Initial.mb@/ucode/Initial.mb \
+               --preload-file ../chm/dorado/expanded/kernel.dm!38_/kernel.mb@/ucode/kernel.mb \
+               --preload-file ../chm/dorado/expanded/memMisc.dm!11_/memMisc.mb@/ucode/memMisc.mb \
+               --preload-file ../chm/dorado/expanded/Ifu.dm!51_/IfuComplex.mb@/ucode/IfuComplex.mb \
+               --shell-file src/web_shell.html
+
+.PHONY: web
+web: worlds | web-dir
+	$(EMCC) $(WEB_CFLAGS) $(WEB_SRCS) $(WEB_LDFLAGS) -o web/index.html
+
+web-dir:
+	@mkdir -p web
 
 $(OBJDIR)/dorado_sdl.o: src/dorado_sdl.c | $(OBJDIR)
 	$(CC) $(CFLAGS) $(SDL_CFLAGS) $(DEPFLAGS) -c -o $@ $<
@@ -214,20 +246,15 @@ run-showais: sdl
 run-clock: sdl
 	./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/Clock.boot!1'
 
-# EXPERIMENTAL - Cedar/Mesa emulator world (../chm/dorado/CedarDorado.eb!6):
-# these are Mesa/Pilot outload files. The boot path is INCOMPLETE - the
-# microcode loads but does not yet run (needs InitialEtherCedarDorado.eb,
-# the Pilot germ, and a Mesa-path Stage-2). They will not reach a UI yet.
-.PHONY: run-cedarnetexec run-mazewar run-mesanetexec run-newos
-run-cedarnetexec: sdl
-	./build/dorado-sdl --eb '../chm/dorado/CedarDorado.eb!6' --eftp '../chm/bootfiles/CedarNetExec.boot!4'
-run-mazewar: sdl
-	./build/dorado-sdl --eb '../chm/dorado/CedarDorado.eb!6' --eftp '../chm/bootfiles/MazeWar.boot!1'
-run-mesanetexec: sdl
-	./build/dorado-sdl --eb '../chm/dorado/CedarDorado.eb!6' --eftp '../chm/bootfiles/MesaNetExec.boot!1'
-run-newos: sdl
-	./build/dorado-sdl --eb '../chm/dorado/CedarDorado.eb!6' --eftp '../chm/bootfiles/NEWOS.BOOT!21'
+# Cedar/Pilot Route B. This direct disk/germ path reaches the Cedar
+# SimpleTerminal display. The screen stays blank until roughly 650M emulated
+# cycles, so run the SDL frontend with a larger cycles-per-frame budget.
+.PHONY: run-cedar run-cedar-screenshot
+run-cedar: sdl
+	./build/dorado-sdl --boot-reason disk --no-alto-boot --eb '../chm/dorado/CedarDorado.eb!6' --germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6' --pilot-disk '../CedarDisk/CedarDorado-boot.pdi' --speed 4000000
+run-cedar-screenshot: sdl
+	SDL_VIDEODRIVER=dummy ./build/dorado-sdl --boot-reason disk --no-alto-boot --eb '../chm/dorado/CedarDorado.eb!6' --germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6' --pilot-disk '../CedarDisk/CedarDorado-boot.pdi' --speed 4000000 --screenshot 300 --shot-prefix /tmp/dorado-sdl-cedar
 
-.PHONY: all clean test worlds sdl
+.PHONY: all clean test worlds sdl web web-dir
 
 -include $(DEPS)

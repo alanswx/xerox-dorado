@@ -1,5 +1,1291 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## ROUTE B (2026-06-19 LATEST): Cedar 6.1 boots to the login prompt and accepts keyboard input; emulator sped up 2.7x
+
+**Cedar 6.1.0 now boots all the way to its SimpleTerminal login prompt and is
+interactive.** The headless Cedar run (the known-good command below, ~640M
+cycles to the prompt) renders the SimpleTerminal herald + login:
+
+```
+Cedar 6.1.0 of December 3, 1986 ...     Friday, June 19, ...    No System Volume on Do[rado]
+Please login ...
+Name:
+```
+
+Typing now works end to end: `--type "Guest\n"` echoes `Guest` (uppercase via
+shift), Return submits, and Cedar advances to `Name: Guest.pa  password:`.
+
+### What was wrong with the keyboard, and the fix
+
+Two independent bugs (NOT a key-layout bug — the layout is correct, see below):
+
+1. **Key state never reached VM.** The keyboard delivery code
+   (`machine_seed_keyboard` -> `177034`) is gated on `m->alto_ether_boot`, so
+   for the native Cedar path (`--no-alto-boot`) nothing ever wrote the key
+   cells. Holding a key and dumping `M[0o177033..0o177041]` showed it stuck at
+   all-up `0o177777`. So there was no transition for the OS to see -> no
+   characters at all (exactly: not *wrong* characters, *no* characters).
+
+2. **The keyboard watcher never polled.** Cedar's
+   `SimpleTerminalImpl.ProcessKeyboard` blocks on the display vertical-field
+   retrace naked-notify before each `GetKeys`. On real hardware the field
+   interrupt ORs `CSB.wakeupMask` (`LONG[421B]`) into NWW. Our display is
+   rasterized in C (not by the display microcode tasks), so that notify never
+   fired.
+
+Fix (all in `dorado/src/machine.c`, new `machine_cedar_io()` called per step):
+- Once per display field (~60 Hz, `CEDAR_FIELD_INTERVAL_CYCLES`), seed the
+  live keyboard/mouse into the Cedar KeyBits at absolute `LONG[177033B]`
+  (`machine_seed_cedar_keyboard`), then post the field naked-notify by ORing
+  `CSB.wakeupMask` (`M[0o421]`) into NWW (`RM[0]`) and setting
+  `reschedule_pending` -- the same idiom the modeled Ethernet/disk completions
+  and `machine_pilot_timer_channel` use.
+- This mirrors how `machine_seed_keyboard` already shortcuts the (unmodeled)
+  7-wire keyboard back channel for the Alto-on-Dorado world at `177034`.
+
+### Keyboard layout is PROVEN correct (TerminalDefs.KeyName, Cedar 6.1)
+
+The Dorado used Alto keyboards. Pulled `TerminalDefs.mesa!1` from
+`[Cyan]<Cedar6.1>Heads>`: `KeyBits = PACKED ARRAY KeyName OF DownUp`
+(down=0, up=1 -> all-up = `0177777`), and `KeyName` VAL 16..79 are *exactly*
+the four Alto keyboard words in the same bit order as our Alto matrix
+(`Five,Four,Six,E,Seven,D,...`). So Cedar's KeyBits words land at
+`177034..177037` taking our active-low `keyboard_words[0..3]` verbatim; word
+`177033` (VAL 0..15) is Pen/Keyset + mouse buttons (Red=left=bit2,
+Blue=right=bit1, Yellow=middle=bit0). Hardware basis: HM p.116 Table 24
+(back-channel message types `01..04` = keyboard words 0-3) and
+`TerminalHeadDorado.mesa` (`keyboard _ LOOPHOLE[LONG[177033B]]`,
+`csbPtr = LOOPHOLE[LONG[420B]]`, `csbPtr.wakeupMask |= wakeVF`).
+
+The SDL frontend already feeds `dorado_machine_set_key`, so interactive
+`make run-cedar` typing now works too.
+
+### Emulator is 2.7x faster (per-step getenv was the bottleneck)
+
+`getenv()` rescans the whole process environment on every call; the hot path
+ran several boolean trace-flag `getenv()`s per microinstruction. Under a
+populated shell that was ~2.4-2.7x of total run time (empty-env A/B: 9.6s vs
+22.8s for 200M cycles). Added a cached `dorado_trace_flag()` (keyed by the
+string-literal pointer; `src/cpu.c`, declared in `include/cpu.h`) and routed
+all boolean `DORADO_*_TRACE` / flag checks in `cpu.c`, `machine.c`, `memory.c`
+through it (value-returning `getenv()` calls -- VMDUMP, POKE, TRACE_GATE
+window, etc. -- left direct). Result: 200M-cycle Cedar run 22.8s -> 8.4s
+(**~23.9M cycles/sec, ~1.43x real-time**; the real Dorado is 16.67 MIPS).
+Cedar boot-to-login now ~27s instead of ~73s. All unit tests still pass.
+
+### KNOWN PRE-EXISTING REGRESSION (not from this work): Alto Path A renders 0px
+
+The Alto-on-Dorado regression gate is currently broken **in the dirty tree,
+independent of the keyboard/perf changes here**: `--eb worlds/aemu.eb --eftp
+Galaxian.boot!1 --cycles 160000000` renders 0 display-list pixels (gate
+expects ~121553). Proven pre-existing by disabling `machine_cedar_io` and
+rebuilding -- still 0px. Someone should bisect the dirty tree (the prior
+Cedar-focused session) to find where Path A's post-LoadRam display list
+stopped being installed. Do not assume the keyboard/getenv work caused it.
+
+### Verify
+
+```sh
+cd dorado
+make build/dorado && make test           # 11/11 suites pass
+# Cedar login + typing self-test (writes /tmp/cedar-type.pgm with "abc" echoed):
+./build/dorado --boot-reason disk --no-alto-boot \
+  --eb '../chm/dorado/CedarDorado.eb!6' \
+  --germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6' \
+  --pilot-disk '../CedarDisk/CedarDorado-boot.pdi' \
+  --type "abc" --type-at 655000000 --key-hold 4000000 \
+  --cycles 700000000 --out /tmp/cedar-type.pgm
+# Interactive: make run-cedar  (type at the Name: prompt)
+```
+
+`dorado.c` gained `--type-at CYCLES` (default 110M for the Alto self-test;
+pass ~655M for the Cedar login prompt) and now triggers `--type` on
+`booted` rather than `interactive`.
+
+---
+
+## ROUTE B (2026-06-19 earlier): direct Pilot disk boot reaches `germFinished`; next blocker was post-handoff Pilot/Cedar init
+
+The active boot path is now the real Pilot physical-volume path using the
+local PDI image:
+
+```sh
+cd dorado
+./build/dorado --cycles 800000000 \
+  --boot-reason disk \
+  --no-alto-boot \
+  --eb '../chm/dorado/CedarDorado.eb!6' \
+  --germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6' \
+  --pilot-disk '../CedarDisk/CedarDorado-boot.pdi'
+```
+
+Current result:
+
+- The Cedar/Pilot PDI mounts as disk drive 0 via `--pilot-disk`.
+- `DiskHeadDorado` sees the PDI drive as an online/read-only T-80-style
+  SA4000 volume through DMux `02000..02037`.
+- The germ reads the physical-volume root, finds `bootingInfo[pilot]`
+  (`FileID=3`, first link `0o167`), streams the Pilot boot file from the PDI,
+  and reaches `germFinished`.
+- The direct PDI bridge now updates the caller's label buffer on every page
+  in a multi-page transfer, so after a read it contains the final sector
+  label as the real controller would leave it. This is required for
+  label-chain/terminator consumers, though it does not change the current
+  post-handoff blocker because this boot file is one contiguous run.
+- 800M-cycle confirmation run:
+
+  ```text
+  PDI disk IOCB stream reaches nextPage=0o2233
+  SETMP cyc=362949559 code=001456  germFinished
+  SETMP cyc=362957125 code=000017  post-handoff Pilot/Cedar code
+  SETMP cyc=515355406 code=000000
+  SETMP cyc=582723665 code=000377  current error/status point
+  booted=1 cyc=800000004 pc=0o3445 tk=0
+  MDS=0o400000
+  DASTART=000000
+  ```
+
+The current blocker is therefore **after** the germ has loaded the Pilot boot
+file and transferred into the loaded world. There is still no display list by
+800M cycles. At the repeatable error/status point, detailed `SetMP` tracing
+shows:
+
+```text
+SETMP_DISP cyc=582723665 pc=0o4654 pcf=0o3243 br31=3C614 stkp=001 code=000377
+SETMP_DETAIL cyc=582723665 MDS=0o0 MemBase=36 RBase=00 ... BR30=0o400000 BR36=0o0
+```
+
+The final micro-PC is `0o3445`, which disassembles in `Cedar.mb!6` as the
+Mesa fault/trap path (`MESAFAULT`). The next blocker is to identify why the
+post-handoff world calls `SetMP[0o377]` and enters that trap path before
+installing a display list. Avoid broad `DORADO_BR_TRACE`; it floods output.
+Use gated, targeted traces (`DORADO_TRACE_GATE=582720000,582725000`) or add
+more focused diagnostics around `SetMP[0o377]`, MDS/BR36, and the Mesa return
+frame.
+
+Implemented in this pass:
+
+- `dorado/src/cpu.c` now implements `Pd <- ALU rsh 1` as the logical shift
+  documented by the hardware manual. It was incorrectly preserving the sign
+  bit; MesaInterrupt's `WDC _ (WDC) RSH 1` scan then got stuck at `177777`
+  instead of walking `100000, 040000, ... 000001, 000000`.
+- `dorado/src/memory.c` now lets device code handle diagnostic DMux reads.
+  `dorado/src/disk.c` wires the disk controller's muffler manifold at
+  DMux `02000..02037`, which is what `DiskHeadDorado.RWMufMan` uses during
+  controller/drive discovery. Before this, those reads always returned zero.
+- `dorado/src/disk.c` now has a PDI-backed media path for Pilot pages
+  (`header + 10-word label + 256-word data`) and reports the right DMux
+  bits for the PDI drive.
+- `dorado/src/machine.c` mounts `--pilot-disk` and completes PDI-backed
+  SA4000 IOCBs posted through DiskHeadDorado's CSB at `LONG[177520B]`.
+  This is a narrow bridge over the still-incomplete disk sequence-PROM path,
+  not a replacement for a full hardware disk controller.
+- Diagnostic fault and `SetMP` traces now honor `DORADO_TRACE_GATE` better;
+  `DORADO_SETMP_TRACE_DETAIL=1` adds a targeted stack/base-register dump.
+
+Focused tests:
+
+```sh
+cd dorado
+make build/dorado build/test_disk build/test_pdi
+./build/test_disk
+./build/test_pdi
+```
+
+## ROUTE B (2026-06-19 previous): BasicCedar Ethernet shortcut loads and runs; blocker was a `pilotOutLoad` request
+
+Current result after both fixes:
+
+- EFTP delivers the full `BasicCedarDorado.boot!22` payload
+  (`seq=1061`, `pos=271616/271616`, `eftp_q=1062`).
+- The germ reaches `germFinished` (`SETMP code=001456`, decimal 814) and
+  transfers through `pMon.CrossMDSCall` into BasicCedar.
+- BasicCedar now gets past the earlier FilePackage-only idle point and reaches
+  additional OS code ranges, then re-enters the germ:
+
+  ```text
+  cyc=175599964 br31=3E1E10 code=001456  germFinished
+  cyc=175608427 br31=34C14  pcf=0o105   DiskImpl-ish BasicCedar code
+  cyc=340826276 br31=38020  pcf=0o6665  VMImpl code range
+  cyc=414017270 br31=3C614  pcf=0o3243  CedarRuntime code range
+  cyc=414513138 br31=44D1C  pcf=0o225   FilePackage code range
+  cyc=414672442 br31=32500  pcf=0o70    additional BasicCedar module
+  cyc=414681902 br31=3470C  pcf=0o2413  additional BasicCedar module
+  cyc=414691318 br31=3E1E10 code=001452  germStarting
+  cyc=414757935 br31=3E0F38 code=000001
+  ```
+
+- Final 500M-cycle state from the confirmation run:
+
+  ```text
+  booted=1 cyc=500000000 pc=0o1716 tk=0
+  eth: rx=1 tx=0 req=1 repl=63 eftp_r=1 eftp_q=1062 seq=1061
+  DASTART=000000
+  MDS=0o17400000
+  ```
+
+The live blocker is no longer BootChannelEther or EFTP delivery. A final
+`pRequest` dump after the OS-side return shows action `3`. In the 6.1 germ
+source, `BootSwapGerm.mesa` handles `outLoad, pilotOutLoad` together and
+`teledebug` separately, so action `3` is the Cedar/Pilot `pilotOutLoad` path,
+not the old 1980 `Boot.teledebug` value from `chm/cedar/pilot/Boot.mesa!1`.
+The loaded BasicCedar world is asking the germ to write an outload/checkpoint,
+with no installed Pilot/Cedar disk volume available.
+
+Runtime store trace pins the writer:
+
+```sh
+DORADO_TRACE_GATE=414500000,414760000 \
+DORADO_STORE_TRACE_VA=017401360,017401400 DORADO_SETMP_TRACE=1 \
+./build/dorado --cycles 414760000 \
+  --eb '../chm/dorado/CedarDorado.eb!6' \
+  --germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6' \
+  --eftp '../chm/cedar/cedar6.1/BasicCedarDorado.boot!22' \
+  --germ-netboot-bfn 0
+```
+
+The decisive line is:
+
+```text
+STORE_VA cyc=414689598 task=0 pc=0o626 va=17401360 data=000003 pcx=0o2440 br31=0o643414 op=0o177400
+```
+
+`BasicCedarDorado.loadmap!69.txt` maps `0o643000..0o645377` to the
+`Tentacles` code pages, whose modules include `GermSwapImpl`. The local CHM
+tree does not appear to include the BasicCedar `GermSwapImpl` Mesa source, so
+the next pass should continue from runtime traces around this writer rather
+than source-grep alone.
+
+Next step: find why BasicCedar requests `pilotOutLoad` instead of reaching the
+terminal display path. Likely areas are disk/physical-volume discovery and the
+absence of a bootable local volume. The code path to inspect is OS-side, not
+the germ EFTP reader: `BasicCedarDorado.loadmap!69.txt`, `DiskImpl`,
+`FilePackage`, and callers that set `GermSwap.pRequest.action` to
+`pilotOutLoad`.
+
+Focused tests pass:
+
+  ```sh
+  cd dorado
+  make build/dorado build/test_cpu build/test_disk
+  ./build/test_cpu
+  ./build/test_disk
+  ```
+
+Important caveat: `machine_germ_seed_ethernet_header_page()` is still a
+diagnostic shim for the first BootFile header page. After that header, the
+real BootChannelEther/EFTP path transfers the remaining pages.
+
+## ROUTE B (2026-06-19 late): direct germ boot reaches BootChannelEther; current blocker is the first real `EFTPGetClump` frame allocation
+
+This supersedes the "post-header CompactVM" wording below. `germInLoad`
+proves `DoInLoad` was entered; it does **not** by itself prove the BootFile
+header was consumed. The current failure happens before the next Ethernet
+receive is posted, inside the first `Transfer[channel, pageBuffer, 1]` /
+`BootChannelEther.EFTPGetClump` path.
+
+What is now known:
+
+- First allocator failure is at cycle `98393647`, not only in the later 180M
+  loop. The tight loop is:
+
+  ```text
+  IFUDISP pc=0o234 pcf=0o4601 ... op=165 ... stkp=003 acs=000000,000000,000003,177200
+  IFUDISP pc=0o354 pcf=0o4602 ... op=162 ... stkp=003 acs=000000,000000,000003,177200
+  ALLOC_TRACE cyc=98393647 pc=0o3302 md=0 mar=0o200000 va=0o400000 mb=0o3 br=0o200000 br36=0o17400000
+  ```
+
+- `BR[36]=0o17400000` is the germ MDS. The failing allocation reads
+  `BR[3]+MAR = 0o200000+0o200000 = 0o400000`, the incoming
+  BasicCedar MDS base (`BasicCedarDorado.loadmap`: MDS page `0o1000`).
+  `DORADO_VMDUMP` confirms `0o400000..0o400057` and `0o402000..0o402037`
+  are all zero at the failure.
+- This is not yet evidence that `CompactVM` is running. The immediate source
+  path is `BootChannelEther.mesa!3`: `EFTPGetClump` first computes
+  `where _ PrincOpsUtils.AddressForPageNumber[page]`, then calls
+  `MiniEthernetDefs.RecvPacket[...]`. Either call can need a local frame
+  before a seq-1 IOCB is queued.
+- Use the 6.1 germ loadmap, `chm/cedar/os-src/Dorado.loadmap!6.txt`, for the
+  matched `Dorado.germ-6.1.6` global frame offsets. The older
+  `chm/cedar/germ/Dorado.loadmap!1.txt` has different frame addresses.
+  Current live frames at the failure include:
+
+  ```text
+  BootChannelDisk G=0o6160: codebase low/high = 0o10544/0o76
+  BootChannelEther G=0o6234: codebase low/high = 0o11410/0o76
+  BootChannelEther state: mySocket=0o7176/0o13, buffer=0o5504/0o76,
+    iocb=0o177220 or 0o177200-family, receiveSeqNumber has advanced after ACK 0
+  ```
+
+- `BasicCedarDorado.boot!22` header entries begin at VM pages
+  `0o400..0o416`, then `0o1001..`; page `0o1000` (VA `0o400000`) is not in
+  that first header entry run. The zero AV page is therefore expected until
+  the incoming world is actually initialized/loaded; the real question is why
+  this pre-transfer call is allocating from the incoming MDS.
+
+Repro for the current blocker:
+
+```sh
+cd dorado
+DORADO_TRACE_GATE=98392800,98393680 \
+DORADO_IFUDISP_TRACE=1 DORADO_ALLOC_TRACE=1 DORADO_ALLOC_TRACE_LIMIT=24 \
+DORADO_SETMP_TRACE=1 DORADO_CSB_TRACE=1 \
+./build/dorado --cycles 98393700 \
+  --eb '../chm/dorado/CedarDorado.eb!6' \
+  --germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6' \
+  --eftp '../chm/cedar/cedar6.1/BasicCedarDorado.boot!22' \
+  --germ-netboot-bfn 0
+```
+
+Useful dumps:
+
+```sh
+DORADO_VMDUMP="0400000,0400060,98393600" ./build/dorado ...
+DORADO_VMDUMP="0402000,0402040,98393600" ./build/dorado ...
+DORADO_VMDUMP="017405400,017406340,98393600" ./build/dorado ...
+```
+
+Next step: identify exactly which control link at byte PC `0o4601/0o4602`
+is being called and why its allocation uses incoming-MDS AV (`BR[3] =
+0o200000`) instead of a germ-local frame list. The likely suspects are the
+first `EFTPGetClump` calls to `PrincOpsUtils.AddressForPageNumber` or
+`MiniEthernetDefs.RecvPacket`, not the later `CompactVM` loop.
+
+## ROUTE B (2026-06-19): direct germ boot now gets past the BootFile header; current frontier is allocator/map state after `CompactVM`
+
+Use this as the current Route B state, superseding the CedarNetExec framing in
+the older entries below.
+
+Current best direct-germ target:
+
+```sh
+cd dorado
+DORADO_GERM_NETBOOT_TRACE=1 DORADO_SETMP_TRACE=1 DORADO_EFTP_TRACE=1 \
+./build/dorado --cycles 220000000 \
+  --eb '../chm/dorado/CedarDorado.eb!6' \
+  --germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6' \
+  --eftp '../chm/cedar/cedar6.1/BasicCedarDorado.boot!22' \
+  --germ-netboot-bfn 0
+```
+
+Key corrections:
+
+- `CedarNetExec.boot!4` is the wrong payload for direct `BootSwapGerm.DoInLoad`.
+  It is a raw Mesa outload (`word0=0o345`) for the Alto/Mesa NetExec chain, not
+  a Pilot `BootFile.Header`. Direct germ boot correctly reaches
+  `germInLoad` (`SETMP code=001454`) and then reports `germBadBootFile`
+  (`001467`) when served `CedarNetExec.boot!4`.
+- `BasicCedarDorado.boot!22` is the current direct BootFile target. Its first
+  header words are `000146 054303 120636 174400 ...`; with the matched
+  `CedarDorado.eb!6` + `Dorado.germ-6.1.6` pair, the germ accepts the header.
+  In a 220M-cycle run there is no `germBadBootFile`.
+- The seq-1 Ethernet delivery to IOCB `0o177777` was an emulator shim bug.
+  `EthernetOneHeadDorado` allocates IOCBs from the germ's
+  `dFirst64KStorage = [0o177200..0o177400)`, so the CSB direct-completion shim
+  now only arms/completes plausible IOCBs in `0o177200..0o177377`.
+
+Observed good path with `BasicCedarDorado.boot!22`:
+
+```text
+EFTP_DEFER state=1 seq=0 pos=0/271616 armed=0
+EFTP_DELIVER type=0o30 state=1 seq=0 data_words=256 packet_words=271 pos=0/271616 armed=1
+EFTP_ACK_IN ack=0 state=1 seq=0 pos=0/271616
+EFTP_ACK_ADV state=1 seq=1 pos=256/271616
+EFTP_DEFER state=1 seq=1 pos=256/271616 armed=0
+[machine] germ seeded Ethernet header page @0o17422400 word0=0o146 word1=0o54303
+SETMP_DISP ... code=001454
+```
+
+Important caveat: `machine_germ_seed_ethernet_header_page()` is still a
+diagnostic shim. The real `Transfer[channel, pageBuffer, 1]` / `EFTPGetClump`
+path has not yet been made to fill `pageBuffer`; the shim copies the first real
+BootFile page into `pageBuffer` after `StartRecving` discards and ACKs seq 0.
+This is useful because it proves the payload choice and moves the germ into the
+post-header path, but it is not the final Ethernet transfer model.
+
+New frontier:
+
+- After header acceptance, `DoInLoad` takes the `load` branch and enters the
+  `CompactVM[]` / map work in `BootSwapGerm.mesa`.
+- No valid second `QueueInput` for EFTP seq 1 is posted through 220M cycles.
+  That is no longer evidence of an Ethernet packet-format problem; the germ is
+  busy in post-header VM/map/allocator code before it asks for more pages.
+- Around 180M cycles task 0 is in a tight Mesa allocator microcode loop:
+
+  ```text
+  pc=0o3302 ALLOCREPEAT
+  pc=0o1071
+  pc=0o1072
+  pc=0o3301 ALLOCSUB
+  lva=0o200000 mb=0o3 T=0 Q=0 MD=0
+  ```
+
+  `mb=0o3` means MDS bank 3, so `lva=0o200000` is a bank-3 access at offset 0.
+  The repeated `ALLOCSUB` / `ALLOCREPEAT` sequence is now the live blocker.
+
+Focused late-loop trace:
+
+```sh
+cd dorado
+DORADO_TRACE_GATE=179990000,180002000 \
+DORADO_PCDIS=01070,01073 \
+DORADO_FAULTREG_TRACE=1 DORADO_FAULT_TRACE=1 DORADO_TASK_TRACE=1 \
+DORADO_XFER_TRACE=1 \
+./build/dorado --cycles 180002000 \
+  --eb '../chm/dorado/CedarDorado.eb!6' \
+  --germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6' \
+  --eftp '../chm/cedar/cedar6.1/BasicCedarDorado.boot!22' \
+  --germ-netboot-bfn 0
+```
+
+Disassemble the loop PCs with:
+
+```sh
+cd dorado
+./build/mbdis -d ../chm/dorado/Cedar.mb!6 |
+  rg -C 4 '^  (1070|1071|1072|1073|3300|3301|3302|3303):'
+```
+
+Next step: determine why the `CompactVM` / allocator path is repeatedly trying
+to allocate/fetch at bank-3 offset zero with zero MD. Start with map/fault state
+around the first transition into `ALLOCSUB` rather than enabling broad
+`DORADO_MAP_TRACE` over the full run, which is too noisy.
+
+## ROUTE B (2026-06-18): BootChannelEther receives and ACKs EFTP seq 0; current frontier is return/control flow into `DoInLoad`
+
+Current Cedar/Pilot pair remains:
+
+```sh
+./build/dorado \
+  --eb '../chm/dorado/CedarDorado.eb!6' \
+  --germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6' \
+  --eftp '../chm/bootfiles/CedarNetExec.boot!4' \
+  --germ-netboot-bfn 0
+```
+
+Latest correction:
+
+- BootChannelDisk -> BootChannelEther is no longer the frontier.
+- BootChannelEther's odd codebase swap/start path now runs and the module
+  reaches real Ethernet traffic through `MiniEthernetDriver` and
+  `EthernetOneHeadDorado`.
+- The germ sends its Mayday (`244B`) from socket `[0o7176,0o13]`; the
+  in-process server loads `CedarNetExec.boot!4` as 65,280 words and defers
+  delivery until the germ posts an input IOCB at `LONG[177600B]`.
+- The first EFTP Data packet lands in the germ's EthernetOne buffer and is
+  ACKed. The server then correctly advances to Data seq 1
+  (`pos=256/65280`) and waits for the next receive arm.
+- The active frontier is now **after `BootChannelEther.StartRecving` ACKs the
+  discarded seq-0 packet**. Per `chm/cedar/germ/BootChannelEther.mesa!3.txt`,
+  `StartRecving` should return `handle _ EFTPGetClump`; then
+  `BootSwapGerm.DoInLoad` should call `Transfer[channel, pageBuffer, 1]`, and
+  `EFTPGetClump` should post another `RecvPacket` expecting seq 1. In the
+  emulator no second `QueueInput` store to the IOCB appears through 200M
+  cycles, so the next bug is control flow / return / Mesa state after
+  `BootChannelEther.Create`, not EFTP packet sequencing.
+
+Key evidence:
+
+```text
+[machine] germ netboot request seeded @cyc=67984795:
+  pRequest=0o17401360 action=inLoad device=ethernet bfn=0o0
+
+TX n=13: 000042 001000 000026 000244 ... 007176 000013 ...
+EFTP_DEFER state=1 seq=0 pos=0/65280 armed=0
+EFTP_DELIVER type=0o30 state=1 seq=0 data_words=256 packet_words=271 pos=0/65280 armed=1
+[machine] germ direct RX candidate: ... iocb=0o177200 completion=0o0 length=0o454 buffer=0o17405446 direction=0o0
+[machine] germ EthernetOne direct RX complete: iocb=0o177200 buffer=0o17405446 used=0o417 status=0o400
+TX n=13: 021042 001000 000026 000031 ... 007176 000013 ...
+EFTP_ACK_IN ack=0 state=1 seq=0 pos=0/65280
+EFTP_ACK_ADV state=1 seq=1 pos=256/65280
+EFTP_DEFER state=1 seq=1 pos=256/65280 armed=0
+```
+
+Long IOCB-store trace:
+
+```text
+STORE_VA cyc=68051790..68051824  ; QueueInput for seq-0 discard, length=0o454
+STORE_VA cyc=68061735..68061773  ; QueueOutput for ACK 0, length=0o15
+STORE_VA cyc=68062497 task=6 va=0177201 data=000400  ; EOT completes ACK output
+STORE_VA cyc=68062501 task=6 va=0177202 data=000015
+; no further stores to 0177200..0177210 through 200M cycles
+```
+
+Implemented support now in the emulator:
+
+- `dorado/src/ethernet.c` gates germ EFTP delivery until the germ posts an
+  EthernetOne input IOCB, uses the Mayday source socket as the EFTP destination
+  socket, and traces EFTP state with `DORADO_EFTP_TRACE`.
+- `dorado/src/machine.c` has a germ-only EthernetOne direct receive completion
+  shim. It copies the packet into the posted IOCB buffer, writes
+  `completion=0o400`, writes `used`, and pops `iCSB.next` to model the input
+  microcode consuming the queue head. This is a controlled CSB-level model for
+  the fake in-process boot server, not a replacement for raw EIT timing.
+- `./build/test_ethernet` passes and confirms `CedarNetExec.boot!4` is served
+  byte-exact as 65,280 words.
+
+Latest useful traces:
+
+```sh
+env DORADO_ETH_TX_TRACE=1 DORADO_CSB_TRACE=1 DORADO_EFTP_TRACE=1 \
+  ./build/dorado --eb ../chm/dorado/CedarDorado.eb!6 \
+    --germ ../chm/cedar/germ-alt/Dorado.germ-6.1.6 \
+    --eftp ../chm/bootfiles/CedarNetExec.boot!4 \
+    --germ-netboot-bfn 0 --cycles 82000000
+
+env DORADO_STORE_TRACE_VA=0177200,0177210 \
+  DORADO_EFTP_TRACE=1 DORADO_ETH_TX_TRACE=1 \
+  ./build/dorado --eb ../chm/dorado/CedarDorado.eb!6 \
+    --germ ../chm/cedar/germ-alt/Dorado.germ-6.1.6 \
+    --eftp ../chm/bootfiles/CedarNetExec.boot!4 \
+    --germ-netboot-bfn 0 --cycles 200000000
+
+env DORADO_TRACE_GATE=68062480,68065000 \
+  DORADO_IFUDISP_TRACE=1 DORADO_RCLK_TRACE=1 DORADO_COND_TRACE=1 \
+  ./build/dorado --eb ../chm/dorado/CedarDorado.eb!6 \
+    --germ ../chm/cedar/germ-alt/Dorado.germ-6.1.6 \
+    --eftp ../chm/bootfiles/CedarNetExec.boot!4 \
+    --germ-netboot-bfn 0 --cycles 68065050
+```
+
+Next step:
+
+1. Trace the return from `BootChannelEther.StartRecving` / `Create` after
+   ACK 0 and verify that `BootSwapGerm.DoInLoad` receives `handle =
+   EFTPGetClump`.
+2. Decode the `BootSwapGerm.DoInLoad` bytecode around the first
+   `Transfer[channel, pageBuffer, 1]` call. The expected next observable event
+   is another `QueueInput` store to IOCB `0o177200` with `length=0o400` or
+   `0o454`, followed by EFTP Data seq 1.
+3. Keep the separate timeout/compare suspicion in mind. Earlier traces showed
+   `TimeoutHasExpired` / `DSUB` / `DCOMP` / `JGEB` can report expired even
+   when the current clock appears less than the target. That is still a real
+   CPU/Mesa arithmetic candidate, but the current post-ACK stall must first be
+   localized in the Create -> DoInLoad return path.
+
+## ROUTE B (2026-06-18): IFUJump saved-StkP timing fixed; BootChannelDisk.Create no longer drops the fifth argument
+
+What changed:
+
+- Fixed IFUJump's saved-stack-pointer timing in `src/cpu.c`. A successful
+  IFUJump now defers `ifu_saved_stkp` capture until after that IFUJump
+  instruction's own post-cycle RSTK update. `RestoreStkP` must restore the
+  stack state handed to the dispatched opcode, not the pre-RSTK stack state.
+- Added `ifu_save_stkp_pending` in `include/cpu.h`.
+- Added `test_ifujump_saves_post_rstk_stkp` in `tests/test_cpu.c`.
+- Implemented HM Table 11a `Carry20` (`FA=0 FB=2 FC=6`) in `src/cpu.c`.
+  It forces the internal carry into the octal-`020` ALU bit for arithmetic
+  ops. This is exactly what `NewSetBRAndFlushPage` uses in:
+  `RTemp0_ Flush_ RTemp0, Carry20, Branch[., Cnt#0&-1]`.
+- Added `test_carry20_ff_function` in `tests/test_cpu.c`.
+- Fixed the dirty-victim fault path so a writeback fault records FaultInfo /
+  Pipe4 MapTrouble and wakes the fault task; Pipe4 raw `notMapTrouble` polarity
+  is now compatible with `DMesaFaults.mc`.
+- Fetched the matching 1985/1986 `BootChannelDisk` source from the CHM mirror:
+  `chm/cedar/germ/BootChannelDisk.mesa!1.cyan61`. Use
+  `python3 tools/tioga2txt/tioga2txt.py` to read it. The local
+  `BootChannelDisk.mesa!2.txt` is the older 1983 source and still imports
+  `MicrocodeVersion`; it is not the right source for the 6.1 germ.
+
+Root cause of the latest false frontier:
+
+- BootSwapGerm calls BootChannelDisk.Create through EFC1 at byte PC `0o220`.
+  The IFUJump instruction that commits the EFC1 dispatch has `RSTK=01` and
+  changes `StkP` from `004` to `005`; the fifth active argument is
+  `dFirst64KStorage.size = 0o200`.
+- The old emulator saved `ifu_saved_stkp` inside `next_pc()`, before the
+  IFUJump instruction's post-cycle RSTK update. Later `RestoreStkP` restored
+  `004`, so `STATE` / `SaveState` wrote a malformed StateVector with
+  `stkptr=4`.
+- `LSTF` then faithfully restored only four active arguments. The fifth word
+  (`0o200`) stayed above TOS, and BootChannelDisk.Create's prologue eventually
+  underflowed at `SL0`. This made the chain-dispatch path look broken even
+  though the caller state was already wrong.
+- The focused trace now shows `RESTORE_STKP ... saved=005`, `LoadStack` loading
+  the two extra words, then `Stack&-2` landing at `StkP=005`. BootChannelDisk
+  consumes the Create arguments without the prior underflow.
+
+Carry20 / dirty-victim note:
+
+- `Map[0x3FFC]` was previously made vacant at cyc `67269620`, but the preceding
+  flush loop repeatedly flushed only `17776000` because `Carry20` was a no-op.
+  That left a dirty cached line at page offset `0o40`; later eviction produced a
+  stale dirty-victim MapTrouble at cyc `67857790`.
+- After `Carry20`, the focused trace shows the page flush walking all munches:
+  `17776000`, `17776020`, `17776040`, ... `17776360` before the map write. The
+  old dirty-victim `FAULT_TRACE cyc=67857790 ... victim_va=17776040` is gone.
+
+Validation:
+
+```sh
+make && ./build/test_cpu
+```
+
+passed, including the new IFUJump saved-StkP regression. Earlier
+`./build/test_memory` also passed after the dirty-victim/Pipe4 fix.
+
+Focused Cedar traces:
+
+```sh
+env DORADO_TRACE_GATE=68029620,68029760 \
+  DORADO_IFUDISP_TRACE=1 DORADO_STACK_TRACE=1 DORADO_STKP_TRACE=1 \
+  ./build/dorado --eb ../chm/dorado/CedarDorado.eb!6 \
+    --germ ../chm/cedar/germ-alt/Dorado.germ-6.1.6 \
+    --eftp ../chm/bootfiles/CedarNetExec.boot!4 \
+    --germ-netboot-bfn 0 --cycles 68029800 2>&1 |
+  rg "IFUDISP|STACK_TRACE|STKP_POST|SAVE_STKP|RESTORE_STKP"
+
+env DORADO_TRACE_GATE=68032920,68033500 \
+  DORADO_IFUDISP_TRACE=1 DORADO_STACK_TRACE=1 DORADO_STKP_TRACE=1 \
+  ./build/dorado --eb ../chm/dorado/CedarDorado.eb!6 \
+    --germ ../chm/cedar/germ-alt/Dorado.germ-6.1.6 \
+    --eftp ../chm/bootfiles/CedarNetExec.boot!4 \
+    --germ-netboot-bfn 0 --cycles 68033500 2>&1 |
+  rg "IFUDISP|STACK_TRACE|STKP_POST|SAVE_STKP|RESTORE_STKP|STK_ERROR_HOLD"
+```
+
+The first trace shows `RESTORE_STKP ... saved=005`. The second shows the final
+`LSTF` restoring five active words and BootChannelDisk.Create no longer hitting
+the old `STK_ERROR_HOLD`.
+
+New live frontier:
+
+- The germ gets past the previous stack/fault noise and seeds the configured
+  request:
+
+  ```text
+  [machine] germ netboot request seeded @cyc=67984795:
+    pRequest=0o17401360 action=inLoad device=ethernet bfn=0o0
+  ```
+
+- The earlier "parked at IM `0o150`" read was misleading. `0o150` is a common
+  IFU vector/helper; the final steady state is still BootSwapGerm's `JB 0`
+  germERROR loop at `pcf=0o5334`, not a meaningful wait at IM `0o150`.
+- The BootChannelDisk `pcf=0o42..0o54` sequence is also no longer suspicious.
+  It is the module main-body initializer from the matching source:
+
+  ```mesa
+  pulsesPerMilli: CARDINAL =
+      Basics.LongDiv[100000, ProcessorFace.microsecondsPerHundredPulses];
+  ```
+
+  The observed `LLKB 0o11; R0; LDIV; SGB 0o50; RET` reads
+  `ProcessorHeadDorado.microsecondsPerHundredPulses = 0o6200` (`3200`
+  decimal), divides `100000` by it, stores `0o37`, and returns normally.
+- The first real BootChannelDisk.Create window starts immediately after that.
+  A trace through `68033400..68033500` now shows:
+  - BootChannelDisk dispatches at `pcf=0o56`, `0o60`, `0o62`, ...
+  - The argument stack is correct through the prologue; the old dropped
+    `0o200` word is fixed.
+  - `DORADO_LOAD_TRACE_VA=017401360,017401370` proves the request record is
+    intact when consumed: BootChannelDisk reads
+    `pLocation.deviceType` at `0o17401361` as `000005` (ethernet).
+- Extending `DORADO_XFER_TRACE` through `68033480..68035000` shows the chain
+  link itself is now good:
+  - BootChannelDisk's zLLKB path reads codeLink `0o1221` at `0o17410541`.
+  - XFER resolves it through the GFT to BootChannelEther's global frame
+    `G=0o6234`.
+  - `LoadGC` reads BootChannelEther codebase low/high as
+    `0o11411,0o76`, i.e. codebase `0o17411411`.
+  - The low codebase word is odd, so `LoadGC` takes
+    `CSegSwappedOut -> TrapParamDLink` with `sSwapTrap = 0o10`, then enters
+    `SavePCAndTrap` at real PC `0o2000`.
+  - `DORADO_STORE_TRACE_VA=017406235,017406235` over
+    `68033720..68035000` shows no write to BootChannelEther `G[1]` during the
+    trap window. The only writes to `M[0o17406235]` are the early zero and the
+    germ-load/plant value `0o11411`.
+  - No sustained `br31=3E1309` BootChannelEther bytecode dispatch occurs
+    before control falls into TrapsImpl.
+  - No Stage-2 Mayday/EFTP transmit occurs within a 120M-cycle run:
+    `0 display-list pixels; wrote dorado-screen.pgm`.
+- Therefore the current blocker is narrower than the older notes claimed:
+  not `Carry20`, not the dirty-victim fault, not `IM 0o150`, and not the
+  `pulsesPerMilli` initializer. It is also not the
+  BootChannelDisk->BootChannelEther chain link anymore. The current frontier is
+  the BootChannelEther **code swap trap** path: why `sSwapTrap` for
+  BootChannelEther's odd codebase does not clear/start/swap the code and resume
+  into BootChannelEther.Create.
+
+Follow-up trace on that frontier:
+
+- `PrincOps.mesa!1` confirms `GlobalFrame` layout:
+  - `G+0`: gfi + frame flags (`copied, alloced, shared, started, trapxfers,
+    codelinks`)
+  - `G+1/G+2`: `FrameCodeBase`
+  - `G+3`: first `global[0]` word
+- At the BootChannelEther trap, `G=0o6234` and the live frame is:
+
+  ```text
+  M[0o17406234] = 0o001211   ; header: gfi 1200 + flags
+  M[0o17406235] = 0o011411   ; codebase low, odd => code.out TRUE
+  M[0o17406236] = 0o000076   ; codebase high
+  M[0o17406237] = 0o000000   ; global[0]
+  ```
+
+  Correction: earlier shorthand called `M[G]` "global[0]"; that was wrong.
+  `global[0]` is `M[G+3]`.
+- `CodeTrap` resolves the faulting destination to BootChannelEther, then calls
+  `Start[[frame[frame]]]` exactly as the source says. The trace shows it does
+  **not** store to `M[0o17406235]`, so `frame.code.out <- FALSE` is never
+  reached.
+- The path after `Start` is not a clean return to `CodeTrap`. It re-enters the
+  TrapsImpl runtime/signal path and eventually loops back through the same
+  Start/CodeTrap machinery. The focused trace that captures the first loop is:
+
+  ```sh
+  env DORADO_TRACE_GATE=68034120,68034220 \
+    DORADO_IFUDISP_TRACE=1 DORADO_STACK_TRACE=1 DORADO_STKP_TRACE=1 \
+    DORADO_STORE_TRACE_VA=017402650,017402720 \
+    ./build/dorado --eb ../chm/dorado/CedarDorado.eb!6 \
+      --germ ../chm/cedar/germ-alt/Dorado.germ-6.1.6 \
+      --eftp ../chm/bootfiles/CedarNetExec.boot!4 \
+      --germ-netboot-bfn 0 --cycles 68034230
+  ```
+
+  Key dispatches:
+  - `pcf=0o613..0o622`, `br31=3E0D58` (TrapsImpl): the call into
+    `Start[[BootChannelEther]]`.
+  - `pcf=0o617` reads `M[G+0]=0o1211`.
+  - `pcf=0o621/0o622` proceeds into `LFC2`/runtime signal handling rather than
+    returning to CodeTrap and clearing `G+1`.
+- The second loop around `68034520..68034850` shows the same family as the
+  older "malformed code pointer" notes:
+  - XFER reads TrapsImpl's codebase correctly from `M[0o17404765]=0o6530`,
+    `M[0o17404766]=0o76`.
+  - It then walks a frame/state path through `MDS+0o2264/0o2300`, matching the
+    previous StartWithState / StateVector / frame-size investigations.
+- Do not go back to the BootChannelDisk `zLLKB` rabbit hole without new
+  evidence. With the IFUJump saved-StkP fix, the chain reaches
+  BootChannelEther's real global frame and the remaining failure is downstream
+  in TrapsImpl start/swap/state handling.
+
+Next step:
+
+1. Decode the TrapsImpl `Start`/`StartCM` bytecode around `pcf=0o613..0o623`
+   and `pcf=0o137..0o145` against the source. The open question is why this
+   `Start[[frame[frame]]]` path raises/falls into runtime signal handling before
+   `CodeTrap` reaches `frame.code.out <- FALSE`.
+2. Reuse the older session-19/20 StateVector work instead of redoing it from
+   scratch. The current trace again walks through the same `StartWithState` /
+   frame-state area (`MDS+0o2264/0o2300`) after the StartFault/signal path.
+3. Determine whether the nonzero saved `state.stkptr` / frame allocation is an
+   emulator bug in `DST`/`STATE`/XFER frame setup, or whether BootChannelEther
+   should have been marked started/resident earlier by the boot-channel init
+   call.
+4. Keep the fixed BootChannelDisk window command handy:
+
+   ```sh
+   env DORADO_TRACE_GATE=68033480,68035000 \
+     DORADO_IFUDISP_TRACE=1 DORADO_XFER_TRACE=1 DORADO_XLINK_TRACE=1 \
+     ./build/dorado --eb ../chm/dorado/CedarDorado.eb!6 \
+       --germ ../chm/cedar/germ-alt/Dorado.germ-6.1.6 \
+       --eftp ../chm/bootfiles/CedarNetExec.boot!4 \
+       --germ-netboot-bfn 0 --cycles 68035020 2>&1 |
+     rg "IFUDISP|XFER|XLINK"
+   ```
+
+## ROUTE B (2026-06-17, session 23): XFER StkP off-by-one DISPROVEN; StkError-HOLD is a correct-but-symptomatic catch; real blocker is a REPEATING 16-entry binding scan in module 3E15DC
+
+### FOLLOW-UP 10 (corrects follow-ups 5/7/8/9: PrincOps procedure-link gfi is `link >> 7`, not `link >> 6`; `0o1221` is NOT BootChannelEther)
+Re-ran the tight BootChannelDisk fallback window with:
+
+`DORADO_XFER_TRACE=1 DORADO_XLINK_TRACE=1 DORADO_IFUDISP_TRACE=1 DORADO_STORE_TRACE_VA=017403356,017403356 DORADO_TRACE_GATE=68032660,68033120`
+
+Key correction: the earlier decode of procedure links used the wrong shift.
+`DMesaXfer.mc` explicitly says:
+
+`XferTagOdd: RTemp2_ RSH[T, IfE[AltoMode, 0, 6, 7]]`
+
+For **PrincOps** this is `RSH[...,7]`, and `XferDisp01` uses
+`T_ (RTemp2)+(GFT)` (not `2*gfi+GFT`). Therefore the old table decode
+`gfi = link >> 6` was wrong for Cedar/Pilot. In particular,
+**`0o1221` is not a BootChannelEther procedure link**. The force-patch
+experiments that wrote `0o1221` were based on a bad decoder and should be
+ignored as evidence about the real link chain.
+
+What the current trace actually shows:
+
+- The BootChannelDisk frame is allocated by `XferProc` at cyc `68032775..68032794`.
+  `STORE_VA` proves `XferProc pc=0o4034` stores its return link:
+  `M[0o17403356] <- 0o2704` (`L+2`, source link/SLink).
+- The BootChannelDisk bytecode sequence at pcf `0o42..0o54` is:
+  `LIW`, `LI1`, `LLKB 0o11`, `R0`, `LDIV`, `SGB 0o50`, `RET`.
+  This is not a direct external call; it computes/stores state and then
+  returns through the frame's `returnlink`.
+- `RET` at pcf `0o54` reads that frame return link. `XferMD` sets DLink from
+  the fetched MD, so the actual XFER destination is **`0o2704`**, not the
+  stale pre-RET T value `0o6200`.
+- XFER then treats `0o2704` as a frame link and loads
+  `M[0o17402704] = 0o4764`, i.e. TrapsImpl's global frame. That is why
+  control lands in TrapsImpl. This is consistent with the frame having been
+  entered from a trap/startup context, not with a direct
+  BootSwapGerm->BootChannelDisk->BootChannelEther procedure call.
+
+New frontier:
+
+1. Stop chasing `0o1221` and the `gfi>>6` codeLink table. They are wrong for
+   PrincOps.
+2. Decode the actual procedure-link extraction with `RSH[...,7]` and
+   `LDF[...,5,1]`, then identify what procedure link should represent
+   `RemainingChannels.Create` in BootChannelDisk's import machinery.
+3. The next suspicious low-level spot is the XFER procedure-link decode path
+   (`pc=0o1700..0o1707`): the `DORADO_XLINK_TRACE` line for `pc=0o1700`
+   shows `T=0o11` but bus values `a=b=0o1101` while executing the
+   `RTemp2_ RSH[T,7]` instruction. Verify whether that is the correct MicroD
+   encoding of `RSH[T,7]` or a shifter/FF-subdecode bug in the emulator.
+4. If the `RSH[T,7]` path is correct, the remaining issue is higher-level:
+   BootChannelDisk's module-start/fallback path is returning to TrapsImpl
+   because it was invoked from the trap/start chain, and BootChannelEther
+   startup/binding has not been reached through the expected chain.
+
+### FOLLOW-UP (corrects this entry's framing -- the germ gets MUCH further than "head-startup")
+Decoded the maintenance-panel (MP) trail via the SETMP opcode (zMISC=op
+`0o364`, alpha `0o10` = aSETMP; the code is on TOS=acs[0]). The SETMP codes in
+the failure window are both `0o1452` = **810 = germStarting** (NOT germERROR),
+and the "16-entry scan in 3E15DC" is just **ProcessorHeadDorado.InitSetMPTrap**
+rendering the MP code into the cursor bitmap (`cursorPtr[0..15]`, then 3 digits
+via the `BITBLT` opcode `0o365`) -- pure DISPLAY aftermath, run twice
+(= 2 SetMP calls). So the 3E15DC "grind" is NOT the bug; head-startup
+COMPLETES. (Module 3E15DC = ProcessorHeadDorado: codebase `0o17412734` at
+global frame g=`0o3400`, confirmed by VM dump M[`0o17403401`]=`0o12734`,
+M[`0o17403402`]=`0o76`.)
+
+WHAT ACTUALLY HAPPENS (current tree = committed + uncommitted StkError, with
+`--germ-netboot-bfn 0`): the germ completes head-startup, enters `Run[]`, shows
+**germStarting**, takes the seeded **inLoad / ethernet** path (the
+`--germ-netboot-bfn` "BS key" hack WORKS), and dies AFTER germStarting but
+BEFORE **germInLoad** (812) -- i.e. inside the Ethernet boot-channel bring-up,
+with germERROR (821 = unnamed ERROR/uncaught trap), NOT the clean germNoServer
+(828) / germDeviceError (825) a timeout would give.
+
+LOCALIZED to **`MiniEthernetDriver.ActivateDriver`** (or the path into it):
+`BootChannelEther.Create` (deviceType=ethernet) -> `StartRecving` ->
+`MiniEthernetDefs.ActivateDriver` -> `EthernetOneFace` device procs
+(`GetNextDevice`/`GetEthernet1Address`/`AddCleanup`/`TurnOn`, implemented by
+**EthernetOneHeadDorado**, gfi 300). DECISIVE: a `DORADO_ETH_TX_TRACE` run
+shows the ONLY transmit is the Stage-1 MicrocodeBoot request (Pup type
+`0o264`, bfn `0o110`); the germ's `SendPacket[bootFileSend]` NEVER fires -- so
+it traps in `ActivateDriver` (the first thing `StartRecving` does), BEFORE the
+SendPacket retry loop. The StkError underflow / germERROR is the trap-handling
+tail of that earlier trap (TrapsImpl reads the faulting codebase `0o174067xx`).
+
+So our in-process EFTP/Mayday server never even gets a `bootFileSend` to
+answer. The bug is the germ's Pilot Ethernet driver (MiniEthernetDriver +
+EthernetOneHeadDorado / `EthernetOneFace`) hitting an operation our
+emulator's Ethernet model -- built for Initial's Stage-1 MicrocodeBoot --
+does not support, causing a trap.
+
+NEXT STEP (revised): read `chm/cedar/os-src/EthernetOneHeadDorado.mesa!1.txt`
+(now readable via the new `tools/tioga2txt`) -- the `GetNextDevice` /
+`GetEthernet1Address` / `TurnOn` / `QueueOutput` / `QueueInput` / `GetStatus`
+`EthernetOneFace` procedures -- and trace where in the `ActivateDriver` chain
+the germ traps (gate a `DORADO_XFER_TRACE` + `DORADO_FAULT_TRACE` to the window
+after germStarting, ~cyc 68007000+). Then decide whether to extend the
+emulator's Ethernet device to support the germ's driver (IOCB/control-block
+ops) so `ActivateDriver` succeeds and the germ reaches `SendPacket[bootFileSend]`
+-> our EFTP server. Repro:
+`DORADO_ETH_TX_TRACE=1 ./build/dorado --eb '../chm/dorado/CedarDorado.eb!6'
+--germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6'
+--eftp '../chm/bootfiles/CedarNetExec.boot!4' --germ-netboot-bfn 0
+--cycles 120000000` (only TX is the `0o264` Stage-1 request; no `bootFileSend`).
+
+### FOLLOW-UP 2 (REFINES follow-up 1: the germ dies at the BootChannelDisk->BootChannelEther chain link, BEFORE ActivateDriver)
+Mapped every running module by codebase (codebase = cb_hi*65536 + cb_lo, read
+from each global frame g+1/g+2; VM dump at cyc 68007740):
+- 3E15DC=ProcessorHeadDorado(g=3400) 3E18A8=DiskHeadDorado(4524)
+  3E1A6D=EthernetOneHeadDorado(4634) 3E1E10=BootSwapGerm(4720)
+  3E0D00=GermSwapImpl(4740) 3E0D58=TrapsImpl(4764) 3E0F39=TeledebugImpl(4770)
+  3E1435=MiniEthernetOneDriver(5430) 3E1164=BootChannelDisk(6160)
+  3E1309=BootChannelEther(6234).
+
+The germ DOES take the seeded ethernet path: pRequest reads
+`[action=0(inLoad), deviceType=5, ord=0, bfn=0]` (VM dump 0o17401361=5). It
+runs BootSwapGerm.Run -> BC.Create. The chain (GermDorado.config) is
+BootChannelDisk(BC0) -> BootChannelEther(BC1) -> BCnull(backstop). The germ
+runs **BootChannelDisk.Create** (3E1164, ~10 dispatches: reads
+pRequest.location at `0o1361`, deviceType 5 != sa1000/sa4000 -> falls to
+`RETURN[RemainingChannels.Create[...]]`). That `RemainingChannels.Create` call
+**XFERs to TrapsImpl (G=`0o4764`), NOT BootChannelEther** -- with
+`acs=006160(BootChannelDisk G),177774(UnboundLink),...`. **BootChannelEther
+(3E1309) NEVER runs** (0 dispatches out to cyc 68.2M); TrapsImpl runs ~31
+dispatches, then the germ stops dispatching (JB-0 germERROR spin).
+
+KEY NUANCES (narrow the root):
+- BootChannelEther IS loaded as a module: its global frame G=`0o6234` has a
+  valid codebase (`0o11411,,0o76`). So only the inter-module CALL fails, not
+  the module's presence.
+- There is **NO `SavePCAndTrap` (pc=`0o2000`)** when TrapsImpl is entered here
+  (the pc-`0o2000` trap trace is empty for cyc 68032000+). So either the XFER
+  goes straight to TrapsImpl via the XFER microcode's own unbound/odd branch
+  (no SavePCAndTrap), or the link literally points at TrapsImpl.
+- `0o177774` occurs only **2x** in the whole germ MDS (0o17400000-0o17420000)
+  -- so it is NOT a pervasive UnboundLink splatter (unlike germ!4's `0o27132`
+  or the `0o26411` of session 19). It is specific.
+- BC0 (BootSwapGerm->BootChannelDisk) WORKS (BootChannelDisk runs real code),
+  but BC1 (BootChannelDisk->BootChannelEther) does NOT -- so the chain-link
+  binding/relocation is SELECTIVELY wrong for BC1.
+
+OPEN ROOT (decisive next test): trace the BootChannelDisk `RemainingChannels.
+Create` opcode (the EFC/SFC at BootChannelDisk pcf ~`0o54`/`0o62`) and capture
+the exact control-link value it loads + the trap index. Distinguish:
+(A) the BC1 link is genuinely UnboundLink `0o177774` (our germ relocation/GFT
+setup failed to bind the BootChannelDisk->BootChannelEther EFC link -- compare
+the germ FILE bytes for that link vs VM); vs
+(B) BootChannelEther's code is swapped-out and the call's CodeTrap->Start
+lazy-start fails (the start-chain bug, same family as the 6 sSwapTraps seen
+earlier). BootChannelDisk's code-segment link area
+(VA ~`0o17410530..0o17410543`) holds links `0o4631,0o4550,0o3424,0o4632,...`
+(near head-module G's) but NO `0o62xx` link to BootChannelEther(G=`0o6234`) --
+which supports (A): the BootChannelEther.Create link is missing/unbound.
+Repro: same `--germ-netboot-bfn 0` run; gate `DORADO_XFER_TRACE` to
+`68032000,68033000` and watch BootChannelDisk (br31=3E1164) -> XFER to
+G=`0o4764`.
+
+VERIFY ALSO: confirm `ethernet` really = Device.Type ordinal **5** (the seed's
+`GERM_DTYPE_ETHERNET`); `sa4000`=3 is runtime-confirmed but `ethernet`=5 was
+author-derived. If 5 is wrong, BootChannelEther.Create wouldn't match it even
+once reached -- but the BC1-link failure is the immediate blocker regardless.
+
+### FOLLOW-UP 3 (EXACT values: the failing call is zLLKB #9, and its codeLink is wrong)
+The call opcodes (PrincOps.mesa): `op=0o344`=**zLLKB** (Load LinK Byte),
+`op=0o343`=zRET. At BootChannelDisk pcf `0o46` the germ runs **`zLLKB alpha=0o11`**
+to load external link #9 (= the `RemainingChannels.Create` link to
+BootChannelEther.Create). zLLKB microcode (DMesaXfer): `IF G.codeLinks THEN
+Push[Fetch[C - alpha - 1]] ELSE ...` -- codeLinks mode reads the link from the
+code segment, just before the codebase C.
+
+DIRECT TRACE (DORADO_XFER_TRACE md=data, lva=addr; cyc ~68032854):
+- zLLKB reads G's GFI word `M[0o17406160]=0o1115` (codeLinks bit set), computes
+  T=`0o177766` (= -(alpha+1) = -0o12), and reads the codeLink at
+  **VA `0o17410532` -> `0o3424`**.
+- `0o3424` is then used indirectly: `Fetch[0o17403424] -> 0o6200`. But
+  `0o3424` (= ProcessorHeadDorado G `0o3400` + `0o24`) points INTO
+  ProcessorHeadDorado's frame, NOT BootChannelEther (G=`0o6234`).
+- The resolution ends on control link `0o103240` -> gfi = `0o103240>>6` =
+  `0o1032` (538) -- OUT OF the 128-entry GFT -> unbound -> XFER's sUnbound
+  branch -> SD[sUnbound] -> TrapsImpl -> germERROR. (No SavePCAndTrap; the
+  XFER's own unbound branch dispatches it.)
+
+So the concrete defect is **BootChannelDisk's codeLink #9 at VA `0o17410532`
+holds `0o3424` (wrong) instead of a valid link to BootChannelEther.Create
+(gfi `0o1200`=640, i.e. a link ~`0o120000`)**. The codeLink region for
+BootChannelDisk is at VA `0o174105xx` just below codebase `0o17410545`:
+`...0o3424(@532),0o4632(@533),...` -- none of which encode gfi 640.
+
+DECISIVE TEST DONE (file vs emulator) -- RESULT: NOT a relocation bug.
+Read the germ file directly (`Dorado.germ-6.1.6`, big-endian words; the germ
+loads word0->VM `0o1000` then GERMREMAP adds `0o17400000`, so VA `0o17410532` =
+file word `0o7532`). File word `0o7532` = **`0o3424`** -- IDENTICAL to VM, and
+the whole neighbor region matches byte-for-byte
+(file `0o7530..0o7536` = `0o4631,0o4550,0o3424,0o4632,0o217,0o211,0o207` =
+the VM `0o174105xx` dump). word0=`0o3354` confirms the file<->VM mapping. So
+**the codeLink `0o3424` is GENUINE germ data; GERMREMAP did not corrupt it.**
+
+REVISED ROOT: this is an **emulator link-RESOLUTION** problem, not a
+relocation/binding-data problem. The germ legitimately stores `0o3424` as
+BootChannelDisk's codeLink #9, and `RETURN[RemainingChannels.Create[...]]`
+is a TAIL CALL: zLLKB #9 loads `0o3424` as the source/return link, then
+**zRET (op `0o343`, pcf `0o54`) XFERs through it**. Our emulator resolves
+`0o3424` to an out-of-range gfi (`0o1032`) -> unbound. So either (a) our XFER /
+codeLink resolution unpacks `0o3424` wrong (it must resolve to
+BootChannelEther.Create, gfi `0o1200`), or (b) a GFT/PrincOps binding table the
+resolution indexes is mis-set. The trace shows the resolution doing
+`Fetch[0o17403424]->0o6200` (treating `0o3424` as a pointer into
+ProcessorHeadDorado's frame G=`0o3400`) -- that intermediate looks wrong; the
+correct codeLink resolution must NOT land in ProcessorHeadDorado.
+
+NEXT: read the PrincOps zRET + codeLink resolution semantics (DMesaXfer.mc
+XferProc/XferTagOdd/XferTagEven + the LLKB GetLinkID subroutine), and verify
+our emulator's XFER applies them to `0o3424` the same way real hardware does.
+Cross-check GFT setup at MDS+`0o1400` (gfi-indexed). Repro:
+`DORADO_XFER_TRACE=1 DORADO_IFUDISP_TRACE=1 DORADO_TRACE_GATE=68032800,68033000`
+-- BootChannelDisk pcf `0o46` zLLKB reads `0o3424` from `lva=0o17410532`, then
+pcf `0o54` zRET XFERs through it to the sUnbound handler.
+
+### FOLLOW-UP 4 (ruled out GFT binding too; root is the codeLink RESOLUTION of 0o3424)
+Checked the remaining bind tables; both are CORRECT, so the defect is narrowed
+to how the codeLink `0o3424` is resolved:
+- **GFT is correct.** GFT base = MDS+`0o1400`, indexed by `gfi>>6`:
+  `GFT[9]`=`M[0o17401411]`=`0o6160` (BootChannelDisk, gfi `0o1100`),
+  `GFT[10]`=`M[0o17401412]`=`0o6234` (BootChannelEther, gfi `0o1200`),
+  `GFT[1]`=`0o3400` (ProcessorHeadDorado), `GFT[6]`=`0o4764` (TrapsImpl). So a
+  link carrying gfi `0o1200` WOULD reach BootChannelEther correctly.
+- **CodeTrap doesn't bind links.** germopsimpl's swap-trap handler
+  (`ReadCodebase`/`WriteCodebase` clears the out-bit, then
+  `ControlModuleFormat.Call[MainBody[gfi]]`) only makes code resident + runs
+  MainBody; it does not fix up links. So codeLinks are pre-bound (consistent
+  with file==VM).
+
+So GFT + relocation + module presence are all correct. The lone defect is that
+**BootChannelDisk's codeLink #9 = `0o3424` does NOT resolve via the GFT to
+gfi `0o1200`** -- our XFER treats it as a frame link (`Fetch[0o17403424]->0o6200`,
+an invalid G) and ends unbound. None of BootChannelDisk's codeLinks
+(`0o4631,0o4550,0o3424,0o4632,0o217,...`) look like a proc link with gfi
+`0o1200` in the high bits, so the codeLinks use a Cedar-specific encoding
+(frame/indirect/GFT-relative) that our `zLLKB`+`zRET`+XFER path resolves
+incorrectly. NOTE the open sub-question: confirm our `zLLKB` reads the RIGHT
+codeLink slot (alpha `0o11` -> VA `0o17410532`; my C-offset had a +/-1
+ambiguity, so an off-by-one slot read is possible -- if the correct
+BootChannelEther link sits in an adjacent slot, the bug is the zLLKB offset).
+
+REMAINING WORK (the real fix, microcode-vs-emulator): step the FULL
+`zLLKB`(pcf `0o46`)+`zRET`(pcf `0o54`)+XFER resolution of `0o3424`
+microinstruction-by-microinstruction against `DMesaXfer.mc` (XferProc /
+XferTagOdd / XferTagEven / GetLinkID) and find where our microengine diverges
+from the Cedar codeLink semantics -- or where the zLLKB codeLink offset is
+off by one. Everything upstream (germ planting, GERMREMAP, GFT, module
+presence) is verified correct.
+
+### FOLLOW-UP 5 (the EXACT anomaly: zLLKB #9 lands on a frame link; the real BootChannelEther link is at index #2)
+Disassembled GetLink/GetLinkID (DMesaXfer.mc): `GetLink: T_ NOT(T);
+LongFetch_ T` with MemBase=Code -> fetch at **Code - alpha - 1** (downward
+from the code base). For BootChannelDisk: Code base BR[`0o37`] = br31 =
+`0o17410544` (= codebase `0o10545,,0o76` minus 1), alpha=`0o11`(9) ->
+Code-10 = VA `0o17410532` = **`0o3424`** (what our zLLKB loaded). alpha=`0o11`
+is GENUINE bytecode: the code word at `0o17410567` = `0o162011` =
+`[opcode 0o344=zLLKB, alpha 0o11]` (IFU decoded it correctly).
+
+Decoded BootChannelDisk's whole codeLink table as procedure links
+`[gfi=w>>6, ep=(w>>1)&037, tag=w&1]` (downward index = Code-VA-1):
+```
+  idx#0 0o411 gfi4    idx#1 0o221 gfi2    idx#2 0o1221 gfi10 <== BootChannelEther (GFT[10]=0o6234)!
+  idx#3 0o213 gfi2    idx#4 0o203 gfi2    idx#5 0o207 gfi2
+  idx#6 0o211 gfi2    idx#7 0o217 gfi2    idx#8 0o4632 tag0(frame)
+  idx#9 0o3424 tag0(frame) <== WHAT WE LOADED (garbage gfi 28)
+  idx#10 0o4550 tag0   idx#11 0o4631 tag1 gfi38
+```
+So the ONE valid BootChannelEther link (`0o1221`, gfi 10, tag=1 procedure) is
+at **index #2**, but the germ's zLLKB uses **alpha #9** and lands on the frame
+link `0o3424`. A 7-slot gap. tag-1 (procedure) links cluster at #0-#7,#11;
+tag-0 (frame) links at #8-#10 -- and #9 is a frame link, semantically wrong
+for `RETURN[RemainingChannels.Create[...]]` (a procedure call).
+
+THREE candidate roots (decisive work for next session):
+1. **LoadGC sets the Code base wrong.** Our BR[`0o37`]=`0o17410544`. If real
+   hardware's links live at a different base (so index #9 reaches `0o1221` at
+   `0o17410541`, the base would need to be `0o17410553` = codebase+6), our
+   LoadGC / code-base setup is off. Trace LoadGC for BootChannelDisk and check
+   the Code base vs codebase, and whether codeLinks are at a header offset, not
+   immediately below the codebase.
+2. **Our zLLKB link-index arithmetic is off.** The microcode does
+   `Code - alpha - 1`; verify our microengine executes `T_ NOT(T)` +
+   `LongFetch_ T` to the same VA hardware would (re-check the +/-1 and the
+   MemBase=Code base register).
+3. **codeLink table ordering** -- but file==VM is verified, so this would have
+   to be a layout/interpretation difference, not corruption.
+Note the strong hint: a valid, correctly-encoded BootChannelEther link
+(`0o1221`->GFT[10]) EXISTS in the table, so the germ image is fine; the defect
+is in how our emulator indexes/loads/bases the codeLink for alpha #9. Repro:
+`DORADO_XFER_TRACE=1 DORADO_TRACE_GATE=68032850,68032880` -- watch the
+LongFetch at MemBase Code (`mb=0o37`) read `lva=0o17410532` (`0o3424`); the
+target slot for `0o1221` is `0o17410541`.
+
+### FOLLOW-UP 6 (full resolution trace: zRET resolves the codeLink to TrapsImpl, not BootChannelEther -- this is the frontier)
+Traced the zRET (pcf `0o54`) resolution end to end (DORADO_XFER_TRACE,
+cyc 68033054+). The zLLKB-loaded `0o3424` is processed and the zRET transfers
+through link **`0o6200`** (T=`0o6200` at Xfer entry pc `0o1700`). The XFER then:
+`0o6200` -> (pc `0o1706`) T=`0o2704` -> reads frame `0o2704`'s globallink
+`M[0o17402704]=0o4764` (= TrapsImpl G) -> LoadGC G=`0o4764` (reads TrapsImpl
+codebase `0o6530,,0o76`) -> XferExitDispatch -> enters **TrapsImpl at
+pcf `0o623`** (br31=3E0D58). So the codeLink resolves to a TrapsImpl frame,
+NOT BootChannelEther, and TrapsImpl then drives germERROR. (No SavePCAndTrap;
+this is a normal-looking XFER that lands on the wrong module.)
+
+So the chain is: zLLKB #9 -> `0o3424` -> (processed) -> `0o6200` -> frame
+`0o2704` (a TrapsImpl frame) -> TrapsImpl. Whether the defect is the LOAD
+(`0o3424` is the wrong slot; the valid BootChannelEther link `0o1221` is at
+index #2 -- follow-up 5) or the RESOLUTION (`0o3424`/`0o6200` is right but our
+XferProc/XferTagEven mis-resolves it) is the remaining question, and it now
+requires disassembling + stepping the actual XferProc / XferTagEven /
+XferTagOdd / LoadGC microcode (`mbdis --disasm 'chm/dorado/Cedar.mb!6'`, real
+pc `0o1700`/`0o1706`/`0o2003`/`0o3600`/`0o3611`) against our microengine's
+execution, microinstruction by microinstruction, to find the divergence.
+
+THIS IS THE FRONTIER. Everything upstream is verified correct (germ planting,
+GERMREMAP, GFT binding gfi 1100->`0o6160` / 1200->`0o6234`, module presence,
+IFU operand decode alpha=`0o11`, the codeLink table is genuine germ data with a
+valid BootChannelEther link `0o1221`@#2). The bug is in the
+zLLKB-load-slot-or-XFER-resolution of the BootChannelDisk->BootChannelEther
+codeLink. Repro: `DORADO_XFER_TRACE=1 DORADO_TRACE_GATE=68033050,68033190`
+(zRET at BootChannelDisk pcf `0o54` resolves link `0o6200` to TrapsImpl
+pcf `0o623`). Next session: side-by-side microcode disasm vs emulator step.
+
+### FOLLOW-UP 7 (force-and-observe: NEGATIVE -- forcing the codeLink to 0o1221 does NOT reach BootChannelEther)
+Added a gated diagnostic (`DORADO_FORCE_BCLINK`, machine.c, UNCOMMITTED) that
+overwrites BootChannelDisk's codeLink #9 slot (VA `0o17410532`) from `0o3424`
+to `0o1221` (the "valid BootChannelEther link" decoded at index #2 in
+follow-up 5). RESULT: the force fires (`0o3424 -> 0o1221 @cyc 67929860`) and
+CHANGES behavior -- BootSwapGerm now runs 42603 dispatches (was 168) -- but
+**BootChannelEther (3E1309) STILL never runs**, no `bootFileSend`, and the germ
+STILL germERRORs (BootSwapGerm spins 42591x at pcf `0o5334` = the JB-0
+germERROR spin; 0 display pixels).
+
+So the simple "load the right link value" theory is DISPROVEN. Two
+implications for the next session:
+1. **`0o1221` may NOT be BootChannelEther.Create.** My follow-up-5 decode
+   (`gfi=w>>6`, so `0o1221>>6=10`=GFT[10]=BootChannelEther) may be wrong --
+   the ControlLink bit layout / gfi-extraction needs to be re-derived from
+   PrincOps (`procedure => [gfi: GFTIndex, ep: EPIndex, tag: BOOL]`) and the
+   actual XFER microcode, not assumed. Treat the "valid link at index #2"
+   claim as UNCONFIRMED.
+2. **The codeLink RESOLUTION (XferProc/XferTagEven) may be broken independent
+   of the value** -- forcing a plausibly-valid value still didn't resolve to
+   BootChannelEther. So the bug is more likely in how our microengine resolves
+   these Cedar codeLinks than in the loaded value alone.
+
+NET: the force experiment redirects the next session AWAY from "patch the link
+value" and TOWARD "step the XFER codeLink resolution microcode vs our
+microengine" (the follow-up-6 frontier). The exact ControlLink encoding +
+XferProc/XferTagEven/LoadGC resolution must be disassembled and compared
+microinstruction-by-microinstruction. Uncommitted debug aids in the tree:
+`DORADO_FORCE_BCLINK` (machine.c), `DORADO_DMUX_TRACE` (memory.c), the StkError
+HOLD (cpu.c) -- none committed.
+
+### FOLLOW-UP 8 (CORRECTED encoding + the codeLink is INDIRECT -- deref goes through ProcessorHead's global frame)
+Re-derived the exact ControlLink encoding from PrincOps.mesa (the
+`rep => [fill:[0..37777B], indirect:BOOL, proc:BOOL]` overlay gives the
+discriminator bits): in C-word terms, **`W&1`=proc bit, `W&2`=indirect bit**.
+So `W&1==1` -> procedure `[gfi=(W>>6)&01777, ep=(W>>1)&037]`; `W&3==0` -> frame
+link (frame=W); `W&3==2` -> indirect (W&~3 = POINTER TO ControlLink/Port).
+With this: `0o3424` (`W&3=0`) = frame link; `0o1221` (`W&1=1`) =
+procedure[gfi=10,ep=8] -> GFT[10]=`0o6234` = BootChannelEther (so the
+follow-up-5 decode of `0o1221` WAS right).
+
+But the force-and-observe (follow-up 7) is now EXPLAINED and the picture
+CORRECTED: with `DORADO_FORCE_BCLINK` the zLLKB really does read `0o1221`
+(traced: `md=0o1221 lva=0o17410532`, `0o1221` on stack), yet the bytecode
+immediately **DEREFERENCES it** (`Fetch[0o17401221]=0`) -- i.e. codeLink #9 is
+accessed as a POINTER (indirect import), not a direct link. So forcing a
+DIRECT procedure link (`0o1221`) was the wrong KIND of value; `*0o1221`=0 ->
+trap -> germERROR. The negative force result is a value-type mismatch, not a
+disproof of the link theory.
+
+WHAT THE INDIRECT DEREF ACTUALLY DOES (unforced, link=`0o3424`):
+`*0o3424` = `M[0o17403424]` = **`0o6200`**, and `0o17403424` is
+ProcessorHeadDorado's global frame region (`G=0o3400` + `0o24` = global var
+`0o24`). So `RemainingChannels.Create` resolves: codeLink #9 `0o3424` (a
+pointer) -> ProcessorHead.global[`0o24`] = `0o6200` -> (frame link) -> ... ->
+TrapsImpl. It should reach BootChannelEther (`0o6234`), so the indirect chain
+lands on the wrong target.
+
+OPEN (the real fix, refined): why does codeLink #9 `0o3424` deref to
+ProcessorHead's global `0o24` (`0o6200`) instead of a BootChannelEther link?
+Either (a) `0o3424` (genuine germ data) is the correct indirect pointer but it
+should point somewhere holding a BCEther link and our emulator computes the
+deref ADDRESS wrong, or (b) ProcessorHead.global[`0o24`] is SUPPOSED to hold a
+BCEther pointer and our ProcessorHead init never set it (a module-init / fixup
+our emulator skips), or (c) `0o6200` IS the right indirect link and our XFER
+mis-resolves it. NEXT: identify the post-zLLKB opcodes (op `0o100`/`0o255`/
+`0o055` at BootChannelDisk pcf `0o50`/`0o51`/`0o52`) that do the deref, decode
+what address they compute, and check whether ProcessorHead.global[`0o24`]
+(`M[0o17403424]`) should hold `0o6200` or a BCEther pointer. To force-test
+correctly now: patch `M[0o17403424]` (the indirect target) to a BCEther
+procedure link (`0o1221`), NOT the codeLink slot. Repro:
+`DORADO_FORCE_BCLINK=1 DORADO_XFER_TRACE=1 DORADO_TRACE_GATE=68032850,68033010`.
+(Uncommitted debug aids in tree: DORADO_FORCE_BCLINK/DMUX_TRACE/StkError.)
+
+### FOLLOW-UP 9 (corrected force ALSO negative; force-patching is exhausted -- next must be a microcode walk or reference impl)
+Patched the indirect TARGET `M[0o17403424]` (`0o6200 -> 0o1221`, the BCEther
+proc link) instead of the codeLink slot. Fired @cyc 68000608, but the germ
+STILL never reaches BootChannelEther (3E1309) and germERRORs (BootSwapGerm
+spins at pcf `0o5334`). So neither force works. Confounders that make
+force-and-observe unreliable here: (1) the resolution is a multi-step indirect
+chain (codeLink ptr -> ProcessorHead.global[`0o24`] -> `0o6200` -> further
+processing by the post-zLLKB opcodes `0o100`/`0o255`/`0o055` -> zRET -> XFER),
+(2) the indirect target `M[0o17403424]` is a RUNTIME global that may be
+re-written between the patch (68000608) and the zLLKB deref (~68032880), (3)
+value-type sensitivity (the chain expects specific link kinds at each step).
+
+ASSESSMENT: inline tracing + force-patching is EXHAUSTED for this bug. The
+defect is somewhere in the multi-step indirect codeLink resolution
+(`zLLKB` -> deref -> `0o100`/`0o255`/`0o055` -> `zRET` -> `XferProc`), and
+pinning it needs a fundamentally different method:
+  (a) DISASSEMBLE + STEP the exact opcodes (decode op `0o100`/`0o255`/`0o055`
+      from PrincOps -- they do the indirect deref + link massaging) and the
+      XferProc/XferTagEven/XferTagOdd microcode, comparing our microengine's
+      execution to the canonical microcode microinstruction-by-microinstruction;
+      AND/OR
+  (b) get a REFERENCE: what does this exact codeLink chain resolve to on real
+      hardware / another PrincOps impl? The germ's RemainingChannels (an
+      indirect BootChannel import) -> BootChannelEther.Create. Decode op
+      `0o100`/`0o255`/`0o055` first (PrincOps.mesa opcode table) -- they ARE
+      the indirect-link massage and likely where our emulator diverges.
+VERIFIED-CORRECT upstream (do NOT re-chase): germ planting, GERMREMAP
+(file==VM), GFT (gfi 1100->`0o6160`, 1200->`0o6234`), module presence
+(BCEther loaded), IFU operand decode (alpha `0o11`), ControlLink encoding
+(`W&1`=proc/`W&3==2`=indirect), and that `0o1221`=BCEther proc link. The bug
+is isolated to the indirect-codeLink resolution chain for
+BootChannelDisk->BootChannelEther.
+
+### (original session-23 findings below -- the StkError/XFER analysis stands;
+### only the "blocker = 3E15DC grind / head-startup" framing is superseded above)
+
+Investigated the uncommitted `cpu.c` work (StkError HOLD + fault-task wake)
+against the documented `xf.push`/XFEREXIT root cause. Three findings, all
+instrumented on the current working tree (committed + uncommitted StkError),
+germ-6.1.6 + CedarDorado.eb!6, `--germ-netboot-bfn 0`:
+
+1. **The `xf.push`/XFER StkP off-by-one theory does NOT hold on the current
+   tree.** Per-PC StkP accounting over the head-startup window
+   (`DORADO_STKP_TRACE`, gate 68000000,68040000) shows the XFER
+   anticipation/cancellation balances EXACTLY: XferProc `0o4030` (+26) +
+   XferDisp00 `0o2004` (+31) = **57 anticipation +1 = 57 XferExit `0o2026`
+   -1**. At the DiskHead `@SFC` (cyc 68007728) the handler pops a REAL link
+   at stkp=1->0, NOT the empty-stack NullControl session 22 described (the
+   committed RestoreStkP + IFUReset fixes already changed that). So do NOT
+   re-chase the XFER `+1`/`-1` pairing or `xf.push`.
+
+2. **StkError-HOLD (uncommitted) is correct hardware behavior but only a
+   symptomatic catch.** HM §3.1 confirms verbatim: StkError HOLDs the
+   instruction (StkP uncommitted), latches StkUnd/StkOvf, and wakes the
+   fault task (task 15); Cedar has the real task-15 handler
+   (`DMesaFaults.mc`: FaultTask -> ChkStkErr -> EmuFault -> StackError,
+   `RestoreStkP` + clamp + `sStackError`). The uncommitted diff's ONLY
+   functional change is this HOLD intercept (the widened PC windows at
+   cpu.c:3344/3348 are just `DORADO_STACK_TRACE` gates). It fires EXACTLY
+   ONCE in a full run -- at cyc 68033697, pc=0o224, stkp=000, und=1 -- and
+   the germ still germERRORs (0 display pixels). It catches the underflow at
+   the bottom of the grind; it does not prevent it. KEEP it (it's HW-correct
+   and pairs with RestoreStkP), but run the Galaxian/NetExec PIXEL gate
+   (`make run-galaxian`/`run-netexec`, NOT just `make test`) before trusting
+   it -- the intercept runs on every emulator BLOCK=1 instruction and the
+   Alto worlds hammer the stack.
+
+3. **The real head-startup blocker is a REPEATING 16-entry binding scan in
+   module `br31=3E15DC`, not a StkP/XFER bug.** `DORADO_IFUDISP_TRACE`
+   shows pcf 0o2240..0o2257 each dispatched exactly 32x, all in module
+   3E15DC (br31 NEVER advances). The loop-top (pcf 0o2240) `acs[1]` is a
+   counter that climbs 0->0o17 (16 entries) then RESETS to 0 and repeats --
+   a 16-entry counted scan run >=2x with IDENTICAL state (so it is a spin,
+   NOT forward progress through different OS-resident frames). The scanning
+   opcode (`pc=0o224`) reads a run of codebase long-pointers
+   (`lva`=0o17406760,6762,6764,6766,... +2 each) and encounters
+   **`T=0o177774`** -- the same UnboundLink-class value sessions 20/22 hit.
+   Only 4 traps in the whole grind, all sSwapTrap (T=0o10); no ControlFault.
+   The repeated scan slowly drains the stack until the `0o224` pop
+   underflows -> StkError -> germ still ends in germERROR.
+
+**NEXT STEP (the decisive open question):** identify the 16-entry table at
+codebase ~`0o174067xx` that module 3E15DC re-scans, and determine whether
+the unbound entries (`0o177774`) are (a) genuinely OS-bound imports a
+germ-only run cannot supply (-> OS boundary; strategy must change), or
+(b) entries the germ's own relocation/binding pass should have filled but
+our emulator computed wrong (-> fixable emulator/germ-state bug). This
+converges with session 20's `0o177774` ("a stack word of a well-formed
+StateVector") and session 22's start-chain reading. Repro:
+`DORADO_IFUDISP_TRACE=1 DORADO_XFER_TRACE=1
+DORADO_TRACE_GATE=68007000,68034000 ./build/dorado --eb
+'../chm/dorado/CedarDorado.eb!6' --germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6'
+--eftp '../chm/bootfiles/CedarNetExec.boot!4' --cycles 120000000`
+(grep IFUDISP pcf=0o2240 for the counter; grep `pc=0o224` for the
+long-pointer scan + `T=0o177774`).
+
+NOTE on the `--germ-netboot-bfn` "BS key" hack: it FIRES correctly
+(`pRequest=0o17401360 action=inLoad device=ethernet`) but is downstream of
+this blocker -- the germ germERRORs in head-startup (the 3E15DC scan)
+BEFORE `Run[]` ever reads `pRequest`, so the netboot request never takes
+effect yet.
+
 ## ROUTE B (2026-06-17, session 22): `IFUReset` current-opcode state FIXED -- Cedar map restart now matches HM/Cedar microcode; remaining blocker is still germERROR before Stage-2 EFTP
 
 ### THE FIX (landed locally, `src/cpu.c`)

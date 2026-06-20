@@ -6,6 +6,8 @@
 
 #include "io.h"
 
+struct dorado_pdi;
+
 /*
  * Dorado Disk Controller (HM §9) — Trident T-80 / T-300 SMD.
  *
@@ -116,6 +118,7 @@ dorado_disk_sector *dorado_disk_pack_sector(dorado_disk_pack *pack,
 
 typedef struct {
     dorado_disk_pack *pack;          /* loaded pack, or NULL = no media */
+    const struct dorado_pdi *pdi;    /* Pilot/Cedar PDI media, or NULL */
     int               online;        /* drive is spun up + Ready */
     int               read_only;
     int               selected;      /* this drive is currently selected */
@@ -133,6 +136,7 @@ typedef struct {
 
     int  seek_in_progress;
     int  index_pulse;               /* set briefly on each rev */
+    int  head_overflow;             /* invalid head selected */
 } dorado_disk_drive;
 
 void dorado_disk_drive_init(dorado_disk_drive *drv);
@@ -244,6 +248,9 @@ void dorado_disk_controller_attach_to_io(dorado_disk_controller *ctl,
                                          dorado_io *io);
 void dorado_disk_controller_attach_drive(dorado_disk_controller *ctl,
                                          int slot, dorado_disk_pack *pack);
+void dorado_disk_controller_attach_pdi(dorado_disk_controller *ctl,
+                                       int slot,
+                                       const struct dorado_pdi *pdi);
 
 /* Refill the read FIFO from the current sector stream. Fast-IO drains
  * full munches directly, bypassing DiskData input, so the router calls
@@ -258,5 +265,11 @@ int dorado_disk_controller_wakeup_pending(const dorado_disk_controller *ctl);
  * the FIFO if the controller is in a read state. Synthetic helper —
  * real hardware sequences this from the format-RAM sequence PROM. */
 void dorado_disk_controller_advance_sector(dorado_disk_controller *ctl);
+
+/* Diagnostic DMux read for DiskHeadDorado's RWMufMan path. Handles
+ * DMux addresses 02000 + DiskHeadDorado.MufflerAddress and returns the
+ * selected bit in the sign position. */
+uint16_t dorado_disk_controller_dmux_read(dorado_disk_controller *ctl,
+                                          uint16_t addr, int *handled);
 
 #endif
