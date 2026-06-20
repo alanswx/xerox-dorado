@@ -287,6 +287,17 @@ int dorado_disk_controller_wakeup_pending(const dorado_disk_controller *ctl);
  * real hardware sequences this from the format-RAM sequence PROM. */
 void dorado_disk_controller_advance_sector(dorado_disk_controller *ctl);
 
+/* Read one logical page through the real controller read path (positions the
+ * selected drive, runs the read stream, and drains header+label+data out of
+ * the FIFO). Fills label[0..label_n) and data[0..data_n). Returns 0 on a full
+ * read, -1 otherwise. Used by the --disk-real boot bridge so Cedar's disk
+ * reads flow through the controller (FIFO + framing) rather than a direct copy
+ * (plan D4). */
+int dorado_disk_controller_read_page(dorado_disk_controller *ctl,
+                                     uint32_t page,
+                                     uint16_t *label, int label_n,
+                                     uint16_t *data, int data_n);
+
 /* Clock-driven timing model: advance the selected drive's sector/index
  * pulses based on the elapsed cycle count (3600 RPM, see
  * DORADO_DISK_CYCLES_PER_REV). Call once per machine step with the current

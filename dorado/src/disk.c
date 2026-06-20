@@ -520,6 +520,57 @@ void dorado_disk_controller_advance_sector(dorado_disk_controller *ctl)
     }
 }
 
+int dorado_disk_controller_read_page(dorado_disk_controller *ctl,
+                                     uint32_t page,
+                                     uint16_t *label, int label_n,
+                                     uint16_t *data, int data_n)
+{
+    if (!ctl) return -1;
+    dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
+    if (!disk_drive_has_media(d)) return -1;
+
+    int sectors = disk_drive_sectors(d);
+    if (sectors <= 0) sectors = 28;
+    /* Position the drive at the requested logical page, the way a real seek +
+     * head/sector select would (the read stream serves the selected drive's
+     * current CHS). */
+    d->cur_cyl    = (int)(page / (uint32_t)sectors);
+    d->cur_head   = 0;
+    d->cur_sector = (int)(page % (uint32_t)sectors);
+
+    if (!disk_begin_read_stream(ctl)) return -1;
+
+    /* Drain header + label + data words out of the controller FIFO, exactly
+     * as the disk task would with Pd<-Input on DiskData. This routes the boot
+     * read through the real controller read path (FIFO + framing). */
+    int total = DORADO_DISK_HEADER_WORDS + label_n + data_n;
+    int idx = 0, got = 0;
+    while (idx < total) {
+        if (ctl->fifo_count == 0) {
+            dorado_disk_controller_refill_fifo(ctl);
+            if (ctl->fifo_count == 0) break;   /* stream exhausted */
+        }
+        uint16_t w = ctl->fifo[ctl->fifo_tail];
+        ctl->fifo_tail = (ctl->fifo_tail + 1) % DORADO_DISK_FIFO_WORDS;
+        ctl->fifo_count--;
+        ctl->fifo_reads++;
+        if (idx < DORADO_DISK_HEADER_WORDS) {
+            /* header words discarded (address only) */
+        } else if (idx < DORADO_DISK_HEADER_WORDS + label_n) {
+            if (label) label[idx - DORADO_DISK_HEADER_WORDS] = w;
+        } else {
+            if (data) data[idx - DORADO_DISK_HEADER_WORDS - label_n] = w;
+        }
+        idx++; got++;
+        dorado_disk_controller_refill_fifo(ctl);
+    }
+    /* Read consumed; quiesce the stream. */
+    ctl->read_stream_active = 0;
+    ctl->active = 0;
+    ctl->rd_fifo_tw = 0;
+    return (got == total) ? 0 : -1;
+}
+
 int dorado_disk_controller_tick(dorado_disk_controller *ctl,
                                 uint64_t now_cycles)
 {

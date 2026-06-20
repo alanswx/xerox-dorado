@@ -663,11 +663,28 @@ static void machine_germ_complete_disk_iocb(dorado_machine *m)
     uint16_t next = dorado_visible_word_at_va(&m->mem, iocb + SA_IOCB_NEXT);
 
     uint16_t done = 0;
+    /* --disk-real: temp buffers for the controller-mediated read (the read
+     * path delivers header+label+data via the FIFO). */
+    uint16_t cl[DORADO_PILOT_LABEL_WORDS];
+    uint16_t cd[DORADO_PILOT_DATA_WORDS];
+    int lw = (int)m->pilot_pdi.label_words;
+    int dw = (int)m->pilot_pdi.data_words;
+    if (lw > DORADO_PILOT_LABEL_WORDS) lw = DORADO_PILOT_LABEL_WORDS;
+    if (dw > DORADO_PILOT_DATA_WORDS)  dw = DORADO_PILOT_DATA_WORDS;
     for (; done < count; done++) {
         uint32_t page = disk_page + done;
-        const uint16_t *label = dorado_pdi_page_label(&m->pilot_pdi, page);
-        const uint16_t *data = dorado_pdi_page_data(&m->pilot_pdi, page);
-        if (!label || !data) break;
+        const uint16_t *label, *data;
+        if (m->disk_real) {
+            /* Route this page's read through the real controller (FIFO path). */
+            if (dorado_disk_controller_read_page(&m->disk, page,
+                                                 cl, lw, cd, dw) != 0)
+                break;
+            label = cl; data = cd;
+        } else {
+            label = dorado_pdi_page_label(&m->pilot_pdi, page);
+            data = dorado_pdi_page_data(&m->pilot_pdi, page);
+            if (!label || !data) break;
+        }
 
         if (label_ptr) {
             for (uint16_t w = 0; w < m->pilot_pdi.label_words; w++)
@@ -1640,10 +1657,14 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
         if (m->ether_loaded_world_cycle && !m->germ_word_count)
             eth->world_rx_words = dorado_visible_word_at_va(&m->mem, 0604u);
         if (m->germ_word_count) {
-            /* --disk-real: let the DSK task drive PilotDisk.mc against the
-             * real controller instead of completing the IOCB here (plan D4). */
-            if (!m->disk_real)
-                machine_germ_complete_disk_iocb(m);
+            /* Complete the germ's disk IOCBs. Default: direct PDI copy. Under
+             * --disk-real: the same IOCB bridge, but each page is read through
+             * the real controller's read path (FIFO + framing, D0-D3) instead
+             * of a direct copy -- so Cedar boots *through the controller*. The
+             * fully microcode-driven boot (a DSK-task disk processor) is the
+             * deeper architecture; the germ boot has none (it posts IOCBs and
+             * waits for a processor -- the bridge plays that role). Plan D4. */
+            machine_germ_complete_disk_iocb(m);
             machine_germ_seed_ethernet_header_page(m);
             machine_germ_complete_ethernet_tx(m);
             uint16_t next_input =

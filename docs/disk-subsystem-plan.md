@@ -215,6 +215,35 @@ sequence can be *started* correctly.
 
 ---
 
+## 3. RESULT (2026-06-20): Cedar boots to the login prompt through the real controller
+
+**`--disk-real` boots Cedar 6.1 to its SimpleTerminal login prompt with the disk
+data flowing through the real controller's read path** (read-stream + FIFO +
+framing, D0-D3) instead of the shim's direct PDI copy. Confirmed: 1072 controller
+read-stream starts, full "Cedar 6.1.0 of December 3, 1986 ... Please login ... /
+Name:" screen (28462 px ~ the shim path's 28478), 11/11 suites + Galaxian 121553
+unchanged.
+
+Run it:
+```
+./build/dorado --boot-reason disk --no-alto-boot --disk-real \
+  --eb '../chm/dorado/CedarDorado.eb!6' \
+  --germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6' \
+  --pilot-disk '../CedarDisk/CedarDorado-boot.pdi' --cycles 700000000
+```
+
+**What's real vs. bridged:** the per-page disk *read* now goes through the
+controller (`dorado_disk_controller_read_page`: position drive -> run read
+stream -> drain the FIFO), so the D0-D3 hardware model is validated end-to-end on
+a real Cedar boot. The *IOCB dispatch* is still the C bridge
+(`machine_germ_complete_disk_iocb`): the Cedar germ boot posts disk IOCBs and
+waits for a *disk processor* to complete them, and the germ boot installs no
+DSK-task disk processor (DiskBootSoft/BootTransferLp run on the EMU task and post
++ wait) -- so the bridge plays the processor role and routes the read through the
+controller. The fully microcode-driven boot (a DSK-task disk processor) remains
+the deeper architecture; this is the achievable, validated read-path boot and the
+foundation the write path (D5) builds on.
+
 ## 3a. Progress log
 
 - **D0 (done, committed):** `DORADO_DISK_SEQ` structured trace + cached
