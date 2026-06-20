@@ -160,11 +160,19 @@ int main(int argc, char **argv)
                     dorado_disk_sector *s =
                         dorado_disk_pack_sector(&pack, tcyl, thead, tsec);
                     if (!s) { missed++; continue; }
-                    /* Skip the dummy word, copy header/label/data verbatim. */
+                    /* Skip the dummy word; copy header/label/data with each block's
+                 * word order REVERSED. AltoDiabloDisk.mc reads each block out of
+                 * the FIFO into descending memory addresses (DskMAddr counts
+                 * down), so the on-Trident block must be stored reversed for the
+                 * read to land word 0 at the low (entry) address -- matching a
+                 * real Alto disk read. Verified against the salto reference Alto:
+                 * its boot loader's entry word (data[0] = JMP 0345) lands at the
+                 * low address and runs; without the reversal ours put data[0] at
+                 * the high address and looped on a bad BLT. */
                     const uint8_t *p = buf + DIABLO_DUMMY_W * 2;
-                    for (int w = 0; w < DIABLO_HDR_W; w++)  { s->header[w] = rd16(p); p += 2; }
-                    for (int w = 0; w < DIABLO_LBL_W; w++)  { s->label[w]  = rd16(p); p += 2; }
-                    for (int w = 0; w < DIABLO_DATA_W; w++) { s->data[w]   = rd16(p); p += 2; }
+                    for (int w = DIABLO_HDR_W  - 1; w >= 0; w--) { s->header[w] = rd16(p); p += 2; }
+                    for (int w = DIABLO_LBL_W  - 1; w >= 0; w--) { s->label[w]  = rd16(p); p += 2; }
+                    for (int w = DIABLO_DATA_W - 1; w >= 0; w--) { s->data[w]   = rd16(p); p += 2; }
                     s->modified = 1;
                     placed++;
                 }
