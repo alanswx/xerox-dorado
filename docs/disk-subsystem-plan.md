@@ -293,6 +293,18 @@ physical addresses the `csb.next` write (MemBase 0o34) and read (MemBase 0o31)
 resolve to and reconcile them (and the IOCB-at-0o2000000 vs shim-path-0o431
 location). This is a memory-subsystem investigation, not controller work.
 
+**Confirmed (store trace, 2026-06-20):** `DORADO_STORE_TRACE_VA="177516,177524"`
+under `--disk-real` shows the CSB word at absolute `0o177520` is *only ever
+written to 0* (init at cyc 24531469, task 0; a later task-14 store of 0 to
+177522). `BootTransferLp`'s `csb.next <- iocb` write never lands at 0o177520 --
+it resolves elsewhere via MemBase 0o34 (IOCB built at ~0o2000000), so the
+disk IOCB processor reading absolute 0o177520 correctly sees 0 and the command
+never executes. The fix is to reconcile the two CSB access paths (why the
+MemBase-0o34 long-pointer write to `CSB.next` doesn't reach absolute 0o177520,
+and why the boot IOCB lands at 0o2000000 vs the shim path's 0o431) -- a delicate
+MemBase / long-pointer-resolution change in the memory subsystem that must not
+regress the working Cedar (shim) and Alto paths.
+
 ## 4. Dependencies & ordering notes
 
 - **D1 (timing) before D2 (read)** — the read PROM is clocked by the pulse model.
