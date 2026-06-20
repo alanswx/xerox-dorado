@@ -3527,6 +3527,17 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                 cpu->MemBase & 037, cpu->RBase & 017);
     }
 
+    /* Route B / disk D4 diagnostic: trace the DSK task's (14₈) microcode PC,
+     * so PilotDisk.mc's idle/seek/WaitForSector loop is visible under
+     * --disk-real. Gated on DORADO_DSK_PC_TRACE (+ optional cycle window). */
+    if (dorado_trace_flag("DORADO_DSK_PC_TRACE") && cpu->ctask == 014) {
+        fprintf(stderr, "DSKPC pc=0o%o T=0o%o Q=0o%o md=0o%o lva=0o%o mb=0o%o\n",
+                cpu->real_PC, cpu->T, cpu->Q,
+                cpu->mem ? cpu->mem->md : 0,
+                cpu->mem ? (unsigned)cpu->mem->last_ref_va : 0,
+                cpu->MemBase & 037);
+    }
+
     /* Snapshot Link before FF can modify it. Write IM (in next_pc) and
      * Subroutine Return both consume Link at instruction-issue time;
      * B←RWCPReg / Link←B / B-dispatch all overwrite Link via FF. The

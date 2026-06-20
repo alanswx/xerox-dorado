@@ -241,6 +241,32 @@ sequence can be *started* correctly.
   the project's long-standing disk blocker and needs PilotDisk.mc-level
   iteration. The shim remains the default working Cedar boot throughout.
 
+### D4 deep dive (2026-06-20): the real-path stall is an IOCB-completion deadlock, NOT the codeLink bug
+
+Added a DSK-task microcode PC trace (`DORADO_DSK_PC_TRACE`). Under `--disk-real`
+the DSK task **gets past** the BootChannelDisk codeLink bug (§1a was the older
+netboot frontier; the 2026-06-18 IFUJump-StkP / Carry20 fixes moved past it) and
+issues real disk I/O. The precise stall:
+
+- The DSK task spins ~45M iterations in a 2-instruction loop **pc=0o7003 <-> 0o7012**
+  (entered via 7023->7043->7012), with **T=0o14, Q=0o7065, md=0o125377,
+  lva=0o2000006, MemBase=0o34**. `md=0o125377` is the disk **IOCB seal value**
+  (`IOCBSealValue`): the loop polls the IOCB seal at VA 0o2000006 and waits for
+  it to clear (the shim used to zero it on completion).
+- An earlier/minor loop (~625 iters, **MemBase=0o31**) reads **CSB.next at
+  0o177520 = 0** -- i.e. PilotDisk's IOCB processor sees *no linked IOCB* in the
+  CSB chain.
+
+So the boot posts an IOCB at ~0o2000000 (MemBase 0o34) and waits on its seal,
+but it is not linked into the CSB.next chain (0o177520) that the disk-task
+processor polls -> completion deadlock. The disk controller itself is fine
+(PilotDisk drives it; the stall is above the controller, in the IOCB/CSB
+hand-off). Next step to pursue: map the real PCs (7003/7012/7013/6650/7401..)
+to PilotDisk.mc / DiskBootSoft.mc routines via the Cedar world's symbol table,
+and determine why the posted IOCB isn't on the CSB chain the processor reads
+(germ/boot IOCB-linking, or a MemBase-relative CSB the emulator resolves
+differently). This is microcode-level archaeology, well-isolated but open-ended.
+
 ## 4. Dependencies & ordering notes
 
 - **D1 (timing) before D2 (read)** — the read PROM is clocked by the pulse model.
