@@ -810,11 +810,90 @@ static int test_fire_code_ecc(void)
     return 0;
 }
 
+/* test_write_path — D5: write a page through the controller, read it back,
+ * exercise the FIFO write-stream, persist via save/reload, and reject writes
+ * to read-only media. */
+static int test_write_path(void)
+{
+    static dorado_io io;
+    dorado_io_init(&io);
+    static dorado_disk_controller ctl;
+    dorado_disk_controller_init(&ctl);
+    dorado_disk_controller_attach_to_io(&ctl, &io);
+
+    static dorado_disk_pack pack;
+    dorado_disk_geometry geom = { 2, 1, 9 };   /* small, 9 sectors/track */
+    EXPECT(dorado_disk_pack_create(&pack, &geom) == 0, "create pack");
+    snprintf(pack.path, sizeof pack.path, "/tmp/test_dorado_write.pack");
+    dorado_disk_controller_attach_drive(&ctl, 0, &pack);
+
+    /* 1) write_page round-trip via the controller. */
+    uint16_t wl[DORADO_DISK_LABEL_WORDS], wd[DORADO_DISK_DATA_WORDS];
+    for (int i = 0; i < DORADO_DISK_LABEL_WORDS; i++) wl[i] = (uint16_t)(0xBE00 + i);
+    for (int i = 0; i < DORADO_DISK_DATA_WORDS; i++)  wd[i] = (uint16_t)(0x1000 + i);
+    uint32_t page = 5;
+    EXPECT(dorado_disk_controller_write_page(&ctl, page, wl,
+            DORADO_DISK_LABEL_WORDS, wd, DORADO_DISK_DATA_WORDS) == 0,
+           "write_page");
+
+    uint16_t rl[DORADO_DISK_LABEL_WORDS], rd[DORADO_DISK_DATA_WORDS];
+    EXPECT(dorado_disk_controller_read_page(&ctl, page, rl,
+            DORADO_DISK_LABEL_WORDS, rd, DORADO_DISK_DATA_WORDS) == 0,
+           "read_page");
+    for (int i = 0; i < DORADO_DISK_LABEL_WORDS; i++)
+        EXPECT(rl[i] == wl[i], "label[%d] round-trip 0x%X != 0x%X", i, rl[i], wl[i]);
+    for (int i = 0; i < DORADO_DISK_DATA_WORDS; i++)
+        EXPECT(rd[i] == wd[i], "data[%d] round-trip 0x%X != 0x%X", i, rd[i], wd[i]);
+
+    /* 2) FIFO write-stream: Control Tag Write, pump words via DiskData. */
+    ctl.drive[0].cur_cyl = 0; ctl.drive[0].cur_head = 0; ctl.drive[0].cur_sector = 3;
+    dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG,
+                    (uint16_t)(TAG_CONTROL | (1u << 7)));   /* Write */
+    EXPECT(ctl.write_stream_active == 1, "write stream should start");
+    int total = DORADO_DISK_HEADER_WORDS + DORADO_DISK_LABEL_WORDS +
+                DORADO_DISK_DATA_WORDS;
+    for (int i = 0; i < total; i++)
+        dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKDATA,
+                        (uint16_t)(0x4000 + i));
+    EXPECT(ctl.write_stream_active == 0, "write stream should end at sector");
+    dorado_disk_sector *ws = dorado_disk_pack_sector(&pack, 0, 0, 3);
+    EXPECT(ws != NULL, "sector (0,0,3)");
+    EXPECT(ws->label[0] == (uint16_t)(0x4000 + DORADO_DISK_HEADER_WORDS),
+           "fifo write label[0]=0x%X", ws->label[0]);
+    EXPECT(ws->data[0] == (uint16_t)(0x4000 + DORADO_DISK_HEADER_WORDS +
+                                     DORADO_DISK_LABEL_WORDS),
+           "fifo write data[0]=0x%X", ws->data[0]);
+
+    /* 3) Persist: save + reload. */
+    EXPECT(dorado_disk_pack_save(&pack) == 0, "save");
+    dorado_disk_pack p2;
+    EXPECT(dorado_disk_pack_load(&p2, &geom, "/tmp/test_dorado_write.pack") == 0,
+           "reload");
+    dorado_disk_sector *ps = dorado_disk_pack_sector(&p2, 0, 0, 5);
+    EXPECT(ps && ps->data[0] == wd[0] &&
+           ps->data[DORADO_DISK_DATA_WORDS - 1] == wd[DORADO_DISK_DATA_WORDS - 1],
+           "page 5 persisted across save/reload");
+    dorado_disk_pack_free(&p2);
+
+    /* 4) Read-only media rejects writes. */
+    pack.read_only = 1; ctl.drive[0].read_only = 1;
+    EXPECT(dorado_disk_controller_write_page(&ctl, page, wl,
+            DORADO_DISK_LABEL_WORDS, wd, DORADO_DISK_DATA_WORDS) == -1,
+           "read-only pack must reject write_page");
+
+    dorado_disk_pack_free(&pack);
+    remove("/tmp/test_dorado_write.pack");
+    printf("PASS  test_write_path (write_page+FIFO stream round-trip, "
+           "save/reload, read-only reject)\n");
+    return 0;
+}
+
 int main(void)
 {
     int rc = 0;
     rc |= test_pack_create_t80();
     rc |= test_fire_code_ecc();
+    rc |= test_write_path();
     rc |= test_pack_save_load();
     rc |= test_controller_io_routing();
     rc |= test_diskcontrol_active_abort();

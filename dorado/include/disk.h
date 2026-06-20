@@ -215,6 +215,8 @@ typedef struct {
     int      fifo_count;
     uint8_t  read_stream_active;     /* current sector is streaming into FIFO */
     int      read_stream_index;      /* word index in header+label+data */
+    uint8_t  write_stream_active;    /* a write op is committing FIFO->pack */
+    int      write_stream_index;     /* word index in header+label+data */
 
     /* Drives. Drive 0 is the boot drive on real hardware. */
     dorado_disk_drive drive[DORADO_DISK_NUM_DRIVES];
@@ -297,6 +299,15 @@ int dorado_disk_controller_read_page(dorado_disk_controller *ctl,
                                      uint32_t page,
                                      uint16_t *label, int label_n,
                                      uint16_t *data, int data_n);
+
+/* Write one logical page to a real Trident pack through the controller
+ * (positions the selected drive, writes header/label/data to the sector, marks
+ * it modified). Only writes a real pack (->pack), never read-only media; PDI is
+ * read-only. Returns 0 on success, -1 otherwise. Plan D5 (write path, F3). */
+int dorado_disk_controller_write_page(dorado_disk_controller *ctl,
+                                      uint32_t page,
+                                      const uint16_t *label, int label_n,
+                                      const uint16_t *data, int data_n);
 
 /* Clock-driven timing model: advance the selected drive's sector/index
  * pulses based on the elapsed cycle count (3600 RPM, see

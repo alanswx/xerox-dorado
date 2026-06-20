@@ -244,6 +244,24 @@ controller. The fully microcode-driven boot (a DSK-task disk processor) remains
 the deeper architecture; this is the achievable, validated read-path boot and the
 foundation the write path (D5) builds on.
 
+## 3b. RESULT (2026-06-20): write path (D5) implemented
+
+The controller now writes a real Trident pack:
+- `dorado_disk_controller_write_page()` -- position the drive, write
+  header/label/data to the sector, mark it modified (symmetric to
+  `read_page`); honors read-only media (PDI rejected).
+- FIFO write-stream (F3): a **Control Tag Write** starts a write op and each
+  `DiskData` output word is committed to the current sector via
+  `disk_write_stream_word()`, ending at the sector boundary -- the microcode
+  write path.
+- Persistence via `dorado_disk_pack_save`/`_load`.
+- `test_write_path`: write_page round-trip, FIFO-stream write, save/reload
+  persistence, and read-only rejection -- 12/12 suites green; Cedar (shim
+  28466 / real 28471) and Galaxian 121553 unchanged.
+
+This is the writable foundation for D6 (Othello system-volume install, Lisp
+`LISP.VIRTUALMEM`).
+
 ## 3a. Progress log
 
 - **D0 (done, committed):** `DORADO_DISK_SEQ` structured trace + cached

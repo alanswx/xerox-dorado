@@ -444,6 +444,8 @@ static void disk_abort_active_transfer(dorado_disk_controller *ctl)
     ctl->active = 0;
     ctl->read_stream_active = 0;
     ctl->read_stream_index = 0;
+    ctl->write_stream_active = 0;
+    ctl->write_stream_index = 0;
     ctl->fifo_head = ctl->fifo_tail = ctl->fifo_count = 0;
     ctl->rd_fifo_tw = 0;
     ctl->wr_fifo_tw = 0;
@@ -571,6 +573,81 @@ int dorado_disk_controller_read_page(dorado_disk_controller *ctl,
     return (got == total) ? 0 : -1;
 }
 
+int dorado_disk_controller_write_page(dorado_disk_controller *ctl,
+                                      uint32_t page,
+                                      const uint16_t *label, int label_n,
+                                      const uint16_t *data, int data_n)
+{
+    if (!ctl) return -1;
+    dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
+    /* Only a real Trident pack is writable; PDI media is read-only. */
+    if (!d->pack || d->read_only || d->pack->read_only) return -1;
+
+    int sectors = d->pack->geometry.sectors;
+    if (sectors <= 0) return -1;
+    d->cur_cyl    = (int)(page / (uint32_t)sectors);
+    d->cur_head   = 0;
+    d->cur_sector = (int)(page % (uint32_t)sectors);
+
+    dorado_disk_sector *s =
+        dorado_disk_pack_sector(d->pack, d->cur_cyl, d->cur_head,
+                                disk_media_sector(d));
+    if (!s) return -1;
+
+    if (label) {
+        for (int i = 0; i < label_n && i < DORADO_DISK_LABEL_WORDS; i++)
+            s->label[i] = label[i];
+    }
+    if (data) {
+        for (int i = 0; i < data_n && i < DORADO_DISK_DATA_WORDS; i++)
+            s->data[i] = data[i];
+    }
+    /* Header records the on-disk address (cyl/head/sec) for the read-back
+     * header compare. */
+    s->header[0] = (uint16_t)d->cur_cyl;
+    if (DORADO_DISK_HEADER_WORDS > 1)
+        s->header[1] = (uint16_t)((d->cur_head << 8) | (d->cur_sector & 0xFF));
+    s->modified = 1;
+    ctl->fifo_writes++;
+    disk_seq_trace(ctl, "write-page");
+    return 0;
+}
+
+/* Commit one DiskData word to the current sector during a write op (F3): the
+ * write sequence streams header+label+data words from the FIFO onto the pack.
+ * Ends the stream when a full sector has been written. */
+static void disk_write_stream_word(dorado_disk_controller *ctl, uint16_t w)
+{
+    dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
+    if (!d->pack || d->read_only || d->pack->read_only) {
+        ctl->write_stream_active = 0;
+        return;
+    }
+    dorado_disk_sector *s =
+        dorado_disk_pack_sector(d->pack, d->cur_cyl, d->cur_head,
+                                disk_media_sector(d));
+    if (!s) { ctl->write_stream_active = 0; return; }
+
+    int idx = ctl->write_stream_index;
+    int total = DORADO_DISK_HEADER_WORDS + DORADO_DISK_LABEL_WORDS +
+                DORADO_DISK_DATA_WORDS;
+    if (idx < DORADO_DISK_HEADER_WORDS) {
+        s->header[idx] = w;
+    } else if (idx < DORADO_DISK_HEADER_WORDS + DORADO_DISK_LABEL_WORDS) {
+        s->label[idx - DORADO_DISK_HEADER_WORDS] = w;
+    } else if (idx < total) {
+        s->data[idx - DORADO_DISK_HEADER_WORDS - DORADO_DISK_LABEL_WORDS] = w;
+    }
+    s->modified = 1;
+    ctl->write_stream_index++;
+    if (ctl->write_stream_index >= total) {
+        ctl->write_stream_active = 0;
+        ctl->active = 0;
+        ctl->tag_tw = 1;          /* block-end tag wakeup */
+        disk_seq_trace(ctl, "write-done");
+    }
+}
+
 int dorado_disk_controller_tick(dorado_disk_controller *ctl,
                                 uint64_t now_cycles)
 {
@@ -680,10 +757,14 @@ static void disk_output_b(void *ctx, int task, int subtask,
         break;
 
     case DORADO_DISK_TIOA_DISKDATA:
-        /* Write FIFO data when the controller is in write mode. We
-         * push into our software FIFO; the sequence-PROM execution
-         * (Phase 2) drains it onto the disk. */
-        if (ctl->fifo_count < DORADO_DISK_FIFO_WORDS) {
+        /* Write FIFO data. During an active write op (F3), commit the word to
+         * the current sector via the write stream; otherwise buffer it in the
+         * software FIFO. */
+        if (ctl->write_stream_active) {
+            disk_write_stream_word(ctl, data);
+            ctl->fifo_writes++;
+            ctl->wr_fifo_tw = 1;   /* committed synchronously -> room remains */
+        } else if (ctl->fifo_count < DORADO_DISK_FIFO_WORDS) {
             ctl->fifo[ctl->fifo_head] = data;
             ctl->fifo_head = (ctl->fifo_head + 1) % DORADO_DISK_FIFO_WORDS;
             ctl->fifo_count++;
@@ -811,13 +892,21 @@ static void disk_output_b(void *ctx, int task, int subtask,
                     }
                 }
                 if (bus & (1u << 7)) {
-                    /* Write — clear FIFO, mark write-active. Microcode
-                     * will pump words via DiskData FIFO; we'll commit
-                     * to the disk pack when a SectorOvfl-or-block-end
-                     * marker is seen. Phase 2 stub: just enable
-                     * WrFifoTW so microcode can write. */
+                    /* Write — begin committing FIFO words to the current
+                     * sector (F3). Microcode pumps header+label+data via
+                     * DiskData output; disk_write_stream_word() commits them to
+                     * the pack and ends the op at the sector boundary. Only a
+                     * writable real pack accepts the stream. */
+                    dorado_disk_drive *wd =
+                        &ctl->drive[ctl->selected_drive];
+                    if (wd->pack && !wd->read_only && !wd->pack->read_only) {
+                        ctl->write_stream_active = 1;
+                        ctl->write_stream_index = 0;
+                        ctl->fifo_count = ctl->fifo_head = ctl->fifo_tail = 0;
+                    }
                     ctl->wr_fifo_tw = 1;
                     ctl->active = 1;
+                    disk_seq_trace(ctl, "write-start");
                 }
                 if (!(bus & (1u << 1))) {
                     ctl->tag_tw = 1;
