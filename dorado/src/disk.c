@@ -6,6 +6,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* Cached per-name trace flag (cpu.c). Keep disk trace checks off the hot
+ * path's raw getenv() — see dorado/CLAUDE.md "Don't regress". */
+extern int dorado_trace_flag(const char *name);
+
 const dorado_disk_geometry DORADO_DISK_T80  = { 815, 5, 9 };
 const dorado_disk_geometry DORADO_DISK_T300 = { 815, 19, 9 };
 
@@ -315,6 +319,26 @@ static void disk_set_subsector_count(dorado_disk_drive *d, int count)
     if (d->cur_sector >= d->sectors_per_revolution) d->cur_sector = 0;
 }
 
+/* Structured controller-sequence trace (DORADO_DISK_SEQ=1). One line per
+ * key controller event — the workhorse for bringing up the read/write
+ * sequence-PROM path (plan phases D2/D5). Cheap: gated by the cached flag. */
+static void disk_seq_trace(const dorado_disk_controller *ctl, const char *ev)
+{
+    if (!dorado_trace_flag("DORADO_DISK_SEQ")) return;
+    const dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
+    fprintf(stderr,
+            "[diskseq] %-10s drv=%d chs=%d/%d/%d ctrl=0o%o run=%d act=%d "
+            "fifo=%d/%d rdtw=%d wrtw=%d sectw=%d idxtw=%d tagtw=%d "
+            "stream=%d@%d seek=%d\n",
+            ev, ctl->selected_drive, d->cur_cyl, d->cur_head, d->cur_sector,
+            ctl->control, ctl->enable_run, ctl->active,
+            ctl->fifo_count, DORADO_DISK_FIFO_WORDS,
+            ctl->rd_fifo_tw, ctl->wr_fifo_tw, ctl->sector_tw,
+            ctl->index_tw, ctl->tag_tw,
+            ctl->read_stream_active, ctl->read_stream_index,
+            d->seek_in_progress);
+}
+
 void dorado_disk_controller_refill_fifo(dorado_disk_controller *ctl)
 {
     if (!ctl || !ctl->read_stream_active) return;
@@ -373,6 +397,7 @@ static int disk_begin_read_stream(dorado_disk_controller *ctl)
     ctl->read_stream_active = 1;
     ctl->read_stream_starts++;
     dorado_disk_controller_refill_fifo(ctl);
+    disk_seq_trace(ctl, "read-start");
     return ctl->read_stream_active || ctl->fifo_count > 0;
 }
 
@@ -418,6 +443,7 @@ void dorado_disk_controller_advance_sector(dorado_disk_controller *ctl)
     dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
     if (!disk_drive_has_media(d)) return;
     d->cur_sector = (d->cur_sector + 1) % disk_sector_pulse_count(d);
+    disk_seq_trace(ctl, "sector+");
     int at_index = (d->cur_sector == 0);
 
     if (d->seek_in_progress > 0) {
@@ -468,7 +494,7 @@ static void disk_output_b(void *ctx, int task, int subtask,
     ctl->last_output_data = data;
     (void)task;
     (void)subtask;
-    if (getenv("DORADO_DISK_TRACE"))
+    if (dorado_trace_flag("DORADO_DISK_TRACE"))
         fprintf(stderr, "[disk] OUT tioa=0o%o data=0o%o (tk=%d)\n",
                 tioa, data, task);
 
@@ -495,6 +521,7 @@ static void disk_output_b(void *ctx, int task, int subtask,
         if (data & DORADO_DISK_CTRL_CLR_ENABLE_RUN) ctl->enable_run = 0;
         if (data & DORADO_DISK_CTRL_SET_DEBUG_MODE) ctl->debug_mode = 1;
         if (data & DORADO_DISK_CTRL_BLOCK_TILL_INDEX) ctl->block_till_index = 1;
+        disk_seq_trace(ctl, "ctrl-load");
         /* If ops 1..4 are non-zero AND EnableRun is set, schedule a
          * sector transfer at the next sector pulse. We don't run the
          * timing model in Phase 1 — record the request. */
@@ -552,6 +579,7 @@ static void disk_output_b(void *ctx, int task, int subtask,
     case DORADO_DISK_TIOA_DISKTAG:
         ctl->tag = data;
         ctl->tag_writes++;
+        disk_seq_trace(ctl, "tag");
         /* Native Dorado DiskTag commands are strobed on one of the
          * upper four bits. SendDriveTag deliberately writes bus,
          * bus|tagDrive, then bus again; only the strobed word should
