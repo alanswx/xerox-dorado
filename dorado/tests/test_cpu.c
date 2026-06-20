@@ -9137,15 +9137,21 @@ static int test_slow_io_routing(void)
     return 0;
 }
 
-static int test_output_t_store_shape_routes_slow_io(void)
+static int test_store_shape_t_is_memory_not_slow_io(void)
 {
     static dorado_microcode mc;
     memset(&mc, 0, sizeof mc);
     mc.alufm[0] = 025;  mc.alufm_present[0] = 1;  /* B */
 
-    /* Decoded shape seen from display `Output_ T` while loading HRam:
-     * ASEL=Store<-T, BSEL=T, no LC destination. It must drive slow I/O
-     * and must not issue a main-memory Store. */
+    /* `Store_ T, DBuf_ T` -- ASEL=Store<-T (a Table 8a/8b memory reference),
+     * BSEL=T, no LC destination. Per HM 3.9/7 a store-shaped instruction is a
+     * MAIN-MEMORY write; slow I/O is a distinct operation (the Output<-B FF
+     * function, FF&077==0o36, with TIOA selecting the device). A plain store
+     * must NOT be diverted to the device on the current TIOA even on a
+     * non-emulator task -- that earlier "no-LC store -> I/O" heuristic
+     * mis-routed the DSK task's AltoDiabloDisk completion stores while TIOA
+     * was left at DiskMuff by a preceding DoMuffOutput. FF=0o354 here is a
+     * memory subdecode, not the Output form. */
     mc.im[0] = make_uinstr(/*rstk=*/0, /*aluf=*/0, /*bsel=*/2, /*lc=*/0,
                            /*asel=*/2, 0, /*ff=*/0354, jcn_local(0));
     mc.im_present[0] = 1;
@@ -9181,25 +9187,28 @@ static int test_output_t_store_shape_routes_slow_io(void)
 
     EXPECT(dorado_cpu_step(&cpu) == 0, "step: %s",
            cpu_halt_reason_str(cpu.halt_reason));
-    EXPECT(dev_state.writes == 1, "writes=%d (expected 1)", dev_state.writes);
-    EXPECT(dev_state.last_write == 0xBEEF,
-           "last_write = 0x%X (expected 0xBEEF)", dev_state.last_write);
-    EXPECT(mem.last_fault == DM_FAULT_NONE,
-           "slow-IO Output_ T issued memory fault %d", (int)mem.last_fault);
+    /* A store-shaped instruction is a MAIN-MEMORY write, NOT slow I/O: the
+     * device on the current TIOA must see no write. (Whether the bare-test
+     * memory ref then completes or faults depends on Map setup, which this
+     * minimal microprogram does not establish; the routing is the point.) */
+    EXPECT(dev_state.writes == 0, "writes=%d (expected 0: store is memory, not I/O)",
+           dev_state.writes);
 
     dorado_memory_free(&mem);
-    printf("PASS  test_output_t_store_shape_routes_slow_io\n");
+    printf("PASS  test_store_shape_t_is_memory_not_slow_io\n");
     return 0;
 }
 
-static int test_output_rm_store_shape_routes_slow_io(void)
+static int test_store_shape_rm_is_memory_not_slow_io(void)
 {
     static dorado_microcode mc;
     memset(&mc, 0, sizeof mc);
     mc.alufm[0] = 025;  mc.alufm_present[0] = 1;  /* B */
 
-    /* Disk microcode uses `Output_ KCmmd`: a no-LC store-shaped slow
-     * I/O output whose source is not T. */
+    /* `Store_ RM, DBuf_ RM` -- ASEL=Store<-RM/STK (a Table 8a/8b memory
+     * reference), no LC destination. Same correction as the T-source case: a
+     * store-shaped instruction is a main-memory write, not slow I/O, even on a
+     * non-emulator (here disk) task with a device registered on its TIOA. */
     mc.rm[1] = 0x0005;
     mc.rm_present[1] = 1;
     mc.im[0] = make_uinstr(/*rstk=*/1, /*aluf=*/0, /*bsel=*/1, /*lc=*/0,
@@ -9236,14 +9245,12 @@ static int test_output_rm_store_shape_routes_slow_io(void)
 
     EXPECT(dorado_cpu_step(&cpu) == 0, "step: %s",
            cpu_halt_reason_str(cpu.halt_reason));
-    EXPECT(dev_state.writes == 1, "writes=%d (expected 1)", dev_state.writes);
-    EXPECT(dev_state.last_write == 0x0005,
-           "last_write = 0x%X (expected 0x0005)", dev_state.last_write);
-    EXPECT(mem.last_fault == DM_FAULT_NONE,
-           "slow-IO Output_ RM issued memory fault %d", (int)mem.last_fault);
+    /* Store-shaped => memory write, not slow I/O: the device sees no write. */
+    EXPECT(dev_state.writes == 0, "writes=%d (expected 0: store is memory, not I/O)",
+           dev_state.writes);
 
     dorado_memory_free(&mem);
-    printf("PASS  test_output_rm_store_shape_routes_slow_io\n");
+    printf("PASS  test_store_shape_rm_is_memory_not_slow_io\n");
     return 0;
 }
 
@@ -10225,8 +10232,8 @@ int main(void)
     rc |= test_ldtpc_rdtpc();
     rc |= test_reschedule_trap();
     rc |= test_slow_io_routing();
-    rc |= test_output_t_store_shape_routes_slow_io();
-    rc |= test_output_rm_store_shape_routes_slow_io();
+    rc |= test_store_shape_t_is_memory_not_slow_io();
+    rc |= test_store_shape_rm_is_memory_not_slow_io();
     rc |= test_output_iostore_shape_routes_slow_io();
     rc |= test_task0_store_with_stale_tioa_updates_memory();
     rc |= test_output_iostore_with_lc_routes_slow_io();

@@ -3925,14 +3925,17 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                                     (uint8_t)cpu->TIOA)) {
                 if (cpu->ctask != 0) goto memory_ref_done;
             }
-            /* MicroD's `Output_ <source>` form appears in display and disk
-             * task code as a store-shaped instruction with no destination
-             * load. Source listings make clear it drives the slow-I/O bus,
-             * not main storage; real stores that write memory also load
-             * DBuf. Route no-LC stores to a registered TIOA device before
-             * issuing a spurious memory store. */
-            if ((kind == DM_REF_IOSTORE ||
-                 (kind == DM_REF_STORE && u->lc == 0)) &&
+            /* A slow-I/O Output is always the Output<-B FF function
+             * (FB=3,FC=6 -> ff_is_output_b_memory_form, handled above) or the
+             * IOStore memory-ref variant (DM_REF_IOSTORE). A plain DM_REF_STORE
+             * is a real main-storage write and must NOT be diverted to I/O,
+             * even on a non-emulator task whose TIOA still selects a device.
+             * The earlier "any no-LC store -> I/O" heuristic mis-routed the
+             * DSK task's AltoDiabloDisk completion stores (Store_ T/KPtr,
+             * DBuf_ ... at ACmmdEnd2; FF=0o360, not the Output form) while
+             * TIOA was left at DiskMuff by a preceding DoMuffOutput -- the boot
+             * KCB status at VM 432 was never written and DiskBoot timed out. */
+            if (kind == DM_REF_IOSTORE &&
                 cpu->io &&
                 dorado_io_has_write(cpu->io, cpu->ctask,
                                     (uint8_t)cpu->TIOA)) {

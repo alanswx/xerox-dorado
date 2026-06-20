@@ -57,6 +57,10 @@ static void usage(const char *p)
         "  --sectors-diablo N  Trident sectors reserved per Diablo head\n"
         "                    (default 14 = 16B, AltoDiabloDisk nSectorsDiablo)\n"
         "  --offset-cyl N    cylinders reserved at the start (default 3)\n"
+        "  --sector-offset N physical-sector bias (default 1): the controller\n"
+        "                    executes a command in the sector AFTER it is issued\n"
+        "                    (UpdateSector: logical sector S is recorded at S-1),\n"
+        "                    so a command for sector S reads physical sector S+1\n"
         "  --no-stagger      do not flip the head bit on odd cylinders\n",
         p);
 }
@@ -70,6 +74,7 @@ int main(int argc, char **argv)
     int all_heads = 0;
     int sectors_diablo = 14;    /* nSectorsDiablo = 16B */
     int offset_cyl = 3;         /* offsetCylinderDiablo */
+    int sector_offset = 1;      /* command-vs-physical sector bias (see usage) */
     int stagger = 1;            /* staggerSectors */
     const char *in_path = NULL, *out_path = NULL;
 
@@ -79,6 +84,7 @@ int main(int argc, char **argv)
         else if (!strcmp(a, "--all-heads"))                   all_heads = 1;
         else if (!strcmp(a, "--sectors-diablo") && i + 1 < argc) sectors_diablo = atoi(argv[++i]);
         else if (!strcmp(a, "--offset-cyl") && i + 1 < argc)  offset_cyl = atoi(argv[++i]);
+        else if (!strcmp(a, "--sector-offset") && i + 1 < argc) sector_offset = atoi(argv[++i]);
         else if (!strcmp(a, "--no-stagger"))                  stagger = 0;
         else if (!strcmp(a, "-h") || !strcmp(a, "--help"))    { usage(argv[0]); return 0; }
         else if (a[0] == '-')                                 { usage(argv[0]); return 2; }
@@ -145,7 +151,8 @@ int main(int argc, char **argv)
                 int eff_head = dhead;
                 if (stagger && (dcyl & 1)) eff_head ^= 1;
                 int tcyl = dcyl + offset_cyl;
-                int tsec = sectors_diablo * eff_head + dsec;
+                int tsec = (sectors_diablo * eff_head + dsec + sector_offset)
+                           % geom.sectors;
 
                 int h0 = all_heads ? 0 : boot_head;
                 int h1 = all_heads ? geom.heads : boot_head + 1;
@@ -183,8 +190,8 @@ int main(int argc, char **argv)
     printf("dsk2trident: %s -> %s\n", in_path, out_path);
     printf("  geometry  %d cyl x %d head x %d sec (2/8/256 words/sector)\n",
            geom.cylinders, geom.heads, geom.sectors);
-    printf("  mapping   cyl+%d, sector=%d*head+sec, stagger=%s, ",
-           offset_cyl, sectors_diablo, stagger ? "on" : "off");
+    printf("  mapping   cyl+%d, sector=%d*head+sec+%d, stagger=%s, ",
+           offset_cyl, sectors_diablo, sector_offset, stagger ? "on" : "off");
     if (all_heads) printf("all heads\n");
     else           printf("partition %d -> head %d\n", partition, boot_head);
     printf("  placed    %d sectors%s\n", placed,
