@@ -16,7 +16,7 @@ EXTRA_OBJS := $(OBJDIR)/mctrace.o $(OBJDIR)/bbtrace.o $(OBJDIR)/bbdis.o $(OBJDIR
 DEPS := $(sort $(MB_OBJS) $(LIB_OBJS) $(EXTRA_OBJS))
 DEPS := $(DEPS:.o=.d)
 
-all: $(BINDIR)/dorado $(BINDIR)/mbdis $(BINDIR)/mb2eb $(BINDIR)/mctrace $(BINDIR)/bbtrace $(BINDIR)/bbdis $(BINDIR)/pdidump $(BINDIR)/test_pdi $(BINDIR)/test_mb $(BINDIR)/test_disasm $(BINDIR)/test_microcode $(BINDIR)/test_cpu $(BINDIR)/test_baseboard $(BINDIR)/test_memory $(BINDIR)/test_display $(BINDIR)/test_disk $(BINDIR)/test_ethernet $(BINDIR)/test_fastio
+all: $(BINDIR)/dorado $(BINDIR)/mbdis $(BINDIR)/mb2eb $(BINDIR)/dsk2trident $(BINDIR)/mctrace $(BINDIR)/bbtrace $(BINDIR)/bbdis $(BINDIR)/pdidump $(BINDIR)/test_pdi $(BINDIR)/test_mb $(BINDIR)/test_disasm $(BINDIR)/test_microcode $(BINDIR)/test_cpu $(BINDIR)/test_baseboard $(BINDIR)/test_memory $(BINDIR)/test_display $(BINDIR)/test_disk $(BINDIR)/test_ethernet $(BINDIR)/test_fastio
 
 $(BINDIR)/dorado: $(LIB_OBJS) $(OBJDIR)/machine.o $(OBJDIR)/dorado.o | $(BINDIR)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
@@ -97,6 +97,10 @@ $(BINDIR)/mb2eb: $(LIB_OBJS) $(OBJDIR)/mb2eb.o | $(BINDIR)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 $(BINDIR)/altodiff-dorado: $(LIB_OBJS) $(OBJDIR)/altodiff_dorado.o | $(BINDIR)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+# dsk2trident — convert a ContrAlto Diablo-31 .dsk into a Diablo-on-Trident pack.
+$(BINDIR)/dsk2trident: $(LIB_OBJS) $(OBJDIR)/dsk2trident.o | $(BINDIR)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 $(BINDIR)/mctrace: $(LIB_OBJS) $(OBJDIR)/mctrace.o | $(BINDIR)
@@ -267,6 +271,21 @@ run-cedar-real: sdl
 	./build/dorado-sdl --boot-reason disk --no-alto-boot --disk-real --eb '../chm/dorado/CedarDorado.eb!6' --germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6' --pilot-disk '../CedarDisk/CedarDorado-boot.pdi' --speed 4000000
 run-cedar-screenshot: sdl
 	SDL_VIDEODRIVER=dummy ./build/dorado-sdl --boot-reason disk --no-alto-boot --eb '../chm/dorado/CedarDorado.eb!6' --germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6' --pilot-disk '../CedarDisk/CedarDorado-boot.pdi' --speed 4000000 --screenshot 300 --shot-prefix /tmp/dorado-sdl-cedar
+
+# Alto-on-Dorado disk boot (Diablo-on-Trident). Convert a ContrAlto Diablo-31
+# .dsk into a Trident pack, then boot AEmu from it (BS up -> ABoot -> DiskBoot).
+# DSK_SRC may be overridden: `make run-alto-disk DSK_SRC=path/to/foo.dsk`.
+# NOTE: bring-up in progress -- the read path runs through the real controller
+# but the DSK-task command completion does not yet post status, so the boot
+# falls back to Ethernet. See docs/alto-disk-boot-plan.md.
+DSK_SRC ?= ../AltoInfo/ContrAlto2-beta/Disks/games.dsk
+ALTO_PACK ?= ../AltoDisks/alto-trident.pack
+.PHONY: alto-disk-image run-alto-disk
+alto-disk-image: $(BINDIR)/dsk2trident
+	mkdir -p $(dir $(ALTO_PACK))
+	$(BINDIR)/dsk2trident --all-heads '$(DSK_SRC)' '$(ALTO_PACK)'
+run-alto-disk: sdl alto-disk-image
+	./build/dorado-sdl --eb worlds/aemu.eb --disk 0='$(ALTO_PACK)' --boot-reason disk --speed 4000000
 
 .PHONY: all clean test worlds sdl web web-dir
 

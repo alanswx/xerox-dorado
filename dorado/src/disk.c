@@ -10,8 +10,26 @@
  * path's raw getenv() — see dorado/CLAUDE.md "Don't regress". */
 extern int dorado_trace_flag(const char *name);
 
-const dorado_disk_geometry DORADO_DISK_T80  = { 815, 5, 9 };
-const dorado_disk_geometry DORADO_DISK_T300 = { 815, 19, 9 };
+const dorado_disk_geometry DORADO_DISK_T80  = { 815, 5, 9, 0, 0, 0 };
+const dorado_disk_geometry DORADO_DISK_T300 = { 815, 19, 9, 0, 0, 0 };
+/* Diablo-on-Trident: 206 cyl x 5 heads x 29 sectors, 2 hdr + 8 lbl + 256 data. */
+const dorado_disk_geometry DORADO_DISK_DIABLO = { 206, 5, 29, 2, 8, 256 };
+
+int dorado_disk_geom_header_words(const dorado_disk_geometry *g)
+{ return g->header_words ? g->header_words : DORADO_DISK_HEADER_WORDS; }
+int dorado_disk_geom_label_words(const dorado_disk_geometry *g)
+{ return g->label_words ? g->label_words : DORADO_DISK_LABEL_WORDS; }
+int dorado_disk_geom_data_words(const dorado_disk_geometry *g)
+{ return g->data_words ? g->data_words : DORADO_DISK_DATA_WORDS; }
+
+/* On-disk bytes per sector for a geometry: dummy(1w) + hdr + lbl + data. */
+static long disk_geom_sector_bytes(const dorado_disk_geometry *g)
+{
+    return (long)(DORADO_DISK_DUMMY_WORDS +
+                  dorado_disk_geom_header_words(g) +
+                  dorado_disk_geom_label_words(g) +
+                  dorado_disk_geom_data_words(g)) * 2;
+}
 
 /* ─── Fire Code ECC (HM §9.10, DskEth sheet 16) ─────────────────────
  * Polynomial P(X) = X^32 + X^23 + X^21 + X^11 + X^2 + 1 implemented as a
@@ -120,9 +138,14 @@ int dorado_disk_pack_load(dorado_disk_pack *pack,
         return -1;
     }
 
+    int hw = dorado_disk_geom_header_words(geom);
+    int lw = dorado_disk_geom_label_words(geom);
+    int dw = dorado_disk_geom_data_words(geom);
+    long sector_bytes = disk_geom_sector_bytes(geom);
+
     /* Validate file size. */
     if (fseek(fp, 0, SEEK_END) != 0) { fclose(fp); dorado_disk_pack_free(pack); return -1; }
-    long expected = (long)pack->num_sectors * DORADO_DISK_SECTOR_BYTES;
+    long expected = (long)pack->num_sectors * sector_bytes;
     long actual   = ftell(fp);
     if (actual != expected) {
         fclose(fp);
@@ -131,26 +154,25 @@ int dorado_disk_pack_load(dorado_disk_pack *pack,
     }
     rewind(fp);
 
-    uint8_t buf[DORADO_DISK_SECTOR_BYTES];
+    uint8_t buf[DORADO_DISK_SECTOR_BYTES];   /* max-sized scratch */
     for (int i = 0; i < pack->num_sectors; i++) {
-        if (fread(buf, 1, DORADO_DISK_SECTOR_BYTES, fp)
-            != DORADO_DISK_SECTOR_BYTES) {
+        if (fread(buf, 1, (size_t)sector_bytes, fp) != (size_t)sector_bytes) {
             fclose(fp);
             dorado_disk_pack_free(pack);
             return -1;
         }
         dorado_disk_sector *s = &pack->sectors[i];
-        /* Skip dummy 2 bytes at offset 0. */
-        int off = 2;
-        for (int w = 0; w < DORADO_DISK_HEADER_WORDS; w++) {
+        /* Skip the dummy word(s) at offset 0. */
+        int off = DORADO_DISK_DUMMY_WORDS * 2;
+        for (int w = 0; w < hw; w++) {
             s->header[w] = (uint16_t)(buf[off] | (buf[off+1] << 8));
             off += 2;
         }
-        for (int w = 0; w < DORADO_DISK_LABEL_WORDS; w++) {
+        for (int w = 0; w < lw; w++) {
             s->label[w] = (uint16_t)(buf[off] | (buf[off+1] << 8));
             off += 2;
         }
-        for (int w = 0; w < DORADO_DISK_DATA_WORDS; w++) {
+        for (int w = 0; w < dw; w++) {
             s->data[w] = (uint16_t)(buf[off] | (buf[off+1] << 8));
             off += 2;
         }
@@ -166,25 +188,28 @@ int dorado_disk_pack_save(const dorado_disk_pack *pack)
     if (pack->read_only) return -1;
     FILE *fp = fopen(pack->path, "wb");
     if (!fp) return -1;
-    uint8_t buf[DORADO_DISK_SECTOR_BYTES];
+    int hw = dorado_disk_geom_header_words(&pack->geometry);
+    int lw = dorado_disk_geom_label_words(&pack->geometry);
+    int dw = dorado_disk_geom_data_words(&pack->geometry);
+    long sector_bytes = disk_geom_sector_bytes(&pack->geometry);
+    uint8_t buf[DORADO_DISK_SECTOR_BYTES];   /* max-sized scratch */
     for (int i = 0; i < pack->num_sectors; i++) {
         const dorado_disk_sector *s = &pack->sectors[i];
         memset(buf, 0, sizeof buf);
-        int off = 2;                 /* dummy 2 bytes */
-        for (int w = 0; w < DORADO_DISK_HEADER_WORDS; w++) {
+        int off = DORADO_DISK_DUMMY_WORDS * 2;   /* dummy word(s) */
+        for (int w = 0; w < hw; w++) {
             buf[off++] = (uint8_t)(s->header[w] & 0xFF);
             buf[off++] = (uint8_t)(s->header[w] >> 8);
         }
-        for (int w = 0; w < DORADO_DISK_LABEL_WORDS; w++) {
+        for (int w = 0; w < lw; w++) {
             buf[off++] = (uint8_t)(s->label[w] & 0xFF);
             buf[off++] = (uint8_t)(s->label[w] >> 8);
         }
-        for (int w = 0; w < DORADO_DISK_DATA_WORDS; w++) {
+        for (int w = 0; w < dw; w++) {
             buf[off++] = (uint8_t)(s->data[w] & 0xFF);
             buf[off++] = (uint8_t)(s->data[w] >> 8);
         }
-        if (fwrite(buf, 1, DORADO_DISK_SECTOR_BYTES, fp)
-            != DORADO_DISK_SECTOR_BYTES) {
+        if (fwrite(buf, 1, (size_t)sector_bytes, fp) != (size_t)sector_bytes) {
             fclose(fp);
             return -1;
         }
@@ -264,20 +289,88 @@ void dorado_disk_controller_attach_pdi(dorado_disk_controller *ctl,
     if (pdi) d->sectors_per_revolution = 28;
 }
 
-static uint16_t disk_sector_word(const dorado_disk_sector *s, int idx)
+/* Per-media block framing. A real Trident/Diablo pack carries its own
+ * header/label/data word counts in its geometry (so a Diablo-on-Trident pack
+ * frames as 2/8/256 while a native Cedar Trident frames as 2/10/1024); PDI
+ * media is self-describing via label_words/data_words. */
+static int disk_drive_header_words(const dorado_disk_drive *d)
 {
-    if (idx < DORADO_DISK_HEADER_WORDS) {
+    if (d->pack) return dorado_disk_geom_header_words(&d->pack->geometry);
+    return DORADO_DISK_HEADER_WORDS;
+}
+
+static int disk_drive_label_words(const dorado_disk_drive *d)
+{
+    if (d->pack) return dorado_disk_geom_label_words(&d->pack->geometry);
+    if (d->pdi)  return d->pdi->label_words;
+    return DORADO_DISK_LABEL_WORDS;
+}
+
+static int disk_drive_data_words(const dorado_disk_drive *d)
+{
+    if (d->pack) return dorado_disk_geom_data_words(&d->pack->geometry);
+    if (d->pdi)  return d->pdi->data_words;
+    return DORADO_DISK_DATA_WORDS;
+}
+
+static uint16_t disk_sector_word(const dorado_disk_drive *d,
+                                 const dorado_disk_sector *s, int idx)
+{
+    int hw = disk_drive_header_words(d);
+    int lw = disk_drive_label_words(d);
+    int dw = disk_drive_data_words(d);
+    if (idx < hw) {
         return s->header[idx];
     }
-    idx -= DORADO_DISK_HEADER_WORDS;
-    if (idx < DORADO_DISK_LABEL_WORDS) {
+    idx -= hw;
+    if (idx < lw) {
         return s->label[idx];
     }
-    idx -= DORADO_DISK_LABEL_WORDS;
-    if (idx < DORADO_DISK_DATA_WORDS) {
+    idx -= lw;
+    if (idx < dw) {
         return s->data[idx];
     }
     return 0;
+}
+
+/* Per-block trailing words the real controller writes after each of the
+ * header/label/data blocks: 2 garbage words + 2 ECC words (HM §9.10;
+ * AltoDiabloDisk.mc DoAltoCmmd/ReadECC). The DSK-task read drains them between
+ * blocks, so the FIFO stream must include them or the per-block Input loops
+ * misalign. We emit zeros: the read loop's ReadECC terminates when the second
+ * ECC word reads zero, and the real pass/fail is reported via the read-error
+ * muffler, not these words. */
+#define DORADO_DISK_BLOCK_TRAILER_WORDS 4
+
+/* Word at framed stream position idx: each block is followed by 4 zero trailing
+ * words. Total framed length = header+label+data + 3*4. */
+static uint16_t disk_framed_word(const dorado_disk_drive *d,
+                                 const dorado_disk_sector *s, int idx)
+{
+    const int trail = DORADO_DISK_BLOCK_TRAILER_WORDS;
+    int hw = disk_drive_header_words(d);
+    int lw = disk_drive_label_words(d);
+    int dw = disk_drive_data_words(d);
+    if (idx < hw) return s->header[idx];
+    if (idx < hw + trail) return 0;
+    idx -= hw + trail;
+    if (idx < lw) return s->label[idx];
+    if (idx < lw + trail) return 0;
+    idx -= lw + trail;
+    if (idx < dw) return s->data[idx];
+    return 0;
+}
+
+static int disk_read_stream_total(const dorado_disk_controller *ctl,
+                                  const dorado_disk_drive *d)
+{
+    if (d->pdi)
+        return DORADO_DISK_HEADER_WORDS + d->pdi->label_words + d->pdi->data_words;
+    int base = disk_drive_header_words(d) + disk_drive_label_words(d) +
+               disk_drive_data_words(d);
+    if (ctl->read_block_framing)
+        base += 3 * DORADO_DISK_BLOCK_TRAILER_WORDS;
+    return base;
 }
 
 static int disk_drive_has_media(const dorado_disk_drive *d)
@@ -395,15 +488,14 @@ void dorado_disk_controller_refill_fifo(dorado_disk_controller *ctl)
         return;
     }
 
-    const int total = d->pdi ?
-        (DORADO_DISK_HEADER_WORDS + d->pdi->label_words + d->pdi->data_words) :
-        (DORADO_DISK_HEADER_WORDS + DORADO_DISK_LABEL_WORDS +
-         DORADO_DISK_DATA_WORDS);
+    const int total = disk_read_stream_total(ctl, d);
+    const int framed = ctl->read_block_framing && d->pack;
     while (ctl->fifo_count < DORADO_DISK_FIFO_WORDS &&
            ctl->read_stream_index < total) {
         ctl->fifo[ctl->fifo_head] = d->pdi ?
             disk_pdi_word(d, ctl->read_stream_index) :
-            disk_sector_word(s, ctl->read_stream_index);
+            (framed ? disk_framed_word(d, s, ctl->read_stream_index)
+                    : disk_sector_word(d, s, ctl->read_stream_index));
         ctl->fifo_head = (ctl->fifo_head + 1) % DORADO_DISK_FIFO_WORDS;
         ctl->fifo_count++;
         ctl->read_stream_index++;
@@ -512,11 +604,21 @@ void dorado_disk_controller_advance_sector(dorado_disk_controller *ctl)
     /* If a transfer is active or queued by DiskControl, load the next
      * sector's data. Phase 2 simplification: real hardware sequences
      * this via the read PROM. */
-    if ((ctl->active || ctl->enable_run) &&
+    if (!ctl->active && ctl->enable_run && ctl->xfer_pending &&
         disk_control_has_transfer_op(ctl->control)) {
-        /* Some op other than Done; reload FIFO with new sector. */
+        /* A transfer command is pending: stream this sector into the FIFO,
+         * ONCE. The DSK-task disk drivers drain each sector's blocks
+         * (header/label/data, each with trailing 2 garbage + 2 ECC words) with
+         * Block/Input loops; re-starting the stream on every sector pulse while
+         * a read is still draining would reset read_stream_index mid-block,
+         * misalign the per-block Input loops, exhaust the FIFO early, and abort
+         * the read with AReadBadTW. So start one-shot per command and let the
+         * stream drain fully (refill_fifo tops up the SAME sector); a new
+         * sector read needs a fresh DiskControl command (xfer_pending). */
+        ctl->read_block_framing = 1;
         if (disk_begin_read_stream(ctl)) {
             ctl->active = 1;
+            ctl->xfer_pending = 0;
             ctl->read_stream_sector_starts++;
         }
     }
@@ -540,12 +642,17 @@ int dorado_disk_controller_read_page(dorado_disk_controller *ctl,
     d->cur_head   = 0;
     d->cur_sector = (int)(page % (uint32_t)sectors);
 
+    /* The bridge drains header+label+data contiguously (no per-block ECC
+     * trailing words), so stream contiguously regardless of any prior framed
+     * DSK-task read. */
+    ctl->read_block_framing = 0;
     if (!disk_begin_read_stream(ctl)) return -1;
 
     /* Drain header + label + data words out of the controller FIFO, exactly
      * as the disk task would with Pd<-Input on DiskData. This routes the boot
      * read through the real controller read path (FIFO + framing). */
-    int total = DORADO_DISK_HEADER_WORDS + label_n + data_n;
+    int hw = disk_drive_header_words(d);
+    int total = hw + label_n + data_n;
     int idx = 0, got = 0;
     while (idx < total) {
         if (ctl->fifo_count == 0) {
@@ -556,12 +663,12 @@ int dorado_disk_controller_read_page(dorado_disk_controller *ctl,
         ctl->fifo_tail = (ctl->fifo_tail + 1) % DORADO_DISK_FIFO_WORDS;
         ctl->fifo_count--;
         ctl->fifo_reads++;
-        if (idx < DORADO_DISK_HEADER_WORDS) {
+        if (idx < hw) {
             /* header words discarded (address only) */
-        } else if (idx < DORADO_DISK_HEADER_WORDS + label_n) {
-            if (label) label[idx - DORADO_DISK_HEADER_WORDS] = w;
+        } else if (idx < hw + label_n) {
+            if (label) label[idx - hw] = w;
         } else {
-            if (data) data[idx - DORADO_DISK_HEADER_WORDS - label_n] = w;
+            if (data) data[idx - hw - label_n] = w;
         }
         idx++; got++;
         dorado_disk_controller_refill_fifo(ctl);
@@ -595,17 +702,17 @@ int dorado_disk_controller_write_page(dorado_disk_controller *ctl,
     if (!s) return -1;
 
     if (label) {
-        for (int i = 0; i < label_n && i < DORADO_DISK_LABEL_WORDS; i++)
+        for (int i = 0; i < label_n && i < disk_drive_label_words(d); i++)
             s->label[i] = label[i];
     }
     if (data) {
-        for (int i = 0; i < data_n && i < DORADO_DISK_DATA_WORDS; i++)
+        for (int i = 0; i < data_n && i < disk_drive_data_words(d); i++)
             s->data[i] = data[i];
     }
     /* Header records the on-disk address (cyl/head/sec) for the read-back
      * header compare. */
     s->header[0] = (uint16_t)d->cur_cyl;
-    if (DORADO_DISK_HEADER_WORDS > 1)
+    if (disk_drive_header_words(d) > 1)
         s->header[1] = (uint16_t)((d->cur_head << 8) | (d->cur_sector & 0xFF));
     s->modified = 1;
     ctl->fifo_writes++;
@@ -628,15 +735,17 @@ static void disk_write_stream_word(dorado_disk_controller *ctl, uint16_t w)
                                 disk_media_sector(d));
     if (!s) { ctl->write_stream_active = 0; return; }
 
+    int hw = disk_drive_header_words(d);
+    int lw = disk_drive_label_words(d);
+    int dw = disk_drive_data_words(d);
     int idx = ctl->write_stream_index;
-    int total = DORADO_DISK_HEADER_WORDS + DORADO_DISK_LABEL_WORDS +
-                DORADO_DISK_DATA_WORDS;
-    if (idx < DORADO_DISK_HEADER_WORDS) {
+    int total = hw + lw + dw;
+    if (idx < hw) {
         s->header[idx] = w;
-    } else if (idx < DORADO_DISK_HEADER_WORDS + DORADO_DISK_LABEL_WORDS) {
-        s->label[idx - DORADO_DISK_HEADER_WORDS] = w;
+    } else if (idx < hw + lw) {
+        s->label[idx - hw] = w;
     } else if (idx < total) {
-        s->data[idx - DORADO_DISK_HEADER_WORDS - DORADO_DISK_LABEL_WORDS] = w;
+        s->data[idx - hw - lw] = w;
     }
     s->modified = 1;
     ctl->write_stream_index++;
@@ -722,7 +831,10 @@ static void disk_output_b(void *ctx, int task, int subtask,
         }
         ctl->control = data;
         ctl->control_loads++;
-        if (disk_control_has_transfer_op(data)) ctl->control_transfer_loads++;
+        if (disk_control_has_transfer_op(data)) {
+            ctl->control_transfer_loads++;
+            ctl->xfer_pending = 1;   /* arm a one-shot read-stream start */
+        }
         ctl->format_ram_addr = 0;
         if (data & DORADO_DISK_CTRL_CLR_ENABLE_RUN) ctl->enable_run = 0;
         if (data & DORADO_DISK_CTRL_SET_DEBUG_MODE) ctl->debug_mode = 1;
@@ -871,12 +983,24 @@ static void disk_output_b(void *ctx, int task, int subtask,
                  *   bit 9 = StrobeLate
                  *   bit 11 = AltoLeader
                  * (Bits 5, 10 unused.) */
+                if (bus & (1u << 3)) {
+                    /* tagDiskReset (DiskDefs tagDiskReset=0o10): reset errors
+                     * latched in the drive. The disk-task init selects an
+                     * illegal head (5) to probe T-80 vs AMS-315, sees the
+                     * HeadOverflow error, then issues this to clear it; without
+                     * the clear the latched overflow makes every later read
+                     * report a hardware error and the boot stalls. */
+                    dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
+                    d->head_overflow = 0;
+                }
                 if (bus & (1u << 1)) {
-                    /* ReZero */
+                    /* ReZero (tagReZero=0o2): restore to cylinder 0; also clears
+                     * the drive's latched error state. */
                     dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
                     d->cur_cyl = 0;
                     d->cur_head = 0;
                     d->cur_sector = 0;
+                    d->head_overflow = 0;
                     d->seek_in_progress = disk_sector_pulse_count(d);
                 }
                 if (bus & (1u << 0)) {
@@ -931,10 +1055,12 @@ static int disk_muffler_bit(dorado_disk_controller *ctl, uint8_t addr)
     case 003: return ctl->tag_tw;
     case 004:
         if (!ctl->rd_fifo_tw && !ctl->active && ctl->enable_run &&
+            ctl->xfer_pending &&
             disk_control_has_transfer_op(ctl->control) &&
             disk_drive_has_media(d)) {
             if (disk_begin_read_stream(ctl)) {
                 ctl->active = 1;
+                ctl->xfer_pending = 0;
                 ctl->read_stream_muff_starts++;
             }
         }

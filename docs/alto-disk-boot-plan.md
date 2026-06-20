@@ -1,6 +1,78 @@
 # Booting Alto software off an emulated disk (Diablo-on-Trident) — plan
 
-**Status: plan (2026-06-20). Researched against AEmu / AltoDiabloDisk.mc +
+**Status: IMPLEMENTED through the read path; blocked on the DSK-task command
+completion (2026-06-20). Milestones A+B done and verified; C boots the real
+controller read path end-to-end but the boot does not yet complete (see
+"Implementation status" below).**
+
+## Implementation status (2026-06-20)
+
+Done and verified:
+- **Milestone A — pack geometry parameterized.** `dorado_disk_geometry` now
+  carries `header_words/label_words/data_words` (0 => native-Trident defaults);
+  `DORADO_DISK_DIABLO = {206,5,29, 2,8,256}`. `pack_load`/`pack_save` and the
+  controller read/write stream use the per-media accessors. Native Trident and
+  Cedar PDI paths are byte-for-byte unchanged (the accessors return the old
+  constants). Regression green: 11/11 tests, Cedar login 28463 dark px (gate
+  28465), Galaxian 121548 dark px (gate 121553).
+- **Milestone B — `dsk2trident` converter** (`src/dsk2trident.c`,
+  `make`/`build/dsk2trident`). Converts a ContrAlto Diablo-31 `.dsk` into a
+  Diablo-on-Trident pack. Mapping verified byte-exact against the microcode:
+  `cyl = diabloCyl + offsetCylinderDiablo(3)`, `sector = nSectorsDiablo(16B=14)
+  * effHead + diabloSector`, `effHead = diabloHead XOR (diabloCyl & 1)`
+  (staggerSectors). The Trident sector's header block carries the Alto/Diablo
+  disk address verbatim (the `.dsk` header word1 = DA; the microcode header
+  block reads it). `--all-heads` replicates onto every head so the boot finds
+  the image regardless of the partition the AEmu picks. Octal Micro literals
+  pinned via the "626B = 406" comment in ASeek.
+- **Milestone C — mount + boot trigger + real controller read.** `--disk
+  SLOT=PATH` auto-detects the Diablo geometry. `--eb worlds/aemu.eb --disk
+  0=PACK --boot-reason disk` netboots AEmu then drives `ABoot -> DiskBoot`
+  (BS up, `[NONE]` chord) — confirmed: the DSK task runs AltoDiabloDisk
+  (`InitRamDiablo`, `DoACmmd`), seeks to the mapped cylinder, and streams
+  header/label/data through the real FIFO. This is the first real consumer of
+  the DSK-task framed-FIFO drain (Cedar's `--disk-real` uses the `read_page`
+  bridge, not the microcode drain), which surfaced and fixed three controller
+  bugs:
+  1. **Per-block FIFO framing (D2).** Each block is followed by 2 garbage +
+     2 ECC words in the FIFO (`AltoDiabloDisk DoAltoCmmd`/`ReadECC`:
+     "a read block ends with 2 garbage words and 2 ECC words"). The stream is
+     now framed (`read_block_framing`); the `read_page` bridge stays
+     contiguous.
+  2. **`head_overflow` latch.** The disk-task init probes T-80 vs AMS-315 by
+     selecting illegal head 5 (overflow), then clears it with
+     `tagDiskReset` (control-tag bit 3, `0o10`). The C control-tag handler did
+     not clear `head_overflow` on DiskReset/ReZero, so every later read
+     reported a hardware error. Fixed.
+  3. **Read-stream one-shot.** `advance_sector` restarted the read stream on
+     every sector pulse (because `enable_run` + a stale transfer op stayed
+     set), resetting `read_stream_index` mid-block and aborting the read with
+     `AReadBadTW`. The start is now one-shot per DiskControl command
+     (`xfer_pending`); reads complete cleanly (`ACmmdEnd2`, zero aborts).
+
+Remaining blocker (the boot still falls to EBoot and the screen stays blank):
+- **DSK-task command completion store.** The DSK reaches `ACmmdEnd2`
+  (~21x) but the completion stores diverge: it never writes the boot KCB
+  status at VM 432, and only occasionally advances KBLK (VM 521). `DiskBoot`
+  spins in `KWait` and times out (`KBootTimeout -> EBoot`). Trace evidence:
+  998 stores to VM 522 (the AltoLoop per-sector status) but 0 to VM 432 and
+  only 3 to VM 521, while `ACmmdEnd2` (real 0o2367) is entered 21x — so the
+  flow diverts between `ACmmdEnd2` entry and its stores (around
+  `Call[DoMuffOutput]` / the conditional `ReSchedule`). This is the genuine D2
+  frontier: the real DSK-task completion/reschedule path. Note `DiskBoot`'s
+  `KWait` relies on **deferred branch conditions** (a `Branch[..,ALU=cc]`
+  testing the *previous* microinstruction's ALU) -- verify the microengine
+  models that on this path before chasing the store.
+
+Repro: `./build/dorado-sdl --eb worlds/aemu.eb --disk 0=<diablo.pack>
+--boot-reason disk --speed 4000000`. Traces: `DORADO_ALTOBOOT_TRACE=1`
+(boot-decision + completion PCs + KCB dump), `DORADO_DISK_SEQ=1`,
+`DORADO_DSK_PC_TRACE=1`, `DORADO_DISK_MUFF_TRACE=1`,
+`DORADO_STORE_TRACE_VA="430,525"`.
+
+---
+
+**Original plan (2026-06-20). Researched against AEmu / AltoDiabloDisk.mc +
 ContrAlto Diablo format + the current C disk model.**
 
 ## Feasibility: yes — the microcode is already there

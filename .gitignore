@@ -65,3 +65,6 @@ IFS/
 # Build error logs
 err.txt
 CedarDisk/*.pdi
+
+# Generated Diablo-on-Trident packs (dsk2trident output; large binaries)
+AltoDisks/

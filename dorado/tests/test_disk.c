@@ -56,7 +56,7 @@ static int test_pack_create_t80(void)
 static int test_pack_save_load(void)
 {
     /* Use a smaller geometry for speed: 2 cyls × 2 heads × 2 sec. */
-    dorado_disk_geometry tiny = { 2, 2, 2 };
+    dorado_disk_geometry tiny = { 2, 2, 2, 0, 0, 0 };
     dorado_disk_pack p1;
     EXPECT(dorado_disk_pack_create(&p1, &tiny) == 0, "create tiny");
     snprintf(p1.path, sizeof p1.path, "/tmp/test_dorado_disk.pack");
@@ -822,7 +822,7 @@ static int test_write_path(void)
     dorado_disk_controller_attach_to_io(&ctl, &io);
 
     static dorado_disk_pack pack;
-    dorado_disk_geometry geom = { 2, 1, 9 };   /* small, 9 sectors/track */
+    dorado_disk_geometry geom = { 2, 1, 9, 0, 0, 0 };   /* small, 9 sectors/track */
     EXPECT(dorado_disk_pack_create(&pack, &geom) == 0, "create pack");
     snprintf(pack.path, sizeof pack.path, "/tmp/test_dorado_write.pack");
     dorado_disk_controller_attach_drive(&ctl, 0, &pack);

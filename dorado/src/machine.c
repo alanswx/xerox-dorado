@@ -1160,8 +1160,11 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
                 ok = (dorado_disk_pack_load(&m->disk_packs[s],
                                         &DORADO_DISK_T300, cfg.disk_pack[s]) == 0);
             if (!ok)
-                fprintf(stderr, "dorado: '%s' is not a T-80/T-300 Trident pack "
-                        "(slot %d)\n", cfg.disk_pack[s], s);
+                ok = (dorado_disk_pack_load(&m->disk_packs[s],
+                                        &DORADO_DISK_DIABLO, cfg.disk_pack[s]) == 0);
+            if (!ok)
+                fprintf(stderr, "dorado: '%s' is not a T-80/T-300/Diablo-Trident "
+                        "pack (slot %d)\n", cfg.disk_pack[s], s);
         } else if (dorado_disk_pack_create(&m->disk_packs[s],
                                            &DORADO_DISK_T80) == 0) {
             snprintf(m->disk_packs[s].path, sizeof m->disk_packs[s].path,
@@ -1432,6 +1435,41 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
         }
 
         uint16_t pre_pc = cpu->real_PC;
+
+        /* Alto disk-boot bring-up trace: log when any task reaches the AEmu
+         * boot-decision vectors (ABoot/DiskBoot/EBoot, AEmu.mb!2 real addrs). */
+        if (is_imfetch && dorado_trace_flag("DORADO_ALTOBOOT_TRACE") &&
+            (pre_pc == 0724 || pre_pc == 02005 || pre_pc == 02006 ||
+             pre_pc == 02022 || pre_pc == 02000 ||
+             pre_pc == 03020 || pre_pc == 01565 || pre_pc == 02355 ||
+             pre_pc == 02367 || pre_pc == 02615 || pre_pc == 03371 ||
+             pre_pc == 03246 || pre_pc == 03206 || pre_pc == 03446)) {
+            const char *nm = pre_pc == 0724  ? "ABoot" :
+                             pre_pc == 02005 ? "DiskBoot" :
+                             pre_pc == 02006 ? "EBoot" :
+                             pre_pc == 02022 ? "DiskBootRetry" :
+                             pre_pc == 03000 ? "DSKInitPC" :
+                             pre_pc == 02612 ? "AltoLoop" :
+                             pre_pc == 03446 ? "DoACmmd" :
+                             pre_pc == 01565 ? "KBootTimeout" :
+                             pre_pc == 02355 ? "ACmmdEnd" :
+                             pre_pc == 02367 ? "ACmmdEnd2" :
+                             pre_pc == 02615 ? "AForgetCmmd" :
+                             pre_pc == 03371 ? "ACmmdAbort" :
+                             pre_pc == 03246 ? "ABadSector" :
+                             pre_pc == 03206 ? "ACmmdBadSeal" :
+                             pre_pc == 03446 ? "DoACmmd2" :
+                             pre_pc == 03020 ? "InitRamDiablo" : "SelectPartitionIfKey";
+            fprintf(stderr, "[altoboot] task=%o pc=0o%o %s @cyc=%llu kbd[0]=0o%o "
+                    "KBLK[521]=0o%o KCB431=0o%o stat432=0o%o KCB433=0o%o\n",
+                    cpu->ctask, pre_pc, nm,
+                    (unsigned long long)m->bb.cycles,
+                    dorado_visible_word_at_va(&m->mem, 0177034u),
+                    dorado_visible_word_at_va(&m->mem, 0521u),
+                    dorado_visible_word_at_va(&m->mem, 0431u),
+                    dorado_visible_word_at_va(&m->mem, 0432u),
+                    dorado_visible_word_at_va(&m->mem, 0433u));
+        }
 
         if (m->germ_netboot_seeded && !m->germ_netboot_diag_done &&
             dorado_trace_flag("DORADO_GERM_NETBOOT_TRACE") &&

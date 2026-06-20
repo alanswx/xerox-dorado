@@ -71,11 +71,30 @@ typedef struct {
     int cylinders;
     int heads;
     int sectors;            /* sectors per track */
+    /* Per-sector word counts. 0 means "use the native-Trident defaults"
+     * (DORADO_DISK_{HEADER,LABEL,DATA}_WORDS) so existing Trident/Pilot packs
+     * and tests are unchanged; the Alto-Diablo-on-Trident format sets them
+     * explicitly (2/8/256). The in-memory sector struct is always max-sized;
+     * only the on-disk layout and the controller framing use these counts. */
+    int header_words;
+    int label_words;
+    int data_words;
 } dorado_disk_geometry;
 
 /* Standard Trident geometries from HM §9 / ContrAlto2. */
 extern const dorado_disk_geometry DORADO_DISK_T80;
 extern const dorado_disk_geometry DORADO_DISK_T300;
+
+/* Alto Diablo emulated on one Trident surface (AltoDiabloDisk.mc): the Trident
+ * is low-level formatted as 29 short sectors/track of 2 header + 8 label + 256
+ * data words. 206 cylinders covers a Model-31 Alto pack mapped to Dorado cyls
+ * 3..205 (diabloCyl + offsetCylinderDiablo). */
+extern const dorado_disk_geometry DORADO_DISK_DIABLO;
+
+/* Effective per-sector word counts for a geometry (0 -> native defaults). */
+int dorado_disk_geom_header_words(const dorado_disk_geometry *g);
+int dorado_disk_geom_label_words(const dorado_disk_geometry *g);
+int dorado_disk_geom_data_words(const dorado_disk_geometry *g);
 
 /* ─── Fire Code ECC (HM §9.10) ──────────────────────────────────────
  * P(X) = X^32 + X^23 + X^21 + X^11 + X^2 + 1, a 32-stage LFSR. Generates the
@@ -215,8 +234,24 @@ typedef struct {
     int      fifo_count;
     uint8_t  read_stream_active;     /* current sector is streaming into FIFO */
     int      read_stream_index;      /* word index in header+label+data */
+    uint8_t  read_block_framing;     /* 1 = interleave per-block trailing words
+                                      * (2 garbage + 2 ECC) after each of the
+                                      * header/label/data blocks, as the real
+                                      * controller does and the DSK-task disk
+                                      * drivers (AltoDiabloDisk ReadECC) drain.
+                                      * 0 = contiguous header+label+data, for the
+                                      * Cedar germ read_page bridge shortcut. */
     uint8_t  write_stream_active;    /* a write op is committing FIFO->pack */
     int      write_stream_index;     /* word index in header+label+data */
+    uint8_t  xfer_pending;           /* a DiskControl transfer command has been
+                                      * loaded but not yet started. The read
+                                      * stream auto-starts once (at the next
+                                      * sector pulse), then clears this. Without
+                                      * the one-shot, enable_run + a leftover
+                                      * transfer op make advance_sector restart
+                                      * the stream every sector, leaving the
+                                      * controller spuriously Active so the next
+                                      * DSK command Output aborts (AReadBadTW). */
 
     /* Drives. Drive 0 is the boot drive on real hardware. */
     dorado_disk_drive drive[DORADO_DISK_NUM_DRIVES];
