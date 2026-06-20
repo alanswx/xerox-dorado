@@ -144,6 +144,13 @@ int main(int argc, char **argv)
         else if (!strcmp(a, "--germ") && i + 1 < argc) cfg.germ_path = argv[++i];
         else if (!strcmp(a, "--pilot-disk") && i + 1 < argc)
             cfg.pilot_disk_pdi = argv[++i];
+        else if (!strcmp(a, "--disk-real")) cfg.disk_real = 1;
+        else if (!strcmp(a, "--disk") && i + 1 < argc) {
+            const char *spec = argv[++i];
+            const char *eq = strchr(spec, '=');
+            int slot = (eq && eq != spec) ? atoi(spec) : -1;
+            if (slot >= 0 && slot < 4) cfg.disk_pack[slot] = eq + 1;
+        }
         else if (!strcmp(a, "--germ-netboot-bfn") && i + 1 < argc) {
             cfg.germ_netboot = 1;
             cfg.germ_netboot_bfn = (uint16_t)strtoul(argv[++i], NULL, 8);

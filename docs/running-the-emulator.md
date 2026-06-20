@@ -163,6 +163,15 @@ CLI flags (`./build/dorado --help`): `--cycles N`, `--eb PATH`, `--germ PATH`,
 keys), `--no-alto-boot`, `--progress`, `--boot-file-number`, `--boot-dir[-all]`,
 `--type`, `--key-hold`.
 
+Disk (`docs/disk-subsystem-plan.md`): `--disk-real` boots Cedar through the
+**real disk controller** read path (FIFO + framing) instead of the IOCB shim
+(`make run-cedar-real` for the interactive SDL version); `--disk SLOT=PATH`
+mounts a real Trident pack (T-80/T-300, R/W) on drive SLOT (0..3), creating a
+blank T-80 if the file is missing and flushing writes back on exit. Disk traces:
+`DORADO_DISK_SEQ` (controller events), `DORADO_DSK_PC_TRACE`,
+`DORADO_DISK_MUFF_TRACE`. Map a runtime IM address to a source label with
+`./build/mbdis -r 0oADDR file.MB`.
+
 Tracing (env vars, mostly gated by `DORADO_TRACE_GATE="lo,hi"` cycle window):
 - `DORADO_IFUDISP_TRACE=1` — one line per dispatched bytecode (pc/pcf/op/br31/stkp/stack).
 - `DORADO_XFER_TRACE=1` — per-microinstruction pc/T/Q/md/last-VA (the workhorse).

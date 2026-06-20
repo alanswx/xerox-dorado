@@ -140,6 +140,13 @@ int main(int argc, char **argv)
             cfg.pilot_disk_pdi = argv[++i];
         } else if (!strcmp(a, "--disk-real")) {
             cfg.disk_real = 1;
+        } else if (!strcmp(a, "--disk") && i + 1 < argc) {
+            /* --disk SLOT=PATH : mount a real Trident pack (T-80/T-300) R/W. */
+            const char *spec = argv[++i];
+            const char *eq = strchr(spec, '=');
+            int slot = (eq && eq != spec) ? atoi(spec) : -1;
+            if (slot >= 0 && slot < 4) cfg.disk_pack[slot] = eq + 1;
+            else fprintf(stderr, "dorado: --disk needs SLOT=PATH (SLOT 0..3)\n");
         } else if (!strcmp(a, "--germ-netboot-bfn") && i + 1 < argc) {
             cfg.germ_netboot = 1;
             cfg.germ_netboot_bfn = (uint16_t)strtoul(argv[++i], NULL, 8);
@@ -175,7 +182,7 @@ int main(int argc, char **argv)
         } else if (!strcmp(a, "--help") || !strcmp(a, "-h")) {
             printf("usage: %s [--cycles N] [--eb PATH] [--eftp PATH] "
                    "[--germ PATH] [--germ-netboot-bfn OCTAL] "
-                   "[--pilot-disk PATH] "
+                   "[--pilot-disk PATH] [--disk SLOT=PATH] [--disk-real] "
                    "[--boot-file-number OCTAL] [--boot-dir NAME=BFN=PATH] "
                    "[--boot-dir-all] [--no-boot-dir-all] "
                    "[--out PATH] [--quote] [--boot-keys K[,K...]] "
@@ -184,7 +191,11 @@ int main(int argc, char **argv)
                    "  --boot-keys: boot-selection chord held down (default "
                    "bs, +quote with --quote); e.g. bs,quote\n"
                    "  --boot-reason: alias for the chord (ethernet=bs, "
-                   "netexec=bs,quote, disk=none)\n",
+                   "netexec=bs,quote, disk=none)\n"
+                   "  --disk SLOT=PATH: mount a real Trident pack (T-80/T-300) "
+                   "R/W on drive SLOT (0..3)\n"
+                   "  --disk-real: boot Cedar through the real disk controller "
+                   "(read path) instead of the IOCB shim\n",
                    argv[0]);
             return 0;
         } else {

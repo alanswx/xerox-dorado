@@ -74,6 +74,8 @@ struct dorado_machine {
     dorado_disk_controller disk;
     dorado_ethernet ethernet;
     dorado_disk_pack disk_pack;
+    dorado_disk_pack disk_packs[DORADO_DISK_NUM_DRIVES]; /* --disk SLOT=PATH */
+    uint8_t          disk_pack_loaded[DORADO_DISK_NUM_DRIVES];
     dorado_pdi pilot_pdi;
     dorado_fastio_router fastio;
 
@@ -978,6 +980,8 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
         cfg.pilot_disk_pdi = pick(user_cfg->pilot_disk_pdi,
                                   cfg.pilot_disk_pdi);
         cfg.disk_real    = user_cfg->disk_real;
+        for (int s = 0; s < 4; s++)
+            cfg.disk_pack[s] = pick(user_cfg->disk_pack[s], cfg.disk_pack[s]);
         cfg.germ_netboot = user_cfg->germ_netboot;
         cfg.germ_netboot_bfn = user_cfg->germ_netboot_bfn;
         cfg.alto_ether_boot  = user_cfg->alto_ether_boot;
@@ -1140,6 +1144,46 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
         }
     }
 
+    /* --disk SLOT=PATH: mount real Trident pack image(s), R/W. Geometry is
+     * auto-detected from the file size (T-80 then T-300). A missing file is
+     * created as a blank T-80 (so a writable target exists for Othello /
+     * volume install -- plan D6); writes are flushed back on machine_destroy. */
+    for (int s = 0; s < DORADO_DISK_NUM_DRIVES; s++) {
+        if (!cfg.disk_pack[s]) continue;
+        int ok = 0;
+        FILE *probe = fopen(cfg.disk_pack[s], "rb");
+        if (probe) {
+            fclose(probe);
+            ok = (dorado_disk_pack_load(&m->disk_packs[s],
+                                        &DORADO_DISK_T80, cfg.disk_pack[s]) == 0);
+            if (!ok)
+                ok = (dorado_disk_pack_load(&m->disk_packs[s],
+                                        &DORADO_DISK_T300, cfg.disk_pack[s]) == 0);
+            if (!ok)
+                fprintf(stderr, "dorado: '%s' is not a T-80/T-300 Trident pack "
+                        "(slot %d)\n", cfg.disk_pack[s], s);
+        } else if (dorado_disk_pack_create(&m->disk_packs[s],
+                                           &DORADO_DISK_T80) == 0) {
+            snprintf(m->disk_packs[s].path, sizeof m->disk_packs[s].path,
+                     "%s", cfg.disk_pack[s]);
+            dorado_disk_pack_save(&m->disk_packs[s]);   /* persist the blank */
+            ok = 1;
+            if (dorado_trace_flag("DORADO_MACHINE_TRACE"))
+                fprintf(stderr, "[machine] created blank T-80 pack: %s\n",
+                        cfg.disk_pack[s]);
+        }
+        if (!ok) continue;
+        m->disk_pack_loaded[s] = 1;
+        dorado_disk_controller_attach_drive(&m->disk, s, &m->disk_packs[s]);
+        m->disk_attached = 1;
+        if (dorado_trace_flag("DORADO_MACHINE_TRACE"))
+            fprintf(stderr, "[machine] Trident pack mounted on slot %d: %s "
+                    "(%dx%dx%d)\n", s, cfg.disk_pack[s],
+                    m->disk_packs[s].geometry.cylinders,
+                    m->disk_packs[s].geometry.heads,
+                    m->disk_packs[s].geometry.sectors);
+    }
+
     /* Register the boot-file directory entries the fake server advertises
      * to NetExec. Each is "NAME=BFN=PATH" (BFN octal). NAME must end in
      * ".boot"; PATH may itself contain no '=' (file paths here do not). */
@@ -1231,6 +1275,17 @@ void dorado_machine_destroy(dorado_machine *m)
     if (m->pilot_pdi_loaded) dorado_pdi_free(&m->pilot_pdi);
     if (m->disk_attached && m->disk_pack.sectors)
         dorado_disk_pack_free(&m->disk_pack);
+    for (int s = 0; s < DORADO_DISK_NUM_DRIVES; s++) {
+        if (!m->disk_pack_loaded[s]) continue;
+        /* Flush writes back to the pack image if anything was modified. */
+        dorado_disk_pack *p = &m->disk_packs[s];
+        int dirty = 0;
+        for (int i = 0; i < p->num_sectors && !dirty; i++)
+            if (p->sectors[i].modified) dirty = 1;
+        if (dirty && !p->read_only && p->path[0])
+            dorado_disk_pack_save(p);
+        dorado_disk_pack_free(p);
+    }
     mb_free(&m->bs_mb);
     mb_free(&m->kernel_mb);
     mb_free(&m->memmisc_mb);

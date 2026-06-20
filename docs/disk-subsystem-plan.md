@@ -262,6 +262,18 @@ The controller now writes a real Trident pack:
 This is the writable foundation for D6 (Othello system-volume install, Lisp
 `LISP.VIRTUALMEM`).
 
+## 3c. RESULT (2026-06-20): D7 frontend + image-format integration
+
+- `--disk SLOT=PATH`: mount a real Trident pack (T-80/T-300, auto-detected by
+  size) R/W on drive SLOT (0..3); a missing file is created as a blank T-80 and
+  writes are flushed back on exit (the writable target for Othello / D6).
+  Verified: creates a 76,063,950-byte T-80, Cedar boots with it mounted.
+- `--disk-real` wired into both frontends; `make run-cedar-real` boots Cedar
+  through the real controller read path interactively.
+- Image formats settled: **Trident pack** (R/W, `--disk`), **PDI** (Cedar boot
+  volume, `--pilot-disk`); no raw Alto/Diablo C format (that mapping is
+  microcode). `--help` updated. 12/12 suites + Cedar + Galaxian unchanged.
+
 ## 3a. Progress log
 
 - **D0 (done, committed):** `DORADO_DISK_SEQ` structured trace + cached

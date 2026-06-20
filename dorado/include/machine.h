@@ -74,6 +74,8 @@ typedef struct dorado_machine_config {
      * the regression gate are structurally untouched. */
     const char *germ_path;
     const char *pilot_disk_pdi; /* Route B Pilot/Cedar PDI disk image. */
+    const char *disk_pack[4];   /* --disk SLOT=PATH: a real Trident pack image
+                                 * (T-80/T-300, R/W) mounted on drive SLOT. */
     int      disk_real;        /* 1 = drive the real disk controller for the
                                 * Pilot/Cedar boot: disable the IOCB-level PDI
                                 * completion shim, clock the PDI media, and let
