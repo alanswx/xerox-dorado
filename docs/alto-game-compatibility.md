@@ -302,6 +302,80 @@ Note the boot-path asymmetry: ContrAlto boots MC via the standard EtherBoot
 loader (our BootServer's breath-of-life), which leaves EPLOC=2777; our
 emulator boots via Dorado Initial -> AEmu -> NetExec, which leaves a different
 EPLOC state. MC (same binary) expects the EtherBoot completion convention.
-Candidate fixes: (a) fix our AEmu/ethernet InDone->EPLOC post + the re-arm
-race (ethernet.c ~626) so the completion sticks; or (b) make our boot path
-leave the EtherBoot-equivalent ethernet state MC reads.
+
+### Traced to the microcode routine (2026-06-19)
+The EPLOC post is done by the AEmu microcode routine **EPOST** (real PC
+`0o3460`; also EIPOST `0o2435`, EOPOST `0o2535` -- from `mbdis --disasm
+AEmu.mb`). EPOST reads a sequence of Dorado ethernet FF-functions (`163`,
+`360`, `036`, `004`, `304`, `077`) to compute the status word it posts to
+EPLOC. Our EPOST posts the intermediate `377`/`777` but **never the terminal
+`2777`** (which adds bit `0x400`, and bits 1-2 = the IOCMD-cleared 0o6 that
+ContrAlto's status register sets). So one of those FF-functions returns the
+wrong ethernet status/completion in our emulator (`cpu.c`/`io.c`/`ethernet.c`
+handling of the Dorado ethernet status functions EPOST reads).
+
+REFUTED fix attempts (do not re-try): poking the 3 words (memory, not event);
+disabling post-boot broadcasts (makes MC blank -- MC NEEDS the intermediate
+completions to reach black-fill).
+
+### Remaining work (precise, but deep)
+Trace EPOST's value computation against the live ethernet state to find which
+FF-function/status read diverges (377/777 vs 2777), then correct that handling
+in ethernet.c so the terminal completion posts. Success test: EPLOC settles at
+2777, MC reaches its attract, Galaxian (121553) / NetExec unchanged. A wrong
+change here risks the regression gate, so it needs the EPOST microcode trace
+first, not a guess.
+
+### ROOT CAUSE (definitive, from the AEmu source)
+`chm/doradosource/AEmuSources-cedar6.0.dm!1_/EtherDefs.mc` defines the EPLOC
+post codes (high byte): **InDone=377, OutDone=777, InBufOverflow=1377,
+CountZero=2377, CmdAbort=2777**. So 2777 = "Command aborted by SIO".
+
+`AltoEtherEmu.mc` ESIO (the SIO emulator): function bits `11` = "Reset
+interface" -> `SIOReset: T_ ECmdBits; T_ T XOR (CmdAbort); Call[EPost]`.
+ECmdBits = EInCmd|EOutCmd = 6, so **AEmu posts ECmdBits XOR CmdAbort = 6 XOR
+2777 = 2771**. The real Alto (ContrAlto) posts the clean **2777**.
+
+MissileCommand's init does an ethernet receive that should time out, then
+SIO-resets and polls EPLOC for the CmdAbort post. **MC requires the clean
+2777; AEmu's 2771 (with the ECmdBits status bits set) is rejected, so MC
+re-arms and busy-waits forever.** Confirmed by the time-ordered EPLOC trace:
+MC's clears (pc=0o42/0o53) interleave with and wipe the posts, ending at 0.
+
+Two compounding factors, both AEmu/real-Alto emulation gaps:
+1. **CmdAbort value**: AEmu posts 2771, real Alto 2777 (the ECmdBits-XOR).
+2. **The re-arm race** (ethernet.c ~626): MC's EPLOC clear races/wipes the
+   InDone/CmdAbort post, so EPLOC ends 0.
+
+Forcing 2771->2777 at EPLOC advances MC past the poll but it then goes blank
+-- MC also needs the ethernet to be ACTUALLY reset by the SIO, not just the
+post value patched. So the fix is faithful emulation of the Alto ethernet
+SIO-reset/abort (reset the receiver + post clean CmdAbort + correct timing),
+not a value rewrite.
+
+### Why it's hard / risky
+The 2771-vs-2777 difference is in AEmu.mb microcode (a fixed Xerox constant,
+`T_ ECmdBits`), and the receiver-reset + race timing live in the AEmu<->Dorado
+ethernet path that Galaxian/NetExec also use. A correct fix means matching the
+real Alto's ethernet SIO-reset semantics without regressing them -- either a
+targeted AEmu microcode patch (SIOReset) or a faithful ethernet-reset emulation
+in ethernet.c. Both are deep; not a value rewrite.
+
+### CmdAbort patch experiment (2026-06-19) -- ruled OUT the value as the cause
+Implemented + tested the AEmu microcode patch: at world-load, set the FF
+constant at IM `0o2477` (ECmdBits, the SIORESET feeder) from 6 to 0, so
+SIORESET posts the clean `2777` instead of `2771`. Verified the patch applies
+and EPLOC now posts `2777` (real-Alto value). It is **gate-safe** (Galaxian
+121553 exact; NetExec 1467 vs 1469, within noise).
+
+BUT it does **not** fix MC -- MC still stalls in the original 5-segment loop.
+So the CmdAbort post value (2771 vs 2777) is NOT the differentiator. With the
+same-binary ContrAlto reference, the genuinely-differing words are
+**0o600 (EPLOC), 0o576, 0o3016**; patching 0o600 to match still leaves 0o576
+(13207 vs 31) and 0o3016 (2616 vs 1537) different. Those are the Alto ethernet
+**input pointer/count** bookkeeping (EIPLoc/EICLoc family). They differ because
+our ethernet delivers packets with different counts/pointers/timing than a real
+Alto. MC reads that bookkeeping and diverges -- so the fix is matching the
+FULL Alto ethernet receive state (post + pointer + count + timing), not one
+value. The patch was reverted (correct but insufficient, and perturbs NetExec).
+Tree is clean; gate green.
