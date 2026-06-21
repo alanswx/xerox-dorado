@@ -1,5 +1,31 @@
 # Dorado disk architecture — reference
 
+## Physical Trident timing — confirmed vs the Century Data spec (2026-06-21)
+
+Authoritative source: Century Data Systems (a Xerox company) "Performance
+Specification Models T25/T50/T80/T200 and T300" (Nov 1980, doc 76205-902),
+bitsavers.org/pdf/centuryData/Trident/. Table 2-1 for the **T-80** (the Dorado
+drive):
+
+| Parameter             | T-80 spec       | Our model                                  |
+|-----------------------|-----------------|--------------------------------------------|
+| Rotational speed      | 3600 RPM        | DORADO_DISK_CYCLES_PER_REV=277778 @60ns = 16.667ms = 3600 RPM (ok) |
+| Avg latency           | 8.3 ms (1/2 rev)| ok                                         |
+| Bytes/track           | 20,160          | 29 sectors x (2+8+256 (+2 ECC)) words + gaps (ok) |
+| Cylinders x heads     | 815 x 5         | AltoDiabloDisk formats 815x5x29 (ok; our pack models 206 cyl = Diablo 203 + offset 3) |
+| I/O transfer rate     | 1209 KByte/s    | 20160 B x 60 rev/s = 1209.6 KB/s (ok)      |
+| Seek (1trk/avg/full)  | 6 / 30 / 55 ms  | timing model (ContrAlto2 uses 6 + 0.602*dCyl ms) |
+| Recording / interface | MFM / NRZ       | n/a (we model the controller, not the bitstream) |
+
+Conclusion: the physical drive timing (rotation, sector rate, data rate) is
+CORRECT. So the Alto-disk boot hang is NOT the drive timing -- it is the Dorado
+disk CONTROLLER (read completion / data-delivery / status), documented in
+HM Sec 9 + the DskEth.pdf board schematic (both local). The Century Data "OEM
+Reference Manual" (2.0M, same bitsavers dir) has the drive<->controller
+interface timing (Fig 4-1 Composite Sector/Index, Fig 4-2 Read/Write Timing) if
+the controller work needs the raw sector/index/read-clock pulse timing.
+
+
 Detailed reference for HM §9 (Disk Controller) and the Trident
 SMD drives. Companion to `docs/io-systems-architecture.md`
 (high-level I/O overview) and `dorado/include/disk.h` /
