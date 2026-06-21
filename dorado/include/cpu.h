@@ -165,6 +165,17 @@ typedef struct {
     uint8_t  ifu_saved_stkp;    /* post-IFUJump StkP saved for RestoreStkP */
     uint8_t  ifu_save_stkp_pending;
 
+    /* DORADO_ALTOAC_TRACE: a per-Alto-opcode AC trace cycle-aligned with the
+     * salto reference. next_pc()'s IFUJump dispatch runs BEFORE apply_lc()'s
+     * writeback, so the dispatch-time AC snapshot lags one opcode. We instead
+     * capture the dispatched opcode here and print STK[1..4] after apply_lc,
+     * matching salto's f2_load_ir sample (IR_next with the AC that the
+     * just-finished opcode left). */
+    uint8_t  altoac_pending;
+    uint8_t  altoac_op;
+    uint8_t  altoac_alpha;
+    uint8_t  altoac_insset;
+
     /*
      * Breakpoints / parity / event counters — gap B11.
      *

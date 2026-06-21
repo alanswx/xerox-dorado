@@ -87,6 +87,7 @@ struct dorado_machine {
     int disk_real;             /* drive the real disk controller (plan D4) */
     int alto_ether_quote;
     uint16_t boot_file_number;
+    uint8_t  alto_cold_ac_done; /* one-shot: cold-Alto ACs at DiskBoot (experiment) */
 
     /* Boot-key chord held down through Stage-2 boot selection (see
      * dorado_machine_config.boot_keys). Resolved at create time. */
@@ -1435,6 +1436,22 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
         }
 
         uint16_t pre_pc = cpu->real_PC;
+
+        /* Present the disk-booted Alto image with cold ACs (Stack[1..4]=0),
+         * the way a real Alto power-on does. The AEmu's DiskBoot/Start never
+         * clear the emulator stack (Start.mc: "Accumulators AC0-AC3 are kept in
+         * Stack[1] through Stack[4]"), so the booted image would otherwise
+         * inherit the AEmu's leftover ACs. A real Alto disk-boots cold (AC=0);
+         * verified against the salto reference Alto, whose loader runs with
+         * AC=0 -- clearing them here makes the first 11453 booted opcodes match
+         * salto exactly (vs diverging at opcode 5 without it). One-shot, gated
+         * to the AEmu disk-boot path: DiskBoot (AEmu.mb!2 real 0o2005) is only
+         * reached for a disk boot, never for the ether games (EBoot) or Cedar. */
+        if (is_imfetch && cpu->ctask == 0 && pre_pc == 02005 &&
+            !m->alto_cold_ac_done) {
+            cpu->STK[1] = cpu->STK[2] = cpu->STK[3] = cpu->STK[4] = 0;
+            m->alto_cold_ac_done = 1;
+        }
 
         /* Alto disk-boot bring-up trace: log when any task reaches the AEmu
          * boot-decision vectors (ABoot/DiskBoot/EBoot, AEmu.mb!2 real addrs). */

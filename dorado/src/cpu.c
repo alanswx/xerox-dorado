@@ -2932,6 +2932,15 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                         cpu->STK[(cpu->StkP + 2) & 0xFF],
                         cpu->STK[(cpu->StkP + 3) & 0xFF]);
             }
+            /* Defer a cycle-aligned per-opcode AC dump to after apply_lc()
+             * (the writeback that finishes the opcode whose IFUJump this is). */
+            if (dorado_trace_flag("DORADO_ALTOAC_TRACE") &&
+                (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+                cpu->altoac_pending = 1;
+                cpu->altoac_op = opcode;
+                cpu->altoac_alpha = cpu->ifu_alpha;
+                cpu->altoac_insset = cpu->ifu_insset & 3;
+            }
             if (opcode == 0365 && cpu->mem &&
                 dorado_trace_flag("DORADO_BITBLT_TRACE") &&
                 (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
@@ -4334,6 +4343,19 @@ memory_ref_done: ;
         cpu->halted = 1;
         cpu->halt_reason = rc;
         return 1;
+    }
+
+    /* Cycle-aligned per-opcode AC dump (see cpu.h altoac_*). apply_lc() just
+     * finished the opcode whose IFUJump dispatched altoac_op; STK[1..4] now
+     * hold the Alto AC0..3 the way salto samples them at the next f2_load_ir.
+     * Print IR = (op<<8)|alpha so it diffs directly against the salto trace. */
+    if (cpu->altoac_pending) {
+        cpu->altoac_pending = 0;
+        fprintf(stderr, "ALTOAC IR=%06o set=%u AC=%06o,%06o,%06o,%06o\n",
+                ((unsigned)cpu->altoac_op << 8) | cpu->altoac_alpha,
+                cpu->altoac_insset,
+                cpu->STK[1] & 0177777, cpu->STK[2] & 0177777,
+                cpu->STK[3] & 0177777, cpu->STK[4] & 0177777);
     }
 
     /* Post-instruction StkP update + StkOvf/StkUnd recompute (HM
