@@ -7,7 +7,7 @@
  * words (DORADO_DISK_DIABLO). AltoDiabloDisk.mc maps a Diablo disk address
  * (cyl, head, sector) to the physical Trident CHS:
  *
- *   DoradoCyl    = diabloCyl + offsetCylinderDiablo(=3)        [drive 0]
+ *   DoradoCyl    = 406 * diabloDrive + diabloCyl + offsetCylinderDiablo(=3)
  *   DoradoHead   = partition - 1            [default partition 5 (T-80) -> 4]
  *   effHead      = diabloHead XOR (diabloCyl & 1)              [staggerSectors]
  *   DoradoSector = nSectorsDiablo(=16B=14) * effHead + diabloSector
@@ -18,10 +18,11 @@
  * chm/doradosource/AEmuSources-cedar6.0.dm!1_/AltoDiabloDisk.mc and
  * docs/alto-disk-boot-plan.md.)
  *
- * Each Diablo sector's header/label/data records are copied verbatim into the
- * mapped Trident sector. The header block carries the Alto disk address that
- * the microcode's header-check compares, so no translation is needed -- only
- * the CHS reordering. Conveniently a Diablo-31 .dsk sector and a
+ * Each Diablo sector's header/label/data records are copied into the mapped
+ * Trident sector. The header block carries the Alto disk address that the
+ * microcode's header-check compares; for the mirrored second emulated Diablo
+ * drive we set the AEmu drive bit in that header word. Conveniently a
+ * Diablo-31 .dsk sector and a
  * Diablo-on-Trident sector have the identical 534-byte on-disk layout
  * (dummy 1w + header 2w + label 8w + data 256w, little-endian); this tool
  * just places each one at its mapped position in the larger Trident geometry.
@@ -37,6 +38,9 @@
 #define DIABLO31_CYL   203
 #define DIABLO31_HEAD  2
 #define DIABLO31_SEC   12
+/* AltoDiabloDisk.mc: "626B = 406 = number of cylinders". */
+#define DIABLO_DRIVE_CYL_STRIDE 406
+#define DIABLO_DRIVE_HEADER_BIT 000002u
 /* dummy 1w + header 2w + label 8w + data 256w = 267 words = 534 bytes. */
 #define DIABLO_DUMMY_W  1
 #define DIABLO_HDR_W    2
@@ -54,6 +58,8 @@ static void usage(const char *p)
         "                    (head = N-1; default 5 => head 4, T-80 default)\n"
         "  --all-heads       replicate the image onto every Trident head\n"
         "                    (boots regardless of the partition the AEmu picks)\n"
+        "  --single-drive    populate only emulated Diablo drive 0\n"
+        "                    (default mirrors the image onto drives 0 and 1)\n"
         "  --sectors-diablo N  Trident sectors reserved per Diablo head\n"
         "                    (default 14 = 16B, AltoDiabloDisk nSectorsDiablo)\n"
         "  --offset-cyl N    cylinders reserved at the start (default 3)\n"
@@ -72,6 +78,7 @@ int main(int argc, char **argv)
 {
     int partition = 5;          /* MaxPartition for a T-80 (default boot) */
     int all_heads = 0;
+    int both_drives = 1;
     int sectors_diablo = 14;    /* nSectorsDiablo = 16B */
     int offset_cyl = 3;         /* offsetCylinderDiablo */
     int sector_offset = 1;      /* command-vs-physical sector bias (see usage) */
@@ -82,6 +89,7 @@ int main(int argc, char **argv)
         const char *a = argv[i];
         if (!strcmp(a, "--partition") && i + 1 < argc)        partition = atoi(argv[++i]);
         else if (!strcmp(a, "--all-heads"))                   all_heads = 1;
+        else if (!strcmp(a, "--single-drive"))                both_drives = 0;
         else if (!strcmp(a, "--sectors-diablo") && i + 1 < argc) sectors_diablo = atoi(argv[++i]);
         else if (!strcmp(a, "--offset-cyl") && i + 1 < argc)  offset_cyl = atoi(argv[++i]);
         else if (!strcmp(a, "--sector-offset") && i + 1 < argc) sector_offset = atoi(argv[++i]);
@@ -96,11 +104,15 @@ int main(int argc, char **argv)
 
     /* The output pack uses the Diablo-on-Trident geometry (2/8/256 framing). */
     dorado_disk_geometry geom = DORADO_DISK_DIABLO;
-    if (offset_cyl + DIABLO31_CYL > geom.cylinders) {
+    int drive_ranges = both_drives ? 2 : 1;
+    int required_cyls = offset_cyl + DIABLO31_CYL +
+                        (drive_ranges - 1) * DIABLO_DRIVE_CYL_STRIDE;
+    if (required_cyls > geom.cylinders) {
         fprintf(stderr,
                 "dsk2trident: DORADO_DISK_DIABLO has %d cylinders; need >= %d "
-                "(offset %d + %d Diablo cyls)\n",
-                geom.cylinders, offset_cyl + DIABLO31_CYL, offset_cyl, DIABLO31_CYL);
+                "(offset %d + %d Diablo cyls + %d drive stride)\n",
+                geom.cylinders, required_cyls, offset_cyl, DIABLO31_CYL,
+                (drive_ranges - 1) * DIABLO_DRIVE_CYL_STRIDE);
         return 1;
     }
 
@@ -150,31 +162,35 @@ int main(int argc, char **argv)
                 /* Map to the physical Trident CHS. */
                 int eff_head = dhead;
                 if (stagger && (dcyl & 1)) eff_head ^= 1;
-                int tcyl = dcyl + offset_cyl;
                 int tsec = (sectors_diablo * eff_head + dsec + sector_offset)
                            % geom.sectors;
 
                 int h0 = all_heads ? 0 : boot_head;
                 int h1 = all_heads ? geom.heads : boot_head + 1;
-                for (int thead = h0; thead < h1; thead++) {
-                    dorado_disk_sector *s =
-                        dorado_disk_pack_sector(&pack, tcyl, thead, tsec);
-                    if (!s) { missed++; continue; }
-                    /* Skip the dummy word; copy header/label/data with each block's
-                 * word order REVERSED. AltoDiabloDisk.mc reads each block out of
-                 * the FIFO into descending memory addresses (DskMAddr counts
-                 * down), so the on-Trident block must be stored reversed for the
-                 * read to land word 0 at the low (entry) address -- matching a
-                 * real Alto disk read. Verified against the salto reference Alto:
-                 * its boot loader's entry word (data[0] = JMP 0345) lands at the
-                 * low address and runs; without the reversal ours put data[0] at
-                 * the high address and looped on a bad BLT. */
-                    const uint8_t *p = buf + DIABLO_DUMMY_W * 2;
-                    for (int w = DIABLO_HDR_W  - 1; w >= 0; w--) { s->header[w] = rd16(p); p += 2; }
-                    for (int w = DIABLO_LBL_W  - 1; w >= 0; w--) { s->label[w]  = rd16(p); p += 2; }
-                    for (int w = DIABLO_DATA_W - 1; w >= 0; w--) { s->data[w]   = rd16(p); p += 2; }
-                    s->modified = 1;
-                    placed++;
+                for (int edrive = 0; edrive < drive_ranges; edrive++) {
+                    int tcyl = dcyl + offset_cyl +
+                               edrive * DIABLO_DRIVE_CYL_STRIDE;
+                    for (int thead = h0; thead < h1; thead++) {
+                        dorado_disk_sector *s =
+                            dorado_disk_pack_sector(&pack, tcyl, thead, tsec);
+                        if (!s) { missed++; continue; }
+                        /* Skip the dummy word; copy header/label/data with each block's
+                         * word order REVERSED. AltoDiabloDisk.mc reads each block out of
+                         * the FIFO into descending memory addresses (DskMAddr counts
+                         * down), so the on-Trident block must be stored reversed for the
+                         * read to land word 0 at the low (entry) address -- matching a
+                         * real Alto disk read. Verified against the salto reference Alto:
+                         * its boot loader's entry word (data[0] = JMP 0345) lands at the
+                         * low address and runs; without the reversal ours put data[0] at
+                         * the high address and looped on a bad BLT. */
+                        const uint8_t *p = buf + DIABLO_DUMMY_W * 2;
+                        for (int w = DIABLO_HDR_W  - 1; w >= 0; w--) { s->header[w] = rd16(p); p += 2; }
+                        if (edrive == 1) s->header[0] |= DIABLO_DRIVE_HEADER_BIT;
+                        for (int w = DIABLO_LBL_W  - 1; w >= 0; w--) { s->label[w]  = rd16(p); p += 2; }
+                        for (int w = DIABLO_DATA_W - 1; w >= 0; w--) { s->data[w]   = rd16(p); p += 2; }
+                        s->modified = 1;
+                        placed++;
+                    }
                 }
             }
         }
@@ -198,10 +214,12 @@ int main(int argc, char **argv)
     printf("dsk2trident: %s -> %s\n", in_path, out_path);
     printf("  geometry  %d cyl x %d head x %d sec (2/8/256 words/sector)\n",
            geom.cylinders, geom.heads, geom.sectors);
-    printf("  mapping   cyl+%d, sector=%d*head+sec+%d, stagger=%s, ",
-           offset_cyl, sectors_diablo, sector_offset, stagger ? "on" : "off");
+    printf("  mapping   cyl=%d*drive+cyl+%d, sector=%d*head+sec+%d, stagger=%s, ",
+           DIABLO_DRIVE_CYL_STRIDE, offset_cyl, sectors_diablo,
+           sector_offset, stagger ? "on" : "off");
     if (all_heads) printf("all heads\n");
     else           printf("partition %d -> head %d\n", partition, boot_head);
+    printf("  drives    %s\n", both_drives ? "0 and 1 (mirrored)" : "0 only");
     printf("  placed    %d sectors%s\n", placed,
            missed ? " (some missed, see warning)" : "");
     return 0;

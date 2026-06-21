@@ -12,7 +12,7 @@ drive):
 | Rotational speed      | 3600 RPM        | DORADO_DISK_CYCLES_PER_REV=277778 @60ns = 16.667ms = 3600 RPM (ok) |
 | Avg latency           | 8.3 ms (1/2 rev)| ok                                         |
 | Bytes/track           | 20,160          | 29 sectors x (2+8+256 (+2 ECC)) words + gaps (ok) |
-| Cylinders x heads     | 815 x 5         | AltoDiabloDisk formats 815x5x29 (ok; our pack models 206 cyl = Diablo 203 + offset 3) |
+| Cylinders x heads     | 815 x 5         | AltoDiabloDisk formats 815x5x29; our Diablo pack now models the full 815 cylinders |
 | I/O transfer rate     | 1209 KByte/s    | 20160 B x 60 rev/s = 1209.6 KB/s (ok)      |
 | Seek (1trk/avg/full)  | 6 / 30 / 55 ms  | timing model (ContrAlto2 uses 6 + 0.602*dCyl ms) |
 | Recording / interface | MFM / NRZ       | n/a (we model the controller, not the bitstream) |
@@ -901,19 +901,44 @@ software XOR the corrupted bits back to correct values.
     display pixels, so the remaining Alto disk issue is later than this
     controller sequencing bug.
 
-18. **2026-06-21 AEmu disk-render correction.**
+18. **2026-06-21 AEmu disk fallback correction.**
     The next failure was not the `ACmmdAbort` label itself: traced predecessor
     PCs show the repeated entries came from `ACmmdSeekOnly`, which uses the same
     tail for normal seek-only completion. The real scheduler bug was that DSK
     wakeups were gated on sector advancement; FIFO threshold wakeups are level
     conditions and must wake DSK whenever pending. After fixing that, the
-    remaining compatibility gap was Alto Diablo status bit 12
-    (`NoDataTransferred`, value 0o10). `AltoDiabloDisk.mc` maps Trident mufflers
-    to Alto KBLK/KCB status but does not synthesize this Diablo bit, while the
-    booted Alto OS consumes it. The pack-backed AEmu path now ORs the bit into
-    DSK-task status stores for VM 0522 and normal KCB completions, which makes a
-    300M-cycle nonprog pack boot install a display list (`1474` pixels in the
-    current headless check).
+    remaining compatibility gap appeared to be Alto Diablo status bit 12
+    (`NoDataTransferred`, value 0o10). That conclusion was overbroad. ORing
+    0o10 into normal KCB completions corrupts `AEm0.mc`'s boot KCB status:
+    `DiskBootRetry` treats the low bit as an error, retries, and then falls
+    through to `EBoot`. The apparent 300M-cycle nonprog render was therefore
+    Ethernet fallback, not a pack boot. The compatibility hook has been removed;
+    with `--no-alto-boot`, the initial pack sector is accepted and executed, but
+    the booted Alto code still leaves the display list head zero.
+
+19. **2026-06-21 AEmu second-drive cylinder correction.**
+    The next disk-only failure was a real `ACheckBadTW`/`AChecksumError` on
+    KCB `143515`, not another seek-only tail. The command addressed physical
+    cylinder 409 through AltoDiabloDisk's `0406 + diabloCyl + 3` mapping for the
+    second emulated Diablo drive. Our previous Diablo-on-Trident pack geometry
+    had only 206 cylinders, so `disk_begin_read_stream()` rejected the sector
+    and `ReadFifoTW` never asserted. `DORADO_DISK_DIABLO` is now the full
+    `815 x 5 x 29` short-sector format; old 206-cylinder generated packs must be
+    rebuilt.
+
+20. **2026-06-21 AEmu mirrored-pack and restore-header correction.**
+    A full-geometry pack also must contain both emulated Diablo drives:
+    `dsk2trident` now writes drive 0 and drive 1 by default using
+    `cyl = 406 * drive + diabloCyl + 3`, and sets the AEmu drive bit in the
+    drive-1 header copy. The sequenced controller now advances from read/check
+    blocks into following write blocks, and reports pending `CompareErr` through
+    the read-error mufflers without prematurely latching `ReadDataErr` at block
+    boundary. Finally, AltoDiabloDisk's ReZero retry uses the low disk-address
+    bit as a command-only restore marker; the on-disk Diablo header lacks that
+    bit. The emulator tolerates it only for word 0 of a Diablo header
+    read-check on the transfer immediately following ReZero. With a fresh
+    converted pack and `--no-alto-boot`, nonprog reaches a real disk-only
+    display list (`2590` pixels in the 300M-cycle headless check).
 
 See `docs/io-systems-architecture.md` for a higher-level view of
 how disk fits into Slow I/O / Fast I/O / Tasking.

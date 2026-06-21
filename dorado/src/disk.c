@@ -9,11 +9,16 @@
 /* Cached per-name trace flag (cpu.c). Keep disk trace checks off the hot
  * path's raw getenv() — see dorado/CLAUDE.md "Don't regress". */
 extern int dorado_trace_flag(const char *name);
+extern int dorado_trace_gate;
+extern unsigned long long dorado_trace_cycle;
 
 const dorado_disk_geometry DORADO_DISK_T80  = { 815, 5, 9, 0, 0, 0 };
 const dorado_disk_geometry DORADO_DISK_T300 = { 815, 19, 9, 0, 0, 0 };
-/* Diablo-on-Trident: 206 cyl x 5 heads x 29 sectors, 2 hdr + 8 lbl + 256 data. */
-const dorado_disk_geometry DORADO_DISK_DIABLO = { 206, 5, 29, 2, 8, 256 };
+/* Diablo-on-Trident: full T-80 cylinder range with 29 short sectors.
+ * AltoDiabloDisk.mc maps Diablo drive 0 to cyl+3 and drive 1 to cyl+0406+3,
+ * so a 206-cylinder truncated pack fails as soon as Alto software addresses
+ * the second emulated Diablo drive. */
+const dorado_disk_geometry DORADO_DISK_DIABLO = { 815, 5, 29, 2, 8, 256 };
 
 int dorado_disk_geom_header_words(const dorado_disk_geometry *g)
 { return g->header_words ? g->header_words : DORADO_DISK_HEADER_WORDS; }
@@ -85,6 +90,13 @@ int dorado_disk_ecc_check(const uint16_t *words, int n,
 #define DORADO_DISK_MUFF_ADDR              0x00FFu
 
 static void disk_set_subsector_count(dorado_disk_drive *d, int count);
+static void disk_update_fifo_tws(dorado_disk_controller *ctl);
+
+static int disk_trace_enabled(const char *name)
+{
+    if (!dorado_trace_flag(name)) return 0;
+    return !dorado_trace_flag("DORADO_TRACE_GATE") || dorado_trace_gate;
+}
 
 /* ─── Pack image I/O ────────────────────────────────────────────── */
 
@@ -435,13 +447,14 @@ static void disk_set_subsector_count(dorado_disk_drive *d, int count)
  * sequence-PROM path (plan phases D2/D5). Cheap: gated by the cached flag. */
 static void disk_seq_trace(const dorado_disk_controller *ctl, const char *ev)
 {
-    if (!dorado_trace_flag("DORADO_DISK_SEQ")) return;
+    if (!disk_trace_enabled("DORADO_DISK_SEQ")) return;
     const dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
     fprintf(stderr,
-            "[diskseq] %-10s drv=%d chs=%d/%d/%d spr=%d ssc=%d ctrl=0o%o "
+            "[diskseq] cyc=%llu %-10s drv=%d chs=%d/%d/%d spr=%d ssc=%d ctrl=0o%o "
             "run=%d act=%d fifo=%d/%d rdtw=%d wrtw=%d sectw=%d idxtw=%d "
             "tagtw=%d stream=%d@%d seek=%d\n",
-            ev, ctl->selected_drive, d->cur_cyl, d->cur_head, d->cur_sector,
+            dorado_trace_cycle, ev, ctl->selected_drive, d->cur_cyl,
+            d->cur_head, d->cur_sector,
             d->sectors_per_revolution, d->subsector_count,
             ctl->control, ctl->enable_run, ctl->active,
             ctl->fifo_count, DORADO_DISK_FIFO_WORDS,
@@ -501,6 +514,42 @@ static uint16_t disk_format_block_words(const dorado_disk_controller *ctl,
     return n;
 }
 
+static int disk_drive_is_diablo_pack(const dorado_disk_drive *d)
+{
+    if (!d || !d->pack) return 0;
+    const dorado_disk_geometry *g = &d->pack->geometry;
+    return g->sectors == 29 &&
+           dorado_disk_geom_header_words(g) == 2 &&
+           dorado_disk_geom_label_words(g) == 8 &&
+           dorado_disk_geom_data_words(g) == 256;
+}
+
+static int disk_block_start_index(const dorado_disk_drive *d, int block)
+{
+    int idx = 0;
+    for (int b = 0; b < block; b++)
+        idx += disk_block_default_words(d, b);
+    return idx;
+}
+
+static void disk_arm_write_block(dorado_disk_controller *ctl,
+                                 const dorado_disk_drive *d,
+                                 int block)
+{
+    ctl->read_stream_active = 0;
+    ctl->rd_fifo_tw = 0;
+    ctl->write_stream_active = 1;
+    ctl->write_stream_index = disk_block_start_index(d, block);
+    ctl->current_block = (uint8_t)block;
+    ctl->current_block_op = DORADO_DISK_OP_WRITE;
+    ctl->current_block_words = disk_format_block_words(ctl, d, block);
+    ctl->current_block_pos = 0;
+    ctl->current_block_trailer = 0;
+    ctl->active = 1;
+    disk_update_fifo_tws(ctl);
+    disk_seq_trace(ctl, "write-block");
+}
+
 static int disk_advance_to_next_read_block(dorado_disk_controller *ctl)
 {
     dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
@@ -526,9 +575,20 @@ static int disk_advance_to_next_read_block(dorado_disk_controller *ctl)
 
 static void disk_finish_current_read_block(dorado_disk_controller *ctl)
 {
-    if (ctl->compare_err)
-        ctl->read_data_err = 1;
+    dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
+    /* For a read-check block, hardware raises CompareErr at block start and
+     * the DSK microcode clears it only after comparing the block words
+     * (AltoDiabloDisk.mc ACheckLast tail). The FIFO stream can reach the
+     * block boundary in the emulator before that tail runs, so do not latch a
+     * permanent read error here. Report an uncleared CompareErr when
+     * muffReadError/DeviceCheck is sampled instead. */
     ctl->current_block++;
+    if (ctl->current_block < 4 &&
+        disk_control_block_op(ctl->control, ctl->current_block) ==
+            DORADO_DISK_OP_WRITE) {
+        disk_arm_write_block(ctl, d, ctl->current_block);
+        return;
+    }
     if (!disk_advance_to_next_read_block(ctl)) {
         ctl->current_block_op = DORADO_DISK_OP_DONE;
         ctl->current_block_words = 0;
@@ -559,13 +619,14 @@ static void disk_update_fifo_tws(dorado_disk_controller *ctl)
 static void disk_check_trace(const dorado_disk_controller *ctl,
                              const char *ev, uint16_t word)
 {
-    if (!dorado_trace_flag("DORADO_DISK_CHECK_TRACE")) return;
+    if (!disk_trace_enabled("DORADO_DISK_CHECK_TRACE")) return;
     const dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
     fprintf(stderr,
-            "[diskcheck] %-10s drv=%d chs=%d/%d/%d media_sec=%d "
+            "[diskcheck] cyc=%llu %-10s drv=%d chs=%d/%d/%d media_sec=%d "
             "ctrl=0o%o blk=%u op=%u pos=%u/%u trail=%u fifo=%d/%d "
             "rdtw=%u act=%u cmp=%u rderr=%u idx=%d word=%06o\n",
-            ev, ctl->selected_drive, d->cur_cyl, d->cur_head, d->cur_sector,
+            dorado_trace_cycle, ev, ctl->selected_drive, d->cur_cyl,
+            d->cur_head, d->cur_sector,
             disk_media_sector(d), ctl->control, ctl->current_block,
             ctl->current_block_op, ctl->current_block_pos,
             ctl->current_block_words, ctl->current_block_trailer,
@@ -600,8 +661,21 @@ void dorado_disk_controller_refill_fifo(dorado_disk_controller *ctl)
             if (ctl->current_block_op == DORADO_DISK_OP_DONE)
                 break;
             if (ctl->current_block_pos < ctl->current_block_words) {
+                uint16_t block_pos = ctl->current_block_pos;
                 w = disk_block_word(d, s, ctl->current_block,
-                                    ctl->current_block_pos);
+                                    block_pos);
+                if (ctl->restore_header_check &&
+                    ctl->current_block == 0 &&
+                    ctl->current_block_op == DORADO_DISK_OP_RDCHK &&
+                    block_pos == 0) {
+                    /* AltoDiabloDisk.mc treats KCB disk-address bit 15 as a
+                     * restore request. The on-disk Diablo header does not
+                     * carry that command-only bit, but restore retries reuse
+                     * the address word in the header check buffer. Real AEmu
+                     * tolerates that in the header compare path; mirror it
+                     * only for the first word of a Diablo header read-check. */
+                    w |= 1u;
+                }
                 ctl->current_block_pos++;
             } else if (ctl->current_block_trailer <
                        DORADO_DISK_BLOCK_TRAILER_WORDS) {
@@ -658,6 +732,9 @@ static int disk_begin_read_stream(dorado_disk_controller *ctl)
     ctl->current_block_pos = 0;
     ctl->current_block_trailer = 0;
     ctl->read_stream_starts++;
+    ctl->restore_header_check =
+        (ctl->transfer_restore && disk_drive_is_diablo_pack(d)) ? 1 : 0;
+    ctl->transfer_restore = 0;
     /* Latch the sector being read: the drain spans many emulated sector pulses,
      * so refills must keep serving this sector, not the advancing cur_sector. */
     ctl->read_stream_sector = d->pack
@@ -933,14 +1010,24 @@ static void disk_write_stream_word(dorado_disk_controller *ctl, uint16_t w)
     s->modified = 1;
     ctl->write_stream_index++;
     ctl->current_block_pos++;
-    if (ctl->write_stream_index >= total) {
+    if (ctl->write_stream_index >= total ||
+        ctl->current_block_pos >= ctl->current_block_words) {
+        int completed_block = ctl->current_block;
         ctl->write_stream_active = 0;
-        ctl->active = 0;
-        ctl->current_block_op = DORADO_DISK_OP_DONE;
-        ctl->tag_tw = 1;          /* block-end tag wakeup */
-        ctl->tag_tw_sets++;
-        disk_update_fifo_tws(ctl);
-        disk_seq_trace(ctl, "write-done");
+        ctl->current_block++;
+        if (ctl->current_block < 4 &&
+            disk_control_block_op(ctl->control, ctl->current_block) ==
+                DORADO_DISK_OP_WRITE) {
+            disk_arm_write_block(ctl, d, ctl->current_block);
+        } else {
+            ctl->active = 0;
+            ctl->current_block_op = DORADO_DISK_OP_DONE;
+            ctl->tag_tw = 1;          /* block-end tag wakeup */
+            ctl->tag_tw_sets++;
+            disk_update_fifo_tws(ctl);
+            disk_seq_trace(ctl, completed_block == 0 ? "write-done" :
+                           "write-blk-done");
+        }
     }
 }
 
@@ -1021,6 +1108,8 @@ static void disk_output_b(void *ctx, int task, int subtask,
         if (disk_control_has_transfer_op(data)) {
             ctl->control_transfer_loads++;
             ctl->xfer_pending = 1;   /* arm a one-shot read-stream start */
+            ctl->transfer_restore = ctl->restore_pending;
+            ctl->restore_pending = 0;
         }
         ctl->format_ram_addr = 0;
         if (data & DORADO_DISK_CTRL_CLR_ENABLE_RUN) ctl->enable_run = 0;
@@ -1203,6 +1292,7 @@ static void disk_output_b(void *ctx, int task, int subtask,
                     d->cur_sector = 0;
                     d->head_overflow = 0;
                     d->seek_in_progress = disk_sector_pulse_count(d);
+                    ctl->restore_pending = 1;
                 }
                 if (bus & (1u << 0)) {
                     /* HeadAdvance */
@@ -1295,14 +1385,14 @@ static int disk_muffler_bit(dorado_disk_controller *ctl, uint8_t addr)
     case 025: return d->seek_in_progress || !d->online;
     case 027: return ctl->fifo_underflow;
     case 030: return ctl->fifo_overflow;
-    case 031: return ctl->read_data_err;
+    case 031: return ctl->read_data_err || ctl->compare_err;
     case 032: return d->read_only;
     case 036:
         return d->head_overflow || d->read_only || ctl->fifo_underflow ||
-               ctl->fifo_overflow || ctl->read_data_err;
+               ctl->fifo_overflow || ctl->read_data_err || ctl->compare_err;
     case 037:
         return d->head_overflow || ctl->fifo_underflow ||
-               ctl->fifo_overflow || ctl->read_data_err;
+               ctl->fifo_overflow || ctl->read_data_err || ctl->compare_err;
     default: return 0;
     }
 }
@@ -1341,8 +1431,9 @@ static uint16_t disk_input(void *ctx, int task, int subtask,
 
     case DORADO_DISK_TIOA_DISKMUFF: {
         int bit = disk_muffler_bit(ctl, ctl->muff_addr);
-        if (dorado_trace_flag("DORADO_DISK_MUFF_TRACE"))
-            fprintf(stderr, "[diskmuff] addr=0o%o -> %d\n", ctl->muff_addr, bit);
+        if (disk_trace_enabled("DORADO_DISK_MUFF_TRACE"))
+            fprintf(stderr, "[diskmuff] cyc=%llu addr=0o%o -> %d\n",
+                    dorado_trace_cycle, ctl->muff_addr, bit);
         /* HM pages 101-102: the selected muffler signal is driven on
          * IOB[15]. In this emulator's C word layout, Dorado bit 15 is
          * the low bit; DiskSubrs.mc tests Read1Muff with R odd. */

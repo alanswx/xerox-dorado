@@ -1,19 +1,18 @@
 # Booting Alto software off an emulated disk (Diablo-on-Trident) — plan
 
-**Status: THE ALTO DISK PATH NOW RENDERS FROM A PACK IMAGE (2026-06-21).
-Milestones A+B+C are done; later controller sequencing, DSK wakeup, and
-Alto status-compatibility fixes make `--eb worlds/aemu.eb --disk 0=PACK
---boot-reason disk` load the pack and install a display list. The old
-blank-screen conclusion was too early; the misleading `ACmmdAbort` trace was
-the normal seek-only command tail, not the failing path. See updates
-2026-06-21d/e below.**
+**Status: ALTO DISK PATH RENDERS FROM A REAL PACK BOOT (2026-06-21).
+Milestones A+B+C are done. With a freshly regenerated full-size mirrored
+Diablo-on-Trident pack, `--eb worlds/aemu.eb --disk 0=PACK --boot-reason disk
+--no-alto-boot` reaches the pack-backed Alto world and installs a display list.
+Keep `--no-alto-boot` in truth runs; an earlier "renders from pack" result was
+actually Ethernet fallback. See updates 2026-06-21f through 2026-06-21h.**
 
 ## Implementation status (2026-06-20)
 
 Done and verified:
 - **Milestone A — pack geometry parameterized.** `dorado_disk_geometry` now
   carries `header_words/label_words/data_words` (0 => native-Trident defaults);
-  `DORADO_DISK_DIABLO = {206,5,29, 2,8,256}`. `pack_load`/`pack_save` and the
+  `DORADO_DISK_DIABLO = {815,5,29, 2,8,256}`. `pack_load`/`pack_save` and the
   controller read/write stream use the per-media accessors. Native Trident and
   Cedar PDI paths are byte-for-byte unchanged (the accessors return the old
   constants). Regression green: 11/11 tests, Cedar login 28463 dark px (gate
@@ -21,13 +20,13 @@ Done and verified:
 - **Milestone B — `dsk2trident` converter** (`src/dsk2trident.c`,
   `make`/`build/dsk2trident`). Converts a ContrAlto Diablo-31 `.dsk` into a
   Diablo-on-Trident pack. Mapping verified byte-exact against the microcode:
-  `cyl = diabloCyl + offsetCylinderDiablo(3)`, `sector = nSectorsDiablo(16B=14)
-  * effHead + diabloSector`, `effHead = diabloHead XOR (diabloCyl & 1)`
-  (staggerSectors). The Trident sector's header block carries the Alto/Diablo
-  disk address verbatim (the `.dsk` header word1 = DA; the microcode header
-  block reads it). `--all-heads` replicates onto every head so the boot finds
-  the image regardless of the partition the AEmu picks. Octal Micro literals
-  pinned via the "626B = 406" comment in ASeek.
+  `cyl = 406 * diabloDrive + diabloCyl + offsetCylinderDiablo(3)`,
+  `sector = nSectorsDiablo(16B=14) * effHead + diabloSector`, `effHead =
+  diabloHead XOR (diabloCyl & 1)` (staggerSectors). By default the image is
+  mirrored into emulated Diablo drives 0 and 1; the drive-1 copy sets the AEmu
+  drive bit in the header word. `--all-heads` replicates onto every Trident head
+  so the boot finds the image regardless of the partition the AEmu picks. Octal
+  Micro literals pinned via the "626B = 406" comment in ASeek.
 - **Milestone C — mount + boot trigger + real controller read.** `--disk
   SLOT=PATH` auto-detects the Diablo geometry. `--eb worlds/aemu.eb --disk
   0=PACK --boot-reason disk` netboots AEmu then drives `ABoot -> DiskBoot`
@@ -473,7 +472,7 @@ Verification:
   Alto Diablo disk-render path. The next real bug is later than the controller
   block sequencing fixed here.
 
-#### Update 2026-06-21e: DSK wakeup + Alto NoDataTransferred render fix
+#### Update 2026-06-21e: DSK wakeup + overbroad NoDataTransferred hypothesis
 
 Skeptical reread of the `ACmmdAbort` evidence changed the conclusion. With
 `DORADO_ALTOCHECK_TRACE=1`, the apparent aborts were preceded by
@@ -487,14 +486,19 @@ threshold wakeups are level conditions and must be serviced between sector
 pulses. Waking DSK whenever `dorado_disk_controller_wakeup_pending()` is true
 restored the expected disk-task drain rate.
 
-After that, the remaining blank screen matched the earlier status hypothesis:
-the booted Alto OS consumes the Diablo status word's `NoDataTransferred` bit
-(Alto bit 12, value 0o10), but `AltoDiabloDisk.mc` maps Trident mufflers to the
-Alto KBLK/KCB status format without synthesizing that Diablo bit. A narrow
-pack-backed AEmu compatibility hook now ORs 0o10 into DSK-task stores to the
-per-sector status word (VM 0522) and normal KCB completion statuses, and updates
-`DBuf` so the just-executed microinstruction observes the same value as a real
-store would.
+After that, the remaining blank screen appeared to match the earlier status
+hypothesis: the booted Alto OS consumes the Diablo status word's
+`NoDataTransferred` bit (Alto bit 12, value 0o10), but `AltoDiabloDisk.mc` maps
+Trident mufflers to the Alto KBLK/KCB status format without synthesizing that
+Diablo bit. A pack-backed AEmu compatibility hook was added to OR 0o10 into
+DSK-task stores to the per-sector status word (VM 0522) and normal KCB
+completion statuses.
+
+That was too broad. VM 0522 is the per-sector status word; KCB+1 is command
+ending status. `AEm0.mc`'s `DiskBootRetry` treats low bits in KCB+1 as an
+error, so adding 0o10 to the boot KCB completion status turned a successful
+initial read (`017400`) into an apparent failure (`017410`), causing retries
+and then `EBoot`.
 
 Verification:
 - `make -C dorado test` passes.
@@ -502,10 +506,98 @@ Verification:
 - Headless Ethernet regression still passes:
   `./build/dorado --cycles 160000000 --eb worlds/aemu.eb --eftp
   ../chm/bootfiles/Galaxian.boot\!1` => `121553 display-list pixels`.
-- Headless pack boot now renders:
+- Headless pack boot appeared to render:
   `./build/dorado --cycles 300000000 --eb worlds/aemu.eb --disk
   0=../AltoDisks/nonprog-trident.pack --boot-reason disk` =>
-  `1474 display-list pixels`.
+  `1474 display-list pixels`, but this was not a valid disk-only result because
+  the run was allowed to fall back to Ethernet.
+
+#### Update 2026-06-21f: fallback bug fixed; real disk-only path still blank
+
+Truth-run with `--no-alto-boot` showed the pack was not rendering. The previous
+300M-cycle render came from the default EFTP fallback, not the Trident pack.
+
+Confirmed failure before the fix:
+- `--disk 0=../AltoDisks/nonprog-trident.pack --boot-reason disk` entered
+  `DiskBoot`, posted a boot KCB completion, retried, reached `EBoot`, and then
+  rendered via EFTP.
+- The same run with `--no-alto-boot` reached `DiskBootRetry` but produced
+  `0 display-list pixels`, proving the pack path itself was still blank.
+- Trace showed the DSK task stored boot KCB+1 as `017400`, then the
+  compatibility hook changed it to `017410`. `DiskBootRetry` rejects that low
+  `0o10` bit.
+
+Fix:
+- Remove the compatibility hook. It was post-mutating DSK-task stores after
+  the real microcode wrote them; that invented behavior was not supported by
+  `AltoDiabloDisk.mc` and made KCB command completions fail.
+
+Result:
+- With `--no-alto-boot`, AEmu now accepts the initial disk sector and starts
+  executing the loaded Alto code (`IFUDISP` first booted IR `000345`). There is
+  no `EBoot` fallback in the 90M-cycle trace.
+- `nonprog-trident.pack` and `games-trident.pack` still produce
+  `0 display-list pixels` at 300M cycles; `nonprog` also stays blank at 600M.
+- The remaining failure is later: the loaded Alto code reaches a tight wait
+  loop at `BR31=0FD22` (`035000`, `021401`, `101015`, `000775`), with display
+  list head `M[0420]=0`. Continue from the post-boot Alto state divergence /
+  disk-completion path, not from AEmu `DiskBoot` or EFTP.
+
+#### Update 2026-06-21g: full 815-cylinder Diablo-on-Trident geometry
+
+The next real failure was the first post-boot read/check KCB that addressed the
+second emulated Diablo drive:
+
+- `KBLK=143515`, `cmd=044120`, `dsk=010002`, `hdr=143525`, `lbl=143554`,
+  `data=144211`.
+- The DSK trace reached `ACmmdCheck -> ACheckBadTW -> AChecksumError`.
+- The structured controller trace showed the command sought physical
+  `chs=409/1/...`, loaded `DiskControl=0254`, but no read stream started.
+
+Root cause: our `DORADO_DISK_DIABLO` geometry was truncated to 206 cylinders.
+That is enough for AEmu's drive-0 mapping (`diabloCyl + 3`), but
+`AltoDiabloDisk.mc` also maps Diablo drive 1 to `0406 + diabloCyl + 3`. The
+pack therefore had no sector at cylinder 409, so `disk_begin_read_stream()`
+failed and `ReadFifoTW` never asserted. AEmu correctly reported a checksum/check
+failure from the missing transfer.
+
+Fix: `DORADO_DISK_DIABLO` is now the full physical low-level format,
+`815 x 5 x 29` with `2/8/256` blocks. Existing 206-cylinder generated packs are
+invalid after this change and must be regenerated with `build/dsk2trident`.
+
+#### Update 2026-06-21h: mirrored pack, mixed check/write, restore header check
+
+After moving to full geometry, the converter still populated only emulated
+Diablo drive 0. AEmu legitimately issued drive-1 commands, so `dsk2trident`
+now mirrors the source image into both emulated drives by default:
+`cyl = 406 * drive + diabloCyl + 3`. Use `--single-drive` only for diagnostic
+packs.
+
+Two controller details then mattered:
+
+- Mixed read-check/write DiskControl chains must advance from a completed
+  check block into the following write block. Without this, AEmu's compare-write
+  path overfilled the read FIFO and took the `muffReadError` path.
+- `CompareErr` is a pending compare latch, not an immediate permanent
+  `ReadDataErr` at block boundary. The muffler reports pending `CompareErr` as
+  read error until microcode clears it, but the controller should not pre-latch
+  `read_data_err` before the DSK compare tail runs.
+
+The final disk-only failure was a header read-check after ReZero. The KCB disk
+address word was `052525`, while the on-disk Diablo header was `052524`; the
+low bit is the AEmu restore-request command bit, not media identity. The
+controller now tolerates that bit only for word 0 of a Diablo header read-check
+on the transfer immediately following a ReZero.
+
+Verification:
+- Regenerate a clean pack:
+  `./build/dsk2trident --all-heads ../AltoInfo/ContrAlto2-beta/Disks/nonprog.dsk /tmp/nonprog-full-trident.pack`.
+- Truth-run with Ethernet fallback disabled:
+  `./build/dorado --cycles 300000000 --eb worlds/aemu.eb --disk 0=/tmp/nonprog-full-trident.pack --boot-reason disk --no-alto-boot --out /tmp/dorado-nonprog-fresh-300m.pgm`
+  => `2590 display-list pixels`.
+- The emulator saves writable packs. Regenerate or copy a fresh pack between
+  destructive write experiments; stale `/tmp/*.pack` files can preserve bad
+  sectors from prior debugging runs.
 
 ---
 

@@ -355,41 +355,6 @@ static void machine_store_va(dorado_memory *mem, uint32_t va, uint16_t value)
     }
 }
 
-static void machine_alto_disk_status_compat(dorado_machine *m,
-                                             uint16_t pre_pc)
-{
-    /* AltoDiabloDisk.mc maps the Trident controller onto Alto's Diablo KBLK/KCB
-     * status format. Real Diablo status includes NoDataTransferred (Alto bit 12,
-     * value 010) in the status words the booted Alto OS consumes; the Dorado
-     * AEmu mapper does not synthesize it from any Trident muffler. Without this
-     * AEmu-disk-route compatibility bit, the loader's disk-control memory
-     * diverges from a real Alto disk boot and the OS never installs a display
-     * list. Keep this scoped to pack-backed AEmu, not Cedar/Pilot. */
-    if (!m->ether_loaded_world_cycle || !m->disk_pack_loaded[0] ||
-        m->germ_word_count)
-        return;
-    if (m->mem.last_ref_kind != DM_REF_STORE ||
-        m->mem.last_ref_task != DORADO_DISK_TASK)
-        return;
-
-    uint32_t va = m->mem.last_ref_va & 0x0FFFFFFFu;
-    int add_no_data = (va == 0522u);
-
-    if (!add_no_data && pre_pc == 02376)
-        add_no_data = (m->mem.last_ref_b & 03u) == 0;
-
-    if (!add_no_data) return;
-
-    uint16_t old = dorado_visible_word_at_va(&m->mem, va);
-    uint16_t val = (uint16_t)(old | 010u); /* Alto NoDataTransferred. */
-    if (val == old) return;
-    machine_store_va(&m->mem, va, val);
-    m->mem.dbuf = val;
-    if (dorado_trace_flag("DORADO_ALTO_STATUS_TRACE"))
-        fprintf(stderr, "[altostatus] pc=0o%o va=0o%o %06o->%06o\n",
-                pre_pc, va, old, val);
-}
-
 static void machine_dump_words(dorado_memory *mem, const char *label,
                                uint32_t va, int count)
 {
@@ -1531,15 +1496,27 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                              pre_pc == 03206 ? "ACmmdBadSeal" :
                              pre_pc == 03446 ? "DoACmmd2" :
                              pre_pc == 03020 ? "InitRamDiablo" : "SelectPartitionIfKey";
+            uint16_t kblk = dorado_visible_word_at_va(&m->mem, 0521u);
+            uint16_t dyn0 = dorado_visible_word_at_va(&m->mem, kblk);
+            uint16_t dyn1 = dorado_visible_word_at_va(&m->mem, (uint16_t)(kblk + 1u));
+            uint16_t dyn2 = dorado_visible_word_at_va(&m->mem, (uint16_t)(kblk + 2u));
+            uint16_t dyn3 = dorado_visible_word_at_va(&m->mem, (uint16_t)(kblk + 3u));
+            uint16_t dyn4 = dorado_visible_word_at_va(&m->mem, (uint16_t)(kblk + 4u));
+            uint16_t dyn5 = dorado_visible_word_at_va(&m->mem, (uint16_t)(kblk + 5u));
+            uint16_t dyn6 = dorado_visible_word_at_va(&m->mem, (uint16_t)(kblk + 6u));
+            uint16_t dyn7 = dorado_visible_word_at_va(&m->mem, (uint16_t)(kblk + 7u));
+            uint16_t dyn11 = dorado_visible_word_at_va(&m->mem, (uint16_t)(kblk + 011u));
             fprintf(stderr, "[altoboot] task=%o pc=0o%o %s @cyc=%llu kbd[0]=0o%o "
-                    "KBLK[521]=0o%o KCB431=0o%o stat432=0o%o KCB433=0o%o\n",
+                    "KBLK[521]=0o%o KCB431=0o%o stat432=0o%o KCB433=0o%o "
+                    "dynKCB[%06o]={next=%06o stat=%06o cmd=%06o hdr=%06o lbl=%06o data=%06o ok=%06o err=%06o dsk=%06o}\n",
                     cpu->ctask, pre_pc, nm,
                     (unsigned long long)m->bb.cycles,
                     dorado_visible_word_at_va(&m->mem, 0177034u),
-                    dorado_visible_word_at_va(&m->mem, 0521u),
+                    kblk,
                     dorado_visible_word_at_va(&m->mem, 0431u),
                     dorado_visible_word_at_va(&m->mem, 0432u),
-                    dorado_visible_word_at_va(&m->mem, 0433u));
+                    dorado_visible_word_at_va(&m->mem, 0433u),
+                    kblk, dyn0, dyn1, dyn2, dyn3, dyn4, dyn5, dyn6, dyn7, dyn11);
         }
 
         if (m->germ_netboot_seeded && !m->germ_netboot_diag_done &&
@@ -2064,15 +2041,26 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
         uint16_t alto_check_prev2_pc = alto_disk_prev2_pc;
         uint64_t alto_check_prev_cycle = alto_disk_prev_cycle;
         uint64_t alto_check_prev2_cycle = alto_disk_prev2_cycle;
+        uint16_t alto_check_task_md_before = 0;
+        uint16_t alto_check_kcb0 = 0;
+        uint16_t alto_check_kcb1 = 0;
+        uint16_t alto_check_vm521 = 0;
         if (alto_check_enabled && is_imfetch &&
             cpu->ctask == DORADO_DISK_TASK &&
             (pre_pc == 03045 || pre_pc == 03067 || pre_pc == 03225 ||
              pre_pc == 03244 || pre_pc == 03246 || pre_pc == 03301 ||
              pre_pc == 03306 || pre_pc == 03324 || pre_pc == 03326 ||
              pre_pc == 03330 || pre_pc == 03333 || pre_pc == 03337 ||
-             pre_pc == 03347 || pre_pc == 03370 || pre_pc == 03371)) {
+             pre_pc == 03347 || pre_pc == 03370 || pre_pc == 03371 ||
+             pre_pc == 02355 || pre_pc == 02356 || pre_pc == 02357 ||
+             pre_pc == 02367 || pre_pc == 02370 || pre_pc == 02371 ||
+             pre_pc == 02372 || pre_pc == 02375 || pre_pc == 02376)) {
             alto_check_trace = 1;
             alto_check_md_before = m->mem.md;
+            alto_check_task_md_before =
+                cpu->task_md_valid[DORADO_DISK_TASK]
+                    ? cpu->task_md[DORADO_DISK_TASK]
+                    : m->mem.md;
             alto_check_t_before = cpu->T;
             alto_check_kaddr = cpu->RM[(5u << 4) | 004u];
             alto_check_sector = cpu->RM[(5u << 4) | 005u];
@@ -2084,13 +2072,17 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
             alto_check_ktemp1 = cpu->RM[(5u << 4) | 015u];
             alto_check_ktemp2 = cpu->RM[(5u << 4) | 016u];
             alto_check_ktemp3 = cpu->RM[(5u << 4) | 017u];
+            alto_check_kcb0 = dorado_visible_word_at_va(&m->mem,
+                                                        alto_check_kptr);
+            alto_check_kcb1 = dorado_visible_word_at_va(&m->mem,
+                                                        alto_check_kptr + 1u);
+            alto_check_vm521 = dorado_visible_word_at_va(&m->mem, 0521u);
         }
 
         machine_pilot_timer_channel(m, cpu, bb, pre_pc, is_imfetch);
         machine_cedar_io(m, bb, disp);
 
         if (dorado_cpu_step(cpu)) break;
-        machine_alto_disk_status_compat(m, pre_pc);
 
         if (alto_check_trace) {
             const char *nm = pre_pc == 03333 ? "ACheckLoop" :
@@ -2106,27 +2098,41 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                              pre_pc == 03324 ? "ACheckBadTW" :
                              pre_pc == 03326 ? "AChecksumError" :
                              pre_pc == 03330 ? "ACmmdCheck" :
+                             pre_pc == 02355 ? "ACmmdEnd" :
+                             pre_pc == 02356 ? "ACmmdEnd+1" :
+                             pre_pc == 02357 ? "ACmmdEnd+2" :
+                             pre_pc == 02367 ? "ACmmdEnd2" :
+                             pre_pc == 02370 ? "ACmmdEnd2+1" :
+                             pre_pc == 02371 ? "ACmmdEnd2+2" :
+                             pre_pc == 02372 ? "ACmmdEnd2+3" :
+                             pre_pc == 02375 ? "ACmmdEnd2Store" :
+                             pre_pc == 02376 ? "ACmmdEndStatus" :
                              pre_pc == 03370 ? "ReadCheckEnd" :
                              pre_pc == 03371 ? "ACmmdAbort" : "ACheck";
             fprintf(stderr,
                     "[altocheck] pc=0o%o %-12s @cyc=%llu "
                     "prev=0o%o@%llu prev2=0o%o@%llu "
-                    "MD(before)=0o%06o T(before)=0o%06o "
+                    "MD(before)=0o%06o taskMD(before)=0o%06o "
+                    "T(before)=0o%06o "
                     "disk_in=0o%06o KAddr=0o%06o Sector=0o%06o "
                     "KPtr=0o%06o KCmmd=0o%06o DskMAddr=0o%06o "
                     "KStatus=0o%06o KTemp0=0o%06o KTemp1=0o%06o "
-                    "KTemp2=0o%06o KTemp3=0o%06o next=0o%o\n",
+                    "KTemp2=0o%06o KTemp3=0o%06o "
+                    "KCB+0=0o%06o KCB+1=0o%06o VM521=0o%06o "
+                    "next=0o%o\n",
                     pre_pc, nm, (unsigned long long)bb->cycles,
                     alto_check_prev_pc,
                     (unsigned long long)alto_check_prev_cycle,
                     alto_check_prev2_pc,
                     (unsigned long long)alto_check_prev2_cycle,
-                    alto_check_md_before, alto_check_t_before,
+                    alto_check_md_before, alto_check_task_md_before,
+                    alto_check_t_before,
                     m->disk.last_input_data, alto_check_kaddr,
                     alto_check_sector, alto_check_kptr, alto_check_kcmmd,
                     alto_check_dskmaddr, alto_check_kstatus,
                     alto_check_ktemp0, alto_check_ktemp1,
                     alto_check_ktemp2, alto_check_ktemp3,
+                    alto_check_kcb0, alto_check_kcb1, alto_check_vm521,
                     cpu->real_PC);
         }
 

@@ -346,8 +346,10 @@ static int test_read_check_wakeup_and_error_latches(void)
     EXPECT(ctl.compare_err == 1, "check block should set CompareErr");
     EXPECT(ctl.rd_fifo_tw == 1,
            "read+check should wake with one or more FIFO words");
-    EXPECT(dorado_disk_controller_dmux_read(&ctl, 02031, NULL) == 0,
-           "ReadDataErr should stay clear until CompareErr is missed");
+    EXPECT(ctl.read_data_err == 0,
+           "ReadDataErr latch should stay clear until CompareErr is missed");
+    EXPECT(dorado_disk_controller_dmux_read(&ctl, 02031, NULL) == 0x8000,
+           "ReadDataErr muffler should report a pending CompareErr");
 
     int bad = -1;
     uint16_t v = dorado_io_read(&io, DORADO_DISK_TASK,
@@ -384,11 +386,70 @@ static int test_read_check_wakeup_and_error_latches(void)
     ctl.fifo_head = ctl.fifo_tail = ctl.fifo_count = 0;
     ctl.control = 0;
     dorado_disk_controller_refill_fifo(&ctl);
-    EXPECT(ctl.read_data_err == 1,
-           "missed ClearCompareErr should latch ReadDataErr");
+    EXPECT(ctl.read_data_err == 0,
+           "missed ClearCompareErr should not latch ReadDataErr early");
+    EXPECT(ctl.compare_err == 1,
+           "missed ClearCompareErr should leave CompareErr pending");
+    EXPECT(dorado_disk_controller_dmux_read(&ctl, 02031, NULL) == 0x8000,
+           "pending CompareErr should remain visible through ReadDataErr");
 
     dorado_disk_pack_free(&pack);
     printf("PASS  test_read_check_wakeup_and_error_latches\n");
+    return 0;
+}
+
+static int test_restore_header_check_bit(void)
+{
+    static dorado_io io;
+    dorado_io_init(&io);
+    static dorado_disk_controller ctl;
+    dorado_disk_controller_init(&ctl);
+    dorado_disk_controller_attach_to_io(&ctl, &io);
+
+    static dorado_disk_pack pack;
+    EXPECT(dorado_disk_pack_create(&pack, &DORADO_DISK_DIABLO) == 0,
+           "create Diablo pack");
+    dorado_disk_sector *sec = dorado_disk_pack_sector(&pack, 0, 0, 1);
+    EXPECT(sec != NULL, "sector exists");
+    sec->header[0] = 052524;
+    sec->header[1] = 012340;
+    dorado_disk_controller_attach_drive(&ctl, 0, &pack);
+
+    uint16_t fram[DORADO_DISK_FORMAT_RAM_WORDS] = {
+        0001, 0007, 0377, 0000,
+        0104, 0204, 0004, 0000,
+        0033, 0006, 0011, 0002,
+        0002, 0001, 0000, 0000,
+    };
+    for (int i = 0; i < DORADO_DISK_FORMAT_RAM_WORDS; i++) {
+        dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKRAM,
+                        fram[i]);
+    }
+
+    dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKTAG,
+                    (uint16_t)(TAG_CONTROL | (1u << 1))); /* ReZero */
+    EXPECT(ctl.restore_pending == 1, "ReZero should mark restore pending");
+
+    dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKCONTROL,
+                    (uint16_t)(DORADO_DISK_OP_RDCHK <<
+                               DORADO_DISK_CTRL_OP1_SHIFT));
+    EXPECT(ctl.transfer_restore == 1,
+           "DiskControl should carry restore into transfer");
+
+    dorado_disk_controller_advance_sector(&ctl);
+    EXPECT(ctl.restore_header_check == 1,
+           "read-check after ReZero should enable restore header tolerance");
+
+    int bad = -1;
+    uint16_t v = dorado_io_read(&io, DORADO_DISK_TASK,
+                                DORADO_DISK_TIOA_DISKDATA, &bad);
+    EXPECT(v == 052525, "restore header word 0 = 0o%o", v);
+    v = dorado_io_read(&io, DORADO_DISK_TASK,
+                       DORADO_DISK_TIOA_DISKDATA, &bad);
+    EXPECT(v == 012340, "restore tolerance must not alter header word 1");
+
+    dorado_disk_pack_free(&pack);
+    printf("PASS  test_restore_header_check_bit\n");
     return 0;
 }
 
@@ -1041,6 +1102,7 @@ int main(void)
     rc |= test_diskcontrol_active_abort();
     rc |= test_rd_fifo_muffler_does_not_start_transfer();
     rc |= test_read_check_wakeup_and_error_latches();
+    rc |= test_restore_header_check_bit();
     rc |= test_drive_attach();
     rc |= test_dmux_muffler_read();
     rc |= test_pdi_fifo_read();

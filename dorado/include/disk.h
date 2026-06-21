@@ -87,8 +87,8 @@ extern const dorado_disk_geometry DORADO_DISK_T300;
 
 /* Alto Diablo emulated on one Trident surface (AltoDiabloDisk.mc): the Trident
  * is low-level formatted as 29 short sectors/track of 2 header + 8 label + 256
- * data words. 206 cylinders covers a Model-31 Alto pack mapped to Dorado cyls
- * 3..205 (diabloCyl + offsetCylinderDiablo). */
+ * data words over the full 815-cylinder T-80 range. AEmu maps emulated Diablo
+ * drive 0 at cyl+3 and drive 1 at cyl+0406+3. */
 extern const dorado_disk_geometry DORADO_DISK_DIABLO;
 
 /* Effective per-sector word counts for a geometry (0 -> native defaults). */
@@ -261,6 +261,10 @@ typedef struct {
                                       * the stream every sector, leaving the
                                       * controller spuriously Active so the next
                                       * DSK command Output aborts (AReadBadTW). */
+    uint8_t  restore_pending;         /* a ReZero/restore tag was just issued */
+    uint8_t  transfer_restore;        /* pending transfer follows restore */
+    uint8_t  restore_header_check;    /* Diablo header check should tolerate
+                                      * the restore bit in the address word */
 
     uint8_t  current_block;          /* active DiskControl block, 0..3 */
     uint8_t  current_block_op;       /* DORADO_DISK_OP_* for current_block */
