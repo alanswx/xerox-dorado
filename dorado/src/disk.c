@@ -534,6 +534,15 @@ static int disk_begin_read_stream(dorado_disk_controller *ctl)
         : NULL;
     dorado_disk_controller_refill_fifo(ctl);
     disk_seq_trace(ctl, "read-start");
+    if (dorado_trace_flag("DORADO_DISK_HDR_TRACE")) {
+        const dorado_disk_sector *s = ctl->read_stream_sector;
+        fprintf(stderr, "[diskhdr] read CHS=(%d,%d,%d) media_sec=%d "
+                "header=%06o,%06o label0=%06o data0=%06o framing=%d\n",
+                d->cur_cyl, d->cur_head, d->cur_sector, disk_media_sector(d),
+                s ? s->header[0] : 0, s ? s->header[1] : 0,
+                s ? s->label[0] : 0, s ? s->data[0] : 0,
+                ctl->read_block_framing);
+    }
     return ctl->read_stream_active || ctl->fifo_count > 0;
 }
 
