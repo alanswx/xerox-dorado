@@ -351,6 +351,39 @@ sector timing, EIA/MEAR hardware, Alto-boot-ROM vs AEmu DiskBoot) are legitimate
 machine differences, not necessarily bugs in ours. Diagnose OUR disk
 completion/DMA timing directly from here.
 
+#### Update 2026-06-21: physical timing ruled out; failure is the disk STATUS the OS reads
+
+Two findings:
+
+1. **Physical Trident timing is correct** (Century Data spec, bitsavers -- see
+   docs/disk-architecture.md): T-80 = 3600 RPM / 1209 KB/s, matched exactly. So
+   the boot hang is NOT the drive timing.
+
+2. **The disk-read mechanics work; the divergence is upstream.** Decoding the
+   stuck state: the OS spins at Nova PC 273-276 on `M[051]` = KCB+1 (ending
+   status) for the KCB at VM 050. That KCB's command `044120` = check-header,
+   check-label, read-data, with KCB+4 (label ptr) = `062`. The first divergence
+   `M[062]` is the LABEL buffer. Our DSK *does* deliver the right label
+   (`020324`) to M[062] -- via `ACmmdCheck`'s "store disk word where memory is
+   zero" (the deferred-branch path, which our microengine models correctly:
+   eval_branch_condition reads cpu->alu_zero BEFORE it is updated for the
+   current instruction -> previous-instruction ALU = deferred = correct). But
+   salto's program had ALREADY written the *expected* label `020324` to M[062]
+   (CHECK = verify), whereas ours wrote `0` (CHECK = read). That is a program
+   **control-flow** divergence: the OS chose verify-vs-read differently because
+   the **disk-control state it read earlier diverged** (M[522] disk status:
+   sector field is the raw Trident sector per AltoDiabloDisk's "I doubt anyone
+   cares" note, plus the idle "no data transferred" bit-12 that AMapHdwStatus
+   never sets; and M[002], a status copy, follows).
+
+So the remaining root is the **disk STATUS the booted OS consumes** (VM 522 +
+derived), which the AltoDiabloDisk-on-Trident emulation reports differently from
+a real Diablo (sector field, no-data-transferred bit). The DSK read/transfer
+path itself is correct. This may be partly fundamental (nonprog is sensitive to
+Diablo status details the Diablo-on-Trident microcode deliberately approximates)
+-- to confirm, the next step is to instrument ContrAlto2 (which runs nonprog on
+a real Diablo) and diff the exact VM-522 status reads the OS makes, vs ours.
+
 ---
 
 **Original plan (2026-06-20). Researched against AEmu / AltoDiabloDisk.mc +
