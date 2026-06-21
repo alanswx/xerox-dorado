@@ -413,6 +413,38 @@ address. Next: trace one ACmmdCheck (header check, disk addr 010324), compare th
 disk header words our FIFO delivers against the expected M[060-061], and the
 sector actually read vs requested.
 
+#### Update 2026-06-21c: disk read VERIFIED correct; not timing; root is the disk STATUS
+
+`DORADO_DISK_HDR_TRACE` confirms the disk READ is correct: for disk addr 010324
+(cyl26/head1/sec1 -> Trident sector 16) the read delivers `header[0]=010324`
+(the converter's reverse of .dsk `header[1]`, correct for the descending read ->
+M[061]=010324), and the read sectors map with matching headers (16->sec1,
+22->sec7, 17->sec2, ...). So the controller delivers the right sectors and the
+right header/label/data; the CHECK errors are NOT bad disk data -- they come from
+the program's EXPECTED values diverging.
+
+A synchronous/fast-disk test (`DORADO_DISK_FAST_REV=290`) did NOT fix the boot,
+so it is **not a disk-read timing race** and **not the M[522] sector-field
+timing-phase** (both ruled out). The divergence is a real data/computation
+divergence in the booted OS, driven by the disk **STATUS** it reads -- and the
+one consistent (non-timing) status difference is the idle/seek-only
+**"no data transferred" status bit (VM 522 bit 12, 0o10)**: salto (a real
+Diablo) sets it; the AltoDiabloDisk's `AMapHdwStatus` never sets it (it maps the
+Trident mufflers to NotReady/DataLate/SeekFail/done only). Since we run that
+microcode faithfully, our status lacks bit 12 just as a real Dorado-AEmu would.
+
+Conclusion: the Alto Diablo-disk boot fails SYSTEMATICALLY (nonprog, games, bcpl)
+on the Diablo-on-Trident path, and the cause is the disk STATUS the booted Alto
+OS consumes -- most likely a genuine incompleteness in the AltoDiabloDisk Diablo
+emulation (the "no data transferred" bit, and the documented raw-Trident-sector
+approximation), which we faithfully reproduce. This means Alto Diablo disks may
+never have fully booted on a real Dorado-AEmu via AltoDiabloDisk. The disk-boot
+INFRASTRUCTURE we built (geometry, converter, controller, framed read, ECC,
+cold-AC/I-O-page/bank fixes) is correct. To confirm fundamentally, instrument
+ContrAlto2 (boots nonprog on a real Diablo) and check whether the OS reads VM 522
+bit 12. The validated working path remains the Alto ETHER boot (games, NetExec)
+and Cedar login.
+
 ---
 
 **Original plan (2026-06-20). Researched against AEmu / AltoDiabloDisk.mc +
