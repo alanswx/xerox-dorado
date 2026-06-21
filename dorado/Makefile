@@ -48,13 +48,14 @@ WEB_SRCS  := src/mb.c src/disasm.c src/microcode.c src/cpu.c src/baseboard.c \
 WEB_CFLAGS := -std=c99 -D_GNU_SOURCE -O2 -Iinclude -Ivendor/6502 -sUSE_SDL=2
 WEB_LDFLAGS := -sUSE_SDL=2 -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=67108864 \
                -sEXPORTED_RUNTIME_METHODS=ccall,cwrap \
-               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_mesa \
+               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_mesa,_dorado_web_boot_disk \
                --preload-file worlds/aemu.eb@/worlds/aemu.eb \
                --preload-file ../chm/bootfiles@/chm/bootfiles \
                --preload-file '../chm/dorado/AltoMesaDorado.eb!2'@/worlds/AltoMesaDorado.eb \
                --preload-file '../chm/dorado/CedarDorado.eb!6'@/worlds/CedarDorado.eb \
                --preload-file '../chm/cedar/germ-alt/Dorado.germ-6.1.6'@/worlds/Dorado.germ-6.1.6 \
                --preload-file '../CedarDisk/CedarDorado-boot.pdi'@/worlds/CedarDorado-boot.pdi \
+               --preload-file '../chm/diskpacks/games-trident.pack'@/worlds/games-trident.pack \
                --preload-file ../chm/dorado/doradobaserom.mb!13@/ucode/doradobaserom.mb!13 \
                --preload-file ../chm/dorado/expanded/bootstrap.dm!20_/Bootstrap.mb@/ucode/Bootstrap.mb \
                --preload-file ../chm/dorado/expanded/bootstrap.dm!20_/Initial.mb@/ucode/Initial.mb \
@@ -70,8 +71,14 @@ CEDAR_PDI := ../CedarDisk/CedarDorado-boot.pdi
 $(CEDAR_PDI): $(CEDAR_PDI).gz
 	gunzip -c $< > $@
 
+# Alto disk-boot pack (Diablo-on-Trident). The raw .pack is gitignored (large);
+# the .gz is tracked, so decompress it for `make web` and the Pages CI build.
+ALTO_PACK := ../chm/diskpacks/games-trident.pack
+$(ALTO_PACK): $(ALTO_PACK).gz
+	gunzip -c $< > $@
+
 .PHONY: web
-web: worlds $(CEDAR_PDI) | web-dir
+web: worlds $(CEDAR_PDI) $(ALTO_PACK) | web-dir
 	$(EMCC) $(WEB_CFLAGS) $(WEB_SRCS) $(WEB_LDFLAGS) -o web/index.html
 
 web-dir:

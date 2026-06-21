@@ -54,6 +54,9 @@
       <optgroup label="Network Executive">
         <option value="/chm/bootfiles/NETEXEC.BOOT!8" data-menu="1" selected>NetExec menu (type a name)</option>
       </optgroup>
+      <optgroup label="Alto OS (from disk)">
+        <option value="disk">Alto Executive (disk boot) &mdash; type a program name</option>
+      </optgroup>
       <optgroup label="Cedar / Mesa (Pilot)">
         <option value="cedar">Cedar 6.1 (login prompt) &mdash; slow boot</option>
         <option value="mesa">Mesa Network Executive</option>
@@ -129,6 +132,14 @@
       Module.ccall('dorado_web_boot_cedar', 'number', [], []);
       setStatus('Booting Cedar 6.1 from the Pilot disk... this takes a minute '
                 + 'or two to reach the login prompt. Then type a name at Name:.');
+      document.getElementById('canvas').focus();
+      return;
+    }
+    if (path === 'disk') {
+      Module.ccall('dorado_web_boot_disk', 'number', [], []);
+      setStatus('Booting the real Alto OS from disk... reaches the BCPL '
+                + 'Executive (>) prompt in ~20-30s. Then click the display and '
+                + 'type a program name (e.g. chess, mazewar) and Return.');
       document.getElementById('canvas').focus();
       return;
     }

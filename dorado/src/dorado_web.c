@@ -53,6 +53,12 @@
 #define WEB_MESA_EB    "/worlds/AltoMesaDorado.eb"
 #define WEB_MESA_BOOT  WEB_BOOTDIR "/MesaNetExec.boot!1"
 
+/* Alto disk boot: the AEmu world boots a real Alto OS from a Diablo-on-Trident
+ * pack (dsk2trident of a ContrAlto games disk) instead of EFTP -- reaches the
+ * BCPL Executive prompt; type a program name (e.g. `chess`, `mazewar`) + Return
+ * to run it off the disk, the way an Alto did. Preloaded by `make web`. */
+#define WEB_ALTO_PACK  "/worlds/games-trident.pack"
+
 /* Browser pacing. The per-frame display render + blit cost (~100ms) dwarfs the
  * 60ns microcycle, so when the chunk is small the browser spends most of its
  * time presenting, not emulating -- a world whose prompt is ~155M cycles in
@@ -257,6 +263,52 @@ int dorado_web_boot_mesa(const char *eftp_path)
     app.frame     = 0;
     app.cycles_per_frame = WEB_CYCLES_BOOT;
     printf("dorado_web: booting Mesa world %s\n", cfg.eftp_boot);
+    return 0;
+}
+
+/* (Re)create the machine booting the AEmu (Alto-on-Dorado) world from a real
+ * Alto disk: Initial netboots aemu.eb, then -- with no boot-key chord = disk
+ * boot reason -- the Alto OS boots from the mounted Diablo-on-Trident pack and
+ * reaches the BCPL Executive prompt. Type a program name + Return at the prompt
+ * to run it off the disk. Exported (KEEPALIVE) so JS can ccall it. The Exec
+ * appears ~120M cycles in, so allow ~20-30s in the browser. */
+EMSCRIPTEN_KEEPALIVE
+int dorado_web_boot_disk(void)
+{
+    if (app.m) {
+        dorado_machine_destroy(app.m);
+        app.m = NULL;
+        app.disp = NULL;
+    }
+
+    dorado_machine_config cfg;
+    dorado_machine_config_default(&cfg);
+    cfg.bb_rom       = WEB_BB_ROM;
+    cfg.bootstrap_mb = WEB_BOOTSTRAP;
+    cfg.initial_mb   = WEB_INITIAL;
+    cfg.kernel_mb    = WEB_KERNEL;
+    cfg.memmisc_mb   = WEB_MEMMISC;
+    cfg.ifu_mb       = WEB_IFU;
+    cfg.eth_boot_110 = WEB_EB_WORLD;     /* netboot the AEmu world (Initial)  */
+    cfg.eftp_boot    = NULL;             /* boot from disk, not EFTP          */
+    cfg.disk_pack[0] = WEB_ALTO_PACK;    /* mount the Alto disk on drive 0    */
+    cfg.boot_keys[0] = DORADO_KEY_NONE;  /* no chord = disk boot reason       */
+    cfg.boot_keys_count = 1;
+    cfg.boot_dir_all = 0;
+    /* alto_ether_boot stays 1 (default): Initial's ether boot loads the world. */
+
+    app.m = dorado_machine_create(&cfg);
+    if (!app.m) {
+        fprintf(stderr, "dorado_web: failed to create Alto-disk machine\n");
+        return 1;
+    }
+    app.disp      = dorado_machine_display(app.m);
+    app.mouse_buttons = 0;
+    app.paused    = 0;
+    app.announced = 0;
+    app.frame     = 0;
+    app.cycles_per_frame = WEB_CYCLES_BOOT;
+    printf("dorado_web: booting Alto OS from disk (%s)\n", WEB_ALTO_PACK);
     return 0;
 }
 
