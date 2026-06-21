@@ -317,6 +317,40 @@ has the data in place. That is the next fix -- the read-completion handshake
 must guarantee data-before-status, and it is shared with the Cedar path so it
 must be regression-tested against `make run-cedar`.
 
+#### Update: the hang is a disk-completion spin loop on M[051]; root is M[062] timing
+
+Diagnosing OUR execution directly (not just diffing salto) with the
+opcode-stream histogram: after the divergence the booted OS is stuck in a tight
+4-opcode spin loop, ~48000x in 200k opcodes:
+```
+035000  LDA 3,AC2        AC3 <- M[AC2]      (AC2=024 -> AC3=M[024]=050)
+021401  LDA 0,AC3+1      AC0 <- M[AC3+1]    (-> AC0 = M[051])
+101015  MOV# AC0,AC0 SNR skip if AC0 != 0
+000775  JMP back
+```
+i.e. it spins until `M[051]` (a disk completion flag) goes nonzero. At the
+divergence point (opcode 11451) `M[051]=0 in BOTH` salto and ours, and the KBLK
+pointers match (`M[024]=M[521]=050`); only `M[522]` (per-sector status, Trident
+vs Diablo sector field) and the program words `M[002]/M[062-066]` differ. So the
+spin is downstream -- the PRIMARY divergence is `M[062]` (disk-loaded data),
+which ours delivers ~193K cycles late.
+
+Note from `AltoDiabloDisk.mc` (line ~2227): the status sector field it inserts
+is "the raw hardware sector number, not the emulated Diablo sector number. I
+doubt anyone cares" -- so `M[522]`'s sector field is inherently Trident-based in
+the Diablo-on-Trident emulation (and differs from a real Diablo / salto). It is
+not yet proven whether nonprog is sensitive to that or purely to the `M[062]`
+data-delivery timing.
+
+Bottom line for the next session: the boot hangs in a disk-completion wait; the
+fix is the **DSK read completion vs DMA-delivery ordering** so the booted OS
+never reads disk data before the async DSK task has written it (D2). The salto
+cross-check has reached its useful limit here -- salto is a synchronous,
+real-Alto+Diablo emulator, so its remaining divergences (Diablo-vs-Trident
+sector timing, EIA/MEAR hardware, Alto-boot-ROM vs AEmu DiskBoot) are legitimate
+machine differences, not necessarily bugs in ours. Diagnose OUR disk
+completion/DMA timing directly from here.
+
 ---
 
 **Original plan (2026-06-20). Researched against AEmu / AltoDiabloDisk.mc +
