@@ -136,6 +136,7 @@ struct dorado_machine {
     int      pilot_timer_started;
     uint64_t next_pilot_timer_cycle;
     uint64_t next_cedar_field_cycle; /* next display vertical-field notify */
+    uint64_t next_alto_field_cycle;  /* next Alto-disk keyboard refresh */
 };
 
 static uint16_t machine_disk_dmux_read(uint16_t addr, int *handled, void *ctx)
@@ -1450,6 +1451,25 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
         if (is_imfetch && cpu->ctask == 0 && pre_pc == 02005 &&
             !m->alto_cold_ac_done) {
             cpu->STK[1] = cpu->STK[2] = cpu->STK[3] = cpu->STK[4] = 0;
+            /* Initialize the Alto I/O page (177000-177777) to the hardware
+             * floating-bus default 177777. On a real Alto these addresses are
+             * memory-mapped I/O: undecoded reads return 177777 (IOB pulls high)
+             * and the active-low input words (UTILIN buttons/keyset 177030-3,
+             * keyboard 177034-7) read all-ones = "nothing pressed". Our AEmu
+             * maps the Alto address space 1:1 onto Dorado VM, so without this
+             * the I/O page reads as zeroed RAM = "every button/key pressed",
+             * which diverges the booted OS from a real Alto (verified against
+             * salto: its I/O page reads 177777 here, ours read 0). The keyboard
+             * seeding overwrites 177034-7 with live key state on top of this. */
+            for (uint32_t va = 0177000u; va <= 0177777u; va++)
+                machine_store_va(&m->mem, va, 0177777u);
+            /* The 16 per-task bank registers (177740-177757) are NOT floating:
+             * a real Alto reads them as bank_reg|177760, so bank 0 (no extended
+             * memory) reads 177760, not 177777. Leaving 177777 there selects
+             * bank 15 and sends the booted code's memory references to the wrong
+             * bank. Set the default (bank 0). */
+            for (uint32_t va = 0177740u; va <= 0177757u; va++)
+                machine_store_va(&m->mem, va, 0177760u);
             m->alto_cold_ac_done = 1;
         }
 

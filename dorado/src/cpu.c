@@ -4367,7 +4367,7 @@ memory_ref_done: ;
             if (mdcount < 0 && ir == 000345) mdcount = 0;
             else if (mdcount >= 0) mdcount++;
             if (mdcount == mdtarget && cpu->mem) {
-                for (uint32_t va = 0; va < 02000u; va++)
+                for (uint32_t va = 0; va < 0200000u; va++)
                     fprintf(stderr, "MD %06o %06o\n", va,
                             dorado_visible_word_at_va(cpu->mem, va) & 0177777);
             }
