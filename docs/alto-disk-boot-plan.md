@@ -162,6 +162,41 @@ the writer. (Since stores derive from ACs, which match through 11453, suspect a
 non-AC writer: a block DMA, the `BLT` self-copy, or an indexed/indirect STA
 whose address computation diverged.)
 
+#### Update: traced the M[062] writers in both emulators
+
+salto's writes to Alto `M[062]` were captured with a one-line `SALTO_MEMW` hook
+in `write_mem()` (memory.c, gated on `getenv("SALTO_MEMW")`, prints
+`va/data/altopc=cpu.r[6]/cyc`). Ours via `DORADO_STORE_TRACE_VA="62,62"`, and
+`DORADO_ALTOAC_TRACE` now carries the cycle. Findings:
+
+- The diverging read (booted opcode 11452, `LDA 1` from `M[062]`) is at our
+  **cyc 80507368**.
+- The last write to `M[062]` before that read is an **EMU program store of 0**
+  (`pc=0o53` = STA microcode, Alto PC 024, cyc 80120094) -> our `M[062]=0`.
+- A DSK-task DMA writes the correct **020324** to `M[062]` at **cyc 80700899**,
+  ~193K cycles AFTER the read -- too late.
+- salto produces `020324` via a **program store at Alto PC 220** (cyc 1434329),
+  and its `M[062]` writers are at Alto PCs 002/351/202/136/220 -- NONE at PC 024.
+  Ours writes `M[062]` from PCs 06/034/024 plus the DSK DMA.
+
+So the write *patterns* diverge: salto fills `M[062]` from program stores; ours
+fills it from a (late) DSK DMA while the program stores 0. Two non-exclusive
+hypotheses:
+1. **Memory diverged before opcode 11452.** The "11453 opcodes match" only
+   covers AC0-3 + IR, not memory; a divergent *store* earlier (different value
+   or address, ACs unchanged) would surface only here when re-loaded. ==> the
+   decisive test is a full 64K Alto-memory diff at a common opcode index (both
+   harnesses can dump at a chosen opcode count), then trace the first divergent
+   word's writer.
+2. **Disk-DMA timing race.** salto does disk reads synchronously (microcode
+   stores, attributed to program PCs); our DSK task DMAs asynchronously and the
+   data lands after the program reads it. If our read-completion handshake posts
+   before the DMA finishes, the program reads stale memory. This is the D2
+   completion-timing frontier (KWait's deferred branch conditions).
+
+(The `SALTO_MEMW` hook lives in the gitignored `AltoInfo/salto/`; re-add it to
+`write_mem()` if the salto tree is rebuilt.)
+
 ---
 
 **Original plan (2026-06-20). Researched against AEmu / AltoDiabloDisk.mc +
