@@ -384,6 +384,35 @@ Diablo status details the Diablo-on-Trident microcode deliberately approximates)
 -- to confirm, the next step is to instrument ContrAlto2 (which runs nonprog on
 a real Diablo) and diff the exact VM-522 status reads the OS makes, vs ours.
 
+#### Update 2026-06-21b: systematic across all disks; the disk CHECK is erroring
+
+Tried multiple Diablo images through the disk-boot path (`dsk2trident --all-heads`
+then `--disk 0=PACK --boot-reason disk`): **nonprog, games, bcpl all render
+blank** -- so the failure is the Diablo-on-Trident disk-boot PATH, not a nonprog
+quirk.
+
+Tracing the completion store (`DORADO_STORE_TRACE_VA="51,51"`) corrected the
+earlier "stuck spin loop" read: the **DSK does complete commands** -- task 14 at
+`pc=0o2376` (`ACmmdEnd2`) writes the KCB+1 ending status, and task 0 (`pc=0o53`)
+clears it to re-issue. So the boot PROGRESSES (completions out to cyc 162M+),
+it is not hung on completion. But the ending-status values are
+`027400`(normal), `027402`/`047402`/`127402`(...): the low 2 bits = **completion
+code 2 = CHECK ERROR**. So the OS's read commands (which `check-header,
+check-label, read-data`, e.g. cmd 044120 for disk addr 010324 = cyl26/head1/sec1)
+intermittently **fail the header/label check** and the OS retries/diverges --
+which is why M[062] (the label buffer) and downstream state diverge.
+
+So the concrete, systematic bug is the **disk header/label CHECK failing**: the
+data our controller presents for the check does not match the disk-address /
+expected words the AltoDiabloDisk compares. The data READ path works (893 blocks
+load), so this is specific to the CHECK comparison -- candidates: the header word
+the converter stores vs the Alto disk-address format the check expects, the
+header/label block alignment in the framed read stream for a check (vs read), or
+the sector mapping delivering a sector whose header does not match the requested
+address. Next: trace one ACmmdCheck (header check, disk addr 010324), compare the
+disk header words our FIFO delivers against the expected M[060-061], and the
+sector actually read vs requested.
+
 ---
 
 **Original plan (2026-06-20). Researched against AEmu / AltoDiabloDisk.mc +
