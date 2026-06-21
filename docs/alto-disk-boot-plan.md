@@ -1,9 +1,11 @@
 # Booting Alto software off an emulated disk (Diablo-on-Trident) — plan
 
-**Status: IMPLEMENTED through the read path; blocked on the DSK-task command
-completion (2026-06-20). Milestones A+B done and verified; C boots the real
-controller read path end-to-end but the boot does not yet complete (see
-"Implementation status" below).**
+**Status: THE OS BOOTS AND LOADS FROM DISK (2026-06-20). Milestones A+B+C
+done and verified; the DSK-task completion store and the data-block order are
+fixed, so `DiskBoot` reaches `Start` and the loaded image runs and loads ~893
+blocks across its segments. Remaining: the running image does not yet render
+the Exec -- an in-vivo Alto-opcode divergence localized with the salto
+cross-check (see "Update 2026-06-20 (cont.)" below).**
 
 ## Implementation status (2026-06-20)
 
@@ -69,6 +71,66 @@ Repro: `./build/dorado-sdl --eb worlds/aemu.eb --disk 0=<diablo.pack>
 (boot-decision + completion PCs + KCB dump), `DORADO_DISK_SEQ=1`,
 `DORADO_DSK_PC_TRACE=1`, `DORADO_DISK_MUFF_TRACE=1`,
 `DORADO_STORE_TRACE_VA="430,525"`.
+
+## Update 2026-06-20 (cont.) — the boot now reaches `Start`; the load works
+
+Two fixes cleared the "Remaining blocker" above and the boot now runs the
+loaded image:
+
+1. **Store routing (committed `e3ec7b2`).** The DSK-task completion stores
+   (`Store_ T/KPtr` to VM 521/432 in `ACmmdEnd2`) were being misrouted to the
+   slow-I/O disk muffler by a heuristic that treated any `lc==0` memory store
+   as I/O. Removed the `(kind == DM_REF_STORE && lc==0)` clause; slow I/O is
+   the `Output<-B` FF function (FF&077==0o36), modeled correctly. With the
+   stores landing in memory, the boot status posts, `KWait` completes, and
+   `DiskBoot` runs `T_ 1C, Branch[Start]` (PC=1) -- the loaded image executes.
+2. **Data-block order (committed `4d4b54d`).** `AltoDiabloDisk.mc` drains each
+   FIFO block into *descending* memory (`DskMAddr` counts down), so each block
+   must be stored on-Trident word-reversed for word 0 to land at the low
+   (entry) address. Without it the boot loader's entry word ended up at the
+   high address and the loader looped on a bad BLT. `dsk2trident` now reverses
+   each header/label/data block. After this the OS boots and loads ~893 blocks
+   across its segments (healthy: ~3.5 M IFU dispatches in 100 M cycles).
+
+### The in-vivo cross-check (salto) and the remaining divergence
+
+Built and working: drive the C Alto reference emulator **salto**
+(`AltoInfo/salto/`, gitignored) headless on the same `nonprog.dsk`, dump a
+per-opcode trace (`SALTO_TRACE` in `src/emu.c`: `IR`, `AC0..3`, `CRY` at
+`f2_load_ir`), and diff it against our `DORADO_IFUDISP_TRACE` opcode stream
+(reconstruct `IR = (op<<8)|alpha`). Trim both to the boot-loader entry
+(`IR=000345`, the `JMP 0345`) and compare.
+
+Findings:
+- **IR (control-flow) sequences match for 11457 opcodes**, then diverge. The
+  diverging opcode is `125014` = `COM AC1,AC1, no-load, SZR` (skip if
+  `~AC1 == 0`, i.e. skip if `AC1 == 177777`): salto skips (next `000403`),
+  ours does not (next `000764`). So **AC1 has diverged** by op 11457 -- a real
+  Alto-opcode-state divergence, not a disk problem.
+- It is **not** the boot-entry AC state. salto enters the loader with
+  `AC = 0,0,0,0`; a one-shot clear of our Alto ACs (STK[1..4]) at `DiskBoot`
+  made the entry match but did **not** move the op-11457 divergence -- so the
+  garbage entry ACs are overwritten before they matter. (That experiment was
+  reverted; it is not the fix.)
+- It is **not** a single-opcode bug. `altodiff-dorado` (the per-opcode oracle)
+  runs `ADC`/`COM` etc. correctly in isolation (e.g. `ADC AC0,AC0` with AC0=0
+  -> 177777), and the 20768-vector sweep is clean. So the divergence is a
+  **context / multi-cycle-dependent** AC computation -- exactly the long-
+  predicted "ctx1 corruption" (a multi-cycle op such as `BLT`/`BLKS`/`BitBlt`,
+  or stale `Q`/`Cnt`/`ShC`/carry/`StkP` carried between opcodes, that altodiff's
+  isolated single-step does not reproduce).
+
+Caveat for the next push: our `IFUDISP` AC sample is offset by ~one opcode
+versus salto's `f2_load_ir` sample (the previous opcode's STK writeback is not
+yet visible at our dispatch trace point), and the offset is fragile around
+multi-cycle ops. **The reliable next step is to cycle-align the AC sample** (or
+sample STK[1..4] right after the writeback) so the first true AC divergence can
+be pinned to a specific opcode, then reproduce that opcode's in-vivo entry
+state in `altodiff` to expose the stale-state dependency.
+
+Regression after all of the above (tree clean, only `e3ec7b2`/`4d4b54d` etc.
+committed): `make test` 11/11, Galaxian 121641 dark px (gate 121553), Cedar
+login 28460 dark px (gate 28465).
 
 ---
 
