@@ -132,6 +132,36 @@ Regression after all of the above (tree clean, only `e3ec7b2`/`4d4b54d` etc.
 committed): `make test` 11/11, Galaxian 121641 dark px (gate 121553), Cedar
 login 28460 dark px (gate 28465).
 
+### Update: cycle-aligned AC trace (`e237877`) -- two divergences, not one
+
+The "not the boot-entry AC state" conclusion above was an artifact of the
+one-opcode trace offset. With the offset removed it is wrong; there are TWO
+separate divergences:
+
+- **`DORADO_ALTOAC_TRACE`** (committed `e237877`) prints each Alto opcode's IR +
+  instruction set + STK[1..4] *after* `apply_lc()` (the writeback that finishes
+  the opcode), exactly matching salto's `f2_load_ir` sample. With it the diff is
+  reliable opcode-for-opcode.
+- **Divergence 1 (FIXED, `e237877`): entry ACs.** salto disk-boots cold (AC=0);
+  our AEmu inherited the dirty emulator stack. Clearing Stack[1..4] once at
+  `DiskBoot` makes the first **11453** booted opcodes match salto exactly
+  (AC and IR), vs diverging at opcode 5 before. This is the cold-Alto fix.
+- **Divergence 2 (OPEN): a memory-content divergence.** With divergence 1 fixed,
+  the first mismatch is at booted opcode 11452, `IR=025412` = `LDA 1, AC3+0o12`
+  (AC3=0o50 -> Alto `M[0o62]`). salto loads **020324**, ours loads **0**. The
+  raw `.dsk` boot-sector word for `M[0o62]` is **010324**, so BOTH emulators
+  overwrite `M[0o62]` after load and the writes diverge -- it is not a simple
+  disk-read drop. Our store trace (`DORADO_STORE_TRACE_VA="62,62"`) shows a
+  pre-boot EMU write of 0 (pc=0o6226) and many task-7 writes (pc=0o6655);
+  the salto side has no memory-write trace yet.
+
+Next step: instrument salto's memory writes (it has a flat 64K `mem[]`), dump
+both emulators' full Alto memory at the instant each reaches booted opcode
+11452, and diff -- the divergent words + the boot's load/clear pattern will name
+the writer. (Since stores derive from ACs, which match through 11453, suspect a
+non-AC writer: a block DMA, the `BLT` self-copy, or an indexed/indirect STA
+whose address computation diverged.)
+
 ---
 
 **Original plan (2026-06-20). Researched against AEmu / AltoDiabloDisk.mc +
