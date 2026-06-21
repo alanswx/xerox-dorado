@@ -4351,12 +4351,27 @@ memory_ref_done: ;
      * Print IR = (op<<8)|alpha so it diffs directly against the salto trace. */
     if (cpu->altoac_pending) {
         cpu->altoac_pending = 0;
+        unsigned ir = ((unsigned)cpu->altoac_op << 8) | cpu->altoac_alpha;
         fprintf(stderr, "ALTOAC cyc=%llu IR=%06o set=%u AC=%06o,%06o,%06o,%06o\n",
                 (unsigned long long)dorado_trace_cycle,
-                ((unsigned)cpu->altoac_op << 8) | cpu->altoac_alpha,
-                cpu->altoac_insset,
+                ir, cpu->altoac_insset,
                 cpu->STK[1] & 0177777, cpu->STK[2] & 0177777,
                 cpu->STK[3] & 0177777, cpu->STK[4] & 0177777);
+        /* Full Alto low-memory dump at a chosen booted-opcode index, counted
+         * from the boot-loader entry (IR=000345). DORADO_MEMDUMP_AT=<n>; one
+         * "MD %06o %06o" line per word for direct diffing against salto. */
+        static long mdcount = -1, mdtarget = -2;
+        if (mdtarget == -2) { const char *w = getenv("DORADO_MEMDUMP_AT");
+                              mdtarget = w ? strtol(w, NULL, 0) : -1; }
+        if (mdtarget >= 0) {
+            if (mdcount < 0 && ir == 000345) mdcount = 0;
+            else if (mdcount >= 0) mdcount++;
+            if (mdcount == mdtarget && cpu->mem) {
+                for (uint32_t va = 0; va < 02000u; va++)
+                    fprintf(stderr, "MD %06o %06o\n", va,
+                            dorado_visible_word_at_va(cpu->mem, va) & 0177777);
+            }
+        }
     }
 
     /* Post-instruction StkP update + StkOvf/StkUnd recompute (HM
