@@ -262,6 +262,16 @@ typedef struct {
                                       * controller spuriously Active so the next
                                       * DSK command Output aborts (AReadBadTW). */
 
+    uint8_t  current_block;          /* active DiskControl block, 0..3 */
+    uint8_t  current_block_op;       /* DORADO_DISK_OP_* for current_block */
+    uint16_t current_block_words;    /* data words in current block */
+    uint16_t current_block_pos;      /* words transferred within block */
+    uint8_t  current_block_trailer;  /* 2 garbage + 2 ECC words after block */
+    uint8_t  compare_err;            /* compare error latch, HM §9 */
+    uint8_t  read_data_err;          /* ReadDataErr latch */
+    uint8_t  fifo_underflow;         /* FIFO underflow latch */
+    uint8_t  fifo_overflow;          /* FIFO overflow latch */
+
     /* Drives. Drive 0 is the boot drive on real hardware. */
     dorado_disk_drive drive[DORADO_DISK_NUM_DRIVES];
     int      selected_drive;         /* index into drive[] */

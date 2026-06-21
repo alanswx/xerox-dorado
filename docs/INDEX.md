@@ -18,6 +18,23 @@ Sizes are approximate; "★" marks files you will reach for repeatedly.
 | `DoradoDocs/manuals/DoradoManual-B.press!8.pdf` | 190 KB | Companion press file. |
 | `DoradoDocs/manuals/DoradoManual-Figs.press!8.pdf` | 93 KB | Figures only (programmer's view, card cage, control section, etc.). |
 
+## Trident drive references
+
+Located in `DoradoDocs/manuals/trident/`. These are Century Data manuals from
+Bitsavers for the physical Trident drives behind the Dorado disk controller.
+Use them with Hardware Manual section 9 and `docs/disk-architecture.md`.
+
+| File | Size | Notes |
+|---|---:|---|
+| ★ `76205-902_Performance_Specification_Models_T25_T50_T80_T200_and_T300_198011.pdf` | 2.8 MB | T-80/T-300 physical specs and timing. |
+| ★ `Trident_T25_T50_T80_OEM_Reference_Manual.pdf` | 2.0 MB | Raw T-25/T-50/T-80 interface, sector/index timing, read/write timing. |
+| `76205-205_T25_T50_T80_Installation_and_Operation_197905.pdf` | 11 MB | Operation, cabling, configuration context. |
+| `76205-303_T25_T50_T80_T85_Maintenance_198107.pdf` | 5.7 MB | Maintenance and diagnostic behavior. |
+| `Trident_T25_T50_T80_schem_Mar81.pdf` | 7.1 MB | T-25/T-50/T-80 drive schematics. |
+| `76200-402_T200_T300_Theory_of_Operation_198101.pdf` | 11 MB | T200/T300 theory of operation for larger packs. |
+| `76206-304_Trident_Disk_Drives_Models_T202_T302_Maintenance_Manual_Apr82.pdf` | 12 MB | Later T202/T302 maintenance reference. |
+| `Trident_1150_Formatter_Performance_Specification_1977.pdf` | 2.5 MB | Formatter performance reference for timing/interface questions. |
+
 ## Schematics — board PDFs (1980-vintage revisions)
 
 Located in `DoradoDocs/schematics/`. These are the schematics that ship with

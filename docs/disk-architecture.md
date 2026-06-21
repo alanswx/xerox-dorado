@@ -888,5 +888,32 @@ software XOR the corrupted bits back to correct values.
     (`AEMU_ALTOLOOP=0o4447`, etc.) are still useful for comparing
     source, but should not be used to diagnose the active Mesa run.
 
+17. **2026-06-21 controller block sequencing correction.**
+    The old `muffRdFifoTW` transfer-start fallback is gone; polling the
+    muffler is now a pure read, and a queued DiskControl transfer starts
+    from the sector-pulse path. Real-pack reads honor the DiskControl
+    block operations and Format RAM block counts, including the 2 garbage
+    + 2 ECC trailer words consumed by `AltoDiabloDisk`. `RdFifoTW` now
+    uses the documented threshold split (normal read >=3 FIFO words,
+    read+check >=1), and `CompareErr`/`ReadDataErr`/FIFO under-overflow
+    are explicit latches exposed through KSTAT. A 120M-cycle nonprog
+    disk-boot trace no longer reaches `ACmmdAbort`, but still renders no
+    display pixels, so the remaining Alto disk issue is later than this
+    controller sequencing bug.
+
+18. **2026-06-21 AEmu disk-render correction.**
+    The next failure was not the `ACmmdAbort` label itself: traced predecessor
+    PCs show the repeated entries came from `ACmmdSeekOnly`, which uses the same
+    tail for normal seek-only completion. The real scheduler bug was that DSK
+    wakeups were gated on sector advancement; FIFO threshold wakeups are level
+    conditions and must wake DSK whenever pending. After fixing that, the
+    remaining compatibility gap was Alto Diablo status bit 12
+    (`NoDataTransferred`, value 0o10). `AltoDiabloDisk.mc` maps Trident mufflers
+    to Alto KBLK/KCB status but does not synthesize this Diablo bit, while the
+    booted Alto OS consumes it. The pack-backed AEmu path now ORs the bit into
+    DSK-task status stores for VM 0522 and normal KCB completions, which makes a
+    300M-cycle nonprog pack boot install a display list (`1474` pixels in the
+    current headless check).
+
 See `docs/io-systems-architecture.md` for a higher-level view of
 how disk fits into Slow I/O / Fast I/O / Tasking.

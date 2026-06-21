@@ -23,6 +23,7 @@
 #define MUFF_CLEAR_INDEX_TW   0x0800u
 #define MUFF_CLEAR_SECTOR_TW  0x0400u
 #define MUFF_CLEAR_SEEKTAG_TW 0x0200u
+#define MUFF_CLEAR_COMPARE_ERR 0x2000u
 #define MUFF_CLEAR_ERRORS     0x0100u
 
 /* test_pack_create_t80 — empty Trident T-80 has the right shape. */
@@ -196,12 +197,14 @@ static int test_controller_io_routing(void)
 
     ctl.active = 1;
     ctl.control = DORADO_DISK_OP_RDCHK << DORADO_DISK_CTRL_OP1_SHIFT;
+    ctl.current_block_op = DORADO_DISK_OP_RDCHK;
     v = dorado_io_read(&io, DORADO_DISK_TASK,
                        DORADO_DISK_TIOA_DISKMUFF, &bad);
     EXPECT(v == 0x0000, "active CheckBlock' = 0x%X", v);
 
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKMUFF,
                     012);
+    ctl.current_block_op = DORADO_DISK_OP_RDCHK;
     v = dorado_io_read(&io, DORADO_DISK_TASK,
                        DORADO_DISK_TIOA_DISKMUFF, &bad);
     EXPECT(v == 0x0001, "non-read RdOnlyBlock' = 0x%X", v);
@@ -253,6 +256,139 @@ static int test_diskcontrol_active_abort(void)
     EXPECT(ctl.block_till_index == 1, "BlockTillIndex should set");
 
     printf("PASS  test_diskcontrol_active_abort (abort then load)\n");
+    return 0;
+}
+
+static int test_rd_fifo_muffler_does_not_start_transfer(void)
+{
+    static dorado_io io;
+    dorado_io_init(&io);
+    static dorado_disk_controller ctl;
+    dorado_disk_controller_init(&ctl);
+    dorado_disk_controller_attach_to_io(&ctl, &io);
+
+    static dorado_disk_pack pack;
+    EXPECT(dorado_disk_pack_create(&pack, &DORADO_DISK_DIABLO) == 0,
+           "create Diablo pack");
+    dorado_disk_controller_attach_drive(&ctl, 0, &pack);
+
+    ctl.enable_run = 1;
+    dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKCONTROL,
+                    (uint16_t)(DORADO_DISK_OP_RDCHK <<
+                               DORADO_DISK_CTRL_OP1_SHIFT));
+    EXPECT(ctl.xfer_pending == 1, "transfer should be pending");
+
+    int bad = -1;
+    dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKMUFF, 004);
+    uint16_t v = dorado_io_read(&io, DORADO_DISK_TASK,
+                                DORADO_DISK_TIOA_DISKMUFF, &bad);
+    EXPECT(v == 0, "RdFifoTW poll before sector should be 0, got 0x%X", v);
+    EXPECT(ctl.read_stream_active == 0,
+           "RdFifoTW poll must not start a read stream");
+    EXPECT(ctl.active == 0, "RdFifoTW poll must not set Active");
+    EXPECT(ctl.xfer_pending == 1, "pending transfer should remain armed");
+    EXPECT(ctl.read_stream_muff_starts == 0,
+           "muffler-start counter should stay zero");
+
+    dorado_disk_controller_advance_sector(&ctl);
+    EXPECT(ctl.read_stream_active == 1,
+           "sector pulse should start the pending transfer");
+    EXPECT(ctl.active == 1, "sector-started transfer should set Active");
+    EXPECT(ctl.xfer_pending == 0, "transfer should no longer be pending");
+
+    dorado_disk_pack_free(&pack);
+    printf("PASS  test_rd_fifo_muffler_does_not_start_transfer\n");
+    return 0;
+}
+
+static int test_read_check_wakeup_and_error_latches(void)
+{
+    static dorado_io io;
+    dorado_io_init(&io);
+    static dorado_disk_controller ctl;
+    dorado_disk_controller_init(&ctl);
+    dorado_disk_controller_attach_to_io(&ctl, &io);
+
+    static dorado_disk_pack pack;
+    EXPECT(dorado_disk_pack_create(&pack, &DORADO_DISK_DIABLO) == 0,
+           "create Diablo pack");
+    dorado_disk_sector *sec = dorado_disk_pack_sector(&pack, 0, 0, 1);
+    EXPECT(sec != NULL, "sector exists");
+    sec->header[0] = 012345;
+    sec->header[1] = 054321;
+    dorado_disk_controller_attach_drive(&ctl, 0, &pack);
+
+    /* Alto Diablo format RAM counts: header=2, label=8, data=256. */
+    uint16_t fram[DORADO_DISK_FORMAT_RAM_WORDS] = {
+        0001, 0007, 0377, 0000,
+        0104, 0204, 0004, 0000,
+        0033, 0006, 0011, 0002,
+        0002, 0001, 0000, 0000,
+    };
+    for (int i = 0; i < DORADO_DISK_FORMAT_RAM_WORDS; i++) {
+        dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKRAM,
+                        fram[i]);
+    }
+    EXPECT(ctl.enable_run == 1, "Format RAM load should set EnableRun");
+
+    ctl.drive[0].cur_sector = 0;
+    dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKCONTROL,
+                    (uint16_t)(DORADO_DISK_OP_RDCHK <<
+                               DORADO_DISK_CTRL_OP1_SHIFT));
+    dorado_disk_controller_advance_sector(&ctl);
+    EXPECT(ctl.drive[0].cur_sector == 1, "transfer should start on sector 1");
+    EXPECT(ctl.current_block == 0, "current block=%u", ctl.current_block);
+    EXPECT(ctl.current_block_op == DORADO_DISK_OP_RDCHK,
+           "current op=%u", ctl.current_block_op);
+    EXPECT(ctl.current_block_words == 2,
+           "header count should come from Format RAM, got %u",
+           ctl.current_block_words);
+    EXPECT(ctl.compare_err == 1, "check block should set CompareErr");
+    EXPECT(ctl.rd_fifo_tw == 1,
+           "read+check should wake with one or more FIFO words");
+    EXPECT(dorado_disk_controller_dmux_read(&ctl, 02031, NULL) == 0,
+           "ReadDataErr should stay clear until CompareErr is missed");
+
+    int bad = -1;
+    uint16_t v = dorado_io_read(&io, DORADO_DISK_TASK,
+                                DORADO_DISK_TIOA_DISKDATA, &bad);
+    EXPECT(v == 012345, "header[0]=0o%o", v);
+
+    dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKMUFF,
+                    MUFF_CLEAR_COMPARE_ERR);
+    EXPECT(ctl.compare_err == 0, "clearCompareErr should clear CompareErr");
+    EXPECT(dorado_disk_controller_dmux_read(&ctl, 02031, NULL) == 0,
+           "ReadDataErr should be clear after successful compare");
+
+    ctl.read_data_err = 1;
+    EXPECT(dorado_disk_controller_dmux_read(&ctl, 02031, NULL) == 0x8000,
+           "ReadDataErr should appear via ReadDataErr muffler");
+    EXPECT(dorado_disk_controller_dmux_read(&ctl, 02037, NULL) == 0x8000,
+           "ReadDataErr should appear via ReadErr muffler");
+
+    dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKMUFF,
+                    MUFF_CLEAR_ERRORS);
+    EXPECT(ctl.compare_err == 0, "clearErrors should clear CompareErr");
+    EXPECT(ctl.read_data_err == 0, "clearErrors should clear ReadDataErr");
+
+    ctl.compare_err = 1;
+    ctl.read_data_err = 0;
+    ctl.read_stream_active = 1;
+    ctl.active = 1;
+    ctl.read_block_framing = 1;
+    ctl.current_block = 0;
+    ctl.current_block_op = DORADO_DISK_OP_RDCHK;
+    ctl.current_block_words = 0;
+    ctl.current_block_pos = 0;
+    ctl.current_block_trailer = 4;
+    ctl.fifo_head = ctl.fifo_tail = ctl.fifo_count = 0;
+    ctl.control = 0;
+    dorado_disk_controller_refill_fifo(&ctl);
+    EXPECT(ctl.read_data_err == 1,
+           "missed ClearCompareErr should latch ReadDataErr");
+
+    dorado_disk_pack_free(&pack);
+    printf("PASS  test_read_check_wakeup_and_error_latches\n");
     return 0;
 }
 
@@ -588,11 +724,18 @@ static int test_advance_sector(void)
     EXPECT(v == 0xA000, "sector 0 data[0]=0x%X", v);
 
     dorado_disk_controller_advance_sector(&ctl);
+    EXPECT(ctl.drive[0].cur_sector == 0,
+           "active transfer should hold cur_sector=%d",
+           ctl.drive[0].cur_sector);
+
+    ctl.active = 0;
+    ctl.read_stream_active = 0;
+    ctl.fifo_head = ctl.fifo_tail = ctl.fifo_count = 0;
+    ctl.rd_fifo_tw = 0;
+    dorado_disk_controller_advance_sector(&ctl);
     EXPECT(ctl.drive[0].cur_sector == 1, "cur_sector=%d after advance",
            ctl.drive[0].cur_sector);
     EXPECT(ctl.sector_tw == 1, "sector_tw should be set");
-    EXPECT(ctl.fifo_count > 0, "FIFO reloaded after advance, count=%d",
-           ctl.fifo_count);
 
     /* Boot drive 0 uses Pilot's 29-position controller sector cadence;
      * media lookup maps those positions onto the 9-sector image. */
@@ -602,8 +745,7 @@ static int test_advance_sector(void)
            "cur_sector wraps to 0, got %d", ctl.drive[0].cur_sector);
 
     dorado_disk_pack_free(&pack);
-    printf("PASS  test_advance_sector (sector counter advances + wraps, "
-           "FIFO reloads)\n");
+    printf("PASS  test_advance_sector (active hold, counter advances + wraps)\n");
     return 0;
 }
 
@@ -897,6 +1039,8 @@ int main(void)
     rc |= test_pack_save_load();
     rc |= test_controller_io_routing();
     rc |= test_diskcontrol_active_abort();
+    rc |= test_rd_fifo_muffler_does_not_start_transfer();
+    rc |= test_read_check_wakeup_and_error_latches();
     rc |= test_drive_attach();
     rc |= test_dmux_muffler_read();
     rc |= test_pdi_fifo_read();

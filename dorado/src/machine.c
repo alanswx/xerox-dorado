@@ -355,6 +355,41 @@ static void machine_store_va(dorado_memory *mem, uint32_t va, uint16_t value)
     }
 }
 
+static void machine_alto_disk_status_compat(dorado_machine *m,
+                                             uint16_t pre_pc)
+{
+    /* AltoDiabloDisk.mc maps the Trident controller onto Alto's Diablo KBLK/KCB
+     * status format. Real Diablo status includes NoDataTransferred (Alto bit 12,
+     * value 010) in the status words the booted Alto OS consumes; the Dorado
+     * AEmu mapper does not synthesize it from any Trident muffler. Without this
+     * AEmu-disk-route compatibility bit, the loader's disk-control memory
+     * diverges from a real Alto disk boot and the OS never installs a display
+     * list. Keep this scoped to pack-backed AEmu, not Cedar/Pilot. */
+    if (!m->ether_loaded_world_cycle || !m->disk_pack_loaded[0] ||
+        m->germ_word_count)
+        return;
+    if (m->mem.last_ref_kind != DM_REF_STORE ||
+        m->mem.last_ref_task != DORADO_DISK_TASK)
+        return;
+
+    uint32_t va = m->mem.last_ref_va & 0x0FFFFFFFu;
+    int add_no_data = (va == 0522u);
+
+    if (!add_no_data && pre_pc == 02376)
+        add_no_data = (m->mem.last_ref_b & 03u) == 0;
+
+    if (!add_no_data) return;
+
+    uint16_t old = dorado_visible_word_at_va(&m->mem, va);
+    uint16_t val = (uint16_t)(old | 010u); /* Alto NoDataTransferred. */
+    if (val == old) return;
+    machine_store_va(&m->mem, va, val);
+    m->mem.dbuf = val;
+    if (dorado_trace_flag("DORADO_ALTO_STATUS_TRACE"))
+        fprintf(stderr, "[altostatus] pc=0o%o va=0o%o %06o->%06o\n",
+                pre_pc, va, old, val);
+}
+
 static void machine_dump_words(dorado_memory *mem, const char *label,
                                uint32_t va, int count)
 {
@@ -2006,10 +2041,102 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
             }
         }
 
+        static uint16_t alto_disk_prev_pc = 0177777u;
+        static uint16_t alto_disk_prev2_pc = 0177777u;
+        static uint64_t alto_disk_prev_cycle = 0;
+        static uint64_t alto_disk_prev2_cycle = 0;
+
+        int alto_check_enabled = dorado_trace_flag("DORADO_ALTOCHECK_TRACE");
+        int alto_check_trace = 0;
+        uint16_t alto_check_md_before = 0;
+        uint16_t alto_check_t_before = 0;
+        uint16_t alto_check_kaddr = 0;
+        uint16_t alto_check_sector = 0;
+        uint16_t alto_check_kptr = 0;
+        uint16_t alto_check_kcmmd = 0;
+        uint16_t alto_check_dskmaddr = 0;
+        uint16_t alto_check_kstatus = 0;
+        uint16_t alto_check_ktemp0 = 0;
+        uint16_t alto_check_ktemp1 = 0;
+        uint16_t alto_check_ktemp2 = 0;
+        uint16_t alto_check_ktemp3 = 0;
+        uint16_t alto_check_prev_pc = alto_disk_prev_pc;
+        uint16_t alto_check_prev2_pc = alto_disk_prev2_pc;
+        uint64_t alto_check_prev_cycle = alto_disk_prev_cycle;
+        uint64_t alto_check_prev2_cycle = alto_disk_prev2_cycle;
+        if (alto_check_enabled && is_imfetch &&
+            cpu->ctask == DORADO_DISK_TASK &&
+            (pre_pc == 03045 || pre_pc == 03067 || pre_pc == 03225 ||
+             pre_pc == 03244 || pre_pc == 03246 || pre_pc == 03301 ||
+             pre_pc == 03306 || pre_pc == 03324 || pre_pc == 03326 ||
+             pre_pc == 03330 || pre_pc == 03333 || pre_pc == 03337 ||
+             pre_pc == 03347 || pre_pc == 03370 || pre_pc == 03371)) {
+            alto_check_trace = 1;
+            alto_check_md_before = m->mem.md;
+            alto_check_t_before = cpu->T;
+            alto_check_kaddr = cpu->RM[(5u << 4) | 004u];
+            alto_check_sector = cpu->RM[(5u << 4) | 005u];
+            alto_check_kptr = cpu->RM[(5u << 4) | 007u];
+            alto_check_kcmmd = cpu->RM[(5u << 4) | 010u];
+            alto_check_dskmaddr = cpu->RM[(5u << 4) | 011u];
+            alto_check_kstatus = cpu->RM[(5u << 4) | 012u];
+            alto_check_ktemp0 = cpu->RM[(5u << 4) | 014u];
+            alto_check_ktemp1 = cpu->RM[(5u << 4) | 015u];
+            alto_check_ktemp2 = cpu->RM[(5u << 4) | 016u];
+            alto_check_ktemp3 = cpu->RM[(5u << 4) | 017u];
+        }
+
         machine_pilot_timer_channel(m, cpu, bb, pre_pc, is_imfetch);
         machine_cedar_io(m, bb, disp);
 
         if (dorado_cpu_step(cpu)) break;
+        machine_alto_disk_status_compat(m, pre_pc);
+
+        if (alto_check_trace) {
+            const char *nm = pre_pc == 03333 ? "ACheckLoop" :
+                             pre_pc == 03337 ? "ANoCheckWord" :
+                             pre_pc == 03347 ? "ACheckLast" :
+                             pre_pc == 03045 ? "AWaitSector" :
+                             pre_pc == 03067 ? "ACmmdInTime" :
+                             pre_pc == 03225 ? "ABadCylinder" :
+                             pre_pc == 03244 ? "ACmmdSeekOnly" :
+                             pre_pc == 03246 ? "ABadSector" :
+                             pre_pc == 03301 ? "ACmmdRead" :
+                             pre_pc == 03306 ? "AReadBadTW" :
+                             pre_pc == 03324 ? "ACheckBadTW" :
+                             pre_pc == 03326 ? "AChecksumError" :
+                             pre_pc == 03330 ? "ACmmdCheck" :
+                             pre_pc == 03370 ? "ReadCheckEnd" :
+                             pre_pc == 03371 ? "ACmmdAbort" : "ACheck";
+            fprintf(stderr,
+                    "[altocheck] pc=0o%o %-12s @cyc=%llu "
+                    "prev=0o%o@%llu prev2=0o%o@%llu "
+                    "MD(before)=0o%06o T(before)=0o%06o "
+                    "disk_in=0o%06o KAddr=0o%06o Sector=0o%06o "
+                    "KPtr=0o%06o KCmmd=0o%06o DskMAddr=0o%06o "
+                    "KStatus=0o%06o KTemp0=0o%06o KTemp1=0o%06o "
+                    "KTemp2=0o%06o KTemp3=0o%06o next=0o%o\n",
+                    pre_pc, nm, (unsigned long long)bb->cycles,
+                    alto_check_prev_pc,
+                    (unsigned long long)alto_check_prev_cycle,
+                    alto_check_prev2_pc,
+                    (unsigned long long)alto_check_prev2_cycle,
+                    alto_check_md_before, alto_check_t_before,
+                    m->disk.last_input_data, alto_check_kaddr,
+                    alto_check_sector, alto_check_kptr, alto_check_kcmmd,
+                    alto_check_dskmaddr, alto_check_kstatus,
+                    alto_check_ktemp0, alto_check_ktemp1,
+                    alto_check_ktemp2, alto_check_ktemp3,
+                    cpu->real_PC);
+        }
+
+        if (alto_check_enabled && is_imfetch &&
+            cpu->ctask == DORADO_DISK_TASK) {
+            alto_disk_prev2_pc = alto_disk_prev_pc;
+            alto_disk_prev2_cycle = alto_disk_prev_cycle;
+            alto_disk_prev_pc = pre_pc;
+            alto_disk_prev_cycle = bb->cycles;
+        }
 
         if (m->initial_substituted) {
             /* Bring-up guard: clear the EOT load-overflow retry mask
@@ -2094,10 +2221,8 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
              * path; the default shim path never enabled it.) The PDI is still
              * clock-ticked so the sector/index state the EMU boot transfer
              * polls advances. */
-            int disk_advanced =
-                dorado_disk_controller_tick(&m->disk, bb->cycles);
-            if (disk_advanced &&
-                m->disk.drive[m->disk.selected_drive].pack &&
+            (void)dorado_disk_controller_tick(&m->disk, bb->cycles);
+            if (m->disk.drive[m->disk.selected_drive].pack &&
                 dorado_disk_controller_wakeup_pending(&m->disk) &&
                 cpu->task_tpc[DORADO_DISK_TASK] != 0177777) {
                 dorado_cpu_wakeup(cpu, DORADO_DISK_TASK);

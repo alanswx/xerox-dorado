@@ -275,9 +275,9 @@ run-cedar-screenshot: sdl
 # Alto-on-Dorado disk boot (Diablo-on-Trident). Convert a ContrAlto Diablo-31
 # .dsk into a Trident pack, then boot AEmu from it (BS up -> ABoot -> DiskBoot).
 # DSK_SRC may be overridden: `make run-alto-disk DSK_SRC=path/to/foo.dsk`.
-# NOTE: bring-up in progress -- the read path runs through the real controller
-# but the DSK-task command completion does not yet post status, so the boot
-# falls back to Ethernet. See docs/alto-disk-boot-plan.md.
+# The route uses the real DSK task/controller path. AEmu's Diablo-on-Trident
+# status mapper needs the Alto NoDataTransferred compatibility bit for KBLK/KCB
+# status words; see docs/alto-disk-boot-plan.md.
 DSK_SRC ?= ../AltoInfo/ContrAlto2-beta/Disks/games.dsk
 ALTO_PACK ?= ../AltoDisks/alto-trident.pack
 .PHONY: alto-disk-image run-alto-disk

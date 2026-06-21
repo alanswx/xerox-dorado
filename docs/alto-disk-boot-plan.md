@@ -1,11 +1,12 @@
 # Booting Alto software off an emulated disk (Diablo-on-Trident) — plan
 
-**Status: THE OS BOOTS AND LOADS FROM DISK (2026-06-20). Milestones A+B+C
-done and verified; the DSK-task completion store and the data-block order are
-fixed, so `DiskBoot` reaches `Start` and the loaded image runs and loads ~893
-blocks across its segments. Remaining: the running image does not yet render
-the Exec -- an in-vivo Alto-opcode divergence localized with the salto
-cross-check (see "Update 2026-06-20 (cont.)" below).**
+**Status: THE ALTO DISK PATH NOW RENDERS FROM A PACK IMAGE (2026-06-21).
+Milestones A+B+C are done; later controller sequencing, DSK wakeup, and
+Alto status-compatibility fixes make `--eb worlds/aemu.eb --disk 0=PACK
+--boot-reason disk` load the pack and install a display list. The old
+blank-screen conclusion was too early; the misleading `ACmmdAbort` trace was
+the normal seek-only command tail, not the failing path. See updates
+2026-06-21d/e below.**
 
 ## Implementation status (2026-06-20)
 
@@ -52,7 +53,8 @@ Done and verified:
      `AReadBadTW`. The start is now one-shot per DiskControl command
      (`xfer_pending`); reads complete cleanly (`ACmmdEnd2`, zero aborts).
 
-Remaining blocker (the boot still falls to EBoot and the screen stays blank):
+Historical blocker, fixed later (the boot used to fall to EBoot and the screen
+stayed blank):
 - **DSK-task command completion store.** The DSK reaches `ACmmdEnd2`
   (~21x) but the completion stores diverge: it never writes the boot KCB
   status at VM 432, and only occasionally advances KBLK (VM 521). `DiskBoot`
@@ -444,6 +446,66 @@ cold-AC/I-O-page/bank fixes) is correct. To confirm fundamentally, instrument
 ContrAlto2 (boots nonprog on a real Diablo) and check whether the OS reads VM 522
 bit 12. The validated working path remains the Alto ETHER boot (games, NetExec)
 and Cedar login.
+
+#### Update 2026-06-21d: controller sequencing bug fixed; render still blank
+
+After checking the Trident manuals, the DiskControl/Format RAM interpretation was
+tightened rather than treating the old conclusions as final. The controller now
+sequences real-pack reads by DiskControl block operation and Format RAM block
+counts; `RdFifoTW` uses the documented threshold (3 words for read, 1 for
+read+check); `CompareErr`/`ReadDataErr`/FIFO under-overflow are explicit latches;
+and polling `muffRdFifoTW` no longer starts a pending transfer as a side effect.
+
+This fixed the immediate late check-abort failure. The failing trace used to load
+`DiskControl` for one sector, then advance the emulated spindle before the DSK
+task drained the transfer, so `ACmmdCheck` compared against the next sector's
+header and reached `ACmmdAbort`. Rotation is now held while a transfer is
+`Active`; this is a timing-compression compromise, not cycle-accurate hardware,
+but it preserves the hardware invariant that a sector transfer completes inside
+its sector window.
+
+Verification:
+- `make -C dorado test` passes.
+- `DORADO_ALTOBOOT_TRACE=1 ./build/dorado --cycles 120000000 --eb worlds/aemu.eb
+  --disk 0=../AltoDisks/nonprog-trident.pack --boot-reason disk` reaches repeated
+  `DoACmmd`/`ACmmdEnd2` completions with no `ACmmdAbort`.
+- The run still ends with `0 display-list pixels`, so this is not yet a validated
+  Alto Diablo disk-render path. The next real bug is later than the controller
+  block sequencing fixed here.
+
+#### Update 2026-06-21e: DSK wakeup + Alto NoDataTransferred render fix
+
+Skeptical reread of the `ACmmdAbort` evidence changed the conclusion. With
+`DORADO_ALTOCHECK_TRACE=1`, the apparent aborts were preceded by
+`ACmmdSeekOnly` (0o3244), and the following store posted normal seek-only KCB
+status. So the `ACmmdAbort` label is a shared tail, not proof that the check path
+failed.
+
+The real controller/scheduler bug was that `machine_run_until` only woke the DSK
+task when `dorado_disk_controller_tick()` advanced to a new sector. FIFO
+threshold wakeups are level conditions and must be serviced between sector
+pulses. Waking DSK whenever `dorado_disk_controller_wakeup_pending()` is true
+restored the expected disk-task drain rate.
+
+After that, the remaining blank screen matched the earlier status hypothesis:
+the booted Alto OS consumes the Diablo status word's `NoDataTransferred` bit
+(Alto bit 12, value 0o10), but `AltoDiabloDisk.mc` maps Trident mufflers to the
+Alto KBLK/KCB status format without synthesizing that Diablo bit. A narrow
+pack-backed AEmu compatibility hook now ORs 0o10 into DSK-task stores to the
+per-sector status word (VM 0522) and normal KCB completion statuses, and updates
+`DBuf` so the just-executed microinstruction observes the same value as a real
+store would.
+
+Verification:
+- `make -C dorado test` passes.
+- `./build/test_disk` and `./build/test_fastio` pass.
+- Headless Ethernet regression still passes:
+  `./build/dorado --cycles 160000000 --eb worlds/aemu.eb --eftp
+  ../chm/bootfiles/Galaxian.boot\!1` => `121553 display-list pixels`.
+- Headless pack boot now renders:
+  `./build/dorado --cycles 300000000 --eb worlds/aemu.eb --disk
+  0=../AltoDisks/nonprog-trident.pack --boot-reason disk` =>
+  `1474 display-list pixels`.
 
 ---
 

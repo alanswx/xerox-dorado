@@ -342,25 +342,6 @@ static uint16_t disk_sector_word(const dorado_disk_drive *d,
  * muffler, not these words. */
 #define DORADO_DISK_BLOCK_TRAILER_WORDS 4
 
-/* Word at framed stream position idx: each block is followed by 4 zero trailing
- * words. Total framed length = header+label+data + 3*4. */
-static uint16_t disk_framed_word(const dorado_disk_drive *d,
-                                 const dorado_disk_sector *s, int idx)
-{
-    const int trail = DORADO_DISK_BLOCK_TRAILER_WORDS;
-    int hw = disk_drive_header_words(d);
-    int lw = disk_drive_label_words(d);
-    int dw = disk_drive_data_words(d);
-    if (idx < hw) return s->header[idx];
-    if (idx < hw + trail) return 0;
-    idx -= hw + trail;
-    if (idx < lw) return s->label[idx];
-    if (idx < lw + trail) return 0;
-    idx -= lw + trail;
-    if (idx < dw) return s->data[idx];
-    return 0;
-}
-
 static int disk_read_stream_total(const dorado_disk_controller *ctl,
                                   const dorado_disk_drive *d)
 {
@@ -470,6 +451,129 @@ static void disk_seq_trace(const dorado_disk_controller *ctl, const char *ev)
             d->seek_in_progress);
 }
 
+static unsigned disk_control_block_op(uint16_t control, int block)
+{
+    static const int shifts[4] = {
+        DORADO_DISK_CTRL_OP1_SHIFT,
+        DORADO_DISK_CTRL_OP2_SHIFT,
+        DORADO_DISK_CTRL_OP3_SHIFT,
+        DORADO_DISK_CTRL_OP4_SHIFT,
+    };
+    if (block < 0 || block >= 4) return DORADO_DISK_OP_DONE;
+    return (control >> shifts[block]) & DORADO_DISK_CTRL_OP_MASK;
+}
+
+static int disk_block_default_words(const dorado_disk_drive *d, int block)
+{
+    switch (block) {
+    case 0: return disk_drive_header_words(d);
+    case 1: return disk_drive_label_words(d);
+    case 2: return disk_drive_data_words(d);
+    default: return 0;
+    }
+}
+
+static uint16_t disk_block_word(const dorado_disk_drive *d,
+                                const dorado_disk_sector *s,
+                                int block, int pos)
+{
+    if (!s || pos < 0) return 0;
+    switch (block) {
+    case 0:
+        return (pos < disk_drive_header_words(d)) ? s->header[pos] : 0;
+    case 1:
+        return (pos < disk_drive_label_words(d)) ? s->label[pos] : 0;
+    case 2:
+        return (pos < disk_drive_data_words(d)) ? s->data[pos] : 0;
+    default:
+        return 0;
+    }
+}
+
+static uint16_t disk_format_block_words(const dorado_disk_controller *ctl,
+                                        const dorado_disk_drive *d,
+                                        int block)
+{
+    if (block < 0 || block >= 4) return 0;
+    uint16_t n = (uint16_t)(ctl->format_ram[block] + 1u);
+    if (ctl->format_ram_writes == 0 && n == 1)
+        n = (uint16_t)disk_block_default_words(d, block);
+    return n;
+}
+
+static int disk_advance_to_next_read_block(dorado_disk_controller *ctl)
+{
+    dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
+    while (ctl->current_block < 4) {
+        unsigned op = disk_control_block_op(ctl->control, ctl->current_block);
+        if (op == DORADO_DISK_OP_READ || op == DORADO_DISK_OP_RDCHK) {
+            ctl->current_block_op = (uint8_t)op;
+            ctl->current_block_words =
+                disk_format_block_words(ctl, d, ctl->current_block);
+            ctl->current_block_pos = 0;
+            ctl->current_block_trailer = 0;
+            if (op == DORADO_DISK_OP_RDCHK) ctl->compare_err = 1;
+            return 1;
+        }
+        ctl->current_block++;
+    }
+    ctl->current_block_op = DORADO_DISK_OP_DONE;
+    ctl->current_block_words = 0;
+    ctl->current_block_pos = 0;
+    ctl->current_block_trailer = 0;
+    return 0;
+}
+
+static void disk_finish_current_read_block(dorado_disk_controller *ctl)
+{
+    if (ctl->compare_err)
+        ctl->read_data_err = 1;
+    ctl->current_block++;
+    if (!disk_advance_to_next_read_block(ctl)) {
+        ctl->current_block_op = DORADO_DISK_OP_DONE;
+        ctl->current_block_words = 0;
+        ctl->current_block_pos = 0;
+        ctl->current_block_trailer = 0;
+    }
+}
+
+static void disk_update_fifo_tws(dorado_disk_controller *ctl)
+{
+    if (ctl->read_stream_active) {
+        int threshold = 3;
+        if (ctl->current_block_op == DORADO_DISK_OP_RDCHK ||
+            ctl->current_block_op == DORADO_DISK_OP_DONE)
+            threshold = 1;
+        ctl->rd_fifo_tw = (ctl->fifo_count >= threshold) ? 1 : 0;
+    } else {
+        ctl->rd_fifo_tw = 0;
+    }
+    if (ctl->write_stream_active) {
+        ctl->wr_fifo_tw =
+            ((DORADO_DISK_FIFO_WORDS - ctl->fifo_count) >= 4) ? 1 : 0;
+    } else {
+        ctl->wr_fifo_tw = 0;
+    }
+}
+
+static void disk_check_trace(const dorado_disk_controller *ctl,
+                             const char *ev, uint16_t word)
+{
+    if (!dorado_trace_flag("DORADO_DISK_CHECK_TRACE")) return;
+    const dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
+    fprintf(stderr,
+            "[diskcheck] %-10s drv=%d chs=%d/%d/%d media_sec=%d "
+            "ctrl=0o%o blk=%u op=%u pos=%u/%u trail=%u fifo=%d/%d "
+            "rdtw=%u act=%u cmp=%u rderr=%u idx=%d word=%06o\n",
+            ev, ctl->selected_drive, d->cur_cyl, d->cur_head, d->cur_sector,
+            disk_media_sector(d), ctl->control, ctl->current_block,
+            ctl->current_block_op, ctl->current_block_pos,
+            ctl->current_block_words, ctl->current_block_trailer,
+            ctl->fifo_count, DORADO_DISK_FIFO_WORDS, ctl->rd_fifo_tw,
+            ctl->active, ctl->compare_err, ctl->read_data_err,
+            ctl->read_stream_index, word);
+}
+
 void dorado_disk_controller_refill_fifo(dorado_disk_controller *ctl)
 {
     if (!ctl || !ctl->read_stream_active) return;
@@ -489,22 +593,45 @@ void dorado_disk_controller_refill_fifo(dorado_disk_controller *ctl)
     }
 
     const int total = disk_read_stream_total(ctl, d);
-    const int framed = ctl->read_block_framing && d->pack;
-    while (ctl->fifo_count < DORADO_DISK_FIFO_WORDS &&
-           ctl->read_stream_index < total) {
-        ctl->fifo[ctl->fifo_head] = d->pdi ?
-            disk_pdi_word(d, ctl->read_stream_index) :
-            (framed ? disk_framed_word(d, s, ctl->read_stream_index)
-                    : disk_sector_word(d, s, ctl->read_stream_index));
+    const int sequenced = ctl->read_block_framing && d->pack;
+    while (ctl->fifo_count < DORADO_DISK_FIFO_WORDS) {
+        uint16_t w = 0;
+        if (sequenced) {
+            if (ctl->current_block_op == DORADO_DISK_OP_DONE)
+                break;
+            if (ctl->current_block_pos < ctl->current_block_words) {
+                w = disk_block_word(d, s, ctl->current_block,
+                                    ctl->current_block_pos);
+                ctl->current_block_pos++;
+            } else if (ctl->current_block_trailer <
+                       DORADO_DISK_BLOCK_TRAILER_WORDS) {
+                w = 0;
+                ctl->current_block_trailer++;
+            } else {
+                if (ctl->fifo_count > 0) break;
+                disk_finish_current_read_block(ctl);
+                if (!ctl->read_stream_active) break;
+                continue;
+            }
+        } else {
+            if (ctl->read_stream_index >= total) break;
+            w = d->pdi ? disk_pdi_word(d, ctl->read_stream_index)
+                       : disk_sector_word(d, s, ctl->read_stream_index);
+        }
+        ctl->fifo[ctl->fifo_head] = w;
         ctl->fifo_head = (ctl->fifo_head + 1) % DORADO_DISK_FIFO_WORDS;
         ctl->fifo_count++;
         ctl->read_stream_index++;
     }
-    ctl->rd_fifo_tw = (ctl->fifo_count > 0) ? 1 : 0;
-    if (ctl->read_stream_index >= total && ctl->fifo_count == 0) {
+    disk_update_fifo_tws(ctl);
+    if ((ctl->read_stream_index >= total ||
+         (sequenced && ctl->current_block_op == DORADO_DISK_OP_DONE)) &&
+        ctl->fifo_count == 0) {
         ctl->read_stream_active = 0;
         ctl->active = 0;
+        ctl->rd_fifo_tw = 0;
         ctl->tag_tw = 1;
+        ctl->tag_tw_sets++;
     }
 }
 
@@ -525,6 +652,11 @@ static int disk_begin_read_stream(dorado_disk_controller *ctl)
     ctl->fifo_tail = 0;
     ctl->read_stream_index = 0;
     ctl->read_stream_active = 1;
+    ctl->current_block = 0;
+    ctl->current_block_op = DORADO_DISK_OP_DONE;
+    ctl->current_block_words = 0;
+    ctl->current_block_pos = 0;
+    ctl->current_block_trailer = 0;
     ctl->read_stream_starts++;
     /* Latch the sector being read: the drain spans many emulated sector pulses,
      * so refills must keep serving this sector, not the advancing cur_sector. */
@@ -532,6 +664,8 @@ static int disk_begin_read_stream(dorado_disk_controller *ctl)
         ? dorado_disk_pack_sector(d->pack, d->cur_cyl, d->cur_head,
                                   disk_media_sector(d))
         : NULL;
+    if (ctl->read_block_framing && d->pack)
+        disk_advance_to_next_read_block(ctl);
     dorado_disk_controller_refill_fifo(ctl);
     disk_seq_trace(ctl, "read-start");
     if (dorado_trace_flag("DORADO_DISK_HDR_TRACE")) {
@@ -551,11 +685,15 @@ static void disk_abort_active_transfer(dorado_disk_controller *ctl)
     ctl->active = 0;
     ctl->read_stream_active = 0;
     ctl->read_stream_index = 0;
+    ctl->current_block = 0;
+    ctl->current_block_op = DORADO_DISK_OP_DONE;
+    ctl->current_block_words = 0;
+    ctl->current_block_pos = 0;
+    ctl->current_block_trailer = 0;
     ctl->write_stream_active = 0;
     ctl->write_stream_index = 0;
     ctl->fifo_head = ctl->fifo_tail = ctl->fifo_count = 0;
-    ctl->rd_fifo_tw = 0;
-    ctl->wr_fifo_tw = 0;
+    disk_update_fifo_tws(ctl);
 }
 
 int dorado_disk_controller_wakeup_pending(const dorado_disk_controller *ctl)
@@ -589,6 +727,15 @@ void dorado_disk_controller_advance_sector(dorado_disk_controller *ctl)
 {
     dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
     if (!disk_drive_has_media(d)) return;
+
+    /* Real disk transfers finish within their sector window. In this emulator
+     * the DSK task drains the FIFO over many host-scheduled microinstructions;
+     * if rotation keeps advancing, SectorTW collapses many pulses into one and
+     * AltoDiabloDisk's software Sector counter falls behind the selected media
+     * sector. Hold rotation while a sector transfer is visible as Active. */
+    if (ctl->active || ctl->read_stream_active || ctl->write_stream_active)
+        return;
+
     d->cur_sector = (d->cur_sector + 1) % disk_sector_pulse_count(d);
     disk_seq_trace(ctl, "sector+");
     int at_index = (d->cur_sector == 0);
@@ -630,11 +777,27 @@ void dorado_disk_controller_advance_sector(dorado_disk_controller *ctl)
          * the read with AReadBadTW. So start one-shot per command and let the
          * stream drain fully (refill_fifo tops up the SAME sector); a new
          * sector read needs a fresh DiskControl command (xfer_pending). */
-        ctl->read_block_framing = 1;
-        if (disk_begin_read_stream(ctl)) {
+        if (disk_control_has_op(ctl->control, DORADO_DISK_OP_READ) ||
+            disk_control_has_op(ctl->control, DORADO_DISK_OP_RDCHK)) {
+            ctl->read_block_framing = 1;
+            if (disk_begin_read_stream(ctl)) {
+                ctl->active = 1;
+                ctl->xfer_pending = 0;
+                ctl->read_stream_sector_starts++;
+            }
+        } else if (disk_control_has_op(ctl->control, DORADO_DISK_OP_WRITE)) {
+            ctl->write_stream_active = 1;
+            ctl->write_stream_index = 0;
+            ctl->current_block = 0;
+            ctl->current_block_op = DORADO_DISK_OP_WRITE;
+            ctl->current_block_words = disk_format_block_words(ctl, d, 0);
+            ctl->current_block_pos = 0;
+            ctl->current_block_trailer = 0;
+            ctl->fifo_head = ctl->fifo_tail = ctl->fifo_count = 0;
             ctl->active = 1;
             ctl->xfer_pending = 0;
-            ctl->read_stream_sector_starts++;
+            disk_update_fifo_tws(ctl);
+            disk_seq_trace(ctl, "write-arm");
         }
     }
 }
@@ -692,6 +855,11 @@ int dorado_disk_controller_read_page(dorado_disk_controller *ctl,
     ctl->read_stream_active = 0;
     ctl->active = 0;
     ctl->rd_fifo_tw = 0;
+    ctl->current_block = 0;
+    ctl->current_block_op = DORADO_DISK_OP_DONE;
+    ctl->current_block_words = 0;
+    ctl->current_block_pos = 0;
+    ctl->current_block_trailer = 0;
     return (got == total) ? 0 : -1;
 }
 
@@ -764,10 +932,14 @@ static void disk_write_stream_word(dorado_disk_controller *ctl, uint16_t w)
     }
     s->modified = 1;
     ctl->write_stream_index++;
+    ctl->current_block_pos++;
     if (ctl->write_stream_index >= total) {
         ctl->write_stream_active = 0;
         ctl->active = 0;
+        ctl->current_block_op = DORADO_DISK_OP_DONE;
         ctl->tag_tw = 1;          /* block-end tag wakeup */
+        ctl->tag_tw_sets++;
+        disk_update_fifo_tws(ctl);
         disk_seq_trace(ctl, "write-done");
     }
 }
@@ -877,9 +1049,20 @@ static void disk_output_b(void *ctx, int task, int subtask,
             if (ctl->tag_tw) ctl->tag_tw_clears++;
             ctl->tag_tw = 0;
         }
+        if (data & DORADO_DISK_MUFF_CLEAR_COMPARE_ERR) {
+            ctl->compare_err = 0;
+            disk_check_trace(ctl, "clr-cmp", 0);
+        }
+        if (data & DORADO_DISK_MUFF_SET_CHECKSUM_ERR) {
+            ctl->read_data_err = 1;
+            disk_check_trace(ctl, "set-rderr", 0);
+        }
         if (data & DORADO_DISK_MUFF_CLEAR_ERRORS) {
-            ctl->rd_fifo_tw = 0;
-            ctl->wr_fifo_tw = 0;
+            ctl->compare_err = 0;
+            ctl->read_data_err = 0;
+            ctl->fifo_underflow = 0;
+            ctl->fifo_overflow = 0;
+            disk_check_trace(ctl, "clr-errs", 0);
         }
         break;
 
@@ -890,12 +1073,15 @@ static void disk_output_b(void *ctx, int task, int subtask,
         if (ctl->write_stream_active) {
             disk_write_stream_word(ctl, data);
             ctl->fifo_writes++;
-            ctl->wr_fifo_tw = 1;   /* committed synchronously -> room remains */
+            disk_update_fifo_tws(ctl);
         } else if (ctl->fifo_count < DORADO_DISK_FIFO_WORDS) {
             ctl->fifo[ctl->fifo_head] = data;
             ctl->fifo_head = (ctl->fifo_head + 1) % DORADO_DISK_FIFO_WORDS;
             ctl->fifo_count++;
             ctl->fifo_writes++;
+            disk_update_fifo_tws(ctl);
+        } else {
+            ctl->fifo_overflow = 1;
         }
         break;
 
@@ -1025,6 +1211,7 @@ static void disk_output_b(void *ctx, int task, int subtask,
                 }
                 if (bus & (1u << 6)) {
                     /* Read — populate FIFO from current sector. */
+                    ctl->read_block_framing = 0;
                     if (disk_begin_read_stream(ctl)) {
                         ctl->active = 1;
                         ctl->read_stream_tag_starts++;
@@ -1041,10 +1228,18 @@ static void disk_output_b(void *ctx, int task, int subtask,
                     if (wd->pack && !wd->read_only && !wd->pack->read_only) {
                         ctl->write_stream_active = 1;
                         ctl->write_stream_index = 0;
+                        ctl->current_block = 0;
+                        ctl->current_block_op = DORADO_DISK_OP_WRITE;
+                        ctl->current_block_words =
+                            disk_drive_header_words(wd) +
+                            disk_drive_label_words(wd) +
+                            disk_drive_data_words(wd);
+                        ctl->current_block_pos = 0;
+                        ctl->current_block_trailer = 0;
                         ctl->fifo_count = ctl->fifo_head = ctl->fifo_tail = 0;
                     }
-                    ctl->wr_fifo_tw = 1;
                     ctl->active = 1;
+                    disk_update_fifo_tws(ctl);
                     disk_seq_trace(ctl, "write-start");
                 }
                 if (!(bus & (1u << 1))) {
@@ -1068,30 +1263,19 @@ static int disk_muffler_bit(dorado_disk_controller *ctl, uint8_t addr)
     case 001: return ctl->index_tw;
     case 002: return ctl->sector_tw;
     case 003: return ctl->tag_tw;
-    case 004:
-        if (!ctl->rd_fifo_tw && !ctl->active && ctl->enable_run &&
-            ctl->xfer_pending &&
-            disk_control_has_transfer_op(ctl->control) &&
-            disk_drive_has_media(d)) {
-            if (disk_begin_read_stream(ctl)) {
-                ctl->active = 1;
-                ctl->xfer_pending = 0;
-                ctl->read_stream_muff_starts++;
-            }
-        }
-        return ctl->rd_fifo_tw;
+    case 004: return ctl->rd_fifo_tw;
     case 005: return ctl->wr_fifo_tw;
     case 010: return ctl->enable_run;
     case 011: return ctl->debug_mode;
     case 012:
         return !(ctl->active &&
-                 disk_control_has_op(ctl->control, DORADO_DISK_OP_READ));
+                 ctl->current_block_op == DORADO_DISK_OP_READ);
     case 013:
         return !(ctl->active &&
-                 disk_control_has_op(ctl->control, DORADO_DISK_OP_WRITE));
+                 ctl->current_block_op == DORADO_DISK_OP_WRITE);
     case 014:
         return !(ctl->active &&
-                 disk_control_has_op(ctl->control, DORADO_DISK_OP_RDCHK));
+                 ctl->current_block_op == DORADO_DISK_OP_RDCHK);
     case 015: return ctl->active;
     case 016: return ctl->selected_drive & 1;
     case 017: return (ctl->selected_drive >> 1) & 1;
@@ -1109,9 +1293,16 @@ static int disk_muffler_bit(dorado_disk_controller *ctl, uint8_t addr)
     case 023: return !d->selected;
     case 024: return !d->online;
     case 025: return d->seek_in_progress || !d->online;
+    case 027: return ctl->fifo_underflow;
+    case 030: return ctl->fifo_overflow;
+    case 031: return ctl->read_data_err;
     case 032: return d->read_only;
     case 036:
-    case 037: return 0;
+        return d->head_overflow || d->read_only || ctl->fifo_underflow ||
+               ctl->fifo_overflow || ctl->read_data_err;
+    case 037:
+        return d->head_overflow || ctl->fifo_underflow ||
+               ctl->fifo_overflow || ctl->read_data_err;
     default: return 0;
     }
 }
@@ -1137,10 +1328,15 @@ static uint16_t disk_input(void *ctx, int task, int subtask,
             ctl->fifo_count--;
             ctl->fifo_reads++;
             dorado_disk_controller_refill_fifo(ctl);
+            disk_update_fifo_tws(ctl);
             ctl->last_input_data = v;
+            disk_check_trace(ctl, "data-in", v);
             return v;
         }
+        ctl->fifo_underflow = 1;
+        disk_update_fifo_tws(ctl);
         ctl->last_input_data = 0xFFFF;
+        disk_check_trace(ctl, "underflow", 0xFFFF);
         return 0xFFFF;
 
     case DORADO_DISK_TIOA_DISKMUFF: {
