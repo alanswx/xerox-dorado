@@ -4351,7 +4351,8 @@ memory_ref_done: ;
      * Print IR = (op<<8)|alpha so it diffs directly against the salto trace. */
     if (cpu->altoac_pending) {
         cpu->altoac_pending = 0;
-        fprintf(stderr, "ALTOAC IR=%06o set=%u AC=%06o,%06o,%06o,%06o\n",
+        fprintf(stderr, "ALTOAC cyc=%llu IR=%06o set=%u AC=%06o,%06o,%06o,%06o\n",
+                (unsigned long long)dorado_trace_cycle,
                 ((unsigned)cpu->altoac_op << 8) | cpu->altoac_alpha,
                 cpu->altoac_insset,
                 cpu->STK[1] & 0177777, cpu->STK[2] & 0177777,
