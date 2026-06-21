@@ -268,6 +268,24 @@ tested against `make run-cedar` (28465 px) as well as the Alto disk boot. The
 decisive bring-up check is to re-run the `DORADO_MEMDUMP_AT=0` diff and confirm
 the 10 KBLK/KCB words match salto.
 
+#### Confirmed: a memory patch can't fix it -- the muffler must (`202c5e8`)
+
+Experiment: at the loader entry, `dorado_poke_va` the 10 divergent words to
+salto's values (one-shot). The render stayed blank. Reason: the `AltoLoop` runs
+once per sector and re-stores the disk status into `VM 522` (and command
+completion rewrites `VM 521`) from our mufflers, so a one-shot patch is
+overwritten within a sector. This proves the fix has to be in the muffler /
+status generation that `AMapHdwStatus` reads, not in memory. (`dorado_poke_va`
+-- the coherent storage+cache poke, counterpart to `dorado_visible_word_at_va`
+-- is kept as a cross-check primitive; the one-shot experiment block was
+removed.)
+
+Concretely, the idle `VM 522` status differs as: salto `007410` = sector 0,
+done(17B), bit-12 "no data transferred"; ours `017400` = sector 1, done, no
+bit-12. So the muffler work is: (a) the idle/no-transfer status bit, and (b) the
+hardware sector field reported when idle. Both feed `AMapHdwStatus`. Verify any
+change with the `DORADO_MEMDUMP_AT=0` diff (10 words -> 0) AND `make run-cedar`.
+
 ---
 
 **Original plan (2026-06-20). Researched against AEmu / AltoDiabloDisk.mc +
