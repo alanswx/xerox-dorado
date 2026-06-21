@@ -486,6 +486,9 @@ int      dorado_cache_lookup(const dorado_memory *mem, uint32_t va,
 uint16_t dorado_visible_word_at_va(const dorado_memory *mem, uint32_t va);
 uint16_t dorado_storage_at_va(const dorado_memory *mem, uint32_t va);
 
+/* Coherent debug poke (storage + cache); diagnostic only, not the datapath. */
+void     dorado_poke_va(dorado_memory *mem, uint32_t va, uint16_t value);
+
 /* dorado_storage_store_at_va() is the write counterpart of
  * dorado_storage_at_va(): it translates VA via the Map, writes `val`
  * into backing storage, and invalidates any stale cache line holding
