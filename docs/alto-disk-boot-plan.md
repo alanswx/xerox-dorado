@@ -228,6 +228,46 @@ command is reported complete) and/or the KCB status words the AltoDiabloDisk
 microcode writes, so they match a real Diablo. It is disk-controller work, not
 CPU work.
 
+#### Pinned to the disk STATUS MUFFLERS (loader-entry memory diff)
+
+A `DORADO_MEMDUMP_AT=0` diff (memory at the very first booted opcode, before the
+loader runs) shows **exactly 10 differing words**, and per the `AltoDiabloDisk.mc`
+header they are all disk control state:
+
+```
+KBLK (VM 521-524):  521 = KCB pointer        salto=1       ours=0
+                    522 = status this sector  salto=007410  ours=017400
+KCB  (VM 431-436):  432-436 = ending status / cmd / block ptrs (boot KCB; stale
+                    after boot)
+                    430 = RTC value (used only for the KWait timeout)
+                    604-605 = (salto 000400/000001, ours 0/0)
+```
+
+`M[062]` and `M[002]` MATCH at opcode 0 -- they are downstream corruption.
+
+Decoding `VM 522` (disk status; format in `AltoDiabloDisk.mc`: bits0-3 sector,
+4-7 = 17B done, 8 seekFail, 9 seekProg, 10 notReady, 11 dataLate,
+12 noDataXfer, 13 checksumErr, 14-15 completionCode):
+- salto `007410` = sector 0, done, **bit 12 (no data transferred)** set.
+- ours `017400`  = sector **1**, done, bit 12 clear.
+
+The `AltoLoop` runs once per sector and stores this status word (built by
+`AMapHdwStatus` reading the controller mufflers) into `VM 522` every sector, and
+`ACmmdEnd2`/`AForgetCmmd` set `VM 521` (the KCB chain pointer). So our
+**disk status mufflers** report different bits than a real Diablo/Trident
+controller (different sector field, missing the idle "no data transferred"
+bit), the AEmu microcode faithfully writes those into KBLK, and the running OS
+reads divergent disk state -- which eventually corrupts `M[062]` and stalls the
+render.
+
+So the remaining fix is **disk status-muffler accuracy** (the D4/F5 muffler
+bits `AMapHdwStatus` consumes: the idle/no-data-transferred bit and the
+hardware sector field), NOT the CPU and NOT the boot-AC path. This muffler code
+is shared with the working Cedar disk path, so any change must be regression-
+tested against `make run-cedar` (28465 px) as well as the Alto disk boot. The
+decisive bring-up check is to re-run the `DORADO_MEMDUMP_AT=0` diff and confirm
+the 10 KBLK/KCB words match salto.
+
 ---
 
 **Original plan (2026-06-20). Researched against AEmu / AltoDiabloDisk.mc +
