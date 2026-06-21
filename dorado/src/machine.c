@@ -136,7 +136,6 @@ struct dorado_machine {
     int      pilot_timer_started;
     uint64_t next_pilot_timer_cycle;
     uint64_t next_cedar_field_cycle; /* next display vertical-field notify */
-    uint64_t next_alto_field_cycle;  /* next Alto-disk keyboard refresh */
 };
 
 static uint16_t machine_disk_dmux_read(uint16_t addr, int *handled, void *ctx)
