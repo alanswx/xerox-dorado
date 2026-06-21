@@ -197,6 +197,37 @@ hypotheses:
 (The `SALTO_MEMW` hook lives in the gitignored `AltoInfo/salto/`; re-add it to
 `write_mem()` if the salto tree is rebuilt.)
 
+#### Root cause (full-memory diff, `33ce69d`): the disk subsystem, not the CPU
+
+`DORADO_MEMDUMP_AT=<n>` (ours) and the matching salto hook dump `M[0..0o2000]`
+at booted-opcode index `n` (counted from `IR=000345`) for a direct diff. At
+BOTH opcode 1000 and 11000 only **~10 words differ**, and they are all in the
+**disk control region**: `M[432..436]` (the DiskBoot KCB status block),
+`M[522..523]` (KBLK), plus `M[002]`, `M[604..605]`. `M[062]` itself MATCHES (=0)
+at opcode 1000 and 11000 -- it only diverges by 11452 as a downstream effect.
+So the AC/IR match through 11453 is real and the CPU/microengine is not at
+fault; the divergence is entirely in the disk subsystem.
+
+Tracing the writers of the divergent words (`SALTO_MEMW=<octal>` vs
+`DORADO_STORE_TRACE_VA`) shows the mechanism:
+- In **salto**, low-memory disk data and control words are written by **program
+  stores** (disk reads run synchronously as Alto microcode, attributed to
+  program PCs) -- there is no separate disk task.
+- In **ours**, the same words are written by the **async DSK task DMA**
+  (task 14, `pc=0o3310/0o3323`) at cyc 79-80 M, interleaved with the program.
+  For `M[062]` the DMA writes the correct `020324` but at cyc 80700899, ~193 K
+  cycles AFTER the program reads it (cyc 80507368) -- the program reads stale
+  memory.
+
+So the booted Alto program's disk-driven control flow diverges because our
+asynchronous DSK-task DMA + KCB status do not present the same
+data-before-status ordering / KCB convention that salto's synchronous Diablo
+read does. This is the **D2 completion frontier**: the fix is in the disk read
+completion handshake (guarantee the block DMA lands in memory before the
+command is reported complete) and/or the KCB status words the AltoDiabloDisk
+microcode writes, so they match a real Diablo. It is disk-controller work, not
+CPU work.
+
 ---
 
 **Original plan (2026-06-20). Researched against AEmu / AltoDiabloDisk.mc +
