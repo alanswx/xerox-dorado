@@ -286,6 +286,37 @@ bit-12. So the muffler work is: (a) the idle/no-transfer status bit, and (b) the
 hardware sector field reported when idle. Both feed `AMapHdwStatus`. Verify any
 change with the `DORADO_MEMDUMP_AT=0` diff (10 words -> 0) AND `make run-cedar`.
 
+#### Update: the muffler is NOT a heuristic; the I/O page was a real gap (`e383c84`)
+
+Investigating "is the status muffler a heuristic to fix per hardware?": no. The
+mufflers (`disk_muffler_bit`) are modeled from `AltoDiabloDisk.mc`/the HM; the
+only shim (case 021 head_overflow) is gated to the Cedar PDI path and does not
+touch the Alto disk boot. So the muffler was the wrong target.
+
+A full 64K `DORADO_MEMDUMP_AT=0` diff found the actual hardware gap: our AEmu
+maps the Alto address space 1:1 onto Dorado VM and left the **Alto I/O page
+(177000-177777)** as zeroed RAM. A real Alto reads it as memory-mapped I/O:
+undecoded addresses return `177777` (IOB floats high), so the active-low input
+words UTILIN (177030-3) and keyboard (177034-7) read "nothing pressed", and the
+per-task bank registers (177740-757) read `bank|177760` = `177760` for bank 0.
+Ours read 0 = "everything pressed" / bank 15. Fixed by initializing the I/O
+page at DiskBoot (gated to the Alto disk path). This cut the loader-entry diff
+from 512 words to 14 and is hardware-grounded -- but it did NOT move the actual
+boot divergence.
+
+So the I/O page was a genuine but separate fidelity fix. The **boot still
+diverges at the same point**: booted opcode 11452, `IR=025412` = `LDA 1, AC3+0o12`
+-> `M[062]`; salto reads `020324`, ours reads `0`. `M[062]` is disk-loaded data:
+our async DSK-task DMA writes `020324` to it at cyc 80700899, ~193K cycles AFTER
+the program reads it at cyc 80507368. The remaining 14 differing words are the
+disk-control state (KBLK/KCB) + EIA/MEAR registers the Dorado AEmu has no
+hardware for. So the true root is the **disk read completion / DMA timing**
+(the D2 frontier): the booted OS reads disk-loaded memory before our
+asynchronous DSK DMA has delivered it, whereas salto's synchronous Diablo read
+has the data in place. That is the next fix -- the read-completion handshake
+must guarantee data-before-status, and it is shared with the Cedar path so it
+must be regression-tested against `make run-cedar`.
+
 ---
 
 **Original plan (2026-06-20). Researched against AEmu / AltoDiabloDisk.mc +
