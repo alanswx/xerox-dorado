@@ -19,6 +19,23 @@ wire model (not just the receiver) is the lead.
 > remains real: the EFTP boot relies on instant tx-completion (loader alternates
 > tx/rx), so any deferral must be gated hard on Galaxian + the boot.
 
+> **2026-06-23 — first gated tx-wire piece landed (`DORADO_ETH_WIRE`, default
+> OFF).** A faithful transmit model: when EOT sets TxEOP we hold `tx_eop` set
+> (suppressing the EOT "sent" wakeup) and finish the packet in
+> `dorado_ethernet_wakeup_mask()` only after **carrier-sense deferral** (no tx
+> while a receive is in progress: `rx_on && rx_pos < rx_count`) plus per-word
+> wire time (`DORADO_ETH_TX_TICKS_PER_WORD`, 170/word == the rx drain rate).
+> A/B vs ContrAlto on Invaders: OutDone now posts **9112 cycles** after the game
+> arms the EPLOC wait (was 537 instant), pushing the opcode match **2091 -> 2130**.
+> Boot-safe and gate-clean: default OFF is byte-identical (Galaxian 121602,
+> NetExec 1484, `make test` 12/12); ON keeps both booting (Galaxian 121600,
+> NetExec 1491). **Still ~7x short of CA's ~68000-cycle (4.1 ms) delay** because
+> the *receiver* drains the fake rx queue in ~7000 cycles where the real wire
+> takes ~60000+. Closing the rest is exactly the receiver wire model below: the
+> carrier must stay busy for the incoming packet's true wire time, not until the
+> fake FIFO is read. So the tx scaffold is in place; the receiver is the
+> remaining work.
+
 The earlier framing (kept for history): we paused because fresh cross-validation
 proved the no-render Alto games (MissileCommand etc.) are blocked by an
 **emulator bug, not the ethernet** — see

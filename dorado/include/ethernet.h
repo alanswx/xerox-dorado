@@ -76,6 +76,18 @@ typedef struct dorado_ethernet {
                            * words drain past at wire speed. Counted in
                            * wakeup-poll ticks, set by the discard. */
 
+    /* Faithful transmit wire model (DORADO_ETH_WIRE, default OFF). When
+     * EOT sets TxEOP, instead of completing the packet instantly we hold
+     * tx_eop set (which suppresses the EOT "packet sent" wakeup) until the
+     * transmit actually finishes: the controller defers while a receive is
+     * in progress (carrier sense -- it cannot transmit while a packet is on
+     * the wire), then takes wire time proportional to the packet length.
+     * Only when the timer expires do we complete the packet and clear
+     * tx_eop, waking EOT to post OutDone. Models why ContrAlto's OutDone is
+     * delayed ~ms where the fake's is instant. */
+    uint8_t  tx_pending;   /* 1 = a TxEOP packet is awaiting wire completion */
+    uint32_t tx_wire_timer;/* wakeup-poll ticks remaining once the wire is free */
+
     uint16_t control_last[16];
     uint64_t control_writes[16];
     uint64_t data_writes;

@@ -180,6 +180,10 @@ Tracing (env vars, mostly gated by `DORADO_TRACE_GATE="lo,hi"` cycle window):
 - `DORADO_BR_TRACE`, `DORADO_MAP_TRACE`+`DORADO_MAP_TRACE_INDEX`, `DORADO_FAULT_TRACE=all`,
   `DORADO_ETH_TX_TRACE`, `DORADO_PIPEVA_TRACE` — base registers / map / faults / ether / pipe.
 - `DORADO_STORAGE_MODULES=1..4` — model 4MW..16MW of real memory (affects the map config).
+- `DORADO_ETH_WIRE=1` — faithful transmit wire model (default OFF): defer EOT's
+  OutDone post by carrier-sense (no tx while receiving) + per-word wire time,
+  instead of completing transmits instantly. A/B scaffold for the faithful
+  receiver (`docs/ethernet-faithful-receiver.md`); boot-safe but partial.
 
 `make test` runs the unit suites; the regression "gate" the bring-up keeps
 green is: `make test` (10/10) + AEmu NETEXEC ≈ 1476–1505 px + Galaxian 121553 px
