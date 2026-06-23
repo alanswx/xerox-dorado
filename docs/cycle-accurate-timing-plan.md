@@ -233,6 +233,29 @@ First probe of the device cadences:
   knobs and tune them watching M[3016]'s first-divergence index move later,
   driven from a snapshot of the running game.
 
+### Phase 2 seed hypothesis + metric reframe (2026-06-23)
+
+Pinned down where the M[3016] seed lives. The AEmu field interrupt
+(ENDOFFIELD/EVENFIELD) is posted by the **microcode counting scanlines in the
+display list**, not by C — so the scanline *cadence* can't move the seed (the
+microcode counts scanlines, not cycles), only the oscillation rate downstream.
+The seed (write #1: ours runs the interrupt handler one extra time, clearing
+M[3016]=0 while the mainline is still depositing the 2616 dispatch) is the
+**phase of the first field interrupt relative to the game's interrupt-enable**,
+governed by *when* `display_active` (DASTART at VM 0o420 nonzero, machine.c:2209)
+first turns the display task on. A real Alto's field fires at a fixed 60Hz
+regardless of display-list install; ours gates it to display-list-installed, so
+the first one lands at a different phase. **Candidate next experiment:** phase
+the first scanline wakeup to a field boundary after `display_active` turns on
+(or hold the field interrupt one field), and watch M[3016] write #1.
+
+**Metric reframe (per this doc's own caveat).** Write #1 is likely the
+"harmless phase slip"; the real crash is the **cumulative oscillation**. The
+right success metric is therefore ours' M[3016] write *sequence* converging to
+ContrAlto's settled 2616 (CA ~1800 writes vs ours ~24-34k). The scanline
+cadence already cuts that ~20% — a genuine step. The holistic fix stacks this
+with the scheduler latency + field-phase fixes until the oscillation collapses.
+
 ### Phase 0 — Tooling (do this first)
 
 1. **Repair `tracepcdiff.sh`.** It depends on a removed `DORADO_TRACEPC`/
