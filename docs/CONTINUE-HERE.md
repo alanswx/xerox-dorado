@@ -1,5 +1,23 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## ===> MOST CURRENT (2026-06-23): the major fix is CYCLE-ACCURATE TIMING
+
+Most Alto games crash and the disk boot never draws an Exec. Root cause (proven
+five ways): **cumulative timing/state divergence** — the device + scheduler
+cadences are approximate constants co-tuned to pass the boot, not physically
+accurate. Two incremental fixes were tried and ruled out by experiment (memory
+Hold = moot; wakeup cadence = desyncs the boot). The fix is a **holistic
+cycle-accurate timing model**.
+
+**Read first:** [`docs/cycle-accurate-timing-plan.md`](cycle-accurate-timing-plan.md)
+(the full plan + strategy + quick-start) and
+[`docs/fidelity-audit.md`](fidelity-audit.md) (the audit + the two ruled-out
+experiments). Work-in-progress on branch **`fidelity-timing`** (Hold model +
+audit committed; all gates green). The boot bring-up notes below are still valid
+history.
+
+---
+
 ## ROUTE B (2026-06-20): germ-netboot/DoInLoad WORKS — full boot-file transfer + loaded world runs
 
 The old "frontier is EFTP seq 1 / the CompactVM allocator" notes below are
