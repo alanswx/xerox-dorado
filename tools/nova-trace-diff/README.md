@@ -27,16 +27,33 @@ bug. Sampling per-address sidesteps global alignment.
 the first divergent write (ours value + PC vs CA value + global seq).
 `novadis.py` is a minimal Nova/Alto disassembler to decode the writer.
 
-`tracepcdiff.sh [max-instructions]` runs the same binary in both emulators and
-compares the executed Alto/Nova PC transition stream. Dorado emits IFU byte
-opcodes (`DORADO_TRACEPC=<max>`); ContrAlto emits full Nova words
-(`CA_TRACEPC=<max>`), so the script compares PCs and prints opcodes only as
-context.
+`tracepcdiff.sh [max-opcodes] [boot-file] [dorado-cycles]` runs the same
+binary in both emulators and compares the executed Alto opcode stream — both
+**PC and the four ACs** — finding the first PC mismatch (control-flow
+divergence) or, while PCs still agree, the first AC mismatch (a precise
+behavioral fault at a matching instruction). Plumbing:
+
+- **Ours:** `DORADO_IFUDISP_TRACE=1` emits one `IFUDISP …` line per opcode
+  dispatch (`cpu.c`). `pcf=` is a byte cursor → word PC = `pcf>>1`; `acs=` is
+  `STK[StkP+0..3]` = AC0..3 (Start.mc keeps AC0-3 in Stack[1..4]). The script
+  streams stderr through `grep -m MAX` so Dorado is SIGPIPE'd once it has MAX
+  opcodes (AEmu's first opcode dispatches ~100M+ cycles in, so the default
+  cycle ceiling is high).
+- **ContrAlto:** `CA_TRACEPC=<max>` emits `CATRACEPC <seq> <pc-oct> <bus-oct>
+  cyc=… acs=r3,r2,r1,r0` (`EmulatorTask.cs`). Field 2 is the word PC; the ACs
+  are reversed to AC0..3 for comparison.
+
+The two emulators boot the image differently, so their streams start
+misaligned (the "harmless phase slip"). The script **auto-aligns** by sliding
+ours 0..127 to best-match CA's PC stream over the first 50 opcodes (override
+with `SKIP_OURS=`/`SKIP_CA=`). `AC_PERM` retunes the Stack↔AC mapping or
+`AC_PERM=skip` diffs PCs only.
 
 ## Usage
 
     ./tracediff.sh 3016          # diff writes to Alto word 0o3016
-    ./tracepcdiff.sh 20000       # find first divergent executed PC
+    ./tracepcdiff.sh 5000        # diff first 5000 executed opcodes (PC + ACs)
+    ./tracepcdiff.sh 5000 ../../chm/bootfiles/Invaders.boot!1   # another world
 
 Requires: built `dorado/build/dorado`; ContrAlto headless harness at
 `AltoInfo/contralto-headless` (gitignored) with the `CA_TRACEW` patch and

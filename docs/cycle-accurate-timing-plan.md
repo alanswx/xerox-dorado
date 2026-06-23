@@ -167,7 +167,18 @@ with the now-known-correct cadences.
     (the 6502's memory-callback target) was only set at create/reset, so
     running one machine drove another's BaseBoard — now re-pointed at the top
     of `dorado_machine_run_until`. Galaxian still 121553, all 12 suites green.
-- **[TODO] tracepcdiff.sh repair + AC diff (steps 1-2).** Not started.
+- **[DONE] tracepcdiff.sh repair + AC diff (steps 1-2).** Repointed from the
+  removed `DORADO_TRACEPC`/`DTRACEPC` to the present `DORADO_IFUDISP_TRACE`
+  (`pcf` byte cursor → word PC = `pcf>>1`, vs ContrAlto `CATRACEPC` field 2) and
+  added per-opcode **AC diffing** (ours `acs=STK[StkP+0..3]` = AC0..3 vs CA
+  `acs=r3,r2,r1,r0` reversed; default mapping verified correct). The two boot
+  paths start misaligned, so the script **auto-aligns** the boot-phase slip
+  (slide ours 0..127 to best-match CA's PC stream; `SKIP_OURS`/`SKIP_CA`/
+  `AC_PERM` override). First real result: on MissileCommand the PCs align and
+  the **first AC divergence is at the first aligned opcode** — ours carries
+  leftover boot ACs (AC1=056623, AC2=121045) where ContrAlto is clean 0
+  (the cold-AC clear is gated to the disk-boot path, not the ether games — a
+  candidate MC contributor). Tool + plumbing: `tools/nova-trace-diff/`.
 
 ### Phase 0 — Tooling (do this first)
 
