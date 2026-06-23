@@ -293,6 +293,11 @@ typedef struct {
     uint8_t  task_tioa[16];
     uint16_t task_md[16];
     uint8_t  task_md_valid[16];
+    uint64_t task_md_ready[16]; /* cpu->cycles at which this task's pending
+                                 * fetch's Md becomes consumable. The engine
+                                 * Holds (jumps to self, yielding to higher-
+                                 * priority tasks) if the task reads Md before
+                                 * this cycle. HM §5 pp.41-42. */
     uint8_t  task_alu_zero[16];
     uint8_t  task_alu_lt0[16];
     uint8_t  task_alu_carry[16];

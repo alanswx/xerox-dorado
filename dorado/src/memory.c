@@ -1027,6 +1027,8 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
     case DM_REF_IFETCH:
     case DM_REF_LONGFETCH: {
         int way;
+        mem->last_ref_latency = 3;   /* cache-hit / noref default; the miss
+                                      * path below overrides to 16 / 24. */
         if (dorado_mcr_noref(mem)) {
             way = dorado_mcr_usemcrv(mem) ? dorado_mcr_victim(mem)
                                           : cache_pick_victim(mem, va);
@@ -1045,6 +1047,11 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
             f = va_translate(mem, va, /*is_write=*/0, &phys);
             if (f == DM_FAULT_NONE) {
                 int victim = cache_pick_victim(mem, va);
+                /* A dirty victim adds the write-back time (HM Table 15:
+                 * t24 dirty-miss vs t16 clean-miss). Check before the
+                 * write-back clears the dirty flag. */
+                mem->last_ref_latency =
+                    mem->cache[va_cache_row(va)].ways[victim].dirty ? 24 : 16;
                 {
                     uint32_t victim_va =
                         cache_line_va_base(mem, va_cache_row(va), victim);

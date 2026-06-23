@@ -286,6 +286,11 @@ typedef struct dorado_memory {
     uint16_t          last_ref_b;
     uint8_t           last_ref_task;
     uint8_t           last_ref_subtask;
+    int               last_ref_latency;  /* Md-ready latency of the last fetch:
+                                          * 3 cache-hit / 16 clean-miss / 24
+                                          * dirty-victim miss (HM Table 15,
+                                          * docs/memory-architecture.md). Read
+                                          * by the engine Hold model. */
 
     /* Mar register — the most recent reference's VA. Used by
      * `ReadMap` (FA=0 FB=3 FC=1) to address the Map for read-back

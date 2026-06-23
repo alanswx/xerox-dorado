@@ -1790,6 +1790,20 @@ static int ref_kind_loads_md(dorado_ref_kind kind)
            kind == DM_REF_LONGFETCH;
 }
 
+/* Does this microinstruction consume Md? The Memory Section asserts Hold
+ * when microcode reads Md before the fetch has landed, so the engine needs
+ * to know which µinstrs touch Md to decide whether to Hold:
+ *   - A bus  = Md  (ASEL=2, HM Table 8)
+ *   - B bus  = Md  (BSEL=0, HM Table 7)
+ *   - LC routes Md to T/RM/STK (LC 2,3,4,5 = T<-Md / RM<-Md, HM Table 10) */
+static int uinstr_reads_md(const dorado_uinstr *u)
+{
+    if (u->asel == 2) return 1;
+    if (u->bsel == 0) return 1;
+    if (u->lc >= 2 && u->lc <= 5) return 1;
+    return 0;
+}
+
 static const char *ref_kind_name(dorado_ref_kind kind)
 {
     switch (kind) {
@@ -1897,6 +1911,10 @@ static void latch_task_md_from_memory(dorado_cpu *cpu)
         int task = cpu->ctask & 0xF;
         cpu->task_md[task] = cpu->mem->md;
         cpu->task_md_valid[task] = 1;
+        /* Md value is computed atomically, but the engine may not *consume*
+         * it until the fetch latency has elapsed (Hold model). */
+        cpu->task_md_ready[task] =
+            cpu->cycles + (uint64_t)cpu->mem->last_ref_latency;
     }
 }
 
@@ -3500,6 +3518,27 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
     dorado_mem_trace_pcx = cpu->ifu_pcx;
     dorado_mem_trace_br31 = cpu->mem ? (int)dorado_br_get(cpu->mem, 31) : 0;
     dorado_mem_trace_op = ((int)cpu->ifu_opcode << 8) | cpu->ifu_alpha;
+
+    /* Memory Hold (HM §5 pp.41-42; docs/memory-architecture.md). If this
+     * microinstruction consumes Md before the fetch's latency has elapsed,
+     * the Memory Section freezes the engine: convert the instruction to a
+     * jump-to-self this cycle, let a higher-priority task run, and re-run it
+     * when this task is next selected. Boot microcode runs with mcr.disHold
+     * and is unaffected. Gated by DORADO_HOLD during bring-up so the default
+     * path is byte-for-byte unchanged until validated. */
+    {
+        static int hold_enabled = -1;
+        if (hold_enabled < 0) hold_enabled = getenv("DORADO_HOLD") ? 1 : 0;
+        if (hold_enabled && from_im && cpu->mem &&
+            !dorado_mcr_dishold(cpu->mem) && uinstr_reads_md(u) &&
+            (uint64_t)cpu->cycles < cpu->task_md_ready[cpu->ctask & 0xF]) {
+            cpu->real_PC = task_schedule(cpu, cpu->real_PC, 0);
+            cpu->cycles++;
+            if (cpu->baseboard && cpu->baseboard_cycles_per_uop > 0)
+                baseboard_run(cpu->baseboard, cpu->baseboard_cycles_per_uop);
+            return 0;
+        }
+    }
 
     /* BBT dump (env DORADO_BBT_TRACE): at AEmu BitBltA (real 0o13124)
      * the BitBlt-table pointer is AC2 = STK[StkP+2]; dump the table
