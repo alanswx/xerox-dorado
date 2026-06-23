@@ -2938,7 +2938,8 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                         "len=%u alpha=%03o beta=%03o flt=%d n=%d "
                         "insset=%u rh=%06o lh=%06o vec=0o%o "
                         "pc_after=0o%o stkp=%03o "
-                        "acs=%06o,%06o,%06o,%06o\n",
+                        "acs=%06o,%06o,%06o,%06o "
+                        "aacs=%06o,%06o,%06o,%06o\n",
                         cpu->real_PC, cpu->ifu_pcf,
                         cpu->mem ? dorado_br_get(cpu->mem, 31) : 0,
                         opcode, length, cpu->ifu_alpha, cpu->ifu_beta,
@@ -2948,7 +2949,11 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                         cpu->STK[cpu->StkP & 0xFF],
                         cpu->STK[(cpu->StkP + 1) & 0xFF],
                         cpu->STK[(cpu->StkP + 2) & 0xFF],
-                        cpu->STK[(cpu->StkP + 3) & 0xFF]);
+                        cpu->STK[(cpu->StkP + 3) & 0xFF],
+                        /* aacs: the FIXED Alto AC window AC0..3 = STK[1..4]
+                         * (Start.mc). The StkP-relative acs above is wrong
+                         * for comparison once StkP moves off 1. */
+                        cpu->STK[1], cpu->STK[2], cpu->STK[3], cpu->STK[4]);
             }
             /* Defer a cycle-aligned per-opcode AC dump to after apply_lc()
              * (the writeback that finishes the opcode whose IFUJump this is). */
