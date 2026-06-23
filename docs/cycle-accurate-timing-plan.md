@@ -283,9 +283,16 @@ completions (network games) and an early-opcode AC/memory divergence (Invaders)
 (scanline reducing the MC oscillation) is real but secondary.
 
 **Next, by game class:**
-- Non-network (Invaders/AstroRoids): drive the per-opcode `altodiff-dorado`
-  harness (built for exactly this) to find which opcode/memory read produces
-  6126/6373; that is the cleanest, cadence-free target.
+- Non-network (Invaders/AstroRoids): the cleanest, cadence-free target is an
+  **IFU double-dispatch** -- ours runs the second Alto opcode (Alto word 1, IR
+  `0o100000` = COM 0,0) twice, re-dispatching the same pc instead of advancing,
+  while ContrAlto runs it once. (The earlier "6126/6373" was two `tracepcdiff`
+  tool artifacts -- StkP-relative AC window + PC-namespace misalignment -- both
+  fixed; the tool now aligns on the Alto instruction word and the fixed AC window
+  STK[1..4], lag-aware. See CONTINUE-HERE for the trace.) Suspect an IFU-cursor
+  restore after an interrupt/wakeup. `altodiff-dorado` won't show it (it is a
+  dispatch-sequence bug, not a single-opcode result) -- instrument the IFU
+  dispatch / PCF path.
 - Network (MC): the ethernet faithful receiver (`docs/ethernet-faithful-receiver.md`).
 
 ### Phase 0 — Tooling (do this first)

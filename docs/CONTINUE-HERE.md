@@ -44,13 +44,28 @@ tooling and used it to characterize the crashes — which **changed the diagnosi
 detail and the per-game next targets. The original holistic-cadence plan + the
 two ruled-out experiments are still in [`docs/fidelity-audit.md`](fidelity-audit.md).
 
-**Next bug to chase (cleanest target): Invaders' `6126/6373` early-AC divergence.**
-It is non-network and cadence-free. Use the per-opcode `altodiff-dorado` harness
-(`dorado/src/altodiff_dorado.c`, built to `build/altodiff-dorado`) and/or a
-memory-read trace to find which opcode/Alto-memory read yields `6126/6373` where
-ContrAlto has `0/1`. Likely connected to the README's prior
-"layout-sensitive uninitialized-read" note (`tools/nova-trace-diff/README.md`):
-ours keeping state the real Alto leaves zero.
+**Next bug to chase (cleanest target): Invaders DOUBLE-DISPATCHES an early Alto
+opcode.** (The earlier "`6126/6373` AC divergence" was two `tracepcdiff` *tool*
+artifacts -- a StkP-relative AC window and a PC-namespace misalignment -- both
+now fixed; the tool aligns on the Alto instruction word (IR) and the fixed AC
+window STK[1..4], lag-aware.) The real, lag-free finding from
+`tracepcdiff.sh 5000 chm/bootfiles/Invaders.boot!1`:
+
+```
+0: ours ir=0o22574  pc=0  | CA ir=0o22574  pc=3   (match)
+1: ours ir=0o100000 pc=1  | CA ir=0o100000 pc=4   (match)
+2: ours ir=0o100000 pc=1  | CA ir=0o40437  pc=5   <-- ours re-runs pc=1
+```
+
+ours executes the opcode at Alto word 1 (IR `0o100000` = COM 0,0) **twice** --
+runs it once (AC0 -> 177777), then **re-dispatches the same pc instead of
+advancing to pc=2**, where ContrAlto moves on. `pc_after=0o4` is computed
+correctly in both, so something resets the IFU byte cursor back after the first
+execution -- suspect an **IFU-cursor restore after an interrupt/wakeup**, or the
+AEmu opcode-dispatch re-entering. Non-network, cadence-free. Trace it: per-opcode
+`altodiff-dorado` won't show it (it's a dispatch-sequence bug, not a single-opcode
+result), so instrument the IFU dispatch / PCF restore around the first few Alto
+opcodes (DORADO_IFUDISP_TRACE + the reschedule/IFUJump paths in cpu.c).
 
 ---
 
