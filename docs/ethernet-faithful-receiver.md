@@ -1,5 +1,30 @@
 # Faithful Dorado Ethernet Receiver — pick-up notes
 
+> **2026-06-23 (render-path investigation) — confirms: the render path is fine;
+> broken games diverge in EXECUTION before they build a display list.**
+> - The C rasterizer works: Galaxian (renders) has a valid DCB
+>   (`nwrds=20 slc=195` -> 390 lines x 20 words, 121602 px). Invaders (blank,
+>   163 px) has a degenerate list (`nwrds=0`, 6 DCBs all pointing at one bitmap)
+>   -- it never set up a real display because it diverged early.
+> - Correction to the OutDone-delay number: ContrAlto exits the EPLOC spin at
+>   ~opcode **2130 (~13 iterations** after it starts at 2089), NOT 733/4.1ms --
+>   that earlier figure counted a LATER frame's reuse of the same 723/724/725
+>   loop. So CA's OutDone arrives ~13 spin iterations after the transmit.
+> - With the wire model ON, ours now spins in **lockstep with ContrAlto through
+>   all ~13 iterations** (match 2091->2130) -- the timing approach is right. But
+>   then ours **drops the game's OutDone entirely** (it posts during boot, last
+>   at cyc 55M; the ~76M game transmit gets none), so ours hangs in the spin.
+>   Root: EOT/EIT task contention. OFF completes the tx synchronously inside the
+>   EOT's own task invocation (posts OutDone, but too early); the wire model
+>   defers completion, the EIT (receive) takes over in the gap, and when the
+>   wire timer finally clears tx_eop the EOT never gets its "sent" wakeup to run
+>   EPOST. So neither OFF (too early) nor ON (dropped) matches CA's "post at
+>   ~2130", and BOTH leave Invaders blank -- consistent with the px probe.
+> - Net: matching CA's OutDone needs modeling the AEmu EOT's Block/resume across
+>   the delayed TxGone wakeup so EPOST survives concurrent EIT activity. That is
+>   AEmu-microcode-level timing work -- and the px probe already showed it has no
+>   proven rendering payoff. Treat the wire model as scaffolding, not a fix.
+
 Status: **paused again (2026-06-23, later)** — a gated wire model landed and an
 A/B probe settled the priority question: **finishing the ethernet does NOT fix
 game rendering.** With `DORADO_ETH_WIRE` ON vs OFF, every broken game renders
