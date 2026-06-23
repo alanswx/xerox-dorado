@@ -69,3 +69,4 @@ CedarDisk/*.pdi
 # Generated Diablo-on-Trident packs (dsk2trident output; large binaries)
 AltoDisks/
 chm/diskpacks/*.pack
+tools/nova-trace-diff/ca-cache/
