@@ -85,20 +85,35 @@ IR streams match for **2091 contiguous opcodes**, then diverge at #2091:
 2091: ours IR=0o106415  |  CA IR=0o776 (JMP .-2)  <-- ours exits the loop, CA spins
 ```
 
-This is a **3-instruction spin-wait loop** (LDA / MOV#0,0,SNR / JMP .-2) polling
-a memory flag at `M[@AC2+255]`: ours read it nonzero and exited; ContrAlto reads
-it zero and keeps spinning. That flag is updated **asynchronously** (interrupt /
-device), so opcode-count alignment between the two emulators **naturally breaks
-at the first interrupt-dependent wait** -- this is the expected horizon of
-opcode-by-opcode diffing, not necessarily a bug. ours' Invaders is still broken
-(163 px), so whether ours releases this loop too early (a cadence error) vs CA
-is the real next question, but proving it needs coarser (frame-boundary /
-architectural-state) comparison past the wait, not more opcode diffing.
+This is a **3-instruction spin-wait loop** (`723: LDA 0,0o255(PC)` / `MOV#0,0,SNR`
+/ `JMP .-2`) polling Alto location **`0o600` = EPLOC** (the standard Alto Ethernet
+**Post Location**). The game/loader transmitted a Pup and is waiting for the
+Ethernet to post a completion. ours' EOT task (task 6, microcode `EPOST`) posts
+**OutDone (`0o777`)** to EPLOC ~32us after the game arms the wait; ContrAlto
+spins **~4.1ms** (733 iterations) before OutDone. So **the divergence is
+Ethernet, not "non-network"** -- the prior framing was wrong.
 
-**Next: characterize the spin-loop flag** -- what location `M[@AC2+255]` resolves
-to, what writes it (vertical-field handler? RTC? keyboard?), and whether ours
-sets it earlier than the field-interrupt cadence should. That ties back to the
-cycle-accurate-timing plan's core (interrupt-vs-mainline cadence).
+**Root cause (chased this session, NOT yet fixed):** ours **completes transmits
+instantly**. `eth_tx_packet_done` (`src/ethernet.c`) fires synchronously the
+moment EOT sets TxEOP -- no wire time and, crucially, **no transmitter deferral
+while the receiver is busy**. At the transmit point `rx_on=1` and a **9896-word
+receive is in progress** (`ETH_WAKE rx=.../9896`); a real 3 Mb/s controller
+cannot transmit until the wire is free, so OutDone is delayed milliseconds.
+Per-word wire time alone (~70us for the 13-word packet at 5.4us/word) is far
+short of CA's 4.1ms -- the gap is the **tx-defer-while-receiving** wire
+interaction. This is the same root as MissileCommand (see
+[`mc-bug-is-emulator-not-ethernet`] and [`docs/ethernet-faithful-receiver.md`],
+which Invaders now confirms is a game-blocker, not just a fidelity nicety).
+
+**Why no patch shipped:** a simple per-word tx wire-time delay (~70us) does NOT
+match CA (~4.1ms) and would not release the loop at the right time; the correct
+fix is transmitter deferral during active receive + wire timing, which lives in
+the faithful-receiver/wire-model work and risks desyncing the EFTP boot (the
+loader alternates tx/rx and relies on the current instant-completion). That is
+an architectural change to make deliberately, gated hard on Galaxian + boot, not
+a quick incremental patch. **Next:** build the faithful tx/rx wire model
+(`docs/ethernet-faithful-receiver.md`) so EOT's OutDone post is gated on the
+wire being free; validate Invaders' spin then matches CA's ~733 iterations.
 
 ---
 

@@ -1,12 +1,30 @@
 # Faithful Dorado Ethernet Receiver — pick-up notes
 
-Status: **paused** (2026-06-19). One gate-safe piece landed; the full
-receiver is scoped but not built. We paused because fresh cross-validation
+Status: **paused** (2026-06-19); **re-prioritized 2026-06-23** — now has a
+concrete game-blocker behind it (Invaders), so the **transmitter** side of the
+wire model (not just the receiver) is the lead.
+
+> **2026-06-23 update — Invaders IS blocked by the ethernet tx timing.**
+> `tracepcdiff` (after the AEmuReschedule tool fix) shows Invaders matches
+> ContrAlto for 2091 opcodes, then diverges where the game polls **EPLOC
+> (`0o600`)** for an Ethernet **OutDone** completion. ours' EOT task posts
+> OutDone ~32us after the transmit; ContrAlto spins ~4.1ms (733 iterations).
+> ours **completes transmits instantly** (`eth_tx_packet_done` is synchronous on
+> TxEOP) with **no transmitter deferral while the receiver is busy** -- and at
+> the transmit point a 9896-word receive is in progress, so a real controller
+> would defer for milliseconds. Per-word wire time (~70us for 13 words) does NOT
+> explain the 4.1ms gap; the missing piece is **tx-defer-while-receiving**. So
+> the faithful wire model DOES unblock at least one game; the earlier "does not
+> unblock the games" note (below) was based on MissileCommand alone. The risk
+> remains real: the EFTP boot relies on instant tx-completion (loader alternates
+> tx/rx), so any deferral must be gated hard on Galaxian + the boot.
+
+The earlier framing (kept for history): we paused because fresh cross-validation
 proved the no-render Alto games (MissileCommand etc.) are blocked by an
 **emulator bug, not the ethernet** — see
 `memory/mc-bug-is-emulator-not-ethernet.md` and
 `docs/alto-game-compatibility.md`. This receiver is a real fidelity
-improvement but does **not** unblock the games, so it is lower priority.
+improvement; per the 2026-06-23 update it now also has a confirmed game-blocker.
 
 ## Why build it
 
