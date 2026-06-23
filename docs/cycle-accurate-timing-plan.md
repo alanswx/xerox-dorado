@@ -1,5 +1,11 @@
 # Cycle-Accurate Timing — the major fix for "most games crash"
 
+> **For the scoped, estimated, go/no-go version of this work, read
+> [`docs/timing-project-scope.md`](timing-project-scope.md) first** (2026-06-23).
+> It defines the end state, proves the work is finite (4 cadences, not infinite
+> whack-a-mole), phases it (~2–4 wks with a 1-week go/no-go), and folds in the
+> render-path + ethernet findings. This file remains the detailed working log.
+
 Continuation / planning document. **Date: 2026-06-23.**
 Read this together with [`docs/fidelity-audit.md`](fidelity-audit.md) (the full
 audit + the two ruled-out experiments) and
