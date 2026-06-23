@@ -180,6 +180,32 @@ with the now-known-correct cadences.
   (the cold-AC clear is gated to the disk-boot path, not the ether games — a
   candidate MC contributor). Tool + plumbing: `tools/nova-trace-diff/`.
 
+### Phase 1 status (2026-06-23) — first divergence localized + one layer peeled
+
+Ran the repaired `tracepcdiff` on **Invaders** (the recommended simple,
+non-network game) and **MissileCommand**. Both show the **identical first
+divergence**: with the boot-phase slip auto-aligned, the PCs match (3,4,5,6,7)
+but ours carries the AEmu's leftover Stack ACs (AC1=056623, AC2=121045) at the
+loaded program's first opcode where ContrAlto cold-boots clean 0 — an
+**initial-state bug, not a cadence one**.
+
+**Fixed:** extended the salto-verified cold-Alto init (clear Stack[1..4],
+Alto I/O page = 177777, bank regs = 177760) from the disk-boot vector
+(DiskBoot 0o2005) to the ether-boot vector (EBoot 0o2006), gated to
+`alto_ether_boot` so Cedar is untouched (`machine.c`). The tracediff's first
+divergence now moves from opcode #0 to opcode #1 (the residual opcode-#1 AC
+delta is partly the known one-opcode lag in IFUDISP's dispatch-time AC
+snapshot — cpu.h documents it; sharper AC diffing should use `DORADO_ALTOAC_TRACE`).
+
+**Caveat — necessary but not sufficient.** Pixel counts are unchanged
+(Invaders/AstroRoids 163, Galaxian 121553, Boggs 274967, MC 491264): this
+peeled one cascade layer, it did not un-crash the games (consistent with the
+"MC bug is a multi-layer timing cascade" finding). Next: keep walking the
+tracediff later (switch to the `ALTOAC` trace for lag-free AC comparison),
+correlate the next divergence with its I/O event, and proceed to the Phase 2
+device/scheduler cadences — all from a **snapshot** of the running game so the
+boot isn't re-run.
+
 ### Phase 0 — Tooling (do this first)
 
 1. **Repair `tracepcdiff.sh`.** It depends on a removed `DORADO_TRACEPC`/

@@ -1452,11 +1452,18 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
          * inherit the AEmu's leftover ACs. A real Alto disk-boots cold (AC=0);
          * verified against the salto reference Alto, whose loader runs with
          * AC=0 -- clearing them here makes the first 11453 booted opcodes match
-         * salto exactly (vs diverging at opcode 5 without it). One-shot, gated
-         * to the AEmu disk-boot path: DiskBoot (AEmu.mb!2 real 0o2005) is only
-         * reached for a disk boot, never for the ether games (EBoot) or Cedar. */
-        if (is_imfetch && cpu->ctask == 0 && pre_pc == 02005 &&
-            !m->alto_cold_ac_done) {
+         * salto exactly (vs diverging at opcode 5 without it). One-shot.
+         *
+         * Fires at BOTH AEmu boot vectors (AEmu.mb!2 real addrs): DiskBoot
+         * (0o2005) for a disk boot, and EBoot (0o2006) for the Stage-2 ether
+         * games. The ether path needs the identical cold-Alto state: a
+         * tracepcdiff vs ContrAlto (tools/nova-trace-diff) shows both Invaders
+         * and MissileCommand otherwise inherit the AEmu's leftover Stack ACs
+         * (AC1=056623, AC2=121045) at the loaded program's first opcode where
+         * ContrAlto cold-boots clean 0. EBoot is gated to alto_ether_boot so
+         * Cedar's germ path (different microcode at 0o2006) is untouched. */
+        if (is_imfetch && cpu->ctask == 0 && !m->alto_cold_ac_done &&
+            (pre_pc == 02005 || (pre_pc == 02006 && m->alto_ether_boot))) {
             cpu->STK[1] = cpu->STK[2] = cpu->STK[3] = cpu->STK[4] = 0;
             /* Initialize the Alto I/O page (177000-177777) to the hardware
              * floating-bus default 177777. On a real Alto these addresses are
