@@ -88,6 +88,14 @@ typedef struct dorado_ethernet {
     uint8_t  tx_pending;   /* 1 = a TxEOP packet is awaiting wire completion */
     uint32_t tx_wire_timer;/* wakeup-poll ticks remaining once the wire is free */
 
+    /* Faithful receive wire pacing (DORADO_ETH_WIRE). ContrAlto fills its rx
+     * FIFO one word per 5.4 us and the AEmu EIT microcode reads one word per
+     * wakeup then Blocks, so we pace EIT wakeups: after each delivered word we
+     * hold the next EIT wakeup off for one word's wire time. Without this the
+     * fake hands the whole prequeued reply to the world in a few us, where the
+     * real wire takes words*5.4 us -- the gap that lets games race ahead. */
+    uint32_t rx_wire_timer;/* ticks until the next rx word may be delivered */
+
     uint16_t control_last[16];
     uint64_t control_writes[16];
     uint64_t data_writes;

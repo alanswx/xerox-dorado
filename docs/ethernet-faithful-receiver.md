@@ -36,6 +36,46 @@ wire model (not just the receiver) is the lead.
 > fake FIFO is read. So the tx scaffold is in place; the receiver is the
 > remaining work.
 
+> **2026-06-23 — how ContrAlto models the wire (read this before copying it).**
+> ContrAlto (`ContraltoLib/IO/EthernetController.cs` + `Scheduler.cs`) drives all
+> device timing from a **discrete-event scheduler**: a priority queue of `Event`s
+> keyed by absolute nsec; `Schedule(e)` sets `e.TimestampNsec += now` (callers
+> pass a relative delay), and `Clock()` (per emulated cycle) fires every event
+> whose deadline has passed. The two ethernet delays are scheduled events:
+> - **Transmit** -- `EndTransmission()` schedules `OutputFifoCallback`
+>   `_fifoTransmitDuration = 87075 nsec` ahead (~87 us to clock 16 words at
+>   3 Mb/s). On firing it clears OBUSY and wakes the Ethernet task ("OUTGONE
+>   post wakeup"); the microcode then posts OutDone. **No carrier sense / no
+>   collision** -- the code comments say so; tx fires its fixed 87 us regardless
+>   of the receiver.
+> - **Receive** -- `InitializeReceiver()` schedules `InputHandler` every
+>   `_inputPollPeriod = 5400 nsec` (~5.4 us = one word at 3 Mb/s); each firing
+>   stuffs ONE word into the 16-deep FIFO, wakes the task at >=2 buffered words,
+>   and re-schedules itself until the packet drains. A whole-packet host thread
+>   enqueues packets (cap 32); the scheduler-paced `InputHandler` is the only
+>   thing that fills the FIFO, so a packet occupies words*5.4 us of timeline.
+>
+> **Our port (2026-06-23, `DORADO_ETH_WIRE`, default OFF), now faithful:**
+> - tx: fixed wire time (`tx_count * 170` ticks, ~5.4 us/word == ContrAlto's
+>   87 us/16 words), NOT carrier-sense (the earlier carrier-sense version was
+>   removed -- it isn't what ContrAlto does and it deadlocked against the paced
+>   receiver: the carrier never freed during a long receive and the microcode
+>   timed out and cleared TxOn, dropping the packet).
+> - rx: pace EIT wakeups at one delivered word per 170 ticks (`rx_wire_timer`),
+>   so the world can't drain the prequeued reply faster than ~3 Mb/s -- our fake
+>   used to hand the whole queue over in a few us.
+>
+> A/B vs ContrAlto: gate-clean (default OFF byte-identical: Galaxian 121602,
+> `make test` 12/12) and boot-safe ON (**Galaxian ON = 121553, exactly the
+> documented gate value**; NetExec in band). Invaders' opcode match extends
+> **2091 -> 2130**. It does NOT yet reach ContrAlto's ~733-iteration (4.1 ms)
+> EPLOC wait, and we found why: in ContrAlto the OUTGONE post is delayed not by
+> the 87 us tx time but by **tx/rx task contention** -- the single Ethernet task
+> is busy in the receive loop, so it doesn't run the OutGone handler (which posts
+> OutDone) until it yields from the in-progress receive. Reproducing that needs
+> modeling the ethernet task's tx-vs-rx mutual exclusion, not just per-word wire
+> time. That is the remaining receiver work.
+
 The earlier framing (kept for history): we paused because fresh cross-validation
 proved the no-render Alto games (MissileCommand etc.) are blocked by an
 **emulator bug, not the ethernet** — see
