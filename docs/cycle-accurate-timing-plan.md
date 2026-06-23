@@ -283,16 +283,23 @@ completions (network games) and an early-opcode AC/memory divergence (Invaders)
 (scanline reducing the MC oscillation) is real but secondary.
 
 **Next, by game class:**
-- Non-network (Invaders/AstroRoids): the cleanest, cadence-free target is an
-  **IFU double-dispatch** -- ours runs the second Alto opcode (Alto word 1, IR
-  `0o100000` = COM 0,0) twice, re-dispatching the same pc instead of advancing,
-  while ContrAlto runs it once. (The earlier "6126/6373" was two `tracepcdiff`
-  tool artifacts -- StkP-relative AC window + PC-namespace misalignment -- both
-  fixed; the tool now aligns on the Alto instruction word and the fixed AC window
-  STK[1..4], lag-aware. See CONTINUE-HERE for the trace.) Suspect an IFU-cursor
-  restore after an interrupt/wakeup. `altodiff-dorado` won't show it (it is a
-  dispatch-sequence bug, not a single-opcode result) -- instrument the IFU
-  dispatch / PCF path.
+- Non-network (Invaders/AstroRoids): **the "IFU double-dispatch" was a 3rd tool
+  artifact, not a bug** (2026-06-23 latest). The extra dispatch is the AEmu
+  `Reschedule` trap (`AEmuReschedule`) -- a Dorado mechanism with no plain-Alto
+  equivalent -- diverting a successful IFUJump to the reschedule vector; the
+  held-back opcode is re-dispatched (and executed exactly once) afterward, but
+  `tracepcdiff` was counting the trapped IFUJump as an executed opcode. Fixed:
+  `cpu.c` IFUDISP trace prints `rtrap=%d`, the tool skips `rtrap=1` records, and
+  the CA AC-order reversal bug is fixed (CA's `R[3..0]` is already AC0..3). With
+  that, **Invaders' IR stream is identical to ContrAlto for 2091 opcodes**, then
+  diverges at #2091 on a **3-instr spin-wait loop** (`LDA / MOV#0,0,SNR / JMP .-2`)
+  polling a memory flag at `M[@AC2+255]`: ours exits, CA still spins. That flag is
+  set asynchronously (interrupt/device), so opcode-count alignment breaks here by
+  construction -- the natural horizon of opcode-by-opcode diffing. Next: identify
+  what writes that flag and whether ours releases the loop earlier than the
+  field-interrupt cadence allows (ties back to this plan's cadence core). Going
+  past the wait needs coarser (frame-boundary / architectural-state) comparison,
+  not more opcode diffing. See CONTINUE-HERE for the full trace.
 - Network (MC): the ethernet faithful receiver (`docs/ethernet-faithful-receiver.md`).
 
 ### Phase 0 — Tooling (do this first)

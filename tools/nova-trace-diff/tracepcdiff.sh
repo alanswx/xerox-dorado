@@ -28,12 +28,26 @@ BF="${2:-/Users/alans/Documents/development/Dorado/chm/bootfiles/MissileCommand.
 # opcodes it needs, so we don't trace all the way to the ceiling.
 CYCLES="${3:-220000000}"
 
-# AC permutation: ours prints STK[StkP+0..3]; CA prints r3,r2,r1,r0 (i.e.
-# AC3,AC2,AC1,AC0). AC_PERM maps ours[0..3] -> index into CA's REVERSED
-# list [r0,r1,r2,r3]=AC0..3. Default identity (ours[i] == AC i). Tune once
-# the data shows the real Stack<->AC correspondence; "skip" disables the
-# AC check and only diffs PCs.
-AC_PERM="${AC_PERM:-0,1,2,3}"
+# AC comparison. ours' aacs = STK[1..4] = AC0,AC1,AC2,AC3 (Start.mc). CA
+# prints acs=R[3],R[2],R[1],R[0]; in the Alto the ACs map to R in REVERSE
+# (AC0=R[3], AC1=R[2], AC2=R[1], AC3=R[0]), so CA's printed list is ALREADY
+# AC0,AC1,AC2,AC3 -- do NOT reverse it (an earlier version did, which made
+# the AC check compare ours and CA in opposite orders and misfire). AC_PERM
+# maps ours[0..3] -> index into CA's AC0..3 list; identity is correct.
+#
+# The AC check is ADVISORY and defaults to "skip" (IR-only). Exact AC
+# equality is unreliable for two reasons that do NOT indicate a bug:
+#   (1) Writeback lag -- ours snapshots at IFUJump dispatch (before the
+#       previous opcode's apply_lc writeback), CA at IR<- time, so ours'
+#       AC values lag CA's by ~1 opcode (handled here by matching ca[i] OR
+#       ca[i-1], lag-tolerant).
+#   (2) PC-namespace offset -- ours' PC is a byte cursor relative to BR[31];
+#       CA's is absolute. ACs that hold PC-relative addresses therefore
+#       differ by the boot-phase slip constant even when execution agrees.
+# The IR (executed-instruction-word) stream is the trustworthy divergence
+# signal: a real behavioral fault shows up as a control-flow (IR) divergence
+# via a skip/branch. Set AC_PERM=0,1,2,3 to enable the advisory AC check.
+AC_PERM="${AC_PERM:-skip}"
 
 echo "Dorado: IFUDISP trace (up to $MAX opcodes, $CYCLES-cycle ceiling), $BF" >&2
 cd "$DOR"
@@ -83,6 +97,13 @@ def load_ours(path):
        StkP-relative acs= is wrong once StkP moves off 1."""
     rows = []
     for line in open(path):
+        # rtrap=1 marks an IFUJump diverted to AEmuReschedule: the held-back
+        # opcode is re-dispatched on the NEXT record, not executed here. A
+        # plain Alto (ContrAlto) has no such trap, so skip it — counting it
+        # would falsely report a duplicate opcode in the stream.
+        m_rt = re.search(r'rtrap=([01])', line)
+        if m_rt and m_rt.group(1) == '1':
+            continue
         m_pcf = re.search(r'pcf=0o([0-7]+)', line)
         m_aacs = re.search(r'aacs=([0-7,]+)', line)
         m_acs  = re.search(r'\bacs=([0-7,]+)', line)
@@ -99,9 +120,11 @@ def load_ours(path):
     return rows
 
 def load_ca(path):
-    """CATRACEPC <seq> <pc-oct> <bus-oct> cyc=.. acs=r3,r2,r1,r0
+    """CATRACEPC <seq> <pc-oct> <bus-oct> cyc=.. acs=R3,R2,R1,R0
        -> (ir, [AC0..3], word_pc, rawline). bus (field 3) is the executed
-       instruction word = IR; acs r3,r2,r1,r0 reversed to AC0..3."""
+       instruction word = IR. In the Alto the ACs map to R in reverse
+       (AC0=R[3] .. AC3=R[0]); CA prints acs=R[3],R[2],R[1],R[0], which is
+       therefore ALREADY AC0,AC1,AC2,AC3 -- take it as-is, do NOT reverse."""
     rows = []
     for line in open(path):
         p = line.split()
@@ -110,8 +133,8 @@ def load_ca(path):
         word_pc = int(p[2], 8)
         ir = int(p[3], 8)
         m_acs = re.search(r'acs=([0-7,]+)', line)
-        acs_rev = octs(m_acs.group(1))[::-1] if m_acs else []
-        rows.append((ir, acs_rev, word_pc, line.rstrip()))
+        acs = octs(m_acs.group(1)) if m_acs else []
+        rows.append((ir, acs, word_pc, line.rstrip()))
     return rows
 
 ours = load_ours('/tmp/td_pc_ours.seq')
@@ -181,19 +204,20 @@ for i in range(n):
         print(f"CA:   {ca[i][3]}")
         ctx(i, n)
         break
-    # AC check is lag-aware: ours' dispatch-time aacs snapshot is taken one
-    # opcode before CA's (IFUJump dispatch precedes apply_lc writeback), so
-    # ours[i] reflects the ACs CA reports at [i-AC_LAG]. AC_LAG default 1.
-    j = i - ac_lag
-    if ac_check and j >= 0 and len(ours[i][1]) >= 4 and len(ca[j][1]) >= 4:
+    # AC check (advisory) is lag-tolerant: ours' aacs snapshot lags CA's by
+    # ~1 opcode (IFUJump dispatch precedes apply_lc writeback), so accept a
+    # match against CA at the same index OR one earlier. Only flag when ours
+    # matches NEITHER -- and even then it may be a PC-namespace address
+    # offset, not a bug (see header). The IR stream is the real signal.
+    if ac_check and len(ours[i][1]) >= 4:
         o_ac = ours[i][1]
-        c_ac = ca[j][1]
-        if any(o_ac[k] != c_ac[pmap[k]] for k in range(4)):
-            print(f"\n>>> FIRST AC DIVERGENCE at ours #{i} / CA #{j} (same IR "
-                  f"{oct(ours[i][0])}) -- same instruction, different ACs "
-                  f"(emulation bug)")
+        cands = [ca[k][1] for k in (i, i - ac_lag) if k >= 0 and len(ca[k][1]) >= 4]
+        if cands and all(any(o_ac[k] != c[pmap[k]] for k in range(4)) for c in cands):
+            print(f"\n>>> AC MISMATCH at ours #{i} (same IR {oct(ours[i][0])}) "
+                  f"-- ours' ACs match CA at neither lag 0 nor {ac_lag}; "
+                  f"may be a real fault OR a PC-namespace address offset")
             print(f"ours: {ours[i][3]}")
-            print(f"CA:   {ca[j][3]}")
+            print(f"CA:   {ca[i][3]}")
             ctx(i, n)
             break
 else:

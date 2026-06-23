@@ -2939,7 +2939,7 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                         "insset=%u rh=%06o lh=%06o vec=0o%o "
                         "pc_after=0o%o stkp=%03o "
                         "acs=%06o,%06o,%06o,%06o "
-                        "aacs=%06o,%06o,%06o,%06o\n",
+                        "aacs=%06o,%06o,%06o,%06o rtrap=%d\n",
                         cpu->real_PC, cpu->ifu_pcf,
                         cpu->mem ? dorado_br_get(cpu->mem, 31) : 0,
                         opcode, length, cpu->ifu_alpha, cpu->ifu_beta,
@@ -2953,7 +2953,13 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                         /* aacs: the FIXED Alto AC window AC0..3 = STK[1..4]
                          * (Start.mc). The StkP-relative acs above is wrong
                          * for comparison once StkP moves off 1. */
-                        cpu->STK[1], cpu->STK[2], cpu->STK[3], cpu->STK[4]);
+                        cpu->STK[1], cpu->STK[2], cpu->STK[3], cpu->STK[4],
+                        /* rtrap=1: this IFUJump traps to AEmuReschedule
+                         * (the held-back opcode is re-dispatched next, not
+                         * executed here). A plain Alto has no such trap, so
+                         * differential tools must NOT count this as an
+                         * executed opcode. */
+                        resched_trap);
             }
             /* Defer a cycle-aligned per-opcode AC dump to after apply_lc()
              * (the writeback that finishes the opcode whose IFUJump this is). */

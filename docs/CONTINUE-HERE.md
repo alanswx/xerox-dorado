@@ -44,28 +44,61 @@ tooling and used it to characterize the crashes — which **changed the diagnosi
 detail and the per-game next targets. The original holistic-cadence plan + the
 two ruled-out experiments are still in [`docs/fidelity-audit.md`](fidelity-audit.md).
 
-**Next bug to chase (cleanest target): Invaders DOUBLE-DISPATCHES an early Alto
-opcode.** (The earlier "`6126/6373` AC divergence" was two `tracepcdiff` *tool*
-artifacts -- a StkP-relative AC window and a PC-namespace misalignment -- both
-now fixed; the tool aligns on the Alto instruction word (IR) and the fixed AC
-window STK[1..4], lag-aware.) The real, lag-free finding from
-`tracepcdiff.sh 5000 chm/bootfiles/Invaders.boot!1`:
+## ===> UPDATE (2026-06-23, latest): Invaders "double-dispatch" was a 3rd tool
+artifact -- Invaders is now IR-IDENTICAL to ContrAlto for 2091 opcodes
+
+Chased the "Invaders double-dispatches an early opcode" lead. It is **NOT an
+emulation bug** -- it is the AEmu **Reschedule trap** (`AEmuReschedule`), a
+Dorado mechanism a plain Alto (ContrAlto) has no equivalent of, and the
+`tracepcdiff` tool was **over-counting the trapped IFUJump** as an executed
+opcode.
+
+What actually happens at boot: `Reschedule` (FF function, microcode 0o1770)
+sets `reschedule_pending=2`. The trap fires on the 2nd successful IFUJump,
+which **diverts that dispatch to the reschedule vector (0o314) instead of the
+opcode's handler** -- so the "held-back" opcode does NOT execute there; it is
+re-dispatched (and executed exactly once) on the next IFUJump after
+`AEmuReschedule` restores PCF via `T<-NOT(PCX')`. The IFUDISP trace fired on
+the trapped IFUJump too, so the tool saw IR `0o100000` "twice". Skipping the
+trapped record, ours' IR stream is `0o22574, 0o100000, 0o40437, ...` -- exactly
+ContrAlto's.
+
+**Fixes (this session, gates green):**
+- `cpu.c` IFUDISP trace now prints `rtrap=%d` (1 = this IFUJump traps to
+  AEmuReschedule; the dispatched opcode is re-run next, not executed here).
+- `tracepcdiff.sh` skips `rtrap=1` records (they are not executed opcodes).
+- `tracepcdiff.sh` AC bug fixed: ContrAlto emits `acs=R[3],R[2],R[1],R[0]`, and
+  the Alto maps ACs to R in reverse (AC0=R[3]..AC3=R[0]), so the printed list is
+  ALREADY AC0..3 -- the tool's old `[::-1]` reversal compared ours and CA in
+  opposite AC orders. Removed. AC check is now lag-tolerant and **advisory**
+  (default `AC_PERM=skip`, IR-only); exact AC equality is unreliable because (a)
+  ours' aacs snapshot lags CA's by ~1 opcode and (b) ACs holding PC-relative
+  addresses differ by the boot-phase namespace slip. The **IR stream is the
+  trustworthy divergence signal**.
+
+**Result:** `tracepcdiff.sh 5000 chm/bootfiles/Invaders.boot!1` now reports the
+IR streams match for **2091 contiguous opcodes**, then diverge at #2091:
 
 ```
-0: ours ir=0o22574  pc=0  | CA ir=0o22574  pc=3   (match)
-1: ours ir=0o100000 pc=1  | CA ir=0o100000 pc=4   (match)
-2: ours ir=0o100000 pc=1  | CA ir=0o40437  pc=5   <-- ours re-runs pc=1
+2089: ours/CA  IR=0o20655   (LDA 0,@255,2  -- load AC0 from a pointer)
+2090: ours/CA  IR=0o101015  (MOV# 0,0,SNR  -- skip if AC0 != 0)
+2091: ours IR=0o106415  |  CA IR=0o776 (JMP .-2)  <-- ours exits the loop, CA spins
 ```
 
-ours executes the opcode at Alto word 1 (IR `0o100000` = COM 0,0) **twice** --
-runs it once (AC0 -> 177777), then **re-dispatches the same pc instead of
-advancing to pc=2**, where ContrAlto moves on. `pc_after=0o4` is computed
-correctly in both, so something resets the IFU byte cursor back after the first
-execution -- suspect an **IFU-cursor restore after an interrupt/wakeup**, or the
-AEmu opcode-dispatch re-entering. Non-network, cadence-free. Trace it: per-opcode
-`altodiff-dorado` won't show it (it's a dispatch-sequence bug, not a single-opcode
-result), so instrument the IFU dispatch / PCF restore around the first few Alto
-opcodes (DORADO_IFUDISP_TRACE + the reschedule/IFUJump paths in cpu.c).
+This is a **3-instruction spin-wait loop** (LDA / MOV#0,0,SNR / JMP .-2) polling
+a memory flag at `M[@AC2+255]`: ours read it nonzero and exited; ContrAlto reads
+it zero and keeps spinning. That flag is updated **asynchronously** (interrupt /
+device), so opcode-count alignment between the two emulators **naturally breaks
+at the first interrupt-dependent wait** -- this is the expected horizon of
+opcode-by-opcode diffing, not necessarily a bug. ours' Invaders is still broken
+(163 px), so whether ours releases this loop too early (a cadence error) vs CA
+is the real next question, but proving it needs coarser (frame-boundary /
+architectural-state) comparison past the wait, not more opcode diffing.
+
+**Next: characterize the spin-loop flag** -- what location `M[@AC2+255]` resolves
+to, what writes it (vertical-field handler? RTC? keyboard?), and whether ours
+sets it earlier than the field-interrupt cadence should. That ties back to the
+cycle-accurate-timing plan's core (interrupt-vs-mainline cadence).
 
 ---
 
