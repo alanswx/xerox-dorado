@@ -206,6 +206,30 @@ correlate the next divergence with its I/O event, and proceed to the Phase 2
 device/scheduler cadences — all from a **snapshot** of the running game so the
 boot isn't re-run.
 
+### Phase 2 notes (2026-06-23) — scanline cadence probed; need finer measure
+
+First probe of the device cadences:
+- The post-fix memory-write `tracediff` on MissileCommand still shows the
+  documented **M[3016] write #1 divergence (ours writes 0 one extra time vs
+  CA's 2616; CA caseq ~71887)** — the "a wakeup fires one beat early" cumulative
+  fault. The cold-AC fix correctly did not touch it. M[600] diverges earlier
+  (caseq 12) but that is a leading-write alignment slip (the harmless phase
+  slip), not the root.
+- **Scanline cadence (machine.c:2221, the `+1000`) probed and pixel-neutral.**
+  Made it env-overridable and A/B'd 1000 vs the physically-accurate ~343
+  (20.6us/60ns): **identical pixels** on Galaxian/Invaders/AstroRoids/MC/Boggs.
+  The wakeup *does* fire (terminal_task=AHT for the Alto games, display.c:258),
+  so this is a real negative result, not a dead path — but the pixel proxy is
+  too coarse to see a cadence effect (as the plan itself warns). Reverted the
+  knob (no observable effect = don't ship speculative code).
+- **The Alto field/RTC heartbeat runs in the display task** (ENDOFFIELD/
+  EVENFIELD/RTCCARRY, machine.c:1912), woken via the scanline path. So the
+  M[3016] "one beat early" is a display-task-wakeup phase issue — but proving
+  which cadence moves it needs the **tracediff (M[3016] write sequence), not
+  pixels**, as the measurement. Next: re-add the scanline (and field) cadence
+  knobs and tune them watching M[3016]'s first-divergence index move later,
+  driven from a snapshot of the running game.
+
 ### Phase 0 — Tooling (do this first)
 
 1. **Repair `tracepcdiff.sh`.** It depends on a removed `DORADO_TRACEPC`/
