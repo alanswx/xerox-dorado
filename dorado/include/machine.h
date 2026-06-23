@@ -151,4 +151,36 @@ void dorado_machine_set_mouse(dorado_machine *m, int x, int y, int buttons);
  * Returns the number of lit pixels painted. */
 int dorado_machine_render_display_list(dorado_machine *m);
 
+/*
+ * Machine snapshot / restore (cycle-accurate-timing Phase 0 — the key
+ * enabler in docs/cycle-accurate-timing-plan.md). Serialize the full
+ * mutable runtime state of a running machine to `path`, then restore it
+ * into a machine *freshly created with the same config*. This lets a
+ * timing experiment resume a booted game without re-running the fragile
+ * boot, so a cadence change can be measured against ContrAlto on the
+ * running game in isolation.
+ *
+ * Captured: the control store (mc, incl. the LoadRam'd world), cpu, mem +
+ * storage, display, baseboard, and ethernet + its heap buffers, plus the
+ * machine's scalar boot/timing fields. NOT captured: disk / Pilot-PDI
+ * media state — the snapshot use case is the non-disk Alto games; a
+ * disk-backed world would need that added.
+ *
+ * Both return 0 on success, -1 on I/O or incompatibility (restore checks
+ * a magic + version + struct-size + storage-size header and refuses a
+ * mismatched image rather than corrupting memory).
+ */
+int dorado_machine_snapshot(dorado_machine *m, const char *path);
+int dorado_machine_restore(dorado_machine *m, const char *path);
+
+/*
+ * A 64-bit FNV-1a digest over the machine's core runtime state (main
+ * storage, the display framebuffer, RM/STK, the per-task registers, and
+ * the cycle/dispatch counters). Two machines with the same digest are
+ * behaviorally identical to the resolution that matters for the timing
+ * work; used to prove snapshot/restore is faithful and, later, to spot
+ * the cycle at which a restored run diverges.
+ */
+uint64_t dorado_machine_state_digest(const dorado_machine *m);
+
 #endif /* DORADO_MACHINE_H_ */

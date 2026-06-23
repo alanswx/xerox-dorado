@@ -33,6 +33,7 @@
 #include "microcode.h"
 #include "pdi.h"
 
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -1306,6 +1307,13 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
     dorado_display *disp = &m->display;
     dorado_ethernet *eth = &m->ethernet;
 
+    /* The vendored 6502 core reaches its memory callbacks through the
+     * global `baseboard_active` (set at create/reset). With snapshot/
+     * restore there can be several machines alive at once (e.g. a booted
+     * original + a restored experiment); point the 6502 at the machine
+     * we are about to step so running one never drives another's BB. */
+    baseboard_active = bb;
+
     while (bb->cycles < until_cycle && !cpu->halted) {
         /* Trace-gate cycle window (env DORADO_TRACE_GATE="lo,hi"), so the
          * standalone binary can drive the same gated IFUDISP/BR/store
@@ -2544,4 +2552,262 @@ int dorado_machine_render_display_list(dorado_machine *m)
                                         : DORADO_DISPLAY_ALTO_H;
     machine_overlay_mouse(m);
     return pixels;
+}
+
+/* ====================================================================
+ * Machine snapshot / restore (cycle-accurate-timing Phase 0).
+ *
+ * The whole machine is one by-value struct, so the snapshot is largely
+ * fwrite of each mutable sub-struct plus the heap buffers they own. The
+ * only real work is on restore: a machine freshly created with the same
+ * config has already allocated storage, loaded the static firmware, and
+ * wired every internal pointer, so restore must overlay the snapshot's
+ * POD state while *preserving* those live pointers (re-wiring would
+ * otherwise point at stale snapshot-time addresses) and reconstruct the
+ * ethernet heap buffers from their serialized contents.
+ * ==================================================================== */
+
+#define DORADO_SNAP_MAGIC   "DORADOSNAPSHOT\x01"  /* 15 chars + NUL = 16 */
+#define DORADO_SNAP_VERSION 1u
+
+typedef struct {
+    char     magic[16];
+    uint32_t version;
+    uint32_t pad;
+    uint64_t sz_mc, sz_cpu, sz_mem, sz_disp, sz_bb, sz_eth, sz_machine;
+    uint64_t storage_words;
+} dorado_snap_header;
+
+static int snap_wr(FILE *f, const void *p, size_t n)
+{
+    return (n == 0 || fwrite(p, 1, n, f) == n) ? 0 : -1;
+}
+static int snap_rd(FILE *f, void *p, size_t n)
+{
+    return (n == 0 || fread(p, 1, n, f) == n) ? 0 : -1;
+}
+
+int dorado_machine_snapshot(dorado_machine *m, const char *path)
+{
+    if (!m || !path) return -1;
+    FILE *f = fopen(path, "wb");
+    if (!f) {
+        fprintf(stderr, "dorado: snapshot: cannot open '%s'\n", path);
+        return -1;
+    }
+
+    dorado_snap_header hdr;
+    memset(&hdr, 0, sizeof hdr);
+    memcpy(hdr.magic, DORADO_SNAP_MAGIC, 16);
+    hdr.version       = DORADO_SNAP_VERSION;
+    hdr.sz_mc         = sizeof m->mc;
+    hdr.sz_cpu        = sizeof m->cpu;
+    hdr.sz_mem        = sizeof m->mem;
+    hdr.sz_disp       = sizeof m->display;
+    hdr.sz_bb         = sizeof m->bb;
+    hdr.sz_eth        = sizeof m->ethernet;
+    hdr.sz_machine    = sizeof *m;
+    hdr.storage_words = m->mem.storage_words;
+
+    int rc = 0;
+    rc |= snap_wr(f, &hdr, sizeof hdr);
+
+    /* Control store (incl. the LoadRam'd world), cpu, mem. */
+    rc |= snap_wr(f, &m->mc, sizeof m->mc);
+    rc |= snap_wr(f, &m->cpu, sizeof m->cpu);
+    rc |= snap_wr(f, &m->mem, sizeof m->mem);
+    rc |= snap_wr(f, m->mem.storage,
+                  m->mem.storage_words * sizeof m->mem.storage[0]);
+
+    /* Devices. Flush the live fake6502 globals into bb->cpu6502 first so
+     * the BaseBoard's 6502 register state is serialized with it. */
+    rc |= snap_wr(f, &m->display, sizeof m->display);
+    baseboard_cpu_flush(&m->bb);
+    rc |= snap_wr(f, &m->bb, sizeof m->bb);
+    rc |= snap_wr(f, &m->ethernet, sizeof m->ethernet);
+
+    /* Ethernet heap buffers (contents only; pointers are reconstructed). */
+    uint8_t have_eftp = (m->ethernet.eftp_words != NULL) ? 1 : 0;
+    rc |= snap_wr(f, &have_eftp, 1);
+    if (have_eftp)
+        rc |= snap_wr(f, m->ethernet.eftp_words,
+                      m->ethernet.eftp_len * sizeof m->ethernet.eftp_words[0]);
+    uint8_t have_rx = (m->ethernet.rx_words && m->ethernet.rx_attention &&
+                       m->ethernet.rx_count > 0) ? 1 : 0;
+    rc |= snap_wr(f, &have_rx, 1);
+    if (have_rx) {
+        rc |= snap_wr(f, m->ethernet.rx_words,
+                      m->ethernet.rx_count * sizeof m->ethernet.rx_words[0]);
+        rc |= snap_wr(f, m->ethernet.rx_attention,
+                      m->ethernet.rx_count * sizeof m->ethernet.rx_attention[0]);
+    }
+
+    /* The machine's contiguous POD scalar tail (boot state machine +
+     * cadence counters + pchist/germ buffers). Everything from
+     * disk_attached to the end of the struct is pointer-free. */
+    size_t tail_off = offsetof(dorado_machine, disk_attached);
+    rc |= snap_wr(f, (char *)m + tail_off, sizeof *m - tail_off);
+
+    if (fclose(f) != 0) rc = -1;
+    if (rc) fprintf(stderr, "dorado: snapshot: write error\n");
+    return rc;
+}
+
+int dorado_machine_restore(dorado_machine *m, const char *path)
+{
+    if (!m || !path) return -1;
+    FILE *f = fopen(path, "rb");
+    if (!f) {
+        fprintf(stderr, "dorado: restore: cannot open '%s'\n", path);
+        return -1;
+    }
+
+    dorado_snap_header hdr;
+    if (snap_rd(f, &hdr, sizeof hdr)) { fclose(f); return -1; }
+    if (memcmp(hdr.magic, DORADO_SNAP_MAGIC, 16) != 0 ||
+        hdr.version    != DORADO_SNAP_VERSION ||
+        hdr.sz_mc      != sizeof m->mc ||
+        hdr.sz_cpu     != sizeof m->cpu ||
+        hdr.sz_mem     != sizeof m->mem ||
+        hdr.sz_disp    != sizeof m->display ||
+        hdr.sz_bb      != sizeof m->bb ||
+        hdr.sz_eth     != sizeof m->ethernet ||
+        hdr.sz_machine != sizeof *m ||
+        hdr.storage_words != m->mem.storage_words) {
+        fprintf(stderr, "dorado: restore: incompatible snapshot "
+                "(magic/version/struct-size/storage mismatch)\n");
+        fclose(f);
+        return -1;
+    }
+
+    int rc = 0;
+
+    /* Control store — preserve the back-pointer to the mb_file. */
+    {
+        const mb_file *mb = m->mc.mb;
+        rc |= snap_rd(f, &m->mc, sizeof m->mc);
+        m->mc.mb = mb;
+    }
+
+    /* CPU — preserve the sibling/static pointers create wired. */
+    {
+        struct dorado_memory   *mem = m->cpu.mem;
+        struct dorado_baseboard *bb = m->cpu.baseboard;
+        dorado_io              *io  = m->cpu.io;
+        const dorado_microcode *mc  = m->cpu.mc;
+        void                  *tfp  = m->cpu.trace_fp;
+        rc |= snap_rd(f, &m->cpu, sizeof m->cpu);
+        m->cpu.mem       = mem;
+        m->cpu.baseboard = bb;
+        m->cpu.io        = io;
+        m->cpu.mc        = mc;
+        m->cpu.trace_fp  = tfp;
+    }
+
+    /* Memory — preserve the storage buffer + I/O callbacks, then load the
+     * storage contents into the existing (same-size) allocation. */
+    {
+        uint16_t *storage = m->mem.storage;
+        size_t    swords  = m->mem.storage_words;
+        void (*fast_io_cb)(struct dorado_memory *, dorado_ref_kind, int, int,
+                           uint32_t, uint16_t[16], void *) = m->mem.fast_io_cb;
+        void  *fast_io_ctx = m->mem.fast_io_ctx;
+        uint16_t (*dmux_cb)(uint16_t, int *, void *) = m->mem.dmux_cb;
+        void  *dmux_ctx = m->mem.dmux_ctx;
+
+        rc |= snap_rd(f, &m->mem, sizeof m->mem);
+        m->mem.storage       = storage;
+        m->mem.storage_words = swords;
+        m->mem.fast_io_cb    = fast_io_cb;
+        m->mem.fast_io_ctx   = fast_io_ctx;
+        m->mem.dmux_cb       = dmux_cb;
+        m->mem.dmux_ctx      = dmux_ctx;
+        rc |= snap_rd(f, m->mem.storage, swords * sizeof m->mem.storage[0]);
+    }
+
+    /* Display + BaseBoard — pure POD. Push the restored 6502 state into
+     * the live fake6502 globals and make this BaseBoard the owner. */
+    rc |= snap_rd(f, &m->display, sizeof m->display);
+    rc |= snap_rd(f, &m->bb, sizeof m->bb);
+    baseboard_cpu_reload(&m->bb);
+
+    /* Ethernet — reconstruct the heap buffers from serialized contents. */
+    free(m->ethernet.eftp_words);
+    free(m->ethernet.rx_words);
+    free(m->ethernet.rx_attention);
+    rc |= snap_rd(f, &m->ethernet, sizeof m->ethernet);
+    m->ethernet.eftp_words   = NULL;
+    m->ethernet.rx_words     = NULL;
+    m->ethernet.rx_attention = NULL;
+
+    uint8_t have_eftp = 0;
+    rc |= snap_rd(f, &have_eftp, 1);
+    if (have_eftp) {
+        size_t n = m->ethernet.eftp_len;
+        m->ethernet.eftp_words = malloc(n * sizeof(uint16_t) + 1);
+        if (m->ethernet.eftp_words)
+            rc |= snap_rd(f, m->ethernet.eftp_words, n * sizeof(uint16_t));
+        else
+            rc = -1;
+    }
+    uint8_t have_rx = 0;
+    rc |= snap_rd(f, &have_rx, 1);
+    if (have_rx) {
+        size_t n = m->ethernet.rx_count;
+        m->ethernet.rx_words     = malloc(n * sizeof(uint16_t) + 1);
+        m->ethernet.rx_attention = malloc(n + 1);
+        if (m->ethernet.rx_words && m->ethernet.rx_attention) {
+            rc |= snap_rd(f, m->ethernet.rx_words, n * sizeof(uint16_t));
+            rc |= snap_rd(f, m->ethernet.rx_attention, n);
+        } else {
+            rc = -1;
+        }
+    }
+
+    /* The machine's POD scalar tail, straight into the live struct. */
+    size_t tail_off = offsetof(dorado_machine, disk_attached);
+    rc |= snap_rd(f, (char *)m + tail_off, sizeof *m - tail_off);
+
+    fclose(f);
+    if (rc) fprintf(stderr, "dorado: restore: read error\n");
+    return rc;
+}
+
+static uint64_t snap_fnv1a(uint64_t h, const void *p, size_t n)
+{
+    const uint8_t *b = (const uint8_t *)p;
+    for (size_t i = 0; i < n; i++) {
+        h ^= b[i];
+        h *= 0x100000001b3ULL;
+    }
+    return h;
+}
+
+uint64_t dorado_machine_state_digest(const dorado_machine *m)
+{
+    if (!m) return 0;
+    uint64_t h = 0xcbf29ce484222325ULL;  /* FNV-1a offset basis */
+    h = snap_fnv1a(h, m->mem.storage,
+                   m->mem.storage_words * sizeof m->mem.storage[0]);
+    h = snap_fnv1a(h, m->display.fb, sizeof m->display.fb);
+    h = snap_fnv1a(h, m->cpu.RM, sizeof m->cpu.RM);
+    h = snap_fnv1a(h, m->cpu.STK, sizeof m->cpu.STK);
+    h = snap_fnv1a(h, m->cpu.task_t, sizeof m->cpu.task_t);
+    h = snap_fnv1a(h, m->cpu.task_tpc, sizeof m->cpu.task_tpc);
+    h = snap_fnv1a(h, m->cpu.task_link, sizeof m->cpu.task_link);
+
+    uint16_t regs[] = {
+        m->cpu.T, m->cpu.Q, m->cpu.Cnt, m->cpu.ShC, m->cpu.MemBase,
+        m->cpu.real_PC, m->cpu.prev_PC, m->cpu.ctask,
+        m->cpu.wakeup_pending, m->cpu.ready, m->cpu.StkP,
+    };
+    h = snap_fnv1a(h, regs, sizeof regs);
+
+    uint64_t counters[] = {
+        (uint64_t)(unsigned)m->cpu.cycles,
+        m->cpu.ifu_dispatch_count,
+        m->bb.cycles,
+    };
+    h = snap_fnv1a(h, counters, sizeof counters);
+    return h;
 }

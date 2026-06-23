@@ -141,6 +141,34 @@ change can be measured against ContrAlto on the **running game** in isolation.
 This makes Phases 1–2 incremental and fast; Phase 3 then re-establishes the boot
 with the now-known-correct cadences.
 
+### Phase 0 status (2026-06-23)
+
+- **[DONE] Machine snapshot/restore (step 3, the key enabler).**
+  `dorado_machine_snapshot(m, path)` / `dorado_machine_restore(m, path)` in
+  `machine.c` serialize the full mutable runtime state — control store (incl.
+  the LoadRam'd world), cpu, mem+storage, display, baseboard, ethernet+heap,
+  and the machine's scalar boot/timing tail — and restore it into a machine
+  freshly created with the same config (pointers re-wired, ethernet heap
+  reconstructed). Disk/PDI media state is the one omission (fine for the
+  non-disk Alto games this targets). `dorado_machine_state_digest(m)` gives a
+  64-bit FNV-1a over storage+framebuffer+registers for equivalence checks.
+  Validated by `tests/test_snapshot.c` (in `make test`): boots Galaxian,
+  snapshots at 40M, restores into a fresh machine, and proves both *restore
+  fidelity* (identical digest at the snapshot point) and *forward
+  determinism* (running both to 45M lands on the identical cycle + digest).
+  Window overridable via `DORADO_SNAP_N1`/`DORADO_SNAP_N2`.
+  - Bringing this up uncovered + fixed **two real latent bugs** that any
+    multi-machine / restore workflow would hit: (1) the vendored fake6502
+    core kept the BaseBoard's entire 6502 register file (pc/sp/a/x/y/status/
+    clockticks) in **file-scope globals**, so it was never part of bb and a
+    restore ran the 6502 from the wrong state — now mirrored into
+    `bb->cpu6502` with an owner-cache that swaps the globals in/out per
+    `baseboard_step` (`baseboard_cpu_flush`/`_reload`); (2) `baseboard_active`
+    (the 6502's memory-callback target) was only set at create/reset, so
+    running one machine drove another's BaseBoard — now re-pointed at the top
+    of `dorado_machine_run_until`. Galaxian still 121553, all 12 suites green.
+- **[TODO] tracepcdiff.sh repair + AC diff (steps 1-2).** Not started.
+
 ### Phase 0 — Tooling (do this first)
 
 1. **Repair `tracepcdiff.sh`.** It depends on a removed `DORADO_TRACEPC`/

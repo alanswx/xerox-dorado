@@ -75,6 +75,18 @@ typedef struct {
     uint16_t base_addr;
 } riot_chip;
 
+/* Snapshot of the vendored fake6502 core's register file. The core keeps
+ * its entire state in file-scope globals (one 6502 at a time), so for
+ * machine snapshot/restore — and to let several machines coexist — we
+ * mirror those globals into the owning BaseBoard struct and swap them in
+ * and out around each step (see baseboard_step / baseboard_cpu_*). */
+typedef struct {
+    uint16_t pc, oldpc, ea, reladdr, value, result;
+    uint8_t  sp, a, x, y, status, opcode, oldstatus, penaltyop, penaltyaddr,
+             callexternal;
+    uint32_t instructions, clockticks6502, clockgoal6502;
+} dorado_baseboard_cpu_state;
+
 typedef struct dorado_baseboard {
     /* Direct memory: RAM (low) + EPROM (high). I/O regions are
      * trapped via the bus dispatcher. */
@@ -145,12 +157,28 @@ typedef struct dorado_baseboard {
     /* Last reason for halt / panic, for tests to inspect. */
     int  halted;
     char halt_msg[128];
+
+    /* Authoritative copy of this BaseBoard's 6502 register state. The
+     * live fake6502 globals hold whichever BaseBoard most recently
+     * stepped (the "owner"); baseboard_step flushes the previous owner
+     * here and loads this on a switch. Snapshot/restore go through it. */
+    dorado_baseboard_cpu_state cpu6502;
 } dorado_baseboard;
 
 /* Pointer to the active baseboard. fake6502's read6502/write6502
  * callbacks dispatch through this. We can only have one active
  * BaseBoard at a time (the underlying 6502 emulator uses globals). */
 extern dorado_baseboard *baseboard_active;
+
+/* Flush the live fake6502 globals into bb->cpu6502 if bb currently owns
+ * them (a no-op otherwise). Call before reading/serializing bb's 6502
+ * state — e.g. machine snapshot. */
+void baseboard_cpu_flush(dorado_baseboard *bb);
+
+/* Push bb->cpu6502 into the live fake6502 globals and make bb the owner
+ * (flushing any previous owner first). Call after deserializing bb's
+ * 6502 state — e.g. machine restore. */
+void baseboard_cpu_reload(dorado_baseboard *bb);
 
 /* Initialize an empty BaseBoard. RAM is zeroed; EPROM regions and
  * I/O regs are unmapped until you call baseboard_load_rom. */
