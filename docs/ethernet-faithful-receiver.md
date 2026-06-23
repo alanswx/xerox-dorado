@@ -1,8 +1,20 @@
 # Faithful Dorado Ethernet Receiver — pick-up notes
 
-Status: **paused** (2026-06-19); **re-prioritized 2026-06-23** — now has a
-concrete game-blocker behind it (Invaders), so the **transmitter** side of the
-wire model (not just the receiver) is the lead.
+Status: **paused again (2026-06-23, later)** — a gated wire model landed and an
+A/B probe settled the priority question: **finishing the ethernet does NOT fix
+game rendering.** With `DORADO_ETH_WIRE` ON vs OFF, every broken game renders
+byte-identical px (Invaders 163/163, MissileCommand 491264/491264, AstroRoids
+163/163, Scavenger 603/603, Reversi 831/831). The EPLOC/OutDone divergence is a
+*symptom* (opcode-diff breaking at the first async wait), not the render blocker
+— re-confirming `mc-bug-is-emulator-not-ethernet`. Remaining ethernet work
+(matching CA's 4.1ms OutDone via tx/rx task mutual-exclusion + the real receiver
+FIFO, ~1-2 weeks) is a fidelity item with **zero proven compatibility payoff**;
+do NOT prioritize it over the render-path investigation. The gated wire model
+stays as boot-safe scaffolding (Galaxian ON = canonical 121553).
+
+(Historical re-prioritization note from earlier 2026-06-23, kept for the trail:
+"now has a concrete game-blocker behind it (Invaders), so the transmitter side
+is the lead" — superseded by the A/B probe above.)
 
 > **2026-06-23 update — Invaders IS blocked by the ethernet tx timing.**
 > `tracepcdiff` (after the AEmuReschedule tool fix) shows Invaders matches
