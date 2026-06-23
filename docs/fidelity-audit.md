@@ -246,3 +246,30 @@ effort, NOT the memory Hold.
 
 The Hold model is kept (correct, gated, a fidelity improvement and a foundation
 for any Hold-dependent microcode), but it is not the game fix.
+
+## Wakeup-cadence fix attempted — DESYNCS the boot (2026-06-23)
+
+Implemented the cycle-exact wakeup cadence behind `DORADO_WLAT`: the HM p27
+**2-cycle wakeup→execution latency** (gate wakeup eligibility by raise-cycle in
+`task_schedule`) **paired with** the HM **2-instruction TaskingOn gate**
+(`tasking_resume_delay` 2→3). Result:
+
+- Default (WLAT off): unchanged (Galaxian 121553).
+- WLAT on: Galaxian **0 px — the boot DESYNCS**, both alone and paired with
+  Hold.
+
+This confirms the deep co-tuning `cpu.c:1478` and the no-render doc describe:
+the boot is tuned to a **web** of approximate cadences (wakeup latency,
+TaskingOn gate, display scanline `+1000`, RTC/field, I/O-completion, disk,
+ethernet). Making *any subset* cycle-exact desyncs the rest — the
+wakeup-latency + TaskingOn pair alone is **not** sufficient. The WLAT
+experiment was reverted (non-working); the Hold model stays.
+
+**Conclusion (both incremental candidates now ruled out):** the memory Hold is
+moot (microcode covers the latency) and the wakeup cadence desyncs (the
+cadences are not independently changeable). The most-games-crash fix is the
+**full cycle-accurate timing model** — all device/scheduler cadences made
+consistent *simultaneously* — a large architectural project, exactly the
+independent conclusion the MissileCommand investigation reached
+(`docs/restart-alto-games-no-render.md`: "cycle-accurate emulation timing … an
+architectural project"). Incremental cadence fixes do not converge.
