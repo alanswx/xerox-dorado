@@ -215,13 +215,16 @@ First probe of the device cadences:
   fault. The cold-AC fix correctly did not touch it. M[600] diverges earlier
   (caseq 12) but that is a leading-write alignment slip (the harmless phase
   slip), not the root.
-- **Scanline cadence (machine.c:2221, the `+1000`) probed and pixel-neutral.**
-  Made it env-overridable and A/B'd 1000 vs the physically-accurate ~343
-  (20.6us/60ns): **identical pixels** on Galaxian/Invaders/AstroRoids/MC/Boggs.
-  The wakeup *does* fire (terminal_task=AHT for the Alto games, display.c:258),
-  so this is a real negative result, not a dead path — but the pixel proxy is
-  too coarse to see a cadence effect (as the plan itself warns). Reverted the
-  knob (no observable effect = don't ship speculative code).
+- **Scanline cadence (machine.c:2221) — a cumulative contributor, NOT the
+  seed fix.** Pixel-neutral, but measured against the M[3016] tracediff it has
+  a real effect: faster cadence cuts ours' M[3016] *oscillation* count
+  (`DORADO_SCANLINE_CYCLES` 1000 → 343 → 250 gives 34649 → 27875 → 24052
+  writes, toward ContrAlto's ~1800 settled — the "oscillating vs settles"
+  pathology). But the **first-divergence index stays at write #1** in every
+  case, so the scanline cadence does not fix the *seed* (the first field
+  interrupt's phase). Kept the `DORADO_SCANLINE_CYCLES` knob (default 1000,
+  gated to display_active, boot-safe) as the Phase 2 measurement instrument.
+  Lesson: measure cadences against the tracediff index, never pixels.
 - **The Alto field/RTC heartbeat runs in the display task** (ENDOFFIELD/
   EVENFIELD/RTCCARRY, machine.c:1912), woken via the scanline path. So the
   M[3016] "one beat early" is a display-task-wakeup phase issue — but proving

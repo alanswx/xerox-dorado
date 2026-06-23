@@ -2218,7 +2218,17 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                             dorado_cpu_wakeup(cpu, task);
                     }
                 }
-                m->next_display_scanline_cycle = bb->cycles + 1000;
+                /* Scanline cadence experiment knob (DORADO_SCANLINE_CYCLES,
+                 * default 1000). Gated to display_active so it touches only
+                 * the running world, not the boot. Measured against the
+                 * M[3016] tracediff, not pixels. */
+                static long scanline_cycles = -1;
+                if (scanline_cycles < 0) {
+                    const char *w = getenv("DORADO_SCANLINE_CYCLES");
+                    scanline_cycles = (w && atol(w) > 0) ? atol(w) : 1000;
+                }
+                m->next_display_scanline_cycle =
+                    bb->cycles + (uint64_t)scanline_cycles;
             }
             int dwt_subtask = 0;
             if (display_active && dorado_display_dwt_wakeup(disp, &dwt_subtask)) {
