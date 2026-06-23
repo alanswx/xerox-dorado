@@ -256,6 +256,38 @@ ContrAlto's settled 2616 (CA ~1800 writes vs ours ~24-34k). The scanline
 cadence already cuts that ~20% — a genuine step. The holistic fix stacks this
 with the scheduler latency + field-phase fixes until the oscillation collapses.
 
+### Phase 2 REFRAME (2026-06-23) — the crashers' seeds are concrete bugs, not cadence
+
+Two cheap experiments (field-phase delay, scanline cadence) failed to move the
+seed, then characterizing the seed per-game changed the picture:
+
+- **MissileCommand's M[3016] oscillation is network-specific.** Invaders (the
+  recommended non-network game) writes M[3016] exactly **once (=0), matching
+  ContrAlto** — no oscillation. So the M[3016] "one beat early" oscillation I
+  chased is a MissileCommand symptom = the **ethernet spurious InDone/OutDone
+  completions** (the deferred faithful-receiver item), not a display/scheduler
+  cadence. Neither the scanline cadence nor a one-field delay on the first field
+  interrupt moved it.
+- **Invaders' seed is an early per-opcode AC divergence, not cadence.** Clean
+  PC-only `tracepcdiff` (`AC_PERM=skip`): PCs align then ours executes PC 0o31
+  one extra time at opcode #23 — but the **ACs diverge by ~opcode #2** (ours
+  loads 6126/6373 into AC2/AC3 where CA has 0/1, recurring later), well past
+  what the one-opcode IFUDISP AC lag explains. That is a per-opcode emulation
+  or early Alto-memory-state bug.
+
+**Consequence:** the working hypothesis that "most games crash from cumulative
+*timing* divergence" is only partly right. After the cold-AC fix, the remaining
+seeds found so far are **concrete emulation/device bugs** — ethernet spurious
+completions (network games) and an early-opcode AC/memory divergence (Invaders)
+— that the display/scheduler-cadence Phase 2 would not touch. The cadence work
+(scanline reducing the MC oscillation) is real but secondary.
+
+**Next, by game class:**
+- Non-network (Invaders/AstroRoids): drive the per-opcode `altodiff-dorado`
+  harness (built for exactly this) to find which opcode/memory read produces
+  6126/6373; that is the cleanest, cadence-free target.
+- Network (MC): the ethernet faithful receiver (`docs/ethernet-faithful-receiver.md`).
+
 ### Phase 0 — Tooling (do this first)
 
 1. **Repair `tracepcdiff.sh`.** It depends on a removed `DORADO_TRACEPC`/
