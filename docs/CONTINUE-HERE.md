@@ -1,20 +1,56 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
-## ===> MOST CURRENT (2026-06-23): the major fix is CYCLE-ACCURATE TIMING
+## ===> MOST CURRENT (2026-06-23, late): tooling built + the crash seeds REFRAMED
 
-Most Alto games crash and the disk boot never draws an Exec. Root cause (proven
-five ways): **cumulative timing/state divergence** — the device + scheduler
-cadences are approximate constants co-tuned to pass the boot, not physically
-accurate. Two incremental fixes were tried and ruled out by experiment (memory
-Hold = moot; wakeup cadence = desyncs the boot). The fix is a **holistic
-cycle-accurate timing model**.
+Picking up the "most games crash" investigation, this session built the Phase 0
+tooling and used it to characterize the crashes — which **changed the diagnosis**.
+
+**What's now true (all on branch `fidelity-timing`, all gates green):**
+
+1. **Phase 0 tooling is DONE.**
+   - **Machine snapshot/restore** (`dorado_machine_snapshot`/`_restore`, `machine.c`):
+     boot a game once, snapshot the running game, restore into a fresh machine —
+     so timing experiments skip the fragile boot. Bit-identical validated by
+     `tests/test_snapshot.c` (in `make test`). Plus `dorado_machine_state_digest()`.
+   - **`tools/nova-trace-diff/tracepcdiff.sh` repaired** — diffs the executed Alto
+     opcode stream (PC + ACs) vs ContrAlto, auto-aligning the boot-phase slip.
+     Run: `tracepcdiff.sh 5000 ../../chm/bootfiles/Invaders.boot!1` (or `AC_PERM=skip`
+     for a clean PC-only diff).
+   - Two latent bugs fixed en route: the vendored 6502's register file lived in
+     file-scope globals (now mirrored into `bb->cpu6502` with an owner-cache);
+     `baseboard_active` wasn't repointed per run.
+
+2. **First divergence found and FIXED (cold-Alto init on the ether path).** The
+   ether games inherited the AEmu's leftover Stack ACs where ContrAlto cold-boots
+   clean 0. Extended the salto-verified cold-AC/IO-page init from DiskBoot (0o2005)
+   to EBoot (0o2006). Grounded, regression-safe (Galaxian still 121553).
+
+3. **THE REFRAME — the remaining crash seeds are concrete bugs, not cadence.**
+   The prior "most games crash from cumulative *timing* divergence" is only partly
+   right. Measuring the seed per game:
+   - **MissileCommand's M[3016] oscillation is network-specific** — Invaders writes
+     M[3016] once (=0), matching ContrAlto. So M[3016] = the **ethernet spurious
+     InDone/OutDone completions**, not display/scheduler cadence. Neither the
+     scanline cadence nor a one-field delay on the first field interrupt moved it.
+   - **Invaders' seed is an early per-opcode AC divergence** — a clean PC-only
+     `tracepcdiff` shows the ACs diverge by **~opcode #2** (ours loads `6126/6373`
+     into AC2/AC3 where ContrAlto has `0/1`), past what the trace's one-opcode AC
+     lag explains. A per-opcode emulation or early Alto-memory-state bug.
+   - Cadence work (scanline cadence cuts MC's M[3016] oscillation ~20%, knob
+     `DORADO_SCANLINE_CYCLES`) is real but **secondary**.
 
 **Read first:** [`docs/cycle-accurate-timing-plan.md`](cycle-accurate-timing-plan.md)
-(the full plan + strategy + quick-start) and
-[`docs/fidelity-audit.md`](fidelity-audit.md) (the audit + the two ruled-out
-experiments). Work-in-progress on branch **`fidelity-timing`** (Hold model +
-audit committed; all gates green). The boot bring-up notes below are still valid
-history.
+— the "Phase 0/1/2 status" + "Phase 2 REFRAME" sections at the top carry the full
+detail and the per-game next targets. The original holistic-cadence plan + the
+two ruled-out experiments are still in [`docs/fidelity-audit.md`](fidelity-audit.md).
+
+**Next bug to chase (cleanest target): Invaders' `6126/6373` early-AC divergence.**
+It is non-network and cadence-free. Use the per-opcode `altodiff-dorado` harness
+(`dorado/src/altodiff_dorado.c`, built to `build/altodiff-dorado`) and/or a
+memory-read trace to find which opcode/Alto-memory read yields `6126/6373` where
+ContrAlto has `0/1`. Likely connected to the README's prior
+"layout-sensitive uninitialized-read" note (`tools/nova-trace-diff/README.md`):
+ours keeping state the real Alto leaves zero.
 
 ---
 
