@@ -1,5 +1,28 @@
 # Faithful Dorado Ethernet Receiver — pick-up notes
 
+> **2026-06-23 (S1/S2 start) — the AEmu EOT does NOT model transmit wire time;
+> deferring tx-completion cannot reproduce ContrAlto's OutDone delay.** Built the
+> S1 lockstep harness (`tools/nova-trace-diff/lockstep.sh`) and confirmed every
+> simple game (Invaders, AstroRoids) diverges at the SAME point (depth 2091, the
+> EPLOC/OutDone wait) — so the ethernet completion is the forced *first* cadence.
+> Traced the EOT (Dorado task 6) microcode (`DORADO_EOT_PC_TRACE`):
+> - OFF: EOT does SendEOP, spins a short poll loop (real 0o2566/0o2533) until the
+>   (instant) completion, then runs EPOST and posts OutDone — but too early
+>   (537 cyc), so ours exits the spin ahead of CA.
+> - WIRE (hold tx_eop, complete after wire time): holding tx_eop **diverts the
+>   EOT down the EXINIT/idle path** (real 0o1253) instead of the
+>   SendEOP->poll->EPOST path; the EOT then does **EOStop (tx_on->0) before** the
+>   deferred completion can re-wake it, so the EOT wakeup (`tx_on && !tx_eop`)
+>   never fires again and OutDone is never posted (game hangs).
+> So the AEmu EOT expects the Dorado transmit to complete **synchronously** (the
+> Dorado ethernet is fast); it has no block-and-wait-for-TxGone that survives a
+> multi-us deferral. Matching ContrAlto's ~13-iteration OutDone delay therefore
+> requires changing the EOT's tx-completion **decision tree** (make it
+> block/poll across the deferral before EOStop), not just delaying the C-side
+> completion. That is microcode-level work — the hard cadence, and the forced
+> first one. The DORADO_ETH_WIRE rx-pacing + fixed-tx model stays as gated
+> scaffolding; the tx half does not help until the EOT path is addressed.
+
 > **2026-06-23 (render-path investigation) — confirms: the render path is fine;
 > broken games diverge in EXECUTION before they build a display list.**
 > - The C rasterizer works: Galaxian (renders) has a valid DCB

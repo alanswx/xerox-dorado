@@ -3530,6 +3530,19 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
     dorado_mem_trace_br31 = cpu->mem ? (int)dorado_br_get(cpu->mem, 31) : 0;
     dorado_mem_trace_op = ((int)cpu->ifu_opcode << 8) | cpu->ifu_alpha;
 
+    /* Trace the ethernet tasks' microcode PC (EOT=6, EIT=7) -- diagnostic for
+     * the EOT transmit-completion path (why a deferred completion diverts the
+     * EOT to EXINIT/idle instead of its SendEOP->poll->EPOST post path; see
+     * docs/ethernet-faithful-receiver.md). Gated by DORADO_EOT_PC_TRACE + the
+     * cycle window so it stays quiet by default. */
+    if ((cpu->ctask == 6 || cpu->ctask == 7) &&
+        dorado_trace_flag("DORADO_EOT_PC_TRACE") &&
+        (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+        fprintf(stderr, "ETPC cyc=%llu t=%o pc=0o%o\n",
+                (unsigned long long)dorado_trace_cycle, cpu->ctask,
+                cpu->real_PC & 07777);
+    }
+
     /* Memory Hold (HM §5 pp.41-42; docs/memory-architecture.md). If this
      * microinstruction consumes Md before the fetch's latency has elapsed,
      * the Memory Section freezes the engine: convert the instruction to a
