@@ -42,24 +42,34 @@ build/rundiag '../chm/dorado/expanded/kernel.dm!38_/kernel.mb' BEGIN DONE ERR
 RUNDIAG_TRAIL=1 build/rundiag ... 2>&1   # dump the last 48 PCs on a non-PASS
 ```
 
-## Baseline (2026-06-23, first run)
+## Baseline + debugging status (2026-06-23)
 
-| diagnostic     | result  | where |
-|----------------|---------|-------|
-| kernel         | FAIL    | step 79, first ALU/branch-condition sub-test (`ALUEQ0RT`), branches to ERR at 0o213 |
-| IfuComplex     | FAIL    | step 1622, `IFUEXCEPTIONERR` |
-| memA           | TIMEOUT | pc 0o2433 (no DONE/ERR in 2M steps) |
-| memMisc        | TIMEOUT | pc 0o4253 |
-| eventCounters  | FAIL    | step 674, `GENIOERR2` (general-I/O setup) |
-| Tricond        | FAIL    | step 105, `STATE.ERRS` |
+| diagnostic     | result | where | diagnosis |
+|----------------|--------|-------|-----------|
+| kernel         | FAIL @1.34M steps (was @79) | shifter test `RLSH`, pc 0o2604 | **First bug FIXED** (runner RBase 0, not 017). Next: masked field-shift (RF←/WF← ShC) path |
+| IfuComplex     | FAIL @1622 | `IFUEXCEPTIONERR` | (agent investigating) |
+| memA           | TIMEOUT | pc 0o2433 | (agent investigating) |
+| memMisc        | TIMEOUT | pc 0o4253 | (agent investigating) |
+| eventCounters  | FAIL @674 | `GENIOERR2` | General-IO/event-counter stub: `event_cnt_a` (GenIn) never tracks GenOut (loopback); counters never increment (HM §12.3). Small fix + a counting feature |
+| Tricond        | FAIL @105 | `STATE.ERRS` | (agent investigating) |
 
-These are a mix of (a) **real engine discrepancies** (the kernel ALU/branch test
-is the most fundamental — minimal setup, fails fastest — and is the first thing
-to debug), (b) **runner setup gaps** (memA/memMisc time out — the memory
-diagnostics likely need cache/map/config setup our minimal recipe doesn't do
-yet; eventCounters/Tricond need device setup), and (c) features beyond the
-current setup. Each is a concrete, Dorado-grounded validation target — and
-unlike ContrAlto, these catch Dorado-specific datapath/timing bugs.
+### kernel (in progress)
+- **Fixed:** the runner forced `RBase=017`, but the diagnostics' pre-loaded
+  registers (`R1=1, RM1=-1, R10=125252B, R01=52525B, RHIGH1=100000B`) live in
+  **RBase 0** (the .mb RM data: `RB0RM0`/`R1`/`RM1` at RM[0..]). With RBase=0 the
+  kernel runs 79 → 1,343,804 steps (clears aluEQ0/aluLT0/rEven/rGE0/bypass/ALU
+  ops). The bit-walking ALU=0 test passed before the fix only because it uses FF
+  constants, not registers.
+- **Next:** the shifter test (`Rlsh`/`RLSH*` = masked left shift of a walking bit
+  via RF←/WF← field descriptors → ShC) fails at real PC 0o2604. Suspect
+  `field_desc_to_shc` / the masked-shift (ShiftLMask) path in cpu.c.
+
+### eventCounters (diagnosed)
+General-IO subtest `GENIO`: it writes a pattern to GenOut (EventCntB) and expects
+GenIn (EventCntA) to track it (backpanel loopback). Our `event_cnt_a` is a
+write-never stub (`B←EventCntA'` always returns ~0). Fix: mirror GenOut→GenIn in
+general-IO mode (cpu.c ~927/1335). The later subtests need real per-cycle event
+counting (HM §12.3 A/B event classes) — a separate, larger feature.
 
 ## Next
 
