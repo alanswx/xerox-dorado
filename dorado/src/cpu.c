@@ -2005,7 +2005,16 @@ static uint16_t shifter_output(const dorado_cpu *cpu, const dorado_uinstr *u,
              * LDF[T,3,10] in Bootstrap. It extracts the 3-bit
              * BaseBoard dispatch from CPReg high-byte bits 5..7.
              * This .MB form feeds BigBDispatch directly, so return
-             * the already-spread even target offset. */
+             * the already-spread even target offset.
+             *
+             * KNOWN BUG (kernel diagnostic): this over-matches. The kernel's
+             * legitimate masked shifts share bsel=4/aluf=4/ff=1/lc=6/asel=7,
+             * differing only in rstk (dest), so they wrongly get this dispatch
+             * hack instead of a real shift -> kernel RLSH fails at real PC
+             * 0o2604 (run 1.34M steps). The proper fix is the HM §3.11 SHA/SHB
+             * source rule for the FF-controlled shift form (does it shift T or
+             * R?), so the normal path produces both results and this hack can
+             * be removed. See docs/running-diagnostics.md. */
             return (uint16_t)(((t >> 8) & 0x7) << 1);
         }
         sha = (u->bsel & 2) ? t : r;
@@ -2033,6 +2042,13 @@ static uint16_t shifter_output(const dorado_cpu *cpu, const dorado_uinstr *u,
      * 15..16-N). RMask: N ones at low end (bits N-1..0). */
     uint16_t lmask = lmask_n ? (uint16_t)(0xFFFF << (16 - lmask_n)) : 0;
     uint16_t rmask = rmask_n ? (uint16_t)((1u << rmask_n) - 1)      : 0;
+
+    if (dorado_trace_flag("DORADO_SHIFT_TRACE"))
+        fprintf(stderr,
+                "SHIFT pc=0o%o sha=%06o shb=%06o cnt=%d lm=%d rm=%d "
+                "aluf=%02o ffc=%d out=%06o\n",
+                cpu->real_PC, sha, shb, count, lmask_n, rmask_n,
+                u->aluf, (u->bsel & 4) ? 1 : 0, lo16);
 
     int op = (u->aluf >> 1) & 7;        /* ALUF[0:2] in BCPL = high 3 bits */
     uint16_t mask;
