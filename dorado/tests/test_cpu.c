@@ -8656,9 +8656,13 @@ static int test_ifureset_enables_junk_timer(void)
     memset(&mc, 0, sizeof mc);
     mc.alufm[0] = 025; mc.alufm_present[0] = 1;   /* B */
 
-    /* IFUReset is FA=1 FB=3 FC=6. HM p67: IFUReset is equivalent to
-     * IFUTest<-0 ("load with 0 or do IFUReset when not testing"), and
-     * with IFUTest.15 = 0 the periodic junk wakeups are ENABLED. */
+    /* IFUReset is FA=1 FB=3 FC=6. It clears the IFU pipeline but does NOT
+     * change the junk-task wakeup enable: the periodic junk wakeup is
+     * started by the program that wants it (AEmu: `LdTPC_ T, Wakeup[JNK]`
+     * then self-sustained by `AckJunkTW_` in Junk.mc). So a junk timer that
+     * was already enabled stays enabled across IFUReset; a program that
+     * never wakes the junk task leaves it disabled. (This test pre-enables
+     * it and checks IFUReset preserves that, plus the IFU-context fields.) */
     mc.im[0] = make_uinstr(0, 0, 0, 0, 6, 0, 0136, jcn_local(1));
     mc.im_present[0] = 1;
     mc.im[1] = make_uinstr(0, 0, 0, 0, 6, 0, 0077, jcn_local(1));
@@ -8711,9 +8715,9 @@ static int test_ifureset_enables_junk_timer(void)
     EXPECT(cpu.brk_opcode == 0,
            "IFUReset should clear BrkIns opcode");
     EXPECT(cpu.junk_tw_enabled == 1,
-           "IFUReset should leave the junk timer enabled (IFUTest=0)");
+           "IFUReset must preserve the junk timer enable (pre-set here)");
     EXPECT((cpu.wakeup_pending & (1u << 2)) == 0,
-           "IFUReset should dismiss the pending junk wakeup");
+           "the pending junk wakeup is consumed by the switch to task 2");
 
     printf("PASS  test_ifureset_enables_junk_timer\n");
     return 0;

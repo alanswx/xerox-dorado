@@ -1476,14 +1476,18 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                 cpu->ifu_pcf = 0;
                 cpu->brk_pending = 0;
                 cpu->brk_opcode = 0;
-                /* HM p67 IFUTest description: "load with 0 or do
-                 * IFUReset when not testing" - IFUReset clears the
-                 * test-control register, and "when IFUTest.15 is 0,
-                 * the junk wakeups occur" periodically. So IFUReset
-                 * ENABLES the 32 us junk timer (AEmu's ABoot relies
-                 * on this: its IFUReset precedes the junk task
-                 * maintaining RTClock at full rate). */
-                junk_timer_ifutest_control(cpu, 0);
+                /* IFUReset clears the IFU pipeline (HM p79) but in this
+                 * model does NOT change the junk-task wakeup enable. The
+                 * periodic junk wakeup is started explicitly by the
+                 * program that wants it: AEmu does `LdTPC_ T, Wakeup[JNK]`
+                 * then the junk task self-sustains via `AckJunkTW_ T`
+                 * (Junk.mc) — so AEmu's RTClock keeps running regardless of
+                 * IFUReset. A program that never wakes the junk task (e.g.
+                 * the memA diagnostic, whose junk handler TPC is never set)
+                 * leaves it disabled, so it does not spuriously starve the
+                 * main task. The previous code enabled the junk timer on
+                 * every IFUReset, which fired the handler-less junk task in
+                 * memA and starved task 0. */
                 return pd;
             case 7: /* BrkIns ← B (HM §4.10). Opcode ← B[0:7] and set
                      * BrkPending; the next IFU dispatch will trap to
