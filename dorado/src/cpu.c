@@ -267,9 +267,37 @@ static void task_load(dorado_cpu *cpu, int task)
  * clears Ready[ctask] and forces a switch. Returns the chosen new
  * value of `real_PC` (which the caller assigns to advance the
  * engine). */
+/* HM p27 2-cycle wakeup latency for microcode Wakeup[n]. Default on (it is
+ * the hardware behavior and is required for preemption correctness — see the
+ * kernel TaskTest diagnostic). DORADO_WAKE_IMMEDIATE reverts to the old
+ * single-cycle model for A/B timing debugging. Device wakeups
+ * (dorado_cpu_wakeup) are intentionally NOT delayed here: the boot is
+ * co-tuned to their current cadence, and correcting those is separate
+ * (the cycle-accurate-timing project), not this fix. */
+static int wake_immediate(void)
+{
+    static int cached = -1;
+    if (cached < 0) cached = getenv("DORADO_WAKE_IMMEDIATE") ? 1 : 0;
+    return cached;
+}
+
 static uint16_t task_schedule(dorado_cpu *cpu, uint16_t next_pc,
                               int block_in_non_emulator)
 {
+    /* Promote the staged microcode wakeups one step down the 2-stage pipe
+     * before this instruction's scheduling decision. A Wakeup[n] set in the
+     * current instruction lands in pipe[0]; it reaches wakeup_pending only
+     * after this shift runs on the NEXT instruction, so the woken task's
+     * first instruction is 2 cycles after the Wakeup (HM p27). This lets a
+     * task that wakes a higher-priority task execute the instruction after
+     * the Wakeup (e.g. move a subroutine return out of a shared RM scratch
+     * register into its per-task Link) before being preempted. */
+    if (!wake_immediate()) {
+        cpu->wakeup_pending |= cpu->wakeup_pipe[1];
+        cpu->wakeup_pipe[1] = cpu->wakeup_pipe[0];
+        cpu->wakeup_pipe[0] = 0;
+    }
+
     /* TaskingOn delay: TaskingOn doesn't take effect until two more
      * instructions of the same task have executed (HM page 27). */
     if (cpu->tasking_resume_delay > 0) {
@@ -1766,7 +1794,11 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
              * (HM Table 11e). FF[4:7] in MSB-first numbering = low 4
              * bits of FF in C-LSB. */
             int task = u->ff & 0xF;
-            cpu->wakeup_pending |= (uint16_t)(1u << task);
+            if (wake_immediate())
+                cpu->wakeup_pending |= (uint16_t)(1u << task);
+            else
+                /* HM p27 2-cycle latency: stage, promote in task_schedule. */
+                cpu->wakeup_pipe[0] |= (uint16_t)(1u << task);
             return pd;
         }
     }

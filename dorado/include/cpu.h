@@ -266,6 +266,17 @@ typedef struct {
      */
     uint8_t  ctask;             /* current task (0..15) */
     uint16_t wakeup_pending;    /* bitmask: device/microcode wake requests */
+    /* HM p27: "a minimum of two cycles elapses after the instruction
+     * containing Wakeup before the task executes its first instruction."
+     * A microcode Wakeup[n] is staged here and promoted into
+     * wakeup_pending after the next task_schedule, so the woken task's
+     * first instruction lands 2 cycles later. This is required for
+     * preemption correctness: it lets a task that notifies a higher task
+     * finish the instruction after the Wakeup (e.g. move a subroutine
+     * return out of a shared RM scratch reg into its per-task Link)
+     * before being preempted. See the kernel TaskTest diagnostic.
+     * (DORADO_WAKE_IMMEDIATE reverts to the old single-cycle model.) */
+    uint16_t wakeup_pipe[2];    /* 2-stage delay for microcode Wakeup[n] */
     uint16_t ready;             /* bitmask: tasks runnable */
     uint8_t  tasking_on;        /* 1 = tasking enabled */
     uint8_t  tasking_resume_delay; /* >0: countdown after TaskingOn before switching */

@@ -54,7 +54,7 @@ RUNDIAG_TRAIL=1 build/rundiag ... 2>&1   # dump the last 48 PCs on a non-PASS
 
 | diagnostic     | result | root cause (source-checked) | fix size |
 |----------------|--------|-----------|----------|
-| kernel         | FAIL @3.93M steps (was @79, then @1.34M) | 2 bugs FIXED: (1) runner RBase 0; (2) the bogus `(T>>8)&7)<<1` shifter special case removed — the FF-controlled shifter's SHA/SHB source is selected by BSEL[1:2] (HM §3.11), so kernel `lsh[r,N]`/`Tlsh` and Bootstrap `LDF`/`LSH` all use the one genuine path. Now fails far later at `TASKTESTERR` (0o5546) — the task-simulator test (TASKSIM, §3.12), unrelated to shifting. | medium |
+| kernel         | FAIL @4.06M steps (was @79 → @1.34M → @3.93M) | 3 bugs FIXED: (1) runner RBase 0; (2) the bogus `(T>>8)&7)<<1` shifter special case removed — FF-controlled shifter SHA/SHB source is BSEL[1:2] (HM §3.11); (3) microcode `Wakeup[n]` 2-cycle latency (HM p27) — fixes the `TASKTESTERR` task-preemption test (a notifying task was preempted before it could move its return out of shared `rscr`). Now fails far later at `TESTTWERROR` (0o5626) — the JunkTW/Pendulum hardware-timer wakeup, unmodeled. | medium |
 | eventCounters  | FAIL @674 (`GENIOERR2`) | GenIn/GenOut general-IO stub (loopback polarity TBD) + no real event counting (HM §12.3) | small + medium |
 | memA           | TIMEOUT | **§3.12 Hold&TaskSim debug simulator** (`SETHOLD`, FF=0o154 = HOLDSIM shift reg + TASKSIM wakeup counter; cpu.c:1522 no-op) driving a memory-**simulator** subtest (`MEMSIMINIT`) that polls a HOLD status which never moves; also `Pipe4'` per-ref status. NOT the memory-miss stall. | medium-large |
 | memMisc        | TIMEOUT | `aMapTest` (memMapA.mc) **explicitly disables the HOLD simulator** (`call[disableConditionalTask] * don't run HOLD simulator`). It tests the **Map ref bit** + **fault-task (task 15) wakeups** (write-protect fault, page fault) + **Pipe4 status bits** (wProtect/Mfault/memErr), looping over **every** map page (slow). Needs the per-fault fault-task handshake + accurate Pipe4, NOT engine-stall Hold. | large (fault/Pipe4) |
@@ -95,13 +95,37 @@ now mirrored at `chm/doradosource/`):
   test suites green. The synthetic `test_bootstrap_ldf_dispatch` had encoded the
   hack's wrong semantics and was rewritten to model the two real instructions.
 
-### kernel — next: TASKTESTERR (0o5546), the task simulator
-With the shifter fixed, the kernel now fails at `TASKTESTERR` (real PC 0o5546).
-This is the Postamble's **task-simulator** test — it loads `Hold&TaskSim` (FF
-0o154) with a TASKSIM frequency and expects the simulated task wakeups (HM §3.12:
-TASKSIM is a 7-bit counter that requests a wakeup when it overflows 0o177→0o200).
-`Hold&TaskSim ← B` is still a no-op (`cpu.c` ~1522). This is the same §3.12
-register memA needs; implementing it advances both. NOT the memory-miss stall.
+### kernel — TASKTESTERR FIXED: the wakeup→preempt latency (HM p27)
+With the shifter fixed, the kernel failed next at `TASKTESTERR` (0o5546). This
+is NOT the task simulator (an earlier guess) — it is `Kernel5.mc`'s **task
+preemption** test. Root cause, from the real microcode + a task-tagged trace:
+`notifyTask` (Postamble) holds its return address in the shared RM scratch
+`rscr` across `notify[N]; branch[nxit]; nxit: link←rscr; return`. The simple
+TaskSwitch test and the first preempt pass work, but ours preempted the
+notifying task **one cycle too early** — immediately after `notify[N]`, before
+it ran `nxit` (`link←rscr`). The higher task, sharing RBase=0, then ran its own
+`rscr←link` and clobbered the first task's saved return, so on resume it
+returned into the wrong code.
+
+HM p27: "a minimum of two cycles elapses after the instruction containing
+Wakeup before the task executes its first instruction." Modeling that 2-cycle
+latency for microcode `Wakeup[n]` (a 2-stage `wakeup_pipe` in `cpu.c`
+`task_schedule`) lets the notifying task run the instruction after the Wakeup
+(moving its return from shared `rscr` into per-task `Link`) before being
+preempted. Default on; `DORADO_WAKE_IMMEDIATE` reverts. Device wakeups
+(`dorado_cpu_wakeup`) are intentionally left immediate (the boot is co-tuned to
+them; that is the separate cycle-accurate-timing project). Validated:
+kernel 3.93M → **4.06M**; Galaxian 121602, NetExec, Boggs/EDP/Calculator/
+PinBall all unchanged, Cedar germ-load cycle identical (67279169), 12 suites
+green. `test_wakeup_ff_function` was asserting the old immediate behavior and
+was corrected to the HM 2-cycle timing.
+
+### kernel — next: TESTTWERROR (0o5626)
+The kernel now fails at `TESTTWERROR` (real PC 0o5626) = `Kernel5.mc`'s **TestTW**
+(test task wakeup) / JunkTask region, which exercises the `JunkTW` 16µs Pendulum
+signal the BaseBoard drives onto the IFU board (task 2) — a hardware-timer
+wakeup we do not model. Likely needs the junk-task/Pendulum wakeup cadence (and
+possibly the §3.12 TASKSIM). Not yet diagnosed in depth.
 
 ### eventCounters (diagnosed; loopback fix attempted, reverted)
 General-IO subtest `GENIO`: writes a pattern to GenOut (EventCntB) and expects

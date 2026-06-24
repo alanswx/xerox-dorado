@@ -109,11 +109,12 @@ int main(int argc, char **argv)
      * sub-test is visible. */
     enum { TRAIL = 48 };
     uint16_t trail[TRAIL]; int tn = 0;
-    uint16_t trT[TRAIL], trRB[TRAIL]; uint8_t trF[TRAIL];
+    uint16_t trT[TRAIL], trRB[TRAIL]; uint8_t trF[TRAIL]; uint8_t trTask[TRAIL];
     for (; steps < maxsteps; steps++) {
         uint16_t pc = cpu.real_PC;
         int t = tn % TRAIL;
         trail[t] = pc; trT[t] = cpu.T; trRB[t] = cpu.RBase;
+        trTask[t] = (uint8_t)cpu.ctask;
         trF[t] = (uint8_t)((cpu.alu_zero?1:0) | (cpu.alu_lt0?2:0) |
                            (cpu.alu_carry?4:0) | (cpu.alu_overflow?8:0));
         tn++;
@@ -138,8 +139,8 @@ int main(int argc, char **argv)
             const char *s = dorado_microcode_symbol_at_real(&mc, pc);
             char dis[160];
             dorado_format(&mc.im[pc & (IM_SIZE-1)], dis, sizeof dis);
-            fprintf(stderr, "    0o%-5o T=%06o rb=%02o %c%c%c%c %-14s %s\n",
-                    pc, trT[k], trRB[k],
+            fprintf(stderr, "    tk=%02o 0o%-5o T=%06o rb=%02o %c%c%c%c %-14s %s\n",
+                    trTask[k], pc, trT[k], trRB[k],
                     (trF[k]&1)?'Z':'.', (trF[k]&2)?'N':'.',
                     (trF[k]&4)?'C':'.', (trF[k]&8)?'V':'.',
                     s ? s : "", dis);

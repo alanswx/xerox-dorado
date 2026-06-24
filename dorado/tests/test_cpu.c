@@ -8481,11 +8481,21 @@ static int test_wakeup_ff_function(void)
     dorado_cpu_init(&cpu, &mc, 0);
     dorado_cpu_set_task_tpc(&cpu, 7, 2);
 
-    /* Step IM[0] — Wakeup[7] sets bit 7 of wakeup_pending; the
-     * end-of-instruction switch then jumps to task 7. */
+    /* HM p27: "a minimum of two cycles elapses after the instruction
+     * containing Wakeup before the task executes its first instruction."
+     * So Wakeup[7] in IM[0] does NOT switch on the next instruction —
+     * task 0 still runs IM[1] (its self-loop) first; task 7 runs only on
+     * the 2nd instruction after the Wakeup. */
     EXPECT(dorado_cpu_step(&cpu) == 0, "step Wakeup[7]");
-    EXPECT(cpu.ctask == 7, "after Wakeup[7], should be in task 7, ctask=%d",
-           cpu.ctask);
+    EXPECT(cpu.ctask == 0, "1 cycle after Wakeup[7]: still task 0 (2-cycle "
+           "latency), got ctask=%d", cpu.ctask);
+    EXPECT(cpu.real_PC == 1, "task 0 should be at its self-loop IM[1], got 0o%o",
+           cpu.real_PC);
+
+    /* 2nd instruction after the Wakeup: now task 7 preempts. */
+    EXPECT(dorado_cpu_step(&cpu) == 0, "step IM[1] (latency expiry)");
+    EXPECT(cpu.ctask == 7, "2 cycles after Wakeup[7]: should be task 7, "
+           "ctask=%d", cpu.ctask);
     EXPECT(cpu.real_PC == 2, "task 7 PC = 0o%o, expected 2", cpu.real_PC);
 
     /* Run task 7's instruction. */
