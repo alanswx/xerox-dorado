@@ -281,6 +281,18 @@ typedef struct {
     uint8_t  tasking_on;        /* 1 = tasking enabled */
     uint8_t  tasking_resume_delay; /* >0: countdown after TaskingOn before switching */
 
+    /* HM §3.12 Hold & Task Simulator (hardware-checkout debug feature,
+     * exercised by the kernel TestTW diagnostic via Hold&TaskSim←B,
+     * FF=0o154). TASKSIM: a 7-bit counter loaded non-zero counts up each
+     * cycle and, on overflow past 0o177, raises a wakeup for the
+     * simulator task (task 12, backplane-jumpered), held until reloaded.
+     * HOLDSIM: an 8-bit recirculating shift register (stored; HOLD
+     * injection not yet modeled). */
+    uint8_t  tasksim;           /* 7-bit wakeup counter (0 = disabled) */
+    uint8_t  tasksim_fired;     /* 1 once overflowed; held until reload */
+    uint8_t  tasksim_loaded;    /* transient: load took this cycle's clock */
+    uint8_t  holdsim;           /* 8-bit recirculating hold shift register */
+
     /* Per-task saved state. Loaded into the live registers when
      * `ctask` becomes that task. */
     uint16_t task_t[16];

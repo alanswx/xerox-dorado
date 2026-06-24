@@ -54,7 +54,7 @@ RUNDIAG_TRAIL=1 build/rundiag ... 2>&1   # dump the last 48 PCs on a non-PASS
 
 | diagnostic     | result | root cause (source-checked) | fix size |
 |----------------|--------|-----------|----------|
-| kernel         | FAIL @4.06M steps (was @79 → @1.34M → @3.93M) | 3 bugs FIXED: (1) runner RBase 0; (2) the bogus `(T>>8)&7)<<1` shifter special case removed — FF-controlled shifter SHA/SHB source is BSEL[1:2] (HM §3.11); (3) microcode `Wakeup[n]` 2-cycle latency (HM p27) — fixes the `TASKTESTERR` task-preemption test (a notifying task was preempted before it could move its return out of shared `rscr`). Now fails far later at `TESTTWERROR` (0o5626) — the JunkTW/Pendulum hardware-timer wakeup, unmodeled. | medium |
+| kernel         | **PASS** (reaches DONE @4.06M steps; was @79 → 1.34M → 3.93M → 4.06M) | 4 bugs FIXED: (1) runner RBase 0; (2) bogus `(T>>8)&7)<<1` shifter special case removed — FF-controlled SHA/SHB source is BSEL[1:2] (HM §3.11); (3) microcode `Wakeup[n]` 2-cycle latency (HM p27) — fixes the `TASKTESTERR` preemption test; (4) §3.12 **TASKSIM** counter (`Hold&TaskSim←B`, FF=0o154) waking the jumpered sim task 0o12 — fixes `TESTTWERROR`. **First PARC hardware diagnostic to fully pass.** | — |
 | eventCounters  | FAIL @674 (`GENIOERR2`) | GenIn/GenOut general-IO stub (loopback polarity TBD) + no real event counting (HM §12.3) | small + medium |
 | memA           | TIMEOUT | **§3.12 Hold&TaskSim debug simulator** (`SETHOLD`, FF=0o154 = HOLDSIM shift reg + TASKSIM wakeup counter; cpu.c:1522 no-op) driving a memory-**simulator** subtest (`MEMSIMINIT`) that polls a HOLD status which never moves; also `Pipe4'` per-ref status. NOT the memory-miss stall. | medium-large |
 | memMisc        | TIMEOUT | `aMapTest` (memMapA.mc) **explicitly disables the HOLD simulator** (`call[disableConditionalTask] * don't run HOLD simulator`). It tests the **Map ref bit** + **fault-task (task 15) wakeups** (write-protect fault, page fault) + **Pipe4 status bits** (wProtect/Mfault/memErr), looping over **every** map page (slow). Needs the per-fault fault-task handshake + accurate Pipe4, NOT engine-stall Hold. | large (fault/Pipe4) |
@@ -120,12 +120,27 @@ PinBall all unchanged, Cedar germ-load cycle identical (67279169), 12 suites
 green. `test_wakeup_ff_function` was asserting the old immediate behavior and
 was corrected to the HM 2-cycle timing.
 
-### kernel — next: TESTTWERROR (0o5626)
-The kernel now fails at `TESTTWERROR` (real PC 0o5626) = `Kernel5.mc`'s **TestTW**
-(test task wakeup) / JunkTask region, which exercises the `JunkTW` 16µs Pendulum
-signal the BaseBoard drives onto the IFU board (task 2) — a hardware-timer
-wakeup we do not model. Likely needs the junk-task/Pendulum wakeup cadence (and
-possibly the §3.12 TASKSIM). Not yet diagnosed in depth.
+### kernel — TESTTWERROR FIXED: §3.12 TASKSIM (kernel now PASSES)
+`TESTTWERROR` (0o5626) was `Kernel5.mc`'s **TestTW** test — and (correcting an
+earlier guess that it was the JunkTW/Pendulum signal) its own comment says
+"the Counter is loaded with a FF=154 (Hold&TaskSim_B) function." It is the HM
+**§3.12 TASKSIM** task-simulator: `hold&tasksim←0o400` loads the smallest count,
+the test waits, and the jumpered simulator task must wake and zero Q.
+
+`Hold&TaskSim←B` (FF=0o154) was a no-op. Implemented per HM §3.12:
+TASKSIM[0:6] ← B[1:7], HOLDSIM[0:7] ← B[8:14]‖0; a non-zero TASKSIM counts up
+each cycle and on overflow past 0o177 raises a wakeup for the simulator task,
+held until reloaded. The wakeup target is task **0o12** (=10 dec) — Dorado task
+numbers are octal, so the kernel's "task number 12" / `T_(12s)` is 0o12, NOT
+decimal 12 (the first attempt woke decimal 12 = 0o14, which ran TaskError).
+HOLDSIM is stored but its HOLD injection is unmodeled (the diagnostics' first
+pass runs with HOLDSIM=0). Guarded by `test_tasksim_wakeup`.
+
+**With this, the kernel diagnostic PASSES end-to-end (reaches DONE)** — the
+first of PARC's six Dorado hardware diagnostics to fully pass on our engine.
+Galaxian 121602, Cedar boot cycle unchanged, 12 suites green; the TASKSIM tick
+is inert (a no-op) unless microcode loads a non-zero `Hold&TaskSim`, which only
+the diagnostics do.
 
 ### eventCounters (diagnosed; loopback fix attempted, reverted)
 General-IO subtest `GENIO`: writes a pattern to GenOut (EventCntB) and expects
@@ -201,8 +216,17 @@ expected bit pattern.
 
 ## Next
 
-Debug the **kernel** failure first: it is core datapath, runs with the least
-setup, and fails at step 79. Use `RUNDIAG_TRAIL=1` + the kernel sources
-(`chm/doradomicrocode/kernelsources/{Preamble,Kernel,Kernel1..5,KernelALU,Postamble}.mc`)
-to identify whether the failing check is a real engine bug or a missing setup
-the runner should apply. Then triage the others.
+**kernel now PASSES** (4 bugs fixed; see above). Remaining diagnostics, by
+tractability:
+- **memA** — needs the §3.12 **HOLDSIM** half (the recirculating hold shift
+  register that injects engine HOLD; TASKSIM is now done) plus `Pipe4'`
+  per-reference status. The kernel work already built the TASKSIM half.
+- **memMisc** — fault-task (task 15) per-fault handshake + Pipe4 status bits
+  (the Map ref-bit / fault test; HOLD simulator is disabled there).
+- **eventCounters** — GenIn/GenOut loopback + per-cycle event counting.
+- **IfuComplex** — IFU exception latch (JMPEXC) + diagnostic mufflers.
+- **Tricond** — Trident disk-controller state mufflers (disk track).
+
+Use `RUNDIAG_TRAIL=1` (now task-tagged, `tk=`) + the real `.mc` sources
+(`chm/doradomicrocode/kernelsources/`, `chm/doradosource/diagnostics/`) to
+diagnose against the actual microcode, not summaries.

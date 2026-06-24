@@ -8546,6 +8546,61 @@ static int test_junk_timer_wakeup(void)
     return 0;
 }
 
+/* HM §3.12 Hold & Task Simulator — the TASKSIM counter (Hold&TaskSim←B,
+ * FF=0o154). This is exactly what the kernel TestTW diagnostic exercises:
+ * load TASKSIM with the smallest count and verify it raises a wakeup for the
+ * jumpered simulator task (0o12) after the counter overflows past 0o177. */
+static int test_tasksim_wakeup(void)
+{
+    dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;   /* B */
+
+    /* IM[0]: TaskingOff (FF=0o142) so the wakeup accumulates in
+     * wakeup_pending rather than switching to the empty sim task. */
+    mc.im[0] = make_uinstr(0, 0, 0, 0, 6, 0, 0142, jcn_local(1));
+    /* IM[1]: T ← 0o400 (BSEL=6 "FF,,0" with FF=1 ⇒ B=0x100; LC=T←Pd). */
+    mc.im[1] = make_uinstr(0, 0, /*bsel=*/6, /*lc=*/1, 6, 0, /*ff=*/001,
+                           jcn_local(2));
+    /* IM[2]: Hold&TaskSim ← B (FF=0o154), B source = T (BSEL=2).
+     * TASKSIM[0:6] = B[1:7] = (0o400>>8)&0x7F = 1; HOLDSIM = 0. */
+    mc.im[2] = make_uinstr(0, 0, /*bsel=*/2, 0, 6, 0, /*ff=*/0154, jcn_local(3));
+    /* IM[3]: self-loop to tick the counter. */
+    mc.im[3] = make_uinstr(0, 0, 4, 0, 6, 0, 0, jcn_local(3));
+    for (int i = 0; i < 4; i++) { mc.im_present[i] = 1;
+        mc.image_to_real[i] = i; mc.image_present[i] = 1; }
+    mc.n_instructions = 4;
+
+    dorado_cpu cpu;
+    dorado_cpu_init(&cpu, &mc, 0);
+
+    EXPECT(dorado_cpu_step(&cpu) == 0, "TaskingOff step");
+    EXPECT(dorado_cpu_step(&cpu) == 0, "T←0o400 step");
+    EXPECT(cpu.T == 0400, "T should be 0o400, got 0o%o", cpu.T);
+    EXPECT(dorado_cpu_step(&cpu) == 0, "Hold&TaskSim←B step");
+    EXPECT(cpu.tasksim == 1, "TASKSIM should load 1, got %d", cpu.tasksim);
+    EXPECT((cpu.wakeup_pending & (1u << 012)) == 0,
+           "TASKSIM must not fire immediately");
+
+    /* Counts 1→0o177 then overflows: ~127 cycles. Spin past that. */
+    for (int i = 0; i < 130; i++)
+        EXPECT(dorado_cpu_step(&cpu) == 0, "tasksim tick %d", i);
+
+    EXPECT(cpu.tasksim_fired == 1, "TASKSIM should have fired");
+    EXPECT((cpu.wakeup_pending & (1u << 012)) != 0,
+           "TASKSIM should wake task 0o12, pending=0x%X", cpu.wakeup_pending);
+
+    /* Reload with 0 (what the sim task's handler does) clears the latch. */
+    cpu.wakeup_pending = 0;
+    cpu.tasksim = 0; cpu.tasksim_fired = 0;
+    EXPECT(dorado_cpu_step(&cpu) == 0, "post-reload tick");
+    EXPECT((cpu.wakeup_pending & (1u << 012)) == 0,
+           "cleared TASKSIM must not keep firing");
+
+    printf("PASS  test_tasksim_wakeup\n");
+    return 0;
+}
+
 static int test_ifutest_junk_timer_polarity(void)
 {
     dorado_microcode mc;
@@ -10256,6 +10311,7 @@ int main(void)
     rc |= test_tasking_off_blocks_switch();
     rc |= test_wakeup_ff_function();
     rc |= test_junk_timer_wakeup();
+    rc |= test_tasksim_wakeup();
     rc |= test_ifutest_junk_timer_polarity();
     rc |= test_ifureset_enables_junk_timer();
     rc |= test_subtask_or_rm();

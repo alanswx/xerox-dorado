@@ -45,6 +45,9 @@ extern int dorado_mem_trace_mar;
 
 #define DORADO_JUNK_TASK          2
 #define DORADO_JUNK_TICK_CYCLES   533   /* 32 us / 60 ns microcycle */
+#define DORADO_TASKSIM_TASK       012   /* HM §3.12 TASKSIM wakeup target: task 0o12
+                                         * (=10 dec), backplane-jumpered; the kernel
+                                         * TestTW + Postamble "Task12" simulator */
 #define DORADO_B15_MASK           0x0001u
 
 /* Trace-only raw RM slots that have been useful during Cedar bring-up.
@@ -296,6 +299,22 @@ static uint16_t task_schedule(dorado_cpu *cpu, uint16_t next_pc,
         cpu->wakeup_pending |= cpu->wakeup_pipe[1];
         cpu->wakeup_pipe[1] = cpu->wakeup_pipe[0];
         cpu->wakeup_pipe[0] = 0;
+    }
+
+    /* HM §3.12 TASKSIM tick (once per cycle). A non-zero counter counts up
+     * to 0o177 and, on the overflow, raises a wakeup for the simulator task
+     * (task 12, backplane-jumpered) that stays asserted until TASKSIM is
+     * reloaded (Hold&TaskSim←B). The simulator task's handler reloads
+     * TASKSIM (typically with 0) to clear it. */
+    if (cpu->tasksim_fired) {
+        cpu->wakeup_pending |= (uint16_t)(1u << DORADO_TASKSIM_TASK);
+    } else if (cpu->tasksim_loaded) {
+        cpu->tasksim_loaded = 0;            /* the load consumed this clock */
+    } else if (cpu->tasksim != 0) {
+        if (++cpu->tasksim > 0x7F) {        /* counted past 0o177 → overflow */
+            cpu->tasksim_fired = 1;
+            cpu->wakeup_pending |= (uint16_t)(1u << DORADO_TASKSIM_TASK);
+        }
     }
 
     /* TaskingOn delay: TaskingOn doesn't take effect until two more
@@ -1547,7 +1566,20 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
             case 2: /* TIOA[0:7] ← B[0:7] */
                 cpu->TIOA = (b >> 8) & 0xFF;       return pd;
             case 3: /* — */                        return pd;
-            case 4: /* Hold&TaskSim ← B */         return pd;
+            case 4: /* Hold&TaskSim ← B (HM §3.12 hardware-checkout sim).
+                     * "loads HOLDSIM[0:7] from B[8:14],,0 and TASKSIM[0:6]
+                     * from B[1:7]." In C-LSB: TASKSIM = B[1:7] = (B>>8)&0x7F;
+                     * HOLDSIM = B[8:14],,0 = B&0xFE. Loading clears the
+                     * fired latch (a new load re-arms the counter). TASKSIM
+                     * is the 7-bit task-wakeup counter; HOLDSIM is the
+                     * recirculating hold shift register (stored; its HOLD
+                     * injection is not yet modeled — the diagnostics' first
+                     * pass runs with HOLDSIM=0). */
+                cpu->tasksim = (uint8_t)((b >> 8) & 0x7F);
+                cpu->holdsim = (uint8_t)(b & 0xFE);
+                cpu->tasksim_fired = 0;
+                cpu->tasksim_loaded = 1;  /* don't also tick this cycle */
+                return pd;
             case 5: /* WF ← A (load ShC with write-field controls) */
                 cpu->ShC = field_desc_to_shc(a, /*is_write=*/1);
                 return pd;
