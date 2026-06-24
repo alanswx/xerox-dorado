@@ -1,6 +1,23 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
-## ===> MOST CURRENT (2026-06-23, late): tooling built + the crash seeds REFRAMED
+## ===> ACTIVE TASK (2026-06-23, latest): implement Hold (gap B1) — start at
+## [`docs/HANDOFF-hold-and-diagnostics.md`](HANDOFF-hold-and-diagnostics.md)
+
+We got PARC's original **Dorado hardware diagnostics** running on our microengine
+(`build/rundiag`) — a real-Dorado validation oracle. All six are diagnosed
+([`docs/running-diagnostics.md`](running-diagnostics.md)); the kernel's first bug
+is fixed (79 → 1.34M steps). **Headline: memA, memMisc, and Tricond all fail
+because the Hold mechanism (gap B1/C1) is unimplemented — so they are now the
+self-checking regression tests for the Hold work.** Next session: implement Hold
+against those three. **Read [`docs/HANDOFF-hold-and-diagnostics.md`](HANDOFF-hold-and-diagnostics.md)
+first** — it has the read-first doc list, the run commands, the exact code gaps
+(cpu.c ~3562/~502/~1522, memory.c ~488), and the regression gates. The
+ethernet/render investigation below is superseded as the active focus (the games
+are gated on the broader timing work; see contralto-oracle-validity.md).
+
+---
+
+## ===> 2026-06-23 (earlier): tooling built + the crash seeds REFRAMED
 
 Picking up the "most games crash" investigation, this session built the Phase 0
 tooling and used it to characterize the crashes — which **changed the diagnosis**.
