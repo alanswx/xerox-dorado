@@ -88,10 +88,17 @@ int main(int argc, char **argv)
     cpu.mem = &mem;
 
     /* kernel.midas recipe: MCR=1 (disable mem stack over/underflow wakeups),
-     * default task 0, default rbase 17. */
+     * default task 0. RBase starts 0: the diagnostics keep their pre-loaded
+     * registers (R1, RM1, R10, …) in RBase 0 (the .mb RM data: RB0RM0/R1/RM1 at
+     * RM[0..]), and the framework sets RBASE[defaultRegion]=0 before use. (The
+     * "rbase 17" in kernel.midas is a Midas display default, not machine
+     * state.) An optional override is provided for experiments. */
     dorado_mcr_load(&mem, 0, 1);
     cpu.ctask = 0;
-    cpu.RBase = 017;
+    {
+        const char *rb = getenv("RUNDIAG_RBASE");
+        cpu.RBase = rb ? (uint16_t)(strtol(rb, NULL, 8) & 0xF) : 0;
+    }
 
     long steps = 0;
     int outcome = -1;          /* 0 done, 1 err, 2 halt, 3 timeout */
@@ -102,9 +109,14 @@ int main(int argc, char **argv)
      * sub-test is visible. */
     enum { TRAIL = 48 };
     uint16_t trail[TRAIL]; int tn = 0;
+    uint16_t trT[TRAIL], trRB[TRAIL]; uint8_t trF[TRAIL];
     for (; steps < maxsteps; steps++) {
         uint16_t pc = cpu.real_PC;
-        trail[tn % TRAIL] = pc; tn++;
+        int t = tn % TRAIL;
+        trail[t] = pc; trT[t] = cpu.T; trRB[t] = cpu.RBase;
+        trF[t] = (uint8_t)((cpu.alu_zero?1:0) | (cpu.alu_lt0?2:0) |
+                           (cpu.alu_carry?4:0) | (cpu.alu_overflow?8:0));
+        tn++;
         if (done >= 0 && pc == (uint16_t)done) {
             /* The diagnostic loops at `done`; treat the FIRST arrival as a
              * passing iteration and stop (we don't need the outer sim loop). */
@@ -119,13 +131,18 @@ int main(int argc, char **argv)
 
     if (outcome != 0 && getenv("RUNDIAG_TRAIL")) {
         int n = tn < TRAIL ? tn : TRAIL;
-        fprintf(stderr, "  PC trail (last %d, oldest first):\n", n);
+        fprintf(stderr, "  PC trail (last %d; T/flags are state ON ENTRY to each pc):\n", n);
         for (int i = 0; i < n; i++) {
-            uint16_t pc = trail[(tn - n + i) % TRAIL];
+            int k = (tn - n + i) % TRAIL;
+            uint16_t pc = trail[k];
             const char *s = dorado_microcode_symbol_at_real(&mc, pc);
             char dis[160];
             dorado_format(&mc.im[pc & (IM_SIZE-1)], dis, sizeof dis);
-            fprintf(stderr, "    0o%-5o %-16s %s\n", pc, s ? s : "", dis);
+            fprintf(stderr, "    0o%-5o T=%06o rb=%02o %c%c%c%c %-14s %s\n",
+                    pc, trT[k], trRB[k],
+                    (trF[k]&1)?'Z':'.', (trF[k]&2)?'N':'.',
+                    (trF[k]&4)?'C':'.', (trF[k]&8)?'V':'.',
+                    s ? s : "", dis);
         }
     }
 
