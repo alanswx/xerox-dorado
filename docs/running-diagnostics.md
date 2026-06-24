@@ -44,14 +44,14 @@ RUNDIAG_TRAIL=1 build/rundiag ... 2>&1   # dump the last 48 PCs on a non-PASS
 
 ## Baseline + debugging status (2026-06-23)
 
-| diagnostic     | result | where | diagnosis |
-|----------------|--------|-------|-----------|
-| kernel         | FAIL @1.34M steps (was @79) | shifter test `RLSH`, pc 0o2604 | **First bug FIXED** (runner RBase 0, not 017). Next: masked field-shift (RF←/WF← ShC) path |
-| IfuComplex     | FAIL @1622 | `IFUEXCEPTIONERR` | (agent investigating) |
-| memA           | TIMEOUT | pc 0o2433 | (agent investigating) |
-| memMisc        | TIMEOUT | pc 0o4253 | (agent investigating) |
-| eventCounters  | FAIL @674 | `GENIOERR2` | General-IO/event-counter stub: `event_cnt_a` (GenIn) never tracks GenOut (loopback); counters never increment (HM §12.3). Small fix + a counting feature |
-| Tricond        | FAIL @105 | `STATE.ERRS` | (agent investigating) |
+| diagnostic     | result | root cause | fix size |
+|----------------|--------|-----------|----------|
+| kernel         | FAIL @1.34M steps (was @79) | 1st bug FIXED (runner RBase 0). Next: Bootstrap-LDF special case over-matches kernel shifts (cpu.c ~2003) | medium |
+| eventCounters  | FAIL @674 (`GENIOERR2`) | GenIn/GenOut general-IO stub (loopback polarity TBD) + no real event counting (HM §12.3) | small + medium |
+| memA           | TIMEOUT | **HOLD (gap B1)** + `Pipe4'` status unmodeled | large (Hold project) |
+| memMisc        | TIMEOUT | **HOLD-on-fault** + per-fault fault-task handshake | large (Hold project) |
+| Tricond        | FAIL @105 (`STATE.ERRS`) | **Hold&TaskSim** register + Hold stall unmodeled (cpu.c:1522 no-op) | large (Hold project) |
+| IfuComplex     | FAIL @1622 (`IFUEXCEPTIONERR`) | IFU exception latch (JMPEXC) + diagnostic mufflers unmodeled | large (IFU feature) |
 
 ### kernel (in progress)
 - **Fixed:** the runner forced `RBase=017`, but the diagnostics' pre-loaded
@@ -64,12 +64,57 @@ RUNDIAG_TRAIL=1 build/rundiag ... 2>&1   # dump the last 48 PCs on a non-PASS
   via RF←/WF← field descriptors → ShC) fails at real PC 0o2604. Suspect
   `field_desc_to_shc` / the masked-shift (ShiftLMask) path in cpu.c.
 
-### eventCounters (diagnosed)
-General-IO subtest `GENIO`: it writes a pattern to GenOut (EventCntB) and expects
+### kernel — shifter bug ROOT-CAUSED (fix deferred)
+The masked-shift test (`Rlsh`) fails at real PC 0o2604. Cause: the **Bootstrap
+`LDF[T,3,10]` special case** in `shifter_output` (cpu.c ~2003, condition
+`bsel==4 && aluf==4 && ff==1`) **over-matches**. The kernel's legitimate masked
+shifts share `bsel=4/aluf=4/ff=1/lc=6/asel=7` and differ only in `rstk` (the
+destination), so they wrongly receive the BaseBoard-dispatch hack
+(`((T>>8)&7)<<1`) instead of an actual shift. `lc` does not distinguish them
+(both lc=6 = `RM/STK←Pd`). The proper fix is to model the HM §3.11 SHA/SHB source
+rule for the FF-controlled shift form (does it shift T or R?) so the normal path
+produces both the Bootstrap and the kernel results and the hack can be removed —
+guard with `test_bootstrap_ldf_dispatch` + the kernel diagnostic.
+
+### eventCounters (diagnosed; loopback fix attempted, reverted)
+General-IO subtest `GENIO`: writes a pattern to GenOut (EventCntB) and expects
 GenIn (EventCntA) to track it (backpanel loopback). Our `event_cnt_a` is a
-write-never stub (`B←EventCntA'` always returns ~0). Fix: mirror GenOut→GenIn in
-general-IO mode (cpu.c ~927/1335). The later subtests need real per-cycle event
-counting (HM §12.3 A/B event classes) — a separate, larger feature.
+write-never stub. A `event_cnt_a = event_cnt_b` mirror on `EventCntB←B` was tried
+but had **no effect** (the run is byte-identical, so `EventCntB←B` isn't reached
+before the step-674 failure) — the exact GenIn/GenOut polarity/sequence needs
+re-derivation (the diagnosing agent flagged this uncertainty: no wiring doc, and
+the `eventCounters.cm` source is in the CHM archive but not local). The later
+subtests additionally need real per-cycle event counting (HM §12.3).
+
+### memA, memMisc, Tricond — all gate on HOLD (gap B1/C1) [the headline]
+Three diagnostics fail/hang for the **same root cause: the Hold mechanism is
+unimplemented**.
+- **memA** (timeout): its multi-task memory *simulator* busy-polls for
+  HOLD / reference-completion / `Pipe4'` status edges that never occur
+  (`memory.c` HOLD no-op ~488; `dorado_pipe4_at` fixed baseline). Livelocks.
+- **memMisc** (timeout): the ASRN/subtask fault test needs **HOLD-on-fault + a
+  per-fault fault-task (task 15) handshake** for I/O-task references; ours holds
+  nothing and wakes task 15 only once (`memory.c:495`, `cpu.c:~502`), so task 0
+  spins on a fault count that never arrives. (Also: default 16 MW memory makes an
+  earlier page-walk astronomically long; `DORADO_STORAGE_MODULES=1` skips to the
+  real deadlock.)
+- **Tricond** (FAIL @105, `STATE.ERRS`): it is actually the **Hold + task-sim**
+  diagnostic; `Hold&TaskSim ← B` (FF=0o154) is a no-op (`cpu.c:1522`) with no
+  Hold/TaskSim state, so the saved-state check reads garbage.
+
+**Implication:** implementing Hold (the cycle-accurate-timing gap B1/C1) now has
+**three self-checking real-hardware regression tests** — a far better gate than
+"do games render."
+
+### IfuComplex (diagnosed)
+FAIL @1622, `IFUEXCEPTIONERR`, running in task 2 (the IFU-test/junk timer). It
+self-checks the **IFU exception latch (`JMPEXC`) + IFU diagnostic muffler
+signals** (JMPEXC/PCJ/FFK/HJ/MX), which the engine doesn't model:
+no IFU-exception state in cpu.c; `dorado_memory_dmux_read` returns 0 for the IFU
+mufflers; the IFU-test junk wakeup is a fixed 533-cycle cadence not coupled to
+IFU events. Fix = model the IFU exception mechanism + wire the mufflers (HM §6);
+recover the `IfuComplex` source from the CHM archive first to get the exact
+expected bit pattern.
 
 ## Next
 
