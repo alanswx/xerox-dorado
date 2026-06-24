@@ -42,15 +42,23 @@ build/rundiag '../chm/dorado/expanded/kernel.dm!38_/kernel.mb' BEGIN DONE ERR
 RUNDIAG_TRAIL=1 build/rundiag ... 2>&1   # dump the last 48 PCs on a non-PASS
 ```
 
-## Baseline + debugging status (2026-06-23)
+## Baseline + debugging status
 
-| diagnostic     | result | root cause | fix size |
+> **CORRECTION (2026-06-23, grounded in the original `.mc` sources now mirrored
+> at `chm/doradosource/diagnostics/`).** An earlier pass claimed memA, memMisc,
+> and Tricond "all gate on the memory Hold mechanism (gap B1)." Reading the
+> actual PARC sources shows this is **wrong** — they need **three different**
+> mechanisms, and none of them is the memory-miss engine stall the
+> cycle-accurate-timing doc calls gap B1. The table below is the corrected,
+> source-checked diagnosis. See "Corrected per-diagnostic diagnosis" below.
+
+| diagnostic     | result | root cause (source-checked) | fix size |
 |----------------|--------|-----------|----------|
-| kernel         | FAIL @1.34M steps (was @79) | 1st bug FIXED (runner RBase 0). Next: Bootstrap-LDF special case over-matches kernel shifts (cpu.c ~2003) | medium |
+| kernel         | FAIL @3.93M steps (was @79, then @1.34M) | 2 bugs FIXED: (1) runner RBase 0; (2) the bogus `(T>>8)&7)<<1` shifter special case removed — the FF-controlled shifter's SHA/SHB source is selected by BSEL[1:2] (HM §3.11), so kernel `lsh[r,N]`/`Tlsh` and Bootstrap `LDF`/`LSH` all use the one genuine path. Now fails far later at `TASKTESTERR` (0o5546) — the task-simulator test (TASKSIM, §3.12), unrelated to shifting. | medium |
 | eventCounters  | FAIL @674 (`GENIOERR2`) | GenIn/GenOut general-IO stub (loopback polarity TBD) + no real event counting (HM §12.3) | small + medium |
-| memA           | TIMEOUT | **HOLD (gap B1)** + `Pipe4'` status unmodeled | large (Hold project) |
-| memMisc        | TIMEOUT | **HOLD-on-fault** + per-fault fault-task handshake | large (Hold project) |
-| Tricond        | FAIL @105 (`STATE.ERRS`) | **Hold&TaskSim** register + Hold stall unmodeled (cpu.c:1522 no-op) | large (Hold project) |
+| memA           | TIMEOUT | **§3.12 Hold&TaskSim debug simulator** (`SETHOLD`, FF=0o154 = HOLDSIM shift reg + TASKSIM wakeup counter; cpu.c:1522 no-op) driving a memory-**simulator** subtest (`MEMSIMINIT`) that polls a HOLD status which never moves; also `Pipe4'` per-ref status. NOT the memory-miss stall. | medium-large |
+| memMisc        | TIMEOUT | `aMapTest` (memMapA.mc) **explicitly disables the HOLD simulator** (`call[disableConditionalTask] * don't run HOLD simulator`). It tests the **Map ref bit** + **fault-task (task 15) wakeups** (write-protect fault, page fault) + **Pipe4 status bits** (wProtect/Mfault/memErr), looping over **every** map page (slow). Needs the per-fault fault-task handshake + accurate Pipe4, NOT engine-stall Hold. | large (fault/Pipe4) |
+| Tricond        | FAIL @105 (`State.Errs`) | **Trident DISK-controller diagnostic.** Reads the disk-controller **state muffler `KSTATE`** via the DMux (`read20Muffs`), XORs 0o70, masks 0o76377, expects 0. Our engine returns no real disk muffler bits. **Nothing to do with Hold** — the "control for hold, task simulator" in TriconD.midas is boilerplate copied from kernel.midas. | large (disk mufflers) |
 | IfuComplex     | FAIL @1622 (`IFUEXCEPTIONERR`) | IFU exception latch (JMPEXC) + diagnostic mufflers unmodeled | large (IFU feature) |
 
 ### kernel (in progress)
@@ -60,21 +68,40 @@ RUNDIAG_TRAIL=1 build/rundiag ... 2>&1   # dump the last 48 PCs on a non-PASS
   kernel runs 79 → 1,343,804 steps (clears aluEQ0/aluLT0/rEven/rGE0/bypass/ALU
   ops). The bit-walking ALU=0 test passed before the fix only because it uses FF
   constants, not registers.
-- **Next:** the shifter test (`Rlsh`/`RLSH*` = masked left shift of a walking bit
-  via RF←/WF← field descriptors → ShC) fails at real PC 0o2604. Suspect
-  `field_desc_to_shc` / the masked-shift (ShiftLMask) path in cpu.c.
+- **Next:** see TASKTESTERR below — the next failure is the §3.12 task
+  simulator (TASKSIM), not the datapath.
 
-### kernel — shifter bug ROOT-CAUSED (fix deferred)
-The masked-shift test (`Rlsh`) fails at real PC 0o2604. Cause: the **Bootstrap
-`LDF[T,3,10]` special case** in `shifter_output` (cpu.c ~2003, condition
-`bsel==4 && aluf==4 && ff==1`) **over-matches**. The kernel's legitimate masked
-shifts share `bsel=4/aluf=4/ff=1/lc=6/asel=7` and differ only in `rstk` (the
-destination), so they wrongly receive the BaseBoard-dispatch hack
-(`((T>>8)&7)<<1`) instead of an actual shift. `lc` does not distinguish them
-(both lc=6 = `RM/STK←Pd`). The proper fix is to model the HM §3.11 SHA/SHB source
-rule for the FF-controlled shift form (does it shift T or R?) so the normal path
-produces both the Bootstrap and the kernel results and the hack can be removed —
-guard with `test_bootstrap_ldf_dispatch` + the kernel diagnostic.
+### kernel — shifter bug FIXED (2026-06-23)
+The masked-shift test (`Rlsh`/`Tlsh`/`Rrsh`/`Trsh` + the cycle tests) used to
+fail at real PC 0o2604. Cause: a bogus special case in `shifter_output`
+(`if (bsel==4 && aluf==4 && ff==1) return ((T>>8)&7)<<1`) that pattern-matched
+one Bootstrap shift and returned a fixed value instead of shifting. It
+**over-matched** the kernel's legitimate `lsh[rscr,1]` (same fields, different
+`rstk`), corrupting it.
+
+Root cause and fix, grounded in primary sources (HM §3.11 + the real microcode,
+now mirrored at `chm/doradosource/`):
+- The FF-controlled shifter (BSEL=4..7, ASEL=7) takes its SHA/SHB source from
+  **BSEL[1:2]** exactly as the standard form takes it from `ShC[2:3]`: bit set
+  ⇒ T, clear ⇒ RM/STK. Confirmed in kernel.mb (`Rlsh`=shift RM ⇒ BSEL=4;
+  `Tlsh`=shift T ⇒ BSEL=7) and in `BootstrapMain.mc` (`BTemp_ LDF[T,3,10]` is
+  one instruction, BSEL=7 shift T → `(T>>8)&7`; `BTemp_ LSH[BTemp,1]` is the
+  *next* instruction, BSEL=4 shift the RM reg BTemp → `<<1`).
+- The hack conflated those two real instructions into one and only happened to
+  give Bootstrap the right answer because `BTemp` had just been loaded from T.
+- Fix: deleted the special case; the genuine §3.11 path (already present)
+  computes all of them. Result: kernel 1.34M → **3.93M** steps (clears the whole
+  shifter suite), Galaxian still 121602 px, Cedar boot timing unchanged, all 12
+  test suites green. The synthetic `test_bootstrap_ldf_dispatch` had encoded the
+  hack's wrong semantics and was rewritten to model the two real instructions.
+
+### kernel — next: TASKTESTERR (0o5546), the task simulator
+With the shifter fixed, the kernel now fails at `TASKTESTERR` (real PC 0o5546).
+This is the Postamble's **task-simulator** test — it loads `Hold&TaskSim` (FF
+0o154) with a TASKSIM frequency and expects the simulated task wakeups (HM §3.12:
+TASKSIM is a 7-bit counter that requests a wakeup when it overflows 0o177→0o200).
+`Hold&TaskSim ← B` is still a no-op (`cpu.c` ~1522). This is the same §3.12
+register memA needs; implementing it advances both. NOT the memory-miss stall.
 
 ### eventCounters (diagnosed; loopback fix attempted, reverted)
 General-IO subtest `GENIO`: writes a pattern to GenOut (EventCntB) and expects
@@ -86,25 +113,57 @@ re-derivation (the diagnosing agent flagged this uncertainty: no wiring doc, and
 the `eventCounters.cm` source is in the CHM archive but not local). The later
 subtests additionally need real per-cycle event counting (HM §12.3).
 
-### memA, memMisc, Tricond — all gate on HOLD (gap B1/C1) [the headline]
-Three diagnostics fail/hang for the **same root cause: the Hold mechanism is
-unimplemented**.
-- **memA** (timeout): its multi-task memory *simulator* busy-polls for
-  HOLD / reference-completion / `Pipe4'` status edges that never occur
-  (`memory.c` HOLD no-op ~488; `dorado_pipe4_at` fixed baseline). Livelocks.
-- **memMisc** (timeout): the ASRN/subtask fault test needs **HOLD-on-fault + a
-  per-fault fault-task (task 15) handshake** for I/O-task references; ours holds
-  nothing and wakes task 15 only once (`memory.c:495`, `cpu.c:~502`), so task 0
-  spins on a fault count that never arrives. (Also: default 16 MW memory makes an
-  earlier page-walk astronomically long; `DORADO_STORAGE_MODULES=1` skips to the
-  real deadlock.)
-- **Tricond** (FAIL @105, `STATE.ERRS`): it is actually the **Hold + task-sim**
-  diagnostic; `Hold&TaskSim ← B` (FF=0o154) is a no-op (`cpu.c:1522`) with no
-  Hold/TaskSim state, so the saved-state check reads garbage.
+### Corrected per-diagnostic diagnosis (memA, memMisc, Tricond)
 
-**Implication:** implementing Hold (the cycle-accurate-timing gap B1/C1) now has
-**three self-checking real-hardware regression tests** — a far better gate than
-"do games render."
+Grounded in the original `.mc` sources, now mirrored locally at
+`chm/doradosource/diagnostics/` (TriconD-Diagnostics, memAll-Source =
+`memMiscSource.dm`, diagnosticSubrs). The earlier "all three gate on the memory
+Hold mechanism" claim does not survive reading the sources — they need three
+different things, and none is the gap-B1 memory-miss engine stall.
+
+- **Tricond → Trident DISK-controller diagnostic (`tricond.mc`).** "TriconD" =
+  Trident Controller, Dorado. It fails at `State.Errs`: it reads the disk
+  controller's **state muffler word `KSTATE`** through the DMux muffler-read
+  subroutine (`read20Muffs`), normalises (`T XOR 0o70`), masks the determinate
+  bits (`AND 0o76377`), and expects `0`. Our engine has no disk-controller
+  muffler model, so the read is wrong. This has **nothing to do with Hold**; the
+  `Hold&TaskSim` register in TriconD.midas is leftover boilerplate (the midas
+  header says "KERNEL.MIDAS display relevant rm, im values"). Fixing it means
+  modeling the Trident disk controller's muffler/state readback — a disk feature,
+  on the disk track, not the timing track.
+
+- **memA → the §3.12 Hold&TaskSim DEBUG simulator + memory simulator subtest.**
+  memA reaches `SETHOLD` (0o5520) and writes `Hold&TaskSim ← B` (FF=0o154) — the
+  HM **§3.12** hardware-checkout register: `HOLDSIM[0:7]` (a recirculating
+  8-bit shift register; a 1 in bit 7 forces HOLD two instructions later) and
+  `TASKSIM[0:6]` (a 7-bit counter that requests a task wakeup when it overflows
+  0o177→0o200). It then runs `MEMSIMINIT` — a memory *simulator* subtest that
+  expects those simulated holds/wakeups. `Hold&TaskSim ← B` is a no-op
+  (`cpu.c:1522`) with no HOLDSIM/TASKSIM state, so the polled status never moves
+  and memA livelocks. This is the §3.12 *debug simulator*, **not** the memory
+  cache-miss stall. Self-contained and well-specified; doesn't touch the boot or
+  memory-miss path.
+
+- **memMisc → Map ref-bit + fault-task wakeups + Pipe4 status (`memMapA.mc`).**
+  memMisc shares the memAll source; it hangs in `aMapTest`, whose first
+  microinstruction is `call[disableConditionalTask] * don't run HOLD simulator`
+  — i.e. it **explicitly turns the hold simulator off**. `aMapTest` (per its own
+  header) "checks the map reference bit and that various faults cause wakeups":
+  per map page it clears the Ref bit via `setMap`, `PreFetch`es (Ref must set),
+  sets write-protect and `Store`s (must take a **write-protect fault** → fault
+  task task 15 deposits FaultInfo in Q, `Pipe4.wProtect`/`Pipe4.Mfault` set),
+  then marks the page vacant and `Fetch`es (must take a **page fault**,
+  `Pipe4.memErr` low-true distinguishing it from a data error). It loops over
+  **every** map page, so it is also just slow. What it needs is the **per-fault
+  fault-task (task 15) handshake** (FaultInfo: nFaults incremented per fault,
+  firstSrn latched) and **accurate Pipe4 per-reference status bits** — **not**
+  engine-stall Hold.
+
+**Implication (revised):** there is no single "implement Hold" that turns all
+three green. They are three separate features: a disk-controller muffler model
+(Tricond), the §3.12 Hold&TaskSim debug-simulator register (memA), and the
+fault-task + Pipe4 machinery (memMisc). The §3.12 simulator (memA) is the only
+one that is a genuine "Hold" feature, and it is the most self-contained.
 
 ### IfuComplex (diagnosed)
 FAIL @1622, `IFUEXCEPTIONERR`, running in task 2 (the IFU-test/junk timer). It

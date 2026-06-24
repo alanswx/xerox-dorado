@@ -7844,31 +7844,57 @@ static int test_bootstrap_ldf_dispatch(void)
     memset(&mc, 0, sizeof mc);
     mc.alufm[14] = 001; mc.alufm_present[14] = 1;   /* NOT A for shift */
 
-    /* Bootstrap's compiled `BTemp_ LDF[T,3,10]` extracts the 3-bit
-     * dispatch from the high byte sent by the BaseBoard and delivers
-     * the even BigBDispatch target offset. For CPReg high byte 0x82,
-     * the dispatch is 2, so the offset is 4. */
-    mc.im[0] = make_uinstr(/*rstk=*/2, /*aluf=*/4, /*bsel=*/4, /*lc=*/6,
-                           /*asel=*/7, /*block=*/0, /*ff=*/001,
+    /* The real BaseBoard-dispatch extraction in BootstrapMain.mc (BootByteL)
+     * is TWO separate FF-controlled shift instructions, not one. The exact
+     * field encodings below are read off Bootstrap.mb (mbdis --disasm), and
+     * exercise BOTH source forms of the FF-controlled shifter (HM §3.11):
+     *
+     *   BTemp_ LDF[T, 3, 10];   * extract the 3 dispatch bits FROM T
+     *       bsel=7 (SHA=SHB=T), aluf=02 (ShiftLMask), ff=0o330
+     *       (count=8, lmask=13): cycle T left 8, zero the top 13 bits
+     *       => BTemp = (T>>8) & 7.   For T=0x8282 that is 2.
+     *   BTemp_ LSH[BTemp, 1];   * spread for the dispatch table
+     *       bsel=4 (SHA=SHB=RM/STK), aluf=04 (ShiftRMask), ff=001
+     *       (count=1): cycle the RM register BTemp left 1 => 4.
+     *
+     * This is the regression guard for the old `(T>>8)&7)<<1` special case:
+     * that hack folded both instructions into one and keyed on
+     * bsel=4/aluf=4/ff=1, which ALSO matched the kernel's legitimate
+     * `lsh[r,1]` (a real RM shift) and corrupted it. The genuine §3.11 path
+     * — bsel[1:2] selects the T-vs-RM source — handles both correctly. */
+    mc.im[0] = make_uinstr(/*rstk=*/2, /*aluf=*/002, /*bsel=*/7, /*lc=*/6,
+                           /*asel=*/7, /*block=*/0, /*ff=*/0330,
                            /*jcn=*/jcn_local(1));
     mc.im_present[0] = 1;
-    mc.im[1] = make_uinstr(0, 0, 4, 0, 4, 0, 0, jcn_local(1));
+    mc.im[1] = make_uinstr(/*rstk=*/2, /*aluf=*/004, /*bsel=*/4, /*lc=*/6,
+                           /*asel=*/7, /*block=*/0, /*ff=*/001,
+                           /*jcn=*/jcn_local(2));
     mc.im_present[1] = 1;
-    for (int i = 0; i < 2; i++) {
+    mc.im[2] = make_uinstr(0, 0, 1, 0, 0, 0, 0, jcn_local(2)); /* spin/halt */
+    mc.im_present[2] = 1;
+    for (int i = 0; i < 3; i++) {
         mc.image_to_real[i] = i;
         mc.image_present[i] = 1;
     }
-    mc.n_instructions = 2;
+    mc.n_instructions = 3;
 
     dorado_cpu cpu;
     dorado_cpu_init(&cpu, &mc, 0);
     cpu.T = 0x8282;
 
+    /* Instruction 0: LDF[T,3,10] shifts T, not RM. */
     EXPECT(dorado_cpu_step(&cpu) == 0, "LDF[T,3,10] step: %s",
            cpu_halt_reason_str(cpu.halt_reason));
-    EXPECT(cpu.RM[2] == 4, "BTemp = 0x%04X, expected 4", cpu.RM[2]);
+    EXPECT(cpu.RM[2] == 2, "after LDF[T,3,10]: BTemp = 0x%04X, expected 2",
+           cpu.RM[2]);
 
-    printf("PASS  test_bootstrap_ldf_dispatch (LDF[T,3,10])\n");
+    /* Instruction 1: LSH[BTemp,1] shifts the RM register BTemp (=2) -> 4. */
+    EXPECT(dorado_cpu_step(&cpu) == 0, "LSH[BTemp,1] step: %s",
+           cpu_halt_reason_str(cpu.halt_reason));
+    EXPECT(cpu.RM[2] == 4, "after LSH[BTemp,1]: BTemp = 0x%04X, expected 4",
+           cpu.RM[2]);
+
+    printf("PASS  test_bootstrap_ldf_dispatch (LDF[T,3,10] + LSH[BTemp,1])\n");
     return 0;
 }
 

@@ -1999,24 +1999,16 @@ static uint16_t shifter_output(const dorado_cpu *cpu, const dorado_uinstr *u,
     int count, rmask_n, lmask_n;
 
     if (u->bsel & 4) {
-        /* FF-controlled — high bit of BSEL set. */
-        if (u->bsel == 4 && u->aluf == 4 && u->ff == 1) {
-            /* MicroD emits this compact FF-controlled form for
-             * LDF[T,3,10] in Bootstrap. It extracts the 3-bit
-             * BaseBoard dispatch from CPReg high-byte bits 5..7.
-             * This .MB form feeds BigBDispatch directly, so return
-             * the already-spread even target offset.
-             *
-             * KNOWN BUG (kernel diagnostic): this over-matches. The kernel's
-             * legitimate masked shifts share bsel=4/aluf=4/ff=1/lc=6/asel=7,
-             * differing only in rstk (dest), so they wrongly get this dispatch
-             * hack instead of a real shift -> kernel RLSH fails at real PC
-             * 0o2604 (run 1.34M steps). The proper fix is the HM §3.11 SHA/SHB
-             * source rule for the FF-controlled shift form (does it shift T or
-             * R?), so the normal path produces both results and this hack can
-             * be removed. See docs/running-diagnostics.md. */
-            return (uint16_t)(((t >> 8) & 0x7) << 1);
-        }
+        /* FF-controlled shift (HM §3.11 + p14): "BSEL = 4 to 7 will cause the
+         * shifter controls to come directly from FF rather than from ShC."
+         * BSEL[1:2] (the low two bits of BSEL) select the SHA/SHB source the
+         * way ShC[2:3] do in the standard form: bit set => T, clear => RM/STK.
+         * Confirmed against real microcode: in kernel.mb the Rlsh test (shift
+         * RM/STK) compiles to BSEL=4 (0,,FF) and the Tlsh test (shift T) to
+         * BSEL=7 (FF,,377); in BootstrapMain.mc `BTemp_ LDF[T,3,10]` (shift T)
+         * is BSEL=7 and the following `BTemp_ LSH[BTemp,1]` (shift the RM reg
+         * BTemp) is BSEL=4. The whole FF-controlled range is handled by this
+         * one rule -- no per-opcode special cases. */
         sha = (u->bsel & 2) ? t : r;
         shb = (u->bsel & 1) ? t : r;
         count   = u->ff & 0xF;          /* FF[4:7] */

@@ -4,6 +4,20 @@
 **You are picking this up after a context reset. Read the "Read first" docs
 below before writing any code.**
 
+> **CORRECTION (2026-06-23, later): the premise of this doc is wrong.** Reading
+> the original PARC `.mc` diagnostic sources (now mirrored at
+> `chm/doradosource/diagnostics/`) shows the three diagnostics do **NOT** all
+> gate on one "Hold (gap B1)" mechanism. They need three *different* things:
+> **Tricond** is the Trident **disk-controller** muffler diagnostic (`KSTATE`),
+> nothing to do with Hold; **memA** exercises the HM **§3.12 Hold&TaskSim debug
+> simulator** (HOLDSIM shift register + TASKSIM wakeup counter, FF=0o154) feeding
+> a memory-simulator subtest; **memMisc** (`aMapTest`) **explicitly disables the
+> hold simulator** and instead needs the **fault-task (task 15) per-fault
+> handshake + accurate Pipe4 status bits**. None needs the memory-miss engine
+> stall. See `docs/running-diagnostics.md` → "Corrected per-diagnostic
+> diagnosis" for the source citations. The rest of this doc is kept for the
+> code-location pointers, but ignore its "all gate on Hold" framing.
+
 ## TL;DR
 
 We got PARC's original **Dorado hardware diagnostics running on our microengine**
@@ -98,14 +112,14 @@ diagnostics and the gates, then make it default.
 
 ## The other diagnostics (secondary, after Hold)
 
-- **kernel** (FAIL @1.34M, was @79 — runner RBase fix already in): next bug
-  root-caused — the Bootstrap `LDF[T,3,10]` special case in `shifter_output`
-  (`cpu.c` ~2003, `bsel=4&&aluf=4&&ff=1`) over-matches the kernel's legitimate
-  masked shifts (same fields + lc=6 + asel=7, differ only in `rstk`). Fix needs
-  the HM §3.11 SHA/SHB source rule (does the FF-controlled shift form shift T or
-  R?) so the normal path yields both results and the hack can be removed; guard
-  with `test_bootstrap_ldf_dispatch` + the kernel diagnostic. Use
-  `DORADO_SHIFT_TRACE=1`.
+- **kernel** (now FAIL @3.93M, was @79 → @1.34M): shifter bug **FIXED**
+  (2026-06-23). The `(T>>8)&7)<<1` special case in `shifter_output` was deleted —
+  the FF-controlled shifter's SHA/SHB source comes from BSEL[1:2] (HM §3.11),
+  confirmed against real kernel + Bootstrap microcode, so the one genuine path
+  handles every case. Galaxian 121602, Cedar boot unchanged, 12 suites green.
+  Now fails far later at `TASKTESTERR` (0o5546) = the §3.12 TASKSIM task
+  simulator (`Hold&TaskSim ← B`, FF 0o154, still a no-op at `cpu.c` ~1522) —
+  the same register memA needs. See `docs/running-diagnostics.md`.
 - **eventCounters** (FAIL @674 `GENIOERR2`): GenIn/GenOut general-IO stub
   (loopback polarity TBD — a naive `event_cnt_a=event_cnt_b` mirror had no
   effect; re-derive from the `eventCounters.cm` source on the CHM archive) + no
