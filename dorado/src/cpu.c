@@ -3619,21 +3619,17 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
      * microinstruction consumes Md before the fetch's latency has elapsed,
      * the Memory Section freezes the engine: convert the instruction to a
      * jump-to-self this cycle, let a higher-priority task run, and re-run it
-     * when this task is next selected. Boot microcode runs with mcr.disHold
-     * and is unaffected. Gated by DORADO_HOLD during bring-up so the default
-     * path is byte-for-byte unchanged until validated. */
-    {
-        static int hold_enabled = -1;
-        if (hold_enabled < 0) hold_enabled = getenv("DORADO_HOLD") ? 1 : 0;
-        if (hold_enabled && from_im && cpu->mem &&
-            !dorado_mcr_dishold(cpu->mem) && uinstr_reads_md(u) &&
-            (uint64_t)cpu->cycles < cpu->task_md_ready[cpu->ctask & 0xF]) {
-            cpu->real_PC = task_schedule(cpu, cpu->real_PC, 0);
-            cpu->cycles++;
-            if (cpu->baseboard && cpu->baseboard_cycles_per_uop > 0)
-                baseboard_run(cpu->baseboard, cpu->baseboard_cycles_per_uop);
-            return 0;
-        }
+     * when this task is next selected. The hardware suppresses this only when
+     * mcr.disHold is set (boot/init microcode sets it); that gate is real
+     * hardware behavior, not an emulator approximation. */
+    if (from_im && cpu->mem &&
+        !dorado_mcr_dishold(cpu->mem) && uinstr_reads_md(u) &&
+        (uint64_t)cpu->cycles < cpu->task_md_ready[cpu->ctask & 0xF]) {
+        cpu->real_PC = task_schedule(cpu, cpu->real_PC, 0);
+        cpu->cycles++;
+        if (cpu->baseboard && cpu->baseboard_cycles_per_uop > 0)
+            baseboard_run(cpu->baseboard, cpu->baseboard_cycles_per_uop);
+        return 0;
     }
 
     /* BBT dump (env DORADO_BBT_TRACE): at AEmu BitBltA (real 0o13124)
