@@ -1945,12 +1945,18 @@ static int ref_kind_loads_md(dorado_ref_kind kind)
 /* Does this microinstruction consume Md? The Memory Section asserts Hold
  * when microcode reads Md before the fetch has landed, so the engine needs
  * to know which µinstrs touch Md to decide whether to Hold:
- *   - A bus  = Md  (ASEL=2, HM Table 8)
- *   - B bus  = Md  (BSEL=0, HM Table 7)
- *   - LC routes Md to T/RM/STK (LC 2,3,4,5 = T<-Md / RM<-Md, HM Table 10) */
+ *   - A bus = Md: the alternate-memory-source forms (ASEL=2,3) read Md ONLY
+ *     when FF encodes a function selecting Md (FF[0:1]=0); otherwise ASEL=2,3
+ *     read T/Id/Q or are Store/Fetch←T (FF not a function). This must mirror
+ *     alt_mem_source exactly — treating every ASEL=2 as A←Md spuriously Holds
+ *     Store←T instructions (e.g. eventCounters' eventHold loop, ASEL=2 FF[0:1]
+ *     =3 = Store←T).
+ *   - B bus = Md  (BSEL=0, HM Table 7)
+ *   - LC routes Md to T/RM/STK (LC 2,3,4,5 = T←Md / RM←Md, HM Table 10) */
 static int uinstr_reads_md(const dorado_uinstr *u)
 {
-    if (u->asel == 2) return 1;
+    if ((u->asel == 2 || u->asel == 3) && ff_decode_ok(u) &&
+        ((u->ff >> 6) & 3) == 0) return 1;
     if (u->bsel == 0) return 1;
     if (u->lc >= 2 && u->lc <= 5) return 1;
     return 0;
