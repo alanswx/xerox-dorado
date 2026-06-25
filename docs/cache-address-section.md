@@ -124,6 +124,67 @@ identify the actual readback path before attempting another packing. The
 schematic findings above (Cache A = VA[6:21], Aad = VA[20:27], the
 PipeVA[4:15]⊕[20:31] wire-OR) remain valid and will inform whichever path it is.
 
+### UPDATE 2 (2026-06-24): sharper — NORMAL-reference Pipe VA, 2-bit offset
+
+Ran the engine traces under rundiag (`dorado_trace_gate=1`) and followed it:
+
+- `Errors` (RM[6]) becomes 4 in the **showS / Pattern3 storage test** region
+  (labels `GETSP3ODD/EVEN`, `GETSP4`, `GETCURSPATTERN`, 0o3347-0o3370) — not a
+  cache-address-memory test.
+- The reads feeding it are **`B←Pipe0` (pc 0o3300)** and **`B←Pipe1`
+  (pc 0o3354)** of a **normal reference** (psrn=0; **no DMUX/muffler reads**).
+  For the failing entry the pipe VA = `0x1000`.
+- Decoding our (correct) pipe with `getPipeCacheABits` (MSB-first:
+  `pipe1&176000₈`=VA[16:21], `rsh 12` keeps VA[16:19]; `pipe0&377₈`=VA[8:15],
+  `lsh 6`) gives **VA[8:19]** of the va — but the test expects the cache address
+  **VA[6:21]**: a **2-bit window offset**. (va `0x1000` = HM bit 19: VA[8:19]
+  reads it as value 1, VA[6:21] as value 4 = the bit-2 `Errors`.)
+
+So the bug is the **pipe VA presentation for NORMAL references**, in the bit
+window the storage test checks — almost certainly the **page-size strap**: the
+sheet says *"For 256-wd pages, 20-23+Hi; for 1k pages, 20-21+Hi"*, and HM 20-21
+(= our C bits 10-11) sit exactly in `getPipeCacheABits`'s Pipe1[10:15] read. Our
+config is 256-word pages, so the high-VA 20-23 bits should map into PipeVA
+shifted vs. our straight `Pipe1 = va&0xFFFF` — the missing 2-bit shift.
+**dVA←Victim and cache-address-memory readback are ruled out** (the failing read
+is a normal `B←Pipe0/Pipe1`); the Cache A geometry above is correct but off-path.
+
+**Next:** read the PipeVA assembly sheet (MEMC pg 34) for the exact "20-23+Hi"
+page-strap wiring (which VA bits land where in Pipe0/Pipe1 for 256-word pages),
+apply that to our pipe VA, and verify CATUP clears AND the boot/games (which
+read VaHi/VaLo) stay green. NB: changing the normal-reference pipe VA touches
+every world — validate the regression gates carefully.
+
+### UPDATE 3 (2026-06-24): ROOT CAUSE — page-size config mismatch
+
+The 2-bit offset is a **page-size mismatch**:
+
+- **memA assumes 1024-word pages:** `memDefs.mc` `set[nBitsInPage, 10]` (2^10).
+- **Our model uses 256-word pages:** `memory.h` `DM_PAGE_SIZE = 256`
+  (chosen to match the Alto/Mesa world, which reaches real pages valid only on
+  the 256-word, 16MW config).
+
+The schematic's page-size strap is exactly this: *"For 256-wd pages 20-23+Hi /
+for 1k pages 20-21+Hi"* — the high VA (page-number) bits land in **PipeVA**
+shifted by **2 bits** between the two page sizes. `getPipeCacheABits` reads
+Pipe1[10:15] = VA[16:21], whose top bits (VA[20:21]) sit right on that boundary,
+so a 1k-page diagnostic reading our 256-page pipe VA is off by 2 = the bit-2
+`Errors`.
+
+**So this is not an engine bug — it is a configuration the emulator doesn't
+support.** memA was built for a 1024-word-page Dorado; the Alto world we boot is
+a 256-word-page Dorado. They are different machine builds.
+
+**Recommended fix (ties to the earlier "make it a command-line option" idea —
+but for PAGE/MAP size, not cache size):** parameterize the map/page
+configuration (HM Table 16: page sizes 256/1024/4096, map IC 16K/64K/256K) the
+way storage modules already are, and run memA with its expected **1024-word
+page** config. The cache geometry itself (64 rows × 4 × 16) is unchanged; only
+the VA↔map↔pipe bit boundaries move. Default stays 256-word (the Alto/Cedar
+worlds); a `--page-size`/`DORADO_PAGE_WORDS` knob selects 1024 for the mem
+diagnostics. Validate the Alto/Cedar boot is byte-identical at 256-word and that
+CATUP (and the later mem subtests) clear at 1024-word.
+
 ## Open questions for the board owner
 
 1. Confirm the wire-OR direction: **PipeVA[4:15] OR PipeVA[20:31]** (VA[20:31]
