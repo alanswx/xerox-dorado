@@ -3705,17 +3705,20 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
 
     /* Memory Hold (HM §5 pp.41-42; docs/memory-architecture.md). If this
      * microinstruction consumes Md before the fetch's latency has elapsed,
-     * the Memory Section freezes the engine: convert the instruction to a
-     * jump-to-self this cycle, let a higher-priority task run, and re-run it
-     * when this task is next selected. The hardware suppresses this only when
-     * mcr.disHold is set (boot/init microcode sets it); that gate is real
-     * hardware behavior, not an emulator approximation. */
-    if (from_im && cpu->mem &&
-        !dorado_mcr_dishold(cpu->mem) && uinstr_reads_md(u) &&
-        (uint64_t)cpu->cycles < cpu->task_md_ready[cpu->ctask & 0xF]) {
-        /* HM §4.11: this cycle is a Hold — flag it for the event counters
-         * before task_schedule (which ticks them) runs. */
-        cpu->evc_events |= EVC_EV_HOLD;
+     * the Memory Section asserts Hold. The Hold *signal* is what HM §4.11's
+     * event counter counts (eventCounters2.mc eventHold counts MDI holds), and
+     * it asserts independently of mcr.disHold — so flag it for the counters
+     * even when disHold suppresses the stall. (Harmless for games/boot: the
+     * counters only tick when a diagnostic has enabled them.) */
+    int md_not_ready =
+        from_im && cpu->mem && uinstr_reads_md(u) &&
+        (uint64_t)cpu->cycles < cpu->task_md_ready[cpu->ctask & 0xF];
+    if (md_not_ready) cpu->evc_events |= EVC_EV_HOLD;
+    /* The engine's *response* to Hold — freeze (convert to jump-to-self this
+     * cycle, let a higher-priority task run, re-run when next selected) — is
+     * suppressed when mcr.disHold is set (boot/init microcode sets it); that
+     * gate is real hardware behavior, not an emulator approximation. */
+    if (md_not_ready && !dorado_mcr_dishold(cpu->mem)) {
         cpu->real_PC = task_schedule(cpu, cpu->real_PC, 0);
         cpu->cycles++;
         if (cpu->baseboard && cpu->baseboard_cycles_per_uop > 0)
