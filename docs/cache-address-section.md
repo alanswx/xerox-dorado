@@ -185,6 +185,35 @@ worlds); a `--page-size`/`DORADO_PAGE_WORDS` knob selects 1024 for the mem
 diagnostics. Validate the Alto/Cedar boot is byte-identical at 256-word and that
 CATUP (and the later mem subtests) clear at 1024-word.
 
+### UPDATE 4 (2026-06-24): page-size config built; CATUP needs the PIPE strap too
+
+Parameterized the page/map size (`dorado_page_shift()` in memory.c; map index,
+offset, phys all derive from it; `DORADO_PAGE_WORDS`, default 256). make test
+12/12, Galaxian 121639, kernel PASS — byte-identical at 256-word.
+
+**But running memA at `DORADO_PAGE_WORDS=1024` fails identically** (same step
+87553, same `CATUPADDRERR`). So the *map* page-size change alone does NOT fix
+CATUP — confirming the bug is specifically the **pipe-VA presentation**, which is
+page-size-dependent but separate from the map index. The pipe stores the raw VA;
+`getPipeCacheABits` extracts fixed bit positions; the page-size config doesn't
+touch those.
+
+Precise characterization of the pipe strap (the remaining piece):
+`getPipeCacheABits` = `((pipe0&0xFF)<<6) | ((pipe1&0xFC00)>>12)` produces result
+bits **0-3** (from Pipe1) and **6-13** (from Pipe0), with a **2-bit gap at bits
+4-5** (the cache-row interleave, checked by `chkPipeRow` at Pipe1[4:9]). So the
+hardware's pipe VA is a **non-contiguous, row-interleaved, page-size-strapped**
+arrangement — NOT the raw VA we store. Modeling it must reconcile two readers of
+the same pipe: `getPipeCacheABits` (cache address) AND `B←VaHi/VaLo` (full VA,
+which the boot's fault path reads) — the schematic's `PipeVA.4-15 ⊕ 20-31`
+wire-OR is what reconciles them on hardware. That is the load-bearing wiring to
+read off MEMC pg 34/the data-path sheet, and the change is **boot-risky** (it
+alters VaHi/VaLo for every world), so it needs careful byte-identical validation.
+
+State: page-size config = done (foundation, also needed by memMisc's map test).
+CATUP fix = the pipe-VA strap, blocked on the exact MEMC pipe-assembly wiring +
+boot validation.
+
 ## Open questions for the board owner
 
 1. Confirm the wire-OR direction: **PipeVA[4:15] OR PipeVA[20:31]** (VA[20:31]

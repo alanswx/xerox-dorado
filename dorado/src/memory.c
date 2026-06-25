@@ -638,16 +638,31 @@ uint16_t dorado_memory_dmux_read(dorado_memory *mem)
 /* Map index from VA: page-number portion for our 64K-map /
  * 256-word-page configuration. Keep this shared with cpu.c's ReadMap
  * path; Initial depends on ReadMap observing the same entry Map<- wrote. */
-uint32_t dorado_map_index(uint32_t va)
+/* Map/page configuration (HM Table 16). The page size is a machine build
+ * strap: 256/1024/4096 words/page => offset 8/10/12 bits. The map index is the
+ * page-number portion of the VA, i.e. VA >> page_shift. Default 256-word pages
+ * (the config the Alto/Cedar worlds expect); DORADO_PAGE_WORDS selects another
+ * (the PARC memory diagnostics, e.g. memA, were built for 1024-word pages). */
+int dorado_page_shift(void)
 {
-    return (va >> 8) & (DM_MAP_ENTRIES - 1);   /* page-number portion */
+    static int cached = -1;
+    if (cached < 0) {
+        const char *w = getenv("DORADO_PAGE_WORDS");
+        long words = w ? strtol(w, NULL, 0) : DM_PAGE_SIZE;
+        cached = (words >= 4096) ? 12 : (words >= 1024) ? 10 : 8;
+    }
+    return cached;
 }
 
-/* Page-offset extraction: VA[24:31] = low 8 bits of VA in 256-word
- * page mode. */
+uint32_t dorado_map_index(uint32_t va)
+{
+    return (va >> dorado_page_shift()) & (DM_MAP_ENTRIES - 1);
+}
+
+/* Page-offset extraction: the low `page_shift` bits of VA. */
 static uint32_t va_page_offset(uint32_t va)
 {
-    return va & (DM_PAGE_SIZE - 1);
+    return va & ((1u << dorado_page_shift()) - 1u);
 }
 
 /* Pure VA→phys translation. Returns the fault kind (PAGE if Vacant,
@@ -670,7 +685,8 @@ static dorado_fault_kind va_translate(const dorado_memory *mem, uint32_t va,
     /* Write-protect violation (only meaningful for writes). */
     if (is_write && e->wp) return DM_FAULT_WRITE_PROTECT;
 
-    uint32_t phys = (uint32_t)(e->rp) * DM_PAGE_SIZE + va_page_offset(va);
+    uint32_t phys = ((uint32_t)(e->rp) << dorado_page_shift()) +
+                    va_page_offset(va);
     if ((size_t)phys >= mem->storage_words) return DM_FAULT_STORAGE_ERROR;
     *out_phys = (size_t)phys;
     return DM_FAULT_NONE;
