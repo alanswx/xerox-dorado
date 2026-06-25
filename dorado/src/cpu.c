@@ -982,8 +982,13 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
                  * know the IFU PC for branch arithmetic. */
                 *b = (uint16_t)~cpu->ifu_pcx;
                 break;
-        case 1: /* B ← EventCntA' (HM §4.11). Active-low. */
-                *b = (uint16_t)~cpu->event_cnt_a;
+        case 1: /* B ← EventCntA' / GenIn' (HM §4.11; FF256[171]). Active-low.
+                 * In GenIO mode (counters disabled) the IFU-board plug ties
+                 * GenIn to GenOut, so GenIn' reads back EventCntB (=GenOut);
+                 * otherwise it reads the real EventCntA. (eventCounters1.mc
+                 * genIO test: write GenOut, read it back via GenIn'.) */
+                *b = (uint16_t)~(cpu->gen_io_mode ? cpu->event_cnt_b
+                                                  : cpu->event_cnt_a);
                 break;
         case 2: /* B ← IFUMRH' (fields half — Sign,,IPar,,Length',,
                  * RBaseB',,MemB,,TPause',,TJump',,N — inverted). Per
@@ -1393,9 +1398,16 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                 } else {
                     cpu->event_cnt_ctrl_hi = (uint8_t)((b >> 8) & 0x0F);
                     cpu->event_cnt_ctrl_lo = (uint8_t)(b & 0xFF);
+                    /* MOS control load (the "mos←" FF). GenIO mode is active
+                     * when both counter enables are clear (ctr.Aenable=B[4]=
+                     * native bit 11, ctr.Benable=B[5]=native bit 10, mask
+                     * 0x0C00). `mos←useGenIO` (B=0) enters it; loading enable
+                     * bits for the counter tests leaves it. */
+                    cpu->gen_io_mode = ((b & 0x0C00) == 0);
                 }
                 return pd;
-            case 1: /* EventCntB ← B (HM §4.11). */
+            case 1: /* EventCntB ← B / GenOut ← B (HM §4.11; FF=0o131). EventCntB
+                     * is the IFU board's GenOut register (genOut←). */
                 cpu->event_cnt_b = b;
                 return pd;
             case 2: /* Reschedule (HM Table 20). Cause a reschedule

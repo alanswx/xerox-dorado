@@ -196,10 +196,17 @@ typedef struct {
      */
     uint8_t  brk_pending;       /* HM §4.10 BrkPending flipflop */
     uint8_t  brk_opcode;        /* opcode from BrkIns←B (high 8 bits of B) */
-    uint16_t event_cnt_a;       /* HM §4.11 EventCntA */
-    uint16_t event_cnt_b;       /* HM §4.11 EventCntB */
+    uint16_t event_cnt_a;       /* HM §4.11 EventCntA (= GenIn pins, IFU board) */
+    uint16_t event_cnt_b;       /* HM §4.11 EventCntB (= GenOut register, IFU board) */
     uint8_t  event_cnt_ctrl_lo; /* B[4:15] saved when B[0]=0 in InsSetorEvent←B */
     uint8_t  event_cnt_ctrl_hi;
+    /* GenIO mode: the eventCounters diagnostic's genIO test assumes a plug
+     * connecting GenOut to GenIn, so reading GenIn' (=EventCntA') returns what
+     * was written to GenOut (=EventCntB'). Set when the MOS control loaded via
+     * InsSetorEvent←B (B[0]=0) has both counter-enable bits clear (counters
+     * disabled). When set, EventCntA' reads back EventCntB (the loopback);
+     * otherwise it reads the real EventCntA counter. (eventCounters1.mc genIO.) */
+    uint8_t  gen_io_mode;
     uint8_t  parity_error;      /* set when IOAtten parity fault propagates */
 
     /*
