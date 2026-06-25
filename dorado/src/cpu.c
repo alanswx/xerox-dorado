@@ -190,10 +190,15 @@ static void junk_timer_ack_control(dorado_cpu *cpu, uint16_t b)
 
 static void junk_timer_ifutest_control(dorado_cpu *cpu, uint16_t b)
 {
-    /* HM §8.3: IFUTest←B also dismisses the junk wakeup, but the IFU
-     * test register uses the opposite polarity: IFUTest.15 disables
-     * the periodic junk request. Dorado bit 15 is the low-order C bit. */
-    junk_timer_enable(cpu, (b & DORADO_B15_MASK) == 0);
+    /* HM §8.3: IFUTest←B *dismisses* the periodic junk request: IFUTest.15
+     * (Dorado bit 15 = the low-order C bit) DISABLES it when set. It must NOT
+     * *enable* the periodic timer when clear — enabling is done by the junk
+     * task itself (AckJunkTW←B) / the IFU Pendulum, e.g. AEmu's
+     * `Wakeup[JNK]`+`AckJunkTW` self-sustain. Treating IFUTest←B(0) as an
+     * enable spuriously woke the parked junk task in the Ifu/eventCounters
+     * diagnostics (which reset/configure the IFU before setting up a junk
+     * handler) → it ran from an empty IM park slot and halted. */
+    if (b & DORADO_B15_MASK) junk_timer_enable(cpu, 0);
 }
 
 static void junk_timer_tick(dorado_cpu *cpu)
