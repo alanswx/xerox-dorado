@@ -8547,9 +8547,17 @@ static int test_junk_timer_wakeup(void)
 }
 
 /* HM §3.12 Hold & Task Simulator — the TASKSIM counter (Hold&TaskSim←B,
- * FF=0o154). This is exactly what the kernel TestTW diagnostic exercises:
- * load TASKSIM with the smallest count and verify it raises a wakeup for the
- * jumpered simulator task (0o12) after the counter overflows past 0o177. */
+ * FF=0o154). TASKSIM is a 4-bit register in the Hold&TaskSim word's LEFT byte
+ * (taskFreq, sim.taskShift=8): the diagnostic framework (postamble.mc)
+ * describes it as "taskSim[0] enables the task simulator and taskSim[1:3] form
+ * a counter ... when hardware counts to 17[octal] it awakens." chkRunSimulators
+ * builds taskFreq as `(taskFreq+1) or 10b` cycling 0o12..0o17 — the 0o10 bit is
+ * the ENABLE bit. A value with the enable bit CLEAR (the disabled state, e.g.
+ * resetHold jamming 0) must NOT count or fire. Here we load taskFreq=0o16
+ * (enable set, counter=6): it counts 0o16→0o17→0o20 and fires on the cycle the
+ * 0o10 bit clears. We also verify a value with the enable bit clear never
+ * fires (this is what stops the sim task after disableConditionalTask, and
+ * what fixes memA CATUPADDRERR). */
 static int test_tasksim_wakeup(void)
 {
     dorado_microcode mc;
@@ -8559,11 +8567,12 @@ static int test_tasksim_wakeup(void)
     /* IM[0]: TaskingOff (FF=0o142) so the wakeup accumulates in
      * wakeup_pending rather than switching to the empty sim task. */
     mc.im[0] = make_uinstr(0, 0, 0, 0, 6, 0, 0142, jcn_local(1));
-    /* IM[1]: T ← 0o400 (BSEL=6 "FF,,0" with FF=1 ⇒ B=0x100; LC=T←Pd). */
-    mc.im[1] = make_uinstr(0, 0, /*bsel=*/6, /*lc=*/1, 6, 0, /*ff=*/001,
+    /* IM[1]: T ← 0o7000 (BSEL=6 "FF,,0" with FF=0o16 ⇒ B=0o16<<8=0o7000;
+     * LC=T←Pd). The left byte 0o16 = enable bit 0o10 + counter 6. */
+    mc.im[1] = make_uinstr(0, 0, /*bsel=*/6, /*lc=*/1, 6, 0, /*ff=*/016,
                            jcn_local(2));
     /* IM[2]: Hold&TaskSim ← B (FF=0o154), B source = T (BSEL=2).
-     * TASKSIM[0:6] = B[1:7] = (0o400>>8)&0x7F = 1; HOLDSIM = 0. */
+     * TASKSIM = (B>>8)&0x7F = 0o16; HOLDSIM = B&0xFE = 0. */
     mc.im[2] = make_uinstr(0, 0, /*bsel=*/2, 0, 6, 0, /*ff=*/0154, jcn_local(3));
     /* IM[3]: self-loop to tick the counter. */
     mc.im[3] = make_uinstr(0, 0, 4, 0, 6, 0, 0, jcn_local(3));
@@ -8575,27 +8584,40 @@ static int test_tasksim_wakeup(void)
     dorado_cpu_init(&cpu, &mc, 0);
 
     EXPECT(dorado_cpu_step(&cpu) == 0, "TaskingOff step");
-    EXPECT(dorado_cpu_step(&cpu) == 0, "T←0o400 step");
-    EXPECT(cpu.T == 0400, "T should be 0o400, got 0o%o", cpu.T);
+    EXPECT(dorado_cpu_step(&cpu) == 0, "T←0o7000 step");
+    EXPECT(cpu.T == 07000, "T should be 0o7000, got 0o%o", cpu.T);
     EXPECT(dorado_cpu_step(&cpu) == 0, "Hold&TaskSim←B step");
-    EXPECT(cpu.tasksim == 1, "TASKSIM should load 1, got %d", cpu.tasksim);
+    EXPECT(cpu.tasksim == 016, "TASKSIM should load 0o16, got 0o%o", cpu.tasksim);
     EXPECT((cpu.wakeup_pending & (1u << 012)) == 0,
            "TASKSIM must not fire immediately");
 
-    /* Counts 1→0o177 then overflows: ~127 cycles. Spin past that. */
-    for (int i = 0; i < 130; i++)
+    /* Counts 0o16→0o17→0o20 (enable bit clears): fires within a few cycles. */
+    for (int i = 0; i < 8; i++)
         EXPECT(dorado_cpu_step(&cpu) == 0, "tasksim tick %d", i);
 
     EXPECT(cpu.tasksim_fired == 1, "TASKSIM should have fired");
     EXPECT((cpu.wakeup_pending & (1u << 012)) != 0,
            "TASKSIM should wake task 0o12, pending=0x%X", cpu.wakeup_pending);
 
-    /* Reload with 0 (what the sim task's handler does) clears the latch. */
+    /* Reload with 0 (what the sim task's handler does / resetHold jams on
+     * disableConditionalTask) clears the latch and must NOT fire again. */
     cpu.wakeup_pending = 0;
-    cpu.tasksim = 0; cpu.tasksim_fired = 0;
-    EXPECT(dorado_cpu_step(&cpu) == 0, "post-reload tick");
+    cpu.tasksim = 0; cpu.tasksim_fired = 0; cpu.tasksim_loaded = 1;
+    for (int i = 0; i < 8; i++)
+        EXPECT(dorado_cpu_step(&cpu) == 0, "post-reload tick %d", i);
     EXPECT((cpu.wakeup_pending & (1u << 012)) == 0,
-           "cleared TASKSIM must not keep firing");
+           "cleared (enable-bit-off) TASKSIM must not keep firing");
+
+    /* A nonzero value with the ENABLE bit clear (e.g. a stale re-arm like
+     * 0o104) must never count or fire — this is the memA CATUPADDRERR fix. */
+    cpu.wakeup_pending = 0;
+    cpu.tasksim = 0104; cpu.tasksim_fired = 0; cpu.tasksim_loaded = 0;
+    for (int i = 0; i < 200; i++)
+        EXPECT(dorado_cpu_step(&cpu) == 0, "disabled-tasksim tick %d", i);
+    EXPECT(cpu.tasksim_fired == 0,
+           "enable-bit-clear TASKSIM (0o104) must never fire");
+    EXPECT((cpu.wakeup_pending & (1u << 012)) == 0,
+           "enable-bit-clear TASKSIM must not wake task 0o12");
 
     printf("PASS  test_tasksim_wakeup\n");
     return 0;

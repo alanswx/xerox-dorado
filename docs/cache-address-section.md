@@ -1,5 +1,19 @@
 # Cache Address Section (MEMC) — schematic findings + CATUP fix
 
+> **RESOLVED (2026-06-25): the bug was NOT the cache-address presentation.**
+> The `dVA←Victim`→Pipe0/Pipe1 round-trip is correct (`getPipeCacheABits` of
+> `(tag<<10)|(row<<4)` recovers the tag; the diagnostic constants are octal, so
+> there was no 2-bit offset). The real cause was the §3.12 **TASKSIM** tick
+> firing without honoring the `0o10` enable bit: after `cacheAddrTest` calls
+> `disableConditionalTask`, a stale re-arm value kept waking the memory-simulator
+> task (0o12), whose `noRef`+`useMcrV` STORE clobbered the just-zeroed cache.
+> Fixed in `dorado/src/cpu.c` (gate the tick on the enable bit). memA now runs
+> the long storage walk past 60M steps with no error; kernel still PASSES; games
+> (test_snapshot digest) and Cedar unchanged. The CAT source is mirrored at
+> `chm/doradosource/diagnostics/memASource/memRWc.mc`. The schematic notes below
+> are retained as a correct reference for the cache-address datapath, but they
+> were not load-bearing for this fix.
+
 **Date: 2026-06-24.** Working notes for fixing memA's `CATUPADDRERR` (the Cache
 Address Test). The bug is in how a `dVA←Victim` read presents the cache address
 in Pipe0/Pipe1; this captures what the MEMC schematic and the diagnostic source

@@ -301,17 +301,29 @@ static uint16_t task_schedule(dorado_cpu *cpu, uint16_t next_pc,
         cpu->wakeup_pipe[0] = 0;
     }
 
-    /* HM §3.12 TASKSIM tick (once per cycle). A non-zero counter counts up
-     * to 0o177 and, on the overflow, raises a wakeup for the simulator task
-     * (task 12, backplane-jumpered) that stays asserted until TASKSIM is
-     * reloaded (Hold&TaskSim←B). The simulator task's handler reloads
-     * TASKSIM (typically with 0) to clear it. */
+    /* HM §3.12 TASKSIM tick (once per cycle). TASKSIM is a 4-bit register
+     * occupying taskFreq's bits in the Hold&TaskSim word's LEFT byte (the
+     * sim.taskShift=8/sim.taskMask=0o177400 field): the diagnostic framework's
+     * postamble describes it as "taskSim[0] enables the task simulator and
+     * taskSim[1:3] form a counter ... when hardware counts to 17[octal] it
+     * awakens." chkRunSimulators (postamble.mc) constructs taskFreq as
+     * `(taskFreq+1) or 10b` cycling 0o12..0o17 — the 0o10 bit is the ENABLE
+     * bit. With the simulator disabled (disableConditionalTask → resetHold
+     * jams Hold&TaskSim=0, or a re-arm value whose 0o10 bit is clear) the
+     * counter must NOT run, so the jumpered simulator task (task 12) is not
+     * woken. tasksim here is (B>>8)&0x7F; the enable bit is 0o10. Counting up
+     * from the loaded value, the wakeup fires on the cycle the 0o10 bit clears
+     * (i.e. 0o17→0o20 overflow), and stays asserted until TASKSIM is reloaded.
+     * Without the enable gate, a stale re-arm value like 0o104 (enable clear)
+     * would spuriously keep waking task 12 and corrupt the cache-addressing
+     * test's zeroed cache (memA CATUPADDRERR). */
     if (cpu->tasksim_fired) {
         cpu->wakeup_pending |= (uint16_t)(1u << DORADO_TASKSIM_TASK);
     } else if (cpu->tasksim_loaded) {
         cpu->tasksim_loaded = 0;            /* the load consumed this clock */
-    } else if (cpu->tasksim != 0) {
-        if (++cpu->tasksim > 0x7F) {        /* counted past 0o177 → overflow */
+    } else if (cpu->tasksim & 010) {        /* taskSim[0] enable bit set */
+        cpu->tasksim = (uint8_t)((cpu->tasksim + 1) & 0x7F);
+        if (!(cpu->tasksim & 010)) {        /* counted 0o17→0o20: enable cleared */
             cpu->tasksim_fired = 1;
             cpu->wakeup_pending |= (uint16_t)(1u << DORADO_TASKSIM_TASK);
         }
@@ -1583,6 +1595,10 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                 cpu->holdsim = (uint8_t)(b & 0xFE);
                 cpu->tasksim_fired = 0;
                 cpu->tasksim_loaded = 1;  /* don't also tick this cycle */
+                if (getenv("DORADO_TASKSIM_TRACE"))
+                    fprintf(stderr, "TASKSIM load task=%o pc=0o%o b=%06o tasksim=%03o holdsim=%03o\n",
+                            cpu->ctask & 017, cpu->real_PC, b & 0177777,
+                            cpu->tasksim, cpu->holdsim);
                 return pd;
             case 5: /* WF ← A (load ShC with write-field controls) */
                 cpu->ShC = field_desc_to_shc(a, /*is_write=*/1);

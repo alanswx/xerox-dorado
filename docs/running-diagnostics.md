@@ -56,7 +56,7 @@ RUNDIAG_TRAIL=1 build/rundiag ... 2>&1   # dump the last 48 PCs on a non-PASS
 |----------------|--------|-----------|----------|
 | kernel         | **PASS** (reaches DONE @4.06M steps; was @79 → 1.34M → 3.93M → 4.06M) | 4 bugs FIXED: (1) runner RBase 0; (2) bogus `(T>>8)&7)<<1` shifter special case removed — FF-controlled SHA/SHB source is BSEL[1:2] (HM §3.11); (3) microcode `Wakeup[n]` 2-cycle latency (HM p27) — fixes the `TASKTESTERR` preemption test; (4) §3.12 **TASKSIM** counter (`Hold&TaskSim←B`, FF=0o154) waking the jumpered sim task 0o12 — fixes `TESTTWERROR`. **First PARC hardware diagnostic to fully pass.** | — |
 | eventCounters  | FAIL @674 (`GENIOERR2`) | GenIn/GenOut general-IO stub (loopback polarity TBD) + no real event counting (HM §12.3) | small + medium |
-| memA           | FAIL @87k (`CATUPADDRERR`), was 3M TIMEOUT | Starvation FIXED (40cc535, IFUReset junk bug). Now runs the real memory tests in task 0 and fails at `CATUPADDRERR` (0o4232) — the **Cache Address Test** (CAT: `CATROWUPL`/`CATCOLUPL` up-count every cache row×column). Pinned via tracing: the diagnostic's `Errors` register holds **4 (bit 2)** — the convention "bits found in error are left in Errors" — so the cache-address **read-back differs in bit 2**. Stores are verified correct (0 task-0 stores with wrong data), so it is a **cache-address-register readback fidelity** gap: our model stores only `tag=va>>10` and `cache_address_va` reconstructs `(tag<<10)|(row<<4)` (memory.c ~709/718), read back via `dVA←Victim`→Pipe0/Pipe1. The CAT test writes a walking-bit cache-address pattern and verifies every bit; ours can't represent the exact bits. **Correct fix needs the MEMC/MEMX cache-address-register bit layout** (incl. the "shadow bit", memSubrsChaos.mc) — schematic-grounded, NOT a guess. | cache-address-register model (schematic) |
+| memA           | **CATUPADDRERR FIXED** (runs the long storage walk past 60M steps, no error; was FAIL @87553) | Root cause was NOT a cache-address-register fidelity gap (the earlier guess) — our `tag=va>>10` / `cache_address_va=(tag<<10)\|(row<<4)` round-trip is correct (verified against `getPipeCacheABits`/`setBrCacheABits` in `memSubrsC.mc`; the constants are **octal** — `CABitsInPipe1Shift=0o12=10`, `mcrVshift=0o13=11`, `nBitsInPage=0o10=8`/256-word page — so there was no "2-bit offset"). The real cause: the **Cache Address Test** (`cacheAddrTest` in the now-mirrored `memASource/memRWc.mc`) zeroes the whole cache then walks every (row,col) expecting 0, and calls `disableConditionalTask` at `beginCtest` to stop the §3.12 memory-simulator task (jumpered **task 0o12**). Our TASKSIM tick fired on any non-zero counter, so a stale re-arm value (0o104, **enable bit clear**) kept waking task 12, which made a `noRef`+`useMcrV` STORE (inheriting task 0's sweep MCR) that wrote the cache-address memory and clobbered the zeroed cache. **Fix:** gate the TASKSIM tick on the `0o10` ENABLE bit (postamble.mc: "taskSim[0] enables … taskSim[1:3] form a counter … counts to 17[octal]"). cpu.c. | full storage walk reaches DONE (very long test) |
 | memMisc        | TIMEOUT | `aMapTest` (memMapA.mc) **explicitly disables the HOLD simulator** (`call[disableConditionalTask] * don't run HOLD simulator`). It tests the **Map ref bit** + **fault-task (task 15) wakeups** (write-protect fault, page fault) + **Pipe4 status bits** (wProtect/Mfault/memErr), looping over **every** map page (slow). Needs the per-fault fault-task handshake + accurate Pipe4, NOT engine-stall Hold. | large (fault/Pipe4) |
 | Tricond        | FAIL @105 (`State.Errs`) | **Trident DISK-controller diagnostic.** Reads the disk-controller **state muffler `KSTATE`** via the DMux (`read20Muffs`), XORs 0o70, masks 0o76377, expects 0. Our engine returns no real disk muffler bits. **Nothing to do with Hold** — the "control for hold, task simulator" in TriconD.midas is boilerplate copied from kernel.midas. | large (disk mufflers) |
 | IfuComplex     | FAIL @1622 (`IFUEXCEPTIONERR`) | IFU exception latch (JMPEXC) + diagnostic mufflers unmodeled | large (IFU feature) |
@@ -127,14 +127,23 @@ earlier guess that it was the JunkTW/Pendulum signal) its own comment says
 **§3.12 TASKSIM** task-simulator: `hold&tasksim←0o400` loads the smallest count,
 the test waits, and the jumpered simulator task must wake and zero Q.
 
-`Hold&TaskSim←B` (FF=0o154) was a no-op. Implemented per HM §3.12:
-TASKSIM[0:6] ← B[1:7], HOLDSIM[0:7] ← B[8:14]‖0; a non-zero TASKSIM counts up
-each cycle and on overflow past 0o177 raises a wakeup for the simulator task,
-held until reloaded. The wakeup target is task **0o12** (=10 dec) — Dorado task
-numbers are octal, so the kernel's "task number 12" / `T_(12s)` is 0o12, NOT
-decimal 12 (the first attempt woke decimal 12 = 0o14, which ran TaskError).
-HOLDSIM is stored but its HOLD injection is unmodeled (the diagnostics' first
-pass runs with HOLDSIM=0). Guarded by `test_tasksim_wakeup`.
+`Hold&TaskSim←B` (FF=0o154) was a no-op. Implemented per HM §3.12: the
+Hold&TaskSim word is TASKSIM in the **left byte** and HOLDSIM in the **right
+byte** (confirmed by the diagnostic framework's `sim.taskShift=0o10`,
+`sim.taskMask=0o177400` vs `sim.holdShift=0`, `sim.holdMask=0o377` in
+`preamble.mc` — the "hold value in left byte" comment in `postamble.mc` is
+misleading). So TASKSIM = (B>>8)&0x7F, HOLDSIM = B&0xFE. **TASKSIM is a 4-bit
+register** (postamble.mc: "taskSim[0] enables the task simulator and
+taskSim[1:3] form a counter … when hardware counts to 17[octal] it awakens").
+The `0o10` bit is the **ENABLE bit**: the counter runs (and overflows to a
+wakeup) only while it is set — gating on it is what lets `disableConditionalTask`
+stop the sim task (and is the **memA `CATUPADDRERR` fix**, see the memA row).
+The wakeup target is task **0o12** (=10 dec) — Dorado task numbers are octal, so
+the kernel's "task number 12" / `T_(12s)` is 0o12, NOT decimal 12 (the first
+attempt woke decimal 12 = 0o14, which ran TaskError). HOLDSIM is stored but its
+HOLD injection is unmodeled (the diagnostics' first pass runs with HOLDSIM=0).
+Guarded by `test_tasksim_wakeup`. (Note: the `UnBug.bfs` `kernel.mb` we run does
+not itself load TASKSIM — it PASSES at 3765457 steps unchanged by this gate.)
 
 **With this, the kernel diagnostic PASSES end-to-end (reaches DONE)** — the
 first of PARC's six Dorado hardware diagnostics to fully pass on our engine.
