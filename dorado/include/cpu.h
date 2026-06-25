@@ -209,6 +209,28 @@ typedef struct {
     uint8_t  gen_io_mode;
     uint8_t  parity_error;      /* set when IOAtten parity fault propagates */
 
+    /* HM §4.11 event counters. EventCntA/B free-run, incrementing once per
+     * cycle on a selected event, when their enable bit is set in the MOS
+     * control word (InsSetorEvent←B, B[0]=0). The diagnostic reads EventCnt'
+     * (inverted) as a baseline at enable and computes deltas, so only the
+     * per-cycle increment matters. Event select (3 bits): 0=True (always),
+     * 1=Hold, 2=ProcRef(A)/IfuRef(B), 3=IfuJump(A)/IfuNotReady(B), 4=Miss,
+     * 5..7=backpanel (external, unmodeled). Control word bit layout
+     * (eventCounters1.mc): A enable=B[4]=native bit 11, A event=(event<<5)=
+     * native bits 7:5; B enable=B[5]=native bit 10, B event=(event<<1)=native
+     * bits 3:1. */
+    uint8_t  evc_a_enable;
+    uint8_t  evc_a_event;
+    uint8_t  evc_b_enable;
+    uint8_t  evc_b_event;
+    /* tasksAll (ctr.AtasksAll=B[11]=bit4, ctr.BtasksAll=B[15]=bit0): when set,
+     * the counter counts every task's cycles; when clear (the default,
+     * "EmuOrFT") it counts only emulator (task 0) and fault-task (task 0o17)
+     * cycles. (eventCounters2.mc eventEmuOrFT.) */
+    uint8_t  evc_a_tasksall;
+    uint8_t  evc_b_tasksall;
+    uint8_t  evc_events;        /* per-cycle event flags (EVC_EV_*); see cpu.c */
+
     /*
      * Memory subsystem. When non-NULL, processor memory references
      * (Fetch / Store / etc.) are dispatched to it; B←Md reads

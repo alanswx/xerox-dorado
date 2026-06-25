@@ -289,6 +289,30 @@ static int wake_immediate(void)
     return cached;
 }
 
+/* HM §4.11 event-counter per-cycle event flags (cpu->evc_events). */
+#define EVC_EV_HOLD        (1u << 0)
+#define EVC_EV_PROCREF     (1u << 1)
+#define EVC_EV_IFUREF      (1u << 2)
+#define EVC_EV_IFUJUMP     (1u << 3)
+#define EVC_EV_MISS        (1u << 4)
+#define EVC_EV_IFUNOTREADY (1u << 5)
+
+/* Did the 3-bit event selector `event` fire this cycle, given `flags`?
+ * is_b distinguishes counter B (event 2 = IfuRef, 3 = IfuNotReady) from
+ * counter A (event 2 = ProcRef, 3 = IfuJump). Events 5..7 are back-panel
+ * signals brought in over external cables — never asserted here. */
+static int event_counter_hit(uint8_t event, uint8_t flags, int is_b)
+{
+    switch (event & 7) {
+    case 0: return 1;                              /* True — every cycle */
+    case 1: return (flags & EVC_EV_HOLD) != 0;     /* Hold */
+    case 2: return (flags & (is_b ? EVC_EV_IFUREF : EVC_EV_PROCREF)) != 0;
+    case 3: return (flags & (is_b ? EVC_EV_IFUNOTREADY : EVC_EV_IFUJUMP)) != 0;
+    case 4: return (flags & EVC_EV_MISS) != 0;     /* Miss */
+    default: return 0;                             /* back-panel events */
+    }
+}
+
 static uint16_t task_schedule(dorado_cpu *cpu, uint16_t next_pc,
                               int block_in_non_emulator)
 {
@@ -333,6 +357,24 @@ static uint16_t task_schedule(dorado_cpu *cpu, uint16_t next_pc,
             cpu->wakeup_pending |= (uint16_t)(1u << DORADO_TASKSIM_TASK);
         }
     }
+
+    /* HM §4.11 event counters (once per cycle). Each enabled counter ticks
+     * when its selected event occurred during the previous cycle (accumulated
+     * in evc_events) AND the cycle belongs to a counted task. By default
+     * (tasksAll=0) only emulator (task 0) and fault-task (0o17) cycles count
+     * ("EmuOrFT"); tasksAll=1 counts every task. True (event 0) ticks every
+     * counted cycle. Counters stay at 0 unless a diagnostic enables them, so
+     * this is inert for games/Cedar. */
+    {
+        int emu_or_ft = (cpu->ctask == 0) || ((cpu->ctask & 017) == 017);
+        if (cpu->evc_a_enable && (cpu->evc_a_tasksall || emu_or_ft) &&
+            event_counter_hit(cpu->evc_a_event, cpu->evc_events, 0))
+            cpu->event_cnt_a++;
+        if (cpu->evc_b_enable && (cpu->evc_b_tasksall || emu_or_ft) &&
+            event_counter_hit(cpu->evc_b_event, cpu->evc_events, 1))
+            cpu->event_cnt_b++;
+    }
+    cpu->evc_events = 0;
 
     /* TaskingOn delay: TaskingOn doesn't take effect until two more
      * instructions of the same task have executed (HM page 27). */
@@ -1409,6 +1451,15 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                      * 0x0C00). `mos←useGenIO` (B=0) enters it; loading enable
                      * bits for the counter tests leaves it. */
                     cpu->gen_io_mode = ((b & 0x0C00) == 0);
+                    /* HM §4.11 event-counter control (eventCounters1.mc):
+                     * A enable=B[4]=bit11, A event=(b>>5)&7; B enable=B[5]=
+                     * bit10, B event=(b>>1)&7. */
+                    cpu->evc_a_enable   = (uint8_t)((b >> 11) & 1);
+                    cpu->evc_a_event    = (uint8_t)((b >> 5) & 7);
+                    cpu->evc_a_tasksall = (uint8_t)((b >> 4) & 1);
+                    cpu->evc_b_enable   = (uint8_t)((b >> 10) & 1);
+                    cpu->evc_b_event    = (uint8_t)((b >> 1) & 7);
+                    cpu->evc_b_tasksall = (uint8_t)(b & 1);
                 }
                 return pd;
             case 1: /* EventCntB ← B / GenOut ← B (HM §4.11; FF=0o131). EventCntB
@@ -3662,6 +3713,9 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
     if (from_im && cpu->mem &&
         !dorado_mcr_dishold(cpu->mem) && uinstr_reads_md(u) &&
         (uint64_t)cpu->cycles < cpu->task_md_ready[cpu->ctask & 0xF]) {
+        /* HM §4.11: this cycle is a Hold — flag it for the event counters
+         * before task_schedule (which ticks them) runs. */
+        cpu->evc_events |= EVC_EV_HOLD;
         cpu->real_PC = task_schedule(cpu, cpu->real_PC, 0);
         cpu->cycles++;
         if (cpu->baseboard && cpu->baseboard_cycles_per_uop > 0)
