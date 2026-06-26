@@ -1,19 +1,31 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
-## ===> ACTIVE TASK (2026-06-23, latest): implement Hold (gap B1) — start at
-## [`docs/HANDOFF-hold-and-diagnostics.md`](HANDOFF-hold-and-diagnostics.md)
+## ===> ACTIVE TASK (2026-06-25, latest): diagnostics — 2 of 6 now PASS; the
+## rest are gated on cycle-accurate timing / specific HW features.
+## Map: [`docs/running-diagnostics.md`](running-diagnostics.md);
+## handoff: [`docs/HANDOFF-hold-and-diagnostics.md`](HANDOFF-hold-and-diagnostics.md).
 
-We got PARC's original **Dorado hardware diagnostics** running on our microengine
-(`build/rundiag`) — a real-Dorado validation oracle. All six are diagnosed
-([`docs/running-diagnostics.md`](running-diagnostics.md)); the kernel's first bug
-is fixed (79 → 1.34M steps). **Headline: memA, memMisc, and Tricond all fail
-because the Hold mechanism (gap B1/C1) is unimplemented — so they are now the
-self-checking regression tests for the Hold work.** Next session: implement Hold
-against those three. **Read [`docs/HANDOFF-hold-and-diagnostics.md`](HANDOFF-hold-and-diagnostics.md)
-first** — it has the read-first doc list, the run commands, the exact code gaps
-(cpu.c ~3562/~502/~1522, memory.c ~488), and the regression gates. The
-ethernet/render investigation below is superseded as the active focus (the games
-are gated on the broader timing work; see contralto-oracle-validity.md).
+PARC's original **Dorado hardware diagnostics** run on our microengine
+(`build/rundiag`) — the one real-Dorado validation oracle. **Progress since the
+"implement Hold" framing below (now partly obsolete — the six do NOT all gate on
+one Hold mechanism):**
+
+- **kernel — PASS** (DONE @3.77M). **memA — PASS** (DONE @220.8M). Both via the
+  §3.12 **TASKSIM enable-bit** fix (`taskSim[0]`=0o10); memA's `CATUPADDRERR` was
+  that sim-task bug, not a cache-address fidelity gap (the diagnostic constants
+  are octal — no 2-bit offset).
+- **eventCounters** — genIO + the `KFAULT3` junk-timer setup fault + **eventTrue**
+  fixed (HM §4.11 event counters implemented). Now at `eventHold`, which needs
+  the **HM §5.4 reference/port-busy Hold coupled to the sim-task cadence** = the
+  holistic cycle-accurate-timing project
+  ([`docs/timing-project-scope.md`](timing-project-scope.md) +
+  [`docs/cycle-accurate-timing-plan.md`](cycle-accurate-timing-plan.md)).
+- **Ifu** — scoped; needs the cycle-accurate IFU test-mode pipeline. **memMisc**
+  (fault-task+Pipe4), **Tricond** (disk mufflers) — pending.
+
+`make` now builds `rundiag`; header deps are tracked (no stale-object crashes).
+The ethernet/render investigation below is superseded as the active focus (the
+games are gated on the broader timing work; see contralto-oracle-validity.md).
 
 ---
 

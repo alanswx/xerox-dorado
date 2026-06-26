@@ -4,6 +4,39 @@
 **You are picking this up after a context reset. Read the "Read first" docs
 below before writing any code.**
 
+> **STATUS UPDATE (2026-06-25) — much of this doc's "to-do" is now DONE.**
+> The single source of truth for per-diagnostic status is
+> [`docs/running-diagnostics.md`](running-diagnostics.md) (kept current); this
+> banner is the short version. **2 of the suite now fully PASS:**
+> - **kernel — PASS** (DONE @3,765,457 steps). Fixed: RBase, the bogus
+>   `(T>>8)&7` shifter case (HM §3.11), `Wakeup[n]` 2-cycle latency (HM p27),
+>   and the §3.12 **TASKSIM** counter (`Hold&TaskSim←B`, FF=0o154) — with the
+>   **enable-bit gate** (`taskSim[0]`=0o10): only count while enabled, which is
+>   also the memA fix below.
+> - **memA — PASS** (DONE @220,787,595 steps). `CATUPADDRERR` was NOT a
+>   cache-address fidelity gap (the diagnostic constants are octal; no 2-bit
+>   offset). It was the TASKSIM enable-bit bug: a stale re-arm value kept waking
+>   the §3.12 sim task (0o12), whose `noRef`+`useMcrV` STORE clobbered the
+>   cache-addressing test. Source mirrored at `chm/.../memASource/`.
+>
+> **eventCounters** — genIO loopback fixed; the `KFAULT3` setup fault fixed
+> (`IFUTest←B(0)` must NOT enable the periodic junk timer, HM §8.3); HM §4.11
+> **event counters** implemented (per-cycle EventCntA/B + EmuOrFT/tasksAll
+> gating) so **eventTrue PASSES**; `uinstr_reads_md` corrected (ASEL=2/3 read Md
+> only when FF[0:1]=0). Now fails at `eventHold` — the loop reads no Md and its
+> Hold comes from the **HM §5.4 reference/port-busy Hold coupled to the sim-task
+> cadence**, i.e. the holistic cycle-accurate-timing project (below). Sources at
+> `chm/.../eventCountersSource/`.
+>
+> **Ifu (Complex/Simple)** — scoped, sources mirrored at `chm/.../IfuSource/`
+> (README). `IFUEXCEPTIONERR` needs the **cycle-accurate IFU test-mode pipeline**
+> (`IFUTest←`/`ifuTick` single-stepping F/G/J/H/M) — its own large effort, not a
+> contained exception latch. **memMisc** (fault-task + Pipe4) and **Tricond**
+> (disk state mufflers) still pending.
+>
+> **Build note:** `make` now builds `build/rundiag`; header deps track all
+> objects (commit 43192fd) — no more stale-object crashes.
+
 > **CORRECTION (2026-06-23, later): the premise of this doc is wrong.** Reading
 > the original PARC `.mc` diagnostic sources (now mirrored at
 > `chm/doradosource/diagnostics/`) shows the three diagnostics do **NOT** all
@@ -110,24 +143,21 @@ diagnostics and the gates, then make it default.
   `./build/dorado --eb worlds/aemu.eb --eftp ../chm/bootfiles/Galaxian.boot!1 --cycles 250000000 --out /tmp/g.pgm`
 - Cedar still boots to login (`make run-cedar`), NetExec in band.
 
-## The other diagnostics (secondary, after Hold)
+## The other diagnostics — CURRENT (2026-06-25; see running-diagnostics.md)
 
-- **kernel** (now FAIL @3.93M, was @79 → @1.34M): shifter bug **FIXED**
-  (2026-06-23). The `(T>>8)&7)<<1` special case in `shifter_output` was deleted —
-  the FF-controlled shifter's SHA/SHB source comes from BSEL[1:2] (HM §3.11),
-  confirmed against real kernel + Bootstrap microcode, so the one genuine path
-  handles every case. Galaxian 121602, Cedar boot unchanged, 12 suites green.
-  Now fails far later at `TASKTESTERR` (0o5546) = the §3.12 TASKSIM task
-  simulator (`Hold&TaskSim ← B`, FF 0o154, still a no-op at `cpu.c` ~1522) —
-  the same register memA needs. See `docs/running-diagnostics.md`.
-- **eventCounters** (FAIL @674 `GENIOERR2`): GenIn/GenOut general-IO stub
-  (loopback polarity TBD — a naive `event_cnt_a=event_cnt_b` mirror had no
-  effect; re-derive from the `eventCounters.cm` source on the CHM archive) + no
-  real per-cycle event counting (HM §12.3).
-- **IfuComplex** (FAIL @1622 `IFUEXCEPTIONERR`): IFU exception latch (`JMPEXC`) +
-  diagnostic mufflers (JMPEXC/PCJ/FFK/HJ/MX) unmodeled (HM §6); wire them into
-  `dorado_memory_dmux_read` and couple the IFU-test junk wakeup to IFU events.
-  Recover the IfuComplex source from the CHM archive for the exact expected bits.
+- **kernel — PASS** (DONE @3,765,457). The §3.12 TASKSIM is now implemented
+  with the `taskSim[0]`=0o10 **enable-bit gate** (count only while enabled).
+- **eventCounters** — genIO + KFAULT3 setup fault + **eventTrue** fixed; fails
+  at `eventHold` (HM §5.4 reference-Hold + sim-cadence — the timing project).
+  The old "@674 GENIOERR2 / no event counting" note is obsolete: event counting
+  (HM §4.11) is implemented; the GenIO loopback is the IFU-board GenOut→GenIn
+  plug (`GenIn'`=EventCntA' reads back `GenOut`=EventCntB), NOT a counter mirror.
+- **IfuComplex/IfuSimple** (FAIL @~1631 `IFUEXCEPTIONERR`): needs the
+  cycle-accurate IFU **test-mode pipeline** (`IFUTest←`/`ifuTick` single-step of
+  F/G/J/H/M), not just an exception latch. Sources mirrored at
+  `chm/doradosource/diagnostics/IfuSource/` (+ README + roadmap).
+- **memMisc** (TIMEOUT) and **Tricond** (`STATE.ERRS`) — still pending
+  (fault-task+Pipe4; Trident disk-state mufflers).
 
 ## Key files
 
