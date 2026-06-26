@@ -315,12 +315,16 @@ typedef struct {
      * FF=0o154). TASKSIM: a 7-bit counter loaded non-zero counts up each
      * cycle and, on overflow past 0o177, raises a wakeup for the
      * simulator task (task 12, backplane-jumpered), held until reloaded.
-     * HOLDSIM: an 8-bit recirculating shift register (stored; HOLD
-     * injection not yet modeled). */
+     * HOLDSIM: an 8-bit recirculating shift register; a 1 reaching the
+     * trigger end forces an external HOLD two instructions later
+     * (postamble.mc / HM §3.12). Drives the eventCounters eventHold gate. */
     uint8_t  tasksim;           /* 7-bit wakeup counter (0 = disabled) */
     uint8_t  tasksim_fired;     /* 1 once overflowed; held until reload */
     uint8_t  tasksim_loaded;    /* transient: load took this cycle's clock */
     uint8_t  holdsim;           /* 8-bit recirculating hold shift register */
+    uint8_t  holdsim_loaded;    /* transient: load took this cycle's clock */
+    uint8_t  holdsim_delay;     /* "two instructions later" trigger delay */
+    uint8_t  holdsim_hold;      /* 1 = HOLDSIM forces a hold this cycle */
 
     /* Per-task saved state. Loaded into the live registers when
      * `ctask` becomes that task. */

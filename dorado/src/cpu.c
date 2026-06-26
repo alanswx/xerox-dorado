@@ -358,6 +358,31 @@ static uint16_t task_schedule(dorado_cpu *cpu, uint16_t next_pc,
         }
     }
 
+    /* HM §3.12 HOLDSIM tick (once per cycle). postamble.mc: "holdSim is an
+     * 8-bit recirculating shift register in which the presence of a 1 in bit 7
+     * causes HOLD two instructions later" / "occurrence of a 1 bit at b[0]
+     * causes an external hold." Each cycle the trigger bit (the register's
+     * output end) is examined and the register recirculates; a 1 schedules a
+     * HOLD two instructions later (via holdsim_delay). The sim task
+     * re-arms it via Hold&TaskSim←B; once zero (resetHold jams it) it stays
+     * quiet, so this is inert for games/Cedar/boot, which never load it. */
+    {
+        int trig = 0;
+        if (cpu->holdsim_loaded) {
+            cpu->holdsim_loaded = 0;        /* the load consumed this clock */
+            trig = cpu->holdsim & 1;
+        } else if (cpu->holdsim) {
+            trig = cpu->holdsim & 1;        /* trigger = LSB (Dorado bit 7) */
+            cpu->holdsim = (uint8_t)((cpu->holdsim >> 1) |
+                                     ((cpu->holdsim & 1) << 7));
+        }
+        /* One delay register surfaces trig two instructions later: a trigger
+         * evaluated here (end of instruction I) is held one cycle, set at end
+         * of I+1, and read at the top of I+2's execute_uinstr. */
+        cpu->holdsim_hold = cpu->holdsim_delay;
+        cpu->holdsim_delay = (uint8_t)trig;
+    }
+
     /* HM §4.11 event counters (once per cycle). Each enabled counter ticks
      * when its selected event occurred during the previous cycle (accumulated
      * in evc_events) AND the cycle belongs to a counted task. By default
@@ -1656,13 +1681,13 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                      * HOLDSIM = B[8:14],,0 = B&0xFE. Loading clears the
                      * fired latch (a new load re-arms the counter). TASKSIM
                      * is the 7-bit task-wakeup counter; HOLDSIM is the
-                     * recirculating hold shift register (stored; its HOLD
-                     * injection is not yet modeled — the diagnostics' first
-                     * pass runs with HOLDSIM=0). */
+                     * recirculating hold shift register that injects engine
+                     * HOLD (HM §3.12; the eventHold gate). */
                 cpu->tasksim = (uint8_t)((b >> 8) & 0x7F);
                 cpu->holdsim = (uint8_t)(b & 0xFE);
                 cpu->tasksim_fired = 0;
                 cpu->tasksim_loaded = 1;  /* don't also tick this cycle */
+                cpu->holdsim_loaded = 1;  /* the load took this cycle's clock */
                 if (getenv("DORADO_TASKSIM_TRACE"))
                     fprintf(stderr, "TASKSIM load task=%o pc=0o%o b=%06o tasksim=%03o holdsim=%03o\n",
                             cpu->ctask & 017, cpu->real_PC, b & 0177777,
@@ -3719,7 +3744,10 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
     int md_not_ready =
         from_im && cpu->mem && uinstr_reads_md(u) &&
         (uint64_t)cpu->cycles < cpu->task_md_ready[cpu->ctask & 0xF];
-    if (md_not_ready) cpu->evc_events |= EVC_EV_HOLD;
+    /* The §3.12 HOLDSIM debug register can also force the Hold signal
+     * (independent of any Md reference) when a diagnostic has armed it. */
+    int hold_asserted = md_not_ready || cpu->holdsim_hold;
+    if (hold_asserted) cpu->evc_events |= EVC_EV_HOLD;
     /* The engine's *response* to Hold — freeze (convert to jump-to-self this
      * cycle, let a higher-priority task run, re-run when next selected) — is
      * suppressed when mcr.disHold is set (boot/init microcode sets it); that
