@@ -31,6 +31,12 @@ in layers:
   partition**, each formatted **like the Diablo Model 44 Alto disk**.
 - **Interlisp-D kept the multi-partition Alto disk format** (unlike IFS and
   Cedar, which had their own filesystem formats).
+- In the Dorado AEmu disk microcode, one selected Trident surface contains
+  two emulated Diablo drives. The mapping verified from
+  `AltoDiabloDisk.mc` is:
+  `TridentCylinder = 406 * drive + DiabloCylinder + 3`,
+  `TridentSector = 14 * effectiveHead + DiabloSector + 1`, and
+  `TridentHead = partition - 1`.
 
 Consequence: a bootable Interlisp-D Dorado pack is just standard Alto/
 Diablo-format partitions (one per surface) — exactly what ContrAlto's
@@ -92,6 +98,45 @@ no display and spins in the Lisp microcode because the Alto `Lisp.run`
 loader, the sysout, and the `LISP.VIRTUALMEM` Alto-format Trident file are
 not present in the running world.
 
+### 2026-06-26: reconstructed a large AEmu-compatible Alto disk layout
+
+The `NewUserDisk.cm` recipe asks for `CREATEFILE.run LISP.VIRTUALMEM
+15002D`. A plain Diablo-31 image is too small, and a single 406-cylinder
+Model-44-style emulated drive is also too small. The AEmu mapping provides
+two emulated Diablo drives on one Trident surface, however:
+
+```
+2 drives * 406 cylinders * 2 heads * 14 sectors = 22736 Alto pages
+```
+
+That is enough for a 15002-page VMEM file plus the Alto OS, `Lisp.run`,
+symbols, microcode, init files, and update command file. `dsk2trident` now
+accepts `--diablo-cylinders 406 --diablo-sectors 14 --drive1 ...`, so it can
+convert the two emulated Diablo-drive halves into the existing
+Diablo-on-Trident pack layout.
+
+Verified manually with a local `palo` geometry patch:
+
+```
+truncate -s 7681024 /tmp/LISP.VIRTUALMEM
+palo/par --cylinders 406 --sectors 14 -1 /tmp/lisp0.dsk -2 /tmp/lisp1.dsk -f -rw
+palo/par --cylinders 406 --sectors 14 -1 /tmp/lisp0.dsk -2 /tmp/lisp1.dsk -rw -i /tmp/LISP.VIRTUALMEM LISP.VIRTUALMEM.
+dorado/build/dsk2trident --all-heads --diablo-cylinders 406 --diablo-sectors 14 --drive1 /tmp/lisp1.dsk /tmp/lisp0.dsk /tmp/lisp.pack
+```
+
+That produced a checker-clean two-disk Alto filesystem with 7683 pages free
+after inserting a 15002-page zero-filled `LISP.VIRTUALMEM.`, and
+`dsk2trident` placed 113680 sectors into a 60 MB test pack. `palo`'s
+filesystem checker requires the trailing dot in the stored Alto filename;
+confirm with the real Alto Executive whether `Lisp.run`'s `LISP.VIRTUALMEM`
+lookup normalizes to that directory name.
+
+This is not yet a bootable Lisp disk. It proves the required geometry and
+VMEM allocation, but the pack still needs a bootable Alto OS plus
+`Lisp.run`, `Lisp.syms`, `DORADOLISPMC.EB`, `AltoD1MC.eb`, and `INIT.LCOM`.
+A tracked Alto filesystem image builder, or a properly vendored `palo`
+geometry wrapper, is the next tooling step before adding this to `make`.
+
 ### 2026-06-09: checksum/load validation
 
 Pointed our **existing, working Stage-1** Initial->LoadRam netboot path
@@ -117,8 +162,10 @@ So:
 - **Validates the Ethernet/Alto-NetExec direction.** Nick independently
   describes exactly the Stage-2 path in `ethernet-local-boot-plan.md`.
 - **Disk is mandatory for full Lisp** (the `LISP.VIRTUALMEM` swap). This
-  raises the priority of finishing the Trident disk read/write data path —
-  but for an *Alto-format* pack, which we can build, not a Pilot/Cedar one.
+  raises the priority of finishing the Alto disk install path on top of the
+  Trident read/write controller path. The pack geometry and VMEM file are now
+  proven, but the Alto filesystem image builder still needs to become tracked
+  repo tooling.
 - **A concrete, reconstructable Lisp bring-up exists** once disk works:
   build an Alto Trident partition + VMEM file, run `Lisp.run`, which loads
   `DoradoLispMC.EB`. This is more achievable than Pilot/Cedar.

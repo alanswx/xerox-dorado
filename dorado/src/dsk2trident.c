@@ -20,12 +20,13 @@
  *
  * Each Diablo sector's header/label/data records are copied into the mapped
  * Trident sector. The header block carries the Alto disk address that the
- * microcode's header-check compares; for the mirrored second emulated Diablo
- * drive we set the AEmu drive bit in that header word. Conveniently a
- * Diablo-31 .dsk sector and a
- * Diablo-on-Trident sector have the identical 534-byte on-disk layout
- * (dummy 1w + header 2w + label 8w + data 256w, little-endian); this tool
- * just places each one at its mapped position in the larger Trident geometry.
+ * microcode's header-check compares; for the second emulated Diablo drive we
+ * set the AEmu drive bit in that header word. Conveniently a Diablo .dsk
+ * sector and a Diablo-on-Trident sector have the identical 534-byte on-disk
+ * layout (dummy 1w + header 2w + label 8w + data 256w, little-endian); this
+ * tool just places each one at its mapped position in the larger Trident
+ * geometry. The default input geometry is Diablo-31; Lisp-sized AEmu images can
+ * use --diablo-cylinders 406 --diablo-sectors 14 --drive1 second.dsk.
  */
 
 #include "disk.h"
@@ -60,6 +61,12 @@ static void usage(const char *p)
         "                    (boots regardless of the partition the AEmu picks)\n"
         "  --single-drive    populate only emulated Diablo drive 0\n"
         "                    (default mirrors the image onto drives 0 and 1)\n"
+        "  --drive1 PATH     populate emulated Diablo drive 1 from PATH instead\n"
+        "                    of mirroring the first input image\n"
+        "  --diablo-cylinders N  input cylinders per emulated Diablo drive\n"
+        "                    (default 203 = Diablo-31; AEmu max is 406)\n"
+        "  --diablo-sectors N  input sectors per emulated Diablo head\n"
+        "                    (default 12 = Diablo-31; AEmu max is 14)\n"
         "  --sectors-diablo N  Trident sectors reserved per Diablo head\n"
         "                    (default 14 = 16B, AltoDiabloDisk nSectorsDiablo)\n"
         "  --offset-cyl N    cylinders reserved at the start (default 3)\n"
@@ -74,22 +81,104 @@ static void usage(const char *p)
 /* Read one little-endian 16-bit word from a byte buffer. */
 static uint16_t rd16(const uint8_t *b) { return (uint16_t)(b[0] | (b[1] << 8)); }
 
+static int place_diablo_image(dorado_disk_pack *pack, const char *path,
+                              int edrive, int diablo_cyls, int diablo_secs,
+                              int all_heads, int boot_head,
+                              int sectors_diablo, int offset_cyl,
+                              int sector_offset, int stagger,
+                              int *placed, int *missed)
+{
+    const dorado_disk_geometry *geom = &pack->geometry;
+    FILE *in = fopen(path, "rb");
+    if (!in) { perror(path); return 1; }
+    if (fseek(in, 0, SEEK_END) != 0) {
+        perror("fseek");
+        fclose(in);
+        return 1;
+    }
+    long sz = ftell(in);
+    rewind(in);
+
+    long expect = (long)diablo_cyls * DIABLO31_HEAD * diablo_secs * DIABLO_SEC_B;
+    if (sz != expect) {
+        fprintf(stderr,
+                "dsk2trident: %s is %ld bytes, expected %ld "
+                "(Diablo-like: %dx%dx%d x %d)\n",
+                path, sz, expect, diablo_cyls, DIABLO31_HEAD,
+                diablo_secs, DIABLO_SEC_B);
+        fclose(in);
+        return 1;
+    }
+
+    uint8_t buf[DIABLO_SEC_B];
+    for (int dcyl = 0; dcyl < diablo_cyls; dcyl++) {
+        for (int dhead = 0; dhead < DIABLO31_HEAD; dhead++) {
+            for (int dsec = 0; dsec < diablo_secs; dsec++) {
+                if (fread(buf, 1, sizeof buf, in) != sizeof buf) {
+                    fprintf(stderr, "dsk2trident: short read at drive%d c%d/h%d/s%d\n",
+                            edrive, dcyl, dhead, dsec);
+                    fclose(in);
+                    return 1;
+                }
+
+                int eff_head = dhead;
+                if (stagger && (dcyl & 1)) eff_head ^= 1;
+                int tsec = (sectors_diablo * eff_head + dsec + sector_offset)
+                           % geom->sectors;
+
+                int h0 = all_heads ? 0 : boot_head;
+                int h1 = all_heads ? geom->heads : boot_head + 1;
+                int tcyl = dcyl + offset_cyl +
+                           edrive * DIABLO_DRIVE_CYL_STRIDE;
+                for (int thead = h0; thead < h1; thead++) {
+                    dorado_disk_sector *s =
+                        dorado_disk_pack_sector(pack, tcyl, thead, tsec);
+                    if (!s) { (*missed)++; continue; }
+                    /* Skip the dummy word; copy header/label/data with each block's
+                     * word order REVERSED. AltoDiabloDisk.mc reads each block out of
+                     * the FIFO into descending memory addresses (DskMAddr counts
+                     * down), so the on-Trident block must be stored reversed for the
+                     * read to land word 0 at the low (entry) address -- matching a
+                     * real Alto disk read. */
+                    const uint8_t *p = buf + DIABLO_DUMMY_W * 2;
+                    for (int w = DIABLO_HDR_W  - 1; w >= 0; w--) { s->header[w] = rd16(p); p += 2; }
+                    if (edrive == 1) s->header[0] |= DIABLO_DRIVE_HEADER_BIT;
+                    for (int w = DIABLO_LBL_W  - 1; w >= 0; w--) { s->label[w]  = rd16(p); p += 2; }
+                    for (int w = DIABLO_DATA_W - 1; w >= 0; w--) { s->data[w]   = rd16(p); p += 2; }
+                    s->modified = 1;
+                    (*placed)++;
+                }
+            }
+        }
+    }
+
+    fclose(in);
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
     int partition = 5;          /* MaxPartition for a T-80 (default boot) */
     int all_heads = 0;
     int both_drives = 1;
+    int diablo_cyls = DIABLO31_CYL;
+    int diablo_secs = DIABLO31_SEC;
     int sectors_diablo = 14;    /* nSectorsDiablo = 16B */
     int offset_cyl = 3;         /* offsetCylinderDiablo */
     int sector_offset = 1;      /* command-vs-physical sector bias (see usage) */
     int stagger = 1;            /* staggerSectors */
     const char *in_path = NULL, *out_path = NULL;
+    const char *drive1_path = NULL;
 
     for (int i = 1; i < argc; i++) {
         const char *a = argv[i];
         if (!strcmp(a, "--partition") && i + 1 < argc)        partition = atoi(argv[++i]);
         else if (!strcmp(a, "--all-heads"))                   all_heads = 1;
         else if (!strcmp(a, "--single-drive"))                both_drives = 0;
+        else if (!strcmp(a, "--drive1") && i + 1 < argc)      { drive1_path = argv[++i]; both_drives = 0; }
+        else if (!strcmp(a, "--disk2") && i + 1 < argc)       { drive1_path = argv[++i]; both_drives = 0; }
+        else if (!strcmp(a, "--diablo-cylinders") && i + 1 < argc) diablo_cyls = atoi(argv[++i]);
+        else if (!strcmp(a, "--diablo-sectors") && i + 1 < argc) diablo_secs = atoi(argv[++i]);
         else if (!strcmp(a, "--sectors-diablo") && i + 1 < argc) sectors_diablo = atoi(argv[++i]);
         else if (!strcmp(a, "--offset-cyl") && i + 1 < argc)  offset_cyl = atoi(argv[++i]);
         else if (!strcmp(a, "--sector-offset") && i + 1 < argc) sector_offset = atoi(argv[++i]);
@@ -104,15 +193,24 @@ int main(int argc, char **argv)
 
     /* The output pack uses the Diablo-on-Trident geometry (2/8/256 framing). */
     dorado_disk_geometry geom = DORADO_DISK_DIABLO;
-    int drive_ranges = both_drives ? 2 : 1;
-    int required_cyls = offset_cyl + DIABLO31_CYL +
+    int drive_ranges = (both_drives || drive1_path) ? 2 : 1;
+    int required_cyls = offset_cyl + diablo_cyls +
                         (drive_ranges - 1) * DIABLO_DRIVE_CYL_STRIDE;
     if (required_cyls > geom.cylinders) {
         fprintf(stderr,
                 "dsk2trident: DORADO_DISK_DIABLO has %d cylinders; need >= %d "
                 "(offset %d + %d Diablo cyls + %d drive stride)\n",
-                geom.cylinders, required_cyls, offset_cyl, DIABLO31_CYL,
+                geom.cylinders, required_cyls, offset_cyl, diablo_cyls,
                 (drive_ranges - 1) * DIABLO_DRIVE_CYL_STRIDE);
+        return 1;
+    }
+    if (diablo_cyls < 1 || diablo_cyls > DIABLO_DRIVE_CYL_STRIDE ||
+        diablo_secs < 1 || diablo_secs > sectors_diablo) {
+        fprintf(stderr,
+                "dsk2trident: invalid Diablo-like input geometry %dx2x%d "
+                "(limits: cylinders 1..%d, sectors 1..%d)\n",
+                diablo_cyls, diablo_secs, DIABLO_DRIVE_CYL_STRIDE,
+                sectors_diablo);
         return 1;
     }
 
@@ -123,79 +221,28 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    FILE *in = fopen(in_path, "rb");
-    if (!in) { perror(in_path); return 1; }
-    if (fseek(in, 0, SEEK_END) != 0) { perror("fseek"); fclose(in); return 1; }
-    long sz = ftell(in);
-    rewind(in);
-    long expect = (long)DIABLO31_CYL * DIABLO31_HEAD * DIABLO31_SEC * DIABLO_SEC_B;
-    if (sz != expect) {
-        fprintf(stderr,
-                "dsk2trident: %s is %ld bytes, expected %ld "
-                "(Diablo-31: %dx%dx%d x %d)\n",
-                in_path, sz, expect, DIABLO31_CYL, DIABLO31_HEAD,
-                DIABLO31_SEC, DIABLO_SEC_B);
-        fclose(in);
-        return 1;
-    }
-
     dorado_disk_pack pack;
     if (dorado_disk_pack_create(&pack, &geom) != 0) {
         fprintf(stderr, "dsk2trident: failed to allocate Trident pack\n");
-        fclose(in);
         return 1;
     }
 
-    uint8_t buf[DIABLO_SEC_B];
     int placed = 0, missed = 0;
-    /* The .dsk stores sectors in (cylinder, head, sector) order. */
-    for (int dcyl = 0; dcyl < DIABLO31_CYL; dcyl++) {
-        for (int dhead = 0; dhead < DIABLO31_HEAD; dhead++) {
-            for (int dsec = 0; dsec < DIABLO31_SEC; dsec++) {
-                if (fread(buf, 1, sizeof buf, in) != sizeof buf) {
-                    fprintf(stderr, "dsk2trident: short read at c%d/h%d/s%d\n",
-                            dcyl, dhead, dsec);
-                    dorado_disk_pack_free(&pack);
-                    fclose(in);
-                    return 1;
-                }
-                /* Map to the physical Trident CHS. */
-                int eff_head = dhead;
-                if (stagger && (dcyl & 1)) eff_head ^= 1;
-                int tsec = (sectors_diablo * eff_head + dsec + sector_offset)
-                           % geom.sectors;
-
-                int h0 = all_heads ? 0 : boot_head;
-                int h1 = all_heads ? geom.heads : boot_head + 1;
-                for (int edrive = 0; edrive < drive_ranges; edrive++) {
-                    int tcyl = dcyl + offset_cyl +
-                               edrive * DIABLO_DRIVE_CYL_STRIDE;
-                    for (int thead = h0; thead < h1; thead++) {
-                        dorado_disk_sector *s =
-                            dorado_disk_pack_sector(&pack, tcyl, thead, tsec);
-                        if (!s) { missed++; continue; }
-                        /* Skip the dummy word; copy header/label/data with each block's
-                         * word order REVERSED. AltoDiabloDisk.mc reads each block out of
-                         * the FIFO into descending memory addresses (DskMAddr counts
-                         * down), so the on-Trident block must be stored reversed for the
-                         * read to land word 0 at the low (entry) address -- matching a
-                         * real Alto disk read. Verified against the salto reference Alto:
-                         * its boot loader's entry word (data[0] = JMP 0345) lands at the
-                         * low address and runs; without the reversal ours put data[0] at
-                         * the high address and looped on a bad BLT. */
-                        const uint8_t *p = buf + DIABLO_DUMMY_W * 2;
-                        for (int w = DIABLO_HDR_W  - 1; w >= 0; w--) { s->header[w] = rd16(p); p += 2; }
-                        if (edrive == 1) s->header[0] |= DIABLO_DRIVE_HEADER_BIT;
-                        for (int w = DIABLO_LBL_W  - 1; w >= 0; w--) { s->label[w]  = rd16(p); p += 2; }
-                        for (int w = DIABLO_DATA_W - 1; w >= 0; w--) { s->data[w]   = rd16(p); p += 2; }
-                        s->modified = 1;
-                        placed++;
-                    }
-                }
-            }
+    if (place_diablo_image(&pack, in_path, 0, diablo_cyls, diablo_secs,
+                           all_heads, boot_head, sectors_diablo, offset_cyl,
+                           sector_offset, stagger, &placed, &missed) != 0) {
+        dorado_disk_pack_free(&pack);
+        return 1;
+    }
+    if (drive1_path || both_drives) {
+        const char *path1 = drive1_path ? drive1_path : in_path;
+        if (place_diablo_image(&pack, path1, 1, diablo_cyls, diablo_secs,
+                               all_heads, boot_head, sectors_diablo, offset_cyl,
+                               sector_offset, stagger, &placed, &missed) != 0) {
+            dorado_disk_pack_free(&pack);
+            return 1;
         }
     }
-    fclose(in);
 
     if (missed) {
         fprintf(stderr, "dsk2trident: warning: %d sectors fell outside the "
@@ -219,7 +266,9 @@ int main(int argc, char **argv)
            sector_offset, stagger ? "on" : "off");
     if (all_heads) printf("all heads\n");
     else           printf("partition %d -> head %d\n", partition, boot_head);
-    printf("  drives    %s\n", both_drives ? "0 and 1 (mirrored)" : "0 only");
+    printf("  input     %d cyl x 2 head x %d sec\n", diablo_cyls, diablo_secs);
+    if (drive1_path) printf("  drives    0=%s, 1=%s\n", in_path, drive1_path);
+    else             printf("  drives    %s\n", both_drives ? "0 and 1 (mirrored)" : "0 only");
     printf("  placed    %d sectors%s\n", placed,
            missed ? " (some missed, see warning)" : "");
     return 0;
