@@ -315,7 +315,8 @@ $(ALTO_GOLDEN_PACK): $(ALTO_GOLDEN_PACK_GZ) | $(TRIDENT_GOLDEN_DIR)
 	chmod 444 '$@'
 
 .PHONY: trident-readonly-images alto-disk-image refresh-alto-golden
-.PHONY: run-alto-disk run-tricond-nopack run-tricond-pack
+.PHONY: run-alto-disk run-alto-disk-screenshot
+.PHONY: run-tricond-nopack run-tricond-pack
 trident-readonly-images: $(ALTO_GOLDEN_PACK)
 
 refresh-alto-golden: $(BINDIR)/dsk2trident | $(TRIDENT_GOLDEN_DIR)
@@ -328,6 +329,8 @@ alto-disk-image: trident-readonly-images | $(TRIDENT_RUN_DIR)
 	chmod 644 '$(ALTO_RUN_PACK)'
 run-alto-disk: sdl alto-disk-image
 	./build/dorado-sdl --eb worlds/aemu.eb --disk 0='$(ALTO_RUN_PACK)' --boot-reason disk --speed 4000000
+run-alto-disk-screenshot: sdl alto-disk-image
+	SDL_VIDEODRIVER=dummy ./build/dorado-sdl --eb worlds/aemu.eb --disk 0='$(ALTO_RUN_PACK)' --boot-reason disk --speed 4000000 --screenshot 300 --shot-prefix /tmp/dorado-alto-disk
 
 run-tricond-nopack: $(BINDIR)/rundiag
 	RUNDIAG_DISK=1 RUNDIAG_TASK=14 ./build/rundiag '../chm/dorado/expanded/Tricond.dm!5_/TriconD.mb' BEGIN TESTOK-WITHOUT-DISK ERR 50000000

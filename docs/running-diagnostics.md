@@ -110,6 +110,9 @@ Observed memA pass points:
 - `make -C dorado trident-readonly-images` creates read-only golden packs in
   `dorado/testdata/trident-readonly/`. Runtime targets copy those into
   `dorado/build/run-disks/` and use the writable copy.
+- `make -C dorado run-alto-disk-screenshot` uses that same copy-on-run pack
+  path and writes `/tmp/dorado-alto-disk-300.pgm`; the expected current result
+  is the Alto Executive prompt after a disk boot.
 - memA's S-board subtests use source-supported `MEMFLAGS` bits and reduced
   diagnostic hardware sizing so the test covers the intended behavior without
   turning into a large storage burn-in.
