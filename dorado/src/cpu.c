@@ -304,7 +304,12 @@ static int wake_immediate(void)
 static int event_counter_hit(uint8_t event, uint8_t flags, int is_b)
 {
     switch (event & 7) {
-    case 0: return 1;                              /* True — every cycle */
+    case 0: return !(flags & EVC_EV_HOLD);         /* True — every non-held
+                                                    * (instruction) cycle; a
+                                                    * HOLD stretches an
+                                                    * instruction and is not a
+                                                    * completed-instruction
+                                                    * cycle. */
     case 1: return (flags & EVC_EV_HOLD) != 0;     /* Hold */
     case 2: return (flags & (is_b ? EVC_EV_IFUREF : EVC_EV_PROCREF)) != 0;
     case 3: return (flags & (is_b ? EVC_EV_IFUNOTREADY : EVC_EV_IFUJUMP)) != 0;
@@ -372,9 +377,16 @@ static uint16_t task_schedule(dorado_cpu *cpu, uint16_t next_pc,
             cpu->holdsim_loaded = 0;        /* the load consumed this clock */
             trig = cpu->holdsim & 1;
         } else if (cpu->holdsim) {
-            trig = cpu->holdsim & 1;        /* trigger = LSB (Dorado bit 7) */
-            cpu->holdsim = (uint8_t)((cpu->holdsim >> 1) |
-                                     ((cpu->holdsim & 1) << 7));
+            /* Trigger = Dorado bit 7 = our LSB; recirculate by shifting LEFT
+             * (MSB wraps to LSB). Direction verified against the HM §3.12
+             * worked example: Hold&TaskSim←0o200 (a 1 at Dorado bit 0 = our
+             * MSB) HOLDs on the 4th instruction, every 8th cycle thereafter —
+             * which a left/recirculating shift produces (load: 0o200; instr1
+             * shifts to 0o001; instr2 LSB=1 → trigger; HOLD two later = the
+             * 4th instruction). */
+            trig = cpu->holdsim & 1;
+            cpu->holdsim = (uint8_t)((cpu->holdsim << 1) |
+                                     ((cpu->holdsim >> 7) & 1));
         }
         /* One delay register surfaces trig two instructions later: a trigger
          * evaluated here (end of instruction I) is held one cycle, set at end
