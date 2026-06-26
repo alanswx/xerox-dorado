@@ -77,12 +77,12 @@ $(CEDAR_PDI): $(CEDAR_PDI).gz
 
 # Alto disk-boot pack (Diablo-on-Trident). The raw .pack is gitignored (large);
 # the .gz is tracked, so decompress it for `make web` and the Pages CI build.
-ALTO_PACK := ../chm/diskpacks/games-trident.pack
-$(ALTO_PACK): $(ALTO_PACK).gz
+WEB_ALTO_PACK := ../chm/diskpacks/games-trident.pack
+$(WEB_ALTO_PACK): $(WEB_ALTO_PACK).gz
 	gunzip -c $< > $@
 
 .PHONY: web
-web: worlds $(CEDAR_PDI) $(ALTO_PACK) | web-dir
+web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) | web-dir
 	$(EMCC) $(WEB_CFLAGS) $(WEB_SRCS) $(WEB_LDFLAGS) -o web/index.html
 
 web-dir:
@@ -292,20 +292,47 @@ run-cedar-real: sdl
 run-cedar-screenshot: sdl
 	SDL_VIDEODRIVER=dummy ./build/dorado-sdl --boot-reason disk --no-alto-boot --eb '../chm/dorado/CedarDorado.eb!6' --germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6' --pilot-disk '../CedarDisk/CedarDorado-boot.pdi' --speed 4000000 --screenshot 300 --shot-prefix /tmp/dorado-sdl-cedar
 
-# Alto-on-Dorado disk boot (Diablo-on-Trident). Convert a ContrAlto Diablo-31
-# .dsk into a Trident pack, then boot AEmu from it (BS up -> ABoot -> DiskBoot).
-# DSK_SRC may be overridden: `make run-alto-disk DSK_SRC=path/to/foo.dsk`.
+# Alto-on-Dorado disk boot (Diablo-on-Trident). A read-only golden pack lives
+# under testdata/trident-readonly/ and every run copies it to build/run-disks/
+# before booting, so disk writes never mutate the baseline image.
+# DSK_SRC may be overridden for `make refresh-alto-golden`.
 # The route uses the real DSK task/controller path. AEmu's Diablo-on-Trident
 # status mapper needs the Alto NoDataTransferred compatibility bit for KBLK/KCB
 # status words; see docs/alto-disk-boot-plan.md.
 DSK_SRC ?= ../AltoInfo/ContrAlto2-beta/Disks/games.dsk
-ALTO_PACK ?= ../AltoDisks/alto-trident.pack
-.PHONY: alto-disk-image run-alto-disk
-alto-disk-image: $(BINDIR)/dsk2trident
-	mkdir -p $(dir $(ALTO_PACK))
-	$(BINDIR)/dsk2trident --all-heads '$(DSK_SRC)' '$(ALTO_PACK)'
+TRIDENT_GOLDEN_DIR := testdata/trident-readonly
+TRIDENT_RUN_DIR := build/run-disks
+ALTO_GOLDEN_PACK_GZ ?= ../chm/diskpacks/games-trident.pack.gz
+ALTO_GOLDEN_PACK ?= $(TRIDENT_GOLDEN_DIR)/alto-games-trident.pack
+ALTO_RUN_PACK ?= $(TRIDENT_RUN_DIR)/alto-games-trident.pack
+
+$(TRIDENT_GOLDEN_DIR) $(TRIDENT_RUN_DIR):
+	mkdir -p $@
+
+$(ALTO_GOLDEN_PACK): $(ALTO_GOLDEN_PACK_GZ) | $(TRIDENT_GOLDEN_DIR)
+	chmod u+w '$@' 2>/dev/null || true
+	gunzip -c '$<' > '$@'
+	chmod 444 '$@'
+
+.PHONY: trident-readonly-images alto-disk-image refresh-alto-golden
+.PHONY: run-alto-disk run-tricond-nopack run-tricond-pack
+trident-readonly-images: $(ALTO_GOLDEN_PACK)
+
+refresh-alto-golden: $(BINDIR)/dsk2trident | $(TRIDENT_GOLDEN_DIR)
+	chmod u+w '$(ALTO_GOLDEN_PACK)' 2>/dev/null || true
+	$(BINDIR)/dsk2trident --all-heads '$(DSK_SRC)' '$(ALTO_GOLDEN_PACK)'
+	chmod 444 '$(ALTO_GOLDEN_PACK)'
+
+alto-disk-image: trident-readonly-images | $(TRIDENT_RUN_DIR)
+	cp -f '$(ALTO_GOLDEN_PACK)' '$(ALTO_RUN_PACK)'
+	chmod 644 '$(ALTO_RUN_PACK)'
 run-alto-disk: sdl alto-disk-image
-	./build/dorado-sdl --eb worlds/aemu.eb --disk 0='$(ALTO_PACK)' --boot-reason disk --speed 4000000
+	./build/dorado-sdl --eb worlds/aemu.eb --disk 0='$(ALTO_RUN_PACK)' --boot-reason disk --speed 4000000
+
+run-tricond-nopack: $(BINDIR)/rundiag
+	RUNDIAG_DISK=1 RUNDIAG_TASK=14 ./build/rundiag '../chm/dorado/expanded/Tricond.dm!5_/TriconD.mb' BEGIN TESTOK-WITHOUT-DISK ERR 50000000
+run-tricond-pack: $(BINDIR)/rundiag alto-disk-image
+	RUNDIAG_DISK=1 RUNDIAG_DISK_MEDIA=diablo RUNDIAG_DISK_PATH='$(ALTO_RUN_PACK)' RUNDIAG_TASK=14 ./build/rundiag '../chm/dorado/expanded/Tricond.dm!5_/TriconD.mb' BEGIN DONE ERR 120000000
 
 .PHONY: all clean test worlds sdl web web-dir
 

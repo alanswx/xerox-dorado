@@ -186,7 +186,8 @@ revolution. The controller divides those by the selected drive's
 subsector count (`Tag[4:9] + 1`) and wakes the DSK task on the derived
 sector pulses. Boot/Pilot microcode sets drive 0 to subsector count 3,
 so the firmware sees 30 possible sector pulse positions per revolution
-(29 plus a leftover fraction, with `MaxSectors = 36₈`). Reads from a
+(TriconD's `SectorCounters` test expects count 3 to produce 30, i.e. the
+final partial group is rounded up). Reads from a
 9-sector Alto/Trident pack image must therefore map controller sector
 position to media sector number explicitly; the current emulator uses
 `controller_sector % pack.geometry.sectors` until the real sequence
@@ -424,8 +425,8 @@ treated as preload/idle patterns and do not execute commands.
 
 | Tag[..] bits | Meaning                                               |
 |--------------|-------------------------------------------------------|
-| 4:9          | Subsector count: divides 117 subsector pulses by (count+1) to form sector pulses. |
-|              | Tag[4:9] = 3 → 29 sectors (256-word data)             |
+| 4:9          | Subsector count: divides 117 subsector pulses by (count+1), rounded up for a leftover partial group. |
+|              | Tag[4:9] = 3 → 30 sector wakeups; Diablo-on-Trident still stores 29 media sectors/track |
 |              | Tag[4:9] = 6 → 16 sectors (512-word data)             |
 |              | Tag[4:9] = 14₈ → 9 sectors (1024-word data)           |
 | 10           | Load subsector count from Tag[4:9] for the drive selected *prior to* this tag. |
@@ -571,8 +572,8 @@ the documented tag-bus fields, so `0x08f0` still loads subsector count
 | 021  | HeadOvfl    | Head address invalid (>4 for T-80)                   |
 | 022  | DevCheck    | Various command/state errors — needs ReZero          |
 | 023  | NotSelected | Drive in off-line test mode or not powered up        |
-| 024  | NotOnLine   | Drive in test mode or heads not loaded               |
-| 025  | NotReady    | Cylinder seek in progress / heads not loaded         |
+| 024  | NotOnLine   | No selected online drive / drive in test mode / heads not loaded |
+| 025  | NotReady    | No selected online drive / cylinder seek in progress / heads not loaded |
 | 026  | SectorOvfl  | Command active when next sector pulse occurred (hardware fault or format mismatch) |
 | 027  | FifoUnderflow | FIFO empty during write or read got behind         |
 | 030  | FifoOverflow  | FIFO full during read or write got ahead           |
@@ -710,10 +711,10 @@ software XOR the corrupted bits back to correct values.
   - Drive Select: updates `selected_drive` + per-drive flags from
     Tag[11:15]; honors Tag[10] by loading the selected drive's
     subsector count from Tag[4:9] and deriving controller
-    sector-pulses-per-revolution from the 117 drive pulses. During
-    single-pack bring-up, offline drive selects are clamped so the
-    mounted boot pack remains selected until offline KSTAT behavior is
-    modeled more completely.
+    sector-pulses-per-revolution from the 117 drive pulses. Controller
+    reset starts with no drive-select line asserted; TriconD expects an
+    attached pack to report unavailable until DriveTag explicitly selects
+    drive 0.
   - Head Tag: sets `cur_head` from low 6 bits, raises
     `tag_tw` wakeup.
   - Cylinder Tag: seeks to `cur_cyl` from low 12 bits,

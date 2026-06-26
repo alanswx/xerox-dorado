@@ -276,7 +276,9 @@ void dorado_disk_controller_init(dorado_disk_controller *ctl)
         dorado_disk_drive_init(&ctl->drive[i]);
     }
     ctl->selected_drive = 0;
-    ctl->drive[0].selected = 1;
+    /* No drive select line is asserted until the controller emits a DriveTag.
+     * TriconD's initial KSTAT check expects an attached pack to look
+     * unavailable until the diagnostic explicitly selects drive 0. */
     /* PilotDisk/Initial treat drive 0 as the boot drive and load
      * subsector count 3 (four 117-pulse subsectors per sector). We
      * seed that convention here until the full drive-select timing path
@@ -443,8 +445,12 @@ static void disk_set_subsector_count(dorado_disk_drive *d, int count)
     d->subsector_count = count & 0x3F;
     int divisor = d->subsector_count + 1;
     if (divisor <= 0) divisor = 1;
+    /* TriconD's SectorCounters test is the hardware oracle here: count 3
+     * produces 30 controller sector wakeups per 117-pulse revolution, so the
+     * divider rounds the final partial group up. Count 0 still gives 117 and
+     * count 014 gives 9. */
     d->sectors_per_revolution =
-        DORADO_DISK_SUBSECTOR_PULSES_PER_REV / divisor;
+        (DORADO_DISK_SUBSECTOR_PULSES_PER_REV + divisor - 1) / divisor;
     if (d->sectors_per_revolution <= 0) d->sectors_per_revolution = 1;
     if (d->cur_sector >= d->sectors_per_revolution) d->cur_sector = 0;
 }
@@ -1441,8 +1447,8 @@ static int disk_muffler_bit(dorado_disk_controller *ctl, uint8_t addr)
          * separately as KSTATE[010] and must not make an attached, selected
          * drive look offline before the format RAM has been loaded. */
         return !d->selected || !d->online;
-    case 024: return !d->online;
-    case 025: return d->seek_in_progress || !d->online;
+    case 024: return !d->selected || !d->online;
+    case 025: return !d->selected || d->seek_in_progress || !d->online;
     case 027: return ctl->fifo_underflow;
     case 030: return ctl->fifo_overflow;
     case 031: return ctl->read_data_err || ctl->compare_err;

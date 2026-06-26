@@ -205,6 +205,7 @@ int main(int argc, char **argv)
     if (getenv("RUNDIAG_DISK")) {
         dorado_disk_controller_init(&disk);
         const char *media = getenv("RUNDIAG_DISK_MEDIA");
+        const char *disk_path = getenv("RUNDIAG_DISK_PATH");
         if (media && *media) {
             const dorado_disk_geometry *geom = rundiag_disk_geometry(media);
             if (!geom) {
@@ -214,15 +215,24 @@ int main(int argc, char **argv)
                         media);
                 return 1;
             }
-            if (dorado_disk_pack_create(&disk_pack, geom) != 0) {
+            if (disk_path && *disk_path) {
+                if (dorado_disk_pack_load(&disk_pack, geom, disk_path) != 0) {
+                    fprintf(stderr, "rundiag: cannot load %s media from %s\n",
+                            media, disk_path);
+                    return 1;
+                }
+                fprintf(stderr, "rundiag: attached %s media from %s on drive 0\n",
+                        media, disk_path);
+            } else if (dorado_disk_pack_create(&disk_pack, geom) != 0) {
                 fprintf(stderr, "rundiag: cannot create %s disk media\n",
                         media);
                 return 1;
+            } else {
+                fprintf(stderr, "rundiag: attached blank %s media on drive 0\n",
+                        media);
             }
             dorado_disk_controller_attach_drive(&disk, 0, &disk_pack);
             disk_pack_attached = 1;
-            fprintf(stderr, "rundiag: attached blank %s media on drive 0\n",
-                    media);
         }
         dorado_disk_controller_attach_to_io(&disk, &io);
         cpu.io = &io;

@@ -30,6 +30,8 @@ Useful runner/environment knobs:
 | `RUNDIAG_TRAIL=1` | dump the last 48 PCs on a non-pass result |
 | `RUNDIAG_TASK=<octal>` | start on a nonzero task; TriconD uses task `14` |
 | `RUNDIAG_DISK=1` | attach the Trident disk controller to the slow-I/O table |
+| `RUNDIAG_DISK_MEDIA=t80\|t300\|diablo` | attach pack media of the selected geometry |
+| `RUNDIAG_DISK_PATH=path` | load the selected `RUNDIAG_DISK_MEDIA` geometry from a pack image instead of creating blank media |
 | `RUNDIAG_IMRH_SYMBOL=SYM=value` | patch an IM right-half constant by symbol; used for memA `MEMFLAGS` slices |
 | `RUNDIAG_RM_SYMBOL=SYM=value` | patch an RM symbol before running |
 | `RUNDIAG_DUMP_RM_SYMBOLS=a,b,012` | dump named or numeric RM cells on non-pass |
@@ -51,6 +53,14 @@ DORADO_STORAGE_MODULES=1 ./dorado/build/rundiag 'chm/dorado/expanded/memMisc.dm!
 ./dorado/build/rundiag 'chm/dorado/expanded/Ifu.dm!51_/IfuSimple.mb' BEGIN DONE ERR 25000000
 ./dorado/build/rundiag 'chm/dorado/expanded/Ifu.dm!51_/IfuComplex.mb' BEGIN DONE ERR 120000000
 RUNDIAG_DISK=1 RUNDIAG_TASK=14 ./dorado/build/rundiag 'chm/dorado/expanded/Tricond.dm!5_/TriconD.mb' BEGIN TESTOK-WITHOUT-DISK ERR 50000000
+RUNDIAG_DISK=1 RUNDIAG_DISK_MEDIA=diablo RUNDIAG_DISK_PATH=dorado/build/run-disks/alto-games-trident.pack RUNDIAG_TASK=14 ./dorado/build/rundiag 'chm/dorado/expanded/Tricond.dm!5_/TriconD.mb' BEGIN DONE ERR 120000000
+```
+
+The file-backed TriconD command is normally run through Make so the pack starts
+clean each time:
+
+```sh
+make -C dorado run-tricond-pack
 ```
 
 Observed pass points:
@@ -62,7 +72,8 @@ Observed pass points:
 | memMisc | PASS, `DONE` after 90,950,270 steps with one storage module |
 | IfuSimple | PASS, `DONE` after 19,800,637 steps |
 | IfuComplex | PASS, `DONE` after 97,850,744 steps |
-| TriconD | PASS, no-pack success `TESTOK-WITHOUT-DISK` after 23,482,557 steps |
+| TriconD no-pack | PASS, `TESTOK-WITHOUT-DISK` after 23,482,557 steps |
+| TriconD pack-present | PASS, `DONE` after 25,412,162 steps using a copied Diablo-on-Trident pack |
 
 memA is best run as focused slices. The full S-board path includes very long
 storage sweeps and task-simulator/chaos paths that are not a quick regression.
@@ -92,8 +103,13 @@ Observed memA pass points:
 - TriconD's ordinary `DONE` label is not the no-pack success point. The source
   says the first part of the test runs without a disk present and reaches
   `TESTOK-WITHOUT-DISK` when the controller is good but no drive is spinning.
+  With pack media attached, the diagnostic continues through tag wakeups,
+  sector/index wakeups, and sector-counter checks and then reaches `DONE`.
 - TriconD must run on DSK task `14` with `RUNDIAG_DISK=1`; task 0 reads a
   floating/non-disk slow-I/O bus and fails the first state-muffler check.
+- `make -C dorado trident-readonly-images` creates read-only golden packs in
+  `dorado/testdata/trident-readonly/`. Runtime targets copy those into
+  `dorado/build/run-disks/` and use the writable copy.
 - memA's S-board subtests use source-supported `MEMFLAGS` bits and reduced
   diagnostic hardware sizing so the test covers the intended behavior without
   turning into a large storage burn-in.

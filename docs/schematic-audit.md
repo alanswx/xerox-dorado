@@ -993,7 +993,8 @@ the audit record is complete.
   fields `B[8:15]` = 4×2-bit (Done/Write/RdChk/Read) match `disk.c:315-333`;
   EnableRun on format-RAM word 15 matches `disk.c:464`; DiskTag type-bit
   encoding `B[0..3]=Drive/Cyl/Head/Ctrl` matches `disk.c:481`; the 117
-  subsector jumper + `117/(N+1)` cadence match `disk.c:10,240`.
+  subsector jumper + rounded-up `117/(N+1)` cadence match `disk.c` and
+  TriconD's `SectorCounters` expectations.
 - **Ethernet control bits + wakeups — DskEth sheets 35/28/29.** Every
   `DORADO_ETHC_*` constant in `ethernet.h:23-31` matches the schematic bit
   positions; the EOT/EIT wakeup-gating conditions match
