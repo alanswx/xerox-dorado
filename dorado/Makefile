@@ -13,6 +13,8 @@ SDL_LIBS   := $(shell sdl2-config --libs 2>/dev/null)
 MB_OBJS   := $(OBJDIR)/mb.o $(OBJDIR)/disasm.o $(OBJDIR)/microcode.o $(OBJDIR)/cpu.o $(OBJDIR)/baseboard.o $(OBJDIR)/memory.o $(OBJDIR)/io.o $(OBJDIR)/display.o $(OBJDIR)/disk.o $(OBJDIR)/ethernet.o $(OBJDIR)/fastio.o $(OBJDIR)/pdi.o $(OBJDIR)/mbdis.o
 LIB_OBJS  := $(OBJDIR)/mb.o $(OBJDIR)/disasm.o $(OBJDIR)/microcode.o $(OBJDIR)/cpu.o $(OBJDIR)/baseboard.o $(OBJDIR)/memory.o $(OBJDIR)/io.o $(OBJDIR)/display.o $(OBJDIR)/disk.o $(OBJDIR)/ethernet.o $(OBJDIR)/fastio.o $(OBJDIR)/altoref.o $(OBJDIR)/pdi.o
 EXTRA_OBJS := $(OBJDIR)/mctrace.o $(OBJDIR)/bbtrace.o $(OBJDIR)/bbdis.o $(OBJDIR)/pdi.o $(OBJDIR)/pdidump.o $(OBJDIR)/test_pdi.o $(OBJDIR)/machine.o $(OBJDIR)/dorado.o $(OBJDIR)/dorado_web.o $(OBJDIR)/test_mb.o $(OBJDIR)/test_disasm.o $(OBJDIR)/test_microcode.o $(OBJDIR)/test_cpu.o $(OBJDIR)/test_baseboard.o $(OBJDIR)/test_memory.o $(OBJDIR)/test_display.o $(OBJDIR)/test_disk.o $(OBJDIR)/test_ethernet.o $(OBJDIR)/test_fastio.o $(OBJDIR)/audit_alufm.o $(OBJDIR)/altodiff_dorado.o $(OBJDIR)/test_snapshot.o
+PALO_SRC ?= ../AltoInfo/palo/src
+PALO_FS_OBJS := $(addprefix $(PALO_SRC)/,fs/basic.o fs/check.o fs/dir.o fs/disk.o fs/file.o fs/fs.o fs/meta.o fs/scan.o fs/print.o common/utils.o)
 # Header-dependency tracking. We -include every .d file actually present in
 # the build dir (not just a hand-maintained object list) so that ANY object —
 # including the tool binaries' objects like rundiag.o / mb2eb.o that are not in
@@ -116,6 +118,17 @@ $(BINDIR)/rundiag: $(LIB_OBJS) $(OBJDIR)/rundiag.o | $(BINDIR)
 
 # dsk2trident — convert a ContrAlto Diablo-31 .dsk into a Diablo-on-Trident pack.
 $(BINDIR)/dsk2trident: $(LIB_OBJS) $(OBJDIR)/dsk2trident.o | $(BINDIR)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+# altofs — optional wrapper around the local gitignored AltoInfo/palo FS
+# library. It is deliberately not in `all`; use it through lisp-disk-image.
+$(PALO_FS_OBJS):
+	$(MAKE) -C $(PALO_SRC) par
+
+$(OBJDIR)/altofs.o: src/altofs.c | $(OBJDIR)
+	$(CC) $(CFLAGS) -I$(PALO_SRC) $(DEPFLAGS) -c -o $@ $<
+
+$(BINDIR)/altofs: $(OBJDIR)/altofs.o $(PALO_FS_OBJS) | $(BINDIR)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 $(BINDIR)/mctrace: $(LIB_OBJS) $(OBJDIR)/mctrace.o | $(BINDIR)
@@ -305,6 +318,13 @@ TRIDENT_RUN_DIR := build/run-disks
 ALTO_GOLDEN_PACK_GZ ?= ../chm/diskpacks/games-trident.pack.gz
 ALTO_GOLDEN_PACK ?= $(TRIDENT_GOLDEN_DIR)/alto-games-trident.pack
 ALTO_RUN_PACK ?= $(TRIDENT_RUN_DIR)/alto-games-trident.pack
+LISP_DSK0 ?= $(TRIDENT_RUN_DIR)/lisp-drive0.dsk
+LISP_DSK1 ?= $(TRIDENT_RUN_DIR)/lisp-drive1.dsk
+LISP_RUN_PACK ?= $(TRIDENT_RUN_DIR)/lisp-diablo-trident.pack
+LISP_RUN_FILE ?= ../chm/lisp/Lisp.run!6
+LISP_SYMS_FILE ?= ../chm/lisp/Lisp.syms!4
+LISP_MC_FILE ?= ../chm/lisp/DORADOLISPMC.EB!1
+LISP_ALTOD1_FILE ?= ../chm/lisp/altod1mc.eb!1
 
 $(TRIDENT_GOLDEN_DIR) $(TRIDENT_RUN_DIR):
 	mkdir -p $@
@@ -315,6 +335,7 @@ $(ALTO_GOLDEN_PACK): $(ALTO_GOLDEN_PACK_GZ) | $(TRIDENT_GOLDEN_DIR)
 	chmod 444 '$@'
 
 .PHONY: trident-readonly-images alto-disk-image refresh-alto-golden
+.PHONY: lisp-disk-image
 .PHONY: run-alto-disk run-alto-disk-screenshot
 .PHONY: run-tricond-nopack run-tricond-pack
 trident-readonly-images: $(ALTO_GOLDEN_PACK)
@@ -327,6 +348,15 @@ refresh-alto-golden: $(BINDIR)/dsk2trident | $(TRIDENT_GOLDEN_DIR)
 alto-disk-image: trident-readonly-images | $(TRIDENT_RUN_DIR)
 	cp -f '$(ALTO_GOLDEN_PACK)' '$(ALTO_RUN_PACK)'
 	chmod 644 '$(ALTO_RUN_PACK)'
+
+lisp-disk-image: $(BINDIR)/altofs $(BINDIR)/dsk2trident | $(TRIDENT_RUN_DIR)
+	$(BINDIR)/altofs --disk0 '$(LISP_DSK0)' --disk1 '$(LISP_DSK1)' \
+		--insert '$(LISP_RUN_FILE)' LISP.RUN. \
+		--insert '$(LISP_SYMS_FILE)' LISP.SYMS. \
+		--insert '$(LISP_MC_FILE)' DORADOLISPMC.EB. \
+		--insert '$(LISP_ALTOD1_FILE)' ALTOD1MC.EB.
+	$(BINDIR)/dsk2trident --all-heads --diablo-cylinders 406 --diablo-sectors 14 --drive1 '$(LISP_DSK1)' '$(LISP_DSK0)' '$(LISP_RUN_PACK)'
+
 run-alto-disk: sdl alto-disk-image
 	./build/dorado-sdl --eb worlds/aemu.eb --disk 0='$(ALTO_RUN_PACK)' --boot-reason disk --speed 4000000
 run-alto-disk-screenshot: sdl alto-disk-image

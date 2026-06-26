@@ -110,32 +110,30 @@ two emulated Diablo drives on one Trident surface, however:
 ```
 
 That is enough for a 15002-page VMEM file plus the Alto OS, `Lisp.run`,
-symbols, microcode, init files, and update command file. `dsk2trident` now
-accepts `--diablo-cylinders 406 --diablo-sectors 14 --drive1 ...`, so it can
-convert the two emulated Diablo-drive halves into the existing
-Diablo-on-Trident pack layout.
+symbols, microcode, init files, and update command file. `altofs` now creates
+the two emulated Diablo-drive halves with this geometry, and `dsk2trident`
+accepts `--diablo-cylinders 406 --diablo-sectors 14 --drive1 ...` to convert
+them into the existing Diablo-on-Trident pack layout.
 
-Verified manually with a local `palo` geometry patch:
+Tracked recipe:
 
 ```
-truncate -s 7681024 /tmp/LISP.VIRTUALMEM
-palo/par --cylinders 406 --sectors 14 -1 /tmp/lisp0.dsk -2 /tmp/lisp1.dsk -f -rw
-palo/par --cylinders 406 --sectors 14 -1 /tmp/lisp0.dsk -2 /tmp/lisp1.dsk -rw -i /tmp/LISP.VIRTUALMEM LISP.VIRTUALMEM.
-dorado/build/dsk2trident --all-heads --diablo-cylinders 406 --diablo-sectors 14 --drive1 /tmp/lisp1.dsk /tmp/lisp0.dsk /tmp/lisp.pack
+make -C dorado lisp-disk-image
 ```
 
-That produced a checker-clean two-disk Alto filesystem with 7683 pages free
-after inserting a 15002-page zero-filled `LISP.VIRTUALMEM.`, and
-`dsk2trident` placed 113680 sectors into a 60 MB test pack. `palo`'s
-filesystem checker requires the trailing dot in the stored Alto filename;
-confirm with the real Alto Executive whether `Lisp.run`'s `LISP.VIRTUALMEM`
-lookup normalizes to that directory name.
+This builds `dorado/build/run-disks/lisp-diablo-trident.pack` from two
+temporary Alto disk halves, inserts a 15002-page zero-filled
+`LISP.VIRTUALMEM.`, and copies the tracked `Lisp.run`, `Lisp.syms`,
+`DORADOLISPMC.EB`, and `AltoD1MC.eb` files. Verification output shows a
+checker-clean two-disk Alto filesystem with 7328 pages free after those
+inserts, and `dsk2trident` places 113680 sectors into the 60 MB pack.
+`palo`'s filesystem checker requires the trailing dot in stored Alto
+filenames; confirm with the real Alto Executive whether `Lisp.run`'s
+`LISP.VIRTUALMEM` lookup normalizes to that directory name.
 
 This is not yet a bootable Lisp disk. It proves the required geometry and
-VMEM allocation, but the pack still needs a bootable Alto OS plus
-`Lisp.run`, `Lisp.syms`, `DORADOLISPMC.EB`, `AltoD1MC.eb`, and `INIT.LCOM`.
-A tracked Alto filesystem image builder, or a properly vendored `palo`
-geometry wrapper, is the next tooling step before adding this to `make`.
+VMEM allocation, and includes the core Lisp loader/microcode files, but the
+pack still needs a bootable Alto OS and `INIT.LCOM`.
 
 ### 2026-06-09: checksum/load validation
 
@@ -164,8 +162,7 @@ So:
 - **Disk is mandatory for full Lisp** (the `LISP.VIRTUALMEM` swap). This
   raises the priority of finishing the Alto disk install path on top of the
   Trident read/write controller path. The pack geometry and VMEM file are now
-  proven, but the Alto filesystem image builder still needs to become tracked
-  repo tooling.
+  reproducible with `make -C dorado lisp-disk-image`.
 - **A concrete, reconstructable Lisp bring-up exists** once disk works:
   build an Alto Trident partition + VMEM file, run `Lisp.run`, which loads
   `DoradoLispMC.EB`. This is more achievable than Pilot/Cedar.

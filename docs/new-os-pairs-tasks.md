@@ -120,13 +120,12 @@ that VMEM swap file.
    VMEM and what the microcode expects at startup. **Do not guess the
    format — it is in those sources.**
 3. **Finish the Alto-format Lisp pack** (if pursuing 2a): the geometry and
-   VMEM allocation are proven (`2 * 406 * 2 * 14 = 22736` Alto pages, enough
-   for `LISP.VIRTUALMEM 15002D`), and `dsk2trident` can now convert that
-   two-drive layout into the Dorado pack. Next make the Alto filesystem image
-   builder tracked/reproducible, install Alto OS on the pack, copy
-   `Lisp.run`/`Lisp.syms`/`DORADOLISPMC.EB`/`AltoD1MC.eb`/`INIT.*`, and run
-   `Lisp.run`. ContrAlto's Trident/Diablo code (`AltoInfo/`) remains the
-   format reference.
+   VMEM allocation are reproducible with `make -C dorado lisp-disk-image`
+   (`2 * 406 * 2 * 14 = 22736` Alto pages, enough for `LISP.VIRTUALMEM
+   15002D`). The generated pack now includes `Lisp.run`, `Lisp.syms`,
+   `DORADOLISPMC.EB`, and `AltoD1MC.eb`. Next install Alto OS on the pack,
+   add a suitable `INIT.LCOM`, and run `Lisp.run`. ContrAlto's
+   Trident/Diablo code (`AltoInfo/`) remains the format reference.
 4. **I/O + render:** Lisp keyboard/mouse/display delivery, analogous to
    `machine_cedar_io` (`dorado/src/machine.c:836`). Interlisp-D uses the
    standard Alto-lineage display; the framebuffer is already wired.
