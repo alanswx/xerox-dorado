@@ -190,6 +190,20 @@ OT -> object space, big-endian 16-bit, byte-swapped on load -- the easy part);
 (model `machine_cedar_io`). Reference for the standard format: Goldberg & Robson
 Blue Book "Virtual Image"/"Object Memory"; for the target, `DSmallDefs.mc`.
 
+### Interlisp-D update 2026-06-26 — Lisp microcode offset fixed, OS still gated on VMEM
+
+The fake microcode boot server was missing the documented Dorado Lisp offset
+`0112` (boot-file number 3112). That made a correct `--boot-file-number 112`
+probe stall before LoadRam, even though the earlier `0110` override could
+load the same file. The server now has a real `0112` slot defaulting to
+`chm/lisp/DORADOLISPMC.EB!1`, and the corrected probe loads the Lisp
+microcode at cycle ~32M.
+
+That does **not** make Interlisp-D boot by itself. After LoadRam it still has
+no display and no progress toward a Lisp session, consistent with the model
+below: `Lisp.run` must create/use `LISP.VIRTUALMEM`, load the sysout, and
+then switch into `DORADOLISPMC.EB`.
+
 ### Interlisp-D verdict 2026-06-20 — blocked on the Trident disk WRITE path
 
 Confirmed (interlisp-d-boot.md + `StartLisp.mc`/`InitLisp.mc`/`Lisp.run`):

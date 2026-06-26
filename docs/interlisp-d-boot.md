@@ -75,7 +75,24 @@ images (Dove=Daybreak, Dlion=Dandelion — no Dorado `.db`, the `.EB` is the
 Dorado-specific piece). The directory mixes Dolphin/Dorado/Dandelion/
 Daybreak files; only the `.EB` microcode is processor-specific.
 
-## What we verified in the emulator (2026-06-09)
+## What we verified in the emulator
+
+### 2026-06-26: real Lisp microcode boot offset works
+
+The Dorado booting memo assigns microcode boot offsets `0110..0114` as
+Mesa/Alto, Smalltalk, **Lisp**, Cedar, Test. The emulator's fake microcode
+boot server was missing offset `0112`; a proper Lisp request therefore
+stalled with one request and no reply. That is fixed: `0112` now defaults to
+`chm/lisp/DORADOLISPMC.EB!1`, and `--boot-file-number 112 --eb
+../chm/lisp/DORADOLISPMC.EB!1` loads the Lisp microcode through the real
+Initial->LoadRam path at cycle ~32M.
+
+This is only a microcode-load validation. Directly loaded Lisp still shows
+no display and spins in the Lisp microcode because the Alto `Lisp.run`
+loader, the sysout, and the `LISP.VIRTUALMEM` Alto-format Trident file are
+not present in the running world.
+
+### 2026-06-09: checksum/load validation
 
 Pointed our **existing, working Stage-1** Initial->LoadRam netboot path
 (`DORADO_ETH_BOOT_110=<file>`) at each `.eb`. All three load with **zero

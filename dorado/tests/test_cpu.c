@@ -195,6 +195,7 @@ static const char *ether_boot_path_for_offset(const dorado_ethernet *eth,
     switch (offset) {
     case 0110: return eth->boot_110_path;
     case 0111: return eth->boot_111_path;
+    case 0112: return eth->boot_112_path;
     case 0113: return eth->boot_113_path;
     case 0114: return eth->boot_114_path;
     default: return NULL;

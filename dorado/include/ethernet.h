@@ -163,6 +163,7 @@ typedef struct dorado_ethernet {
 
     char boot_110_path[256];
     char boot_111_path[256];
+    char boot_112_path[256];
     char boot_113_path[256];
     char boot_114_path[256];
 

@@ -44,7 +44,7 @@ static int test_microcode_boot_reply_queue(void)
            "EOT wake after TurnOnTx");
 
     uint16_t req[15] = {
-        042, 01000, 026, 0264, 01, 0110, 0, 0, 0, 0, 04, 042, 01, 01, 0177777
+        042, 01000, 026, 0264, 01, 0112, 0, 0, 0, 0, 04, 042, 01, 01, 0177777
     };
     for (int i = 0; i < 15; i++) {
         dorado_io_write(&io, DORADO_ETHERNET_TASK_EOT,
@@ -67,7 +67,7 @@ static int test_microcode_boot_reply_queue(void)
 
     EXPECT(eth.requests_seen == 1, "requests_seen=%llu",
            (unsigned long long)eth.requests_seen);
-    EXPECT(eth.last_boot_offset == 0110, "boot offset 0o%o",
+    EXPECT(eth.last_boot_offset == 0112, "boot offset 0o%o",
            eth.last_boot_offset);
     EXPECT(eth.rx_count > 0, "rx queue populated");
     EXPECT(eth.replies_queued > 1, "replies queued=%llu",

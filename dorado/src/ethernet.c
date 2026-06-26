@@ -127,6 +127,8 @@ void dorado_ethernet_init(dorado_ethernet *eth)
     dorado_ethernet_set_boot_file(
         eth, 0111, "../chm/microcode/SmalltalkDorado.eb!1");
     dorado_ethernet_set_boot_file(
+        eth, 0112, "../chm/lisp/DORADOLISPMC.EB!1");
+    dorado_ethernet_set_boot_file(
         eth, 0113, "../chm/dorado/CedarDorado.eb!6");
     dorado_ethernet_set_boot_file(
         eth, 0114, "../chm/microcode/TestDorado.eb!1");
@@ -151,6 +153,7 @@ void dorado_ethernet_set_boot_file(dorado_ethernet *eth,
     switch (offset) {
     case 0110: dst = eth->boot_110_path; break;
     case 0111: dst = eth->boot_111_path; break;
+    case 0112: dst = eth->boot_112_path; break;
     case 0113: dst = eth->boot_113_path; break;
     case 0114: dst = eth->boot_114_path; break;
     default: return;
@@ -318,6 +321,7 @@ static const char *eth_boot_path(const dorado_ethernet *eth, uint16_t offset)
     switch (offset) {
     case 0110: return eth->boot_110_path;
     case 0111: return eth->boot_111_path;
+    case 0112: return eth->boot_112_path;
     case 0113: return eth->boot_113_path;
     case 0114: return eth->boot_114_path;
     default: return NULL;
