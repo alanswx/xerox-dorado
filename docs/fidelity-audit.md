@@ -44,7 +44,7 @@ Pixel count is only a rough proxy — high px can be a real render (Boggs =
   Pool, PPong, Pupwatch, ShowAIS, StarWars, Trek.
 - **Near-blank (crashed early):** AstroRoids/Invaders 163, What 301, Messenger
   383, Scavenger 603, Reversi 831.
-- **Renders real content:** Galaxian 121602, Boggs 274967 (photo), EtherLoad
+- **Renders real content:** Galaxian 121553, Boggs 274967 (photo), EtherLoad
   428581, EDP 39023, Calculator 14333, KeyTest 13076, MadTest 18892, CopyDisk,
   PupTest, BFSTest. (Each still needs a visual check — some "high px" are
   frozen, e.g. MissileCommand.)

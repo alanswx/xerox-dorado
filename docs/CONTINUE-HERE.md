@@ -1,31 +1,23 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
-## ===> ACTIVE TASK (2026-06-25, latest): diagnostics — 2 of 6 now PASS; the
-## rest are gated on cycle-accurate timing / specific HW features.
+## ===> ACTIVE TASK (2026-06-26, latest): diagnostics are green with the
+## diagnostic-specific harness commands.
 ## Map: [`docs/running-diagnostics.md`](running-diagnostics.md);
 ## handoff: [`docs/HANDOFF-hold-and-diagnostics.md`](HANDOFF-hold-and-diagnostics.md).
 
 PARC's original **Dorado hardware diagnostics** run on our microengine
-(`build/rundiag`) — the one real-Dorado validation oracle. **Progress since the
-"implement Hold" framing below (now partly obsolete — the six do NOT all gate on
-one Hold mechanism):**
+(`build/rundiag`) and now provide real regression gates. Current verified passes:
+kernel, eventCounters, memMisc, IfuSimple, IfuComplex, TriconD no-pack, and the
+memA D/X/S slices listed in [`docs/running-diagnostics.md`](running-diagnostics.md).
 
-- **kernel — PASS** (DONE @3.77M). **memA — PASS** (DONE @220.8M). Both via the
-  §3.12 **TASKSIM enable-bit** fix (`taskSim[0]`=0o10); memA's `CATUPADDRERR` was
-  that sim-task bug, not a cache-address fidelity gap (the diagnostic constants
-  are octal — no 2-bit offset).
-- **eventCounters** — genIO + the `KFAULT3` junk-timer setup fault + **eventTrue**
-  fixed (HM §4.11 event counters implemented). Now at `eventHold`, which needs
-  the **HM §5.4 reference/port-busy Hold coupled to the sim-task cadence** = the
-  holistic cycle-accurate-timing project
-  ([`docs/timing-project-scope.md`](timing-project-scope.md) +
-  [`docs/cycle-accurate-timing-plan.md`](cycle-accurate-timing-plan.md)).
-- **Ifu** — scoped; needs the cycle-accurate IFU test-mode pipeline. **memMisc**
-  (fault-task+Pipe4), **Tricond** (disk mufflers) — pending.
+The old "implement Hold to make every diagnostic pass" framing is obsolete. The
+diagnostics needed separate fixes in tasking/timing, memory/fault/Pipe status,
+IFU/event-counter behavior, and Trident disk-controller mufflers. The remaining
+caveat is harness scope: memA's complete S-board/chaos burn-in is not a quick
+gate, and TriconD's no-pack success point is `TESTOK-WITHOUT-DISK`, not `DONE`.
 
-`make` now builds `rundiag`; header deps are tracked (no stale-object crashes).
-The ethernet/render investigation below is superseded as the active focus (the
-games are gated on the broader timing work; see contralto-oracle-validity.md).
+`make` builds `rundiag`; header deps are tracked. The ethernet/render
+investigation below is separate from the hardware-diagnostic gates.
 
 ---
 

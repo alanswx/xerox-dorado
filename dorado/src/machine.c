@@ -1098,6 +1098,7 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
         return NULL;
     }
     {
+        m->mem.storage_chip_type = DM_STORAGE_CHIP_TYPE_DEFAULT;
         size_t want = (size_t)DM_STORAGE_MODULE_WORDS *
                       (size_t)cfg.storage_modules;
         if (m->mem.storage_words != want) {

@@ -1,38 +1,19 @@
 # HANDOFF — Dorado hardware diagnostics + implementing Hold (gap B1)
 
-**Date: 2026-06-23. Branch: `fidelity-timing`. All gates green.**
+**Date: 2026-06-23; status banner updated 2026-06-26. Branch:
+`fidelity-timing`. Normal unit/boot gates green; diagnostic status is in
+`docs/running-diagnostics.md`.**
 **You are picking this up after a context reset. Read the "Read first" docs
 below before writing any code.**
 
-> **STATUS UPDATE (2026-06-25) — much of this doc's "to-do" is now DONE.**
-> The single source of truth for per-diagnostic status is
-> [`docs/running-diagnostics.md`](running-diagnostics.md) (kept current); this
-> banner is the short version. **2 of the suite now fully PASS:**
-> - **kernel — PASS** (DONE @3,765,457 steps). Fixed: RBase, the bogus
->   `(T>>8)&7` shifter case (HM §3.11), `Wakeup[n]` 2-cycle latency (HM p27),
->   and the §3.12 **TASKSIM** counter (`Hold&TaskSim←B`, FF=0o154) — with the
->   **enable-bit gate** (`taskSim[0]`=0o10): only count while enabled, which is
->   also the memA fix below.
-> - **memA — PASS** (DONE @220,787,595 steps). `CATUPADDRERR` was NOT a
->   cache-address fidelity gap (the diagnostic constants are octal; no 2-bit
->   offset). It was the TASKSIM enable-bit bug: a stale re-arm value kept waking
->   the §3.12 sim task (0o12), whose `noRef`+`useMcrV` STORE clobbered the
->   cache-addressing test. Source mirrored at `chm/.../memASource/`.
->
-> **eventCounters** — genIO loopback fixed; the `KFAULT3` setup fault fixed
-> (`IFUTest←B(0)` must NOT enable the periodic junk timer, HM §8.3); HM §4.11
-> **event counters** implemented (per-cycle EventCntA/B + EmuOrFT/tasksAll
-> gating) so **eventTrue PASSES**; `uinstr_reads_md` corrected (ASEL=2/3 read Md
-> only when FF[0:1]=0). Now fails at `eventHold` — the loop reads no Md and its
-> Hold comes from the **HM §5.4 reference/port-busy Hold coupled to the sim-task
-> cadence**, i.e. the holistic cycle-accurate-timing project (below). Sources at
-> `chm/.../eventCountersSource/`.
->
-> **Ifu (Complex/Simple)** — scoped, sources mirrored at `chm/.../IfuSource/`
-> (README). `IFUEXCEPTIONERR` needs the **cycle-accurate IFU test-mode pipeline**
-> (`IFUTest←`/`ifuTick` single-stepping F/G/J/H/M) — its own large effort, not a
-> contained exception latch. **memMisc** (fault-task + Pipe4) and **Tricond**
-> (disk state mufflers) still pending.
+> **STATUS UPDATE (2026-06-26) — this doc's original diagnostic to-do is
+> obsolete.**
+> The single source of truth is
+> [`docs/running-diagnostics.md`](running-diagnostics.md). Current verified
+> passes: kernel, eventCounters, memMisc, IfuSimple, IfuComplex, TriconD
+> no-pack, and the memA D/X/S slices. TriconD must be run as DSK task `14` with
+> `RUNDIAG_DISK=1` and done label `TESTOK-WITHOUT-DISK`; memA's full S-board
+> chaos/burn-in path is not a quick gate.
 >
 > **Build note:** `make` now builds `build/rundiag`; header deps track all
 > objects (commit 43192fd) — no more stale-object crashes.
@@ -55,14 +36,8 @@ below before writing any code.**
 
 We got PARC's original **Dorado hardware diagnostics running on our microengine**
 (`build/rundiag`) — the one real-Dorado-grounded validation oracle (ContrAlto is
-an Alto, can't validate Dorado-specific behavior). We ran all six, fixed the
-first kernel bug (79 → 1.34M steps), and root-caused the rest. The standout
-result: **three diagnostics (memA, memMisc, Tricond) all fail for one reason —
-the Hold mechanism (gap B1/C1) is unimplemented.** So they are now the
-**self-checking regression tests** for the Hold work, which is the core of the
-cycle-accurate-timing project.
-
-**Your job: implement Hold (gap B1), using memA / memMisc / Tricond as the gate.**
+an Alto, and cannot validate Dorado-specific behavior). The original "all fail
+for Hold" framing is obsolete; use `running-diagnostics.md` as the live map.
 
 ## Read first (in this order)
 
@@ -93,15 +68,10 @@ RUNDIAG_TRAIL=1 build/rundiag ... 2>&1   # dump last 48 PCs (T/flags/symbol) on 
 PASS = reach `DONE`; FAIL = reach `ERR` (the `ERROR` macro = `BRANCH[ERR]`);
 HALT = unimplemented op (names it); TIMEOUT = stuck (usually a wait loop).
 
-The three Hold regression tests:
-```
-build/rundiag '../chm/dorado/expanded/MEMA.DM!18_/memA.mb'        BEGIN DONE ERR   # TIMEOUT now
-build/rundiag '../chm/dorado/expanded/memMisc.dm!11_/memMisc.mb'  BEGIN DONE ERR   # TIMEOUT now
-build/rundiag '../chm/dorado/expanded/Tricond.dm!5_/Tricond.mb'   BEGIN DONE ERR   # FAIL @105 now
-```
-For the memory diagnostics, the default 16 MW memory makes an early page-walk
-astronomically long — use `DORADO_STORAGE_MODULES=1` (4 MW) to reach the real
-Hold deadlock fast.
+Diagnostic smoke commands are maintained in
+[`docs/running-diagnostics.md`](running-diagnostics.md). Do not copy the older
+commands from this historical handoff; several diagnostics need specific task,
+disk, done-label, or memory-sizing knobs.
 
 ## What "implement Hold" means (the concrete gaps)
 
@@ -139,32 +109,22 @@ diagnostics and the gates, then make it default.
 ## Regression gates (must stay green at every commit)
 
 - `make test` → 12 suites pass.
-- Galaxian headless = **121602** non-255 px:
+- Galaxian headless = **121553** display-list pixels:
   `./build/dorado --eb worlds/aemu.eb --eftp ../chm/bootfiles/Galaxian.boot!1 --cycles 250000000 --out /tmp/g.pgm`
 - Cedar still boots to login (`make run-cedar`), NetExec in band.
 
-## The other diagnostics — CURRENT (2026-06-25; see running-diagnostics.md)
+## The diagnostics — CURRENT (2026-06-26)
 
-- **kernel — PASS** (DONE @3,765,457). The §3.12 TASKSIM is now implemented
-  with the `taskSim[0]`=0o10 **enable-bit gate** (count only while enabled).
-- **eventCounters** — genIO + KFAULT3 setup fault + **eventTrue** fixed; fails
-  at `eventHold` (HM §5.4 reference-Hold + sim-cadence — the timing project).
-  The old "@674 GENIOERR2 / no event counting" note is obsolete: event counting
-  (HM §4.11) is implemented; the GenIO loopback is the IFU-board GenOut→GenIn
-  plug (`GenIn'`=EventCntA' reads back `GenOut`=EventCntB), NOT a counter mirror.
-- **IfuComplex/IfuSimple** (FAIL @~1631 `IFUEXCEPTIONERR`): needs the
-  cycle-accurate IFU **test-mode pipeline** (`IFUTest←`/`ifuTick` single-step of
-  F/G/J/H/M), not just an exception latch. Sources mirrored at
-  `chm/doradosource/diagnostics/IfuSource/` (+ README + roadmap).
-- **memMisc** (TIMEOUT) and **Tricond** (`STATE.ERRS`) — still pending
-  (fault-task+Pipe4; Trident disk-state mufflers).
+See [`docs/running-diagnostics.md`](running-diagnostics.md). Verified passing
+commands are listed there with observed step counts for kernel, eventCounters,
+memMisc, IfuSimple, IfuComplex, TriconD, and memA slices.
 
 ## Key files
 
 - `dorado/src/rundiag.c` — the diagnostic runner (RBase 0; `RUNDIAG_RBASE`,
   `RUNDIAG_TRAIL`).
-- `dorado/src/cpu.c` — engine; Hold block ~3562, fault-task wake ~502,
-  `Hold&TaskSim` no-op ~1522, `shifter_output` ~1992 (LDF hack ~2003).
+- `dorado/src/cpu.c` — engine; Hold block, fault-task wake,
+  `Hold&TaskSim←B` decode/TASKSIM/HOLDSIM state, shifter path.
 - `dorado/src/memory.c` — Hold no-op ~488, `dorado_pipe4_at` ~282,
   `last_ref_latency` ~1030.
 - Diagnostics: `chm/dorado/expanded/<name>.dm!NN_/<name>.mb`; kernel sources at

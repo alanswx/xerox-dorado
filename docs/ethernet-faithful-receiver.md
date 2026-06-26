@@ -26,7 +26,8 @@
 > **2026-06-23 (render-path investigation) — confirms: the render path is fine;
 > broken games diverge in EXECUTION before they build a display list.**
 > - The C rasterizer works: Galaxian (renders) has a valid DCB
->   (`nwrds=20 slc=195` -> 390 lines x 20 words, 121602 px). Invaders (blank,
+>   (`nwrds=20 slc=195` -> 390 lines x 20 words; current gate 121553 px).
+>   Invaders (blank,
 >   163 px) has a degenerate list (`nwrds=0`, 6 DCBs all pointing at one bitmap)
 >   -- it never set up a real display because it diverged early.
 > - Correction to the OutDone-delay number: ContrAlto exits the EPLOC spin at
@@ -87,7 +88,7 @@ is the lead" — superseded by the A/B probe above.)
 > wire time (`DORADO_ETH_TX_TICKS_PER_WORD`, 170/word == the rx drain rate).
 > A/B vs ContrAlto on Invaders: OutDone now posts **9112 cycles** after the game
 > arms the EPLOC wait (was 537 instant), pushing the opcode match **2091 -> 2130**.
-> Boot-safe and gate-clean: default OFF is byte-identical (Galaxian 121602,
+> Boot-safe and gate-clean: default OFF is byte-identical (current Galaxian gate 121553,
 > NetExec 1484, `make test` 12/12); ON keeps both booting (Galaxian 121600,
 > NetExec 1491). **Still ~7x short of CA's ~68000-cycle (4.1 ms) delay** because
 > the *receiver* drains the fake rx queue in ~7000 cycles where the real wire
@@ -125,7 +126,7 @@ is the lead" — superseded by the A/B probe above.)
 >   so the world can't drain the prequeued reply faster than ~3 Mb/s -- our fake
 >   used to hand the whole queue over in a few us.
 >
-> A/B vs ContrAlto: gate-clean (default OFF byte-identical: Galaxian 121602,
+> A/B vs ContrAlto: gate-clean (default OFF byte-identical: Galaxian 121553,
 > `make test` 12/12) and boot-safe ON (**Galaxian ON = 121553, exactly the
 > documented gate value**; NetExec in band). Invaders' opcode match extends
 > **2091 -> 2130**. It does NOT yet reach ContrAlto's ~733-iteration (4.1 ms)

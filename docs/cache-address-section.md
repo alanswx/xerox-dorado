@@ -7,9 +7,11 @@
 > firing without honoring the `0o10` enable bit: after `cacheAddrTest` calls
 > `disableConditionalTask`, a stale re-arm value kept waking the memory-simulator
 > task (0o12), whose `noRef`+`useMcrV` STORE clobbered the just-zeroed cache.
-> Fixed in `dorado/src/cpu.c` (gate the tick on the enable bit). memA now runs
-> the long storage walk past 60M steps with no error; kernel still PASSES; games
-> (test_snapshot digest) and Cedar unchanged. The CAT source is mirrored at
+> Fixed in `dorado/src/cpu.c` (gate the tick on the enable bit). memA now reaches
+> DONE. **2026-06-26 update:** the broader diagnostics now pass with the
+> harness commands in [`running-diagnostics.md`](running-diagnostics.md); older
+> references in this note to kernel/eventCounters failures are superseded. Games
+> (test_snapshot digest) and Cedar were unchanged by the CAT fix. The CAT source is mirrored at
 > `chm/doradosource/diagnostics/memASource/memRWc.mc`. The schematic notes below
 > are retained as a correct reference for the cache-address datapath, but they
 > were not load-bearing for this fix.
@@ -202,8 +204,10 @@ CATUP (and the later mem subtests) clear at 1024-word.
 ### UPDATE 4 (2026-06-24): page-size config built; CATUP needs the PIPE strap too
 
 Parameterized the page/map size (`dorado_page_shift()` in memory.c; map index,
-offset, phys all derive from it; `DORADO_PAGE_WORDS`, default 256). make test
-12/12, Galaxian 121639, kernel PASS — byte-identical at 256-word.
+offset, phys all derive from it; `DORADO_PAGE_WORDS`, default 256). At that time
+the quick gates were byte-identical at 256-word; current ground truth is stricter:
+`make test` passes, Galaxian is 121553 px, and memA passes. The later
+diagnostic status is maintained in [`running-diagnostics.md`](running-diagnostics.md).
 
 **But running memA at `DORADO_PAGE_WORDS=1024` fails identically** (same step
 87553, same `CATUPADDRERR`). So the *map* page-size change alone does NOT fix

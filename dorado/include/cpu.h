@@ -126,6 +126,15 @@ typedef struct {
     uint8_t  ifu_idcnt;         /* count of ←Id deliveries this opcode */
     uint8_t  ifu_active;        /* 1 = PCF set, ready to dispatch */
 
+    /* IFU diagnostic test register (§6.8 / Table 20). The IFU diagnostics
+     * single-step the board by presenting FG bytes through IFUTest and
+     * clocking them with IFUTick; IFUJump then dispatches from those staged
+     * bytes instead of the memory port. */
+    uint16_t ifu_test;
+    uint8_t  ifu_test_pending;
+    uint8_t  ifu_test_count;
+    uint8_t  ifu_test_queue[16];
+
     /* IFU warmup counter (HM page 67). After PCF←B, the pipeline
      * needs ~5 cycles before the first opcode is in M-level and
      * IFUJump can succeed. Earlier IFUJumps trap to the "IFU not
@@ -312,12 +321,13 @@ typedef struct {
 
     /* HM §3.12 Hold & Task Simulator (hardware-checkout debug feature,
      * exercised by the kernel TestTW diagnostic via Hold&TaskSim←B,
-     * FF=0o154). TASKSIM: a 7-bit counter loaded non-zero counts up each
-     * cycle and, on overflow past 0o177, raises a wakeup for the
-     * simulator task (task 12, backplane-jumpered), held until reloaded.
-     * HOLDSIM: an 8-bit recirculating shift register; a 1 reaching the
-     * trigger end forces an external HOLD two instructions later
-     * (postamble.mc / HM §3.12). Drives the eventCounters eventHold gate. */
+     * FF=0o154). TASKSIM is a 7-bit counter loaded from B[1:7]: zero disables
+     * it, while any non-zero value counts up each cycle and, on overflow past
+     * 0o177, raises a wakeup for the simulator task (task 12,
+     * backplane-jumpered), held until reloaded. HOLDSIM is an 8-bit
+     * recirculating shift register; a 1 reaching the trigger end forces an
+     * external HOLD two instructions later (postamble.mc / HM §3.12). Drives
+     * the eventCounters eventHold gate. */
     uint8_t  tasksim;           /* 7-bit wakeup counter (0 = disabled) */
     uint8_t  tasksim_fired;     /* 1 once overflowed; held until reload */
     uint8_t  tasksim_loaded;    /* transient: load took this cycle's clock */

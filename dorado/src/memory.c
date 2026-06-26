@@ -83,14 +83,38 @@ static const char *ref_kind_trace_name(dorado_ref_kind kind)
     return "unknown";
 }
 
+static uint8_t pipe2_ref_type(dorado_ref_kind kind)
+{
+    switch (kind) {
+    case DM_REF_FETCH:
+    case DM_REF_IFETCH:
+    case DM_REF_LONGFETCH:
+    case DM_REF_PREFETCH:
+    case DM_REF_IOFETCH:
+        return 1;   /* storage read */
+    case DM_REF_STORE:
+    case DM_REF_IOSTORE:
+        return 2;   /* storage write */
+    case DM_REF_MAP:
+    case DM_REF_RMAP:
+    case DM_REF_DUMMYREF:
+    case DM_REF_FLUSH:
+        return 3;   /* map/non-storage op */
+    case DM_REF_NONE:
+    default:
+        return 0;
+    }
+}
+
 enum {
     PIPE5_MAPBUF_BUSY = 0x8000u,  /* manual Pipe5[0] */
     PIPE5_DIRTY       = 0x0080u,  /* manual Pipe5[8] */
     PIPE5_VACANT      = 0x0040u,  /* manual Pipe5[9] */
     PIPE5_WP          = 0x0020u,  /* manual Pipe5[10] */
     PIPE5_BEING_LOAD  = 0x0010u,  /* manual Pipe5[11] */
-    PIPE5_VICTIM_SHIFT      = 2,  /* manual Pipe5[12:13] */
-    PIPE5_NEXTVICTIM_SHIFT  = 0,  /* manual Pipe5[14:15] */
+    /* memDefs.mc: pipe5.colBit0=b6, pipe5.colBit1=b7.  This is the
+     * cache column selected by the reference's comparator/victim path. */
+    PIPE5_COLUMN_SHIFT = 8,
 
     CFLAGS_A_DIRTY      = 0x0080u,  /* manual CFlags input bit 8 */
     CFLAGS_A_VACANT     = 0x0040u,
@@ -98,21 +122,46 @@ enum {
     CFLAGS_A_BEING_LOAD = 0x0010u,
 };
 
+static size_t storage_module_words_for_chip_type(int chip_type)
+{
+    if (chip_type < 0) chip_type = 0;
+    if (chip_type > 3) chip_type = 3;
+    return DM_STORAGE_MODULE_WORDS >> (2 * (3 - chip_type));
+}
+
 int dorado_memory_init(dorado_memory *mem)
 {
     memset(mem, 0, sizeof *mem);
-    mem->storage_words = DM_STORAGE_WORDS;
+    mem->storage_chip_type = DM_STORAGE_CHIP_TYPE_DEFAULT;
     /* The modeled storage size sets RealPages (config word). 4 modules
      * (16MW) -> RealPages wraps to 0x0000; the Alto emulator's InitMem
      * then cold-zeroes/enumerates the full 16MW (slow) and the RealPages=0
      * wrap can confuse its map loop. DORADO_STORAGE_MODULES (1..4) lets a
-     * caller model a smaller machine; AEmu only needs one 4MW module. */
+     * caller model a smaller machine; AEmu only needs one 4MW module.
+     *
+     * DORADO_STORAGE_CHIP_TYPE (0..3) is diagnostic-oriented. memA's
+     * xGetICtype decodes the same Config.icType field and adjusts its
+     * sMaxBrHi sweep: type 0 is the smallest module, type 3 is the default
+     * 4MW/module shape used by normal worlds. */
+    {
+        const char *c = getenv("DORADO_STORAGE_CHIP_TYPE");
+        if (c) {
+            int n = atoi(c);
+            if (n >= 0 && n <= 3)
+                mem->storage_chip_type = n;
+        }
+    }
+    mem->storage_words =
+        storage_module_words_for_chip_type(mem->storage_chip_type) *
+        (size_t)DM_STORAGE_MODULES_DEFAULT;
     {
         const char *m = getenv("DORADO_STORAGE_MODULES");
         if (m) {
             int n = atoi(m);
             if (n >= 1 && n <= 4)
-                mem->storage_words = DM_STORAGE_MODULE_WORDS * (size_t)n;
+                mem->storage_words =
+                    storage_module_words_for_chip_type(mem->storage_chip_type) *
+                    (size_t)n;
         }
     }
     mem->storage = calloc(mem->storage_words, sizeof(uint16_t));
@@ -165,7 +214,8 @@ static uint8_t encode_map_flags(const dorado_map_entry *e)
  * `dorado_pipe_va(mem, 0)` returns the just-written slot
  * (regardless of whether that's a ProcSRN or ASRN slot). */
 static void pipe_push(dorado_memory *mem, int srn, dorado_ref_kind kind,
-                      uint32_t va, uint16_t rp_pre, uint8_t flags_pre)
+                      uint32_t va, uint16_t rp_pre, uint8_t flags_pre,
+                      int task, int subtask)
 {
     srn &= (DM_PIPE_DEPTH - 1);
     /* Preserve the first-faulting ProcSRN reference's pipe entry until the
@@ -196,6 +246,9 @@ static void pipe_push(dorado_memory *mem, int srn, dorado_ref_kind kind,
         return;
     }
     mem->pipe[srn].kind          = kind;
+    mem->pipe[srn].task          = (uint8_t)(task & 017);
+    mem->pipe[srn].subtask       = (uint8_t)(subtask & 3);
+    mem->pipe[srn].ref_type      = pipe2_ref_type(kind);
     mem->pipe[srn].va            = va;
     mem->pipe[srn].map_rp_pre    = rp_pre;
     mem->pipe[srn].map_flags_pre = flags_pre;
@@ -242,6 +295,22 @@ uint16_t dorado_pipe_map_rp_at(const dorado_memory *mem, int srn)
 uint8_t dorado_pipe_map_flags_at(const dorado_memory *mem, int srn)
 {
     return mem->pipe[srn & (DM_PIPE_DEPTH - 1)].map_flags_pre;
+}
+
+uint16_t dorado_pipe2_at(const dorado_memory *mem, int srn)
+{
+    int slot = srn & (DM_PIPE_DEPTH - 1);
+
+    uint16_t nfaults = (uint16_t)(((unsigned)mem->fault_count - 1u) & 7u);
+    uint16_t ht = 0;
+    ht |= (uint16_t)((mem->pipe[slot].ref_type & 3u) << 14); /* b0,b1 */
+    ht |= (uint16_t)((mem->pipe[slot].subtask  & 3u) << 12); /* b2,b3 */
+    ht |= (uint16_t)((mem->pipe[slot].task     & 017u) << 8); /* b4..b7 */
+    ht |= (uint16_t)((mem->fault_emulator & 1u) << 7); /* b8 */
+    ht |= (uint16_t)(nfaults << 4);                  /* b9..b11 */
+    if (mem->fault_count != 0)
+        ht |= (uint16_t)(mem->fault_first_srn & 0xFu); /* b12..b15 */
+    return (uint16_t)~ht;
 }
 
 uint16_t dorado_pipe5_at(const dorado_memory *mem, int srn)
@@ -379,8 +448,8 @@ static uint16_t cache_line_pipe5_flags(const dorado_memory *mem, uint32_t va,
     int next_way = dorado_mcr_usemcrv(mem)
                  ? dorado_mcr_nextvictim(mem)
                  : mem->cache[row_idx].lru[DM_CACHE_WAYS - 1];
-    uint16_t v = (uint16_t)(((way & 3) << PIPE5_VICTIM_SHIFT) |
-                            ((next_way & 3) << PIPE5_NEXTVICTIM_SHIFT));
+    (void)next_way;
+    uint16_t v = (uint16_t)((way & 3) << PIPE5_COLUMN_SHIFT);
     if (dorado_mcr_discf(mem)) return v;
 
     const dorado_cache_line *line = &mem->cache[row_idx].ways[way];
@@ -425,18 +494,21 @@ void dorado_proc_srn_set(dorado_memory *mem, uint8_t srn)
 uint16_t dorado_fault_info(const dorado_memory *mem)
 {
     /* High-true FaultInfo register. Field positions per the microcode
-     * (AEmu EMemDefs.mc: fi.emuFault = b8 = 0x0080, fi.numfaults =
-     * b9:11 = 0x0070; FirstFaultSRN in B[12:15]) and HM §5 "Fault
-     * Handling": FaultCnt is a 3-bit counter that reads -1 (all ones)
+     * (diagnostic memDefs.mc: ProcSRN = b0..b3, ASRN = b4..b7,
+     * fi.emuFault = b8 = 0x0080, fi.numfaults = b9:11 = 0x0070;
+     * FirstFaultSRN in B[12:15]) and HM §5 "Fault Handling": FaultCnt is
+     * a 3-bit counter that reads -1 (all ones)
      * when no faults are pending — "FirstFaultSRN ... is loaded if
      * FaultCnt is -1 (indicating no faults)" — i.e. the field holds
      * (number of pending faults - 1). XMFaultTask.mc depends on all
      * three: numfaults all-ones => no fault, all-zeros => exactly one,
      * emuFault set => the emulator's reference faulted. */
+    uint16_t psrn  = (uint16_t)((mem->proc_srn & 0xF) << 12);
+    uint16_t asrn  = (uint16_t)((mem->asrn & 0xF) << 8);
     uint16_t srn   = (uint16_t)(mem->fault_first_srn & 0xF);
     uint16_t cnt   = (uint16_t)(((unsigned)mem->fault_count - 1u) & 7u);
     uint16_t efl   = (uint16_t)((mem->fault_emulator & 1) << 7);
-    return (uint16_t)(efl | (cnt << 4) | srn);
+    return (uint16_t)(psrn | asrn | efl | (cnt << 4) | srn);
 }
 
 void dorado_fault_clear(dorado_memory *mem)
@@ -467,6 +539,17 @@ void dorado_mcr_load(dorado_memory *mem, uint16_t a, uint16_t b)
      *   manual Mcr[13:15] = bits 2..0 from B
      * Mcr[11:12] are not loaded by this function and are kept clear. */
     mem->mcr = (uint16_t)((a & 0xFFE0u) | (b & 0x0007u));
+    if (dorado_trace_flag("DORADO_MCR_TRACE") && trace_gate_open()) {
+        fprintf(stderr,
+                "MCR_LOAD cyc=%llu pc=0o%o a=0o%06o b=0o%06o mcr=0o%06o "
+                "fd=%d use=%d victim=%d next=%d disbr=%d noref=%d nowake=%d\n",
+                dorado_trace_cycle, dorado_mem_trace_pc,
+                a & 0177777u, b & 0177777u, mem->mcr & 0177777u,
+                dorado_mcr_fdmiss(mem), dorado_mcr_usemcrv(mem),
+                dorado_mcr_victim(mem), dorado_mcr_nextvictim(mem),
+                dorado_mcr_disbr(mem), dorado_mcr_noref(mem),
+                dorado_mcr_nowake(mem));
+    }
 }
 
 uint16_t dorado_mcr_get(const dorado_memory *mem)
@@ -476,13 +559,11 @@ uint16_t dorado_mcr_get(const dorado_memory *mem)
 
 int dorado_mcr_disbr(const dorado_memory *mem)
 {
-    /* Per EMemDefs.mc: `mcr.disBR = b8`. Manual MSB-bit numbering
-     * makes b8 = LSB bit 7 — the SAME bit as disCF. The two field
-     * names are aliases for one hardware bit; setting it disables
-     * both BR-relative virtual addressing and the cache-flag
-     * machinery (gap C6). */
+    /* Manual Mcr[7] / C-LSB bit 8: disable BR-relative addressing.
+     * Mcr[8] / C-LSB bit 7 is DisCF; diagnostics verify the two controls
+     * independently even though some emulator source names are ambiguous. */
     if (mcr_is_initial_nowake(mem)) return 0;
-    return (mem->mcr >> 7) & 1;      /* manual Mcr[8] */
+    return (mem->mcr >> 8) & 1;
 }
 
 int dorado_mcr_dishold(const dorado_memory *mem)
@@ -518,6 +599,7 @@ int dorado_mcr_nowake(const dorado_memory *mem)
 uint16_t dorado_memory_config_word(const dorado_memory *mem)
 {
     /* EMemDefs.mc / B←Config':
+     *   ASRN     = b4..b7       (C-LSB bits 11..8)
      *   ChipSize = b12,b13     (C-LSB bits 3..2)
      *   M0..M3   = 0200,0100,0040,0020
      *
@@ -527,11 +609,11 @@ uint16_t dorado_memory_config_word(const dorado_memory *mem)
      * store. InitMem.mc derives pages-per-module as 0400 << (2*T);
      * T=3 gives 040000 256-word pages, matching each 4MW module.
      */
-    enum {
-        chip_size_64kx1 = 3,
-    };
+    int chip_type = mem->storage_chip_type;
+    if (chip_type < 0 || chip_type > 3) chip_type = DM_STORAGE_CHIP_TYPE_DEFAULT;
 
-    size_t modules = mem->storage_words / DM_STORAGE_MODULE_WORDS;
+    size_t module_words = storage_module_words_for_chip_type(chip_type);
+    size_t modules = module_words ? mem->storage_words / module_words : 0;
     if (modules == 0 && mem->storage_words != 0) modules = 1;
     if (modules > 4) modules = 4;
 
@@ -539,7 +621,9 @@ uint16_t dorado_memory_config_word(const dorado_memory *mem)
     uint16_t module_mask = 0;
     for (size_t i = 0; i < modules; i++) module_mask |= module_bits[i];
 
-    return (uint16_t)(module_mask | (chip_size_64kx1 << 2));
+    uint16_t asrn = (uint16_t)((mem->asrn & 0xFu) << 8);
+
+    return (uint16_t)(asrn | module_mask | ((uint16_t)chip_type << 2));
 }
 
 /*-----------------------------------------------------------------------
@@ -614,8 +698,20 @@ uint16_t dorado_memory_dmux_read(dorado_memory *mem)
         }
     }
 
+    int map_ic_k = 64;
+    {
+        const char *e = getenv("DORADO_MAP_IC_K");
+        if (e) {
+            int n = atoi(e);
+            if (n == 16 || n == 64 || n == 256)
+                map_ic_k = n;
+        }
+    }
+
     if (dorado_trace_flag("DORADO_DMUX_TRACE")) {
-        uint16_t v = (addr == 01511) ? 0x8000u : 0x0000u;
+        uint16_t v = ((map_ic_k == 16 && addr == 01510) ||
+                      (map_ic_k == 64 && addr == 01511) ||
+                      (map_ic_k == 256 && addr == 01512)) ? 0x8000u : 0x0000u;
         fprintf(stderr, "DMUX_READ addr=0o%o -> 0o%o\n", addr, v);
     }
 
@@ -625,11 +721,16 @@ uint16_t dorado_memory_dmux_read(dorado_memory *mem)
      * as NOT asserted -- GetMemConfig then takes the MapIs64K branch and
      * sets VirtualBanks=400C, the size that matches DM_MAP_ENTRIES (256
      * banks * 256 = 65536) and lets the cold InitMem loop terminate. No
-     * muffler is asserted for any other address. */
+     * muffler is asserted for any other address. DORADO_MAP_IC_K can
+     * temporarily report a smaller/larger map to PARC diagnostics that
+     * size their own loops from xGetMapICs. */
     switch (addr) {
+    case 01510:   /* MapIs16K muffler */
+        return (map_ic_k == 16) ? 0x8000 : 0x0000;
     case 01511:   /* MapIs64K muffler -- asserted (64K map) */
-        return 0x8000;
-    case 01512:   /* MapIs256K muffler -- not asserted */
+        return (map_ic_k == 64) ? 0x8000 : 0x0000;
+    case 01512:   /* MapIs256K muffler */
+        return (map_ic_k == 256) ? 0x8000 : 0x0000;
     default:
         return 0x0000;
     }
@@ -727,6 +828,15 @@ static void cache_address_write(dorado_memory *mem, uint32_t va, int way)
     if (way < 0 || way >= DM_CACHE_WAYS) return;
 
     dorado_cache_line *line = &mem->cache[va_cache_row(va)].ways[way];
+    if (dorado_trace_flag("DORADO_CACHE_TRACE") && trace_gate_open()) {
+        fprintf(stderr,
+                "CACHEA_WRITE cyc=%llu pc=0o%o va=0o%07o row=%u way=%d "
+                "old_tag=0o%07o new_tag=0o%07o mcr=0o%06o\n",
+                dorado_trace_cycle, dorado_mem_trace_pc,
+                va & 017777777u, (unsigned)va_cache_row(va), way,
+                (unsigned)line->tag, (unsigned)va_cache_tag(va),
+                mem->mcr & 0177777u);
+    }
     line->tag = va_cache_tag(va);
     line->valid = 1;
 }
@@ -982,6 +1092,7 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
     mem->last_ref_b = b;
     mem->last_ref_task = (uint8_t)(task & 017);
     mem->last_ref_subtask = (uint8_t)(subtask & 3);
+    mem->last_ref_miss = 0;
 
     /* Update Mar (most-recent reference VA). ReadMap (HM page 41)
      * uses this to look up the map entry. */
@@ -1021,7 +1132,7 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
         int way = dorado_mcr_usemcrv(mem) ? dorado_mcr_victim(mem)
                                           : cache_pick_victim(mem, va);
         uint32_t pipe_va = cache_address_va(mem, va, way);
-        pipe_push(mem, srn, kind, pipe_va, rp_pre, flags_pre);
+        pipe_push(mem, srn, kind, pipe_va, rp_pre, flags_pre, task, subtask);
         cache_select(mem, va, way, srn);
         return DM_FAULT_NONE;
     }
@@ -1029,11 +1140,11 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
     /* Pipe entries are pushed for *every* reference, including ones
      * that fault — so fault microcode can read the offending VA
      * from Pipe0/Pipe1. */
-    pipe_push(mem, srn, kind, va, rp_pre, flags_pre);
+    pipe_push(mem, srn, kind, va, rp_pre, flags_pre, task, subtask);
 
     size_t phys = 0;
     dorado_fault_kind f = DM_FAULT_NONE;
-    int started_map = 0;   /* set true if the ref goes to storage */
+    int asrn_advance_count = 0;
 
     /* unused in the no-cache miss path below; declared once for all cases. */
     (void)phys;
@@ -1046,8 +1157,14 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
         mem->last_ref_latency = 3;   /* cache-hit / noref default; the miss
                                       * path below overrides to 16 / 24. */
         if (dorado_mcr_noref(mem)) {
-            way = dorado_mcr_usemcrv(mem) ? dorado_mcr_victim(mem)
-                                          : cache_pick_victim(mem, va);
+            if (!dorado_mcr_fdmiss(mem) && dorado_cache_lookup(mem, va, &way)) {
+                /* NoRef suppresses the storage automata, not the cache
+                 * comparators. Diagnostics use this to read Pipe5/CacheA
+                 * without starting a backing-store reference. */
+            } else {
+                way = dorado_mcr_usemcrv(mem) ? dorado_mcr_victim(mem)
+                                              : cache_pick_victim(mem, va);
+            }
             cache_select(mem, va, way, srn);
             f = DM_FAULT_NONE;
         } else if (!dorado_mcr_fdmiss(mem) &&
@@ -1060,14 +1177,18 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
             cache_select(mem, va, way, srn);
         } else {
             /* Miss: translate (fault check), then fill. */
+            mem->last_ref_miss = 1;
+            if (use_asrn) asrn_advance_count = 1;
             f = va_translate(mem, va, /*is_write=*/0, &phys);
             if (f == DM_FAULT_NONE) {
                 int victim = cache_pick_victim(mem, va);
                 /* A dirty victim adds the write-back time (HM Table 15:
                  * t24 dirty-miss vs t16 clean-miss). Check before the
                  * write-back clears the dirty flag. */
-                mem->last_ref_latency =
-                    mem->cache[va_cache_row(va)].ways[victim].dirty ? 24 : 16;
+                int dirty_victim =
+                    mem->cache[va_cache_row(va)].ways[victim].dirty ? 1 : 0;
+                mem->last_ref_latency = dirty_victim ? 24 : 16;
+                if (use_asrn && dirty_victim) asrn_advance_count = 2;
                 {
                     uint32_t victim_va =
                         cache_line_va_base(mem, va_cache_row(va), victim);
@@ -1106,11 +1227,22 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
     case DM_REF_PREFETCH: {
         /* HM page 39: "PreFetch← does not clobber Md and never causes
          * a map fault." Walks the Map silently; on Vacant, no-op. */
-        if (!dorado_mcr_noref(mem) &&
-            (dorado_mcr_fdmiss(mem) || !dorado_cache_lookup(mem, va, NULL))) {
+        if (!dorado_mcr_noref(mem)) {
             size_t phys_pf;
-            if (va_translate(mem, va, /*is_write=*/0, &phys_pf) == DM_FAULT_NONE) {
+            uint32_t pf_idx = dorado_map_index(va);
+            dorado_fault_kind pf =
+                va_translate(mem, va, /*is_write=*/0, &phys_pf);
+            if (pf == DM_FAULT_NONE || pf == DM_FAULT_STORAGE_ERROR)
+                mem->map[pf_idx].ref = 1;
+
+            if (pf == DM_FAULT_NONE &&
+                (dorado_mcr_fdmiss(mem) ||
+                 !dorado_cache_lookup(mem, va, NULL))) {
+                mem->last_ref_miss = 1;
                 int victim = cache_pick_victim(mem, va);
+                int dirty_victim =
+                    mem->cache[va_cache_row(va)].ways[victim].dirty ? 1 : 0;
+                if (use_asrn) asrn_advance_count = dirty_victim ? 2 : 1;
                 {
                     uint32_t victim_va =
                         cache_line_va_base(mem, va_cache_row(va), victim);
@@ -1120,6 +1252,10 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
                 }
                 cache_fill(mem, va, victim);
                 cache_select(mem, va, victim, srn);
+            } else if (pf == DM_FAULT_STORAGE_ERROR ||
+                       pf == DM_FAULT_PAGE ||
+                       pf == DM_FAULT_WRITE_PROTECT) {
+                if (use_asrn) asrn_advance_count = 1;
             }
             (void)phys_pf;
         }
@@ -1151,19 +1287,61 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
                         dorado_mem_trace_op);
             }
         }
-        /* Hit *or* miss, the WP check happens via Map (translate).
-         * Per HM page 45: Store-hit does NOT set Map.Dirty — that
-         * only happens when the dirty munch is later chosen as
-         * victim. */
+        /* Per HM page 45, Store-hit updates the cached munch and marks the
+         * cache line dirty; it does not start the Map/storage path, and
+         * therefore does not set Map.Dirty. The write-protect state used on
+         * a hit is the flag already carried by the cache line. */
         if (dorado_mcr_noref(mem)) {
-            way = dorado_mcr_usemcrv(mem) ? dorado_mcr_victim(mem)
-                                          : cache_pick_victim(mem, va);
-            cache_address_write(mem, va, way);
+            if (dorado_mcr_usemcrv(mem) && dorado_mcr_fdmiss(mem)) {
+                /* CacheA diagnostic write: force the selected column's
+                 * address memory without touching storage. */
+                way = dorado_mcr_victim(mem);
+                cache_address_write(mem, va, way);
+            } else if (!dorado_mcr_fdmiss(mem) &&
+                       dorado_cache_lookup(mem, va, &way)) {
+                /* Comparator-only reference: report the matched column. */
+            } else {
+                way = dorado_mcr_usemcrv(mem) ? dorado_mcr_victim(mem)
+                                              : cache_pick_victim(mem, va);
+            }
             cache_select(mem, va, way, srn);
             f = DM_FAULT_NONE;
             break;
         }
+
+        if (!dorado_mcr_fdmiss(mem) && dorado_cache_lookup(mem, va, &way)) {
+            dorado_cache_line *line =
+                &mem->cache[va_cache_row(va)].ways[way];
+            if (line->wp) {
+                f = DM_FAULT_WRITE_PROTECT;
+            } else {
+                /* Optional emulator guard: if the current Map can translate
+                 * this hit, preserve the protected physical cell. A vacant
+                 * Map does not fault a cache hit. */
+                if (mem->protect_active &&
+                    va_translate(mem, va, /*is_write=*/0, &phys) == DM_FAULT_NONE &&
+                    (uint32_t)phys == mem->protect_phys) {
+                    if (b != mem->protect_val &&
+                        dorado_trace_flag("DORADO_M344_WATCH"))
+                        fprintf(stderr,
+                            "M344_WRITE cyc=%llu task=%o pc=0o%o va=%07o "
+                            "phys=%07o data=0o%o (held 0o%o)\n",
+                            dorado_trace_cycle, task & 017, dorado_mem_trace_pc,
+                            va & 0x0FFFFFFFu, (unsigned)phys, b & 0177777,
+                            mem->protect_val & 0177777);
+                    b = mem->protect_val;
+                }
+                line->data[va_cache_offset(va)] = b;
+                line->dirty = 1;
+                line->vacant = 0;
+                cache_touch_lru(&mem->cache[va_cache_row(va)], way);
+                cache_select(mem, va, way, srn);
+            }
+            break;
+        }
+
         f = va_translate(mem, va, /*is_write=*/1, &phys);
+        if (use_asrn) asrn_advance_count = 1;
         {
             static long tp = -1;
             if (tp == -1) {
@@ -1190,7 +1368,8 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
          * the real defect is upstream -- a malformed BBT whose
          * destination base is already in page zero, traced to a corrupt
          * BCPL context stack pointer (see docs/CONTINUE-HERE.md). */
-        if (mem->protect_active && (uint32_t)phys == mem->protect_phys) {
+        if (f == DM_FAULT_NONE &&
+            mem->protect_active && (uint32_t)phys == mem->protect_phys) {
             if (b != mem->protect_val && dorado_trace_flag("DORADO_M344_WATCH"))
                 fprintf(stderr,
                     "M344_WRITE cyc=%llu task=%o pc=0o%o va=%07o "
@@ -1201,19 +1380,20 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
             b = mem->protect_val;
         }
         if (f == DM_FAULT_NONE) {
-            if (dorado_mcr_fdmiss(mem) ||
-                !dorado_cache_lookup(mem, va, &way)) {
-                /* Miss: write-allocate. Fill, then write into the line. */
-                way = cache_pick_victim(mem, va);
-                {
-                    uint32_t victim_va =
-                        cache_line_va_base(mem, va_cache_row(va), way);
-                    dorado_fault_kind wbf =
-                        cache_writeback_line(mem, va_cache_row(va), way);
-                    record_writeback_fault(mem, wbf, srn, victim_va);
-                }
-                cache_fill(mem, va, way);
+            /* Miss: write-allocate. Fill, then write into the line. */
+            mem->last_ref_miss = 1;
+            way = cache_pick_victim(mem, va);
+            int dirty_victim =
+                mem->cache[va_cache_row(va)].ways[way].dirty ? 1 : 0;
+            if (use_asrn && dirty_victim) asrn_advance_count = 2;
+            {
+                uint32_t victim_va =
+                    cache_line_va_base(mem, va_cache_row(va), way);
+                dorado_fault_kind wbf =
+                    cache_writeback_line(mem, va_cache_row(va), way);
+                record_writeback_fault(mem, wbf, srn, victim_va);
             }
+            cache_fill(mem, va, way);
             dorado_cache_line *line =
                 &mem->cache[va_cache_row(va)].ways[way];
             line->data[va_cache_offset(va)] = b;
@@ -1245,6 +1425,7 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
         f = va_translate(mem, va, /*is_write=*/0, &phys);
         if (f == DM_FAULT_NONE) {
             mem->map[dorado_map_index(va)].ref = 1;
+            if (use_asrn) asrn_advance_count = 1;
             if (mem->fast_io_cb && mem->storage) {
                 uint16_t munch[16];
                 uint32_t base = phys & ~(uint32_t)0xF;
@@ -1277,6 +1458,7 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
             cache_invalidate_no_writeback(mem, va);
             mem->map[dorado_map_index(va)].ref   = 1;
             mem->map[dorado_map_index(va)].dirty = 1;
+            if (use_asrn) asrn_advance_count = 1;
             if (mem->fast_io_cb && mem->storage) {
                 uint16_t munch[16] = {0};
                 /* Callback fills munch from device. */
@@ -1359,6 +1541,7 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
             dorado_fault_kind wbf =
                 cache_writeback_line(mem, va_cache_row(va), way);
             record_writeback_fault(mem, wbf, srn, victim_va);
+            if (use_asrn) asrn_advance_count = 1;
             mem->cache[va_cache_row(va)].ways[way].valid = 0;
             mem->cache[va_cache_row(va)].ways[way].vacant = 1;
             cache_select(mem, va, way, srn);
@@ -1386,9 +1569,28 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
          * PilotBoot.FindEndMappedVM) reads the vacant flag without
          * corrupting the map or waking the fault task. */
         break;
-    case DM_REF_DUMMYREF:
-        /* Pipe-only — already pushed above. */
+    case DM_REF_DUMMYREF: {
+        /* DummyRef does not start map/storage, but it still selects the
+         * cache-address-section row/column used by Pipe5 and CFlags<-A'.
+         * memA uses two idioms:
+         *   - putCFmem: FDMiss+UseMcrV without dPipeVa forces a CFlags write
+         *     into the MCR-selected column.
+         *   - readCflags: dPipeVa+FDMiss+UseMcrV reads Pipe5 from the
+         *     comparator-hit column for the probed VA.
+         */
+        int way;
+        if (!dorado_mcr_dvavic(mem) &&
+            dorado_mcr_usemcrv(mem) && dorado_mcr_fdmiss(mem)) {
+            way = dorado_mcr_victim(mem);
+        } else if (dorado_cache_lookup(mem, va, &way)) {
+            /* Comparator hit. */
+        } else {
+            way = dorado_mcr_usemcrv(mem) ? dorado_mcr_victim(mem)
+                                          : cache_pick_victim(mem, va);
+        }
+        cache_select(mem, va, way, srn);
         break;
+    }
     case DM_REF_NONE:
         break;
     }
@@ -1435,18 +1637,16 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
         if (mem->fault_count < 0xF) mem->fault_count++;
     }
 
-    /* ASRN advancement (HM page 52). For ASRN-using refs, advance
-     * iff the reference "starts the map" — i.e., goes to storage.
-     * In our model: IOFetch, IOStore, and PreFetch-miss always
-     * start the map (Vacant PreFetch is a silent no-op but still
-     * starts the map per the spec). */
+    /* ASRN advancement (HM page 52): ASRN-using refs advance only when the
+     * reference starts the map/storage path. Dirty-victim misses consume an
+     * additional ASRN slot for the victim write. */
     if (use_asrn) {
         (void)prefetch_was_miss;
-        (void)started_map;   /* All ASRN-using refs start the map. */
-        /* Ring 2..15 = 14 slots. Advance with wrap. */
-        uint8_t next = (uint8_t)(mem->asrn + 1);
-        if (next > (DM_PIPE_DEPTH - 1)) next = 2;
-        mem->asrn = next;
+        for (int i = 0; i < asrn_advance_count; i++) {
+            uint8_t next = (uint8_t)(mem->asrn + 1);
+            if (next > (DM_PIPE_DEPTH - 1)) next = 2;
+            mem->asrn = next;
+        }
     }
     return f;
 }

@@ -1,6 +1,8 @@
 # Holistic Cycle-Accurate Timing — project scope & estimate
 
-**Date: 2026-06-23.** Decision document. The companion
+**Date: 2026-06-23. Updated 2026-06-26:** the diagnostic failure details in
+this scope note are historical; current passing diagnostic commands and step
+counts live in [`running-diagnostics.md`](running-diagnostics.md). The companion
 [`cycle-accurate-timing-plan.md`](cycle-accurate-timing-plan.md) is the
 (organic, dated) working log; this file is the **scoped plan with an end state,
 phase estimates, and explicit go/no-go checkpoints** so the work is bounded, not
@@ -18,7 +20,7 @@ to know if it's working.
 Established this session, so the project doesn't re-derive it:
 
 - **The render path is correct.** The C rasterizer renders any valid Alto
-  display list (Galaxian: DCB `nwrds=20 slc=195` → 121602 px). Broken games have
+  display list (current Galaxian gate: 121553 px). Broken games have
   *degenerate* lists (Invaders: `nwrds=0`) because they diverged before building
   one. So this is **not** a render bug — it is execution divergence.
 - **The divergence is timing.** ours executes the Alto opcode stream identically
@@ -55,22 +57,13 @@ If after Phase S2 the lockstep depth does **not** climb materially as each
 cadence is corrected, the timing hypothesis is wrong for these games — **stop**
 and re-open the diagnosis (off-ramp in §4).
 
-> **NEW gate (2026-06-25): the PARC diagnostics now give a no-tolerance,
-> real-Dorado-grounded oracle for the Hold cadence — stronger than the games'
-> framebuffer digest.** `eventCounters` is the concrete one: it passes `genIO`
-> and **`eventTrue`** (HM §4.11 event counting is implemented — per-cycle
-> EventCntA/B with EmuOrFT/tasksAll gating), then fails at **`eventHold`**, which
-> counts the Hold *signal* on each cache reference in a tight Fetch/Store loop
-> and checks the count **exactly** (no slop). Our model produces 0 holds there:
-> the loop reads no Md (so the existing Md-Hold can't fire), and the task-0
-> references are spread ~8 cycles apart by the §3.12 **sim task (task 12)**
-> preempting between them — so the hold the test wants is the **HM §5.4
-> reference/port-busy Hold** *and* it only lands if the sim-task cadence is
-> right. So eventHold is a precise, self-checking gate for exactly the §5.4
-> reference Hold + sim-cadence this project must get correct — wire it into the
-> Phase S2 checks (run `build/rundiag chm/.../eventCounters.mb BEGIN DONE ERR`;
-> "DONE" = the cadence is accurate). The other gates (kernel, memA) already PASS
-> and must stay PASS.
+> **UPDATED gate (2026-06-26): the PARC diagnostics give a no-tolerance,
+> real-Dorado-grounded oracle that is stronger than the games' framebuffer
+> digest.** The current tree passes kernel, eventCounters, memMisc,
+> IfuSimple/Complex, TriconD no-pack, and focused memA D/X/S slices with the
+> commands in [`running-diagnostics.md`](running-diagnostics.md). Treat that file
+> as the current diagnostic gate; the older failure analysis below this point is
+> historical timing-project context.
 
 ## 3. Why this is finite, not infinite whack-a-mole
 

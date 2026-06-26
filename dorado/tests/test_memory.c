@@ -79,25 +79,55 @@ static int test_pipe_records(void)
     EXPECT(dorado_memory_init(&mem) == 0, "init");
     dorado_map_set(&mem, 0, /*rp=*/0, /*wp=*/0, /*dirty=*/0);
 
-    dorado_memory_ref(&mem, DM_REF_IOFETCH, 0x111, 0, 0);  /* slot 2 */
-    dorado_memory_ref(&mem, DM_REF_IOFETCH, 0x222, 0, 0);  /* slot 3 */
-    dorado_memory_ref(&mem, DM_REF_IOFETCH, 0x333, 0, 0);  /* slot 4 */
+    for (uint32_t i = 0; i < 3; i++)
+        dorado_map_set(&mem, i, /*rp=*/i, /*wp=*/0, /*dirty=*/0);
+
+    dorado_memory_ref(&mem, DM_REF_IOFETCH, 0 * DM_PAGE_SIZE + 0x11, 0, 0);  /* slot 2 */
+    dorado_memory_ref(&mem, DM_REF_IOFETCH, 1 * DM_PAGE_SIZE + 0x22, 0, 0);  /* slot 3 */
+    dorado_memory_ref(&mem, DM_REF_IOFETCH, 2 * DM_PAGE_SIZE + 0x33, 0, 0);  /* slot 4 */
 
     /* SRN-addressed: each VA is in its own slot. */
-    EXPECT(dorado_pipe_va_at(&mem, 2) == 0x111,
-           "pipe[srn=2] = 0x%X, expected 0x111", dorado_pipe_va_at(&mem, 2));
-    EXPECT(dorado_pipe_va_at(&mem, 3) == 0x222,
-           "pipe[srn=3] = 0x%X, expected 0x222", dorado_pipe_va_at(&mem, 3));
-    EXPECT(dorado_pipe_va_at(&mem, 4) == 0x333,
-           "pipe[srn=4] = 0x%X, expected 0x333", dorado_pipe_va_at(&mem, 4));
+    EXPECT(dorado_pipe_va_at(&mem, 2) == 0x011,
+           "pipe[srn=2] = 0x%X, expected 0x011", dorado_pipe_va_at(&mem, 2));
+    EXPECT(dorado_pipe_va_at(&mem, 3) == 0x122,
+           "pipe[srn=3] = 0x%X, expected 0x122", dorado_pipe_va_at(&mem, 3));
+    EXPECT(dorado_pipe_va_at(&mem, 4) == 0x233,
+           "pipe[srn=4] = 0x%X, expected 0x233", dorado_pipe_va_at(&mem, 4));
     /* Most-recent (relative-to-head) is the just-written slot. */
-    EXPECT(dorado_pipe_va(&mem, 0) == 0x333,
-           "most-recent = 0x%X, expected 0x333", dorado_pipe_va(&mem, 0));
+    EXPECT(dorado_pipe_va(&mem, 0) == 0x233,
+           "most-recent = 0x%X, expected 0x233", dorado_pipe_va(&mem, 0));
     /* ASRN should now be 5 (advanced 2→3→4→5). */
     EXPECT(mem.asrn == 5, "asrn = %d, expected 5", (int)mem.asrn);
 
     dorado_memory_free(&mem);
     printf("PASS  test_pipe_records\n");
+    return 0;
+}
+
+static int test_pipe2_records_task_and_ref_type(void)
+{
+    static dorado_memory mem; memset(&mem, 0, sizeof mem);
+    EXPECT(dorado_memory_init(&mem) == 0, "init");
+    dorado_map_set(&mem, 0, /*rp=*/0, /*wp=*/0, /*dirty=*/0);
+
+    dorado_memory_ref_task(&mem, DM_REF_FETCH, 0x10, 0, 0,
+                           /*task=*/1, /*subtask=*/2);
+    uint16_t p2 = (uint16_t)~dorado_pipe2_at(&mem, 2);
+    EXPECT(((p2 >> 14) & 3) == 1,
+           "Pipe2 refType = %u, expected storage read",
+           (unsigned)((p2 >> 14) & 3));
+    EXPECT(((p2 >> 12) & 3) == 2,
+           "Pipe2 subtask = %u, expected 2",
+           (unsigned)((p2 >> 12) & 3));
+    EXPECT(((p2 >> 8) & 017) == 1,
+           "Pipe2 task = %u, expected 1",
+           (unsigned)((p2 >> 8) & 017));
+    EXPECT(((p2 >> 4) & 7) == 7,
+           "Pipe2 nFaults = %u, expected no-fault sentinel 7",
+           (unsigned)((p2 >> 4) & 7));
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_pipe2_records_task_and_ref_type\n");
     return 0;
 }
 
@@ -109,24 +139,29 @@ static int test_pipe_wraps(void)
     EXPECT(dorado_memory_init(&mem) == 0, "init");
     dorado_map_set(&mem, 0, /*rp=*/0, /*wp=*/0, /*dirty=*/0);
 
-    /* 14 IOFetches fill slots 2..15. */
+    for (uint32_t i = 0; i < 15; i++)
+        dorado_map_set(&mem, i, /*rp=*/i, /*wp=*/0, /*dirty=*/0);
+
+    /* 14 IOFetch misses fill slots 2..15. */
     for (uint32_t i = 0; i < 14; i++) {
-        dorado_memory_ref(&mem, DM_REF_IOFETCH, 0x1000 + i, 0, 0);
+        dorado_memory_ref(&mem, DM_REF_IOFETCH,
+                          i * DM_PAGE_SIZE + (i & 0xF), 0, 0);
     }
     /* After 14 refs, ASRN should have wrapped from 15 back to 2. */
     EXPECT(mem.asrn == 2, "asrn = %d after 14 refs, expected 2",
            (int)mem.asrn);
     /* Slot 2 has the first ref's VA (0x1000); slot 15 has the 14th
      * ref's VA (0x100D). */
-    EXPECT(dorado_pipe_va_at(&mem, 2) == 0x1000,
-           "pipe[2] = 0x%X, expected 0x1000", dorado_pipe_va_at(&mem, 2));
-    EXPECT(dorado_pipe_va_at(&mem, 15) == 0x100D,
-           "pipe[15] = 0x%X, expected 0x100D", dorado_pipe_va_at(&mem, 15));
+    EXPECT(dorado_pipe_va_at(&mem, 2) == 0x0000,
+           "pipe[2] = 0x%X, expected 0x0000", dorado_pipe_va_at(&mem, 2));
+    EXPECT(dorado_pipe_va_at(&mem, 15) == 0x0D0D,
+           "pipe[15] = 0x%X, expected 0x0D0D", dorado_pipe_va_at(&mem, 15));
 
     /* 15th ref evicts slot 2. */
-    dorado_memory_ref(&mem, DM_REF_IOFETCH, 0x100E, 0, 0);
-    EXPECT(dorado_pipe_va_at(&mem, 2) == 0x100E,
-           "after wrap: pipe[2] = 0x%X, expected 0x100E (evicted 0x1000)",
+    dorado_memory_ref(&mem, DM_REF_IOFETCH,
+                      14 * DM_PAGE_SIZE + 0x0E, 0, 0);
+    EXPECT(dorado_pipe_va_at(&mem, 2) == 0x0E0E,
+           "after wrap: pipe[2] = 0x%X, expected 0x0E0E (evicted 0x0000)",
            dorado_pipe_va_at(&mem, 2));
 
     /* ProcSRN slots (0, 1) should be untouched by ASRN traffic. */
@@ -176,6 +211,47 @@ static int test_prefetch_dummyref(void)
 
     dorado_memory_free(&mem);
     printf("PASS  test_prefetch_dummyref\n");
+    return 0;
+}
+
+/* memMisc aMapTest resets a resident map entry, then uses PreFetch to
+ * set the entry's Ref bit before reading it back through Pipe4'. */
+static int test_prefetch_hit_sets_map_ref(void)
+{
+    static dorado_memory mem; memset(&mem, 0, sizeof mem);
+    EXPECT(dorado_memory_init(&mem) == 0, "init");
+
+    dorado_map_set(&mem, 0, /*rp=*/0, /*wp=*/0, /*dirty=*/0);
+
+    /* Fill the cache line, then rewrite the map entry to clear Ref while
+     * leaving the cache line resident. */
+    dorado_memory_ref(&mem, DM_REF_FETCH, 0, 0, 0);
+    EXPECT(mem.map[0].ref == 1, "initial fill should set map Ref");
+    dorado_map_set(&mem, 0, /*rp=*/0, /*wp=*/0, /*dirty=*/0);
+    EXPECT(mem.map[0].ref == 0, "map rewrite should clear map Ref");
+
+    dorado_memory_ref(&mem, DM_REF_PREFETCH, 0, 0, 0);
+    EXPECT(mem.map[0].ref == 1,
+           "PreFetch hit should set map Ref for diagnostic readback");
+
+    dorado_memory_ref(&mem, DM_REF_RMAP, 0, 0, 0);
+    uint16_t pipe4 = dorado_pipe4_at(&mem, mem.proc_srn);
+    EXPECT((uint16_t)((pipe4 ^ 0170361u) & 0x8000u) == 0x8000u,
+           "RMap Pipe4' previous Ref not set: raw=0x%04X", pipe4);
+
+    /* The map diagnostic also walks mapped pages that can be beyond the
+     * installed storage modules. PreFetch does not fault there, but the map
+     * reference bit still records that the non-vacant map entry was touched. */
+    size_t saved_words = mem.storage_words;
+    mem.storage_words = 1;
+    dorado_map_set(&mem, 1, /*rp=*/2, /*wp=*/0, /*dirty=*/0);
+    dorado_memory_ref(&mem, DM_REF_PREFETCH, 0x100, 0, 0);
+    EXPECT(mem.map[1].ref == 1,
+           "PreFetch storage-error map lookup should still set map Ref");
+    mem.storage_words = saved_words;
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_prefetch_hit_sets_map_ref\n");
     return 0;
 }
 
@@ -393,18 +469,31 @@ static int test_no_fault_refs(void)
 }
 
 /* Test 12: FaultInfo' tracks NFaults + SRN of first fault.
- * Field positions per AEmu EMemDefs.mc and HM §5 fault handling:
- * b8 (0x0080) = EmulatorFault, b9:11 (0x0070) = FaultCnt where the
- * 3-bit field holds (pending faults - 1) — all ones means none —
- * and B[12:15] = FirstFaultSRN. */
+ * Field positions per diagnostic memDefs.mc and HM §5 fault handling:
+ * b0:3 = ProcSRN, b4:7 = ASRN, b8 (0x0080) = EmulatorFault, b9:11
+ * (0x0070) = FaultCnt where the 3-bit field holds (pending faults - 1)
+ * — all ones means none — and b12:15 = FirstFaultSRN. */
 static int test_fault_info(void)
 {
     static dorado_memory mem; memset(&mem, 0, sizeof mem);
     EXPECT(dorado_memory_init(&mem) == 0, "init");
 
     /* No faults yet → FaultCnt field reads -1 (all ones). */
-    EXPECT(dorado_fault_info(&mem) == 0x0070,
-           "fresh fault_info should be 0x0070, got 0x%04X",
+    EXPECT(dorado_fault_info(&mem) == 0x0270,
+           "fresh fault_info should be 0x0270, got 0x%04X",
+           dorado_fault_info(&mem));
+    dorado_proc_srn_set(&mem, 3);
+    EXPECT(dorado_fault_info(&mem) == 0x3270,
+           "fault_info should include ProcSRN, got 0x%04X",
+           dorado_fault_info(&mem));
+    dorado_proc_srn_set(&mem, 0);
+
+    dorado_map_set(&mem, 0, /*rp=*/0, /*wp=*/0, /*dirty=*/0);
+    dorado_memory_ref_task(&mem, DM_REF_IOFETCH, 0, 0, 0,
+                           /*task=*/1, /*subtask=*/0);
+    EXPECT(mem.asrn == 3, "live ASRN should advance to 3");
+    EXPECT(dorado_fault_info(&mem) == 0x0370,
+           "FaultInfo should report live ASRN after IOFetch, got 0x%04X",
            dorado_fault_info(&mem));
 
     /* All map entries are Vacant → first fetch faults. The pipe slot
@@ -424,15 +513,15 @@ static int test_fault_info(void)
            "first fault SRN should still be 0, got %d",
            (int)mem.fault_first_srn);
 
-    /* Two emulator faults pending: EmulatorFault (0x0080) set,
-     * FaultCnt field = 2-1 = 1 (0x0010), FirstFaultSRN = 0. */
-    EXPECT(dorado_fault_info(&mem) == 0x0090,
-           "fault_info = 0x%04X, expected 0x0090",
+    /* Two emulator faults pending: ASRN is live in b4..b7, EmulatorFault
+     * (0x0080) is set, FaultCnt field = 2-1 = 1 (0x0010), FirstFaultSRN = 0. */
+    EXPECT(dorado_fault_info(&mem) == 0x0390,
+           "fault_info = 0x%04X, expected 0x0390",
            dorado_fault_info(&mem));
 
     /* Clear → back to no-fault. */
     dorado_fault_clear(&mem);
-    EXPECT(dorado_fault_info(&mem) == 0x0070, "fault_info should be cleared");
+    EXPECT(dorado_fault_info(&mem) == 0x0370, "fault_info should be cleared");
     EXPECT(mem.last_fault == DM_FAULT_NONE, "last_fault should be cleared");
 
     dorado_memory_free(&mem);
@@ -992,6 +1081,24 @@ static int test_config_word_reports_storage(void)
            "Config chip size = 0x%X, expected 3", (cfg >> 2) & 0x3);
     EXPECT((cfg & 0200u) != 0,
            "Config M0 bit missing: cfg=0o%06o", cfg);
+    EXPECT(((cfg >> 8) & 0xF) == 2,
+           "Config ASRN = %u, expected initial ASRN 2",
+           (unsigned)((cfg >> 8) & 0xF));
+
+    mem.asrn = 017;
+    cfg = dorado_memory_config_word(&mem);
+    EXPECT(((cfg >> 8) & 0xF) == 017,
+           "Config ASRN = %u, expected ASRN 017",
+           (unsigned)((cfg >> 8) & 0xF));
+
+    mem.storage_chip_type = 1;
+    mem.storage_words = (DM_STORAGE_MODULE_WORDS >> 4) * 2u;
+    cfg = dorado_memory_config_word(&mem);
+    EXPECT(((cfg >> 2) & 0x3) == 1,
+           "Config chip size = 0x%X, expected 1", (cfg >> 2) & 0x3);
+    EXPECT((cfg & 0300u) == 0300u,
+           "Config module bits = 0o%03o, expected M0+M1",
+           cfg & 0360u);
 
     dorado_memory_free(&mem);
     printf("PASS  test_config_word_reports_storage\n");
@@ -1022,11 +1129,15 @@ static int test_mcr_disbr_blocks_br_writes(void)
     EXPECT(dorado_memory_init(&mem) == 0, "init");
 
     dorado_br_lo_load(&mem, 0, 0x1234);
-    /* Per EMemDefs.mc: mcr.disBR = b8 = manual Mcr[8] = LSB bit 7
-     * (the SAME bit as disCF) — gap C6. */
-    dorado_mcr_load(&mem, 0x0080, 0);  /* LSB bit 7 = b8 = disBR/disCF */
+    dorado_mcr_load(&mem, 0x0080, 0);  /* manual Mcr[8] = DisCF only */
+    dorado_br_lo_load(&mem, 0, 0x5678);
+    EXPECT((dorado_br_get(&mem, 0) & 0xFFFF) == 0x5678,
+           "DisCF alone should not suppress BrLo writes, BR=0x%08X",
+           dorado_br_get(&mem, 0));
+
+    dorado_mcr_load(&mem, 0x0100, 0);  /* manual Mcr[7] = DisBR */
     dorado_br_lo_load(&mem, 0, 0xABCD);
-    EXPECT((dorado_br_get(&mem, 0) & 0xFFFF) == 0x1234,
+    EXPECT((dorado_br_get(&mem, 0) & 0xFFFF) == 0x5678,
            "DisBR should suppress BrLo writes, BR=0x%08X",
            dorado_br_get(&mem, 0));
 
@@ -1111,6 +1222,34 @@ static int test_mcr_noref_store_writes_cache_address(void)
     return 0;
 }
 
+static int test_store_hit_does_not_translate_vacant_map(void)
+{
+    static dorado_memory mem; memset(&mem, 0, sizeof mem);
+    EXPECT(dorado_memory_init(&mem) == 0, "init");
+
+    /* memRWd's presetCache writes the cache address RAM under NoRef and then
+     * clears CFlags before testing the cache data RAM. A following Store-hit
+     * must not translate through the still-vacant Map. */
+    dorado_mcr_load(&mem, 0x6030, 0);  /* FDMiss + UseMcrV + Victim=0 + NoRef */
+    dorado_fault_kind f = dorado_memory_ref(&mem, DM_REF_STORE,
+                                            0x0000, 0, 0);
+    EXPECT(f == DM_FAULT_NONE, "CacheA preset should not fault");
+    dorado_cflags_load(&mem, 0xFFFFu); /* CFlags <- 0 after A' hardware path */
+
+    dorado_mcr_load(&mem, 0, 0);
+    f = dorado_memory_ref(&mem, DM_REF_STORE, 0x0000, 0xCAFE, 0);
+    EXPECT(f == DM_FAULT_NONE, "Store-hit should not fault on vacant Map");
+    EXPECT(mem.fault_count == 0, "Store-hit should not record a fault");
+    EXPECT(dorado_visible_word_at_va(&mem, 0x0000) == 0xCAFE,
+           "Store-hit data not visible in cache");
+    EXPECT(dorado_storage_at_va(&mem, 0x0000) == 0xFFFF,
+           "Store-hit should not write through to vacant backing storage");
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_store_hit_does_not_translate_vacant_map\n");
+    return 0;
+}
+
 static int test_vacant_cache_address_is_not_cache_hit(void)
 {
     enum {
@@ -1142,6 +1281,38 @@ static int test_vacant_cache_address_is_not_cache_hit(void)
 
     dorado_memory_free(&mem);
     printf("PASS  test_vacant_cache_address_is_not_cache_hit\n");
+    return 0;
+}
+
+static int test_mcr_noref_store_uses_comparator_hit(void)
+{
+    enum {
+        PIPE5_COLUMN_MASK  = 0x0300u,
+        PIPE5_COLUMN_SHIFT = 8,
+    };
+
+    static dorado_memory mem; memset(&mem, 0, sizeof mem);
+    EXPECT(dorado_memory_init(&mem) == 0, "init");
+
+    /* Plant a CacheA entry in forced column 0. */
+    dorado_mcr_load(&mem, 0x2030, 0);  /* FDMiss + UseMcrV + Victim=0 + NoRef */
+    dorado_fault_kind f = dorado_memory_ref(&mem, DM_REF_STORE,
+                                            0x12340, 0, 0);
+    EXPECT(f == DM_FAULT_NONE, "CacheA setup store should not fault");
+
+    /* With NoRef but no UseMcrV/FDMiss, the reference should still use
+     * the cache comparators and report the matching column in Pipe5. */
+    dorado_mcr_load(&mem, 0x00E0, 1);  /* DisCF + DisHold + NoRef + NoWake */
+    f = dorado_memory_ref(&mem, DM_REF_STORE, 0x12340, 0, 0);
+    EXPECT(f == DM_FAULT_NONE, "NoRef comparator store should not fault");
+
+    uint16_t p5 = dorado_pipe5_at(&mem, mem.proc_srn);
+    EXPECT(((p5 & PIPE5_COLUMN_MASK) >> PIPE5_COLUMN_SHIFT) == 0,
+           "Pipe5 column = %u, expected comparator hit in column 0",
+           (unsigned)((p5 & PIPE5_COLUMN_MASK) >> PIPE5_COLUMN_SHIFT));
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_mcr_noref_store_uses_comparator_hit\n");
     return 0;
 }
 
@@ -1195,11 +1366,11 @@ static int test_cflags_load_visible_in_pipe5(void)
     return 0;
 }
 
-static int test_pipe5_reports_victim_and_nextvictim(void)
+static int test_pipe5_reports_selected_column(void)
 {
     enum {
-        PIPE5_VICTIM_MASK = 0x000Cu,
-        PIPE5_NEXT_MASK   = 0x0003u,
+        PIPE5_COLUMN_MASK  = 0x0300u,
+        PIPE5_COLUMN_SHIFT = 8,
     };
 
     static dorado_memory mem; memset(&mem, 0, sizeof mem);
@@ -1207,22 +1378,116 @@ static int test_pipe5_reports_victim_and_nextvictim(void)
 
     dorado_map_set(&mem, dorado_map_index(0x120), /*rp=*/1, 0, 0);
 
-    /* UseMcrV selects Victim=2 and McrNV=1. Pipe5 reports both even
-     * when DisCF is clear and no cache flags have been explicitly set. */
+    /* UseMcrV selects Victim=2. Pipe5 reports the selected cache column
+     * in memDefs.mc's pipe5.colBit0/1 field (b6,b7). */
     dorado_mcr_load(&mem, 0x3200, 0);
     dorado_fault_kind f = dorado_memory_ref(&mem, DM_REF_FETCH, 0x120, 0, 0);
     EXPECT(f == DM_FAULT_NONE, "fetch should not fault");
 
     uint16_t p5 = dorado_pipe5_at(&mem, mem.proc_srn);
-    EXPECT(((p5 & PIPE5_VICTIM_MASK) >> 2) == 2,
-           "Pipe5 Victim = %u, expected 2",
-           (unsigned)((p5 & PIPE5_VICTIM_MASK) >> 2));
-    EXPECT((p5 & PIPE5_NEXT_MASK) == 1,
-           "Pipe5 NextVictim = %u, expected 1",
-           (unsigned)(p5 & PIPE5_NEXT_MASK));
+    EXPECT(((p5 & PIPE5_COLUMN_MASK) >> PIPE5_COLUMN_SHIFT) == 2,
+           "Pipe5 column = %u, expected 2",
+           (unsigned)((p5 & PIPE5_COLUMN_MASK) >> PIPE5_COLUMN_SHIFT));
 
     dorado_memory_free(&mem);
-    printf("PASS  test_pipe5_reports_victim_and_nextvictim\n");
+    printf("PASS  test_pipe5_reports_selected_column\n");
+    return 0;
+}
+
+static int test_dummyref_latches_pipe5_from_comparator_hit(void)
+{
+    enum {
+        PIPE5_COLUMN_MASK  = 0x0300u,
+        PIPE5_COLUMN_SHIFT = 8,
+        PIPE5_DIRTY        = 0x0080u,
+        PIPE5_WP           = 0x0020u,
+        CFLAGS_A_DIRTY     = 0x0080u,
+        CFLAGS_A_WP        = 0x0020u,
+    };
+
+    static dorado_memory mem; memset(&mem, 0, sizeof mem);
+    EXPECT(dorado_memory_init(&mem) == 0, "init");
+
+    uint32_t va_hit = 0x12340u;
+    uint32_t va_other = va_hit ^ 0x0400u; /* same row, different tag */
+
+    /* Plant the target CacheA entry in column 1 and give it distinctive
+     * flags. Then select column 0 with a different tag so stale Pipe5 state
+     * would be observable. */
+    dorado_mcr_load(&mem, 0x6830, 0);  /* FDMiss + UseMcrV + Victim=1 + NoRef */
+    dorado_fault_kind f = dorado_memory_ref(&mem, DM_REF_STORE,
+                                            va_hit, 0, 0);
+    EXPECT(f == DM_FAULT_NONE, "CacheA setup store should not fault");
+    dorado_cflags_load(&mem, (uint16_t)~(CFLAGS_A_DIRTY | CFLAGS_A_WP));
+
+    dorado_mcr_load(&mem, 0x6030, 0);  /* FDMiss + UseMcrV + Victim=0 + NoRef */
+    f = dorado_memory_ref(&mem, DM_REF_STORE, va_other, 0, 0);
+    EXPECT(f == DM_FAULT_NONE, "stale Pipe5 setup store should not fault");
+    dorado_cflags_load(&mem, 0xFFFFu);
+
+    /* memSubrsC.readCflags uses this shape: dPipeVa + FDMiss + UseMcrV +
+     * DisBR + NoRefHold, then DummyRef and Pipe5. The comparator hit must
+     * win over the MCR victim and over stale Pipe5 state. */
+    dorado_mcr_load(&mem, 0xE160, 0);
+    f = dorado_memory_ref(&mem, DM_REF_DUMMYREF, va_hit, 0, 0);
+    EXPECT(f == DM_FAULT_NONE, "DummyRef should not fault");
+
+    uint16_t p5 = dorado_pipe5_at(&mem, mem.proc_srn);
+    EXPECT(((p5 & PIPE5_COLUMN_MASK) >> PIPE5_COLUMN_SHIFT) == 1,
+           "Pipe5 column = %u, expected DummyRef comparator hit in column 1",
+           (unsigned)((p5 & PIPE5_COLUMN_MASK) >> PIPE5_COLUMN_SHIFT));
+    EXPECT((p5 & PIPE5_DIRTY) != 0, "Pipe5 missing Dirty from hit column");
+    EXPECT((p5 & PIPE5_WP) != 0, "Pipe5 missing WP from hit column");
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_dummyref_latches_pipe5_from_comparator_hit\n");
+    return 0;
+}
+
+static int test_dummyref_forces_cflags_column_without_dvavic(void)
+{
+    enum {
+        PIPE5_DIRTY    = 0x0080u,
+        CFLAGS_A_DIRTY = 0x0080u,
+    };
+
+    static dorado_memory mem; memset(&mem, 0, sizeof mem);
+    EXPECT(dorado_memory_init(&mem) == 0, "init");
+
+    uint32_t va = 0x12340u;
+
+    /* Make the same CacheA tag valid in columns 0 and 1. A plain
+     * FDMiss+UseMcrV DummyRef must still select the MCR victim for a
+     * subsequent CFlags write; otherwise a comparator-first path would keep
+     * rewriting column 0 and memA's xVacateCacheRow/putCFmem would drift. */
+    dorado_mcr_load(&mem, 0x6030, 0);  /* FDMiss + UseMcrV + Victim=0 + NoRef */
+    dorado_fault_kind f = dorado_memory_ref(&mem, DM_REF_STORE, va, 0, 0);
+    EXPECT(f == DM_FAULT_NONE, "CacheA col0 setup store should not fault");
+    dorado_cflags_load(&mem, 0xFFFFu);
+
+    dorado_mcr_load(&mem, 0x6830, 0);  /* FDMiss + UseMcrV + Victim=1 + NoRef */
+    f = dorado_memory_ref(&mem, DM_REF_STORE, va, 0, 0);
+    EXPECT(f == DM_FAULT_NONE, "CacheA col1 setup store should not fault");
+    dorado_cflags_load(&mem, 0xFFFFu);
+
+    f = dorado_memory_ref(&mem, DM_REF_DUMMYREF, va, 0, 0);
+    EXPECT(f == DM_FAULT_NONE, "DummyRef should not fault");
+    dorado_cflags_load(&mem, (uint16_t)~CFLAGS_A_DIRTY);
+
+    dorado_mcr_load(&mem, 0xA800, 0);  /* dPipeVa + UseMcrV + Victim=1 */
+    f = dorado_memory_ref(&mem, DM_REF_FETCH, va, 0, 0);
+    EXPECT(f == DM_FAULT_NONE, "dVA<-Victim col1 fetch should not fault");
+    EXPECT((dorado_pipe5_at(&mem, mem.proc_srn) & PIPE5_DIRTY) != 0,
+           "CFlags write did not land in MCR-selected column 1");
+
+    dorado_mcr_load(&mem, 0xA000, 0);  /* dPipeVa + UseMcrV + Victim=0 */
+    f = dorado_memory_ref(&mem, DM_REF_FETCH, va, 0, 0);
+    EXPECT(f == DM_FAULT_NONE, "dVA<-Victim col0 fetch should not fault");
+    EXPECT((dorado_pipe5_at(&mem, mem.proc_srn) & PIPE5_DIRTY) == 0,
+           "CFlags write also dirtied comparator/stale column 0");
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_dummyref_forces_cflags_column_without_dvavic\n");
     return 0;
 }
 
@@ -1255,8 +1520,10 @@ int main(void)
     rc |= test_br_load();
     rc |= test_fetch_store();
     rc |= test_pipe_records();
+    rc |= test_pipe2_records_task_and_ref_type();
     rc |= test_pipe_wraps();
     rc |= test_prefetch_dummyref();
+    rc |= test_prefetch_hit_sets_map_ref();
     rc |= test_storage_bounds();
     rc |= test_map_vacant_page_fault();
     rc |= test_map_write_protect();
@@ -1284,10 +1551,14 @@ int main(void)
     rc |= test_mcr_noref_suppresses_storage_access();
     rc |= test_mcr_dvavic_reads_cache_address_without_storage();
     rc |= test_mcr_noref_store_writes_cache_address();
+    rc |= test_store_hit_does_not_translate_vacant_map();
     rc |= test_vacant_cache_address_is_not_cache_hit();
+    rc |= test_mcr_noref_store_uses_comparator_hit();
     rc |= test_mapbuf_busy_pipe5_timing();
     rc |= test_cflags_load_visible_in_pipe5();
-    rc |= test_pipe5_reports_victim_and_nextvictim();
+    rc |= test_pipe5_reports_selected_column();
+    rc |= test_dummyref_latches_pipe5_from_comparator_hit();
+    rc |= test_dummyref_forces_cflags_column_without_dvavic();
     rc |= test_discf_blocks_cflags_and_pipe5_flags();
     if (rc == 0) printf("\nAll memory tests passed.\n");
     return rc;

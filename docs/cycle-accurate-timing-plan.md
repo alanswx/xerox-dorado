@@ -13,8 +13,10 @@ audit + the two ruled-out experiments) and
 deep MissileCommand investigation that reached the same conclusion
 independently).
 
-Work-in-progress lives on branch **`fidelity-timing`** (commits `57599e3`
-Hold model + audit, `3cea1de` cadence finding). All gates green there.
+Work-in-progress lives on branch **`fidelity-timing`**. Older notes below refer
+to commits `57599e3` (Hold model + audit) and `3cea1de` (cadence finding), where
+the then-current non-diagnostic gates were green. Current diagnostic ground
+truth is tracked in [`running-diagnostics.md`](running-diagnostics.md).
 
 ---
 

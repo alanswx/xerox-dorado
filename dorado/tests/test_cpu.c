@@ -620,6 +620,42 @@ static uint8_t jcn_long(int target)
     return (uint8_t)(target & 0xF);
 }
 
+static unsigned test_bit_count16(uint16_t v)
+{
+    unsigned n = 0;
+    while (v) {
+        n += (unsigned)(v & 1u);
+        v >>= 1;
+    }
+    return n;
+}
+
+static unsigned test_bit_field_count(uint16_t v, unsigned shift, unsigned width)
+{
+    uint16_t mask = (uint16_t)((1u << width) - 1u);
+    return test_bit_count16((uint16_t)((v >> shift) & mask));
+}
+
+static uint16_t ifum_fields_with_even_parity(uint16_t addr, uint16_t fields)
+{
+    fields &= (uint16_t)~070000u;
+
+    unsigned p0 = test_bit_field_count(fields, 0, 4)
+                + test_bit_field_count(fields, 6, 2)
+                + test_bit_field_count(addr, 8, 2);
+    unsigned p1 = test_bit_field_count(addr, 0, 8);
+    unsigned p2 = test_bit_field_count(addr, 10, 1)
+                + test_bit_field_count(fields, 15, 1)
+                + test_bit_field_count(fields, 4, 2)
+                + test_bit_field_count(fields, 8, 2)
+                + test_bit_field_count(fields, 10, 2);
+
+    if (p0 & 1u) fields |= 040000u;
+    if (p1 & 1u) fields |= 020000u;
+    if (p2 & 1u) fields |= 010000u;
+    return fields;
+}
+
 /* Test 1: T ← 0o123 via 0,,FF constant, then loop.
  * One cycle:
  *   ASEL=6 (A←T)         A bus = T (don't care, ALU op is "B")
@@ -1442,13 +1478,15 @@ static int test_ifu_conditional_dispatch(void)
     /* INC opcode 0x10. IFaddr' = 0o20 → entries at IM[0o100..0o103].
      * Length field is notLength = ~length & 3 (mdfields.d TIFUM); a
      * 1-byte opcode → field 2. */
-    mc.ifum_hi[0x10] = MK_LH(0, 2, 1, 4, 1, 1, 017);
     mc.ifum_lo[0x10] = MK_RH(0, 0020);
+    mc.ifum_hi[0x10] = ifum_fields_with_even_parity(
+        mc.ifum_lo[0x10], MK_LH(0, 2, 1, 4, 1, 1, 017));
     mc.ifum_present[0x10] = 1;
 
     /* HALT opcode 0x20. IFaddr' = 0o40. notLength field 2 = length 1. */
-    mc.ifum_hi[0x20] = MK_LH(0, 2, 1, 4, 1, 1, 017);
     mc.ifum_lo[0x20] = MK_RH(0, 0040);
+    mc.ifum_hi[0x20] = ifum_fields_with_even_parity(
+        mc.ifum_lo[0x20], MK_LH(0, 2, 1, 4, 1, 1, 017));
     mc.ifum_present[0x20] = 1;
 
     static dorado_memory mem;
@@ -1579,8 +1617,9 @@ static int test_ifu_conditional_cond_true(void)
 
     /* INC opcode 0x10. notLength field 2 = length 1 (one-byte opcode,
      * mdfields.d TIFUM: field = ~length & 3). */
-    mc.ifum_hi[0x10] = MK_LH(0, 2, 1, 4, 1, 1, 017);
     mc.ifum_lo[0x10] = MK_RH(0, 0020);
+    mc.ifum_hi[0x10] = ifum_fields_with_even_parity(
+        mc.ifum_lo[0x10], MK_LH(0, 2, 1, 4, 1, 1, 017));
     mc.ifum_present[0x10] = 1;
 
     static dorado_memory mem;
@@ -6969,6 +7008,101 @@ static int test_write_im(void)
     return 0;
 }
 
+static int test_read_im(void)
+{
+    dorado_microcode mc;
+    memset(&mc, 0, sizeof mc);
+
+    const uint16_t addr = 0x321;
+    const uint16_t rstk = 013, aluf = 015, bsel = 05, lc = 06, asel = 03;
+    const uint16_t block = 1, ff = 0246, jcn = 0233, brkp = 02;
+    mc.im[addr].iw0 = (uint16_t)(((rstk & 07u) << 13) |
+                                 (aluf << 9) |
+                                 (bsel << 6) |
+                                 (lc << 3) |
+                                 asel);
+    mc.im[addr].iw1 = (uint16_t)((block << 15) |
+                                 (ff << 7) |
+                                 ((jcn >> 1) & 0177u));
+    mc.im[addr].iw2 = (uint16_t)((((rstk >> 3) & 1u) << 15) |
+                                 ((jcn & 1u) << 14) |
+                                 (brkp << 12));
+    dorado_redecode_fields(&mc.im[addr]);
+    mc.im_present[addr] = 1;
+
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;   /* B */
+    const uint16_t want[4] = {
+        (uint16_t)((((mc.im[addr].iw2 >> 15) & 1u) << 8) |
+                   ((mc.im[addr].iw0 >> 8) & 0377u)),
+        (uint16_t)(mc.im[addr].iw0 & 0377u),
+        (uint16_t)((((mc.im[addr].iw1 >> 15) & 1u) << 8) |
+                   ((mc.im[addr].iw1 >> 7) & 0377u)),
+        (uint16_t)((((mc.im[addr].iw1 & 0177u) << 1) |
+                   ((mc.im[addr].iw2 >> 14) & 1u)) & 0377u)
+    };
+
+    for (int sel = 0; sel < 4; sel++) {
+        memset(&mc.im[sel], 0, sizeof mc.im[sel]);
+        mc.im[sel] = make_uinstr(/*rstk=*/sel, 0, /*bsel=*/2,
+                                 /*lc=*/0, /*asel=*/4, 0, 0,
+                                 /*jcn=*/0x77); /* fn=6 Read IM */
+        mc.im_present[sel] = 1;
+        mc.image_to_real[sel] = sel;
+        mc.image_present[sel] = 1;
+
+        dorado_cpu cpu;
+        dorado_cpu_init(&cpu, &mc, (uint16_t)sel);
+        cpu.Link = addr;
+
+        EXPECT(dorado_cpu_step(&cpu) == 0, "Read IM sel %d step", sel);
+        EXPECT(cpu.Link == (uint16_t)(sel + 1),
+               "Read IM sel %d should smash Link to CIA+1, got 0x%04X",
+               sel, cpu.Link);
+        EXPECT(cpu.b_link_read_valid == 1,
+               "Read IM sel %d should arm alternate B<-Link latch", sel);
+        EXPECT(cpu.b_link_read == (uint16_t)~(uint16_t)want[sel],
+               "Read IM sel %d latched 0x%04X, want ~0x%03X",
+               sel, cpu.b_link_read, want[sel]);
+    }
+
+    /* IfuComplex uses `data[(lh[...] rh[...])]` as a small IM ROM and
+     * reads it back with ReadIM. This row matches seqTable[7], used for
+     * length-3 packed-alpha instructions with N supplied: ReadIM lane 2
+     * includes the ninth BLOCK bit, and getIMRH masks it back to byte
+     * 013 before reconstructing octal word 05431. */
+    memset(&mc, 0, sizeof mc);
+    const uint16_t data_addr = 0x234;
+    mc.im[data_addr].iw1 = (uint16_t)((1u << 15) | ((05431u >> 8) << 7) |
+                                      ((05431u & 0377u) >> 1));
+    mc.im[data_addr].iw2 = (uint16_t)((05431u & 1u) << 14);
+    dorado_redecode_fields(&mc.im[data_addr]);
+    mc.im_present[data_addr] = 1;
+    mc.alufm[0] = 025; mc.alufm_present[0] = 1;
+
+    for (int sel = 0; sel < 4; sel++) {
+        memset(&mc.im[sel], 0, sizeof mc.im[sel]);
+        mc.im[sel] = make_uinstr(/*rstk=*/sel, 0, /*bsel=*/2,
+                                 /*lc=*/0, /*asel=*/4, 0, 0,
+                                 /*jcn=*/0x77); /* fn=6 Read IM */
+        mc.im_present[sel] = 1;
+        mc.image_to_real[sel] = sel;
+        mc.image_present[sel] = 1;
+
+        const uint16_t data_want[4] = { 0000, 0000, 0413, 0031 };
+        dorado_cpu cpu;
+        dorado_cpu_init(&cpu, &mc, (uint16_t)sel);
+        cpu.Link = data_addr;
+
+        EXPECT(dorado_cpu_step(&cpu) == 0, "Read IM data sel %d step", sel);
+        EXPECT(cpu.b_link_read == (uint16_t)~(uint16_t)data_want[sel],
+               "Read IM data sel %d latched 0x%04X, want ~0o%03o",
+               sel, cpu.b_link_read, data_want[sel]);
+    }
+
+    printf("PASS  test_read_im (IM half-lanes)\n");
+    return 0;
+}
+
 /*
  * STK addressing tests (HM Table 6 / page 11).
  *
@@ -7224,10 +7358,11 @@ static int test_ifujump_saves_post_rstk_stkp(void)
         ((uint16_t)( ((uint16_t)((packed_a)&1) << 10) \
                    | ((uint16_t)(~(ifaddr)&0x3FF)) ))
 
-    mc.ifum_hi[0x10] = MK_LH_LOCAL(0, /*notLength*/2, /*RBaseB'*/1,
-                                   /*MemB*/4, /*TPause'*/1,
-                                   /*TJump'*/1, /*N*/017);
     mc.ifum_lo[0x10] = MK_RH_LOCAL(0, /*IFaddr'*/0020);
+    mc.ifum_hi[0x10] = ifum_fields_with_even_parity(
+        mc.ifum_lo[0x10],
+        MK_LH_LOCAL(0, /*notLength*/2, /*RBaseB'*/1,
+                    /*MemB*/4, /*TPause'*/1, /*TJump'*/1, /*N*/017));
     mc.ifum_present[0x10] = 1;
 
     static dorado_memory mem;
@@ -7906,12 +8041,13 @@ static int test_bootstrap_ldf_dispatch(void)
  * value reflects NFaults=1, SRN=0, EmulatorFault=1.
  *
  * High-true FaultInfo for one fault from emulator at SRN 0
- * (field positions per AEmu EMemDefs.mc / HM §5 fault handling):
+ * (field positions per diagnostic memDefs.mc / HM §5 fault handling):
+ *   b4:7 = ASRN = 2                  → 0x0200
  *   b8 = EmulatorFault = 1          → 0x0080
  *   b9:11 = FaultCnt = 1-1 = 0      → 0x0000
  *   B[12:15] = FirstFaultSRN = 0    → 0x0000
- *   high-true value                 = 0x0080
- *   on the bus (~)                  = 0xFF7F
+ *   high-true value                 = 0x0280
+ *   on the bus (~)                  = 0xFD7F
  */
 static int test_cpu_fault_info_visible(void)
 {
@@ -7966,8 +8102,8 @@ static int test_cpu_fault_info_visible(void)
     /* Step 2: B ← FaultInfo'. T should land on the bus value. */
     EXPECT(dorado_cpu_step(&cpu) == 0, "FaultInfo step: %s",
            cpu_halt_reason_str(cpu.halt_reason));
-    EXPECT(cpu.T == 0xFF7F,
-           "T = 0x%04X, expected 0xFF7F (NFaults=1, SRN=0, Emul=1)",
+    EXPECT(cpu.T == 0xFD7F,
+           "T = 0x%04X, expected 0xFD7F (ASRN=2, NFaults=1, SRN=0, Emul=1)",
            cpu.T);
     EXPECT(mem.fault_count == 0,
            "B<-FaultInfo' should clear faults, NFaults=%d",
@@ -8547,17 +8683,10 @@ static int test_junk_timer_wakeup(void)
 }
 
 /* HM §3.12 Hold & Task Simulator — the TASKSIM counter (Hold&TaskSim←B,
- * FF=0o154). TASKSIM is a 4-bit register in the Hold&TaskSim word's LEFT byte
- * (taskFreq, sim.taskShift=8): the diagnostic framework (postamble.mc)
- * describes it as "taskSim[0] enables the task simulator and taskSim[1:3] form
- * a counter ... when hardware counts to 17[octal] it awakens." chkRunSimulators
- * builds taskFreq as `(taskFreq+1) or 10b` cycling 0o12..0o17 — the 0o10 bit is
- * the ENABLE bit. A value with the enable bit CLEAR (the disabled state, e.g.
- * resetHold jamming 0) must NOT count or fire. Here we load taskFreq=0o16
- * (enable set, counter=6): it counts 0o16→0o17→0o20 and fires on the cycle the
- * 0o10 bit clears. We also verify a value with the enable bit clear never
- * fires (this is what stops the sim task after disableConditionalTask, and
- * what fixes memA CATUPADDRERR). */
+ * FF=0o154). TASKSIM is loaded from B[1:7] as a seven-bit counter: zero
+ * disables it; any non-zero value counts up to 0o177 and wakes the jumpered
+ * simulator task on overflow to 0o200. Kernel5's TestTW loads 0o400, which
+ * becomes TASKSIM=1 ("the smallest count" in the source). */
 static int test_tasksim_wakeup(void)
 {
     dorado_microcode mc;
@@ -8567,57 +8696,71 @@ static int test_tasksim_wakeup(void)
     /* IM[0]: TaskingOff (FF=0o142) so the wakeup accumulates in
      * wakeup_pending rather than switching to the empty sim task. */
     mc.im[0] = make_uinstr(0, 0, 0, 0, 6, 0, 0142, jcn_local(1));
-    /* IM[1]: T ← 0o7000 (BSEL=6 "FF,,0" with FF=0o16 ⇒ B=0o16<<8=0o7000;
-     * LC=T←Pd). The left byte 0o16 = enable bit 0o10 + counter 6. */
-    mc.im[1] = make_uinstr(0, 0, /*bsel=*/6, /*lc=*/1, 6, 0, /*ff=*/016,
+    /* IM[1]: T ← 0o400 (BSEL=6 "FF,,0" with FF=1; LC=T←Pd). */
+    mc.im[1] = make_uinstr(0, 0, /*bsel=*/6, /*lc=*/1, 6, 0, /*ff=*/001,
                            jcn_local(2));
     /* IM[2]: Hold&TaskSim ← B (FF=0o154), B source = T (BSEL=2).
-     * TASKSIM = (B>>8)&0x7F = 0o16; HOLDSIM = B&0xFE = 0. */
+     * TASKSIM = (B>>8)&0x7F = 1; HOLDSIM = B&0xFE = 0. */
     mc.im[2] = make_uinstr(0, 0, /*bsel=*/2, 0, 6, 0, /*ff=*/0154, jcn_local(3));
     /* IM[3]: self-loop to tick the counter. */
     mc.im[3] = make_uinstr(0, 0, 4, 0, 6, 0, 0, jcn_local(3));
-    for (int i = 0; i < 4; i++) { mc.im_present[i] = 1;
+    /* IM[4..6]: zero/reload path used by postamble zeroHold/resetHold. */
+    mc.im[4] = make_uinstr(0, 0, /*bsel=*/4, /*lc=*/1, 6, 0, /*ff=*/000,
+                           jcn_local(5));
+    mc.im[5] = make_uinstr(0, 0, /*bsel=*/2, 0, 6, 0, /*ff=*/0154,
+                           jcn_local(6));
+    mc.im[6] = make_uinstr(0, 0, 4, 0, 6, 0, 0, jcn_local(6));
+    for (int i = 0; i < 7; i++) { mc.im_present[i] = 1;
         mc.image_to_real[i] = i; mc.image_present[i] = 1; }
-    mc.n_instructions = 4;
+    mc.n_instructions = 7;
 
     dorado_cpu cpu;
     dorado_cpu_init(&cpu, &mc, 0);
 
     EXPECT(dorado_cpu_step(&cpu) == 0, "TaskingOff step");
-    EXPECT(dorado_cpu_step(&cpu) == 0, "T←0o7000 step");
-    EXPECT(cpu.T == 07000, "T should be 0o7000, got 0o%o", cpu.T);
+    EXPECT(dorado_cpu_step(&cpu) == 0, "T←0o400 step");
+    EXPECT(cpu.T == 0400, "T should be 0o400, got 0o%o", cpu.T);
     EXPECT(dorado_cpu_step(&cpu) == 0, "Hold&TaskSim←B step");
-    EXPECT(cpu.tasksim == 016, "TASKSIM should load 0o16, got 0o%o", cpu.tasksim);
+    EXPECT(cpu.tasksim == 001, "TASKSIM should load 0o1, got 0o%o", cpu.tasksim);
     EXPECT((cpu.wakeup_pending & (1u << 012)) == 0,
            "TASKSIM must not fire immediately");
 
-    /* Counts 0o16→0o17→0o20 (enable bit clears): fires within a few cycles. */
-    for (int i = 0; i < 8; i++)
+    /* Counts 0o1→...→0o177→0o200; TestTW waits long enough for this. */
+    for (int i = 0; i < 0200; i++)
         EXPECT(dorado_cpu_step(&cpu) == 0, "tasksim tick %d", i);
 
     EXPECT(cpu.tasksim_fired == 1, "TASKSIM should have fired");
     EXPECT((cpu.wakeup_pending & (1u << 012)) != 0,
            "TASKSIM should wake task 0o12, pending=0x%X", cpu.wakeup_pending);
 
-    /* Reload with 0 (what the sim task's handler does / resetHold jams on
-     * disableConditionalTask) clears the latch and must NOT fire again. */
+    /* Reload with 0 disables the simulator and clears the latched wakeup. */
     cpu.wakeup_pending = 0;
-    cpu.tasksim = 0; cpu.tasksim_fired = 0; cpu.tasksim_loaded = 1;
+    cpu.wakeup_pending = (uint16_t)(1u << 012);
+    cpu.wakeup_pipe[0] = (uint16_t)(1u << 012);
+    cpu.wakeup_pipe[1] = (uint16_t)(1u << 012);
+    cpu.real_PC = 4;
+    EXPECT(dorado_cpu_step(&cpu) == 0, "T←0 step");
+    EXPECT(dorado_cpu_step(&cpu) == 0, "Hold&TaskSim←0 step");
+    EXPECT(cpu.tasksim == 0, "zero reload should clear TASKSIM");
+    EXPECT(cpu.tasksim_fired == 0, "zero reload should clear fired latch");
+    EXPECT((cpu.wakeup_pending & (1u << 012)) == 0,
+           "zero reload must clear pending simulator wakeup");
+    EXPECT((cpu.wakeup_pipe[0] & (1u << 012)) == 0 &&
+           (cpu.wakeup_pipe[1] & (1u << 012)) == 0,
+           "zero reload must clear staged simulator wakeups");
     for (int i = 0; i < 8; i++)
         EXPECT(dorado_cpu_step(&cpu) == 0, "post-reload tick %d", i);
     EXPECT((cpu.wakeup_pending & (1u << 012)) == 0,
            "cleared (enable-bit-off) TASKSIM must not keep firing");
 
-    /* A nonzero value with the ENABLE bit clear (e.g. a stale re-arm like
-     * 0o104) must never count or fire — this is the memA CATUPADDRERR fix. */
+    /* Any non-zero value is a valid TASKSIM seed; 0o176 should fire quickly. */
     cpu.wakeup_pending = 0;
-    cpu.tasksim = 0104; cpu.tasksim_fired = 0; cpu.tasksim_loaded = 0;
-    for (int i = 0; i < 200; i++)
-        EXPECT(dorado_cpu_step(&cpu) == 0, "disabled-tasksim tick %d", i);
-    EXPECT(cpu.tasksim_fired == 0,
-           "enable-bit-clear TASKSIM (0o104) must never fire");
-    EXPECT((cpu.wakeup_pending & (1u << 012)) == 0,
-           "enable-bit-clear TASKSIM must not wake task 0o12");
+    cpu.tasksim = 0176; cpu.tasksim_fired = 0; cpu.tasksim_loaded = 0;
+    for (int i = 0; i < 4; i++)
+        EXPECT(dorado_cpu_step(&cpu) == 0, "high-tasksim tick %d", i);
+    EXPECT(cpu.tasksim_fired == 1, "non-zero TASKSIM should fire on overflow");
+    EXPECT((cpu.wakeup_pending & (1u << 012)) != 0,
+           "non-zero TASKSIM must wake task 0o12");
 
     printf("PASS  test_tasksim_wakeup\n");
     return 0;
@@ -9075,16 +9218,19 @@ static int test_ifu_dispatch_synthetic(void)
 
     /* INC opcode 0x10. IFaddr' = 0o20 (= decimal 16). So entry 0
      * lands at TNIA = (0o20 << 2) | 0 = 0o100 (= decimal 64). */
-    mc.ifum_hi[0x10] = MK_LH(0, /*notLength*/2, /*RBaseB'*/1,
-                             /*MemB*/4 /* MemB[0]=1, MemB[1:2]=00 → MemBase=034 */,
-                             /*TPause'*/1, /*TJump'*/1, /*N*/017);
     mc.ifum_lo[0x10] = MK_RH(0, /*IFaddr'*/0020);
+    mc.ifum_hi[0x10] = ifum_fields_with_even_parity(
+        mc.ifum_lo[0x10],
+        MK_LH(0, /*notLength*/2, /*RBaseB'*/1,
+              /*MemB*/4 /* MemB[0]=1, MemB[1:2]=00 -> MemBase=034 */,
+              /*TPause'*/1, /*TJump'*/1, /*N*/017));
     mc.ifum_present[0x10] = 1;
 
     /* HALT opcode 0x20. IFaddr' = 0o40 (= decimal 32). Entry 0 →
      * TNIA = (0o40 << 2) | 0 = 0o200. notLength 2 = length 1. */
-    mc.ifum_hi[0x20] = MK_LH(0, 2, 1, 4, 1, 1, 017);
     mc.ifum_lo[0x20] = MK_RH(0, /*IFaddr'*/0040);
+    mc.ifum_hi[0x20] = ifum_fields_with_even_parity(
+        mc.ifum_lo[0x20], MK_LH(0, 2, 1, 4, 1, 1, 017));
     mc.ifum_present[0x20] = 1;
 
     /* Set up memory + BR[31] + plant bytecode. */
@@ -10307,6 +10453,7 @@ int main(void)
     rc |= test_jcn_long_branch_address();
     rc |= test_ff_condition_with_memory_ref();
     rc |= test_write_im();
+    rc |= test_read_im();
     rc |= test_stk_no_change();
     rc |= test_stk_push();
     rc |= test_stk_pop();

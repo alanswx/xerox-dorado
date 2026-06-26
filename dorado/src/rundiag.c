@@ -9,7 +9,7 @@
  *
  * Mechanism (from the kernel sources + kernel.midas Midas recipe):
  *   - load the diagnostic .mb into IM,
- *   - set MCR per the recipe, default task 0 / rbase 17,
+ *   - set MCR per the recipe, default task 0 / RBase 0,
  *   - jump to the entry label (default BEGIN) and free-run,
  *   - PASS = reach the `done` label (the diagnostic's success point: it
  *     breakpoints, bumps ITERATIONS, then loops to BEGIN),
@@ -24,11 +24,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include "mb.h"
 #include "microcode.h"
 #include "cpu.h"
 #include "memory.h"
 #include "disasm.h"
+#include "disk.h"
+#include "io.h"
 
 /* Resolve a source label to its post-placement (real) IM address, or -1. */
 static int sym_real(const mb_file *mb, const dorado_microcode *mc,
@@ -37,6 +40,112 @@ static int sym_real(const mb_file *mb, const dorado_microcode *mc,
     int img = mb_find_symbol_addr(mb, im_id, name);
     if (img < 0 || img >= IM_SIZE) return -1;
     return (int)mc->image_to_real[img];
+}
+
+static void apply_rm_symbol_overrides(const mb_file *mb, dorado_cpu *cpu)
+{
+    const char *env = getenv("RUNDIAG_RM_SYMBOL");
+    if (!env || !*env) return;
+    int rm_id = mb_find_mem(mb, "RM");
+    if (rm_id < 0) {
+        fprintf(stderr, "rundiag: RUNDIAG_RM_SYMBOL ignored; no RM memory\n");
+        return;
+    }
+
+    char buf[512];
+    snprintf(buf, sizeof buf, "%s", env);
+    for (char *tok = strtok(buf, ","); tok; tok = strtok(NULL, ",")) {
+        char *eq = strchr(tok, '=');
+        if (!eq) {
+            fprintf(stderr, "rundiag: bad RUNDIAG_RM_SYMBOL token '%s'\n", tok);
+            continue;
+        }
+        *eq++ = '\0';
+        int addr = mb_find_symbol_addr(mb, rm_id, tok);
+        if (addr < 0 || addr >= 256) {
+            fprintf(stderr, "rundiag: RM symbol '%s' not found\n", tok);
+            continue;
+        }
+        cpu->RM[addr] = (uint16_t)(strtol(eq, NULL, 0) & 0xFFFFu);
+        fprintf(stderr, "rundiag: RM[%s=0o%o] <- 0o%o\n",
+                tok, addr, cpu->RM[addr] & 0177777u);
+    }
+}
+
+static void apply_imrh_symbol_overrides(const mb_file *mb, dorado_microcode *mc)
+{
+    const char *env = getenv("RUNDIAG_IMRH_SYMBOL");
+    if (!env || !*env) return;
+    int im_id = mb_find_mem(mb, "IM");
+    if (im_id < 0) {
+        fprintf(stderr, "rundiag: RUNDIAG_IMRH_SYMBOL ignored; no IM memory\n");
+        return;
+    }
+
+    char buf[512];
+    snprintf(buf, sizeof buf, "%s", env);
+    for (char *tok = strtok(buf, ","); tok; tok = strtok(NULL, ",")) {
+        char *eq = strchr(tok, '=');
+        if (!eq) {
+            fprintf(stderr, "rundiag: bad RUNDIAG_IMRH_SYMBOL token '%s'\n", tok);
+            continue;
+        }
+        *eq++ = '\0';
+        int img = mb_find_symbol_addr(mb, im_id, tok);
+        if (img < 0 || img >= IM_SIZE || !mc->image_present[img]) {
+            fprintf(stderr, "rundiag: IM symbol '%s' not found\n", tok);
+            continue;
+        }
+        int real = mc->image_to_real[img] & (IM_SIZE - 1);
+        uint16_t rh = (uint16_t)(strtol(eq, NULL, 0) & 0xFFFFu);
+        dorado_uinstr *dst = &mc->im[real];
+        dst->iw1 = (uint16_t)((dst->iw1 & 0x8000u) | ((rh >> 1) & 0x7FFFu));
+        dst->iw2 = (uint16_t)((dst->iw2 & ~0x4000u) | ((rh & 1u) << 14));
+        dorado_redecode_fields(dst);
+        mc->im_present[real] = 1;
+        fprintf(stderr, "rundiag: IMRH[%s image=0o%o real=0o%o] <- 0o%o\n",
+                tok, img, real, rh & 0177777u);
+    }
+}
+
+static void dump_rm_symbols(const mb_file *mb, const dorado_cpu *cpu)
+{
+    const char *env = getenv("RUNDIAG_DUMP_RM_SYMBOLS");
+    if (!env || !*env) return;
+    int rm_id = mb_find_mem(mb, "RM");
+    if (rm_id < 0) {
+        fprintf(stderr, "rundiag: RUNDIAG_DUMP_RM_SYMBOLS ignored; no RM memory\n");
+        return;
+    }
+
+    char buf[512];
+    snprintf(buf, sizeof buf, "%s", env);
+    fprintf(stderr, "  RM symbols:\n");
+    for (char *tok = strtok(buf, ","); tok; tok = strtok(NULL, ",")) {
+        int addr = (tok[0] >= '0' && tok[0] <= '9')
+                 ? (int)strtol(tok, NULL, 0)
+                 : mb_find_symbol_addr(mb, rm_id, tok);
+        if (addr < 0 || addr >= 256) {
+            fprintf(stderr, "    %s: not found\n", tok);
+            continue;
+        }
+        fprintf(stderr, "    %-16s RM[0o%03o] = 0o%06o\n",
+                tok, addr, cpu->RM[addr] & 0177777u);
+    }
+}
+
+static const dorado_disk_geometry *rundiag_disk_geometry(const char *name)
+{
+    if (!name || !*name || strcasecmp(name, "t80") == 0) {
+        return &DORADO_DISK_T80;
+    }
+    if (strcasecmp(name, "t300") == 0) {
+        return &DORADO_DISK_T300;
+    }
+    if (strcasecmp(name, "diablo") == 0) {
+        return &DORADO_DISK_DIABLO;
+    }
+    return NULL;
 }
 
 int main(int argc, char **argv)
@@ -64,6 +173,7 @@ int main(int argc, char **argv)
         fprintf(stderr, "rundiag: microcode placement failed\n");
         return 1;
     }
+    apply_imrh_symbol_overrides(&mb, &mc);
     int im_id = mb_find_mem(&mb, "IM");
 
     int entry = sym_real(&mb, &mc, im_id, entry_nm);
@@ -86,6 +196,37 @@ int main(int argc, char **argv)
     dorado_cpu cpu;
     dorado_cpu_init(&cpu, &mc, (uint16_t)entry);
     cpu.mem = &mem;
+    apply_rm_symbol_overrides(&mb, &cpu);
+    dorado_io io;
+    dorado_io_init(&io);
+    dorado_disk_controller disk;
+    dorado_disk_pack disk_pack;
+    int disk_pack_attached = 0;
+    if (getenv("RUNDIAG_DISK")) {
+        dorado_disk_controller_init(&disk);
+        const char *media = getenv("RUNDIAG_DISK_MEDIA");
+        if (media && *media) {
+            const dorado_disk_geometry *geom = rundiag_disk_geometry(media);
+            if (!geom) {
+                fprintf(stderr,
+                        "rundiag: unknown RUNDIAG_DISK_MEDIA '%s' "
+                        "(use t80, t300, or diablo)\n",
+                        media);
+                return 1;
+            }
+            if (dorado_disk_pack_create(&disk_pack, geom) != 0) {
+                fprintf(stderr, "rundiag: cannot create %s disk media\n",
+                        media);
+                return 1;
+            }
+            dorado_disk_controller_attach_drive(&disk, 0, &disk_pack);
+            disk_pack_attached = 1;
+            fprintf(stderr, "rundiag: attached blank %s media on drive 0\n",
+                    media);
+        }
+        dorado_disk_controller_attach_to_io(&disk, &io);
+        cpu.io = &io;
+    }
 
     /* kernel.midas recipe: MCR=1 (disable mem stack over/underflow wakeups),
      * default task 0. RBase starts 0: the diagnostics keep their pre-loaded
@@ -94,7 +235,12 @@ int main(int argc, char **argv)
      * "rbase 17" in kernel.midas is a Midas display default, not machine
      * state.) An optional override is provided for experiments. */
     dorado_mcr_load(&mem, 0, 1);
-    cpu.ctask = 0;
+    {
+        const char *task = getenv("RUNDIAG_TASK");
+        cpu.ctask = task ? (uint8_t)(strtol(task, NULL, 8) & 0xF) : 0;
+        cpu.ready |= (uint16_t)(1u << cpu.ctask);
+        cpu.real_PC = (uint16_t)entry;
+    }
     {
         const char *rb = getenv("RUNDIAG_RBASE");
         cpu.RBase = rb ? (uint16_t)(strtol(rb, NULL, 8) & 0xF) : 0;
@@ -126,6 +272,21 @@ int main(int argc, char **argv)
         if (err >= 0 && pc == (uint16_t)err) { outcome = 1; break; }
         int rc = dorado_cpu_step(&cpu);
         if (rc != 0) { outcome = 2; halt_rc = rc; break; }
+        if (disk_pack_attached) {
+            (void)dorado_disk_controller_tick(&disk, (uint64_t)steps + 1);
+            if (dorado_disk_controller_wakeup_pending(&disk) &&
+                cpu.task_tpc[DORADO_DISK_TASK] != 0177777) {
+                if (getenv("RUNDIAG_DISK_WAKE_TRACE")) {
+                    fprintf(stderr,
+                            "rundiag: disk wake step=%ld ctask=%o pc=0o%o "
+                            "ready=%04x wake=%04x dsk_tpc=0o%o\n",
+                            steps, cpu.ctask & 017, cpu.real_PC & 07777,
+                            cpu.ready, cpu.wakeup_pending,
+                            cpu.task_tpc[DORADO_DISK_TASK] & 07777);
+                }
+                dorado_cpu_wakeup(&cpu, DORADO_DISK_TASK);
+            }
+        }
         last_pc = pc;
     }
     if (outcome < 0) outcome = 3;
@@ -146,6 +307,7 @@ int main(int argc, char **argv)
                     s ? s : "", dis);
         }
     }
+    if (outcome != 0) dump_rm_symbols(&mb, &cpu);
 
     const char *sym = dorado_microcode_symbol_at_real(&mc, cpu.real_PC);
     switch (outcome) {
@@ -172,6 +334,7 @@ int main(int argc, char **argv)
         break;
     }
     (void)reached_done;
+    if (disk_pack_attached) dorado_disk_pack_free(&disk_pack);
     mb_free(&mb);
     return outcome == 0 ? 0 : 1;
 }

@@ -62,6 +62,7 @@ typedef enum {
 #define DM_STORAGE_MODULE_WORDS (4 * 1024 * 1024)  /* 4 MW = 8 MB */
 #define DM_STORAGE_MODULES_DEFAULT 4
 #define DM_STORAGE_WORDS (DM_STORAGE_MODULE_WORDS * DM_STORAGE_MODULES_DEFAULT)
+#define DM_STORAGE_CHIP_TYPE_DEFAULT 3
 
 /*
  * Cache (HM §5.11). 4096-word cache organized as 64 rows × 4 ways
@@ -182,6 +183,9 @@ typedef struct dorado_memory {
     struct {
         uint32_t        va;
         dorado_ref_kind kind;
+        uint8_t         task;
+        uint8_t         subtask;
+        uint8_t         ref_type;
         uint16_t        map_rp_pre;
         uint8_t         map_flags_pre;
         uint8_t         mapbuf_busy;
@@ -219,6 +223,7 @@ typedef struct dorado_memory {
      * bits yet; HM §5.7 will add them in Phase B. */
     uint16_t *storage;
     size_t    storage_words;
+    int       storage_chip_type;  /* Config.icType, 0..3; default 3 = 4MW/module */
 
     /* Optional protected cell: stores reaching physical word
      * protect_phys are forced to protect_val while protect_active. A
@@ -286,6 +291,8 @@ typedef struct dorado_memory {
     uint16_t          last_ref_b;
     uint8_t           last_ref_task;
     uint8_t           last_ref_subtask;
+    uint8_t           last_ref_miss;     /* Last reference took a cache-miss
+                                          * path that starts storage/map work. */
     int               last_ref_latency;  /* Md-ready latency of the last fetch:
                                           * 3 cache-hit / 16 clean-miss / 24
                                           * dirty-victim miss (HM Table 15,
@@ -392,6 +399,7 @@ uint32_t dorado_pipe_va(const dorado_memory *mem, int n);
 uint32_t dorado_pipe_va_at(const dorado_memory *mem, int srn);
 uint16_t dorado_pipe_map_rp_at(const dorado_memory *mem, int srn);
 uint8_t  dorado_pipe_map_flags_at(const dorado_memory *mem, int srn);
+uint16_t dorado_pipe2_at(const dorado_memory *mem, int srn);
 uint16_t dorado_pipe5_at(const dorado_memory *mem, int srn);
 /* Encoded `B<-Pipe4'` for slot `srn`. Mixed-polarity active-low
  * form per HM page 51 / EMemDefs.mc — `0o150361 XOR Pipe4'` yields
