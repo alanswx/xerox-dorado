@@ -314,7 +314,7 @@ static int event_counter_hit(uint8_t event, uint8_t flags, int is_b)
 }
 
 static uint16_t task_schedule(dorado_cpu *cpu, uint16_t next_pc,
-                              int block_in_non_emulator)
+                              int block_in_non_emulator, int freeze)
 {
     /* Promote the staged microcode wakeups one step down the 2-stage pipe
      * before this instruction's scheduling decision. A Wakeup[n] set in the
@@ -407,6 +407,14 @@ static uint16_t task_schedule(dorado_cpu *cpu, uint16_t next_pc,
         cpu->tasking_resume_delay--;
         if (cpu->tasking_resume_delay == 0) cpu->tasking_on = 1;
     }
+
+    /* HOLD freeze (HM §5): a held cycle stretches the *current* micro-
+     * instruction — the engine clock advances (so the per-cycle ticks above
+     * run, and the event counter charges the Hold to the held task) but the
+     * processor does not switch tasks or advance the PC. Used by the §3.12
+     * HOLDSIM injection so the Hold lands on the task that is stalled, not a
+     * task it would otherwise switch to. */
+    if (freeze) return next_pc;
 
     /* If the current task is non-emulator and blocked, clear Ready.
      * HM page 27: BLOCK also clears the device section's wakeup-
@@ -3753,7 +3761,18 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
      * suppressed when mcr.disHold is set (boot/init microcode sets it); that
      * gate is real hardware behavior, not an emulator approximation. */
     if (md_not_ready && !dorado_mcr_dishold(cpu->mem)) {
-        cpu->real_PC = task_schedule(cpu, cpu->real_PC, 0);
+        cpu->real_PC = task_schedule(cpu, cpu->real_PC, 0, 0);
+        cpu->cycles++;
+        if (cpu->baseboard && cpu->baseboard_cycles_per_uop > 0)
+            baseboard_run(cpu->baseboard, cpu->baseboard_cycles_per_uop);
+        return 0;
+    }
+    /* A §3.12 HOLDSIM-injected Hold freezes the engine: the held cycle stays
+     * on the current task (the per-cycle ticks run so the event counter
+     * charges the Hold to it) and the same instruction re-runs next cycle,
+     * rather than jumping to self / switching as the Md-ready Hold does. */
+    if (cpu->holdsim_hold && !dorado_mcr_dishold(cpu->mem)) {
+        (void)task_schedule(cpu, cpu->real_PC, 0, 1 /* freeze */);
         cpu->cycles++;
         if (cpu->baseboard && cpu->baseboard_cycles_per_uop > 0)
             baseboard_run(cpu->baseboard, cpu->baseboard_cycles_per_uop);
@@ -3849,7 +3868,7 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
         cpu->prev_PC = cpu->real_PC;
         if (from_im) junk_timer_tick(cpu);
 
-        cpu->real_PC = task_schedule(cpu, cpu->real_PC, 0);
+        cpu->real_PC = task_schedule(cpu, cpu->real_PC, 0, 0);
 
         if (from_im) {
             cpu->cycles++;
@@ -4684,7 +4703,7 @@ memory_ref_done: ;
      * page 27); in the emulator (ctask=0) BLOCK=1 means StackSelect
      * for STK addressing — handled elsewhere, not a task block. */
     int block_in_non_emul = (u->block && cpu->ctask != 0);
-    cpu->real_PC = task_schedule(cpu, np, block_in_non_emul);
+    cpu->real_PC = task_schedule(cpu, np, block_in_non_emul, 0);
 
     /* Cycle accounting + BB stepping only happen on IM-fetched
      * instructions. The injected-MIR caller (dorado_cpu_step) does
