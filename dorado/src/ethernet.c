@@ -111,6 +111,7 @@ static void eth_clear_rx(dorado_ethernet *eth)
     eth->rx_count = 0;
     eth->rx_pos = 0;
     eth->rx_hold = 0;
+    eth->rx_wire_timer = 0;
 }
 
 void dorado_ethernet_init(dorado_ethernet *eth)
@@ -125,6 +126,8 @@ void dorado_ethernet_init(dorado_ethernet *eth)
         eth, 0110, "../chm/microcode/AltoMesaDorado.eb!1");
     dorado_ethernet_set_boot_file(
         eth, 0111, "../chm/microcode/SmalltalkDorado.eb!1");
+    dorado_ethernet_set_boot_file(
+        eth, 0112, "../chm/lisp/DORADOLISPMC.EB!1");
     dorado_ethernet_set_boot_file(
         eth, 0113, "../chm/dorado/CedarDorado.eb!6");
     dorado_ethernet_set_boot_file(
@@ -150,6 +153,7 @@ void dorado_ethernet_set_boot_file(dorado_ethernet *eth,
     switch (offset) {
     case 0110: dst = eth->boot_110_path; break;
     case 0111: dst = eth->boot_111_path; break;
+    case 0112: dst = eth->boot_112_path; break;
     case 0113: dst = eth->boot_113_path; break;
     case 0114: dst = eth->boot_114_path; break;
     default: return;
@@ -317,6 +321,7 @@ static const char *eth_boot_path(const dorado_ethernet *eth, uint16_t offset)
     switch (offset) {
     case 0110: return eth->boot_110_path;
     case 0111: return eth->boot_111_path;
+    case 0112: return eth->boot_112_path;
     case 0113: return eth->boot_113_path;
     case 0114: return eth->boot_114_path;
     default: return NULL;
@@ -771,6 +776,23 @@ static const uint16_t eth_bol_loader[254] = {
     0101015, 0156415, 0131001, 0754, 024643, 044625, 0101015, 0750,
     014623, 04644, 020634, 061004, 02000, 0176764
 };
+
+/* Per-word wire time (transmit and receive), in wakeup-poll ticks. The
+ * 3 Mb/s Alto wire moves ~one 16-bit word per 5.4 us; ContrAlto schedules its
+ * receiver one word per 5400 nsec and its transmitter ~87 us / 16 words. The
+ * rx WaitForBOP drain already uses 170 ticks/word for the same "~5.4 us per
+ * word" rate (see rx_hold), so use the same constant for both the faithful tx
+ * completion and the faithful rx pacing. Active only with DORADO_ETH_WIRE. */
+#define DORADO_ETH_WIRE_TICKS_PER_WORD 170u
+
+/* Faithful transmit wire model toggle (DORADO_ETH_WIRE). Default OFF so the
+ * EFTP boot -- which relies on instant tx-completion -- is unaffected. */
+static int eth_wire_model(void)
+{
+    static int cached = -1;
+    if (cached < 0) cached = getenv("DORADO_ETH_WIRE") ? 1 : 0;
+    return cached;
+}
 
 /* "Transmit" the buffered packet. Called when EOT sets TxEOP with words
  * in the Fifo (HM §11: "the transmitter ends normally when the Fifo is
@@ -1230,6 +1252,12 @@ static uint16_t eth_read(void *ctx, int task, int subtask,
     }
     uint16_t word = eth->rx_words[eth->rx_pos];
     eth->rx_pos++;
+    /* Faithful rx wire pacing: hold the next EIT wakeup off for one word's
+     * wire time so the world cannot drain the queue faster than 3 Mb/s. The
+     * EIT microcode reads one word then Blocks, so this paces delivery at one
+     * word per ~5.4 us (see dorado_ethernet_wakeup_mask). Default off. */
+    if (eth_wire_model())
+        eth->rx_wire_timer = DORADO_ETH_WIRE_TICKS_PER_WORD;
     /* Debug: note when the Alto finishes reading a BootDirReply, i.e. the
      * 260B reply actually reached NetExec's GetDir (vs being clobbered or
      * never delivered). word[3] is the Pup type of the queued packet. */
@@ -1284,6 +1312,9 @@ static void eth_write(void *ctx, int task, int subtask,
                 eth->tx_eop = 0;
                 eth->tx_cntdwn = 0;
                 eth->tx_count = 0;
+                /* Drop any in-flight wire-model packet too. */
+                eth->tx_pending = 0;
+                eth->tx_wire_timer = 0;
             } else {
                 eth->tx_eop = (data & DORADO_ETHC_TXEOP) != 0;
                 /* TxCntDwn delays wakeups until the next Pendulum tick
@@ -1292,11 +1323,21 @@ static void eth_write(void *ctx, int task, int subtask,
                  * count down one iteration per wakeup. */
                 eth->tx_cntdwn = 0;
                 if (eth->tx_eop && eth->tx_count > 0) {
-                    eth_tx_packet_done(eth);
-                    /* TxGone: end of packet clears TxEOP, waking EOT. */
-                    eth->tx_eop = 0;
-                    eth->tx_eops++;
-                    eth->tx_count = 0;
+                    if (eth_wire_model()) {
+                        /* Faithful path: don't complete now. Hold tx_eop set
+                         * (suppresses the EOT "sent" wakeup) and let
+                         * dorado_ethernet_wakeup_mask() finish the packet
+                         * after carrier-sense deferral + wire time. */
+                        eth->tx_pending = 1;
+                        eth->tx_wire_timer =
+                            (uint32_t)eth->tx_count * DORADO_ETH_WIRE_TICKS_PER_WORD;
+                    } else {
+                        eth_tx_packet_done(eth);
+                        /* TxGone: end of packet clears TxEOP, waking EOT. */
+                        eth->tx_eop = 0;
+                        eth->tx_eops++;
+                        eth->tx_count = 0;
+                    }
                 }
             }
         }
@@ -1414,6 +1455,25 @@ uint16_t dorado_ethernet_wakeup_mask(dorado_ethernet *eth)
 {
     static uint64_t wake_trace_count;
     if (eth->rx_hold) eth->rx_hold--;
+    if (eth->rx_wire_timer) eth->rx_wire_timer--;
+    /* Faithful tx wire model (matches ContrAlto): finish an in-flight TxEOP
+     * packet after a FIXED wire time -- ContrAlto schedules its transmit
+     * completion ~87 us after EndTransmission regardless of receiver state
+     * (it models no carrier sense / collisions). We use tx_count * 170 ticks
+     * for the same ~5.4 us/word. Hold tx_eop set meanwhile (suppresses the
+     * EOT "sent" wakeup); on expiry complete and clear tx_eop so EOT wakes to
+     * post OutDone. (Default off; see eth_wire_model.) */
+    if (eth->tx_pending) {
+        if (eth->tx_wire_timer > 0) {
+            eth->tx_wire_timer--;
+        } else {
+            eth_tx_packet_done(eth);
+            eth->tx_eop = 0;
+            eth->tx_eops++;
+            eth->tx_count = 0;
+            eth->tx_pending = 0;
+        }
+    }
     /* EFTP sender retransmission (EFTPSPEC): once the receiver has
      * consumed (or lost) the packet on the wire without Acking it,
      * count down and put the same packet back. The timer only runs
@@ -1436,7 +1496,8 @@ uint16_t dorado_ethernet_wakeup_mask(dorado_ethernet *eth)
     if (eth->tx_on && !eth->tx_eop && !eth->tx_cntdwn) {
         mask |= (uint16_t)(1u << DORADO_ETHERNET_TASK_EOT);
     }
-    if (eth->rx_on && !eth->rx_hold && eth->rx_pos < eth->rx_count &&
+    if (eth->rx_on && !eth->rx_hold && !eth->rx_wire_timer &&
+        eth->rx_pos < eth->rx_count &&
         !(eth->rx_pos == 0 && eth->rx_count > eth->world_rx_words + 2u)) {
         /* Don't wake the input task for a packet whose payload is larger
          * than the world's currently-posted input buffer (EICLOC) -- it

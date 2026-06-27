@@ -92,6 +92,13 @@ int dorado_disk_ecc_check(const uint16_t *words, int n,
 static void disk_set_subsector_count(dorado_disk_drive *d, int count);
 static void disk_update_fifo_tws(dorado_disk_controller *ctl);
 
+static int disk_muff_word_bit(uint8_t addr, uint8_t base, uint16_t word)
+{
+    int bit = (int)addr - (int)base;
+    if (bit < 0 || bit >= 16) return 0;
+    return (word >> (15 - bit)) & 1u;
+}
+
 static int disk_trace_enabled(const char *name)
 {
     if (!dorado_trace_flag(name)) return 0;
@@ -269,7 +276,9 @@ void dorado_disk_controller_init(dorado_disk_controller *ctl)
         dorado_disk_drive_init(&ctl->drive[i]);
     }
     ctl->selected_drive = 0;
-    ctl->drive[0].selected = 1;
+    /* No drive select line is asserted until the controller emits a DriveTag.
+     * TriconD's initial KSTAT check expects an attached pack to look
+     * unavailable until the diagnostic explicitly selects drive 0. */
     /* PilotDisk/Initial treat drive 0 as the boot drive and load
      * subsector count 3 (four 117-pulse subsectors per sector). We
      * seed that convention here until the full drive-select timing path
@@ -436,8 +445,12 @@ static void disk_set_subsector_count(dorado_disk_drive *d, int count)
     d->subsector_count = count & 0x3F;
     int divisor = d->subsector_count + 1;
     if (divisor <= 0) divisor = 1;
+    /* TriconD's SectorCounters test is the hardware oracle here: count 3
+     * produces 30 controller sector wakeups per 117-pulse revolution, so the
+     * divider rounds the final partial group up. Count 0 still gives 117 and
+     * count 014 gives 9. */
     d->sectors_per_revolution =
-        DORADO_DISK_SUBSECTOR_PULSES_PER_REV / divisor;
+        (DORADO_DISK_SUBSECTOR_PULSES_PER_REV + divisor - 1) / divisor;
     if (d->sectors_per_revolution <= 0) d->sectors_per_revolution = 1;
     if (d->cur_sector >= d->sectors_per_revolution) d->cur_sector = 0;
 }
@@ -792,6 +805,21 @@ static int disk_control_has_transfer_op(uint16_t control)
             DORADO_DISK_OP_DONE);
 }
 
+static int disk_control_first_transfer_op(uint16_t control)
+{
+    static const int shifts[4] = {
+        DORADO_DISK_CTRL_OP1_SHIFT,
+        DORADO_DISK_CTRL_OP2_SHIFT,
+        DORADO_DISK_CTRL_OP3_SHIFT,
+        DORADO_DISK_CTRL_OP4_SHIFT,
+    };
+    for (int i = 0; i < 4; i++) {
+        int op = (int)((control >> shifts[i]) & DORADO_DISK_CTRL_OP_MASK);
+        if (op != DORADO_DISK_OP_DONE) return op;
+    }
+    return DORADO_DISK_OP_DONE;
+}
+
 static int disk_control_has_op(uint16_t control, unsigned op)
 {
     return (((control >> DORADO_DISK_CTRL_OP1_SHIFT) & DORADO_DISK_CTRL_OP_MASK) == op) ||
@@ -805,25 +833,13 @@ void dorado_disk_controller_advance_sector(dorado_disk_controller *ctl)
     dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
     if (!disk_drive_has_media(d)) return;
 
-    /* Real disk transfers finish within their sector window. In this emulator
-     * the DSK task drains the FIFO over many host-scheduled microinstructions;
-     * if rotation keeps advancing, SectorTW collapses many pulses into one and
-     * AltoDiabloDisk's software Sector counter falls behind the selected media
-     * sector. Hold rotation while a sector transfer is visible as Active. */
-    if (ctl->active || ctl->read_stream_active || ctl->write_stream_active)
-        return;
-
     d->cur_sector = (d->cur_sector + 1) % disk_sector_pulse_count(d);
     disk_seq_trace(ctl, "sector+");
     int at_index = (d->cur_sector == 0);
 
     if (d->seek_in_progress > 0) {
         d->seek_in_progress--;
-        if (at_index) {
-            d->seek_in_progress = 0;
-            ctl->tag_tw = 1;
-            ctl->tag_tw_sets++;
-        }
+        if (at_index) d->seek_in_progress = 0;
     }
 
     if (at_index) {
@@ -1043,6 +1059,7 @@ int dorado_disk_controller_tick(dorado_disk_controller *ctl,
      * too. A spun-down/empty drive is idle. */
     if (!d->online) return 0;
     if (!d->pack && !(d->pdi && ctl->allow_pdi_timing)) return 0;
+    if (!ctl->enable_run) return 0;
 
     int spr = disk_sector_pulse_count(d);
     if (spr <= 0) return 0;
@@ -1112,9 +1129,30 @@ static void disk_output_b(void *ctx, int task, int subtask,
             ctl->restore_pending = 0;
         }
         ctl->format_ram_addr = 0;
-        if (data & DORADO_DISK_CTRL_CLR_ENABLE_RUN) ctl->enable_run = 0;
+        if (data & DORADO_DISK_CTRL_CLR_ENABLE_RUN) {
+            ctl->enable_run = 0;
+            ctl->debug_mode = 0;
+            ctl->block_till_index = 0;
+            ctl->index_tw = 0;
+            ctl->sector_tw = 0;
+            ctl->tag_tw = 0;
+            ctl->rd_fifo_tw = 0;
+            ctl->wr_fifo_tw = 0;
+            ctl->current_block_op = DORADO_DISK_OP_DONE;
+        }
         if (data & DORADO_DISK_CTRL_SET_DEBUG_MODE) ctl->debug_mode = 1;
         if (data & DORADO_DISK_CTRL_BLOCK_TILL_INDEX) ctl->block_till_index = 1;
+        if ((data & DORADO_DISK_CTRL_SET_DEBUG_MODE) &&
+            disk_control_has_transfer_op(data)) {
+            ctl->current_block = 0;
+            ctl->current_block_op =
+                (uint8_t)disk_control_first_transfer_op(data);
+            ctl->current_block_pos = 0;
+            ctl->current_block_trailer = 0;
+            ctl->active = 1;
+            ctl->xfer_pending = 0;
+            disk_update_fifo_tws(ctl);
+        }
         disk_seq_trace(ctl, "ctrl-load");
         /* If ops 1..4 are non-zero AND EnableRun is set, schedule a
          * sector transfer at the next sector pulse. We don't run the
@@ -1178,13 +1216,14 @@ static void disk_output_b(void *ctx, int task, int subtask,
         /* Write into the Format RAM at the current address, then
          * post-increment. Loading the *last* word of Format RAM (15)
          * sets EnableRun (HM page 98). */
-        if (ctl->format_ram_addr < DORADO_DISK_FORMAT_RAM_WORDS) {
-            ctl->format_ram[ctl->format_ram_addr] = data;
+        {
+            int addr = ctl->format_ram_addr & (DORADO_DISK_FORMAT_RAM_WORDS - 1);
+            ctl->format_ram[addr] = data;
             ctl->format_ram_writes++;
-            if (ctl->format_ram_addr == DORADO_DISK_FORMAT_RAM_WORDS - 1) {
+            if (addr == DORADO_DISK_FORMAT_RAM_WORDS - 1) {
                 ctl->enable_run = 1;
             }
-            ctl->format_ram_addr++;
+            ctl->format_ram_addr = (addr + 1) & (DORADO_DISK_FORMAT_RAM_WORDS - 1);
         }
         break;
 
@@ -1221,8 +1260,7 @@ static void disk_output_b(void *ctx, int task, int subtask,
                     disk_set_subsector_count(&ctl->drive[ctl->selected_drive],
                                              count);
                 }
-                if ((bus & (1u << 4)) &&
-                    drv_select <= 3 && ctl->drive[drv_select].online) {
+                if ((bus & (1u << 4)) && drv_select <= 3) {
                     ctl->selected_drive = drv_select;
                     for (int i = 0; i < DORADO_DISK_NUM_DRIVES; i++) {
                         ctl->drive[i].selected = (i == drv_select) ? 1 : 0;
@@ -1249,8 +1287,10 @@ static void disk_output_b(void *ctx, int task, int subtask,
                 break;
             }
             case 2: {
-                /* Cylinder Tag (HM page 100): Tag[4:15] = 12-bit
-                 * cylinder number (LSB 0..11). */
+                /* Cylinder Tag (HM pages 99-100): Tag[4:15] = 12-bit
+                 * cylinder number (LSB 0..11). The tag timing circuit raises
+                 * TagTW at command completion; the drive's NotReady status
+                 * remains raised independently until the seek completes. */
                 int cyl = bus;
                 dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
                 if (disk_drive_has_media(d)) {
@@ -1258,6 +1298,8 @@ static void disk_output_b(void *ctx, int task, int subtask,
                     d->cur_sector = 0;       /* lose sector sync on seek */
                     d->seek_in_progress = disk_sector_pulse_count(d);
                 }
+                ctl->tag_tw = 1;
+                ctl->tag_tw_sets++;
                 break;
             }
             case 3: {
@@ -1332,10 +1374,8 @@ static void disk_output_b(void *ctx, int task, int subtask,
                     disk_update_fifo_tws(ctl);
                     disk_seq_trace(ctl, "write-start");
                 }
-                if (!(bus & (1u << 1))) {
-                    ctl->tag_tw = 1;
-                    ctl->tag_tw_sets++;
-                }
+                ctl->tag_tw = 1;
+                ctl->tag_tw_sets++;
                 break;
             }
             default:
@@ -1349,12 +1389,34 @@ static void disk_output_b(void *ctx, int task, int subtask,
 static int disk_muffler_bit(dorado_disk_controller *ctl, uint8_t addr)
 {
     dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
+    if (addr >= 040 && addr < 060) {
+        int ram_addr = ctl->format_ram_addr & (DORADO_DISK_FORMAT_RAM_WORDS - 1);
+        uint16_t word = (uint16_t)(((ram_addr & 0xF) << 12) |
+                                   (ctl->format_ram[ram_addr] & 0x0FFFu));
+        return disk_muff_word_bit(addr, 040, word);
+    }
+    if (addr >= 060 && addr < 0100) {
+        return disk_muff_word_bit(addr, 060, ctl->tag);
+    }
+    if (addr >= 0100 && addr < 0120) {
+        int read_addr = (ctl->fifo_tail + (ctl->fifo_count > 0 ? 1 : 0)) & 0xF;
+        uint16_t word = (uint16_t)(((ctl->fifo_head & 0xF) << 4) |
+                                   (read_addr & 0xF));
+        word |= (ctl->fifo_count > 0) ? 07000u : 02000u;
+        return disk_muff_word_bit(addr, 0100, word);
+    }
     switch (addr) {
     case 001: return ctl->index_tw;
     case 002: return ctl->sector_tw;
     case 003: return ctl->tag_tw;
     case 004: return ctl->rd_fifo_tw;
-    case 005: return ctl->wr_fifo_tw;
+    case 005:
+        /* The diagnostic muffler exposes the FIFO room signal directly. The
+         * scheduled write-stream wakeup latch can use a coarser threshold, but
+         * TriconD's static FIFO test expects this bit asserted until the FIFO
+         * is almost full. */
+        return ctl->enable_run && (ctl->active || ctl->write_stream_active) &&
+               ctl->fifo_count < (DORADO_DISK_FIFO_WORDS - 2);
     case 010: return ctl->enable_run;
     case 011: return ctl->debug_mode;
     case 012:
@@ -1367,8 +1429,8 @@ static int disk_muffler_bit(dorado_disk_controller *ctl, uint8_t addr)
         return !(ctl->active &&
                  ctl->current_block_op == DORADO_DISK_OP_RDCHK);
     case 015: return ctl->active;
-    case 016: return ctl->selected_drive & 1;
-    case 017: return (ctl->selected_drive >> 1) & 1;
+    case 016: return (ctl->selected_drive >> 1) & 1;
+    case 017: return ctl->selected_drive & 1;
     case 021:
         /* DiskHeadDorado.Initialize classifies a T-80 by selecting head 5
          * and then reading HeadOvfl through DMux. On the shim path the PDI
@@ -1380,18 +1442,25 @@ static int disk_muffler_bit(dorado_disk_controller *ctl, uint8_t addr)
          * error and stall the setup loop (plan D4). */
         return d->head_overflow ||
                (d->pdi != NULL && !ctl->allow_pdi_timing);
-    case 023: return !d->selected;
-    case 024: return !d->online;
-    case 025: return d->seek_in_progress || !d->online;
+    case 023:
+        /* KSTAT reports drive/controller status. EnableRun is exposed
+         * separately as KSTATE[010] and must not make an attached, selected
+         * drive look offline before the format RAM has been loaded. */
+        return !d->selected || !d->online;
+    case 024: return !d->selected || !d->online;
+    case 025: return !d->selected || d->seek_in_progress || !d->online;
     case 027: return ctl->fifo_underflow;
     case 030: return ctl->fifo_overflow;
     case 031: return ctl->read_data_err || ctl->compare_err;
     case 032: return d->read_only;
     case 036:
-        return d->head_overflow || d->read_only || ctl->fifo_underflow ||
-               ctl->fifo_overflow || ctl->read_data_err || ctl->compare_err;
+        return !d->selected || !d->online || d->seek_in_progress ||
+               d->head_overflow || d->read_only ||
+               ctl->fifo_underflow || ctl->fifo_overflow ||
+               ctl->read_data_err || ctl->compare_err;
     case 037:
-        return d->head_overflow || ctl->fifo_underflow ||
+        return !d->selected || !d->online || d->seek_in_progress ||
+               d->head_overflow || ctl->fifo_underflow ||
                ctl->fifo_overflow || ctl->read_data_err || ctl->compare_err;
     default: return 0;
     }

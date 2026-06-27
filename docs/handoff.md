@@ -1053,8 +1053,8 @@ Latest disk bring-up checkpoint:
   signals `RdOnlyBlock'`, `WriteBlock'`, and `CheckBlock'` are
   active-low; Cylinder Tag/ReZero now hold `NotReady` and delay `TagTW`
   until the synthetic sector/index cadence reaches index; subsector
-  count uses the HM examples' floor division (`117 / (count+1)`, so
-  count 3 -> 29 sector pulses/rev). DiskTag decode now uses native
+  count follows TriconD's sector-counter oracle (`count 3 -> 30`
+  wakeups/rev, with the final partial group rounded up). DiskTag decode now uses native
   strobe bits from `DiskDefs.mc` (`0x8000` Drive, `0x4000` Cylinder,
   `0x2000` Head, `0x1000` Control) and ignores unstrobed preload/idle
   bus words. The probe spindle period is now

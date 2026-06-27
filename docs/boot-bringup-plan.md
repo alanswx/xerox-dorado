@@ -255,11 +255,10 @@ image. With that in place, the probe now demonstrates:
   disk sector/status path used by `WaitForSector` and `Read1Muff`.
   The hardware manual and DskEth schematic confirm the drive/controller
   sector timing model: 117 drive subsector pulses/rev, divided by the
-  selected drive's `Tag[4:9]+1` subsector count. Drive 0 is initialized
-  by PilotDisk/Initial with count 3, so firmware counts 29 sector
-  pulses per revolution (`117 / 4`, with the remainder consumed by the
-  index interval) even when the attached Alto/Trident pack image stores
-  9 media sectors/track.
+  selected drive's `Tag[4:9]+1` subsector count with the final partial
+  group rounded up. Drive 0 is initialized by PilotDisk/Initial with
+  count 3, so firmware counts 30 sector wakeups per revolution even
+  when the attached Alto/Trident pack image stores 9 media sectors/track.
   The full probe also uses a temporary identity-map shim for the first
   256 pages at `DiskHardMicrocodeBoot`; without it, final map entries
   for the first 64K are still vacant and the CSB/IOCB handoff faults.
@@ -1149,9 +1148,8 @@ microcode.
   `0x1000` Control. Unstrobed preload/idle values such as `0xFFEF` are
   ignored. The next disk gap is the read/check FIFO status sequence:
   `RdFifoTW` thresholds, block-mode status, ECC words, and end-of-block
-  `ReadErr`/`WriteErr` summary bits. Offline drive selects are clamped
-  during single-pack bring-up so the mounted boot pack remains selected
-  until the missing offline-drive KSTAT behavior is modeled.
+  `ReadErr`/`WriteErr` summary bits. Controller reset starts with no
+  drive selected; DriveTag explicitly asserts the selected drive line.
 
 Three styles of test, used at every phase:
 

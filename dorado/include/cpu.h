@@ -126,6 +126,15 @@ typedef struct {
     uint8_t  ifu_idcnt;         /* count of ←Id deliveries this opcode */
     uint8_t  ifu_active;        /* 1 = PCF set, ready to dispatch */
 
+    /* IFU diagnostic test register (§6.8 / Table 20). The IFU diagnostics
+     * single-step the board by presenting FG bytes through IFUTest and
+     * clocking them with IFUTick; IFUJump then dispatches from those staged
+     * bytes instead of the memory port. */
+    uint16_t ifu_test;
+    uint8_t  ifu_test_pending;
+    uint8_t  ifu_test_count;
+    uint8_t  ifu_test_queue[16];
+
     /* IFU warmup counter (HM page 67). After PCF←B, the pipeline
      * needs ~5 cycles before the first opcode is in M-level and
      * IFUJump can succeed. Earlier IFUJumps trap to the "IFU not
@@ -196,11 +205,40 @@ typedef struct {
      */
     uint8_t  brk_pending;       /* HM §4.10 BrkPending flipflop */
     uint8_t  brk_opcode;        /* opcode from BrkIns←B (high 8 bits of B) */
-    uint16_t event_cnt_a;       /* HM §4.11 EventCntA */
-    uint16_t event_cnt_b;       /* HM §4.11 EventCntB */
+    uint16_t event_cnt_a;       /* HM §4.11 EventCntA (= GenIn pins, IFU board) */
+    uint16_t event_cnt_b;       /* HM §4.11 EventCntB (= GenOut register, IFU board) */
     uint8_t  event_cnt_ctrl_lo; /* B[4:15] saved when B[0]=0 in InsSetorEvent←B */
     uint8_t  event_cnt_ctrl_hi;
+    /* GenIO mode: the eventCounters diagnostic's genIO test assumes a plug
+     * connecting GenOut to GenIn, so reading GenIn' (=EventCntA') returns what
+     * was written to GenOut (=EventCntB'). Set when the MOS control loaded via
+     * InsSetorEvent←B (B[0]=0) has both counter-enable bits clear (counters
+     * disabled). When set, EventCntA' reads back EventCntB (the loopback);
+     * otherwise it reads the real EventCntA counter. (eventCounters1.mc genIO.) */
+    uint8_t  gen_io_mode;
     uint8_t  parity_error;      /* set when IOAtten parity fault propagates */
+
+    /* HM §4.11 event counters. EventCntA/B free-run, incrementing once per
+     * cycle on a selected event, when their enable bit is set in the MOS
+     * control word (InsSetorEvent←B, B[0]=0). The diagnostic reads EventCnt'
+     * (inverted) as a baseline at enable and computes deltas, so only the
+     * per-cycle increment matters. Event select (3 bits): 0=True (always),
+     * 1=Hold, 2=ProcRef(A)/IfuRef(B), 3=IfuJump(A)/IfuNotReady(B), 4=Miss,
+     * 5..7=backpanel (external, unmodeled). Control word bit layout
+     * (eventCounters1.mc): A enable=B[4]=native bit 11, A event=(event<<5)=
+     * native bits 7:5; B enable=B[5]=native bit 10, B event=(event<<1)=native
+     * bits 3:1. */
+    uint8_t  evc_a_enable;
+    uint8_t  evc_a_event;
+    uint8_t  evc_b_enable;
+    uint8_t  evc_b_event;
+    /* tasksAll (ctr.AtasksAll=B[11]=bit4, ctr.BtasksAll=B[15]=bit0): when set,
+     * the counter counts every task's cycles; when clear (the default,
+     * "EmuOrFT") it counts only emulator (task 0) and fault-task (task 0o17)
+     * cycles. (eventCounters2.mc eventEmuOrFT.) */
+    uint8_t  evc_a_tasksall;
+    uint8_t  evc_b_tasksall;
+    uint8_t  evc_events;        /* per-cycle event flags (EVC_EV_*); see cpu.c */
 
     /*
      * Memory subsystem. When non-NULL, processor memory references
@@ -266,9 +304,37 @@ typedef struct {
      */
     uint8_t  ctask;             /* current task (0..15) */
     uint16_t wakeup_pending;    /* bitmask: device/microcode wake requests */
+    /* HM p27: "a minimum of two cycles elapses after the instruction
+     * containing Wakeup before the task executes its first instruction."
+     * A microcode Wakeup[n] is staged here and promoted into
+     * wakeup_pending after the next task_schedule, so the woken task's
+     * first instruction lands 2 cycles later. This is required for
+     * preemption correctness: it lets a task that notifies a higher task
+     * finish the instruction after the Wakeup (e.g. move a subroutine
+     * return out of a shared RM scratch reg into its per-task Link)
+     * before being preempted. See the kernel TaskTest diagnostic.
+     * (DORADO_WAKE_IMMEDIATE reverts to the old single-cycle model.) */
+    uint16_t wakeup_pipe[2];    /* 2-stage delay for microcode Wakeup[n] */
     uint16_t ready;             /* bitmask: tasks runnable */
     uint8_t  tasking_on;        /* 1 = tasking enabled */
     uint8_t  tasking_resume_delay; /* >0: countdown after TaskingOn before switching */
+
+    /* HM §3.12 Hold & Task Simulator (hardware-checkout debug feature,
+     * exercised by the kernel TestTW diagnostic via Hold&TaskSim←B,
+     * FF=0o154). TASKSIM is a 7-bit counter loaded from B[1:7]: zero disables
+     * it, while any non-zero value counts up each cycle and, on overflow past
+     * 0o177, raises a wakeup for the simulator task (task 12,
+     * backplane-jumpered), held until reloaded. HOLDSIM is an 8-bit
+     * recirculating shift register; a 1 reaching the trigger end forces an
+     * external HOLD two instructions later (postamble.mc / HM §3.12). Drives
+     * the eventCounters eventHold gate. */
+    uint8_t  tasksim;           /* 7-bit wakeup counter (0 = disabled) */
+    uint8_t  tasksim_fired;     /* 1 once overflowed; held until reload */
+    uint8_t  tasksim_loaded;    /* transient: load took this cycle's clock */
+    uint8_t  holdsim;           /* 8-bit recirculating hold shift register */
+    uint8_t  holdsim_loaded;    /* transient: load took this cycle's clock */
+    uint8_t  holdsim_delay;     /* "two instructions later" trigger delay */
+    uint8_t  holdsim_hold;      /* 1 = HOLDSIM forces a hold this cycle */
 
     /* Per-task saved state. Loaded into the live registers when
      * `ctask` becomes that task. */
@@ -293,6 +359,11 @@ typedef struct {
     uint8_t  task_tioa[16];
     uint16_t task_md[16];
     uint8_t  task_md_valid[16];
+    uint64_t task_md_ready[16]; /* cpu->cycles at which this task's pending
+                                 * fetch's Md becomes consumable. The engine
+                                 * Holds (jumps to self, yielding to higher-
+                                 * priority tasks) if the task reads Md before
+                                 * this cycle. HM §5 pp.41-42. */
     uint8_t  task_alu_zero[16];
     uint8_t  task_alu_lt0[16];
     uint8_t  task_alu_carry[16];

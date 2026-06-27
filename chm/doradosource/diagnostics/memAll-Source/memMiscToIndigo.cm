@@ -1,0 +1,1 @@
+ftp Indigo dump/c <doradoSource>memMiscSource.dm @memMisc.files@ dump/c <doradoSource>diagnosticSubrs.dm @diagnosticSubrs.files@ dump/c <dorado>memMisc.dm @memMiscMidas.files@

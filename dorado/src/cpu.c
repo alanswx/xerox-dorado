@@ -45,7 +45,17 @@ extern int dorado_mem_trace_mar;
 
 #define DORADO_JUNK_TASK          2
 #define DORADO_JUNK_TICK_CYCLES   533   /* 32 us / 60 ns microcycle */
+#define DORADO_TASKSIM_TASK       012   /* HM §3.12 TASKSIM wakeup target: task 0o12
+                                         * (=10 dec), backplane-jumpered; the kernel
+                                         * TestTW + Postamble "Task12" simulator */
 #define DORADO_B15_MASK           0x0001u
+#define IFUTEST_PARITY            0x0080u
+#define IFUTEST_FAULT             0x0040u
+#define IFUTEST_MEMACK            0x0020u
+#define IFUTEST_MAKEFD            0x0010u
+#define IFUTEST_MYFH              0x0008u
+#define IFUTEST_MYSH              0x0004u
+#define IFUTEST_EN                0x0002u
 
 /* Trace-only raw RM slots that have been useful during Cedar bring-up.
  * Do not treat these as architectural aliases: Mesa/Cedar Midas labels are
@@ -63,6 +73,8 @@ extern int dorado_mem_trace_mar;
 static uint16_t ifu_consume_id(dorado_cpu *cpu);
 static uint16_t ifu_peek_id(const dorado_cpu *cpu);
 static uint8_t  ifu_fetch_byte(dorado_cpu *cpu, uint16_t pc, int *out_faulted);
+static uint8_t  ifu_test_pop_byte(dorado_cpu *cpu);
+static void     ifu_test_tick(dorado_cpu *cpu);
 static uint16_t task_md(const dorado_cpu *cpu);
 
 /*
@@ -187,10 +199,15 @@ static void junk_timer_ack_control(dorado_cpu *cpu, uint16_t b)
 
 static void junk_timer_ifutest_control(dorado_cpu *cpu, uint16_t b)
 {
-    /* HM §8.3: IFUTest←B also dismisses the junk wakeup, but the IFU
-     * test register uses the opposite polarity: IFUTest.15 disables
-     * the periodic junk request. Dorado bit 15 is the low-order C bit. */
-    junk_timer_enable(cpu, (b & DORADO_B15_MASK) == 0);
+    /* HM §8.3: IFUTest←B *dismisses* the periodic junk request: IFUTest.15
+     * (Dorado bit 15 = the low-order C bit) DISABLES it when set. It must NOT
+     * *enable* the periodic timer when clear — enabling is done by the junk
+     * task itself (AckJunkTW←B) / the IFU Pendulum, e.g. AEmu's
+     * `Wakeup[JNK]`+`AckJunkTW` self-sustain. Treating IFUTest←B(0) as an
+     * enable spuriously woke the parked junk task in the Ifu/eventCounters
+     * diagnostics (which reset/configure the IFU before setting up a junk
+     * handler) → it ran from an empty IM park slot and halted. */
+    if (b & DORADO_B15_MASK) junk_timer_enable(cpu, 0);
 }
 
 static void junk_timer_tick(dorado_cpu *cpu)
@@ -267,15 +284,180 @@ static void task_load(dorado_cpu *cpu, int task)
  * clears Ready[ctask] and forces a switch. Returns the chosen new
  * value of `real_PC` (which the caller assigns to advance the
  * engine). */
-static uint16_t task_schedule(dorado_cpu *cpu, uint16_t next_pc,
-                              int block_in_non_emulator)
+/* HM p27 2-cycle wakeup latency for microcode Wakeup[n]. Default on (it is
+ * the hardware behavior and is required for preemption correctness — see the
+ * kernel TaskTest diagnostic). DORADO_WAKE_IMMEDIATE reverts to the old
+ * single-cycle model for A/B timing debugging. Device wakeups
+ * (dorado_cpu_wakeup) are intentionally NOT delayed here: the boot is
+ * co-tuned to their current cadence, and correcting those is separate
+ * (the cycle-accurate-timing project), not this fix. */
+static int wake_immediate(void)
 {
+    static int cached = -1;
+    if (cached < 0) cached = getenv("DORADO_WAKE_IMMEDIATE") ? 1 : 0;
+    return cached;
+}
+
+/* HM §4.11 event-counter per-cycle event flags (cpu->evc_events). */
+#define EVC_EV_HOLD        (1u << 0)
+#define EVC_EV_PROCREF     (1u << 1)
+#define EVC_EV_IFUREF      (1u << 2)
+#define EVC_EV_IFUJUMP     (1u << 3)
+#define EVC_EV_MISS        (1u << 4)
+#define EVC_EV_IFUNOTREADY (1u << 5)
+
+/* Did the 3-bit event selector `event` fire this cycle, given `flags`?
+ * is_b distinguishes counter B (event 2 = IfuRef, 3 = IfuNotReady) from
+ * counter A (event 2 = ProcRef, 3 = IfuJump). Events 5..7 are back-panel
+ * signals brought in over external cables — never asserted here. */
+static int event_counter_hit(uint8_t event, uint8_t flags, int is_b)
+{
+    switch (event & 7) {
+    case 0: return !(flags & EVC_EV_HOLD);         /* True — every non-held
+                                                    * (instruction) cycle; a
+                                                    * HOLD stretches an
+                                                    * instruction and is not a
+                                                    * completed-instruction
+                                                    * cycle. */
+    case 1: return (flags & EVC_EV_HOLD) != 0;     /* Hold */
+    case 2: return (flags & (is_b ? EVC_EV_IFUREF : EVC_EV_PROCREF)) != 0;
+    case 3: return (flags & (is_b ? EVC_EV_IFUNOTREADY : EVC_EV_IFUJUMP)) != 0;
+    case 4: return (flags & EVC_EV_MISS) != 0;     /* Miss */
+    default: return 0;                             /* back-panel events */
+    }
+}
+
+static void event_counter_direct_tick(dorado_cpu *cpu, int is_b, uint8_t event)
+{
+    int emu_or_ft = (cpu->ctask == 0) || ((cpu->ctask & 017) == 017);
+    if (is_b) {
+        if (cpu->evc_b_enable && (cpu->evc_b_tasksall || emu_or_ft) &&
+            cpu->evc_b_event == (event & 7)) {
+            cpu->event_cnt_b++;
+        }
+    } else {
+        if (cpu->evc_a_enable && (cpu->evc_a_tasksall || emu_or_ft) &&
+            cpu->evc_a_event == (event & 7)) {
+            cpu->event_cnt_a++;
+        }
+    }
+}
+
+static uint16_t task_schedule(dorado_cpu *cpu, uint16_t next_pc,
+                              int block_in_non_emulator, int freeze)
+{
+    /* Promote the staged microcode wakeups one step down the 2-stage pipe
+     * before this instruction's scheduling decision. A Wakeup[n] set in the
+     * current instruction lands in pipe[0]; it reaches wakeup_pending only
+     * after this shift runs on the NEXT instruction, so the woken task's
+     * first instruction is 2 cycles after the Wakeup (HM p27). This lets a
+     * task that wakes a higher-priority task execute the instruction after
+     * the Wakeup (e.g. move a subroutine return out of a shared RM scratch
+     * register into its per-task Link) before being preempted. */
+    if (!wake_immediate()) {
+        cpu->wakeup_pending |= cpu->wakeup_pipe[1];
+        cpu->wakeup_pipe[1] = cpu->wakeup_pipe[0];
+        cpu->wakeup_pipe[0] = 0;
+    }
+
+    /* HM §3.12 TASKSIM tick (once per cycle). Hold&TaskSim<-B loads
+     * TASKSIM[0:6] from B[1:7]. TASKSIM is a seven-bit counter: zero disables
+     * it; any non-zero load counts up to 0o177 and generates the jumpered task
+     * wakeup on overflow to 0o200. The wakeup request remains true until
+     * TASKSIM is reloaded. Kernel5's TestTW direct hardware test loads
+     * Hold&TaskSim<-0o400, which maps to TASKSIM=1 and is documented in the
+     * source as "the smallest count." */
+    if (cpu->tasksim_fired) {
+        cpu->wakeup_pending |= (uint16_t)(1u << DORADO_TASKSIM_TASK);
+    } else if (cpu->tasksim_loaded) {
+        cpu->tasksim_loaded = 0;            /* the load consumed this clock */
+    } else if (cpu->tasksim != 0) {
+        if (cpu->tasksim == 0177) {
+            cpu->tasksim_fired = 1;
+            cpu->wakeup_pending |= (uint16_t)(1u << DORADO_TASKSIM_TASK);
+        } else {
+            cpu->tasksim = (uint8_t)((cpu->tasksim + 1) & 0x7F);
+        }
+    }
+
+    /* HM §3.12 HOLDSIM tick (once per cycle). postamble.mc: "holdSim is an
+     * 8-bit recirculating shift register in which the presence of a 1 in bit 7
+     * causes HOLD two instructions later" / "occurrence of a 1 bit at b[0]
+     * causes an external hold." Each cycle the trigger bit (the register's
+     * output end) is examined and the register recirculates; a 1 schedules a
+     * HOLD two instructions later (via holdsim_delay). The sim task
+     * re-arms it via Hold&TaskSim←B; once zero (resetHold jams it) it stays
+     * quiet, so this is inert for games/Cedar/boot, which never load it. */
+    {
+        int trig = 0;
+        if (cpu->holdsim_loaded) {
+            cpu->holdsim_loaded = 0;        /* the load consumed this clock */
+            trig = cpu->holdsim & 1;
+        } else if (cpu->holdsim) {
+            /* Trigger = Dorado bit 7 = our LSB; recirculate by shifting LEFT
+             * (MSB wraps to LSB). Direction verified against the HM §3.12
+             * worked example: Hold&TaskSim←0o200 (a 1 at Dorado bit 0 = our
+             * MSB) HOLDs on the 4th instruction, every 8th cycle thereafter —
+             * which a left/recirculating shift produces (load: 0o200; instr1
+             * shifts to 0o001; instr2 LSB=1 → trigger; HOLD two later = the
+             * 4th instruction). */
+            trig = cpu->holdsim & 1;
+            cpu->holdsim = (uint8_t)((cpu->holdsim << 1) |
+                                     ((cpu->holdsim >> 7) & 1));
+        }
+        /* One delay register surfaces trig two instructions later: a trigger
+         * evaluated here (end of instruction I) is held one cycle, set at end
+         * of I+1, and read at the top of I+2's execute_uinstr. */
+        cpu->holdsim_hold = cpu->holdsim_delay;
+        cpu->holdsim_delay = (uint8_t)trig;
+    }
+
+    /* HM §4.11 event counters (once per cycle). Each enabled counter ticks
+     * when its selected event occurred during the previous cycle (accumulated
+     * in evc_events) AND the cycle belongs to a counted task. By default
+     * (tasksAll=0) only emulator (task 0) and fault-task (0o17) cycles count
+     * ("EmuOrFT"); tasksAll=1 counts every task. True (event 0) ticks every
+     * counted cycle. Counters stay at 0 unless a diagnostic enables them, so
+     * this is inert for games/Cedar. */
+    {
+        int emu_or_ft = (cpu->ctask == 0) || ((cpu->ctask & 017) == 017);
+        if (cpu->evc_a_enable && (cpu->evc_a_tasksall || emu_or_ft) &&
+            event_counter_hit(cpu->evc_a_event, cpu->evc_events, 0)) {
+            cpu->event_cnt_a++;
+            if (dorado_trace_flag("DORADO_EVC_TRACE") &&
+                (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE")))
+                fprintf(stderr, "EVC_TICK cyc=%llu task=%o A event=%u flags=%02x cnt=%06o pc=0o%o\n",
+                        dorado_trace_cycle, cpu->ctask & 017,
+                        cpu->evc_a_event, cpu->evc_events,
+                        cpu->event_cnt_a & 0177777, cpu->real_PC);
+        }
+        if (cpu->evc_b_enable && (cpu->evc_b_tasksall || emu_or_ft) &&
+            event_counter_hit(cpu->evc_b_event, cpu->evc_events, 1)) {
+            cpu->event_cnt_b++;
+            if (dorado_trace_flag("DORADO_EVC_TRACE") &&
+                (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE")))
+                fprintf(stderr, "EVC_TICK cyc=%llu task=%o B event=%u flags=%02x cnt=%06o pc=0o%o\n",
+                        dorado_trace_cycle, cpu->ctask & 017,
+                        cpu->evc_b_event, cpu->evc_events,
+                        cpu->event_cnt_b & 0177777, cpu->real_PC);
+        }
+    }
+    cpu->evc_events = 0;
+
     /* TaskingOn delay: TaskingOn doesn't take effect until two more
      * instructions of the same task have executed (HM page 27). */
     if (cpu->tasking_resume_delay > 0) {
         cpu->tasking_resume_delay--;
         if (cpu->tasking_resume_delay == 0) cpu->tasking_on = 1;
     }
+
+    /* HOLD freeze (HM §5): a held cycle stretches the *current* micro-
+     * instruction — the engine clock advances (so the per-cycle ticks above
+     * run, and the event counter charges the Hold to the held task) but the
+     * processor does not switch tasks or advance the PC. Used by the §3.12
+     * HOLDSIM injection so the Hold lands on the task that is stalled, not a
+     * task it would otherwise switch to. */
+    if (freeze) return next_pc;
 
     /* If the current task is non-emulator and blocked, clear Ready.
      * HM page 27: BLOCK also clears the device section's wakeup-
@@ -859,18 +1041,21 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
                     fprintf(stderr, "PIPEVA pc=0o%o psrn=%d va=%07X (Pipe1/VaLo)\n",
                             cpu->real_PC, psrn, va);
                 break;  /* Pipe1 = VaLo */
-        /* Pipe2' is the same data as FaultInfo' (HM page 51:
-         * "B←Pipe2' is simply a convenient decode for reading
-         * [FaultInfo] back"). */
-        case 3: *b = (uint16_t)~finfo;
+        case 3: *b = dorado_pipe2_at(cpu->mem, psrn);
                 if (dorado_trace_flag("DORADO_FAULTREG_TRACE") &&
                     (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
                     fprintf(stderr,
                             "FAULTREG cyc=%llu task=%o pc=0o%o src=Pipe2' "
-                            "finfo=%04X b=%04X clear=0\n",
+                            "psrn=%o b=%04X va=0o%o kind=%d "
+                            "task=%o sub=%o ref=%u finfo=%04X clear=0\n",
                             (unsigned long long)dorado_trace_cycle,
                             cpu->ctask & 017, cpu->real_PC & 07777,
-                            finfo, *b);
+                            psrn & 017, *b, va,
+                            (int)cpu->mem->pipe[psrn & 017].kind,
+                            cpu->mem->pipe[psrn & 017].task & 017,
+                            cpu->mem->pipe[psrn & 017].subtask & 3,
+                            cpu->mem->pipe[psrn & 017].ref_type & 3,
+                            finfo);
                 }
                 break;  /* Pipe2' */
         /* Pipe3' / Map' is the inverted snapshot of the old real page
@@ -923,8 +1108,13 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
                  * know the IFU PC for branch arithmetic. */
                 *b = (uint16_t)~cpu->ifu_pcx;
                 break;
-        case 1: /* B ← EventCntA' (HM §4.11). Active-low. */
-                *b = (uint16_t)~cpu->event_cnt_a;
+        case 1: /* B ← EventCntA' / GenIn' (HM §4.11; FF256[171]). Active-low.
+                 * In GenIO mode (counters disabled) the IFU-board plug ties
+                 * GenIn to GenOut, so GenIn' reads back EventCntB (=GenOut);
+                 * otherwise it reads the real EventCntA. (eventCounters1.mc
+                 * genIO test: write GenOut, read it back via GenIn'.) */
+                *b = (uint16_t)~(cpu->gen_io_mode ? cpu->event_cnt_b
+                                                  : cpu->event_cnt_a);
                 break;
         case 2: /* B ← IFUMRH' (fields half — Sign,,IPar,,Length',,
                  * RBaseB',,MemB,,TPause',,TJump',,N — inverted). Per
@@ -934,16 +1124,44 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
                 if (cpu->mc) {
                     int addr = ((cpu->ifu_insset & 3) << 8) | cpu->ifu_opcode;
                     *b = (uint16_t)~cpu->mc->ifum_hi[addr];
+                    if (dorado_trace_flag("DORADO_IFUMREAD_TRACE") &&
+                        (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+                        fprintf(stderr,
+                                "IFUMRH_READ cyc=%llu pc=0o%o addr=0o%o "
+                                "raw=%06o idcnt=%u insset=%u opcode=%03o b=%06o\n",
+                                (unsigned long long)dorado_trace_cycle,
+                                cpu->real_PC & 07777, addr & 01777,
+                                cpu->mc->ifum_hi[addr] & 0177777,
+                                cpu->ifu_idcnt & 7, cpu->ifu_insset & 3,
+                                cpu->ifu_opcode, *b & 0177777);
+                    }
                 } else {
                     *b = 0xFFFF;
                 }
                 break;
         case 3: /* B ← IFUMLH' (address half — PackedAlpha,,IFaddr' —
-                 * inverted). Per LoadRam.mc the LH is the address half
-                 * (item word0), stored in ifum_lo. */
+                 * plus live IdCnt and InsSet, inverted). HM Table 20:
+                 * B[0:2]=IdCnt, B[3:4]=InsSet, B.5=PackedAlpha,
+                 * B[6:15]=IFaddr'. Per LoadRam.mc the stored LH is
+                 * the address half (item word0), stored in ifum_lo. */
                 if (cpu->mc) {
                     int addr = ((cpu->ifu_insset & 3) << 8) | cpu->ifu_opcode;
-                    *b = (uint16_t)~cpu->mc->ifum_lo[addr];
+                    uint16_t raw = (uint16_t)(cpu->mc->ifum_lo[addr] & 0x07FF);
+                    uint16_t live = (uint16_t)(((cpu->ifu_idcnt & 7) << 13) |
+                                               ((cpu->ifu_insset & 3) << 11) |
+                                               raw);
+                    *b = (uint16_t)~live;
+                    if (dorado_trace_flag("DORADO_IFUMREAD_TRACE") &&
+                        (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+                        fprintf(stderr,
+                                "IFUMLH_READ cyc=%llu pc=0o%o addr=0o%o "
+                                "raw=%06o live=%06o idcnt=%u insset=%u opcode=%03o b=%06o\n",
+                                (unsigned long long)dorado_trace_cycle,
+                                cpu->real_PC & 07777, addr & 01777,
+                                raw & 0177777, live & 0177777,
+                                cpu->ifu_idcnt & 7, cpu->ifu_insset & 3,
+                                cpu->ifu_opcode, *b & 0177777);
+                    }
                 } else {
                     *b = 0xFFFF;
                 }
@@ -1241,9 +1459,13 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                 cpu->ifu_warmup  = 5;     /* HM page 67 */
                 return pd;
             case 1: /* IFUTest ← B */
+                cpu->ifu_test = b;
+                cpu->ifu_test_pending = 1;
                 junk_timer_ifutest_control(cpu, b);
                 return pd;
-            case 2: /* IFUTick */                  return pd;
+            case 2: /* IFUTick */
+                ifu_test_tick(cpu);
+                return pd;
             case 3: /* RescheduleNow (HM Table 20). Trap the next
                      * successful IFUJump (so long as it appears in
                      * the second cycle after RescheduleNow or later).
@@ -1334,9 +1556,41 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                 } else {
                     cpu->event_cnt_ctrl_hi = (uint8_t)((b >> 8) & 0x0F);
                     cpu->event_cnt_ctrl_lo = (uint8_t)(b & 0xFF);
+                    /* MOS control load (the "mos←" FF). GenIO mode is active
+                     * when both counter enables are clear (ctr.Aenable=B[4]=
+                     * native bit 11, ctr.Benable=B[5]=native bit 10, mask
+                     * 0x0C00). `mos←useGenIO` (B=0) enters it; loading enable
+                     * bits for the counter tests leaves it. */
+                    cpu->gen_io_mode = ((b & 0x0C00) == 0);
+                    /* HM §4.11 event-counter control (eventCounters1.mc):
+                     * A enable=B[4]=bit11, A event=(b>>5)&7; B enable=B[5]=
+                     * bit10, B event=(b>>1)&7. */
+                    cpu->evc_a_enable   = (uint8_t)((b >> 11) & 1);
+                    cpu->evc_a_event    = (uint8_t)((b >> 5) & 7);
+                    cpu->evc_a_tasksall = (uint8_t)((b >> 4) & 1);
+                    cpu->evc_b_enable   = (uint8_t)((b >> 10) & 1);
+                    cpu->evc_b_event    = (uint8_t)((b >> 1) & 7);
+                    cpu->evc_b_tasksall = (uint8_t)(b & 1);
+                    if (dorado_trace_flag("DORADO_EVC_TRACE") &&
+                        (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+                        fprintf(stderr,
+                                "EVC_CTRL cyc=%llu task=%o pc=0o%o b=%06o "
+                                "A(en=%u ev=%u all=%u cnt=%06o) "
+                                "B(en=%u ev=%u all=%u cnt=%06o) gen=%u\n",
+                                dorado_trace_cycle, cpu->ctask & 017,
+                                cpu->real_PC, b & 0177777,
+                                cpu->evc_a_enable, cpu->evc_a_event,
+                                cpu->evc_a_tasksall,
+                                cpu->event_cnt_a & 0177777,
+                                cpu->evc_b_enable, cpu->evc_b_event,
+                                cpu->evc_b_tasksall,
+                                cpu->event_cnt_b & 0177777,
+                                cpu->gen_io_mode);
+                    }
                 }
                 return pd;
-            case 1: /* EventCntB ← B (HM §4.11). */
+            case 1: /* EventCntB ← B / GenOut ← B (HM §4.11; FF=0o131). EventCntB
+                     * is the IFU board's GenOut register (genOut←). */
                 cpu->event_cnt_b = b;
                 return pd;
             case 2: /* Reschedule (HM Table 20). Cause a reschedule
@@ -1427,16 +1681,23 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                 cpu->ifu_active = 0;
                 cpu->ifu_warmup = 0;
                 cpu->ifu_pcf = 0;
+                cpu->ifu_test = 1;
+                cpu->ifu_test_pending = 0;
+                cpu->ifu_test_count = 0;
                 cpu->brk_pending = 0;
                 cpu->brk_opcode = 0;
-                /* HM p67 IFUTest description: "load with 0 or do
-                 * IFUReset when not testing" - IFUReset clears the
-                 * test-control register, and "when IFUTest.15 is 0,
-                 * the junk wakeups occur" periodically. So IFUReset
-                 * ENABLES the 32 us junk timer (AEmu's ABoot relies
-                 * on this: its IFUReset precedes the junk task
-                 * maintaining RTClock at full rate). */
-                junk_timer_ifutest_control(cpu, 0);
+                /* IFUReset clears the IFU pipeline (HM p79) but in this
+                 * model does NOT change the junk-task wakeup enable. The
+                 * periodic junk wakeup is started explicitly by the
+                 * program that wants it: AEmu does `LdTPC_ T, Wakeup[JNK]`
+                 * then the junk task self-sustains via `AckJunkTW_ T`
+                 * (Junk.mc) — so AEmu's RTClock keeps running regardless of
+                 * IFUReset. A program that never wakes the junk task (e.g.
+                 * the memA diagnostic, whose junk handler TPC is never set)
+                 * leaves it disabled, so it does not spuriously starve the
+                 * main task. The previous code enabled the junk timer on
+                 * every IFUReset, which fired the handler-less junk task in
+                 * memA and starved task 0. */
                 return pd;
             case 7: /* BrkIns ← B (HM §4.10). Opcode ← B[0:7] and set
                      * BrkPending; the next IFU dispatch will trap to
@@ -1519,7 +1780,25 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
             case 2: /* TIOA[0:7] ← B[0:7] */
                 cpu->TIOA = (b >> 8) & 0xFF;       return pd;
             case 3: /* — */                        return pd;
-            case 4: /* Hold&TaskSim ← B */         return pd;
+            case 4: /* Hold&TaskSim ← B (HM §3.12 hardware-checkout sim).
+                     * Loads HOLDSIM[0:7] from B[8:14],,0 and TASKSIM[0:6]
+                     * from B[1:7]. In C-LSB: TASKSIM = (B>>8)&0x7F, HOLDSIM =
+                     * B&0xFE. Reloading TASKSIM clears the currently latched
+                     * simulator wakeup; a non-zero load re-arms the seven-bit
+                     * overflow counter. */
+                cpu->tasksim = (uint8_t)((b >> 8) & 0x7F);
+                cpu->holdsim = (uint8_t)(b & 0xFE);
+                cpu->tasksim_fired = 0;
+                cpu->tasksim_loaded = 1;  /* don't also tick this cycle */
+                cpu->holdsim_loaded = 1;  /* the load took this cycle's clock */
+                cpu->wakeup_pending &= (uint16_t)~(1u << DORADO_TASKSIM_TASK);
+                cpu->wakeup_pipe[0] &= (uint16_t)~(1u << DORADO_TASKSIM_TASK);
+                cpu->wakeup_pipe[1] &= (uint16_t)~(1u << DORADO_TASKSIM_TASK);
+                if (getenv("DORADO_TASKSIM_TRACE"))
+                    fprintf(stderr, "TASKSIM load task=%o pc=0o%o b=%06o tasksim=%03o holdsim=%03o\n",
+                            cpu->ctask & 017, cpu->real_PC, b & 0177777,
+                            cpu->tasksim, cpu->holdsim);
+                return pd;
             case 5: /* WF ← A (load ShC with write-field controls) */
                 cpu->ShC = field_desc_to_shc(a, /*is_write=*/1);
                 return pd;
@@ -1766,7 +2045,11 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
              * (HM Table 11e). FF[4:7] in MSB-first numbering = low 4
              * bits of FF in C-LSB. */
             int task = u->ff & 0xF;
-            cpu->wakeup_pending |= (uint16_t)(1u << task);
+            if (wake_immediate())
+                cpu->wakeup_pending |= (uint16_t)(1u << task);
+            else
+                /* HM p27 2-cycle latency: stage, promote in task_schedule. */
+                cpu->wakeup_pipe[0] |= (uint16_t)(1u << task);
             return pd;
         }
     }
@@ -1788,6 +2071,42 @@ static int ref_kind_loads_md(dorado_ref_kind kind)
     return kind == DM_REF_FETCH ||
            kind == DM_REF_IFETCH ||
            kind == DM_REF_LONGFETCH;
+}
+
+/* Does this microinstruction consume Md? The Memory Section asserts Hold
+ * when microcode reads Md before the fetch has landed, so the engine needs
+ * to know which µinstrs touch Md to decide whether to Hold:
+ *   - A bus = Md: the alternate-memory-source forms (ASEL=2,3) read Md ONLY
+ *     when FF encodes a function selecting Md (FF[0:1]=0); otherwise ASEL=2,3
+ *     read T/Id/Q or are Store/Fetch←T (FF not a function). This must mirror
+ *     alt_mem_source exactly — treating every ASEL=2 as A←Md spuriously Holds
+ *     Store←T instructions (e.g. eventCounters' eventHold loop, ASEL=2 FF[0:1]
+ *     =3 = Store←T).
+ *   - B bus = Md  (BSEL=0, HM Table 7)
+ *   - LC routes Md to T/RM/STK (LC 2,3,4,5 = T←Md / RM←Md, HM Table 10) */
+static int uinstr_reads_md(const dorado_uinstr *u)
+{
+    if (ff_decode_ok(u) && u->asel != 7) {
+        uint8_t f6;
+        if (u->asel == 0 || u->asel == 1) {
+            f6 = (uint8_t)(u->ff & 077);
+        } else if (u->asel == 2 || u->asel == 3) {
+            if (((u->ff >> 6) & 3) == 0) return 1;  /* Table 8a A<-Md */
+            f6 = 0;
+        } else if (ff_full_function_ok(u) && ff_fa(u->ff) == 0) {
+            f6 = (uint8_t)(u->ff & 077);
+        } else {
+            f6 = 0;
+        }
+
+        /* HM §3.5/Table 11a FF A-source override: FB=2 FC=2 selects
+         * A<-Md even on ASEL=0/1 memory-reference forms. eventCounters'
+         * `rscr _ Md OR rscr` compiles this way. */
+        if ((((f6 >> 3) & 7) == 2) && ((f6 & 7) == 2)) return 1;
+    }
+    if (u->bsel == 0) return 1;
+    if (u->lc >= 2 && u->lc <= 5) return 1;
+    return 0;
 }
 
 static const char *ref_kind_name(dorado_ref_kind kind)
@@ -1897,6 +2216,10 @@ static void latch_task_md_from_memory(dorado_cpu *cpu)
         int task = cpu->ctask & 0xF;
         cpu->task_md[task] = cpu->mem->md;
         cpu->task_md_valid[task] = 1;
+        /* Md value is computed atomically, but the engine may not *consume*
+         * it until the fetch latency has elapsed (Hold model). */
+        cpu->task_md_ready[task] =
+            cpu->cycles + (uint64_t)cpu->mem->last_ref_latency;
     }
 }
 
@@ -1981,15 +2304,16 @@ static uint16_t shifter_output(const dorado_cpu *cpu, const dorado_uinstr *u,
     int count, rmask_n, lmask_n;
 
     if (u->bsel & 4) {
-        /* FF-controlled — high bit of BSEL set. */
-        if (u->bsel == 4 && u->aluf == 4 && u->ff == 1) {
-            /* MicroD emits this compact FF-controlled form for
-             * LDF[T,3,10] in Bootstrap. It extracts the 3-bit
-             * BaseBoard dispatch from CPReg high-byte bits 5..7.
-             * This .MB form feeds BigBDispatch directly, so return
-             * the already-spread even target offset. */
-            return (uint16_t)(((t >> 8) & 0x7) << 1);
-        }
+        /* FF-controlled shift (HM §3.11 + p14): "BSEL = 4 to 7 will cause the
+         * shifter controls to come directly from FF rather than from ShC."
+         * BSEL[1:2] (the low two bits of BSEL) select the SHA/SHB source the
+         * way ShC[2:3] do in the standard form: bit set => T, clear => RM/STK.
+         * Confirmed against real microcode: in kernel.mb the Rlsh test (shift
+         * RM/STK) compiles to BSEL=4 (0,,FF) and the Tlsh test (shift T) to
+         * BSEL=7 (FF,,377); in BootstrapMain.mc `BTemp_ LDF[T,3,10]` (shift T)
+         * is BSEL=7 and the following `BTemp_ LSH[BTemp,1]` (shift the RM reg
+         * BTemp) is BSEL=4. The whole FF-controlled range is handled by this
+         * one rule -- no per-opcode special cases. */
         sha = (u->bsel & 2) ? t : r;
         shb = (u->bsel & 1) ? t : r;
         count   = u->ff & 0xF;          /* FF[4:7] */
@@ -2015,6 +2339,13 @@ static uint16_t shifter_output(const dorado_cpu *cpu, const dorado_uinstr *u,
      * 15..16-N). RMask: N ones at low end (bits N-1..0). */
     uint16_t lmask = lmask_n ? (uint16_t)(0xFFFF << (16 - lmask_n)) : 0;
     uint16_t rmask = rmask_n ? (uint16_t)((1u << rmask_n) - 1)      : 0;
+
+    if (dorado_trace_flag("DORADO_SHIFT_TRACE"))
+        fprintf(stderr,
+                "SHIFT pc=0o%o sha=%06o shb=%06o cnt=%d lm=%d rm=%d "
+                "aluf=%02o ffc=%d out=%06o\n",
+                cpu->real_PC, sha, shb, count, lmask_n, rmask_n,
+                u->aluf, (u->bsel & 4) ? 1 : 0, lo16);
 
     int op = (u->aluf >> 1) & 7;        /* ALUF[0:2] in BCPL = high 3 bits */
     uint16_t mask;
@@ -2402,6 +2733,23 @@ static int apply_lc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t pd,
         break;
     case 6: /* RM/STK←Pd */
         if (!has_rm) return CPU_HALT_UNSUPPORTED_ASEL;
+        if (dorado_trace_flag("DORADO_IFUCHAOS_TRACE") &&
+            rm_a >= 0100 && rm_a <= 0106) {
+            static const char *const chaos_name[7] = {
+                "IFUPC", "IFUALPHA", "IFUBETA", "IFUOPCODE",
+                "IFUINSTRLH", "IFUINSTRRH", "IFUSEQUENCE"
+            };
+            fprintf(stderr,
+                    "IFUCHAOS_RM_WRITE pc=0o%o %s[%03o] old=%06o new=%06o "
+                    "T=%06o op=%03o idcnt=%u len=%u n=%02o pa=%u sign=%u jump=%u "
+                    "alpha=%03o beta=%03o\n",
+                    cpu->real_PC, chaos_name[rm_a - 0100], rm_a & 0377,
+                    cpu->RM[rm_a] & 0177777, pd & 0177777,
+                    cpu->T & 0177777, cpu->ifu_opcode & 0377,
+                    cpu->ifu_idcnt & 7, cpu->ifu_length, cpu->ifu_n,
+                    cpu->ifu_packed_a, cpu->ifu_sign, cpu->ifu_type_jump,
+                    cpu->ifu_alpha, cpu->ifu_beta);
+        }
         if (rm_trace_enabled() && rm_a >= 0 && rm_a < 0x100) {
             fprintf(stderr,
                     "RM_WRITE task=%o pc=0o%o addr=%03o old=%06o new=%06o "
@@ -2537,6 +2885,7 @@ static uint8_t ifu_fetch_byte(dorado_cpu *cpu, uint16_t pc, int *out_faulted)
      * *0-3 (HM Table 14, page 33). */
     dorado_fault_kind f = dorado_memory_ref(cpu->mem, DM_REF_IFETCH,
                                             va, 0, 0);
+    if (cpu->mem->last_ref_miss) cpu->evc_events |= EVC_EV_MISS;
     if (f != DM_FAULT_NONE && out_faulted) *out_faulted = 1;
     uint16_t word = cpu->mem->md;
     /* Sets 0/1 (the only ones we model so far): byte 0 = high byte. */
@@ -2544,11 +2893,123 @@ static uint8_t ifu_fetch_byte(dorado_cpu *cpu, uint16_t pc, int *out_faulted)
     return high_byte ? (uint8_t)((word >> 8) & 0xFF) : (uint8_t)(word & 0xFF);
 }
 
+static void ifu_test_enqueue_byte(dorado_cpu *cpu, uint8_t byte)
+{
+    if (cpu->ifu_test_count >= sizeof cpu->ifu_test_queue) {
+        memmove(&cpu->ifu_test_queue[0], &cpu->ifu_test_queue[1],
+                sizeof cpu->ifu_test_queue - 1);
+        cpu->ifu_test_queue[sizeof cpu->ifu_test_queue - 1] = byte;
+        return;
+    }
+    cpu->ifu_test_queue[cpu->ifu_test_count++] = byte;
+}
+
+static uint8_t ifu_test_pop_byte(dorado_cpu *cpu)
+{
+    if (cpu->ifu_test_count == 0) return 0;
+    uint8_t byte = cpu->ifu_test_queue[0];
+    cpu->ifu_test_count--;
+    if (cpu->ifu_test_count > 0) {
+        memmove(&cpu->ifu_test_queue[0], &cpu->ifu_test_queue[1],
+                cpu->ifu_test_count);
+    }
+    return byte;
+}
+
+static int ifu_test_tick_loads_fg_byte(const dorado_cpu *cpu)
+{
+    switch (cpu->real_PC & 07777) {
+    case 05042:  /* itSetFGFDSH: FG[0:7] ← T, MakeF_D, SH */
+    case 05052:  /* itSetFGFH:   FG[0:7] ← T, FH */
+    case 05056:  /* itSetFGSH:   FG[0:7] ← T, SH */
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+static void ifu_test_tick(dorado_cpu *cpu)
+{
+    uint16_t test = cpu->ifu_test;
+    if (!cpu->ifu_test_pending) return;
+    cpu->ifu_test_pending = 0;
+
+    /* IfuStepSubrs.mc presents FG[0:7] in the high byte of IFUTest
+     * (`rscr _ lsh[t, 10]`) and then clocks the board with IFUTick.
+     * Control-only ticks use the same FH/SH low bits with a zero high byte;
+     * do not enqueue those as opcode zero. */
+    if ((test & IFUTEST_EN) &&
+        ((test & 0xFF00u) || ifu_test_tick_loads_fg_byte(cpu))) {
+        ifu_test_enqueue_byte(cpu, (uint8_t)((test >> 8) & 0xFF));
+        if (dorado_trace_flag("DORADO_IFUTEST_TRACE") &&
+            (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+            fprintf(stderr,
+                    "IFUTEST_TICK cyc=%llu pc=0o%o test=%06o enqueue=%03o count=%u\n",
+                    (unsigned long long)dorado_trace_cycle,
+                    cpu->real_PC & 07777, test & 0177777,
+                    (test >> 8) & 0377, cpu->ifu_test_count);
+        }
+    } else if (dorado_trace_flag("DORADO_IFUTEST_TRACE") &&
+               (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+        fprintf(stderr,
+                "IFUTEST_TICK cyc=%llu pc=0o%o test=%06o control count=%u\n",
+                (unsigned long long)dorado_trace_cycle,
+                cpu->real_PC & 07777, test & 0177777, cpu->ifu_test_count);
+    }
+}
+
+static unsigned bit_count16(uint16_t v)
+{
+    unsigned n = 0;
+    while (v) {
+        n += (unsigned)(v & 1u);
+        v >>= 1;
+    }
+    return n;
+}
+
+static unsigned bit_field_count(uint16_t v, unsigned shift, unsigned width)
+{
+    uint16_t mask = (uint16_t)((1u << width) - 1u);
+    return bit_count16((uint16_t)((v >> shift) & mask));
+}
+
+static int even_parity_ok(unsigned data_ones, unsigned parity_bit)
+{
+    return ((data_ones + parity_bit) & 1u) == 0;
+}
+
+/* IFUM parity follows ifuRamSubrs.mc:ifuAddParity and HM Table 20.
+ * The stored raw words are:
+ *   addr   = PackedAlpha,,IFaddr' in bits C10..0
+ *   fields = Sign,,IPar,,Length',,RBaseB',,MemB,,TPause',,TJump',,N
+ * The three IPar bits are even parity over disjoint groups. */
+static int ifum_parity_ok(uint16_t addr, uint16_t fields)
+{
+    unsigned pe0 = (fields >> 14) & 1u;
+    unsigned pe1 = (fields >> 13) & 1u;
+    unsigned pe2 = (fields >> 12) & 1u;
+
+    unsigned p0 = bit_field_count(fields, 0, 4)   /* N[0:3] */
+                + bit_field_count(fields, 6, 2)   /* MemB low two */
+                + bit_field_count(addr, 8, 2);    /* IFaddr high two */
+    unsigned p1 = bit_field_count(addr, 0, 8);    /* IFaddr low eight */
+    unsigned p2 = bit_field_count(addr, 10, 1)    /* PackedAlpha */
+                + bit_field_count(fields, 15, 1)  /* Sign */
+                + bit_field_count(fields, 4, 2)   /* Type bits */
+                + bit_field_count(fields, 8, 2)   /* RBaseB', MemB high */
+                + bit_field_count(fields, 10, 2); /* Length' */
+
+    return even_parity_ok(p0, pe0) &&
+           even_parity_ok(p1, pe1) &&
+           even_parity_ok(p2, pe2);
+}
+
 /* Decode an IFUM entry's high half (Table 18). Sets the relevant
  * fields on cpu->ifu_*. The 16-bit raw word is laid out per HM
  * Table 20 (IFUMLH←B description):
  *   bit 0  = Sign
- *   bits 1..3 = IPar (parity bits, ignored in our model)
+ *   bits 1..3 = IPar (parity bits; checked at dispatch)
  *   bits 4..5 = Length' (low-true; opcode length is ~Length' + 1)
  *   bit 6  = RBaseB' (low-true)
  *   bits 7..9 = MemB
@@ -2632,28 +3093,33 @@ static uint16_t ifu_trap_addr(int trap_base, int n_slot, int insset)
     return (uint16_t)(base | isn);
 }
 
-/* Deliver the next operand byte for ←Id (HM Table 19, regular &
- * pause opcodes). Increments ifu_idcnt. After all operand bytes are
- * consumed, ←Id delivers Length forever (used by jump-fallthrough
- * calculations). For jump opcodes, we don't yet model the sequence
- * (it's normally consumed inside IFUJump). */
+/* Deliver the next operand byte for ←Id (HM Table 19). Jump opcodes expose
+ * Length forever because the IFU consumes their displacement internally. */
 static uint16_t ifu_id_at(const dorado_cpu *cpu, uint8_t cnt)
 {
     uint8_t len   = cpu->ifu_length;
     uint8_t n_supplied = (cpu->ifu_n != 017);
+    uint8_t n_first = n_supplied;
 
-    /* Operand sequence: N (if supplied), then α (or α[0:3] / α[4:7]
-     * when Packed-α=1), then β (length=3 with Packeda=0), then
-     * Length forever. */
+    if (cpu->ifu_type_jump) return (uint16_t)len;
+    if (len == 1 && cpu->ifu_packed_a) n_first = 0;
+    /* HM Table 19: regular/pause opcodes deliver optional N first, then
+     * operands. Packed-α splits α into two nibbles. The IFU diagnostic's
+     * SEQTABLE walks the two-nibble path explicitly for length-3 opcodes. */
     int op_idx = (int)cnt;
-    if (n_supplied) {
+    if (n_first) {
         if (op_idx == 0) return (uint16_t)cpu->ifu_n;
         op_idx--;
     }
-    if (len == 2 && cpu->ifu_packed_a) {
-        /* α split into nibbles: α[0:3] then α[4:7]. */
+    if (len == 3 && cpu->ifu_packed_a) {
         if (op_idx == 0) return (uint16_t)((cpu->ifu_alpha >> 4) & 0xF);
         if (op_idx == 1) return (uint16_t)(cpu->ifu_alpha & 0xF);
+        if (op_idx == 2) return (uint16_t)cpu->ifu_beta;
+        op_idx -= 3;
+    } else if (len >= 2 && cpu->ifu_packed_a) {
+        if (op_idx == 0) return (uint16_t)((cpu->ifu_alpha >> 4) & 0xF);
+        if (op_idx == 1) return (uint16_t)(cpu->ifu_alpha & 0xF);
+        op_idx -= 2;
     } else if (len >= 2) {
         if (op_idx == 0) {
             /* α; sign-extended to 16 bits if Sign=1. */
@@ -2663,12 +3129,7 @@ static uint16_t ifu_id_at(const dorado_cpu *cpu, uint8_t cnt)
         }
         op_idx--;
     }
-    if (len == 3 && cpu->ifu_packed_a) {
-        /* α[0:3], α[4:7], then β. */
-        if (op_idx == 0) return (uint16_t)((cpu->ifu_alpha >> 4) & 0xF);
-        if (op_idx == 1) return (uint16_t)(cpu->ifu_alpha & 0xF);
-        if (op_idx == 2) return (uint16_t)cpu->ifu_beta;
-    } else if (len == 3) {
+    if (len == 3 && !cpu->ifu_packed_a) {
         if (op_idx == 0) return (uint16_t)cpu->ifu_beta;
         op_idx--;
     }
@@ -2679,7 +3140,20 @@ static uint16_t ifu_id_at(const dorado_cpu *cpu, uint8_t cnt)
 /* Deliver the next ←Id operand byte and advance the cursor. */
 static uint16_t ifu_consume_id(dorado_cpu *cpu)
 {
-    return ifu_id_at(cpu, cpu->ifu_idcnt++);
+    uint8_t cnt = cpu->ifu_idcnt++;
+    uint16_t v = ifu_id_at(cpu, cnt);
+    if (dorado_trace_flag("DORADO_ID_TRACE") &&
+        (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+        fprintf(stderr,
+                "IFU_ID cyc=%llu pc=0o%o pcx=0o%o cnt=%u val=%06o "
+                "len=%u n=%02o pa=%u sign=%u jump=%u alpha=%03o beta=%03o\n",
+                (unsigned long long)dorado_trace_cycle, cpu->real_PC & 07777,
+                cpu->ifu_pcx & 0177777, cnt, v & 0177777,
+                cpu->ifu_length, cpu->ifu_n, cpu->ifu_packed_a,
+                cpu->ifu_sign, cpu->ifu_type_jump,
+                cpu->ifu_alpha, cpu->ifu_beta);
+    }
+    return v;
 }
 
 /* Peek the current ←Id operand byte WITHOUT advancing. Used by IFetch
@@ -2806,6 +3280,7 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
              * (for example AEmuNotReady), so this is a recoverable
              * microcode path rather than an emulator-level halt. */
             if (!cpu->ifu_active) {
+                cpu->evc_events |= EVC_EV_IFUNOTREADY;
                 *next = ifu_trap_addr(0034, n_slot, cpu->ifu_insset);
                 if (!ff_loads_link(u)) cpu->Link = (uint16_t)(cpu->real_PC + 1);
                 return 0;
@@ -2816,6 +3291,7 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
              * contain IFUJump[n] so they retry until the pipeline
              * fills. Link is loaded with CIA+1 as for any IFUJump. */
             if (cpu->ifu_warmup > 0) {
+                cpu->evc_events |= EVC_EV_IFUNOTREADY;
                 *next = ifu_trap_addr(0034, n_slot, cpu->ifu_insset);
                 if (!ff_loads_link(u)) cpu->Link = (uint16_t)(cpu->real_PC + 1);
                 return 0;
@@ -2872,7 +3348,31 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
              * buffers the fault until an IFUJump occurs"). */
             cpu->ifu_pcx     = cpu->ifu_pcf;
             int fetch_faulted = 0;
-            uint8_t opcode   = ifu_fetch_byte(cpu, cpu->ifu_pcf, &fetch_faulted);
+            int test_feed = (cpu->ifu_test_count > 0);
+            int brk_feed = cpu->brk_pending;
+            uint8_t opcode;
+            if (brk_feed) {
+                /* HM Table 20 / §6.10: BrkIns replaces the next opcode
+                 * loaded into J, then BrkPending is cleared. The IFU still
+                 * advances as though it consumed the opcode byte at PCF. */
+                opcode = cpu->brk_opcode;
+                cpu->brk_pending = 0;
+                test_feed = 0;
+            } else {
+                opcode = test_feed ? ifu_test_pop_byte(cpu)
+                                   : ifu_fetch_byte(cpu, cpu->ifu_pcf,
+                                                    &fetch_faulted);
+            }
+            if (dorado_trace_flag("DORADO_IFUTEST_TRACE") &&
+                (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+                fprintf(stderr,
+                        "IFUJUMP_FETCH cyc=%llu pc=0o%o pcf=0o%o brk_feed=%d "
+                        "test_feed=%d op=%03o qcount=%u fault=%d\n",
+                        (unsigned long long)dorado_trace_cycle,
+                        cpu->real_PC & 07777, cpu->ifu_pcf & 0177777,
+                        brk_feed, test_feed, opcode, cpu->ifu_test_count,
+                        fetch_faulted);
+            }
             if (fetch_faulted) {
                 *next = ifu_trap_addr(0000, n_slot, cpu->ifu_insset);
                 if (!ff_loads_link(u)) cpu->Link = (uint16_t)(cpu->real_PC + 1);
@@ -2882,12 +3382,19 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
             /* Look up IFUM[InsSet||opcode]. If the entry isn't
              * present, halt — microcode mis-setup (or a real
              * machine would map-fault on the IFU port). */
+            cpu->ifu_opcode = opcode;
             int ifum_addr = ((cpu->ifu_insset & 3) << 8) | opcode;
             if (cpu->mc && !cpu->mc->ifum_present[ifum_addr]) {
                 return CPU_HALT_IFU_NO_ENTRY;
             }
             uint16_t lh = cpu->mc ? cpu->mc->ifum_hi[ifum_addr] : 0;
             uint16_t rh = cpu->mc ? cpu->mc->ifum_lo[ifum_addr] : 0;
+            /* Original .MB/.EB IFUM images carry the 24 decode bits, but
+             * not reliably the three hardware parity bits. Keep the parity
+             * checker available for IFU diagnostics without letting archive
+             * worlds trap every normal dispatch through *74-*77. */
+            int ifum_rampe = dorado_trace_flag("DORADO_IFUM_PARITY_TRAP") &&
+                              !ifum_parity_ok(rh, lh);
             ifu_decode_lh(cpu, lh);
             uint16_t ifaddr = ifu_decode_rh(cpu, rh);
 
@@ -2899,11 +3406,15 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
             uint16_t pc_after = (uint16_t)(cpu->ifu_pcf + 1);
             int op_faulted = 0;
             if (length >= 2) {
-                cpu->ifu_alpha = ifu_fetch_byte(cpu, pc_after, &op_faulted);
+                cpu->ifu_alpha = (test_feed && cpu->ifu_test_count > 0)
+                               ? ifu_test_pop_byte(cpu)
+                               : ifu_fetch_byte(cpu, pc_after, &op_faulted);
                 pc_after = (uint16_t)(pc_after + 1);
             }
             if (length >= 3 && !op_faulted) {
-                cpu->ifu_beta = ifu_fetch_byte(cpu, pc_after, &op_faulted);
+                cpu->ifu_beta = (test_feed && cpu->ifu_test_count > 0)
+                              ? ifu_test_pop_byte(cpu)
+                              : ifu_fetch_byte(cpu, pc_after, &op_faulted);
                 pc_after = (uint16_t)(pc_after + 1);
             }
             if (op_faulted) {
@@ -2912,6 +3423,12 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                 cpu->Link = (uint16_t)(cpu->real_PC + 1);
                 return 0;
             }
+            /* The real IFU fills F, G, and HJ; eventCounters2.mc expects
+             * three IFU-reference events for each successful IFUJump. Our IFU
+             * fetch/decode is collapsed into this microinstruction, so charge
+             * the three hardware-visible references directly. */
+            for (int i = 0; i < 3; i++) event_counter_direct_tick(cpu, 1, 2);
+            cpu->evc_events |= EVC_EV_IFUJUMP;
 
             if (dorado_trace_flag("DORADO_IFUDISP_TRACE") &&
                 (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
@@ -2920,7 +3437,8 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                         "len=%u alpha=%03o beta=%03o flt=%d n=%d "
                         "insset=%u rh=%06o lh=%06o vec=0o%o "
                         "pc_after=0o%o stkp=%03o "
-                        "acs=%06o,%06o,%06o,%06o\n",
+                        "acs=%06o,%06o,%06o,%06o "
+                        "aacs=%06o,%06o,%06o,%06o rtrap=%d\n",
                         cpu->real_PC, cpu->ifu_pcf,
                         cpu->mem ? dorado_br_get(cpu->mem, 31) : 0,
                         opcode, length, cpu->ifu_alpha, cpu->ifu_beta,
@@ -2930,7 +3448,17 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                         cpu->STK[cpu->StkP & 0xFF],
                         cpu->STK[(cpu->StkP + 1) & 0xFF],
                         cpu->STK[(cpu->StkP + 2) & 0xFF],
-                        cpu->STK[(cpu->StkP + 3) & 0xFF]);
+                        cpu->STK[(cpu->StkP + 3) & 0xFF],
+                        /* aacs: the FIXED Alto AC window AC0..3 = STK[1..4]
+                         * (Start.mc). The StkP-relative acs above is wrong
+                         * for comparison once StkP moves off 1. */
+                        cpu->STK[1], cpu->STK[2], cpu->STK[3], cpu->STK[4],
+                        /* rtrap=1: this IFUJump traps to AEmuReschedule
+                         * (the held-back opcode is re-dispatched next, not
+                         * executed here). A plain Alto has no such trap, so
+                         * differential tools must NOT count this as an
+                         * executed opcode. */
+                        resched_trap);
             }
             /* Defer a cycle-aligned per-opcode AC dump to after apply_lc()
              * (the writeback that finishes the opcode whose IFUJump this is). */
@@ -3114,7 +3642,19 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
              * routing to entry n|1 of the vector. */
             int n_eff = n_slot | (cond_true ? 1 : 0);
             uint16_t tnia = (uint16_t)((ifaddr << 2) | n_eff);
-            if (resched_trap) {
+            if (ifum_rampe) {
+                tnia = ifu_trap_addr(0074, n_slot, cpu->ifu_insset);
+                if (dorado_trace_flag("DORADO_IFUPE_TRACE") &&
+                    (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+                    fprintf(stderr,
+                            "IFUM_RAMPE cyc=%llu pc=0o%o ifum=0o%o "
+                            "lh=%06o rh=%06o tnia=0o%o insset=%u n=%d\n",
+                            (unsigned long long)dorado_trace_cycle,
+                            cpu->real_PC & 07777, ifum_addr & 01777,
+                            lh & 0177777, rh & 0177777, tnia & 07777,
+                            cpu->ifu_insset & 3, n_slot);
+                }
+            } else if (resched_trap) {
                 tnia = ifu_trap_addr(0014, n_slot, cpu->ifu_insset);
                 if (resched_trace_enabled() &&
                     (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
@@ -3197,6 +3737,25 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                     cpu->dbg_writeim_t[cpu->dbg_writeim_n]    = cpu->T;
                     cpu->dbg_writeim_pc[cpu->dbg_writeim_n]   = cpu->real_PC;
                     cpu->dbg_writeim_n++;
+                }
+                if (dorado_trace_flag("DORADO_WRITEIM_TRACE") &&
+                    (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+                    static unsigned long n = 0;
+                    static long limit = -2;
+                    if (limit == -2) {
+                        const char *w = getenv("DORADO_WRITEIM_TRACE_LIMIT");
+                        limit = w ? strtol(w, NULL, 0) : 128;
+                    }
+                    if (limit <= 0 || (long)n < limit) {
+                        fprintf(stderr,
+                                "WRITEIM cyc=%llu task=%o pc=0o%o "
+                                "addr=0o%o half=%s sec=%d b=0o%06o T=0o%06o\n",
+                                (unsigned long long)dorado_trace_cycle,
+                                cpu->ctask, cpu->real_PC, addr,
+                                half_lh ? "LH" : "RH", secondary,
+                                b & 0177777, cpu->T & 0177777);
+                    }
+                    n++;
                 }
 
                 if (half_lh) {
@@ -3283,11 +3842,48 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                 return 0;
             }
             if (fn == 6) {
-                /* Read IM (HM §4.8). Stubbed: real implementation
-                 * reads IM[Link[7:15]] byte-by-byte selected by
-                 * RSTK[2:3], placing inverted data on the alternate
-                 * B←Link path. Not yet exercised by tests. Link is
-                 * smashed with CIA+1 like the other IM/TPC accesses. */
+                /* Read IM (HM §4.8). A 34-bit (+2 parity) IM word is read
+                 * as four 9-bit quantities selected by RSTK[2:3]. The
+                 * two 17-bit halves are exposed as:
+                 *
+                 *   0: RSTK[0] ,, iw0[15:8]      1: iw0[7:0]
+                 *   2: BLOCK   ,, iw1[14:7]      3: iw1[6:0] ,, JCN[7]
+                 *
+                 * Postamble.mc:getIMLH/getIMRH masks each returned lane
+                 * to eight bits after reinverting it, reconstructing the
+                 * same 16-bit values that putIMLH/putIMRH wrote. Data is
+                 * inverted on the alternate B<-Link path for the next
+                 * instruction while Link itself is smashed with CIA+1. */
+                uint16_t addr = (uint16_t)(cpu->link_at_issue & 0xFFF);
+                const dorado_uinstr *src = &cpu->mc->im[addr];
+                int sel = u->rstk & 3;             /* manual RSTK[2:3] */
+                uint16_t lane[4];
+                lane[0] = (uint16_t)((((src->iw2 >> 15) & 1u) << 8) |
+                                      ((src->iw0 >> 8) & 0377u));
+                lane[1] = (uint16_t)(src->iw0 & 0377u);
+                lane[2] = (uint16_t)((((src->iw1 >> 15) & 1u) << 8) |
+                                      ((src->iw1 >> 7) & 0377u));
+                lane[3] = (uint16_t)((((src->iw1 & 0177u) << 1) |
+                                      ((src->iw2 >> 14) & 1u)) & 0377u);
+                if (dorado_trace_flag("DORADO_READIM_TRACE") &&
+                    (dorado_trace_gate ||
+                     !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+                    fprintf(stderr,
+                            "READIM cyc=%llu pc=0o%o addr=0o%o sel=%d "
+                            "iw0=%06o iw1=%06o iw2=%06o lane=%03o,%03o,%03o,%03o "
+                            "lane=%03o inv=%06o\n",
+                            (unsigned long long)dorado_trace_cycle,
+                            cpu->real_PC & 07777, addr & 07777, sel,
+                            src->iw0 & 0177777, src->iw1 & 0177777,
+                            src->iw2 & 0177777,
+                            lane[0] & 0777, lane[1] & 0777,
+                            lane[2] & 0777, lane[3] & 0777,
+                            lane[sel] & 0777,
+                            (uint16_t)~lane[sel] & 0177777);
+                }
+                cpu->b_link_read = (uint16_t)~lane[sel];
+                cpu->b_link_read_valid = 1;
+                cpu->b_link_read_age = 0;
                 cpu->Link = (uint16_t)(cpu->real_PC + 1);
                 *next = (uint16_t)(cpu->real_PC + 1);
                 return 0;
@@ -3501,6 +4097,66 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
     dorado_mem_trace_br31 = cpu->mem ? (int)dorado_br_get(cpu->mem, 31) : 0;
     dorado_mem_trace_op = ((int)cpu->ifu_opcode << 8) | cpu->ifu_alpha;
 
+    /* Trace the ethernet tasks' microcode PC (EOT=6, EIT=7) -- diagnostic for
+     * the EOT transmit-completion path (why a deferred completion diverts the
+     * EOT to EXINIT/idle instead of its SendEOP->poll->EPOST post path; see
+     * docs/ethernet-faithful-receiver.md). Gated by DORADO_EOT_PC_TRACE + the
+     * cycle window so it stays quiet by default. */
+    if ((cpu->ctask == 6 || cpu->ctask == 7) &&
+        dorado_trace_flag("DORADO_EOT_PC_TRACE") &&
+        (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+        fprintf(stderr, "ETPC cyc=%llu t=%o pc=0o%o\n",
+                (unsigned long long)dorado_trace_cycle, cpu->ctask,
+                cpu->real_PC & 07777);
+    }
+
+    /* Memory Hold (HM §5 pp.41-42; docs/memory-architecture.md). If this
+     * microinstruction consumes Md before the fetch's latency has elapsed,
+     * the Memory Section asserts Hold. The Hold *signal* is what HM §4.11's
+     * event counter counts (eventCounters2.mc eventHold counts MDI holds), and
+     * it asserts independently of mcr.disHold — so flag it for the counters
+     * even when disHold suppresses the stall. (Harmless for games/boot: the
+     * counters only tick when a diagnostic has enabled them.) */
+    int md_not_ready =
+        from_im && cpu->mem && uinstr_reads_md(u) &&
+        (uint64_t)cpu->cycles < cpu->task_md_ready[cpu->ctask & 0xF];
+    /* The §3.12 HOLDSIM debug register can also force the Hold signal
+     * (independent of any Md reference) when a diagnostic has armed it. */
+    int hold_asserted = md_not_ready || cpu->holdsim_hold;
+    if (hold_asserted) cpu->evc_events |= EVC_EV_HOLD;
+    if (hold_asserted && dorado_trace_flag("DORADO_EVC_TRACE") &&
+        (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+        fprintf(stderr,
+                "EVC_HOLD cyc=%llu task=%o pc=0o%o mdnr=%d holdsim=%d "
+                "ready=%llu cycles=%llu\n",
+                dorado_trace_cycle, cpu->ctask & 017, cpu->real_PC,
+                md_not_ready, cpu->holdsim_hold,
+                (unsigned long long)cpu->task_md_ready[cpu->ctask & 0xF],
+                (unsigned long long)cpu->cycles);
+    }
+    /* The engine's *response* to Hold — freeze (convert to jump-to-self this
+     * cycle, let a higher-priority task run, re-run when next selected) — is
+     * suppressed when mcr.disHold is set (boot/init microcode sets it); that
+     * gate is real hardware behavior, not an emulator approximation. */
+    if (md_not_ready && !dorado_mcr_dishold(cpu->mem)) {
+        cpu->real_PC = task_schedule(cpu, cpu->real_PC, 0, 0);
+        cpu->cycles++;
+        if (cpu->baseboard && cpu->baseboard_cycles_per_uop > 0)
+            baseboard_run(cpu->baseboard, cpu->baseboard_cycles_per_uop);
+        return 0;
+    }
+    /* A §3.12 HOLDSIM-injected Hold freezes the engine: the held cycle stays
+     * on the current task (the per-cycle ticks run so the event counter
+     * charges the Hold to it) and the same instruction re-runs next cycle,
+     * rather than jumping to self / switching as the Md-ready Hold does. */
+    if (cpu->holdsim_hold && !dorado_mcr_dishold(cpu->mem)) {
+        (void)task_schedule(cpu, cpu->real_PC, 0, 1 /* freeze */);
+        cpu->cycles++;
+        if (cpu->baseboard && cpu->baseboard_cycles_per_uop > 0)
+            baseboard_run(cpu->baseboard, cpu->baseboard_cycles_per_uop);
+        return 0;
+    }
+
     /* BBT dump (env DORADO_BBT_TRACE): at AEmu BitBltA (real 0o13124)
      * the BitBlt-table pointer is AC2 = STK[StkP+2]; dump the table
      * (DBCA=w2, DBMR=w3, DLX=w4, DTY=w5, DW=w6, DH=w7) from the MDS bank
@@ -3590,7 +4246,7 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
         cpu->prev_PC = cpu->real_PC;
         if (from_im) junk_timer_tick(cpu);
 
-        cpu->real_PC = task_schedule(cpu, cpu->real_PC, 0);
+        cpu->real_PC = task_schedule(cpu, cpu->real_PC, 0, 0);
 
         if (from_im) {
             cpu->cycles++;
@@ -3905,6 +4561,40 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
         pd = (uint16_t)((pd & ~cpu->shift_mask) |
                         (cpu->shift_fill & cpu->shift_mask));
     }
+    if (dorado_trace_flag("DORADO_IFUSEQ_TRACE")) {
+        int p = cpu->real_PC & 07777;
+        int seq_pc = (p >= 04460 && p <= 04527) ||
+                     (p >= 06012 && p <= 06070) ||
+                     (p >= 06101 && p <= 06147) ||
+                     p == 07120;
+        int seq_record = (cpu->RM[0100] == 0163321) ||
+                         (cpu->RM[0100] == 0152476) ||
+                         (cpu->RM[0100] == 0121417) ||
+                         (cpu->RM[0103] == 001377) ||
+                         (cpu->RM[0103] == 000244) ||
+                         (pd == 001377);
+        if (seq_pc && seq_record) {
+            int ridx = rm_address(cpu, u);
+            int widx = lc_write_address(cpu, u);
+            fprintf(stderr,
+                    "IFUSEQ_TRACE pc=0o%o rb=%02o sp=%03o r=%03o w=%03o "
+                    "rstk=%02o aluf=%02o bsel=%o lc=%o asel=%o ff=%03o jcn=%03o "
+                    "a=%06o b=%06o alu=%06o pd=%06o T=%06o Q=%06o "
+                    "Link=%06o RM100=%06o RM101=%06o RM102=%06o RM103=%06o "
+                    "RM104=%06o RM105=%06o RM106=%06o\n",
+                    p, cpu->RBase & 017, cpu->StkP & 0377,
+                    ridx & 0777, widx & 0777,
+                    u->rstk & 017, u->aluf & 017, u->bsel & 7,
+                    u->lc & 7, u->asel & 7, u->ff & 0377, u->jcn & 0377,
+                    a & 0177777, b & 0177777, alu & 0177777,
+                    pd & 0177777, cpu->T & 0177777, cpu->Q & 0177777,
+                    cpu->Link & 0177777,
+                    cpu->RM[0100] & 0177777, cpu->RM[0101] & 0177777,
+                    cpu->RM[0102] & 0177777, cpu->RM[0103] & 0177777,
+                    cpu->RM[0104] & 0177777, cpu->RM[0105] & 0177777,
+                    cpu->RM[0106] & 0177777);
+        }
+    }
     /* HM page 30: the ALU=0 / ALU<0 branch conditions reflect the
      * ALU output itself, NOT the value Pd delivers after an FF
      * transform. Divide is the case that exposes the difference:
@@ -4083,6 +4773,8 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
             int recorded_fault =
                 (ref_fault != DM_FAULT_NONE) ||
                 (cpu->mem->fault_count != fault_count_before);
+            cpu->evc_events |= EVC_EV_PROCREF;
+            if (cpu->mem->last_ref_miss) cpu->evc_events |= EVC_EV_MISS;
             if (ref_fault == DM_FAULT_NONE && ref_kind_loads_md(kind)) {
                 latch_task_md_from_memory(cpu);
             }
@@ -4425,7 +5117,7 @@ memory_ref_done: ;
      * page 27); in the emulator (ctask=0) BLOCK=1 means StackSelect
      * for STK addressing — handled elsewhere, not a task block. */
     int block_in_non_emul = (u->block && cpu->ctask != 0);
-    cpu->real_PC = task_schedule(cpu, np, block_in_non_emul);
+    cpu->real_PC = task_schedule(cpu, np, block_in_non_emul, 0);
 
     /* Cycle accounting + BB stepping only happen on IM-fetched
      * instructions. The injected-MIR caller (dorado_cpu_step) does

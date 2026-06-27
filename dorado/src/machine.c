@@ -33,6 +33,7 @@
 #include "microcode.h"
 #include "pdi.h"
 
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -818,6 +819,28 @@ static void machine_seed_mouse(dorado_memory *mem, int x, int y, int buttons)
     }
 }
 
+static int machine_boot_chord_is_disk(const dorado_machine *m)
+{
+    return m && m->boot_chord_count == 1 &&
+           m->boot_chord[0] == DORADO_KEY_NONE;
+}
+
+static void machine_seed_alto_live_io(dorado_machine *m, dorado_display *disp)
+{
+    if (!m || !disp) return;
+    if (!m->keys_live) {
+        dorado_display_keyboard_all_up(disp);
+        m->keys_live = 1;
+    }
+
+    uint16_t w[4];
+    for (int i = 0; i < 4; i++)
+        w[i] = dorado_display_keyboard_word(disp, i);
+    machine_seed_keyboard(&m->mem, w);
+    if (m->mouse_present)
+        machine_seed_mouse(&m->mem, m->mouse_x, m->mouse_y, m->mouse_buttons);
+}
+
 /* Deliver the live keyboard (and mouse-button) state to the native Cedar
  * world's KeyBits at absolute 177033 (see CEDAR_KEYBITS_VA above). The
  * 7-wire keyboard back-channel -> Cedar I/O microcode -> KeyBits path is not
@@ -1097,6 +1120,7 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
         return NULL;
     }
     {
+        m->mem.storage_chip_type = DM_STORAGE_CHIP_TYPE_DEFAULT;
         size_t want = (size_t)DM_STORAGE_MODULE_WORDS *
                       (size_t)cfg.storage_modules;
         if (m->mem.storage_words != want) {
@@ -1306,6 +1330,13 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
     dorado_display *disp = &m->display;
     dorado_ethernet *eth = &m->ethernet;
 
+    /* The vendored 6502 core reaches its memory callbacks through the
+     * global `baseboard_active` (set at create/reset). With snapshot/
+     * restore there can be several machines alive at once (e.g. a booted
+     * original + a restored experiment); point the 6502 at the machine
+     * we are about to step so running one never drives another's BB. */
+    baseboard_active = bb;
+
     while (bb->cycles < until_cycle && !cpu->halted) {
         /* Trace-gate cycle window (env DORADO_TRACE_GATE="lo,hi"), so the
          * standalone binary can drive the same gated IFUDISP/BR/store
@@ -1444,11 +1475,18 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
          * inherit the AEmu's leftover ACs. A real Alto disk-boots cold (AC=0);
          * verified against the salto reference Alto, whose loader runs with
          * AC=0 -- clearing them here makes the first 11453 booted opcodes match
-         * salto exactly (vs diverging at opcode 5 without it). One-shot, gated
-         * to the AEmu disk-boot path: DiskBoot (AEmu.mb!2 real 0o2005) is only
-         * reached for a disk boot, never for the ether games (EBoot) or Cedar. */
-        if (is_imfetch && cpu->ctask == 0 && pre_pc == 02005 &&
-            !m->alto_cold_ac_done) {
+         * salto exactly (vs diverging at opcode 5 without it). One-shot.
+         *
+         * Fires at BOTH AEmu boot vectors (AEmu.mb!2 real addrs): DiskBoot
+         * (0o2005) for a disk boot, and EBoot (0o2006) for the Stage-2 ether
+         * games. The ether path needs the identical cold-Alto state: a
+         * tracepcdiff vs ContrAlto (tools/nova-trace-diff) shows both Invaders
+         * and MissileCommand otherwise inherit the AEmu's leftover Stack ACs
+         * (AC1=056623, AC2=121045) at the loaded program's first opcode where
+         * ContrAlto cold-boots clean 0. EBoot is gated to alto_ether_boot so
+         * Cedar's germ path (different microcode at 0o2006) is untouched. */
+        if (is_imfetch && cpu->ctask == 0 && !m->alto_cold_ac_done &&
+            (pre_pc == 02005 || (pre_pc == 02006 && m->alto_ether_boot))) {
             cpu->STK[1] = cpu->STK[2] = cpu->STK[3] = cpu->STK[4] = 0;
             /* Initialize the Alto I/O page (177000-177777) to the hardware
              * floating-bus default 177777. On a real Alto these addresses are
@@ -1845,13 +1883,16 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
             }
         }
 
-        /* Seed BS-down into the Alto keyboard words so the loaded world
-         * selects the Ethernet software boot (AEm0.mc branches to EBoot
-         * -> Mayday -> NetExec). The 7-wire DDC keyboard back-channel is
-         * not modeled, so write the polled words directly. */
-        if (m->alto_ether_boot && m->ether_loaded_world_cycle &&
+        /* Seed Alto keyboard/mouse cells for AEmu worlds. During Ethernet
+         * software boot we hold the boot-selection chord until EFTP starts.
+         * In disk mode, or once the boot file is downloading, the frontend's
+         * live state drives the Alto input words directly (the DDC 7-wire
+         * back-channel is not modeled; gap E2). */
+        if (m->ether_loaded_world_cycle && !m->germ_word_count &&
             !cpu->ifu_active) {
-            if (eth->eftp_max_seq == 0) {
+            int disk_boot_reason = machine_boot_chord_is_disk(m);
+            if (m->alto_ether_boot && !disk_boot_reason &&
+                eth->eftp_max_seq == 0) {
                 /* Boot-selection phase: hold the boot-key chord down so the
                  * world picks its boot path (default BS = Ethernet software
                  * boot). The chord is applied to the DDC keyboard and its
@@ -1860,21 +1901,8 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                 machine_apply_boot_chord(disp, m->boot_chord,
                                          m->boot_chord_count, w);
                 machine_seed_keyboard(&m->mem, w);
-            } else {
-                /* Interactive phase: the boot file is downloading, so
-                 * release the held boot keys and deliver the frontend's
-                 * live key state to the running world. */
-                if (!m->keys_live) {
-                    dorado_display_keyboard_all_up(disp);
-                    m->keys_live = 1;
-                }
-                uint16_t w[4];
-                for (int i = 0; i < 4; i++)
-                    w[i] = dorado_display_keyboard_word(disp, i);
-                machine_seed_keyboard(&m->mem, w);
-                if (m->mouse_present)
-                    machine_seed_mouse(&m->mem, m->mouse_x, m->mouse_y,
-                                       m->mouse_buttons);
+            } else if (m->alto_cold_ac_done) {
+                machine_seed_alto_live_io(m, disp);
             }
 
             /* (The divide-vector guard was retired 2026-06-13: the
@@ -2023,7 +2051,9 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
         static uint64_t alto_disk_prev_cycle = 0;
         static uint64_t alto_disk_prev2_cycle = 0;
 
-        int alto_check_enabled = dorado_trace_flag("DORADO_ALTOCHECK_TRACE");
+        int alto_check_enabled =
+            dorado_trace_flag("DORADO_ALTOCHECK_TRACE") &&
+            (!dorado_trace_flag("DORADO_TRACE_GATE") || dorado_trace_gate);
         int alto_check_trace = 0;
         uint16_t alto_check_md_before = 0;
         uint16_t alto_check_t_before = 0;
@@ -2045,6 +2075,7 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
         uint16_t alto_check_kcb0 = 0;
         uint16_t alto_check_kcb1 = 0;
         uint16_t alto_check_vm521 = 0;
+        uint16_t alto_check_diskbr_word = 0;
         if (alto_check_enabled && is_imfetch &&
             cpu->ctask == DORADO_DISK_TASK &&
             (pre_pc == 03045 || pre_pc == 03067 || pre_pc == 03225 ||
@@ -2077,6 +2108,9 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
             alto_check_kcb1 = dorado_visible_word_at_va(&m->mem,
                                                         alto_check_kptr + 1u);
             alto_check_vm521 = dorado_visible_word_at_va(&m->mem, 0521u);
+            alto_check_diskbr_word = dorado_visible_word_at_va(
+                &m->mem,
+                (uint16_t)(alto_check_md_before + alto_check_dskmaddr));
         }
 
         machine_pilot_timer_channel(m, cpu, bb, pre_pc, is_imfetch);
@@ -2119,6 +2153,7 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                     "KStatus=0o%06o KTemp0=0o%06o KTemp1=0o%06o "
                     "KTemp2=0o%06o KTemp3=0o%06o "
                     "KCB+0=0o%06o KCB+1=0o%06o VM521=0o%06o "
+                    "tmpl[0o%06o]=0o%06o "
                     "next=0o%o\n",
                     pre_pc, nm, (unsigned long long)bb->cycles,
                     alto_check_prev_pc,
@@ -2133,7 +2168,19 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                     alto_check_ktemp0, alto_check_ktemp1,
                     alto_check_ktemp2, alto_check_ktemp3,
                     alto_check_kcb0, alto_check_kcb1, alto_check_vm521,
+                    (uint16_t)(alto_check_md_before + alto_check_dskmaddr),
+                    alto_check_diskbr_word,
                     cpu->real_PC);
+            if (pre_pc == 03330) {
+                uint16_t base = alto_check_md_before;
+                fprintf(stderr, "[altocheck-block] base=0o%06o", base);
+                for (uint16_t i = 0; i < 8; i++) {
+                    fprintf(stderr, " [%u]=0o%06o", i,
+                            dorado_visible_word_at_va(
+                                &m->mem, (uint16_t)(base + i)));
+                }
+                fprintf(stderr, "\n");
+            }
         }
 
         if (alto_check_enabled && is_imfetch &&
@@ -2203,7 +2250,17 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                             dorado_cpu_wakeup(cpu, task);
                     }
                 }
-                m->next_display_scanline_cycle = bb->cycles + 1000;
+                /* Scanline cadence experiment knob (DORADO_SCANLINE_CYCLES,
+                 * default 1000). Gated to display_active so it touches only
+                 * the running world, not the boot. Measured against the
+                 * M[3016] tracediff, not pixels. */
+                static long scanline_cycles = -1;
+                if (scanline_cycles < 0) {
+                    const char *w = getenv("DORADO_SCANLINE_CYCLES");
+                    scanline_cycles = (w && atol(w) > 0) ? atol(w) : 1000;
+                }
+                m->next_display_scanline_cycle =
+                    bb->cycles + (uint64_t)scanline_cycles;
             }
             int dwt_subtask = 0;
             if (display_active && dorado_display_dwt_wakeup(disp, &dwt_subtask)) {
@@ -2544,4 +2601,262 @@ int dorado_machine_render_display_list(dorado_machine *m)
                                         : DORADO_DISPLAY_ALTO_H;
     machine_overlay_mouse(m);
     return pixels;
+}
+
+/* ====================================================================
+ * Machine snapshot / restore (cycle-accurate-timing Phase 0).
+ *
+ * The whole machine is one by-value struct, so the snapshot is largely
+ * fwrite of each mutable sub-struct plus the heap buffers they own. The
+ * only real work is on restore: a machine freshly created with the same
+ * config has already allocated storage, loaded the static firmware, and
+ * wired every internal pointer, so restore must overlay the snapshot's
+ * POD state while *preserving* those live pointers (re-wiring would
+ * otherwise point at stale snapshot-time addresses) and reconstruct the
+ * ethernet heap buffers from their serialized contents.
+ * ==================================================================== */
+
+#define DORADO_SNAP_MAGIC   "DORADOSNAPSHOT\x01"  /* 15 chars + NUL = 16 */
+#define DORADO_SNAP_VERSION 1u
+
+typedef struct {
+    char     magic[16];
+    uint32_t version;
+    uint32_t pad;
+    uint64_t sz_mc, sz_cpu, sz_mem, sz_disp, sz_bb, sz_eth, sz_machine;
+    uint64_t storage_words;
+} dorado_snap_header;
+
+static int snap_wr(FILE *f, const void *p, size_t n)
+{
+    return (n == 0 || fwrite(p, 1, n, f) == n) ? 0 : -1;
+}
+static int snap_rd(FILE *f, void *p, size_t n)
+{
+    return (n == 0 || fread(p, 1, n, f) == n) ? 0 : -1;
+}
+
+int dorado_machine_snapshot(dorado_machine *m, const char *path)
+{
+    if (!m || !path) return -1;
+    FILE *f = fopen(path, "wb");
+    if (!f) {
+        fprintf(stderr, "dorado: snapshot: cannot open '%s'\n", path);
+        return -1;
+    }
+
+    dorado_snap_header hdr;
+    memset(&hdr, 0, sizeof hdr);
+    memcpy(hdr.magic, DORADO_SNAP_MAGIC, 16);
+    hdr.version       = DORADO_SNAP_VERSION;
+    hdr.sz_mc         = sizeof m->mc;
+    hdr.sz_cpu        = sizeof m->cpu;
+    hdr.sz_mem        = sizeof m->mem;
+    hdr.sz_disp       = sizeof m->display;
+    hdr.sz_bb         = sizeof m->bb;
+    hdr.sz_eth        = sizeof m->ethernet;
+    hdr.sz_machine    = sizeof *m;
+    hdr.storage_words = m->mem.storage_words;
+
+    int rc = 0;
+    rc |= snap_wr(f, &hdr, sizeof hdr);
+
+    /* Control store (incl. the LoadRam'd world), cpu, mem. */
+    rc |= snap_wr(f, &m->mc, sizeof m->mc);
+    rc |= snap_wr(f, &m->cpu, sizeof m->cpu);
+    rc |= snap_wr(f, &m->mem, sizeof m->mem);
+    rc |= snap_wr(f, m->mem.storage,
+                  m->mem.storage_words * sizeof m->mem.storage[0]);
+
+    /* Devices. Flush the live fake6502 globals into bb->cpu6502 first so
+     * the BaseBoard's 6502 register state is serialized with it. */
+    rc |= snap_wr(f, &m->display, sizeof m->display);
+    baseboard_cpu_flush(&m->bb);
+    rc |= snap_wr(f, &m->bb, sizeof m->bb);
+    rc |= snap_wr(f, &m->ethernet, sizeof m->ethernet);
+
+    /* Ethernet heap buffers (contents only; pointers are reconstructed). */
+    uint8_t have_eftp = (m->ethernet.eftp_words != NULL) ? 1 : 0;
+    rc |= snap_wr(f, &have_eftp, 1);
+    if (have_eftp)
+        rc |= snap_wr(f, m->ethernet.eftp_words,
+                      m->ethernet.eftp_len * sizeof m->ethernet.eftp_words[0]);
+    uint8_t have_rx = (m->ethernet.rx_words && m->ethernet.rx_attention &&
+                       m->ethernet.rx_count > 0) ? 1 : 0;
+    rc |= snap_wr(f, &have_rx, 1);
+    if (have_rx) {
+        rc |= snap_wr(f, m->ethernet.rx_words,
+                      m->ethernet.rx_count * sizeof m->ethernet.rx_words[0]);
+        rc |= snap_wr(f, m->ethernet.rx_attention,
+                      m->ethernet.rx_count * sizeof m->ethernet.rx_attention[0]);
+    }
+
+    /* The machine's contiguous POD scalar tail (boot state machine +
+     * cadence counters + pchist/germ buffers). Everything from
+     * disk_attached to the end of the struct is pointer-free. */
+    size_t tail_off = offsetof(dorado_machine, disk_attached);
+    rc |= snap_wr(f, (char *)m + tail_off, sizeof *m - tail_off);
+
+    if (fclose(f) != 0) rc = -1;
+    if (rc) fprintf(stderr, "dorado: snapshot: write error\n");
+    return rc;
+}
+
+int dorado_machine_restore(dorado_machine *m, const char *path)
+{
+    if (!m || !path) return -1;
+    FILE *f = fopen(path, "rb");
+    if (!f) {
+        fprintf(stderr, "dorado: restore: cannot open '%s'\n", path);
+        return -1;
+    }
+
+    dorado_snap_header hdr;
+    if (snap_rd(f, &hdr, sizeof hdr)) { fclose(f); return -1; }
+    if (memcmp(hdr.magic, DORADO_SNAP_MAGIC, 16) != 0 ||
+        hdr.version    != DORADO_SNAP_VERSION ||
+        hdr.sz_mc      != sizeof m->mc ||
+        hdr.sz_cpu     != sizeof m->cpu ||
+        hdr.sz_mem     != sizeof m->mem ||
+        hdr.sz_disp    != sizeof m->display ||
+        hdr.sz_bb      != sizeof m->bb ||
+        hdr.sz_eth     != sizeof m->ethernet ||
+        hdr.sz_machine != sizeof *m ||
+        hdr.storage_words != m->mem.storage_words) {
+        fprintf(stderr, "dorado: restore: incompatible snapshot "
+                "(magic/version/struct-size/storage mismatch)\n");
+        fclose(f);
+        return -1;
+    }
+
+    int rc = 0;
+
+    /* Control store — preserve the back-pointer to the mb_file. */
+    {
+        const mb_file *mb = m->mc.mb;
+        rc |= snap_rd(f, &m->mc, sizeof m->mc);
+        m->mc.mb = mb;
+    }
+
+    /* CPU — preserve the sibling/static pointers create wired. */
+    {
+        struct dorado_memory   *mem = m->cpu.mem;
+        struct dorado_baseboard *bb = m->cpu.baseboard;
+        dorado_io              *io  = m->cpu.io;
+        const dorado_microcode *mc  = m->cpu.mc;
+        void                  *tfp  = m->cpu.trace_fp;
+        rc |= snap_rd(f, &m->cpu, sizeof m->cpu);
+        m->cpu.mem       = mem;
+        m->cpu.baseboard = bb;
+        m->cpu.io        = io;
+        m->cpu.mc        = mc;
+        m->cpu.trace_fp  = tfp;
+    }
+
+    /* Memory — preserve the storage buffer + I/O callbacks, then load the
+     * storage contents into the existing (same-size) allocation. */
+    {
+        uint16_t *storage = m->mem.storage;
+        size_t    swords  = m->mem.storage_words;
+        void (*fast_io_cb)(struct dorado_memory *, dorado_ref_kind, int, int,
+                           uint32_t, uint16_t[16], void *) = m->mem.fast_io_cb;
+        void  *fast_io_ctx = m->mem.fast_io_ctx;
+        uint16_t (*dmux_cb)(uint16_t, int *, void *) = m->mem.dmux_cb;
+        void  *dmux_ctx = m->mem.dmux_ctx;
+
+        rc |= snap_rd(f, &m->mem, sizeof m->mem);
+        m->mem.storage       = storage;
+        m->mem.storage_words = swords;
+        m->mem.fast_io_cb    = fast_io_cb;
+        m->mem.fast_io_ctx   = fast_io_ctx;
+        m->mem.dmux_cb       = dmux_cb;
+        m->mem.dmux_ctx      = dmux_ctx;
+        rc |= snap_rd(f, m->mem.storage, swords * sizeof m->mem.storage[0]);
+    }
+
+    /* Display + BaseBoard — pure POD. Push the restored 6502 state into
+     * the live fake6502 globals and make this BaseBoard the owner. */
+    rc |= snap_rd(f, &m->display, sizeof m->display);
+    rc |= snap_rd(f, &m->bb, sizeof m->bb);
+    baseboard_cpu_reload(&m->bb);
+
+    /* Ethernet — reconstruct the heap buffers from serialized contents. */
+    free(m->ethernet.eftp_words);
+    free(m->ethernet.rx_words);
+    free(m->ethernet.rx_attention);
+    rc |= snap_rd(f, &m->ethernet, sizeof m->ethernet);
+    m->ethernet.eftp_words   = NULL;
+    m->ethernet.rx_words     = NULL;
+    m->ethernet.rx_attention = NULL;
+
+    uint8_t have_eftp = 0;
+    rc |= snap_rd(f, &have_eftp, 1);
+    if (have_eftp) {
+        size_t n = m->ethernet.eftp_len;
+        m->ethernet.eftp_words = malloc(n * sizeof(uint16_t) + 1);
+        if (m->ethernet.eftp_words)
+            rc |= snap_rd(f, m->ethernet.eftp_words, n * sizeof(uint16_t));
+        else
+            rc = -1;
+    }
+    uint8_t have_rx = 0;
+    rc |= snap_rd(f, &have_rx, 1);
+    if (have_rx) {
+        size_t n = m->ethernet.rx_count;
+        m->ethernet.rx_words     = malloc(n * sizeof(uint16_t) + 1);
+        m->ethernet.rx_attention = malloc(n + 1);
+        if (m->ethernet.rx_words && m->ethernet.rx_attention) {
+            rc |= snap_rd(f, m->ethernet.rx_words, n * sizeof(uint16_t));
+            rc |= snap_rd(f, m->ethernet.rx_attention, n);
+        } else {
+            rc = -1;
+        }
+    }
+
+    /* The machine's POD scalar tail, straight into the live struct. */
+    size_t tail_off = offsetof(dorado_machine, disk_attached);
+    rc |= snap_rd(f, (char *)m + tail_off, sizeof *m - tail_off);
+
+    fclose(f);
+    if (rc) fprintf(stderr, "dorado: restore: read error\n");
+    return rc;
+}
+
+static uint64_t snap_fnv1a(uint64_t h, const void *p, size_t n)
+{
+    const uint8_t *b = (const uint8_t *)p;
+    for (size_t i = 0; i < n; i++) {
+        h ^= b[i];
+        h *= 0x100000001b3ULL;
+    }
+    return h;
+}
+
+uint64_t dorado_machine_state_digest(const dorado_machine *m)
+{
+    if (!m) return 0;
+    uint64_t h = 0xcbf29ce484222325ULL;  /* FNV-1a offset basis */
+    h = snap_fnv1a(h, m->mem.storage,
+                   m->mem.storage_words * sizeof m->mem.storage[0]);
+    h = snap_fnv1a(h, m->display.fb, sizeof m->display.fb);
+    h = snap_fnv1a(h, m->cpu.RM, sizeof m->cpu.RM);
+    h = snap_fnv1a(h, m->cpu.STK, sizeof m->cpu.STK);
+    h = snap_fnv1a(h, m->cpu.task_t, sizeof m->cpu.task_t);
+    h = snap_fnv1a(h, m->cpu.task_tpc, sizeof m->cpu.task_tpc);
+    h = snap_fnv1a(h, m->cpu.task_link, sizeof m->cpu.task_link);
+
+    uint16_t regs[] = {
+        m->cpu.T, m->cpu.Q, m->cpu.Cnt, m->cpu.ShC, m->cpu.MemBase,
+        m->cpu.real_PC, m->cpu.prev_PC, m->cpu.ctask,
+        m->cpu.wakeup_pending, m->cpu.ready, m->cpu.StkP,
+    };
+    h = snap_fnv1a(h, regs, sizeof regs);
+
+    uint64_t counters[] = {
+        (uint64_t)(unsigned)m->cpu.cycles,
+        m->cpu.ifu_dispatch_count,
+        m->bb.cycles,
+    };
+    h = snap_fnv1a(h, counters, sizeof counters);
+    return h;
 }

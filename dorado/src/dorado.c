@@ -106,6 +106,10 @@ static dorado_display_key char_to_key(char c, int *shift)
     case '8': return DORADO_KEY_8;  case '9': return DORADO_KEY_9;
     case ' ':  return DORADO_KEY_SPACE;
     case '\n': case '\r': return DORADO_KEY_RETURN;
+    case '?': *shift = 1; return DORADO_KEY_FSLASH;
+    case '/': return DORADO_KEY_FSLASH;
+    case '.': return DORADO_KEY_PERIOD;
+    case '-': return DORADO_KEY_MINUS;
     default: return DORADO_KEY_NONE;
     }
 }

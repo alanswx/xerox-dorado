@@ -1,5 +1,143 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## ===> ACTIVE TASK (2026-06-26, latest): diagnostics are green with the
+## diagnostic-specific harness commands.
+## Map: [`docs/running-diagnostics.md`](running-diagnostics.md);
+## handoff: [`docs/HANDOFF-hold-and-diagnostics.md`](HANDOFF-hold-and-diagnostics.md).
+
+PARC's original **Dorado hardware diagnostics** run on our microengine
+(`build/rundiag`) and now provide real regression gates. Current verified passes:
+kernel, eventCounters, memMisc, IfuSimple, IfuComplex, TriconD no-pack, and the
+memA D/X/S slices listed in [`docs/running-diagnostics.md`](running-diagnostics.md).
+
+The old "implement Hold to make every diagnostic pass" framing is obsolete. The
+diagnostics needed separate fixes in tasking/timing, memory/fault/Pipe status,
+IFU/event-counter behavior, and Trident disk-controller mufflers. The remaining
+caveat is harness scope: memA's complete S-board/chaos burn-in is not a quick
+gate, and TriconD's no-pack success point is `TESTOK-WITHOUT-DISK`, not `DONE`.
+
+`make` builds `rundiag`; header deps are tracked. The ethernet/render
+investigation below is separate from the hardware-diagnostic gates.
+
+---
+
+## ===> 2026-06-23 (earlier): tooling built + the crash seeds REFRAMED
+
+Picking up the "most games crash" investigation, this session built the Phase 0
+tooling and used it to characterize the crashes — which **changed the diagnosis**.
+
+**What's now true (all on branch `fidelity-timing`, all gates green):**
+
+1. **Phase 0 tooling is DONE.**
+   - **Machine snapshot/restore** (`dorado_machine_snapshot`/`_restore`, `machine.c`):
+     boot a game once, snapshot the running game, restore into a fresh machine —
+     so timing experiments skip the fragile boot. Bit-identical validated by
+     `tests/test_snapshot.c` (in `make test`). Plus `dorado_machine_state_digest()`.
+   - **`tools/nova-trace-diff/tracepcdiff.sh` repaired** — diffs the executed Alto
+     opcode stream (PC + ACs) vs ContrAlto, auto-aligning the boot-phase slip.
+     Run: `tracepcdiff.sh 5000 ../../chm/bootfiles/Invaders.boot!1` (or `AC_PERM=skip`
+     for a clean PC-only diff).
+   - Two latent bugs fixed en route: the vendored 6502's register file lived in
+     file-scope globals (now mirrored into `bb->cpu6502` with an owner-cache);
+     `baseboard_active` wasn't repointed per run.
+
+2. **First divergence found and FIXED (cold-Alto init on the ether path).** The
+   ether games inherited the AEmu's leftover Stack ACs where ContrAlto cold-boots
+   clean 0. Extended the salto-verified cold-AC/IO-page init from DiskBoot (0o2005)
+   to EBoot (0o2006). Grounded, regression-safe (Galaxian still 121553).
+
+3. **THE REFRAME — the remaining crash seeds are concrete bugs, not cadence.**
+   The prior "most games crash from cumulative *timing* divergence" is only partly
+   right. Measuring the seed per game:
+   - **MissileCommand's M[3016] oscillation is network-specific** — Invaders writes
+     M[3016] once (=0), matching ContrAlto. So M[3016] = the **ethernet spurious
+     InDone/OutDone completions**, not display/scheduler cadence. Neither the
+     scanline cadence nor a one-field delay on the first field interrupt moved it.
+   - **Invaders' seed is an early per-opcode AC divergence** — a clean PC-only
+     `tracepcdiff` shows the ACs diverge by **~opcode #2** (ours loads `6126/6373`
+     into AC2/AC3 where ContrAlto has `0/1`), past what the trace's one-opcode AC
+     lag explains. A per-opcode emulation or early Alto-memory-state bug.
+   - Cadence work (scanline cadence cuts MC's M[3016] oscillation ~20%, knob
+     `DORADO_SCANLINE_CYCLES`) is real but **secondary**.
+
+**Read first:** [`docs/cycle-accurate-timing-plan.md`](cycle-accurate-timing-plan.md)
+— the "Phase 0/1/2 status" + "Phase 2 REFRAME" sections at the top carry the full
+detail and the per-game next targets. The original holistic-cadence plan + the
+two ruled-out experiments are still in [`docs/fidelity-audit.md`](fidelity-audit.md).
+
+## ===> UPDATE (2026-06-23, latest): Invaders "double-dispatch" was a 3rd tool
+artifact -- Invaders is now IR-IDENTICAL to ContrAlto for 2091 opcodes
+
+Chased the "Invaders double-dispatches an early opcode" lead. It is **NOT an
+emulation bug** -- it is the AEmu **Reschedule trap** (`AEmuReschedule`), a
+Dorado mechanism a plain Alto (ContrAlto) has no equivalent of, and the
+`tracepcdiff` tool was **over-counting the trapped IFUJump** as an executed
+opcode.
+
+What actually happens at boot: `Reschedule` (FF function, microcode 0o1770)
+sets `reschedule_pending=2`. The trap fires on the 2nd successful IFUJump,
+which **diverts that dispatch to the reschedule vector (0o314) instead of the
+opcode's handler** -- so the "held-back" opcode does NOT execute there; it is
+re-dispatched (and executed exactly once) on the next IFUJump after
+`AEmuReschedule` restores PCF via `T<-NOT(PCX')`. The IFUDISP trace fired on
+the trapped IFUJump too, so the tool saw IR `0o100000` "twice". Skipping the
+trapped record, ours' IR stream is `0o22574, 0o100000, 0o40437, ...` -- exactly
+ContrAlto's.
+
+**Fixes (this session, gates green):**
+- `cpu.c` IFUDISP trace now prints `rtrap=%d` (1 = this IFUJump traps to
+  AEmuReschedule; the dispatched opcode is re-run next, not executed here).
+- `tracepcdiff.sh` skips `rtrap=1` records (they are not executed opcodes).
+- `tracepcdiff.sh` AC bug fixed: ContrAlto emits `acs=R[3],R[2],R[1],R[0]`, and
+  the Alto maps ACs to R in reverse (AC0=R[3]..AC3=R[0]), so the printed list is
+  ALREADY AC0..3 -- the tool's old `[::-1]` reversal compared ours and CA in
+  opposite AC orders. Removed. AC check is now lag-tolerant and **advisory**
+  (default `AC_PERM=skip`, IR-only); exact AC equality is unreliable because (a)
+  ours' aacs snapshot lags CA's by ~1 opcode and (b) ACs holding PC-relative
+  addresses differ by the boot-phase namespace slip. The **IR stream is the
+  trustworthy divergence signal**.
+
+**Result:** `tracepcdiff.sh 5000 chm/bootfiles/Invaders.boot!1` now reports the
+IR streams match for **2091 contiguous opcodes**, then diverge at #2091:
+
+```
+2089: ours/CA  IR=0o20655   (LDA 0,@255,2  -- load AC0 from a pointer)
+2090: ours/CA  IR=0o101015  (MOV# 0,0,SNR  -- skip if AC0 != 0)
+2091: ours IR=0o106415  |  CA IR=0o776 (JMP .-2)  <-- ours exits the loop, CA spins
+```
+
+This is a **3-instruction spin-wait loop** (`723: LDA 0,0o255(PC)` / `MOV#0,0,SNR`
+/ `JMP .-2`) polling Alto location **`0o600` = EPLOC** (the standard Alto Ethernet
+**Post Location**). The game/loader transmitted a Pup and is waiting for the
+Ethernet to post a completion. ours' EOT task (task 6, microcode `EPOST`) posts
+**OutDone (`0o777`)** to EPLOC ~32us after the game arms the wait; ContrAlto
+spins **~4.1ms** (733 iterations) before OutDone. So **the divergence is
+Ethernet, not "non-network"** -- the prior framing was wrong.
+
+**Root cause (chased this session, NOT yet fixed):** ours **completes transmits
+instantly**. `eth_tx_packet_done` (`src/ethernet.c`) fires synchronously the
+moment EOT sets TxEOP -- no wire time and, crucially, **no transmitter deferral
+while the receiver is busy**. At the transmit point `rx_on=1` and a **9896-word
+receive is in progress** (`ETH_WAKE rx=.../9896`); a real 3 Mb/s controller
+cannot transmit until the wire is free, so OutDone is delayed milliseconds.
+Per-word wire time alone (~70us for the 13-word packet at 5.4us/word) is far
+short of CA's 4.1ms -- the gap is the **tx-defer-while-receiving** wire
+interaction. This is the same root as MissileCommand (see
+[`mc-bug-is-emulator-not-ethernet`] and [`docs/ethernet-faithful-receiver.md`],
+which Invaders now confirms is a game-blocker, not just a fidelity nicety).
+
+**Why no patch shipped:** a simple per-word tx wire-time delay (~70us) does NOT
+match CA (~4.1ms) and would not release the loop at the right time; the correct
+fix is transmitter deferral during active receive + wire timing, which lives in
+the faithful-receiver/wire-model work and risks desyncing the EFTP boot (the
+loader alternates tx/rx and relies on the current instant-completion). That is
+an architectural change to make deliberately, gated hard on Galaxian + boot, not
+a quick incremental patch. **Next:** build the faithful tx/rx wire model
+(`docs/ethernet-faithful-receiver.md`) so EOT's OutDone post is gated on the
+wire being free; validate Invaders' spin then matches CA's ~733 iterations.
+
+---
+
 ## ROUTE B (2026-06-20): germ-netboot/DoInLoad WORKS — full boot-file transfer + loaded world runs
 
 The old "frontier is EFTP seq 1 / the CompactVM allocator" notes below are

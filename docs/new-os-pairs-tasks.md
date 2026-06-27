@@ -119,11 +119,32 @@ that VMEM swap file.
    `Lisp.run`/`Lisp.syms` to determine how `Lisp.run` lays the sysout into
    VMEM and what the microcode expects at startup. **Do not guess the
    format — it is in those sources.**
-3. **Build the Alto-format Lisp pack** (if pursuing 2a): install Alto OS on
-   a Trident partition, `CreateFile LISP.VIRTUALMEM 15002D`, copy
-   `Lisp.run`/`Lisp.syms`/`DORADOLISPMC.EB`/`AltoD1MC.eb`/`INIT.*`, run
-   `Lisp.run`. ContrAlto's Trident/Diablo code (`AltoInfo/`) is the format
-   reference.
+3. **Finish the Alto-format Lisp pack** (if pursuing 2a): the geometry and
+   VMEM allocation are reproducible with `make -C dorado lisp-disk-image`
+   (`2 * 406 * 2 * 14 = 22736` Alto pages, enough for `LISP.VIRTUALMEM
+   15002D`). The small generated pack includes `Lisp.run`, `Lisp.syms`,
+   `DORADOLISPMC.EB`, and `AltoD1MC.eb`.
+
+   There is also a local full fixture:
+   `make -C dorado lisp-disk-image-full`. It seeds a minimal Alto
+   OS/Executive from `bcpl.dsk`, keeps the VMEM/loader files on partition 5,
+   installs `Sys.Boot.` as the disk boot file, and overlays the Lyric
+   `LISP.SYSOUT.` onto partition 4 with `dsk2trident --base`, because the
+   sysout is 9,422 Alto pages and cannot fit beside `LISP.VIRTUALMEM.` on the
+   main partition.
+
+   Treat that target as a probe, not a correct finished pack. It can exercise
+   boot-file selection and basic disk reads, but byte-copying old BCPL system
+   files into a fresh host-generated filesystem changes labels and absolute
+   real-disk-address relationships that utilities such as Swat/Swatee check.
+   The failed 12-sector-to-14-sector remap experiment confirmed the ambiguity:
+   one label check wants AEmu's 14-sector VDA interpretation, while a later
+   Swatee check wants the original 12-sector physical RDA. Next preserve or
+   install a real Alto OS layout by running the original Alto tools (`Install`,
+   erase/clean, Scavenger/BFS, `CreateFile.run LISP.VIRTUALMEM 15002D`) in the
+   emulator, then run `Lisp` and confirm whether it finds/uses the sysout on
+   the auxiliary partition or expects the original network installer path.
+   ContrAlto's Trident/Diablo code (`AltoInfo/`) remains the format reference.
 4. **I/O + render:** Lisp keyboard/mouse/display delivery, analogous to
    `machine_cedar_io` (`dorado/src/machine.c:836`). Interlisp-D uses the
    standard Alto-lineage display; the framebuffer is already wired.
@@ -189,6 +210,20 @@ OT -> object space, big-endian 16-bit, byte-swapped on load -- the easy part);
 (2) the OT->Rot + OOP re-encoder (the hard part); (3) the planter + I/O wiring
 (model `machine_cedar_io`). Reference for the standard format: Goldberg & Robson
 Blue Book "Virtual Image"/"Object Memory"; for the target, `DSmallDefs.mc`.
+
+### Interlisp-D update 2026-06-26 — Lisp microcode offset fixed, OS still gated on VMEM
+
+The fake microcode boot server was missing the documented Dorado Lisp offset
+`0112` (boot-file number 3112). That made a correct `--boot-file-number 112`
+probe stall before LoadRam, even though the earlier `0110` override could
+load the same file. The server now has a real `0112` slot defaulting to
+`chm/lisp/DORADOLISPMC.EB!1`, and the corrected probe loads the Lisp
+microcode at cycle ~32M.
+
+That does **not** make Interlisp-D boot by itself. After LoadRam it still has
+no display and no progress toward a Lisp session, consistent with the model
+below: `Lisp.run` must create/use `LISP.VIRTUALMEM`, load the sysout, and
+then switch into `DORADOLISPMC.EB`.
 
 ### Interlisp-D verdict 2026-06-20 — blocked on the Trident disk WRITE path
 

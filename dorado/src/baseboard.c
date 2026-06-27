@@ -38,6 +38,66 @@ void  write6502(ushort address, uint8 v)  { bb_write(address, v);    }
 /* Pull in fake6502's full implementation here. */
 #include "fake6502.h"
 
+/* ─── fake6502 global <-> BaseBoard ownership ─────────────────────
+ *
+ * fake6502 keeps its whole register file in file-scope globals, so only
+ * one BaseBoard's 6502 can be "live" at a time. We track that owner and,
+ * on a switch (or snapshot/restore), copy the globals to/from the owning
+ * BaseBoard's cpu6502 mirror. This lets several machines coexist (the
+ * snapshot/restore experiment workflow boots one and restores another)
+ * without one machine's run clobbering another's 6502 state. */
+static dorado_baseboard *cpu6502_owner = NULL;
+
+static void cpu6502_save_to(dorado_baseboard *bb)
+{
+    dorado_baseboard_cpu_state *s = &bb->cpu6502;
+    s->pc = pc; s->oldpc = oldpc; s->ea = ea; s->reladdr = reladdr;
+    s->value = value; s->result = result;
+    s->sp = sp; s->a = a; s->x = x; s->y = y; s->status = status;
+    s->opcode = opcode; s->oldstatus = oldstatus;
+    s->penaltyop = penaltyop; s->penaltyaddr = penaltyaddr;
+    s->callexternal = callexternal;
+    s->instructions = instructions;
+    s->clockticks6502 = clockticks6502;
+    s->clockgoal6502 = clockgoal6502;
+}
+
+static void cpu6502_load_from(const dorado_baseboard *bb)
+{
+    const dorado_baseboard_cpu_state *s = &bb->cpu6502;
+    pc = s->pc; oldpc = s->oldpc; ea = s->ea; reladdr = s->reladdr;
+    value = s->value; result = s->result;
+    sp = s->sp; a = s->a; x = s->x; y = s->y; status = s->status;
+    opcode = s->opcode; oldstatus = s->oldstatus;
+    penaltyop = s->penaltyop; penaltyaddr = s->penaltyaddr;
+    callexternal = s->callexternal;
+    instructions = s->instructions;
+    clockticks6502 = s->clockticks6502;
+    clockgoal6502 = s->clockgoal6502;
+}
+
+/* Make `bb` the owner of the live fake6502 globals, flushing the previous
+ * owner's live state back to its mirror first. */
+static void cpu6502_make_owner(dorado_baseboard *bb)
+{
+    if (cpu6502_owner == bb) return;
+    if (cpu6502_owner) cpu6502_save_to(cpu6502_owner);
+    cpu6502_load_from(bb);
+    cpu6502_owner = bb;
+}
+
+void baseboard_cpu_flush(dorado_baseboard *bb)
+{
+    if (cpu6502_owner == bb) cpu6502_save_to(bb);
+}
+
+void baseboard_cpu_reload(dorado_baseboard *bb)
+{
+    if (cpu6502_owner && cpu6502_owner != bb) cpu6502_save_to(cpu6502_owner);
+    cpu6502_load_from(bb);
+    cpu6502_owner = bb;
+}
+
 /* ─── 6532 RIOT helpers ───────────────────────────────────────── */
 
 /*
@@ -469,9 +529,11 @@ int baseboard_load_rom(dorado_baseboard *bb, const char *mb_path)
 void baseboard_reset(dorado_baseboard *bb)
 {
     baseboard_active = bb;
+    cpu6502_make_owner(bb);   /* take ownership, flushing any prior owner */
     bb->cycles = 0;
     bb->halted = 0;
-    reset6502();
+    reset6502();              /* sets the live globals to the reset vector */
+    cpu6502_save_to(bb);      /* persist the reset state into bb->cpu6502 */
 }
 
 /*
@@ -487,6 +549,7 @@ void baseboard_reset(dorado_baseboard *bb)
 uint32_t baseboard_step(dorado_baseboard *bb)
 {
     baseboard_active = bb;
+    cpu6502_make_owner(bb);
     uint32_t t = step6502();
     bb->cycles += t;
 
@@ -556,12 +619,15 @@ void baseboard_boot_button(dorado_baseboard *bb, int pressed)
     }
 }
 
-uint16_t baseboard_pc(const dorado_baseboard *bb)     { (void)bb; return pc; }
-uint8_t  baseboard_a(const dorado_baseboard *bb)      { (void)bb; return a; }
-uint8_t  baseboard_x(const dorado_baseboard *bb)      { (void)bb; return x; }
-uint8_t  baseboard_y(const dorado_baseboard *bb)      { (void)bb; return y; }
-uint8_t  baseboard_sp(const dorado_baseboard *bb)     { (void)bb; return sp; }
-uint8_t  baseboard_status(const dorado_baseboard *bb) { (void)bb; return status; }
+/* Read the live global when bb owns the 6502, else its saved mirror. */
+#define BB_OWNED(bb, live, field) \
+    ((cpu6502_owner == (bb)) ? (live) : (bb)->cpu6502.field)
+uint16_t baseboard_pc(const dorado_baseboard *bb)     { return BB_OWNED(bb, pc, pc); }
+uint8_t  baseboard_a(const dorado_baseboard *bb)      { return BB_OWNED(bb, a, a); }
+uint8_t  baseboard_x(const dorado_baseboard *bb)      { return BB_OWNED(bb, x, x); }
+uint8_t  baseboard_y(const dorado_baseboard *bb)      { return BB_OWNED(bb, y, y); }
+uint8_t  baseboard_sp(const dorado_baseboard *bb)     { return BB_OWNED(bb, sp, sp); }
+uint8_t  baseboard_status(const dorado_baseboard *bb) { return BB_OWNED(bb, status, status); }
 
 void baseboard_dump(const dorado_baseboard *bb, char *buf, size_t buflen)
 {

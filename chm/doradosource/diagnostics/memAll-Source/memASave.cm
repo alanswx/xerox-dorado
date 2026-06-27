@@ -1,0 +1,1 @@
+// Assemble d1Lang, kernelAlu and Preamblle. Save the definitions on "memASaveDefs.st"// Assemble memDefs.mc and save the definitions upon "memDefs.st"// November 26, 1978  1:23 PMmicro/u memASaveDefs/s/b d1Lang kernelAlu preamble@memDefs.cm

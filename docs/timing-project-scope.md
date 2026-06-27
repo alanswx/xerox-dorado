@@ -1,0 +1,155 @@
+# Holistic Cycle-Accurate Timing — project scope & estimate
+
+**Date: 2026-06-23. Updated 2026-06-26:** the diagnostic failure details in
+this scope note are historical; current passing diagnostic commands and step
+counts live in [`running-diagnostics.md`](running-diagnostics.md). The companion
+[`cycle-accurate-timing-plan.md`](cycle-accurate-timing-plan.md) is the
+(organic, dated) working log; this file is the **scoped plan with an end state,
+phase estimates, and explicit go/no-go checkpoints** so the work is bounded, not
+open-ended whack-a-mole.
+
+## 0. The question this answers
+
+"Most Alto-on-Dorado games render blank because their execution diverges from a
+real Alto before they build a display list." Is fixing that a finite project or
+an infinite mole-hunt? **It is finite** — see §3. This doc says how big and how
+to know if it's working.
+
+## 1. What is and isn't already true (baseline, 2026-06-23)
+
+Established this session, so the project doesn't re-derive it:
+
+- **The render path is correct.** The C rasterizer renders any valid Alto
+  display list (current Galaxian gate: 121553 px). Broken games have
+  *degenerate* lists (Invaders: `nwrds=0`) because they diverged before building
+  one. So this is **not** a render bug — it is execution divergence.
+- **The divergence is timing.** ours executes the Alto opcode stream identically
+  to ContrAlto for **2130 opcodes** (Invaders), then forks at an I/O-timing
+  event (the ethernet OutDone post at EPLOC). The microengine, IFU, memory, and
+  tasking *logic* are correct; the **device + scheduler cadences** are
+  approximate constants co-tuned to pass the boot.
+- **The measurement harness works.** `tools/nova-trace-diff/tracepcdiff.sh`
+  gives a trustworthy **lockstep depth** = how many executed Alto opcodes ours
+  matches ContrAlto before the first divergence. That is the project's North-Star
+  metric. Snapshot/restore (`dorado_machine_snapshot/_restore`) exists, so timing
+  experiments can run from a running-game snapshot without re-running the fragile
+  boot.
+- **Incremental single-cadence patches desync the boot** (proven twice:
+  `DORADO_WLAT`, and the ethernet wire model drops the boot-vs-game balance).
+  The cadences are co-tuned; they must be made accurate *together*, validated
+  from a snapshot, then the boot re-established (Phase S3).
+
+## 2. Definition of done (end state)
+
+The project is **done** when:
+
+1. **Primary:** ≥3 currently-blank simple games (target: Invaders, AstroRoids,
+   and one more non-network game) **render their playfield** — a non-degenerate
+   display list and px in the structural ballpark of ContrAlto's render.
+2. **Lockstep:** for those games, `tracepcdiff` lockstep depth reaches the game's
+   **first painted frame** (was 2130 for Invaders; "done" is tens of thousands of
+   opcodes through display setup), not just a few hundred more.
+3. **No regressions:** Galaxian = 121553, NetExec in band, `make test` 12/12,
+   Cedar still boots to login, and the accurate cadences are the **default**
+   (the `DORADO_*` gates removed), i.e. the boot was re-established (Phase S3).
+
+If after Phase S2 the lockstep depth does **not** climb materially as each
+cadence is corrected, the timing hypothesis is wrong for these games — **stop**
+and re-open the diagnosis (off-ramp in §4).
+
+> **UPDATED gate (2026-06-26): the PARC diagnostics give a no-tolerance,
+> real-Dorado-grounded oracle that is stronger than the games' framebuffer
+> digest.** The current tree passes kernel, eventCounters, memMisc,
+> IfuSimple/Complex, TriconD no-pack, and focused memA D/X/S slices with the
+> commands in [`running-diagnostics.md`](running-diagnostics.md). Treat that file
+> as the current diagnostic gate; the older failure analysis below this point is
+> historical timing-project context.
+
+## 3. Why this is finite, not infinite whack-a-mole
+
+The AEmu's Alto interrupts are driven by a **small, closed set** of timing
+sources. Once each is physically accurate in absolute Dorado cycles, the
+Alto-opcode-rate ÷ interrupt-rate ratio is correct everywhere and divergences
+stop compounding. The set:
+
+1. **Display vertical field** (~60 Hz) + scanline cadence.
+2. **Real-time clock** (RTC period).
+3. **Ethernet** completion timing (tx wire time, rx FIFO pacing, EOT/EIT post).
+4. **Task scheduler** wakeup→execute latency + TaskingOn gate.
+
+(Disk is a 5th, on a separate track — needed for disk-boot, not ether-boot
+games.) The microengine's *opcode rate* is already correct (it runs the real
+AEmu microcode cycle-by-cycle). So the project is "make these 4 cadences
+accurate and reconcile them with the boot" — bounded work with a measurable
+target, not an unbounded bug hunt. The risk is the **co-tuning** between them and
+the boot, not the count of them.
+
+## 4. Phases, tasks, estimates, and checkpoints
+
+Effort in engineer-days; ranges reflect the co-tuning risk. Develop **from a
+running-game snapshot**, validating each step by lockstep depth.
+
+### Phase S1 — Metric & instrumentation (1–2 d)
+- One-command lockstep-depth report per game (wrap `tracepcdiff`); record a
+  baseline table (Invaders 2130, AstroRoids ?, …).
+- Per-device wakeup-cycle logging (which device woke which task at which cycle)
+  so a cadence error is *seen*, not inferred.
+- Snapshot a running game past the boot for fast iteration.
+- **Checkpoint:** baseline table + the ability to attribute each divergence to a
+  named device/cadence.
+
+### Phase S2 — Make the 4 cadences accurate (3–6 d)
+Each is a measure → calibrate-to-absolute-Dorado-cycles → validate-lockstep loop.
+Calibrate first (cheaper, proves the ratio); structurally model only where
+calibration is fragile.
+- **Display field/scanline** — replace the `+1000` scanline hack
+  (`machine.c:2206`); scanline ≈ 20.6 µs, field = 277778 cycles (already set).
+- **RTC** — real period; verify the Alto clock interrupt phase.
+- **Scheduler** — 2-cycle wakeup→execute latency + 2-instruction TaskingOn gate
+  (the reverted `DORADO_WLAT` is the starting point; works only once the device
+  cadences above are right).
+- **Ethernet EOT/EIT** — the wire model (`DORADO_ETH_WIRE`) gets the spin into
+  lockstep but drops the delayed OutDone (EIT preempts; EOT never runs EPOST).
+  Model the EOT Block/resume across the delayed TxGone wakeup so OutDone posts at
+  ContrAlto's ~opcode-2130 point. (~87 µs tx, 5.4 µs/word rx already in.)
+- **GO/NO-GO after S2:** lockstep depth on the target games must jump from
+  hundreds to many thousands of opcodes (through display setup). If it doesn't,
+  **stop** — timing isn't the (whole) story; reassess. This is the project's
+  main risk gate.
+
+### Phase S3 — Re-establish the boot (3–7 d, the hard part)
+Make the accurate cadences the default (remove the `DORADO_*` gates). The boot
+will break first because it was tuned to the *approximate* cadences (EFTP
+lock-step turnaround, breath-of-life injection, the loader's own EPLOC poll). Fix
+those against the accurate cadences using the boot-phase tracediff. Add an
+asserting boot smoke gate to `test_cpu.c` for regression protection.
+
+### Phase S4 — Validate & harden (2–3 d)
+Re-run the 38-game survey; the crashers should progressively render.
+Structurally model any cadence where S2 calibration proved fragile. Lock the
+gates (Galaxian px, NetExec band, Cedar login, `make test`, lockstep depth).
+
+### Total: ~2–4 engineer-weeks
+Dominated by S3 (co-tuning the boot) and the S2 ethernet/scheduler interaction.
+The **S2 go/no-go** caps the downside: ~1 week gets to a definitive answer on
+whether accurate cadences render the games, before committing to the S3 boot
+work.
+
+## 5. Risks
+- **Co-tuning web (highest):** boot ↔ cadence interdependence; mitigated by
+  snapshot-isolated development, paid down in S3.
+- **Architecture:** ours polls device cadences per cycle with ad-hoc tick
+  counters; ContrAlto uses a discrete-event scheduler in absolute nsec.
+  **Decision: do NOT refactor to a scheduler first** — calibrate the existing
+  cadences to absolute Dorado cycles (cheaper, proves the ratio). Adopt a
+  scheduler only if calibration becomes unmaintainable.
+- **Residual non-timing bugs:** some games may also have non-timing faults; the
+  S2 gate surfaces this (lockstep stalls at a non-I/O opcode).
+
+## 6. Recommendation
+Run **S1 + S2 (~1 week) to the go/no-go**. That is the cheapest path to a
+definitive answer: either the lockstep depth climbs through display setup (then
+S3/S4 are worth it), or it doesn't (then game compatibility isn't purely timing
+and we redirect). Until then, the working set (Galaxian, NetExec, Boggs, EDP,
+Calculator, KeyTest, PinBall, …) and Cedar-to-login are the shipped capability,
+and the gated wire model stays as scaffolding.
