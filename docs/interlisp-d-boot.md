@@ -135,6 +135,132 @@ This is not yet a bootable Lisp disk. It proves the required geometry and
 VMEM allocation, and includes the core Lisp loader/microcode files, but the
 pack still needs a bootable Alto OS and `INIT.LCOM`.
 
+### 2026-06-27: sysout capacity and pack-building status
+
+The CHM/archive.org Lisp material does include real sysout images, but the
+Lyric `LISP.SYSOUT!1` is 4,824,064 bytes, or 9,422 Alto pages. That does not
+fit beside the 15,002-page `LISP.VIRTUALMEM` file on the same two-drive AEmu
+partition: the main partition has only about 7,328 pages free after VMEM plus
+the small loader files. This matches the Xerox install recipe, which copies
+`Lisp.run`, symbols, microcode, and init/update command files, but does not
+copy a sysout into that same partition.
+
+`make -C dorado lisp-disk-image-full` builds an exploratory local fixture
+when the optional CHM/archive.org sysout files are present:
+
+- partition 5 (Trident head 4): a minimal Alto OS/Executive seed extracted
+  from `AltoInfo/ContrAlto2-beta/Disks/bcpl.dsk` (`Sys.Boot.`,
+  `Executive.Run.`, `Swat.`, `Swatee.`, `SysFont.Al.`, `SYS.ERRORS.`,
+  `Com.Cm.`, `User.Cm.`, `SCAVENGER.RUN.`), plus `LISP.VIRTUALMEM.`,
+  `LISP.RUN.`, `LISP.SYMS.`, `DORADOLISPMC.EB.`, `ALTOD1MC.EB.`,
+  `INIT.LCOM.`, and `UPDATELISP.CM.`
+- partition 4 (Trident head 3): `LISP.SYSOUT.`
+
+This uses `dsk2trident --base` to overlay the second partition without
+clearing the first. The full target installs `Sys.Boot.` as the Alto boot
+file; the earlier experiment of installing `LISP.RUN.` directly was wrong,
+because `Lisp.run` is a BCPL program to run under the Alto Executive, not a
+standalone disk boot image.
+
+This is **not** a known-good Lisp pack. It is a probe that keeps the geometry,
+capacity, and multi-partition overlay steps reproducible while we finish the
+writable disk path. The useful current facts are:
+
+- The low-level disk gates pass: `make -C dorado test` and
+  `make -C dorado run-tricond-pack` are green on 2026-06-27.
+- Disk-mode AEmu input now gets live Alto keyboard/mouse state, so typing at
+  a disk-booted Executive prompt is no longer blocked by the frontend path.
+- The host-built full fixture can reach the Alto OS/display path, but running
+  old BCPL utilities from a repacked filesystem still exposes absolute
+  real-disk-address assumptions.
+- `dsk2trident --remap-vda` is deliberately experimental. A 12-sector
+  `bcpl.dsk` contains a mix of metadata: some checks want the 14-sector AEmu
+  VDA interpretation, while other utilities check absolute physical RDAs from
+  the original 12-sector pack. A blanket host-side remap fixes one label check
+  and breaks another.
+
+One bounded probe with the older direct-`LISP.RUN.` boot-file experiment:
+
+```
+cd dorado
+./build/dorado --eb worlds/aemu.eb \
+  --disk 0=build/run-disks/lisp-full-diablo-trident.pack \
+  --boot-reason disk --cycles 180000000 \
+  --out /tmp/dorado-lisp-full-disk.pgm --progress
+```
+
+reaches "Alto/Mesa world loaded" at cycle ~32M but produces 0 display-list
+pixels. In strict disk-only mode (`--no-alto-boot`), the generated `Sys.Boot.`
+pack reached the normal Alto OS/display path in one 2026-06-26 run:
+
+```
+cd dorado
+./build/dorado --eb worlds/aemu.eb \
+  --disk 0=build/run-disks/lisp-full-diablo-trident.pack \
+  --boot-reason disk --no-alto-boot --cycles 300000000 \
+  --out /tmp/dorado-lisp-full-os-diskonly-300m.pgm
+```
+
+Result on 2026-06-26: `28694 display-list pixels`. That result proves the
+boot-file selection and basic disk read path can work; it does not prove the
+fixture is filesystem-correct enough for Lisp.
+
+An exploratory run typing `lisp.run` at the Executive prompt:
+
+```
+./build/dorado --eb worlds/aemu.eb \
+  --disk 0=build/run-disks/lisp-full-diablo-trident.pack \
+  --boot-reason disk --no-alto-boot --type $'lisp.run\n' \
+  --type-at 330000000 --key-hold 4000000 --cycles 700000000 \
+  --out /tmp/dorado-lisp-run-typed-700m.pgm
+```
+
+typed all nine keys and ended with `0 display-list pixels`. That is consistent
+with `Lisp.run` clearing the display before switching into the Lisp loader, but
+it is not proof that the Lisp microcode/sysout path is complete. Next debugging
+should trace `Lisp.run`'s LoadMicrocode / VMEM / sysout path, especially
+whether it expects `LISP.SYSOUT.` on the auxiliary partition or only via the
+original network installer flow.
+
+The small `*Initial.db` files under `chm/lisp/*/basics/` are not Trident pack
+images. They share the Lisp/sysout-style magic bytes but are only 8-10 KB, so
+they are debugger/initialization payloads rather than bootable disk packs.
+
+Follow-up debugging found that host-side pack reconstruction is the remaining
+weak link. One failing Swatee read-check at Alto real disk address `30374B`
+expects the original `bcpl.dsk` label:
+
+```
+040374 020374 000000 001000 000376 000001 000000 000161
+```
+
+The synthetic full pack had repacked `Swatee.` and other Alto system files into
+a new filesystem, so that same real disk address held a different file label
+(initially a `LISP.VIRTUALMEM.` page, later another synthesized file page).
+That explains the Swatee "file smashed" / `047402` check-error screen: old Alto
+system utilities are not safe to byte-copy into an arbitrary new filesystem
+layout. `altofs --vmem-after-inserts` and the updated full target now at least
+allocate `LISP.VIRTUALMEM.` after the OS seed files, matching the Xerox install
+order more closely, but the remaining fix is to preserve or install a real Alto
+OS disk layout rather than extracting and reinserting `Swat.`/`Swatee.` as raw
+files.
+
+A separate 12-sector-to-14-sector experiment showed why this should be solved
+by running the original Alto tools instead of teaching `dsk2trident` every
+filesystem invariant. RDA `011270B` maps to `DiskDescriptor.` page VDA 2437
+under AEmu's 14-sector geometry, so VDA remapping fixed that check. Later,
+RDA `050330B` expected a `Swatee.` page by absolute physical address from the
+original 12-sector layout; the same VDA remap put the wrong page there. The
+right long-term target is therefore:
+
+1. Boot a known-good Alto Executive on AEmu.
+2. Attach a fresh writable copied pack/partition.
+3. Run the original Xerox flow from `NewUserDisk.cm`: `Install`, erase/clean,
+   `Scavenger`/BFS, `CreateFile.run LISP.VIRTUALMEM 15002D`, then copy
+   `Lisp.run`, symbols, microcode, init, and update files.
+4. Treat "CreateFile succeeds and Scavenger is clean" as the writable
+   Alto-format pack acceptance test.
+
 ### 2026-06-09: checksum/load validation
 
 Pointed our **existing, working Stage-1** Initial->LoadRam netboot path

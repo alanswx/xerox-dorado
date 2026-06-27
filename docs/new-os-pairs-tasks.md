@@ -122,10 +122,29 @@ that VMEM swap file.
 3. **Finish the Alto-format Lisp pack** (if pursuing 2a): the geometry and
    VMEM allocation are reproducible with `make -C dorado lisp-disk-image`
    (`2 * 406 * 2 * 14 = 22736` Alto pages, enough for `LISP.VIRTUALMEM
-   15002D`). The generated pack now includes `Lisp.run`, `Lisp.syms`,
-   `DORADOLISPMC.EB`, and `AltoD1MC.eb`. Next install Alto OS on the pack,
-   add a suitable `INIT.LCOM`, and run `Lisp.run`. ContrAlto's
-   Trident/Diablo code (`AltoInfo/`) remains the format reference.
+   15002D`). The small generated pack includes `Lisp.run`, `Lisp.syms`,
+   `DORADOLISPMC.EB`, and `AltoD1MC.eb`.
+
+   There is also a local full fixture:
+   `make -C dorado lisp-disk-image-full`. It seeds a minimal Alto
+   OS/Executive from `bcpl.dsk`, keeps the VMEM/loader files on partition 5,
+   installs `Sys.Boot.` as the disk boot file, and overlays the Lyric
+   `LISP.SYSOUT.` onto partition 4 with `dsk2trident --base`, because the
+   sysout is 9,422 Alto pages and cannot fit beside `LISP.VIRTUALMEM.` on the
+   main partition.
+
+   Treat that target as a probe, not a correct finished pack. It can exercise
+   boot-file selection and basic disk reads, but byte-copying old BCPL system
+   files into a fresh host-generated filesystem changes labels and absolute
+   real-disk-address relationships that utilities such as Swat/Swatee check.
+   The failed 12-sector-to-14-sector remap experiment confirmed the ambiguity:
+   one label check wants AEmu's 14-sector VDA interpretation, while a later
+   Swatee check wants the original 12-sector physical RDA. Next preserve or
+   install a real Alto OS layout by running the original Alto tools (`Install`,
+   erase/clean, Scavenger/BFS, `CreateFile.run LISP.VIRTUALMEM 15002D`) in the
+   emulator, then run `Lisp` and confirm whether it finds/uses the sysout on
+   the auxiliary partition or expects the original network installer path.
+   ContrAlto's Trident/Diablo code (`AltoInfo/`) remains the format reference.
 4. **I/O + render:** Lisp keyboard/mouse/display delivery, analogous to
    `machine_cedar_io` (`dorado/src/machine.c:836`). Interlisp-D uses the
    standard Alto-lineage display; the framebuffer is already wired.

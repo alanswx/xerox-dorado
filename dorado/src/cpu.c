@@ -3738,6 +3738,25 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                     cpu->dbg_writeim_pc[cpu->dbg_writeim_n]   = cpu->real_PC;
                     cpu->dbg_writeim_n++;
                 }
+                if (dorado_trace_flag("DORADO_WRITEIM_TRACE") &&
+                    (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+                    static unsigned long n = 0;
+                    static long limit = -2;
+                    if (limit == -2) {
+                        const char *w = getenv("DORADO_WRITEIM_TRACE_LIMIT");
+                        limit = w ? strtol(w, NULL, 0) : 128;
+                    }
+                    if (limit <= 0 || (long)n < limit) {
+                        fprintf(stderr,
+                                "WRITEIM cyc=%llu task=%o pc=0o%o "
+                                "addr=0o%o half=%s sec=%d b=0o%06o T=0o%06o\n",
+                                (unsigned long long)dorado_trace_cycle,
+                                cpu->ctask, cpu->real_PC, addr,
+                                half_lh ? "LH" : "RH", secondary,
+                                b & 0177777, cpu->T & 0177777);
+                    }
+                    n++;
+                }
 
                 if (half_lh) {
                     dst->iw0 = b;

@@ -320,14 +320,91 @@ ALTO_GOLDEN_PACK ?= $(TRIDENT_GOLDEN_DIR)/alto-games-trident.pack
 ALTO_RUN_PACK ?= $(TRIDENT_RUN_DIR)/alto-games-trident.pack
 LISP_DSK0 ?= $(TRIDENT_RUN_DIR)/lisp-drive0.dsk
 LISP_DSK1 ?= $(TRIDENT_RUN_DIR)/lisp-drive1.dsk
+LISP_AUX_DSK0 ?= $(TRIDENT_RUN_DIR)/lisp-aux-drive0.dsk
+LISP_AUX_DSK1 ?= $(TRIDENT_RUN_DIR)/lisp-aux-drive1.dsk
 LISP_RUN_PACK ?= $(TRIDENT_RUN_DIR)/lisp-diablo-trident.pack
+LISP_FULL_PACK ?= $(TRIDENT_RUN_DIR)/lisp-full-diablo-trident.pack
+LISP_MAIN_PARTITION ?= 5
+LISP_AUX_PARTITION ?= 4
+LISP_BOOT_FILE ?=
+LISP_FULL_BOOT_FILE ?= Sys.Boot.
+PALO_PAR ?= ../AltoInfo/palo/src/par
+ALTO_OS_DISK ?= ../AltoInfo/ContrAlto2-beta/Disks/bcpl.dsk
+LISP_OS_DIR ?= $(TRIDENT_RUN_DIR)/lisp-os-files
+LISP_OS_SYS_BOOT ?= $(LISP_OS_DIR)/Sys.Boot.
+LISP_OS_EXEC ?= $(LISP_OS_DIR)/Executive.Run.
+LISP_OS_SWAT ?= $(LISP_OS_DIR)/Swat.
+LISP_OS_SWATEE ?= $(LISP_OS_DIR)/Swatee.
+LISP_OS_SYSFONT ?= $(LISP_OS_DIR)/SysFont.Al.
+LISP_OS_SYS_ERRORS ?= $(LISP_OS_DIR)/SYS.ERRORS.
+LISP_OS_COM_CM ?= $(LISP_OS_DIR)/Com.Cm.
+LISP_OS_USER_CM ?= $(LISP_OS_DIR)/User.Cm.
+LISP_OS_SCAVENGER ?= $(LISP_OS_DIR)/SCAVENGER.RUN.
+LISP_OS_HOST_FILES = \
+	$(LISP_OS_SYS_BOOT) \
+	$(LISP_OS_EXEC) \
+	$(LISP_OS_SWAT) \
+	$(LISP_OS_SWATEE) \
+	$(LISP_OS_SYSFONT) \
+	$(LISP_OS_SYS_ERRORS) \
+	$(LISP_OS_COM_CM) \
+	$(LISP_OS_USER_CM) \
+	$(LISP_OS_SCAVENGER)
+LISP_OS_INSERTS = \
+	--insert '$(LISP_OS_SYS_BOOT)' Sys.Boot. \
+	--insert '$(LISP_OS_EXEC)' Executive.Run. \
+	--insert '$(LISP_OS_SWAT)' Swat. \
+	--insert '$(LISP_OS_SWATEE)' Swatee. \
+	--insert '$(LISP_OS_SYSFONT)' SysFont.Al. \
+	--insert '$(LISP_OS_SYS_ERRORS)' SYS.ERRORS. \
+	--insert '$(LISP_OS_COM_CM)' Com.Cm. \
+	--insert '$(LISP_OS_USER_CM)' User.Cm. \
+	--insert '$(LISP_OS_SCAVENGER)' SCAVENGER.RUN.
 LISP_RUN_FILE ?= ../chm/lisp/Lisp.run!6
 LISP_SYMS_FILE ?= ../chm/lisp/Lisp.syms!4
 LISP_MC_FILE ?= ../chm/lisp/DORADOLISPMC.EB!1
 LISP_ALTOD1_FILE ?= ../chm/lisp/altod1mc.eb!1
+LISP_UPDATE_FILE ?= ../chm/lisp/cm/UpdateLisp.CM!8
+LISP_SYSOUT_FILE ?= $(firstword $(wildcard ../chm/archiveorg/_chm-parc_interlisp-lyric/LISP.SYSOUT!1 ../chm/lisp/harmony/basics/LISP.SYSOUT!15 ../chm/lisp/fugue.6/basics/Lisp.sysout!1))
+LISP_INIT_FILE ?= $(firstword $(wildcard ../chm/lisp/harmony/basics/INIT.NONET!3 ../chm/lisp/fugue.6/basics/DoradoInit.nonet!1))
+LISP_CORE_INSERTS = \
+	--insert '$(LISP_RUN_FILE)' LISP.RUN. \
+	--insert '$(LISP_SYMS_FILE)' LISP.SYMS. \
+	--insert '$(LISP_MC_FILE)' DORADOLISPMC.EB. \
+	--insert '$(LISP_ALTOD1_FILE)' ALTOD1MC.EB.
 
-$(TRIDENT_GOLDEN_DIR) $(TRIDENT_RUN_DIR):
+$(TRIDENT_GOLDEN_DIR) $(TRIDENT_RUN_DIR) $(LISP_OS_DIR):
 	mkdir -p $@
+
+$(PALO_PAR):
+	$(MAKE) -C ../AltoInfo/palo/src par
+
+$(LISP_OS_SYS_BOOT): $(PALO_PAR) $(ALTO_OS_DISK) | $(LISP_OS_DIR)
+	$(PALO_PAR) -1 '$(ALTO_OS_DISK)' -e Sys.Boot. '$@'
+
+$(LISP_OS_EXEC): $(PALO_PAR) $(ALTO_OS_DISK) | $(LISP_OS_DIR)
+	$(PALO_PAR) -1 '$(ALTO_OS_DISK)' -e Executive.Run. '$@'
+
+$(LISP_OS_SWAT): $(PALO_PAR) $(ALTO_OS_DISK) | $(LISP_OS_DIR)
+	$(PALO_PAR) -1 '$(ALTO_OS_DISK)' -e Swat. '$@'
+
+$(LISP_OS_SWATEE): $(PALO_PAR) $(ALTO_OS_DISK) | $(LISP_OS_DIR)
+	$(PALO_PAR) -1 '$(ALTO_OS_DISK)' -e Swatee. '$@'
+
+$(LISP_OS_SYSFONT): $(PALO_PAR) $(ALTO_OS_DISK) | $(LISP_OS_DIR)
+	$(PALO_PAR) -1 '$(ALTO_OS_DISK)' -e SysFont.Al. '$@'
+
+$(LISP_OS_SYS_ERRORS): $(PALO_PAR) $(ALTO_OS_DISK) | $(LISP_OS_DIR)
+	$(PALO_PAR) -1 '$(ALTO_OS_DISK)' -e SYS.ERRORS. '$@'
+
+$(LISP_OS_COM_CM): $(PALO_PAR) $(ALTO_OS_DISK) | $(LISP_OS_DIR)
+	$(PALO_PAR) -1 '$(ALTO_OS_DISK)' -e Com.Cm. '$@'
+
+$(LISP_OS_USER_CM): $(PALO_PAR) $(ALTO_OS_DISK) | $(LISP_OS_DIR)
+	$(PALO_PAR) -1 '$(ALTO_OS_DISK)' -e User.Cm. '$@'
+
+$(LISP_OS_SCAVENGER): $(PALO_PAR) $(ALTO_OS_DISK) | $(LISP_OS_DIR)
+	$(PALO_PAR) -1 '$(ALTO_OS_DISK)' -e SCAVENGER.RUN. '$@'
 
 $(ALTO_GOLDEN_PACK): $(ALTO_GOLDEN_PACK_GZ) | $(TRIDENT_GOLDEN_DIR)
 	chmod u+w '$@' 2>/dev/null || true
@@ -336,6 +413,7 @@ $(ALTO_GOLDEN_PACK): $(ALTO_GOLDEN_PACK_GZ) | $(TRIDENT_GOLDEN_DIR)
 
 .PHONY: trident-readonly-images alto-disk-image refresh-alto-golden
 .PHONY: lisp-disk-image
+.PHONY: lisp-disk-image-full
 .PHONY: run-alto-disk run-alto-disk-screenshot
 .PHONY: run-tricond-nopack run-tricond-pack
 trident-readonly-images: $(ALTO_GOLDEN_PACK)
@@ -351,11 +429,28 @@ alto-disk-image: trident-readonly-images | $(TRIDENT_RUN_DIR)
 
 lisp-disk-image: $(BINDIR)/altofs $(BINDIR)/dsk2trident | $(TRIDENT_RUN_DIR)
 	$(BINDIR)/altofs --disk0 '$(LISP_DSK0)' --disk1 '$(LISP_DSK1)' \
-		--insert '$(LISP_RUN_FILE)' LISP.RUN. \
-		--insert '$(LISP_SYMS_FILE)' LISP.SYMS. \
-		--insert '$(LISP_MC_FILE)' DORADOLISPMC.EB. \
-		--insert '$(LISP_ALTOD1_FILE)' ALTOD1MC.EB.
+		$(LISP_CORE_INSERTS) $(if $(LISP_BOOT_FILE),--boot-file '$(LISP_BOOT_FILE)',)
 	$(BINDIR)/dsk2trident --all-heads --diablo-cylinders 406 --diablo-sectors 14 --drive1 '$(LISP_DSK1)' '$(LISP_DSK0)' '$(LISP_RUN_PACK)'
+
+ifeq ($(LISP_SYSOUT_FILE),)
+lisp-disk-image-full:
+	@echo "No Lisp sysout found. Set LISP_SYSOUT_FILE=/path/to/LISP.SYSOUT or fetch the CHM/archive.org Lisp sysout files."
+	@false
+else
+lisp-disk-image-full: $(BINDIR)/altofs $(BINDIR)/dsk2trident $(PALO_PAR) $(LISP_OS_HOST_FILES) | $(TRIDENT_RUN_DIR)
+	$(BINDIR)/altofs --disk0 '$(LISP_DSK0)' --disk1 '$(LISP_DSK1)' \
+		--vmem-after-inserts $(LISP_OS_INSERTS) $(if $(LISP_FULL_BOOT_FILE),--boot-file '$(LISP_FULL_BOOT_FILE)',)
+	$(PALO_PAR) -rw --disks 2 --cylinders 406 --heads 2 --sectors 14 -2 '$(LISP_DSK1)' -i '$(LISP_RUN_FILE)' LISP.RUN. '$(LISP_DSK0)'
+	$(PALO_PAR) -rw --disks 2 --cylinders 406 --heads 2 --sectors 14 -2 '$(LISP_DSK1)' -i '$(LISP_SYMS_FILE)' LISP.SYMS. '$(LISP_DSK0)'
+	$(PALO_PAR) -rw --disks 2 --cylinders 406 --heads 2 --sectors 14 -2 '$(LISP_DSK1)' -i '$(LISP_MC_FILE)' DORADOLISPMC.EB. '$(LISP_DSK0)'
+	$(PALO_PAR) -rw --disks 2 --cylinders 406 --heads 2 --sectors 14 -2 '$(LISP_DSK1)' -i '$(LISP_ALTOD1_FILE)' ALTOD1MC.EB. '$(LISP_DSK0)'
+	$(PALO_PAR) -rw --disks 2 --cylinders 406 --heads 2 --sectors 14 -2 '$(LISP_DSK1)' -i '$(LISP_UPDATE_FILE)' UPDATELISP.CM. '$(LISP_DSK0)'
+	$(if $(LISP_INIT_FILE),$(PALO_PAR) -rw --disks 2 --cylinders 406 --heads 2 --sectors 14 -2 '$(LISP_DSK1)' -i '$(LISP_INIT_FILE)' INIT.LCOM. '$(LISP_DSK0)',)
+	$(BINDIR)/dsk2trident --partition $(LISP_MAIN_PARTITION) --diablo-cylinders 406 --diablo-sectors 14 --drive1 '$(LISP_DSK1)' '$(LISP_DSK0)' '$(LISP_FULL_PACK)'
+	$(BINDIR)/altofs --disk0 '$(LISP_AUX_DSK0)' --disk1 '$(LISP_AUX_DSK1)' \
+		--no-vmem --insert '$(LISP_SYSOUT_FILE)' LISP.SYSOUT.
+	$(BINDIR)/dsk2trident --base '$(LISP_FULL_PACK)' --partition $(LISP_AUX_PARTITION) --diablo-cylinders 406 --diablo-sectors 14 --drive1 '$(LISP_AUX_DSK1)' '$(LISP_AUX_DSK0)' '$(LISP_FULL_PACK)'
+endif
 
 run-alto-disk: sdl alto-disk-image
 	./build/dorado-sdl --eb worlds/aemu.eb --disk 0='$(ALTO_RUN_PACK)' --boot-reason disk --speed 4000000

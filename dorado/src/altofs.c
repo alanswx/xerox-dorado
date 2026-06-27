@@ -36,8 +36,10 @@ static void usage(const char *prog)
         "  --sector-words N   words per sector (default 256)\n"
         "  --vmem-pages N     create zero-filled LISP.VIRTUALMEM. pages (default 15002)\n"
         "  --vmem-name NAME   Alto filename for VMEM (default LISP.VIRTUALMEM.)\n"
+        "  --vmem-after-inserts  create VMEM after the --insert files\n"
         "  --no-vmem          do not create a VMEM file\n"
         "  --insert HOST NAME insert a host file as Alto filename NAME\n"
+        "  --boot-file NAME   install Alto boot sector from filesystem NAME\n"
         "  --help             show this help\n",
         prog);
 }
@@ -89,8 +91,10 @@ int main(int argc, char **argv)
     const char *disk0 = NULL;
     const char *disk1 = NULL;
     const char *vmem_name = "LISP.VIRTUALMEM.";
+    const char *boot_file = NULL;
     int vmem_pages = DEFAULT_VMEM_PAGES;
     int create_vmem = 1;
+    int vmem_after_inserts = 0;
     struct geometry dg;
     insert_spec inserts[32];
     int insert_count = 0;
@@ -119,6 +123,8 @@ int main(int argc, char **argv)
             vmem_pages = parse_int(argv[++i], "vmem pages");
         } else if (!strcmp(a, "--vmem-name") && i + 1 < argc) {
             vmem_name = argv[++i];
+        } else if (!strcmp(a, "--vmem-after-inserts")) {
+            vmem_after_inserts = 1;
         } else if (!strcmp(a, "--no-vmem")) {
             create_vmem = 0;
         } else if (!strcmp(a, "--insert") && i + 2 < argc) {
@@ -129,6 +135,8 @@ int main(int argc, char **argv)
             inserts[insert_count].host_path = argv[++i];
             inserts[insert_count].alto_name = argv[++i];
             insert_count++;
+        } else if (!strcmp(a, "--boot-file") && i + 1 < argc) {
+            boot_file = argv[++i];
         } else if (!strcmp(a, "--help") || !strcmp(a, "-h")) {
             usage(argv[0]);
             return 0;
@@ -164,7 +172,7 @@ int main(int argc, char **argv)
 
     afs.checked = 1;
 
-    if (create_vmem) {
+    if (create_vmem && !vmem_after_inserts) {
         size_t bytes = (size_t)vmem_pages * (size_t)dg.sector_words * 2u;
         if (make_zero_file(&afs, vmem_name, bytes) != 0) {
             fs_destroy(&afs);
@@ -176,6 +184,23 @@ int main(int argc, char **argv)
         if (!fs_insert_file(&afs, inserts[i].host_path, inserts[i].alto_name)) {
             fprintf(stderr, "altofs: could not insert %s as %s\n",
                     inserts[i].host_path, inserts[i].alto_name);
+            fs_destroy(&afs);
+            return 1;
+        }
+    }
+
+    if (create_vmem && vmem_after_inserts) {
+        size_t bytes = (size_t)vmem_pages * (size_t)dg.sector_words * 2u;
+        if (make_zero_file(&afs, vmem_name, bytes) != 0) {
+            fs_destroy(&afs);
+            return 1;
+        }
+    }
+
+    if (boot_file) {
+        if (!fs_install_boot(&afs, boot_file, &error)) {
+            fprintf(stderr, "altofs: could not install boot file %s: %s\n",
+                    boot_file, fs_error(error));
             fs_destroy(&afs);
             return 1;
         }
@@ -206,6 +231,9 @@ int main(int argc, char **argv)
            dg.num_cylinders, dg.num_heads, dg.num_sectors, dg.sector_words);
     if (create_vmem) {
         printf("  vmem      %s = %d pages\n", vmem_name, vmem_pages);
+    }
+    if (boot_file) {
+        printf("  boot      %s\n", boot_file);
     }
     printf("  free      %u pages\n", afs.free_pages);
 

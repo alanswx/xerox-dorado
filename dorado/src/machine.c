@@ -819,6 +819,28 @@ static void machine_seed_mouse(dorado_memory *mem, int x, int y, int buttons)
     }
 }
 
+static int machine_boot_chord_is_disk(const dorado_machine *m)
+{
+    return m && m->boot_chord_count == 1 &&
+           m->boot_chord[0] == DORADO_KEY_NONE;
+}
+
+static void machine_seed_alto_live_io(dorado_machine *m, dorado_display *disp)
+{
+    if (!m || !disp) return;
+    if (!m->keys_live) {
+        dorado_display_keyboard_all_up(disp);
+        m->keys_live = 1;
+    }
+
+    uint16_t w[4];
+    for (int i = 0; i < 4; i++)
+        w[i] = dorado_display_keyboard_word(disp, i);
+    machine_seed_keyboard(&m->mem, w);
+    if (m->mouse_present)
+        machine_seed_mouse(&m->mem, m->mouse_x, m->mouse_y, m->mouse_buttons);
+}
+
 /* Deliver the live keyboard (and mouse-button) state to the native Cedar
  * world's KeyBits at absolute 177033 (see CEDAR_KEYBITS_VA above). The
  * 7-wire keyboard back-channel -> Cedar I/O microcode -> KeyBits path is not
@@ -1861,13 +1883,16 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
             }
         }
 
-        /* Seed BS-down into the Alto keyboard words so the loaded world
-         * selects the Ethernet software boot (AEm0.mc branches to EBoot
-         * -> Mayday -> NetExec). The 7-wire DDC keyboard back-channel is
-         * not modeled, so write the polled words directly. */
-        if (m->alto_ether_boot && m->ether_loaded_world_cycle &&
+        /* Seed Alto keyboard/mouse cells for AEmu worlds. During Ethernet
+         * software boot we hold the boot-selection chord until EFTP starts.
+         * In disk mode, or once the boot file is downloading, the frontend's
+         * live state drives the Alto input words directly (the DDC 7-wire
+         * back-channel is not modeled; gap E2). */
+        if (m->ether_loaded_world_cycle && !m->germ_word_count &&
             !cpu->ifu_active) {
-            if (eth->eftp_max_seq == 0) {
+            int disk_boot_reason = machine_boot_chord_is_disk(m);
+            if (m->alto_ether_boot && !disk_boot_reason &&
+                eth->eftp_max_seq == 0) {
                 /* Boot-selection phase: hold the boot-key chord down so the
                  * world picks its boot path (default BS = Ethernet software
                  * boot). The chord is applied to the DDC keyboard and its
@@ -1876,21 +1901,8 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                 machine_apply_boot_chord(disp, m->boot_chord,
                                          m->boot_chord_count, w);
                 machine_seed_keyboard(&m->mem, w);
-            } else {
-                /* Interactive phase: the boot file is downloading, so
-                 * release the held boot keys and deliver the frontend's
-                 * live key state to the running world. */
-                if (!m->keys_live) {
-                    dorado_display_keyboard_all_up(disp);
-                    m->keys_live = 1;
-                }
-                uint16_t w[4];
-                for (int i = 0; i < 4; i++)
-                    w[i] = dorado_display_keyboard_word(disp, i);
-                machine_seed_keyboard(&m->mem, w);
-                if (m->mouse_present)
-                    machine_seed_mouse(&m->mem, m->mouse_x, m->mouse_y,
-                                       m->mouse_buttons);
+            } else if (m->alto_cold_ac_done) {
+                machine_seed_alto_live_io(m, disp);
             }
 
             /* (The divide-vector guard was retired 2026-06-13: the
@@ -2039,7 +2051,9 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
         static uint64_t alto_disk_prev_cycle = 0;
         static uint64_t alto_disk_prev2_cycle = 0;
 
-        int alto_check_enabled = dorado_trace_flag("DORADO_ALTOCHECK_TRACE");
+        int alto_check_enabled =
+            dorado_trace_flag("DORADO_ALTOCHECK_TRACE") &&
+            (!dorado_trace_flag("DORADO_TRACE_GATE") || dorado_trace_gate);
         int alto_check_trace = 0;
         uint16_t alto_check_md_before = 0;
         uint16_t alto_check_t_before = 0;
@@ -2061,6 +2075,7 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
         uint16_t alto_check_kcb0 = 0;
         uint16_t alto_check_kcb1 = 0;
         uint16_t alto_check_vm521 = 0;
+        uint16_t alto_check_diskbr_word = 0;
         if (alto_check_enabled && is_imfetch &&
             cpu->ctask == DORADO_DISK_TASK &&
             (pre_pc == 03045 || pre_pc == 03067 || pre_pc == 03225 ||
@@ -2093,6 +2108,9 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
             alto_check_kcb1 = dorado_visible_word_at_va(&m->mem,
                                                         alto_check_kptr + 1u);
             alto_check_vm521 = dorado_visible_word_at_va(&m->mem, 0521u);
+            alto_check_diskbr_word = dorado_visible_word_at_va(
+                &m->mem,
+                (uint16_t)(alto_check_md_before + alto_check_dskmaddr));
         }
 
         machine_pilot_timer_channel(m, cpu, bb, pre_pc, is_imfetch);
@@ -2135,6 +2153,7 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                     "KStatus=0o%06o KTemp0=0o%06o KTemp1=0o%06o "
                     "KTemp2=0o%06o KTemp3=0o%06o "
                     "KCB+0=0o%06o KCB+1=0o%06o VM521=0o%06o "
+                    "tmpl[0o%06o]=0o%06o "
                     "next=0o%o\n",
                     pre_pc, nm, (unsigned long long)bb->cycles,
                     alto_check_prev_pc,
@@ -2149,7 +2168,19 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                     alto_check_ktemp0, alto_check_ktemp1,
                     alto_check_ktemp2, alto_check_ktemp3,
                     alto_check_kcb0, alto_check_kcb1, alto_check_vm521,
+                    (uint16_t)(alto_check_md_before + alto_check_dskmaddr),
+                    alto_check_diskbr_word,
                     cpu->real_PC);
+            if (pre_pc == 03330) {
+                uint16_t base = alto_check_md_before;
+                fprintf(stderr, "[altocheck-block] base=0o%06o", base);
+                for (uint16_t i = 0; i < 8; i++) {
+                    fprintf(stderr, " [%u]=0o%06o", i,
+                            dorado_visible_word_at_va(
+                                &m->mem, (uint16_t)(base + i)));
+                }
+                fprintf(stderr, "\n");
+            }
         }
 
         if (alto_check_enabled && is_imfetch &&

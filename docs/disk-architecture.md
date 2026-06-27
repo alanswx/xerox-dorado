@@ -941,5 +941,17 @@ software XOR the corrupted bits back to correct values.
     converted pack and `--no-alto-boot`, nonprog reaches a real disk-only
     display list (`2590` pixels in the 300M-cycle headless check).
 
+21. **2026-06-27 pack generation ground truth.**
+    The TriconD diagnostic with copied pack media passes, and the low-level
+    C disk tests pass, but that is not the same as having a correct
+    host-generated Alto/Lisp pack. A 12-sector `bcpl.dsk` converted into
+    AEmu's 14-sector Diablo-on-Trident mapping exposed mixed invariants:
+    RDA `011270B` was correct only when interpreted as 14-sector VDA 2437
+    (`DiskDescriptor.`), while a later Swatee check at RDA `050330B` expected
+    the original 12-sector physical page. `dsk2trident --remap-vda` is therefore
+    experimental and disabled by default. The preferred path for full Lisp and
+    similar packs is to run the original Alto tools (`Install`, Scavenger/BFS,
+    `CreateFile`) against a writable copied pack inside the emulator.
+
 See `docs/io-systems-architecture.md` for a higher-level view of
 how disk fits into Slow I/O / Fast I/O / Tasking.
