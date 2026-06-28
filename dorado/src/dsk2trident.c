@@ -60,6 +60,7 @@ static void usage(const char *p)
 {
     fprintf(stderr,
         "Usage: %s [options] in.dsk out.trident\n"
+        "       %s --extract [options] in.trident out-drive0.dsk [--drive1 out-drive1.dsk]\n"
         "Convert a ContrAlto Diablo-31 .dsk into a Diablo-on-Trident pack.\n\n"
         "  --partition N     default disk partition the Alto boots from\n"
         "                    (head = N-1; default 5 => head 4, T-80 default)\n"
@@ -81,12 +82,19 @@ static void usage(const char *p)
         "  --sector-offset N physical-sector bias (default 0)\n"
         "  --remap-vda       EXPERIMENTAL: when input/output sector counts differ,\n"
         "                    preserve VDA order and rewrite header/label RDAs\n"
+        "  --extract         extract Diablo AAR image(s) from a Diablo-on-Trident pack\n"
         "  --no-stagger      do not flip the head bit on odd cylinders\n",
-        p);
+        p, p);
 }
 
 /* Read one little-endian 16-bit word from a byte buffer. */
 static uint16_t rd16(const uint8_t *b) { return (uint16_t)(b[0] | (b[1] << 8)); }
+
+static int wr16(FILE *fp, uint16_t w)
+{
+    return fputc((int)(w & 0xff), fp) != EOF &&
+           fputc((int)(w >> 8), fp) != EOF;
+}
 
 static uint16_t alto_rda_from_vda(int vda, int cylinders, int sectors,
                                   int edrive)
@@ -269,6 +277,65 @@ static int place_diablo_image(dorado_disk_pack *pack, const char *path,
     return 0;
 }
 
+static int extract_diablo_image(dorado_disk_pack *pack, const char *path,
+                                int edrive, int diablo_cyls, int diablo_secs,
+                                int boot_head, int sectors_diablo,
+                                int offset_cyl, int sector_offset, int stagger)
+{
+    const dorado_disk_geometry *geom = &pack->geometry;
+    FILE *out = fopen(path, "wb");
+    if (!out) { perror(path); return 1; }
+
+    for (int dcyl = 0; dcyl < diablo_cyls; dcyl++) {
+        for (int dhead = 0; dhead < DIABLO31_HEAD; dhead++) {
+            for (int dsec = 0; dsec < diablo_secs; dsec++) {
+                int eff_head = dhead;
+                if (stagger && (dcyl & 1)) eff_head ^= 1;
+                int tsec = (sectors_diablo * eff_head + dsec + sector_offset)
+                           % geom->sectors;
+                int tcyl = dcyl + offset_cyl +
+                           edrive * DIABLO_DRIVE_CYL_STRIDE;
+                dorado_disk_sector *s =
+                    dorado_disk_pack_sector(pack, tcyl, boot_head, tsec);
+                if (!s) {
+                    fprintf(stderr,
+                            "dsk2trident: source sector outside pack for drive%d c%d/h%d/s%d\n",
+                            edrive, dcyl, dhead, dsec);
+                    fclose(out);
+                    return 1;
+                }
+
+                uint16_t vda = (uint16_t)(((dcyl * DIABLO31_HEAD) + dhead) *
+                                          diablo_secs + dsec);
+                if (!wr16(out, vda)) goto write_error;
+                for (int w = 0; w < DIABLO_HDR_W; w++) {
+                    if (!wr16(out, s->header[DIABLO_HDR_W - 1 - w]))
+                        goto write_error;
+                }
+                for (int w = 0; w < DIABLO_LBL_W; w++) {
+                    if (!wr16(out, s->label[DIABLO_LBL_W - 1 - w]))
+                        goto write_error;
+                }
+                for (int w = 0; w < DIABLO_DATA_W; w++) {
+                    if (!wr16(out, s->data[DIABLO_DATA_W - 1 - w]))
+                        goto write_error;
+                }
+            }
+        }
+    }
+
+    if (fclose(out) != 0) {
+        perror(path);
+        return 1;
+    }
+    return 0;
+
+write_error:
+    fprintf(stderr, "dsk2trident: write failed for %s\n", path);
+    fclose(out);
+    return 1;
+}
+
 int main(int argc, char **argv)
 {
     int partition = 5;          /* MaxPartition for a T-80 (default boot) */
@@ -281,6 +348,7 @@ int main(int argc, char **argv)
     int sector_offset = 0;
     int stagger = 1;            /* staggerSectors */
     int remap_vda = 0;          /* experimental 12-sector->14-sector VDA remap */
+    int extract = 0;
     const char *in_path = NULL, *out_path = NULL;
     const char *base_path = NULL;
     const char *drive1_path = NULL;
@@ -299,6 +367,7 @@ int main(int argc, char **argv)
         else if (!strcmp(a, "--offset-cyl") && i + 1 < argc)  offset_cyl = atoi(argv[++i]);
         else if (!strcmp(a, "--sector-offset") && i + 1 < argc) sector_offset = atoi(argv[++i]);
         else if (!strcmp(a, "--remap-vda"))                   remap_vda = 1;
+        else if (!strcmp(a, "--extract"))                     extract = 1;
         else if (!strcmp(a, "--no-stagger"))                  stagger = 0;
         else if (!strcmp(a, "-h") || !strcmp(a, "--help"))    { usage(argv[0]); return 0; }
         else if (a[0] == '-')                                 { usage(argv[0]); return 2; }
@@ -336,6 +405,38 @@ int main(int argc, char **argv)
         fprintf(stderr, "dsk2trident: partition %d -> head %d out of range [0,%d)\n",
                 partition, boot_head, geom.heads);
         return 1;
+    }
+
+    if (extract) {
+        dorado_disk_pack pack;
+        if (dorado_disk_pack_load(&pack, &geom, in_path) != 0) {
+            fprintf(stderr, "dsk2trident: failed to load pack %s\n", in_path);
+            return 1;
+        }
+        if (extract_diablo_image(&pack, out_path, 0, diablo_cyls, diablo_secs,
+                                 boot_head, sectors_diablo, offset_cyl,
+                                 sector_offset, stagger) != 0) {
+            dorado_disk_pack_free(&pack);
+            return 1;
+        }
+        if (drive1_path) {
+            if (extract_diablo_image(&pack, drive1_path, 1, diablo_cyls,
+                                     diablo_secs, boot_head, sectors_diablo,
+                                     offset_cyl, sector_offset, stagger) != 0) {
+                dorado_disk_pack_free(&pack);
+                return 1;
+            }
+        }
+        dorado_disk_pack_free(&pack);
+        printf("dsk2trident: extracted %s -> %s", in_path, out_path);
+        if (drive1_path) printf(" and %s", drive1_path);
+        printf("\n");
+        printf("  mapping   cyl=%d*drive+cyl+%d, sector=%d*head+sec+%d, stagger=%s, partition %d -> head %d\n",
+               DIABLO_DRIVE_CYL_STRIDE, offset_cyl, sectors_diablo,
+               sector_offset, stagger ? "on" : "off", partition, boot_head);
+        printf("  output    %d cyl x 2 head x %d sec\n",
+               diablo_cyls, diablo_secs);
+        return 0;
     }
 
     dorado_disk_pack pack;

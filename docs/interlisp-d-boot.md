@@ -325,6 +325,61 @@ right long-term target is therefore:
 4. Treat "CreateFile succeeds and Scavenger is clean" as the writable
    Alto-format pack acceptance test.
 
+### 2026-06-28: native VMEM/sysout path now reaches Lisp version checks
+
+The preserved BcplProg image can be expanded in place to AEmu's full
+dual-drive model-44 shape without moving the original physical sectors:
+406 cylinders, 2 heads, 14 sectors, 2 emulated Diablo drives. Patching
+`SysDir.`'s DShape property to that geometry makes native `Scavenger` accept
+the pack as:
+
+```
+Partition: 5, Disks: 2, Cylinders: 406, Heads: 2, Sectors: 14
+Ready to scavenge a dual model-44 14-sector file system
+```
+
+After the duplicate `bravo.scratchbin.` prompt is answered with a rename,
+Scavenger exits back to the Executive with about 19,833 free pages. Native
+`CreateFile.run` can then allocate `LISP.VIRTUALMEM.`:
+
+```
+Found a group of 41716b pages starting at vda 12402
+```
+
+Running plain `lisp.run` after that no longer says `Cant find
+LISP.VIRTUALMEM.`. It reaches Swat with `Trap instruction 77400 at 0`, which
+is expected for a blank VMEM resume attempt. The loader source confirms the
+correct initialization path: `lisp.run <sysout>` or `lisp.run <sysout> ...`
+causes `LocalInitVmem(SYSINid, VMEMid)` to copy a sysout into the VMEM file.
+
+Two tooling fixes make that test repeatable:
+
+- `dsk2trident --extract` reverses a Diablo-on-Trident partition back into
+  editable 406x14 AAR drive images.
+- `altofs --existing --force-existing --insert` can add files to the
+  scavenged pair. Palo's allocator walks one VDA past the end when extending a
+  large file that reaches the final sector, so `altofs` uses a local
+  page-by-page insertion path for this wrapper.
+
+With `chm/lisp/fugue.6/basics/SMALL.SYSOUT!1` inserted as `LISP.SYSOUT.`,
+the pack boots, `Lisp.run` finds both `LISP.VIRTUALMEM.` and `LISP.SYSOUT.`,
+and the loader rejects the image at the real Lisp interface-page version check:
+
+```
+Retrieve of sysout LISP.SYSOUT. failed
+Sysout too old for this microcode
+```
+
+That is now the current blocker. It proves the disk write path, VMEM lookup,
+local sysout lookup, and sysout-to-VMEM initialization path are all being
+exercised. The small sysout is simply too old for the available Dorado Lisp
+microcode. The next useful experiment is to rebuild the expanded/scavenged pack
+with a smaller VMEM file so the larger `Lisp.sysout!1` or Harmony
+`LISP.SYSOUT!15` can fit, then rerun `lisp.run <name>`. The alternative is
+implementing the Pup FTP/BSP server path that `RemoteInitVmem` uses for
+`{host}file` sysout names; the current in-process Ethernet server is
+Mayday/EFTP boot-oriented, not full FTP/BSP.
+
 ### 2026-06-09: checksum/load validation
 
 Pointed our **existing, working Stage-1** Initial->LoadRam netboot path

@@ -25,6 +25,103 @@ typedef struct {
     const char *alto_name;
 } insert_spec;
 
+static int repair_file_metadata(struct fs *afs, const char *name);
+
+static int safe_allocate_any_page(struct fs *afs, uint16_t *out_vda)
+{
+    for (uint16_t vda = 1; vda < afs->length; vda++) {
+        struct page *pg = &afs->pages[vda];
+        if (pg->label.s.version != VERSION_FREE) continue;
+        uint16_t idx = IDX(vda);
+        uint16_t bit = BIT(vda);
+        afs->bitmap[idx] |= (uint16_t)(1u << bit);
+        if (afs->free_pages > 0) afs->free_pages--;
+        *out_vda = vda;
+        return 1;
+    }
+    return 0;
+}
+
+static int insert_file_verbose(struct fs *afs, const char *host_path,
+                               const char *alto_name)
+{
+    struct open_file of;
+    FILE *fp;
+
+    if (!fs_open(afs, alto_name, "w", &of)) {
+        fprintf(stderr, "altofs: could not open %s for insert: %s\n",
+                alto_name, fs_error(of.error));
+        return 1;
+    }
+
+    fp = fopen(host_path, "rb");
+    if (!fp) {
+        fprintf(stderr, "altofs: could not open %s\n", host_path);
+        fs_close(afs, &of);
+        return 1;
+    }
+
+    uint16_t vda = of.pos.vda;
+    size_t total = 0;
+    uint16_t pgnum = of.pos.pgnum;
+    for (;;) {
+        if (vda >= afs->length) {
+            fprintf(stderr,
+                    "altofs: insert write reached invalid VDA %u for %s\n",
+                    vda, alto_name);
+            fclose(fp);
+            fs_close(afs, &of);
+            return 1;
+        }
+
+        struct page *pg = &afs->pages[vda];
+        size_t n = fread(pg->data, 1, afs->sector_bytes, fp);
+        pg->label.s.nbytes = (uint16_t)n;
+        pg->label.s.file_pgnum = pgnum;
+        total += n;
+
+        int ch = fgetc(fp);
+        if (ch == EOF) {
+            pg->label.s.next_rda = 0;
+            of.pos.vda = vda;
+            of.pos.pgnum = pgnum;
+            of.pos.pos = (uint16_t)n;
+            of.modified = 1;
+            break;
+        }
+        ungetc(ch, fp);
+
+        uint16_t next_vda = 0;
+        if (!safe_allocate_any_page(afs, &next_vda)) {
+            fprintf(stderr,
+                    "altofs: insert ran out of pages for %s after %zu bytes\n",
+                    alto_name, total);
+            fclose(fp);
+            fs_close(afs, &of);
+            return 1;
+        }
+        struct page *npg = &afs->pages[next_vda];
+        virtual_to_real(&afs->dg, next_vda, &pg->label.s.next_rda);
+        virtual_to_real(&afs->dg, vda, &npg->label.s.prev_rda);
+        npg->label.s.next_rda = 0;
+        npg->label.s.unused = pg->label.s.unused;
+        npg->label.s.nbytes = 0;
+        npg->label.s.file_pgnum = (uint16_t)(pgnum + 1);
+        npg->label.s.version = pg->label.s.version;
+        npg->label.s.sn = pg->label.s.sn;
+        vda = next_vda;
+        pgnum++;
+    }
+
+    fclose(fp);
+    if (!fs_close(afs, &of)) {
+        fprintf(stderr, "altofs: could not close %s after insert: %s\n",
+                alto_name, fs_error(of.error));
+        return 1;
+    }
+    return repair_file_metadata(afs, alto_name);
+}
+
 static void wr16be(uint8_t *p, uint16_t v)
 {
     p[0] = (uint8_t)(v >> 8);
@@ -138,6 +235,8 @@ static void usage(const char *prog)
         "  --vmem-name NAME   Alto filename for VMEM (default LISP.VIRTUALMEM.)\n"
         "  --vmem-after-inserts  create VMEM after the --insert files\n"
         "  --no-vmem          do not create a VMEM file\n"
+        "  --existing         load and edit an existing AAR-format image pair\n"
+        "  --force-existing   edit an existing pair even if host integrity check fails\n"
         "  --insert HOST NAME insert a host file as Alto filename NAME\n"
         "  --boot-file NAME   install Alto boot sector from filesystem NAME\n"
         "  --help             show this help\n",
@@ -195,6 +294,8 @@ int main(int argc, char **argv)
     int vmem_pages = DEFAULT_VMEM_PAGES;
     int create_vmem = 1;
     int vmem_after_inserts = 0;
+    int existing = 0;
+    int force_existing = 0;
     struct geometry dg;
     insert_spec inserts[32];
     int insert_count = 0;
@@ -227,6 +328,10 @@ int main(int argc, char **argv)
             vmem_after_inserts = 1;
         } else if (!strcmp(a, "--no-vmem")) {
             create_vmem = 0;
+        } else if (!strcmp(a, "--existing")) {
+            existing = 1;
+        } else if (!strcmp(a, "--force-existing")) {
+            force_existing = 1;
         } else if (!strcmp(a, "--insert") && i + 2 < argc) {
             if (insert_count >= (int)(sizeof inserts / sizeof inserts[0])) {
                 fprintf(stderr, "altofs: too many --insert entries\n");
@@ -264,10 +369,29 @@ int main(int argc, char **argv)
     }
 
     int error = 0;
-    if (!fs_format(&afs, &error)) {
-        fprintf(stderr, "altofs: fs_format failed: %s\n", fs_error(error));
-        fs_destroy(&afs);
-        return 1;
+    if (existing) {
+        if (!fs_load_image(&afs, disk0, 0, 0) ||
+            !fs_load_image(&afs, disk1, 1, 0)) {
+            fprintf(stderr, "altofs: could not load existing disk images\n");
+            fs_destroy(&afs);
+            return 1;
+        }
+        if (!fs_check_integrity(&afs) && !force_existing) {
+            fprintf(stderr, "altofs: existing filesystem failed integrity check\n");
+            fs_destroy(&afs);
+            return 1;
+        } else if (!afs.checked) {
+            fprintf(stderr,
+                    "altofs: warning: forcing edits on filesystem that failed integrity check\n");
+            update_disk_metadata(&afs);
+            afs.checked = 1;
+        }
+    } else {
+        if (!fs_format(&afs, &error)) {
+            fprintf(stderr, "altofs: fs_format failed: %s\n", fs_error(error));
+            fs_destroy(&afs);
+            return 1;
+        }
     }
 
     if (install_sysdir_dshape(&afs) != 0) {
@@ -286,13 +410,8 @@ int main(int argc, char **argv)
     }
 
     for (int i = 0; i < insert_count; i++) {
-        if (!fs_insert_file(&afs, inserts[i].host_path, inserts[i].alto_name)) {
-            fprintf(stderr, "altofs: could not insert %s as %s\n",
-                    inserts[i].host_path, inserts[i].alto_name);
-            fs_destroy(&afs);
-            return 1;
-        }
-        if (repair_file_metadata(&afs, inserts[i].alto_name) != 0) {
+        if (insert_file_verbose(&afs, inserts[i].host_path,
+                                inserts[i].alto_name) != 0) {
             fs_destroy(&afs);
             return 1;
         }
@@ -316,20 +435,29 @@ int main(int argc, char **argv)
     }
 
     if (!fs_update_disk_descriptor(&afs, &error)) {
-        fprintf(stderr, "altofs: DiskDescriptor update failed: %s\n",
+        if (!force_existing) {
+            fprintf(stderr, "altofs: DiskDescriptor update failed: %s\n",
+                    fs_error(error));
+            fs_destroy(&afs);
+            return 1;
+        }
+        fprintf(stderr,
+                "altofs: warning: DiskDescriptor update failed: %s\n",
                 fs_error(error));
-        fs_destroy(&afs);
-        return 1;
     }
-    if (repair_file_metadata(&afs, "DiskDescriptor.") != 0) {
+    if (repair_file_metadata(&afs, "DiskDescriptor.") != 0 && !force_existing) {
         fs_destroy(&afs);
         return 1;
     }
 
-    if (!fs_check_integrity(&afs)) {
+    if (!fs_check_integrity(&afs) && !force_existing) {
         fprintf(stderr, "altofs: final filesystem failed integrity check\n");
         fs_destroy(&afs);
         return 1;
+    } else if (!afs.checked) {
+        fprintf(stderr,
+                "altofs: warning: saving filesystem that failed final integrity check\n");
+        afs.checked = 1;
     }
 
     if (!fs_save_image(&afs, disk0, 0, 0) ||

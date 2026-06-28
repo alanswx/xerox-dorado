@@ -19,18 +19,40 @@
  *     --germ-netboot-bfn OCTAL
  *                       seed the planted germ's request as Ethernet inLoad
  *     --out PATH        snapshot PGM path (default dorado-screen.pgm)
+ *     --shot-prefix P   signal snapshot prefix (default dorado-signal-shot)
  *     --quote           hold the DDC "quote" boot key
  *     --no-alto-boot    do not drive the Stage-2 Alto ether boot
  *     --progress        print a cycle/boot progress line each frame
+ *
+ * Send SIGUSR1 to a running headless emulator to write
+ * <shot-prefix>-<cycle>.pgm at the next safe frame boundary.
+ * On systems that define SIGINFO, that signal does the same thing.
  */
 
 #include "machine.h"
 #include "display.h"
 
 #include <stdint.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+static volatile sig_atomic_t signal_snapshot_requests;
+
+static void request_signal_snapshot(int sig)
+{
+    (void)sig;
+    signal_snapshot_requests++;
+}
+
+static void install_signal_snapshot_handlers(void)
+{
+    signal(SIGUSR1, request_signal_snapshot);
+#ifdef SIGINFO
+    signal(SIGINFO, request_signal_snapshot);
+#endif
+}
 
 static uint64_t parse_u64(const char *s, uint64_t def)
 {
@@ -178,12 +200,37 @@ static void type_text(dorado_machine *m, const char *text, uint64_t key_hold)
            (unsigned long long)dorado_machine_cycles(m));
 }
 
+static void write_signal_snapshot(dorado_machine *m, const char *prefix)
+{
+    uint64_t cyc = dorado_machine_cycles(m);
+    dorado_machine_render_display_list(m);
+    dorado_display *disp = dorado_machine_display(m);
+
+    char path[512];
+    int n = snprintf(path, sizeof path, "%s-%llu.pgm",
+                     prefix ? prefix : "dorado-signal-shot",
+                     (unsigned long long)cyc);
+    if (n < 0 || (size_t)n >= sizeof path) {
+        fprintf(stderr, "dorado: signal screenshot path too long\n");
+        return;
+    }
+    if (dorado_display_snapshot_pgm(disp, path) == 0) {
+        printf("dorado: signal screenshot at cycle %llu -> %s\n",
+               (unsigned long long)cyc, path);
+        fflush(stdout);
+    } else {
+        fprintf(stderr, "dorado: failed to write signal screenshot %s\n",
+                path);
+    }
+}
+
 int main(int argc, char **argv)
 {
     uint64_t cycles = 130000000ull;   /* ~just before the BitBlt page-zero
                                        * crash; NetExec is up with its
                                        * banner display list built. */
     const char *out = "dorado-screen.pgm";
+    const char *shot_prefix = "dorado-signal-shot";
     int progress = 0;
     type_event type_events[MAX_TYPE_EVENTS];
     int type_event_count = 0;
@@ -235,6 +282,8 @@ int main(int argc, char **argv)
             boot_dir_all_opt = 0;
         } else if (!strcmp(a, "--out") && i + 1 < argc) {
             out = argv[++i];
+        } else if (!strcmp(a, "--shot-prefix") && i + 1 < argc) {
+            shot_prefix = argv[++i];
         } else if (!strcmp(a, "--quote")) {
             cfg.alto_ether_quote = 1;
         } else if (!strcmp(a, "--boot-keys") && i + 1 < argc) {
@@ -278,7 +327,8 @@ int main(int argc, char **argv)
                    "[--pilot-disk PATH] [--disk SLOT=PATH] [--disk-real] "
                    "[--boot-file-number OCTAL] [--boot-dir NAME=BFN=PATH] "
                    "[--boot-dir-all] [--no-boot-dir-all] "
-                   "[--out PATH] [--quote] [--boot-keys K[,K...]] "
+                   "[--out PATH] [--shot-prefix PREFIX] "
+                   "[--quote] [--boot-keys K[,K...]] "
                    "[--boot-reason ethernet|netexec|disk] "
                    "[--no-alto-boot] [--progress] "
                    "[--type-at CYCLES --type TEXT]...\n"
@@ -289,7 +339,9 @@ int main(int argc, char **argv)
                    "  --disk SLOT=PATH: mount a real Trident pack (T-80/T-300) "
                    "R/W on drive SLOT (0..3)\n"
                    "  --disk-real: boot Cedar through the real disk controller "
-                   "(read path) instead of the IOCB shim\n",
+                   "(read path) instead of the IOCB shim\n"
+                   "  --shot-prefix: SIGUSR1/SIGINFO snapshot prefix "
+                   "(writes PREFIX-CYCLE.pgm)\n",
                    argv[0]);
             return 0;
         } else {
@@ -317,6 +369,7 @@ int main(int argc, char **argv)
 
     printf("dorado: booting (target %llu cycles)...\n",
            (unsigned long long)cycles);
+    install_signal_snapshot_handlers();
 
     /* Run in ~2M-cycle frames so we can report progress and, later,
      * present the framebuffer live. */
@@ -346,6 +399,10 @@ int main(int argc, char **argv)
         if (progress) {
             dorado_machine_debug(m);
             fflush(stderr);
+        }
+        while (signal_snapshot_requests > 0) {
+            signal_snapshot_requests--;
+            write_signal_snapshot(m, shot_prefix);
         }
         if (now < target) break;   /* halted */
     }
