@@ -24,6 +24,57 @@ typedef struct {
     const char *alto_name;
 } insert_spec;
 
+static void wr16be(uint8_t *p, uint16_t v)
+{
+    p[0] = (uint8_t)(v >> 8);
+    p[1] = (uint8_t)v;
+}
+
+static int install_sysdir_dshape(struct fs *afs)
+{
+    struct file_entry sysdir;
+    struct file_info info;
+    int old_checked = afs->checked;
+    int error = 0;
+
+    afs->checked = 1;
+    if (!fs_get_sysdir(afs, &sysdir)) {
+        fprintf(stderr, "altofs: could not locate SysDir. leader\n");
+        afs->checked = old_checked;
+        return 1;
+    }
+    if (!fs_get_file_info(afs, &sysdir, &info, &error)) {
+        fprintf(stderr, "altofs: could not read SysDir. leader: %s\n",
+                fs_error(error));
+        afs->checked = old_checked;
+        return 1;
+    }
+
+    /* Xerox BFSNewDisk.bcpl installs fpropTypeDShape in SysDir.'s leader
+     * properties: FPROP type=1, length=lDSHAPE+1, then nDisks, nTracks,
+     * nHeads, nSectors. Scavenger's FindDShape fast path depends on it. */
+    memset(info.props, 0, sizeof info.props);
+    info.props[0] = 1;
+    info.props[1] = 5;
+    wr16be(&info.props[2], afs->dg.num_disks);
+    wr16be(&info.props[4], afs->dg.num_cylinders);
+    wr16be(&info.props[6], afs->dg.num_heads);
+    wr16be(&info.props[8], afs->dg.num_sectors);
+    info.propbegin = 26;
+    info.proplen = 210;
+    info.has_dg = 1;
+    info.dg = afs->dg;
+
+    if (!fs_set_file_info(afs, &sysdir, &info, &error)) {
+        fprintf(stderr, "altofs: could not write SysDir. DShape: %s\n",
+                fs_error(error));
+        afs->checked = old_checked;
+        return 1;
+    }
+    afs->checked = old_checked;
+    return 0;
+}
+
 static void usage(const char *prog)
 {
     fprintf(stderr,
@@ -166,6 +217,11 @@ int main(int argc, char **argv)
     int error = 0;
     if (!fs_format(&afs, &error)) {
         fprintf(stderr, "altofs: fs_format failed: %s\n", fs_error(error));
+        fs_destroy(&afs);
+        return 1;
+    }
+
+    if (install_sysdir_dshape(&afs) != 0) {
         fs_destroy(&afs);
         return 1;
     }

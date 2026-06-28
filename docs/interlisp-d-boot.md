@@ -170,6 +170,13 @@ writable disk path. The useful current facts are:
   `make -C dorado run-tricond-pack` are green on 2026-06-27.
 - Disk-mode AEmu input now gets live Alto keyboard/mouse state, so typing at
   a disk-booted Executive prompt is no longer blocked by the frontend path.
+- `altofs` installs a `SysDir.` DShape, and Scavenger now reads it correctly:
+  a headless `Scavenger.boot!1` run against
+  `build/run-disks/lisp-diablo-trident.pack` reaches the first prompt as
+  `Partition: 5, Disks: 2, Cylinders: 406, Heads: 2, Sectors: 14`.
+  The blocker was not the DShape bytes; it was the controller feeding RDCHK in
+  the opposite order from `AltoDiabloDisk.mc`'s descending `DskMAddr` compare
+  loop. RDCHK now consumes the same high-to-low block stream as READ/write.
 - The host-built full fixture can reach the Alto OS/display path, but running
   old BCPL utilities from a repacked filesystem still exposes absolute
   real-disk-address assumptions.

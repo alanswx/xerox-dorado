@@ -40,6 +40,33 @@ static uint64_t parse_u64(const char *s, uint64_t def)
     return (end && *end == '\0') ? (uint64_t)v : def;
 }
 
+static char *decode_type_text_arg(const char *s)
+{
+    size_t n = strlen(s ? s : "");
+    char *out = malloc(n + 1);
+    if (!out) return NULL;
+    char *d = out;
+    for (size_t i = 0; i < n; i++) {
+        if (s[i] != '\\' || i + 1 >= n) {
+            *d++ = s[i];
+            continue;
+        }
+        char c = s[++i];
+        switch (c) {
+        case 'n': *d++ = '\n'; break;
+        case 'r': *d++ = '\r'; break;
+        case 't': *d++ = '\t'; break;
+        case '\\': *d++ = '\\'; break;
+        default:
+            *d++ = '\\';
+            *d++ = c;
+            break;
+        }
+    }
+    *d = '\0';
+    return out;
+}
+
 /* Parse a comma-separated boot-key chord (e.g. "bs" or "bs,quote") into
  * cfg->boot_keys, replacing any prior chord. Returns 0 on success. */
 static int parse_boot_keys(const char *list, dorado_machine_config *cfg)
@@ -114,6 +141,43 @@ static dorado_display_key char_to_key(char c, int *shift)
     }
 }
 
+typedef struct type_event {
+    const char *text;
+    uint64_t at;
+    int typed;
+} type_event;
+
+#define MAX_TYPE_EVENTS 16
+
+static void type_text(dorado_machine *m, const char *text, uint64_t key_hold)
+{
+    printf("dorado: typing \"%s\" at cyc %llu\n", text,
+           (unsigned long long)dorado_machine_cycles(m));
+    int nk = 0;
+    for (const char *p = text; *p; p++) {
+        int shift = 0;
+        dorado_display_key k = char_to_key(*p, &shift);
+        if (k == DORADO_KEY_NONE) continue;
+        if (shift) dorado_machine_set_key(m, DORADO_KEY_LSHIFT, 1);
+        dorado_machine_set_key(m, k, 1);
+        dorado_machine_run_until(m, dorado_machine_cycles(m) + key_hold);
+        dorado_machine_set_key(m, k, 0);
+        if (shift) dorado_machine_set_key(m, DORADO_KEY_LSHIFT, 0);
+        dorado_machine_run_until(m, dorado_machine_cycles(m) + key_hold);
+        /* Sustained-typing stress: idle a while after every 5 keys
+         * (batches), so long scripts still leave quiet gaps between
+         * command bursts. */
+        if (++nk % 5 == 0) {
+            printf("dorado: typed %d keys @cyc %llu\n", nk,
+                   (unsigned long long)dorado_machine_cycles(m));
+            dorado_machine_run_until(m,
+                dorado_machine_cycles(m) + 3000000ull);
+        }
+    }
+    printf("dorado: typed %d keys total, last @cyc %llu\n", nk,
+           (unsigned long long)dorado_machine_cycles(m));
+}
+
 int main(int argc, char **argv)
 {
     uint64_t cycles = 130000000ull;   /* ~just before the BitBlt page-zero
@@ -121,7 +185,11 @@ int main(int argc, char **argv)
                                        * banner display list built. */
     const char *out = "dorado-screen.pgm";
     int progress = 0;
-    const char *type_str = NULL;     /* keyboard self-test input */
+    type_event type_events[MAX_TYPE_EVENTS];
+    int type_event_count = 0;
+    int last_type_event = -1;
+    int last_type_can_update = 0;
+    int pending_type_at = 0;
     uint64_t key_hold = 600000;      /* cycles to hold each key down/up */
     uint64_t type_at = 110000000ull; /* cycle to begin typing (Alto default;
                                       * Cedar login prompt is ~650M) */
@@ -178,11 +246,32 @@ int main(int argc, char **argv)
         } else if (!strcmp(a, "--progress")) {
             progress = 1;
         } else if (!strcmp(a, "--type") && i + 1 < argc) {
-            type_str = argv[++i];
+            if (type_event_count >= MAX_TYPE_EVENTS) {
+                fprintf(stderr, "dorado: too many --type events (max %d)\n",
+                        MAX_TYPE_EVENTS);
+                return 2;
+            }
+            char *text = decode_type_text_arg(argv[++i]);
+            if (!text) {
+                fprintf(stderr, "dorado: could not allocate --type text\n");
+                return 2;
+            }
+            type_events[type_event_count] =
+                (type_event){ .text = text, .at = type_at, .typed = 0 };
+            last_type_event = type_event_count++;
+            last_type_can_update = !pending_type_at;
+            pending_type_at = 0;
         } else if (!strcmp(a, "--key-hold") && i + 1 < argc) {
             key_hold = parse_u64(argv[++i], key_hold);
+            last_type_can_update = 0;
         } else if (!strcmp(a, "--type-at") && i + 1 < argc) {
             type_at = parse_u64(argv[++i], type_at);
+            if (last_type_can_update && last_type_event >= 0) {
+                type_events[last_type_event].at = type_at;
+                last_type_can_update = 0;
+            } else {
+                pending_type_at = 1;
+            }
         } else if (!strcmp(a, "--help") || !strcmp(a, "-h")) {
             printf("usage: %s [--cycles N] [--eb PATH] [--eftp PATH] "
                    "[--germ PATH] [--germ-netboot-bfn OCTAL] "
@@ -191,7 +280,8 @@ int main(int argc, char **argv)
                    "[--boot-dir-all] [--no-boot-dir-all] "
                    "[--out PATH] [--quote] [--boot-keys K[,K...]] "
                    "[--boot-reason ethernet|netexec|disk] "
-                   "[--no-alto-boot] [--progress]\n"
+                   "[--no-alto-boot] [--progress] "
+                   "[--type-at CYCLES --type TEXT]...\n"
                    "  --boot-keys: boot-selection chord held down (default "
                    "bs, +quote with --quote); e.g. bs,quote\n"
                    "  --boot-reason: alias for the chord (ethernet=bs, "
@@ -205,6 +295,10 @@ int main(int argc, char **argv)
         } else {
             fprintf(stderr, "dorado: unknown option '%s' (try --help)\n", a);
             return 2;
+        }
+        if (strcmp(a, "--type") && strcmp(a, "--type-at")) {
+            last_type_can_update = 0;
+            pending_type_at = 0;
         }
     }
 
@@ -228,7 +322,6 @@ int main(int argc, char **argv)
      * present the framebuffer live. */
     const uint64_t frame = 2000000ull;
     int announced_boot = 0;
-    int typed = 0;
     while (dorado_machine_cycles(m) < cycles) {
         uint64_t target = dorado_machine_cycles(m) + frame;
         if (target > cycles) target = cycles;
@@ -238,39 +331,17 @@ int main(int argc, char **argv)
             printf("dorado: Alto/Mesa world loaded at cycle %llu\n",
                    (unsigned long long)now);
         }
-        /* Keyboard self-test: once NetExec is interactive, settle then
-         * "type" the string, holding each key down/up for --key-hold
-         * cycles so its command loop registers the keystroke. */
-        if (type_str && !typed && dorado_machine_booted(m) &&
-            dorado_machine_cycles(m) >= type_at) {
-            typed = 1;
-            printf("dorado: typing \"%s\" at cyc %llu\n", type_str,
-                   (unsigned long long)dorado_machine_cycles(m));
-            int nk = 0;
-            for (const char *p = type_str; *p; p++) {
-                int shift = 0;
-                dorado_display_key k = char_to_key(*p, &shift);
-                if (k == DORADO_KEY_NONE) continue;
-                if (shift) dorado_machine_set_key(m, DORADO_KEY_LSHIFT, 1);
-                dorado_machine_set_key(m, k, 1);
-                dorado_machine_run_until(m,
-                    dorado_machine_cycles(m) + key_hold);
-                dorado_machine_set_key(m, k, 0);
-                if (shift) dorado_machine_set_key(m, DORADO_KEY_LSHIFT, 0);
-                dorado_machine_run_until(m,
-                    dorado_machine_cycles(m) + key_hold);
-                /* Sustained-typing stress: idle a while after every 5
-                 * keys (batches), so the run spans well past the old
-                 * ~124M crash point with quiet gaps between bursts. */
-                if (++nk % 5 == 0) {
-                    printf("dorado: typed %d keys @cyc %llu\n", nk,
-                           (unsigned long long)dorado_machine_cycles(m));
-                    dorado_machine_run_until(m,
-                        dorado_machine_cycles(m) + 3000000ull);
+        /* Keyboard automation: once the Alto world is interactive, type each
+         * scheduled segment. Multiple segments are useful for programs that
+         * intentionally ignore destructive-confirmation typeahead. */
+        if (dorado_machine_booted(m)) {
+            for (int te = 0; te < type_event_count; te++) {
+                if (!type_events[te].typed &&
+                    dorado_machine_cycles(m) >= type_events[te].at) {
+                    type_events[te].typed = 1;
+                    type_text(m, type_events[te].text, key_hold);
                 }
             }
-            printf("dorado: typed %d keys total, last @cyc %llu\n", nk,
-                   (unsigned long long)dorado_machine_cycles(m));
         }
         if (progress) {
             dorado_machine_debug(m);

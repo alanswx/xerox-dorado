@@ -78,10 +78,7 @@ static void usage(const char *p)
         "  --sectors-diablo N  Trident sectors reserved per Diablo head\n"
         "                    (default 14 = 16B, AltoDiabloDisk nSectorsDiablo)\n"
         "  --offset-cyl N    cylinders reserved at the start (default 3)\n"
-        "  --sector-offset N physical-sector bias (default 1): the controller\n"
-        "                    executes a command in the sector AFTER it is issued\n"
-        "                    (UpdateSector: logical sector S is recorded at S-1),\n"
-        "                    so a command for sector S reads physical sector S+1\n"
+        "  --sector-offset N physical-sector bias (default 0)\n"
         "  --remap-vda       EXPERIMENTAL: when input/output sector counts differ,\n"
         "                    preserve VDA order and rewrite header/label RDAs\n"
         "  --no-stagger      do not flip the head bit on odd cylinders\n",
@@ -268,7 +265,7 @@ int main(int argc, char **argv)
     int diablo_secs = DIABLO31_SEC;
     int sectors_diablo = 14;    /* nSectorsDiablo = 16B */
     int offset_cyl = 3;         /* offsetCylinderDiablo */
-    int sector_offset = 1;      /* command-vs-physical sector bias (see usage) */
+    int sector_offset = 0;
     int stagger = 1;            /* staggerSectors */
     int remap_vda = 0;          /* experimental 12-sector->14-sector VDA remap */
     const char *in_path = NULL, *out_path = NULL;

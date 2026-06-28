@@ -133,18 +133,18 @@ that VMEM swap file.
    sysout is 9,422 Alto pages and cannot fit beside `LISP.VIRTUALMEM.` on the
    main partition.
 
-   Treat that target as a probe, not a correct finished pack. It can exercise
-   boot-file selection and basic disk reads, but byte-copying old BCPL system
-   files into a fresh host-generated filesystem changes labels and absolute
-   real-disk-address relationships that utilities such as Swat/Swatee check.
-   The failed 12-sector-to-14-sector remap experiment confirmed the ambiguity:
-   one label check wants AEmu's 14-sector VDA interpretation, while a later
-   Swatee check wants the original 12-sector physical RDA. Next preserve or
-   install a real Alto OS layout by running the original Alto tools (`Install`,
-   erase/clean, Scavenger/BFS, `CreateFile.run LISP.VIRTUALMEM 15002D`) in the
-   emulator, then run `Lisp` and confirm whether it finds/uses the sysout on
-   the auxiliary partition or expects the original network installer path.
-   ContrAlto's Trident/Diablo code (`AltoInfo/`) remains the format reference.
+   Treat that target as a probe, not a correct finished pack. The generated
+   pack now carries a `SysDir.` DShape that `Scavenger.boot!1` auto-detects as
+   `2 x 406 x 2 x 14`; the old false model-31 prompt was an RDCHK stream-order
+   bug, not bad DShape metadata. The remaining risk is filesystem provenance:
+   byte-copying old BCPL system files into a fresh host-generated filesystem
+   changes labels and absolute real-disk-address relationships that utilities
+   such as Swat/Swatee check. Next preserve or install a real Alto OS layout by
+   running the original Alto tools (`Install`, erase/clean, Scavenger/BFS,
+   `CreateFile.run LISP.VIRTUALMEM 15002D`) in the emulator, then run `Lisp`
+   and confirm whether it finds/uses the sysout on the auxiliary partition or
+   expects the original network installer path. ContrAlto's Trident/Diablo code
+   (`AltoInfo/`) remains the format reference.
 4. **I/O + render:** Lisp keyboard/mouse/display delivery, analogous to
    `machine_cedar_io` (`dorado/src/machine.c:836`). Interlisp-D uses the
    standard Alto-lineage display; the framebuffer is already wired.

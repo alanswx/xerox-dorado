@@ -953,5 +953,16 @@ software XOR the corrupted bits back to correct values.
     similar packs is to run the original Alto tools (`Install`, Scavenger/BFS,
     `CreateFile`) against a writable copied pack inside the emulator.
 
+22. **2026-06-27 RDCHK stream-order correction.**
+    AEmu's `AltoDiabloDisk.mc` uses the same descending `DskMAddr` loop for
+    reads, writes, and read-checks. `dsk2trident` and the write path therefore
+    store each block in the high-to-low stream order consumed by that loop.
+    RDCHK must consume that same stored order; reversing only RDCHK makes
+    Scavenger's initial `TryDisk(0,0,0,1)` fail to see the `SysDir.` DShape and
+    later reports header `CheckError` at the 14-sector boundary. With RDCHK
+    consuming the same order as READ, `Scavenger.boot!1` auto-detects the
+    generated Lisp pack as `Disks: 2, Cylinders: 406, Heads: 2, Sectors: 14`,
+    and the previous VDA `212B`/`213B` hard-error screen is gone.
+
 See `docs/io-systems-architecture.md` for a higher-level view of
 how disk fits into Slow I/O / Fast I/O / Tasking.

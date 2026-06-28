@@ -272,7 +272,7 @@ static int test_rd_fifo_muffler_does_not_start_transfer(void)
            "create Diablo pack");
     dorado_disk_controller_attach_drive(&ctl, 0, &pack);
 
-    ctl.enable_run = 1;
+    ctl.enable_run = 0;
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKCONTROL,
                     (uint16_t)(DORADO_DISK_OP_RDCHK <<
                                DORADO_DISK_CTRL_OP1_SHIFT));
@@ -290,6 +290,7 @@ static int test_rd_fifo_muffler_does_not_start_transfer(void)
     EXPECT(ctl.read_stream_muff_starts == 0,
            "muffler-start counter should stay zero");
 
+    ctl.enable_run = 1;
     dorado_disk_controller_advance_sector(&ctl);
     EXPECT(ctl.read_stream_active == 1,
            "sector pulse should start the pending transfer");
@@ -331,12 +332,12 @@ static int test_read_check_wakeup_and_error_latches(void)
     }
     EXPECT(ctl.enable_run == 1, "Format RAM load should set EnableRun");
 
-    ctl.drive[0].cur_sector = 0;
+    ctl.drive[0].cur_sector = 1;
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKCONTROL,
                     (uint16_t)(DORADO_DISK_OP_RDCHK <<
                                DORADO_DISK_CTRL_OP1_SHIFT));
-    dorado_disk_controller_advance_sector(&ctl);
-    EXPECT(ctl.drive[0].cur_sector == 1, "transfer should start on sector 1");
+    EXPECT(ctl.drive[0].cur_sector == 1,
+           "DiskControl should start in the current sector");
     EXPECT(ctl.current_block == 0, "current block=%u", ctl.current_block);
     EXPECT(ctl.current_block_op == DORADO_DISK_OP_RDCHK,
            "current op=%u", ctl.current_block_op);
@@ -354,7 +355,7 @@ static int test_read_check_wakeup_and_error_latches(void)
     int bad = -1;
     uint16_t v = dorado_io_read(&io, DORADO_DISK_TASK,
                                 DORADO_DISK_TIOA_DISKDATA, &bad);
-    EXPECT(v == 012345, "header[0]=0o%o", v);
+    EXPECT(v == 012345, "framed header first word=0o%o", v);
 
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKMUFF,
                     MUFF_CLEAR_COMPARE_ERR);
@@ -398,6 +399,76 @@ static int test_read_check_wakeup_and_error_latches(void)
     return 0;
 }
 
+static int test_mixed_read_write_retargets_latched_sector(void)
+{
+    static dorado_io io;
+    dorado_io_init(&io);
+    static dorado_disk_controller ctl;
+    dorado_disk_controller_init(&ctl);
+    dorado_disk_controller_attach_to_io(&ctl, &io);
+
+    static dorado_disk_pack pack;
+    EXPECT(dorado_disk_pack_create(&pack, &DORADO_DISK_DIABLO) == 0,
+           "create Diablo pack");
+    dorado_disk_sector *stale = dorado_disk_pack_sector(&pack, 0, 0, 0);
+    dorado_disk_sector *target = dorado_disk_pack_sector(&pack, 0, 0, 1);
+    EXPECT(stale && target, "test sectors exist");
+    stale->label[0] = 0111;
+    target->label[0] = 0222;
+    target->header[0] = 012345;
+    target->header[1] = 054321;
+    dorado_disk_controller_attach_drive(&ctl, 0, &pack);
+
+    uint16_t fram[DORADO_DISK_FORMAT_RAM_WORDS] = {
+        0001, 0007, 0377, 0000,
+        0104, 0204, 0004, 0000,
+        0033, 0006, 0011, 0002,
+        0002, 0001, 0000, 0000,
+    };
+    for (int i = 0; i < DORADO_DISK_FORMAT_RAM_WORDS; i++) {
+        dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKRAM,
+                        fram[i]);
+    }
+
+    ctl.write_stream_sector = stale;
+    ctl.drive[0].cur_sector = 1;
+    uint16_t ctrl =
+        (uint16_t)((DORADO_DISK_OP_RDCHK << DORADO_DISK_CTRL_OP1_SHIFT) |
+                   (DORADO_DISK_OP_WRITE << DORADO_DISK_CTRL_OP2_SHIFT));
+    dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKCONTROL,
+                    ctrl);
+    EXPECT(ctl.write_stream_sector == NULL,
+           "new DiskControl transfer should clear stale write sector");
+
+    EXPECT(ctl.read_stream_sector == target,
+           "read phase should latch target sector");
+
+    int bad = -1;
+    for (int i = 0; i < 2 + 4; i++)
+        (void)dorado_io_read(&io, DORADO_DISK_TASK,
+                             DORADO_DISK_TIOA_DISKDATA, &bad);
+    EXPECT(ctl.write_stream_active == 1, "write block should be active");
+    EXPECT(ctl.write_stream_sector == target,
+           "write block should retarget to read sector");
+
+    dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKDATA,
+                    0201); /* sync */
+    for (int i = 0; i < 8; i++) {
+        dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKDATA,
+                        (uint16_t)(01000 + i));
+    }
+    EXPECT(target->label[0] == 01007 && target->label[7] == 01000,
+           "mixed write should update target label, got [%o,%o]",
+           target->label[0], target->label[7]);
+    EXPECT(stale->label[0] == 0111,
+           "stale sector label should be unchanged, got %o",
+           stale->label[0]);
+
+    dorado_disk_pack_free(&pack);
+    printf("PASS  test_mixed_read_write_retargets_latched_sector\n");
+    return 0;
+}
+
 static int test_restore_header_check_bit(void)
 {
     static dorado_io io;
@@ -411,8 +482,8 @@ static int test_restore_header_check_bit(void)
            "create Diablo pack");
     dorado_disk_sector *sec = dorado_disk_pack_sector(&pack, 0, 0, 1);
     EXPECT(sec != NULL, "sector exists");
-    sec->header[0] = 052524;
-    sec->header[1] = 012340;
+    sec->header[0] = 012340;
+    sec->header[1] = 052524;
     dorado_disk_controller_attach_drive(&ctl, 0, &pack);
 
     uint16_t fram[DORADO_DISK_FORMAT_RAM_WORDS] = {
@@ -430,23 +501,20 @@ static int test_restore_header_check_bit(void)
                     (uint16_t)(TAG_CONTROL | (1u << 1))); /* ReZero */
     EXPECT(ctl.restore_pending == 1, "ReZero should mark restore pending");
 
+    ctl.drive[0].cur_sector = 1;
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKCONTROL,
                     (uint16_t)(DORADO_DISK_OP_RDCHK <<
                                DORADO_DISK_CTRL_OP1_SHIFT));
-    EXPECT(ctl.transfer_restore == 1,
-           "DiskControl should carry restore into transfer");
-
-    dorado_disk_controller_advance_sector(&ctl);
     EXPECT(ctl.restore_header_check == 1,
-           "read-check after ReZero should enable restore header tolerance");
+           "DiskControl should carry restore into the immediate transfer");
 
     int bad = -1;
     uint16_t v = dorado_io_read(&io, DORADO_DISK_TASK,
                                 DORADO_DISK_TIOA_DISKDATA, &bad);
-    EXPECT(v == 052525, "restore header word 0 = 0o%o", v);
+    EXPECT(v == 012341, "restore header first word = 0o%o", v);
     v = dorado_io_read(&io, DORADO_DISK_TASK,
                        DORADO_DISK_TIOA_DISKDATA, &bad);
-    EXPECT(v == 012340, "restore tolerance must not alter header word 1");
+    EXPECT(v == 052524, "restore tolerance must not alter header word 1");
 
     dorado_disk_pack_free(&pack);
     printf("PASS  test_restore_header_check_bit\n");
@@ -1116,6 +1184,7 @@ int main(void)
     rc |= test_diskcontrol_active_abort();
     rc |= test_rd_fifo_muffler_does_not_start_transfer();
     rc |= test_read_check_wakeup_and_error_latches();
+    rc |= test_mixed_read_write_retargets_latched_sector();
     rc |= test_restore_header_check_bit();
     rc |= test_drive_attach();
     rc |= test_dmux_muffler_read();

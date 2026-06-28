@@ -869,11 +869,6 @@ static int ff_fa0_fb2_fc_ok(const dorado_uinstr *u, int fc)
     return 0;
 }
 
-static int ff_is_output_b_memory_form(const dorado_uinstr *u)
-{
-    return ff_decode_ok(u) && u->asel <= 3 && ((u->ff & 077) == 0036);
-}
-
 static int ff_is_output_b_long_call_form(const dorado_uinstr *u)
 {
     /* InitialDisk.mc/PilotDisk.mc emit `Output_ KCmmd,
@@ -2208,6 +2203,15 @@ static int map_cpu_trace_index(uint32_t idx)
         }
     }
     return cached >= 0 && idx == (uint32_t)cached;
+}
+
+static int dsk_write_cpu_trace_enabled(const dorado_cpu *cpu)
+{
+    if (!dorado_trace_flag("DORADO_DSK_WRITE_CPU_TRACE")) return 0;
+    if (dorado_trace_flag("DORADO_TRACE_GATE") && !dorado_trace_gate) return 0;
+    if ((cpu->ctask & 017) != 014) return 0;
+    if ((cpu->TIOA & 0377) != 012) return 0;
+    return 1;
 }
 
 static void latch_task_md_from_memory(dorado_cpu *cpu)
@@ -4489,6 +4493,25 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                 cpu->RM[DORADO_RM_CAND_025] & 0177777,
                 cpu->ready, cpu->wakeup_pending);
     }
+    if (dsk_write_cpu_trace_enabled(cpu)) {
+        int t = cpu->ctask & 0xF;
+        fprintf(stderr,
+                "DSKWR_CPU pre cyc=%llu pc=0o%o rstk=%02o aluf=%02o "
+                "bsel=%o lc=%o asel=%o ff=%03o jcn=%03o block=%u "
+                "a=%06o b=%06o T=%06o md=%06o taskmd=%06o "
+                "ready=%llu cycles=%llu dishold=%d mb=%02o rb=%02o sub=%o\n",
+                (unsigned long long)dorado_trace_cycle, cpu->real_PC & 07777,
+                u->rstk & 017, u->aluf & 017, u->bsel & 7, u->lc & 7,
+                u->asel & 7, u->ff & 0377, u->jcn & 0377, u->block & 1,
+                a & 0177777, b & 0177777, cpu->T & 0177777,
+                cpu->mem ? cpu->mem->md & 0177777 : 0,
+                task_md(cpu) & 0177777,
+                (unsigned long long)cpu->task_md_ready[t],
+                (unsigned long long)cpu->cycles,
+                cpu->mem ? dorado_mcr_dishold(cpu->mem) : 0,
+                cpu->MemBase & 037, cpu->RBase & 017,
+                cpu->task_subtask[cpu->ctask] & 3);
+    }
 
     /*
      * HM page 18 + page 30: branch conditions ALU=0, ALU<0, Carry',
@@ -4617,13 +4640,6 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
         int io_task = (cpu->ctask != 0) ? 1 : 0;
         dorado_ref_kind kind = decode_ref_kind(u, io_task);
         if (kind != DM_REF_NONE) {
-            if (ff_is_output_b_memory_form(u) &&
-                kind != DM_REF_IOFETCH &&
-                cpu->io &&
-                dorado_io_has_write(cpu->io, cpu->ctask,
-                                    (uint8_t)cpu->TIOA)) {
-                if (cpu->ctask != 0) goto memory_ref_done;
-            }
             /* A slow-I/O Output is always the Output<-B FF function
              * (FB=3,FC=6 -> ff_is_output_b_memory_form, handled above) or the
              * IOStore memory-ref variant (DM_REF_IOSTORE). A plain DM_REF_STORE
@@ -4777,6 +4793,25 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
             if (cpu->mem->last_ref_miss) cpu->evc_events |= EVC_EV_MISS;
             if (ref_fault == DM_FAULT_NONE && ref_kind_loads_md(kind)) {
                 latch_task_md_from_memory(cpu);
+            }
+            if (dsk_write_cpu_trace_enabled(cpu)) {
+                int t = cpu->ctask & 0xF;
+                fprintf(stderr,
+                        "DSKWR_CPU ref cyc=%llu pc=0o%o kind=%s br=%07o "
+                        "mar=%06o disp=%07o va=%07o data=%06o md=%06o "
+                        "taskmd=%06o lat=%d ready=%llu miss=%d fault=%d "
+                        "mb=%02o sub=%o\n",
+                        (unsigned long long)dorado_trace_cycle,
+                        cpu->real_PC & 07777, ref_kind_name(kind),
+                        br & 0x0FFFFFFFu, mar & 0177777,
+                        disp & 0x0FFFFFFFu, va & 0x0FFFFFFFu,
+                        data & 0177777,
+                        cpu->mem ? cpu->mem->md & 0177777 : 0,
+                        task_md(cpu) & 0177777,
+                        cpu->mem ? cpu->mem->last_ref_latency : 0,
+                        (unsigned long long)cpu->task_md_ready[t],
+                        cpu->mem ? cpu->mem->last_ref_miss : 0,
+                        (int)ref_fault, membase & 037, subtask & 3);
             }
             /* DORADO_FETCH_TRACE: emulator-task (task 0) memory reads with
              * VA + the value latched into Md. Gated by DORADO_TRACE_GATE so

@@ -415,6 +415,7 @@ $(ALTO_GOLDEN_PACK): $(ALTO_GOLDEN_PACK_GZ) | $(TRIDENT_GOLDEN_DIR)
 .PHONY: lisp-disk-image
 .PHONY: lisp-disk-image-full
 .PHONY: run-alto-disk run-alto-disk-screenshot
+.PHONY: run-bfstest-smoke run-scavenger-smoke
 .PHONY: run-tricond-nopack run-tricond-pack
 trident-readonly-images: $(ALTO_GOLDEN_PACK)
 
@@ -456,6 +457,25 @@ run-alto-disk: sdl alto-disk-image
 	./build/dorado-sdl --eb worlds/aemu.eb --disk 0='$(ALTO_RUN_PACK)' --boot-reason disk --speed 4000000
 run-alto-disk-screenshot: sdl alto-disk-image
 	SDL_VIDEODRIVER=dummy ./build/dorado-sdl --eb worlds/aemu.eb --disk 0='$(ALTO_RUN_PACK)' --boot-reason disk --speed 4000000 --screenshot 300 --shot-prefix /tmp/dorado-alto-disk
+run-bfstest-smoke: $(BINDIR)/dorado alto-disk-image
+	DORADO_DISK_WRITE_PROGRESS=5000 ./build/dorado --eb worlds/aemu.eb \
+		--eftp '../chm/bootfiles/BFSTest.boot!1' \
+		--disk 0='$(ALTO_RUN_PACK)' --cycles 4700000000 --key-hold 1000000 \
+		--type-at 180000000 --type 'erase\n' \
+		--type-at 260000000 --type 'Y' \
+		--type-at 300000000 --type 'Y' \
+		--type-at 340000000 --type 'Y' \
+		--type-at 380000000 --type 'Y' \
+		--type-at 900000000 --type 'Y' \
+		--type-at 3400000000 --type 'createfile\nDORADOTEST\n10\n' \
+		--out /tmp/dorado-bfstest-smoke.pgm
+run-scavenger-smoke: $(BINDIR)/dorado run-bfstest-smoke
+	./build/dorado --eb worlds/aemu.eb \
+		--eftp '../chm/bootfiles/Scavenger.boot!1' \
+		--disk 0='$(ALTO_RUN_PACK)' --cycles 10000000000 --key-hold 1000000 \
+		--type-at 1100000000 --type 'Y' \
+		--type-at 5200000000 --type 'Y' \
+		--out /tmp/dorado-scavenger-smoke.pgm
 
 run-tricond-nopack: $(BINDIR)/rundiag
 	RUNDIAG_DISK=1 RUNDIAG_TASK=14 ./build/rundiag '../chm/dorado/expanded/Tricond.dm!5_/TriconD.mb' BEGIN TESTOK-WITHOUT-DISK ERR 50000000
