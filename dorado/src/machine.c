@@ -356,6 +356,72 @@ static void machine_store_va(dorado_memory *mem, uint32_t va, uint16_t value)
     }
 }
 
+static int alto_rda_to_vda(uint16_t rda, int cylinders, int sectors, int *vda)
+{
+    int cylinder = (rda >> 3) & 0777;
+    int head = (rda >> 2) & 1;
+    int sector = (rda >> 12) & 017;
+    int edrive = (rda >> 1) & 1;
+
+    if ((rda & 1) || cylinder >= cylinders || sector >= sectors)
+        return 0;
+
+    *vda = (((edrive * cylinders + cylinder) * 2 + head) * sectors) + sector;
+    return 1;
+}
+
+static void machine_trace_alto_kcb_completion(dorado_machine *m,
+                                              uint16_t status_addr,
+                                              uint64_t cycles)
+{
+    if (!m || !dorado_trace_flag("DORADO_ALTO_KCB_TRACE")) return;
+
+    uint16_t kptr = (uint16_t)(status_addr - 1u);
+    uint16_t status = dorado_visible_word_at_va(&m->mem, (uint16_t)(kptr + 1u));
+    uint16_t command = dorado_visible_word_at_va(&m->mem, (uint16_t)(kptr + 2u));
+    uint16_t header_addr =
+        dorado_visible_word_at_va(&m->mem, (uint16_t)(kptr + 3u));
+    uint16_t label_addr =
+        dorado_visible_word_at_va(&m->mem, (uint16_t)(kptr + 4u));
+    uint16_t data_addr =
+        dorado_visible_word_at_va(&m->mem, (uint16_t)(kptr + 5u));
+    uint16_t normal_wakeup =
+        dorado_visible_word_at_va(&m->mem, (uint16_t)(kptr + 6u));
+    uint16_t error_wakeup =
+        dorado_visible_word_at_va(&m->mem, (uint16_t)(kptr + 7u));
+    uint16_t disk_addr =
+        dorado_visible_word_at_va(&m->mem, (uint16_t)(kptr + 011u));
+    uint16_t label[8];
+    for (uint16_t i = 0; i < 8; i++)
+        label[i] = dorado_visible_word_at_va(&m->mem,
+                                             (uint16_t)(label_addr + i));
+
+    int vda = -1;
+    int valid_vda = alto_rda_to_vda(disk_addr, 406, 14, &vda);
+    if (!valid_vda)
+        (void)alto_rda_to_vda((uint16_t)(disk_addr & 0177776u), 406, 14, &vda);
+
+    const char *filter = getenv("DORADO_ALTO_KCB_TRACE_FILTER");
+    if (filter && filter[0]) {
+        unsigned long want = strtoul(filter, NULL, 0);
+        int match = ((uint16_t)vda == (uint16_t)want);
+        for (uint16_t i = 0; i < 8 && !match; i++)
+            match = (label[i] == (uint16_t)want);
+        if (!match)
+            return;
+    }
+
+    fprintf(stderr,
+            "[alto-kcb] cyc=%llu kptr=0o%06o status=0o%06o command=0o%06o "
+            "headerAddr=0o%06o labelAddr=0o%06o dataAddr=0o%06o "
+            "wake={0o%06o,0o%06o} diskAddr=0o%06o vda=%d "
+            "label={0o%06o,0o%06o,0o%06o,0o%06o,0o%06o,0o%06o,0o%06o,0o%06o}\n",
+            (unsigned long long)cycles, kptr, status, command, header_addr,
+            label_addr, data_addr, normal_wakeup, error_wakeup, disk_addr,
+            vda, label[0], label[1], label[2], label[3], label[4], label[5],
+            label[6], label[7]);
+}
+
 static void machine_dump_words(dorado_memory *mem, const char *label,
                                uint32_t va, int count)
 {
@@ -2181,6 +2247,11 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                 }
                 fprintf(stderr, "\n");
             }
+        }
+        if (is_imfetch && cpu->ctask == DORADO_DISK_TASK &&
+            pre_pc == 02376 && dorado_trace_flag("DORADO_ALTO_KCB_TRACE")) {
+            uint16_t kptr = cpu->RM[(5u << 4) | 007u];
+            machine_trace_alto_kcb_completion(m, kptr, bb->cycles);
         }
 
         if (alto_check_enabled && is_imfetch &&

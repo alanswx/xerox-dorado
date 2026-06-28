@@ -128,6 +128,15 @@ static uint16_t translate_rda(uint16_t rda, int src_cylinders,
     return alto_rda_from_vda(vda, dst_cylinders, dst_sectors, edrive);
 }
 
+static uint16_t translate_rda_preserve_drive(uint16_t rda, int src_cylinders,
+                                             int src_sectors, int dst_cylinders,
+                                             int dst_sectors)
+{
+    if (rda == 0) return rda;
+    return translate_rda(rda, src_cylinders, src_sectors, dst_cylinders,
+                         dst_sectors, (rda >> 1) & 1);
+}
+
 static int place_diablo_image(dorado_disk_pack *pack, const char *path,
                               int edrive, int diablo_cyls, int diablo_secs,
                               int all_heads, int boot_head,
@@ -211,16 +220,20 @@ static int place_diablo_image(dorado_disk_pack *pack, const char *path,
                 if (remap_vda && diablo_secs != sectors_diablo) {
                     hdr[1] = alto_rda_from_vda(src_vda, diablo_cyls,
                                                sectors_diablo, edrive);
-                    lbl[0] = translate_rda(lbl[0], diablo_cyls, diablo_secs,
-                                           diablo_cyls, sectors_diablo, edrive);
-                    lbl[1] = translate_rda(lbl[1], diablo_cyls, diablo_secs,
-                                           diablo_cyls, sectors_diablo, edrive);
+                    lbl[0] = translate_rda_preserve_drive(
+                        lbl[0], diablo_cyls, diablo_secs,
+                        diablo_cyls, sectors_diablo);
+                    lbl[1] = translate_rda_preserve_drive(
+                        lbl[1], diablo_cyls, diablo_secs,
+                        diablo_cyls, sectors_diablo);
                 } else if (edrive == 1) {
                     hdr[1] |= DIABLO_DRIVE_HEADER_BIT;
-                    lbl[0] = translate_rda(lbl[0], diablo_cyls, diablo_secs,
-                                           diablo_cyls, diablo_secs, edrive);
-                    lbl[1] = translate_rda(lbl[1], diablo_cyls, diablo_secs,
-                                           diablo_cyls, diablo_secs, edrive);
+                    lbl[0] = translate_rda_preserve_drive(
+                        lbl[0], diablo_cyls, diablo_secs,
+                        diablo_cyls, diablo_secs);
+                    lbl[1] = translate_rda_preserve_drive(
+                        lbl[1], diablo_cyls, diablo_secs,
+                        diablo_cyls, diablo_secs);
                 }
 
                 int eff_head = dst_head;
