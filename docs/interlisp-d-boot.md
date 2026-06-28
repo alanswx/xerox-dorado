@@ -177,9 +177,18 @@ writable disk path. The useful current facts are:
   The blocker was not the DShape bytes; it was the controller feeding RDCHK in
   the opposite order from `AltoDiabloDisk.mc`'s descending `DskMAddr` compare
   loop. RDCHK now consumes the same high-to-low block stream as READ/write.
-- The host-built full fixture can reach the Alto OS/display path, but running
-  old BCPL utilities from a repacked filesystem still exposes absolute
-  real-disk-address assumptions.
+- The host-built full fixture can reach the Alto OS/display path. On
+  2026-06-28, native Scavenger accepted the regenerated full pack and returned
+  to the Alto Executive (`6311 Pages`) after a full no-alter scan.
+- The false `Would have Salvaged SysDir>LISP.VIRTUALMEM.` report was a
+  `dsk2trident` cross-drive label-link bug, not a bad VMEM chain. The converter
+  was forcing drive-1 bits onto label links that pointed back to drive 0; the
+  boundary was VDA 11367/11368 (`prev` was `156256B`, should be `156254B`).
+  `dsk2trident` now preserves the drive bit from each linked RDA.
+- Running old BCPL utilities from a repacked filesystem still exposes absolute
+  real-disk-address assumptions. After typing `lisp.run`, Swat/Swatee reports a
+  disk-label mismatch at absolute RDA `030374B`; the fresh pack really has
+  serial `0150B` there, so this is not runtime write corruption.
 - `dsk2trident --remap-vda` is deliberately experimental. A 12-sector
   `bcpl.dsk` contains a mix of metadata: some checks want the 14-sector AEmu
   VDA interpretation, while other utilities check absolute physical RDAs from
@@ -212,7 +221,7 @@ Result on 2026-06-26: `28694 display-list pixels`. That result proves the
 boot-file selection and basic disk read path can work; it does not prove the
 fixture is filesystem-correct enough for Lisp.
 
-An exploratory run typing `lisp.run` at the Executive prompt:
+An older exploratory run typing `lisp.run` at the Executive prompt:
 
 ```
 ./build/dorado --eb worlds/aemu.eb \
@@ -228,6 +237,23 @@ it is not proof that the Lisp microcode/sysout path is complete. Next debugging
 should trace `Lisp.run`'s LoadMicrocode / VMEM / sysout path, especially
 whether it expects `LISP.SYSOUT.` on the auxiliary partition or only via the
 original network installer flow.
+
+After the 2026-06-28 cross-drive label fix, the same style of probe no longer
+blanked. It reached Swat with:
+
+```
+Open error: a file that appears to be mentioned in your directory cannot be opened.
+The disk routines have encountered an unrecoverable disk error.
+CallSubSys error: Are you sure this is a ".run" file?
+The length of the file does not agree with BLDR's layout vector.
+```
+
+Host-side parsing of `build/run-disks/lisp-drive{0,1}.dsk` shows `LISP.RUN.`
+is directory-clean: leader VDA 1049, serial `156B`, 178 pages, 90266 content
+bytes, byte-exact against `chm/lisp/Lisp.run!6`. The current hypothesis is
+therefore not insertion corruption but a mismatch between the old Alto OS/Swat
+seed (`Swat.30`, OS `20/16`) and the later Lyric `Lisp.run!6`, plus remaining
+absolute-RDA assumptions in the BCPL utilities copied from `bcpl.dsk`.
 
 The small `*Initial.db` files under `chm/lisp/*/basics/` are not Trident pack
 images. They share the Lisp/sysout-style magic bytes but are only 8-10 KB, so
