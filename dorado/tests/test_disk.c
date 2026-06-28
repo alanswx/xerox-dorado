@@ -457,7 +457,7 @@ static int test_mixed_read_write_retargets_latched_sector(void)
         dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKDATA,
                         (uint16_t)(01000 + i));
     }
-    EXPECT(target->label[0] == 01007 && target->label[7] == 01000,
+    EXPECT(target->label[0] == 01000 && target->label[7] == 01007,
            "mixed write should update target label, got [%o,%o]",
            target->label[0], target->label[7]);
     EXPECT(stale->label[0] == 0111,
@@ -1143,10 +1143,10 @@ static int test_write_path(void)
     EXPECT(ctl.write_stream_active == 0, "write stream should end at sector");
     dorado_disk_sector *ws = dorado_disk_pack_sector(&pack, 0, 0, 3);
     EXPECT(ws != NULL, "sector (0,0,3)");
-    EXPECT(ws->label[0] == (uint16_t)(0x4000 + DORADO_DISK_HEADER_WORDS),
+    EXPECT(ws->label[0] == (uint16_t)(0x4000 + DORADO_DISK_HEADER_WORDS +
+                                      DORADO_DISK_LABEL_WORDS - 1),
            "fifo write label[0]=0x%X", ws->label[0]);
-    EXPECT(ws->data[0] == (uint16_t)(0x4000 + DORADO_DISK_HEADER_WORDS +
-                                     DORADO_DISK_LABEL_WORDS),
+    EXPECT(ws->data[0] == (uint16_t)(0x4000 + total - 1),
            "fifo write data[0]=0x%X", ws->data[0]);
 
     /* 3) Persist: save + reload. */

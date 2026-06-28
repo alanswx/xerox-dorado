@@ -1138,16 +1138,27 @@ static void disk_write_stream_word(dorado_disk_controller *ctl, uint16_t w)
         return;
     }
     disk_write_word_trace(ctl, "data", w);
-    /* AltoDiabloDisk.mc's write loop fetches each block from high address to
-     * low address (`DskMAddr_ (Fetch_ DskMAddr)-1, Output_ MD`). Preserve that
-     * high-to-low stream order in the pack, matching dsk2trident and READ. */
     int pos = ctl->current_block_pos;
-    if (ctl->current_block == 0 && pos < hw) {
-        s->header[hw - 1 - pos] = w;
+    if (!ctl->write_block_framing) {
+        /* Tag Write streams a whole sector in logical low-to-high order.
+         * Diablo-on-Trident pack blocks are stored in the high-to-low order
+         * consumed by AEmu's descending READ loop, so reverse each block. */
+        if (idx < hw) {
+            s->header[hw - 1 - idx] = w;
+        } else if (idx < hw + lw) {
+            int li = idx - hw;
+            s->label[lw - 1 - li] = w;
+        } else if (idx < total) {
+            int di = idx - hw - lw;
+            s->data[dw - 1 - di] = w;
+        }
+    } else if (ctl->current_block == 0 && pos < hw) {
+        /* DiskControl block writes already arrive in pack stream order. */
+        s->header[pos] = w;
     } else if (ctl->current_block == 1 && pos < lw) {
-        s->label[lw - 1 - pos] = w;
+        s->label[pos] = w;
     } else if (ctl->current_block == 2 && pos < dw) {
-        s->data[dw - 1 - pos] = w;
+        s->data[pos] = w;
     } else if (idx < hw) {
         s->header[idx] = w;
     } else if (idx < hw + lw) {
