@@ -11,6 +11,7 @@
 #include <string.h>
 
 #include "fs/fs.h"
+#include "fs/fs_internal.h"
 
 #define DEFAULT_CYLINDERS    406
 #define DEFAULT_HEADS          2
@@ -75,6 +76,54 @@ static int install_sysdir_dshape(struct fs *afs)
     return 0;
 }
 
+static int repair_file_metadata(struct fs *afs, const char *name)
+{
+    struct file_entry fe, dir_fe;
+    struct file_info info;
+    int found = 0;
+    int error = 0;
+
+    if (!fs_resolve_name(afs, name, &found, &fe, &dir_fe, NULL) || !found) {
+        fprintf(stderr, "altofs: could not resolve %s for metadata repair\n",
+                name);
+        return 1;
+    }
+
+    uint16_t vda = fe.leader_vda;
+    uint16_t last_vda = vda;
+    while (vda != 0) {
+        struct page *pg = &afs->pages[vda];
+        last_vda = vda;
+        uint16_t next_vda = 0;
+        if (pg->label.s.next_rda != 0 &&
+            !real_to_virtual(&afs->dg, pg->label.s.next_rda, &next_vda)) {
+            fprintf(stderr, "altofs: invalid next RDA in %s at VDA %u\n",
+                    name, vda);
+            return 1;
+        }
+        if (next_vda == 0) break;
+        vda = next_vda;
+    }
+
+    struct page *last = &afs->pages[last_vda];
+    if (!fs_get_file_info(afs, &fe, &info, &error)) {
+        fprintf(stderr, "altofs: could not read %s leader: %s\n",
+                name, fs_error(error));
+        return 1;
+    }
+    info.fe = dir_fe;
+    info.last_page.vda = last_vda;
+    info.last_page.pgnum = last->label.s.file_pgnum;
+    info.last_page.pos = last->label.s.nbytes;
+    if (!fs_set_file_info(afs, &fe, &info, &error)) {
+        fprintf(stderr, "altofs: could not repair %s leader: %s\n",
+                name, fs_error(error));
+        return 1;
+    }
+    update_disk_metadata(afs);
+    return 0;
+}
+
 static void usage(const char *prog)
 {
     fprintf(stderr,
@@ -134,7 +183,7 @@ static int make_zero_file(struct fs *afs, const char *name, size_t bytes)
                 name, fs_error(of.error));
         return 1;
     }
-    return 0;
+    return repair_file_metadata(afs, name);
 }
 
 int main(int argc, char **argv)
@@ -243,6 +292,10 @@ int main(int argc, char **argv)
             fs_destroy(&afs);
             return 1;
         }
+        if (repair_file_metadata(&afs, inserts[i].alto_name) != 0) {
+            fs_destroy(&afs);
+            return 1;
+        }
     }
 
     if (create_vmem && vmem_after_inserts) {
@@ -265,6 +318,10 @@ int main(int argc, char **argv)
     if (!fs_update_disk_descriptor(&afs, &error)) {
         fprintf(stderr, "altofs: DiskDescriptor update failed: %s\n",
                 fs_error(error));
+        fs_destroy(&afs);
+        return 1;
+    }
+    if (repair_file_metadata(&afs, "DiskDescriptor.") != 0) {
         fs_destroy(&afs);
         return 1;
     }

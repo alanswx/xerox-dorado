@@ -440,13 +440,10 @@ lisp-disk-image-full:
 else
 lisp-disk-image-full: $(BINDIR)/altofs $(BINDIR)/dsk2trident $(PALO_PAR) $(LISP_OS_HOST_FILES) | $(TRIDENT_RUN_DIR)
 	$(BINDIR)/altofs --disk0 '$(LISP_DSK0)' --disk1 '$(LISP_DSK1)' \
-		--vmem-after-inserts $(LISP_OS_INSERTS) $(if $(LISP_FULL_BOOT_FILE),--boot-file '$(LISP_FULL_BOOT_FILE)',)
-	$(PALO_PAR) -rw --disks 2 --cylinders 406 --heads 2 --sectors 14 -2 '$(LISP_DSK1)' -i '$(LISP_RUN_FILE)' LISP.RUN. '$(LISP_DSK0)'
-	$(PALO_PAR) -rw --disks 2 --cylinders 406 --heads 2 --sectors 14 -2 '$(LISP_DSK1)' -i '$(LISP_SYMS_FILE)' LISP.SYMS. '$(LISP_DSK0)'
-	$(PALO_PAR) -rw --disks 2 --cylinders 406 --heads 2 --sectors 14 -2 '$(LISP_DSK1)' -i '$(LISP_MC_FILE)' DORADOLISPMC.EB. '$(LISP_DSK0)'
-	$(PALO_PAR) -rw --disks 2 --cylinders 406 --heads 2 --sectors 14 -2 '$(LISP_DSK1)' -i '$(LISP_ALTOD1_FILE)' ALTOD1MC.EB. '$(LISP_DSK0)'
-	$(PALO_PAR) -rw --disks 2 --cylinders 406 --heads 2 --sectors 14 -2 '$(LISP_DSK1)' -i '$(LISP_UPDATE_FILE)' UPDATELISP.CM. '$(LISP_DSK0)'
-	$(if $(LISP_INIT_FILE),$(PALO_PAR) -rw --disks 2 --cylinders 406 --heads 2 --sectors 14 -2 '$(LISP_DSK1)' -i '$(LISP_INIT_FILE)' INIT.LCOM. '$(LISP_DSK0)',)
+		--vmem-after-inserts $(LISP_OS_INSERTS) $(LISP_CORE_INSERTS) \
+		--insert '$(LISP_UPDATE_FILE)' UPDATELISP.CM. \
+		$(if $(LISP_INIT_FILE),--insert '$(LISP_INIT_FILE)' INIT.LCOM.,) \
+		$(if $(LISP_FULL_BOOT_FILE),--boot-file '$(LISP_FULL_BOOT_FILE)',)
 	$(BINDIR)/dsk2trident --partition $(LISP_MAIN_PARTITION) --diablo-cylinders 406 --diablo-sectors 14 --drive1 '$(LISP_DSK1)' '$(LISP_DSK0)' '$(LISP_FULL_PACK)'
 	$(BINDIR)/altofs --disk0 '$(LISP_AUX_DSK0)' --disk1 '$(LISP_AUX_DSK1)' \
 		--no-vmem --insert '$(LISP_SYSOUT_FILE)' LISP.SYSOUT.
