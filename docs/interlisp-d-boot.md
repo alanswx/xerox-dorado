@@ -238,6 +238,37 @@ should trace `Lisp.run`'s LoadMicrocode / VMEM / sysout path, especially
 whether it expects `LISP.SYSOUT.` on the auxiliary partition or only via the
 original network installer flow.
 
+### 2026-06-28: preserved BcplProg layout reaches the VMEM gate
+
+The CHM `basicdisks/BcplProg.BFS!13` file is not a Palo/ContrAlto AAR sector
+image. It is a Palo-readable BFS transfer stream: `par -1` rejects it as a
+short AAR image, while `par -ibfs -1 chm/basicdisks/BcplProg.BFS!13 -d SysDir.`
+loads it and reports a coherent BCPL Programmer's Disk (`OS Version 20/16`,
+2450 free pages). This matters because the BFS stream preserves the installed
+Alto OS layout, including Swat/Swatee real disk addresses and serials.
+
+`make -C dorado lisp-bcplprog-loader-image` now builds a reproducible probe by
+copying that BFS stream into `build/run-disks/`, converting it through Palo's
+`-ibfs` load on the first insert, adding only the Lisp loader files, and then
+mapping the resulting AAR image into a Diablo-on-Trident pack. The smoke target:
+
+```
+make -C dorado run-lisp-bcplprog-loader-smoke
+```
+
+boots AEmu from the generated pack, types `lisp.run`, and reaches the Alto
+Executive message:
+
+```
+Cant find LISP.VIRTUALMEM.
+```
+
+That is the best current Lisp signal. It proves the disk-boot path, installed
+Alto OS layout, keyboard injection, `LISP.RUN.` directory lookup, and BCPL
+loader startup are all working together. The remaining blocker is no longer
+Swat/Swatee label corruption; it is providing `LISP.VIRTUALMEM` with enough
+capacity without disturbing the installed OS layout.
+
 After the 2026-06-28 cross-drive label fix, the same style of probe no longer
 blanked. It reached Swat with:
 
@@ -251,9 +282,9 @@ The length of the file does not agree with BLDR's layout vector.
 Host-side parsing of `build/run-disks/lisp-drive{0,1}.dsk` shows `LISP.RUN.`
 is directory-clean: leader VDA 1049, serial `156B`, 178 pages, 90266 content
 bytes, byte-exact against `chm/lisp/Lisp.run!6`. The current hypothesis is
-therefore not insertion corruption but a mismatch between the old Alto OS/Swat
-seed (`Swat.30`, OS `20/16`) and the later Lyric `Lisp.run!6`, plus remaining
-absolute-RDA assumptions in the BCPL utilities copied from `bcpl.dsk`.
+therefore not insertion corruption. Follow-up with `BcplProg.BFS!13` showed the
+root cause more precisely: repacking the Alto OS files changes the labels and
+serials that Swat/Swatee check by absolute real disk address.
 
 The small `*Initial.db` files under `chm/lisp/*/basics/` are not Trident pack
 images. They share the Lisp/sysout-style magic bytes but are only 8-10 KB, so

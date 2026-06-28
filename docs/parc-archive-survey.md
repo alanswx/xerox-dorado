@@ -56,26 +56,25 @@ Worth a future pull pass.
 
 ## 3. Disk-image formats found on the archive
 
-The PARC archives use **four interchangeable extensions** for raw
-Alto disk-pack images, plus several non-disk formats that are easy
-to mistake for disk images.
+The PARC archives use several whole-filesystem formats, plus several
+non-disk formats that are easy to mistake for disk images.
 
-### 3.1 Alto disk-pack image (Diablo 30, 2.5 MB)
+### 3.1 Alto disk-pack images and BFS streams
 
 | Extension | Notes |
 |---|---|
-| `.bfs` | "Backup File System" — most common. Typical 1.4–4.9 MB depending on whether it's a 1- or 2-pack image. |
-| `.altodisk` | Same content as `.bfs`, different name. |
-| `.copydisk` | Same content as `.bfs`, different name. CopyDisk was the Alto utility that produced them. |
-| `.disk` | Same content. Used in some sub-collections (e.g. `cyan/d0/d0cardtester.disk!1_/`). |
+| `.bfs` | Alto **BFS transfer stream**, not Palo/ContrAlto AAR sector layout. Use `palo/src/par -ibfs -1 file.bfs!N ...` to load it. |
+| `.altodisk` | Alto disk image/stream; verify with the tool before assuming AAR layout. |
+| `.copydisk` | CopyDisk-produced Alto disk image/stream. |
+| `.disk` | Alto disk image/stream used in some sub-collections (e.g. `cyan/d0/d0cardtester.disk!1_/`). |
 
 The CHM source-code landing page describes them explicitly as
 *"an image of an entire Alto disk pack, analogous to an `.iso`
 CD-ROM image"*.
 
-**How CHM presents them.** Each disk-pack image appears in two
+**How CHM presents them.** Each Alto filesystem appears in two
 forms in parallel:
-1. The raw binary blob, downloadable at `<dir>/<file>.bfs!N`.
+1. The raw binary stream, downloadable at `<dir>/<file>.bfs!N`.
 2. An auto-generated browsable directory, indexed at
    `<dir>/<file>.bfs!N_/` (note the trailing `_`), where every file
    *inside* the pack is exposed as an individual HTML page.
@@ -84,10 +83,18 @@ For example, `Mesa6-14.bfs!4` appears at:
 - raw image: `_cd8_/basicdisks/Mesa6-14.bfs!4`
 - expanded:  `_cd8_/basicdisks/Mesa6-14.bfs!4_/.index.html`
 
-This confirms what the user noted: **the archive holds both the
-disk image AND the unpacked file tree**. That unpacking was done
+This confirms what the user noted: **the archive holds both a
+whole-filesystem stream AND the unpacked file tree**. That unpacking was done
 once by `restore_alto_files` (see §5) when the website was
 generated.
+
+Operational ground truth from `BcplProg.BFS!13` and `UnBug.bfs!1`:
+`palo/src/par -1 file.bfs!N` fails with `load_image_aar: premature end of
+file`, while `palo/src/par -ibfs -1 file.bfs!N -d SysDir.` succeeds and
+preserves original VDA, serial, and label metadata. To convert a CHM BFS stream
+to the AAR sector layout used by `dsk2trident`, copy it to a writable path and
+run a modifying Palo operation with `-ibfs -rw`; subsequent saves are AAR unless
+`-obfs` is supplied.
 
 The same convention applies to `.altodisk!N_/`, `.copydisk!N_/`,
 and `.disk!N_/` directory paths in the cross-reference index.

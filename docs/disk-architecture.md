@@ -964,5 +964,19 @@ software XOR the corrupted bits back to correct values.
     generated Lisp pack as `Disks: 2, Cylinders: 406, Heads: 2, Sectors: 14`,
     and the previous VDA `212B`/`213B` hard-error screen is gone.
 
+23. **2026-06-28 CHM BFS stream and Swat layout correction.**
+    CHM `*.BFS!N` files such as `basicdisks/BcplProg.BFS!13` are Palo
+    `-ibfs` transfer streams, not direct AAR sector images. Loading
+    `BcplProg.BFS!13` with `par -ibfs` preserves the installed Alto OS labels
+    and serials; converting that preserved image with `dsk2trident` boots to
+    the BCPL Programmer's Disk Executive. Inserting `LISP.RUN.` and its support
+    files into that preserved image reaches `Cant find LISP.VIRTUALMEM.`. The
+    older synthetic Lisp pack still fails Swat/Swatee because extracting
+    `Swat.`/`Swatee.` and reinserting them into a fresh filesystem gives them
+    new labels/serials at the absolute real disk addresses they check. Future
+    host-built packs should either start from an installed BFS/AAR image or run
+    the native Alto install tools; they should not repack the Alto OS files as
+    plain payloads.
+
 See `docs/io-systems-architecture.md` for a higher-level view of
 how disk fits into Slow I/O / Fast I/O / Tasking.

@@ -329,12 +329,15 @@ LISP_AUX_DSK0 ?= $(TRIDENT_RUN_DIR)/lisp-aux-drive0.dsk
 LISP_AUX_DSK1 ?= $(TRIDENT_RUN_DIR)/lisp-aux-drive1.dsk
 LISP_RUN_PACK ?= $(TRIDENT_RUN_DIR)/lisp-diablo-trident.pack
 LISP_FULL_PACK ?= $(TRIDENT_RUN_DIR)/lisp-full-diablo-trident.pack
+LISP_BCPLPROG_DSK ?= $(TRIDENT_RUN_DIR)/bcplprog-lisp-loader.dsk
+LISP_BCPLPROG_PACK ?= $(TRIDENT_RUN_DIR)/bcplprog-lisp-loader-trident.pack
 LISP_MAIN_PARTITION ?= 5
 LISP_AUX_PARTITION ?= 4
 LISP_BOOT_FILE ?=
 LISP_FULL_BOOT_FILE ?= Sys.Boot.
 PALO_PAR ?= ../AltoInfo/palo/src/par
 ALTO_OS_DISK ?= ../AltoInfo/ContrAlto2-beta/Disks/bcpl.dsk
+BCPLPROG_BFS ?= ../chm/basicdisks/BcplProg.BFS!13
 LISP_OS_DIR ?= $(TRIDENT_RUN_DIR)/lisp-os-files
 LISP_OS_SYS_BOOT ?= $(LISP_OS_DIR)/Sys.Boot.
 LISP_OS_EXEC ?= $(LISP_OS_DIR)/Executive.Run.
@@ -419,6 +422,7 @@ $(ALTO_GOLDEN_PACK): $(ALTO_GOLDEN_PACK_GZ) | $(TRIDENT_GOLDEN_DIR)
 .PHONY: trident-readonly-images alto-disk-image refresh-alto-golden
 .PHONY: lisp-disk-image
 .PHONY: lisp-disk-image-full
+.PHONY: lisp-bcplprog-loader-image run-lisp-bcplprog-loader-smoke
 .PHONY: run-alto-disk run-alto-disk-screenshot
 .PHONY: run-bfstest-smoke run-scavenger-smoke
 .PHONY: run-tricond-nopack run-tricond-pack
@@ -437,6 +441,22 @@ lisp-disk-image: $(BINDIR)/altofs $(BINDIR)/dsk2trident | $(TRIDENT_RUN_DIR)
 	$(BINDIR)/altofs --disk0 '$(LISP_DSK0)' --disk1 '$(LISP_DSK1)' \
 		$(LISP_CORE_INSERTS) $(if $(LISP_BOOT_FILE),--boot-file '$(LISP_BOOT_FILE)',)
 	$(BINDIR)/dsk2trident --all-heads --diablo-cylinders 406 --diablo-sectors 14 --drive1 '$(LISP_DSK1)' '$(LISP_DSK0)' '$(LISP_RUN_PACK)'
+
+# Preserve the installed Alto OS layout from the CHM BcplProg BFS stream.
+# Swat/Swatee check original real disk addresses and file serials; extracting
+# the OS files and reinserting them into a fresh image changes those labels.
+# This target therefore converts the raw BFS stream by loading it with palo
+# `-ibfs` on the first insert, then performs all later inserts against the
+# resulting AAR-format writable copy.
+lisp-bcplprog-loader-image: $(BINDIR)/dsk2trident $(PALO_PAR) $(BCPLPROG_BFS) | $(TRIDENT_RUN_DIR)
+	cp -f '$(BCPLPROG_BFS)' '$(LISP_BCPLPROG_DSK)'
+	$(PALO_PAR) -ibfs -1 '$(LISP_BCPLPROG_DSK)' -rw -i '$(LISP_RUN_FILE)' LISP.RUN.
+	$(PALO_PAR) -1 '$(LISP_BCPLPROG_DSK)' -rw -i '$(LISP_SYMS_FILE)' LISP.SYMS.
+	$(PALO_PAR) -1 '$(LISP_BCPLPROG_DSK)' -rw -i '$(LISP_MC_FILE)' DORADOLISPMC.EB.
+	$(PALO_PAR) -1 '$(LISP_BCPLPROG_DSK)' -rw -i '$(LISP_ALTOD1_FILE)' ALTOD1MC.EB.
+	$(PALO_PAR) -1 '$(LISP_BCPLPROG_DSK)' -rw -i '$(LISP_UPDATE_FILE)' UPDATELISP.CM.
+	$(if $(LISP_INIT_FILE),$(PALO_PAR) -1 '$(LISP_BCPLPROG_DSK)' -rw -i '$(LISP_INIT_FILE)' INIT.LCOM.,)
+	$(BINDIR)/dsk2trident --all-heads '$(LISP_BCPLPROG_DSK)' '$(LISP_BCPLPROG_PACK)'
 
 ifeq ($(LISP_SYSOUT_FILE),)
 lisp-disk-image-full:
@@ -478,6 +498,11 @@ run-scavenger-smoke: $(BINDIR)/dorado run-bfstest-smoke
 		--type-at 1100000000 --type 'Y' \
 		--type-at 5200000000 --type 'Y' \
 		--out /tmp/dorado-scavenger-smoke.pgm
+run-lisp-bcplprog-loader-smoke: $(BINDIR)/dorado lisp-bcplprog-loader-image
+	./build/dorado --eb worlds/aemu.eb \
+		--disk 0='$(LISP_BCPLPROG_PACK)' --boot-reason disk --no-alto-boot \
+		--type 'lisp.run\n' --type-at 330000000 --key-hold 4000000 \
+		--cycles 700000000 --out /tmp/dorado-lisp-bcplprog-loader-smoke.pgm
 
 run-tricond-nopack: $(BINDIR)/rundiag
 	RUNDIAG_DISK=1 RUNDIAG_TASK=14 ./build/rundiag '../chm/dorado/expanded/Tricond.dm!5_/TriconD.mb' BEGIN TESTOK-WITHOUT-DISK ERR 50000000
