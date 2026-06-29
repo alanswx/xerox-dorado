@@ -89,6 +89,30 @@ static int safe_allocate_next_page(struct fs *afs, uint16_t last_vda,
     return allocate_page(afs, out_vda, &last_vda);
 }
 
+static int append_empty_terminal_page(struct fs *afs, uint16_t *vda,
+                                      uint16_t *pgnum)
+{
+    struct page *pg = &afs->pages[*vda];
+    uint16_t next_vda = 0;
+
+    if (!safe_allocate_next_page(afs, pg->page_vda, &next_vda))
+        return 0;
+
+    struct page *npg = &afs->pages[next_vda];
+    virtual_to_real(&afs->dg, npg->page_vda, &pg->label.s.next_rda);
+    virtual_to_real(&afs->dg, pg->page_vda, &npg->label.s.prev_rda);
+    npg->label.s.next_rda = 0;
+    npg->label.s.unused = pg->label.s.unused;
+    npg->label.s.nbytes = 0;
+    npg->label.s.file_pgnum = (uint16_t)(*pgnum + 1);
+    npg->label.s.version = pg->label.s.version;
+    npg->label.s.sn = pg->label.s.sn;
+
+    *vda = next_vda;
+    *pgnum = (uint16_t)(*pgnum + 1);
+    return 1;
+}
+
 static int insert_file_verbose(struct fs *afs, const char *host_path,
                                const char *alto_name)
 {
@@ -131,10 +155,21 @@ static int insert_file_verbose(struct fs *afs, const char *host_path,
 
         int ch = fgetc(fp);
         if (ch == EOF) {
+            if (n == afs->sector_bytes &&
+                !append_empty_terminal_page(afs, &vda, &pgnum)) {
+                fprintf(stderr,
+                        "altofs: insert ran out of pages for terminal page "
+                        "of %s after %zu bytes\n",
+                        alto_name, total);
+                fclose(fp);
+                fs_close(afs, &of);
+                return 1;
+            }
+            pg = &afs->pages[vda];
             pg->label.s.next_rda = 0;
             of.pos.vda = vda;
             of.pos.pgnum = pgnum;
-            of.pos.pos = (uint16_t)n;
+            of.pos.pos = pg->label.s.nbytes;
             of.modified = 1;
             break;
         }
@@ -340,10 +375,20 @@ static int make_zero_file(struct fs *afs, const char *name, size_t bytes)
         written += n;
 
         if (written >= bytes) {
+            if (n == afs->sector_bytes &&
+                !append_empty_terminal_page(afs, &vda, &pgnum)) {
+                fprintf(stderr,
+                        "altofs: zero write ran out of pages for terminal "
+                        "page of %s at %zu/%zu bytes\n",
+                        name, written, bytes);
+                fs_close(afs, &of);
+                return 1;
+            }
+            pg = &afs->pages[vda];
             pg->label.s.next_rda = 0;
             of.pos.vda = vda;
             of.pos.pgnum = pgnum;
-            of.pos.pos = (uint16_t)n;
+            of.pos.pos = pg->label.s.nbytes;
             of.modified = 1;
             break;
         }
