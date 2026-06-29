@@ -159,9 +159,10 @@ with the 1984 microcode; prefer `Dorado.germ-6.1.6`.
 ## Useful flags and trace env vars
 
 CLI flags (`./build/dorado --help`): `--cycles N`, `--eb PATH`, `--germ PATH`,
-`--eftp PATH`, `--out PATH` (snapshot PGM), `--quote` / `--boot-keys` (DDC boot
-keys), `--no-alto-boot`, `--progress`, `--boot-file-number`, `--boot-dir[-all]`,
-`--type`, `--key-hold`.
+`--eftp PATH`, `--out PATH` (final snapshot PGM), `--shot-prefix PATH`,
+`--shot-every N` (periodic headless snapshots), `--quote` / `--boot-keys` (DDC
+boot keys), `--no-alto-boot`, `--progress`, `--boot-file-number`,
+`--boot-dir[-all]`, `--type`, `--key-hold`.
 
 Disk (`docs/disk-subsystem-plan.md`): `--disk-real` boots Cedar through the
 **real disk controller** read path (FIFO + framing) instead of the IOCB shim

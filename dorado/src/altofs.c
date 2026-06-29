@@ -316,6 +316,10 @@ static void usage(const char *prog)
         "  --sectors N        sectors per head (default 14)\n"
         "  --source-cylinders N\n"
         "  --source-sectors N load smaller existing AAR halves into output geometry\n"
+        "  --source-single-drive\n"
+        "                     load only disk0 from the smaller source geometry\n"
+        "  --source-preserve-vda\n"
+        "                     keep source VDA order and rewrite RDA links\n"
         "  --sector-words N   words per sector (default 256)\n"
         "  --vmem-pages N     create zero-filled LISP.VIRTUALMEM. pages (default 15002)\n"
         "  --vmem-name NAME   Alto filename for VMEM (default LISP.VIRTUALMEM.)\n"
@@ -467,8 +471,23 @@ static uint16_t rd16le(FILE *fp, int *ok)
     return (uint16_t)((lo & 0xFF) | ((hi & 0xFF) << 8));
 }
 
+static uint16_t translate_source_rda(const struct geometry *src,
+                                     const struct geometry *dst,
+                                     uint16_t rda)
+{
+    if (rda == 0)
+        return 0;
+    uint16_t vda = 0;
+    uint16_t out = 0;
+    if (!real_to_virtual(src, rda, &vda) ||
+        !virtual_to_real(dst, vda, &out))
+        return rda;
+    return out;
+}
+
 static int load_short_aar(struct fs *afs, const char *path,
-                          uint16_t disk_num, const struct geometry *src)
+                          uint16_t disk_num, const struct geometry *src,
+                          int preserve_vda_order)
 {
     FILE *fp = fopen(path, "rb");
     if (!fp) {
@@ -500,7 +519,20 @@ static int load_short_aar(struct fs *afs, const char *path,
         }
 
         uint16_t vda = 0;
-        if (!real_to_virtual(&afs->dg, header[1], &vda)) {
+        if (preserve_vda_order) {
+            vda = (uint16_t)(disk_num * afs->disk_length + i);
+            if (vda >= afs->length) {
+                fprintf(stderr, "altofs: source page outside output at %s:%u\n",
+                        path, (unsigned)i);
+                fclose(fp);
+                return 0;
+            }
+            uint16_t rda = 0;
+            if (virtual_to_real(&afs->dg, vda, &rda))
+                header[1] = rda;
+            label[0] = translate_source_rda(src, &afs->dg, label[0]);
+            label[1] = translate_source_rda(src, &afs->dg, label[1]);
+        } else if (!real_to_virtual(&afs->dg, header[1], &vda)) {
             vda = (uint16_t)(disk_num * afs->disk_length + i);
             if (vda >= afs->length) {
                 fprintf(stderr, "altofs: source page outside output at %s:%u\n",
@@ -575,6 +607,8 @@ int main(int argc, char **argv)
     int force_existing = 0;
     int init_blank_free = 0;
     int preserve_existing_metadata = 0;
+    int source_single_drive = 0;
+    int source_preserve_vda = 0;
     const char *inspect_name = NULL;
     struct geometry dg;
     struct geometry src_dg;
@@ -607,6 +641,10 @@ int main(int argc, char **argv)
         } else if (!strcmp(a, "--source-sectors") && i + 1 < argc) {
             src_dg.num_sectors = (uint16_t)parse_int(argv[++i], "source sectors");
             source_geometry = 1;
+        } else if (!strcmp(a, "--source-single-drive")) {
+            source_single_drive = 1;
+        } else if (!strcmp(a, "--source-preserve-vda")) {
+            source_preserve_vda = 1;
         } else if (!strcmp(a, "--sector-words") && i + 1 < argc) {
             dg.sector_words = (uint16_t)parse_int(argv[++i], "sector words");
             src_dg.sector_words = dg.sector_words;
@@ -677,8 +715,11 @@ int main(int argc, char **argv)
         int loaded = 0;
         if (source_geometry) {
             init_all_pages_free(&afs);
-            loaded = load_short_aar(&afs, disk0, 0, &src_dg) &&
-                     load_short_aar(&afs, disk1, 1, &src_dg);
+            loaded = load_short_aar(&afs, disk0, 0, &src_dg,
+                                    source_preserve_vda) &&
+                     (source_single_drive ||
+                      load_short_aar(&afs, disk1, 1, &src_dg,
+                                     source_preserve_vda));
             update_disk_metadata(&afs);
         } else {
             loaded = fs_load_image(&afs, disk0, 0, 0) &&

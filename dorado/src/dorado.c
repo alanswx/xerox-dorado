@@ -21,6 +21,7 @@
  *                       seed the planted germ's request as Ethernet inLoad
  *     --out PATH        snapshot PGM path (default dorado-screen.pgm)
  *     --shot-prefix P   signal snapshot prefix (default dorado-signal-shot)
+ *     --shot-every N    write PREFIX-CYCLE.pgm every N cycles
  *     --quote           hold the DDC "quote" boot key
  *     --no-alto-boot    do not drive the Stage-2 Alto ether boot
  *     --progress        print a cycle/boot progress line each frame
@@ -214,7 +215,8 @@ static void type_text(dorado_machine *m, const char *text, uint64_t key_hold)
            (unsigned long long)dorado_machine_cycles(m));
 }
 
-static void write_signal_snapshot(dorado_machine *m, const char *prefix)
+static void write_snapshot(dorado_machine *m, const char *prefix,
+                           const char *reason)
 {
     uint64_t cyc = dorado_machine_cycles(m);
     dorado_machine_render_display_list(m);
@@ -225,16 +227,15 @@ static void write_signal_snapshot(dorado_machine *m, const char *prefix)
                      prefix ? prefix : "dorado-signal-shot",
                      (unsigned long long)cyc);
     if (n < 0 || (size_t)n >= sizeof path) {
-        fprintf(stderr, "dorado: signal screenshot path too long\n");
+        fprintf(stderr, "dorado: screenshot path too long\n");
         return;
     }
     if (dorado_display_snapshot_pgm(disp, path) == 0) {
-        printf("dorado: signal screenshot at cycle %llu -> %s\n",
-               (unsigned long long)cyc, path);
+        printf("dorado: %s screenshot at cycle %llu -> %s\n",
+               reason ? reason : "periodic", (unsigned long long)cyc, path);
         fflush(stdout);
     } else {
-        fprintf(stderr, "dorado: failed to write signal screenshot %s\n",
-                path);
+        fprintf(stderr, "dorado: failed to write screenshot %s\n", path);
     }
 }
 
@@ -245,6 +246,8 @@ int main(int argc, char **argv)
                                        * banner display list built. */
     const char *out = "dorado-screen.pgm";
     const char *shot_prefix = "dorado-signal-shot";
+    uint64_t shot_every = 0;
+    uint64_t next_shot = 0;
     int progress = 0;
     type_event type_events[MAX_TYPE_EVENTS];
     int type_event_count = 0;
@@ -300,6 +303,8 @@ int main(int argc, char **argv)
             out = argv[++i];
         } else if (!strcmp(a, "--shot-prefix") && i + 1 < argc) {
             shot_prefix = argv[++i];
+        } else if (!strcmp(a, "--shot-every") && i + 1 < argc) {
+            shot_every = parse_u64(argv[++i], 0);
         } else if (!strcmp(a, "--quote")) {
             cfg.alto_ether_quote = 1;
         } else if (!strcmp(a, "--boot-keys") && i + 1 < argc) {
@@ -344,7 +349,7 @@ int main(int argc, char **argv)
                    "[--pilot-disk PATH] [--disk SLOT=PATH] [--disk-real] "
                    "[--boot-file-number OCTAL] [--boot-dir NAME=BFN=PATH] "
                    "[--boot-dir-all] [--no-boot-dir-all] "
-                   "[--out PATH] [--shot-prefix PREFIX] "
+                   "[--out PATH] [--shot-prefix PREFIX] [--shot-every N] "
                    "[--quote] [--boot-keys K[,K...]] "
                    "[--boot-reason ethernet|netexec|disk] "
                    "[--no-alto-boot] [--progress] "
@@ -357,8 +362,9 @@ int main(int argc, char **argv)
                    "R/W on drive SLOT (0..3)\n"
                    "  --disk-real: boot Cedar through the real disk controller "
                    "(read path) instead of the IOCB shim\n"
-                   "  --shot-prefix: SIGUSR1/SIGINFO snapshot prefix "
-                   "(writes PREFIX-CYCLE.pgm)\n",
+                   "  --shot-prefix: signal/periodic snapshot prefix "
+                   "(writes PREFIX-CYCLE.pgm)\n"
+                   "  --shot-every: write a headless snapshot every N cycles\n",
                    argv[0]);
             return 0;
         } else {
@@ -387,6 +393,7 @@ int main(int argc, char **argv)
     printf("dorado: booting (target %llu cycles)...\n",
            (unsigned long long)cycles);
     install_signal_snapshot_handlers();
+    if (shot_every) next_shot = shot_every;
 
     /* Run in ~2M-cycle frames so we can report progress and, later,
      * present the framebuffer live. */
@@ -419,7 +426,13 @@ int main(int argc, char **argv)
         }
         while (signal_snapshot_requests > 0) {
             signal_snapshot_requests--;
-            write_signal_snapshot(m, shot_prefix);
+            write_snapshot(m, shot_prefix, "signal");
+        }
+        if (shot_every && dorado_machine_cycles(m) >= next_shot) {
+            write_snapshot(m, shot_prefix, "periodic");
+            do {
+                next_shot += shot_every;
+            } while (dorado_machine_cycles(m) >= next_shot);
         }
         if (now < target) break;   /* halted */
     }

@@ -431,6 +431,31 @@ make -C dorado run-lisp-remote-sysout-smoke \
 That still needs a larger writable/scavenged pack before it can complete,
 because the small BcplProg smoke pack only creates a 1500-page VMEM.
 
+The current long Lyric probe uses a preserved BcplProg-derived pack expanded
+to the full AEmu 406x14 dual-drive shape, creates `LISP.VIRTUALMEM.` with the
+native `CreateFile.run`, and then serves the Lyric sysout over fake Pup
+FTP/BSP:
+
+```
+make -C dorado run-lisp-lyric-remote-long
+```
+
+This is intentionally not a short regression test. VMEM creation alone defaults
+to 5.8B cycles (`LISP_LYRIC_CREATEFILE_CYCLES=`), then the Lyric run defaults
+to 5B cycles and writes periodic headless screenshots to
+`/tmp/dorado-lisp-lyric-CYCLE.pgm` using `--shot-every 500000000`; adjust with
+`LISP_LYRIC_CYCLES=` and `LISP_LYRIC_SHOT_EVERY=` while debugging.
+
+Latest result: host-side VDA-preserving expansion plus native `CreateFile.run`
+does build the large VMEM file. The screen returns to the Alto Executive and
+extracting the pack shows `LISP.VIRTUALMEM.` has 15,004 linked pages including
+the terminal page. But running `lisp.run {DORADO}LISP.SYSOUT` from that pack
+still trips Swat/Swatee disk-label checks before reaching FTP. Interpretation:
+VDA-preserving expansion is good for host/Palo directory consistency and native
+CreateFile, but old Alto system utilities still care about physical RDA labels.
+The next path should be the physical-preserving expansion plus native Scavenger
+repair flow, not further changes to fake FTP.
+
 ### 2026-06-09: checksum/load validation
 
 Pointed our **existing, working Stage-1** Initial->LoadRam netboot path
