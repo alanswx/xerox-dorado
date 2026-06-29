@@ -370,15 +370,66 @@ Retrieve of sysout LISP.SYSOUT. failed
 Sysout too old for this microcode
 ```
 
-That is now the current blocker. It proves the disk write path, VMEM lookup,
-local sysout lookup, and sysout-to-VMEM initialization path are all being
-exercised. The small sysout is simply too old for the available Dorado Lisp
-microcode. The next useful experiment is to rebuild the expanded/scavenged pack
-with a smaller VMEM file so the larger `Lisp.sysout!1` or Harmony
-`LISP.SYSOUT!15` can fit, then rerun `lisp.run <name>`. The alternative is
-implementing the Pup FTP/BSP server path that `RemoteInitVmem` uses for
-`{host}file` sysout names; the current in-process Ethernet server is
-Mayday/EFTP boot-oriented, not full FTP/BSP.
+That proves the disk write path, VMEM lookup, local sysout lookup, and
+sysout-to-VMEM initialization path are all being exercised. The small sysout is
+simply too old for the available Dorado Lisp microcode.
+
+### 2026-06-29: remote sysout retrieval over fake Pup FTP/BSP works
+
+The preserved BcplProg path now has a shorter reproducible remote-sysout test:
+
+```
+make -C dorado run-lisp-remote-sysout-smoke
+```
+
+That target starts from a fresh BcplProg-derived loader image, inserts
+`CreateFile.run`, boots the Alto Executive, creates a small contiguous
+`LISP.VIRTUALMEM.` with native `CreateFile.run`, then runs:
+
+```
+lisp.run {DORADO}LISP.SYSOUT
+```
+
+with `--ftp-sysout ../chm/lisp/fugue.6/basics/SMALL.SYSOUT!1`. `DORADO_FTP_TRACE`
+is on by default for this short smoke and shows the full client path: NetDir
+lookup, RTP RFC to socket FTP, FTP `Version`, `Retrieve`, plist approval, and
+BSP 512-byte data transfer. The final screen is:
+
+```
+Retrieve of sysout {DORADO}SMALL.SYSOUT!1 failed
+Sysout too old for this microcode
+```
+
+So the fake Pup FTP/BSP path is now good enough to feed `RemoteInitVmem`; the
+remaining blocker is finding or building a sysout/loader/VMEM combination that
+can complete initialization. The relevant version words are in the sysout
+interface page at byte offset 512 (`LispBcpl.params`: `IFPLVersion=#10`,
+`IFPMinRVersion=#11`, `IFPMinBVersion=#12`, `IFPNActivePages=#24`):
+
+| File | LispV | MinR | MinB | ActivePages | Result with current smoke |
+|---|---:|---:|---:|---:|---|
+| `fugue.6/basics/SMALL.SYSOUT!1` | `110400` | `012000` | `021400` | `010642` | too old for Lyric microcode |
+| `fugue.6/basics/Lisp.sysout!1` | `110400` | `012000` | `021400` | `012063` | too old for Lyric microcode |
+| `harmony/basics/LISP.SYSOUT!15` | `111000` | `012000` | `021400` | `012503` | too old for Lyric microcode |
+| `archiveorg/_chm-parc_interlisp-lyric/LISP.SYSOUT!1` | `114000` | `013062` | `025400` | `022316` | plausible Lyric candidate; needs larger VMEM/pack |
+
+The current top-level `DORADOLISPMC.EB!1` is the Lyric microcode (`RamVersion
+= 013062`, `MinBcplForRam = 021000`, `MinLispForRam = 113000`) and is
+byte-identical to `archiveorg/_chm-parc_interlisp-lyric/DORADOLISPMC.EB!1`.
+The older Fugue/Harmony `DORADOLISPMC.EB!1` variants require only
+`MinLispForRam = 111000`; those are a possible alternate pairing if we want to
+boot Harmony instead of Lyric.
+
+For large sysout probes, disable packet-by-packet FTP logging:
+
+```
+make -C dorado run-lisp-remote-sysout-smoke \
+  LISP_REMOTE_FTP_TRACE= \
+  LISP_REMOTE_SYSOUT_FILE=../chm/archiveorg/_chm-parc_interlisp-lyric/LISP.SYSOUT!1
+```
+
+That still needs a larger writable/scavenged pack before it can complete,
+because the small BcplProg smoke pack only creates a 1500-page VMEM.
 
 ### 2026-06-09: checksum/load validation
 

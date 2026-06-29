@@ -375,8 +375,17 @@ LISP_SYMS_FILE ?= ../chm/lisp/Lisp.syms!4
 LISP_MC_FILE ?= ../chm/lisp/DORADOLISPMC.EB!1
 LISP_ALTOD1_FILE ?= ../chm/lisp/altod1mc.eb!1
 LISP_UPDATE_FILE ?= ../chm/lisp/cm/UpdateLisp.CM!8
+LISP_CREATEFILE_FILE ?= ../chm/alto/CreateFile.run!1
 LISP_SYSOUT_FILE ?= $(firstword $(wildcard ../chm/archiveorg/_chm-parc_interlisp-lyric/LISP.SYSOUT!1 ../chm/lisp/harmony/basics/LISP.SYSOUT!15 ../chm/lisp/fugue.6/basics/Lisp.sysout!1))
+LISP_REMOTE_SYSOUT_FILE ?= ../chm/lisp/fugue.6/basics/SMALL.SYSOUT!1
+LISP_REMOTE_SYSOUT_NAME ?= LISP.SYSOUT
+LISP_REMOTE_HOST ?= DORADO
+LISP_REMOTE_VMEM_PAGE_SPEC ?= 1500D
+LISP_REMOTE_FTP_TRACE ?= 1
 LISP_INIT_FILE ?= $(firstword $(wildcard ../chm/lisp/harmony/basics/INIT.NONET!3 ../chm/lisp/fugue.6/basics/DoradoInit.nonet!1))
+LISP_BCPLPROG_CREATEFILE_DSK ?= $(TRIDENT_RUN_DIR)/bcplprog-lisp-createfile.dsk
+LISP_BCPLPROG_CREATEFILE_PACK ?= $(TRIDENT_RUN_DIR)/bcplprog-lisp-createfile-trident.pack
+LISP_BCPLPROG_VMEM_PACK ?= $(TRIDENT_RUN_DIR)/bcplprog-lisp-vmem-trident.pack
 LISP_CORE_INSERTS = \
 	--insert '$(LISP_RUN_FILE)' LISP.RUN. \
 	--insert '$(LISP_SYMS_FILE)' LISP.SYMS. \
@@ -424,7 +433,9 @@ $(ALTO_GOLDEN_PACK): $(ALTO_GOLDEN_PACK_GZ) | $(TRIDENT_GOLDEN_DIR)
 .PHONY: trident-readonly-images alto-disk-image refresh-alto-golden
 .PHONY: lisp-disk-image
 .PHONY: lisp-disk-image-full
-.PHONY: lisp-bcplprog-loader-image run-lisp-bcplprog-loader-smoke
+.PHONY: lisp-bcplprog-loader-image lisp-bcplprog-createfile-image
+.PHONY: lisp-bcplprog-vmem-image run-lisp-bcplprog-loader-smoke
+.PHONY: run-lisp-remote-sysout-smoke
 .PHONY: run-alto-disk run-alto-disk-screenshot
 .PHONY: run-bfstest-smoke run-scavenger-smoke
 .PHONY: run-tricond-nopack run-tricond-pack
@@ -459,6 +470,19 @@ lisp-bcplprog-loader-image: $(BINDIR)/dsk2trident $(PALO_PAR) $(BCPLPROG_BFS) | 
 	$(PALO_PAR) -1 '$(LISP_BCPLPROG_DSK)' -rw -i '$(LISP_UPDATE_FILE)' UPDATELISP.CM.
 	$(if $(LISP_INIT_FILE),$(PALO_PAR) -1 '$(LISP_BCPLPROG_DSK)' -rw -i '$(LISP_INIT_FILE)' INIT.LCOM.,)
 	$(BINDIR)/dsk2trident --all-heads '$(LISP_BCPLPROG_DSK)' '$(LISP_BCPLPROG_PACK)'
+
+lisp-bcplprog-createfile-image: $(BINDIR)/dsk2trident $(PALO_PAR) lisp-bcplprog-loader-image | $(TRIDENT_RUN_DIR)
+	cp -f '$(LISP_BCPLPROG_DSK)' '$(LISP_BCPLPROG_CREATEFILE_DSK)'
+	$(PALO_PAR) -1 '$(LISP_BCPLPROG_CREATEFILE_DSK)' -rw -i '$(LISP_CREATEFILE_FILE)' CREATEFILE.RUN.
+	$(BINDIR)/dsk2trident --all-heads '$(LISP_BCPLPROG_CREATEFILE_DSK)' '$(LISP_BCPLPROG_CREATEFILE_PACK)'
+
+lisp-bcplprog-vmem-image: $(BINDIR)/dorado lisp-bcplprog-createfile-image
+	cp -f '$(LISP_BCPLPROG_CREATEFILE_PACK)' '$(LISP_BCPLPROG_VMEM_PACK)'
+	./build/dorado --eb worlds/aemu.eb \
+		--disk 0='$(LISP_BCPLPROG_VMEM_PACK)' --boot-reason disk --no-alto-boot \
+		--type 'createfile.run LISP.VIRTUALMEM $(LISP_REMOTE_VMEM_PAGE_SPEC)\n' \
+		--type-at 330000000 --key-hold 4000000 \
+		--cycles 1400000000 --out /tmp/dorado-lisp-createfile-vmem.pgm
 
 ifeq ($(LISP_SYSOUT_FILE),)
 lisp-disk-image-full:
@@ -507,6 +531,14 @@ run-lisp-bcplprog-loader-smoke: $(BINDIR)/dorado lisp-bcplprog-loader-image
 		--disk 0='$(LISP_BCPLPROG_PACK)' --boot-reason disk --no-alto-boot \
 		--type 'lisp.run\n' --type-at 330000000 --key-hold 4000000 \
 		--cycles 700000000 --out /tmp/dorado-lisp-bcplprog-loader-smoke.pgm
+
+run-lisp-remote-sysout-smoke: $(BINDIR)/dorado lisp-bcplprog-vmem-image
+	$(if $(LISP_REMOTE_FTP_TRACE),DORADO_FTP_TRACE=1 )./build/dorado --eb worlds/aemu.eb \
+		--disk 0='$(LISP_BCPLPROG_VMEM_PACK)' --boot-reason disk --no-alto-boot \
+		--ftp-sysout '$(LISP_REMOTE_SYSOUT_FILE)' \
+		--type 'lisp.run {$(LISP_REMOTE_HOST)}$(LISP_REMOTE_SYSOUT_NAME)\n' \
+		--type-at 330000000 --key-hold 4000000 \
+		--cycles 1800000000 --out /tmp/dorado-lisp-remote-sysout-smoke.pgm
 
 run-tricond-nopack: $(BINDIR)/rundiag
 	RUNDIAG_DISK=1 RUNDIAG_TASK=14 ./build/rundiag '../chm/dorado/expanded/Tricond.dm!5_/TriconD.mb' BEGIN TESTOK-WITHOUT-DISK ERR 50000000
