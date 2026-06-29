@@ -1,0 +1,181 @@
+Workspace for Ethernet Goodie
+
+---------------------------------- 
+Waking up the Ethernet:
+----------------------------------
+
+Ether wakeup. "initializes Etherworld data structures"
+
+---------------------------------- 
+Shutting down the Ethernet:
+----------------------------------
+
+Smalltalk releaseExternalViews. "closes all connections"
+
+Ether kill. "releases Etherworld data structures"
+
+----------------------------------
+Accessing an IFS:
+----------------------------------
+
+RemoteDisk _ IFSLeafFileDirectory directory: nil directoryName: 'IFSName'.
+RemoteDisk login: 'userName' password: 'userPassword'.
+RemoteDisk connect: '' password: ''.
+
+RemoteDisk login.
+RemoteDisk connect.
+
+----------------------------------
+Chat using Telnet protocol:
+----------------------------------
+
+Chatter chatTo: 'IFSName'.
+
+----------------------------------
+BSP protocol debugging:
+----------------------------------
+
+ByteStreamSocket debug: true.
+ByteStreamSocket initializeLogFile: Transcript.
+ByteStreamSocket initializeLogFile: (FileStream fileNamed: 'BSP.log').
+ByteStreamSocket debug: false.
+
+----------------------------------
+FTP protocol testing:
+----------------------------------
+
+RemoteDisk filesMatching: '<dirName>subDir>*.st'.
+
+Smalltalk at: #Test put: FileTransferSocket new.
+Test createConnectionTo: 'IFSName'. "establishes a connection"
+Test destroyConnection. "breaks the connection"
+
+Test errorMessage. "returns last error message"
+Test errorCode. "returns last error code"
+
+	"Retrieve"
+Test retrieve: '((User-Name userName)(User-Password userPassword)(Server-Filename <dirName>remoteFileName))'
+	to: (FileStream fileNamed: 'localFileName').
+
+	"Store"
+Test store: '((User-Name userName)(User-Password userPassword)(Server-Filename <dirName>remoteFileName)(Type text))'
+	from: (FileStream oldFileNamed: 'localFileName').
+
+	"Rename"
+Test renameFrom: '((User-Name userName)(User-Password userPassword)(Server-Filename <dirName>oldFileName))'
+	to: '((Server-Filename <dirName>newFileName))'.
+
+	"Delete"
+Smalltalk at: #Result put: nil.
+Result _ ((Test delete: '((User-Name userName)(User-Password userPassword)(Server-Filename <dirName>fileName*)(Desired-Property Server-Filename))')
+	collect:
+		[:propList | propList at: 'Server-Filename']).
+Result. "printIt"
+
+	"Enumerate"
+Smalltalk at: #Result put: nil.
+Result _ ((Test enumerate: '((User-Name userName)(User-Password userPassword)(Server-Filename <dirName>fileName*)(Desired-Property Server-Filename)(version H))')
+	collect:
+		[:propList | propList at: 'Server-Filename']).
+Result. "printIt"
+
+---------------------------------- 
+FTP Documentation:
+----------------------------------
+
+[From "Pup File Transfer Protocol Specification--5th Edition"]
+
+FTP Property List Format
+
+   A property list is a parenthesized list consisting of one or more
+   properties, each of which is also parenthesized:
+	((property-1 value1)(property-2 value2))
+
+Mandatory Properties
+
+   (Server-Filename fileName)
+	In commands from user to server (such as Store, Retrieve, and
+	Enumerate), specifies the name of the file to be manipulated.
+
+   (Type Text|Binary)
+	Specifies the type of data to be transferred (no default).
+
+   (End-of-Line-Convention CR|CRLF|Transparent)
+	Specifies representation for end-of-line in files transmitted
+	as type Text (default is CR).
+
+   (Byte-Size decimal-number)
+	Specifies the logical byte size of files of type Binary (no
+	default; meaningless and ignored if the type is Text).
+
+   (Device device-name)
+   (Directory directory-name)
+   (Name-Body name-body)
+   (Version decimal-number)
+	Specifies the separate components of a filename in a manner
+	intended to facilitate transfer of files between hosts whose
+	file systems lack one or more of these concepts or have
+	different conventions for punctuating them. The values of the
+	properties should not include the surrounding punctuation
+	characters.
+
+Optional Properties
+
+   (Size decimal-number)
+	Specifies the number of bytes in the file. (These bytes are
+	of the size specified by the Byte-Size property). The value
+	is not required to be correct (it may be provided as a hint).
+
+   (User-Name user-name)
+	Specifies a legal user name on the server system, for the
+	purpose of access checking and accounting, if required.
+
+   (User-Password password)
+	Supplies the user password, if required for logging in under
+	the specified User-Name.
+
+   (User-Account account-designator)
+	Specifies the user "account" (in the Tenex sense), if
+	required. If this is not specified, the user is logged in
+	under his default account (assuming there is one).
+
+   (Connect-Name directory-name)
+	Specifies that the user is to be "connected" (in the Tenex
+	sense) to the specified directory, i.e., to be given
+	temporary owner-like access to that directory. The default
+	connected directory is the user's login directory.
+
+   (Connect-Password password)
+	Supplies the password for connecting to a directory, if
+	required.
+
+   (Creation-Date date-and-time)
+   (Write-Date date-and-time)
+   (Read-Date date-and-time)
+	Supplies the respective date property of the file. The syntax
+	of date-and-time is "dd-mmm-yy hh:mm:ss zzz", where zzz is a
+	standard North American time zone (e.g., PST, EDT), GMT, or a
+	sign followed by a numeric time zone (e.g., +3 or +3:00,
+	meaning 3 hours west of Greenwich).
+
+   (Author user-name)
+	Supplies the name of the user who created the file.
+
+   (Checksum decimal-number)
+	Supplies an optional checksum over the file. The checksum is
+	computed over the file's data in the form in which it flows
+	over the BSP stream, but treating it as a sequence of 16-bit
+	words (with the left byte of each word first, and with the
+	leftover byte assumed to be zero if the file consists of an
+	odd number of bytes).
+
+   (Desired-Property property-name)
+	In a command from user to server, requests that the server
+	supply the specified property in all file property lists it
+	generates in response to that command. (That is,
+	property-name should be one of Author, Byte-Size, Checksum,
+	Creation-Date, Device, Directory, Name-Body, Read-Date,
+	Server-FileName, Size, Type, Version, or Write-Date). If no
+	Desired-Property property is present in the property list of
+	a file-related command sent from user to server, the server
+	must send all known properties of each file enumerated.

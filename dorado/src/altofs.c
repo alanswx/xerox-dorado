@@ -27,19 +27,66 @@ typedef struct {
 
 static int repair_file_metadata(struct fs *afs, const char *name);
 
-static int safe_allocate_any_page(struct fs *afs, uint16_t *out_vda)
+static int inspect_file_chain(struct fs *afs, const char *name)
 {
-    for (uint16_t vda = 1; vda < afs->length; vda++) {
-        struct page *pg = &afs->pages[vda];
-        if (pg->label.s.version != VERSION_FREE) continue;
-        uint16_t idx = IDX(vda);
-        uint16_t bit = BIT(vda);
-        afs->bitmap[idx] |= (uint16_t)(1u << bit);
-        if (afs->free_pages > 0) afs->free_pages--;
-        *out_vda = vda;
+    struct file_entry fe, dir_fe;
+    int found = 0;
+
+    if (!fs_resolve_name(afs, name, &found, &fe, &dir_fe, NULL) || !found) {
+        fprintf(stderr, "altofs: inspect: could not resolve %s\n", name);
         return 1;
     }
-    return 0;
+
+    printf("inspect %s: leader_vda=%u sn=%u,%u version=%u\n",
+           name, fe.leader_vda, fe.sn.word1, fe.sn.word2, fe.version);
+    uint16_t vda = fe.leader_vda;
+    uint16_t prev_vda = 0;
+    unsigned pages = 0;
+    while (vda != 0 && vda < afs->length) {
+        struct page *pg = &afs->pages[vda];
+        uint16_t rda = 0, next_vda = 0, prev_link_vda = 0;
+        (void)virtual_to_real(&afs->dg, pg->page_vda, &rda);
+        if (pg->label.s.next_rda != 0)
+            (void)real_to_virtual(&afs->dg, pg->label.s.next_rda, &next_vda);
+        if (pg->label.s.prev_rda != 0)
+            (void)real_to_virtual(&afs->dg, pg->label.s.prev_rda, &prev_link_vda);
+        if (pages < 20 || next_vda == 0) {
+            printf("  page %u: slot_vda=%u page_vda=%u rda=%u "
+                   "prev_rda=%u(prev_vda=%u) next_rda=%u(next_vda=%u) "
+                   "file_pg=%u nbytes=%u\n",
+                   pages, vda, pg->page_vda, rda,
+                   pg->label.s.prev_rda, prev_link_vda,
+                   pg->label.s.next_rda, next_vda,
+                   pg->label.s.file_pgnum, pg->label.s.nbytes);
+        }
+        if (pages > 0 && prev_link_vda != prev_vda) {
+            printf("  break: page %u prev link points to VDA %u, expected %u\n",
+                   pages, prev_link_vda, prev_vda);
+            return 1;
+        }
+        if (next_vda == 0) {
+            printf("inspect %s: pages=%u last_vda=%u\n", name, pages + 1, vda);
+            return 0;
+        }
+        prev_vda = vda;
+        vda = next_vda;
+        pages++;
+        if (pages > afs->length) {
+            fprintf(stderr, "altofs: inspect: cycle in %s\n", name);
+            return 1;
+        }
+    }
+
+    fprintf(stderr, "altofs: inspect: invalid VDA %u in %s\n", vda, name);
+    return 1;
+}
+
+static int safe_allocate_next_page(struct fs *afs, uint16_t last_vda,
+                                   uint16_t *out_vda)
+{
+    if ((uint32_t)last_vda + 1u >= afs->length)
+        return allocate_page(afs, out_vda, NULL);
+    return allocate_page(afs, out_vda, &last_vda);
 }
 
 static int insert_file_verbose(struct fs *afs, const char *host_path,
@@ -76,6 +123,8 @@ static int insert_file_verbose(struct fs *afs, const char *host_path,
 
         struct page *pg = &afs->pages[vda];
         size_t n = fread(pg->data, 1, afs->sector_bytes, fp);
+        if (n < afs->sector_bytes)
+            memset(pg->data + n, 0, afs->sector_bytes - n);
         pg->label.s.nbytes = (uint16_t)n;
         pg->label.s.file_pgnum = pgnum;
         total += n;
@@ -92,7 +141,7 @@ static int insert_file_verbose(struct fs *afs, const char *host_path,
         ungetc(ch, fp);
 
         uint16_t next_vda = 0;
-        if (!safe_allocate_any_page(afs, &next_vda)) {
+        if (!safe_allocate_next_page(afs, pg->page_vda, &next_vda)) {
             fprintf(stderr,
                     "altofs: insert ran out of pages for %s after %zu bytes\n",
                     alto_name, total);
@@ -101,8 +150,8 @@ static int insert_file_verbose(struct fs *afs, const char *host_path,
             return 1;
         }
         struct page *npg = &afs->pages[next_vda];
-        virtual_to_real(&afs->dg, next_vda, &pg->label.s.next_rda);
-        virtual_to_real(&afs->dg, vda, &npg->label.s.prev_rda);
+        virtual_to_real(&afs->dg, npg->page_vda, &pg->label.s.next_rda);
+        virtual_to_real(&afs->dg, pg->page_vda, &npg->label.s.prev_rda);
         npg->label.s.next_rda = 0;
         npg->label.s.unused = pg->label.s.unused;
         npg->label.s.nbytes = 0;
@@ -230,6 +279,8 @@ static void usage(const char *prog)
         "  --cylinders N      cylinders per emulated drive (default 406)\n"
         "  --heads N          heads per cylinder (default 2)\n"
         "  --sectors N        sectors per head (default 14)\n"
+        "  --source-cylinders N\n"
+        "  --source-sectors N load smaller existing AAR halves into output geometry\n"
         "  --sector-words N   words per sector (default 256)\n"
         "  --vmem-pages N     create zero-filled LISP.VIRTUALMEM. pages (default 15002)\n"
         "  --vmem-name NAME   Alto filename for VMEM (default LISP.VIRTUALMEM.)\n"
@@ -237,6 +288,10 @@ static void usage(const char *prog)
         "  --no-vmem          do not create a VMEM file\n"
         "  --existing         load and edit an existing AAR-format image pair\n"
         "  --force-existing   edit an existing pair even if host integrity check fails\n"
+        "  --init-blank-free  mark blank existing sectors as valid free pages\n"
+        "  --preserve-existing-metadata\n"
+        "                     do not rewrite SysDir. DShape or DiskDescriptor.\n"
+        "  --inspect NAME     print NAME's leader and first file-chain labels\n"
         "  --insert HOST NAME insert a host file as Alto filename NAME\n"
         "  --boot-file NAME   install Alto boot sector from filesystem NAME\n"
         "  --help             show this help\n",
@@ -264,17 +319,54 @@ static int make_zero_file(struct fs *afs, const char *name, size_t bytes)
     }
 
     size_t written = 0;
-    while (written < bytes) {
-        size_t chunk = bytes - written;
-        if (chunk > 256 * 1024) chunk = 256 * 1024;
-        size_t n = fs_write(afs, &of, NULL, chunk, 1);
-        written += n;
-        if (n != chunk || of.error < 0) {
-            fprintf(stderr, "altofs: short zero write to %s at %zu/%zu: %s\n",
-                    name, written, bytes, fs_error(of.error));
+    uint16_t vda = of.pos.vda;
+    uint16_t pgnum = of.pos.pgnum;
+    for (;;) {
+        if (vda >= afs->length) {
+            fprintf(stderr,
+                    "altofs: zero write reached invalid VDA %u for %s\n",
+                    vda, name);
             fs_close(afs, &of);
             return 1;
         }
+
+        struct page *pg = &afs->pages[vda];
+        size_t n = bytes - written;
+        if (n > afs->sector_bytes)
+            n = afs->sector_bytes;
+        memset(pg->data, 0, afs->sector_bytes);
+        pg->label.s.nbytes = (uint16_t)n;
+        pg->label.s.file_pgnum = pgnum;
+        written += n;
+
+        if (written >= bytes) {
+            pg->label.s.next_rda = 0;
+            of.pos.vda = vda;
+            of.pos.pgnum = pgnum;
+            of.pos.pos = (uint16_t)n;
+            of.modified = 1;
+            break;
+        }
+
+        uint16_t next_vda = 0;
+        if (!safe_allocate_next_page(afs, pg->page_vda, &next_vda)) {
+            fprintf(stderr,
+                    "altofs: zero write ran out of pages for %s at %zu/%zu bytes\n",
+                    name, written, bytes);
+            fs_close(afs, &of);
+            return 1;
+        }
+        struct page *npg = &afs->pages[next_vda];
+        virtual_to_real(&afs->dg, npg->page_vda, &pg->label.s.next_rda);
+        virtual_to_real(&afs->dg, pg->page_vda, &npg->label.s.prev_rda);
+        npg->label.s.next_rda = 0;
+        npg->label.s.unused = pg->label.s.unused;
+        npg->label.s.nbytes = 0;
+        npg->label.s.file_pgnum = (uint16_t)(pgnum + 1);
+        npg->label.s.version = pg->label.s.version;
+        npg->label.s.sn = pg->label.s.sn;
+        vda = next_vda;
+        pgnum++;
     }
 
     if (!fs_close(afs, &of)) {
@@ -283,6 +375,146 @@ static int make_zero_file(struct fs *afs, const char *name, size_t bytes)
         return 1;
     }
     return repair_file_metadata(afs, name);
+}
+
+static int page_is_blank(const struct fs *afs, const struct page *pg)
+{
+    if (pg->header[0] || pg->header[1])
+        return 0;
+    for (size_t i = 0; i < sizeof pg->label.r / sizeof pg->label.r[0]; i++) {
+        if (pg->label.r[i])
+            return 0;
+    }
+    for (size_t i = 0; i < afs->sector_bytes; i++) {
+        if (pg->data[i])
+            return 0;
+    }
+    return 1;
+}
+
+static void init_all_pages_free(struct fs *afs)
+{
+    for (uint16_t vda = 0; vda < afs->length; vda++) {
+        struct page *pg = &afs->pages[vda];
+        uint16_t rda = 0;
+        pg->page_vda = vda;
+        pg->header[0] = 0;
+        if (!virtual_to_real(&afs->dg, vda, &rda))
+            rda = 0;
+        pg->header[1] = rda;
+        memset(pg->label.r, 0, sizeof pg->label.r);
+        pg->label.s.version = VERSION_FREE;
+        pg->label.s.sn.word1 = VERSION_FREE;
+        pg->label.s.sn.word2 = VERSION_FREE;
+        memset(pg->data, 0, afs->sector_bytes);
+    }
+    update_disk_metadata(afs);
+}
+
+static uint16_t rd16le(FILE *fp, int *ok)
+{
+    int lo = fgetc(fp);
+    int hi = fgetc(fp);
+    if (lo == EOF || hi == EOF) {
+        *ok = 0;
+        return 0;
+    }
+    return (uint16_t)((lo & 0xFF) | ((hi & 0xFF) << 8));
+}
+
+static int load_short_aar(struct fs *afs, const char *path,
+                          uint16_t disk_num, const struct geometry *src)
+{
+    FILE *fp = fopen(path, "rb");
+    if (!fp) {
+        fprintf(stderr, "altofs: could not open existing image %s\n", path);
+        return 0;
+    }
+
+    uint32_t src_pages = (uint32_t)src->num_cylinders *
+                         (uint32_t)src->num_heads *
+                         (uint32_t)src->num_sectors;
+    size_t src_sector_bytes = (size_t)src->sector_words * 2u;
+    if (src_sector_bytes != afs->sector_bytes) {
+        fprintf(stderr, "altofs: source sector size does not match output\n");
+        fclose(fp);
+        return 0;
+    }
+
+    for (uint32_t i = 0; i < src_pages; i++) {
+        int ok = 1;
+        (void)rd16le(fp, &ok);        /* dummy word */
+        uint16_t header[2];
+        uint16_t label[8];
+        for (size_t w = 0; w < 2; w++) header[w] = rd16le(fp, &ok);
+        for (size_t w = 0; w < 8; w++) label[w] = rd16le(fp, &ok);
+        if (!ok) {
+            fprintf(stderr, "altofs: short read from %s\n", path);
+            fclose(fp);
+            return 0;
+        }
+
+        uint16_t vda = 0;
+        if (!real_to_virtual(&afs->dg, header[1], &vda)) {
+            vda = (uint16_t)(disk_num * afs->disk_length + i);
+            if (vda >= afs->length) {
+                fprintf(stderr, "altofs: source page outside output at %s:%u\n",
+                        path, (unsigned)i);
+                fclose(fp);
+                return 0;
+            }
+        }
+
+        struct page *pg = &afs->pages[vda];
+        pg->page_vda = vda;
+        memcpy(pg->header, header, sizeof header);
+        memcpy(pg->label.r, label, sizeof label);
+        for (size_t j = 0; j < afs->sector_bytes; j++) {
+            int c = fgetc(fp);
+            if (c == EOF) {
+                fprintf(stderr, "altofs: short data read from %s\n", path);
+                fclose(fp);
+                return 0;
+            }
+            pg->data[j ^ 1u] = (uint8_t)c;
+        }
+    }
+
+    int c = fgetc(fp);
+    if (c != EOF) {
+        fprintf(stderr, "altofs: source image %s has extra data\n", path);
+        fclose(fp);
+        return 0;
+    }
+
+    fclose(fp);
+    return 1;
+}
+
+static int init_blank_free_pages(struct fs *afs)
+{
+    int count = 0;
+    for (uint16_t vda = 1; vda < afs->length; vda++) {
+        struct page *pg = &afs->pages[vda];
+        if (!page_is_blank(afs, pg))
+            continue;
+
+        uint16_t rda = 0;
+        if (!virtual_to_real(&afs->dg, vda, &rda)) {
+            fprintf(stderr, "altofs: could not map VDA %u to RDA\n", vda);
+            return -1;
+        }
+        pg->page_vda = vda;
+        pg->header[0] = 0;
+        pg->header[1] = rda;
+        pg->label.s.version = VERSION_FREE;
+        pg->label.s.sn.word1 = VERSION_FREE;
+        pg->label.s.sn.word2 = VERSION_FREE;
+        count++;
+    }
+    if (count > 0)
+        update_disk_metadata(afs);
+    return count;
 }
 
 int main(int argc, char **argv)
@@ -296,7 +528,12 @@ int main(int argc, char **argv)
     int vmem_after_inserts = 0;
     int existing = 0;
     int force_existing = 0;
+    int init_blank_free = 0;
+    int preserve_existing_metadata = 0;
+    const char *inspect_name = NULL;
     struct geometry dg;
+    struct geometry src_dg;
+    int source_geometry = 0;
     insert_spec inserts[32];
     int insert_count = 0;
 
@@ -305,6 +542,7 @@ int main(int argc, char **argv)
     dg.num_heads = DEFAULT_HEADS;
     dg.num_sectors = DEFAULT_SECTORS;
     dg.sector_words = DEFAULT_SECTOR_WORDS;
+    src_dg = dg;
 
     for (int i = 1; i < argc; i++) {
         const char *a = argv[i];
@@ -318,8 +556,15 @@ int main(int argc, char **argv)
             dg.num_heads = (uint16_t)parse_int(argv[++i], "heads");
         } else if (!strcmp(a, "--sectors") && i + 1 < argc) {
             dg.num_sectors = (uint16_t)parse_int(argv[++i], "sectors");
+        } else if (!strcmp(a, "--source-cylinders") && i + 1 < argc) {
+            src_dg.num_cylinders = (uint16_t)parse_int(argv[++i], "source cylinders");
+            source_geometry = 1;
+        } else if (!strcmp(a, "--source-sectors") && i + 1 < argc) {
+            src_dg.num_sectors = (uint16_t)parse_int(argv[++i], "source sectors");
+            source_geometry = 1;
         } else if (!strcmp(a, "--sector-words") && i + 1 < argc) {
             dg.sector_words = (uint16_t)parse_int(argv[++i], "sector words");
+            src_dg.sector_words = dg.sector_words;
         } else if (!strcmp(a, "--vmem-pages") && i + 1 < argc) {
             vmem_pages = parse_int(argv[++i], "vmem pages");
         } else if (!strcmp(a, "--vmem-name") && i + 1 < argc) {
@@ -332,6 +577,12 @@ int main(int argc, char **argv)
             existing = 1;
         } else if (!strcmp(a, "--force-existing")) {
             force_existing = 1;
+        } else if (!strcmp(a, "--init-blank-free")) {
+            init_blank_free = 1;
+        } else if (!strcmp(a, "--preserve-existing-metadata")) {
+            preserve_existing_metadata = 1;
+        } else if (!strcmp(a, "--inspect") && i + 1 < argc) {
+            inspect_name = argv[++i];
         } else if (!strcmp(a, "--insert") && i + 2 < argc) {
             if (insert_count >= (int)(sizeof inserts / sizeof inserts[0])) {
                 fprintf(stderr, "altofs: too many --insert entries\n");
@@ -351,6 +602,11 @@ int main(int argc, char **argv)
         }
     }
 
+    if (init_blank_free && !existing) {
+        fprintf(stderr, "altofs: --init-blank-free requires --existing\n");
+        return 2;
+    }
+
     if (!disk0 || !disk1) {
         usage(argv[0]);
         return 2;
@@ -360,6 +616,9 @@ int main(int argc, char **argv)
         fprintf(stderr, "altofs: this wrapper writes exactly two disk halves\n");
         return 2;
     }
+    src_dg.num_disks = dg.num_disks;
+    src_dg.num_heads = dg.num_heads;
+    src_dg.sector_words = dg.sector_words;
 
     struct fs afs;
     fs_initvar(&afs);
@@ -370,8 +629,17 @@ int main(int argc, char **argv)
 
     int error = 0;
     if (existing) {
-        if (!fs_load_image(&afs, disk0, 0, 0) ||
-            !fs_load_image(&afs, disk1, 1, 0)) {
+        int loaded = 0;
+        if (source_geometry) {
+            init_all_pages_free(&afs);
+            loaded = load_short_aar(&afs, disk0, 0, &src_dg) &&
+                     load_short_aar(&afs, disk1, 1, &src_dg);
+            update_disk_metadata(&afs);
+        } else {
+            loaded = fs_load_image(&afs, disk0, 0, 0) &&
+                     fs_load_image(&afs, disk1, 1, 0);
+        }
+        if (!loaded) {
             fprintf(stderr, "altofs: could not load existing disk images\n");
             fs_destroy(&afs);
             return 1;
@@ -394,12 +662,28 @@ int main(int argc, char **argv)
         }
     }
 
-    if (install_sysdir_dshape(&afs) != 0) {
+    if (init_blank_free) {
+        int n = init_blank_free_pages(&afs);
+        if (n < 0) {
+            fs_destroy(&afs);
+            return 1;
+        }
+        printf("altofs: initialized %d blank sectors as free pages\n", n);
+    }
+
+    if (!preserve_existing_metadata && install_sysdir_dshape(&afs) != 0) {
         fs_destroy(&afs);
         return 1;
     }
 
     afs.checked = 1;
+
+    if (inspect_name && !create_vmem && insert_count == 0 && !boot_file &&
+        preserve_existing_metadata) {
+        int rc = inspect_file_chain(&afs, inspect_name);
+        fs_destroy(&afs);
+        return rc;
+    }
 
     if (create_vmem && !vmem_after_inserts) {
         size_t bytes = (size_t)vmem_pages * (size_t)dg.sector_words * 2u;
@@ -434,7 +718,12 @@ int main(int argc, char **argv)
         }
     }
 
-    if (!fs_update_disk_descriptor(&afs, &error)) {
+    if (inspect_name && inspect_file_chain(&afs, inspect_name) != 0) {
+        fs_destroy(&afs);
+        return 1;
+    }
+
+    if (!preserve_existing_metadata && !fs_update_disk_descriptor(&afs, &error)) {
         if (!force_existing) {
             fprintf(stderr, "altofs: DiskDescriptor update failed: %s\n",
                     fs_error(error));
@@ -445,7 +734,8 @@ int main(int argc, char **argv)
                 "altofs: warning: DiskDescriptor update failed: %s\n",
                 fs_error(error));
     }
-    if (repair_file_metadata(&afs, "DiskDescriptor.") != 0 && !force_existing) {
+    if (!preserve_existing_metadata &&
+        repair_file_metadata(&afs, "DiskDescriptor.") != 0 && !force_existing) {
         fs_destroy(&afs);
         return 1;
     }

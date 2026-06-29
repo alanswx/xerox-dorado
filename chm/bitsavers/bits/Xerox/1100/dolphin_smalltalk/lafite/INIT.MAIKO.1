@@ -1,0 +1,91 @@
+(DEFINE-FILE-INFO PACKAGE "INTERLISP" READTABLE "XCL" BASE 10)
+(FILECREATED "27-Jul-88 11:25:25" |{PYTHON}<python/maiko.release/lisplibrary>INIT.MAIKO|        
+
+      |previous| |date:| "20-Jun-88 23:48:35" "{PYTHON}<python/maiko.release/lisplibrary>INIT.MAIKO"
+)
+
+
+; Copyright (c) 1988 by Xerox Corporation.  All rights reserved.
+
+(PRETTYCOMPRINT INITCOMS)
+
+(RPAQQ INITCOMS (
+                     (* |;;| "Generic Maiko site init file.")
+
+                     
+                     (* |;;| "~/INIT.LISP should be a link to the site init file.")
+
+                     (VARS                                   (* \; "search path for libraries")
+                           (LISPUSERSDIRECTORIES '("{DSK}/usr/maiko/lisplibrary/" 
+                                                         "{DSK}/usr/maiko/lispusers/"))
+                                                             (* \; 
+                                                           "default search path for loading")
+                           (DIRECTORIES LISPUSERSDIRECTORIES)
+                           (DISPLAYFONTDIRECTORIES '("{DSK}/usr/maiko/fonts/display/"))
+                           (INTERPRESSFONTDIRECTORIES '(
+                                                     "{DSK}/usr/maiko/fonts/interpress/presentation/"
+                                                        
+                                                      "{DSK}/usr/maiko/fonts/interpress/publication/"
+                                                        ))
+                                                             (* \; "online manual files")
+                           (IRM.HOST&DIR "{DSK}/python/IRM/")
+                                                             (* \; 
+                                                           "personal init file is ~/lispfiles/INIT")
+                           (USERGREETFILES '(({DSK}~/LISPFILES/INIT. COM)))
+                           (DEFAULTOSTYPE 'UNIX)
+                           (DEFAULTPRINTINGHOST NIL)
+                           (DEFAULTPRINTERTYPE NIL))
+                     (P 
+                        (* |;;| "let any user with a valid UNIX login exit Idle mode")
+
+                        (LISTPUT IDLE.PROFILE 'AUTHENTICATE 'UNIX)
+                        (LISTPUT IDLE.PROFILE 'ALLOWED.LOGINS '(*))
+                        
+                        (* |;;| "don't save VM while idling")
+
+                        (LISTPUT IDLE.PROFILE 'SAVEVM NIL))))
+
+
+
+(* |;;| "Generic Maiko site init file.")
+
+
+
+
+(* |;;| "~/INIT.LISP should be a link to the site init file.")
+
+
+(RPAQQ LISPUSERSDIRECTORIES ("{DSK}/usr/maiko/lisplibrary/" "{DSK}/usr/maiko/lispusers/"))
+
+(RPAQ DIRECTORIES LISPUSERSDIRECTORIES)
+
+(RPAQQ DISPLAYFONTDIRECTORIES ("{DSK}/usr/maiko/fonts/display/"))
+
+(RPAQQ INTERPRESSFONTDIRECTORIES ("{DSK}/usr/maiko/fonts/interpress/presentation/" 
+                                            "{DSK}/usr/maiko/fonts/interpress/publication/"))
+
+(RPAQ IRM.HOST&DIR "{DSK}/python/IRM/")
+
+(RPAQQ USERGREETFILES (({DSK}~/LISPFILES/INIT. COM)))
+
+(RPAQQ DEFAULTOSTYPE UNIX)
+
+(RPAQQ DEFAULTPRINTINGHOST NIL)
+
+(RPAQQ DEFAULTPRINTERTYPE NIL)
+
+
+(* |;;| "let any user with a valid UNIX login exit Idle mode")
+
+
+(LISTPUT IDLE.PROFILE 'AUTHENTICATE 'UNIX)
+
+(LISTPUT IDLE.PROFILE 'ALLOWED.LOGINS '                      (*))
+
+
+(* |;;| "don't save VM while idling")
+
+
+(LISTPUT IDLE.PROFILE 'SAVEVM NIL)
+(PUTPROPS INIT.MAIKO COPYRIGHT ("Xerox Corporation" 1988))
+STOP

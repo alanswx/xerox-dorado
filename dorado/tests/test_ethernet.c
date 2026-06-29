@@ -625,6 +625,61 @@ static int test_bootdir_all_games(void)
     return 0;
 }
 
+static int test_ftp_netdir_rtp_and_bsp_alloc(void)
+{
+    dorado_ethernet eth;
+    dorado_ethernet_init(&eth);
+    dorado_ethernet_set_ftp_sysout(&eth, "../chm/lisp/harmony/basics/LISP.SYSOUT!15");
+
+    uint16_t netdir[15] = {
+        (uint16_t)((01 << 8) | 042), 01000, 026 + 6,
+        DORADO_PUP_TYPE_NETDIR_LOOKUP, 0, 077,
+        (uint16_t)((01 << 8) | 01), 0, 04,
+        (uint16_t)((01 << 8) | 042), 0, 020,
+        ('D' << 8) | 'o', ('r' << 8) | 'a', ('d' << 8) | 'o'
+    };
+    dorado_ethernet_direct_transmit(&eth, netdir,
+                                    sizeof netdir / sizeof netdir[0]);
+    EXPECT(eth.rx_count >= 17, "NetDir reply queued");
+    EXPECT(eth.rx_words[3] == DORADO_PUP_TYPE_NETDIR_REPLY,
+           "NetDir reply type 0o%o", eth.rx_words[3]);
+    EXPECT(eth.rx_words[12] == (uint16_t)((01 << 8) | 01),
+           "FTP port net/host 0o%o", eth.rx_words[12]);
+    EXPECT(eth.rx_words[13] == 0 && eth.rx_words[14] == 03,
+           "FTP socket %o/%o", eth.rx_words[13], eth.rx_words[14]);
+
+    eth.rx_pos = eth.rx_count;  /* consume the synthetic reply */
+    uint16_t rfc[15] = {
+        (uint16_t)((01 << 8) | 042), 01000, 026 + 6,
+        010, 012345, 067123,
+        (uint16_t)((01 << 8) | 01), 0, 03,
+        (uint16_t)((01 << 8) | 042), 0, 020,
+        (uint16_t)((01 << 8) | 042), 0, 020
+    };
+    dorado_ethernet_direct_transmit(&eth, rfc, sizeof rfc / sizeof rfc[0]);
+    EXPECT(eth.ftp_open, "FTP RTP connection opened");
+    EXPECT(eth.rx_words[3] == 010, "RTP RFC reply type 0o%o", eth.rx_words[3]);
+    EXPECT(eth.rx_words[4] == 012345 && eth.rx_words[5] == 067123,
+           "RTP RFC reply connection id");
+    EXPECT(eth.rx_words[12] == (uint16_t)((01 << 8) | 01),
+           "RTP server port net/host 0o%o", eth.rx_words[12]);
+    EXPECT(eth.rx_words[14] == 03, "RTP server socket 0o%o", eth.rx_words[14]);
+
+    eth.rx_pos = eth.rx_count;  /* consume RFC reply; pending allocation follows */
+    (void)dorado_ethernet_wakeup_mask(&eth);
+    EXPECT(eth.rx_words[3] == 022, "initial BSP Ack type 0o%o", eth.rx_words[3]);
+    EXPECT(eth.rx_words[4] == 012345 && eth.rx_words[5] == 067123,
+           "initial BSP Ack id");
+    EXPECT(eth.rx_words[12] == 512, "BSP bytes-per-pup %u", eth.rx_words[12]);
+    EXPECT(eth.rx_words[13] > 0, "BSP pup allocation %u", eth.rx_words[13]);
+    EXPECT(eth.rx_words[14] >= eth.rx_words[12],
+           "BSP byte allocation %u", eth.rx_words[14]);
+
+    printf("  FTP: NetDir advertises socket 3; RTP open gets initial BSP allocation\n");
+    dorado_ethernet_free(&eth);
+    return 0;
+}
+
 int main(void)
 {
     int rc = 0;
@@ -633,6 +688,7 @@ int main(void)
     rc |= test_eftp_boot_full_transfer();
     rc |= test_bootdir_reply_format();
     rc |= test_bootdir_all_games();
+    rc |= test_ftp_netdir_rtp_and_bsp_alloc();
     if (rc == 0) printf("All ethernet tests passed.\n");
     return rc;
 }

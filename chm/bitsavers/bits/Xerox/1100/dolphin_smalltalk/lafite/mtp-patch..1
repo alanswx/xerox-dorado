@@ -1,0 +1,371 @@
+(DEFINE-FILE-INFO READTABLE "INTERLISP" PACKAGE "INTERLISP")
+(FILECREATED " 9-Dec-87 07:17:16" {BIGBURD}</ETHER/LYRIC/LOCAL>MTP-PATCH.;2 17725  
+
+      changes to%:  (ADVICE (\FTPERROR :IN MTP.RETRIEVEMESSAGE)
+                           (\FTPERROR :IN MTP.CLOSEMAILBOX)
+                           (\FTPERROR :IN \MTP.ENDOFMESSAGESTATE)
+                           (\FTPERROR :IN MTP.DELIVERMESSAGE)
+                           (\FTP.PRINTPLIST :IN MTP.DELIVERMESSAGE)
+                           (\FTPERROR :IN MTP.OPENMAILBOX))
+                    (VARS MTP-PATCHCOMS)
+
+      previous date%: "25-Nov-87 11:44:15" 
+{BIGBURD}</ETHER/LYRIC/LOCAL>MTP-PATCH.;1)
+
+
+(* "
+Copyright (c) 1986, 1987 by System Development Corp..  All rights reserved.
+")
+
+(PRETTYCOMPRINT MTP-PATCHCOMS)
+
+(RPAQQ MTP-PATCHCOMS [(FNS EditMTPSenderField \MTP.FTPERROR)
+                      (ADVISE (\FTP.PRINTPLIST :IN MTP.DELIVERMESSAGE)
+                             (\FTPERROR :IN MTP.OPENMAILBOX)
+                             (\FTPERROR :IN MTP.DELIVERMESSAGE)
+                             (\FTPERROR :IN \MTP.ENDOFMESSAGESTATE)
+                             (\FTPERROR :IN MTP.CLOSEMAILBOX)
+                             (\FTPERROR :IN MTP.RETRIEVEMESSAGE))
+                      
+        
+        (* ;; "MTP.MAKEANSWERFORM doesn't insert the filtered header line.  \MTP.FILL only fills, it no longer does any indenting at all. \MTP.INDENTED.COPY now does the indenting and header line filtering for MTP.MAKEANSWERFORM.")
+
+                      (FNS MTP.MAKEANSWERFORM \MTP.FILL \MTP.INDENTED.COPY 
+                           \MTP.PRINTADDRESSES)
+                      (VARS (MTP.FILLMSGFLG 'ALWAYS)
+                            (MTP.INDENT.FILL.STRING "> "))
+                      (FUNCTIONS XCL-USER::MTP.ADDRESS)
+                      
+
+(* ;;; 
+"The new MTP.PREPARE.SEND fixes the OUTBOX to display TO: instead of FROM:")
+
+                      (FNS MTP.PREPARE.SEND)
+                      (DECLARE%: DONTEVAL@LOAD DOEVAL@COMPILE DONTCOPY 
+                             COMPILERVARS (ADDVARS (NLAMA)
+                                                 (NLAML)
+                                                 (LAMA \MTP.INDENTED.COPY])
+(DEFINEQ
+
+(EditMTPSenderField
+  [LAMBDA (AddressPlist)                         (* edited%: "26-Aug-86 15:41")
+        
+        (* * This function removes the hostname after the "@" from the 
+        SENDER field of an MTP Property List.
+        It does so in order to let the VAX Unix SendMail program do it 
+        correctly instead.)
+
+    (for x in AddressPlist
+       collect (if (EQ (CAR x)
+                       'SENDER)
+                   then (LIST 'SENDER (LET* [(AddressString (CADR x))
+                                             (MatchPos (STRPOS "@" AddressString)
+                                                    )
+                                             (NewAddressString
+                                              (AND MatchPos (SUBSTRING
+                                                             AddressString 1
+                                                             (SUB1 MatchPos]
+                                            (OR NewAddressString AddressString)))
+                 else x])
+
+(\MTP.FTPERROR
+  [LAMBDA (Source Connection Errmsg Errarg)      (* DonMcKay "24-Nov-86 13:44")
+    (if (AND Connection (STREAMP Connection))
+        then (\FTPERROR Connection Errmsg T)
+      else (ERROR "MTP FTP Error" (OR Errmsg (CONCAT "[" Source "]"))
+                  T])
+)
+[XCL:REINSTALL-ADVICE '(\FTP.PRINTPLIST :IN MTP.DELIVERMESSAGE) :BEFORE
+       '((:FIRST (SETQ PLIST (EditMTPSenderField PLIST]
+[XCL:REINSTALL-ADVICE '(\FTPERROR :IN MTP.OPENMAILBOX) :BEFORE
+       '((:FIRST (RETURN (\MTP.FTPERROR 'MTP.OPENMAILBOX CONNECTION ERRMSG ERRARG
+                                ]
+[XCL:REINSTALL-ADVICE '(\FTPERROR :IN MTP.DELIVERMESSAGE) :BEFORE
+       '((:FIRST (RETURN (\MTP.FTPERROR 'MTP.DELIVERMESSAGE CONNECTION ERRMSG 
+                                ERRARG]
+[XCL:REINSTALL-ADVICE '(\FTPERROR :IN \MTP.ENDOFMESSAGESTATE) :BEFORE
+       '((:FIRST (RETURN (\MTP.FTPERROR '\MTP.ENDOFMESSAGESTATE CONNECTION ERRMSG 
+                                ERRARG]
+[XCL:REINSTALL-ADVICE '(\FTPERROR :IN MTP.CLOSEMAILBOX) :BEFORE
+       '((:FIRST (RETURN (\MTP.FTPERROR 'MTP.CLOSEMAILBOX CONNECTION ERRMSG 
+                                ERRARG]
+[XCL:REINSTALL-ADVICE '(\FTPERROR :IN MTP.RETRIEVEMESSAGE) :BEFORE
+       '((:FIRST (RETURN (\MTP.FTPERROR 'MTP.RETRIEVEMESSAGE CONNECTION ERRMSG 
+                                ERRARG]
+(READVISE (\FTP.PRINTPLIST :IN MTP.DELIVERMESSAGE)
+       (\FTPERROR :IN MTP.OPENMAILBOX)
+       (\FTPERROR :IN MTP.DELIVERMESSAGE)
+       (\FTPERROR :IN \MTP.ENDOFMESSAGESTATE)
+       (\FTPERROR :IN MTP.CLOSEMAILBOX)
+       (\FTPERROR :IN MTP.RETRIEVEMESSAGE))
+
+
+
+(* ;; 
+"MTP.MAKEANSWERFORM doesn't insert the filtered header line.  \MTP.FILL only fills, it no longer does any indenting at all. \MTP.INDENTED.COPY now does the indenting and header line filtering for MTP.MAKEANSWERFORM."
+)
+
+(DEFINEQ
+
+(MTP.MAKEANSWERFORM
+  [LAMBDA (MSGS FOLDER)                 (* ; 
+                                      "Edited 24-Nov-87 10:17 by RichardFritzson")
+
+    (PROG ((OLD.MSG (OR (CAR (LISTP MSGS))
+                        MSGS))
+           [INSERT? (AND MTP.INSERTANSWERFLG
+                         (MENU (\LAFITE.CREATE.MENU '(("Yes" T 
+                                  "Insert the text of the message being answered"
+                                                             )
+                                                      ("No" NIL 
+                                                            "Normal answer form")
+                                                      ("Abort" 'ABORT 
+                                                           "Abort Answer command"
+                                                             )) "Insert Message?"
+                                      ]
+           (OLD.TEXT (\LAFITE.OPEN.FOLDER FOLDER 'INPUT))
+           START END OLD.FIELDS SUBJECT FROM TO CC DATE REPLY-TO SENDER NEW.MSG 
+           NEW.TO NEW.CC)
+          (if (EQ INSERT? 'ABORT)
+              then (RETURN))
+          (SETQ START (fetch (LAFITEMSG START) of OLD.MSG))
+          (SETQ END (fetch (LAFITEMSG END) of OLD.MSG))
+          (SETQ OLD.FIELDS (LAFITE.PARSE.HEADER OLD.TEXT \LAPARSE.FULL START END)
+           )
+          (for PAIR in OLD.FIELDS
+             do (SELECTQ (CAR PAIR)
+                    (Subject (SETQ SUBJECT (CADR PAIR)))
+                    (From [SETQ FROM (CONS (XCL-USER::MTP.ADDRESS (CADR PAIR])
+                    (To (SETQ TO (CDR PAIR)))
+                    (cc (SETQ CC (CDR PAIR)))
+                    (Date (SETQ DATE (CADR PAIR)))
+                    (Reply-to (SETQ REPLY-TO (CDR PAIR)))
+                    (Sender (SETQ SENDER (CDR PAIR)))
+                    NIL))
+          (SETQ NEW.TO (OR REPLY-TO FROM SENDER))
+          (OR NEW.TO (RETURN (LAB.PROMPTPRINT FOLDER 
+                                    "Can't reply -- no From or Sender")))
+          (SETQ NEW.MSG (OPENTEXTSTREAM "" NIL NIL NIL (LIST 'FONT 
+                                                             LAFITEEDITORFONT)))
+          (LINELENGTH MAX.SMALLP NEW.MSG)
+          (PRINTOUT NEW.MSG "Subject: ")
+          (if (NOT (STRING-EQUAL (SUBSTRING SUBJECT 1 3)
+                          "Re:"))
+              then (printout NEW.MSG "Re: "))
+          (PRINTOUT NEW.MSG (OR SUBJECT UNSUPPLIEDFIELDSTR)
+                 T)
+          (AND FROM (PRINTOUT NEW.MSG "In-reply-to: " (CAR FROM)
+                           "'s message of " DATE T))
+          (PRINTOUT NEW.MSG "To: ")
+          (\MTP.PRINTADDRESSES NEW.TO NEW.MSG)
+          (SETQ NEW.CC (LA.SETDIFFERENCE (if REPLY-TO
+                                             then (LIST (FULLUSERNAME))
+                                           else (LA.REMOVEDUPLICATES (APPEND
+                                                                      TO CC)))
+                              NEW.TO))
+          (if NEW.CC
+              then (PRINTOUT NEW.MSG "cc: ")
+                   (\MTP.PRINTADDRESSES NEW.CC NEW.MSG))
+          (TERPRI NEW.MSG)
+          (if INSERT?
+              then (\MTP.INDENTED.COPY OLD.TEXT NEW.MSG START END)
+                   (PRINTOUT NEW.MSG MESSAGESTR T)
+            else (LET [(SELECTPOSITION (ADD1 (GETFILEPTR NEW.MSG]
+                      (PRINTOUT NEW.MSG MESSAGESTR T)
+                      (TEDIT.SETSEL NEW.MSG SELECTPOSITION (NCHARS MESSAGESTR)
+                             'RIGHT T)))
+          (RETURN NEW.MSG])
+
+(\MTP.FILL
+  [LAMBDA (INS OUTS LMARGIN RMARGIN START END)
+                                        (* ; 
+                                      "Edited 24-Nov-87 14:40 by RichardFritzson")
+        
+        (* ;; "Fill the text in INS to OUTS. Ignore LMARG; it is a leftover from when this function also copied an indented version of an answered message to OUTS. New lines started at last space before RMARGIN -- unless the line ends before RMARGIN + MTP.RIGHTMARGINWIDTH anyway.  Copy from START (default is current pos) to END (default is EOF).")
+
+    (until (GEQ (GETFILEPTR INS)
+                END) as COLUMN from 1 bind (LINEBUF _ (OPENSTREAM '{NODIRCORE}
+                                                             'BOTH))
+                                           (CARRY _ 0)
+                                           (END _ (OR END (GETEOFPTR INS)))
+                                           (LIMIT _ (IPLUS RMARGIN 
+                                                           MTP.RIGHTMARGINWIDTH))
+                                           (EDGE _ (ADD1 RMARGIN))
+                                           BYTE SPACE SPACES
+       first (AND START (SETFILEPTR INS START))
+       eachtime (SETQ BYTE (BIN INS))
+             (SELCHARQ BYTE
+                  ((SPACE TAB) 
+                       (BOUT LINEBUF BYTE)
+                       (push SPACES COLUMN))
+                  (EOL (SETFILEPTR LINEBUF 0)
+                       (\MTP.CLRBUF LINEBUF OUTS)
+                       (BOUT OUTS (CHARCODE EOL))
+                       (SETQ CARRY 0)
+                       (SETQ COLUMN 0))
+                  (BOUT LINEBUF BYTE)) when (IGREATERP COLUMN LIMIT)
+       do [if (SETQ SPACE (for SPACE in SPACES thereis (LEQ SPACE EDGE)))
+              then                               (* dump line up to space)
+                   (COPYBYTES LINEBUF OUTS 0 (SUB1 (IDIFFERENCE SPACE CARRY)))
+                   (BIN LINEBUF)                 (* eat up space)
+                   (SETQ COLUMN (IPLUS LMARGIN (IDIFFERENCE COLUMN SPACE)))
+            else                                 (* punt)
+                 (COPYBYTES LINEBUF OUTS 0 (IDIFFERENCE RMARGIN CARRY))
+                 (SETQ COLUMN (ADD1 (IPLUS LMARGIN MTP.RIGHTMARGINWIDTH]
+          (BOUT OUTS (CHARCODE EOL))
+          (\MTP.CLRBUF LINEBUF OUTS)
+          (SETQ SPACES)
+          (SETQ CARRY COLUMN) finally (SETFILEPTR LINEBUF 0)
+                                    (COPYBYTES LINEBUF OUTS])
+
+(\MTP.INDENTED.COPY
+  [CL:LAMBDA
+   (XCL-USER::INS XCL-USER::OUTS XCL-USER::START XCL-USER::END &AUX 
+          XCL-USER::BODY)
+   (CL:BLOCK
+    \MTP.INDENTED.COPY
+    (CL:IF XCL-USER::START (CL:FILE-POSITION XCL-USER::INS XCL-USER::START))
+    (CL:DO
+     ((XCL-USER::L (CL:READ-LINE XCL-USER::INS)
+             (CL:READ-LINE XCL-USER::INS)))
+     ((OR (NOT (CL:LISTEN XCL-USER::INS))
+          (>= (CL:FILE-POSITION XCL-USER::INS)
+              XCL-USER::END))
+      (CL:TERPRI XCL-USER::OUTS))
+     (CL:IF (CL:STRING= "" XCL-USER::L)
+            (CL:SETF XCL-USER::BODY T))
+     (CL:WHEN
+      [OR XCL-USER::BODY (NOT *LAFITE.FILTER.HEADERS*)
+          (NOT (CL:FIND XCL-USER::L *LAFITE.SUPPRESSED.HEADERS* :TEST
+                      #'(CL:LAMBDA (XCL-USER::X XCL-USER::Y)
+                               (AND (<= (CL:LENGTH XCL-USER::Y)
+                                     (CL:LENGTH XCL-USER::X))
+                                    (STRING-EQUAL XCL-USER::Y (CL:SUBSEQ
+                                                               XCL-USER::X 0
+                                                               (CL:LENGTH 
+                                                                      XCL-USER::Y
+                                                                      ]
+      (CL:WRITE-STRING MTP.INDENT.FILL.STRING XCL-USER::OUTS)
+      (CL:WRITE-LINE XCL-USER::L XCL-USER::OUTS])
+
+(\MTP.PRINTADDRESSES
+  [LAMBDA (ADDRESSLIST STREAM)          (* ; 
+                                      "Edited 18-Nov-87 06:57 by RichardFritzson")
+
+    [COND
+       (ADDRESSLIST (PRIN1 (CAR ADDRESSLIST)
+                           STREAM)
+              (for ADDR in (CDR ADDRESSLIST) when ADDR
+                 do (PRIN1 ", " STREAM)
+                    (PRIN1 ADDR STREAM]
+    (TERPRI STREAM])
+)
+
+(RPAQQ MTP.FILLMSGFLG ALWAYS)
+
+(RPAQ MTP.INDENT.FILL.STRING "> ")
+
+(CL:DEFUN XCL-USER::MTP.ADDRESS (XCL-USER::MAIL-ADDRESS)
+   (LET* ((XCL-USER::LBRACK (CL:POSITION #\< XCL-USER::MAIL-ADDRESS))
+          (XCL-USER::RBRACK (CL:POSITION #\> XCL-USER::MAIL-ADDRESS))
+          (XCL-USER::LPAREN (CL:POSITION #\( XCL-USER::MAIL-ADDRESS))
+          (XCL-USER::RPAREN (CL:POSITION #\) XCL-USER::MAIL-ADDRESS)))
+         (COND
+            ((AND XCL-USER::LBRACK XCL-USER::RBRACK (< XCL-USER::LBRACK 
+                                                     XCL-USER::RBRACK))
+             (CL:SUBSEQ XCL-USER::MAIL-ADDRESS (CL:1+ XCL-USER::LBRACK)
+                    XCL-USER::RBRACK))
+            [(AND XCL-USER::LPAREN XCL-USER::RPAREN)
+             (CL:DELETE #\Space (CL:REMOVE-IF #'CL:IDENTITY 
+                                       XCL-USER::MAIL-ADDRESS :START 
+                                       XCL-USER::LPAREN :END (CL:1+ 
+                                                                 XCL-USER::RPAREN
+                                                                    ]
+            (T XCL-USER::MAIL-ADDRESS))))
+
+
+
+
+(* ;;; "The new MTP.PREPARE.SEND fixes the OUTBOX to display TO: instead of FROM:"
+)
+
+(DEFINEQ
+
+(MTP.PREPARE.SEND
+  [LAMBDA (MSG W)                       (* ; 
+                                      "Edited  8-Dec-87 10:04 by RichardFritzson")
+
+    (LET* [(PARSE (\LAFITE.PREPARE.SEND MSG W))
+           (RECIPIENTS (APPEND (CDR (FASSOC 'To PARSE))
+                              (CDR (FASSOC 'cc PARSE]
+          (OR PARSE (\SENDMESSAGEFAIL W "Bad message format."))
+          (AND (FASSOC 'Sender PARSE)
+               (\SENDMESSAGEFAIL W "Can't specify Sender!"))
+          (AND (FASSOC ''Date PARSE)
+               (\SENDMESSAGEFAIL W "Can't specify Date!"))
+          (OR RECIPIENTS (\SENDMESSAGEFAIL W "No recipients?"))
+          (create MTPPARSE
+                 FROMLINE _ (if (ASSOC 'To PARSE)
+                                then (CONCAT "To: " (CADR (ASSOC 'To PARSE)))
+                              else (CONCAT "From: " (FULLUSERNAME)))
+                 MAILBOX _ [CONCATLIST
+                            (for TAIL on RECIPIENTS
+                               collect (if (CDR TAIL)
+                                           then (CONCAT (CAR TAIL)
+                                                       ", ")
+                                         else (CAR TAIL]
+                 EOH _ (CADR (FASSOC 'EOF PARSE))
+                 DATELINE _ (CONCAT "Date: " (DATE (DATEFORMAT DAY.OF.WEEK SPACES 
+                                                          TIME.ZONE NO.SECONDS])
+)
+(DECLARE%: DONTEVAL@LOAD DOEVAL@COMPILE DONTCOPY COMPILERVARS 
+
+(ADDTOVAR NLAMA )
+
+(ADDTOVAR NLAML )
+
+(ADDTOVAR LAMA \MTP.INDENTED.COPY)
+)
+(PRETTYCOMPRINT MTP-PATCHCOMS)
+
+(RPAQQ MTP-PATCHCOMS [(FNS EditMTPSenderField \MTP.FTPERROR)
+                      (ADVISE (\FTP.PRINTPLIST :IN MTP.DELIVERMESSAGE)
+                             (\FTPERROR :IN MTP.OPENMAILBOX)
+                             (\FTPERROR :IN MTP.DELIVERMESSAGE)
+                             (\FTPERROR :IN \MTP.ENDOFMESSAGESTATE)
+                             (\FTPERROR :IN MTP.CLOSEMAILBOX)
+                             (\FTPERROR :IN MTP.RETRIEVEMESSAGE))
+                      
+        
+        (* ;; "MTP.MAKEANSWERFORM doesn't insert the filtered header line.  \MTP.FILL only fills, it no longer does any indenting at all. \MTP.INDENTED.COPY now does the indenting and header line filtering for MTP.MAKEANSWERFORM.")
+
+                      (FNS MTP.MAKEANSWERFORM \MTP.FILL \MTP.INDENTED.COPY 
+                           \MTP.PRINTADDRESSES)
+                      (VARS (MTP.FILLMSGFLG 'ALWAYS)
+                            (MTP.INDENT.FILL.STRING "> "))
+                      (FUNCTIONS XCL-USER::MTP.ADDRESS)
+                      
+
+(* ;;; 
+"The new MTP.PREPARE.SEND fixes the OUTBOX to display TO: instead of FROM:")
+
+                      (FNS MTP.PREPARE.SEND)
+                      (DECLARE%: DONTEVAL@LOAD DOEVAL@COMPILE DONTCOPY 
+                             COMPILERVARS (ADDVARS (NLAMA)
+                                                 (NLAML)
+                                                 (LAMA])
+(DECLARE%: DONTEVAL@LOAD DOEVAL@COMPILE DONTCOPY COMPILERVARS 
+
+(ADDTOVAR NLAMA )
+
+(ADDTOVAR NLAML )
+
+(ADDTOVAR LAMA )
+)
+(PUTPROPS MTP-PATCH COPYRIGHT ("System Development Corp." 1986 1987))
+(DECLARE%: DONTCOPY
+  (FILEMAP (NIL (2227 3613 (EditMTPSenderField 2237 . 3308) (\MTP.FTPERROR 3310 . 
+3611)) (5163 13195 (MTP.MAKEANSWERFORM 5173 . 8809) (\MTP.FILL 8811 . 11364) (
+\MTP.INDENTED.COPY 11366 . 12763) (\MTP.PRINTADDRESSES 12765 . 13193)) (14426 
+15890 (MTP.PREPARE.SEND 14436 . 15888)))))
+STOP

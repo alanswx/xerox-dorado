@@ -1,0 +1,4 @@
+Source: CHM Xerox PARC archive (xeroxparcarchive.computerhistory.org)
+IFS path: [phylum]<Medley>1.0>
+LISP.SYSOUT!1   5000704 bytes  09-Nov-1988  Interlisp-D Medley 1.0 sysout (machine-independent)
+URL: https://xeroxparcarchive.computerhistory.org/phylum/medley/1.0/

@@ -1,0 +1,64 @@
+'From Smalltalk-80 of November 15, 1982 (Customer Version 3) on 27 January 1983 at 4:01:27 pm'!
+
+
+
+
+
+
+
+!FormEditor methodsFor: 'basic control sequence'!
+
+
+
+controlInitialize
+
+
+
+	Cursor blank show.
+
+	self normalizeColor: unNormalizedColor.
+
+	tool = #magnify ifTrue: [tool_ previousTool].
+
+	sensor waitNoButton! !
+
+
+
+
+
+!FormEditor methodsFor: 'menu messages'!
+
+
+
+yellowButtonActivity
+
+
+
+	Cursor normal show.
+
+	super yellowButtonActivity.
+
+	Cursor blank show! !
+
+
+
+
+
+!FormMenuController methodsFor: 'control defaults'!
+
+
+
+isControlActive
+
+	"Answer false if the blue mouse button is pressed and the cursor is
+
+	outside of the inset display box of the Controller's view; answer true,
+
+	otherwise."
+
+
+
+	^sensor keyboardPressed |
+
+		(view containsPoint: sensor cursorPoint) and: [ sensor blueButtonPressed not]! !
+

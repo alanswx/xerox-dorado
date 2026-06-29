@@ -7,6 +7,57 @@
 #include <string.h>
 #include <time.h>
 
+enum {
+    PUP_SOCKET_MISC = 04,
+    PUP_SOCKET_FTP = 03,
+
+    PUP_TYPE_ERROR = 04,
+    PUP_TYPE_RTP_RFC = 010,
+    PUP_TYPE_RTP_ABORT = 011,
+    PUP_TYPE_RTP_END = 012,
+    PUP_TYPE_RTP_END_REPLY = 013,
+
+    PUP_TYPE_BSP_DATA = 020,
+    PUP_TYPE_BSP_ADATA = 021,
+    PUP_TYPE_BSP_ACK = 022,
+    PUP_TYPE_BSP_MARK = 023,
+    PUP_TYPE_BSP_AMARK = 026,
+
+    FTP_MARK_RETRIEVE = 01,
+    FTP_MARK_YES = 03,
+    FTP_MARK_NO = 04,
+    FTP_MARK_HERE_IS_FILE = 05,
+    FTP_MARK_EOC = 06,
+    FTP_MARK_VERSION = 010,
+    FTP_MARK_HERE_IS_PLIST = 013,
+
+    FTP_TX_NONE = 0,
+    FTP_TX_VERSION = 1,
+    FTP_TX_PLIST = 2,
+    FTP_TX_FILE = 3,
+    FTP_TX_DONE = 4,
+
+    FTP_PHASE_IDLE = 0,
+    FTP_PHASE_WAIT_RETRIEVE_YES = 1,
+    FTP_PHASE_STREAMING = 2,
+    FTP_PHASE_DONE = 3
+};
+
+static uint32_t pup_id32(uint16_t hi, uint16_t lo)
+{
+    return ((uint32_t)hi << 16) | lo;
+}
+
+static uint16_t hi16(uint32_t v) { return (uint16_t)(v >> 16); }
+static uint16_t lo16(uint32_t v) { return (uint16_t)(v & 0xFFFFu); }
+
+static int ftp_trace(void)
+{
+    static int cached = -1;
+    if (cached < 0) cached = getenv("DORADO_FTP_TRACE") ? 1 : 0;
+    return cached;
+}
+
 /* Fill the 5-word Alto NTime body (32-bit time, zone word, begin/end DST)
  * from the host clock so NetExec's banner shows the real wall-clock time.
  * NetExec's WriteDate only accepts years 1983..2000 ("Date and time
@@ -142,6 +193,16 @@ void dorado_ethernet_free(dorado_ethernet *eth)
     eth_clear_rx(eth);
     free(eth->eftp_words);
     eth->eftp_words = NULL;
+}
+
+void dorado_ethernet_set_ftp_sysout(dorado_ethernet *eth, const char *path)
+{
+    if (!eth) return;
+    eth->ftp_sysout_path[0] = '\0';
+    eth->ftp_enabled = 0;
+    if (!path || !path[0]) return;
+    snprintf(eth->ftp_sysout_path, sizeof eth->ftp_sysout_path, "%s", path);
+    eth->ftp_enabled = 1;
 }
 
 void dorado_ethernet_set_boot_file(dorado_ethernet *eth,
@@ -794,6 +855,478 @@ static int eth_wire_model(void)
     return cached;
 }
 
+static int eth_queue_pup_bytes(dorado_ethernet *eth, uint16_t pup_type,
+                               uint32_t id, uint16_t dnet_host,
+                               uint16_t dsock_hi, uint16_t dsock_lo,
+                               uint16_t snet_host, uint16_t ssock_hi,
+                               uint16_t ssock_lo, const uint8_t *payload,
+                               size_t nbytes)
+{
+    size_t cap = 0;
+    size_t payload_words = (nbytes + 1u) / 2u;
+    uint16_t dest_host = (uint16_t)(dnet_host & 0377);
+    int ok = 1;
+
+    eth_clear_rx(eth);
+    uint16_t hdr[12] = {
+        (uint16_t)((dest_host << 8) | eth->remote_host),
+        DORADO_PUP_TYPE_ETHERNET,
+        (uint16_t)(026 + nbytes),
+        pup_type,
+        hi16(id),
+        lo16(id),
+        dnet_host,
+        dsock_hi,
+        dsock_lo,
+        snet_host,
+        ssock_hi,
+        ssock_lo
+    };
+    for (int i = 0; i < 12 && ok; i++)
+        ok = append_rx_word(eth, &cap, hdr[i], 0);
+    for (size_t i = 0; i < payload_words && ok; i++) {
+        uint16_t w = (uint16_t)(payload[i * 2] << 8);
+        if (i * 2 + 1 < nbytes) w |= payload[i * 2 + 1];
+        ok = append_rx_word(eth, &cap, w, 0);
+    }
+    if (ok) {
+        uint16_t cks = pup_checksum(eth->rx_words, 2,
+                                    (size_t)(12 + payload_words) - 2);
+        ok = append_rx_word(eth, &cap, cks, 0);
+    }
+    if (ok) ok = append_rx_word(eth, &cap, 0, 0);
+    if (ok) ok = append_rx_word(eth, &cap, 0, 1);
+    if (!ok) {
+        eth_clear_rx(eth);
+        return 0;
+    }
+    eth->rx_pos = 0;
+    eth->ftp_packets_queued++;
+    if (ftp_trace()) {
+        fprintf(stderr,
+                "FTP_QUEUE type=0o%o id=%08x bytes=%zu d=%06o/%o/%o "
+                "s=%06o/%o/%o rx_words=%zu\n",
+                pup_type, id, nbytes, dnet_host, dsock_hi, dsock_lo,
+                snet_host, ssock_hi, ssock_lo, eth->rx_count);
+    }
+    return 1;
+}
+
+static uint32_t eth_ftp_file_size(dorado_ethernet *eth)
+{
+    FILE *fp = fopen(eth->ftp_sysout_path, "rb");
+    if (!fp) return 0;
+    if (fseek(fp, 0, SEEK_END) != 0) {
+        fclose(fp);
+        return 0;
+    }
+    long n = ftell(fp);
+    fclose(fp);
+    if (n < 0) return 0;
+    return (uint32_t)n;
+}
+
+static void eth_ftp_start_tx(dorado_ethernet *eth, uint8_t mode)
+{
+    eth->ftp_tx_mode = mode;
+    eth->ftp_tx_step = 0;
+}
+
+static int eth_ftp_queue_ack(dorado_ethernet *eth)
+{
+    uint8_t body[6];
+    uint16_t bytes_per_pup = 512;
+    uint16_t pup_alloc = 6;
+    uint16_t byte_alloc = (uint16_t)(bytes_per_pup * pup_alloc);
+    body[0] = (uint8_t)(bytes_per_pup >> 8);
+    body[1] = (uint8_t)(bytes_per_pup & 0xFF);
+    body[2] = (uint8_t)(pup_alloc >> 8);
+    body[3] = (uint8_t)(pup_alloc & 0xFF);
+    body[4] = (uint8_t)(byte_alloc >> 8);
+    body[5] = (uint8_t)(byte_alloc & 0xFF);
+    eth->ftp_pending_ack = 0;
+    return eth_queue_pup_bytes(eth, PUP_TYPE_BSP_ACK, eth->ftp_rx_next,
+                               eth->ftp_client_net_host,
+                               eth->ftp_client_sock_hi,
+                               eth->ftp_client_sock_lo,
+                               eth->ftp_server_net_host,
+                               eth->ftp_server_sock_hi,
+                               eth->ftp_server_sock_lo,
+                               body, sizeof body);
+}
+
+static int eth_ftp_queue_mark(dorado_ethernet *eth, uint8_t mark,
+                              int request_ack)
+{
+    uint8_t body[1] = { mark };
+    uint32_t id = eth->ftp_tx_next;
+    if (!eth_queue_pup_bytes(eth,
+                             request_ack ? PUP_TYPE_BSP_AMARK
+                                         : PUP_TYPE_BSP_MARK,
+                             id,
+                             eth->ftp_client_net_host,
+                             eth->ftp_client_sock_hi,
+                             eth->ftp_client_sock_lo,
+                             eth->ftp_server_net_host,
+                             eth->ftp_server_sock_hi,
+                             eth->ftp_server_sock_lo,
+                             body, sizeof body))
+        return 0;
+    eth->ftp_tx_next += 1;
+    eth->ftp_tx_last_end = eth->ftp_tx_next;
+    eth->ftp_waiting_for_ack = request_ack ? 1 : 0;
+    return 1;
+}
+
+static int eth_ftp_queue_data(dorado_ethernet *eth, const uint8_t *data,
+                              size_t nbytes, int request_ack)
+{
+    uint32_t id = eth->ftp_tx_next;
+    if (!eth_queue_pup_bytes(eth,
+                             request_ack ? PUP_TYPE_BSP_ADATA
+                                         : PUP_TYPE_BSP_DATA,
+                             id,
+                             eth->ftp_client_net_host,
+                             eth->ftp_client_sock_hi,
+                             eth->ftp_client_sock_lo,
+                             eth->ftp_server_net_host,
+                             eth->ftp_server_sock_hi,
+                             eth->ftp_server_sock_lo,
+                             data, nbytes))
+        return 0;
+    eth->ftp_tx_next += (uint32_t)nbytes;
+    eth->ftp_tx_last_end = eth->ftp_tx_next;
+    eth->ftp_waiting_for_ack = request_ack ? 1 : 0;
+    return 1;
+}
+
+static int eth_ftp_queue_text_with_code(dorado_ethernet *eth, uint8_t code,
+                                        const char *text)
+{
+    uint8_t buf[256];
+    size_t n = 0;
+    buf[n++] = code;
+    if (text) {
+        while (*text && n < sizeof buf) buf[n++] = (uint8_t)*text++;
+    }
+    return eth_ftp_queue_data(eth, buf, n, 0);
+}
+
+static int eth_ftp_queue_plist(dorado_ethernet *eth)
+{
+    char plist[384];
+    const char *name = strrchr(eth->ftp_sysout_path, '/');
+    name = name ? name + 1 : eth->ftp_sysout_path;
+    snprintf(plist, sizeof plist,
+             "((Server-filename %s)(Type Binary)(Byte-size 8)"
+             "(Size %u)(Creation-date 1-Jan-84 00:00:00 GMT))",
+             name, eth->ftp_file_size);
+    return eth_ftp_queue_data(eth, (const uint8_t *)plist, strlen(plist), 0);
+}
+
+static int eth_ftp_queue_file_chunk(dorado_ethernet *eth)
+{
+    uint8_t buf[512];
+    FILE *fp = fopen(eth->ftp_sysout_path, "rb");
+    if (!fp) return 0;
+    if (fseek(fp, (long)eth->ftp_file_pos, SEEK_SET) != 0) {
+        fclose(fp);
+        return 0;
+    }
+    size_t want = eth->ftp_file_size - eth->ftp_file_pos;
+    if (want > sizeof buf) want = sizeof buf;
+    size_t got = fread(buf, 1, want, fp);
+    fclose(fp);
+    if (got == 0) return 0;
+    if (!eth_ftp_queue_data(eth, buf, got, 1)) return 0;
+    eth->ftp_file_pos += (uint32_t)got;
+    return 1;
+}
+
+static void eth_ftp_maybe_deliver(dorado_ethernet *eth);
+
+static void eth_ftp_handle_command(dorado_ethernet *eth)
+{
+    if (ftp_trace()) {
+        fprintf(stderr, "FTP_CMD mark=0o%o len=%zu phase=%u\n",
+                eth->ftp_cmd_mark, eth->ftp_cmd_len, eth->ftp_phase);
+    }
+    switch (eth->ftp_cmd_mark) {
+    case FTP_MARK_VERSION:
+        eth_ftp_start_tx(eth, FTP_TX_VERSION);
+        break;
+    case FTP_MARK_RETRIEVE:
+        eth->ftp_file_size = eth_ftp_file_size(eth);
+        eth->ftp_file_pos = 0;
+        if (eth->ftp_file_size == 0) {
+            eth_ftp_start_tx(eth, FTP_TX_DONE);
+            eth->ftp_phase = FTP_PHASE_DONE;
+        } else {
+            eth_ftp_start_tx(eth, FTP_TX_PLIST);
+            eth->ftp_phase = FTP_PHASE_WAIT_RETRIEVE_YES;
+        }
+        break;
+    case FTP_MARK_YES:
+        if (eth->ftp_phase == FTP_PHASE_WAIT_RETRIEVE_YES) {
+            eth_ftp_start_tx(eth, FTP_TX_FILE);
+            eth->ftp_phase = FTP_PHASE_STREAMING;
+        }
+        break;
+    case FTP_MARK_NO:
+        eth->ftp_phase = FTP_PHASE_DONE;
+        break;
+    default:
+        break;
+    }
+    eth->ftp_cmd_mark = 0;
+    eth->ftp_cmd_len = 0;
+}
+
+static void eth_ftp_ingest_payload(dorado_ethernet *eth)
+{
+    uint16_t type = eth->tx_words[3];
+    uint32_t id = pup_id32(eth->tx_words[4], eth->tx_words[5]);
+    size_t nbytes = eth->tx_words[2] > 026 ? (size_t)(eth->tx_words[2] - 026) : 0;
+
+    if (id + nbytes > eth->ftp_rx_next)
+        eth->ftp_rx_next = id + (uint32_t)nbytes;
+    eth->ftp_pending_ack = 1;
+
+    if (type == PUP_TYPE_BSP_MARK || type == PUP_TYPE_BSP_AMARK) {
+        if (nbytes > 0) {
+            uint8_t mark = (uint8_t)(eth->tx_words[12] >> 8);
+            if (mark == FTP_MARK_EOC) {
+                eth_ftp_handle_command(eth);
+            } else {
+                eth->ftp_cmd_mark = mark;
+                eth->ftp_cmd_len = 0;
+                for (size_t i = 1; i < nbytes; i++) {
+                    if (eth->ftp_cmd_len >= sizeof eth->ftp_cmd_data) break;
+                    uint16_t w = eth->tx_words[12 + i / 2];
+                    eth->ftp_cmd_data[eth->ftp_cmd_len++] =
+                        (uint8_t)((i & 1) ? (w & 0xFF) : (w >> 8));
+                }
+            }
+        }
+    } else {
+        for (size_t i = 0; i < nbytes; i++) {
+            if (eth->ftp_cmd_len >= sizeof eth->ftp_cmd_data) break;
+            uint16_t w = eth->tx_words[12 + i / 2];
+            eth->ftp_cmd_data[eth->ftp_cmd_len++] =
+                (uint8_t)((i & 1) ? (w & 0xFF) : (w >> 8));
+        }
+    }
+}
+
+static int eth_ftp_tx_next_segment(dorado_ethernet *eth)
+{
+    switch (eth->ftp_tx_mode) {
+    case FTP_TX_VERSION:
+        if (eth->ftp_tx_step == 0) {
+            eth->ftp_tx_step++;
+            return eth_ftp_queue_mark(eth, FTP_MARK_VERSION, 0);
+        }
+        if (eth->ftp_tx_step == 1) {
+            eth->ftp_tx_step++;
+            return eth_ftp_queue_text_with_code(eth, 1, "Dorado FTP Server");
+        }
+        eth->ftp_tx_mode = FTP_TX_NONE;
+        return eth_ftp_queue_mark(eth, FTP_MARK_EOC, 1);
+    case FTP_TX_PLIST:
+        if (eth->ftp_tx_step == 0) {
+            eth->ftp_tx_step++;
+            return eth_ftp_queue_mark(eth, FTP_MARK_HERE_IS_PLIST, 0);
+        }
+        if (eth->ftp_tx_step == 1) {
+            eth->ftp_tx_step++;
+            return eth_ftp_queue_plist(eth);
+        }
+        eth->ftp_tx_mode = FTP_TX_NONE;
+        return eth_ftp_queue_mark(eth, FTP_MARK_EOC, 1);
+    case FTP_TX_FILE:
+        if (eth->ftp_tx_step == 0) {
+            eth->ftp_tx_step++;
+            return eth_ftp_queue_mark(eth, FTP_MARK_HERE_IS_FILE, 0);
+        }
+        if (eth->ftp_file_pos < eth->ftp_file_size)
+            return eth_ftp_queue_file_chunk(eth);
+        eth_ftp_start_tx(eth, FTP_TX_DONE);
+        eth->ftp_phase = FTP_PHASE_DONE;
+        return eth_ftp_tx_next_segment(eth);
+    case FTP_TX_DONE:
+        if (eth->ftp_tx_step == 0) {
+            eth->ftp_tx_step++;
+            return eth_ftp_queue_mark(eth, FTP_MARK_YES, 0);
+        }
+        if (eth->ftp_tx_step == 1) {
+            eth->ftp_tx_step++;
+            return eth_ftp_queue_text_with_code(eth, 0, "Transfer complete");
+        }
+        eth->ftp_tx_mode = FTP_TX_NONE;
+        return eth_ftp_queue_mark(eth, FTP_MARK_EOC, 1);
+    default:
+        return 0;
+    }
+}
+
+static void eth_ftp_maybe_deliver(dorado_ethernet *eth)
+{
+    if (!eth->ftp_enabled || !eth->ftp_open) return;
+    if (eth->rx_pos < eth->rx_count || eth->rx_hold) return;
+    if (eth->ftp_pending_ack) {
+        (void)eth_ftp_queue_ack(eth);
+        return;
+    }
+    if (eth->ftp_waiting_for_ack || eth->ftp_tx_mode == FTP_TX_NONE)
+        return;
+    (void)eth_ftp_tx_next_segment(eth);
+}
+
+static int eth_ftp_queue_rfc_reply(dorado_ethernet *eth)
+{
+    uint8_t body[6];
+    body[0] = (uint8_t)(eth->ftp_server_net_host >> 8);
+    body[1] = (uint8_t)(eth->ftp_server_net_host & 0xFF);
+    body[2] = (uint8_t)(eth->ftp_server_sock_hi >> 8);
+    body[3] = (uint8_t)(eth->ftp_server_sock_hi & 0xFF);
+    body[4] = (uint8_t)(eth->ftp_server_sock_lo >> 8);
+    body[5] = (uint8_t)(eth->ftp_server_sock_lo & 0xFF);
+    return eth_queue_pup_bytes(eth, PUP_TYPE_RTP_RFC,
+                               pup_id32(eth->ftp_conn_hi, eth->ftp_conn_lo),
+                               eth->ftp_client_net_host,
+                               eth->ftp_client_sock_hi,
+                               eth->ftp_client_sock_lo,
+                               eth->ftp_server_net_host,
+                               eth->ftp_server_sock_hi,
+                               eth->ftp_server_sock_lo,
+                               body, sizeof body);
+}
+
+static int eth_ftp_handle_rfc(dorado_ethernet *eth)
+{
+    uint16_t req_src_host = (uint16_t)(eth->tx_words[0] & 0377);
+    eth->ftp_conn_hi = eth->tx_words[4];
+    eth->ftp_conn_lo = eth->tx_words[5];
+    eth->ftp_client_net_host = eth->tx_count >= 15
+        ? eth->tx_words[12]
+        : eth->tx_words[9];
+    eth->ftp_client_sock_hi = eth->tx_count >= 15
+        ? eth->tx_words[13]
+        : eth->tx_words[10];
+    eth->ftp_client_sock_lo = eth->tx_count >= 15
+        ? eth->tx_words[14]
+        : eth->tx_words[11];
+    if ((eth->ftp_client_net_host & 0377) == 0)
+        eth->ftp_client_net_host =
+            (uint16_t)((DORADO_PUP_LOCAL_NET << 8) | req_src_host);
+    eth->ftp_server_net_host =
+        (uint16_t)((DORADO_PUP_LOCAL_NET << 8) | eth->remote_host);
+    eth->ftp_server_sock_hi = 0;
+    eth->ftp_server_sock_lo = PUP_SOCKET_FTP;
+    eth->ftp_rx_next = pup_id32(eth->ftp_conn_hi, eth->ftp_conn_lo);
+    eth->ftp_tx_next = eth->ftp_rx_next;
+    eth->ftp_tx_last_end = eth->ftp_tx_next;
+    eth->ftp_last_ack = eth->ftp_rx_next;
+    eth->ftp_pending_ack = 1;       /* Initial BSP allocation for client. */
+    eth->ftp_waiting_for_ack = 0;
+    eth->ftp_tx_mode = FTP_TX_NONE;
+    eth->ftp_tx_step = 0;
+    eth->ftp_phase = FTP_PHASE_IDLE;
+    eth->ftp_open = 1;
+    eth->ftp_cmd_mark = 0;
+    eth->ftp_cmd_len = 0;
+    if (ftp_trace()) {
+        fprintf(stderr,
+                "FTP_RFC conn=%08x client=%06o/%o/%o server=%06o/%o/%o\n",
+                eth->ftp_rx_next, eth->ftp_client_net_host,
+                eth->ftp_client_sock_hi, eth->ftp_client_sock_lo,
+                eth->ftp_server_net_host, eth->ftp_server_sock_hi,
+                eth->ftp_server_sock_lo);
+    }
+    return eth_ftp_queue_rfc_reply(eth);
+}
+
+static int eth_queue_netdir_reply(dorado_ethernet *eth)
+{
+    uint16_t req_src_host = (uint16_t)(eth->tx_words[0] & 0377);
+    uint8_t body[6];
+    uint16_t port0 =
+        (uint16_t)((DORADO_PUP_LOCAL_NET << 8) | eth->remote_host);
+    body[0] = (uint8_t)(port0 >> 8);
+    body[1] = (uint8_t)(port0 & 0xFF);
+    body[2] = 0;
+    body[3] = 0;
+    body[4] = 0;
+    body[5] = PUP_SOCKET_FTP;
+    return eth_queue_pup_bytes(eth, DORADO_PUP_TYPE_NETDIR_REPLY,
+                               pup_id32(eth->tx_words[4], eth->tx_words[5]),
+                               (uint16_t)((DORADO_PUP_LOCAL_NET << 8) |
+                                          req_src_host),
+                               eth->tx_words[10], eth->tx_words[11],
+                               port0, eth->tx_words[7], eth->tx_words[8],
+                               body, sizeof body);
+}
+
+static int eth_ftp_packet_for_server(const dorado_ethernet *eth)
+{
+    if (!eth->ftp_enabled || !eth->ftp_open) return 0;
+    if (eth->tx_words[6] != eth->ftp_server_net_host) return 0;
+    return eth->tx_words[7] == eth->ftp_server_sock_hi &&
+           eth->tx_words[8] == eth->ftp_server_sock_lo;
+}
+
+static int eth_ftp_handle_packet(dorado_ethernet *eth)
+{
+    uint16_t type = eth->tx_words[3];
+    eth->ftp_packets_seen++;
+    if (ftp_trace()) {
+        fprintf(stderr,
+                "FTP_IN type=0o%o id=%08x len=%u rx_next=%08x "
+                "tx_next=%08x wait=%u mode=%u\n",
+                type, pup_id32(eth->tx_words[4], eth->tx_words[5]),
+                eth->tx_words[2], eth->ftp_rx_next, eth->ftp_tx_next,
+                eth->ftp_waiting_for_ack, eth->ftp_tx_mode);
+    }
+    switch (type) {
+    case PUP_TYPE_BSP_ACK: {
+        uint32_t ack = pup_id32(eth->tx_words[4], eth->tx_words[5]);
+        eth->ftp_last_ack = ack;
+        if (eth->tx_count >= 15) {
+            eth->ftp_client_bytes_per_pup = eth->tx_words[12];
+            eth->ftp_client_pup_alloc = eth->tx_words[13];
+            eth->ftp_client_byte_alloc = eth->tx_words[14];
+        }
+        if (ack >= eth->ftp_tx_last_end)
+            eth->ftp_waiting_for_ack = 0;
+        eth_ftp_maybe_deliver(eth);
+        return 1;
+    }
+    case PUP_TYPE_BSP_DATA:
+    case PUP_TYPE_BSP_ADATA:
+    case PUP_TYPE_BSP_MARK:
+    case PUP_TYPE_BSP_AMARK:
+        eth_ftp_ingest_payload(eth);
+        eth_ftp_maybe_deliver(eth);
+        return 1;
+    case PUP_TYPE_RTP_END:
+        (void)eth_queue_pup_bytes(eth, PUP_TYPE_RTP_END_REPLY,
+                                  pup_id32(eth->tx_words[4], eth->tx_words[5]),
+                                  eth->tx_words[9], eth->tx_words[10],
+                                  eth->tx_words[11],
+                                  eth->ftp_server_net_host,
+                                  eth->ftp_server_sock_hi,
+                                  eth->ftp_server_sock_lo,
+                                  NULL, 0);
+        eth->ftp_open = 0;
+        return 1;
+    case PUP_TYPE_RTP_ABORT:
+        eth->ftp_open = 0;
+        return 1;
+    default:
+        return 0;
+    }
+}
+
 /* "Transmit" the buffered packet. Called when EOT sets TxEOP with words
  * in the Fifo (HM §11: "the transmitter ends normally when the Fifo is
  * empty and TxEOP is true"). Dispatches the packet to the in-process
@@ -830,6 +1363,21 @@ static void eth_tx_packet_done(dorado_ethernet *eth)
                     eth_bootdir_path(eth, eth->tx_words[5]) ? "directory file"
                                                             : "default --eftp");
         fprintf(stderr, "\n");
+    }
+
+    if (eth->ftp_enabled && eth->tx_words[1] == DORADO_PUP_TYPE_ETHERNET) {
+        if (eth->tx_words[3] == DORADO_PUP_TYPE_NETDIR_LOOKUP) {
+            if (ftp_trace()) fprintf(stderr, "FTP_NETDIR lookup\n");
+            (void)eth_queue_netdir_reply(eth);
+            return;
+        }
+        if (eth->tx_words[3] == PUP_TYPE_RTP_RFC &&
+            eth->tx_words[8] == PUP_SOCKET_FTP) {
+            (void)eth_ftp_handle_rfc(eth);
+            return;
+        }
+        if (eth_ftp_packet_for_server(eth) && eth_ftp_handle_packet(eth))
+            return;
     }
 
     /* Stage-2: a Mayday Pup is the Alto software-boot request. Serve the
@@ -1485,6 +2033,8 @@ uint16_t dorado_ethernet_wakeup_mask(dorado_ethernet *eth)
             (void)eth_eftp_deliver_current(eth);
         }
     }
+    if (!eth->rx_hold && eth->rx_pos >= eth->rx_count)
+        eth_ftp_maybe_deliver(eth);
     /* HM §11: "EOT wakeups occur when the bus register is empty, TxOn
      * is true, and TxEOP, TxCntDwn, and NoWakeups are false." The fake
      * consumes Output<-B immediately, so the bus register is always

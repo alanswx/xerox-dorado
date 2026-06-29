@@ -1,0 +1,394 @@
+'From Smalltalk-80 of November 15, 1982 (Customer Version 3) on 9 March 1983 at 4:01:16 pm;
+
+Unmodified from [V20] by Evelyn Van Orden for the Customer Release'!
+
+
+
+
+
+
+
+!FileStream methodsFor: 'file accessing'!
+
+
+
+beSnapshotFile
+
+	self file beSnapshotFile! !
+
+
+
+
+
+!File methodsFor: 'file accessing'!
+
+
+
+beSnapshotFile
+
+	self subclassResponsibility! !
+
+
+
+
+
+!IFSLeafFile methodsFor: 'file accessing'!
+
+
+
+beSnapshotFile
+
+	self shouldNotImplement! !
+
+
+
+
+
+!AltoFile methodsFor: 'file accessing'!
+
+
+
+beSnapshotFile
+
+	"Tell the interpreter that the receiver is now the snapshot file."
+
+
+
+	^self
+
+		beSnapshotSerialNumber: (self serialNumber)
+
+		leaderVirtualDiskAddr: (fileDirectory realToVirtual: self leader)! !
+
+
+
+
+
+!AltoFile methodsFor: 'private'!
+
+
+
+beSnapshotSerialNumber: aByteArray leaderVirtualDiskAddr: anInteger
+
+	"Primitive. Tell the interpreter that the receiver is the snapshot file by giving
+
+	it the receiver's serial number and disk address. Xerox-specific. See Object
+
+	documentation whatIsAPrimitive."
+
+
+
+	<primitive: 135>
+
+	self primitiveFailed! !
+
+
+
+
+
+!ScreenController class methodsFor: 'class initialization'!
+
+
+
+initialize
+
+	"Initialize the System Menu."
+
+
+
+	ScreenYellowButtonMenu _
+
+		PopUpMenu
+
+			labels:
+
+'restore display
+
+exit project
+
+open project
+
+open browser
+
+open file list
+
+open transcript
+
+open workspace
+
+system workspace
+
+save
+
+quit'
+
+			lines: #(2 8 ).
+
+	ScreenYellowButtonMessages _
+
+			#(restoreDisplay exitProject
+
+			openProject openBrowser openFileList openTranscript
+
+			openWorkspace openSystemWorkspace
+
+			save quit).
+
+
+
+	"ScreenController initialize.
+
+	ScreenController allInstancesDo: [:c | c initializeYellowButtonMenu]"! !
+
+
+
+
+
+!ScreenController methodsFor: 'menu messages'!
+
+
+
+openSystemWorkspace
+
+	"Create and schedule a StandardSystemView for use as the System Workspace."
+
+
+
+	StringHolderView openSystemWorkspace!
+
+
+
+quit
+
+	"Close files then exit to another operating system on the host machine, if
+
+	one exists. All state changes in the object space since the last snapshot
+
+	are lost."
+
+
+
+	| menu index imagePrefix |
+
+	menu _ PopUpMenu
+
+		labels: 
+
+' Save, then quit 
+
+ Quit, without saving 
+
+ Continue '
+
+		lines: #(1 2).
+
+	index _ menu startUp.
+
+	index = 1 ifTrue: [Smalltalk saveAs: Smalltalk getImagePrefix thenQuit: true].
+
+	index = 2 ifTrue: [Smalltalk quit]!
+
+
+
+save
+
+	"Save the current state of the object space on an external file whose name
+
+	is specified by the user."
+
+
+
+	Smalltalk saveAs: Smalltalk getImagePrefix thenQuit: false! !
+
+
+
+
+
+ScreenController initialize.
+
+ScreenController allInstancesDo: [:c | c initializeYellowButtonMenu]!
+
+
+
+ScreenController removeSelector: #snapshot!
+
+
+
+
+
+!SystemDictionary methodsFor: 'system backup/out'!
+
+
+
+copyChangesTo: newFileName
+
+	"If the file name supplied is different than the current changes file
+
+	name, copy the changes file and install the new copy as the changes file."
+
+
+
+	| oldName newFile |
+
+	oldName _ (SourceFiles at: 2) name.
+
+	oldName last = $. ifTrue: [oldName _ oldName copyFrom: 1 to: oldName size-1].
+
+	(newFileName sameAs: oldName) ifFalse:
+
+		[Transcript cr; show: 'Copying ', oldName,
+
+			' to ', newFileName, '...'.
+
+		(SourceFiles at: 2) close; readOnly; reset.
+
+		newFile _ FileStream fileNamed: newFileName.
+
+		Cursor write showWhile:
+
+			[newFile nextPutAll: (SourceFiles at: 2)].
+
+		newFile readOnly.
+
+		SourceFiles at: 2 put: newFile.
+
+		Transcript show: 'done'; cr]!
+
+
+
+getImagePrefix
+
+	"Prompt the user for a snapshot file name. Persist until a legal name
+
+	is supplied."
+
+
+
+	| default newPrefix prompt |
+
+	prompt _
+
+'Enter name for image file:'.
+
+	default _ (ReadStream on: (SourceFiles at: 2) name) upTo: $..
+
+	('ST80*' match: default) ifTrue: [default _ 'Snapshot'].
+
+	newPrefix _ ''.
+
+
+
+	[newPrefix isEmpty or:
+
+			[(Disk isLegalFileName: newPrefix, '.changes') not]] whileTrue:
+
+		[FillInTheBlank
+
+			request: prompt
+
+			displayAt: Sensor cursorPoint
+
+			centered: true
+
+			action: [:newPrefix | ] 
+
+			initialAnswer: default.
+
+		(newPrefix size > 2 and:
+
+			[(newPrefix copyFrom: newPrefix size-2 to: newPrefix size) sameAs: '.im'])
+
+				ifTrue: [newPrefix _ newPrefix copyFrom: 1 to: newPrefix size-3].
+
+		prompt _
+
+'Illegal file name: ', newPrefix, '
+
+Enter name for image file:'.
+
+		default _ Disk checkName: newPrefix, '.changes' fixErrors: true.
+
+		default _ default copyFrom: 1 to: default size - 8].
+
+
+
+	^newPrefix!
+
+
+
+saveAs: imagePrefix thenQuit: quitIfTrue
+
+	"Copy the changes file to the new name if necessary, then create a
+
+	matching image file. Answer true if the image file was just created."
+
+
+
+	(imagePrefix sameAs: 'Snapshot')
+
+		ifFalse: [self copyChangesTo: imagePrefix, '.changes'].
+
+	^self snapshotAs: imagePrefix thenQuit: quitIfTrue!
+
+
+
+snapshot
+
+	"Write the OT and Data of this Smalltalk out on the external file
+
+	Snapshot.im."
+
+
+
+	self snapshotAs: 'Snapshot' thenQuit: false!
+
+
+
+snapshotAs: imageFilePrefix thenQuit: quitIfTrue
+
+	"Write the OT and Data of this Smalltalk out on an external file.
+
+	Answer true if the snapshot was just created."
+
+
+
+	| height justSnapped |
+
+	Cursor execute show.
+
+	self logChange: '''----SNAPSHOT----'''.
+
+	(FileStream fileNamed: imageFilePrefix, '.im') beSnapshotFile; readWrite; close.
+
+		"install as snapshot file and update creation time"
+
+	self releaseExternalViews.
+
+	height _ Display height.
+
+		"minimize display space on snapshot"
+
+	DisplayScreen displayHeight: (height min: 100).
+
+	Delay preSnapshot.
+
+	justSnapped _ self snapshotPrimitive isNil.
+
+	justSnapped & quitIfTrue
+
+		ifTrue:
+
+			[self quitPrimitive]
+
+		ifFalse:
+
+			[Delay postSnapshot.
+
+			DisplayScreen displayHeight: height.
+
+			self install].
+
+	Cursor normal show.
+
+	^justSnapped! !
+

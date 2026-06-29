@@ -48,6 +48,8 @@
 #define DORADO_PUP_TYPE_ALTOTIME_REPLY 0207
 #define DORADO_PUP_TYPE_ADDRESS_LOOKUP 0223
 #define DORADO_PUP_TYPE_ADDRESS_REPLY  0224
+#define DORADO_PUP_TYPE_NETDIR_LOOKUP  0220
+#define DORADO_PUP_TYPE_NETDIR_REPLY   0221
 #define DORADO_PUP_LOCAL_NET           01    /* the network NetExec lives on */
 #define DORADO_PUP_TYPE_EFTP_DATA  030
 #define DORADO_PUP_TYPE_EFTP_ACK   031
@@ -144,6 +146,39 @@ typedef struct dorado_ethernet {
                                  * the receiver has consumed (or lost)
                                  * the previous copy. */
 
+    /* Minimal Pup FTP/BSP server for Interlisp-D RemoteVmemInit. Disabled
+     * unless ftp_sysout_path is set. It implements just the client path:
+     * RTP open to socketFTP(3), FTP Version, Retrieve of one sysout, and
+     * BSP byte-stream delivery. Protocol constants are from PupRTP.decl,
+     * PupBSP.decl, and FtpProt.decl in chm/altosource/. */
+    char ftp_sysout_path[256];
+    uint8_t ftp_enabled;
+    uint8_t ftp_open;
+    uint8_t ftp_pending_ack;
+    uint8_t ftp_waiting_for_ack;
+    uint8_t ftp_tx_mode;
+    uint8_t ftp_tx_step;
+    uint8_t ftp_phase;
+    uint16_t ftp_conn_hi, ftp_conn_lo;
+    uint16_t ftp_client_net_host;
+    uint16_t ftp_client_sock_hi, ftp_client_sock_lo;
+    uint16_t ftp_server_net_host;
+    uint16_t ftp_server_sock_hi, ftp_server_sock_lo;
+    uint32_t ftp_rx_next;
+    uint32_t ftp_tx_next;
+    uint32_t ftp_tx_last_end;
+    uint32_t ftp_last_ack;
+    uint32_t ftp_file_pos;
+    uint32_t ftp_file_size;
+    uint16_t ftp_client_bytes_per_pup;
+    uint16_t ftp_client_pup_alloc;
+    uint16_t ftp_client_byte_alloc;
+    uint8_t ftp_cmd_mark;
+    uint8_t ftp_cmd_data[4096];
+    size_t ftp_cmd_len;
+    uint64_t ftp_packets_seen;
+    uint64_t ftp_packets_queued;
+
     uint16_t *rx_words;
     uint8_t  *rx_attention;
     size_t rx_count;
@@ -207,6 +242,11 @@ void dorado_ethernet_set_boot_file(dorado_ethernet *eth,
  * response to a Mayday request (any boot-file number, for now). */
 void dorado_ethernet_set_eftp_boot_file(dorado_ethernet *eth,
                                         const char *path);
+
+/* Optional Pup FTP/BSP sysout source for Lisp RemoteVmemInit. When set,
+ * the fake network directory advertises this host as an FTP server and the
+ * server streams PATH in response to Retrieve. */
+void dorado_ethernet_set_ftp_sysout(dorado_ethernet *eth, const char *path);
 
 /* Optional Stage-2 delivery gate for clients such as the Cedar/Pilot germ
  * that post Ethernet input IOCBs through a controller status block. */

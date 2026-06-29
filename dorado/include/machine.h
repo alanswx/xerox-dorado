@@ -32,6 +32,8 @@ typedef struct dorado_machine_config {
     const char *ifu_mb;        /* IfuComplex.mb (IFU decode)           */
     const char *eth_boot_110;  /* netboot world for boot-file 0110     */
     const char *eftp_boot;     /* Stage-2 Alto boot file (NETEXEC.BOOT)*/
+    const char *ftp_sysout;    /* Optional Pup FTP sysout served to
+                                * Interlisp-D RemoteVmemInit. */
 
     int alto_ether_boot;       /* 1 = drive the Stage-2 Alto ether boot
                                 *     (breath-of-life + EFTP server)   */

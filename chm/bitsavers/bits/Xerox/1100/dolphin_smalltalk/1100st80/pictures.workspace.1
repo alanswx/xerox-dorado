@@ -1,0 +1,25 @@
+Workspace for Displaying and Editing Pictures
+
+"Do the following once (i.e. the first time you want to display pictures):"
+	Snapshot, quit Smalltalk, then in the Alto Executive, type the following:
+		@Load Pictures.dm<cr>
+	This will unpack the six pictures files from the file called Pictures.dm.
+	Then startup Smalltalk as follows:
+		@Snap<cr>
+	You may now display and edit pictures"
+
+"Displaying"
+FormView readFrom: 'Biplane.Form'.
+FormView readFrom: 'Birds.Form'.
+FormView readFrom: 'Map.Form'.
+FormView readFrom: 'Mickey.Form'.
+FormView readFrom: 'SmalltalkBalloon.Form'.
+FormView readFrom: 'Unicorn.Form'.
+
+"Displaying and Editing"
+(Form readFrom: 'Biplane.Form') edit.
+(Form readFrom: 'Birds.Form') edit.
+(Form readFrom: 'Map.Form') edit.
+(Form readFrom: 'Mickey.Form') edit.
+(Form readFrom: 'SmalltalkBalloon.Form') edit.
+(Form readFrom: 'Unicorn.Form') edit.

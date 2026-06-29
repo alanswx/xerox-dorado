@@ -1,0 +1,65 @@
+Workspace for Changing Fonts
+
+"Do the following once (i.e. the first time you want to change fonts):"
+	Snapshot, quit Smalltalk, then in the Alto Executive, type the following:
+		@Load Fonts.dm<cr>
+	This will unpack the 20 font files from the file called Fonts.dm.
+	Then startup Smalltalk as follows:
+		@Snap<cr>
+	You may now change fonts"
+
+"Note: Font 5 is used for window labels, Font 7 for pop-up menus."
+
+"Option 1: Biggest Fonts"
+	TextStyle default fontAt: 1 put: (StrikeFont fromStrike: 'TimesRoman24').
+	TextStyle default fontAt: 2 put: (StrikeFont fromStrike: 'TimesRomanD24').
+	TextStyle default fontAt: 3 put: (StrikeFont fromStrike: 'Helvetica24').
+	TextStyle default fontAt: 4 put: (StrikeFont fromStrike: 'TimesRoman36').
+	TextStyle default fontAt: 5 put: (StrikeFont fromStrike: 'TimesRomanD36').
+	TextStyle default fontAt: 6 put: (StrikeFont fromStrike: 'Helvetica24').
+	TextStyle default fontAt: 7 put: (StrikeFont fromStrike: 'Helvetica36').
+	TextStyle default fontAt: 8 put: (StrikeFont fromStrike: 'TimesRoman10').
+	TextStyle default fontAt: 9 put: (StrikeFont fromStrike: 'TimesRoman12').
+	TextStyle default fontAt: 10 put: (StrikeFont fromStrike: 'TimesRoman14').
+	TextStyle default fontAt: 11 put: (StrikeFont fromStrike: 'Helvetica24').
+	TextStyle default fontAt: 12 put: (StrikeFont fromStrike: 'OldEnglish18').
+	TextStyle default gridForFont: 5 withLead: 0.
+
+"Option 2: Medium-Sized Fonts"
+	TextStyle default fontAt: 1 put: (StrikeFont fromStrike: 'TimesRoman12').
+	TextStyle default fontAt: 2 put:
+		((TextStyle default fontAt: 1) emphasized: 1 named: 'TimesRoman12b').
+	TextStyle default fontAt: 3 put:
+		((TextStyle default fontAt: 1) emphasized: 2 named: 'TimesRoman12i').
+	TextStyle default fontAt: 4 put: (StrikeFont fromStrike: 'TimesRoman14').
+	TextStyle default fontAt: 5 put:
+		((TextStyle default fontAt: 4) emphasized: 1 named: 'TimesRoman14b').
+	TextStyle default fontAt: 6 put:
+		((TextStyle default fontAt: 4) emphasized: 2 named: 'TimesRoman14i').
+	TextStyle default fontAt: 7 put:
+		((TextStyle default fontAt: 4) emphasized: 1 named: 'TimesRoman14b').
+	TextStyle default fontAt: 8 put: (StrikeFont fromStrike: 'TimesRoman18').
+	TextStyle default fontAt: 9 put: (StrikeFont fromStrike: 'Helvetica18').
+	TextStyle default fontAt: 10 put: (StrikeFont fromStrike: 'Frutiger18').
+	TextStyle default fontAt: 11 put:
+		((TextStyle default fontAt: 11) emphasized: 1 named: 'Frutiger18b').
+	TextStyle default fontAt: 12 put:
+		((TextStyle default fontAt: 11) emphasized: 2 named: 'Frutiger18i').
+	TextStyle default gridForFont: 5 withLead: 0.
+
+"Option 3: Create Your Own. The following fonts are available:"
+	Disk filesMatching: '*.strike'.
+
+"To update pop-up menu fonts:"
+	Controller allSubclassesDo: [:each | each initialize].
+	ScreenController allInstancesDo: [:each | each initialize].
+
+"To update window text font gridding:"
+	"Close and recreate all Views (Transcript, Browser, FileList, etc.)"
+	StringHolderView openSystemWorkspace.
+
+"To find out what the current font set is, select and bug printit:"
+	(1 to: 12) collect: [:i | (TextStyle default fontAt: i) familySizeFace].
+
+"To restore the original font set:"
+	Text initDefaultFontsAndStyle.

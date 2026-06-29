@@ -39,6 +39,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+static int machine_alto_dcb_chain_sane(dorado_memory *mem, uint32_t base,
+                                       uint16_t dl);
+static int machine_alto_display_active(dorado_memory *mem);
+static int machine_ddc_display_active(dorado_machine *m);
+static int machine_display_fifo_used(const dorado_display *d, int subtask);
+static int machine_display_fb_pixels(const dorado_display *d);
+static void machine_dump_lisp_display_probe(dorado_machine *m);
+
 /* Default firmware/microcode locations, relative to the dorado/ dir. */
 #define DEF_BB_ROM    "../chm/dorado/doradobaserom.mb!13"
 #define DEF_BOOTSTRAP "../chm/dorado/expanded/bootstrap.dm!20_/Bootstrap.mb"
@@ -1066,6 +1074,7 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
         cfg.ifu_mb       = pick(user_cfg->ifu_mb,       cfg.ifu_mb);
         cfg.eth_boot_110 = pick(user_cfg->eth_boot_110, cfg.eth_boot_110);
         cfg.eftp_boot    = pick(user_cfg->eftp_boot,    cfg.eftp_boot);
+        cfg.ftp_sysout   = pick(user_cfg->ftp_sysout,   cfg.ftp_sysout);
         cfg.germ_path    = pick(user_cfg->germ_path,    cfg.germ_path);
         cfg.pilot_disk_pdi = pick(user_cfg->pilot_disk_pdi,
                                   cfg.pilot_disk_pdi);
@@ -1217,6 +1226,7 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
     dorado_ethernet_set_boot_file(&m->ethernet, cfg.boot_file_number,
                                   cfg.eth_boot_110);
     dorado_ethernet_set_eftp_boot_file(&m->ethernet, cfg.eftp_boot);
+    dorado_ethernet_set_ftp_sysout(&m->ethernet, cfg.ftp_sysout);
     if (cfg.pilot_disk_pdi) {
         char err[128];
         if (dorado_pdi_load(cfg.pilot_disk_pdi, &m->pilot_pdi,
@@ -2302,14 +2312,14 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
             }
 
             /* Display scan-line wakeups (DHT/AHT) and DWT word-task
-             * wakeups, every ~1000 cycles -- but only once the loaded
-             * world has installed a display list (DASTART at VM 0o420
-             * nonzero). Waking the display tasks before then can run stale
-             * pre-LoadRam task TPCs at high priority. */
-            uint32_t dl_mds = dorado_br_get(&m->mem, 036);
-            uint16_t dl_head = dorado_visible_word_at_va(&m->mem,
-                                                         dl_mds + 0420u);
-            int display_active = (dl_head != 0 && dl_head != 0xFFFFu);
+             * wakeups, every ~1000 cycles -- but only once the loaded world
+             * has installed a sane Alto DCB chain. Most Alto software uses
+             * MDS+0420; Interlisp-D's handoff can leave the visible display
+             * state in the IOBR bank and one word later. Waking the display
+             * tasks before a real chain exists can run stale pre-LoadRam
+             * task TPCs at high priority. */
+            int display_active = machine_alto_display_active(&m->mem) ||
+                                 machine_ddc_display_active(m);
             if (!display_active && dorado_trace_flag("DORADO_FORCE_DISPLAY_WAKE")) {
                 display_active = 1;
             }
@@ -2486,6 +2496,7 @@ void dorado_machine_debug(dorado_machine *m)
                 (unsigned)((uint32_t)e344->rp * DM_PAGE_SIZE
                            + (v344 & (DM_PAGE_SIZE - 1))));
     }
+    machine_dump_lisp_display_probe(m);
     if (m->germ_word_count)
         machine_dump_pilot_pda(m);
 }
@@ -2517,11 +2528,212 @@ static void machine_overlay_mouse(dorado_machine *m)
                 fb_xor(&m->display, m->mouse_x + b, m->mouse_y + r);
 }
 
+static int machine_alto_dcb_chain_sane(dorado_memory *mem, uint32_t base,
+                                       uint16_t dl)
+{
+    if (!mem || dl <= 1u || dl == 0xFFFFu)
+        return 0;
+
+    int y = 0;
+    int saw = 0;
+    for (int g = 0; g < 64 && dl > 1u && y < DORADO_DISPLAY_H; g++) {
+        uint16_t c   = dorado_visible_word_at_va(mem, base + dl + 1u);
+        uint16_t sa  = dorado_visible_word_at_va(mem, base + dl + 2u);
+        uint16_t slc = dorado_visible_word_at_va(mem, base + dl + 3u);
+        int htab  = (c >> 8) & 077;
+        int nwrds = c & 0377;
+        int lines = (int)slc * 2;
+
+        if (slc == 0 || lines <= 0 || lines > DORADO_DISPLAY_H ||
+            nwrds > 64 || htab > 077 || (nwrds > 0 && sa <= 1u))
+            return 0;
+        saw = 1;
+        y += lines;
+        dl = dorado_visible_word_at_va(mem, base + dl);
+    }
+    return saw;
+}
+
+static int machine_alto_display_active(dorado_memory *mem)
+{
+    if (!mem) return 0;
+    const struct {
+        uint32_t base;
+        uint32_t head;
+    } candidates[] = {
+        { dorado_br_get(mem, 036), 0420u }, /* MDS: normal Alto worlds. */
+        { dorado_br_get(mem, 031), 0420u }, /* IOBR: Lisp/uCode handoff. */
+        { dorado_br_get(mem, 031), 0421u }, /* Seen in Fugue sysout state. */
+        { 0,                      0420u },
+    };
+
+    for (size_t i = 0; i < sizeof candidates / sizeof candidates[0]; i++) {
+        uint16_t dl = dorado_visible_word_at_va(
+            mem, candidates[i].base + candidates[i].head);
+        if (machine_alto_dcb_chain_sane(mem, candidates[i].base, dl))
+            return 1;
+    }
+    return 0;
+}
+
+static int machine_ddc_display_active(dorado_machine *m)
+{
+    if (!m || !m->ether_loaded_world_cycle) return 0;
+    dorado_display *d = &m->display;
+
+    if (d->statics & DORADO_DISPLAY_STATICS_DHT_SHUTUP)
+        return 0;
+    if (d->terminal_task == DORADO_DISPLAY_TASK_DHT ||
+        d->terminal_task == DORADO_DISPLAY_TASK_AHT) {
+        if (d->output_task_count[d->terminal_task] != 0 ||
+            d->next_wcb_flag[0] || d->next_wcb_flag[1] ||
+            d->current_wcb_flag[0] || d->current_wcb_flag[1])
+            return 1;
+    }
+    if (d->raster_lt_enabled)
+        return 1;
+    return 0;
+}
+
+static int machine_display_fifo_used(const dorado_display *d, int subtask)
+{
+    int head, tail, cap;
+
+    if (!d) return 0;
+    cap = (int)(sizeof d->fifo_a / sizeof d->fifo_a[0]);
+    if (subtask == 0) {
+        head = d->fifo_a_head;
+        tail = d->fifo_a_tail;
+    } else {
+        head = d->fifo_b_head;
+        tail = d->fifo_b_tail;
+    }
+    return (head - tail + cap) % cap;
+}
+
+static int machine_display_fb_pixels(const dorado_display *d)
+{
+    int pixels = 0;
+
+    if (!d) return 0;
+    for (size_t i = 0; i < sizeof d->fb; i++) {
+        uint8_t v = d->fb[i];
+        while (v) {
+            pixels += v & 1u;
+            v >>= 1;
+        }
+    }
+    return pixels;
+}
+
+static void machine_dump_words_at_va(dorado_memory *mem, const char *label,
+                                     uint32_t va, int n)
+{
+    fprintf(stderr, "[machine] %s VA=0x%05x/0o%o:", label, va, va);
+    for (int i = 0; i < n; i++) {
+        fprintf(stderr, " %06o",
+                dorado_visible_word_at_va(mem, va + (uint32_t)i));
+    }
+    fprintf(stderr, "\n");
+}
+
+static void machine_dump_lisp_display_probe(dorado_machine *m)
+{
+    if (!m) return;
+
+    dorado_display *d = &m->display;
+    dorado_fastio_router *f = &m->fastio;
+    fprintf(stderr,
+            "[machine] display: terminal_task=%o statics=%06o outputs=%llu "
+            "iofetch=%llu fifoA=%d fifoB=%d next={%u,%u} cur={%u,%u} "
+            "rast_next={%u,%u,%u,%u} rast_cur={%u,%u,%u,%u} "
+            "scan=%llu twake=%llu "
+            "dwake=%llu nlcb=%llu cursor_rows=%llu\n",
+            d->terminal_task, d->statics,
+            (unsigned long long)d->output_count,
+            (unsigned long long)d->iofetch_count,
+            machine_display_fifo_used(d, 0),
+            machine_display_fifo_used(d, 2),
+            d->next_wcb_flag[0], d->next_wcb_flag[1],
+            d->current_wcb_flag[0], d->current_wcb_flag[1],
+            d->raster_next_wt_flag[0], d->raster_next_wt_flag[1],
+            d->raster_next_wt_flag[2], d->raster_next_wt_flag[3],
+            d->raster_current_wt_flag[0], d->raster_current_wt_flag[1],
+            d->raster_current_wt_flag[2], d->raster_current_wt_flag[3],
+            (unsigned long long)d->scanline_ticks,
+            (unsigned long long)d->terminal_wakeups,
+            (unsigned long long)d->dwt_wakeups,
+            (unsigned long long)d->nlcb_writes,
+            (unsigned long long)d->cursor_rows_drawn);
+    fprintf(stderr,
+            "[machine] display outputs by task: t0=%llu t1=%llu t3=%llu "
+            "t4=%llu t11=%llu t13=%llu | fastio drops: disp_full=%u "
+            "unr_fetch=%u unr_store=%u disk_full=%u disk_empty=%u\n",
+            (unsigned long long)d->output_task_count[0],
+            (unsigned long long)d->output_task_count[1],
+            (unsigned long long)d->output_task_count[3],
+            (unsigned long long)d->output_task_count[4],
+            (unsigned long long)d->output_task_count[011],
+            (unsigned long long)d->output_task_count[013],
+            f->drops_display_fifo_full,
+            f->drops_unrouted_iofetch,
+            f->drops_unrouted_iostore,
+            f->drops_disk_fifo_full,
+            f->drops_disk_fifo_empty);
+    fprintf(stderr, "[machine] display top TIOA:");
+    int printed_tioa[12];
+    int printed_n = 0;
+    for (int rank = 0; rank < 12; rank++) {
+        int best = -1;
+        for (int tioa = 0; tioa < 256; tioa++) {
+            if (d->output_tioa_count[tioa] == 0) continue;
+            int already = 0;
+            for (int prev = 0; prev < printed_n; prev++)
+                if (printed_tioa[prev] == tioa) already = 1;
+            if (already) continue;
+            if (best < 0 ||
+                d->output_tioa_count[tioa] > d->output_tioa_count[best]) {
+                best = tioa;
+            }
+        }
+        if (best < 0) break;
+        printed_tioa[printed_n++] = best;
+        fprintf(stderr, " %03o=%llu(first=%06o,last=%06o)", best,
+                (unsigned long long)d->output_tioa_count[best],
+                d->output_tioa_first[best], d->output_tioa_last[best]);
+    }
+    fprintf(stderr, "\n");
+    if (d->iofetch_count) {
+        fprintf(stderr,
+                "[machine] display first IOFetch VA=0x%05x/0o%o words:",
+                d->first_iofetch_va, d->first_iofetch_va);
+        for (int i = 0; i < 16; i++)
+            fprintf(stderr, " %06o", d->first_iofetch_words[i]);
+        fprintf(stderr,
+                "\n[machine] display last IOFetch VA=0x%05x/0o%o words:",
+                d->last_iofetch_va, d->last_iofetch_va);
+        for (int i = 0; i < 16; i++)
+            fprintf(stderr, " %06o", d->last_iofetch_words[i]);
+        fprintf(stderr, "\n");
+    }
+
+    /* Fugue/Dandelion display sources name IOPageHigh=1, IOPage=0x40,
+     * DisplayCSBOffset=0xE8 and DCSB=0xE9.  Probe both the long virtual
+     * address and the low-half address while we determine how the loaded
+     * Lisp microcode maps the Dandelion CSB on Dorado. */
+    machine_dump_words_at_va(&m->mem, "Fugue DCSB long", 0x140E8u, 12);
+    machine_dump_words_at_va(&m->mem, "Fugue DCSB low",  0x040E8u, 12);
+    machine_dump_words_at_va(&m->mem, "Fugue DCSB IOBR",
+                             dorado_br_get(&m->mem, 031) + 0x40E8u, 12);
+}
+
 int dorado_machine_render_display_list(dorado_machine *m)
 {
     if (!m) return 0;
     dorado_memory *mem = &m->mem;
     dorado_display *disp = &m->display;
+    uint8_t ddc_fb[sizeof disp->fb];
+    memcpy(ddc_fb, disp->fb, sizeof ddc_fb);
 
     /* The rasterizer owns the whole frame: clear to white (0 = white,
      * 1 = black), then paint everything. This avoids the smearing that
@@ -2602,8 +2814,6 @@ int dorado_machine_render_display_list(dorado_machine *m)
         }
     }
 
-    uint32_t dmds = dorado_br_get(mem, 036);
-    uint32_t dl = dorado_visible_word_at_va(mem, dmds + 0420u);
     int pixels = 0, y = 0;
     int dcb_trace = dorado_trace_flag("DORADO_DCB_TRACE");
     uint32_t bmhash = 2166136261u; /* FNV-1a */
@@ -2611,6 +2821,62 @@ int dorado_machine_render_display_list(dorado_machine *m)
     int content_below_alto = 0; /* any pixel drawn past the Alto raster? */
     static unsigned long render_calls = 0;
     render_calls++;
+    uint32_t dmds = 0, head_va = 0;
+    uint16_t dl = 0;
+    const struct {
+        const char *name;
+        uint32_t base;
+        uint32_t head;
+    } candidates[] = {
+        { "MDS+0420",  dorado_br_get(mem, 036), 0420u },
+        { "IOBR+0420", dorado_br_get(mem, 031), 0420u },
+        { "IOBR+0421", dorado_br_get(mem, 031), 0421u },
+        { "abs+0420",  0,                      0420u },
+    };
+    const char *candidate_name = "none";
+    for (size_t i = 0; i < sizeof candidates / sizeof candidates[0]; i++) {
+        uint16_t head = dorado_visible_word_at_va(
+            mem, candidates[i].base + candidates[i].head);
+        if (machine_alto_dcb_chain_sane(mem, candidates[i].base, head)) {
+            dmds = candidates[i].base;
+            dl = head;
+            head_va = candidates[i].base + candidates[i].head;
+            candidate_name = candidates[i].name;
+            break;
+        }
+    }
+    if (dl == 0) {
+        if (dcb_trace) {
+            fprintf(stderr, "[dcb] call=%lu no sane Alto DCB chain\n",
+                    render_calls);
+            for (size_t i = 0; i < sizeof candidates / sizeof candidates[0]; i++) {
+                uint32_t hva = candidates[i].base + candidates[i].head;
+                uint16_t head = dorado_visible_word_at_va(mem, hva);
+                uint16_t next = head > 1u
+                    ? dorado_visible_word_at_va(mem, candidates[i].base + head)
+                    : 0;
+                uint16_t c = head > 1u
+                    ? dorado_visible_word_at_va(mem, candidates[i].base + head + 1u)
+                    : 0;
+                uint16_t sa = head > 1u
+                    ? dorado_visible_word_at_va(mem, candidates[i].base + head + 2u)
+                    : 0;
+                uint16_t slc = head > 1u
+                    ? dorado_visible_word_at_va(mem, candidates[i].base + head + 3u)
+                    : 0;
+                fprintf(stderr,
+                        "[dcb] candidate=%s head_va=%07o head=%06o "
+                        "next=%06o c=%06o sa=%06o slc=%06o\n",
+                        candidates[i].name, hva, head, next, c, sa, slc);
+            }
+        }
+        memcpy(disp->fb, ddc_fb, sizeof ddc_fb);
+        pixels = machine_display_fb_pixels(disp);
+        disp->active_w = DORADO_DISPLAY_W;
+        disp->active_h = DORADO_DISPLAY_H;
+        machine_overlay_mouse(m);
+        return pixels;
+    }
     /* Alto DCB (Hardware Manual; salto helloworld.asm):
      *   w0 = next DCB (0 ends)
      *   w1 = (res<<15) | (inverse<<14) | (HTAB<<8) | NWRDS
@@ -2626,6 +2892,9 @@ int dorado_machine_render_display_list(dorado_machine *m)
         int nwrds = c & 0377;
         int inv   = (c >> 14) & 1;
         int lines = (int)slc * 2;
+        if (slc == 0 || lines <= 0 || lines > DORADO_DISPLAY_H ||
+            nwrds > 64 || htab > 077 || (nwrds > 0 && sa <= 1u))
+            break;
         if (dcb_trace && g < 4)
             fprintf(stderr,
                     "[dcb] call=%lu dl=%06o c=%06o(htab=%d nwrds=%d "
@@ -2658,9 +2927,11 @@ int dorado_machine_render_display_list(dorado_machine *m)
 
     if (dcb_trace)
         fprintf(stderr,
-                "[dcb] call=%lu DASTART=%06o dmds=%06o ndcb=%d "
+                "[dcb] call=%lu source=%s head_va=%07o DASTART=%06o "
+                "dmds=%06o ndcb=%d "
                 "pixels=%d bmhash=%08x\n",
-                render_calls, dorado_visible_word_at_va(mem, dmds + 0420u),
+                render_calls, candidate_name, head_va,
+                dorado_visible_word_at_va(mem, head_va),
                 dmds, ndcb, pixels, bmhash);
 
     /* Alto-on-Dorado uses the smaller Alto raster, but some Mesa-world

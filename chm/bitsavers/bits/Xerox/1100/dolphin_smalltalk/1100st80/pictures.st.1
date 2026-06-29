@@ -1,0 +1,191 @@
+'From Smalltalk-80 of May 12, 1982 on 13 May 1982 at 2:06:34 pm;
+Unmodified from kl-emv-FastBitMapIO.st'!
+
+
+!Bitmap methodsFor: 'initialize-release'!
+
+fromFileStream: aFileStream 
+	"Initialize the array of bits by reading integers from the FileStream,
+	aStream."
+
+	| sizeInBytes howManyBytesRead start increment nextStart |
+	Cursor read showWhile:
+		[sizeInBytes _ self size bitShift: 1.
+		howManyBytesRead _ 0.
+		start _ 1.
+		[howManyBytesRead < sizeInBytes] whileTrue:
+			[increment _ 8192 min: (sizeInBytes - howManyBytesRead).
+			nextStart _ start + (increment bitShift: -1).
+			self specialReplaceFrom: start
+				to: (nextStart -1)
+				with: (aFileStream next: increment)
+				startingAt: 1.
+			start _ nextStart.
+			howManyBytesRead _ howManyBytesRead + increment]]! !
+
+!Bitmap methodsFor: 'filing'!
+
+toFileStream: aFileStream 
+	"Store the array of bits onto the FileStream, aFileStream."
+
+	| sizeInBytes aByteArray increment howManyBytesWritten start |
+	Cursor write showWhile:
+		[sizeInBytes _ self size bitShift: 1.
+		(sizeInBytes >= 8192) ifTrue: [aByteArray _ ByteArray new: (increment _ 8192)].
+		howManyBytesWritten _ 0.
+		start _ 1.
+		[howManyBytesWritten < sizeInBytes] whileTrue:
+			[(sizeInBytes - howManyBytesWritten) < 8192 ifTrue:
+				[aByteArray _ ByteArray new: (increment _ sizeInBytes - howManyBytesWritten)].
+			aByteArray specialReplaceFrom: 1
+				to: increment
+				with: self
+				startingAt: start.
+			start _ start + (increment bitShift: -1).
+			aFileStream nextPutAll: aByteArray.
+			howManyBytesWritten _ howManyBytesWritten + increment]]! !
+
+!Bitmap methodsFor: 'special-accessing'!
+
+specialReplaceFrom: start to: stop with: replacement startingAt: repStart 
+	"Primitive. Destructively replace elements in the receiver (a Bitmap)
+	starting at start (a word index) with replacement (a String or ByteArray)
+	starting at repStart (a byte index). Answer the receiver. Note: Complete
+	range checks are performed by the primitive. Furthermore, the primitive
+	requires that:
+	   self is a non-pointer word-type object (such as a Bitmap),
+	   replacement is a byte-type object (such as a String or ByteArray),
+	   start is a positive integer <64K,
+	   stop is a positive integer <64K,
+	   repStart is an odd positive integer <64K.
+	Xerox specific. See Object documentation whatIsAPrimitive."
+
+	| j |
+	<primitive: 177>
+	j _ repStart - 1.
+	start to: stop do:
+		[:i | self at: i put:
+			(((replacement at: (j _ j +1)) asInteger bitShift: 8) +
+				((replacement at: (j _ j + 1)) asInteger bitAnd: 255))]! !
+
+!ByteArray methodsFor: 'special-accessing'!
+
+specialReplaceFrom: start to: stop with: replacement startingAt: repStart 
+	"Primitive. Destructively replace elements in the receiver (a ByteArray
+	or String) starting at start (a word index) with replacement (a Bitmap)
+	starting at repStart (a byte index). Answer the receiver. Note: Complete
+	range checks are performed by the primitive. Furthermore, the primitive
+	requires that:
+	   self is a byte-type object (such as a ByteArray or String),
+	   replacement is a non-pointer word-type object (such as a Bitmap),
+	   start is a positive integer <64K,
+	   stop is a positive integer <64K,
+	   repStart is an odd positive integer <64K.
+	Xerox specific. See Object documentation whatIsAPrimitive."
+
+	| useLeftHandByte j |
+	<primitive: 176>
+	useLeftHandByte _ false.
+	j _ repStart.
+	start to: stop do:
+		[:i | (useLeftHandByte _ useLeftHandByte not)
+			ifTrue:	[self at: i put: ((replacement at: j) bitShift: -8)]
+			ifFalse:	[self at: i put: ((replacement at: j) bitAnd: 255). j _ j + 1]]! !
+
+!Form methodsFor: 'fileIn/Out'!
+
+writeOn: fileName 
+	"Save the receiver on the file fileName in the format: fileCode, extent,
+	offset, bits."
+
+	| file fileCode |
+	fileCode _ 1.
+	"This indicates that the instance is a Form. Should probably be changed 
+	when better methods for permanent storage are devised."
+	file _ Disk file: fileName.
+	file binary.
+	file nextWordPut: fileCode.
+	file nextWordPut: width.
+	file nextWordPut: height.
+	file nextWordPut: offset x.
+	file nextWordPut: offset y.
+	bits toFileStream: file.
+	file close! !
+
+!Form class methodsFor: 'instance creation'!
+
+readFrom: fileName 
+	"Answer an instance of me with the bitmap initialized from the external
+	file named fileName. The file format is: fileCode, extent, offset, bits."
+
+	| newForm file w h code theBits offsetX offsetY |
+	file _ Disk file: fileName.
+	file binary.
+	file readOnly.
+	code _ file nextWord.
+	"reads fileCode"
+	code = 1 ifFalse: [^(Form new extent: 8 @ 8) black].
+	newForm _ self new.
+	w _ file nextWord.
+	h _ file nextWord.
+	newForm extent: w @ h.
+	offsetX  _ file nextWord.
+	offsetY _ file nextWord.
+	offsetX > 32767 ifTrue: [offsetX _ offsetX - 65536]. "stored two's-complement"
+	offsetY > 32767 ifTrue: [offsetY _ offsetY - 65536]. "stored two's-complement"
+	newForm offset: offsetX @ offsetY.
+	theBits _ Bitmap new: w + 15 // 16 * h.
+	newForm extent: w @ h offset: 0 @ 0 bits: theBits.
+	theBits fromFileStream: file.
+	file close.
+	^newForm! !
+
+!String methodsFor: 'special-accessing'!
+
+specialReplaceFrom: start to: stop with: replacement startingAt: repStart 
+	"Primitive. Destructively replace elements in the receiver (a String or
+	ByteArray) starting at start (a word index) with replacement (a Bitmap)
+	starting at repStart (a byte index). Answer the receiver. Note: Complete
+	range checks are performed by the primitive. Furthermore, the primitive
+	requires that:
+	   self is a byte-type object (such as a String or ByteArray),
+	   replacement is a non-pointer word-type object (such as a Bitmap),
+	   start is a positive integer <64K,
+	   stop is a positive integer <64K,
+	   repStart is an odd positive integer <64K.
+	Xerox specific. See Object documentation whatIsAPrimitive."
+
+	| characterTable useLeftHandByte j |
+	<primitive: 176>
+	characterTable _ Character characterTable.
+	useLeftHandByte _ false.
+	j _ repStart.
+	start to: stop do:
+		[:i | (useLeftHandByte _ useLeftHandByte not)
+			ifTrue:	[self at: i put: (characterTable at: ((replacement at: j) bitShift: -8))]
+			ifFalse:	[self at: i put: (characterTable at: ((replacement at: j) bitAnd: 255)).
+					j _ j + 1]]! !
+
+
+
+'From Smalltalk-80 of March 17, 1982 on 26 May 1982 at 5:27:59 pm;
+Unmodified from kl-FormFileView.st'!
+
+
+!FormView class methodsFor: 'examples'!
+readFrom: aFileName	
+	"Schedule a view on a Form read from a file."
+
+	| f view topView size |
+	f _ Form  readFrom: aFileName.
+	view _ self new model: f controller: (NoController new).
+	topView _ StandardSystemView new label: aFileName.
+	topView insideColor: (Form white).
+	topView borderWidth: 2.
+	size _ (f width) @ (f height) + (4@4).
+	topView minimumSize: size.
+	topView maximumSize: size.
+	topView addSubView: view.
+	topView controller open.
+
+	"FormView readFrom: 'SmalltalkBalloon'"! !

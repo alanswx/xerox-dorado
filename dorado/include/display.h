@@ -174,6 +174,19 @@ typedef enum {
 } dorado_display_key;
 
 typedef struct {
+    uint8_t  valid;
+    uint8_t  odd;
+    uint16_t line;
+    uint16_t lmarg;
+    uint16_t width;
+    uint16_t ptr;
+    uint16_t scan;
+    uint16_t words[256];
+    uint16_t word_count;
+    uint16_t overflow;
+} dorado_display_ddc_line;
+
+typedef struct {
     /* Per-channel CLCB/NLCB. HM page 113: αPolarity, αResolution,
      * αItemSize, αLeftMargin, αWidth, αFifoAddr, MixerModes, VCW,
      * Cursor, CursorX. We keep them as 16 12-bit words per channel
@@ -240,6 +253,13 @@ typedef struct {
     uint16_t next_count[2];
     uint8_t  next_wcb_flag[2];   /* set by DHT, cleared by DWT */
     uint8_t  current_wcb_flag[2];
+    uint16_t wcb_draw_x[2];       /* direct-render cursor for live WCB data */
+    uint16_t wcb_draw_y[2];
+    uint8_t  ddc_va_base_valid;   /* debug VA-derived DDC renderer state */
+    uint32_t ddc_va_base;
+    uint16_t ddc_seq_y;           /* debug DDC sequential field renderer */
+    dorado_display_ddc_line ddc_pending_line[2];
+    dorado_display_ddc_line ddc_current_line[2];
 
     /* Monterey raster LT/WT handoff (`RastMain.mc!6`). The raster word
      * task supports four channels by SubTask; for now the renderer keeps
@@ -267,12 +287,21 @@ typedef struct {
     uint64_t output_count;       /* total Output←B writes seen */
     uint64_t output_task_count[16]; /* Output←B writes by task */
     uint64_t output_tioa_count[256]; /* Output←B writes by TIOA */
+    uint16_t output_tioa_first[256]; /* first data word written by TIOA */
+    uint16_t output_tioa_last[256];  /* most recent data word by TIOA */
     uint64_t iofetch_count;      /* total IOFetch← munches received */
     uint32_t first_iofetch_va;   /* diagnostic: VA of first display IOFetch */
     uint32_t last_iofetch_va;    /* diagnostic: VA of most recent IOFetch */
     uint16_t first_iofetch_words[16];
     uint16_t last_iofetch_words[16];
     uint64_t nlcb_writes;        /* DHT NLCB outputs */
+    uint64_t ddc_va_words_drawn;  /* debug: words drawn by VA-derived path */
+    uint8_t  dwt_trace_active[2];
+    uint16_t dwt_trace_words[2];
+    uint16_t dwt_trace_nonzero[2];
+    uint32_t dwt_trace_first_va[2];
+    uint32_t dwt_trace_last_va[2];
+    uint64_t dwt_trace_lines;
 
     /* DispY NLCB cursor rendering (DisplayDefs.mc: register select in
      * the top 4 bits of each NLCB output, data in the low 12).
@@ -336,6 +365,8 @@ void dorado_display_attach_to_io(dorado_display *d, dorado_io *io);
  * Returns 0 on success, -1 if FIFO full.
  */
 int dorado_display_fifo_push(dorado_display *d, int subtask, uint16_t word);
+int dorado_display_iofetch_word(dorado_display *d, int subtask,
+                                uint32_t va, uint16_t word);
 
 /*
  * Snapshot the framebuffer as a PGM (mono) file. Returns 0 on success.

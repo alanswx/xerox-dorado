@@ -1,0 +1,288 @@
+'From Smalltalk-80 of February 22, 1982 on 2 March 1982 at 12:16:46 pm;
+Modified by Evelyn Van Orden for the Customer Release on 6 October 1982 at 1:56:31'!
+
+DisplayObject subclass: #EvaluationNode
+	instanceVariableNames: 'evalBlock boundingBox '
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Graphics-Animation'!
+
+!EvaluationNode methodsFor: 'accessing'!
+boundingBox
+
+	^boundingBox! !
+
+!EvaluationNode methodsFor: 'displaying'!
+displayOn: destForm at: aDisplayPoint clippingBox: clipRectangle rule: ruleInteger mask: aForm
+
+ 	^evalBlock value
+		displayOn: destForm
+		at: aDisplayPoint
+		clippingBox: clipRectangle
+		rule: ruleInteger
+		mask: aForm! !
+
+!EvaluationNode methodsFor: 'private'!
+setBlock: aBlock
+
+	evalBlock _ aBlock fixTemps.
+	boundingBox _ aBlock value boundingBox! !
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+EvaluationNode class
+	instanceVariableNames: ''!
+
+!EvaluationNode class methodsFor: 'instance creation'!
+block: aBlock
+
+	^self new setBlock: aBlock! !
+
+DisplayObject subclass: #PositionNode
+	instanceVariableNames: 'contents location '
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Graphics-Animation'!
+
+!PositionNode methodsFor: 'displaying'!
+displayOn: destForm at: aDisplayPoint clippingBox: clipRectangle rule: ruleInteger mask: aForm
+
+ 	^contents
+		displayOn: destForm
+		at: aDisplayPoint+location
+		clippingBox: clipRectangle
+		rule: ruleInteger
+		mask: aForm! !
+
+!PositionNode methodsFor: 'private'!
+setContents: c location: l
+
+	contents _ c.
+	location _ l! !
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+PositionNode class
+	instanceVariableNames: ''!
+
+!PositionNode class methodsFor: 'instance creation'!
+contents: c location: l
+	^ self new setContents: c location: l! !
+
+PositionNode subclass: #MovingNode
+	instanceVariableNames: 'velocity '
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Graphics-Animation'!
+
+!MovingNode methodsFor: 'displaying'!
+displayOn: destForm at: aDisplayPoint clippingBox: clipRectangle rule: ruleInteger mask: aForm
+ 	super
+		displayOn: destForm
+		at: aDisplayPoint
+		clippingBox: clipRectangle
+		rule: ruleInteger
+		mask: aForm.
+	location _ location + velocity! !
+
+!MovingNode methodsFor: 'private'!
+setVelocity: v
+
+	velocity _ v! !
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+MovingNode class
+	instanceVariableNames: ''!
+
+!MovingNode class methodsFor: 'instance creation'!
+contents: c location: l velocity: v
+
+	^(self contents: c location: l) setVelocity: v! !
+
+MovingNode subclass: #BounceInBoxNode
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Graphics-Animation'!
+
+!BounceInBoxNode methodsFor: 'displaying'!
+displayOn: destForm at: aDisplayPoint clippingBox: clipRectangle rule: ruleInteger mask: aForm
+
+	| relLoc |
+ 	super
+		displayOn: destForm
+		at: aDisplayPoint
+		clippingBox: clipRectangle
+		rule: ruleInteger
+		mask: aForm.
+	relLoc _ location + clipRectangle origin.
+	(velocity x < 0 and: [relLoc x < clipRectangle left])
+		ifTrue: [velocity _ velocity*(-1@1)].
+	(velocity x > 0 and: [(relLoc x+contents width) > clipRectangle right])
+		ifTrue: [velocity _ velocity*(-1@1)].
+	(velocity y < 0 and: [relLoc y < clipRectangle top])
+		ifTrue: [velocity _ velocity*(1@-1)].
+	(velocity y > 0 and: [(relLoc y+contents height) > clipRectangle bottom])
+		ifTrue: [velocity _ velocity*(1@-1)]! !
+
+DisplayObject subclass: #SequenceNode
+	instanceVariableNames: 'subNodes position '
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Graphics-Animation'!
+
+!SequenceNode methodsFor: 'accessing'!
+boundingBox
+
+	^subNodes first boundingBox! !
+
+!SequenceNode methodsFor: 'displaying'!
+displayOn: destForm at: aDisplayPoint clippingBox: clipRectangle rule: ruleInteger mask: aForm
+
+ 	subNodes size < 1 ifTrue: [^self].
+	position _ position + 1.
+	position > subNodes size ifTrue: [position _ 1].
+	(subNodes at: position)
+		displayOn: destForm
+		at: aDisplayPoint
+		clippingBox: clipRectangle
+		rule: ruleInteger
+		mask: aForm! !
+
+!SequenceNode methodsFor: 'private'!
+setNodes: nodeCollection index: anInteger
+
+	subNodes _ nodeCollection.
+	position _ anInteger! !
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+SequenceNode class
+	instanceVariableNames: ''!
+
+!SequenceNode class methodsFor: 'instance creation'!
+subNodes: aCollection
+
+	^self subNodes: aCollection index: 1!
+
+subNodes: aCollection index: index
+
+	^self new setNodes: aCollection index: index! !
+
+DisplayObject subclass: #SuperpositionNode
+	instanceVariableNames: 'subNodes '
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Graphics-Animation'!
+
+!SuperpositionNode methodsFor: 'displaying'!
+displayOn: destForm at: aDisplayPoint clippingBox: clipRectangle rule: ruleInteger mask: aForm
+ 	subNodes do:
+		[:node | node
+					displayOn: destForm
+					at: aDisplayPoint
+					clippingBox: clipRectangle
+					rule: ruleInteger
+					mask: aForm]! !
+
+!SuperpositionNode methodsFor: 'private'!
+setSubNodes: aCollection
+
+	subNodes _ aCollection! !
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+SuperpositionNode class
+	instanceVariableNames: ''!
+
+!SuperpositionNode class methodsFor: 'instance creation'!
+subNodes: aCollection
+
+	^self new setSubNodes: aCollection! !
+
+DisplayObject subclass: #WindowNode
+	instanceVariableNames: 'window contents '
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Graphics-Animation'!
+
+!WindowNode methodsFor: 'accessing'!
+boundingBox
+
+	^window!
+offset
+
+	^0@0! !
+
+!WindowNode methodsFor: 'displaying'!
+displayOn: destForm at: aDisplayPoint clippingBox: clipRectangle rule: ruleInteger mask: aForm
+
+ 	| buffer |
+	buffer _ Form extent: window extent fromArray: #() offset: 0@0.
+	"buffer fill: clipRectangle mask: Form white."
+	contents
+		displayOn: buffer
+		at: 0@0
+		clippingBox: buffer boundingBox
+		rule: Form over
+		mask: Form black.
+	buffer
+		displayOn: destForm
+		at: aDisplayPoint
+		clippingBox: clipRectangle
+		rule: ruleInteger
+		mask: aForm! !
+
+!WindowNode methodsFor: 'private'!
+setWindow: w contents: c
+
+	window _ w.
+	contents _ c! !
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+WindowNode class
+	instanceVariableNames: ''!
+
+!WindowNode class methodsFor: 'instance creation'!
+window: w contents: c
+
+	^self new setWindow: w contents: c! !
+
+!WindowNode class methodsFor: 'examples'!
+example  "WindowNode example"
+	" *** Notice what happens when you move the mouse, too!!!!!!"
+
+	| form1 form2 pen formRect f |
+	formRect_ 0@0 extent: 50@50.
+	pen _ Pen new.
+	pen defaultNib: 2.
+	form1 _ SequenceNode subNodes: ((1 to: 5) collect:
+		[:n | 
+		Display fill: formRect mask: Form white.
+		pen north; turn: 72/6*n; place: formRect center; spiral: 45 angle: 144.
+		OpaqueForm shape: (Form fromDisplay: formRect)]).
+	pen defaultNib: 8; north.
+	Display fill: formRect mask: Form white.
+	pen place: 5@25.
+	1 to: 36 do: [:n | pen go: Float pi*2*20/36; turn: 10].
+	f_ Form fromDisplay: formRect.
+	Display fill: formRect mask: Form white.
+	pen place: 5@25; mask: Form lightGray.
+	1 to: 36 do: [:n | pen go: Float pi*2*20/36; turn: 10].
+	form2 _ OpaqueForm figure: (Form fromDisplay: formRect) shape: f.
+	Display fill: formRect mask: Form gray.
+	self run: (WindowNode
+	window: (0@0 extent: 300@200)
+	contents: (SuperpositionNode subNodes: (Array
+		with: (BounceInBoxNode
+				contents: (EvaluationNode block:
+					[(Form fromDisplay: (Sensor mousePoint extent: 50@50)) borderWidth: 2])
+				location: 20@0 velocity: 1@1)
+		with: (BounceInBoxNode contents: form1 location: 20@0 velocity: 2@3)
+		with: (BounceInBoxNode contents: form2 location: 0@0 velocity: 3@3))))!
+
+run: aNode
+
+	| view |
+	view _ FormView new model: aNode.
+	view borderWidth: 2.
+	view translateBy: 50@50.
+	view display.
+	[Sensor anyButtonPressed] whileFalse: [view displayView].
+	view release! !

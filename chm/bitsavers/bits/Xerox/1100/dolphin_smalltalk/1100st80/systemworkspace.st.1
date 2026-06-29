@@ -1,0 +1,38 @@
+'From Smalltalk-80 of July 22, 1982 on 28 July 1982 at 9:03:17 am;
+Modified from gk-openSysWksp.st for the Customer Release on 26 October 1982 at 8:45:04 am'!
+
+
+!ScreenController class methodsFor: 'class initialization'!
+
+initialize
+	"Initialize the System Menu."
+
+	ScreenYellowButtonMenu _
+		PopUpMenu
+			labels: 'restore display
+exit project
+open project
+open browser
+open file list
+open transcript
+open workspace
+system workspace
+snapshot
+quit'
+			lines: #(2 8 ).
+	ScreenYellowButtonMessages _
+			#(restoreDisplay exitProject
+			openProject openBrowser openFileList openTranscript openWorkspace openSystemWorkspace
+			snapshot quit).
+
+	"ScreenController initialize.
+	ScreenController allInstancesDo: [:c | c initializeYellowButtonMenu]"! !
+
+ScreenController initialize.
+ScreenController allInstancesDo: [:c | c initializeYellowButtonMenu]!
+
+!ScreenController methodsFor: 'menu messages'!
+
+openSystemWorkspace
+
+	StringHolderView openSystemWorkspace! !

@@ -34,6 +34,20 @@ int dorado_trace_flag(const char *name)
     return v;
 }
 
+static void trace_alto_words(const char *label, dorado_memory *mem,
+                             uint32_t first, uint32_t count)
+{
+    if (!mem) return;
+    fprintf(stderr, "%s", label);
+    for (uint32_t i = 0; i < count; i++) {
+        if ((i & 7u) == 0)
+            fprintf(stderr, "\n  %06o:", (unsigned)(first + i));
+        fprintf(stderr, " %06o",
+                dorado_visible_word_at_va(mem, first + i) & 0177777);
+    }
+    fprintf(stderr, "\n");
+}
+
 /* Debug: see memory.c STORE_VA trace. */
 extern int dorado_mem_trace_pc;
 extern int dorado_mem_trace_pcx;
@@ -3463,6 +3477,114 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                          * differential tools must NOT count this as an
                          * executed opcode. */
                         resched_trap);
+            }
+            if (dorado_trace_flag("DORADO_ALTO_PC_WATCH") &&
+                (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+                static long lo = -2, hi = 0, count = 0, limit = -2;
+                if (lo == -2) {
+                    const char *w = getenv("DORADO_ALTO_PC_WATCH");
+                    lo = 0;
+                    hi = 0;
+                    if (w) sscanf(w, "%lo,%lo", &lo, &hi);
+                }
+                if (limit == -2) {
+                    const char *w = getenv("DORADO_ALTO_PC_WATCH_LIMIT");
+                    limit = w ? strtol(w, NULL, 0) : 128;
+                }
+                if ((long)cpu->ifu_pcx >= lo && (long)cpu->ifu_pcx <= hi) {
+                    if (limit <= 0 || count < limit) {
+                        fprintf(stderr,
+                                "ALTO_PC_WATCH cyc=%llu pc=0o%o pcf=0o%o "
+                                "br31=%05X op=%03o len=%u alpha=%03o "
+                                "beta=%03o n=%d insset=%u pc_after=0o%o "
+                                "stkp=%03o ac=%06o,%06o,%06o,%06o "
+                                "stk=%06o,%06o,%06o,%06o rtrap=%d\n",
+                                (unsigned long long)dorado_trace_cycle,
+                                cpu->ifu_pcx, cpu->ifu_pcf,
+                                cpu->mem ? dorado_br_get(cpu->mem, 31) : 0,
+                                opcode, length, cpu->ifu_alpha,
+                                cpu->ifu_beta, n_slot, cpu->ifu_insset & 3,
+                                pc_after, cpu->StkP & 0xFF,
+                                cpu->STK[1] & 0177777,
+                                cpu->STK[2] & 0177777,
+                                cpu->STK[3] & 0177777,
+                                cpu->STK[4] & 0177777,
+                                cpu->STK[cpu->StkP & 0xFF] & 0177777,
+                                cpu->STK[(cpu->StkP + 1) & 0xFF] & 0177777,
+                                cpu->STK[(cpu->StkP + 2) & 0xFF] & 0177777,
+                                cpu->STK[(cpu->StkP + 3) & 0xFF] & 0177777,
+                                resched_trap);
+                    }
+                    count++;
+                }
+            }
+            if (dorado_trace_flag("DORADO_ALTO_IR_WATCH") &&
+                (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+                static long lo = -2, hi = 0, count = 0, limit = -2;
+                if (lo == -2) {
+                    const char *w = getenv("DORADO_ALTO_IR_WATCH");
+                    lo = 0;
+                    hi = 0;
+                    if (w) {
+                        int n = sscanf(w, "%lo,%lo", &lo, &hi);
+                        if (n == 1) hi = lo;
+                    }
+                }
+                if (limit == -2) {
+                    const char *w = getenv("DORADO_ALTO_IR_WATCH_LIMIT");
+                    limit = w ? strtol(w, NULL, 0) : 128;
+                }
+                static long dump_count = 0, dump_limit = -2;
+                if (dump_limit == -2) {
+                    const char *w = getenv("DORADO_ALTO_IR_WATCH_DUMP_LIMIT");
+                    dump_limit = w ? strtol(w, NULL, 0) : 4;
+                }
+                long ir = (long)(((unsigned)opcode << 8) | cpu->ifu_alpha);
+                if (ir >= lo && ir <= hi) {
+                    if (limit <= 0 || count < limit) {
+                        fprintf(stderr,
+                                "ALTO_IR_WATCH cyc=%llu ir=0o%lo pc=0o%o "
+                                "pcf=0o%o br31=%05X op=%03o len=%u "
+                                "alpha=%03o beta=%03o n=%d insset=%u "
+                                "pc_after=0o%o stkp=%03o "
+                                "ac=%06o,%06o,%06o,%06o "
+                                "stk=%06o,%06o,%06o,%06o rtrap=%d\n",
+                                (unsigned long long)dorado_trace_cycle,
+                                ir, cpu->ifu_pcx, cpu->ifu_pcf,
+                                cpu->mem ? dorado_br_get(cpu->mem, 31) : 0,
+                                opcode, length, cpu->ifu_alpha,
+                                cpu->ifu_beta, n_slot, cpu->ifu_insset & 3,
+                                pc_after, cpu->StkP & 0xFF,
+                                cpu->STK[1] & 0177777,
+                                cpu->STK[2] & 0177777,
+                                cpu->STK[3] & 0177777,
+                                cpu->STK[4] & 0177777,
+                                cpu->STK[cpu->StkP & 0xFF] & 0177777,
+                                cpu->STK[(cpu->StkP + 1) & 0xFF] & 0177777,
+                                cpu->STK[(cpu->StkP + 2) & 0xFF] & 0177777,
+                                cpu->STK[(cpu->StkP + 3) & 0xFF] & 0177777,
+                                resched_trap);
+                        if (dorado_trace_flag("DORADO_ALTO_IR_WATCH_DUMP") &&
+                            (dump_limit <= 0 || dump_count < dump_limit)) {
+                            uint32_t code_base =
+                                cpu->mem ? dorado_br_get(cpu->mem, 31) : 0;
+                            uint32_t word_pc = (uint32_t)(cpu->ifu_pcx >> 1);
+                            uint32_t code_first =
+                                code_base + (word_pc >= 010 ? word_pc - 010 : 0);
+                            trace_alto_words("ALTO_IR_WATCH low memory",
+                                             cpu->mem, 0, 020);
+                            trace_alto_words("ALTO_IR_WATCH trap vector",
+                                             cpu->mem, 0520, 060);
+                            trace_alto_words("ALTO_IR_WATCH code pc",
+                                             cpu->mem, code_first, 020);
+                            trace_alto_words("ALTO_IR_WATCH swat pc",
+                                             cpu->mem,
+                                             cpu->STK[4] & 0177777, 020);
+                            dump_count++;
+                        }
+                    }
+                    count++;
+                }
             }
             /* Defer a cycle-aligned per-opcode AC dump to after apply_lc()
              * (the writeback that finishes the opcode whose IFUJump this is). */

@@ -1,0 +1,118 @@
+// AlmaNewUserDisk.customers -- create a new user disk at SPG 
+//   (Shipping version)
+// edited April 22, 1982  11:56 AM, Rick Martin
+
+// FIRST, start bfstest.boot from the NetExec.
+// Do the following when in bfstest.boot
+//	*partition 1
+//	*Certify. How many passes? 100
+//	Use both of the disks?  [y]
+//	Use all 406 cylinders of the disk?  [y]
+//	Use all 14 sectors of the disk?  [y]
+//	*Erase.
+//	*Exercise. How many passes? 10
+//	Use both of the disks?  [y]
+//	Use all 406 cylinders of the disk?  [y]
+//	Use all 14 sectors of the disk?  [y]
+//	*Partition 2
+//	*Certify. How many passes? 100
+//	Use both of the disks?  [y]
+//	Use all 406 cylinders of the disk?  [y]
+//	Use all 14 sectors of the disk?  [y]
+//	*Erase.
+//	*Exercise. How many passes? 10
+//	Use both of the disks?  [y]
+//	Use all 406 cylinders of the disk?  [y]
+//	Use all 14 sectors of the disk?  [y]
+//	*Quit
+// (Be aware that certify seems to take about six hours. Erase
+//  takes only a couple of minutes. Exercise takes about four 
+//  hours.) This process will result in a much more reliable 
+//  disk.
+
+// SECOND install new operating system by typing
+//	Partition number 1
+//	NewOS.boot
+// You should perform the following dialog - user responses
+//   are enclosed in square brackets: [].
+//	Do you want to install this operating system?   [y]
+//	Do you want the long installation dialog?  [y]
+//	Do you want to ERASE the disk before installing?  [y]
+//	Type the name of a host . . get Alto programs: [Alma <return>]
+//	Type the name of directory . . . 
+//	. . . If the host . . . random Alto type <return>: [alto <return>]
+//	Use both of the disks?  [y]
+//	Use all 406 cylinders of the disk?  [y]
+//	Use all 14 sectors of the disk?  [y]
+//	When the disk is ready . . . : [ok]
+//	Do you want to disable error . . . through the net?  [y]
+//	Do you want to change memory error parameters?  [n]
+//	What is your name? [Lisp]
+//	Please give your disk a name:  [Partition 1]
+//	Do you wish to . . . password?  [n]
+
+// Return to the NetExec, type Partition number 2, and 
+//  run NewOS again, giving the same answers, except 
+//  naming the disk Partition 2.
+
+// Return to the NetExec and run
+//	MesaNetExec.boot
+//	>SetVersions
+//	  Germ: D0.eg
+//	  Microcode: PilotCSLF.eb
+//	>OthelloD0.pb
+//		(Screen will go wide and will give Othello prompt: >)
+//	>login
+//	User: [your name]
+//	Password: [your password]
+//	>open connection to Alma
+//	> initial microcode fetch
+//	Drive Name: [rd0]
+//	File Name: [<Lisp>d0>InitialAlto.eb]
+//	Are you sure?  [y]
+//	>Quit 
+//	Are you sure?  [y]
+
+// Now run FTP and retrieve this file onto both partitions 
+//   and execute it on each partition.
+
+delete dmt.boot dumper.boot // garbage on disk
+//install swat
+ftp/-E Alma login/c guest guest ^
+directory/c Alto retrieve/>A InstallSwat.run Sys.Errors 
+InstallSwat
+Delete dumper.boot installswat.run
+
+//Now create Lisp.virtualmem
+ftp/-E Alma directory/c Alto retrieve/>A CreateFile.run 
+CREATEFILE.run LISP.VIRTUALMEM 8000D
+
+// bring over Lisp files
+FTP/-E Alma ^
+directory/c Lisp>Current ^
+retrieve/>A LISP.run LISP.syms LISP.sysout Init.ParcPlace DolphinLispMC.Run ^
+retrieve/s INIT.NoNet INIT.LISP ^
+retrieve/s LispUser.customers user.cm ^
+directory/c Fonts retrieve/>A ^
+GACHA8.STRIKE  GACHA10.STRIKE  GACHA12.STRIKE ^
+Helvetica5.strike  HELVETICA7.STRIKE  HELVETICA8.STRIKE ^
+HELVETICA9.STRIKE HELVETICA10.STRIKE HELVETICA10B.STRIKE ^
+HELVETICA12B.STRIKE ^
+directory/c fonts retrieve/>A fonts.widths ^
+directory/c Lispusers ^
+retrieve/c BQUOTE.DCOM  BROWSER.DCOM  CIRCLPRINT.DCOM ^
+DATABASEFNS.DCOM DECL.DCOM DEDIT.DCOM ^
+DSPRINTDEF.DCOM NEWPRINTDEF.DCOM ^
+GRAPHER.DCOM HANOI.DCOM  INSPECT.DCOM  LABEL.DCOM ^
+LAMBDATRAN.DCOM ^
+NOBOX.DCOM  PERMSTATUS.DCOM POLYGONS.DCOM ^
+PRESSBITMAP.DCOM  PRINTL.DCOM SAMEDIR.DCOM SIMPLIFY.DCOM ^
+SINGLEFILEINDEX.DCOM  TTYIN.DCOM ^
+directory/c alto retrieve/c Scavenger.run ^
+
+// Scavange the disk
+Scavenger.run
+
+// Have you read this command file before executing it?
+// There are extensive instructions at the beginning.
+// Make sure both partitions are done.

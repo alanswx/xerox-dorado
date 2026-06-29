@@ -1,0 +1,1159 @@
+'From Smalltalk-80 of May 12, 1982 on 2 July 1982 at 11:44:29 pm; 
+Unmodified from ByteArray-asString.st'!
+
+
+!ByteArray methodsFor: 'converting'!
+
+asString
+
+	^(String new: self size) replaceFrom: 1 to: self size withByteArray: self startingAt: 1! !
+
+
+'From Smalltalk-80 of September 21, 1982 on 30 September 1982 at 12:50:28 pm;
+Modified by Evelyn Van Orden for the Customer Release on 30 September 1982 at 1:05:08 pm'!
+
+
+Object subclass: #FiniteStateMachine
+	instanceVariableNames: 'AssociatedStream timer reTransCount stateOfMachine timerInterval '
+	classVariableNames: 'Closed Dallying EndIn EndOut Open RFCOut '
+	poolDictionaries: ''
+	category: 'Ethernet-BSP'!
+
+FiniteStateMachine comment:
+'This class is the state machine for the ByteStreamSocket. Its main purpose is to maintain the rendevous-termination protocol. It corresponds very closely to the state-machine described in [MAXC]<PUP>pupSpecs.press and [MAXC]<PUP>RTPStates.press. The two major differences are that the Abort state has been deleted (its really only there for conceptual reasons anyway) and the Closed state and the Listening state have been combined (under the state Closed).
+	
+StateMachine has methods which decide what to do upon the receipt of a certain type of packet from the foreign host. Typically, three things might be done:
+	The ByteStreamSocket might be told to send a certain type of packet.
+	There might be a change in the state of the FiniteStateMachine.
+	Retransmit timers and Retransmit counts might be updated.'!
+
+!FiniteStateMachine methodsFor: 'global transitions'!
+
+ABORT
+	"Aborting from within."
+
+	AssociatedStream sendAbort.
+	self closeStateMachine!
+
+abortReceived
+	"The other guy died."
+
+	self closeStateMachine!
+
+closeStateMachine
+	"Clean up and destroy circular structures."
+
+	timer ~= nil ifTrue: [self killTimer].
+	self state: Closed!
+
+init: byteStream
+	"Set up the back pointer and do a little initialization."
+
+	reTransCount _ 0.
+	AssociatedStream _ byteStream.
+	self state: Closed! !
+
+!FiniteStateMachine methodsFor: 'transitions'!
+
+AckReceived
+	"Reset counter and start pinging again."
+
+	stateOfMachine == Open ifTrue: [reTransCount _ 0]!
+
+endReceived
+
+	self perform: (stateOfMachine at: 3)!
+
+endReplyReceived
+
+	self perform: (stateOfMachine at: 4)!
+
+FSMclose
+
+	self perform: (stateOfMachine at: 5).
+	self closeStateMachine.
+	AssociatedStream _ nil	"cut circularity"!
+
+FSMopen
+	"Closed => RFCOut."
+
+	stateOfMachine == Closed ifTrue:
+		[self state: RFCOut.
+		self setTimerRFCOut]!
+
+RFCreceived
+
+	self perform: (stateOfMachine at: 2)!
+
+timeout
+	"Not a public message, generated internally when the timer runs out."
+
+	self perform: (stateOfMachine at: 6)! !
+
+!FiniteStateMachine methodsFor: 'other public access'!
+
+slowDown
+	"The dirtiest way to slow down everything is to halt the timer and reset its
+	firing interval. The disadvantages of this are that we may be right at the 
+	end of a timing interval when we stop the timer, and reset it then let it go
+	again. This may result in almost twice the desired interval."
+
+	stateOfMachine = 'open' ifTrue:
+		[timer disable.
+		timerInterval > 1000
+			ifTrue: [timerInterval _ timerInterval - 170].
+		self setAndFireTimer]!
+
+state
+	"Answer state name."
+
+	^stateOfMachine at: 1! !
+
+!FiniteStateMachine methodsFor: 'transition performs'!
+
+closedRFC
+	"Closed => Open."
+
+	AssociatedStream sendRFC2.
+	self state: Open.
+	self setTimerOpen!
+
+dallyClose
+	"Dallying => Closed."
+
+	self killTimer.
+	self closeStateMachine!
+
+dallyEnd
+
+	AssociatedStream sendEndReply!
+
+dallyEndReply
+	"Dallying => Closed."
+
+	self killTimer.
+	self closeStateMachine!
+
+dallyTimeout
+
+	AssociatedStream close!
+
+endInClose
+	"EndIn => Dallying."
+
+	AssociatedStream sendEndReply.
+	self state: Dallying.
+	self setTimerDallying!
+
+endOutEnd
+	"EndOut => Dallying."
+
+	self killTimer.
+	AssociatedStream sendEndReply.
+	self state: Dallying.
+	self setTimerDallying!
+
+endOutEndReply
+	"EndOut => Closed."
+
+	self killTimer.
+	AssociatedStream sendEndReply.
+	self state: Closed!
+
+endOutRFC
+
+	AssociatedStream HeStartedIt ifTrue: [AssociatedStream sendRFC3]!
+
+endOutTimeout
+
+	reTransCount _ reTransCount + 1.
+	reTransCount > 5
+		ifTrue:	[self killTimer.
+					AssociatedStream abortStateMachine]
+		ifFalse:	[AssociatedStream sendEnd.
+					timer _ timer reschedule]!
+
+ignore!
+
+openClose
+	"Open => EndOut."
+
+	self killTimer.
+	self state: EndOut.
+	self setTimerEndOut!
+
+openEnd
+	"Open => EndIn."
+
+	self killTimer.
+	self state: EndIn!
+
+openRFC
+
+	AssociatedStream HeStartedIt ifTrue: [AssociatedStream sendRFC3]!
+
+openTimeout
+
+	| notBusy |
+	reTransCount > 25
+		ifTrue:
+			[AssociatedStream close.
+			self RTPMessage: 'foreign host died']
+		ifFalse:
+			[((notBusy _ AssociatedStream InQempty) and: [AssociatedStream ADataFlag])
+				ifTrue:
+					[reTransCount _ 0.
+					AssociatedStream sendFullAck]
+				ifFalse:
+					[notBusy ifTrue:
+						[AssociatedStream sendNullAData.
+						reTransCount _ reTransCount + 1]].
+					timer _ timer reschedule.
+					AssociatedStream OutQempty ifFalse: [AssociatedStream sendStream]]!
+
+otherTimeout
+
+	timer disable!
+
+RFCOutClose
+	"RFCOut => Closed."
+
+	self killTimer.
+	self state: Closed!
+
+RFCOutRFC
+	"RFCOut => Open."
+
+	self killTimer.
+	self state: Open.
+	self setTimerOpen!
+
+RFCOutTimeout
+
+	reTransCount >= 5
+		ifTrue:	[self RTPMessage: 'Could not open connection'.
+					AssociatedStream abortStateMachine]
+		ifFalse:	[reTransCount _ reTransCount + 1.
+					AssociatedStream sendRFC1.
+					timer _ timer reschedule]! !
+
+!FiniteStateMachine methodsFor: 'internal state'!
+
+killTimer
+
+	timer disable.
+	timer _ nil!
+
+setAndFireTimer
+	"Ping the other party. Only used when state = Open."
+
+	reTransCount _ 1.
+	AssociatedStream sendNullAData.
+	timer _ FSMDelay after: timerInterval do: [self timeout]!
+
+setTimerDallying
+
+	timer _ FSMDelay after: 3000 do: [self timeout]!
+
+setTimerEndOut
+
+	reTransCount _ 1.
+	timer _ FSMDelay after: 1500 do: [self timeout].
+	AssociatedStream sendEnd!
+
+setTimerOpen
+
+	timerInterval _ 2000.
+	self setAndFireTimer!
+
+setTimerRFCOut
+
+	reTransCount _ 0.
+	timer _ FSMDelay after: 6000 do: [self timeout]! !
+
+!FiniteStateMachine methodsFor: 'utility messages'!
+
+RTPMessage: str
+
+	AssociatedStream debugMessage: 'RTP: ', str!
+
+state: newState
+	"Monitor state transitions here for debugging."
+
+	| oldState |
+	oldState _ stateOfMachine.
+	stateOfMachine _ newState.
+	self RTPMessage: self state.
+	oldState == newState ifFalse: [AssociatedStream signalEvent] "let waiting client know"! !
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+FiniteStateMachine class
+	instanceVariableNames: ''!
+
+!FiniteStateMachine class methodsFor: 'initialization'!
+
+initialize
+	 "The state of the machine is represented as an array of 6 elements:
+		(state-name response-to-RFC response-to-End response-to-EndReply
+		response-to-close response-to-timeout). The other two events, Ack and
+	open, are handled with an explicit test since they only care about one state."
+
+	Closed _	#('closed'	closedRFC	ignore	ignore	ignore	otherTimeout).
+	Open _	#('open'	openRFC	openEnd	ignore	openClose	openTimeout).
+	Dallying _	#('dallying'	ignore	dallyEnd	dallyEndReply	dallyClose	dallyTimeout).
+	EndIn _	#('endIn'	ignore	ignore	ignore	endInClose	otherTimeout).
+	EndOut _	#('endOut'	endOutRFC	endOutEnd	endOutEndReply	ignore	endOutTimeout).
+	RFCOut _	#('RFCOut'	RFCOutRFC	ignore	ignore	RFCOutClose	RFCOutTimeout)! !
+
+FiniteStateMachine initialize!
+
+
+Object subclass: #FSMDelay
+	instanceVariableNames: 'actionBlock duration actionBlockProtect '
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Ethernet-BSP'!
+
+FSMDelay comment:
+'A version of Delay that can be disabled while it is waiting.'!
+
+!FSMDelay methodsFor: 'initialization'!
+
+after: delay do: aBlock
+
+	actionBlock _ aBlock.
+	actionBlockProtect _ Semaphore forMutualExclusion.
+	duration _ delay.
+	[(Delay forMilliseconds: delay) wait. actionBlock value] fork.
+	^self!
+
+reschedule
+
+	| aBlock |
+	actionBlockProtect critical:
+		[aBlock _ actionBlock.
+		actionBlock _ Association new "don't use a block, to avoid a circularity" ].
+	^self class after: duration do: aBlock! !
+
+!FSMDelay methodsFor: 'disable'!
+
+disable
+	"Mutual exclusion is not needed here."
+
+	actionBlock _ Association new "don't use a block, to avoid a circularity"! !
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+FSMDelay class
+	instanceVariableNames: ''!
+
+!FSMDelay class methodsFor: 'instance creation'!
+
+after: delay do: aBlock
+
+	^self new after: delay do: aBlock! !
+
+
+Object subclass: #MarkByte
+	instanceVariableNames: 'type CauseOfDeath '
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Ethernet-BSP'!
+
+MarkByte comment:
+'MarkByte is an object that represents the Mark pup in the BSP protocol. It has a type associated with it which indicates which of a possible 256 types of mark is being signalled. It should be used with the following in mind:
+
+While reading the data from a stream, a process reads up to a Mark and is then signalled in much the same way as when reading up to an end-of-file. The type of Mark should then be accessible. After clearing mark status, the user should be able to read on in the stream. (From [MAXC]<Pup>PupSpec.press)
+
+So, MarkBytes will be used to delimit the ends of sub-streams within the ByteStream.
+
+NOTE: A special type of MarkByte (type 255) is returned by processNextDataPacket when the connection closes unexpectedly. It is intended that the BSP will be able to pass on the sad news of the dead connection by returning the MarkByte to the method that was using the byte stream. The MarkByte also has an instance variable CauseOfDeath. CauseOfDeath will contain a string explaining the death of the connection.'!
+
+!MarkByte methodsFor: 'initialization'!
+
+init: anInteger
+
+	type _ anInteger!
+
+initCadaver: string
+
+	CauseOfDeath _ string.
+	type _ 255! !
+
+!MarkByte methodsFor: 'accessing'!
+
+CauseOfDeath
+
+	^CauseOfDeath!
+
+type
+
+	^type! !
+
+!MarkByte methodsFor: 'printing'!
+
+printOn: aStream
+
+	aStream nextPutAll: 'MarkByte '; print: type! !
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+MarkByte class
+	instanceVariableNames: ''!
+
+!MarkByte class methodsFor: 'instance creation'!
+
+with: aType
+
+	^self new init: aType!
+
+withCadaver: aString
+
+	^self new initCadaver: aString! !
+
+
+Socket subclass: #ByteStreamSocket
+	instanceVariableNames: 'myStream ADataFlag AssociatedStateMachine InByteID OutByteID ConnectionID AckID HeStartedIt ByteStreamQ OutQ MaxBytes MaxPups MaxBytesPerPup HisBytes HisPups HisBytesPerPup intQ inputProcess anyEvent '
+	classVariableNames: 'AbortType AckType ADataType AMarkType BSPMessageFlag CadaverType DataType EndReplyType EndType ErrorType InputMessages InputPriority InterruptReplyType InterruptType LogFile LogFileProtect MarkType RFCType '
+	poolDictionaries: ''
+	category: 'Ethernet-BSP'!
+
+ByteStreamSocket comment:
+'The class byte-stream is a Smalltalk implementation of the byte-stream communication protocol presently implemented in Mesa and BCPL. The byte stream is not yet finished, but when it is it is hoped that Smalltalk will not only have a way to communicate with other Smalltalks, but with other languages.
+
+A byte-stream consists of two parts, each of a different class. The class ByteStream contains all of the sending mechanisms and the processing of input packets. The class FiniteStateMachine contains the smarts to decide what should be done upon the receipt of control packets. Each method of StateMachine describes what should be done upon the receipt of packets when in the byte-stream is in that state plus mechanisms for setting timers and retransmitting (if necessary). The ByteStream and StateMachine are a tightly coupled pair which maintain explicit pointers to each other.
+
+When BSPMessageFlag is set to true byte stream and rendezvous/termination status messages are sent to the dialog window. They were for debugging purposes, but you might want to keep BSPMessageFlag on until you get the hang of how ByteStreamSocket works.
+
+The following class variables are for debugging and may be removed later:
+	BSPMessageFlag
+	LogFile
+	LogFileProtect'!
+
+!ByteStreamSocket methodsFor: 'initialization'!
+
+initBSSocket
+	"Build my queues and set the BSPMessageFlag to false so that
+	system messages and error messages are not printed.
+	'ByteStreamSocket debug: true' will show the system messages in the
+	System Transcript."
+
+	self initQs.
+	intQ _ SharedQueue new: 4.
+	AssociatedStateMachine _ FiniteStateMachine new init: self.
+	inputProcess _ [[true] whileTrue: [self process: intQ next]] newProcess.
+	inputProcess priority: InputPriority.
+	inputProcess resume!
+
+initQs
+	"Set up the data window buffers."
+
+	MaxBytesPerPup _ 532. "Maximum number of bytes per pup we want"
+	MaxPups _ 1. "Initialize buffer size in Pups"
+	MaxBytes _ MaxPups * 532. "Initialize buffer size in bytes"
+	"Set up the data queues"
+	OutQ _ SharedQueue new: MaxPups * 10.
+	ByteStreamQ _ SharedQueue new: MaxPups.
+	anyEvent _ Semaphore new.
+	ADataFlag _ false!
+
+listenOnSocket: socket
+	"Set up a byte-stream listening for someone to open a connection to me."
+
+	Ether wakeup.
+	super from: socket.
+	AssociatedStateMachine _ FiniteStateMachine new init: self!
+
+open
+	"Attempt to open a connection with a foreign listener/server, from a default
+	local socket. Answer my state machine's state which is dependent on the RTP
+	etiquette of having an open connection or not. Assume that the user has
+	already set up his Address Block before hand by doing:
+		self net: frnNet host: frnHost soc: frnSocNum."
+
+	self openUser.
+	^self startMachine!
+
+openFromSocket: fromSocket ToNet: net Host: host Socket: soc
+	"Attempt to open a connection with a foreign listener/server, from a specific
+	 local socket. Answer my state machine's state which is dependent on the RTP
+	 etiquette of having an open connection or not."
+
+	self openUser.
+	super from: fromSocket net: net host: host soc: soc.
+	^self startMachine!
+
+openTo: name
+	 "Attempt to open a connection with a foreign listener/server, from a
+	default local socket. Answer my state machine's state which is dependent
+	on the RTP etiquette of having an open connection or not."
+
+	| nameUser addressBlock |
+	nameUser _ NameUser new.
+	[(addressBlock _ nameUser getAddressBlock: name) isNil] whileTrue:
+		[self notify: 'unable to find host: ', name, ' - proceed to try again'].
+	"since this socket may get many responses, make sure socket is not half
+	deleted from sockeTable after first response"
+	nameUser close.
+	^self openToNet: (addressBlock at: 1)
+		Host: (addressBlock at: 2)
+		Socket: (addressBlock doubleWordAt: 3)!
+
+openToNet: net Host: host Socket: soc
+	"Attempt to open a connection with a foreign listener/server, from a default
+	local socket. Answer my state machine's state which is dependant on the RTP
+	etiquette of having an open connection or not."
+
+	self openUser.
+	super net: net host: host soc: soc "make a default socNum".
+	^self startMachine!
+
+openUser
+	"Finish opening a user-end connection."
+
+	Ether wakeup.
+	self initQs.
+	ConnectionID _ Time millisecondClockValue \\ 1000. "choose a nice small number"
+	HeStartedIt _ false!
+
+startMachine
+
+	AssociatedStateMachine state = 'closed'
+		ifTrue:	[AssociatedStateMachine FSMopen]
+		ifFalse:	[self error: 'Reinitialize your socket'].
+	"now I stick around until I know for sure whether the connection is good or not"
+	[AssociatedStateMachine state = 'RFCOut'] whileFalse: [anyEvent wait].
+	[AssociatedStateMachine state = 'RFCOut'] whileTrue: [anyEvent wait].
+	^AssociatedStateMachine state! !
+
+!ByteStreamSocket methodsFor: 'termination'!
+
+ABORT
+	"Kill the byte-stream from this end. Only use in extreme cases."
+
+	AssociatedStateMachine ABORT.
+	self destruct!
+
+abortStateMachine
+	"Kill the state machine, but not myself. Used from the stateMachine."
+
+	AssociatedStateMachine ABORT!
+
+close
+	"Answer the state machine to the closed state in a clean manner and
+	leave the socket in the socket table. This method works a little fuzzy right
+	now, it doesn't always return you to the closed state, so watch it."
+
+	AssociatedStateMachine notNil ifTrue: [AssociatedStateMachine FSMclose].
+	self release!
+
+destruct
+	"Suicide, remove myself from the socket table and releases data structures."
+
+	self release.
+	AssociatedStateMachine _ nil!
+
+kill
+	"Etherworld has informed me that it is going to sleep, any connections that I
+	have going right now must go off line."
+
+	self close!
+
+release
+	"Remove myself from the socket table."
+
+	Etherworld removeSocketNumber: lclSocNum.
+	inputProcess == nil
+		ifFalse:	[inputProcess terminate. inputProcess _ nil]!
+
+sleep
+	"Etherworld has informed me that it is going to sleep, any connections that I
+	have going right now must go off line."
+
+	self close! !
+
+!ByteStreamSocket methodsFor: 'general input'!
+
+process: pac
+	"Figure out what to do with all these packets waiting around. I wakeup at
+	priority 3 and call a special purpose method depending on the type of the packet."
+
+	| type |
+	type _ pac pupType.
+	BSPMessageFlag ifTrue: [self logIncomingPacket: pac].
+	(type <= 0 or: [type > InputMessages size])
+		ifTrue:	[self processUnknown: pac]
+		ifFalse:	[self perform: (InputMessages at: type) with: pac]!
+
+processUnknown: pac
+
+	BSPMessageFlag ifTrue: [self error: 'Unknown Pup type']!
+
+socProcess: pac
+	"I just pass pup on to a lower priority!!"
+
+	intQ nextPut: pac! !
+
+!ByteStreamSocket methodsFor: 'RTP input'!
+
+processAbort: pac
+	"Somebody wants to abort so I will tell the state machine. Presently ignore
+	the Abort code in dataWord 1 or the text in the dataWords 2 and 3 part. See
+	[MAXC]<pup>PupSpce.Press for the low down on Abort pups."
+
+	ConnectionID = pac pupID ifTrue:
+		[AssociatedStateMachine abortReceived.
+		AssociatedStateMachine RTPMessage: (pac dataString asString), ',
+			connection closed by remote host']!
+
+processEnd: pac
+	"I have an End and will tell the state machine."
+
+	ConnectionID = pac pupID
+		ifTrue: [AssociatedStateMachine endReceived]!
+
+processEndReply: pac
+	"I have an EndReply and will tell the state machine."
+
+	ConnectionID = pac pupID
+		ifTrue: [AssociatedStateMachine endReplyReceived]!
+
+processRFC: pac
+	"Either acknowledge the RFC or duplicate."
+
+	AssociatedStateMachine state ~= 'closed'
+		ifTrue:
+			["request originated by local host"
+			"update my frnsocnum since the listener has the final say on it"
+			ConnectionID = pac pupID
+				ifTrue:
+					[frnNet _ pac sourceNet.
+					frnHost _ pac sourceHost.
+					frnSocNum _ (pac dataWord: 2) * 65536 + (pac dataWord: 3).
+					super from: lclSocNum net: frnNet host: frnHost soc: frnSocNum.
+					InByteID _ AckID _ OutByteID _ pac pupID.
+					AssociatedStateMachine RFCreceived.
+					ADataFlag ifTrue: [self sendFullAck] "respond to quick pings from MAXC"]]
+				ifFalse:
+					[HeStartedIt _ true "request originated by foreign host".
+					frnNet _ pac sourceNet.
+					frnHost _ pac sourceHost.
+					frnSocNum _ pac sourceSocNum.
+					lclSocNum = nil
+						ifTrue:	[super net: frnNet host: frnHost soc: frnSocNum]
+						ifFalse:	[super from: lclSocNum net: frnNet host: frnHost soc: frnSocNum]. "remember his address"
+			ConnectionID _ InByteID _ AckID _ OutByteID _ pac pupID.
+			AssociatedStateMachine RFCreceived.
+			self sendNullAData] "to be complete, get his buffer info right away"! !
+
+!ByteStreamSocket methodsFor: 'RTP transmission'!
+
+sendAbort
+	"I have not implemented abort codes or text."
+
+	| AbortPup |
+	AbortPup _ self newPup: AbortType.
+	AbortPup pupLengthGet: 22.
+	AbortPup pupIDGet: ConnectionID.
+	self setAddressesAndComplete: AbortPup!
+
+sendEnd
+
+	| EndPup |
+	EndPup _ self newPup: EndType.
+	EndPup pupLengthGet: 22.
+	EndPup pupIDGet: ConnectionID.
+	self setAddressesAndComplete: EndPup!
+
+sendEndReply
+
+	| EndReplyPup |
+	EndReplyPup _ self newPup: EndReplyType.
+	EndReplyPup pupLengthGet: 22.
+	EndReplyPup pupIDGet: ConnectionID.
+	self setAddressesAndComplete: EndReplyPup!
+
+sendRFC
+	"General sending of a request for connection."
+
+	| RFCPup |
+	RFCPup _ self newPup: RFCType.
+	RFCPup pupLengthGet: 28.
+	RFCPup dataWord: 1 Get: NETNUM * 256 + HOSTNUM.
+	RFCPup dataWord: 2 Get: lclSocNum // 65536.
+	RFCPup dataWord: 3 Get: lclSocNum \\ 65536.
+	RFCPup pupIDGet: ConnectionID.
+	self setAddressesAndComplete: RFCPup!
+
+sendRFC1
+	"Connection being requested by local host."
+
+	InByteID _ OutByteID _ ConnectionID.
+	self sendRFC!
+
+sendRFC2
+	"Connection requested by remote host. This is the acknowledge."
+
+	InByteID _ OutByteID _ ConnectionID.
+	self sendRFC!
+
+sendRFC3
+	"This is an acknowledge to a retransmitted RFC received from a remote host."
+
+	HeStartedIt ifTrue: [InByteID _ OutByteID _ ConnectionID. self sendRFC]!
+
+setAddressesAndComplete: pac
+
+	BSPMessageFlag ifTrue: [self logOutgoingPacket: pac].
+	super setAddressesAndComplete: pac! !
+
+!ByteStreamSocket methodsFor: 'BSP input'!
+
+processAck: pac
+	"Validate an Ack and update my info about the listener's current
+	position in the bytestream."
+
+	| ID |
+	ID _ pac pupID.
+	ID < AckID "is Ack for a previous pup?"
+		ifFalse:
+			[AckID _ ID "listener has heard me up to this point".
+			self releaseAckedPacs.
+			HisBytes _ pac dataWord: 3. 	"might need to keep track of his ByteID"
+			HisPups _ pac dataWord: 2. 	"max pups the listener can handle right now"
+			HisBytesPerPup _ pac dataWord: 1.
+			AssociatedStateMachine AckReceived]!
+
+processAData: pac
+	"If packet is just a ping, set ADataFlag, otherwise put onto input queue."
+
+	pac dataLength = 0
+		ifTrue:	[ADataFlag _ true]
+		ifFalse:	[self processDataOrMark: pac]!
+
+processDataOrMark: pac
+	"Take a packet and drop it if it's old, the buffers are full, or it's out of order."
+
+	pac pupID = InByteID ifTrue:
+		[ByteStreamQ size < MaxPups
+			ifTrue: "still some space left"
+				[ByteStreamQ nextPut: pac.
+				InByteID _ InByteID + pac dataLength.
+				anyEvent signal] "let client know input has arrived"
+			ifFalse: [self sendError: 3 for: pac]] "port input queue overflow"!
+
+processNextDataPacket
+	"Answer a string or MarkByte. Just wait until I get one. If the connection
+	closes while I'm waiting for bytes, answer a special MarkByte called a
+	Cadaver that indicates the connection has died while waiting for bytes."
+
+	| pac string type |
+	[true] whileTrue:
+		[AssociatedStateMachine state = 'open'
+			ifTrue:
+				[ByteStreamQ isEmpty ifFalse:
+					[pac _ ByteStreamQ next.
+					string _ pac dataString asString.
+					type _ pac pupType.
+					(type = AMarkType or: [type = ADataType]) ifTrue: [self sendFullAck].
+					pac pupType < 19 ifTrue: [^string].
+					^MarkByte with: string first asInteger].
+				anyEvent wait] "gets signalled by processData: and by FiniteStateMachine transitions"
+			ifFalse: [^MarkByte withCadaver: 'Connection closed prematurely']]! !
+
+!ByteStreamSocket methodsFor: 'BSP data transmission'!
+
+releaseAckedPacs
+	"Take all acknowledged packets off the OutQ."
+
+	| pac |
+	[OutQ isEmpty not and: [(pac _ OutQ peek) pupID < AckID]]
+		whileTrue: [OutQ next]!
+
+send
+	"Chop myStream into pups and put them on the output queue."
+
+	| i dataPup max |
+	max _ (512 min: (HisBytesPerPup min: MaxBytesPerPup)) + 24.
+	[myStream atEnd] whileFalse: 
+		[dataPup _ self newPup: DataType.
+		i _ 25 "data bytes are 1-512, 25-536".
+		[i < max and: [myStream atEnd == false]] whileTrue:
+			[dataPup at: i put: myStream next asInteger.
+			i _ i + 1].
+		dataPup pupLengthGet: i - 3 "set the packet length, may not need this".
+		dataPup pupIDGet: OutByteID.
+		OutByteID _ OutByteID + (i - 25).
+		OutQ nextPut: dataPup]!
+
+sendData: dataCollection
+
+	self sendStream: (ReadStream on: dataCollection)!
+
+sendError: type for: packet
+	"Send an Error of type type."
+
+	| pac message |
+	pac _ self newPup: ErrorType.
+	message _ 'Smalltalk says... slow down!!'.
+	pac dataStringGet: (packet pupString copyFrom: 5 to: 24), message.
+	pac dataWord: 11 Get: type.
+	pac pupLengthGet: 22 + (20 + message size).
+	pac pupIDGet: packet pupID.
+	self setAddressesAndComplete: pac!
+
+sendMark: type
+	"Send a Mark of type type, and update OutByteID."
+
+	| pac |
+	pac _ self newPup: MarkType.
+	pac dataStringGet: (String with: type asCharacter).
+	pac pupIDGet: OutByteID.
+	OutByteID _ OutByteID + 1.
+	OutQ nextPut: pac!
+
+sendSmallString: str
+	"Take the data from a string (1-532 bytes), send it out."
+
+	| outPac |
+	outPac _ self newPup: DataType.
+	outPac dataStringGet: str.
+	outPac pupIDGet: OutByteID.
+	OutByteID _ OutByteID + str size.
+	OutQ nextPut: outPac!
+
+sendStream
+	"Make sure that windows of pups from the byte stream are transmitted.
+	Called by the finite state machine."
+
+	HisPups = 0 ifFalse: 					"stall if his buffers are full"
+		[OutQ isEmpty ifTrue: [^true]. 	"do nothing if OutQ is empty"
+			"try to send again, so we can wake up and look at the queue later"
+		self sendWindow]!
+
+sendStream: aStream
+	"The caller hands in a stream, or a file already opened and I put it
+	into the ByteStream."
+
+	myStream _ aStream.
+	AssociatedStateMachine state = 'open'
+		ifTrue: [self send]
+		ifFalse: [self BSPMessage: 'byte stream not open']!
+
+sendWindow
+	"I am the work horse for data transmission. I send whatever
+	unacknowledged packets are in the Out queue, generally a window of
+	data. There must be at least one packet in the queue when I am called.
+	All packets in the OutQ have type = Data or Mark. Packets are moved
+	to the end of the cue for retransmitting if not acknowledged."
+
+	| windowSize pac type pacStream |
+	(AssociatedStateMachine state ~= 'open' and: [BSPMessageFlag])
+		ifTrue: [self BSPMessage: 'byte stream not open']
+		ifFalse:
+			[windowSize _ HisPups.
+			pacStream _ ReadWriteStream on: (Array new: 10).
+			pac _ OutQ next.
+			pacStream nextPut: pac. 		"save for adding back to the queue"
+				"transmit packets, the last one sent will always be an Acknowledge type"
+			[windowSize > 1 and: [OutQ isEmpty not]] whileTrue: "not last packet"
+				[self setAddressesAndComplete: pac. 		"send packet"
+				windowSize _ windowSize - 1.
+				pac _ OutQ next.
+				pacStream nextPut: pac].
+					"last packet, make an Acknowledge type"
+			type _ pac pupType.
+			type = DataType
+				ifTrue:	[pac pupTypeGet: ADataType]
+				ifFalse:	[pac pupTypeGet: AMarkType].	"otherwise must be a MarkType"
+			self setAddressesAndComplete: pac. 			"send packet"
+			pacStream reset.		"put all packets back on the queue in case not acknowledged"
+			pacStream do: [:pac | OutQ nextPut: pac]]! !
+
+!ByteStreamSocket methodsFor: 'BSP overhead transmission'!
+
+sendAck: OutMaxBytesPerPup pups: OutMaxPups bytes: OutMaxBytes
+	"Send allocation block info and the current InByteID."
+
+	| AckPup |
+	AckPup _ self newPup: AckType.
+	AckPup pupLengthGet: 28.
+	AckPup dataWord: 1 Get: OutMaxBytesPerPup.
+	AckPup dataWord: 2 Get: OutMaxPups.
+	AckPup dataWord: 3 Get: OutMaxBytes.
+	AckPup pupIDGet: InByteID.
+	self setAddressesAndComplete: AckPup.
+	ADataFlag _ false!
+
+sendFullAck
+
+	| count |
+	"largest allocation we ever give out"
+	count _ MaxPups - ByteStreamQ size.
+	self sendAck: MaxBytesPerPup pups: count bytes: count * MaxBytesPerPup!
+
+sendNullAck
+	"Tell the other guy to shut up for a while, this is not the way to buy time."
+
+	self sendAck: 0 pups: 0 bytes: 0!
+
+sendNullAData
+	"Send a ping, it does not go on the ByteStream Q."
+
+	| ADataPup |
+	ADataPup _ self newPup: ADataType.
+	ADataPup pupLengthGet: 22.
+	ADataPup pupIDGet: OutByteID.
+	self setAddressesAndComplete: ADataPup! !
+
+!ByteStreamSocket methodsFor: 'error protocol'!
+
+Inconsistency: pac
+	"I don't gain any time knowing that one of my pups had an
+	inconsistency. When releaseAckedPacs swings back around on the OutQ
+	it will notice that the packet has not been acked and will retransmit it."
+
+	self BSPMessage: 'Inconsistent packet'!
+
+NoProcessAtDestPort: pac
+	"The RTP treats an error code 2 as an ABORT."
+
+	self BSPMessage: 'NoProcessAtDestPort'.
+	self processAbort: pac!
+
+PortInQOverflow: pac
+	"BCPL BSP will slow down but it is unlikely anyone will tell me to,
+	if they do (maybe I am on a Dorado) I should slow down. Presently,
+	I don't support this."
+
+	AssociatedStateMachine slowDown.
+	self BSPMessage: 'PortInQOverflow'!
+
+processError: pac
+	"Handle some of the more popular error pups. Pup contents: 
+		words 0-9 (dataWord: (1 to: 10)) 		= copy of original pup header
+		word 10 (dataWord: 11) 					= registered error code
+		word 11 (dataWord: 12) 					= optional machine-readable code
+		remainder (dataWord: (13 to: dataLength)) 	= human readable message
+	Types recognized but not processed are:
+		513 Pup discarded before it reached destination...Gateway problems
+		514 Pup inconsistency
+		515 Pup Destination net can't be reached
+		516 Pup destination host down or non-existent
+		517 Pup hasn't reached destination after forwarding by 16 gateways
+		518 Pup too large to squeeze through gateway (max 266 words)
+		Pup received by unintended non-gateway host
+		519 Gateway didn't forward pup due to Q overflow"
+
+	| type str |
+	type _ pac dataWord: 11.
+	type = 1
+		ifTrue: [self Inconsistency: pac] "Pup discarded before logical processing began on it"
+		ifFalse:
+			[type = 2
+				ifTrue: [self NoProcessAtDestPort: pac]
+				ifFalse:
+					[type = 3
+						ifTrue: [self PortInQOverflow: pac]
+						ifFalse:
+							[str _ (pac pupString copyFrom: 49 to: 24 + pac dataLength) asString.
+							(type >= 513 and: [type <= 519])
+								ifTrue: [self BSPMessage: str]
+								ifFalse:
+									[BSPMessageFlag ifTrue:
+										[self error: 'Unknown error code ', type printString, ' ', str]]]]]! !
+
+!ByteStreamSocket methodsFor: 'access'!
+
+ADataFlag
+
+	^ADataFlag!
+
+BSPMessageFlag
+
+	^BSPMessageFlag!
+
+changeWindowSizeBy: delta
+
+	MaxPups _ MaxPups + delta.
+	MaxBytes _ MaxBytes + (delta * MaxBytesPerPup)!
+
+HeStartedIt
+
+	^HeStartedIt!
+
+InQempty
+
+	^ByteStreamQ isEmpty!
+
+MaxPups: maxPupsHandled
+	"Change the maximum number of pups I can buffer."
+
+	maxPupsHandled < 1 ifTrue: [^false].
+	MaxPups _ maxPupsHandled 	"Initialize buffer size in Pups".
+	MaxBytes _ MaxPups * MaxBytesPerPup 	"Initialize buffer size in bytes"!
+
+OutQempty
+
+	^OutQ isEmpty!
+
+signalEvent
+	"The FiniteStateMachine has changed state. Inform any client who is waiting."
+
+	anyEvent signal! !
+
+!ByteStreamSocket methodsFor: 'overwrite by subclasses'!
+
+processInterrupt: pac
+
+	self subclassResponsibility!
+
+processInterruptReply: pac
+
+	self subclassResponsibility! !
+
+!ByteStreamSocket methodsFor: 'private'!
+
+BSPMessage: str
+
+	self debugMessage: 'BSP: ', str!
+
+debugMessage: str
+
+	BSPMessageFlag ifTrue:
+		[LogFile isNil ifTrue: [^self].
+		LogFileProtect wait.
+		LogFile cr; nextPutAll: str.
+		(LogFile isKindOf: TextCollector) ifTrue: [LogFile endEntry].
+		LogFileProtect signal]!
+
+logIncomingPacket: pac
+
+	self logPacket: pac message: 'Incoming '!
+
+logMessageBlock: aBlock
+
+	BSPMessageFlag ifTrue:
+		[LogFile isNil ifTrue: [^self].
+		LogFileProtect wait.
+		aBlock value.
+		(LogFile isKindOf: TextCollector) ifTrue: [LogFile endEntry].
+		LogFileProtect signal]!
+
+logOutgoingPacket: pac
+
+	self logPacket: pac message: '		Outgoing '!
+
+logPacket: pac message: messageString
+	 "A debugging aid."
+
+	 | type dataLength mark |
+	self logMessageBlock:
+		[LogFile cr; nextPutAll: messageString.
+		type _ pac pupType.
+		dataLength _ pac dataLength.
+		LogFile space; nextPutAll: pac pupID printString.
+		LogFile space; nextPutAll: (self pupTypeName: type); space.
+		(type = DataType) | (type = ADataType) ifTrue:
+			[dataLength = 0
+				ifTrue:	[LogFile nextPutAll: 'Null']
+				ifFalse:	[LogFile print: dataLength; nextPut: $:; space].
+			LogFile nextPutAll: pac dataString asString].
+		(type = AckType) ifTrue:
+			[LogFile nextPutAll: (pac dataWord: 1) printString.
+			LogFile space; nextPutAll: (pac dataWord: 2) printString.
+			LogFile space; nextPutAll: (pac dataWord: 3) printString].
+		(type = MarkType) | (type = AMarkType) ifTrue:
+			[LogFile nextPutAll: (mark _ pac dataString first asInteger) printString;
+				space; nextPutAll: (self markName: mark)]]!
+
+markName: markByte
+	"For debugging. BSP assigns no meaning to mark bytes. Subclasses do."
+
+	^''!
+
+newPup: pupType
+
+	| pac |
+	pac _ Pacbuf new.
+	pac pupTypeGet: pupType.
+	^pac!
+
+pupTypeName: type
+	"For debugging."
+
+	^#('EchoMe' 'IAmAnEcho' 'IAmABadEcho' 'Error' 'unused' 'unused' 'unused' 'RFC' 'Abort' 'End' 'EndReply' 'unused' 'unused' 'unused' 'unused' 'Data' 'AData' 'Ack' 'Mark' 'Interrupt' 'InterruptReply' 'AMark') at: type! !
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+ByteStreamSocket class
+	instanceVariableNames: ''!
+
+!ByteStreamSocket class methodsFor: 'initialization'!
+
+initialize
+	"Global initialization."
+
+	InputPriority _ Processor lowIOPriority.
+	InputMessages _ Array new: 22.
+	InputMessages atAllPut: #processUnknown:.
+
+	"Initialization of packet pup types:"
+	InputMessages at: (RFCType _ 8) put: #processRFC:.
+	InputMessages at: (AbortType _ 9) put: #processAbort:.
+	InputMessages at: (EndType _ 10) put: #processEnd:.
+	InputMessages at: (EndReplyType _ 11) put: #processEndReply:.
+	InputMessages at: (DataType _ 16) put: #processDataOrMark:.
+	InputMessages at: (ADataType _ 17) put: #processAData:.
+	InputMessages at: (AckType _ 18) put: #processAck:.
+	InputMessages at: (MarkType _ 19) put: #processDataOrMark:.
+	InputMessages at: (AMarkType _ 22) put: #processDataOrMark:.
+	InputMessages at: (InterruptType _ 20) put: #processInterrupt:.
+	InputMessages at: (InterruptReplyType _ 21) put: #processInterruptReply:.
+	InputMessages at: (ErrorType _ 4) put: #processError:.
+
+	CadaverType _ 255. "see MarkByte for explanation"
+	self debug: false.
+	self initializeLogFile: Transcript.
+
+	"ByteStreamSocket initialize"! !
+
+!ByteStreamSocket class methodsFor: 'instance creation'!
+
+new
+
+	^super new initBSSocket! !
+
+!ByteStreamSocket class methodsFor: 'debugging'!
+
+debug: aBoolean
+
+	BSPMessageFlag _ aBoolean!
+
+example
+
+	"Debugging examples:
+
+	To turn on/off debugging:
+		ByteStreamSocket debug: true.
+		ByteStreamSocket debug: false.
+
+	To create a debug log file (turn debugging on also):
+		ByteStreamSocket initializeLogFileName: 'BSP.log'.
+		ByteStreamSocket initializeLogFile: Transcript.
+
+	Be sure to close the file when done:
+		ByteStreamSocket LogFile close.
+		ByteStreamSocket LogFile edit."!
+
+initializeLogFile: file
+
+	LogFile _ file.
+	LogFileProtect _ Semaphore forMutualExclusion!
+
+initializeLogFileName: fileName
+
+	self initializeLogFile: (FileStream fileNamed: fileName)!
+
+LogFile
+
+	^LogFile! !
+
+ByteStreamSocket initialize!

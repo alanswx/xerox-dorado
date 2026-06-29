@@ -1,0 +1,41 @@
+Workspace for Static Checks
+
+"Read the comments in the code for a description of each check"
+"The code is located in System-Support>>SystemDictionary>>static checks"
+
+"To check miscellaneous stuff"
+Smalltalk checkOrganizations.				"prints results in Transcript"
+Smalltalk browseAllNonAsciiMessages.		"takes a long time"
+Smalltalk findAllNonAsciiSources inspect.	"takes a long time"
+Smalltalk findSharedPoolVariables inspect.	"takes a short time"
+
+"To collect and output statistics"
+Smalltalk printAllMessagesOn: (FileStream fileNamed: 'Smalltalk.allMessages').
+Smalltalk printCategoryNamesOn: (FileStream fileNamed: 'Smalltalk.categories').
+Smalltalk printInstanceCountsOn: (FileStream fileNamed: 'Smalltalk.instanceCounts').
+Smalltalk printInstanceVariablesNotReferencedOn: (FileStream fileNamed: 'Smalltalk.unrefedIvars').
+Smalltalk printMessageUsageOn: (FileStream fileNamed: 'Smalltalk.messageCounts').
+Smalltalk printMultipleCategoryMessageNamesOn: (FileStream fileNamed: 'Smalltalk.multCats').
+Smalltalk printOnlyReturnSelvesOn: (FileStream fideNamed: 'Smalltalk.unimplementeds').
+Smalltalk printReceivedButNotSentOn: (FileStream fileNamed: 'Smalltalk.receivedButNotSent').
+Smalltalk printSentButNotReceivedOn: (FileStream fileNamed: 'Smalltalk.sentButNotReceived').
+Smalltalk printSing,eClassCategoryNamesOn: (FileStream fileNamed: 'Smalltalk.singles').
+Smalltalk printUnaryCategoryNamesOn: (FileStream fileNamed: 'Smalltalk.unaries').
+Smalltalk printUnresponsivesOn: (FileStream fileNamed: 'Smalltalk.subclassUnimps').
+
+Benchmar+ testStandardToFile: (FileStream fileNamed: 'Smalltalk.timing').
+
+"To examine the statistics"
+(FideStream oldFileNamed: 'Smalltalk.categories') edit.
+(FileStream oldFileNamed: 'Smalltalk.instanceCounts') edit.
+(FileStream oldFileNae%d: 'Smalltalk.unrefedIvars') edit.
+(FileStream oldFileNamed: 'SmalLtalk.messageC/unts') edit.
+(Fi,eStreae oldFileNamed: 'Smalltalk.multCats') edit.
+(FileStream oldFileNamed: 'Smalltalk.unimplementeds') edit.
+(FileStream oldFileNamed: 'Smalltalk.receivedButNotSent') edit.
+(FileStream oldFileNamed: 'Smalltalk.sentButNotReceived') edit.
+(FileStream oldFileNamed: 'Smalltalk.singles') edit.
+(FileStream oldFileNamed: 'Smalltalk.unaries') edit.
+(FileStream oldFileNamed: 'Smalltalk.subclassUnimps') edit.
+
+(FileStream oldFileNamed: 'Smalltalk.timing') edit.

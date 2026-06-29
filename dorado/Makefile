@@ -333,6 +333,8 @@ LISP_BCPLPROG_DSK ?= $(TRIDENT_RUN_DIR)/bcplprog-lisp-loader.dsk
 LISP_BCPLPROG_PACK ?= $(TRIDENT_RUN_DIR)/bcplprog-lisp-loader-trident.pack
 LISP_MAIN_PARTITION ?= 5
 LISP_AUX_PARTITION ?= 4
+LISP_VMEM_PAGES ?= 15002
+LISP_ALTOFS_FLAGS ?=
 LISP_BOOT_FILE ?=
 LISP_FULL_BOOT_FILE ?= Sys.Boot.
 PALO_PAR ?= ../AltoInfo/palo/src/par
@@ -465,13 +467,15 @@ lisp-disk-image-full:
 else
 lisp-disk-image-full: $(BINDIR)/altofs $(BINDIR)/dsk2trident $(PALO_PAR) $(LISP_OS_HOST_FILES) | $(TRIDENT_RUN_DIR)
 	$(BINDIR)/altofs --disk0 '$(LISP_DSK0)' --disk1 '$(LISP_DSK1)' \
-		--vmem-after-inserts $(LISP_OS_INSERTS) $(LISP_CORE_INSERTS) \
+		--vmem-pages $(LISP_VMEM_PAGES) --vmem-after-inserts $(LISP_OS_INSERTS) $(LISP_CORE_INSERTS) \
 		--insert '$(LISP_UPDATE_FILE)' UPDATELISP.CM. \
 		$(if $(LISP_INIT_FILE),--insert '$(LISP_INIT_FILE)' INIT.LCOM.,) \
+		$(LISP_ALTOFS_FLAGS) \
 		$(if $(LISP_FULL_BOOT_FILE),--boot-file '$(LISP_FULL_BOOT_FILE)',)
 	$(BINDIR)/dsk2trident --partition $(LISP_MAIN_PARTITION) --diablo-cylinders 406 --diablo-sectors 14 --drive1 '$(LISP_DSK1)' '$(LISP_DSK0)' '$(LISP_FULL_PACK)'
 	$(BINDIR)/altofs --disk0 '$(LISP_AUX_DSK0)' --disk1 '$(LISP_AUX_DSK1)' \
-		--no-vmem --insert '$(LISP_SYSOUT_FILE)' LISP.SYSOUT.
+		--no-vmem --insert '$(LISP_SYSOUT_FILE)' LISP.SYSOUT. \
+		$(LISP_ALTOFS_FLAGS)
 	$(BINDIR)/dsk2trident --base '$(LISP_FULL_PACK)' --partition $(LISP_AUX_PARTITION) --diablo-cylinders 406 --diablo-sectors 14 --drive1 '$(LISP_AUX_DSK1)' '$(LISP_AUX_DSK0)' '$(LISP_FULL_PACK)'
 endif
 

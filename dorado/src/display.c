@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+extern int dorado_trace_flag(const char *name);
+
 typedef struct {
     int word;
     uint16_t mask;
@@ -234,6 +236,72 @@ static uint16_t display_terminal_keyboard_bit(dorado_display *d)
     return bit ? 0x8000u : 0u;
 }
 
+static int ddc_decode_width_pixels(uint16_t raw)
+{
+    int pixels = (int)((0u - (uint32_t)(raw & 0x0FFFu)) & 0x0FFFu) - 255;
+    if (pixels < 0) pixels = 0;
+    if (pixels > DORADO_DISPLAY_W) pixels = DORADO_DISPLAY_W;
+    return pixels;
+}
+
+static void display_draw_word(dorado_display *d, int x, int y, uint16_t word);
+
+static void ddc_snapshot_line(dorado_display *d, int channel)
+{
+    dorado_display_ddc_line *line = &d->ddc_pending_line[channel & 1];
+    int base = channel ? 010 : 0;
+
+    memset(line, 0, sizeof *line);
+    line->valid = 1;
+    line->odd = (uint8_t)(d->nlcb_field_odd & 1u);
+    line->line = d->nlcb_line;
+    line->lmarg = d->nlcb[0][base + 001] & 0x0FFFu;
+    line->width = d->nlcb[0][base + 002] & 0x0FFFu;
+    line->ptr = d->nlcb[0][base + 003] & 0x0FFFu;
+    line->scan = d->nlcb[0][base + 004] & 0x0FFFu;
+}
+
+static void ddc_start_line(dorado_display *d, int channel)
+{
+    dorado_display_ddc_line *cur = &d->ddc_current_line[channel & 1];
+    *cur = d->ddc_pending_line[channel & 1];
+    cur->word_count = 0;
+    cur->overflow = 0;
+}
+
+static void ddc_render_line(dorado_display *d, int channel)
+{
+    dorado_display_ddc_line *line = &d->ddc_current_line[channel & 1];
+    if (!line->valid || line->word_count == 0)
+        return;
+
+    int width_pixels = ddc_decode_width_pixels(line->width);
+    if (width_pixels <= 0)
+        return;
+
+    int y = (int)line->line * 2 + (int)(line->odd & 1u);
+    if (y < 0 || y >= DORADO_DISPLAY_H)
+        return;
+
+    int x = 0;
+    int visible_words = (width_pixels + 15) / 16;
+    int start = (int)(line->ptr & 017u);
+
+    for (int px = 0; px < width_pixels && x + px < DORADO_DISPLAY_W; px++)
+        dorado_display_set_pixel(d, x + px, y, 0);
+
+    for (int i = 0; i < visible_words && x < DORADO_DISPLAY_W; i++) {
+        int src = start + i;
+        uint16_t word = (src < (int)line->word_count) ? line->words[src] : 0;
+        int remaining = width_pixels - (i * 16);
+        if (remaining > 16) remaining = 16;
+        for (int b = 0; b < remaining && x < DORADO_DISPLAY_W; b++, x++) {
+            int bit = (word >> (15 - b)) & 1;
+            dorado_display_set_pixel(d, x, y, bit);
+        }
+    }
+}
+
 /* Phase 1: a single permissive output handler that records the
  * (task, tioa, data) triple but does nothing semantically. The
  * real DDC has six (DispY) or eight (DispM) output devices, each
@@ -249,7 +317,10 @@ static void display_output_b(void *ctx, int task, int subtask,
 
     d->output_count++;
     d->output_task_count[t]++;
+    if (d->output_tioa_count[tioa] == 0)
+        d->output_tioa_first[tioa] = data;
     d->output_tioa_count[tioa]++;
+    d->output_tioa_last[tioa] = data;
     d->riob = data;     /* HM page 119: IOB stays in DDC RIOB until
                          * next output command */
     if ((t == DORADO_DISPLAY_TASK_DHT || t == DORADO_DISPLAY_TASK_AHT) &&
@@ -263,6 +334,8 @@ static void display_output_b(void *ctx, int task, int subtask,
         if (data & DORADO_DISPLAY_STATICS_DWT_SHUTUP) {
             memset(d->next_wcb_flag, 0, sizeof d->next_wcb_flag);
             memset(d->current_wcb_flag, 0, sizeof d->current_wcb_flag);
+            memset(d->ddc_pending_line, 0, sizeof d->ddc_pending_line);
+            memset(d->ddc_current_line, 0, sizeof d->ddc_current_line);
             d->fifo_a_head = d->fifo_a_tail = 0;
             d->fifo_b_head = d->fifo_b_tail = 0;
         }
@@ -300,11 +373,31 @@ static void display_output_b(void *ctx, int task, int subtask,
      */
     if (tioa == DORADO_DISPLAY_TIOA_DHTFLAG ||
         tioa == DORADO_DISPLAY_TIOA_AHTFLAG) {
+        if ((data & 0002u) && dorado_trace_flag("DORADO_WCB_TRACE")) {
+            static unsigned wcb_trace_count = 0;
+            if (wcb_trace_count++ < 800) {
+                fprintf(stderr,
+                        "[display] WCB A line=%u odd=%u lmarg=%04o "
+                        "width=%04o ptr=%04o scan=%04o raw=%06o\n",
+                        d->nlcb_line, d->nlcb_field_odd,
+                        d->nlcb[0][001], d->nlcb[0][002],
+                        d->nlcb[0][003], d->nlcb[0][004], data);
+            }
+        }
         if (task == d->terminal_task) {
-            if (data & 0002u) d->next_wcb_flag[0] = 1;
+            if (data & 0002u) {
+                ddc_snapshot_line(d, 0);
+                d->next_wcb_flag[0] = 1;
+            }
         } else {
-            if (data & 0002u) d->next_wcb_flag[0] = 1;
-            if (data & 0004u) d->next_wcb_flag[1] = 1;
+            if (data & 0002u) {
+                ddc_snapshot_line(d, 0);
+                d->next_wcb_flag[0] = 1;
+            }
+            if (data & 0004u) {
+                ddc_snapshot_line(d, 1);
+                d->next_wcb_flag[1] = 1;
+            }
         }
         d->nlcb_writes++;
     } else if (tioa == DORADO_DISPLAY_TIOA_DWTFLAG ||
@@ -322,9 +415,48 @@ static void display_output_b(void *ctx, int task, int subtask,
         if (data & 0020u) {
             /* IOFetch pacing: leave WCB flags untouched. */
         } else if (data & 0001u) {
+            int draw_y = (int)d->scan_line;
+            if (dorado_trace_flag("DORADO_DDC_RENDER_NLCB_Y") &&
+                d->nlcb_line > 0) {
+                draw_y = ((int)d->nlcb_line - 1) * 2 +
+                         (int)(d->nlcb_field_odd & 1u);
+            } else if (dorado_trace_flag("DORADO_DDC_RENDER_SEQ")) {
+                draw_y = d->ddc_seq_y++;
+                if (d->ddc_seq_y >= DORADO_DISPLAY_H)
+                    d->ddc_seq_y = 0;
+            }
             d->current_wcb_flag[channel] = 1;
             d->next_wcb_flag[channel] = 0;
+            ddc_start_line(d, channel);
+            d->wcb_draw_x[channel] = 0;
+            d->wcb_draw_y[channel] = (uint16_t)draw_y;
+            d->dwt_trace_active[channel] = 1;
+            d->dwt_trace_words[channel] = 0;
+            d->dwt_trace_nonzero[channel] = 0;
+            d->dwt_trace_first_va[channel] = 0;
+            d->dwt_trace_last_va[channel] = 0;
         } else {
+            if (d->dwt_trace_active[channel] &&
+                dorado_trace_flag("DORADO_DWT_TRACE") &&
+                d->dwt_trace_lines < 400) {
+                fprintf(stderr,
+                        "[display] DWT line %llu ch=%d scan=%u words=%u "
+                        "nonzero=%u first=0x%05x/0o%o last=0x%05x/0o%o\n",
+                        (unsigned long long)d->dwt_trace_lines, channel,
+                        d->scan_line, d->dwt_trace_words[channel],
+                        d->dwt_trace_nonzero[channel],
+                        d->dwt_trace_first_va[channel],
+                        d->dwt_trace_first_va[channel],
+                        d->dwt_trace_last_va[channel],
+                        d->dwt_trace_last_va[channel]);
+            }
+            if (d->dwt_trace_active[channel])
+                d->dwt_trace_lines++;
+            if (!dorado_trace_flag("DORADO_DDC_RENDER_DIRECT") &&
+                !dorado_trace_flag("DORADO_DDC_RENDER_VA")) {
+                ddc_render_line(d, channel);
+            }
+            d->dwt_trace_active[channel] = 0;
             d->current_wcb_flag[channel] = 0;
         }
     } else if (tioa == DORADO_DISPLAY_TIOA_RAST_TASKCMD) {
@@ -354,6 +486,8 @@ static void display_output_b(void *ctx, int task, int subtask,
          * constants): register select = data[0:3] (top 4 bits). */
         unsigned reg = (data >> 12) & 0xF;
         unsigned val = data & 0x0FFF;
+        if (reg < DORADO_DISPLAY_NLCB_WORDS)
+            d->nlcb[0][reg] = (uint16_t)val;
         if (getenv("DORADO_NLCB_TRACE")) {
             static long n = 0;
             if (reg != 0 && n++ < 600)
@@ -365,6 +499,9 @@ static void display_output_b(void *ctx, int task, int subtask,
             if (data & 0002u) {         /* VSync: field restart */
                 d->nlcb_line = 0;
                 d->nlcb_field_odd = (uint8_t)(data & 1u);
+                d->ddc_seq_y = (uint16_t)(data & 1u);
+                memset(d->ddc_pending_line, 0, sizeof d->ddc_pending_line);
+                memset(d->ddc_current_line, 0, sizeof d->ddc_current_line);
             }
             break;
         case 013:                       /* BPointer / CursorX */
@@ -498,11 +635,90 @@ void dorado_display_attach_to_io(dorado_display *d, dorado_io *io)
 
 /* ─── FIFO and framebuffer ───────────────────────────────────────── */
 
-int dorado_display_fifo_push(dorado_display *d, int subtask, uint16_t word)
+static void display_draw_word(dorado_display *d, int x, int y, uint16_t word)
+{
+    for (int b = 0; b < 16; b++) {
+        if (x < DORADO_DISPLAY_W && y < DORADO_DISPLAY_H) {
+            int bit = (word >> (15 - b)) & 1;
+            dorado_display_set_pixel(d, x, y, bit);
+        }
+        x++;
+    }
+}
+
+static uint32_t display_ddc_va_base(dorado_display *d, uint32_t va)
+{
+    if (!d->ddc_va_base_valid) {
+        const char *base = getenv("DORADO_DDC_RENDER_VA_BASE");
+        if (base && *base) {
+            d->ddc_va_base = (uint32_t)strtoul(base, NULL, 0);
+        } else {
+            d->ddc_va_base = va & ~0x7fu;
+        }
+        d->ddc_va_base_valid = 1;
+        if (dorado_trace_flag("DORADO_DWT_TRACE")) {
+            fprintf(stderr,
+                    "[display] DDC VA render base=0x%05x/0o%o\n",
+                    d->ddc_va_base, d->ddc_va_base);
+        }
+    }
+    return d->ddc_va_base;
+}
+
+int dorado_display_iofetch_word(dorado_display *d, int subtask,
+                                uint32_t va, uint16_t word)
 {
     int *head, *tail;
     uint16_t *buf;
     int cap = (int)(sizeof d->fifo_a / sizeof d->fifo_a[0]);
+    int channel = (subtask & 2) ? 1 : 0;
+
+    if (d->current_wcb_flag[channel]) {
+        if (d->dwt_trace_active[channel]) {
+            if (d->dwt_trace_words[channel] == 0)
+                d->dwt_trace_first_va[channel] = va;
+            d->dwt_trace_last_va[channel] = va;
+            d->dwt_trace_words[channel]++;
+            if (word)
+                d->dwt_trace_nonzero[channel]++;
+        }
+
+        if (va != UINT32_MAX && dorado_trace_flag("DORADO_DDC_RENDER_VA")) {
+            uint32_t base = display_ddc_va_base(d, va);
+            uint32_t off = va - base;
+            int x = (int)((off & 0x7fu) * 16u);
+            int y = (int)(off >> 7);
+            display_draw_word(d, x, y, word);
+            d->ddc_va_words_drawn++;
+            d->iofetch_count++;
+            return 0;
+        }
+
+        if (!dorado_trace_flag("DORADO_DDC_RENDER_DIRECT")) {
+            dorado_display_ddc_line *line = &d->ddc_current_line[channel];
+            if (line->valid &&
+                line->word_count < (sizeof line->words / sizeof line->words[0])) {
+                line->words[line->word_count++] = word;
+            } else if (line->valid) {
+                line->overflow++;
+            }
+            d->iofetch_count++;
+            return 0;
+        }
+
+        int x = d->wcb_draw_x[channel];
+        int y = d->wcb_draw_y[channel];
+        display_draw_word(d, x, y, word);
+        x += 16;
+        while (x >= DORADO_DISPLAY_W) {
+            x -= DORADO_DISPLAY_W;
+            y++;
+        }
+        d->wcb_draw_x[channel] = (uint16_t)x;
+        d->wcb_draw_y[channel] = (uint16_t)y;
+        d->iofetch_count++;
+        return 0;
+    }
 
     if (subtask == 0) {
         head = &d->fifo_a_head;
@@ -519,6 +735,11 @@ int dorado_display_fifo_push(dorado_display *d, int subtask, uint16_t word)
     *head = next;
     d->iofetch_count++;
     return 0;
+}
+
+int dorado_display_fifo_push(dorado_display *d, int subtask, uint16_t word)
+{
+    return dorado_display_iofetch_word(d, subtask, UINT32_MAX, word);
 }
 
 static int display_fifo_free(const dorado_display *d, int subtask)
@@ -720,6 +941,8 @@ int dorado_display_dwt_wakeup(dorado_display *d, int *subtask)
         if (d->next_wcb_flag[ch] && !d->current_wcb_flag[ch]) {
             d->next_wcb_flag[ch] = 0;
             d->current_wcb_flag[ch] = 1;
+            d->wcb_draw_x[ch] = 0;
+            d->wcb_draw_y[ch] = (uint16_t)d->scan_line;
             d->dwt_wakeups++;
             if (subtask) *subtask = ch ? 2 : 0;
             return 1;
@@ -727,8 +950,7 @@ int dorado_display_dwt_wakeup(dorado_display *d, int *subtask)
     }
     for (int ch = 0; ch < 2; ch++) {
         int st = ch ? 2 : 0;
-        if (d->current_wcb_flag[ch] && display_fifo_used(d, st) > 0 &&
-            display_fifo_free(d, st) >= 16) {
+        if (d->current_wcb_flag[ch] && display_fifo_free(d, st) >= 16) {
             d->dwt_wakeups++;
             if (subtask) *subtask = st;
             return 1;

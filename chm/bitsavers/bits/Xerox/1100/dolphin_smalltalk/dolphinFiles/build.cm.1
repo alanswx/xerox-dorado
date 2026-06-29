@@ -1,0 +1,39 @@
+//
+//  Install Alto run files, Lisp, and minimum Lisp Library files & Lisp User
+//  Packages.  This is to get the Dolphin up and running enough to run ftp
+//  and the gateway.  Very few other lisp files are copied onto the disk.
+//  First the command scripts are copied over from <mn2<ether<cm.  These
+//  are executed to copy over needed run files, lisp info, and the gateway
+//  and ftpserver.
+//     This exec command script installs the files on the current partition.
+//
+
+
+delete dmt.boot dumper.boot // garbage on disk
+
+
+// Copy over the needed command scripts for installing files.
+FTP burdvax ^
+login noname foobar ^
+retrieve/s ''/mn2''/ether''/cm''/InstallLisp.cm InstallLisp.cm ^
+retrieve/s ''/mn2''/ether''/cm''/InstallSomeLisp.cm InstallSomeLisp.cm ^
+retrieve/s ''/mn2''/ether''/cm''/InstallRunFiles.cm InstallRunFiles.cm
+
+// Install Alto run files
+@InstallRunFiles.cm@
+
+//Create Lisp.virtualmem
+CreateFile.run Lisp.VirtualMem 10500D
+
+//install swat
+InstallSwat
+Delete dumper.boot
+
+// Install Lisp run files
+@InstallLisp.cm@
+
+// Install Selected Lisp Library files and User Packages
+@InstallSomeLisp.cm@
+
+// Scavenge the disk
+Scavenger

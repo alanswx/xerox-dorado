@@ -1,0 +1,310 @@
+'From Smalltalk-80 of November 15, 1982 (Customer Version 3) on 1 March 1983 at 11:57:07 am;
+
+Unmodified from gk-graphics-clocks.st [V28], prettyClock-DI.st [V29], and jt-ClockView-displayHands.st [V30] by Evelyn Van Orden for the Customer Release on 14 April 1983 at 9:30:00 am'!
+
+
+
+
+
+
+
+MouseMenuController subclass: #ClockController
+
+	instanceVariableNames: 'clockProcess clockSemaphore running '
+
+	classVariableNames: ''
+
+	poolDictionaries: ''
+
+	category: 'Graphics-Clocks'!
+
+
+
+
+
+!ClockController methodsFor: 'initialize-release'!
+
+
+
+initialize
+
+
+
+	super initialize.
+
+	yellowButtonMenu _ PopUpMenu labels:
+
+'start
+
+stop'.
+
+	yellowButtonMessages _ #(start stop).
+
+	running _ false.
+
+	clockSemaphore _ Semaphore new.
+
+	clockProcess _ 
+
+		[[(Delay forSeconds: 60) wait.
+
+		clockSemaphore wait.
+
+		clockSemaphore signal.
+
+		view display. true] whileTrue] newProcess.
+
+	clockProcess resume!
+
+
+
+release
+
+
+
+	clockProcess terminate! !
+
+
+
+!ClockController methodsFor: 'menu messages'!
+
+
+
+start
+
+
+
+	running
+
+		ifFalse:
+
+			[clockSemaphore signal.
+
+			running _ true]!
+
+
+
+stop
+
+
+
+	running 
+
+		ifTrue:
+
+			[running _ false.
+
+			clockSemaphore wait]! !
+
+
+
+!ClockController methodsFor: 'control activity'!
+
+
+
+isControlActive
+
+
+
+	^super isControlActive & sensor blueButtonPressed not! !
+
+
+
+
+
+View subclass: #ClockView
+
+	instanceVariableNames: 'cacheForm cacheBox '
+
+	classVariableNames: 'NumberForms '
+
+	poolDictionaries: ''
+
+	category: 'Graphics-Clocks'!
+
+
+
+
+
+!ClockView methodsFor: 'displaying'!
+
+
+
+displayFace
+
+
+
+	(cacheBox == nil or: [cacheBox ~= self insetDisplayBox])
+
+		ifTrue:
+
+			[self reallyDisplayFace.
+
+			cacheForm _ Form fromDisplay: (cacheBox _ self insetDisplayBox)]
+
+		ifFalse:
+
+			[cacheForm displayAt: self insetDisplayBox topLeft]!
+
+
+
+displayHands
+
+
+
+	| x y radius center extent time hours minutes hand |
+
+	extent _ self insetDisplayBox extent.
+
+	center _ self insetDisplayBox center.
+
+	radius _ (extent x min: extent y) // 2 - 20.
+
+	time _ Time now.
+
+	minutes _ time minutes.
+
+	hours _ time hours * 5 + (minutes / 12) asFloat.
+
+	hand _ Pen new.
+
+	hand defaultNib: 4.
+
+	x _ (hours * 6 - 90) degreesToRadians cos.
+
+	y _ (hours * 6 - 90) degreesToRadians sin.
+
+	hand up; goto: center + (x@y * radius // 2); down.
+
+	hand goto: center.
+
+	hand defaultNib: 2.
+
+	x _ (minutes * 6 - 90) degreesToRadians cos.
+
+	y _ (minutes * 6 - 90) degreesToRadians sin.
+
+	hand goto: center + (x@y * (radius-6))!
+
+
+
+displayView
+
+
+
+	self displayFace.
+
+	self displayHands!
+
+
+
+reallyDisplayFace
+
+
+
+	| degree radius center direction form extent |
+
+	center _ self insetDisplayBox center.
+
+	extent _ self insetDisplayBox extent.
+
+	radius _ (extent x min: extent y) // 2 - 12.
+
+	1 to: 12 do:
+
+		[:number |
+
+		degree _ number-3 * 30.
+
+		direction _ (degree degreesToRadians cos @ degree degreesToRadians sin).
+
+		form _ NumberForms at: number.
+
+		form displayAt: center+1 + (direction*radius) - (form extent // 2).
+
+		Display black: (center + (direction*(radius-11)) extent: 2@2)]! !
+
+
+
+!ClockView methodsFor: 'controller access'!
+
+
+
+defaultControllerClass
+
+
+
+	^ClockController! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+
+
+ClockView class
+
+	instanceVariableNames: ''!
+
+
+
+
+
+!ClockView class methodsFor: 'instance creation'!
+
+
+
+open
+
+
+
+	| topView clockView |
+
+	topView _ StandardSystemView new.
+
+	topView label: 'Clock'.
+
+	clockView _ self new.
+
+	clockView borderWidth: 2.
+
+	clockView insideColor: Form white.
+
+	topView addSubView: clockView.
+
+	topView controller open
+
+
+
+	"ClockView open"! !
+
+
+
+!ClockView class methodsFor: 'class initialization'!
+
+
+
+initialize
+
+
+
+	| text |
+
+	NumberForms _ Array new: 12.
+
+	1 to: 12 do:
+
+		[:number |
+
+		text _ number printString asText.
+
+		text emphasizeFrom: 1 to: text size with: 11.
+
+		NumberForms at: number put: text asParagraph asForm]
+
+
+
+	"ClockView initialize"! !
+
+
+
+ClockView initialize!
+

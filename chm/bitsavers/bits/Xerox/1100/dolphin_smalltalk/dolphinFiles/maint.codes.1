@@ -1,0 +1,234 @@
+(normal power on sequence:  8888, 46, 60, 700, 400, 758, 104, 114, 118, #pages)
+(normal disk sequence:      8888, 40,     700, 400, 720, 104,      118, #pages)
+
+Code	Meaning
+----	-------
+0000	ALU all 1's, all 0's or GoTo test failed
+0001	ALU test passed, no other errors! (should never see)
+0002	Midas boot
+0004	Preliminary ALU test failed
+0005	"
+0006	"
+0007	"
+0008	"
+0009	"
+0010	"
+0011	"
+0012	"
+0013	"
+0014	"
+0015	"
+0016	Mismatch after write then read of an RM reg via stack
+0017	Contents of an RM reg have changed
+0018	Reg read and compare error using stack
+0020	Breakpoint microinstruction executed
+0021	Memory error, prob H4 parity error
+0022	RM reg parity error(may happen on first power up)
+0023	Both 21 and 22
+0024	Control store parity error(may happen on first power up)
+0025	Both 21 and 24
+0026	Both 22 and 24
+0027	All of 21, 22 and 24
+0028	Stack error
+0029	Both 21 and 28
+0030	Both 22 and 28
+0031	All of 21, 22 and 28
+0032	Both 24 and 28
+0033	All of 21, 24 and 28
+0034	All of 22, 24 and 28
+0035	All of 21, 22, 24 and 28
+0040	Starting to load microcode from disk
+0041	Can't find disk board
+0042	disk read error
+0043	disk seek timeout
+0044	disk checksum failed
+0045	disk-bad control store address
+0046	disk not ready
+0047	bad label word in microcode from disk
+0048	Didn't get ucode in one second
+0060	Trying microcode from ethernet
+0061	Can't find ethernet board
+0062	Bad ethernet checksum in microcode
+0063	net-bad control store address
+0064	hardware error-bad status from packet end
+0065	net timeout (15 tries 10 seconds apart)
+0070	Unexpected wakeup in emulator
+0071	Unexpected wakeup in task 1 (undef task)
+0072	Unexpected wakeup in task 2 (undef task)
+0073	Unexpected wakeup in task 3 (undef task)
+0074	Unexpected wakeup in task 4 (undef task)
+0075	Unexpected wakeup in color display
+0076	Unexpected wakeup in 3M ethernet output
+0077	Unexpected wakeup in 10M ethernet, or 3M ether input
+0078	Unexpected wakeup in disk controller
+0079	Unexpected wakeup in task 9 (undef task)
+0080	Unexpected wakeup in display
+0081	Unexpected wakeup in task 11 (undef task)
+0082	Unexpected wakeup in task 12 (undef task)
+0083	Unexpected wakeup in task 13 (undef task)
+0084	Unexpected wakeup in timer task
+0085	Unexpected wakeup in fault task
+0101	Not enough memory (under 128k words) for Alto emulation
+0104	Start device initialization
+0105	Start UTVFC initialization (never see)
+0106	Finished loaded keyboard overlay (never see)
+0107	Finished UTVFC initialization (never see)
+0110	Started disk boot (never see)
+0111	disk timeout
+0112	disk hardware error-read-10 retries failed
+0114	Starting to boot net-exec
+0115	Unexpected ethernet output task wakeup
+0117	Two MC2 errors, both MC2A and MC2B pipes
+0118	Got breath of life
+0119	Stack overflow/underflow--microcode bug
+0120	RM or CS parity error
+0121	RM or CS parity error, and MC1 or MC2 error
+0122	RM or CS parity error, and RM parity error
+0123	both 121 and 122
+0124	RM or CS parity error, and CS parity error
+0125	both 121 and 124
+0126	both 122 and 124
+0127	both 121, 122 and 124
+0128	RM or CS parity error, and stack overflow/underflow
+0129	both 121 and 128
+0130	both 122 and 128
+0131	both 121, 122 and 128
+0132	both 124 and 128
+0133	both 121, 124 and 128
+0134	both 122, 124 aND 128
+0135	all of 121, 122, 124 and 128
+0136	MC12 error with no reasons
+0140	Map ouf of bounds for emulator task
+0141    Map ouf of bounds in task 1 (undef task)
+0142    Map ouf of bounds in task 2 (undef task)
+0143    Map ouf of bounds in task 3 (undef task)
+0144    Map ouf of bounds in task 4 (undef task)
+0145    Map ouf of bounds in color display
+0146    Map ouf of bounds in 3M ethernet output
+0147    Map ouf of bounds in 10M ethernet, or 3M ether input
+0148    Map ouf of bounds in disk controller
+0149    Map ouf of bounds in task 9 (undef task)
+0150    Map ouf of bounds in display
+0151    Map ouf of bounds in task 11 (undef task)
+0152    Map ouf of bounds in task 12 (undef task)
+0153    Map ouf of bounds in task 13 (undef task)
+0154    Map ouf of bounds in timer task
+0155    Map ouf of bounds in fault task
+0160    H4 parity error on processor bus for emulator task
+0161    H4 parity error on processor bus in task 1 (undef task)
+0162    H4 parity error on processor bus in task 2 (undef task)
+0163    H4 parity error on processor bus in task 3 (undef task)
+0164    H4 parity error on processor bus in task 4 (undef task)
+0165    H4 parity error on processor bus in color display
+0166    H4 parity error on processor bus in 3M ethernet output
+0167    H4 parity error on processor bus in 10M ethernet, or 3M ether input
+0168    H4 parity error on processor bus in disk controller
+0169    H4 parity error on processor bus in task 9 (undef task)
+0170    H4 parity error on processor bus in display
+0171    H4 parity error on processor bus in task 11 (undef task)
+0172    H4 parity error on processor bus in task 12 (undef task)
+0173    H4 parity error on processor bus in task 13 (undef task)
+0174    H4 parity error on processor bus in timer task
+0175    H4 parity error on processor bus in fault task
+0180    microcode bug following load page, for emulator task
+0181    microcode bug following load page, in task 1 (undef task)
+0182    microcode bug following load page, in task 2 (undef task)
+0183    microcode bug following load page, in task 3 (undef task)
+0184    microcode bug following load page, in task 4 (undef task)
+0185    microcode bug following load page, in color display
+0186    microcode bug following load page, in 3M ethernet output
+0187    microcode bug following load page, in 10M ethernet, or 3M ether input
+0188    microcode bug following load page, in disk controller
+0189    microcode bug following load page, in task 9 (undef task)
+0190    microcode bug following load page, in display
+0191    microcode bug following load page, in task 11 (undef task)
+0192    microcode bug following load page, in task 12 (undef task)
+0193    microcode bug following load page, in task 13 (undef task)
+0194    microcode bug following load page, in timer task
+0195    microcode bug following load page, in fault task
+200     MC2 crash for emulator task
+0201    MC2 crash in task 1 (undef task)
+0202    MC2 crash in task 2 (undef task)
+0203    MC2 crash in task 3 (undef task)
+0204    MC2 crash in task 4 (undef task)
+0205    MC2 crash in color display
+0206    MC2 crash in 3M ethernet output
+0207    MC2 crash in 10M ethernet, or 3M ether input
+0208    MC2 crash in disk controller
+0209    MC2 crash in task 9 (undef task)
+0210    MC2 crash in display
+0211    MC2 crash in task 11 (undef task)
+0212    MC2 crash in task 12 (undef task)
+0213    MC2 crash in task 13 (undef task)
+0214    MC2 crash in timer task
+0215    MC2 crash in fault task
+0220    MC1 crash for emulator task
+0221    MC1 crash in task 1 (undef task)
+0222    MC1 crash in task 2 (undef task)
+0223    MC1 crash in task 3 (undef task)
+0224    MC1 crash in task 4 (undef task)
+0225    MC1 crash in color display
+0226    MC1 crash in 3M ethernet output
+0227    MC1 crash in 10M ethernet, or 3M ether input
+0228    MC1 crash in disk controller
+0229    MC1 crash in task 9 (undef task)
+0230    MC1 crash in display
+0231    MC1 crash in task 11 (undef task)
+0232    MC1 crash in task 12 (undef task)
+0233    MC1 crash in task 13 (undef task)
+0234    MC1 crash in timer task
+0235    MC1 crash in fault task
+0240    SetFault of breakpoint crash, for emulator task
+0241    SetFault of breakpoint crash, in task 1 (undef task)
+0242    SetFault of breakpoint crash, in task 2 (undef task)
+0243    SetFault of breakpoint crash, in task 3 (undef task)
+0244    SetFault of breakpoint crash, in task 4 (undef task)
+0245    SetFault of breakpoint crash, in color display
+0246    SetFault of breakpoint crash, in 3M ethernet output
+0247    SetFault of breakpoint crash, in 10M ethernet, or 3M ether input
+0248    SetFault of breakpoint crash, in disk controller
+0249    SetFault of breakpoint crash, in task 9 (undef task)
+0250    SetFault of breakpoint crash, in display
+0251    SetFault of breakpoint crash, in task 11 (undef task)
+0252    SetFault of breakpoint crash, in task 12 (undef task)
+0253    SetFault of breakpoint crash, in task 13 (undef task)
+0254    SetFault of breakpoint crash, in timer task
+0255    SetFault of breakpoint crash, in fault task
+0400    Start storage test
+0401    Bad storage on board in slot 5          \
+0402    Bad storage on board in slot 6          \
+0403    Bad storage on boards in slots 5 and 6  \
+0404    Bad storage on board in slot 7          \
+0405..0407 Bad storage on several boards	\
+0408	Bad storage on board in slot 8		 -All followed by two numbers
+0409..0415 Bad storage on several boards	 -first count of hard bad pages
+0416	Bad storage on board in slot 9		 -then count of soft bad pages
+0417..0431 Bad storage on several boards	 -(or chip number in some rels)
+0432	Bad storage on board in slot 10		/
+0433..0463 Bad storage on several boards	/
+0464	Bad storage on board in slot 11		/
+0465..0527 Bad storage on several boards	/
+0512	512 good pages (minimum to run alto)
+0528	Bad storage on board in slot 12		/
+0527..0655 Bad storage on several boards	/
+0700	Start map test
+0701	Not enough memory (under 64K words) for initial
+0702	Bad map
+0720	Starting to load emulator microcode from disk
+0721	No disk
+0722	disk read error
+0741	can't find display
+0742	Trying to load boot file #1 (not used)
+0743	Failed to get boot file #1
+0744..0757 as 742/743 for other boot file numbers
+0758	Trying to load boot file #9 (3411=AltoDo.Eb)
+0759	Failed to get boot file #9
+0760..?? other boot files
+0812	Label check from disk (will try Ethernet)
+2304	2304 good pages--6 full 96k boards
+3072	3072 good pages--8*96k OR 3*256k
+3328	3328 good pages--6*96k + 1*256k boards
+4096	4096 good pages--4*256k
+8808	RM parity error during hardware boot
+8880	IMX or control store parity error during hardware boot
+8888	Lamp test

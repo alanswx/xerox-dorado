@@ -1,0 +1,195 @@
+'From Smalltalk-80 of September 21, 1982 on 30 September 1982 at 12:50:28 pm;
+Modified from Interface-Chat.st by Evelyn Van Orden for the Customer Release on 30 September 1982 at 1:05:08 pm'!
+
+
+ByteStreamSocket subclass: #TelnetSocket
+	instanceVariableNames: 'displayProcess textCollector '
+	classVariableNames: 'DataMarkType TimingMarkReplyType TimingMarkType '
+	poolDictionaries: ''
+	category: 'Ethernet-Telnet'!
+
+TelnetSocket comment:
+'A socket that implements Chat-type connections'!
+
+!TelnetSocket methodsFor: 'chatting'!
+
+chatDisplay
+	"This is the displaying process for Chat."
+
+	| token |
+	[true]
+		whileTrue: 
+			[token _ self processNextDataPacket.
+			(token isMemberOf: MarkByte)
+				ifTrue: [self processCommand: token]
+				ifFalse: 
+					["note no interlock on Transcripts"
+					textCollector nextPutAll: token.
+					textCollector endEntry]]!
+
+chatTo: hostName displayIn: aChatter
+
+	| nameUser addressBlock |
+	textCollector _ aChatter.
+	nameUser _ NameUser new.
+	addressBlock _ nameUser getAddressBlock: hostName, '+TELNET'.
+	addressBlock isNil ifTrue: 	"maybe name includes socket already (e.g. Ernestine)"
+		[addressBlock _ nameUser getAddressBlock: hostName].
+	nameUser close.
+	addressBlock isNil ifTrue: [^false].
+	(self openToNet: (addressBlock at: 1)
+		Host: (addressBlock at: 2)
+		Socket: (addressBlock doubleWordAt: 3)) = 'open'
+			ifTrue:	[textCollector cr; show: 'Connected to ', hostName; cr.
+						self startChatProcess.
+						^true].
+	self close.
+	textCollector cr.
+	textCollector show: 'Can''t connect to ', hostName.
+	^false!
+
+endChat
+
+	displayProcess terminate.
+	textCollector show: 'Connection Terminated'.
+	self close!
+
+startChatProcess
+
+	displayProcess _ [self chatDisplay] newProcess.
+	displayProcess priority: Processor userInterruptPriority.
+	displayProcess resume! !
+
+!TelnetSocket methodsFor: 'processing input'!
+
+processCommand: commando
+
+	| type |
+	(type _ commando type) = CadaverType
+		ifTrue:	[self endChat]
+		ifFalse:	[type = TimingMarkType ifTrue: [self processTimingMark]]!
+
+processInterrupt: pac
+	"Eat bytes until the data mark, processing commands along the way.
+	Do nothing because we have already eaten the DM."!
+
+processTimingMark
+
+	self sendMark: TimingMarkReplyType! !
+
+!TelnetSocket methodsFor: 'private'!
+
+markName: byte
+
+	^(byte between: 1 and: 6)
+		ifTrue:	[#('[Data-Mark]' '[Line-Width]' '[Page-Length]' '[Terminal-Type]'
+						'[Timing-Mark]' '[Timing-Mark-Reply]') at: byte]
+		ifFalse:	['']! !
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+TelnetSocket class
+	instanceVariableNames: ''!
+
+!TelnetSocket class methodsFor: 'initialization'!
+
+initialize
+
+	DataMarkType _ 1.
+	TimingMarkType _ 5.
+	TimingMarkReplyType _ 6! !
+
+TelnetSocket initialize!
+
+
+TextCollectorController subclass: #ChatController
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Ethernet-Telnet'!
+
+!ChatController methodsFor: 'control defaults'!
+
+controlActivity
+	"Send keyboard characters to my model (a TelnetSocket)."
+
+	| characterStream |
+	Sensor keyboardPressed
+		ifTrue: 
+			[characterStream _ WriteStream on: (String new: 20).
+			[Sensor keyboardPressed]
+				whileTrue: [characterStream nextPut: Sensor keyboard].
+			model sendSmallString: characterStream contents]! !
+
+
+TextCollector subclass: #Chatter
+	instanceVariableNames: 'telnetSocket '
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Ethernet-Telnet'!
+
+!Chatter methodsFor: 'socket messages'!
+
+endChat
+	"Close connection and socket."
+
+	telnetSocket endChat.
+	telnetSocket _ nil!
+
+sendSmallString: aString
+	"pass this on to the socket."
+
+	telnetSocket sendSmallString: aString! !
+
+!Chatter methodsFor: 'private'!
+
+characterLimit
+
+	^5000!
+
+telnetSocket: aTelnetSocket
+
+	telnetSocket _ aTelnetSocket! !
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+Chatter class
+	instanceVariableNames: ''!
+
+!Chatter class methodsFor: 'instance creation'!
+
+chatTo: hostName
+	"Open a Chat connection and schedule a ChatView for it."
+
+	| telnetSocket chatter  |
+	chatter _ self new.
+	telnetSocket _ TelnetSocket new.
+	(telnetSocket chatTo: hostName displayIn: chatter) ifFalse:
+		[^self notify: 'failed to connect to ', hostName].
+	chatter telnetSocket: telnetSocket. 	"note circularity here"
+	ChatView open: chatter label: hostName! !
+
+!Chatter class methodsFor: 'examples'!
+
+example
+	"How to open a Chat connection."
+
+	Chatter chatTo: 'Maxc'! !
+
+
+TextCollectorView subclass: #ChatView
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Ethernet-Telnet'!
+
+!ChatView methodsFor: 'initialize-release'!
+
+release
+	"Intercepted to close the telnet socket -- kludge."
+	
+	model endChat. 	"note this is wrong if other view/controllers exist"
+	super release! !
+
+!ChatView methodsFor: 'controller access'!
+
+defaultControllerClass
+	^ChatController! !

@@ -1,0 +1,378 @@
+'From Smalltalk-80 of September 21, 1982 on 1 October 1982 at 4:27:27 pm;
+Unmodified from FileInChecker.st'!
+
+
+Object subclass: #FileInChecker
+	instanceVariableNames: 'changes doits '
+	classVariableNames: 'CheckAgainstSystem DefaultChecker LastMethod '
+	poolDictionaries: ''
+	category: 'System-Support'!
+
+FileInChecker comment:
+'Class FileInChecker will scan Smalltalk-80 source code files (i.e. ".st" files) and create a file listing the potential conflicts between them. See the examples in FileInChecker class.'!
+
+!FileInChecker methodsFor: 'initialization'!
+
+initialChanges: changeList
+	"Initialize changes from a collection of strings of the form:
+	'<ClassName> <MessageSelector>'."
+
+	| selector break |
+	self initialize.
+	changeList do:
+		[:change |
+		break _ (change findString: ' class ' startingAt: 2) + 6.
+		break = 6 ifTrue: [break _ change indexOf: Character space].
+		break = 0 ifFalse:
+			[self systemChange: (change copyFrom: break+1 to: change size)
+				className: (change copyFrom: 1 to: break-1)]]!
+
+initialChangeSet: aChangeSet
+	"Initialize changes from a ChangeSet; doesn't include class changes."
+
+	self initialChanges: aChangeSet changedMessageList!
+
+initialize
+	"Reset changes."
+
+	changes _ Dictionary new.
+	doits _ Dictionary new! !
+
+!FileInChecker methodsFor: 'checking'!
+
+checkCategory: text scanFrom: aStream 
+	"The argument text ext is a class category header. Scans in method
+	definitions until double terminators."
+
+	| headerStream string className selector startPos |
+	headerStream _ ReadStream on: text.
+	className _ headerStream upTo: $ .
+	((string _ headerStream upTo: $ ) ~= 'methodsFor:'
+		and: [string = 'class'
+				ifTrue:	[className _ className, ' class'.
+						(headerStream upTo: $ ) ~= 'methodsFor:']
+				ifFalse:	[string = 'reorganize' ifTrue:
+							[self change: text stream: aStream message: text.
+							^aStream nextChunk].
+						true]])
+			ifTrue:	[self error: 'category header expected'].
+	Transcript nextPutAll: className; nextPut: $-;
+		nextPutAll: (String readFrom: headerStream); cr; endEntry.
+
+	[startPos _ aStream position.
+	string _ aStream nextChunk.
+	string size > 0]						"done when double terminators"
+		whileTrue:
+			[selector _ Parser new parseSelector: string.
+			CheckAgainstSystem
+				ifTrue:
+					[(self isNewCode: string
+						selector: selector
+						className: className) ifTrue:
+							[self systemChange: selector className: className.
+							self change: className, ' ', selector
+								stream: aStream from: startPos]]
+				ifFalse:
+					[self change: className, ' ', selector stream: aStream from: startPos]]!
+
+checkDoIt: text streamIs: aStream 
+	"Check this DoIt for possible conflicts (e.g. class definitions)."
+
+	| textStream token1 token2 token3 |
+	text isEmpty ifTrue: [^self].
+
+	textStream _ ReadStream on: text.
+	token1 _ self getToken: textStream.
+	
+	token1 first = $" ifTrue: [^self "ignore comments"].
+	token1 = '''From' ifTrue:
+		[(textStream next: Smalltalk version size) = Smalltalk version ifTrue:
+			[^self "ignore if current version"]].
+	
+	token2 _ self getToken: textStream.
+
+	"check for class comment"
+	token2 = 'comment:' ifTrue:
+		[^self change: token1, ' <comment>' stream: aStream message: text].
+
+	"check for class removal!!"
+	token2 = 'removeFromSystem' ifTrue:
+		[self doit: text stream: aStream. 	"flag also"
+		^self change: token1 stream: aStream message: text].
+	
+	token3 _ self getToken: textStream.
+	
+	"check for class definition/change"
+	('*ubclass:' match: token2) ifTrue:
+		[^self change: (token3 copyWithout: $#) stream: aStream message: text].
+	
+	"check for method removal"
+	token2 = 'removeSelector:' ifTrue:
+		[self doit: text stream: aStream. 	"flag also"
+		^self change: token1, ' ', (token3 copyWithout: $#) stream: aStream message: text].
+
+	"check for metaclass comment/change/method removal"
+	token2 = 'class' ifTrue:
+		[token3 = 'removeSelector:' ifTrue:
+			[self doit: text stream: aStream. 	"flag also"
+			^self change: token1, ' ', ((self getToken: textStream) copyWithout: $#)
+				stream: aStream message: text].
+		token3 = 'comment:' ifTrue:
+			[^self change: token1, ' class', ' <comment>' stream: aStream message: text].
+		token3 = 'instanceVariableNames:' ifTrue:
+			[^self change: token1, ' class' stream: aStream message: text]].
+
+	"some other DoIt"
+	self doit: text stream: aStream! !
+
+!FileInChecker methodsFor: 'results'!
+
+reportConflictsByClassWithExtension: extension
+	"Report conflicts among the changes."
+
+	| aStream contendors doitTexts |
+	changes keys asSortedCollection do: [:change |
+		contendors _ changes at: change.
+		contendors size > 1 ifTrue:
+			[aStream _ Disk file: ((change copyUpto: $ ) copyWithout: $ ), extension.
+			aStream setToEnd.
+			aStream cr; nextPutAll: '*** conflict: ', change, ' ***'; cr.
+			contendors do: [:contendor | self writeContendor: contendor on: aStream].
+			aStream close]].
+
+	aStream _ Disk file: 'DoIts', extension.
+	doits keys do: [:fileName |
+		doitTexts _ doits at: fileName.
+		doitTexts isEmpty ifFalse:
+			[aStream cr; nextPutAll: '*** DoIts in ', fileName, ' ***'; cr; cr.
+			doitTexts do: [:doit | aStream tab; nextPutAll: doit; cr]]].
+
+	aStream isEmpty ifTrue: [Transcript show: '*** no conflicts ***'.
+		aStream nextPutAll: '*** no conflicts ***'].
+	^aStream close!
+
+reportConflictsOn: aStream
+	"Report conflicts among the changes."
+
+	| contendors doitTexts |
+	Cursor write showWhile:
+		[changes keys asSortedCollection do: [:change |
+			contendors _ changes at: change.
+			contendors size > 1 ifTrue:
+				[aStream cr; nextPutAll: '*** conflict: ', change, ' ***'; cr.
+				contendors do: [:contendor | self writeContendor: contendor on: aStream]]].
+
+		doits keys do: [:fileName |
+			doitTexts _ doits at: fileName.
+			doitTexts isEmpty ifFalse:
+				[aStream cr; nextPutAll: '*** DoIts in ', fileName, ' ***'; cr; cr.
+				doitTexts do: [:doit | aStream tab; nextPutAll: doit; cr]]].
+
+		aStream isEmpty ifTrue: [Transcript show: '*** no conflicts ***'.
+			aStream nextPutAll: '*** no conflicts ***']].
+	^aStream close! !
+
+!FileInChecker methodsFor: 'private'!
+
+change: change stream: stream from: startPos
+	"Add this change."
+
+	(changes at: change ifAbsent: [changes at: change put: OrderedCollection new])
+		add: (Array with: stream with: startPos)!
+
+change: change stream: stream message: aString
+	"Add this change."
+
+	(changes at: change ifAbsent: [changes at: change put: OrderedCollection new])
+		add: (Array with: stream with: aString)!
+
+classNamed: className
+
+	| stream class |
+	stream _ ReadStream on: className.
+	class _ Smalltalk at: (stream upTo: $ ) asSymbol ifAbsent: [^nil].
+	(stream upTo: nil) = 'class'
+		ifTrue: [^class class]
+		ifFalse: [^class]!
+
+doit: text stream: aStream
+	"Remember all DoIts just in case."
+
+	| name |
+	(aStream isKindOf: FileStream)
+		ifTrue: [name _ aStream name]
+		ifFalse: [name _ 'some local stream'].
+	Transcript nextPutAll: 'a DoIt'; cr; endEntry.
+	(doits at: name ifAbsent: [doits at: name put: OrderedCollection new])
+		add: text!
+
+getToken: aStream 
+	"Answer the next series of characters up to space, tab or cr."
+
+	| newStream element |
+	newStream _ WriteStream on: (String new: 20).
+	[aStream atEnd not and: [aStream peek isSeparator]] whileTrue: [aStream next].
+	[aStream atEnd
+		or: [element _ aStream next.
+			element isSeparator
+				or: [newStream nextPut: element.
+					false]]] whileFalse.
+	^newStream contents!
+
+isNewCode: newCode selector: selector className: className
+	"Answer true if this method is new or differs from system code."
+
+	| class |
+	class _ self classNamed: className.
+	class == nil ifTrue: [^true].
+	(class includesSelector: selector) ifFalse: [^true].
+		"check if code is different"
+	^(self removeComments: (class sourceCodeAt: selector))
+		~= (self removeComments: newCode)!
+
+removeComments: source
+	"Remove comments and blank lines from this string."
+
+	| stream dest |
+	dest _ WriteStream on: (String new: source size).
+	stream _ ReadWriteStream with: source.
+	stream reset.
+	[stream atEnd] whileFalse:
+		[(stream peekFor: $$) ifTrue: [dest print: stream next] 	"catch chars/strings"
+			ifFalse: [stream peek = $' ifTrue: [dest print: (String readFrom: stream)]
+			ifFalse: [(stream peekFor: $") ifTrue: [stream skipTo: $"; skipSeparators]
+			ifFalse: [stream peek isSeparator
+						ifTrue: [stream skipSeparators. dest space]
+			ifFalse: [dest nextPut: stream next]]]]].
+	^dest contents!
+
+systemChange: selector className: className
+	
+	| change |
+	change _ className, ' ', selector.
+	(changes at: change ifAbsent: [changes at: change put: OrderedCollection new])
+		add: (Array with: (self classNamed: className) with: selector asSymbol)!
+
+writeContendor: array on: aStream
+	"Write out the change or message."
+
+	| source method endComment code |
+	"the array contains either (file, startIndex) or (file, message) or (class, selector)"
+	source _ array first.
+	(source isKindOf: ClassDescription) ifTrue:
+		[aStream cr; nextPutAll: 'Class: ', source name; cr; cr.
+		(source includesSelector: array last)
+			ifTrue: [aStream nextPutAll: (source sourceCodeAt: array last); cr]
+			ifFalse: [aStream nextPutAll: 'NOT DEFINED'; cr].
+			^self].
+	aStream cr; nextPutAll: 'File: ', source name; cr.
+	(array last isMemberOf: String) ifTrue:
+		[^array last == nil ifFalse: [aStream tab; nextPutAll: array last; cr]].
+	source position: array last. "method definition"
+	method _ ReadWriteStream with: source nextChunk.
+	source setToEnd; close.
+	method reset; skipSeparators; skipTo: Character cr; skipSeparators. 	"skip header"
+	(method peekFor: $")
+		ifTrue: [method skipTo: $"; skipSeparators.
+			endComment _ method position.
+			(code _ self removeComments: method nextChunk) = LastMethod
+			ifTrue: [method reset.
+				aStream cr; nextPutAll: (method next: endComment);
+					nextPutAll: '[SAME CODE AS ABOVE]'; cr.
+				^self]
+			ifFalse: [LastMethod _ code]].
+	method reset.
+	aStream cr; nextPutAll: method contents; cr! !
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+FileInChecker class
+	instanceVariableNames: ''!
+
+!FileInChecker class methodsFor: 'initialize-release'!
+
+initialize
+
+	self checkAgainstSystem: false! !
+
+!FileInChecker class methodsFor: 'instance creation'!
+
+new
+	"Answer a new instance of me."
+
+	^super new initialize! !
+
+!FileInChecker class methodsFor: 'default instance'!
+
+checkAgainstSystem: aBoolean
+
+	CheckAgainstSystem _ aBoolean!
+
+default
+	"Answer a default instance of me"
+
+	DefaultChecker == nil ifTrue: [DefaultChecker _ self new].
+	^DefaultChecker!
+
+defaultInstance: aFileInChecker
+	"Reset the default instance."
+
+	^DefaultChecker _ aFileInChecker! !
+
+!FileInChecker class methodsFor: 'examples'!
+
+example
+	"To see if a set of file-ins conflict:
+
+		FileInChecker default initialize.
+		(FileStream oldFileNamed: 'goodie1.st') checkFileIn.
+		(FileStream oldFileNamed: 'goodie2.st') checkFileIn.
+		(FileStream oldFileNamed: 'goodie3.st') checkFileIn.
+		FileInChecker default reportConflictsOn: (FileStream fileNamed: 'conflicts.text').
+
+	----------
+
+	To initialize the checker with an existing ChangeSet:
+
+		FileInChecker default initialize.
+		FileInChecker default initialChangeSet: Smalltalk changes.
+		(FileStream oldFileNamed: 'goodie1.st') checkFileIn.
+		...etc...
+
+	----------
+
+	To initialize the checker with an arbitrary list of changes:
+
+		FileInChecker default initialize.
+		FileInChecker default initialChanges:
+			#('MyClass initialize' 'MyClass printOn:' 'MyClass class new' 'FileInChecker initialize').
+		(FileStream oldFileNamed: 'goodie1.st') checkFileIn.
+		...etc..."! !
+
+FileInChecker initialize!
+
+
+!ReadWriteStream methodsFor: 'fileIn/Out'!
+
+checkFileIn
+	"Parse the file to look for definitions which conflict with other changes.
+	Use the default FileInChecker."
+
+	^self checkFileIn: FileInChecker default!
+
+checkFileIn: checker 
+	"Parse the file to look for definitions which conflict with other changes."
+
+	self readOnly.
+	Cursor execute showWhile:
+		[[self atEnd]
+			whileFalse: 
+				[self skipSeparators.
+				(self peekFor: $!!)
+					ifTrue: [checker
+							checkCategory: self nextChunk
+							scanFrom: self]
+					ifFalse: [checker
+							checkDoIt: self nextChunk
+							streamIs: self]].
+		self close].
+	^checker! !

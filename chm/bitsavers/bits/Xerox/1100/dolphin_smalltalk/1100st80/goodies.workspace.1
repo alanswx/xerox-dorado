@@ -1,0 +1,120 @@
+Workspace for Miscellaneous Goodies
+
+Animation Goodie
+This goodie by Dan Ingalls defines and demonstrates a set of graphics animation primitives. Besides showing Smalltalk-80 graphics capabilities, it serves as a good example of how to implement a graphics application.
+
+"To file it in:"
+(FileStream oldFileNamed: 'GraphicsAnimation.st') fileIn.
+
+"To execute it:"
+WindowNode example.
+
+Pointing Hand Goodie
+This goodie by Dan Ingalls is another popular one for demonstrations because it allows you to display and dynamically move a large pointing hand on the display screen to call attention to specific details.
+
+"To file it in:"
+(FileStream oldFileNamed: 'PointingHand.st') fileIn.
+
+"To execute it:"
+While the cursor is inside a window, hold down the left "SHIFT" key on the keyboard, and press blueButton (the right-most mouse button), holding the button down as long as you want the hand displayed. You may release the left "SHIFT" key as soon as the hand appears.
+
+Video Feedback Goodie
+This goodie by Ted Kaehler is a simple and interesting application of BitBlt. It contains three separate demonstrations, one of which requires user interaction.
+
+"To file it in:"
+(FileStream oldFileNamed: 'VideoFeedback.st') fileIn.
+
+"To execute it:"
+Display feedBack.		"must specify a Rectangle,"
+						"then move the mouse around"
+Display dancingBits.		"just watch what can be done"
+						"with a few lines of code"
+Display dancingBits2.	"a slight variation of"
+						"Display dancingBits"
+
+Pictures Goodie
+This goodie by Kerry LaPrade and Evelyn Van Orden reads a picture stored as a Form from a disk file and displays it in a View on the screen. Six pictures have been included, all of which were created with the Smalltalk-80 FormEditor except for SmalltalkBalloon.Form, which was scanned in from the infamous Byte magazine cover*, halftoned, and converted into a Form:
+	Biplane.Form			397 x 265
+	Birds.Form				588 x 664
+	Map.Form				312 x 416
+	Mickey.Form**			92 x 86
+	SmalltalkBalloon.Form	444 x 606
+	Unicorn.Form			474 x 693
+*August 1981 issue of Byte magazine.
+**Shown in Smalltalk-80: The Language and Its Implementation, "Chapter XX: Display Objects".
+
+"To file it in:"
+(FileStream oldFileNamed: 'Pictures.st') fileIn.
+
+"To execute it:"
+(FileStream oldFileNamed: 'Pictures.workspace') edit.
+
+Fonts Goodie
+This goodie by Kerry LaPrade and Evelyn Van Orden provides a set of different fonts in a range of point sizes and a mechanism to change the default set of fonts used for displaying text on the screen. The following fonts are available:
+	Frutiger			A sans-serif font
+	Gacha			A fixed-pitch font
+	Helvetica		Another sans-serif font
+	Hippo			A Greek font
+	OldEnglish		Looks like it sounds
+	TimesRoman		A serif font
+
+"To file it in:"
+[none required]
+
+"To execute it:"
+(FileStream oldFileNamed: 'Fonts.workspace') edit.
+
+Open System Workspace Goodie
+This goodie by Glenn Krasner installs a new item in the system menu: "system workspace". You will find this goodie useful if you ever accidentally (or intentionally) close the System Workspace window, and then want it back again. Without this goodie, the only way to open it again is with the following command:
+	StringHolderView openSystemWorkspace.
+
+"To file it in:"
+(FileStream oldFileNamed: 'SystemWorkspace.st') fileIn.
+
+"To execute it:"
+[bring up the system menu and bug "system workspace"]
+
+Conflicts Checker Goodie
+This goodie by Steve Putz provides a mechanism for checking a set of file-ins (i.e. ".st" files) for conflicts. It produces a report which can be written to a disk file that lists conflicts in the following format:
+	*** conflict: Array storeOn: ***
+	File: file1.st.
+	storeOn: aStream
+		[code for this method]
+	File: file2.st.
+	storeOn: aStream
+		[code for this method]
+It also lists all DoIts it found in the following format:
+	*** DoIts in file1.st ***
+	'From Smalltalk-80 of October 1 on October 23...'
+	Cursor initialize
+
+"To file it in:"
+(FileStream oldFileNamed: 'ConflictsChecker.st') fileIn.
+
+"To execute it:"
+(FileStream oldFileNamed: 'ConflictsChecker.workspace') edit.
+
+Static Checks Goodie
+This goodie packaged by Evelyn Van Orden provides a mechanism for collecting statistics from a Smalltalk-80 image. The statistics include instance counts for every class, instance variables not referenced, messages sent but not received, timing measurements for standard benchmark tests, etc.
+
+"To file it in:"
+(FileStream oldFileNamed: 'StaticChecks.st') fileIn.
+
+"To execute it:"
+(FileStream oldFileNamed: 'StaticChecks.workspace') edit.
+
+Ethernet Goodie
+This goodie by Steve Putz and Evelyn Van Orden introduces the following Ethernet protocols into Smalltalk-80:
+	BSP: Byte Stream Protocol. Includes many debugging facilities which are turned off and will eventually be removed.
+	Chat: A very minimal Chat window which uses Telnet protocol. It has some bugs (e.g., when opening and closing, the display process puts junk on the screen), but seems to work otherwise. It is just a way to test Telnet and BSP protocol.
+	FTP: File Transfer Protocol. The cleanest and most reliable component here, but it is just a first pass.
+	IFS directory enumeration: Implementations for IFSLeafFileDirectory filesMatching: and rename:newName: which cannot be done using Leaf (page-level access) protocol. It also hooks up with FileList so that you can list the remote file names with a filter (example: RemoteDisk filesMatching: '<DirName>*).
+-----
+NOTE: If you don't understand the above, please do not try to use this goodie.
+
+"To file it in:"
+#('Ethernet-BSP.st' 'Ethernet-Telnet.st' 'Ethernet-FTP.st') do:
+	[:name | (FileStream oldFileNamed: name) fileIn].
+
+"To execute it:"
+(FileStream oldFileNamed: 'Ethernet.workspace') edit.

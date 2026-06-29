@@ -1,0 +1,60 @@
+Workspace for Miscellaneous New Goodies
+
+
+
+Clock Goodie
+
+This goodie by Glenn Krasner allows the creation of a screen view containing a clock. The clock may be started and stopped by selecting the appropriate middle mouse button menu item. When the clock is started, it automatically updates the time every minute, unless another process with a higher priority is running. When the clock is stopped, it will be updated only as a result of starting up the system, restoring the display, or entering the clock view.
+
+
+
+"To file it in:"
+
+(FileStream oldFileNamed: 'ClockView.st') readOnly; fileIn.
+
+
+
+"To execute it:"
+
+ClockView open. "then bug 'start' to start it running, 'stop' to stop it"
+
+
+
+Named Snapshot Goodie
+
+This goodie packaged by Evelyn Van Orden is useful for creating and maintaining a set of Smalltalk-80 image files along with their corresponding changes files. The system menu item for saving state is now 'save' instead of 'snapshot'. You are now given the option of specifying the name of your save file, whereas before the save file was always called 'Snapshot.im'. To specify the file name, type the desired name followed by a carriage return. If the default name in the prompter is already the one you want, you need only type a carriage return. If the file name you specify is not 'Snapshot' and is different from the default name, then a new changes file is created to correspond to the new image file being created.
+
+
+
+Another feature of this goodie is that when you select the 'quit' item in the system menu, a new menu of three choices pops up. Selecting 'save then quit' prompts you for the name of your save file, saves the system on this file, and then quits from Smalltalk-80. Selecting 'quit without saving' simply quits from Smalltalk-80 with no further confirmation. Selecting 'continue' aborts the 'quit' command and returns you back to Smalltalk-80.
+
+
+
+"To file it in:"
+
+(FileStream oldFileNamed: 'NamedSnapshot.st') readOnly; fileIn.
+
+
+
+"To execute it:"
+
+Bug 'save' in the system menu; or bug 'quit' in the system menu, then bug 'save then quit' in the new menu that pops up.
+
+
+
+Select and Scroll Goodie
+
+This goodie packaged by Evelyn Van Orden provides the capability of selecting and scrolling text at the same time. This is useful if you are trying to make a text selection that is larger than what will fit in the window containing the text.
+
+
+
+"To file it in:"
+
+(FileStream oldFileNamed: 'SelectAndScroll.st') readOnly; fileIn.
+
+
+
+"To execute it:"
+
+Make a text selection as usual, but move the cursor either above or below the boundary of the text window while holding down the left mouse button. The text will scroll up (if the cursor is below the window) or down (if the cursor is above the window) and the new text appearing in the window will become part of the selection. Notice that the distance from the top or bottom edge determines the number of lines that are scrolled at a time.
+

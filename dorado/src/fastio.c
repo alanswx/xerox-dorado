@@ -44,8 +44,9 @@ void dorado_fastio_dispatch(struct dorado_memory *mem,
              * pump these into the framebuffer via the mixer or the
              * DispM terminal interface. */
             for (int i = 0; i < 16; i++) {
-                if (dorado_display_fifo_push(r->display, subtask,
-                                             munch[i]) != 0) {
+                if (dorado_display_iofetch_word(r->display, subtask,
+                                                va + (uint32_t)i,
+                                                munch[i]) != 0) {
                     /* FIFO full — drop the rest of the munch. Real
                      * hardware would Hold the processor (HM §8 /
                      * gap B1); we count the drop. */

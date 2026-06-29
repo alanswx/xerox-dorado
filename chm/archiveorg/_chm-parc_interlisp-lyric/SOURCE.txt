@@ -1,0 +1,5 @@
+Source: CHM Xerox PARC archive (xeroxparcarchive.computerhistory.org)
+IFS path: [phylum]<LISP>Lyric>Basics>
+LISP.SYSOUT!1   4824064 bytes  27-Apr-1987  Interlisp-D Lyric sysout (machine-independent)
+DORADOLISPMC.EB!1 36664 bytes  Dorado(1132) Lisp microcode, matched to this sysout
+URL: https://xeroxparcarchive.computerhistory.org/phylum/lisp/lyric/basics/

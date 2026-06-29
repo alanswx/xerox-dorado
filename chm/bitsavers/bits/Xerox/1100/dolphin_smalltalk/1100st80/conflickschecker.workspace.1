@@ -1,0 +1,15 @@
+Workspace for Conflicts Checker
+
+"To check Smalltalk-80 code files for conflicts:"
+Smalltalk noChanges.
+FileInChecker default initialize.
+#('file1.st' 'file2.st' 'file3.st' 'file4.st' 'file5.st') "this can be any set of '.st' files"
+	do:
+		[:name | Transcript tab; show: name; cr.
+		(FileStream oldFileNamed: name) checkFileIn].
+
+Cursor write showWhile:
+	[FileInChecker default reportConflictsOn: (FileStream fileNamed: 'Conflicts.text')].
+
+"To examine the results:"
+(FileStream oldFileNamed: 'Conflicts.text') edit.

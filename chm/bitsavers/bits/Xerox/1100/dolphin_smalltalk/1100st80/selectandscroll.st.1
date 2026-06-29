@@ -1,0 +1,616 @@
+'From Smalltalk-80 of November 15, 1982 (Customer Version 3) on 14 March 1983 at 2:11:21 pm;
+
+Unmodified from [V20] by Evelyn Van Orden for the Customer Release'!
+
+
+
+
+
+
+
+!ParagraphEditor methodsFor: 'sensor access'!
+
+
+
+processRedButton
+
+	"The user pressed a red mouse button, meaning create a new text selection.
+
+	Highlighting the selection is carried out by the paragraph itself.  Double
+
+	clicking causes a selection of the area between the nearest enclosing delimitors;
+
+	extension is based on both ends if different."
+
+
+
+	| paragraphOrigin selectionBlocks |
+
+	self deselect.
+
+	self closeTypeIn.
+
+	paragraphOrigin _ paragraph compositionRectangle origin.
+
+	selectionBlocks _ paragraph mouseSelect: startBlock to: stopBlock.
+
+	selectionShowing _ true.
+
+	startBlock _ selectionBlocks at: 1.
+
+	stopBlock _ selectionBlocks at: 2.
+
+	paragraphOrigin = paragraph compositionRectangle origin
+
+		ifFalse: [self updateMarker].
+
+	self setEmphasisHere! !
+
+
+
+
+
+!Paragraph methodsFor: 'selecting'!
+
+
+
+displayCaretForBlock: aCharacterBlock
+
+	"Show the caret at the proper place for aCharacterBlock."
+
+
+
+	self displayCaretAt: (aCharacterBlock topLeft + (0 @ textStyle baseline))!
+
+
+
+dyForPoint: pt
+
+	"See if pt is above or below clippingRectangle. Answer the scroll amount."
+
+
+
+	| dy dyLim |
+
+	((dy _ pt y - clippingRectangle top) < 0
+
+		and: [(dyLim _ compositionRectangle top - clippingRectangle top) < 0])
+
+			ifTrue: [^(dy max: dyLim) - textStyle lineGrid].
+
+	((dy _ pt y - clippingRectangle bottom) > 0
+
+		and: [(dyLim _ compositionRectangle bottom - clippingRectangle bottom) > 0])
+
+			ifTrue: [^(dy min: dyLim) + textStyle lineGrid].
+
+	^0!
+
+
+
+mouseSelect: previousStartBlock to: previousStopBlock
+
+	"Answer an Array of two CharacterBlocks that represent the text selection
+
+	that the user makes. Allow for scrolling to extend selections."
+
+
+
+	| pivotBlock startBlock stopBlock showingCaret dy pt okToScroll scrollDelay word |
+
+	startBlock _ stopBlock _ pivotBlock _ self characterBlockAtPoint: Sensor cursorPoint.
+
+	self displayCaretForBlock: pivotBlock.
+
+	showingCaret _ true.
+
+	okToScroll _ true.
+
+	scrollDelay _ Delay forMilliseconds: 250.
+
+	[Sensor redButtonPressed] whileTrue:
+
+		[pt _ Sensor cursorPoint.
+
+		(okToScroll and: [(dy _ self dyForPoint: pt) ~= 0]) ifTrue:
+
+			[[okToScroll _ false. scrollDelay wait. okToScroll _ true]
+
+				forkAt: Processor userInterruptPriority.
+
+			showingCaret
+
+				ifTrue:	[self displayCaretForBlock: pivotBlock. showingCaret _ false]
+
+				ifFalse:	[self reverseFrom: startBlock to: pivotBlock].
+
+			self scrollBy: dy.
+
+			pt _ dy < 0
+
+				ifTrue:	[clippingRectangle topLeft]
+
+				ifFalse:	[clippingRectangle bottomRight].
+
+			pivotBlock _ self characterBlockForIndex: pivotBlock stringIndex.
+
+			startBlock _ pivotBlock].
+
+		stopBlock _ self characterBlockAtPoint: pt.
+
+		stopBlock = startBlock ifFalse:
+
+			[showingCaret ifTrue:
+
+				[self displayCaretForBlock: pivotBlock. showingCaret _ false].
+
+			self reverseFrom: startBlock to: stopBlock.
+
+			startBlock _ stopBlock]].
+
+	(showingCaret not and: [pivotBlock = stopBlock])
+
+		ifTrue: [self displayCaretForBlock: pivotBlock].
+
+	scrollDelay disable.
+
+	(previousStartBlock = previousStopBlock and:
+
+		[pivotBlock = stopBlock and: [stopBlock = previousStopBlock]])
+
+		ifTrue:  "select a word or bracketed range"
+
+			[word _ self selectWord: pivotBlock stringIndex.
+
+			word first = word last ifFalse:
+
+				[self displayCaretForBlock: pivotBlock.
+
+				pivotBlock _ self characterBlockForIndex: word first.
+
+				stopBlock _ self characterBlockForIndex: word last.
+
+				self reverseFrom: pivotBlock to: stopBlock]].
+
+	stopBlock < pivotBlock
+
+		ifTrue:	[^Array with: stopBlock with: pivotBlock]
+
+		ifFalse:	[^Array with: pivotBlock with: stopBlock]!
+
+
+
+reverseFrom: characterBlock1 to: characterBlock2 
+
+	"Reverse area between the two character blocks given as arguments."
+
+
+
+	| start stop |
+
+	characterBlock1 = characterBlock2 ifTrue: [^self].
+
+	characterBlock1 < characterBlock2
+
+		ifTrue:	[start _ characterBlock1. stop _ characterBlock2]
+
+		ifFalse:	[start _ characterBlock2. stop _ characterBlock1].
+
+	start top = stop top
+
+		ifTrue: [^self reverseRectangle: (start origin corner: stop bottomLeft)].
+
+	self reverseRectangle:
+
+		(start origin corner: compositionRectangle right @ start bottom).
+
+	self reverseRectangle:
+
+		(compositionRectangle left @ start bottom corner: compositionRectangle right @ stop top).
+
+	self reverseRectangle:
+
+		(compositionRectangle left @ stop top corner: stop bottomLeft)!
+
+
+
+reverseRectangle: aRectangle
+
+	"Highlight the part of aRectangle which is visible."
+
+
+
+	| rect |
+
+	rect _ aRectangle intersect: self visibleRectangle.
+
+	destinationForm fill: rect rule: Form reverse mask: mask!
+
+
+
+selectWord: stringIndex
+
+	"Select delimited text or word--the result of double-clicking."
+
+
+
+	| openDelimiter closeDelimiter direction match level leftDelimiters rightDelimiters
+
+	string here hereChar start stop |
+
+	string _ text string.
+
+	here _ stringIndex.
+
+	(here between: 2 and: string size)
+
+		ifFalse:
+
+			["if at beginning or end, select entire string"
+
+			^1 to: string size + 1].
+
+	leftDelimiters _ '([{<''"
+
+'.
+
+	rightDelimiters _ ')]}>''"
+
+'.
+
+	openDelimiter _ string at: here - 1.
+
+	match _ leftDelimiters indexOf: openDelimiter.
+
+	match > 0
+
+		ifTrue: 
+
+			["delimiter is on left -- match to the right"
+
+			start _ here.
+
+			direction _ 1.
+
+			here _ here - 1.
+
+			closeDelimiter _ rightDelimiters at: match]
+
+		ifFalse: 
+
+			[openDelimiter _ string at: here.
+
+			match _ rightDelimiters indexOf: openDelimiter.
+
+			match > 0
+
+				ifTrue: 
+
+					["delimiter is on right -- match to the left"
+
+					stop _ here - 1.
+
+					direction _ -1.
+
+					closeDelimiter _ leftDelimiters at: match]
+
+				ifFalse:
+
+					["no delimiters -- select a token"
+
+					direction _ -1]].
+
+	level _ 1.
+
+	[level > 0 and: [direction > 0
+
+			ifTrue: [here < string size]
+
+			ifFalse: [here > 1]]]
+
+		whileTrue: 
+
+			[hereChar _ string at: (here _ here + direction).
+
+			match = 0
+
+				ifTrue:
+
+					["token scan goes left, then right"
+
+					hereChar tokenish
+
+						ifTrue:	[here = 1
+
+									ifTrue: 
+
+										[start _ 1.
+
+										"go right if hit string start"
+
+										direction _ 1]]
+
+						ifFalse:	[direction < 0
+
+									ifTrue: 
+
+										[start _ here + 1.
+
+										"go right if hit non-token"
+
+										direction _ 1]
+
+									ifFalse:	[level _ 0]]]
+
+				ifFalse:
+
+					["bracket match just counts nesting level"
+
+					hereChar = closeDelimiter
+
+						ifTrue:	[level _ level - 1"leaving nest"]
+
+						ifFalse:	[hereChar = openDelimiter 
+
+									ifTrue:	[level _ level + 1 "entering deeper nest"]]]].
+
+	level > 0 ifTrue: ["in case ran off string end" here _ here + direction].
+
+	direction > 0
+
+		ifTrue:	[^start to: here]
+
+		ifFalse:	[^here + 1 to: stop + 1]! !
+
+
+
+!Paragraph methodsFor: 'scrolling'!
+
+
+
+scrollBy: height grid: grid 
+
+	"Change the composition rectangle such that the first line of text corresponds
+
+	to the line at the current first line plus heightToMove, modulo the grid."
+
+
+
+	| initialClippingRectangle heightToMove |
+
+
+
+	"Keep from scrolling out of clippingRectangle"
+
+	heightToMove _ (height max: self compositionRectangleDelta).
+
+	(heightToMove abs between: 0 and: grid)
+
+		ifTrue:	[heightToMove _ heightToMove sign * grid]
+
+		ifFalse:	[heightToMove _ heightToMove truncateTo: grid].
+
+	heightToMove abs >= clippingRectangle height
+
+		ifTrue:	[self clearVisibleRectangle.
+
+				"adjust compositionRectangle behind clippingRectangle"
+
+				compositionRectangle moveBy: (0 @ (0 - heightToMove)).
+
+				"if heightToMove >= clippingRectangle, all lines to be displayed
+
+					are not currently displayed"
+
+				self displayLines: (1 to: lastLine).
+
+				^self].
+
+
+
+	"Adjust compositionRectangle behind clippingRectangle"
+
+	compositionRectangle moveBy: (0 @ (0 - heightToMove)).
+
+	"Need only to reshow part of clippingRectangle.
+
+		Some of the lines are already on the display screen"
+
+	initialClippingRectangle _ clippingRectangle copy.
+
+	heightToMove < 0	"box the lines to be moved"
+
+		ifTrue:	["moving down"
+
+				clippingRectangle _
+
+					clippingRectangle insetOriginBy: (0 @ 0) cornerBy: (0 @ (0 - heightToMove ))]
+
+		ifFalse:	["moving up"
+
+				clippingRectangle _
+
+					clippingRectangle insetOriginBy: (0 @ heightToMove ) cornerBy: (0 @ 0)].
+
+	destinationForm 
+
+		copyBits: clippingRectangle 
+
+		from: destinationForm
+
+		at: clippingRectangle left @ (clippingRectangle top - heightToMove )
+
+		clippingBox: initialClippingRectangle 
+
+		rule: Form over 
+
+		mask: Form black.
+
+
+
+	"Make room in clippingRectangle for lines 'pulled' into view"
+
+	heightToMove < 0 
+
+		ifTrue:	["on the top"
+
+				(clippingRectangle bottomRight)
+
+					y: (clippingRectangle top - heightToMove)]
+
+		ifFalse: ["at the bottom"
+
+				(clippingRectangle topLeft)
+
+					y: (((self topAtLineIndex:
+
+							(self lineIndexOfTop: clippingRectangle bottom - heightToMove)))
+
+						max: initialClippingRectangle topLeft y)].
+
+
+
+	"The reduced clippingRectangle informs the displayLines routine of what lines
+
+	to actually display of those it is requested to display. It only displays those
+
+	actually falling in the clippingRectangle"
+
+
+
+	self displayLines: (1 to: lastLine).
+
+
+
+	"If we've shortened so that bottom of compositionRectangle is < clippingRectangle,
+
+	clear out the the potential garbage at the bottom of the clippingRectangle"
+
+
+
+	compositionRectangle bottom < initialClippingRectangle bottom
+
+		ifTrue:	[destinationForm
+
+					fill: (initialClippingRectangle left @ compositionRectangle bottom
+
+							corner: initialClippingRectangle bottomRight)
+
+					mask: Form white].
+
+
+
+	"And the clippingRectangle needs to be set to its original value"
+
+	clippingRectangle _ initialClippingRectangle! !
+
+
+
+!Paragraph methodsFor: 'private'!
+
+
+
+displayLines: linesInterval 
+
+	"This is the first level workhorse in the display portion of the TextForm routines.
+
+	It checks to see which lines in the interval are actually visible, has the
+
+	DisplayScanner display only those, clears out the areas in which display will
+
+	occur, and clears any space remaining in the visibleRectangle following the space
+
+	occupied by lastLine."
+
+
+
+	| lineGrid visibleRectangle topY firstLineIndex lastLineIndex lastLineIndexBottom |
+
+	lineGrid _ textStyle lineGrid.
+
+
+
+	"Save some time by only displaying visible lines"
+
+	visibleRectangle _ 
+
+		(clippingRectangle intersect: compositionRectangle)
+
+			  intersect: destinationForm boundingBox.
+
+	firstLineIndex _ self lineIndexOfTop: visibleRectangle top.
+
+	firstLineIndex < linesInterval first ifTrue: [firstLineIndex _ linesInterval first].
+
+	lastLineIndex _ self lineIndexOfTop: visibleRectangle bottom - 1.
+
+	lastLineIndex > linesInterval last 
+
+		ifTrue:
+
+			[linesInterval last > lastLine
+
+		 		ifTrue:	[lastLineIndex _ lastLine]
+
+		  		ifFalse:	[lastLineIndex _ linesInterval last]].
+
+	((Rectangle 
+
+		origin: visibleRectangle left @ (topY _ self topAtLineIndex: firstLineIndex) 
+
+		corner: visibleRectangle right @ 
+
+					(lastLineIndexBottom _ (self topAtLineIndex: lastLineIndex)
+
+					  + lineGrid))
+
+	  intersects: visibleRectangle)
+
+	  	ifFalse: ["None of lines in interval visible." ^self].
+
+
+
+	"Set boundingBox containing the lines in linesInterval to color for space surrounding
+
+	the characters"
+
+	destinationForm
+
+	  fill: ((visibleRectangle left @ topY 
+
+				extent: visibleRectangle width @ (lastLineIndexBottom - topY))
+
+		  	intersect: visibleRectangle)
+
+	  rule: rule
+
+	  mask: Form white.
+
+	DisplayScanner new
+
+		displayLines: (firstLineIndex to: lastLineIndex)
+
+		in: self
+
+		clippedBy: visibleRectangle.
+
+	lastLineIndex = lastLine
+
+		ifTrue: 
+
+			[destinationForm
+
+				fill: (visibleRectangle left @ lastLineIndexBottom 
+
+					extent: visibleRectangle width @
+
+						(visibleRectangle bottom - lastLineIndexBottom))
+
+				rule: rule
+
+				mask: Form white]! !
+
+
+
+Paragraph removeSelector: #mouseSelect!
+

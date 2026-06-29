@@ -1,0 +1,70 @@
+'From Smalltalk-80 of November 15, 1982 (Customer Version 3) on 7 March 1983 at 1:54:38 pm'!
+
+
+
+
+
+
+
+!TextCollector methodsFor: 'clearing'!
+
+
+
+refresh
+
+	"Bring the window to the top on the screen."
+
+
+
+	self changed: #refresh
+
+
+
+	"Transcript refresh"! !
+
+
+
+
+
+!TextCollectorView methodsFor: 'updating'!
+
+
+
+update: aParameter
+
+
+
+	self topView isCollapsed ifTrue: [model appendEntry].
+
+	(self controller isKindOf: TextCollectorController)
+
+		ifTrue: 
+
+			[aParameter == #appendEntry 
+
+				ifTrue: [^controller appendEntry].
+
+			aParameter == #update 
+
+				ifTrue: [^controller changeText: model contents asText].
+
+			aParameter == #refresh
+
+				ifTrue: [^controller viewToTop]]! !
+
+
+
+
+
+!TextCollectorController methodsFor: 'entry control'!
+
+
+
+viewToTop
+
+	"Bring the view to the top (in z) of the screen."
+
+
+
+	view display! !
+

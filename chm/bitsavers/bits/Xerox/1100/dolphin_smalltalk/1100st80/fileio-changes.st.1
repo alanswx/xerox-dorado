@@ -1,0 +1,256 @@
+'From Smalltalk-80 of November 15, 1982 (Customer Version 3) on 7 March 1983 at 3:30:59 pm'!
+
+
+
+
+
+
+
+!ClassDescription methodsFor: 'fileIn/Out'!
+
+
+
+fileOutOn: aFileStream moveSource: moveSource toFile: fileIndex
+
+	"File a description of the receiver on aFileStream. If the boolean 
+
+	argument, moveSource, is true, then set the trailing bytes to the position 
+
+	of aFileStream and to fileIndex in order to indicate where to find the 
+
+	source code."
+
+
+
+	aFileStream emphasis: 5.
+
+	aFileStream cr; cr; nextChunkPut: self definition.
+
+	aFileStream emphasis: 3.
+
+	self organization
+
+		putCommentOnFile: aFileStream
+
+		numbered: fileIndex
+
+		moveSource: moveSource.
+
+	aFileStream cr.
+
+	self organization categories do: 
+
+		[:heading |
+
+		self
+
+			fileOutCategory: heading
+
+			on: aFileStream
+
+			moveSource: moveSource
+
+			toFile: fileIndex]!
+
+
+
+printCategoryChunk: aString on: aFileStream 
+
+	"Print the message describing that methods for the category aString follow
+
+	next on aFileStream."
+
+
+
+	aFileStream cr; cr; nextPut: $!!.
+
+	aFileStream nextChunkPut: (self name , ' methodsFor: ' , '''' , aString , '''')!
+
+
+
+printMethodChunk: aSelector on: aFileStream moveSource: moveSource toFile: fileIndex 
+
+	"Print the source code for the method associated with the argument
+
+	selector onto the fileStream, aFileStream, and, for backup, if the argument
+
+	moveSource (a Boolean) is true, also set the file index within the
+
+	method to be the argument fileIndex."
+
+
+
+	| position |
+
+	aFileStream cr.
+
+	moveSource
+
+		ifTrue:
+
+			[position _ aFileStream position.
+
+			aFileStream nextChunkPut: (self sourceCodeAt: aSelector).
+
+			(self compiledMethodAt: aSelector)
+
+					setSourcePosition: position inFile: fileIndex]
+
+		ifFalse:
+
+			[aFileStream cr; nextChunkPut: (self sourceCodeAt: aSelector)]! !
+
+
+
+
+
+!Class methodsFor: 'fileIn/Out'!
+
+
+
+fileOut
+
+	"Create a file whose name is the name of the receiver with '.st' as the
+
+	extension, and file a description of the receiver onto it."
+
+
+
+	| fileStream |
+
+	Transcript refresh; cr; cr; show: ('Filing out class:').
+
+	fileStream _ Disk file: self name, '.st'.
+
+	fileStream timeStamp.
+
+	self fileOutOn: fileStream
+
+		moveSource: false
+
+		toFile: 0.
+
+	fileStream shorten; close.
+
+	self removeFromChanges!
+
+
+
+fileOutOn: aFileStream moveSource: moveSource toFile: fileIndex
+
+	"File a description of the receiver on aFileStream. If the boolean argument,
+
+	moveSource, is true, then set the trailing bytes to the position of aFileStream
+
+	and to fileIndex in order to indicate where to find the source code."
+
+
+
+	Transcript cr; show: name.
+
+	super
+
+		fileOutOn: aFileStream
+
+		moveSource: moveSource
+
+		toFile: fileIndex.
+
+	self class nonTrivial
+
+		ifTrue:
+
+			[aFileStream cr; nextPutAll: '"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!!'; cr; cr.
+
+			self class
+
+				fileOutOn: aFileStream
+
+				moveSource: moveSource
+
+				toFile: fileIndex]! !
+
+
+
+
+
+!FileStream methodsFor: 'fileIn/Out'!
+
+
+
+fileIn
+
+	"Guarantee fileStream is readOnly before fileIn for efficiency
+
+	and to eliminate remote sharing conflicts."
+
+
+
+	Transcript refresh; cr; cr; show: ('Filing in from:');
+
+		crtab; show: self name; cr.
+
+	self readOnly.
+
+	^super fileIn!
+
+
+
+fileOutChanges
+
+	"Append to the receiver a description of all system changes."
+
+
+
+	Transcript refresh; cr; cr; show: ('Filing out changes on:');
+
+		crtab; show: self name.
+
+	^super fileOutChanges!
+
+
+
+fileOutChangesFor: class
+
+	"Append to the receiver a description of the changes to the
+
+	argument, class."
+
+
+
+	Transcript refresh; cr; cr; show: ('Filing out changes for ', class name, ' on:');
+
+		crtab; show: self name.
+
+	^super fileOutChanges! !
+
+
+
+
+
+!SystemOrganizer methodsFor: 'fileIn/Out'!
+
+
+
+fileOutCategory: category 
+
+	"Store on the file named category (a string) concatenated with '.st' all the 
+
+	classes associated with the category."
+
+
+
+	| aFileStream |
+
+	Transcript refresh; cr; cr; show: ('Filing out category: ');
+
+		crtab; show: category.
+
+	aFileStream _ Disk file: (category , '.st.') asFileName.
+
+	aFileStream timeStamp.
+
+	self fileOutCategory: category on: aFileStream.
+
+	aFileStream shorten; close! !
+

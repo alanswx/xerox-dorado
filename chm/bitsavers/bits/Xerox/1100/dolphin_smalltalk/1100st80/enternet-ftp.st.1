@@ -1,0 +1,551 @@
+'From Smalltalk-80 of September 21, 1982 on 30 September 1982 at 12:50:28 pm;
+Modified by Evelyn Van Orden for the Customer Release on 30 September 1982 at 1:05:08 pm'!
+
+
+Dictionary variableSubclass: #PropertyList
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Ethernet-FTP'!
+
+PropertyList comment:
+'A PropertyList is exactly like a Dictionary except it expects its keys to be Strings and it ignores case when comparing keys. Reading and printing using property list syntax is provided. Used by FileTransferSocket for communicating with FTP servers.'!
+
+!PropertyList methodsFor: 'converting'!
+
+addPropertyFrom: aStream
+
+	| property value |
+	aStream peekFor: $(.
+	property _ aStream upTo: Character space.
+	value _ aStream upTo: $).
+	^self at: property put: value! !
+
+!PropertyList methodsFor: 'printing'!
+
+printOn: aStream
+	"Print in the syntax of a property list."
+
+	aStream nextPut: $(.
+	self associationsDo:
+		[:assoc |
+		aStream nextPut: $(.
+		aStream nextPutAll: assoc key.
+		aStream space.
+		aStream nextPutAll: assoc value.
+		aStream nextPut: $)].
+	aStream nextPut: $).! !
+
+!PropertyList methodsFor: 'private'!
+
+findKeyOrNil: key 
+	"Intercept to cause keys to hash independent of case."
+
+	| location length probe pass |
+	length _ self basicSize.
+	pass _ 1.
+	location _ key asLowercase hash \\ length + 1.
+	[(probe _ self basicAt: location) == nil or: [probe key sameAs: key]]
+		whileFalse: 
+			[(location _ location + 1) > length
+				ifTrue: 
+					[location _ 1.
+					pass _ pass + 1.
+					pass > 2 ifTrue: [^self grow findKeyOrNil: key]]].
+	^location! !
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+PropertyList class
+	instanceVariableNames: ''!
+
+!PropertyList class methodsFor: 'instance creation'!
+
+readFrom: aStream
+	"Read using the syntax of a property list."
+
+	| list property value |
+	list _ self new.
+	aStream peekFor: $(.
+	[aStream peek = $(] whileTrue: [list addPropertyFrom: aStream].
+	aStream peekFor: $).
+	^list! !
+
+!PropertyList class methodsFor: 'examples'!
+
+example
+
+	^PropertyList readFromString:
+		'((Author Dolbec)(Creation-date 10-Aug-80 13:39:18)(Directory Dolbec)(End-of-line-convention CR)(Name-body BSPChanges.st)(Read-date 14-Aug-80 12:03:25)(Server-filename <Dolbec>BSPChanges.st!!1)(Size 1619)(Type Text)(Version 1)(Write-date 10-Aug-80 16:30:59))'! !
+
+
+ByteStreamSocket subclass: #FileTransferSocket
+	instanceVariableNames: 'lastError lastMark errorMessage '
+	classVariableNames: 'Abort CommandUndefined Comment Delete Enumerate EOC FileNotFound HereIsFile HereIsPropertyList NewEnumerate NewStore No Rename Retrieve Store Version Yes '
+	poolDictionaries: ''
+	category: 'Ethernet-FTP'!
+
+FileTransferSocket comment:
+'Class FileTransferSocket acts as a socket interface to the file transfer protocol. It does not provide much of a user interface to itself. The issue of setting up property lists for the user is not considered.
+
+Instance variables:
+
+	lastError		Error code of last [No] received.
+	lastMark		Last MarkByte received.
+	errorMessage	[No] and [Comment] texts are appended to errorMessage.
+					Top level FTP commands automatically reset errorMessage.'!
+
+!FileTransferSocket methodsFor: 'initialize-release'!
+
+createConnectionTo: server
+
+	self resetErrors.
+	(self openTo: server, '+', self socketName) = 'open'
+		ifTrue:	[self sendVersion.
+					self processVersion
+						ifTrue:	[^true]
+						ifFalse:	[errorMessage _ 'incompatible versions'. self close. ^false]]
+		ifFalse:	[errorMessage _ 'unable to open connection'. ^false]!
+
+destroyConnection
+
+	self close! !
+
+!FileTransferSocket methodsFor: 'accessing'!
+
+errorCode
+
+	^lastError!
+
+errorMessage
+
+	^errorMessage!
+
+resetErrors
+
+	errorMessage _ ''.
+	lastError _ 0.!
+
+socketName
+
+	^'FTP'!
+
+versionNumber
+
+	^1!
+
+versionString
+
+	^(String with: self versionNumber asCharacter), 'Smalltalk-80 Pup FTP User, 15 Nov 1982'! !
+
+!FileTransferSocket methodsFor: 'commands'!
+
+delete: propertyListString
+	"Perform a deletion using the FTP, returning a collection of property lists
+	for the files actually deleted. Error messages are put in errorMessage."
+
+	| stream propLists |
+	self resetErrors.
+	self sendMark: Delete.
+	self sendSmallString: propertyListString.
+	self sendMark: EOC.
+
+	propLists _ OrderedCollection new.
+	self processResponse. 	"[Here-is-Property-List] or [No]"
+	[lastMark type = HereIsPropertyList] whileTrue:
+		[stream _ ReadWriteStream on: (String new: 100).
+		self processDataTo: stream. 	"read property list"
+		"assume mark was [End-of-Command]"
+		self sendYes: 'Please delete this file'.
+		self processResponse = Yes ifTrue:
+			[propLists add: (PropertyList readFrom: stream reset)]].
+
+	"assume response was [No] or [End-of-Command]"	
+	^propLists!
+
+enumerate: propertyListString
+	"Answer a collection of PropertyList objects, or nil if an error occured."
+
+	| stream propLists |
+	stream _ ReadWriteStream on: (String new: 100).
+	(self enumerate: propertyListString on: stream) ifFalse: [^nil].
+
+	stream reset.
+	propLists _ OrderedCollection new.
+	[stream atEnd] whileFalse: [propLists add: (PropertyList readFrom: stream)].
+
+	^propLists!
+
+enumerate: propertyListString on: outputStream
+	"Do a directory enumeration for the given property list, sending the
+	concatenated property list strings to outputStream. Automatically try
+	the old [Enumerate] command if this fails. Answer false if an error occurs."
+
+	self resetErrors.
+	self sendMark: NewEnumerate.
+	self sendSmallString: propertyListString.
+	self sendMark: EOC.
+
+	self processResponse = HereIsPropertyList ifFalse:
+		[lastError = CommandUndefined
+			ifTrue:	[^self oldEnumerate: propertyListString on: outputStream] "try the old way"
+			ifFalse:	[^lastError = FileNotFound "no matches is still a success"]].
+	self processDataTo: outputStream. 	"copy property lists to the stream"
+	"assume mark was [End-of-Command]"
+	^true!
+
+oldEnumerate: propertyListString on: outputStream
+	"Do a directory enumeration for the given property list, sending the
+	concatenated property list strings to outputStream, using the obsolete
+	enumerate command. This is here becuse some servers (e.g. Maxc) do not
+	support [NewEnumerate]. Answer false if an error occurs. See enumerate:on:."
+
+	| response |
+	self resetErrors.
+	self sendMark: Enumerate.
+	self sendSmallString: propertyListString.
+	self sendMark: EOC.
+
+	(response _ self processResponse) = No ifTrue:
+		[^lastError = FileNotFound "no matches is considered a success"].
+	"otherwise assume response was [Here-is-Property-List]"
+	[response = HereIsPropertyList] whileTrue:
+		[response _ self processDataTo: outputStream]. "copy property list to the stream"
+	^response = EOC!
+
+renameFrom: oldPropertyListString to: newPropertyListString
+	 "UserName, password, etc. must be in the first property list, and may be
+	included in the second, but the server may ignore them. Answer true if sucessful."
+
+	self resetErrors.
+	self sendMark: Rename.
+	self sendSmallString: oldPropertyListString, newPropertyListString.
+	self sendMark: EOC.
+	^self processResponse = Yes!
+
+retrieve: propertyListString to: destStream
+	"Perform a retrieve using the FTP. Warning: if the property list matches
+	multiple files, they will be concatenated to destStream!!. Answer a
+	collection of property lists for files actually retrieved. Error messages
+	are put in errorMessage."
+
+	| propStream propLists |
+	self resetErrors.
+	self sendMark: Retrieve.
+	self sendSmallString: propertyListString.
+	self sendMark: EOC.
+
+	propLists _ OrderedCollection new.
+	self processResponse. 	"[Here-is-Property-List] or [No]"
+	[lastMark type = HereIsPropertyList] whileTrue:
+		[propStream _ ReadWriteStream on: (String new: 100).
+		self processDataTo: propStream. 	"read property list"
+		"assume mark was [End-of-Command]"
+		self sendYes: 'Please send this file'.
+		self processResponse = HereIsFile ifTrue:
+			[self processDataTo: destStream.
+			(self processMark: lastMark) = Yes ifTrue:
+				[propLists add: (PropertyList readFrom: propStream reset)]]].
+
+	"assume response was [No] or [End-of-Command]"	
+	^propLists!
+
+store: propertyListString from: aStream
+	"Store the contents of aStream on a file server using the
+	propertyListString. Answer whether the transfer was successful.
+	Some care must be given in generating the property list. Specifically,
+	one must make sure the file is not binary by scanning the high order
+	bit of every byte in the file. If the high order bit is always 0 then the
+	chances are reasonably good that the file is non-binary (even if is binary
+	it can be transmitted like text in this case)."
+
+	self resetErrors.
+	self sendMark: Store.
+	self sendSmallString: propertyListString.
+	self sendMark: EOC.
+
+	self processResponse = Yes ifFalse: [^false].
+
+	self sendMark: HereIsFile.
+	self sendStream: aStream. 	"send the stream"
+	self sendYes: 'Sent entire file OK'.
+
+	^self processResponse = Yes 	"answer true if successful"! !
+
+!FileTransferSocket methodsFor: 'sending commands'!
+
+sendNo: text
+	"Send a [No] with error code 0 and this human readable text."
+
+	self sendMark: No.
+	self sendSmallString: (String with: 0 asCharacter), text.
+	self sendMark: EOC!
+
+sendVersion
+	"Send a [Version] command."
+
+	self sendMark: Version.
+	self sendSmallString: self versionString.
+	self sendMark: EOC!
+
+sendYes: text
+	"Send [Yes] with this human readable text."
+
+	self sendMark: Yes.
+	self sendSmallString: (String with: 0 asCharacter), text.
+	self sendMark: EOC! !
+
+!FileTransferSocket methodsFor: 'processing responses'!
+
+discardData
+	"Discard data up to the next command (mark). Answer the type of
+	the MarkByte terminating the data."
+
+	[(lastMark _ self processNextDataPacket) isMemberOf: MarkByte] whileFalse.
+	^lastMark type!
+
+processDataTo: dataStream
+	"Collect data up to the next command (mark), passing it to dataStream.
+	Answer the type of the MarkByte terminating the data."
+
+	[(lastMark _ self processNextDataPacket) isMemberOf: MarkByte] whileFalse: 
+		[dataStream nextPutAll: lastMark].
+	^lastMark type!
+
+processMark: markByte
+	"Process this MarkByte. For [Yes], [No], and [Comment] commands, process
+	the following data also. After [Comment], automatically process the next
+	command. Append error messages to errorMessage. Save any error code in
+	lastError. Answer the type of MarkByte processed."
+
+	markByte type = Yes ifTrue: [self processYes. ^Yes].
+	markByte type = No ifTrue: [self processNo. ^No].
+	markByte type = CadaverType ifTrue: [self processCadaver: markByte. ^No].
+	markByte type = Comment ifTrue: [self processComment. ^self processMark: lastMark].
+	^markByte type!
+
+processResponse
+	"Process the next data packet, which must be a MarkByte. For [Yes],
+	[No], and [Comment] commands, process the following data also. After
+	[Comment], automatically process the next command. Append error messages
+	to ErrorMessage. Answer the type of MarkByte processed."
+
+	^self processMark: (lastMark _ self processNextDataPacket)!
+
+processVersion
+	"Wait for and process a [Version] command. Answer false if our
+	version numbers are not the same."
+
+	| stream |
+	stream _ ReadWriteStream on: (String new: 30).
+	 	"look for [Version] command"
+	self processResponse = Version ifFalse: [^false].
+	self processDataTo: stream. 	"collect version string"
+	stream reset.
+	^stream next asInteger = self versionNumber! !
+
+!FileTransferSocket methodsFor: 'private processing'!
+
+processCadaver: cadaverMark
+	"Append the cause of death to errorMessage. The very first byte will
+	the MarkByteCode for a Cadaver, i.e. 255. This is so the errorMessage can
+	be parsed to find the start of the Cause Of Death."
+
+	errorMessage _ errorMessage,
+		((String with: CadaverType asCharacter), cadaverMark CauseOfDeath)!
+
+processComment
+	 "Append the comment to errorMessage. Called by processMark:."
+
+	| textStream |
+	textStream _ WriteStream on: (String new: 30).
+	self processDataTo: textStream.
+	errorMessage _ errorMessage, textStream contents, '. '!
+
+processNo
+	"Store the error code in lastError and append the comment to
+	errorMessage. Called by processMark:."
+
+	| textStream |
+	textStream _ ReadWriteStream on: (String new: 30).
+	self processDataTo: textStream.
+	textStream reset.
+	lastError _ textStream next asInteger.
+	errorMessage _ errorMessage, (textStream upTo: nil), ' '!
+
+processYes
+	"Discard data up to the next command (mark)."
+
+	[(lastMark _ self processNextDataPacket) isMemberOf: MarkByte] whileFalse! !
+
+!FileTransferSocket methodsFor: 'private'!
+
+debugMessage: str
+
+	super debugMessage: 'FTP: ', str!
+
+markName: byte
+	"For debugging."
+
+	^(byte between: 1 and: 19)
+		ifTrue:	[#('[Retrieve]' '[Store]' '[Yes]' '[No]' '[Here-is-the-file]' '[End-of-Command]'
+						'[Comment]' '[Version]' '[New-Store]' '[Enumerate]' '[Here-is-Property-List]'
+						'[New-Enumerate]' '' '[Delete]' '[Rename]' '[Store-Mail]' '[Retrieve-Mail]'
+						'[Flush-Mailbox]' '[Mailbox-Exception]') at: byte]
+		ifFalse:	['']!
+
+serverError
+
+	self error: 'Server is not responding according to protocol'! !
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+FileTransferSocket class
+	instanceVariableNames: ''!
+
+!FileTransferSocket class methodsFor: 'initialization'!
+
+initialize
+	 "Set up the MarkByte types and error codes."
+
+	"MarkByte commands:"
+	Retrieve _ 1.
+	Store _ 2.
+	Yes _ 3.
+	No _ 4.
+	HereIsFile _ 5.
+	EOC _ 6. "End-Of-Command"
+	Comment _ 7.
+	Version _ 8.
+	NewStore _ 9.
+	Enumerate _ 10.
+	HereIsPropertyList _ 11.
+	NewEnumerate _ 12.
+	Abort _ 13.
+	Delete _ 14.
+	Rename _ 15.
+
+	"[No] command error codes:"
+	CommandUndefined _ 1.
+	FileNotFound _ 64
+
+	"FileTransferSocket initialize"! !
+
+FileTransferSocket initialize!
+
+
+'From Smalltalk-80 of May 12, 1982 on 3 July 1982 at 5:08:34 pm;
+Modified from IFS-filesMatching-Jul9.st by Evelyn Van Orden for the Customer Release on 1 October 1982 at 9:09:06 am;
+Includes emv-IFS-propertyList-fix.st'!
+
+
+!FileList methodsFor: 'accessing'!
+
+filesMatching: pattern
+	"Answer a list of file names matching the pattern string. Do this
+	by asking the appropriate directory. For IFS files, include the IFS
+	name in brackets and strip off the version numbers unless the pattern
+	contains a $!!."
+
+	| dir nameBody matches terminator |
+	dir _ FileDirectory directoryFromName: pattern setFileName: [:nameBody].
+	matches _ dir filesMatching: nameBody.
+	dir == Disk
+		ifTrue:	[^matches]
+		ifFalse:	[terminator _ $!!.
+					(pattern includes: terminator) ifTrue: [terminator _ nil].
+					^matches collect:
+						[:name | '[', dir directoryName, ']', name copyUpTo: terminator]]!
+
+newListAndPattern: aString
+	"The argument, aString, consists of file names and file name patterns
+	separated by carriage returns. (Patterns include the character $*.)
+	Make my new list be those file names, and those files on my directory
+	whose names match the patterns. Pattern matching currently assumes
+	local disk directory."
+
+	| testPattern readStream newList |
+	Cursor execute showWhile:
+		[readStream _ ReadStream on: aString.
+		newList _ SortedCollection new.
+		[readStream atEnd] whileFalse:
+			[testPattern _ readStream upTo: Character cr. "get next name/pattern"
+			(testPattern includes: $*)
+				ifTrue:	[newList addAll: (self filesMatching: testPattern)]
+				ifFalse:	[newList add: testPattern]].
+		list _ newList.
+		listIndex _ 0.
+		contents _ ''.
+		self changed: #list]! !
+
+!IFSLeafFileDirectory reorganize!
+('accessing' connect connect:password: connectName connectPassword login login: login:password: next userName userPassword versionNumbers)
+('adding' addNew:)
+('removing' removeOld:)
+('enumerating' reset)
+('printing' printOn:)
+('page accessing' allocate:after: allocateSN: deallocate: freePages)
+('file accessing' fileClass filesMatching: oldFileName:rename: rename:newName:)
+('file status' flush open release)
+('FTP connection' openFTPConnection propertyList)
+('private' allocatePage find:ifAbsentDo: noAck openFile:mode: setTimeOuts:and: socket)
+!
+
+
+!IFSLeafFileDirectory methodsFor: 'file accessing'!
+
+filesMatching: pattern
+	"Open an FTP connection to do this. Answer a collection of file names."
+
+	| ftp propertyList matches |
+	[(ftp _ self openFTPConnection) isNil] whileTrue:
+		[self notify: 'unable to open connection to ', directoryName, ' - proceed to try again'].
+	propertyList _ self propertyList.
+	propertyList at: 'name-body' put: pattern.
+	propertyList at: 'desired-property' put: 'server-filename'.
+		"default is highest versions only"
+	(pattern includes: $!!) ifFalse: [propertyList at: 'version' put: 'H'].
+	matches _ ftp enumerate: propertyList printString.
+	ftp close.
+	matches isNil ifTrue: [^self notify: ftp errorMessage].
+	^matches collect: [:propList | propList at: 'server-filename']!
+
+oldFileName: oldName rename: newName 
+	"Open an FTP connection to do this."
+
+	| ftp propertyList result |
+	ftp _ self openFTPConnection.
+	propertyList _ self propertyList.
+	propertyList at: 'name-body' put: oldName.
+	result _ ftp renameFrom: propertyList printString to: '((name-body ', newName, '))'.
+	ftp close.
+	result ifFalse: [^self notify: ftp errorMessage]!
+
+rename: aFile newName: newName 
+	"Note this won't work if the IFS thinks this file is open."
+
+	self oldFileName: aFile fileName rename: newName.
+	aFile fileName: newName! !
+
+!IFSLeafFileDirectory methodsFor: 'FTP connection'!
+
+openFTPConnection
+	"Answer an open FileTransferSocket to the receiver's host, or nil."
+
+	| ftp |
+	ftp _ FileTransferSocket new.
+	(ftp createConnectionTo: directoryName)
+		ifTrue:	[^ftp]
+		ifFalse:	[^nil]!
+
+propertyList
+	"Answer a PropertyList containing the receiver's directory, user-name,
+	user-password, and connect-name and connect-password."
+
+	| propertyList |
+	propertyList _ PropertyList new.
+	propertyList at: 'user-name' put: userName.
+	propertyList at: 'user-password' put: userPassword.
+	connectName isEmpty ifFalse:
+		[propertyList at: 'connect-name' put: connectName.
+		connectPassword isEmpty ifFalse:
+			[propertyList at: 'connect-password' put: connectPassword]].
+	^propertyList! !

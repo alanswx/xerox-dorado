@@ -13,6 +13,7 @@
  *     --cycles N        run for N BaseBoard cycles (default 130000000)
  *     --eb PATH         boot-file 0110 netboot world (.eb)
  *     --eftp PATH       Stage-2 Alto boot file (default NETEXEC.BOOT)
+ *     --ftp-sysout PATH Pup FTP sysout served to Lisp RemoteVmemInit
  *     --germ PATH       Pilot germ image to plant into VM for the Cedar
  *                       germ-boot (Route B; e.g. Dorado.germ!4)
  *     --pilot-disk PATH Pilot/Cedar PDI disk image to mount as drive 0
@@ -158,7 +159,20 @@ static dorado_display_key char_to_key(char c, int *shift)
     case '?': *shift = 1; return DORADO_KEY_FSLASH;
     case '/': return DORADO_KEY_FSLASH;
     case '.': return DORADO_KEY_PERIOD;
+    case ',': return DORADO_KEY_COMMA;
     case '-': return DORADO_KEY_MINUS;
+    case '=': return DORADO_KEY_PLUS;
+    case '+': *shift = 1; return DORADO_KEY_PLUS;
+    case '[': return DORADO_KEY_LBRACKET;
+    case '{': *shift = 1; return DORADO_KEY_LBRACKET;
+    case ']': return DORADO_KEY_RBRACKET;
+    case '}': *shift = 1; return DORADO_KEY_RBRACKET;
+    case ';': return DORADO_KEY_SEMICOLON;
+    case ':': *shift = 1; return DORADO_KEY_SEMICOLON;
+    case '\'': return DORADO_KEY_QUOTE;
+    case '"': *shift = 1; return DORADO_KEY_QUOTE;
+    case '\\': return DORADO_KEY_BSLASH;
+    case '|': *shift = 1; return DORADO_KEY_BSLASH;
     default: return DORADO_KEY_NONE;
     }
 }
@@ -253,6 +267,8 @@ int main(int argc, char **argv)
             cfg.eth_boot_110 = argv[++i];
         } else if (!strcmp(a, "--eftp") && i + 1 < argc) {
             cfg.eftp_boot = argv[++i];
+        } else if (!strcmp(a, "--ftp-sysout") && i + 1 < argc) {
+            cfg.ftp_sysout = argv[++i];
         } else if (!strcmp(a, "--germ") && i + 1 < argc) {
             cfg.germ_path = argv[++i];
         } else if (!strcmp(a, "--pilot-disk") && i + 1 < argc) {
@@ -323,6 +339,7 @@ int main(int argc, char **argv)
             }
         } else if (!strcmp(a, "--help") || !strcmp(a, "-h")) {
             printf("usage: %s [--cycles N] [--eb PATH] [--eftp PATH] "
+                   "[--ftp-sysout PATH] "
                    "[--germ PATH] [--germ-netboot-bfn OCTAL] "
                    "[--pilot-disk PATH] [--disk SLOT=PATH] [--disk-real] "
                    "[--boot-file-number OCTAL] [--boot-dir NAME=BFN=PATH] "
