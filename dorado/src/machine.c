@@ -43,9 +43,15 @@ static int machine_alto_dcb_chain_sane(dorado_memory *mem, uint32_t base,
                                        uint16_t dl);
 static int machine_alto_display_active(dorado_memory *mem);
 static int machine_ddc_display_active(dorado_machine *m);
+static int machine_prefer_live_ddc_frame(dorado_machine *m,
+                                         int ddc_pixels, int dcb_pixels);
 static int machine_display_fifo_used(const dorado_display *d, int subtask);
 static int machine_display_fb_pixels(const dorado_display *d);
 static void machine_dump_lisp_display_probe(dorado_machine *m);
+static void machine_dump_words_at_va(dorado_memory *mem, const char *label,
+                                     uint32_t va, int n);
+static void machine_dump_lisp_atom_probe(dorado_machine *m);
+static void machine_dump_env_storage_words(dorado_machine *m);
 
 /* Default firmware/microcode locations, relative to the dorado/ dir. */
 #define DEF_BB_ROM    "../chm/dorado/doradobaserom.mb!13"
@@ -124,6 +130,18 @@ struct dorado_machine {
 
     uint32_t pchist[4096];
     uint32_t pchist_all[4096]; /* every task (DORADO_MACHINE_PCHIST) */
+    uint32_t ifu_pcx_hist[65536];
+    uint32_t ifu_op_hist[1024];
+    struct {
+        uint64_t cycle;
+        uint16_t pcx, pcf;
+        uint8_t  insset, opcode, alpha, beta, len;
+        uint16_t T, Q, Cnt, StkP, RBase, MemBase;
+        uint16_t stk[8];
+        uint16_t rm[8];
+        uint32_t br31, br36;
+    } ifu_ring[64];
+    unsigned ifu_ring_next;
     uint16_t initseq[600];     /* first task-0 PCs after world-load */
     int      initseq_n;
 
@@ -146,6 +164,8 @@ struct dorado_machine {
     uint64_t next_pilot_timer_cycle;
     uint64_t next_cedar_field_cycle; /* next display vertical-field notify */
 };
+
+static uint32_t machine_pchist_task[16][4096];
 
 static uint16_t machine_disk_dmux_read(uint16_t addr, int *handled, void *ctx)
 {
@@ -348,12 +368,80 @@ static void restore_standard_alufm(dorado_microcode *mc)
 static void machine_store_va(dorado_memory *mem, uint32_t va, uint16_t value)
 {
     if (!mem || !mem->storage) return;
-    if ((size_t)va < mem->storage_words) mem->storage[va] = value;
+    static int phys_trace_parsed = 0;
+    static unsigned long phys_trace_lo = 0, phys_trace_hi = 0;
+    if (!phys_trace_parsed) {
+        const char *env = getenv("DORADO_MACHINE_STORE_TRACE_PHYS");
+        phys_trace_parsed = 1;
+        if (env && env[0]) {
+            char *end = NULL;
+            phys_trace_lo = strtoul(env, &end, 0);
+            if (end && *end == ',') {
+                phys_trace_hi = strtoul(end + 1, &end, 0);
+                if (!end || *end != '\0') phys_trace_hi = 0;
+            }
+        }
+    }
+    if (dorado_trace_flag("DORADO_MACHINE_STORE_TRACE") &&
+        (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE")) &&
+        va >= 0100u && va <= 0117u) {
+        fprintf(stderr,
+                "MACHINE_STORE cyc=%llu va=%06o value=%06o br31=%07o br36=%07o\n",
+                (unsigned long long)dorado_trace_cycle, va & 017777777u,
+                value & 0177777u, dorado_br_get(mem, 031),
+                dorado_br_get(mem, 036));
+    }
+    if ((size_t)va < mem->storage_words) {
+        if (phys_trace_hi &&
+            (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE")) &&
+            va >= phys_trace_lo && va <= phys_trace_hi) {
+            fprintf(stderr,
+                    "MACHINE_STORE_PHYS direct cyc=%llu va=%07o phys=%07o "
+                    "value=%06o br31=%07o br36=%07o\n",
+                    (unsigned long long)dorado_trace_cycle,
+                    va & 017777777u, va & 017777777u, value & 0177777u,
+                    dorado_br_get(mem, 031), dorado_br_get(mem, 036));
+        }
+        mem->storage[va] = value;
+    }
 
     uint32_t idx = dorado_map_index(va);
     const dorado_map_entry *e = dorado_map_get(mem, idx);
     size_t phys = (size_t)e->rp * DM_PAGE_SIZE + (va & (DM_PAGE_SIZE - 1));
-    if (phys < mem->storage_words) mem->storage[phys] = value;
+    if (phys < mem->storage_words) {
+        if (phys_trace_hi &&
+            (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE")) &&
+            phys >= phys_trace_lo && phys <= phys_trace_hi) {
+            fprintf(stderr,
+                    "MACHINE_STORE_PHYS mapped cyc=%llu va=%07o idx=%04X "
+                    "rp=%04X phys=%07o value=%06o br31=%07o br36=%07o\n",
+                    (unsigned long long)dorado_trace_cycle,
+                    va & 017777777u, idx, e->rp, (unsigned)phys,
+                    value & 0177777u, dorado_br_get(mem, 031),
+                    dorado_br_get(mem, 036));
+        }
+        mem->storage[phys] = value;
+    }
+
+    uint32_t row = (va >> 4) & DM_CACHE_ROW_MASK;
+    uint32_t tag = va >> 10;
+    uint32_t off = va & DM_CACHE_LINE_MASK;
+    for (int way = 0; way < DM_CACHE_WAYS; way++) {
+        dorado_cache_line *line = &mem->cache[row].ways[way];
+        if (line->valid && line->tag == tag) line->data[off] = value;
+    }
+}
+
+/* Host-side input shortcut: update the named virtual/absolute cell and any
+ * resident cache copy, but do not follow the guest Map to backing physical
+ * storage.  Lisp can temporarily map its Dandelion-style IOPage onto RP 0;
+ * using machine_store_va() there corrupts low-core external links such as
+ * M[0100] when all-up keyboard words are refreshed. */
+static void machine_store_host_input(dorado_memory *mem, uint32_t va,
+                                     uint16_t value)
+{
+    if (!mem || !mem->storage) return;
+    if ((size_t)va < mem->storage_words) mem->storage[va] = value;
 
     uint32_t row = (va >> 4) & DM_CACHE_ROW_MASK;
     uint32_t tag = va >> 10;
@@ -829,7 +917,7 @@ static void machine_germ_netboot_diag(dorado_machine *m)
             (unsigned long long)m->bb.cycles,
             cpu->real_PC,
             (unsigned long long)cpu->ifu_dispatch_count,
-            (unsigned)dorado_br_get(mem, 31),
+            (unsigned)dorado_br_get(mem, 031),
             cpu->MemBase & 037,
             cpu->RBase & 017,
             cpu->StkP & 0377,
@@ -893,6 +981,30 @@ static void machine_seed_mouse(dorado_memory *mem, int x, int y, int buttons)
     }
 }
 
+static void machine_seed_lisp_iopage_keyboard(dorado_memory *mem,
+                                              const uint16_t w[4],
+                                              int mouse_present,
+                                              int mouse_buttons)
+{
+    if (!mem || !mem->storage) return;
+
+    /* The Fugue StartLisp bootstrap clears 0x1403A..0x14040 once
+     * (IOPage.keyBitsm1=0x39), but the later Dandelion Lisp definitions used
+     * by DoradoLispMc place IOPage.key at 0x41 and keyBitsm1 at 0x3C.  After
+     * the Lyric sysout loads, 0x1403A..0x14040 hold live IOPage state, so the
+     * host-side terminal shortcut must refresh only the later key window. */
+    const uint32_t base = 0x14041u;
+    for (uint32_t i = 0; i < 4; i++)
+        machine_store_host_input(mem, base + i, w[i]);
+
+    uint16_t buttons = 0177777u;
+    if (mouse_present)
+        buttons = (uint16_t)~((unsigned)mouse_buttons & 07u);
+    machine_store_host_input(mem, base + 4u, buttons);
+    machine_store_host_input(mem, base + 5u, 0177777u);
+    machine_store_host_input(mem, base + 6u, 0177777u);
+}
+
 static int machine_boot_chord_is_disk(const dorado_machine *m)
 {
     return m && m->boot_chord_count == 1 &&
@@ -911,8 +1023,43 @@ static void machine_seed_alto_live_io(dorado_machine *m, dorado_display *disp)
     for (int i = 0; i < 4; i++)
         w[i] = dorado_display_keyboard_word(disp, i);
     machine_seed_keyboard(&m->mem, w);
+    machine_seed_lisp_iopage_keyboard(&m->mem, w, m->mouse_present,
+                                      m->mouse_buttons);
     if (m->mouse_present)
         machine_seed_mouse(&m->mem, m->mouse_x, m->mouse_y, m->mouse_buttons);
+}
+
+static void machine_seed_lisp_live_io(dorado_machine *m, dorado_display *disp)
+{
+    if (!m || !disp) return;
+    if (!m->keys_live) {
+        dorado_display_keyboard_all_up(disp);
+        m->keys_live = 1;
+    }
+
+    uint16_t w[4];
+    for (int i = 0; i < 4; i++)
+        w[i] = dorado_display_keyboard_word(disp, i);
+    machine_seed_keyboard(&m->mem, w);
+    machine_seed_lisp_iopage_keyboard(&m->mem, w, m->mouse_present,
+                                      m->mouse_buttons);
+    if (dorado_trace_flag("DORADO_LISP_FORCE_KEY_MASK")) {
+        /* Diagnostic: LLKEY!\KEYBOARDON sets DISPINTERRUPT.EM[020000].
+         * If the loaded sysout never gets that far, the display field
+         * handler posts only BcplKeyMask and the Lisp key/timer process
+         * never runs. */
+        uint16_t mask = dorado_visible_word_at_va(&m->mem, 0421u);
+        machine_store_va(&m->mem, 0421u, (uint16_t)(mask | 020000u));
+    }
+    if (m->mouse_present)
+        machine_seed_mouse(&m->mem, m->mouse_x, m->mouse_y, m->mouse_buttons);
+    if (dorado_trace_flag("DORADO_LISP_KEY_TRACE") &&
+        (w[0] != 0177777u || w[1] != 0177777u ||
+         w[2] != 0177777u || w[3] != 0177777u)) {
+        fprintf(stderr,
+                "[lisp-key] cyc=%llu words=%06o %06o %06o %06o\n",
+                (unsigned long long)m->bb.cycles, w[0], w[1], w[2], w[3]);
+    }
 }
 
 /* Deliver the live keyboard (and mouse-button) state to the native Cedar
@@ -1988,6 +2135,15 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
              * with no guard.) */
         }
 
+        /* Lisp runs under the IFU after the sysout transfer, so the Alto
+         * live-I/O path above no longer refreshes its input cells.  Keep the
+         * Dandelion-style IOPage keyboard words current until the DDC
+         * terminal back-channel is modeled. */
+        if (m->ether_loaded_world_cycle && !m->germ_word_count &&
+            cpu->ifu_active && m->ethernet.ftp_sysout_path[0] &&
+            ((bb->cycles & 037777u) == 0))
+            machine_seed_lisp_live_io(m, disp);
+
         /* Optional task-0 PC histogram of the loaded world (env-gated):
          * DORADO_MACHINE_PCHIST dumps the hottest emulator-task PCs at
          * the end of the run, to localize a post-LoadRam stall. */
@@ -2003,6 +2159,7 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
         if (m->ether_loaded_world_cycle && is_imfetch && pre_pc < 4096 &&
             dorado_trace_flag("DORADO_MACHINE_PCHIST")) {
             m->pchist_all[pre_pc]++;
+            machine_pchist_task[cpu->ctask & 017][pre_pc]++;
         }
 
         /* InitMem GotMapConfig/NoStorage register trace (env-gated):
@@ -2192,7 +2349,41 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
         machine_pilot_timer_channel(m, cpu, bb, pre_pc, is_imfetch);
         machine_cedar_io(m, bb, disp);
 
+        uint64_t ifu_dispatch_before = cpu->ifu_dispatch_count;
         if (dorado_cpu_step(cpu)) break;
+        if (m->ether_loaded_world_cycle &&
+            cpu->ifu_dispatch_count != ifu_dispatch_before &&
+            dorado_trace_flag("DORADO_MACHINE_PCHIST")) {
+            uint16_t pcx = cpu->ifu_pcx;
+            unsigned op = ((unsigned)(cpu->ifu_insset & 3u) << 8) |
+                          (unsigned)cpu->ifu_opcode;
+            m->ifu_pcx_hist[pcx]++;
+            m->ifu_op_hist[op & 01777]++;
+            unsigned r = m->ifu_ring_next++ &
+                         ((unsigned)(sizeof m->ifu_ring /
+                                     sizeof m->ifu_ring[0]) - 1u);
+            m->ifu_ring[r].cycle = bb->cycles;
+            m->ifu_ring[r].pcx = pcx;
+            m->ifu_ring[r].pcf = cpu->ifu_pcf;
+            m->ifu_ring[r].insset = cpu->ifu_insset & 3u;
+            m->ifu_ring[r].opcode = cpu->ifu_opcode;
+            m->ifu_ring[r].alpha = cpu->ifu_alpha;
+            m->ifu_ring[r].beta = cpu->ifu_beta;
+            m->ifu_ring[r].len = cpu->ifu_length;
+            m->ifu_ring[r].T = cpu->T;
+            m->ifu_ring[r].Q = cpu->Q;
+            m->ifu_ring[r].Cnt = cpu->Cnt;
+            m->ifu_ring[r].StkP = cpu->StkP;
+            m->ifu_ring[r].RBase = cpu->RBase;
+            m->ifu_ring[r].MemBase = cpu->MemBase;
+            for (int si = 0; si < 8; si++)
+                m->ifu_ring[r].stk[si] =
+                    cpu->STK[(cpu->StkP + si) & 0377];
+            for (int ri = 0; ri < 8; ri++)
+                m->ifu_ring[r].rm[ri] = cpu->RM[ri];
+            m->ifu_ring[r].br31 = dorado_br_get(&m->mem, 31);
+            m->ifu_ring[r].br36 = dorado_br_get(&m->mem, 036);
+        }
 
         if (alto_check_trace) {
             const char *nm = pre_pc == 03333 ? "ACheckLoop" :
@@ -2414,6 +2605,258 @@ dorado_display *dorado_machine_display(dorado_machine *m)
     return m ? &m->display : NULL;
 }
 
+static const char *machine_ref_kind_name(dorado_ref_kind kind)
+{
+    switch (kind) {
+    case DM_REF_NONE:      return "NONE";
+    case DM_REF_PREFETCH:  return "PREFETCH";
+    case DM_REF_MAP:       return "MAP";
+    case DM_REF_IOFETCH:   return "IOFETCH";
+    case DM_REF_LONGFETCH: return "LONGFETCH";
+    case DM_REF_STORE:     return "STORE";
+    case DM_REF_DUMMYREF:  return "DUMMYREF";
+    case DM_REF_FLUSH:     return "FLUSH";
+    case DM_REF_IOSTORE:   return "IOSTORE";
+    case DM_REF_IFETCH:    return "IFETCH";
+    case DM_REF_FETCH:     return "FETCH";
+    case DM_REF_RMAP:      return "RMAP";
+    }
+    return "?";
+}
+
+static const char *machine_fault_name(dorado_fault_kind fault)
+{
+    switch (fault) {
+    case DM_FAULT_NONE:          return "NONE";
+    case DM_FAULT_PAGE:          return "PAGE";
+    case DM_FAULT_WRITE_PROTECT: return "WRITE_PROTECT";
+    case DM_FAULT_MAP_TROUBLE:   return "MAP_TROUBLE";
+    case DM_FAULT_STORAGE_ERROR: return "STORAGE_ERROR";
+    }
+    return "?";
+}
+
+static uint32_t parse_octal_word(const char **pp)
+{
+    const char *p = *pp;
+    while (*p == ' ' || *p == '\t' || *p == ',') p++;
+    if (p[0] == '0' && (p[1] == 'o' || p[1] == 'O')) p += 2;
+    char *end = NULL;
+    unsigned long v = strtoul(p, &end, 8);
+    *pp = end ? end : p;
+    return (uint32_t)v;
+}
+
+static int printable_ascii(uint16_t ch)
+{
+    return ch >= 040 && ch <= 0176;
+}
+
+static void machine_dump_env_vm_words(dorado_machine *m)
+{
+    const char *p = getenv("DORADO_VM_DUMP");
+    if (!p || !*p) return;
+
+    while (*p) {
+        uint32_t va = parse_octal_word(&p);
+        int count = 16;
+        while (*p == ' ' || *p == '\t') p++;
+        if (*p == ':' || *p == '+') {
+            p++;
+            count = (int)parse_octal_word(&p);
+        }
+        if (count < 1) count = 1;
+        if (count > 256) count = 256;
+
+        char label[64];
+        snprintf(label, sizeof label, "VM_DUMP %07o", va & 01777777777u);
+        machine_dump_words_at_va(&m->mem, label, va, count);
+
+        while (*p == ' ' || *p == '\t') p++;
+        if (*p == ',') p++;
+        else if (*p) break;
+    }
+}
+
+static void machine_find_env_vm_pair(dorado_machine *m)
+{
+    const char *p = getenv("DORADO_VM_FIND_PAIR");
+    if (!m || !m->mem.storage || !p || !*p)
+        return;
+
+    uint32_t a = parse_octal_word(&p) & 0177777u;
+    if (*p == ',' || *p == ':' || *p == '+') p++;
+    uint32_t b = parse_octal_word(&p) & 0177777u;
+    unsigned limit = 32;
+    if (*p == ',' || *p == ':' || *p == '+') {
+        p++;
+        limit = parse_octal_word(&p);
+        if (limit == 0) limit = 32;
+        if (limit > 256) limit = 256;
+    }
+
+    fprintf(stderr, "[machine] VM_FIND_PAIR %06o %06o:", a, b);
+    unsigned n = 0;
+    for (size_t i = 0; i + 1 < m->mem.storage_words && n < limit; i++) {
+        if (m->mem.storage[i] != (uint16_t)a ||
+            m->mem.storage[i + 1] != (uint16_t)b)
+            continue;
+        fprintf(stderr, " %07o", (unsigned)i & 017777777u);
+        n++;
+    }
+    if (!n)
+        fprintf(stderr, " none");
+    fprintf(stderr, "\n");
+}
+
+static void machine_dump_raw_storage_range(dorado_memory *mem,
+                                           uint32_t start, int count)
+{
+    if (!mem || !mem->storage || count <= 0)
+        return;
+    if ((size_t)start >= mem->storage_words) {
+        fprintf(stderr, "[machine] STORAGE_DUMP %07o: out-of-range\n",
+                start & 017777777u);
+        return;
+    }
+    if ((size_t)count > mem->storage_words - start)
+        count = (int)(mem->storage_words - start);
+
+    fprintf(stderr, "[machine] STORAGE_DUMP %07o +%o", start, count);
+    for (int i = 0; i < count; i += 8) {
+        int n = count - i;
+        if (n > 8) n = 8;
+        fprintf(stderr, "\n  %07o:", (start + (uint32_t)i) & 017777777u);
+        for (int j = 0; j < n; j++) {
+            uint32_t off = start + (uint32_t)i + (uint32_t)j;
+            fprintf(stderr, " %06o", mem->storage[off]);
+        }
+        fprintf(stderr, "  |");
+        for (int j = 0; j < n; j++) {
+            uint32_t off = start + (uint32_t)i + (uint32_t)j;
+            uint16_t w = mem->storage[off];
+            uint16_t hi = (w >> 8) & 0377u;
+            uint16_t lo = w & 0377u;
+            fputc(printable_ascii(hi) ? (char)hi : '.', stderr);
+            fputc(printable_ascii(lo) ? (char)lo : '.', stderr);
+        }
+        fputc('|', stderr);
+    }
+    fputc('\n', stderr);
+}
+
+static void machine_dump_env_storage_words(dorado_machine *m)
+{
+    const char *p = getenv("DORADO_STORAGE_DUMP");
+    if (!m || !m->mem.storage || !p || !*p)
+        return;
+
+    while (*p) {
+        uint32_t start = parse_octal_word(&p);
+        int count = 16;
+        while (*p == ' ' || *p == '\t') p++;
+        if (*p == ':' || *p == '+') {
+            p++;
+            count = (int)parse_octal_word(&p);
+        }
+        if (count < 1) count = 1;
+        if (count > 512) count = 512;
+
+        machine_dump_raw_storage_range(&m->mem, start, count);
+
+        while (*p == ' ' || *p == '\t') p++;
+        if (*p == ',') p++;
+        else if (*p) break;
+    }
+}
+
+static void print_lisp_pname_candidate(dorado_memory *mem, const char *tag,
+                                       uint32_t va)
+{
+    uint16_t w0 = dorado_visible_word_at_va(mem, va);
+    unsigned len = (w0 >> 8) & 0377;
+    unsigned pad = w0 & 0377;
+    if (len == 0 || len > 80)
+        return;
+
+    char s[81];
+    for (unsigned i = 0; i < len && i < sizeof s - 1; i++) {
+        uint16_t w = dorado_visible_word_at_va(mem, va + 1u + i / 2u);
+        uint16_t ch = (i & 1u) ? (w & 0377u) : ((w >> 8) & 0377u);
+        if (!printable_ascii(ch))
+            return;
+        s[i] = (char)ch;
+    }
+    s[len] = '\0';
+    fprintf(stderr, " pname[%s]@%07o len=%u pad=%03o \"%s\"",
+            tag, va & 01777777777u, len, pad, s);
+}
+
+static void dump_lisp_atom_space(dorado_memory *mem, const char *name,
+                                 int br, uint32_t idx, int try_pname)
+{
+    uint32_t base = dorado_br_get(mem, br);
+    uint32_t va1 = (base + idx) & 01777777777u;
+    uint32_t va2 = (base + idx * 2u) & 01777777777u;
+    uint16_t a0 = dorado_visible_word_at_va(mem, va1);
+    uint16_t a1 = dorado_visible_word_at_va(mem, va1 + 1u);
+    uint16_t b0 = dorado_visible_word_at_va(mem, va2);
+    uint16_t b1 = dorado_visible_word_at_va(mem, va2 + 1u);
+
+    fprintf(stderr,
+            "\n  %-5s BR%02o=%07o +idx=%07o:{%06o,%06o} "
+            "+2idx=%07o:{%06o,%06o}",
+            name, br, base, va1, a0, a1, va2, b0, b1);
+
+    if (try_pname) {
+        uint32_t xp1 = (((uint32_t)(a0 & 0377u)) << 16) | a1;
+        uint32_t xp2 = (((uint32_t)(b0 & 0377u)) << 16) | b1;
+        uint32_t hi_lo1 = ((((uint32_t)a0) << 16) | a1) & 01777777777u;
+        uint32_t hi_lo2 = ((((uint32_t)b0) << 16) | b1) & 01777777777u;
+        fprintf(stderr,
+                " xptrs={packed:%07o,%07o full:%07o,%07o}",
+                xp1, xp2, hi_lo1, hi_lo2);
+        print_lisp_pname_candidate(mem, "packed+idx", xp1);
+        print_lisp_pname_candidate(mem, "packed+2idx", xp2);
+        print_lisp_pname_candidate(mem, "full+idx", hi_lo1);
+        print_lisp_pname_candidate(mem, "full+2idx", hi_lo2);
+    }
+}
+
+static void machine_dump_lisp_atom_probe(dorado_machine *m)
+{
+    const char *w = getenv("DORADO_LISP_ATOM_PROBE");
+    if (!m || !w || !*w)
+        return;
+
+    const char *p = w;
+    fprintf(stderr, "[lisp-atom-probe] indices:");
+    int n = 0;
+    while (*p && n++ < 32) {
+        const char *before = p;
+        uint32_t idx = parse_octal_word(&p) & 0177777u;
+        if (p == before)
+            break;
+        fprintf(stderr, " %06o", idx);
+        fprintf(stderr,
+                "\n[lisp-atom-probe] atom=%06o atomObj={%06o,%06o}",
+                idx,
+                dorado_visible_word_at_va(&m->mem,
+                                          dorado_br_get(&m->mem, 000) + idx),
+                dorado_visible_word_at_va(&m->mem,
+                                          dorado_br_get(&m->mem, 000) + idx + 1u));
+        dump_lisp_atom_space(&m->mem, "ATOM",  000, idx, 0);
+        dump_lisp_atom_space(&m->mem, "PLIST", 002, idx, 0);
+        dump_lisp_atom_space(&m->mem, "PNAME", 010, idx, 1);
+        dump_lisp_atom_space(&m->mem, "DEF",   012, idx, 0);
+        dump_lisp_atom_space(&m->mem, "VAL",   014, idx, 0);
+        fputc('\n', stderr);
+        while (*p == ' ' || *p == '\t' || *p == ',') p++;
+        if (!*p)
+            break;
+    }
+}
+
 void dorado_machine_debug(dorado_machine *m)
 {
     if (!m) return;
@@ -2432,6 +2875,116 @@ void dorado_machine_debug(dorado_machine *m)
         fprintf(stderr, "[machine] task-0 hot PCs:");
         for (int i = 0; i < 12 && top[i] >= 0; i++)
             fprintf(stderr, " 0o%o=%u", top[i], m->pchist[top[i]]);
+        for (int i = 0; i < 12; i++) top[i] = -1;
+        for (int a = 0; a < 4096; a++) {
+            if (!m->pchist_all[a]) continue;
+            for (int s = 0; s < 12; s++) {
+                if (top[s] < 0 || m->pchist_all[a] > m->pchist_all[top[s]]) {
+                    for (int t = 11; t > s; t--) top[t] = top[t-1];
+                    top[s] = a; break;
+                }
+            }
+        }
+        fprintf(stderr, "\n[machine] all-task hot PCs:");
+        for (int i = 0; i < 12 && top[i] >= 0; i++)
+            fprintf(stderr, " 0o%o=%u", top[i], m->pchist_all[top[i]]);
+        for (int task = 0; task < 16; task++) {
+            uint64_t total = 0;
+            for (int a = 0; a < 4096; a++)
+                total += machine_pchist_task[task][a];
+            if (!total) continue;
+            for (int i = 0; i < 6; i++) top[i] = -1;
+            for (int a = 0; a < 4096; a++) {
+                if (!machine_pchist_task[task][a]) continue;
+                for (int s = 0; s < 6; s++) {
+                    if (top[s] < 0 ||
+                        machine_pchist_task[task][a] >
+                            machine_pchist_task[task][top[s]]) {
+                        for (int t = 5; t > s; t--) top[t] = top[t-1];
+                        top[s] = a; break;
+                    }
+                }
+            }
+            fprintf(stderr, "\n[machine] task-%o hot PCs (%llu):",
+                    task, (unsigned long long)total);
+            for (int i = 0; i < 6 && top[i] >= 0; i++)
+                fprintf(stderr, " 0o%o=%u", top[i],
+                        machine_pchist_task[task][top[i]]);
+        }
+        int ifutop[12]; for (int i = 0; i < 12; i++) ifutop[i] = -1;
+        for (int a = 0; a < 65536; a++) {
+            if (!m->ifu_pcx_hist[a]) continue;
+            for (int s = 0; s < 12; s++) {
+                if (ifutop[s] < 0 ||
+                    m->ifu_pcx_hist[a] > m->ifu_pcx_hist[ifutop[s]]) {
+                    for (int t = 11; t > s; t--) ifutop[t] = ifutop[t-1];
+                    ifutop[s] = a; break;
+                }
+            }
+        }
+        fprintf(stderr, "\n[machine] IFU hot PCX:");
+        for (int i = 0; i < 12 && ifutop[i] >= 0; i++)
+            fprintf(stderr, " %06o=%u", ifutop[i],
+                    m->ifu_pcx_hist[ifutop[i]]);
+        for (int i = 0; i < 12; i++) ifutop[i] = -1;
+        for (int a = 0; a < 1024; a++) {
+            if (!m->ifu_op_hist[a]) continue;
+            for (int s = 0; s < 12; s++) {
+                if (ifutop[s] < 0 ||
+                    m->ifu_op_hist[a] > m->ifu_op_hist[ifutop[s]]) {
+                    for (int t = 11; t > s; t--) ifutop[t] = ifutop[t-1];
+                    ifutop[s] = a; break;
+                }
+            }
+        }
+        fprintf(stderr, "\n[machine] IFU hot ops:");
+        for (int i = 0; i < 12 && ifutop[i] >= 0; i++)
+            fprintf(stderr, " ins%u/op%03o=%u",
+                    (unsigned)(ifutop[i] >> 8), ifutop[i] & 0377,
+                    m->ifu_op_hist[ifutop[i]]);
+        fprintf(stderr, "\n[machine] IFU last dispatches:");
+        unsigned ring_len = (unsigned)(sizeof m->ifu_ring /
+                                       sizeof m->ifu_ring[0]);
+        unsigned have = m->ifu_ring_next < ring_len ? m->ifu_ring_next
+                                                    : ring_len;
+        for (unsigned i = 0; i < have; i++) {
+            unsigned idx = (m->ifu_ring_next - have + i) & (ring_len - 1u);
+            fprintf(stderr,
+                    " [%llu pcx=%06o pcf=%06o i%u op=%03o a=%03o b=%03o "
+                    "l=%u T=%06o Q=%06o C=%06o sp=%03o rb=%02o mb=%02o "
+                    "br31=%07o br36=%07o stk=%06o,%06o,%06o,%06o "
+                    "rm0=%06o,%06o,%06o,%06o]",
+                    (unsigned long long)m->ifu_ring[idx].cycle,
+                    m->ifu_ring[idx].pcx, m->ifu_ring[idx].pcf,
+                    m->ifu_ring[idx].insset, m->ifu_ring[idx].opcode,
+                    m->ifu_ring[idx].alpha, m->ifu_ring[idx].beta,
+                    m->ifu_ring[idx].len, m->ifu_ring[idx].T,
+                    m->ifu_ring[idx].Q, m->ifu_ring[idx].Cnt,
+                    m->ifu_ring[idx].StkP & 0377,
+                    m->ifu_ring[idx].RBase & 017,
+                    m->ifu_ring[idx].MemBase & 037,
+                    m->ifu_ring[idx].br31, m->ifu_ring[idx].br36,
+                    m->ifu_ring[idx].stk[0], m->ifu_ring[idx].stk[1],
+                    m->ifu_ring[idx].stk[2], m->ifu_ring[idx].stk[3],
+                    m->ifu_ring[idx].rm[0], m->ifu_ring[idx].rm[1],
+                    m->ifu_ring[idx].rm[2], m->ifu_ring[idx].rm[3]);
+        }
+        fprintf(stderr,
+                "\n[machine] tasks: ctask=%o ready=%06o wake=%06o "
+                "pipe={%06o,%06o} tasking=%u",
+                m->cpu.ctask, m->cpu.ready, m->cpu.wakeup_pending,
+                m->cpu.wakeup_pipe[0], m->cpu.wakeup_pipe[1],
+                m->cpu.tasking_on);
+        for (int t = 0; t < 16; t++) {
+            uint16_t tpc = dorado_cpu_get_task_tpc(&m->cpu, t);
+            if (tpc || (m->cpu.ready & (1u << t)) ||
+                (m->cpu.wakeup_pending & (1u << t)) || t == m->cpu.ctask) {
+                fprintf(stderr,
+                        " t%o:tpc=0o%o T=%06o L=%06o MB=%02o RB=%02o",
+                        t, tpc, m->cpu.task_t[t], m->cpu.task_link[t],
+                        m->cpu.task_membase[t], m->cpu.task_rbase[t]);
+            }
+        }
         static const struct { unsigned pc; const char *name; } fieldpc[] = {
             {01745, "ENDOFFIELD"}, {03546, "EVENFIELD"},
             {03756, "RTCCARRY"},   {01276, "STARTCOUNTERS"},
@@ -2469,17 +3022,134 @@ void dorado_machine_debug(dorado_machine *m)
             (unsigned long long)e->bol_queued,
             (unsigned long long)e->time_bcasts,
             dastart, m->mem.storage_words);
+    if (e->ftp_enabled) {
+        fprintf(stderr,
+                "[machine] ftp: open=%u phase=%u tx_mode=%u tx_step=%u "
+                "pend_ack=%u wait_ack=%u rx_next=%08x tx_next=%08x "
+                "tx_last=%08x last_ack=%08x file=%u/%u cmd=%03o/%zu "
+                "seen=%llu queued=%llu rxq=%zu/%zu hold=%u "
+                "client=%06o/%o/%o server=%06o/%o/%o alloc=%u/%u/%u\n",
+                e->ftp_open, e->ftp_phase, e->ftp_tx_mode, e->ftp_tx_step,
+                e->ftp_pending_ack, e->ftp_waiting_for_ack,
+                e->ftp_rx_next, e->ftp_tx_next, e->ftp_tx_last_end,
+                e->ftp_last_ack, e->ftp_file_pos, e->ftp_file_size,
+                e->ftp_cmd_mark, e->ftp_cmd_len,
+                (unsigned long long)e->ftp_packets_seen,
+                (unsigned long long)e->ftp_packets_queued,
+                e->rx_pos, e->rx_count, e->rx_hold,
+                e->ftp_client_net_host, e->ftp_client_sock_hi,
+                e->ftp_client_sock_lo, e->ftp_server_net_host,
+                e->ftp_server_sock_hi, e->ftp_server_sock_lo,
+                e->ftp_client_bytes_per_pup, e->ftp_client_pup_alloc,
+                e->ftp_client_byte_alloc);
+    }
     fprintf(stderr,
             "[machine] RM raw: rm000=%06o rm006=%06o rm025=%06o rm026=%06o "
-            "RTClock=%06o "
-            "RTClockHi=%06o RTC430=%06o WakeupTime=%06o\n",
+            "clock260..263={%06o,%06o,%06o,%06o} "
+            "old165..167={%06o,%06o,%06o} WakeupTime274=%06o\n",
             m->cpu.RM[0000] & 0177777, m->cpu.RM[0006] & 0177777,
             m->cpu.RM[0025] & 0177777, m->cpu.RM[0026] & 0177777,
+            m->cpu.RM[0260] & 0177777, m->cpu.RM[0261] & 0177777,
+            m->cpu.RM[0262] & 0177777, m->cpu.RM[0263] & 0177777,
             m->cpu.RM[0165] & 0177777, m->cpu.RM[0166] & 0177777,
             m->cpu.RM[0167] & 0177777, m->cpu.RM[0274] & 0177777);
+    fprintf(stderr,
+            "[machine] cpu: T=%06o Q=%06o Cnt=%06o StkP=%03o ShC=%06o "
+            "Link=%06o MemBase=%02o RBase=%02o TIOA=%03o Md=%06o "
+            "MdValid=%u mdReady=%llu ifu={active=%u warm=%u ins=%u "
+            "op=%03o alpha=%03o beta=%03o len=%u n=%u pcx=%06o "
+            "pcf=%06o idcnt=%u dispatch=%llu} stk0..7:",
+            m->cpu.T, m->cpu.Q, m->cpu.Cnt, m->cpu.StkP & 0377,
+            m->cpu.ShC, m->cpu.Link, m->cpu.MemBase & 037,
+            m->cpu.RBase & 017, m->cpu.TIOA & 0377,
+            m->mem.md & 0177777, m->cpu.task_md_valid[m->cpu.ctask],
+            (unsigned long long)m->cpu.task_md_ready[m->cpu.ctask],
+            m->cpu.ifu_active, m->cpu.ifu_warmup,
+            m->cpu.ifu_insset & 3, m->cpu.ifu_opcode,
+            m->cpu.ifu_alpha, m->cpu.ifu_beta, m->cpu.ifu_length,
+            m->cpu.ifu_n, m->cpu.ifu_pcx, m->cpu.ifu_pcf,
+            m->cpu.ifu_idcnt,
+            (unsigned long long)m->cpu.ifu_dispatch_count);
+    for (int i = 0; i < 8; i++)
+        fprintf(stderr, " %06o", m->cpu.STK[i] & 0177777);
+    fprintf(stderr, "\n");
+    fprintf(stderr,
+            "[machine] memref: last=%s va=%07o b=%06o task=%o.%o "
+            "miss=%u latency=%d mar=%07o fault=%s count=%u first_srn=%o "
+            "fault_va=%07o fault_pc=%06o fault_real=0o%o fault_task=%o.%o "
+            "fault_mb=%02o fault_tioa=%03o\n",
+            machine_ref_kind_name(m->mem.last_ref_kind),
+            m->mem.last_ref_va & 01777777777u, m->mem.last_ref_b,
+            m->mem.last_ref_task & 017, m->mem.last_ref_subtask & 3,
+            m->mem.last_ref_miss, m->mem.last_ref_latency,
+            m->mem.mar & 01777777777u,
+            machine_fault_name(m->mem.last_fault), m->mem.fault_count,
+            m->mem.fault_first_srn & 017,
+            m->mem.last_fault_va & 01777777777u,
+            m->mem.last_fault_pc & 0177777,
+            m->mem.last_fault_real_pc & 07777,
+            m->mem.last_fault_task & 017, m->mem.last_fault_subtask & 3,
+            m->mem.last_fault_membase & 037,
+            m->mem.last_fault_tioa & 0377);
+    fprintf(stderr, "[machine] BR:");
+    for (int i = 0; i < DM_BR_COUNT; i++)
+        if (dorado_br_get(&m->mem, i) != 0)
+            fprintf(stderr, " %02o=%07o", i, dorado_br_get(&m->mem, i));
+    fprintf(stderr, "\n");
+    machine_dump_lisp_atom_probe(m);
+    machine_dump_env_vm_words(m);
+    machine_find_env_vm_pair(m);
+    machine_dump_env_storage_words(m);
+    fprintf(stderr, "[machine] RM:");
+    for (int i = 0; i < 040; i++)
+        fprintf(stderr, " R%02o=%06o", i, m->cpu.RM[i] & 0177777);
+    fprintf(stderr, "\n");
+    fprintf(stderr,
+            "[machine] display RM: DISPLAYCONFIG R166=%06o "
+            "TVCW R160=%06o TFIELD R161=%06o TREG400C R162=%06o "
+            "TDCB R152=%06o TSLC R153=%06o TERMHI R171=%06o "
+            "TERMLO R172=%06o COLORCB R230=%06o\n",
+            m->cpu.RM[0166] & 0177777, m->cpu.RM[0160] & 0177777,
+            m->cpu.RM[0161] & 0177777, m->cpu.RM[0162] & 0177777,
+            m->cpu.RM[0152] & 0177777, m->cpu.RM[0153] & 0177777,
+            m->cpu.RM[0171] & 0177777, m->cpu.RM[0172] & 0177777,
+            m->cpu.RM[0230] & 0177777);
     fprintf(stderr, "[machine] config_word=0o%o (B<-Config'=0o%o)\n",
             dorado_memory_config_word(&m->mem),
             (uint16_t)~dorado_memory_config_word(&m->mem));
+    {
+        dorado_disk_controller *dc = &m->disk;
+        dorado_disk_drive *dd = &dc->drive[dc->selected_drive];
+        fprintf(stderr,
+                "[machine] disk: sel=%d chs=%d/%d/%d media_sec=%d "
+                "ctrl=%06o en=%u act=%u pend=%u blk=%u pos=%u "
+                "fifo=%d h=%d t=%d tw={idx=%u sec=%u tag=%u rd=%u wr=%u} "
+                "rstream=%u/%d wstream=%u/%d under=%u over=%u "
+                "counts={ctrl=%llu xfer=%llu rs=%llu rf=%llu ws=%llu "
+                "fw=%llu fr=%llu secset=%llu secclear=%llu tagset=%llu "
+                "tagclear=%llu}\n",
+                dc->selected_drive, dd->cur_cyl, dd->cur_head,
+                dd->cur_sector, dd->pack ? dd->cur_sector : 0,
+                dc->control, dc->enable_run, dc->active, dc->xfer_pending,
+                dc->current_block, dc->current_block_pos,
+                dc->fifo_count, dc->fifo_head, dc->fifo_tail,
+                dc->index_tw, dc->sector_tw, dc->tag_tw, dc->rd_fifo_tw,
+                dc->wr_fifo_tw, dc->read_stream_active,
+                dc->read_stream_index, dc->write_stream_active,
+                dc->write_stream_index, dc->fifo_underflow,
+                dc->fifo_overflow,
+                (unsigned long long)dc->control_loads,
+                (unsigned long long)dc->control_transfer_loads,
+                (unsigned long long)dc->read_stream_starts,
+                (unsigned long long)dc->read_stream_start_failures,
+                (unsigned long long)dc->write_sectors_committed,
+                (unsigned long long)dc->fifo_writes,
+                (unsigned long long)dc->fifo_reads,
+                (unsigned long long)dc->sector_tw_sets,
+                (unsigned long long)dc->sector_tw_clears,
+                (unsigned long long)dc->tag_tw_sets,
+                (unsigned long long)dc->tag_tw_clears);
+    }
     fprintf(stderr, "[machine] M[344]=0o%o (guard=%d) Swat-OutLdRet="
             "0o%o AC700=0o%o\n",
             dorado_visible_word_at_va(&m->mem, mds + 0344u),
@@ -2497,6 +3167,17 @@ void dorado_machine_debug(dorado_machine *m)
                            + (v344 & (DM_PAGE_SIZE - 1))));
     }
     machine_dump_lisp_display_probe(m);
+    {
+        uint32_t ifu_base = dorado_br_get(&m->mem, 31);
+        uint32_t ifu_va =
+            (ifu_base + (uint16_t)(m->cpu.ifu_pcf >> 1)) & 0x0FFFFFFFu;
+        uint32_t ifu_ctx = ifu_va >= 8 ? ifu_va - 8 : 0;
+        fprintf(stderr,
+                "[machine] IFU stream: base=%07o pcx=%06o pcf=%06o "
+                "op_va=%07o ctx=%07o\n",
+                ifu_base, m->cpu.ifu_pcx, m->cpu.ifu_pcf, ifu_va, ifu_ctx);
+        machine_dump_words_at_va(&m->mem, "IFU stream context", ifu_ctx, 24);
+    }
     if (m->germ_word_count)
         machine_dump_pilot_pda(m);
 }
@@ -2595,6 +3276,32 @@ static int machine_ddc_display_active(dorado_machine *m)
     return 0;
 }
 
+static int machine_prefer_live_ddc_frame(dorado_machine *m,
+                                         int ddc_pixels, int dcb_pixels)
+{
+    if (!m || ddc_pixels <= 0)
+        return 0;
+
+    dorado_display *d = &m->display;
+
+    /* Interlisp-D's DoradoLisp world selects the terminal-interface
+     * AHT/AWT path when a DispM board is reported present.  That path
+     * produces the live picture through fast-I/O/DDC, while the old Alto
+     * DASTART chain can remain as a stale boot banner.  For screenshots,
+     * prefer the live DDC framebuffer once AWT/DWT has delivered a real
+     * pixel stream instead of repainting the stale DCB over it. */
+    int awt_stream = d->terminal_task == DORADO_DISPLAY_TASK_AHT &&
+                     d->output_task_count[DORADO_DISPLAY_TASK_AWT] != 0 &&
+                     d->iofetch_count != 0;
+    int dwt_stream = d->terminal_task == DORADO_DISPLAY_TASK_DHT &&
+                     d->output_task_count[DORADO_DISPLAY_TASK_DWT] != 0 &&
+                     d->iofetch_count != 0;
+    if (!awt_stream && !dwt_stream)
+        return 0;
+
+    return dcb_pixels == 0 || ddc_pixels > dcb_pixels * 4;
+}
+
 static int machine_display_fifo_used(const dorado_display *d, int subtask)
 {
     int head, tail, cap;
@@ -2637,6 +3344,110 @@ static void machine_dump_words_at_va(dorado_memory *mem, const char *label,
     fprintf(stderr, "\n");
 }
 
+static void machine_dump_alto_dcb_candidate(dorado_memory *mem,
+                                            const char *name,
+                                            uint32_t base,
+                                            uint16_t dcb)
+{
+    if (dcb == 0) {
+        fprintf(stderr, "[machine] Alto DCB %s head=nil\n", name);
+        return;
+    }
+
+    uint32_t va = base + dcb;
+    uint16_t next = dorado_visible_word_at_va(mem, va + 0u);
+    uint16_t ctrl = dorado_visible_word_at_va(mem, va + 1u);
+    uint16_t bitmap = dorado_visible_word_at_va(mem, va + 2u);
+    uint16_t slc = dorado_visible_word_at_va(mem, va + 3u);
+    int htab = (ctrl >> 8) & 0377;
+    int nwords = ctrl & 0377;
+    int inv = (ctrl >> 15) & 1;
+
+    fprintf(stderr,
+            "[machine] Alto DCB %s dcb=%06o va=%07o next=%06o "
+            "ctrl=%06o htab=%d nwords=%d inv=%d bitmap=%06o "
+            "slc=%06o words:",
+            name, dcb, va, next, ctrl, htab, nwords, inv, bitmap, slc);
+    for (int i = 0; i < 8; i++)
+        fprintf(stderr, " %06o", dorado_visible_word_at_va(mem, va + (uint32_t)i));
+    if (bitmap != 0) {
+        fprintf(stderr, " sample:");
+        for (int i = 0; i < 8; i++)
+            fprintf(stderr, " %06o",
+                    dorado_visible_word_at_va(mem, base + bitmap + (uint32_t)i));
+    }
+    fprintf(stderr, "\n");
+}
+
+static void machine_dump_color_channel_block(dorado_memory *mem,
+                                             const char *prefix,
+                                             uint32_t base,
+                                             uint16_t ptr)
+{
+    if (ptr <= 1u) {
+        fprintf(stderr, "[machine] %s channel=nil\n", prefix);
+        return;
+    }
+
+    uint32_t va = base + ptr;
+    uint16_t next = dorado_visible_word_at_va(mem, va + 0u);
+    uint16_t nwords = dorado_visible_word_at_va(mem, va + 1u);
+    uint16_t bitmap_lo = dorado_visible_word_at_va(mem, va + 2u);
+    uint16_t bitmap_hi = dorado_visible_word_at_va(mem, va + 3u);
+    uint16_t scanlines = dorado_visible_word_at_va(mem, va + 4u);
+    uint16_t pixels = dorado_visible_word_at_va(mem, va + 5u);
+    uint16_t lmarg = dorado_visible_word_at_va(mem, va + 6u);
+    uint16_t scan = dorado_visible_word_at_va(mem, va + 7u);
+    uint32_t bitmap = ((uint32_t)bitmap_hi << 16) | bitmap_lo;
+
+    fprintf(stderr,
+            "[machine] %s channel ptr=%06o va=%07o next=%06o nwords=%u "
+            "bitmap=%07o scanlines=%u pixels=%u lmarg=%u scan=%06o "
+            "sample:",
+            prefix, ptr, va, next, nwords, bitmap, scanlines, pixels,
+            lmarg, scan);
+    if (bitmap != 0) {
+        for (int i = 0; i < 8; i++)
+            fprintf(stderr, " %06o",
+                    dorado_visible_word_at_va(mem, bitmap + (uint32_t)i));
+    }
+    fprintf(stderr, "\n");
+}
+
+static void machine_dump_color_mcb_candidate(dorado_memory *mem,
+                                             const char *name,
+                                             uint32_t base,
+                                             uint32_t ptr_word_off)
+{
+    uint32_t ptr_word_va = base + ptr_word_off;
+    uint16_t mcb = dorado_visible_word_at_va(mem, ptr_word_va);
+
+    fprintf(stderr, "[machine] ColorDisplay %s ptr_word=%07o -> %06o",
+            name, ptr_word_va, mcb);
+    if (mcb <= 1u) {
+        fprintf(stderr, "\n");
+        return;
+    }
+
+    uint32_t mcb_va = base + mcb;
+    uint16_t seal = dorado_visible_word_at_va(mem, mcb_va + 0u);
+    uint16_t flags = dorado_visible_word_at_va(mem, mcb_va + 1u);
+    uint16_t a_chan = dorado_visible_word_at_va(mem, mcb_va + 2u);
+    uint16_t b_chan = dorado_visible_word_at_va(mem, mcb_va + 3u);
+    uint16_t color = dorado_visible_word_at_va(mem, mcb_va + 4u);
+
+    fprintf(stderr,
+            " mcb_va=%07o seal=%06o flags=%06o a=%06o b=%06o color=%06o\n",
+            mcb_va, seal, flags, a_chan, b_chan, color);
+    if (seal == 0177456u) {
+        machine_dump_color_channel_block(mem, name, base, a_chan);
+        machine_dump_color_channel_block(mem, name, base, b_chan);
+        if (color > 1u)
+            machine_dump_words_at_va(mem, "ColorDisplay color control",
+                                     base + color, 20);
+    }
+}
+
 static void machine_dump_lisp_display_probe(dorado_machine *m)
 {
     if (!m) return;
@@ -2648,7 +3459,8 @@ static void machine_dump_lisp_display_probe(dorado_machine *m)
             "iofetch=%llu fifoA=%d fifoB=%d next={%u,%u} cur={%u,%u} "
             "rast_next={%u,%u,%u,%u} rast_cur={%u,%u,%u,%u} "
             "scan=%llu twake=%llu "
-            "dwake=%llu nlcb=%llu cursor_rows=%llu\n",
+            "dwake=%llu nlcb=%llu cursor_rows=%llu "
+            "term_bits=%llu term_msgs=%llu term_next=%u.%u\n",
             d->terminal_task, d->statics,
             (unsigned long long)d->output_count,
             (unsigned long long)d->iofetch_count,
@@ -2664,7 +3476,10 @@ static void machine_dump_lisp_display_probe(dorado_machine *m)
             (unsigned long long)d->terminal_wakeups,
             (unsigned long long)d->dwt_wakeups,
             (unsigned long long)d->nlcb_writes,
-            (unsigned long long)d->cursor_rows_drawn);
+            (unsigned long long)d->cursor_rows_drawn,
+            (unsigned long long)d->terminal_bits,
+            (unsigned long long)d->terminal_messages,
+            d->terminal_msg_word, d->terminal_msg_bit);
     fprintf(stderr,
             "[machine] display outputs by task: t0=%llu t1=%llu t3=%llu "
             "t4=%llu t11=%llu t13=%llu | fastio drops: disp_full=%u "
@@ -2703,6 +3518,27 @@ static void machine_dump_lisp_display_probe(dorado_machine *m)
                 d->output_tioa_first[best], d->output_tioa_last[best]);
     }
     fprintf(stderr, "\n");
+    fprintf(stderr, "[machine] display NLCB A:");
+    for (int i = 0; i < DORADO_DISPLAY_NLCB_WORDS; i++)
+        fprintf(stderr, " %02o=%04o", i, d->nlcb[0][i]);
+    fprintf(stderr, "\n[machine] display NLCB B:");
+    for (int i = 0; i < DORADO_DISPLAY_NLCB_WORDS; i++)
+        fprintf(stderr, " %02o=%04o", i, d->nlcb[1][i]);
+    fprintf(stderr,
+            "\n[machine] display line state: nlcb_line=%u odd=%u "
+            "cursor_x=%04o cursor_lo=%03o seq_y=%u va_words=%llu "
+            "ddc_lines=%llu ddc_pixels=%llu zero_lines=%llu short_lines=%llu "
+            "last={line=%u width=%04o ptr=%04o words=%u nz=%u ovf=%u}\n",
+            d->nlcb_line, d->nlcb_field_odd, d->nlcb_cursor_x,
+            d->nlcb_cursor_lo, d->ddc_seq_y,
+            (unsigned long long)d->ddc_va_words_drawn,
+            (unsigned long long)d->ddc_lines_rendered,
+            (unsigned long long)d->ddc_pixels_rendered,
+            (unsigned long long)d->ddc_zero_word_lines,
+            (unsigned long long)d->ddc_short_lines,
+            d->ddc_last_line, d->ddc_last_width, d->ddc_last_ptr,
+            d->ddc_last_word_count, d->ddc_last_nonzero_words,
+            d->ddc_last_overflow);
     if (d->iofetch_count) {
         fprintf(stderr,
                 "[machine] display first IOFetch VA=0x%05x/0o%o words:",
@@ -2715,6 +3551,26 @@ static void machine_dump_lisp_display_probe(dorado_machine *m)
         for (int i = 0; i < 16; i++)
             fprintf(stderr, " %06o", d->last_iofetch_words[i]);
         fprintf(stderr, "\n");
+        {
+            uint32_t first_idx = dorado_map_index(d->first_iofetch_va);
+            uint32_t last_idx = dorado_map_index(d->last_iofetch_va);
+            const dorado_map_entry *first = dorado_map_get(&m->mem, first_idx);
+            const dorado_map_entry *last = dorado_map_get(&m->mem, last_idx);
+            uint32_t first_phys =
+                (uint32_t)first->rp * DM_PAGE_SIZE +
+                (d->first_iofetch_va & (DM_PAGE_SIZE - 1));
+            uint32_t last_phys =
+                (uint32_t)last->rp * DM_PAGE_SIZE +
+                (d->last_iofetch_va & (DM_PAGE_SIZE - 1));
+            fprintf(stderr,
+                    "[machine] display IOFetch map: first idx=%04o "
+                    "rp=%04o phys=%07o flags{wp=%u dirty=%u ref=%u} "
+                    "last idx=%04o rp=%04o phys=%07o "
+                    "flags{wp=%u dirty=%u ref=%u}\n",
+                    first_idx, first->rp, first_phys, first->wp,
+                    first->dirty, first->ref, last_idx, last->rp,
+                    last_phys, last->wp, last->dirty, last->ref);
+        }
     }
 
     /* Fugue/Dandelion display sources name IOPageHigh=1, IOPage=0x40,
@@ -2725,6 +3581,29 @@ static void machine_dump_lisp_display_probe(dorado_machine *m)
     machine_dump_words_at_va(&m->mem, "Fugue DCSB low",  0x040E8u, 12);
     machine_dump_words_at_va(&m->mem, "Fugue DCSB IOBR",
                              dorado_br_get(&m->mem, 031) + 0x40E8u, 12);
+    machine_dump_words_at_va(&m->mem, "Fugue keybits", 0x1403Au, 7);
+    {
+        uint32_t mds = dorado_br_get(&m->mem, 036);
+        uint16_t dastart = dorado_visible_word_at_va(&m->mem, mds + 0420u);
+        machine_dump_alto_dcb_candidate(&m->mem, "MDS+DAStart", mds, dastart);
+        machine_dump_alto_dcb_candidate(&m->mem, "abs+DAStart", 0, dastart);
+    }
+
+    /* ColorDisplay.mc defines pMonitorCtrlBlk through an IfE that resolves
+     * differently across builds.  In the Alto-mode DoradoLisp build the DHT
+     * code fetches Reg400C|low(pMonitorCtrlBlk), so probe 0400 as well as the
+     * PrincOps-style 0414/177414 candidates. */
+    machine_dump_color_mcb_candidate(&m->mem, "abs+0400", 0, 0400u);
+    machine_dump_color_mcb_candidate(&m->mem, "IOBR+0400",
+                                     dorado_br_get(&m->mem, 031), 0400u);
+    machine_dump_color_mcb_candidate(&m->mem, "MDS+0400",
+                                     dorado_br_get(&m->mem, 036), 0400u);
+    machine_dump_color_mcb_candidate(&m->mem, "abs+0414", 0, 0414u);
+    machine_dump_color_mcb_candidate(&m->mem, "IOBR+0414",
+                                     dorado_br_get(&m->mem, 031), 0414u);
+    machine_dump_color_mcb_candidate(&m->mem, "MDS+0414",
+                                     dorado_br_get(&m->mem, 036), 0414u);
+    machine_dump_color_mcb_candidate(&m->mem, "abs+177414", 0, 0177414u);
 }
 
 int dorado_machine_render_display_list(dorado_machine *m)
@@ -2733,6 +3612,7 @@ int dorado_machine_render_display_list(dorado_machine *m)
     dorado_memory *mem = &m->mem;
     dorado_display *disp = &m->display;
     uint8_t ddc_fb[sizeof disp->fb];
+    int ddc_pixels_before = machine_display_fb_pixels(disp);
     memcpy(ddc_fb, disp->fb, sizeof ddc_fb);
 
     /* The rasterizer owns the whole frame: clear to white (0 = white,
@@ -2934,6 +3814,14 @@ int dorado_machine_render_display_list(dorado_machine *m)
                 dorado_visible_word_at_va(mem, head_va),
                 dmds, ndcb, pixels, bmhash);
 
+    if (machine_prefer_live_ddc_frame(m, ddc_pixels_before, pixels)) {
+        memcpy(disp->fb, ddc_fb, sizeof ddc_fb);
+        disp->active_w = DORADO_DISPLAY_W;
+        disp->active_h = DORADO_DISPLAY_H;
+        machine_overlay_mouse(m);
+        return ddc_pixels_before;
+    }
+
     /* Alto-on-Dorado uses the smaller Alto raster, but some Mesa-world
      * programs (e.g. PPong) paint a title/score band below the Alto's 606
      * scanlines; present the full-height raster when content extends past it
@@ -2959,14 +3847,19 @@ int dorado_machine_render_display_list(dorado_machine *m)
  * ==================================================================== */
 
 #define DORADO_SNAP_MAGIC   "DORADOSNAPSHOT\x01"  /* 15 chars + NUL = 16 */
-#define DORADO_SNAP_VERSION 1u
+#define DORADO_SNAP_VERSION 2u
 
 typedef struct {
     char     magic[16];
     uint32_t version;
     uint32_t pad;
-    uint64_t sz_mc, sz_cpu, sz_mem, sz_disp, sz_bb, sz_eth, sz_machine;
+    uint64_t sz_mc, sz_cpu, sz_mem, sz_disp, sz_bb, sz_eth, sz_disk;
+    uint64_t sz_fastio, sz_machine;
     uint64_t storage_words;
+    int32_t  disk_read_stream_drive;
+    int32_t  disk_read_stream_sector;
+    int32_t  disk_write_stream_drive;
+    int32_t  disk_write_stream_sector;
 } dorado_snap_header;
 
 static int snap_wr(FILE *f, const void *p, size_t n)
@@ -2978,9 +3871,55 @@ static int snap_rd(FILE *f, void *p, size_t n)
     return (n == 0 || fread(p, 1, n, f) == n) ? 0 : -1;
 }
 
+static void machine_disk_stream_ref(const dorado_machine *m,
+                                    const dorado_disk_sector *ptr,
+                                    int32_t *out_drive,
+                                    int32_t *out_sector)
+{
+    *out_drive = -1;
+    *out_sector = -1;
+    if (!m || !ptr) return;
+    for (int d = 0; d < DORADO_DISK_NUM_DRIVES; d++) {
+        const dorado_disk_pack *p = m->disk.drive[d].pack;
+        if (!p || !p->sectors || p->num_sectors <= 0) continue;
+        if (ptr >= p->sectors && ptr < p->sectors + p->num_sectors) {
+            *out_drive = d;
+            *out_sector = (int32_t)(ptr - p->sectors);
+            return;
+        }
+    }
+}
+
+static dorado_disk_sector *machine_disk_stream_ptr(dorado_machine *m,
+                                                   int32_t drive,
+                                                   int32_t sector)
+{
+    if (!m || drive < 0 || drive >= DORADO_DISK_NUM_DRIVES) return NULL;
+    dorado_disk_pack *p = m->disk.drive[drive].pack;
+    if (!p || !p->sectors || sector < 0 || sector >= p->num_sectors)
+        return NULL;
+    return &p->sectors[sector];
+}
+
+static void machine_flush_dirty_disk_packs(dorado_machine *m)
+{
+    if (!m) return;
+    for (int s = 0; s < DORADO_DISK_NUM_DRIVES; s++) {
+        dorado_disk_pack *p = &m->disk_packs[s];
+        if (!m->disk_pack_loaded[s] || !p->sectors || p->read_only || !p->path[0])
+            continue;
+        int dirty = 0;
+        for (int i = 0; i < p->num_sectors; i++) {
+            if (p->sectors[i].modified) { dirty = 1; break; }
+        }
+        if (dirty) dorado_disk_pack_save(p);
+    }
+}
+
 int dorado_machine_snapshot(dorado_machine *m, const char *path)
 {
     if (!m || !path) return -1;
+    machine_flush_dirty_disk_packs(m);
     FILE *f = fopen(path, "wb");
     if (!f) {
         fprintf(stderr, "dorado: snapshot: cannot open '%s'\n", path);
@@ -2997,8 +3936,16 @@ int dorado_machine_snapshot(dorado_machine *m, const char *path)
     hdr.sz_disp       = sizeof m->display;
     hdr.sz_bb         = sizeof m->bb;
     hdr.sz_eth        = sizeof m->ethernet;
+    hdr.sz_disk       = sizeof m->disk;
+    hdr.sz_fastio     = sizeof m->fastio;
     hdr.sz_machine    = sizeof *m;
     hdr.storage_words = m->mem.storage_words;
+    machine_disk_stream_ref(m, m->disk.read_stream_sector,
+                            &hdr.disk_read_stream_drive,
+                            &hdr.disk_read_stream_sector);
+    machine_disk_stream_ref(m, m->disk.write_stream_sector,
+                            &hdr.disk_write_stream_drive,
+                            &hdr.disk_write_stream_sector);
 
     int rc = 0;
     rc |= snap_wr(f, &hdr, sizeof hdr);
@@ -3016,6 +3963,8 @@ int dorado_machine_snapshot(dorado_machine *m, const char *path)
     baseboard_cpu_flush(&m->bb);
     rc |= snap_wr(f, &m->bb, sizeof m->bb);
     rc |= snap_wr(f, &m->ethernet, sizeof m->ethernet);
+    rc |= snap_wr(f, &m->disk, sizeof m->disk);
+    rc |= snap_wr(f, &m->fastio, sizeof m->fastio);
 
     /* Ethernet heap buffers (contents only; pointers are reconstructed). */
     uint8_t have_eftp = (m->ethernet.eftp_words != NULL) ? 1 : 0;
@@ -3063,6 +4012,8 @@ int dorado_machine_restore(dorado_machine *m, const char *path)
         hdr.sz_disp    != sizeof m->display ||
         hdr.sz_bb      != sizeof m->bb ||
         hdr.sz_eth     != sizeof m->ethernet ||
+        hdr.sz_disk    != sizeof m->disk ||
+        hdr.sz_fastio  != sizeof m->fastio ||
         hdr.sz_machine != sizeof *m ||
         hdr.storage_words != m->mem.storage_words) {
         fprintf(stderr, "dorado: restore: incompatible snapshot "
@@ -3130,6 +4081,35 @@ int dorado_machine_restore(dorado_machine *m, const char *path)
     m->ethernet.eftp_words   = NULL;
     m->ethernet.rx_words     = NULL;
     m->ethernet.rx_attention = NULL;
+
+    /* Disk + fast I/O — preserve live media/device pointers from create(),
+     * but restore the controller state around them. */
+    {
+        dorado_disk_pack *pack[DORADO_DISK_NUM_DRIVES];
+        const dorado_pdi *pdi[DORADO_DISK_NUM_DRIVES];
+        for (int d = 0; d < DORADO_DISK_NUM_DRIVES; d++) {
+            pack[d] = m->disk.drive[d].pack;
+            pdi[d] = m->disk.drive[d].pdi;
+        }
+        rc |= snap_rd(f, &m->disk, sizeof m->disk);
+        for (int d = 0; d < DORADO_DISK_NUM_DRIVES; d++) {
+            m->disk.drive[d].pack = pack[d];
+            m->disk.drive[d].pdi = pdi[d];
+        }
+        m->disk.read_stream_sector =
+            machine_disk_stream_ptr(m, hdr.disk_read_stream_drive,
+                                    hdr.disk_read_stream_sector);
+        m->disk.write_stream_sector =
+            machine_disk_stream_ptr(m, hdr.disk_write_stream_drive,
+                                    hdr.disk_write_stream_sector);
+    }
+    {
+        dorado_display *display = m->fastio.display;
+        dorado_disk_controller *disk_ctl = m->fastio.disk_ctl;
+        rc |= snap_rd(f, &m->fastio, sizeof m->fastio);
+        m->fastio.display = display;
+        m->fastio.disk_ctl = disk_ctl;
+    }
 
     uint8_t have_eftp = 0;
     rc |= snap_rd(f, &have_eftp, 1);

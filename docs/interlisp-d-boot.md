@@ -387,7 +387,7 @@ That target starts from a fresh BcplProg-derived loader image, inserts
 `LISP.VIRTUALMEM.` with native `CreateFile.run`, then runs:
 
 ```
-lisp.run {DORADO}LISP.SYSOUT
+lisp.run/M {DORADO}LISP.SYSOUT
 ```
 
 with `--ftp-sysout ../chm/lisp/fugue.6/basics/SMALL.SYSOUT!1`. `DORADO_FTP_TRACE`
@@ -432,9 +432,9 @@ That still needs a larger writable/scavenged pack before it can complete,
 because the small BcplProg smoke pack only creates a 1500-page VMEM.
 
 The current long Lyric probe uses a preserved BcplProg-derived pack expanded
-to the full AEmu 406x14 dual-drive shape, creates `LISP.VIRTUALMEM.` with the
-native `CreateFile.run`, and then serves the Lyric sysout over fake Pup
-FTP/BSP:
+to the full AEmu 406x14 dual-drive shape, repairs that physical layout with
+native `Scavenger.boot!1`, creates `LISP.VIRTUALMEM.` with native
+`CreateFile.run`, and then serves the Lyric sysout over fake Pup FTP/BSP:
 
 ```
 make -C dorado run-lisp-lyric-remote-long
@@ -442,19 +442,183 @@ make -C dorado run-lisp-lyric-remote-long
 
 This is intentionally not a short regression test. VMEM creation alone defaults
 to 5.8B cycles (`LISP_LYRIC_CREATEFILE_CYCLES=`), then the Lyric run defaults
-to 5B cycles and writes periodic headless screenshots to
+to 6B cycles and writes periodic headless screenshots to
 `/tmp/dorado-lisp-lyric-CYCLE.pgm` using `--shot-every 500000000`; adjust with
-`LISP_LYRIC_CYCLES=` and `LISP_LYRIC_SHOT_EVERY=` while debugging.
+`LISP_LYRIC_CYCLES=` and `LISP_LYRIC_SHOT_EVERY=` while debugging. Set
+`LISP_LYRIC_FTP_TRACE=1` when the full BSP stream is useful.
 
 Latest result: host-side VDA-preserving expansion plus native `CreateFile.run`
-does build the large VMEM file. The screen returns to the Alto Executive and
-extracting the pack shows `LISP.VIRTUALMEM.` has 15,004 linked pages including
-the terminal page. But running `lisp.run {DORADO}LISP.SYSOUT` from that pack
-still trips Swat/Swatee disk-label checks before reaching FTP. Interpretation:
-VDA-preserving expansion is good for host/Palo directory consistency and native
-CreateFile, but old Alto system utilities still care about physical RDA labels.
-The next path should be the physical-preserving expansion plus native Scavenger
-repair flow, not further changes to fake FTP.
+does build the large VMEM file, but `lisp.run {DORADO}LISP.SYSOUT` from that
+pack still trips Swat/Swatee disk-label checks before reaching FTP. The
+physical-preserving expansion plus native Scavenger repair fixes that. The
+native Scavenger run inserts the missing system files, asks for a replacement
+for duplicate `bravo.scratchbin.`, exits to the Executive, and leaves a pack
+that host `altofs --inspect` can read cleanly. Native `CreateFile.run` then
+allocates a full `LISP.VIRTUALMEM.`:
+
+```
+Found a group of 41716b pages starting at vda 12402
+```
+
+Running `lisp.run/M {DORADO}LISP.SYSOUT` from that repaired pack reaches the
+remote sysout path instead of Swat. A traced 6B-cycle run against Lyric
+`LISP.SYSOUT!1` completed the Pup FTP/BSP transfer:
+
+- NetDir lookup, RTP RFC to FTP socket, FTP `Version`, `Retrieve`, plist
+  approval, and 512-byte BSP file chunks all occur.
+- The 4,824,064-byte sysout streams to BSP id `01116236`, exactly
+  `0x00c7c636 + 4824064`.
+- The server sends final FTP marks (`HereIsFile` complete, text "Transfer
+  complete", EOC), and the client then sends a close packet.
+
+Important loader detail: use `/M`. `Lisp.run` treats `/M` as "load the Lisp
+microcode file" and sets `haveUcode=false` before the eventual `LoadRam`.
+Plain `lisp.run {DORADO}LISP.SYSOUT` completed the 4,824,064-byte FTP transfer
+and closed BSP/RTP cleanly (`file=4824064/4824064`, `open=0`, `wait_ack=0`) but
+never executed `Write IM`; it stayed in the Alto Executive/AEmu instruction
+loop. A direct `lisp.run/M` probe on the same pack reached `Write IM` at
+cycle `471585238`, proving the disk file lookup and DoradoLispMc.eb load path
+are usable.
+
+After the plain-command transfer, the screen shows the sysout banner twice:
+
+```
+{DORADO}LISP.SYSOUT!1, 31-Dec-83 19:00:00...
+{DORADO}LISP.SYSOUT!1, 31-Dec-83 19:00:00...
+```
+
+There is no second FTP session. For the plain command, the blocker is that
+`Lisp.run` skips the control-store load. The `/M` command fixes that immediate
+loader issue; the next bug to chase is the post-`Write IM` Lisp microcode path
+after the remote sysout has been copied into `LISP.VIRTUALMEM.`.
+
+The full remote `/M` path now reaches that next stage. A fresh run from the
+scavenged VMEM pack with:
+
+```
+DORADO_DISPM_PRESENT=1 DORADO_WRITEIM_TRACE=1 \
+  ./build/dorado --eb worlds/aemu.eb \
+  --disk 0=/tmp/dorado-lisp-lyric-m.pack --boot-reason disk --no-alto-boot \
+  --ftp-sysout ../chm/archiveorg/_chm-parc_interlisp-lyric/LISP.SYSOUT\!1 \
+  --type 'lisp.run/M {DORADO}LISP.SYSOUT\n' --type-at 330000000 \
+  --key-hold 4000000 --cycles 7000000000
+```
+
+starts `Write IM` at cycle `3770919107` (repeat run: `3770909938`), closes
+FTP/BSP cleanly (`file=4824064/4824064`, `open=0`, `wait_ack=0`), and ends in
+loaded Lisp microcode with `DASTART=110000`. The final screen is still only the
+two sysout banner lines, not Swat:
+
+```
+{DORADO}LISP.SYSOUT!1, 31-Dec-83 19:00:00...
+{DORADO}LISP.SYSOUT!1, 31-Dec-83 19:00:00...
+```
+
+A machine snapshot from that state is available at
+`/tmp/dorado-lisp-lyric-m-7b.snap` with matching pack
+`/tmp/dorado-lisp-lyric-m-pchist.pack`. Continuing the snapshot to 10B cycles
+leaves the display unchanged, while display counters continue to advance
+(`outputs` grows from about 18.9M to 23.9M and terminal messages from about
+217K to 311K). A Return-key probe from the 7B snapshot also leaves the display
+unchanged by 8B. The current blocker is therefore a post-banner
+`InitLisp`/display or early Lisp initialization loop, not prompt input, disk,
+FTP, or control-store loading.
+
+The Makefile has a snapshot/resume loop for this stage:
+
+```
+make -C dorado run-lisp-lyric-remote-long \
+  LISP_LYRIC_SNAPSHOT_OUT=/tmp/dorado-lisp-lyric-m-7b.snap
+make -C dorado run-lisp-lyric-resume-debug \
+  LISP_LYRIC_SNAPSHOT_IN=/tmp/dorado-lisp-lyric-m-7b.snap \
+  LISP_LYRIC_RESUME_PACK=/tmp/dorado-lisp-lyric-m-pchist.pack \
+  LISP_LYRIC_RESUME_CYCLES=10000000000
+```
+
+A short `DORADO_PCDIS` slice from the 7B snapshot shows task 0 repeatedly
+executing Lisp interpreter/BitBlt paths around `SRCGRAYDST*` and
+`STORELASTSRCDST`, with IFU PCX cycling through low code addresses such as
+`000122..000141` and `000260..000277`; display task slices are interleaved.
+The next focused debug pass should resolve those PCX values against
+`Lisp.syms!4`/the sysout and inspect the Dandelion display handoff state
+(interface page, DCSB/NLCB, and why display IOFetch samples remain zero).
+
+2026-06-30 late follow-up: `Junk.mc!1` confirms the task-2 clock loop should
+acknowledge `AckJunkTW` once per wakeup with odd `RTCDeltaLo=141217`. The live
+Lyric EB does that (`pc=4257`, `b=141217`). A real emulator bug was still found:
+`Md` memory-hold cycles incremented the CPU cycle counter but did not tick the
+external junk-task pendulum. `cpu.c` now ticks the junk timer during held cycles
+before scheduling; `make -C dorado test` passes. This improves the task-2 clock
+cadence but does not by itself unstick Lisp: a resume to `7100000000` cycles
+with `DORADO_LISP_FORCE_KEY_MASK=1` still shows the two-line sysout banner and
+zero bitmap samples from the active DCB.
+
+2026-06-30 follow-up: the sysout is confirmed on disk, not merely delivered on
+the fake network. Extracting the post-run pack with:
+
+```
+./build/dsk2trident --extract --diablo-cylinders 406 --diablo-sectors 14 \
+  /tmp/bcplprog-lisp-snapv2.pack /tmp/lisp0.dsk --drive1 /tmp/lisp1.dsk
+./build/altofs --disk0 /tmp/lisp0.dsk --disk1 /tmp/lisp1.dsk \
+  --existing --force-existing --preserve-existing-metadata \
+  --extract LISP.VIRTUALMEM. /tmp/LISP.VIRTUALMEM
+```
+
+shows `LISP.VIRTUALMEM.` is a 15,004-page file. The first 4,824,064 bytes
+compare against Lyric `LISP.SYSOUT!1` with only 410 differing bytes, all in the
+first 512-byte page; bytes after the sysout length are zero.
+
+Later 2026-06-30 tracing initially appeared to move the bug earlier than the
+post-banner idle loop: one failure run showed the low-core external-link vector
+being cleared before `SetupLispMem` calls `BSetWriteBR`/`RWrite`:
+
+```
+RWrite      addr=000100 expected=030376
+RRead       addr=000101 expected=030275
+BSetWriteBR addr=000116 expected=030250
+```
+
+A diagnostic one-shot restore of `M[0100]=030376` before `SetupLispMem` avoids
+the Swat and reaches 9B cycles with the sysout banner visible and no second FTP
+session. A clean low-core trace shows the lifecycle:
+
+```
+cyc=402870927  M[0100] <- 030376  ; external links rebuilt
+cyc=402871082  M[0116] <- 030250
+cyc=455413987  M[0100] <- 000000  ; later bad copy clears them
+cyc=455414134  M[0116] <- 000000
+```
+
+That interpretation is now superseded. Decoding `SYS.SYMS` and reading the
+original OS source shows this wipe is the Alto OS loading `Executive.Run`'s
+page-zero image after a failure returns to the Executive. `OsMain.bcpl`
+`SystemMain` intentionally executes:
+
+```
+ReadBlock(subsys, 16b, 16b)
+ReadBlock(subsys, 16b, 300b-16b)
+```
+
+In the traced case `subsys` was `Executive.Run` (stream FP serial `0o155`,
+leader VDA `0o034`), and the call resolves to `ReadBlock+0142` from
+`SystemMain+077`. The small `SMALL.SYSOUT!1` smoke test takes this path after
+`CheckIPage` rejects the sysout as too old, so it is not a valid proxy for the
+compatible Lyric post-transfer failure.
+
+A 6B-cycle full Lyric run against
+`chm/archiveorg/_chm-parc_interlisp-lyric/LISP.SYSOUT!1` with the same
+low-core detector enabled did **not** hit the `Executive.Run` page-zero reload.
+It retrieved the sysout and then reached:
+
+```
+Swat.33 - October 12, 1983
+Trap instruction 77400 at 2
+AC0:122422 AC1:0 AC2:154552 AC3:55355 CRY:1 PC:2 INT:ON
+Address space: Swatee   No symbol file
+```
+
+So the active lead is now the final Swat/trap path after the compatible Lyric
+transfer, not a BLT opcode bug and not the expected Executive page-zero reload.
 
 ### 2026-06-09: checksum/load validation
 

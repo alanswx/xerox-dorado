@@ -1,5 +1,107 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## ===> ACTIVE TASK (2026-06-30 latest): Lisp `/M` loads DoradoLispMc and
+## reaches the post-sysout banner loop.
+
+The current Lisp frontier is **not** disk labels, VMEM creation, fake FTP/BSP,
+or `LoadRam`. The physical-preserving BcplProg pack plus native
+Scavenger/CreateFile flow can retrieve Lyric `LISP.SYSOUT` over fake Pup
+FTP/BSP, write it into `LISP.VIRTUALMEM.`, load `DoradoLispMc.eb`, and execute
+the loaded Lisp microcode. The active bug is after the sysout banner: Lisp keeps
+executing and the display task keeps running, but the screen does not advance
+past:
+
+```
+{DORADO}LISP.SYSOUT!1, 31-Dec-83 19:00:00...
+{DORADO}LISP.SYSOUT!1, 31-Dec-83 19:00:00...
+```
+
+Latest trace facts:
+
+- The earlier low-core-link hypothesis was over-broad. In failure cases that
+  return to the Alto Executive, the OS intentionally reloads `Executive.Run`'s
+  page-zero image. Original `OsMain.bcpl` does this in `SystemMain`:
+
+  ```
+  ReadBlock(subsys, 16b, 16b)
+  ReadBlock(subsys, 16b, 300b-16b)
+  ```
+
+  With `subsys == Executive.Run`, this copies `0o262` words to
+  `0o016..0277`. `SYS.SYMS` resolves the trace to `ReadBlock+0142` called
+  from `SystemMain+077`; the stream FP is `Executive.Run`
+  (`serial 0o155`, leader VDA `0o034`). That overwrite is expected after
+  `GiveUp`/`LISPFINISH`, not evidence of a BLT or disk bug.
+- The small `SMALL.SYSOUT!1` smoke case hits exactly that expected path after
+  `CheckIPage` rejects the sysout as too old. It is no longer a valid proxy for
+  the compatible Lyric post-transfer failure.
+- Plain `lisp.run {DORADO}LISP.SYSOUT` is the wrong Lyric launch path for the
+  current AEmu setup: it completes FTP/BSP (`file=4824064/4824064`, `open=0`,
+  `wait_ack=0`) but never reaches `Write IM`, then idles in the Alto Executive.
+  `lisp.run/M` forces `DoradoLispMc.eb` loading.
+- Full Lyric remote `/M` run:
+
+  ```
+  DORADO_DISPM_PRESENT=1 DORADO_WRITEIM_TRACE=1 \
+    ./build/dorado --eb worlds/aemu.eb \
+    --disk 0=/tmp/dorado-lisp-lyric-m.pack --boot-reason disk --no-alto-boot \
+    --ftp-sysout ../chm/archiveorg/_chm-parc_interlisp-lyric/LISP.SYSOUT\!1 \
+    --type 'lisp.run/M {DORADO}LISP.SYSOUT\n' --type-at 330000000 \
+    --key-hold 4000000 --cycles 7000000000
+  ```
+
+  `Write IM` starts at cycle `3770919107` (repeat run: `3770909938`), then the
+  loaded Lisp microcode continues executing. FTP/BSP is closed cleanly at the
+  end (`file=4824064/4824064`, `open=0`, `wait_ack=0`).
+- A 7B-cycle run with `DORADO_MACHINE_PCHIST=1` saved a reusable resume point:
+  `/tmp/dorado-lisp-lyric-m-7b.snap`. Continuing that snapshot to 10B cycles
+  leaves the same banner-only screen, but display counters advance
+  substantially (`outputs` from ~18.9M to ~23.9M; terminal messages from ~217K
+  to ~311K), so this is not a hard CPU halt.
+- A post-banner Return key probe from the 7B snapshot has no visible effect by
+  8B cycles. Treat this as a post-`MainInit`/`InitLisp` display or early Lisp
+  initialization loop, not a simple prompt waiting for input.
+- A short `DORADO_PCDIS` slice from the 7B snapshot shows task 0 repeatedly
+  executing Lisp interpreter/BitBlt paths (`SRCGRAYDST*`, `STORELASTSRCDST`,
+  IFU PCX around `000122..000141` and `000260..000277`) with display task slices
+  interleaved. That is the next concrete debugging surface.
+- The junk task path was audited against `Junk.mc!1`. `AckJunkTW` is executed
+  by task 2 at `pc=4257` with `b=141217`, the expected odd `RTCDeltaLo`, so the
+  timer stays enabled. A real emulator bug was found in the hold path: memory
+  `Md`-hold cycles incremented `cpu->cycles` but did not tick the external
+  junk-task pendulum. `cpu.c` now ticks the junk timer during held cycles before
+  scheduling, matching the hardware's external 32 us source. `make -C dorado
+  test` passes after this change.
+- The timer fix is necessary but not sufficient. A resume to `7100000000` cycles
+  with `DORADO_LISP_FORCE_KEY_MASK=1` still shows the same two sysout banner
+  lines. The display task remains active (`TDCB=110040`, many terminal/DDC
+  counters advance), but the DCB bitmap samples are still zero.
+
+Current useful artifacts:
+
+- `/tmp/dorado-lisp-lyric-m-7b.snap` — machine snapshot after `/M`, FTP,
+  `Write IM`, and the banner.
+- `/tmp/dorado-lisp-lyric-m-pchist.pack` — matching mutable pack for that
+  snapshot.
+- `/tmp/dorado-lisp-lyric-m-pchist.pgm` / `/tmp/dorado-lisp-lyric-m-10b.pgm`
+  — banner-only screens at 7B and 10B.
+- `/tmp/dorado-lisp-return-probe.pgm` — Return-key probe, still banner-only.
+- `make -C dorado run-lisp-lyric-resume-debug` resumes from
+  `LISP_LYRIC_SNAPSHOT_IN`/`LISP_LYRIC_RESUME_PACK` for short post-banner
+  probes.
+
+Next steps:
+
+1. Trace `InitLisp`/display handoff state from the 7B snapshot: interface-page
+   display words, `DASTART=110000`, DCSB/NLCB state, and the Dandelion display
+   task path. The current display IOFetch samples are all zero even though the
+   terminal/line counters are active.
+2. Resolve the low IFU PCX loop (`000122..000141`, `000260..000277`) against
+   `Lisp.syms!4`/sysout symbols to identify which Lisp code is running after
+   the banner.
+3. Keep using `/M` for Lyric probes. Plain `lisp.run {DORADO}LISP.SYSOUT` is
+   useful only as a negative control for the skipped-`LoadRam` bug.
+
 ## ===> ACTIVE TASK (2026-06-26, latest): diagnostics are green with the
 ## diagnostic-specific harness commands.
 ## Map: [`docs/running-diagnostics.md`](running-diagnostics.md);

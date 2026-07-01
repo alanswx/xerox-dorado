@@ -163,10 +163,11 @@ int dorado_machine_render_display_list(dorado_machine *m);
  * running game in isolation.
  *
  * Captured: the control store (mc, incl. the LoadRam'd world), cpu, mem +
- * storage, display, baseboard, and ethernet + its heap buffers, plus the
- * machine's scalar boot/timing fields. NOT captured: disk / Pilot-PDI
- * media state — the snapshot use case is the non-disk Alto games; a
- * disk-backed world would need that added.
+ * storage, display, baseboard, ethernet + heap buffers, disk controller,
+ * fast-I/O router, and the machine's scalar boot/timing fields. Disk pack
+ * media buffers themselves are not embedded in the snapshot; create the
+ * restore machine with the same --disk paths. Dirty writable packs are flushed
+ * before snapshot so a restored disk-backed world sees matching media bytes.
  *
  * Both return 0 on success, -1 on I/O or incompatibility (restore checks
  * a magic + version + struct-size + storage-size header and refuses a

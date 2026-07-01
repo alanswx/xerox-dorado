@@ -136,14 +136,17 @@ that VMEM swap file.
    Treat that target as a probe, not a correct finished pack. The generated
    pack now carries a `SysDir.` DShape that `Scavenger.boot!1` auto-detects as
    `2 x 406 x 2 x 14`; the old false model-31 prompt was an RDCHK stream-order
-   bug, not bad DShape metadata. The remaining risk is filesystem provenance:
-   byte-copying old BCPL system files into a fresh host-generated filesystem
-   changes labels and absolute real-disk-address relationships that utilities
-   such as Swat/Swatee check. Next preserve or install a real Alto OS layout by
-   running the original Alto tools (`Install`, erase/clean, Scavenger/BFS,
-   `CreateFile.run LISP.VIRTUALMEM 15002D`) in the emulator, then run `Lisp`
-   and confirm whether it finds/uses the sysout on the auxiliary partition or
-   expects the original network installer path. ContrAlto's Trident/Diablo code
+   bug, not bad DShape metadata. The correct Lisp path is now the native-tool
+   flow in `make -C dorado lisp-bcplprog-scavenged-vmem-image`: preserve the
+   installed BcplProg physical layout while expanding to the full AEmu geometry,
+   run original `Scavenger.boot!1`, then run original
+   `CreateFile.run LISP.VIRTUALMEM 15002D`. `run-lisp-lyric-remote-long` uses
+   that pack and has completed the full Lyric sysout FTP/BSP transfer. The
+   extracted VMEM file confirms the sysout was written to disk; only the first
+   512-byte page differs from the source sysout, and the VMEM tail remains
+   zero. The next work is post-transfer Lisp startup/display/terminal-input
+   debugging, not more host-generated pack construction. ContrAlto's
+   Trident/Diablo code
    (`AltoInfo/`) remains the format reference.
 4. **I/O + render:** Lisp keyboard/mouse/display delivery, analogous to
    `machine_cedar_io` (`dorado/src/machine.c:836`). Interlisp-D uses the

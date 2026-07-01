@@ -6,6 +6,47 @@
 
 extern int dorado_trace_flag(const char *name);
 
+static int display_trace_limit(const char *name, unsigned default_limit,
+                               unsigned *limit)
+{
+    const char *env = getenv(name);
+    if (!env || !*env || *env == '0')
+        return 0;
+    char *end = NULL;
+    unsigned long parsed = strtoul(env, &end, 0);
+    *limit = (end && *end == '\0' && parsed > 1)
+        ? (unsigned)parsed
+        : default_limit;
+    return 1;
+}
+
+static int display_dispm_present(void)
+{
+    static int cached = -1;
+    if (cached < 0) {
+        const char *v = getenv("DORADO_DISPM_PRESENT");
+        cached = (v && v[0] && v[0] != '0') ? 1 : 0;
+    }
+    return cached;
+}
+
+static uint16_t display_ddc_status(void)
+{
+    static int cached = -1;
+    static uint16_t value = 0;
+    if (cached < 0) {
+        const char *v = getenv("DORADO_DDCSTATUS");
+        cached = 1;
+        if (v && *v) {
+            char *end = NULL;
+            unsigned long parsed = strtoul(v, &end, 0);
+            if (end && *end == '\0')
+                value = (uint16_t)parsed;
+        }
+    }
+    return value;
+}
+
 typedef struct {
     int word;
     uint16_t mask;
@@ -214,18 +255,27 @@ static uint16_t display_terminal_keyboard_bit(dorado_display *d)
 {
     if (!d) return 0;
 
-    uint8_t word = (uint8_t)(d->terminal_msg_word & 3u);
-    uint8_t type = (uint8_t)(word + 1u);
+    uint8_t word = (uint8_t)(d->terminal_msg_word % DORADO_DISPLAY_KEY_WORDS);
+    uint8_t type = (word < 4u) ? (uint8_t)(word + 1u) : 5u;
     uint16_t body = d->keyboard_words[word];
     uint32_t msg = (1u << 31) | ((uint32_t)type << 24) |
                    ((uint32_t)body << 8) | (1u << 7);
     uint16_t bit = (uint16_t)((msg >> (31u - (d->terminal_msg_bit & 31u))) & 1u);
+    if (dorado_trace_flag("DORADO_TSTATUS_TRACE")) {
+        fprintf(stderr,
+                "[tstatus] word=%u type=%u bit=%u val=%u body=%06o "
+                "bits=%llu msgs=%llu\n",
+                word, type, d->terminal_msg_bit, bit, body,
+                (unsigned long long)d->terminal_bits,
+                (unsigned long long)d->terminal_messages);
+    }
 
     d->terminal_bits++;
     d->terminal_msg_bit++;
     if (d->terminal_msg_bit >= 32u) {
         d->terminal_msg_bit = 0;
-        d->terminal_msg_word = (uint8_t)((word + 1u) & 3u);
+        d->terminal_msg_word =
+            (uint8_t)((word + 1u) % DORADO_DISPLAY_KEY_WORDS);
         d->terminal_messages++;
     }
     /* HM Table 25 / DispY18,21, DispM10,21: the terminal serial back-
@@ -261,10 +311,12 @@ static void ddc_snapshot_line(dorado_display *d, int channel)
     line->scan = d->nlcb[0][base + 004] & 0x0FFFu;
 }
 
-static void ddc_start_line(dorado_display *d, int channel)
+static void ddc_start_line(dorado_display *d, int channel, int y)
 {
     dorado_display_ddc_line *cur = &d->ddc_current_line[channel & 1];
     *cur = d->ddc_pending_line[channel & 1];
+    cur->absolute_y = 1;
+    cur->y = (uint16_t)y;
     cur->word_count = 0;
     cur->overflow = 0;
 }
@@ -272,6 +324,7 @@ static void ddc_start_line(dorado_display *d, int channel)
 static void ddc_render_line(dorado_display *d, int channel)
 {
     dorado_display_ddc_line *line = &d->ddc_current_line[channel & 1];
+    uint16_t nonzero_words = 0;
     if (!line->valid || line->word_count == 0)
         return;
 
@@ -279,13 +332,32 @@ static void ddc_render_line(dorado_display *d, int channel)
     if (width_pixels <= 0)
         return;
 
-    int y = (int)line->line * 2 + (int)(line->odd & 1u);
+    int y = line->absolute_y
+        ? (int)line->y
+        : (int)line->line * 2 + (int)(line->odd & 1u);
     if (y < 0 || y >= DORADO_DISPLAY_H)
         return;
 
     int x = 0;
     int visible_words = (width_pixels + 15) / 16;
     int start = (int)(line->ptr & 017u);
+    int line_pixels = 0;
+
+    for (int i = 0; i < line->word_count; i++) {
+        if (line->words[i])
+            nonzero_words++;
+    }
+    d->ddc_lines_rendered++;
+    d->ddc_last_width = line->width;
+    d->ddc_last_ptr = line->ptr;
+    d->ddc_last_line = line->line;
+    d->ddc_last_word_count = line->word_count;
+    d->ddc_last_nonzero_words = nonzero_words;
+    d->ddc_last_overflow = line->overflow;
+    if (nonzero_words == 0)
+        d->ddc_zero_word_lines++;
+    if (line->word_count < (uint16_t)(start + visible_words))
+        d->ddc_short_lines++;
 
     for (int px = 0; px < width_pixels && x + px < DORADO_DISPLAY_W; px++)
         dorado_display_set_pixel(d, x + px, y, 0);
@@ -298,8 +370,11 @@ static void ddc_render_line(dorado_display *d, int channel)
         for (int b = 0; b < remaining && x < DORADO_DISPLAY_W; b++, x++) {
             int bit = (word >> (15 - b)) & 1;
             dorado_display_set_pixel(d, x, y, bit);
+            if (bit)
+                line_pixels++;
         }
     }
+    d->ddc_pixels_rendered += (uint64_t)line_pixels;
 }
 
 /* Phase 1: a single permissive output handler that records the
@@ -416,29 +491,32 @@ static void display_output_b(void *ctx, int task, int subtask,
             /* IOFetch pacing: leave WCB flags untouched. */
         } else if (data & 0001u) {
             int draw_y = (int)d->scan_line;
-            if (dorado_trace_flag("DORADO_DDC_RENDER_NLCB_Y") &&
-                d->nlcb_line > 0) {
+            if (d->nlcb_line > 0) {
                 draw_y = ((int)d->nlcb_line - 1) * 2 +
                          (int)(d->nlcb_field_odd & 1u);
-            } else if (dorado_trace_flag("DORADO_DDC_RENDER_SEQ")) {
+            }
+            if (dorado_trace_flag("DORADO_DDC_RENDER_SEQ")) {
                 draw_y = d->ddc_seq_y++;
                 if (d->ddc_seq_y >= DORADO_DISPLAY_H)
                     d->ddc_seq_y = 0;
             }
             d->current_wcb_flag[channel] = 1;
             d->next_wcb_flag[channel] = 0;
-            ddc_start_line(d, channel);
             d->wcb_draw_x[channel] = 0;
             d->wcb_draw_y[channel] = (uint16_t)draw_y;
+            ddc_start_line(d, channel, draw_y);
             d->dwt_trace_active[channel] = 1;
             d->dwt_trace_words[channel] = 0;
             d->dwt_trace_nonzero[channel] = 0;
             d->dwt_trace_first_va[channel] = 0;
             d->dwt_trace_last_va[channel] = 0;
         } else {
+            unsigned dwt_trace_limit = 0;
+            static unsigned dwt_trace_lines_this_process = 0;
             if (d->dwt_trace_active[channel] &&
-                dorado_trace_flag("DORADO_DWT_TRACE") &&
-                d->dwt_trace_lines < 400) {
+                display_trace_limit("DORADO_DWT_TRACE", 400,
+                                    &dwt_trace_limit) &&
+                dwt_trace_lines_this_process < dwt_trace_limit) {
                 fprintf(stderr,
                         "[display] DWT line %llu ch=%d scan=%u words=%u "
                         "nonzero=%u first=0x%05x/0o%o last=0x%05x/0o%o\n",
@@ -449,6 +527,7 @@ static void display_output_b(void *ctx, int task, int subtask,
                         d->dwt_trace_first_va[channel],
                         d->dwt_trace_last_va[channel],
                         d->dwt_trace_last_va[channel]);
+                dwt_trace_lines_this_process++;
             }
             if (d->dwt_trace_active[channel])
                 d->dwt_trace_lines++;
@@ -587,9 +666,22 @@ static uint16_t display_input(void *ctx, int task, int subtask,
             }
             return display_terminal_keyboard_bit(d);
         }
+        if (display_dispm_present())
+            return 0x8000u;         /* DisplayInitConfig: DispM installed. */
         return 0;
     }
-    if (tioa == DORADO_DISPLAY_TIOA_DDCSTATUS) return 0;
+    if (tioa == DORADO_DISPLAY_TIOA_DDCSTATUS) {
+        uint16_t status = display_ddc_status();
+        if (dorado_trace_flag("DORADO_DDCSTATUS_TRACE")) {
+            static unsigned n = 0;
+            if (n++ < 256) {
+                fprintf(stderr,
+                        "[ddcstatus] task=%o sub=%o status=%06o\n",
+                        task & 017, subtask & 017, status);
+            }
+        }
+        return status;
+    }
     return 0;
 }
 
@@ -674,6 +766,25 @@ int dorado_display_iofetch_word(dorado_display *d, int subtask,
     int channel = (subtask & 2) ? 1 : 0;
 
     if (d->current_wcb_flag[channel]) {
+        unsigned ddc_fetch_limit = 0;
+        static unsigned ddc_fetch_traced_words = 0;
+        if (display_trace_limit("DORADO_DDC_FETCH_TRACE", 512,
+                                &ddc_fetch_limit) &&
+            ddc_fetch_traced_words < ddc_fetch_limit &&
+            (word || !dorado_trace_flag("DORADO_DDC_FETCH_TRACE_NONZERO"))) {
+            dorado_display_ddc_line *line = &d->ddc_current_line[channel];
+            fprintf(stderr,
+                    "[display] DDC fetch #%u ch=%d sub=%d "
+                    "va=0x%05x/0o%o word=%06o "
+                    "line_valid=%u y=%u line=%u width=%04o ptr=%04o "
+                    "scan=%04o words=%u nz=%u\n",
+                    ddc_fetch_traced_words, channel, subtask,
+                    va, va, word,
+                    line->valid, line->y, line->line, line->width,
+                    line->ptr, line->scan, line->word_count,
+                    d->dwt_trace_nonzero[channel]);
+            ddc_fetch_traced_words++;
+        }
         if (d->dwt_trace_active[channel]) {
             if (d->dwt_trace_words[channel] == 0)
                 d->dwt_trace_first_va[channel] = va;

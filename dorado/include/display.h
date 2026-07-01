@@ -176,7 +176,9 @@ typedef enum {
 typedef struct {
     uint8_t  valid;
     uint8_t  odd;
+    uint8_t  absolute_y;
     uint16_t line;
+    uint16_t y;
     uint16_t lmarg;
     uint16_t width;
     uint16_t ptr;
@@ -296,6 +298,16 @@ typedef struct {
     uint16_t last_iofetch_words[16];
     uint64_t nlcb_writes;        /* DHT NLCB outputs */
     uint64_t ddc_va_words_drawn;  /* debug: words drawn by VA-derived path */
+    uint64_t ddc_lines_rendered;  /* default line renderer diagnostics */
+    uint64_t ddc_pixels_rendered;
+    uint64_t ddc_zero_word_lines;
+    uint64_t ddc_short_lines;
+    uint16_t ddc_last_width;
+    uint16_t ddc_last_ptr;
+    uint16_t ddc_last_line;
+    uint16_t ddc_last_word_count;
+    uint16_t ddc_last_nonzero_words;
+    uint16_t ddc_last_overflow;
     uint8_t  dwt_trace_active[2];
     uint16_t dwt_trace_words[2];
     uint16_t dwt_trace_nonzero[2];

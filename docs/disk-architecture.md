@@ -978,5 +978,28 @@ software XOR the corrupted bits back to correct values.
     the native Alto install tools; they should not repack the Alto OS files as
     plain payloads.
 
+24. **2026-06-29 physical-preserving Lisp pack path.**
+    The working Lisp pack construction path now preserves the BcplProg
+    physical sector layout when expanding from the 203x12 source image to
+    AEmu's 406x14 dual-drive shape, then runs the original
+    `Scavenger.boot!1` in the emulator. Scavenger repairs the directory
+    metadata and leaves a pack that host `altofs --inspect` can read cleanly.
+    Native `CreateFile.run LISP.VIRTUALMEM 15002D` then allocates the full
+    15,004-page linked VMEM file. This is codified in:
+
+    ```
+    make -C dorado lisp-bcplprog-scavenged-vmem-image
+    ```
+
+    `make -C dorado run-lisp-lyric-remote-long` now uses that repaired pack.
+    A traced run streams the full 4,824,064-byte Lyric sysout over the fake
+    Pup FTP/BSP server and closes the FTP connection. Extracting the resulting
+    `LISP.VIRTUALMEM.` from the Trident pack confirms the disk write too: the
+    sysout-length prefix differs from `LISP.SYSOUT!1` only in 410 bytes, all
+    in the first 512-byte page, and the remaining VMEM tail is zero. The
+    remaining Lisp blocker is after sysout transfer/write, not Trident sector
+    order, Swat/Swatee label checks, native Scavenger, native CreateFile, or
+    basic BSP delivery.
+
 See `docs/io-systems-architecture.md` for a higher-level view of
 how disk fits into Slow I/O / Fast I/O / Tasking.

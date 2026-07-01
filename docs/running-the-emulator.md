@@ -160,9 +160,10 @@ with the 1984 microcode; prefer `Dorado.germ-6.1.6`.
 
 CLI flags (`./build/dorado --help`): `--cycles N`, `--eb PATH`, `--germ PATH`,
 `--eftp PATH`, `--out PATH` (final snapshot PGM), `--shot-prefix PATH`,
-`--shot-every N` (periodic headless snapshots), `--quote` / `--boot-keys` (DDC
-boot keys), `--no-alto-boot`, `--progress`, `--boot-file-number`,
-`--boot-dir[-all]`, `--type`, `--key-hold`.
+`--shot-every N` (periodic headless snapshots), `--snapshot-in PATH`,
+`--snapshot-out PATH`, `--quote` / `--boot-keys` (DDC boot keys),
+`--no-alto-boot`, `--progress`, `--boot-file-number`, `--boot-dir[-all]`,
+`--type`, `--key-hold`.
 
 Disk (`docs/disk-subsystem-plan.md`): `--disk-real` boots Cedar through the
 **real disk controller** read path (FIFO + framing) instead of the IOCB shim
@@ -185,6 +186,12 @@ Tracing (env vars, mostly gated by `DORADO_TRACE_GATE="lo,hi"` cycle window):
   OutDone post by carrier-sense (no tx while receiving) + per-word wire time,
   instead of completing transmits instantly. A/B scaffold for the faithful
   receiver (`docs/ethernet-faithful-receiver.md`); boot-safe but partial.
+
+Snapshots serialize the running control store, CPU, memory, display,
+BaseBoard, Ethernet, disk controller, fast-I/O router, and scalar machine
+state. Pack media bytes are not embedded; restore with the same `--disk`
+arguments used to create the snapshot. Writable dirty packs are flushed before
+snapshot so the restored controller state and media image agree.
 
 `make test` runs the unit suites; the regression "gate" the bring-up keeps
 green is: `make test` (10/10) + AEmu NETEXEC ≈ 1476–1505 px + Galaxian 121553 px

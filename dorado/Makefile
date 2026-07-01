@@ -384,8 +384,14 @@ LISP_REMOTE_VMEM_PAGE_SPEC ?= 1500D
 LISP_REMOTE_FTP_TRACE ?= 1
 LISP_LYRIC_VMEM_PAGE_SPEC ?= 15002D
 LISP_LYRIC_CREATEFILE_CYCLES ?= 5800000000
-LISP_LYRIC_CYCLES ?= 5000000000
+LISP_LYRIC_CYCLES ?= 7000000000
 LISP_LYRIC_SHOT_EVERY ?= 500000000
+LISP_LYRIC_FTP_TRACE ?=
+LISP_LYRIC_SNAPSHOT_OUT ?=
+LISP_LYRIC_SNAPSHOT_IN ?= /tmp/dorado-lisp-lyric-m-7b.snap
+LISP_LYRIC_RESUME_PACK ?= /tmp/dorado-lisp-lyric-m-pchist.pack
+LISP_LYRIC_RESUME_CYCLES ?= 10000000000
+LISP_LYRIC_RESUME_SHOT_EVERY ?= 500000000
 LISP_INIT_FILE ?= $(firstword $(wildcard ../chm/lisp/harmony/basics/INIT.NONET!3 ../chm/lisp/fugue.6/basics/DoradoInit.nonet!1))
 LISP_BCPLPROG_CREATEFILE_DSK ?= $(TRIDENT_RUN_DIR)/bcplprog-lisp-createfile.dsk
 LISP_BCPLPROG_CREATEFILE_PACK ?= $(TRIDENT_RUN_DIR)/bcplprog-lisp-createfile-trident.pack
@@ -394,6 +400,11 @@ LISP_BCPLPROG_EXPANDED_DSK0 ?= $(TRIDENT_RUN_DIR)/bcplprog-lisp-expanded-drive0.
 LISP_BCPLPROG_EXPANDED_DSK1 ?= $(TRIDENT_RUN_DIR)/bcplprog-lisp-expanded-drive1.dsk
 LISP_BCPLPROG_EXPANDED_PACK ?= $(TRIDENT_RUN_DIR)/bcplprog-lisp-expanded-trident.pack
 LISP_BCPLPROG_EXPANDED_VMEM_PACK ?= $(TRIDENT_RUN_DIR)/bcplprog-lisp-expanded-vmem-trident.pack
+LISP_BCPLPROG_PHYSICAL_DSK0 ?= $(TRIDENT_RUN_DIR)/bcplprog-lisp-physical-drive0.dsk
+LISP_BCPLPROG_PHYSICAL_DSK1 ?= $(TRIDENT_RUN_DIR)/bcplprog-lisp-physical-drive1.dsk
+LISP_BCPLPROG_PHYSICAL_PACK ?= $(TRIDENT_RUN_DIR)/bcplprog-lisp-physical-trident.pack
+LISP_BCPLPROG_SCAVENGED_PACK ?= $(TRIDENT_RUN_DIR)/bcplprog-lisp-scavenged-trident.pack
+LISP_BCPLPROG_SCAVENGED_VMEM_PACK ?= $(TRIDENT_RUN_DIR)/bcplprog-lisp-scavenged-vmem-trident.pack
 LISP_CORE_INSERTS = \
 	--insert '$(LISP_RUN_FILE)' LISP.RUN. \
 	--insert '$(LISP_SYMS_FILE)' LISP.SYMS. \
@@ -443,8 +454,11 @@ $(ALTO_GOLDEN_PACK): $(ALTO_GOLDEN_PACK_GZ) | $(TRIDENT_GOLDEN_DIR)
 .PHONY: lisp-disk-image-full
 .PHONY: lisp-bcplprog-loader-image lisp-bcplprog-createfile-image
 .PHONY: lisp-bcplprog-vmem-image lisp-bcplprog-expanded-image
-.PHONY: lisp-bcplprog-expanded-vmem-image run-lisp-bcplprog-loader-smoke
+.PHONY: lisp-bcplprog-expanded-vmem-image lisp-bcplprog-physical-image
+.PHONY: lisp-bcplprog-scavenged-image lisp-bcplprog-scavenged-vmem-image
+.PHONY: run-lisp-bcplprog-loader-smoke
 .PHONY: run-lisp-remote-sysout-smoke run-lisp-lyric-remote-long
+.PHONY: run-lisp-lyric-resume-debug
 .PHONY: run-alto-disk run-alto-disk-screenshot
 .PHONY: run-bfstest-smoke run-scavenger-smoke
 .PHONY: run-tricond-nopack run-tricond-pack
@@ -512,6 +526,42 @@ lisp-bcplprog-expanded-vmem-image: $(BINDIR)/dorado lisp-bcplprog-expanded-image
 		--cycles $(LISP_LYRIC_CREATEFILE_CYCLES) --shot-prefix /tmp/dorado-lisp-expanded-createfile \
 		--shot-every 400000000 --out /tmp/dorado-lisp-expanded-createfile.pgm
 
+# Preferred Lisp pack construction path.  Preserve BcplProg's physical sector
+# placement, then let the original Alto Scavenger repair directory metadata
+# before native CreateFile allocates the large VMEM file.  The older
+# lisp-bcplprog-expanded-* targets preserve VDA instead; that is useful for
+# host-tool experiments but fails Lisp's Swat/Swatee disk-label checks.
+lisp-bcplprog-physical-image: $(BINDIR)/altofs $(BINDIR)/dsk2trident lisp-bcplprog-createfile-image
+	cp -f '$(LISP_BCPLPROG_CREATEFILE_DSK)' '$(LISP_BCPLPROG_PHYSICAL_DSK0)'
+	$(BINDIR)/altofs --disk0 '$(LISP_BCPLPROG_PHYSICAL_DSK0)' \
+		--disk1 '$(LISP_BCPLPROG_PHYSICAL_DSK1)' \
+		--existing --force-existing --source-cylinders 203 --source-sectors 12 \
+		--source-single-drive --init-blank-free --no-vmem
+	$(BINDIR)/dsk2trident --all-heads --diablo-cylinders 406 --diablo-sectors 14 \
+		--drive1 '$(LISP_BCPLPROG_PHYSICAL_DSK1)' \
+		'$(LISP_BCPLPROG_PHYSICAL_DSK0)' '$(LISP_BCPLPROG_PHYSICAL_PACK)'
+
+lisp-bcplprog-scavenged-image: $(BINDIR)/dorado lisp-bcplprog-physical-image
+	cp -f '$(LISP_BCPLPROG_PHYSICAL_PACK)' '$(LISP_BCPLPROG_SCAVENGED_PACK)'
+	./build/dorado --eb worlds/aemu.eb \
+		--eftp '../chm/bootfiles/Scavenger.boot!1' \
+		--disk 0='$(LISP_BCPLPROG_SCAVENGED_PACK)' \
+		--cycles 14000000000 --key-hold 1000000 \
+		--type-at 1100000000 --type 'Y' \
+		--type-at 1600000000 --type 'Y' \
+		--type-at 5200000000 --type 'bravo.scratchbin2.\n' \
+		--shot-prefix /tmp/dorado-lisp-scavenger --shot-every 1000000000 \
+		--out /tmp/dorado-lisp-scavenger.pgm
+
+lisp-bcplprog-scavenged-vmem-image: $(BINDIR)/dorado lisp-bcplprog-scavenged-image
+	cp -f '$(LISP_BCPLPROG_SCAVENGED_PACK)' '$(LISP_BCPLPROG_SCAVENGED_VMEM_PACK)'
+	./build/dorado --eb worlds/aemu.eb \
+		--disk 0='$(LISP_BCPLPROG_SCAVENGED_VMEM_PACK)' --boot-reason disk --no-alto-boot \
+		--type 'createfile.run LISP.VIRTUALMEM $(LISP_LYRIC_VMEM_PAGE_SPEC)\n' \
+		--type-at 330000000 --key-hold 4000000 \
+		--cycles $(LISP_LYRIC_CREATEFILE_CYCLES) --shot-prefix /tmp/dorado-lisp-scavenged-createfile \
+		--shot-every 400000000 --out /tmp/dorado-lisp-scavenged-createfile.pgm
+
 ifeq ($(LISP_SYSOUT_FILE),)
 lisp-disk-image-full:
 	@echo "No Lisp sysout found. Set LISP_SYSOUT_FILE=/path/to/LISP.SYSOUT or fetch the CHM/archive.org Lisp sysout files."
@@ -555,28 +605,43 @@ run-scavenger-smoke: $(BINDIR)/dorado run-bfstest-smoke
 		--type-at 5200000000 --type 'Y' \
 		--out /tmp/dorado-scavenger-smoke.pgm
 run-lisp-bcplprog-loader-smoke: $(BINDIR)/dorado lisp-bcplprog-loader-image
-	./build/dorado --eb worlds/aemu.eb \
+	DORADO_DISPM_PRESENT=1 ./build/dorado --eb worlds/aemu.eb \
 		--disk 0='$(LISP_BCPLPROG_PACK)' --boot-reason disk --no-alto-boot \
-		--type 'lisp.run\n' --type-at 330000000 --key-hold 4000000 \
+		--type 'lisp.run/M\n' --type-at 330000000 --key-hold 4000000 \
 		--cycles 700000000 --out /tmp/dorado-lisp-bcplprog-loader-smoke.pgm
 
 run-lisp-remote-sysout-smoke: $(BINDIR)/dorado lisp-bcplprog-vmem-image
-	$(if $(LISP_REMOTE_FTP_TRACE),DORADO_FTP_TRACE=1 )./build/dorado --eb worlds/aemu.eb \
+	$(if $(LISP_REMOTE_FTP_TRACE),DORADO_FTP_TRACE=1 )DORADO_DISPM_PRESENT=1 ./build/dorado --eb worlds/aemu.eb \
 		--disk 0='$(LISP_BCPLPROG_VMEM_PACK)' --boot-reason disk --no-alto-boot \
 		--ftp-sysout '$(LISP_REMOTE_SYSOUT_FILE)' \
-		--type 'lisp.run {$(LISP_REMOTE_HOST)}$(LISP_REMOTE_SYSOUT_NAME)\n' \
+		--type 'lisp.run/M {$(LISP_REMOTE_HOST)}$(LISP_REMOTE_SYSOUT_NAME)\n' \
 		--type-at 330000000 --key-hold 4000000 \
 		--cycles 1800000000 --out /tmp/dorado-lisp-remote-sysout-smoke.pgm
 
-run-lisp-lyric-remote-long: $(BINDIR)/dorado lisp-bcplprog-expanded-vmem-image
-	./build/dorado --eb worlds/aemu.eb \
-		--disk 0='$(LISP_BCPLPROG_EXPANDED_VMEM_PACK)' --boot-reason disk --no-alto-boot \
+run-lisp-lyric-remote-long: $(BINDIR)/dorado lisp-bcplprog-scavenged-vmem-image
+	$(if $(LISP_LYRIC_FTP_TRACE),DORADO_FTP_TRACE=1 )DORADO_DISPM_PRESENT=1 ./build/dorado --eb worlds/aemu.eb \
+		--disk 0='$(LISP_BCPLPROG_SCAVENGED_VMEM_PACK)' --boot-reason disk --no-alto-boot \
 		--ftp-sysout '$(LISP_SYSOUT_FILE)' \
-		--type 'lisp.run {$(LISP_REMOTE_HOST)}$(LISP_REMOTE_SYSOUT_NAME)\n' \
+		--type 'lisp.run/M {$(LISP_REMOTE_HOST)}$(LISP_REMOTE_SYSOUT_NAME)\n' \
 		--type-at 330000000 --key-hold 4000000 \
 		--cycles $(LISP_LYRIC_CYCLES) \
 		--shot-prefix /tmp/dorado-lisp-lyric --shot-every $(LISP_LYRIC_SHOT_EVERY) \
+		$(if $(LISP_LYRIC_SNAPSHOT_OUT),--snapshot-out '$(LISP_LYRIC_SNAPSHOT_OUT)',) \
 		--out /tmp/dorado-lisp-lyric.pgm
+
+run-lisp-lyric-resume-debug: $(BINDIR)/dorado
+	@test -r '$(LISP_LYRIC_SNAPSHOT_IN)' || \
+		(echo "Missing LISP_LYRIC_SNAPSHOT_IN=$(LISP_LYRIC_SNAPSHOT_IN). Run run-lisp-lyric-remote-long with LISP_LYRIC_SNAPSHOT_OUT=... first." && false)
+	@test -r '$(LISP_LYRIC_RESUME_PACK)' || \
+		(echo "Missing LISP_LYRIC_RESUME_PACK=$(LISP_LYRIC_RESUME_PACK). Use the mutable pack that matches the snapshot." && false)
+	DORADO_DISPM_PRESENT=1 ./build/dorado \
+		--snapshot-in '$(LISP_LYRIC_SNAPSHOT_IN)' \
+		--eb worlds/aemu.eb \
+		--disk 0='$(LISP_LYRIC_RESUME_PACK)' --boot-reason disk --no-alto-boot \
+		--cycles $(LISP_LYRIC_RESUME_CYCLES) \
+		--shot-prefix /tmp/dorado-lisp-lyric-resume \
+		--shot-every $(LISP_LYRIC_RESUME_SHOT_EVERY) \
+		--out /tmp/dorado-lisp-lyric-resume.pgm
 
 run-tricond-nopack: $(BINDIR)/rundiag
 	RUNDIAG_DISK=1 RUNDIAG_TASK=14 ./build/rundiag '../chm/dorado/expanded/Tricond.dm!5_/TriconD.mb' BEGIN TESTOK-WITHOUT-DISK ERR 50000000

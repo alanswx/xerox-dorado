@@ -22,6 +22,8 @@
  *     --out PATH        snapshot PGM path (default dorado-screen.pgm)
  *     --shot-prefix P   signal snapshot prefix (default dorado-signal-shot)
  *     --shot-every N    write PREFIX-CYCLE.pgm every N cycles
+ *     --snapshot-in P   restore machine state from P after create
+ *     --snapshot-out P  save machine state to P after the run
  *     --quote           hold the DDC "quote" boot key
  *     --no-alto-boot    do not drive the Stage-2 Alto ether boot
  *     --progress        print a cycle/boot progress line each frame
@@ -184,7 +186,14 @@ typedef struct type_event {
     int typed;
 } type_event;
 
+typedef struct key_chord_event {
+    char spec[256];
+    uint64_t at;
+    int typed;
+} key_chord_event;
+
 #define MAX_TYPE_EVENTS 16
+#define MAX_KEY_CHORD_EVENTS 16
 
 static void type_text(dorado_machine *m, const char *text, uint64_t key_hold)
 {
@@ -213,6 +222,44 @@ static void type_text(dorado_machine *m, const char *text, uint64_t key_hold)
     }
     printf("dorado: typed %d keys total, last @cyc %llu\n", nk,
            (unsigned long long)dorado_machine_cycles(m));
+}
+
+static int parse_key_chord_spec(const char *spec, dorado_display_key *keys,
+                                int *nkeys)
+{
+    char buf[256];
+    snprintf(buf, sizeof buf, "%s", spec ? spec : "");
+    *nkeys = 0;
+    for (char *tok = strtok(buf, ","); tok; tok = strtok(NULL, ",")) {
+        dorado_display_key k = dorado_display_key_from_name(tok);
+        if (k == DORADO_KEY_NONE) {
+            fprintf(stderr, "dorado: unknown key '%s'\n", tok);
+            return 2;
+        }
+        if (*nkeys >= 8) {
+            fprintf(stderr, "dorado: too many keys in chord '%s'\n", spec);
+            return 2;
+        }
+        keys[(*nkeys)++] = k;
+    }
+    return 0;
+}
+
+static int type_key_chord(dorado_machine *m, const char *spec,
+                          uint64_t key_hold)
+{
+    dorado_display_key keys[8];
+    int nkeys = 0;
+    if (parse_key_chord_spec(spec, keys, &nkeys)) return 2;
+    printf("dorado: typing key chord \"%s\" at cyc %llu\n", spec,
+           (unsigned long long)dorado_machine_cycles(m));
+    for (int i = 0; i < nkeys; i++) dorado_machine_set_key(m, keys[i], 1);
+    dorado_machine_run_until(m, dorado_machine_cycles(m) + key_hold);
+    for (int i = nkeys - 1; i >= 0; i--) dorado_machine_set_key(m, keys[i], 0);
+    dorado_machine_run_until(m, dorado_machine_cycles(m) + key_hold);
+    printf("dorado: typed key chord \"%s\", last @cyc %llu\n", spec,
+           (unsigned long long)dorado_machine_cycles(m));
+    return 0;
 }
 
 static void write_snapshot(dorado_machine *m, const char *prefix,
@@ -246,11 +293,15 @@ int main(int argc, char **argv)
                                        * banner display list built. */
     const char *out = "dorado-screen.pgm";
     const char *shot_prefix = "dorado-signal-shot";
+    const char *snapshot_in = NULL;
+    const char *snapshot_out = NULL;
     uint64_t shot_every = 0;
     uint64_t next_shot = 0;
     int progress = 0;
     type_event type_events[MAX_TYPE_EVENTS];
     int type_event_count = 0;
+    key_chord_event key_chord_events[MAX_KEY_CHORD_EVENTS];
+    int key_chord_event_count = 0;
     int last_type_event = -1;
     int last_type_can_update = 0;
     int pending_type_at = 0;
@@ -305,6 +356,10 @@ int main(int argc, char **argv)
             shot_prefix = argv[++i];
         } else if (!strcmp(a, "--shot-every") && i + 1 < argc) {
             shot_every = parse_u64(argv[++i], 0);
+        } else if (!strcmp(a, "--snapshot-in") && i + 1 < argc) {
+            snapshot_in = argv[++i];
+        } else if (!strcmp(a, "--snapshot-out") && i + 1 < argc) {
+            snapshot_out = argv[++i];
         } else if (!strcmp(a, "--quote")) {
             cfg.alto_ether_quote = 1;
         } else if (!strcmp(a, "--boot-keys") && i + 1 < argc) {
@@ -331,6 +386,25 @@ int main(int argc, char **argv)
             last_type_event = type_event_count++;
             last_type_can_update = !pending_type_at;
             pending_type_at = 0;
+        } else if (!strcmp(a, "--key-chord") && i + 1 < argc) {
+            if (key_chord_event_count >= MAX_KEY_CHORD_EVENTS) {
+                fprintf(stderr,
+                        "dorado: too many --key-chord events (max %d)\n",
+                        MAX_KEY_CHORD_EVENTS);
+                return 2;
+            }
+            snprintf(key_chord_events[key_chord_event_count].spec,
+                     sizeof key_chord_events[key_chord_event_count].spec,
+                     "%s", argv[++i]);
+            key_chord_events[key_chord_event_count].at = type_at;
+            key_chord_events[key_chord_event_count].typed = 0;
+            if (parse_key_chord_spec(key_chord_events[key_chord_event_count].spec,
+                                     (dorado_display_key[8]){0},
+                                     &(int){0}))
+                return 2;
+            key_chord_event_count++;
+            last_type_can_update = 0;
+            pending_type_at = 0;
         } else if (!strcmp(a, "--key-hold") && i + 1 < argc) {
             key_hold = parse_u64(argv[++i], key_hold);
             last_type_can_update = 0;
@@ -350,10 +424,12 @@ int main(int argc, char **argv)
                    "[--boot-file-number OCTAL] [--boot-dir NAME=BFN=PATH] "
                    "[--boot-dir-all] [--no-boot-dir-all] "
                    "[--out PATH] [--shot-prefix PREFIX] [--shot-every N] "
+                   "[--snapshot-in PATH] [--snapshot-out PATH] "
                    "[--quote] [--boot-keys K[,K...]] "
                    "[--boot-reason ethernet|netexec|disk] "
                    "[--no-alto-boot] [--progress] "
-                   "[--type-at CYCLES --type TEXT]...\n"
+                   "[--type-at CYCLES --type TEXT]... "
+                   "[--type-at CYCLES --key-chord K[,K...]]...\n"
                    "  --boot-keys: boot-selection chord held down (default "
                    "bs, +quote with --quote); e.g. bs,quote\n"
                    "  --boot-reason: alias for the chord (ethernet=bs, "
@@ -389,6 +465,10 @@ int main(int argc, char **argv)
         fprintf(stderr, "dorado: failed to create machine\n");
         return 1;
     }
+    if (snapshot_in && dorado_machine_restore(m, snapshot_in) != 0) {
+        dorado_machine_destroy(m);
+        return 1;
+    }
 
     printf("dorado: booting (target %llu cycles)...\n",
            (unsigned long long)cycles);
@@ -419,6 +499,17 @@ int main(int argc, char **argv)
                     type_text(m, type_events[te].text, key_hold);
                 }
             }
+            for (int ke = 0; ke < key_chord_event_count; ke++) {
+                if (!key_chord_events[ke].typed &&
+                    dorado_machine_cycles(m) >= key_chord_events[ke].at) {
+                    key_chord_events[ke].typed = 1;
+                    if (type_key_chord(m, key_chord_events[ke].spec,
+                                       key_hold)) {
+                        dorado_machine_destroy(m);
+                        return 2;
+                    }
+                }
+            }
         }
         if (progress) {
             dorado_machine_debug(m);
@@ -438,6 +529,10 @@ int main(int argc, char **argv)
     }
 
     if (progress || getenv("DORADO_FINAL_DEBUG")) dorado_machine_debug(m);
+    if (snapshot_out && dorado_machine_snapshot(m, snapshot_out) != 0) {
+        dorado_machine_destroy(m);
+        return 1;
+    }
     int pixels = dorado_machine_render_display_list(m);
     dorado_display *disp = dorado_machine_display(m);
     dorado_display_vblank(disp);

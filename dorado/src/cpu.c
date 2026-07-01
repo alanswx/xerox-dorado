@@ -34,6 +34,44 @@ int dorado_trace_flag(const char *name)
     return v;
 }
 
+static int pcx_trace_enabled(void)
+{
+    return dorado_trace_flag("DORADO_PCX_TRACE") &&
+           (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"));
+}
+
+static void trace_pcx_event(const char *event, const dorado_cpu *cpu,
+                            uint16_t value)
+{
+    if (!pcx_trace_enabled()) return;
+    uint32_t br31 = cpu->mem ? dorado_br_get(cpu->mem, 31) : 0;
+    uint32_t pcx_va = (br31 + (uint16_t)(cpu->ifu_pcx >> 1)) & 0x0FFFFFFFu;
+    uint32_t pcf_va = (br31 + (uint16_t)(cpu->ifu_pcf >> 1)) & 0x0FFFFFFFu;
+    fprintf(stderr,
+            "PCX_TRACE %s cyc=%llu real=0o%o value=0o%06o "
+            "pcx=0o%06o pcf=0o%06o pcxva=0o%07o pcfva=0o%07o "
+            "op=%03o alpha=%03o len=%u insset=%u active=%u warm=%u "
+            "T=%06o Q=%06o Cnt=%06o Link=%06o stkp=%03o "
+            "ac=%06o,%06o,%06o,%06o\n",
+            event, (unsigned long long)dorado_trace_cycle,
+            cpu->real_PC & 07777, value & 0177777,
+            cpu->ifu_pcx & 0177777, cpu->ifu_pcf & 0177777,
+            pcx_va & 017777777u, pcf_va & 017777777u,
+            cpu->ifu_opcode & 0377, cpu->ifu_alpha & 0377,
+            cpu->ifu_length, cpu->ifu_insset & 3, cpu->ifu_active,
+            cpu->ifu_warmup, cpu->T & 0177777, cpu->Q & 0177777,
+            cpu->Cnt & 0177777, cpu->Link & 0177777,
+            cpu->StkP & 0377,
+            cpu->STK[1] & 0177777, cpu->STK[2] & 0177777,
+            cpu->STK[3] & 0177777, cpu->STK[4] & 0177777);
+}
+
+static int ifu_pcf_trace_enabled(void)
+{
+    return dorado_trace_flag("DORADO_IFU_PCF_TRACE") &&
+           (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"));
+}
+
 static void trace_alto_words(const char *label, dorado_memory *mem,
                              uint32_t first, uint32_t count)
 {
@@ -48,6 +86,152 @@ static void trace_alto_words(const char *label, dorado_memory *mem,
     fprintf(stderr, "\n");
 }
 
+static void trace_low_core_mapping(dorado_memory *mem)
+{
+    if (!mem) return;
+
+    uint32_t idx = dorado_map_index(0);
+    const dorado_map_entry *e = dorado_map_get(mem, idx);
+    uint32_t phys_base = (uint32_t)e->rp * DM_PAGE_SIZE;
+    fprintf(stderr,
+            "LISP_LOW75_MAP idx=%04X rp=%04X wp=%u dirty=%u ref=%u "
+            "phys_base=%07o br0=%07o br31=%07o br36=%07o storage_words=%zu\n",
+            idx, e->rp, e->wp, e->dirty, e->ref, phys_base,
+            dorado_br_get(mem, 0), dorado_br_get(mem, 31),
+            dorado_br_get(mem, 36), mem->storage_words);
+
+    fprintf(stderr, "LISP_LOW75_STORAGE");
+    for (uint32_t i = 00060; i < 00140; i++) {
+        if (((i - 00060) & 7u) == 0)
+            fprintf(stderr, "\n  phys+%06o:", (unsigned)i);
+        uint32_t p = phys_base + i;
+        fprintf(stderr, " %06o",
+                (p < mem->storage_words && mem->storage)
+                    ? mem->storage[p] & 0177777
+                    : 0177777);
+    }
+    fprintf(stderr, "\n");
+
+    for (uint32_t row = (00060u >> 4) & DM_CACHE_ROW_MASK;
+         row <= ((00137u >> 4) & DM_CACHE_ROW_MASK); row++) {
+        fprintf(stderr, "LISP_LOW75_CACHE row=%u lru=%u,%u,%u,%u\n",
+                row,
+                mem->cache[row].lru[0], mem->cache[row].lru[1],
+                mem->cache[row].lru[2], mem->cache[row].lru[3]);
+        for (int way = 0; way < DM_CACHE_WAYS; way++) {
+            const dorado_cache_line *line = &mem->cache[row].ways[way];
+            fprintf(stderr,
+                    "  way=%d tag=%07o valid=%u dirty=%u wp=%u vacant=%u load=%u",
+                    way, (unsigned)line->tag, line->valid, line->dirty,
+                    line->wp, line->vacant, line->being_loaded);
+            for (int i = 0; i < DM_CACHE_LINE_W; i++)
+                fprintf(stderr, " %06o", line->data[i] & 0177777);
+            fprintf(stderr, "\n");
+        }
+    }
+}
+
+static int bitblt_body_trace_pc(uint16_t pc)
+{
+    pc &= 07777;
+    return pc >= 01000 && pc <= 01450;
+}
+
+static void trace_bitblt_body(const dorado_cpu *cpu)
+{
+    if (!cpu->mem || !dorado_trace_flag("DORADO_BITBLT_BODY_TRACE"))
+        return;
+    if (dorado_trace_flag("DORADO_TRACE_GATE") && !dorado_trace_gate)
+        return;
+    if (!bitblt_body_trace_pc(cpu->real_PC))
+        return;
+
+    static long count = 0;
+    static long limit = -2;
+    if (limit == -2) {
+        const char *w = getenv("DORADO_BITBLT_BODY_TRACE_LIMIT");
+        limit = w ? strtol(w, NULL, 0) : 128;
+    }
+    if (limit > 0 && count++ >= limit)
+        return;
+    if (limit <= 0)
+        count++;
+
+    const dorado_memory *mem = cpu->mem;
+    enum {
+        BB_BASE = 0040,
+        BBDst = BB_BASE + 0, BBSrc = BB_BASE + 1,
+        DstInc = BB_BASE + 2, SrcInc = BB_BASE + 3,
+        DRast = BB_BASE + 4, SRast = BB_BASE + 5,
+        PrefDst = BB_BASE + 6, PrefSrc = BB_BASE + 7,
+        DPrefOffset = BB_BASE + 010, SPrefOffset = BB_BASE + 011,
+        VCount = BB_BASE + 012, MCount = BB_BASE + 013,
+        ICnt = BB_BASE + 014, BBDisp = BB_BASE + 015,
+        BBFlags = BB_BASE + 016, SrcWd = BB_BASE + 017
+    };
+    uint32_t br_dst = dorado_br_get(mem, 022);
+    uint32_t br_src = dorado_br_get(mem, 023);
+    uint16_t dst = cpu->RM[BBDst];
+    uint16_t src = cpu->RM[BBSrc];
+    uint32_t dst_va = (br_dst + dst) & 0x0FFFFFFFu;
+    uint32_t src_va = (br_src + src) & 0x0FFFFFFFu;
+
+    fprintf(stderr,
+            "BBBODY cyc=%llu pc=0o%o task=%o rb=%02o mb=%02o "
+            "pcf=0o%o op=%03o alpha=%03o T=%06o Q=%06o Cnt=%06o "
+            "md=%06o mar=%07o last=%07o kind=%d "
+            "br22=%07o br23=%07o br26=%07o "
+            "dst=%06o src=%06o dstva=%07o srcva=%07o "
+            "di=%06o si=%06o dr=%06o sr=%06o "
+            "pd=%06o ps=%06o dpo=%06o spo=%06o "
+            "vc=%06o mc=%06o ic=%06o disp=%06o flags=%06o sw=%06o "
+            "stkp=%03o stk=%06o,%06o,%06o,%06o\n",
+            (unsigned long long)dorado_trace_cycle,
+            cpu->real_PC & 07777, cpu->ctask & 017,
+            cpu->RBase & 017, cpu->MemBase & 037,
+            cpu->ifu_pcf & 0177777, cpu->ifu_opcode & 0377,
+            cpu->ifu_alpha & 0377, cpu->T & 0177777,
+            cpu->Q & 0177777, cpu->Cnt & 0177777,
+            mem->md & 0177777, mem->mar & 017777777u,
+            mem->last_ref_va & 017777777u, mem->last_ref_kind,
+            br_dst & 017777777u, br_src & 017777777u,
+            dorado_br_get(mem, 026) & 017777777u,
+            dst, src, dst_va & 017777777u, src_va & 017777777u,
+            cpu->RM[DstInc], cpu->RM[SrcInc],
+            cpu->RM[DRast], cpu->RM[SRast],
+            cpu->RM[PrefDst], cpu->RM[PrefSrc],
+            cpu->RM[DPrefOffset], cpu->RM[SPrefOffset],
+            cpu->RM[VCount], cpu->RM[MCount], cpu->RM[ICnt],
+            cpu->RM[BBDisp], cpu->RM[BBFlags], cpu->RM[SrcWd],
+            cpu->StkP & 0377,
+            cpu->STK[cpu->StkP & 0xFF],
+            cpu->STK[(cpu->StkP + 1) & 0xFF],
+            cpu->STK[(cpu->StkP + 2) & 0xFF],
+            cpu->STK[(cpu->StkP + 3) & 0xFF]);
+
+    fprintf(stderr, "BBBODY_R");
+    for (int i = 0; i < 020; i++)
+        fprintf(stderr, " r%02o=%06o", i, cpu->RM[i] & 0177777);
+    fprintf(stderr, "\nBBBODY_BR");
+    for (int i = 0; i < 010; i++)
+        fprintf(stderr, " br%02o=%07o", i, dorado_br_get(mem, i) & 017777777u);
+    fprintf(stderr, "\n");
+
+    fprintf(stderr, "BBBODY_DST");
+    for (int i = -2; i <= 5; i++) {
+        uint32_t va = (dst_va + (uint32_t)i) & 0x0FFFFFFFu;
+        fprintf(stderr, " %07o:%06o", va & 017777777u,
+                dorado_visible_word_at_va(mem, va) & 0177777);
+    }
+    fprintf(stderr, "\nBBBODY_SRC");
+    for (int i = -2; i <= 5; i++) {
+        uint32_t va = (src_va + (uint32_t)i) & 0x0FFFFFFFu;
+        fprintf(stderr, " %07o:%06o", va & 017777777u,
+                dorado_visible_word_at_va(mem, va) & 0177777);
+    }
+    fprintf(stderr, "\n");
+}
+
 /* Debug: see memory.c STORE_VA trace. */
 extern int dorado_mem_trace_pc;
 extern int dorado_mem_trace_pcx;
@@ -56,6 +240,10 @@ extern int dorado_mem_trace_op;
 extern int dorado_mem_trace_membase;
 extern int dorado_mem_trace_br;
 extern int dorado_mem_trace_mar;
+extern int dorado_mem_trace_ac0;
+extern int dorado_mem_trace_ac1;
+extern int dorado_mem_trace_ac2;
+extern int dorado_mem_trace_ac3;
 
 #define DORADO_JUNK_TASK          2
 #define DORADO_JUNK_TICK_CYCLES   533   /* 32 us / 60 ns microcycle */
@@ -78,9 +266,16 @@ extern int dorado_mem_trace_mar;
 #define DORADO_RM_CAND_006        0006
 #define DORADO_RM_CAND_025        0025
 #define DORADO_RM_CAND_026        0026
-#define DORADO_RM_RT_CLOCK        0165
-#define DORADO_RM_RTC_DELTA_LO    0166
-#define DORADO_RM_RTC_430         0167
+/* Clock/event RM slots used by the Dorado emulator microprograms. The
+ * names attached to 0261..0263 vary by source vintage (AEmu/Mesa vs.
+ * Lisp), so diagnostic prints should usually show the whole quartet. */
+#define DORADO_RM_RT_CLOCK        0260
+#define DORADO_RM_CLOCK_1         0261
+#define DORADO_RM_CLOCK_2         0262
+#define DORADO_RM_CLOCK_3         0263
+#define DORADO_RM_RTC_FRAC        DORADO_RM_CLOCK_1
+#define DORADO_RM_RTC_DELTA_LO    DORADO_RM_CLOCK_2
+#define DORADO_RM_RTC_430         DORADO_RM_CLOCK_3
 #define DORADO_RM_WAKEUP_TIME     0274
 
 /* Forward declarations for IFU helpers (defined later in this file). */
@@ -90,6 +285,10 @@ static uint8_t  ifu_fetch_byte(dorado_cpu *cpu, uint16_t pc, int *out_faulted);
 static uint8_t  ifu_test_pop_byte(dorado_cpu *cpu);
 static void     ifu_test_tick(dorado_cpu *cpu);
 static uint16_t task_md(const dorado_cpu *cpu);
+static int junk_tw_trace_enabled(void);
+static int junk_tw_trace_take(void);
+static int tasking_trace_enabled(void);
+static int tasking_trace_take(void);
 
 /*
  * Dorado microengine. See include/cpu.h for scope.
@@ -208,6 +407,19 @@ static void junk_timer_ack_control(dorado_cpu *cpu, uint16_t b)
     /* HM §12.1 and Kernel5.mc: AckJunkTW←B dismisses the current
      * wakeup; B[15]=1 enables periodic junk wakeups and B[15]=0
      * disables them. Dorado bit 15 is the low-order C bit. */
+    if (junk_tw_trace_enabled() &&
+        (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE")) &&
+        junk_tw_trace_take()) {
+        fprintf(stderr,
+                "JUNK_TW_ACK cyc=%llu task=%o pc=0o%o b=%06o "
+                "enable=%u countdown=%u ready=%04X wake=%04X "
+                "tasking=%u delay=%u\n",
+                (unsigned long long)dorado_trace_cycle,
+                cpu->ctask & 017, cpu->real_PC & 07777, b & 0177777,
+                (b & DORADO_B15_MASK) != 0,
+                cpu->junk_tw_countdown, cpu->ready, cpu->wakeup_pending,
+                cpu->tasking_on, cpu->tasking_resume_delay);
+    }
     junk_timer_enable(cpu, (b & DORADO_B15_MASK) != 0);
 }
 
@@ -232,6 +444,17 @@ static void junk_timer_tick(dorado_cpu *cpu)
     }
     if (--cpu->junk_tw_countdown == 0) {
         cpu->wakeup_pending |= (uint16_t)(1u << DORADO_JUNK_TASK);
+        if (junk_tw_trace_enabled() &&
+            (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE")) &&
+            junk_tw_trace_take()) {
+            fprintf(stderr,
+                    "JUNK_TW_FIRE cyc=%llu task=%o pc=0o%o "
+                    "ready=%04X wake=%04X tasking=%u delay=%u\n",
+                    (unsigned long long)dorado_trace_cycle,
+                    cpu->ctask & 017, cpu->real_PC & 07777,
+                    cpu->ready, cpu->wakeup_pending,
+                    cpu->tasking_on, cpu->tasking_resume_delay);
+        }
         cpu->junk_tw_countdown = DORADO_JUNK_TICK_CYCLES;
     }
 }
@@ -255,6 +478,60 @@ static int timer_trace_enabled(void)
     static int cached = -1;
     if (cached < 0) cached = getenv("DORADO_TIMER_TRACE") ? 1 : 0;
     return cached;
+}
+
+static int tasking_trace_enabled(void)
+{
+    static int cached = -1;
+    if (cached < 0) cached = getenv("DORADO_TASKING_TRACE") ? 1 : 0;
+    return cached;
+}
+
+static int tasking_trace_take(void)
+{
+    static long n = 0;
+    static long limit = -2;
+    if (limit == -2) {
+        const char *w = getenv("DORADO_TASKING_TRACE_LIMIT");
+        limit = w ? strtol(w, NULL, 0) : 200;
+    }
+    return limit <= 0 || n++ < limit;
+}
+
+static int junk_tw_trace_enabled(void)
+{
+    static int cached = -1;
+    if (cached < 0) cached = getenv("DORADO_JUNK_TW_TRACE") ? 1 : 0;
+    return cached;
+}
+
+static int junk_tw_trace_take(void)
+{
+    static long n = 0;
+    static long limit = -2;
+    if (limit == -2) {
+        const char *w = getenv("DORADO_JUNK_TW_TRACE_LIMIT");
+        limit = w ? strtol(w, NULL, 0) : 200;
+    }
+    return limit <= 0 || n++ < limit;
+}
+
+static int lisp_rclk_trace_enabled(void)
+{
+    static int cached = -1;
+    if (cached < 0) cached = getenv("DORADO_LISP_RCLK_TRACE") ? 1 : 0;
+    return cached;
+}
+
+static int lisp_rclk_trace_take(void)
+{
+    static long n = 0;
+    static long limit = -2;
+    if (limit == -2) {
+        const char *w = getenv("DORADO_LISP_RCLK_TRACE_LIMIT");
+        limit = w ? strtol(w, NULL, 0) : 200;
+    }
+    return limit <= 0 || n++ < limit;
 }
 
 /* Save the current task's live state into task_*[ctask], using
@@ -1116,6 +1393,7 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
                  * BR[31]). Used by emulator microcode that needs to
                  * know the IFU PC for branch arithmetic. */
                 *b = (uint16_t)~cpu->ifu_pcx;
+                trace_pcx_event("READ_PCX_NOT", cpu, *b);
                 break;
         case 1: /* B ← EventCntA' / GenIn' (HM §4.11; FF256[171]). Active-low.
                  * In GenIO mode (counters disabled) the IFU-board plug ties
@@ -1462,10 +1740,10 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                      * the first IFUJump can succeed (HM page 67).
                      * Until then, IFUJump traps to *34-37 NotReady. */
                 cpu->ifu_pcf     = b;
-                cpu->ifu_pcx     = b;     /* until first IFUJump */
                 cpu->ifu_idcnt   = 0;
                 cpu->ifu_active  = 1;
                 cpu->ifu_warmup  = 5;     /* HM page 67 */
+                trace_pcx_event("WRITE_PCF", cpu, b);
                 return pd;
             case 1: /* IFUTest ← B */
                 cpu->ifu_test = b;
@@ -1737,6 +2015,17 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
             case 2: /* TaskingOff (HM page 27) — atomic; effective
                      * immediately. Subsequent instructions of the
                      * same task run without task switches. */
+                if (tasking_trace_enabled() &&
+                    (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE")) &&
+                    tasking_trace_take()) {
+                    fprintf(stderr,
+                            "TASKING_OFF cyc=%llu task=%o pc=0o%o "
+                            "ready=%04X wake=%04X junk_cd=%u\n",
+                            (unsigned long long)dorado_trace_cycle,
+                            cpu->ctask & 017, cpu->real_PC & 07777,
+                            cpu->ready, cpu->wakeup_pending,
+                            cpu->junk_tw_countdown);
+                }
                 cpu->tasking_on = 0;
                 cpu->tasking_resume_delay = 0;
                 return pd;
@@ -1757,6 +2046,17 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                      * model would fix BOTH the TaskingOn gate and the
                      * 2-cycle wakeup latency together; that is the right
                      * place to look for residual async-timing bugs. */
+                if (tasking_trace_enabled() &&
+                    (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE")) &&
+                    tasking_trace_take()) {
+                    fprintf(stderr,
+                            "TASKING_ON cyc=%llu task=%o pc=0o%o "
+                            "ready=%04X wake=%04X junk_cd=%u\n",
+                            (unsigned long long)dorado_trace_cycle,
+                            cpu->ctask & 017, cpu->real_PC & 07777,
+                            cpu->ready, cpu->wakeup_pending,
+                            cpu->junk_tw_countdown);
+                }
                 cpu->tasking_resume_delay = 2;
                 return pd;
             case 4: /* StkP ← B[8:15] */
@@ -2137,11 +2437,63 @@ static const char *ref_kind_name(dorado_ref_kind kind)
     }
 }
 
+static const char *fault_kind_name(dorado_fault_kind kind)
+{
+    switch (kind) {
+    case DM_FAULT_NONE:          return "none";
+    case DM_FAULT_PAGE:          return "page";
+    case DM_FAULT_WRITE_PROTECT: return "write_protect";
+    case DM_FAULT_MAP_TROUBLE:   return "map_trouble";
+    case DM_FAULT_STORAGE_ERROR: return "storage_error";
+    default:                     return "?";
+    }
+}
+
 static int eth_mem_trace_enabled(void)
 {
     static int cached = -1;
     if (cached < 0) cached = getenv("DORADO_ETH_MEM_TRACE") ? 1 : 0;
     return cached;
+}
+
+static int lisp_loop_mem_trace_match(const dorado_cpu *cpu)
+{
+    static int cached = -1;
+    static unsigned long br31 = 0x145858ul;
+    static unsigned long pc_lo = 0122ul;
+    static unsigned long pc_hi = 0277ul;
+    static long count = 0;
+    static long limit = 1024;
+
+    if (cached < 0) {
+        const char *env = getenv("DORADO_LISP_LOOP_MEM_TRACE");
+        cached = 0;
+        if (env && env[0] && env[0] != '0') {
+            cached = 1;
+            if (strchr(env, ',')) {
+                unsigned long b = br31, lo = pc_lo, hi = pc_hi;
+                if (sscanf(env, "%lo,%lo,%lo", &b, &lo, &hi) == 3) {
+                    br31 = b;
+                    pc_lo = lo;
+                    pc_hi = hi;
+                }
+            }
+        }
+        const char *lim = getenv("DORADO_LISP_LOOP_MEM_TRACE_LIMIT");
+        if (lim && lim[0]) limit = strtol(lim, NULL, 0);
+    }
+    if (!cached || !cpu || cpu->ctask != 0)
+        return 0;
+    if (dorado_trace_flag("DORADO_TRACE_GATE") && !dorado_trace_gate)
+        return 0;
+    if (limit > 0 && count >= limit)
+        return 0;
+    uint32_t cur_br31 = cpu->mem ? dorado_br_get(cpu->mem, 31) : 0;
+    uint16_t pcx = cpu->ifu_pcx & 0177777;
+    if (cur_br31 != (uint32_t)br31 || pcx < pc_lo || pcx > pc_hi)
+        return 0;
+    count++;
+    return 1;
 }
 
 static int lowcore_trace_mode(void)
@@ -3450,15 +3802,17 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
 
             if (dorado_trace_flag("DORADO_IFUDISP_TRACE") &&
                 (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+                uint32_t ifu_br31 = cpu->mem ? dorado_br_get(cpu->mem, 31) : 0;
+                uint32_t op_va = (ifu_br31 + (uint16_t)(cpu->ifu_pcf >> 1)) &
+                                 0x0FFFFFFFu;
                 fprintf(stderr,
-                        "IFUDISP pc=0o%o pcf=0o%o br31=%05X op=%03o "
+                        "IFUDISP pc=0o%o pcf=0o%o opva=%07o br31=%05X op=%03o "
                         "len=%u alpha=%03o beta=%03o flt=%d n=%d "
                         "insset=%u rh=%06o lh=%06o vec=0o%o "
                         "pc_after=0o%o stkp=%03o "
                         "acs=%06o,%06o,%06o,%06o "
                         "aacs=%06o,%06o,%06o,%06o rtrap=%d\n",
-                        cpu->real_PC, cpu->ifu_pcf,
-                        cpu->mem ? dorado_br_get(cpu->mem, 31) : 0,
+                        cpu->real_PC, cpu->ifu_pcf, op_va, ifu_br31,
                         opcode, length, cpu->ifu_alpha, cpu->ifu_beta,
                         fetch_faulted, n_slot, cpu->ifu_insset & 3,
                         rh, lh, (unsigned)(ifaddr << 2), pc_after,
@@ -3478,20 +3832,33 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                          * executed opcode. */
                         resched_trap);
             }
-            if (dorado_trace_flag("DORADO_ALTO_PC_WATCH") &&
+            if ((dorado_trace_flag("DORADO_ALTO_PC_WATCH") ||
+                 dorado_trace_flag("DORADO_ALTO_OPCODE_WATCH")) &&
                 (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
-                static long lo = -2, hi = 0, count = 0, limit = -2;
+                static long lo = -2, hi = 0, op_watch = -2;
+                static long count = 0, limit = -2;
+                static uint64_t after = UINT64_MAX;
                 if (lo == -2) {
                     const char *w = getenv("DORADO_ALTO_PC_WATCH");
                     lo = 0;
                     hi = 0;
                     if (w) sscanf(w, "%lo,%lo", &lo, &hi);
                 }
+                if (op_watch == -2) {
+                    const char *w = getenv("DORADO_ALTO_OPCODE_WATCH");
+                    op_watch = w ? strtol(w, NULL, 8) : -1;
+                }
                 if (limit == -2) {
                     const char *w = getenv("DORADO_ALTO_PC_WATCH_LIMIT");
                     limit = w ? strtol(w, NULL, 0) : 128;
                 }
-                if ((long)cpu->ifu_pcx >= lo && (long)cpu->ifu_pcx <= hi) {
+                if (after == UINT64_MAX) {
+                    const char *w = getenv("DORADO_ALTO_PC_WATCH_AFTER");
+                    after = w ? strtoull(w, NULL, 0) : 0;
+                }
+                if (dorado_trace_cycle >= after &&
+                    (((long)cpu->ifu_pcx >= lo && (long)cpu->ifu_pcx <= hi) ||
+                     (op_watch >= 0 && (long)opcode == op_watch))) {
                     if (limit <= 0 || count < limit) {
                         fprintf(stderr,
                                 "ALTO_PC_WATCH cyc=%llu pc=0o%o pcf=0o%o "
@@ -3505,6 +3872,175 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                                 opcode, length, cpu->ifu_alpha,
                                 cpu->ifu_beta, n_slot, cpu->ifu_insset & 3,
                                 pc_after, cpu->StkP & 0xFF,
+                                cpu->STK[1] & 0177777,
+                                cpu->STK[2] & 0177777,
+                                cpu->STK[3] & 0177777,
+                                cpu->STK[4] & 0177777,
+                                cpu->STK[cpu->StkP & 0xFF] & 0177777,
+                                cpu->STK[(cpu->StkP + 1) & 0xFF] & 0177777,
+                                cpu->STK[(cpu->StkP + 2) & 0xFF] & 0177777,
+                                cpu->STK[(cpu->StkP + 3) & 0xFF] & 0177777,
+                                resched_trap);
+                    }
+                    count++;
+                }
+            }
+            if (cpu->mem && dorado_trace_flag("DORADO_LISP_SPVARD_TRACE") &&
+                (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE")) &&
+                opcode >= 0270 && opcode <= 0276) {
+                static long count = 0, limit = -2;
+                if (limit == -2) {
+                    const char *w = getenv("DORADO_LISP_SPVARD_TRACE_LIMIT");
+                    limit = w ? strtol(w, NULL, 0) : 128;
+                }
+                if (limit <= 0 || count < limit) {
+                    unsigned off = ((unsigned)opcode - 0270u) * 2u;
+                    uint16_t pv = cpu->RM[003];
+                    uint16_t s = cpu->RM[004];
+                    uint32_t pvar_va =
+                        (0200000u + (uint16_t)(pv + off + 1u)) & 0x0FFFFFFFu;
+                    uint32_t pvar_pair_va =
+                        (0200000u + (uint16_t)(pv + off)) & 0x0FFFFFFFu;
+                    uint32_t stack_va = (0200000u + s) & 0x0FFFFFFFu;
+                    uint32_t stack_prev_va =
+                        (0200000u + (uint16_t)(s - 1u)) & 0x0FFFFFFFu;
+                    fprintf(stderr,
+                            "LISP_SPVARD cyc=%llu op=%03o off=%u "
+                            "pc=0o%o pcf=0o%o pc_after=0o%o br31=0o%07o "
+                            "TOS=%06o TOSH=%06o PV=%06o S=%06o PC=%06o "
+                            "Rx=%06o T=%06o Q=%06o Cnt=%06o Link=%06o "
+                            "stkp=%03o pvar_va=0o%07o pvar_pair=0o%07o "
+                            "stack=0o%07o stack_prev=0o%07o "
+                            "pvar={%06o,%06o} stack={%06o,%06o} "
+                            "rm0_7={%06o,%06o,%06o,%06o,%06o,%06o,%06o,%06o} "
+                            "stk=%06o,%06o,%06o,%06o rtrap=%d\n",
+                            (unsigned long long)dorado_trace_cycle,
+                            opcode, off, cpu->ifu_pcx, cpu->ifu_pcf,
+                            pc_after, dorado_br_get(cpu->mem, 31),
+                            cpu->RM[000] & 0177777,
+                            cpu->RM[001] & 0177777,
+                            cpu->RM[003] & 0177777,
+                            cpu->RM[004] & 0177777,
+                            cpu->RM[005] & 0177777,
+                            cpu->RM[006] & 0177777,
+                            cpu->T & 0177777, cpu->Q & 0177777,
+                            cpu->Cnt & 0177777, cpu->Link & 0177777,
+                            cpu->StkP & 0377,
+                            pvar_va & 017777777u,
+                            pvar_pair_va & 017777777u,
+                            stack_va & 017777777u,
+                            stack_prev_va & 017777777u,
+                            dorado_visible_word_at_va(cpu->mem, pvar_pair_va) & 0177777,
+                            dorado_visible_word_at_va(cpu->mem, pvar_va) & 0177777,
+                            dorado_visible_word_at_va(cpu->mem, stack_prev_va) & 0177777,
+                            dorado_visible_word_at_va(cpu->mem, stack_va) & 0177777,
+                            cpu->RM[000] & 0177777,
+                            cpu->RM[001] & 0177777,
+                            cpu->RM[002] & 0177777,
+                            cpu->RM[003] & 0177777,
+                            cpu->RM[004] & 0177777,
+                            cpu->RM[005] & 0177777,
+                            cpu->RM[006] & 0177777,
+                            cpu->RM[007] & 0177777,
+                            cpu->STK[cpu->StkP & 0377] & 0177777,
+                            cpu->STK[(cpu->StkP + 1) & 0377] & 0177777,
+                            cpu->STK[(cpu->StkP + 2) & 0377] & 0177777,
+                            cpu->STK[(cpu->StkP + 3) & 0377] & 0177777,
+                            resched_trap);
+                }
+                count++;
+            }
+            if (cpu->mem && dorado_trace_flag("DORADO_LISP_GBITS_TRACE") &&
+                (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE")) &&
+                opcode == 0312) {
+                static long count = 0, limit = -2;
+                if (limit == -2) {
+                    const char *w = getenv("DORADO_LISP_GBITS_TRACE_LIMIT");
+                    limit = w ? strtol(w, NULL, 0) : 128;
+                }
+                if (limit <= 0 || count < limit) {
+                    uint32_t lo_sum =
+                        (uint32_t)(cpu->RM[000] & 0177777) +
+                        (uint32_t)(cpu->ifu_alpha & 0377);
+                    uint16_t ptr_lo = (uint16_t)lo_sum;
+                    uint16_t ptr_hi =
+                        (uint16_t)((cpu->RM[001] + (lo_sum >> 16)) & 0177777);
+                    uint32_t ptr_va =
+                        (((uint32_t)ptr_hi << 16) | ptr_lo) & 0x0FFFFFFFu;
+                    uint16_t data =
+                        dorado_visible_word_at_va(cpu->mem, ptr_va) & 0177777;
+                    fprintf(stderr,
+                            "LISP_GBITS cyc=%llu pc=0o%o pcf=0o%o "
+                            "pc_after=0o%o br31=0o%07o alpha=%03o beta=%03o "
+                            "ptr={%06o,%06o}->0o%07o data=%06o "
+                            "TOS=%06o TOSH=%06o PV=%06o S=%06o PC=%06o "
+                            "Rx=%06o T=%06o Q=%06o Cnt=%06o Link=%06o "
+                            "stkp=%03o stk=%06o,%06o,%06o,%06o rtrap=%d\n",
+                            (unsigned long long)dorado_trace_cycle,
+                            cpu->ifu_pcx, cpu->ifu_pcf, pc_after,
+                            dorado_br_get(cpu->mem, 31),
+                            cpu->ifu_alpha, cpu->ifu_beta,
+                            ptr_hi & 0177777, ptr_lo & 0177777,
+                            ptr_va & 017777777u, data,
+                            cpu->RM[000] & 0177777,
+                            cpu->RM[001] & 0177777,
+                            cpu->RM[003] & 0177777,
+                            cpu->RM[004] & 0177777,
+                            cpu->RM[005] & 0177777,
+                            cpu->RM[006] & 0177777,
+                            cpu->T & 0177777, cpu->Q & 0177777,
+                            cpu->Cnt & 0177777, cpu->Link & 0177777,
+                            cpu->StkP & 0377,
+                            cpu->STK[cpu->StkP & 0377] & 0177777,
+                            cpu->STK[(cpu->StkP + 1) & 0377] & 0177777,
+                            cpu->STK[(cpu->StkP + 2) & 0377] & 0177777,
+                            cpu->STK[(cpu->StkP + 3) & 0377] & 0177777,
+                            resched_trap);
+                }
+                count++;
+            }
+            if (dorado_trace_flag("DORADO_ALTO_OPVA_WATCH") &&
+                (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+                static long lo = -2, hi = 0, count = 0, limit = -2;
+                if (lo == -2) {
+                    const char *w = getenv("DORADO_ALTO_OPVA_WATCH");
+                    lo = 0;
+                    hi = 0;
+                    if (w) {
+                        int n = sscanf(w, "%lo,%lo", &lo, &hi);
+                        if (n == 1) hi = lo;
+                    }
+                }
+                if (limit == -2) {
+                    const char *w = getenv("DORADO_ALTO_OPVA_WATCH_LIMIT");
+                    limit = w ? strtol(w, NULL, 0) : 128;
+                }
+                uint32_t ifu_br31 = cpu->mem ? dorado_br_get(cpu->mem, 31) : 0;
+                uint32_t op_va = (ifu_br31 + (uint16_t)(cpu->ifu_pcf >> 1)) &
+                                 0x0FFFFFFFu;
+                if ((long)op_va >= lo && (long)op_va <= hi) {
+                    if (limit <= 0 || count < limit) {
+                        fprintf(stderr,
+                                "ALTO_OPVA_WATCH cyc=%llu opva=0o%07lo "
+                                "pc=0o%o pcf=0o%o br31=0o%07o "
+                                "ir=0o%06o op=%03o len=%u alpha=%03o "
+                                "beta=%03o n=%d insset=%u pc_after=0o%o "
+                                "stkp=%03o T=%06o Q=%06o Cnt=%06o "
+                                "ShC=%06o Link=%06o MemBase=%02o RBase=%02o "
+                                "ac=%06o,%06o,%06o,%06o "
+                                "stk=%06o,%06o,%06o,%06o rtrap=%d\n",
+                                (unsigned long long)dorado_trace_cycle,
+                                (unsigned long)op_va,
+                                cpu->ifu_pcx, cpu->ifu_pcf, ifu_br31,
+                                (unsigned)(((unsigned)opcode << 8) |
+                                           cpu->ifu_alpha),
+                                opcode, length, cpu->ifu_alpha,
+                                cpu->ifu_beta, n_slot, cpu->ifu_insset & 3,
+                                pc_after, cpu->StkP & 0xFF,
+                                cpu->T & 0177777, cpu->Q & 0177777,
+                                cpu->Cnt & 0177777, cpu->ShC & 0177777,
+                                cpu->Link & 0177777, cpu->MemBase & 037,
+                                cpu->RBase & 017,
                                 cpu->STK[1] & 0177777,
                                 cpu->STK[2] & 0177777,
                                 cpu->STK[3] & 0177777,
@@ -3586,6 +4122,40 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                     count++;
                 }
             }
+            if (cpu->mem && dorado_trace_flag("DORADO_LISP_LOW75_WATCH") &&
+                (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+                static int low75_seen = 0;
+                uint16_t w075 =
+                    dorado_visible_word_at_va(cpu->mem, 00075) & 0177777;
+                uint16_t w076 =
+                    dorado_visible_word_at_va(cpu->mem, 00076) & 0177777;
+                uint16_t w077 =
+                    dorado_visible_word_at_va(cpu->mem, 00077) & 0177777;
+                if (!low75_seen && w075 == 0177777 && w076 == 0177777 &&
+                    w077 == 0177777) {
+                    low75_seen = 1;
+                    fprintf(stderr,
+                            "LISP_LOW75_SEEN cyc=%llu ir=0o%lo pc=0o%o "
+                            "pcf=0o%o br31=%05X op=%03o alpha=%03o "
+                            "pc_after=0o%o stkp=%03o "
+                            "ac=%06o,%06o,%06o,%06o\n",
+                            (unsigned long long)dorado_trace_cycle,
+                            (long)(((unsigned)opcode << 8) | cpu->ifu_alpha),
+                            cpu->ifu_pcx, cpu->ifu_pcf,
+                            cpu->mem ? dorado_br_get(cpu->mem, 31) : 0,
+                            opcode, cpu->ifu_alpha, pc_after,
+                            cpu->StkP & 0xFF,
+                            cpu->STK[1] & 0177777,
+                            cpu->STK[2] & 0177777,
+                            cpu->STK[3] & 0177777,
+                            cpu->STK[4] & 0177777);
+	                    trace_alto_words("LISP_LOW75_SEEN low",
+	                                     cpu->mem, 00060, 060);
+	                    trace_alto_words("LISP_LOW75_SEEN trap vector",
+	                                     cpu->mem, 0520, 060);
+	                    trace_low_core_mapping(cpu->mem);
+	                }
+	            }
             /* Defer a cycle-aligned per-opcode AC dump to after apply_lc()
              * (the writeback that finishes the opcode whose IFUJump this is). */
             if (dorado_trace_flag("DORADO_ALTOAC_TRACE") &&
@@ -3594,6 +4164,61 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                 cpu->altoac_op = opcode;
                 cpu->altoac_alpha = cpu->ifu_alpha;
                 cpu->altoac_insset = cpu->ifu_insset & 3;
+            }
+            if (lisp_rclk_trace_enabled() &&
+                (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+                static int rclk_pending = 0;
+                if (rclk_pending && lisp_rclk_trace_take()) {
+                    fprintf(stderr,
+                            "LISP_RCLK_AFTER cyc=%llu nextop=%03o pc=0o%o "
+                            "pcx=0o%o pcf=0o%o br31=0o%o mb=%02o rb=%02o "
+                            "T=%06o Q=%06o clock={%06o,%06o,%06o,%06o} "
+                            "stkp=%03o stk:",
+                            (unsigned long long)dorado_trace_cycle,
+                            opcode, cpu->real_PC, cpu->ifu_pcx, cpu->ifu_pcf,
+                            cpu->mem ? dorado_br_get(cpu->mem, 31) : 0,
+                            cpu->MemBase & 037, cpu->RBase & 017,
+                            cpu->T & 0177777, cpu->Q & 0177777,
+                            cpu->RM[DORADO_RM_RT_CLOCK] & 0177777,
+                            cpu->RM[DORADO_RM_CLOCK_1] & 0177777,
+                            cpu->RM[DORADO_RM_CLOCK_2] & 0177777,
+                            cpu->RM[DORADO_RM_CLOCK_3] & 0177777,
+                            cpu->StkP & 0377);
+                    for (int i = -3; i <= 5; i++) {
+                        uint8_t sp = (uint8_t)(cpu->StkP + i);
+                        fprintf(stderr, " [%03o]=%06o",
+                                sp, cpu->STK[sp] & 0177777);
+                    }
+                    fprintf(stderr, "\n");
+                }
+                rclk_pending = 0;
+                if (opcode == 0167) {
+                    if (lisp_rclk_trace_take()) {
+                        fprintf(stderr,
+                                "LISP_RCLK_DISP cyc=%llu pc=0o%o pcx=0o%o "
+                                "pcf=0o%o pc_after=0o%o br31=0o%o "
+                                "mb=%02o rb=%02o T=%06o Q=%06o "
+                                "clock={%06o,%06o,%06o,%06o} stkp=%03o stk:",
+                                (unsigned long long)dorado_trace_cycle,
+                                cpu->real_PC, cpu->ifu_pcx, cpu->ifu_pcf,
+                                pc_after,
+                                cpu->mem ? dorado_br_get(cpu->mem, 31) : 0,
+                                cpu->MemBase & 037, cpu->RBase & 017,
+                                cpu->T & 0177777, cpu->Q & 0177777,
+                                cpu->RM[DORADO_RM_RT_CLOCK] & 0177777,
+                                cpu->RM[DORADO_RM_CLOCK_1] & 0177777,
+                                cpu->RM[DORADO_RM_CLOCK_2] & 0177777,
+                                cpu->RM[DORADO_RM_CLOCK_3] & 0177777,
+                                cpu->StkP & 0377);
+                        for (int i = -3; i <= 5; i++) {
+                            uint8_t sp = (uint8_t)(cpu->StkP + i);
+                            fprintf(stderr, " [%03o]=%06o",
+                                    sp, cpu->STK[sp] & 0177777);
+                        }
+                        fprintf(stderr, "\n");
+                    }
+                    rclk_pending = 1;
+                }
             }
             if (opcode == 0365 && cpu->mem &&
                 dorado_trace_flag("DORADO_BITBLT_TRACE") &&
@@ -3640,11 +4265,14 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                 (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
                 fprintf(stderr,
                         "RCLK_DISP cyc=%llu pc=0o%o pcf=0o%o "
-                        "rtclock=%06o rtc_delta=%06o rtc430=%06o "
+                        "clock={%06o,%06o,%06o,%06o} "
                         "stkp=%03o acs=%06o,%06o,%06o,%06o\n",
                         (unsigned long long)dorado_trace_cycle,
                         cpu->real_PC, cpu->ifu_pcf,
-                        cpu->RM[0260], cpu->RM[0261], cpu->RM[0262],
+                        cpu->RM[DORADO_RM_RT_CLOCK],
+                        cpu->RM[DORADO_RM_CLOCK_1],
+                        cpu->RM[DORADO_RM_CLOCK_2],
+                        cpu->RM[DORADO_RM_CLOCK_3],
                         cpu->StkP & 0xFF,
                         cpu->STK[cpu->StkP & 0xFF],
                         cpu->STK[(cpu->StkP + 1) & 0xFF],
@@ -3663,7 +4291,7 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                         cpu->mem ? dorado_br_get(cpu->mem, 31) : 0,
                         cpu->RM[DORADO_RM_RT_CLOCK],
                         cpu->RM[DORADO_RM_WAKEUP_TIME],
-                        cpu->RM[DORADO_RM_RTC_430],
+                        cpu->RM[DORADO_RM_CLOCK_3],
                         cpu->StkP & 0xFF,
                         cpu->STK[cpu->StkP & 0xFF],
                         cpu->STK[(cpu->StkP + 1) & 0xFF],
@@ -3726,10 +4354,16 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
              * If a conditional IFUJump's condition is true, the IFU
              * does NOT advance — PCF stays at the current opcode's
              * byte (HM page 33). */
+            uint16_t old_pcf = cpu->ifu_pcf;
+            int16_t trace_disp = 0;
+            const char *pcf_reason = "next";
+
             if (cond_true) {
                 /* Hold pipeline. Don't update PCF or warmup. */
+                pcf_reason = "cond-hold";
             } else if (cpu->ifu_type_pause) {
                 cpu->ifu_active = 0;        /* halt fetching */
+                pcf_reason = "pause";
             } else if (cpu->ifu_type_jump) {
                 /* HM page 66 jump-displacement formulas — minimal
                  * implementation: length=1 uses 6-bit signed
@@ -3748,9 +4382,40 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                         a16 = (int16_t)(a16 | 0xFF00);
                     disp = a16;
                 }
+                trace_disp = disp;
                 cpu->ifu_pcf = (uint16_t)(cpu->ifu_pcx + disp);
+                pcf_reason = "jump";
             } else {
                 cpu->ifu_pcf = pc_after;
+            }
+            if (ifu_pcf_trace_enabled()) {
+                uint32_t ifu_br31 = cpu->mem ? dorado_br_get(cpu->mem, 31) : 0;
+                uint32_t op_va = (ifu_br31 + (uint16_t)(cpu->ifu_pcx >> 1)) &
+                                 0x0FFFFFFFu;
+                fprintf(stderr,
+                        "IFU_PCF cyc=%llu real=0o%o opva=0o%07o "
+                        "old=0o%06o new=0o%06o pcx=0o%06o "
+                        "pc_after=0o%06o reason=%s cond=%d pause=%u "
+                        "jump=%u sign=%u packeda=%u n=%u disp=%d "
+                        "op=%03o len=%u alpha=%03o beta=%03o "
+                        "insset=%u rh=%06o lh=%06o vec=0o%o "
+                        "T=%06o Q=%06o Cnt=%06o Link=%06o "
+                        "ac=%06o,%06o,%06o,%06o\n",
+                        (unsigned long long)dorado_trace_cycle,
+                        cpu->real_PC & 07777, op_va & 017777777u,
+                        old_pcf & 0177777, cpu->ifu_pcf & 0177777,
+                        cpu->ifu_pcx & 0177777, pc_after & 0177777,
+                        pcf_reason, cond_true, cpu->ifu_type_pause,
+                        cpu->ifu_type_jump, cpu->ifu_sign,
+                        cpu->ifu_packed_a, cpu->ifu_n,
+                        (int)trace_disp, opcode, length,
+                        cpu->ifu_alpha, cpu->ifu_beta,
+                        cpu->ifu_insset & 3, rh & 0177777, lh & 0177777,
+                        (unsigned)(ifaddr << 2),
+                        cpu->T & 0177777, cpu->Q & 0177777,
+                        cpu->Cnt & 0177777, cpu->Link & 0177777,
+                        cpu->STK[1] & 0177777, cpu->STK[2] & 0177777,
+                        cpu->STK[3] & 0177777, cpu->STK[4] & 0177777);
             }
             cpu->ifu_idcnt = 0;
 
@@ -4222,6 +4887,10 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
     dorado_mem_trace_pcx = cpu->ifu_pcx;
     dorado_mem_trace_br31 = cpu->mem ? (int)dorado_br_get(cpu->mem, 31) : 0;
     dorado_mem_trace_op = ((int)cpu->ifu_opcode << 8) | cpu->ifu_alpha;
+    dorado_mem_trace_ac0 = cpu->STK[1] & 0177777;
+    dorado_mem_trace_ac1 = cpu->STK[2] & 0177777;
+    dorado_mem_trace_ac2 = cpu->STK[3] & 0177777;
+    dorado_mem_trace_ac3 = cpu->STK[4] & 0177777;
 
     /* Trace the ethernet tasks' microcode PC (EOT=6, EIT=7) -- diagnostic for
      * the EOT transmit-completion path (why a deferred completion diverts the
@@ -4265,6 +4934,11 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
      * suppressed when mcr.disHold is set (boot/init microcode sets it); that
      * gate is real hardware behavior, not an emulator approximation. */
     if (md_not_ready && !dorado_mcr_dishold(cpu->mem)) {
+        /* The IFU JunkTW pendulum is external to the processor/memory hold
+         * path. A held Md cycle still consumes a hardware clock, so periodic
+         * task-2 wakeups must advance here even though the instruction will be
+         * retried and the normal post-instruction tick below will not run. */
+        if (from_im) junk_timer_tick(cpu);
         cpu->real_PC = task_schedule(cpu, cpu->real_PC, 0, 0);
         cpu->cycles++;
         if (cpu->baseboard && cpu->baseboard_cycles_per_uop > 0)
@@ -4276,12 +4950,16 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
      * charges the Hold to it) and the same instruction re-runs next cycle,
      * rather than jumping to self / switching as the Md-ready Hold does. */
     if (cpu->holdsim_hold && !dorado_mcr_dishold(cpu->mem)) {
+        /* Same external-clock rule for diagnostic HOLDSIM cycles. */
+        if (from_im) junk_timer_tick(cpu);
         (void)task_schedule(cpu, cpu->real_PC, 0, 1 /* freeze */);
         cpu->cycles++;
         if (cpu->baseboard && cpu->baseboard_cycles_per_uop > 0)
             baseboard_run(cpu->baseboard, cpu->baseboard_cycles_per_uop);
         return 0;
     }
+
+    trace_bitblt_body(cpu);
 
     /* BBT dump (env DORADO_BBT_TRACE): at AEmu BitBltA (real 0o13124)
      * the BitBlt-table pointer is AC2 = STK[StkP+2]; dump the table
@@ -4602,7 +5280,7 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                 "RTC_TRACE cyc=%llu pc=0o%o rb=%02o mb=%02o "
                 "rstk=%02o lc=%o ff=%03o jcn=%03o "
                 "a=%06o b=%06o T=%06o alu=%06o "
-                "rt=%06o wake=%06o rtc430=%06o rm025=%06o "
+                "clock={%06o,%06o,%06o,%06o} wake=%06o rm025=%06o "
                 "ready=%04X wakepend=%04X\n",
                 (unsigned long long)dorado_trace_cycle,
                 cpu->real_PC & 07777, cpu->RBase & 017,
@@ -4610,8 +5288,10 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                 u->ff & 0377, u->jcn & 0377, a & 0177777,
                 b & 0177777, cpu->T & 0177777, alu & 0177777,
                 cpu->RM[DORADO_RM_RT_CLOCK] & 0177777,
+                cpu->RM[DORADO_RM_CLOCK_1] & 0177777,
+                cpu->RM[DORADO_RM_CLOCK_2] & 0177777,
+                cpu->RM[DORADO_RM_CLOCK_3] & 0177777,
                 cpu->RM[DORADO_RM_WAKEUP_TIME] & 0177777,
-                cpu->RM[DORADO_RM_RTC_430] & 0177777,
                 cpu->RM[DORADO_RM_CAND_025] & 0177777,
                 cpu->ready, cpu->wakeup_pending);
     }
@@ -4916,6 +5596,98 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
             if (ref_fault == DM_FAULT_NONE && ref_kind_loads_md(kind)) {
                 latch_task_md_from_memory(cpu);
             }
+            if (lisp_loop_mem_trace_match(cpu)) {
+                uint16_t value = ref_kind_loads_md(kind)
+                               ? (cpu->mem ? cpu->mem->md & 0177777 : 0)
+                               : data;
+                uint32_t visible = cpu->mem
+                                 ? dorado_visible_word_at_va(cpu->mem, va)
+                                 : 0;
+                fprintf(stderr,
+                        "LISP_LOOP_MEM cyc=%llu pc=0o%o kind=%s "
+                        "pcx=0o%06o pcf=0o%06o op=%03o alpha=%03o "
+                        "br31=0o%07o br36=0o%07o mb=%02o rb=%02o "
+                        "br=0o%07o mar=0o%06o disp=0o%07o va=0o%07o "
+                        "data=%06o visible=%06o md=%06o fault=%d "
+                        "T=%06o Q=%06o Cnt=%06o Link=%06o stkp=%03o "
+                        "stk=%06o,%06o,%06o,%06o "
+                        "r=%06o,%06o,%06o,%06o,%06o,%06o,%06o,%06o "
+                        "sel={001=%06o 033=%06o 042=%06o 054=%06o "
+                        "055=%06o 100=%06o 143=%06o 150=%06o}\n",
+                        (unsigned long long)dorado_trace_cycle,
+                        cpu->real_PC & 07777, ref_kind_name(kind),
+                        cpu->ifu_pcx & 0177777, cpu->ifu_pcf & 0177777,
+                        cpu->ifu_opcode & 0377, cpu->ifu_alpha & 0377,
+                        cpu->mem ? dorado_br_get(cpu->mem, 31) : 0,
+                        cpu->mem ? dorado_br_get(cpu->mem, 36) : 0,
+                        membase & 037, cpu->RBase & 017,
+                        br & 0x0FFFFFFFu, mar & 0177777,
+                        disp & 0x0FFFFFFFu, va & 0x0FFFFFFFu,
+                        value & 0177777, visible & 0177777,
+                        cpu->mem ? cpu->mem->md & 0177777 : 0,
+                        (int)ref_fault, cpu->T & 0177777,
+                        cpu->Q & 0177777, cpu->Cnt & 0177777,
+                        cpu->Link & 0177777, cpu->StkP & 0377,
+                        cpu->STK[cpu->StkP & 0377] & 0177777,
+                        cpu->STK[(cpu->StkP + 1) & 0377] & 0177777,
+                        cpu->STK[(cpu->StkP + 2) & 0377] & 0177777,
+                        cpu->STK[(cpu->StkP + 3) & 0377] & 0177777,
+                        cpu->RM[000] & 0177777, cpu->RM[001] & 0177777,
+                        cpu->RM[002] & 0177777, cpu->RM[003] & 0177777,
+                        cpu->RM[004] & 0177777, cpu->RM[005] & 0177777,
+                        cpu->RM[006] & 0177777, cpu->RM[007] & 0177777,
+                        cpu->RM[001] & 0177777, cpu->RM[033] & 0177777,
+                        cpu->RM[042] & 0177777, cpu->RM[054] & 0177777,
+                        cpu->RM[055] & 0177777, cpu->RM[0100] & 0177777,
+                        cpu->RM[0143] & 0177777, cpu->RM[0150] & 0177777);
+            }
+            if (dorado_trace_flag("DORADO_LISP_GBITS_MEM_TRACE") &&
+                (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE")) &&
+                cpu->ctask == 0 && cpu->ifu_opcode == 0312) {
+                static long count = 0, limit = -2;
+                if (limit == -2) {
+                    const char *w = getenv("DORADO_LISP_GBITS_MEM_TRACE_LIMIT");
+                    limit = w ? strtol(w, NULL, 0) : 128;
+                }
+                if (limit <= 0 || count < limit) {
+                    uint16_t value = ref_kind_loads_md(kind)
+                                   ? (cpu->mem ? cpu->mem->md & 0177777 : 0)
+                                   : data;
+                    fprintf(stderr,
+                            "LISP_GBITS_MEM cyc=%llu pc=0o%o kind=%s "
+                            "pcx=0o%06o pcf=0o%06o alpha=%03o beta=%03o "
+                            "mb=%02o rb=%02o br=0o%07o mar=0o%06o "
+                            "disp=0o%07o va=0o%07o value=%06o md=%06o "
+                            "fault=%d miss=%d T=%06o Q=%06o "
+                            "rm={%06o,%06o,%06o,%06o,%06o,%06o,%06o,%06o} "
+                            "stk=%06o,%06o,%06o,%06o\n",
+                            (unsigned long long)dorado_trace_cycle,
+                            cpu->real_PC & 07777, ref_kind_name(kind),
+                            cpu->ifu_pcx & 0177777, cpu->ifu_pcf & 0177777,
+                            cpu->ifu_alpha & 0377, cpu->ifu_beta & 0377,
+                            membase & 037, cpu->RBase & 017,
+                            br & 0x0FFFFFFFu, mar & 0177777,
+                            disp & 0x0FFFFFFFu, va & 0x0FFFFFFFu,
+                            value & 0177777,
+                            cpu->mem ? cpu->mem->md & 0177777 : 0,
+                            (int)ref_fault,
+                            cpu->mem ? cpu->mem->last_ref_miss : 0,
+                            cpu->T & 0177777, cpu->Q & 0177777,
+                            cpu->RM[000] & 0177777,
+                            cpu->RM[001] & 0177777,
+                            cpu->RM[002] & 0177777,
+                            cpu->RM[003] & 0177777,
+                            cpu->RM[004] & 0177777,
+                            cpu->RM[005] & 0177777,
+                            cpu->RM[006] & 0177777,
+                            cpu->RM[007] & 0177777,
+                            cpu->STK[cpu->StkP & 0377] & 0177777,
+                            cpu->STK[(cpu->StkP + 1) & 0377] & 0177777,
+                            cpu->STK[(cpu->StkP + 2) & 0377] & 0177777,
+                            cpu->STK[(cpu->StkP + 3) & 0377] & 0177777);
+                }
+                count++;
+            }
             if (dsk_write_cpu_trace_enabled(cpu)) {
                 int t = cpu->ctask & 0xF;
                 fprintf(stderr,
@@ -5049,17 +5821,27 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                 if (ft && ft[0] &&
                     (!dorado_trace_flag("DORADO_TRACE_GATE") || dorado_trace_gate) &&
                     (strcmp(ft, "all") == 0 || cpu->ctask != 0)) {
+                    uint32_t idx = dorado_map_index(va);
+                    const dorado_map_entry *me = &cpu->mem->map[idx];
                     fprintf(stderr,
                             "FAULT_CPU cyc=%llu task=%o pc=0o%o mesa_pc=0x%04X "
-                            "mb=%02o br=%07X mar=%04X tioa=%03o "
-                            "T=%04X B=%04X kind=%d "
+                            "mb=%02o ref=%s fault=%s/%d va=0o%07o "
+                            "br=0o%07o mar=0o%06o idx=0o%06o rp=0o%04o "
+                            "wp=%u dirty=%u refbit=%u fcnt=%u fsrn=%u tioa=%03o "
+                            "T=%06o B=%06o "
                             "asel=%o lc=%o ff=%03o jcn=%03o "
                             "iw=%06o/%06o/%06o\n",
                             (unsigned long long)dorado_trace_cycle,
                             cpu->ctask & 017, cpu->real_PC,
                             cpu->ifu_pcx & 0xFFFFu, membase & 037,
-                            br & 0x0FFFFFFFu, mar, cpu->TIOA & 0377,
-                            cpu->T, b, (int)kind,
+                            ref_kind_name(kind), fault_kind_name(ref_fault),
+                            (int)ref_fault, va & 0x0FFFFFFFu,
+                            br & 0x0FFFFFFFu, mar & 0177777,
+                            idx & 0177777, me->rp & 017777,
+                            me->wp, me->dirty, me->ref,
+                            cpu->mem->fault_count, cpu->mem->fault_first_srn,
+                            cpu->TIOA & 0377,
+                            cpu->T & 0177777, b & 0177777,
                             u->asel & 017, u->lc & 017,
                             u->ff & 0377, u->jcn & 0377,
                             u->iw0 & 0777777, u->iw1 & 0777777,
@@ -5206,6 +5988,32 @@ memory_ref_done: ;
                 ir, cpu->altoac_insset,
                 cpu->STK[1] & 0177777, cpu->STK[2] & 0177777,
                 cpu->STK[3] & 0177777, cpu->STK[4] & 0177777);
+        if (ir == 061005 && cpu->mem &&
+            dorado_trace_flag("DORADO_LISP_BLT_TRACE") &&
+            (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+            uint16_t ac0 = cpu->STK[1] & 0177777;
+            uint16_t ac1 = cpu->STK[2] & 0177777;
+            uint16_t ac2 = cpu->STK[3] & 0177777;
+            uint16_t ac3 = cpu->STK[4] & 0177777;
+            uint16_t count = (uint16_t)(-ac3);
+            uint16_t dst_first = (uint16_t)(ac1 - count + 1);
+            uint16_t src_first = (uint16_t)(ac0 - count + 1);
+            fprintf(stderr,
+                    "LISP_BLT cyc=%llu count=%06o src=%06o..%06o "
+                    "dst=%06o..%06o ac2=%06o br31=0o%o pcx=0o%o\n",
+                    (unsigned long long)dorado_trace_cycle,
+                    count & 0177777, src_first & 0177777, ac0 & 0177777,
+                    dst_first & 0177777, ac1 & 0177777, ac2 & 0177777,
+                    cpu->mem ? dorado_br_get(cpu->mem, 31) : 0,
+                    cpu->ifu_pcx);
+            trace_alto_words("LISP_BLT low", cpu->mem,
+                             dst_first > 010 ? (uint32_t)(dst_first - 010) : 0,
+                             count < 040 ? 060 : 040);
+            trace_alto_words("LISP_BLT src", cpu->mem,
+                             src_first > 010 ? (uint32_t)(src_first - 010) : 0,
+                             count < 040 ? 060 : 040);
+            trace_alto_words("LISP_BLT links", cpu->mem, 0100, 020);
+        }
         /* Full Alto low-memory dump at a chosen booted-opcode index, counted
          * from the boot-loader entry (IR=000345). DORADO_MEMDUMP_AT=<n>; one
          * "MD %06o %06o" line per word for direct diffing against salto. */

@@ -331,6 +331,7 @@ static void usage(const char *prog)
         "  --preserve-existing-metadata\n"
         "                     do not rewrite SysDir. DShape or DiskDescriptor.\n"
         "  --inspect NAME     print NAME's leader and first file-chain labels\n"
+        "  --extract NAME HOST extract Alto file NAME to host path HOST\n"
         "  --insert HOST NAME insert a host file as Alto filename NAME\n"
         "  --boot-file NAME   install Alto boot sector from filesystem NAME\n"
         "  --help             show this help\n",
@@ -610,6 +611,8 @@ int main(int argc, char **argv)
     int source_single_drive = 0;
     int source_preserve_vda = 0;
     const char *inspect_name = NULL;
+    const char *extract_name = NULL;
+    const char *extract_path = NULL;
     struct geometry dg;
     struct geometry src_dg;
     int source_geometry = 0;
@@ -666,6 +669,9 @@ int main(int argc, char **argv)
             preserve_existing_metadata = 1;
         } else if (!strcmp(a, "--inspect") && i + 1 < argc) {
             inspect_name = argv[++i];
+        } else if (!strcmp(a, "--extract") && i + 2 < argc) {
+            extract_name = argv[++i];
+            extract_path = argv[++i];
         } else if (!strcmp(a, "--insert") && i + 2 < argc) {
             if (insert_count >= (int)(sizeof inserts / sizeof inserts[0])) {
                 fprintf(stderr, "altofs: too many --insert entries\n");
@@ -683,6 +689,11 @@ int main(int argc, char **argv)
             usage(argv[0]);
             return 2;
         }
+    }
+
+    if (extract_name && (insert_count || boot_file)) {
+        fprintf(stderr, "altofs: --extract cannot be combined with image edits\n");
+        return 2;
     }
 
     if (init_blank_free && !existing) {
@@ -746,6 +757,13 @@ int main(int argc, char **argv)
             fs_destroy(&afs);
             return 1;
         }
+    }
+
+    if (extract_name) {
+        afs.checked = 1;
+        int rc = fs_extract_file(&afs, extract_name, extract_path) ? 0 : 1;
+        fs_destroy(&afs);
+        return rc;
     }
 
     if (init_blank_free) {

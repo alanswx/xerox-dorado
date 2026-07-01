@@ -14,11 +14,16 @@ int dorado_mem_trace_op = 0;
 int dorado_mem_trace_membase = 0;
 int dorado_mem_trace_br = 0;
 int dorado_mem_trace_mar = 0;
+int dorado_mem_trace_ac0 = 0;
+int dorado_mem_trace_ac1 = 0;
+int dorado_mem_trace_ac2 = 0;
+int dorado_mem_trace_ac3 = 0;
 extern int dorado_trace_gate;
 extern int dorado_trace_flag(const char *name); /* cached getenv (see cpu.c) */
 
 static uint32_t va_cache_row(uint32_t va);
 static int cache_pick_victim(dorado_memory *mem, uint32_t va);
+static const char *ref_kind_trace_name(dorado_ref_kind kind);
 
 static int map_trace_enabled(void)
 {
@@ -62,6 +67,284 @@ static int fault_trace_mode(void)
 static int trace_gate_open(void)
 {
     return dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE");
+}
+
+static int phys_write_trace_match(uint32_t phys)
+{
+    static int parsed = 0;
+    static unsigned long lo = 0, hi = 0;
+    if (!parsed) {
+        const char *env = getenv("DORADO_PHYS_WRITE_TRACE");
+        parsed = 1;
+        if (env && env[0]) {
+            char *end = NULL;
+            lo = strtoul(env, &end, 0);
+            if (end && *end == ',') {
+                hi = strtoul(end + 1, &end, 0);
+                if (!end || *end != '\0') hi = 0;
+            }
+        }
+    }
+    return hi && trace_gate_open() && phys >= lo && phys <= hi;
+}
+
+static void trace_phys_write(const char *kind, uint32_t va, uint32_t phys,
+                             uint16_t data, unsigned extra)
+{
+    if (!phys_write_trace_match(phys)) return;
+    fprintf(stderr,
+            "PHYS_WRITE %s cyc=%llu task=%o pc=0o%o pcf=0o%o op=0o%o "
+            "mb=%02o br=%07o mar=%04o va=%07o phys=%07o data=%06o extra=%u\n",
+            kind, (unsigned long long)dorado_trace_cycle,
+            extra & 017, dorado_mem_trace_pc, dorado_mem_trace_pcx,
+            dorado_mem_trace_op, dorado_mem_trace_membase & 037,
+            dorado_mem_trace_br & 017777777, dorado_mem_trace_mar & 0177777,
+            va & 017777777u, phys & 017777777u, data & 0177777,
+            extra >> 4);
+}
+
+static void trace_cache100_change(const dorado_memory *mem)
+{
+    static int initialized = 0;
+    static uint32_t last_tag[DM_CACHE_WAYS];
+    static uint16_t last_w0[DM_CACHE_WAYS];
+    static uint8_t last_valid[DM_CACHE_WAYS];
+    static uint8_t last_dirty[DM_CACHE_WAYS];
+    static uint8_t last_vacant[DM_CACHE_WAYS];
+
+    if (!dorado_trace_flag("DORADO_CACHE100_WATCH") || !trace_gate_open())
+        return;
+
+    uint32_t row = (0100u >> 4) & DM_CACHE_ROW_MASK;
+    for (int way = 0; way < DM_CACHE_WAYS; way++) {
+        const dorado_cache_line *line = &mem->cache[row].ways[way];
+        uint16_t w0 = line->data[0100u & DM_CACHE_LINE_MASK] & 0177777;
+        int relevant = line->tag == 0 || (initialized && last_tag[way] == 0);
+        if (initialized && line->tag == last_tag[way] &&
+            w0 == last_w0[way] && line->valid == last_valid[way] &&
+            line->dirty == last_dirty[way] &&
+            line->vacant == last_vacant[way]) {
+            continue;
+        }
+        if (!relevant) {
+            last_tag[way] = line->tag;
+            last_w0[way] = w0;
+            last_valid[way] = line->valid;
+            last_dirty[way] = line->dirty;
+            last_vacant[way] = line->vacant;
+            continue;
+        }
+        last_tag[way] = line->tag;
+        last_w0[way] = w0;
+        last_valid[way] = line->valid;
+        last_dirty[way] = line->dirty;
+        last_vacant[way] = line->vacant;
+        fprintf(stderr,
+                "CACHE100 cyc=%llu pc=0o%o pcf=0o%o op=0o%o kind=%s "
+                "va=%07o row=%u way=%d tag=%07o valid=%u dirty=%u "
+                "vacant=%u wp=%u w0=%06o data=",
+                (unsigned long long)dorado_trace_cycle, dorado_mem_trace_pc,
+                dorado_mem_trace_pcx, dorado_mem_trace_op,
+                ref_kind_trace_name(mem->last_ref_kind),
+                mem->last_ref_va & 017777777u, row, way,
+                (unsigned)line->tag, line->valid, line->dirty,
+                line->vacant, line->wp, w0);
+        for (int i = 0; i < DM_CACHE_LINE_W; i++)
+            fprintf(stderr, " %06o", line->data[i] & 0177777);
+        fprintf(stderr, "\n");
+    }
+    initialized = 1;
+}
+
+static int cache_fill_trace_match(uint32_t va)
+{
+    static int parsed = 0;
+    static unsigned long lo = 0, hi = 0;
+    if (!parsed) {
+        const char *env = getenv("DORADO_CACHE_FILL_TRACE_VA");
+        parsed = 1;
+        if (env && env[0]) {
+            char *end = NULL;
+            lo = strtoul(env, &end, 0);
+            if (end && *end == ',') {
+                hi = strtoul(end + 1, &end, 0);
+                if (!end || *end != '\0') hi = 0;
+            }
+        }
+    }
+    return hi && trace_gate_open() && va >= lo && va <= hi;
+}
+
+static void trace_cache_fill(const dorado_memory *mem, uint32_t va, int way,
+                             size_t phys)
+{
+    if (!cache_fill_trace_match(va)) return;
+
+    uint32_t row_idx = va_cache_row(va);
+    uint32_t idx = dorado_map_index(va);
+    const dorado_map_entry *e = &mem->map[idx];
+    const dorado_cache_line *old = &mem->cache[row_idx].ways[way];
+
+    fprintf(stderr,
+            "CACHE_FILL cyc=%llu task=%o pc=0o%o pcf=0o%o op=0o%o "
+            "kind=%s va=%07o row=%u way=%d old_tag=%07o old_valid=%u "
+            "old_dirty=%u old_vacant=%u idx=%04X rp=%04X wp=%u dirty=%u "
+            "ref=%u phys=%07o storage=",
+            (unsigned long long)dorado_trace_cycle,
+            mem->last_ref_task & 017, dorado_mem_trace_pc,
+            dorado_mem_trace_pcx, dorado_mem_trace_op,
+            ref_kind_trace_name(mem->last_ref_kind),
+            va & 017777777u, row_idx, way, (unsigned)old->tag,
+            old->valid, old->dirty, old->vacant, idx, e->rp, e->wp,
+            e->dirty, e->ref, (unsigned)phys);
+    for (int i = 0; i < DM_CACHE_LINE_W; i++) {
+        size_t p = phys + (size_t)i;
+        uint16_t word = (p < mem->storage_words) ? mem->storage[p] : 0;
+        fprintf(stderr, " %06o", word & 0177777);
+    }
+    fprintf(stderr, "\n");
+}
+
+static void trace_visible_words(const char *label, const dorado_memory *mem,
+                                uint32_t first, uint32_t count)
+{
+    if (!mem) return;
+    fprintf(stderr, "%s", label);
+    for (uint32_t i = 0; i < count; i++) {
+        if ((i & 7u) == 0)
+            fprintf(stderr, "\n  %06o:", (unsigned)((first + i) & 017777777));
+        fprintf(stderr, " %06o",
+                dorado_visible_word_at_va(mem, first + i) & 0177777);
+    }
+    fprintf(stderr, "\n");
+}
+
+static uint16_t trace_word(const dorado_memory *mem, uint32_t va)
+{
+    return dorado_visible_word_at_va(mem, va) & 0177777;
+}
+
+static void trace_lisp_stream_candidate(const dorado_memory *mem, uint16_t p)
+{
+    if (p < 0400)
+        return;
+
+    uint16_t st_type = trace_word(mem, (uint16_t)(p + 012));
+    uint16_t item_size = trace_word(mem, (uint16_t)(p + 024));
+    uint16_t ks_buffer = trace_word(mem, (uint16_t)(p + 053));
+    uint16_t ks_chars = trace_word(mem, (uint16_t)(p + 056));
+    if (st_type != 010001 && item_size != 1 && item_size != 2 &&
+        ks_buffer > 0400 && ks_chars != 0400)
+        return;
+
+    fprintf(stderr,
+            "LISP_STREAM_CAND ptr=%06o st_type=%06o charPtr=%06o "
+            "wordPtr=%06o count=%06o dirty=%06o eof=%06o itemSize=%06o "
+            "endPos=%06o page=%06o numChars=%06o buffer=%06o "
+            "ksType=%06o charsPerPage=%06o lnCharsPerPage=%06o "
+            "DAs=%06o,%06o,%06o fp=%06o,%06o,%06o,%06o,%06o\n",
+            p,
+            st_type,
+            trace_word(mem, (uint16_t)(p + 014)),
+            trace_word(mem, (uint16_t)(p + 015)),
+            trace_word(mem, (uint16_t)(p + 016)),
+            trace_word(mem, (uint16_t)(p + 017)),
+            trace_word(mem, (uint16_t)(p + 020)),
+            item_size,
+            trace_word(mem, (uint16_t)(p + 025)),
+            trace_word(mem, (uint16_t)(p + 043)),
+            trace_word(mem, (uint16_t)(p + 044)),
+            ks_buffer,
+            trace_word(mem, (uint16_t)(p + 054)),
+            ks_chars,
+            trace_word(mem, (uint16_t)(p + 057)),
+            trace_word(mem, (uint16_t)(p + 036)),
+            trace_word(mem, (uint16_t)(p + 037)),
+            trace_word(mem, (uint16_t)(p + 040)),
+            trace_word(mem, (uint16_t)(p + 030)),
+            trace_word(mem, (uint16_t)(p + 031)),
+            trace_word(mem, (uint16_t)(p + 032)),
+            trace_word(mem, (uint16_t)(p + 033)),
+            trace_word(mem, (uint16_t)(p + 034)));
+}
+
+static void trace_lisp_blt_store(dorado_memory *mem, uint32_t va, uint16_t b,
+                                 int task)
+{
+    static int dumped = 0;
+    if (dumped || !dorado_trace_flag("DORADO_LISP_BLT_TRACE"))
+        return;
+    if (dorado_mem_trace_op != 061005 || dorado_mem_trace_br31 != 0172655)
+        return;
+    if (va < 0100 || va > 0116)
+        return;
+    if (dorado_visible_word_at_va(mem, 0100) != 030376 ||
+        dorado_visible_word_at_va(mem, 0101) != 030275 ||
+        dorado_visible_word_at_va(mem, 0116) != 030250)
+        return;
+
+    dumped = 1;
+    uint16_t ac0 = dorado_mem_trace_ac0 & 0177777;
+    uint16_t ac1 = dorado_mem_trace_ac1 & 0177777;
+    uint16_t ac2 = dorado_mem_trace_ac2 & 0177777;
+    uint16_t ac3 = dorado_mem_trace_ac3 & 0177777;
+    uint16_t count = (uint16_t)(-ac3);
+    uint16_t dst_first = (uint16_t)(ac1 - count + 1);
+    uint16_t src_first = (uint16_t)(ac0 - count + 1);
+
+    fprintf(stderr,
+            "LISP_BLT_STORE cyc=%llu task=%o pc=0o%o va=%06o data=%06o "
+            "count=%06o src=%06o..%06o dst=%06o..%06o "
+            "AC=%06o,%06o,%06o,%06o br31=0o%o pcx=0o%o\n",
+            dorado_trace_cycle, task & 017, dorado_mem_trace_pc,
+            va & 0177777, b & 0177777, count & 0177777,
+            src_first & 0177777, ac0 & 0177777,
+            dst_first & 0177777, ac1 & 0177777,
+            ac0, ac1, ac2, ac3,
+            dorado_mem_trace_br31, dorado_mem_trace_pcx);
+    trace_visible_words("LISP_BLT_STORE low-before", mem,
+                        dst_first > 010 ? (uint32_t)(dst_first - 010) : 0,
+                        count < 040 ? 060 : 040);
+    trace_visible_words("LISP_BLT_STORE src", mem,
+                        src_first > 010 ? (uint32_t)(src_first - 010) : 0,
+                        count < 040 ? 060 : 040);
+    trace_visible_words("LISP_BLT_STORE ac2-frame", mem,
+                        ac2 > 020 ? (uint32_t)(ac2 - 020) : 0, 060);
+    fprintf(stderr, "LISP_BLT_STORE frame-candidates\n");
+    for (uint32_t i = 0; i < 060; i++)
+        trace_lisp_stream_candidate(mem,
+                                    trace_word(mem, (uint16_t)(ac2 - 020 + i)));
+    trace_visible_words("LISP_BLT_STORE links-before", mem, 0100, 020);
+    trace_visible_words("LISP_BLT_STORE stackend", mem, 0330, 020);
+}
+
+static void trace_lisp_low75_store(dorado_memory *mem, uint32_t va, uint16_t b,
+                                   int task)
+{
+    static int dumped = 0;
+    if (dumped || !dorado_trace_flag("DORADO_LISP_LOW75_TRACE") ||
+        !trace_gate_open())
+        return;
+    if (va < 00075 || va > 00102 || (b & 0177777) != 0177777)
+        return;
+
+    dumped = 1;
+    fprintf(stderr,
+            "LISP_LOW75_STORE cyc=%llu task=%o pc=0o%o va=%06o data=%06o "
+            "pcx=0o%o br31=0o%o op=0o%o "
+            "AC=%06o,%06o,%06o,%06o\n",
+            dorado_trace_cycle, task & 017, dorado_mem_trace_pc,
+            va & 0177777, b & 0177777, dorado_mem_trace_pcx,
+            dorado_mem_trace_br31, dorado_mem_trace_op,
+            dorado_mem_trace_ac0 & 0177777,
+            dorado_mem_trace_ac1 & 0177777,
+            dorado_mem_trace_ac2 & 0177777,
+            dorado_mem_trace_ac3 & 0177777);
+    trace_visible_words("LISP_LOW75 before", mem, 00060, 060);
+    trace_visible_words("LISP_LOW75 low", mem, 0, 0120);
+    if (dorado_mem_trace_ac2)
+        trace_visible_words("LISP_LOW75 ac2-frame", mem,
+                            (uint16_t)(dorado_mem_trace_ac2 - 020), 060);
 }
 
 static const char *ref_kind_trace_name(dorado_ref_kind kind)
@@ -878,9 +1161,10 @@ uint16_t dorado_storage_at_va(const dorado_memory *mem, uint32_t va)
 int dorado_storage_store_at_va(dorado_memory *mem, uint32_t va, uint16_t val)
 {
     size_t phys;
-    if (va_translate(mem, va, /*is_write=*/1, &phys) != DM_FAULT_NONE)
-        return -1;
-    mem->storage[phys] = val;
+	if (va_translate(mem, va, /*is_write=*/1, &phys) != DM_FAULT_NONE)
+	    return -1;
+	trace_phys_write("direct", va, (uint32_t)phys, val, 0);
+	mem->storage[phys] = val;
     /* Keep the cache coherent: drop any line currently holding VA so the
      * next fetch reloads the freshly deposited word from storage. Scan all
      * ways by tag (not via dorado_cache_lookup, which skips VACANT lines):
@@ -980,11 +1264,16 @@ static dorado_fault_kind cache_writeback_line(dorado_memory *mem,
     /* Use is_write=1 so a now-WP page reports DM_FAULT_WRITE_PROTECT
      * rather than succeeding with a stale phys. */
     dorado_fault_kind f = va_translate(mem, va_base, /*is_write=*/1, &phys);
-    if (f == DM_FAULT_NONE) {
-        for (int i = 0; i < DM_CACHE_LINE_W; i++) {
-            size_t p = phys + (size_t)i;
-            if (p < mem->storage_words) mem->storage[p] = line->data[i];
-        }
+	    if (f == DM_FAULT_NONE) {
+	        for (int i = 0; i < DM_CACHE_LINE_W; i++) {
+	            size_t p = phys + (size_t)i;
+	            if (p < mem->storage_words) {
+	                trace_phys_write("writeback", va_base + (uint32_t)i,
+	                                 (uint32_t)p, line->data[i],
+	                                 (unsigned)(way << 4));
+	                mem->storage[p] = line->data[i];
+	            }
+	        }
         /* HM: dirty-victim write sets Map.Ref AND Map.Dirty. */
         uint32_t idx = dorado_map_index(va_base);
         mem->map[idx].ref   = 1;
@@ -1043,6 +1332,7 @@ static void cache_fill(dorado_memory *mem, uint32_t va, int way)
     dorado_cache_line *line = &mem->cache[va_cache_row(va)].ways[way];
     size_t phys;
     if (munch_phys_base(mem, va, &phys) != DM_FAULT_NONE) return;
+    trace_cache_fill(mem, va, way, phys);
 
     line->tag   = va_cache_tag(va);
     line->valid = 1;
@@ -1287,6 +1577,8 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
                         dorado_mem_trace_op);
             }
         }
+        trace_lisp_blt_store(mem, va, b, task);
+        trace_lisp_low75_store(mem, va, b, task);
         /* Per HM page 45, Store-hit updates the cached munch and marks the
          * cache line dirty; it does not start the Map/storage path, and
          * therefore does not set Map.Dirty. The write-protect state used on
@@ -1343,12 +1635,28 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
         f = va_translate(mem, va, /*is_write=*/1, &phys);
         if (use_asrn) asrn_advance_count = 1;
         {
-            static long tp = -1;
-            if (tp == -1) {
+            static int parsed = 0;
+            static uint32_t phys_lo = 0, phys_hi = 0;
+            if (!parsed) {
                 const char *w = getenv("DORADO_STORE_TRACE_PHYS");
-                tp = w ? strtol(w, NULL, 8) : 0;
+                parsed = 1;
+                if (w && *w) {
+                    char *end = NULL;
+                    phys_lo = (uint32_t)strtoul(w, &end, 8);
+                    phys_hi = phys_lo;
+                    if (end && *end == ',') {
+                        phys_hi = (uint32_t)strtoul(end + 1, &end, 8);
+                        if (!end || *end != '\0') phys_hi = 0;
+                    }
+                    if (phys_hi && phys_hi < phys_lo) {
+                        uint32_t tmp = phys_lo;
+                        phys_lo = phys_hi;
+                        phys_hi = tmp;
+                    }
+                }
             }
-            if (tp && (uint32_t)phys == (uint32_t)tp)
+            if (phys_hi && (uint32_t)phys >= phys_lo &&
+                (uint32_t)phys <= phys_hi && trace_gate_open()) {
                 fprintf(stderr,
                     "STORE_PHYS cyc=%llu task=%o pc=0o%o va=%07o "
                     "phys=%07o data=0o%o mb=%o br=%07o mar=%06o\n",
@@ -1356,6 +1664,7 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
                     va & 0x0FFFFFFFu, (unsigned)phys, b & 0177777,
                     dorado_mem_trace_membase, (unsigned)dorado_mem_trace_br,
                     dorado_mem_trace_mar & 0177777);
+            }
         }
         /* Protected cell (machine bring-up guard): force the protected
          * PHYSICAL word to its held value, regardless of which bank/VA
@@ -1405,12 +1714,11 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
         break;
     }
     case DM_REF_IOFETCH: {
-        /* Fast-IO munch out (HM page 39). Reference passes to
-         * storage; the 16-word munch travels on the Fin bus to the
-         * receiving device. If the line is in cache and dirty, real
-         * HW sends the dirty version — we just read storage (close
-         * enough until we model dirty-line bypass). No cache entry
-         * is created. Sets Map.Ref.
+        /* Fast-IO munch out (HM page 39). The 16-word munch travels
+         * on the Fin bus to the receiving device. If the line is in
+         * cache, hardware sends that cached copy, including dirty data
+         * not yet written back to storage. No cache entry is created
+         * on a miss. Sets Map.Ref.
          *
          * If a fast_io_cb is registered, gather the munch from
          * storage (16-word aligned) and hand it to the device via
@@ -1428,12 +1736,23 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
             if (use_asrn) asrn_advance_count = 1;
             if (mem->fast_io_cb && mem->storage) {
                 uint16_t munch[16];
-                uint32_t base = phys & ~(uint32_t)0xF;
-                for (int i = 0; i < 16; i++) {
-                    munch[i] = (base + i) < mem->storage_words
-                             ? mem->storage[base + i] : 0;
+                uint32_t va_base = va_munch_base(va);
+                int way = -1;
+                if (dorado_cache_lookup(mem, va, &way)) {
+                    const dorado_cache_line *line =
+                        &mem->cache[va_cache_row(va)].ways[way];
+                    for (int i = 0; i < 16; i++)
+                        munch[i] = line->data[i];
+                    cache_touch_lru(&mem->cache[va_cache_row(va)], way);
+                    cache_select(mem, va, way, srn);
+                } else {
+                    uint32_t base = phys & ~(uint32_t)0xF;
+                    for (int i = 0; i < 16; i++) {
+                        munch[i] = (base + i) < mem->storage_words
+                                 ? mem->storage[base + i] : 0;
+                    }
                 }
-                mem->fast_io_cb(mem, kind, task, subtask, va, munch,
+                mem->fast_io_cb(mem, kind, task, subtask, va_base, munch,
                                 mem->fast_io_ctx);
             }
         }
@@ -1464,12 +1783,16 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
                 /* Callback fills munch from device. */
                 mem->fast_io_cb(mem, kind, task, subtask, va, munch,
                                 mem->fast_io_ctx);
-                uint32_t base = phys & ~(uint32_t)0xF;
-                for (int i = 0; i < 16; i++) {
-                    if ((base + i) < mem->storage_words) {
-                        mem->storage[base + i] = munch[i];
-                    }
-                }
+	                uint32_t base = phys & ~(uint32_t)0xF;
+	                for (int i = 0; i < 16; i++) {
+	                    if ((base + i) < mem->storage_words) {
+	                        trace_phys_write("iostore",
+	                                         (va & ~(uint32_t)0xFu) + (uint32_t)i,
+	                                         base + (uint32_t)i, munch[i],
+	                                         (unsigned)(task & 017));
+	                        mem->storage[base + i] = munch[i];
+	                    }
+	                }
             }
         }
         break;
@@ -1646,10 +1969,11 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
             uint8_t next = (uint8_t)(mem->asrn + 1);
             if (next > (DM_PIPE_DEPTH - 1)) next = 2;
             mem->asrn = next;
-        }
-    }
-    return f;
-}
+	        }
+	    }
+	    trace_cache100_change(mem);
+	    return f;
+	}
 
 void dorado_map_set(dorado_memory *mem, uint32_t va_page,
                     uint16_t rp, int wp, int dirty)

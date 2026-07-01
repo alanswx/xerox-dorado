@@ -1002,7 +1002,76 @@ static int test_iostore_cache_invalidate(void)
     return 0;
 }
 
-/* Test 21: ProcSRN ref overwrites a single pipe slot.
+typedef struct {
+    int called;
+    dorado_ref_kind kind;
+    int task;
+    int subtask;
+    uint32_t va;
+    uint16_t munch[16];
+} test_fastio_capture;
+
+static void capture_fastio_cb(struct dorado_memory *mem,
+                              dorado_ref_kind kind,
+                              int task, int subtask, uint32_t va,
+                              uint16_t munch[16], void *ctx)
+{
+    (void)mem;
+    test_fastio_capture *cap = ctx;
+    cap->called++;
+    cap->kind = kind;
+    cap->task = task;
+    cap->subtask = subtask;
+    cap->va = va;
+    memcpy(cap->munch, munch, sizeof cap->munch);
+}
+
+/* Test 21: IOFetch sends the cached munch, including dirty words, when
+ * the line is present in cache. The callback receives the aligned munch
+ * VA rather than the unaligned reference VA. */
+static int test_iofetch_uses_cached_dirty_munch(void)
+{
+    static dorado_memory mem; memset(&mem, 0, sizeof mem);
+    test_fastio_capture cap; memset(&cap, 0, sizeof cap);
+    EXPECT(dorado_memory_init(&mem) == 0, "init");
+    dorado_map_set(&mem, 0, /*rp=*/0, /*wp=*/0, /*dirty=*/0);
+
+    for (int i = 0; i < 16; i++)
+        mem.storage[0x10 + i] = (uint16_t)(0xA000u + (uint16_t)i);
+
+    /* Fill the cache line for VA 0x10..0x1f, then dirty one cached word. */
+    dorado_memory_ref(&mem, DM_REF_FETCH, 0x15, 0, 0);
+    dorado_memory_ref(&mem, DM_REF_STORE, 0x15, 0xCAFE, 0);
+
+    /* Make backing storage stale. IOFetch must not use these words while
+     * the cache still contains the line. */
+    for (int i = 0; i < 16; i++)
+        mem.storage[0x10 + i] = (uint16_t)(0xB000u + (uint16_t)i);
+
+    mem.fast_io_cb = capture_fastio_cb;
+    mem.fast_io_ctx = &cap;
+    dorado_memory_ref_task(&mem, DM_REF_IOFETCH, 0x15, 0, 0,
+                           /*task=*/013, /*subtask=*/2);
+
+    EXPECT(cap.called == 1, "fast IO callback called %d times", cap.called);
+    EXPECT(cap.kind == DM_REF_IOFETCH, "callback kind=%d", cap.kind);
+    EXPECT(cap.task == 013 && cap.subtask == 2,
+           "callback task/subtask=%o.%d", cap.task, cap.subtask);
+    EXPECT(cap.va == 0x10,
+           "callback VA=0x%X, expected aligned munch VA 0x10", cap.va);
+    EXPECT(cap.munch[0] == 0xA000,
+           "munch[0]=0x%04X, expected cached 0xA000", cap.munch[0]);
+    EXPECT(cap.munch[5] == 0xCAFE,
+           "munch[5]=0x%04X, expected dirty cached 0xCAFE", cap.munch[5]);
+    EXPECT(cap.munch[15] == 0xA00F,
+           "munch[15]=0x%04X, expected cached 0xA00F", cap.munch[15]);
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_iofetch_uses_cached_dirty_munch\n");
+    return 0;
+}
+
+/* Test 22: ProcSRN ref overwrites a single pipe slot.
  * HM page 51: emulator (task 0) refs use ProcSRN (default 0), so
  * three successive Fetches all land in slot 0 — only the most
  * recent VA remains. ProcSRN←B can move ProcSRN to a different slot. */
@@ -1543,6 +1612,7 @@ int main(void)
     rc |= test_dbuf_captures_store_b();
     rc |= test_cache_flush_clean();
     rc |= test_iostore_cache_invalidate();
+    rc |= test_iofetch_uses_cached_dirty_munch();
     rc |= test_proc_srn_overwrite();
     rc |= test_prefetch_srn_split();
     rc |= test_config_word_reports_storage();
