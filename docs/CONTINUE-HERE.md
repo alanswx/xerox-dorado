@@ -1,6 +1,54 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
-## ===> ACTIVE TASK (2026-07-03 latest): poke past the \FREESTACKBLOCK spin
+## ===> ACTIVE TASK (2026-07-03 latest): ENGINE BUG FOUND AND FIXED — the
+## same-instruction RM-write Md bypass (commit c9aa818). The traced
+## UFN-recursion stack overflow is gone; Lyric still degrades downstream.
+
+**The root cause of the \FREESTACKBLOCK episode (fixed):** HM p.35/p.77 —
+when one microinstruction reads RM/STK onto B AND loads the same slot from
+Md (LC=5), hardware bypasses the B read to the incoming Md. Micro's
+multi-assign idiom `LTEMP2_ T_ Md` (= .UNBOX1's first instruction) assembles
+as LC=5 + BSEL=RM/STK + ALUFM="B" and needs the bypass to put Md into T. Our
+engine returned the stale register, so every opLLSH1 on a valid SMALLP
+mis-unboxed → non-FIXP → CallUFN → the UFN handler re-ran LLSH1 → ~11
+recursion rounds ate the user context's 586 free words → STKOVPUNT →
+\DOSTACKOVERFLOW → \MOVEFRAME → \FREESTACKBLOCK(0o36, 0o2674, NIL) → the
+scan merge-spun on degenerate saved-stack data. Fix: cpu.c b_bus BSEL=1,
+LC==5 → B=task_md(). Two sharp edges pinned by PARC-microcode oracles (see
+the commit message): LC=4 must NOT bypass (eventCounters `rscr_ Md`), and
+B←T must keep OLD T under LC=2/3 (PUSHTMD pushes old T; bypassing traps
+Lyric into Swat).
+
+**State after the fix:** resuming the pre-overflow snapshot
+(`/tmp/pre-overflow.snap`, cycle 5.296B, pack copy of `/tmp/lisp-preov.pack`)
+past the old failure point: the LLSH1 UFN recursion and its stack overflow
+NO LONGER OCCUR. Downstream (5.5B–6.5B) the run still degrades — observed
+variously in a later \FREESTACKBLOCK spin or parked in a small insset-0
+handler (base 0o15534/0o44026) — AND long resumes are **non-deterministic
+run-to-run** (disk/PDI state is not in snapshots; documented omission in
+machine.c), so cycle-precise claims are only reliable near the resume point.
+
+**Follow-on leads (in order):**
+1. The next Lyric blocker: from a fresh boot with the fix, find where init
+   stalls now (fresh-boot repro: copy `/tmp/dorado-lisp-lyric-m.pack`, run
+   the June-30 command in CONTINUE-HERE's 2026-06-30 section; the fixture
+   chain `make run-lisp-lyric-remote-long` currently FAILS earlier —
+   lisp.run/M drops to the Exec by 1B — a separate fixture regression).
+2. \FREESTACKBLOCK's scan fragility stands (any overflow episode can still
+   spin on the {0o177777, size=0} junk at stack offset 0o6203) — decide
+   whether real HW tolerates this via data (needs a working reference) or
+   whether our remaining divergence (why an overflow still happens at all
+   post-fix) is the true question.
+3. Diagnostics-table staleness on main: eventCounters dm!5 FAILs @4046387
+   (EVENTAHOLDERRLO), IfuComplex FAILs @10516941, full MEMA.DM TIMEOUTs —
+   all identical on pristine main; either a post-June-26 regression or the
+   documented runs used env setups not recorded in running-diagnostics.md.
+4. Instrumentation kept (env-gated): DORADO_LISP_FN_TRACE=<octal br31 list>
+   logs IFU dispatches by code base (64/base cap) — note it misses one
+   dispatch path (a post-fix run sat in 5054130 with zero hits; find the
+   second dispatch site if reusing).
+
+## ===> PREVIOUS (2026-07-03): poke past the \FREESTACKBLOCK spin
 ## reaches "Raid: Called from uCode NIL" with a live @ prompt — display
 ## pipeline PROVEN end-to-end; hang chain fully mapped.
 
