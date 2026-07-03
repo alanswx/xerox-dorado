@@ -1,8 +1,67 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
-## ===> ACTIVE TASK (2026-07-02 latest): Lisp post-banner hang ROOT-CAUSED —
-## \FREESTACKBLOCK merge-spin from an under-allocated frame (suspect: the
-## microcoded frame allocator / opFN in LCALLRET.mc on our engine).
+## ===> ACTIVE TASK (2026-07-03 latest): poke past the \FREESTACKBLOCK spin
+## reaches "Raid: Called from uCode NIL" with a live @ prompt — display
+## pipeline PROVEN end-to-end; hang chain fully mapped.
+
+**The poke experiment (validates the whole diagnosis):** un-sticking the
+merge-spin by poking the stuck size word —
+`DORADO_POKE="206204,40173,7002100000"` on the 7B-snapshot resume — lets Lisp
+RUN ON: it clears the screen to white and renders, via the real DDC display
+pipeline, the text
+
+```
+Raid: Called from uCode NIL
+@
+```
+
+(357 px; readable in /tmp/lisp-poke-9b.pgm; ASCII/PNG recipe in the git log).
+That is Interlisp-D's RAID debugger with an interactive prompt. The
+`uCodeCheck` punt is expected — the poked 0o40173-word "free block" overlaps
+the guards/upper frames, and the microcode caught it — so the poke is a
+diagnosis validator, NOT a fix. What it proves:
+- The \FREESTACKBLOCK merge-spin WAS the (only) post-banner hang.
+- Screen-clear, font rendering, and the DDC path all work.
+- The Lisp error machinery runs and waits for keyboard at `@`.
+
+**The refined causal chain (2026-07-03 session):**
+- The hang context is a *stack overflow during init*: caller chain decoded
+  from the live FX frames = `\DOSTACKOVERFLOW` (fnheader VA 0o5052744) →
+  `\MOVEFRAME` (0o5053020, callsite pcx 0o227, FN3) →
+  `\FREESTACKBLOCK(SIZE=0o36, START=0o2674, NIL)` (0o5054130). START=0o2674 =
+  the user context's frame (IFPAGE CurrentFXP); the handler runs in its own
+  context whose frames live at stack offsets 0o11002/0o11026/0o11070.
+- Live Lisp ucode registers (RM map from LISPDEFS.mc: ESP=RM0, NARGS=RM4,
+  TSP=RM7, IVAR=RM10, PVAR=RM12): ESP=0o12400, TSP=0o11130 → 680 words free
+  in the handler context; WANTEDSIZE = 0o36+0o1440(800) = 0o1476 = 830 words;
+  the biggest mid-stack FSB is 0o1360 = 752 → nothing fits, so the scan
+  legitimately walks the whole stack space and derails as documented below
+  (crosses the deepest frame's stale NEXTBLOCK=0o11124 into live temps →
+  garbage NEXTBLOCK=1 → odd-lattice climb → merge-spin at 0o6203 {177777,0}).
+- pvar slots confirmed live: PVAR=0o11102: slot0=WANTED(0o1476),
+  slot2=EASP(0o46376, = IFPAGE[7]), slot4=FREEPTR(0o6203),
+  slot6=FREESIZE(0), slot10=SCANPTR(0o6203).
+
+**Open questions (the true root, in order):**
+1. WHY did the user context (frames at 0o2674 area) stack-overflow during
+   early init? Candidate: a spurious punt from opFN's room check
+   (`ESP - stkmin - TSP` carry test in LCALLRET.mc .ATOMICFN) — verify our
+   subtract-carry semantics on that path; or genuine stack pressure from an
+   earlier emulator divergence.
+2. How does a REAL machine's \FREESTACKBLOCK scan survive crossing the
+   active handler frames (deepest frame's NEXTBLOCK is stale + temps are
+   live on any machine)? The Lyric bytecode has extra field checks
+   (GETBITS 0,0o140 / 7,0o207 at pcx 0o166-0o215) vs the Intermezzo source —
+   decode that path before assuming the scan derails identically on real HW.
+3. Next concrete probe: fresh boot with traces gated around the FIRST
+   stack-overflow punt (STKOVPUNT / ADDSTK in LCALLRET.mc) — capture
+   ESP/TSP/stkmin at punt time to decide spurious vs real. Also possible: at
+   the RAID `@` prompt, RAID commands are keyboard-driven (`LU` prints the
+   stack) — the poked machine is interactively debuggable!
+
+## ===> PREVIOUS (2026-07-02): Lisp post-banner hang ROOT-CAUSED —
+## \FREESTACKBLOCK merge-spin (suspect was "under-allocated frame"; superseded
+## by the stack-overflow-context finding above).
 
 The 2026-06-30 "post-banner display loop" is fully diagnosed (all read-only
 probing from the 7B snapshot; no model changes yet). The complete causal chain,
