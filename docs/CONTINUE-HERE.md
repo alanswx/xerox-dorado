@@ -1,6 +1,71 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
-## ===> ACTIVE TASK (2026-06-30 latest): Lisp `/M` loads DoradoLispMc and
+## ===> ACTIVE TASK (2026-07-02 latest): Lisp post-banner hang ROOT-CAUSED —
+## \FREESTACKBLOCK merge-spin from an under-allocated frame (suspect: the
+## microcoded frame allocator / opFN in LCALLRET.mc on our engine).
+
+The 2026-06-30 "post-banner display loop" is fully diagnosed (all read-only
+probing from the 7B snapshot; no model changes yet). The complete causal chain,
+each link verified:
+
+1. **The display side is a red herring.** The terminal DCB chain at VA 0o110000
+   is a legitimate *blank bootstrap chain* (every scanline points at the same
+   6-word zero buffer at 0o155070). The DDC render path works; Lisp simply
+   never installs the real display because init never finishes.
+2. **Task 0 spins in an interpreted Lisp loop, not BitBlt.** The
+   `SRCGRAYDST*`/`STORELASTSRCDST` PC names were wrong-build symbol noise
+   (DoradoLisp.MB ≠ the running DoradoLispMc.eb). The loop is Lisp bytecode at
+   fnheader VA 0o5054130, IFU insset 1, pcx 0o122..0o277.
+3. **The function is `\FREESTACKBLOCK` (LLSTK)** — identified by disassembling
+   its bytecode from the sysout (opcode tables extracted from the Dorado Lisp
+   microcode source, now mirrored at
+   `chm/lisp/harmony/ucode/lispdmc.dm!1_/` — LISP0/LISPDEFS/LCALLRET/LSTACK/
+   LBITBLT/LVARCONST/LMEM/LJUMP/…) and matching it against the Intermezzo
+   `LLSTK` Lisp source (fetched to /tmp; on eris `<Lisp>Intermezzo>SOURCES>`).
+   Stack-block tags: flags = top 3 bits; FSB=5, GUARD=7, FX=6, BF=4, NOTFLAG=0;
+   FX.NEXTBLOCK = word +4; pvar slots confirmed
+   (pvar1=endofstack=0o46376 from IFPAGE[7], FREEPTR=0o6203, FREESIZE=0).
+4. **The spin:** FREE-merge loop with FREEPTR=0o6203 whose "FSB" is
+   `{0o177777, size=0}` → `FREESIZE += 0` forever. Engine execution of the
+   loop is micro-verified correct (GETBITS field=7, GETBASEN=0, live-traced).
+5. **The walk that got there (replayed offline, reproduces exactly):** scan
+   from StackBase 0o1400 walks ~20 well-formed frames/FSBs → crosses the
+   scanner's own frame **FX@0o11070 (NEXTBLOCK=0o11124)** → climbs through the
+   *live interpreter temporaries* at 0o11124+ (the loop's own pushes) →
+   misparses a stale tag-6 word at 0o11174 with NEXTBLOCK=000001 → BF-climbs
+   the ODD lattice from 1 → first odd tag-7 word = 0o6203 → merge-spin.
+   Replayer + full stack dump diff: only the active frame page (0o211xxx) and
+   0o201400-0o202777 differ from the sysout; ALL walked block data is
+   byte-identical to the sysout (VMEM load is correct; vpage 268 ↔ sysout file
+   page 778, contiguous through the stack space).
+6. **The suspected root:** the scanner's frame block is 0o34 (28) words
+   (0o11070..0o11124) but its FNHEADER (VA 0o5054130) says stkmin=0o76 (62)
+   words — the frame is under-allocated, so its temps overflow past NEXTBLOCK
+   and the walk-through-own-frame invariant breaks. Suspect the **microcoded
+   frame allocator** (`opFN`/`\MAKEFRAME` path in LCALLRET.mc) mis-executing on
+   our engine (FNHEADER stkmin/na/pv fetches use the same IFetch/←Id operand
+   machinery where we've had offset bugs; a shift/halving error would also fit
+   0o34-vs-0o76).
+
+**Next steps (concrete):**
+1. Read LCALLRET.mc's opFN/frame-allocation size computation (mirrored source);
+   derive the expected NEXTBLOCK for the \FREESTACKBLOCK call.
+2. Fresh boot with a cycle-gated micro-trace (DORADO_PCDIS) on the opFN handler
+   around the first post-sysout frame allocations; compare each store (BF/FX
+   fields, FSB split) against the source. The mis-computed fetch/store is the
+   engine bug.
+3. Note: frames at 0o11002/0o11026 (sizes 0o20/0o32) may be equally
+   under-sized — check their callees' fnheaders too; if ALL frames are ~half
+   size, hunt a shift; if only interpreted-call frames, hunt the FNHEADER read.
+
+Probe tooling used (all still valid): `DORADO_VM_DUMP` (octal va:count,...),
+`DORADO_VM_FIND_PAIR`, `DORADO_STORAGE_DUMP`, `DORADO_LOAD_TRACE_VA` +
+`DORADO_TRACE_GATE`, `DORADO_IFUDISP_TRACE`, `DORADO_PCDIS=lo,hi` +
+`DORADO_PCDIS_LIMIT`, snapshot resume via
+`--snapshot-in /tmp/dorado-lisp-lyric-m-7b.snap` (+ a COPY of
+`/tmp/dorado-lisp-lyric-m-pchist.pack`; don't mutate the original).
+
+## ===> PREVIOUS (2026-06-30): Lisp `/M` loads DoradoLispMc and
 ## reaches the post-sysout banner loop.
 
 The current Lisp frontier is **not** disk labels, VMEM creation, fake FTP/BSP,
