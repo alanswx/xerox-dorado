@@ -2610,11 +2610,31 @@ static int b_bus(const dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *out)
              * and remains valid until the next fetch by this task. */
         *out = task_md(cpu);
         return 0;
-    case 1: /* RM/STK */
+    case 1: /* RM/STK. Same-instruction Md bypass (HM §3.2 "paths exist to
+             * bypass the register being written", p.77 "the bypass logic
+             * will change the B select from Pd or Md to RM or T"): with
+             * LC=5 ("T←Pd, RM/STK←Md") a B read of RM/STK is bypassed to
+             * Md — the RM write and the B read name the same RSTK address
+             * by construction, and Pd must see the incoming Md for the
+             * Lisp microcode's multi-assign idiom `LTEMP2_ T_ Md`
+             * (LC=5, BSEL=RM/STK, ALUFM="B") to deliver Md into T.
+             * NOTE: LC=4 (RM/STK←Md alone, Pd unused) must NOT bypass —
+             * the eventCounters diagnostic (`rscr_ Md` with BSEL as a
+             * don't-care) regresses if B stops reading the old register,
+             * so the plain-Md write takes a port that leaves B alone. */
+        if (u->lc == 5) {
+            *out = task_md(cpu);
+            return 0;
+        }
         if (rm_a >= CPU_RMSTK_INVALID) return CPU_HALT_UNSUPPORTED_BSEL;
         *out = rm_stk_read(cpu, rm_a);
         return 0;
-    case 2: /* T */
+    case 2: /* T. NOTE: no same-instruction Md bypass here — B←T reads the
+             * OLD T even when LC loads T←Md this cycle (read-before-write).
+             * The Lisp microcode's push idiom PUSHTMD
+             * (`T_ Md, TSP_ (store_ TSP)+1, dbuf_ T`, LC=2, store data =
+             * old T via B) depends on that; bypassing Md here sends the
+             * wrong word to every stack push (Lyric traps to Swat). */
         *out = cpu->T;
         return 0;
     case 3: /* Q (or Q←B with external) */
@@ -3800,6 +3820,35 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
             for (int i = 0; i < 3; i++) event_counter_direct_tick(cpu, 1, 2);
             cpu->evc_events |= EVC_EV_IFUJUMP;
 
+            /* TEMP (Lisp bring-up): log dispatches whose code base (br31)
+             * matches a watched fnheader VA list. DORADO_LISP_FN_TRACE =
+             * comma-separated octal br31 values; each match prints cycle +
+             * pcx + TOS args, capped at 64 lines per watched base. */
+            if (dorado_trace_flag("DORADO_LISP_FN_TRACE") && cpu->mem) {
+                static uint32_t watch[8]; static int nwatch = -1;
+                static unsigned hits[8];
+                if (nwatch < 0) {
+                    const char *p = getenv("DORADO_LISP_FN_TRACE");
+                    nwatch = 0;
+                    while (p && *p && nwatch < 8) {
+                        watch[nwatch++] = (uint32_t)strtoul(p, (char **)&p, 8);
+                        if (*p == ',') p++;
+                    }
+                }
+                uint32_t base = dorado_br_get(cpu->mem, 31);
+                for (int i = 0; i < nwatch; i++) {
+                    if (watch[i] == base && hits[i] < 64) {
+                        hits[i]++;
+                        fprintf(stderr,
+                                "LISPFN cyc=%llu base=%08o pcx=0o%o op=%03o "
+                                "stk1..6=%06o,%06o,%06o,%06o,%06o,%06o\n",
+                                (unsigned long long)dorado_trace_cycle, base,
+                                cpu->ifu_pcx, opcode,
+                                cpu->STK[1], cpu->STK[2], cpu->STK[3],
+                                cpu->STK[4], cpu->STK[5], cpu->STK[6]);
+                    }
+                }
+            }
             if (dorado_trace_flag("DORADO_IFUDISP_TRACE") &&
                 (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
                 uint32_t ifu_br31 = cpu->mem ? dorado_br_get(cpu->mem, 31) : 0;
