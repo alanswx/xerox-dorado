@@ -1,8 +1,27 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
 ## ===> ACTIVE TASK (2026-07-03 latest): ENGINE BUG FOUND AND FIXED — the
-## same-instruction RM-write Md bypass (commit c9aa818). The traced
-## UFN-recursion stack overflow is gone; Lyric still degrades downstream.
+## same-instruction RM-write Md bypass, ALU-B-input only (commits c9aa818 +
+## 9bd7f76). The traced UFN-recursion stack overflow is gone AND the Alto
+## disk boot is intact.
+
+**LAYERING CORRECTION (9bd7f76, supersedes the c9aa818 shape):** the bypass
+must substitute Md ONLY at the **ALU B input** (alu_op call site). The
+b_bus-level version corrupted every direct-B consumer — fatally the
+**LongFetch address high bits B[4:15]** used by the AEmu display DCB walker
+(`LongFetch←T, T_ Pd, Rx_ Md`, ALUFM="A+1" so Pd ignores B), which killed
+the whole Alto disk boot (white screen, FTP never started). Static grep of
+AEmu.mb!2/Initial.mb/Bootstrap.mb shows zero LC5/BSEL1 — but the RUNNING
+AltoMesaDorado.eb display microcode uses it (found by live bypass-firing
+trace with ALUFM logged). Gates all green: make test 12/12, kernel dm!38 +
+UnBug, IfuSimple, Alto disk boot Exec-paints @700M (2126 px), and no
+\DOSTACKOVERFLOW entry through the old Lyric failure window.
+
+Also learned this stretch: the docs' eventCounters dm!5 "PASS @5,355,594"
+is NOT clean-reproducible even at its own commit (c6397d7) — clean builds
+fail at EVENTAHOLDERRLO @4,046,387 there and on main (a git-bisect first
+pointed at e482936 but was invalidated by clean-build verification; beware
+incremental-build staleness across checkouts when bisecting).
 
 **The root cause of the \FREESTACKBLOCK episode (fixed):** HM p.35/p.77 —
 when one microinstruction reads RM/STK onto B AND loads the same slot from
