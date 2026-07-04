@@ -83,6 +83,26 @@ static char *decode_type_text_arg(const char *s)
         case 'r': *d++ = '\r'; break;
         case 't': *d++ = '\t'; break;
         case '\\': *d++ = '\\'; break;
+        case 'x': {
+            /* \xNN — two hex digits, for control characters (e.g. \x04 =
+             * Control-D, Interlisp RAID/break flush-to-top-level). */
+            int hi = (i + 1 < n) ? (unsigned char)s[i + 1] : 0;
+            int lo = (i + 2 < n) ? (unsigned char)s[i + 2] : 0;
+            int hv = (hi >= '0' && hi <= '9') ? hi - '0'
+                   : (hi >= 'a' && hi <= 'f') ? hi - 'a' + 10
+                   : (hi >= 'A' && hi <= 'F') ? hi - 'A' + 10 : -1;
+            int lv = (lo >= '0' && lo <= '9') ? lo - '0'
+                   : (lo >= 'a' && lo <= 'f') ? lo - 'a' + 10
+                   : (lo >= 'A' && lo <= 'F') ? lo - 'A' + 10 : -1;
+            if (hv >= 0 && lv >= 0) {
+                *d++ = (char)((hv << 4) | lv);
+                i += 2;
+            } else {
+                *d++ = '\\';
+                *d++ = 'x';
+            }
+            break;
+        }
         default:
             *d++ = '\\';
             *d++ = c;
@@ -201,14 +221,23 @@ static void type_text(dorado_machine *m, const char *text, uint64_t key_hold)
            (unsigned long long)dorado_machine_cycles(m));
     int nk = 0;
     for (const char *p = text; *p; p++) {
-        int shift = 0;
-        dorado_display_key k = char_to_key(*p, &shift);
+        int shift = 0, ctrl = 0;
+        char tc = *p;
+        /* ASCII control codes (except CR/LF/TAB) become CTRL+letter
+         * chords: \x0E = Ctrl-N (e.g. Interlisp RAID's exit-with-NIL). */
+        if (tc > 0 && tc <= 0x1A && tc != '\n' && tc != '\r' && tc != '\t') {
+            ctrl = 1;
+            tc = (char)(tc - 1 + 'a');
+        }
+        dorado_display_key k = char_to_key(tc, &shift);
         if (k == DORADO_KEY_NONE) continue;
+        if (ctrl) dorado_machine_set_key(m, DORADO_KEY_CTRL, 1);
         if (shift) dorado_machine_set_key(m, DORADO_KEY_LSHIFT, 1);
         dorado_machine_set_key(m, k, 1);
         dorado_machine_run_until(m, dorado_machine_cycles(m) + key_hold);
         dorado_machine_set_key(m, k, 0);
         if (shift) dorado_machine_set_key(m, DORADO_KEY_LSHIFT, 0);
+        if (ctrl) dorado_machine_set_key(m, DORADO_KEY_CTRL, 0);
         dorado_machine_run_until(m, dorado_machine_cycles(m) + key_hold);
         /* Sustained-typing stress: idle a while after every 5 keys
          * (batches), so long scripts still leave quiet gaps between
