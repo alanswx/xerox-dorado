@@ -1952,12 +1952,25 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
         /* Update FaultInfo register state. The first uncleared fault
          * locks in fault_first_srn; EmulatorFault is set when the
          * emulator's reference faulted (XMFaultTask.mc dispatches
-         * NotEmuFault when it is clear). */
-        if (mem->fault_count == 0) {
-            mem->fault_first_srn = (uint8_t)(srn & 0xF);
+         * NotEmuFault when it is clear).
+         *
+         * HM Memory Section p.54: "Map<-, PreFetch<-, or IFU fetches
+         * might record MapTrouble in the pipe but never wake the fault
+         * task. Map faults on IFU fetches are reported instead to the
+         * IFU, which buffers the fault indication until an IFUJump
+         * occurs ... then a trap occurs." FaultCnt/FirstFaultSRN/
+         * EmulatorFault update as part of reporting a fault to the
+         * fault task (p.55), so IFU fetches must not advance them.
+         * DoradoLispMc's LispIFUMapFault trap re-fetches the faulting
+         * word from the processor and its fault task breakpoints at
+         * ManyFaults if a stale IFU-fetch count makes FaultCnt 2. */
+        if (kind != DM_REF_IFETCH) {
+            if (mem->fault_count == 0) {
+                mem->fault_first_srn = (uint8_t)(srn & 0xF);
+            }
+            if (task == 0) mem->fault_emulator = 1;
+            if (mem->fault_count < 0xF) mem->fault_count++;
         }
-        if (task == 0) mem->fault_emulator = 1;
-        if (mem->fault_count < 0xF) mem->fault_count++;
     }
 
     /* ASRN advancement (HM page 52): ASRN-using refs advance only when the

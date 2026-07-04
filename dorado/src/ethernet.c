@@ -1320,6 +1320,18 @@ static int eth_ftp_handle_packet(dorado_ethernet *eth)
         eth->ftp_open = 0;
         return 1;
     case PUP_TYPE_RTP_ABORT:
+        if (ftp_trace()) {
+            size_t nbytes = eth->tx_words[2] > 026
+                ? (size_t)(eth->tx_words[2] - 026) : 0;
+            fprintf(stderr, "FTP_ABORT code=%06o text=\"",
+                    nbytes >= 2 ? eth->tx_words[12] : 0);
+            for (size_t i = 2; i < nbytes; i++) {
+                uint16_t w = eth->tx_words[12 + i / 2];
+                uint8_t c = (uint8_t)((i & 1) ? (w & 0xFF) : (w >> 8));
+                fputc(c >= 040 && c < 0177 ? c : '.', stderr);
+            }
+            fprintf(stderr, "\"\n");
+        }
         eth->ftp_open = 0;
         return 1;
     default:

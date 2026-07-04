@@ -5930,7 +5930,11 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
              * tasking turns on. Tests that read FaultInfo on the
              * faulting task must disable tasking before the fault
              * (test_cpu_fault_info_visible). */
-            if (recorded_fault && !dorado_mcr_nowake(cpu->mem)) {
+            /* HM Memory Section p.54: map faults on IFU fetches are
+             * reported to the IFU (trap at dispatch), never to the
+             * fault task. */
+            if (recorded_fault && kind != DM_REF_IFETCH &&
+                !dorado_mcr_nowake(cpu->mem)) {
                 cpu->wakeup_pending |= (uint16_t)(1u << 15);
             }
         }
