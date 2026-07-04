@@ -43,15 +43,27 @@ IfuSimple, Alto disk boot 2126 px @700M, Galaxian 121549.
 - Raid sources mirrored: Raid.bcpl + RaidPrint/RaidProcs/RaidStack (+
   KbdIoSubrs, Raid.decl) under chm/lisp/fugue.6/bcpl/lispbcplsources.dm!1_/.
 
-**In flight / next:**
-1. ^N-spam probe (does the bad-array loop terminate after finitely many
-   blocks?) and a fresh boot with the OTHER sysout
-   (`chm/lisp/current/FULL.SYSOUT!2` + its matched DORADOLISPMC.EB) — a
-   cleanly-saved heap may boot with no Raid at all.
-2. If the errors persist across sysouts, suspect the heap/array walker's
-   microcode semantics next (another .UNBOX-class engine gap) — trace the
-   reclaimer's walk like the stack scan was traced.
-3. The games' unrelated blocker remains ethernet completion timing.
+**RAID-marching findings (2026-07-04 late):**
+- The ^D reset + ^N-continue sequence PROGRESSES: after ~40 ^Ns the errors
+  moved from `Invalid address {1,101700}` through the bad-array blocks to
+  `Invalid address {36,103626}` — each a reference into a vpage PROVABLY
+  absent from the sysout's FPTOVP (vp 7815 sits in the hole 7743→12144).
+  Working theory: \RAIDEXITFN's reset sweeps dead stack/heap objects and
+  errors once per stale reference — possibly finite. A 200-^N mega-barrage
+  is the test (in flight).
+- FULL.SYSOUT!2 rejected early as predicted (IFPAGE key 032366 ≠ Lyric's
+  044712 — needs its matched LISP.RUN!3 + DORADOLISPMC.EB from
+  chm/lisp/current/ inserted into the pack; a future fixture variant).
+- `--click X,Y` added (headless mouse; cursor visibly tracks) — but RAID's
+  keyboard grab is BCPL-level TTY-global; clicking can't bypass an active
+  Raid.
+- Still open: whether the many stale references are authentic sysout scars
+  (evidence: two independent FPTOVP holes) or a heap-walk misread on our
+  engine (evidence: they keep coming). If the mega-barrage converges to a
+  quiet Exec, "authentic scars" wins and the recipe is just longer; if it
+  never converges, trace the sweep's walk (same methodology as the stack
+  scan) for an .UNBOX-class engine gap.
+- The games' unrelated blocker remains ethernet completion timing.
 
 **LAYERING CORRECTION (9bd7f76, supersedes the c9aa818 shape):** the bypass
 must substitute Md ONLY at the **ALU B input** (alu_op call site). The
