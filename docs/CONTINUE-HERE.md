@@ -21,14 +21,37 @@ standard recipe (June-30 pack lineage + lisp.run/M; see the 2026-06-30
 section). Gates all green: make test 12/12, kernel dm!38 + UnBug,
 IfuSimple, Alto disk boot 2126 px @700M, Galaxian 121549.
 
-**Next target:** the Prompt Window shows `Raid: "Invalid address"
-{1,101700}` — a stack-space address (hi=1) beyond EndOfStack (0o46376),
-raised during init but non-fatal (the desktop still comes up). Chase with
-the established playbook (LISPFN watches — note the hook misses one
-dispatch path — gated IFUDISP/PCDIS, VM dumps vs the sysout, LLSTK/LLFAULT
-sources). Also line up: keyboard input to the Exec window (the Alto/Cedar
-keyboard paths work; Lisp keyboard = IOPage seeding in machine.c), and the
-games' unrelated blocker (ethernet completion timing).
+**The `Raid: "Invalid address" {1,101700}` — 2026-07-04 findings:**
+- NOT caused by the \FREESTACKBLOCK scan (that episode was re-traced: the
+  wrapped scan legitimately found a 6734-word free chain at 0o14120 —
+  internally consistent FSBs — split it, returned, execution continued in
+  the new block; ESP=0o21054 afterward ✓).
+- The faulting reference: a stale stack pointer 0o101700 read from
+  heap-resident data and passed to an LLSTK type-checker (fnheader
+  0o5053404, caller 0o5331240 does GETBASEN(x,1) → 0o101700 → FN1). The
+  page {1,101700} is **provably absent from the sysout's FPTOVP** (offline
+  table check: no file page maps vpage 0x183) — the saving machine's stack
+  once extended there and the page was unmapped before saving. The fresh
+  ALL-fixed-engine boot reproduces the identical message, so it is not a
+  poisoned-snapshot fossil.
+- RAID is fully interactive over the emulated keyboard (see the --type
+  \xNN/CTRL commit): `S/E/T/A/...` echo and execute; **^N = continue
+  (retries the fault — loops)**; **^D + Return = "Return to top level"**
+  (Confirm() wants a bare Return) — after which the next layer surfaces:
+  `"Bad array block reclaimed--continue with ↑N but save state ASAP"`,
+  which also loops on ^N (same block or successive blocks — TBD).
+- Raid sources mirrored: Raid.bcpl + RaidPrint/RaidProcs/RaidStack (+
+  KbdIoSubrs, Raid.decl) under chm/lisp/fugue.6/bcpl/lispbcplsources.dm!1_/.
+
+**In flight / next:**
+1. ^N-spam probe (does the bad-array loop terminate after finitely many
+   blocks?) and a fresh boot with the OTHER sysout
+   (`chm/lisp/current/FULL.SYSOUT!2` + its matched DORADOLISPMC.EB) — a
+   cleanly-saved heap may boot with no Raid at all.
+2. If the errors persist across sysouts, suspect the heap/array walker's
+   microcode semantics next (another .UNBOX-class engine gap) — trace the
+   reclaimer's walk like the stack scan was traced.
+3. The games' unrelated blocker remains ethernet completion timing.
 
 **LAYERING CORRECTION (9bd7f76, supersedes the c9aa818 shape):** the bypass
 must substitute Md ONLY at the **ALU B input** (alu_op call site). The
