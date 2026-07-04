@@ -212,8 +212,15 @@ typedef struct key_chord_event {
     int typed;
 } key_chord_event;
 
+typedef struct click_event {
+    int x, y;
+    uint64_t at;
+    int done;
+} click_event;
+
 #define MAX_TYPE_EVENTS 16
 #define MAX_KEY_CHORD_EVENTS 16
+#define MAX_CLICK_EVENTS 16
 
 static void type_text(dorado_machine *m, const char *text, uint64_t key_hold)
 {
@@ -331,6 +338,8 @@ int main(int argc, char **argv)
     int type_event_count = 0;
     key_chord_event key_chord_events[MAX_KEY_CHORD_EVENTS];
     int key_chord_event_count = 0;
+    click_event click_events[MAX_CLICK_EVENTS];
+    int click_event_count = 0;
     int last_type_event = -1;
     int last_type_can_update = 0;
     int pending_type_at = 0;
@@ -414,6 +423,26 @@ int main(int argc, char **argv)
                 (type_event){ .text = text, .at = type_at, .typed = 0 };
             last_type_event = type_event_count++;
             last_type_can_update = !pending_type_at;
+            pending_type_at = 0;
+        } else if (!strcmp(a, "--click") && i + 1 < argc) {
+            /* --click X,Y — press+release the left mouse button at display
+             * coordinates (X,Y) at the pending --type-at cycle. Drives the
+             * Interlisp-D desktop (e.g. click the Exec window for TTY
+             * focus) without the SDL frontend. */
+            if (click_event_count >= MAX_CLICK_EVENTS) {
+                fprintf(stderr, "dorado: too many --click events (max %d)\n",
+                        MAX_CLICK_EVENTS);
+                return 2;
+            }
+            int cx = 0, cy = 0;
+            if (sscanf(argv[++i], "%d,%d", &cx, &cy) != 2) {
+                fprintf(stderr, "dorado: --click wants X,Y (decimal)\n");
+                return 2;
+            }
+            click_events[click_event_count] =
+                (click_event){ .x = cx, .y = cy, .at = type_at, .done = 0 };
+            click_event_count++;
+            last_type_can_update = 0;
             pending_type_at = 0;
         } else if (!strcmp(a, "--key-chord") && i + 1 < argc) {
             if (key_chord_event_count >= MAX_KEY_CHORD_EVENTS) {
@@ -537,6 +566,30 @@ int main(int argc, char **argv)
                         dorado_machine_destroy(m);
                         return 2;
                     }
+                }
+            }
+            for (int ce = 0; ce < click_event_count; ce++) {
+                if (!click_events[ce].done &&
+                    dorado_machine_cycles(m) >= click_events[ce].at) {
+                    click_events[ce].done = 1;
+                    printf("dorado: click (%d,%d) at cyc %llu\n",
+                           click_events[ce].x, click_events[ce].y,
+                           (unsigned long long)dorado_machine_cycles(m));
+                    /* Move first so the tracking software sees the cursor
+                     * arrive, then press-hold-release the left button. */
+                    dorado_machine_set_mouse(m, click_events[ce].x,
+                                             click_events[ce].y, 0);
+                    dorado_machine_run_until(m,
+                        dorado_machine_cycles(m) + 2000000ull);
+                    dorado_machine_set_mouse(m, click_events[ce].x,
+                                             click_events[ce].y,
+                                             DORADO_MOUSE_LEFT);
+                    dorado_machine_run_until(m,
+                        dorado_machine_cycles(m) + key_hold);
+                    dorado_machine_set_mouse(m, click_events[ce].x,
+                                             click_events[ce].y, 0);
+                    dorado_machine_run_until(m,
+                        dorado_machine_cycles(m) + 1000000ull);
                 }
             }
         }
