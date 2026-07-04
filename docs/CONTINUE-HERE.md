@@ -81,6 +81,28 @@ IfuSimple, Alto disk boot 2126 px @700M, Galaxian 121549.
   DORADOLISPMC.EB + FULL.SYSOUT!2, IFPAGE key 032366) — FULL.SYSOUT was
   rejected by the Lyric-era lisp.run on the current pack (key mismatch),
   not proven bad.
+- **2026-07-04: the matched `current/` set WORKS through netload + world
+  start, and exposed + fixed a real HM-grounded engine bug (519f30d).**
+  Chain: `make run-lisp-lyric-remote-long` with LISP_RUN_FILE/LISP_SYMS_FILE/
+  LISP_MC_FILE/LISP_INIT_FILE/LISP_SYSOUT_FILE overridden to
+  `../chm/lisp/current/*` builds the pack, netloads FULL.SYSOUT (the FTP
+  close-with-Abort is the 1983 loader's SUCCESS path — RemoteVmemInit1.bcpl
+  deliberately aborts the BSP after the last useful page), LoadRams the
+  1983 DoradoLispMc.eb and starts the Lisp world. It then froze forever:
+  the fault task parked at its ManyFaults breakpoint (`Branch[.],
+  Breakpoint`, LFAULTS.mc) because our engine incremented FaultCnt on
+  IFU-fetch map faults. HM Memory Section p.54: IFU-fetch map faults never
+  wake the fault task and must not advance FaultCnt — the LispIFUMapFault
+  trap re-fetches from the processor precisely so the fault task sees
+  exactly ONE fault. Fix: `kind != DM_REF_IFETCH` guards in memory.c
+  (FaultCnt/FirstFaultSRN/EmulatorFault) and cpu.c (task-15 wakeup).
+  Verified: make test, Lyric desktop byte-identical (191,993 px incl. the
+  {1,101700} scar — sysout data, unaffected as expected), kernel/IfuSimple/
+  memMisc diagnostics PASS (eventCounters dm!5 = known pre-existing fail).
+- **New 1983-world frontier:** FULL.SYSOUT boots to a live RAID prompt:
+  `Raid: Error in uninterruptable system code -- ^N to continue into
+  error handler / -1 / @` at ~4.5B cycles. Next: `\x0e` at the prompt,
+  then identify the uninterruptable-code error.
 - The games' unrelated blocker remains ethernet completion timing.
 
 **LAYERING CORRECTION (9bd7f76, supersedes the c9aa818 shape):** the bypass
