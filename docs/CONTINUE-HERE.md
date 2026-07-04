@@ -23,6 +23,22 @@ fail at EVENTAHOLDERRLO @4,046,387 there and on main (a git-bisect first
 pointed at e482936 but was invalidated by clean-build verification; beware
 incremental-build staleness across checkouts when bisecting).
 
+**NEW FRONTIER (post-fix 9B boot, /tmp/lisp-boot2-*):** with the corrected
+bypass, the fresh Lyric boot reaches a NEW endpoint — between the 3.5B and
+4B screenshots (the Write IM / Lisp-start era) the screen becomes the Alto
+**Swat: "CallSwat from 56605 / Memory map confused / Try triple booting to
+reinitialize map"** (11546 px, stable to 9B; snapshot at 9B =
+/tmp/lisp-boot2-9b.snap). Every AEmu-world bypass firing site has a
+B-independent ALUFM op ("A+1"/"A−1"/"0"), so the fix cannot have perturbed
+the Alto phase — the likely story is that Lisp now runs FURTHER (working
+LLSH1), exits/gives up somewhere new, and the returning Alto OS finds its
+map clobbered. NEXT: rerun the boot to ~3.6B with --snapshot-out, then
+forensically walk the Lisp phase to its giveup (same loop as the
+\FREESTACKBLOCK investigation: LISPFN watches on the failing region,
+IFUDISP/PCDIS gated windows, VM dumps against the sysout). Boot runs have
+small cycle variance run-to-run (±10K observed June 30) — expect the
+transition cycle to shift slightly.
+
 **The root cause of the \FREESTACKBLOCK episode (fixed):** HM p.35/p.77 —
 when one microinstruction reads RM/STK onto B AND loads the same slot from
 Md (LC=5), hardware bypasses the B read to the incoming Md. Micro's
