@@ -5308,7 +5308,25 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
      * register value (b). LC=4 (RM←Md alone, Pd unused) is left alone:
      * eventCounters' `rscr_ Md` encodes BSEL as a don't-care and its
      * hold-count oracle expects the register on B. */
-    uint16_t alu_b = (u->bsel == 1 && u->lc == 5) ? task_md(cpu) : b;
+    uint16_t alu_b = (u->bsel == 1 && u->lc == 5 &&
+                      !(u->block && cpu->ctask == 0))
+                     ? task_md(cpu) : b;
+    /* Gated diagnostic (DORADO_BYPASS_TRACE): log bypass firings that
+     * change the ALU B value — the tool that located both the AEmu
+     * LongFetch conflict and the BLOCK/StackSelect exclusion. */
+    if (u->bsel == 1 && u->lc == 5 && alu_b != b &&
+        dorado_trace_flag("DORADO_BYPASS_TRACE")) {
+        static int bp_n = 0;
+        if (bp_n < 60) {
+            bp_n++;
+            fprintf(stderr,
+                    "BYPASS cyc=%llu task=%o pc=0o%o aluf=%02o alufm=%02o "
+                    "b=%06o md=%06o\n",
+                    (unsigned long long)dorado_trace_cycle,
+                    cpu->ctask & 017, cpu->real_PC & 07777,
+                    u->aluf & 017, alufm_entry & 077, b, alu_b);
+        }
+    }
     uint16_t alu = alu_op(alufm_entry, a, alu_b, carry20,
                           &new_carry, &new_ovf, &is_arith);
     /* The live ALU carry-out of THIS instruction (0 for logical ops):
