@@ -2610,22 +2610,14 @@ static int b_bus(const dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *out)
              * and remains valid until the next fetch by this task. */
         *out = task_md(cpu);
         return 0;
-    case 1: /* RM/STK. Same-instruction Md bypass (HM §3.2 "paths exist to
-             * bypass the register being written", p.77 "the bypass logic
-             * will change the B select from Pd or Md to RM or T"): with
-             * LC=5 ("T←Pd, RM/STK←Md") a B read of RM/STK is bypassed to
-             * Md — the RM write and the B read name the same RSTK address
-             * by construction, and Pd must see the incoming Md for the
-             * Lisp microcode's multi-assign idiom `LTEMP2_ T_ Md`
-             * (LC=5, BSEL=RM/STK, ALUFM="B") to deliver Md into T.
-             * NOTE: LC=4 (RM/STK←Md alone, Pd unused) must NOT bypass —
-             * the eventCounters diagnostic (`rscr_ Md` with BSEL as a
-             * don't-care) regresses if B stops reading the old register,
-             * so the plain-Md write takes a port that leaves B alone. */
-        if (u->lc == 5) {
-            *out = task_md(cpu);
-            return 0;
-        }
+    case 1: /* RM/STK. NOTE: this is the raw register read used by every
+             * B consumer that samples B directly (LongFetch address high
+             * bits, dbuf store data, Q←B, R-branch conditions). The
+             * same-instruction Md bypass for LC=5 (HM §3.2/p.77) applies
+             * only to the ALU B INPUT and is handled at the alu_op call
+             * site in execute_uinstr — substituting here corrupts
+             * LongFetch addresses (the AEmu display DCB walker's
+             * `LongFetch←T, T_ Pd, Rx_ Md` takes B[4:15] as VA[4:15]). */
         if (rm_a >= CPU_RMSTK_INVALID) return CPU_HALT_UNSUPPORTED_BSEL;
         *out = rm_stk_read(cpu, rm_a);
         return 0;
@@ -5302,7 +5294,22 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
     }
     uint8_t new_carry = cpu->alu_carry, new_ovf = cpu->alu_overflow;
     uint8_t is_arith = 0;
-    uint16_t alu = alu_op(alufm_entry, a, b, carry20,
+    /* Same-instruction Md bypass (HM §3.2 "paths exist to bypass the
+     * register being written"; p.77 "the bypass logic will change the B
+     * select from Pd or Md to RM or T"): when this instruction reads
+     * RM/STK onto B (BSEL=1) while its LC=5 ("T←Pd, RM/STK←Md") loads the
+     * same RSTK slot from Md, the ALU's B input sees the incoming Md.
+     * Micro's multi-assign idiom `LTEMP2_ T_ Md` (LC=5 + BSEL=RM/STK +
+     * ALUFM="B") requires this to deliver Md into T via Pd — without it,
+     * Interlisp-D's .UNBOX1 mis-unboxes every SMALLP and UFN-recurses
+     * into a stack overflow. The bypass applies ONLY to the ALU B input:
+     * consumers that sample B directly — the LongFetch address high bits
+     * (AEmu's display DCB walker), dbuf store data, Q←B — keep the raw
+     * register value (b). LC=4 (RM←Md alone, Pd unused) is left alone:
+     * eventCounters' `rscr_ Md` encodes BSEL as a don't-care and its
+     * hold-count oracle expects the register on B. */
+    uint16_t alu_b = (u->bsel == 1 && u->lc == 5) ? task_md(cpu) : b;
+    uint16_t alu = alu_op(alufm_entry, a, alu_b, carry20,
                           &new_carry, &new_ovf, &is_arith);
     /* The live ALU carry-out of THIS instruction (0 for logical ops):
      * this is the "ALUcarry" consumed by the Multiply function and
