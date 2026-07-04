@@ -57,12 +57,30 @@ IfuSimple, Alto disk boot 2126 px @700M, Galaxian 121549.
 - `--click X,Y` added (headless mouse; cursor visibly tracks) — but RAID's
   keyboard grab is BCPL-level TTY-global; clicking can't bypass an active
   Raid.
-- Still open: whether the many stale references are authentic sysout scars
-  (evidence: two independent FPTOVP holes) or a heap-walk misread on our
-  engine (evidence: they keep coming). If the mega-barrage converges to a
-  quiet Exec, "authentic scars" wins and the recipe is just longer; if it
-  never converges, trace the sweep's walk (same methodology as the stack
-  scan) for an .UNBOX-class engine gap.
+- The 200-^N mega-barrage FIXED-POINTS at `Invalid address {36,103626}` —
+  every ^N re-errors identically (the earlier progression through the
+  bad-array phase was real, but this one loops).
+- **{36,103626} provenance (traced end-to-end this session):** the vpage
+  (7815) is genuinely absent from the sysout FPTOVP (hole 7743→12144), BUT
+  the value itself is RUNTIME-COMPUTED (the sysout holds zeros at the
+  stack cells that carry it): it is the result of an IDIFFERENCE inside a
+  signed-offset pointer-add helper (fnheader 0o4661534, atom 0o601;
+  computes `x + y − 65536` with hi-word borrow — \ADDBASE-style negative
+  displacement), i.e. wild INPUTS from its caller. Call chain at the fault:
+  fn@0o4660000 → fn@0o4741130 (does GETBITS on the result at its pcx 0o57;
+  faulting micro pc 0o1451) → 0o4661534. NEXT SESSION: identify
+  fn@0o4660000/0o4741130 (fnheader word5 atoms; disassemble with
+  /tmp/lispops.json + the established offline tooling) and trace the (base,
+  offset) args one more hop — either an authentic stale heap object or an
+  engine misread will fall out. Fault reproducer: resume
+  /tmp/pre-overflow.snap + `--type '\x04\r' --type-at 5800000000 --type
+  <20×\x0e> --type-at 6300000000`; first {36,103626} fault at cyc
+  ~6,369,061,154 (FAULT_TRACE=all shows it; timings shift slightly).
+- Alternative strategy (may sidestep the damaged sysout entirely): build a
+  pack with the MATCHED `chm/lisp/current/` set (LISP.RUN!3 +
+  DORADOLISPMC.EB + FULL.SYSOUT!2, IFPAGE key 032366) — FULL.SYSOUT was
+  rejected by the Lyric-era lisp.run on the current pack (key mismatch),
+  not proven bad.
 - The games' unrelated blocker remains ethernet completion timing.
 
 **LAYERING CORRECTION (9bd7f76, supersedes the c9aa818 shape):** the bypass
