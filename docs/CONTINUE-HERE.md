@@ -1,9 +1,34 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
-## ===> ACTIVE TASK (2026-07-03 latest): ENGINE BUG FOUND AND FIXED — the
-## same-instruction RM-write Md bypass, ALU-B-input only (commits c9aa818 +
-## 9bd7f76). The traced UFN-recursion stack overflow is gone AND the Alto
-## disk boot is intact.
+## ===> MILESTONE (2026-07-04): INTERLISP-D BOOTS TO ITS DESKTOP.
+## The Md-bypass fix (c9aa818 + 9bd7f76 + 29c7ad8) brings Lyric all the way
+## up: gray desktop + "Prompt Window" + "Exec (XCL)" window (191,993 px).
+
+**The complete bypass semantics (commit 29c7ad8; six-witness triangulation
+in its message):** with LC=5 ("T←Pd, RM/STK←Md") and BSEL=RM/STK, the ALU B
+input sees the incoming Md — EXCEPT when BLOCK is set in the emulator task
+(StackSelect): STK addressing gives the read and the write different cells,
+so B keeps the old value (DoradoLispMc's resident Nova/BCPL emulator, pc
+0o3321, depends on it — bypassing there Swats lisp.run's BCPL side).
+All other B consumers (LongFetch address bits, dbuf, Q←B, R conditions)
+always sample the raw register. `DORADO_BYPASS_TRACE` logs value-changing
+firings.
+
+**Verification:** resuming /tmp/pre-overflow.snap past the old
+\FREESTACKBLOCK failure point reaches the full desktop by 5.7B cycles
+(/tmp/lisp-blockfix.pgm). A fresh end-to-end boot validation is the
+standard recipe (June-30 pack lineage + lisp.run/M; see the 2026-06-30
+section). Gates all green: make test 12/12, kernel dm!38 + UnBug,
+IfuSimple, Alto disk boot 2126 px @700M, Galaxian 121549.
+
+**Next target:** the Prompt Window shows `Raid: "Invalid address"
+{1,101700}` — a stack-space address (hi=1) beyond EndOfStack (0o46376),
+raised during init but non-fatal (the desktop still comes up). Chase with
+the established playbook (LISPFN watches — note the hook misses one
+dispatch path — gated IFUDISP/PCDIS, VM dumps vs the sysout, LLSTK/LLFAULT
+sources). Also line up: keyboard input to the Exec window (the Alto/Cedar
+keyboard paths work; Lisp keyboard = IOPage seeding in machine.c), and the
+games' unrelated blocker (ethernet completion timing).
 
 **LAYERING CORRECTION (9bd7f76, supersedes the c9aa818 shape):** the bypass
 must substitute Md ONLY at the **ALU B input** (alu_op call site). The
