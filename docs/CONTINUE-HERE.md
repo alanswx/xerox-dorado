@@ -99,6 +99,25 @@ IfuSimple, Alto disk boot 2126 px @700M, Galaxian 121549.
   Verified: make test, Lyric desktop byte-identical (191,993 px incl. the
   {1,101700} scar — sysout data, unaffected as expected), kernel/IfuSimple/
   memMisc diagnostics PASS (eventCounters dm!5 = known pre-existing fail).
+- **The vp-8206 fault is NONDETERMINISTIC across runs (2026-07-05).** A
+  clean boot with DORADO_STK_ON_FAULT=0o20016 (the committed reliable
+  fault-triggered STK-dump probe) ran to 3.717B and produced ZERO vp-8206
+  faults — final display = 2907 px vs 3419/3768 px in the runs that DO panic.
+  So the boot diverges run-to-run and the fault does not always occur. This
+  reframes the hypothesis: the bad pointer to vp 8206 likely depends on
+  TIMING-SENSITIVE state (a race / timing divergence), not a purely
+  deterministic data error — consistent with the whole fidelity-timing
+  theme. Practical consequence: catching the fault for a probe needs either
+  several attempts until it reproduces, or snapshotting AT a run where it
+  fired then resuming (both expensive at ~3 min/run). Probe recipe when it
+  does fire: `DORADO_STK_ON_FAULT=0o20016` (no FAULT_TRACE needed) dumps
+  STK[StkP-8..+3] + pc at the fault.
+- **Gotcha that cost this session hours: stderr is BLOCK-BUFFERED to files.**
+  A redirected run shows a 0-byte log for most of its life and only flushes
+  at exit (or when the buffer fills) — it is NOT stuck. Do NOT kill a
+  "silent" run; wait for it to exit (or add periodic `--shot-every` output,
+  or fflush). Several runs this session were killed prematurely on this
+  false signal.
 - **Iteration/tooling note for whoever resumes (learned the hard way).**
   Live tracing of the storm window (~3.716B cycles) is impractical by full
   replay: each run to 3.7B is ~3 min, and DORADO_PCDIS over a cycle-gated
