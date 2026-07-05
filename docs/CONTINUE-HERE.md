@@ -99,6 +99,26 @@ IfuSimple, Alto disk boot 2126 px @700M, Galaxian 121549.
   Verified: make test, Lyric desktop byte-identical (191,993 px incl. the
   {1,101700} scar — sysout data, unaffected as expected), kernel/IfuSimple/
   memMisc diagnostics PASS (eventCounters dm!5 = known pre-existing fail).
+- **REPRODUCTION RECIPE + the `seq` gotcha that wasted hours (2026-07-05).**
+  To hunt for a DORADO_FAKE_TIME value that reproduces the vp-8206 fault:
+  loop `DORADO_FAKE_TIME=$t DORADO_STK_ON_FAULT=0o20016 DORADO_DISPM_PRESENT=1
+  ./build/dorado ... --cycles 3717000000` over integer `t`, grep the log for
+  `STKDUMP` (= hit). **CRITICAL: do NOT generate `t` with macOS `seq` for
+  values ~1.78e9 — it emits SCIENTIFIC NOTATION ("1.78325e+09"), which
+  strtoll parses as 1, so every iteration silently tests DORADO_FAKE_TIME=1
+  (garbage). Use a bash C-style `for ((t=...; t<=...; t++))` loop.** This
+  bug invalidated two full sweeps this session (all "no fault" results were
+  meaningless). Confirmed lisp-flt (the one definite fault, start
+  1783247910) read time() early; its faulting value is ~1783247910 + boot
+  delay, but the delay is load-dependent and lisp-flt's exact value wasn't
+  logged (ETHTIME_TRACE added after). Valid values tried so far (all
+  no-fault): 1e9, 1783247912, 1783247914, 1783251520, and 1783247905..912.
+  Each boot is ~3 min IDLE but ~7 min when the host is busy (Chrome/RustDesk/
+  video etc. — watch `uptime` load; a full 50-value sweep needs an IDLE
+  machine). Next if sweeping stays fruitless: add cycle-logging to the
+  ETHTIME print to learn the exact cycle time() is read, or (better) find
+  what Lisp computation consumes the clock and why it steers vp 8206 onto
+  the stack — that's the real root, and needs the DoradoLispMc symbol map.
 - **ROOT OF THE NONDETERMINISM FOUND + FIXED (2026-07-05): the sole
   wall-clock input is `time(NULL)` in ethernet.c (the NetExec date/time
   response); no rand/srand anywhere.** It is called ONCE, early in boot
