@@ -5921,6 +5921,29 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                             u->iw0 & 0777777, u->iw1 & 0777777,
                             u->iw2 & 0777777);
                 }
+                /* DORADO_STK_ON_FAULT="0oPAGE": independent of FAULT_TRACE
+                 * (so it can run WITHOUT the all-faults flood that crawls the
+                 * boot). When the faulting VA is in the given virtual page
+                 * (va>>8), dump the hardware STK around StkP + the faulting
+                 * pc. Reliable probe for the frame holding the bad pointer
+                 * the emulator is dereferencing. */
+                const char *sf = getenv("DORADO_STK_ON_FAULT");
+                if (sf && sf[0]) {
+                    unsigned wantpg = (unsigned)strtol(sf, NULL, 0);
+                    if (((va >> 8) & 0xFFFFF) == wantpg) {
+                        fprintf(stderr, "STKDUMP cyc=%llu pc=0o%o task=%o "
+                                "va=0o%o StkP=%o T=%06o Q=%06o:",
+                                (unsigned long long)dorado_trace_cycle,
+                                cpu->real_PC, cpu->ctask & 017,
+                                va & 0x0FFFFFFFu, cpu->StkP,
+                                cpu->T & 0177777, cpu->Q & 0177777);
+                        for (int s = -8; s <= 3; s++) {
+                            int sa = (cpu->StkP + s) & 0xFF;
+                            fprintf(stderr, " [%+d]=%06o", s, cpu->STK[sa]);
+                        }
+                        fprintf(stderr, "\n");
+                    }
+                }
             }
             /* HM page 46: a memory fault wakes up the fault task
              * (task 15). We propagate via wakeup_pending; the next
