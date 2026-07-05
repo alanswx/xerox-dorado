@@ -99,7 +99,32 @@ IfuSimple, Alto disk boot 2126 px @700M, Galaxian 121549.
   Verified: make test, Lyric desktop byte-identical (191,993 px incl. the
   {1,101700} scar — sysout data, unaffected as expected), kernel/IfuSimple/
   memMisc diagnostics PASS (eventCounters dm!5 = known pre-existing fail).
-- **The vp-8206 fault is NONDETERMINISTIC across runs (2026-07-05).** A
+- **ROOT OF THE NONDETERMINISM FOUND + FIXED (2026-07-05): the sole
+  wall-clock input is `time(NULL)` in ethernet.c (the NetExec date/time
+  response); no rand/srand anywhere.** It is called ONCE, early in boot
+  (before ~700M cycles), and its value flows into Lisp init. Pinning it with
+  **DORADO_FAKE_TIME=<unix-seconds>** makes the WHOLE boot deterministic —
+  PROVEN: two boots at the same pinned time gave byte-identical results
+  (2907 px). So the vp-8206 fault is a deterministic FUNCTION of the
+  time() value: some values fault, others (incl. every one tried midday:
+  1e9, and ~1783247912..1783247930) give a clean 2907-px no-fault boot.
+  The morning runs that faulted (e.g. lisp-flt @06:38, which showed 76
+  page-8206 faults) got a faulting time() value that was NOT logged (the
+  DORADO_ETHTIME_TRACE logging was added after). Verified my session's
+  edits are behavior-neutral (git diff 519f30d..HEAD on cpu/memory/ethernet/
+  machine = only env-gated additions), so the fault IS reproducible at the
+  right value — it's a search problem, not a regression.
+  - **To reproduce for debugging:** sweep DORADO_FAKE_TIME values (the boot
+    is ~3 min each but now DETERMINISTIC, so each value is a definitive
+    test) with DORADO_STK_ON_FAULT=0o20016; a STKDUMP line = a hit, and that
+    time value is then a PERMANENT reproducer. DORADO_ETHTIME_TRACE prints
+    the value time() returns. Faulting-time window unknown; morning wall-clock
+    faulted but the exact second/value is lost. A coarse-then-bisect sweep
+    over a wide range is the way to find one.
+  - **Bigger picture:** DORADO_FAKE_TIME is a general testability win —
+    it removes the only source of run-to-run boot variance, useful for ALL
+    regression/debugging work, not just this fault.
+- **(superseded observation) The vp-8206 fault looked NONDETERMINISTIC.** A
   clean boot with DORADO_STK_ON_FAULT=0o20016 (the committed reliable
   fault-triggered STK-dump probe) ran to 3.717B and produced ZERO vp-8206
   faults — final display = 2907 px vs 3419/3768 px in the runs that DO panic.
