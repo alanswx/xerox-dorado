@@ -99,10 +99,50 @@ IfuSimple, Alto disk boot 2126 px @700M, Galaxian 121549.
   Verified: make test, Lyric desktop byte-identical (191,993 px incl. the
   {1,101700} scar — sysout data, unaffected as expected), kernel/IfuSimple/
   memMisc diagnostics PASS (eventCounters dm!5 = known pre-existing fail).
-- **New 1983-world frontier:** FULL.SYSOUT boots to a live RAID prompt:
-  `Raid: Error in uninterruptable system code -- ^N to continue into
-  error handler / -1 / @` at ~4.5B cycles. Next: `\x0e` at the prompt,
-  then identify the uninterruptable-code error.
+- **New 1983-world frontier — diagnosed 2026-07-05.** FULL.SYSOUT boots
+  into Lisp and reaches a live RAID prompt: `Raid: Error in uninterruptable
+  system code -- ^N to continue into error handler / -1 / @` at ~4.5B
+  cycles, then `Raid: Called from uCode 4754Q / 5204Q` on each `^N`. This
+  is Interlisp machine-panic `\MP.UNINTERRUPTABLE` (22Q, LLPARAMS): a page
+  fault taken inside interrupt-disabled (tasking-off) system code. Root
+  cause traced:
+  - A microcode scan at real IM pc=0o4130 (`Fetch<-RM/STK`, MemBase=
+    LScratchBR) reads consecutive VM words that are all VACANT — the fault
+    map index is CONSTANT (idx=0o020016) across the whole storm, i.e. the
+    same unbacked page re-faulting word-by-word (76+ times). Because the
+    code runs with tasking off, the fault task never redirects the
+    emulator (HM p.55: "the task that faulted is not blocked; hold
+    terminates as though no fault had occurred unless the fault task
+    changes its PC"), so the loop continues on garbage and Lisp later
+    panics `\MP.UNINTERRUPTABLE`.
+  - The scan reaches **vpage 8206** (va 0o10007xxx) but FULL.SYSOUT's
+    `IFPNActivePages` (IFPAGE word 0o24) = **6208** = exactly its file
+    content (6208 512-byte pages). So the scan runs ~2000 pages PAST the
+    backed image — its address register holds a mis-computed/out-of-bounds
+    value. No correctly-bounded scan reaches vpage 8206.
+  - **Lyric never does this.** A full-boot fault census of the clean Lyric
+    world: 1662 faults, ALL demand-paging at pc=0o6654 (1286) / 0o6343
+    (371) that resolve; ZERO at pc=0o4130, ZERO at va 0o10007xxx. So the
+    out-of-bounds scan is specific to the FULL.SYSOUT world's data/state.
+  - OPEN: whether the bad scan bound is (a) a subtle engine fault-recovery
+    bug that corrupts a pointer only under FULL.SYSOUT's init path, or
+    (b) FULL.SYSOUT needing a different VM/config than my fixture provides
+    (createfile VMEM spec 15002D; the sysout expects some specific size).
+    Next probe: trace the register feeding pc=0o4130's address back to the
+    fetch that loaded it (LOAD trace + the few hundred cycles before the
+    storm starts at ~3.716B), and check whether that source read was itself
+    a fault-recovered page (stale-Md suspicion).
+  - Reproducer: `make run-lisp-lyric-remote-long` with LISP_RUN_FILE/
+    LISP_SYMS_FILE/LISP_MC_FILE/LISP_INIT_FILE/LISP_SYSOUT_FILE set to
+    `../chm/lisp/current/*`; storm at cyc ~3.716-3.718B, panic on screen
+    ~4.5B. FTP server now prints `FTP_ABORT code=... text=...` under
+    DORADO_FTP_TRACE.
+- **Usable-Lisp status:** the Lyric world remains the closest thing to a
+  usable Lisp (boots to desktop: Prompt Window + Exec (XCL), 191,993 px),
+  but its Prompt Window shows the authentic `{1,101700}` sysout scar and
+  RAID's TTY-global keyboard grab can hold input. FULL.SYSOUT was pursued
+  as a clean-sysout alternative; it now boots to RAID but panics in init
+  per the above. Neither path yet yields a fully interactive Exec.
 - The games' unrelated blocker remains ethernet completion timing.
 
 **LAYERING CORRECTION (9bd7f76, supersedes the c9aa818 shape):** the bypass
