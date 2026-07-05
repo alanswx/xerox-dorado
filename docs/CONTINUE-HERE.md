@@ -99,16 +99,21 @@ IfuSimple, Alto disk boot 2126 px @700M, Galaxian 121549.
   Verified: make test, Lyric desktop byte-identical (191,993 px incl. the
   {1,101700} scar — sysout data, unaffected as expected), kernel/IfuSimple/
   memMisc diagnostics PASS (eventCounters dm!5 = known pre-existing fail).
-- **Concrete anchor (post-LoadRam DoradoLispMc disassembly, DORADO_IM_DUMP
-  at ~4B).** The fault instruction real IM pc=0o4130 is
-  `Fetch<-RM/STK, FF=0o300 (FA=3 mem-fn), JCN=0o107(fast)` — matches the
-  fault iw=000101/060043/040000. Its run-up (0o4124-0o4127) is a short
-  sequence of `RM/STK<-Pd, A<-RM/STK` (stack pops building the address in an
-  RM/STK reg), then 0o4130 fetches through it. Anyone resuming with a symbol
-  map: this is the exact instruction to identify (a `fetch_ <reg>` that
-  reads a pointer popped off the stack). Also dump the SetFlags/free region
-  and match by structure — do NOT trust the LISP0.mc SetFlags line-match
-  made earlier; it was against pre-LoadRam addresses.
+- **Concrete anchor + accurate single-world picture (post-LoadRam
+  DoradoLispMc disassembly, DORADO_IM_DUMP at ~4B).** In the FAULTING world:
+    - pc=0o4110 = `BrHi<-A` (FF=0o124 = FA1/FB2/FC4), `A<-RM/STK` under BLOCK
+    - pc=0o4114 = `BrLo<-A` (FF=0o123 = FA1/FB2/FC3), `A<-RM/STK` under BLOCK
+    - pc=0o4130 = `Fetch<-RM/STK` (FF=0o300, JCN=0o107) — matches fault iw
+  So the routine reads a VIRTUAL PAGE NUMBER off the STACK (BLOCK=
+  StackSelect), builds `LScratchBR = vp<<8` from it, and fetches the page.
+  This is the FlushVP / per-page-processing pattern (`BrHi_ T; BrLo_ ETEMP3`
+  then a fetch/flush loop) in LISP0.mc. The vp it processes is 8206, which
+  is beyond the loader's active-page map (IFPNActivePages=6208) → fault.
+  So the CLEAN single-world question is: **why is vp 8206 on the Lisp stack
+  here?** (a page-processing loop iterating vps, or a pointer/vp pushed by an
+  earlier op). The AEMU-world free at 2.735B is a red herring — different
+  world. NEXT: with a symbol map, name this routine and find who pushes vp
+  8206; or trace the stack slot that pc=0o4110 reads back to its writer.
 - **CORRECTION (2026-07-05, later): the "use-after-free / GC reference-count
   divergence" reframe below (commits f68eca1, 2f518c4) OVER-REACHED and is
   retracted.** It conflated TWO different worlds. The machine runs
