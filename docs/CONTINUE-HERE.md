@@ -99,13 +99,40 @@ IfuSimple, Alto disk boot 2126 px @700M, Galaxian 121549.
   Verified: make test, Lyric desktop byte-identical (191,993 px incl. the
   {1,101700} scar — sysout data, unaffected as expected), kernel/IfuSimple/
   memMisc diagnostics PASS (eventCounters dm!5 = known pre-existing fail).
+- **CORRECTION (2026-07-05, later): the "use-after-free / GC reference-count
+  divergence" reframe below (commits f68eca1, 2f518c4) OVER-REACHED and is
+  retracted.** It conflated TWO different worlds. The machine runs
+  `lisp.run` as a BCPL program UNDER the AEMU (Alto-emulator) microcode; that
+  world builds the Lisp VMEM map (createfile identity-map, then the sysout
+  netload) and FREES vpage 8206 at cyc 2.735B — legitimately, since 8206 is
+  beyond `IFPNActivePages`=6208. Only AFTER the sysout completes (~3B) does
+  `lisp.run` `LoadRam` the DoradoLispMc microcode, which REWRITES the control
+  store (verified: real pc=0o4130 disassembles to a DIFFERENT instruction at
+  900M vs at the 3.716B fault — see DORADO_IM_DUMP below) and then runs Lisp
+  doing ZERO further Map<- ops (the last map op in the whole boot is the
+  2.735B free). So the free (AEMU/lisp.run world, pre-LoadRam) and the fault
+  (DoradoLispMc world, post-LoadRam) are DIFFERENT microcode worlds — the
+  pc=0o3333 "SetFlags" match was against the WRONG (Lisp) source. What is
+  actually true and solid: DoradoLispMc faults following a pointer to vpage
+  8206, which is beyond the loader's active-page map, so the page is
+  legitimately not resident. The open question reverts to the ORIGINAL one:
+  is that pointer legit sysout data (⇒ our VMEM/active-page setup is wrong)
+  or miscomputed (⇒ an engine arithmetic/pointer bug). Resolving it needs
+  WORLD-AWARE tracing (know when LoadRam fires) + a DoradoLispMc symbol map.
+  New tool added this session: **DORADO_IM_DUMP="lo,hi"** (octal) +
+  DORADO_FINAL_DEBUG=1 disassembles the LOADED control store (m->mc.im) so
+  you can read what any real pc does in the running world — but note it
+  dumps at END of run, so run PAST the ~3B LoadRam to see DoradoLispMc.
+  The map-history / empty-page / BR-trace facts below are individually
+  correct but their "GC free" INTERPRETATION is retracted per the above.
+
 - **New 1983-world frontier — diagnosed 2026-07-05.** FULL.SYSOUT boots
   into Lisp and reaches a live RAID prompt: `Raid: Error in uninterruptable
   system code -- ^N to continue into error handler / -1 / @` at ~4.5B
   cycles, then `Raid: Called from uCode 4754Q / 5204Q` on each `^N`. This
   is Interlisp machine-panic `\MP.UNINTERRUPTABLE` (22Q, LLPARAMS): a page
   fault taken inside interrupt-disabled (tasking-off) system code. Root
-  cause traced:
+  cause traced (NB: interpretation partly retracted — see CORRECTION above):
   - A microcode scan at real IM pc=0o4130 (`Fetch<-RM/STK`, MemBase=
     LScratchBR) reads consecutive VM words that are all VACANT — the fault
     map index is CONSTANT (idx=0o020016) across the whole storm, i.e. the
