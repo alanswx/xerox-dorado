@@ -119,8 +119,28 @@ IfuSimple, Alto disk boot 2126 px @700M, Galaxian 121549.
   - The scan reaches **vpage 8206** (va 0o10007xxx) but FULL.SYSOUT's
     `IFPNActivePages` (IFPAGE word 0o24) = **6208** = exactly its file
     content (6208 512-byte pages). So the scan runs ~2000 pages PAST the
-    backed image — its address register holds a mis-computed/out-of-bounds
-    value. No correctly-bounded scan reaches vpage 8206.
+    backed image. vpage 8206 sits in the VM upper half (past the 2^21-word
+    / 0o10000000 boundary), within the 15002-page createfile'd VMEM file
+    but past the 6208 sysout-written pages — i.e. an in-file-but-unwritten
+    slot.
+  - **How the bad address is built (DORADO_BR_TRACE, MB=34).** The loop
+    (pc 0o4110→0o4114→0o4130) reads a 2-word pointer and loads LScratchBR
+    from it: at cyc 3716543301 `BrHi<-A` with A=Q=**0o40**, then
+    3716543303 `BrLo<-A` with A=**0o7064** → BR[34]=0o40<<16|0o7064 =
+    **0o10007064** = the fault VA (mar=0, so va=BR[34] exactly; that's why
+    the "same page re-faults" — BR[34] IS the incrementing scan pointer,
+    rebuilt each iteration, no separate offset). The high word 0o40 (the
+    thing that flings the pointer into the 2M region) comes from **Q**; the
+    prior iteration had BrHi A=0 (low VM) — so this iteration's pointer
+    changed to point high. Whether Q=0o40 is a legit stored pointer
+    high-word (⇒ the 2M page SHOULD be backed and our VMEM/pager isn't
+    backing in-file-but-unwritten pages — an engine/setup gap) or upstream
+    corruption is THE open question. Provenance of Q=0o40 not yet nailed
+    (DESC_TRACE at cpu.c:5607 didn't fire for these PCs — its gate/path
+    needs a look; or add a targeted Q-source trace).
+  - So the scan's address register (BR[34]/LScratchBR) is loaded with an
+    out-of-bounds pointer from a data structure it is walking. No
+    correctly-bounded scan reaches vpage 8206.
   - **Lyric never does this.** A full-boot fault census of the clean Lyric
     world: 1662 faults, ALL demand-paging at pc=0o6654 (1286) / 0o6343
     (371) that resolve; ZERO at pc=0o4130, ZERO at va 0o10007xxx. So the
