@@ -99,6 +99,16 @@ IfuSimple, Alto disk boot 2126 px @700M, Galaxian 121549.
   Verified: make test, Lyric desktop byte-identical (191,993 px incl. the
   {1,101700} scar — sysout data, unaffected as expected), kernel/IfuSimple/
   memMisc diagnostics PASS (eventCounters dm!5 = known pre-existing fail).
+- **Concrete anchor (post-LoadRam DoradoLispMc disassembly, DORADO_IM_DUMP
+  at ~4B).** The fault instruction real IM pc=0o4130 is
+  `Fetch<-RM/STK, FF=0o300 (FA=3 mem-fn), JCN=0o107(fast)` — matches the
+  fault iw=000101/060043/040000. Its run-up (0o4124-0o4127) is a short
+  sequence of `RM/STK<-Pd, A<-RM/STK` (stack pops building the address in an
+  RM/STK reg), then 0o4130 fetches through it. Anyone resuming with a symbol
+  map: this is the exact instruction to identify (a `fetch_ <reg>` that
+  reads a pointer popped off the stack). Also dump the SetFlags/free region
+  and match by structure — do NOT trust the LISP0.mc SetFlags line-match
+  made earlier; it was against pre-LoadRam addresses.
 - **CORRECTION (2026-07-05, later): the "use-after-free / GC reference-count
   divergence" reframe below (commits f68eca1, 2f518c4) OVER-REACHED and is
   retracted.** It conflated TWO different worlds. The machine runs
