@@ -167,6 +167,32 @@ IfuSimple, Alto disk boot 2126 px @700M, Galaxian 121549.
     structure should still reference 8206. The GC reference-count opcodes
     (opGCREF/GCADDREF/GCDELREF in LGC.mc, htMainBR/htOfloBR) are the prime
     suspects for the upstream divergence.
+  - **The free was NOT a premature-free-of-a-live-object.** DORADO_VM_DUMP
+    of vpage 8206 at cyc 2.0B (while it was still resident, pre-free) reads
+    ALL ZEROS — it is an empty scratch page, not a dense live structure. So
+    the free (of an empty page) looks legitimate; the anomaly is the
+    DANGLING POINTER to it. That narrows the root to either (a) a
+    reference-count UNDERCOUNT — a reference to the object existed but was
+    never counted (a missed GCADDREF), so the storage manager freed a page
+    still pointed-to; or (b) a MISCOMPUTED scan pointer — Q=0o40 (the high
+    word that aims the pointer at the freed 2M page) is wrong. Deciding (a)
+    vs (b) still needs Q=0o40's provenance (unresolved: DESC_TRACE at
+    cpu.c:5607 doesn't fire for these PCs; narrow-gate PCDIS also produced
+    nothing — needs a working targeted trace of Q's source before pc=0o4110).
+  - **Suspected shared root with the Lyric world.** Lyric's post-RAID
+    errors are "Bad array block reclaimed--continue with ^N" — literally a
+    GC/reclaim error. If the same reference-count divergence underlies both,
+    fixing it could unblock BOTH the FULL.SYSOUT panic and Lyric's reclaim
+    errors. Worth checking whether Lyric also exhibits a premature
+    free / dangling ref (DORADO_MAP_TRACE on the pages its reclaim errors
+    touch) as a second test case.
+  - **Blocker to going deeper: no symbol map for the loaded DoradoLispMc.**
+    pc=0o3333/0o4130/0o3314 can't be resolved to source labels — the
+    running DoradoLispMc.eb is a LoadRam image, the UnBug DoradoLisp.MB
+    symbols don't match this build, and no .DLS listing exists. Pinning the
+    exact refcount site would need either regenerating the listing (run
+    Micro+MicroD on chm/lisp/harmony/ucode/lispdmc.dm — a real toolchain
+    task) or a dedicated htMain/htOflo refcount-trace instrument.
   - **Lyric never does this.** A full-boot fault census of the clean Lyric
     world: 1662 faults, ALL demand-paging at pc=0o6654 (1286) / 0o6343
     (371) that resolve; ZERO at pc=0o4130, ZERO at va 0o10007xxx. So the
