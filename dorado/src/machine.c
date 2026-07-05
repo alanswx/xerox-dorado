@@ -2860,6 +2860,27 @@ static void machine_dump_lisp_atom_probe(dorado_machine *m)
 void dorado_machine_debug(dorado_machine *m)
 {
     if (!m) return;
+    /* DORADO_IM_DUMP="lo,hi" (octal): disassemble the LOADED control store
+     * (m->mc.im, which Write IM/LoadRam has populated with the running
+     * world's microcode) over real IM addresses lo..hi. Lets us read what
+     * a given real pc does in the loaded DoradoLispMc without a symbol map. */
+    {
+        const char *env = getenv("DORADO_IM_DUMP");
+        if (env && env[0]) {
+            unsigned lo = 0, hi = 0;
+            if (sscanf(env, "%o,%o", &lo, &hi) == 2 && hi < 4096 && lo <= hi) {
+                for (unsigned a = lo; a <= hi; a++) {
+                    char buf[256];
+                    const dorado_uinstr *u = &m->mc.im[a];
+                    dorado_format(u, buf, sizeof buf);
+                    const char *sym =
+                        dorado_microcode_symbol_at_real(&m->mc, (uint16_t)a);
+                    fprintf(stderr, "IMDIS 0o%04o %-8s : %s\n",
+                            a, sym ? sym : "", buf);
+                }
+            }
+        }
+    }
     if (dorado_trace_flag("DORADO_MACHINE_PCHIST")) {
         /* Top 12 hottest task-0 PCs in the loaded world. */
         int top[12]; for (int i = 0; i < 12; i++) top[i] = -1;
