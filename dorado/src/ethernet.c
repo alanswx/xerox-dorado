@@ -95,7 +95,20 @@ static void eth_fill_alto_time(uint16_t body[5])
      * Year shifted back 28 (a Gregorian repeat) to stay in NetExec's
      * 1983..2000 window; the year is not displayed. 2177452800 = seconds
      * from the Alto epoch (1901) to the Unix epoch (1970). */
-    time_t now = time(NULL);
+    /* DORADO_FAKE_TIME=<unix-seconds> pins this clock so the whole boot is
+     * DETERMINISTIC. This time(NULL) (the NetExec date/time response) is the
+     * ONLY wall-clock/nondeterministic input in the emulator; letting it
+     * float makes run-to-run behavior vary (e.g. the FULL.SYSOUT vp-8206
+     * fault reproduces on some boots and not others). Pin it for repeatable
+     * debugging and regression runs. */
+    time_t now;
+    {
+        const char *ftm = getenv("DORADO_FAKE_TIME");
+        now = (ftm && ftm[0]) ? (time_t)strtoll(ftm, NULL, 0) : time(NULL);
+    }
+    if (getenv("DORADO_ETHTIME_TRACE"))
+        fprintf(stderr, "ETHTIME now=%lld (this is the sole nondeterministic "
+                "wall-clock input; DORADO_FAKE_TIME pins it)\n", (long long)now);
     struct tm lt = *localtime(&now);
     int yday1 = lt.tm_yday + 1;
     int64_t off_hours = ((int64_t)timegm(&lt) - (int64_t)now) / 3600;
