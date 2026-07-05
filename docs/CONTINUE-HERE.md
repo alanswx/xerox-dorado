@@ -109,12 +109,13 @@ IfuSimple, Alto disk boot 2126 px @700M, Galaxian 121549.
   - A microcode scan at real IM pc=0o4130 (`Fetch<-RM/STK`, MemBase=
     LScratchBR) reads consecutive VM words that are all VACANT — the fault
     map index is CONSTANT (idx=0o020016) across the whole storm, i.e. the
-    same unbacked page re-faulting word-by-word (76+ times). Because the
-    code runs with tasking off, the fault task never redirects the
-    emulator (HM p.55: "the task that faulted is not blocked; hold
-    terminates as though no fault had occurred unless the fault task
-    changes its PC"), so the loop continues on garbage and Lisp later
-    panics `\MP.UNINTERRUPTABLE`.
+    same unbacked page re-faulting word-by-word (76+ times). Tasking is ON
+    during the storm (task 0 plus io tasks 2/4/14 and the fault task 17
+    all run) and the fault task services each fault, but it CANNOT make the
+    page resident because it is beyond the sysout backing (next bullet), so
+    every word reads vacant, the scan advances on garbage, and Lisp later
+    panics `\MP.UNINTERRUPTABLE`. (An earlier draft of this note wrongly
+    attributed the word-by-word re-fault to tasking being off — corrected.)
   - The scan reaches **vpage 8206** (va 0o10007xxx) but FULL.SYSOUT's
     `IFPNActivePages` (IFPAGE word 0o24) = **6208** = exactly its file
     content (6208 512-byte pages). So the scan runs ~2000 pages PAST the
