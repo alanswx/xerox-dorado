@@ -138,21 +138,39 @@ IfuSimple, Alto disk boot 2126 px @700M, Galaxian 121549.
     corruption is THE open question. Provenance of Q=0o40 not yet nailed
     (DESC_TRACE at cpu.c:5607 didn't fire for these PCs — its gate/path
     needs a look; or add a targeted Q-source trace).
-  - So the scan's address register (BR[34]/LScratchBR) is loaded with an
-    out-of-bounds pointer from a data structure it is walking. No
-    correctly-bounded scan reaches vpage 8206.
+  - So the scan's address register (BR[34]/LScratchBR) is loaded with a
+    pointer to vpage 8206 from a data structure it is walking.
+  - **REFINED ROOT — it is a USE-AFTER-FREE, not an out-of-bounds address**
+    (DORADO_MAP_TRACE, full boot). vpage 8206 is NOT invalid space: it is a
+    real, dynamically-allocated page (real page 0x200E, identity-mapped)
+    that Lisp's storage manager mapped and used, then **legitimately FREED**.
+    Its complete map history: mapped present cyc 18.0M (pc=0o6366) → ref
+    churn cyc 32M → vacated/remapped 39.7M/59.1M (pc=0o4114, normal
+    SetFlags churn) → used (goes dirty) → **VACATED at cyc 2,735,595,951
+    (pc=0o3333, Map<- with tioa=0o300 ⇒ wp=1,dirty=1 = Vacant)**. That is
+    Lisp's `SetFlags[v,Vacant]` returning the page to the storage manager.
+    Then ~1B cycles later the pc=0o4130 scan follows a still-live pointer to
+    the freed page → page fault → the fault task cannot re-back a
+    deliberately-freed page → re-faults word-by-word → `\MP.UNINTERRUPTABLE`.
+    NO map op touches vpage 8206 between the free (2.735B) and the fault
+    (3.716B) — so at fault time the page is legitimately vacant. The
+    "past IFPNActivePages / out-of-bounds" framing above is superseded:
+    8206 is a valid dynamic page, the bug is the DANGLING REFERENCE to it.
+  - This reframes the root as a **GC / reference-count divergence**:
+    real Interlisp-D (reference-counted, htMainBR/htOfloBR tables) would
+    not free a page still reachable from a live pointer, nor keep a live
+    pointer to a freed page. An upstream engine divergence made either the
+    free premature (a refcount hit 0 early) or the scanning structure stale.
+    Next probe: (1) identify what pc=0o3333 is (the SetFlags/ReturnPage
+    caller) and what made vpage 8206's refcount drop; and/or (2) find who
+    holds the pointer {0o40,0o7064} the scan walks and whether that
+    structure should still reference 8206. The GC reference-count opcodes
+    (opGCREF/GCADDREF/GCDELREF in LGC.mc, htMainBR/htOfloBR) are the prime
+    suspects for the upstream divergence.
   - **Lyric never does this.** A full-boot fault census of the clean Lyric
     world: 1662 faults, ALL demand-paging at pc=0o6654 (1286) / 0o6343
     (371) that resolve; ZERO at pc=0o4130, ZERO at va 0o10007xxx. So the
-    out-of-bounds scan is specific to the FULL.SYSOUT world's data/state.
-  - OPEN: whether the bad scan bound is (a) a subtle engine fault-recovery
-    bug that corrupts a pointer only under FULL.SYSOUT's init path, or
-    (b) FULL.SYSOUT needing a different VM/config than my fixture provides
-    (createfile VMEM spec 15002D; the sysout expects some specific size).
-    Next probe: trace the register feeding pc=0o4130's address back to the
-    fetch that loaded it (LOAD trace + the few hundred cycles before the
-    storm starts at ~3.716B), and check whether that source read was itself
-    a fault-recovered page (stale-Md suspicion).
+    use-after-free is specific to the FULL.SYSOUT world's execution.
   - Reproducer: `make run-lisp-lyric-remote-long` with LISP_RUN_FILE/
     LISP_SYMS_FILE/LISP_MC_FILE/LISP_INIT_FILE/LISP_SYSOUT_FILE set to
     `../chm/lisp/current/*`; storm at cyc ~3.716-3.718B, panic on screen
