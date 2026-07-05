@@ -99,6 +99,21 @@ IfuSimple, Alto disk boot 2126 px @700M, Galaxian 121549.
   Verified: make test, Lyric desktop byte-identical (191,993 px incl. the
   {1,101700} scar — sysout data, unaffected as expected), kernel/IfuSimple/
   memMisc diagnostics PASS (eventCounters dm!5 = known pre-existing fail).
+- **Iteration/tooling note for whoever resumes (learned the hard way).**
+  Live tracing of the storm window (~3.716B cycles) is impractical by full
+  replay: each run to 3.7B is ~3 min, and DORADO_PCDIS over a cycle-gated
+  window repeatedly produced zero/garbage output or ran pathologically slow.
+  Two concrete gotchas: (1) the Bash cwd silently drifts to the repo root
+  between calls, so ALWAYS `cd .../dorado` inside the command or ./build/dorado
+  isn't found (many "empty" traces were just this); (2) DORADO_IM_DUMP only
+  fires with DORADO_FINAL_DEBUG=1, and dumps at END of run, so to see the
+  DoradoLispMc world you must run PAST the ~3B LoadRam. RECOMMENDED next-time
+  setup BEFORE probing: build a snapshot near the storm (`--snapshot-out` at
+  ~3.7155B) and do SHORT resume-traces (~150K cycles, PCDIS with NO gate) —
+  that's fast and reliable. Note the snapshot omits disk state, so pair it
+  with the exact pack copy used to make it. (I could not get a snapshot to
+  finish within this session's time budget — the make-the-snapshot run
+  itself is the same ~3-min replay.)
 - **Concrete anchor + accurate single-world picture (post-LoadRam
   DoradoLispMc disassembly, DORADO_IM_DUMP at ~4B).** In the FAULTING world:
     - pc=0o4110 = `BrHi<-A` (FF=0o124 = FA1/FB2/FC4), `A<-RM/STK` under BLOCK
