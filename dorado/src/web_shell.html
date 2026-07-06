@@ -67,19 +67,14 @@
         <option value="mesa:/chm/bootfiles/PupWatch.boot!1">PupWatch (network tool)</option>
         <option value="mesa:/chm/bootfiles/TriEx.boot!1">Trident Exerciser</option>
       </optgroup>
-      <optgroup label="Games (render well)">
+      <optgroup label="Games">
         <option value="/chm/bootfiles/Galaxian.boot!1">Galaxian</option>
-        <option value="/chm/bootfiles/MissileCommand.boot!1">Missile Command</option>
         <option value="/chm/bootfiles/PinBall.boot!1">Pinball</option>
-      </optgroup>
-      <optgroup label="Games (experimental)">
-        <option value="/chm/bootfiles/AstroRoids.boot!1">Asteroids</option>
-        <option value="/chm/bootfiles/Invaders.boot!1">Space Invaders</option>
-        <option value="/chm/bootfiles/Reversi.boot!1">Reversi</option>
-        <option value="/chm/bootfiles/Pool.boot!1">Pool</option>
-        <option value="/chm/bootfiles/StarWars.boot!1">Star Wars</option>
-        <option value="/chm/bootfiles/Trek.boot!1">Trek</option>
-        <option value="/chm/bootfiles/Boggs.boot!1">Boggs</option>
+        <option value="/chm/bootfiles/AstroRoids.boot!1">Asteroids (type a key to start)</option>
+        <option value="/chm/bootfiles/Invaders.boot!1">Space Invaders (type a key to start)</option>
+        <option value="/chm/bootfiles/Reversi.boot!1">Reversi (text prompts)</option>
+        <option value="/chm/bootfiles/Boggs.boot!1">Boggs (portrait)</option>
+        <option value="/chm/bootfiles/MissileCommand.boot!1">Missile Command (attract screen only)</option>
       </optgroup>
       <optgroup label="Utilities">
         <option value="/chm/bootfiles/Neptune.boot!1">Neptune (disk tool)</option>
@@ -111,6 +106,12 @@
     disk image instead of the Alto emulator. It is a much longer boot (a minute
     or two) and ends at a <code>Please login ... / Name:</code> prompt &mdash;
     click the display and type a name, then <code>Return</code>.
+    <br><br>
+    A few Alto games (Pool, Star&nbsp;Wars, Trek; Missile Command past its
+    attract screen) load custom microcode into the Alto's writable control
+    store &mdash; hardware the Dorado does not have &mdash; so they trap into
+    Swat on a real Dorado and do the same here. They are omitted from the
+    menu (Missile Command still shows its attract screen).
   </div>
 
 <script type="text/javascript">
@@ -167,6 +168,23 @@
     pauseBtn.textContent = paused ? 'Resume' : 'Pause';
   }
 
+  // Diagnostic: time every rAF callback (the emscripten main loop) and log
+  // abnormally slow frames, so a stalled/blocked frame is visible in the
+  // console instead of presenting as a silently frozen page.
+  (function () {
+    var orig = window.requestAnimationFrame.bind(window);
+    window.requestAnimationFrame = function (cb) {
+      return orig(function (t) {
+        var s = performance.now();
+        try { return cb(t); }
+        finally {
+          var d = performance.now() - s;
+          if (d > 1000) console.log('dorado_web: slow frame ' + Math.round(d) + 'ms');
+        }
+      });
+    };
+  })();
+
   var Module = {
     canvas: (function() {
       var c = document.getElementById('canvas');
@@ -187,10 +205,65 @@
       pauseBtn.disabled = false;
       spinnerEl.textContent = '';
       setStatus('Booting NetExec... type a program name, or pick one above.');
+      installInput();
       document.getElementById('canvas').focus();
     },
   };
   Module.setStatus('Downloading emulator...');
+
+  // Keyboard + mouse wiring. The emulator takes input through the exported
+  // dorado_web_key()/dorado_web_mouse() C functions; printable keys are
+  // passed as their unshifted ASCII code, modifiers/F1 as the WEB_KEY_*
+  // codes in dorado_web.c (keep the two maps in sync). No SDL: see the
+  // dorado_web.c header for why the SDL2 port's input/present paths are
+  // bypassed.
+  var KEYCODES = {
+    Space: 32, Enter: 13, NumpadEnter: 13, Backspace: 8, Tab: 9,
+    Escape: 27, Delete: 127, Minus: 45, Equal: 61,
+    BracketLeft: 91, BracketRight: 93, Semicolon: 59, Quote: 39,
+    Comma: 44, Period: 46, Slash: 47, Backslash: 92, IntlBackslash: 92,
+    ShiftLeft: 0x1001, ShiftRight: 0x1002,
+    ControlLeft: 0x1003, ControlRight: 0x1003, F1: 0x1004
+  };
+  function webKeyCode(e) {
+    var c = e.code;
+    if (c && c.indexOf('Key') === 0 && c.length === 4)
+      return c.charCodeAt(3) + 32;              // KeyA..KeyZ -> 'a'..'z'
+    if (c && c.indexOf('Digit') === 0 && c.length === 6)
+      return c.charCodeAt(5);                   // Digit0..Digit9 -> '0'..'9'
+    if (c && c.indexOf('Numpad') === 0 && c.length === 7)
+      return c.charCodeAt(6);                   // Numpad0..9 -> '0'..'9'
+    return KEYCODES[c] || 0;
+  }
+  function installInput() {
+    var canvas = document.getElementById('canvas');
+    function sendKey(e, down) {
+      // Leave browser shortcuts (Cmd/Ctrl-R, devtools, ...) alone.
+      if (e.metaKey || (e.ctrlKey && e.code !== 'ControlLeft' &&
+                        e.code !== 'ControlRight')) return;
+      var k = webKeyCode(e);
+      if (!k) return;
+      Module.ccall('dorado_web_key', null, ['number', 'number'], [k, down]);
+      e.preventDefault();
+    }
+    window.addEventListener('keydown', function (e) { sendKey(e, 1); });
+    window.addEventListener('keyup',   function (e) { sendKey(e, 0); });
+    function sendMouse(e) {
+      var r = canvas.getBoundingClientRect();
+      var x = Math.round((e.clientX - r.left) * (canvas.width / r.width));
+      var y = Math.round((e.clientY - r.top) * (canvas.height / r.height));
+      // JS e.buttons: left=1 right=2 middle=4; Dorado: left=4 right=2 middle=1.
+      var b = (e.buttons & 1 ? 4 : 0) | (e.buttons & 2 ? 2 : 0)
+            | (e.buttons & 4 ? 1 : 0);
+      Module.ccall('dorado_web_mouse', null,
+                   ['number', 'number', 'number'], [x, y, b]);
+    }
+    canvas.addEventListener('mousemove', sendMouse);
+    canvas.addEventListener('mousedown', function (e) {
+      canvas.focus(); sendMouse(e); e.preventDefault();
+    });
+    canvas.addEventListener('mouseup', sendMouse);
+  }
 </script>
 {{{ SCRIPT }}}
 </body>

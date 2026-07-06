@@ -51,10 +51,12 @@ WEB_SRCS  := src/mb.c src/disasm.c src/microcode.c src/cpu.c src/baseboard.c \
              src/fastio.c src/altoref.c src/pdi.c src/machine.c src/dorado_web.c
 # _GNU_SOURCE exposes timegm()/strcasecmp() in Emscripten's musl sysroot;
 # macOS headers expose them by default, so the native build doesn't need it.
-WEB_CFLAGS := -std=c99 -D_GNU_SOURCE -O2 -Iinclude -Ivendor/6502 -sUSE_SDL=2
-WEB_LDFLAGS := -sUSE_SDL=2 -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=67108864 \
+# No SDL: the web frontend presents via the canvas 2d context and takes
+# input through exported C functions (see src/dorado_web.c header).
+WEB_CFLAGS := -std=c99 -D_GNU_SOURCE -O2 -Iinclude -Ivendor/6502
+WEB_LDFLAGS := -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=67108864 \
                -sEXPORTED_RUNTIME_METHODS=ccall,cwrap \
-               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_mesa,_dorado_web_boot_disk \
+               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_mesa,_dorado_web_boot_disk,_dorado_web_key,_dorado_web_mouse \
                --preload-file worlds/aemu.eb@/worlds/aemu.eb \
                --preload-file ../chm/bootfiles@/chm/bootfiles \
                --preload-file '../chm/dorado/AltoMesaDorado.eb!2'@/worlds/AltoMesaDorado.eb \
@@ -234,10 +236,22 @@ run-dmt: sdl
 	./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/DMT.BOOT!22'
 
 # Alto games (from CHM Io/Murray collection; all Alto B-format 0o002401).
-# Highly-painting: Galaxian, MissileCommand, PinBall.  Boots with minimal
-# display (cursor/attract): AstroRoids, Invaders, Reversi.  Boots but no
-# display at 100 M cycles: Pool, StarWars, Trek, Boggs (may need keyboard
-# input or more cycles to reach attract mode).
+# Boot + the lock-step EFTP transfer take ~80-160M cycles before any game
+# code runs (~1M cycles per 512-byte packet), so give a run time to load.
+#
+# WORK: Galaxian, PinBall, Boggs (Boggs paints its portrait by ~200M).
+# WORK after a keystroke: AstroRoids, Invaders (blank "type a key" start
+# screen; type any key once loaded).  Reversi is a text-prompt UI.
+# MissileCommand paints its attract screen, then dies on its first custom
+# RAM-microcode opcode (70000B) -- screen persists, game is dead.
+#
+# CAN NEVER RUN under AEmu-on-Dorado: Pool (JMPRAM), StarWars, Trek
+# (70000B-family opcodes).  They load custom Alto RAM microcode and jump
+# into it; the real Dorado AEmu has no Alto control RAM (AEmuSources
+# ATraps.mc: WRTRAM no-ops, RDRAM returns 0, JMPRAM + 70000B..77777B all
+# trap), so they trap into Swat and idle in TeleSwat's receive loop
+# (socket 60B) exactly as they would on real hardware.  The machine-debug
+# TRAPPC field (M[527B]) shows the trapped PC.
 .PHONY: run-galaxian run-missilecommand run-pinball run-astroids run-invaders
 .PHONY: run-reversi run-pool run-starwars run-trek run-boggs
 run-galaxian: sdl

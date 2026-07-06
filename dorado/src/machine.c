@@ -3172,11 +3172,18 @@ void dorado_machine_debug(dorado_machine *m)
                 (unsigned long long)dc->tag_tw_clears);
     }
     fprintf(stderr, "[machine] M[344]=0o%o (guard=%d) Swat-OutLdRet="
-            "0o%o AC700=0o%o\n",
+            "0o%o AC700=0o%o TRAPPC=0o%o\n",
             dorado_visible_word_at_va(&m->mem, mds + 0344u),
             m->mem.protect_active,
             dorado_visible_word_at_va(&m->mem, mds + 03323u),
-            dorado_visible_word_at_va(&m->mem, mds + 0700u));
+            dorado_visible_word_at_va(&m->mem, mds + 0700u),
+            /* Alto trap convention: PC+1 of the last trapping opcode
+             * (Alto HW Manual: TRAPPC=527B; vectors at 530B..567B).
+             * Nonzero after boot = the world took an S-group trap; a
+             * FullBootBase .boot then lands in Swat/TeleSwat and idles
+             * on socket 60B (see docs/running-the-emulator.md, games
+             * that need Alto RAM microcode). */
+            dorado_visible_word_at_va(&m->mem, mds + 0527u));
     {
         uint32_t v344 = (mds + 0344u) & 0x0FFFFFFFu;
         uint32_t idx = dorado_map_index(v344);
@@ -3201,6 +3208,15 @@ void dorado_machine_debug(dorado_machine *m)
     }
     if (m->germ_word_count)
         machine_dump_pilot_pda(m);
+    /* Full Alto 64K dump, one "MD %06o %06o" line per word (same format
+     * as cpu.c's DORADO_MEMDUMP_AT, which only arms on the disk-boot
+     * loader entry). Runs whenever this debug dump does, e.g. at end of
+     * run via DORADO_FINAL_DEBUG. */
+    if (getenv("DORADO_FINAL_MEMDUMP")) {
+        for (uint32_t va = 0; va < 0200000u; va++)
+            fprintf(stderr, "MD %06o %06o\n", va,
+                    dorado_visible_word_at_va(&m->mem, va) & 0177777);
+    }
 }
 
 /* Flip one framebuffer pixel (XOR), for the mouse pointer. */

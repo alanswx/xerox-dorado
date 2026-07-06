@@ -5,6 +5,12 @@
  * `while (running)` loop becomes a single frame() callback driven by
  * emscripten_set_main_loop(), since a WASM main thread may not block.
  *
+ * No SDL. Under emsdk 6 the SDL2 port's renderer never presented to the
+ * canvas and its keyboard events never reached SDL_PollEvent, so this
+ * frontend talks to the browser directly: frames go to the canvas 2d
+ * context via js_present(), and web_shell.html feeds keyboard/mouse
+ * events in through the exported dorado_web_key()/dorado_web_mouse().
+ *
  * Boot files live in the Emscripten virtual filesystem (MEMFS), preloaded
  * at the same paths the machine code fopen()s:
  *   /worlds/aemu.eb          - the Alto-emulator-on-Dorado microcode world
@@ -19,7 +25,6 @@
 #include "machine.h"
 #include "display.h"
 
-#include <SDL.h>
 #include <emscripten.h>
 
 #include <stdint.h>
@@ -73,9 +78,6 @@
 static struct {
     dorado_machine  *m;
     dorado_display  *disp;
-    SDL_Window      *win;
-    SDL_Renderer    *ren;
-    SDL_Texture     *tex;
     int              scale;
     uint64_t         cycles_per_frame;
     int              mouse_buttons;
@@ -86,10 +88,38 @@ static struct {
 
 static uint32_t pixels[DORADO_DISPLAY_W * DORADO_DISPLAY_H];
 
-/* Map an SDL keycode to a Dorado/Alto key (identical table to dorado_sdl.c). */
-static dorado_display_key map_key(SDL_Keycode k)
+/* Present RGBA pixels straight onto Module.canvas with a 2d context.
+ * SDL is kept for input only: under emsdk 6 the SDL2 port's renderer
+ * (SDL_CreateRenderer + SDL_UpdateTexture + SDL_RenderPresent) creates a
+ * WebGL context on the canvas but its draws never reach it, leaving the
+ * page permanently black. A plain putImageData avoids the renderer
+ * entirely and needs no GL. The pixel words are copied out of the wasm
+ * heap first: HEAPU8.buffer is a *resizable* ArrayBuffer under
+ * ALLOW_MEMORY_GROWTH, and Chrome rejects ImageData views over resizable
+ * buffers (same class of failure as the TextDecoder crash that killed
+ * the previously deployed build). */
+EM_JS(void, js_present, (const void *px, int w, int h), {
+    var c = Module['canvas'];
+    if (c.width !== w) c.width = w;
+    if (c.height !== h) c.height = h;
+    if (!Module['ctx2d']) Module['ctx2d'] = c.getContext('2d');
+    var bytes = HEAPU8.slice(px, px + w * h * 4);
+    Module['ctx2d'].putImageData(
+        new ImageData(new Uint8ClampedArray(bytes.buffer), w, h), 0, 0);
+});
+
+/* Key encoding shared with web_shell.html's keydown/keyup wiring:
+ * printable keys arrive as their unshifted ASCII code ('a'..'z', '0'..'9',
+ * punctuation, ' ', '\r', '\b', '\t', 27, 127); modifiers and function
+ * keys as the WEB_KEY_* values below. Keep the two sides in sync. */
+#define WEB_KEY_LSHIFT 0x1001
+#define WEB_KEY_RSHIFT 0x1002
+#define WEB_KEY_CTRL   0x1003
+#define WEB_KEY_F1     0x1004
+
+static dorado_display_key map_key(int k)
 {
-    if (k >= SDLK_a && k <= SDLK_z) {
+    if (k >= 'a' && k <= 'z') {
         static const dorado_display_key letters[26] = {
             DORADO_KEY_A, DORADO_KEY_B, DORADO_KEY_C, DORADO_KEY_D,
             DORADO_KEY_E, DORADO_KEY_F, DORADO_KEY_G, DORADO_KEY_H,
@@ -99,42 +129,61 @@ static dorado_display_key map_key(SDL_Keycode k)
             DORADO_KEY_U, DORADO_KEY_V, DORADO_KEY_W, DORADO_KEY_X,
             DORADO_KEY_Y, DORADO_KEY_Z,
         };
-        return letters[k - SDLK_a];
+        return letters[k - 'a'];
+    }
+    if (k >= '0' && k <= '9') {
+        static const dorado_display_key digits[10] = {
+            DORADO_KEY_0, DORADO_KEY_1, DORADO_KEY_2, DORADO_KEY_3,
+            DORADO_KEY_4, DORADO_KEY_5, DORADO_KEY_6, DORADO_KEY_7,
+            DORADO_KEY_8, DORADO_KEY_9,
+        };
+        return digits[k - '0'];
     }
     switch (k) {
-    case SDLK_0: return DORADO_KEY_0;
-    case SDLK_1: return DORADO_KEY_1;
-    case SDLK_2: return DORADO_KEY_2;
-    case SDLK_3: return DORADO_KEY_3;
-    case SDLK_4: return DORADO_KEY_4;
-    case SDLK_5: return DORADO_KEY_5;
-    case SDLK_6: return DORADO_KEY_6;
-    case SDLK_7: return DORADO_KEY_7;
-    case SDLK_8: return DORADO_KEY_8;
-    case SDLK_9: return DORADO_KEY_9;
-    case SDLK_SPACE:        return DORADO_KEY_SPACE;
-    case SDLK_RETURN:       return DORADO_KEY_RETURN;
-    case SDLK_KP_ENTER:     return DORADO_KEY_RETURN;
-    case SDLK_BACKSPACE:    return DORADO_KEY_BS;
-    case SDLK_TAB:          return DORADO_KEY_TAB;
-    case SDLK_ESCAPE:       return DORADO_KEY_ESC;
-    case SDLK_DELETE:       return DORADO_KEY_DEL;
-    case SDLK_MINUS:        return DORADO_KEY_MINUS;
-    case SDLK_EQUALS:       return DORADO_KEY_PLUS;
-    case SDLK_LEFTBRACKET:  return DORADO_KEY_LBRACKET;
-    case SDLK_RIGHTBRACKET: return DORADO_KEY_RBRACKET;
-    case SDLK_SEMICOLON:    return DORADO_KEY_SEMICOLON;
-    case SDLK_QUOTE:        return DORADO_KEY_QUOTE;
-    case SDLK_COMMA:        return DORADO_KEY_COMMA;
-    case SDLK_PERIOD:       return DORADO_KEY_PERIOD;
-    case SDLK_SLASH:        return DORADO_KEY_FSLASH;
-    case SDLK_BACKSLASH:    return DORADO_KEY_BSLASH;
-    case SDLK_LSHIFT:       return DORADO_KEY_LSHIFT;
-    case SDLK_RSHIFT:       return DORADO_KEY_RSHIFT;
-    case SDLK_LCTRL:
-    case SDLK_RCTRL: return DORADO_KEY_CTRL;
+    case ' ':  return DORADO_KEY_SPACE;
+    case '\r': return DORADO_KEY_RETURN;
+    case '\b': return DORADO_KEY_BS;
+    case '\t': return DORADO_KEY_TAB;
+    case 27:   return DORADO_KEY_ESC;
+    case 127:  return DORADO_KEY_DEL;
+    case '-':  return DORADO_KEY_MINUS;
+    case '=':  return DORADO_KEY_PLUS;
+    case '[':  return DORADO_KEY_LBRACKET;
+    case ']':  return DORADO_KEY_RBRACKET;
+    case ';':  return DORADO_KEY_SEMICOLON;
+    case '\'': return DORADO_KEY_QUOTE;
+    case ',':  return DORADO_KEY_COMMA;
+    case '.':  return DORADO_KEY_PERIOD;
+    case '/':  return DORADO_KEY_FSLASH;
+    case '\\': return DORADO_KEY_BSLASH;
+    case WEB_KEY_LSHIFT: return DORADO_KEY_LSHIFT;
+    case WEB_KEY_RSHIFT: return DORADO_KEY_RSHIFT;
+    case WEB_KEY_CTRL:   return DORADO_KEY_CTRL;
     default: return DORADO_KEY_NONE;
     }
+}
+
+/* Browser input entry points, called from web_shell.html's plain JS event
+ * listeners (ccall). Replaces the SDL event queue. */
+EMSCRIPTEN_KEEPALIVE
+void dorado_web_key(int key, int down)
+{
+    if (!app.m) return;
+    if (down && key == WEB_KEY_F1) {
+        app.paused = !app.paused;
+        return;
+    }
+    dorado_display_key dk = map_key(key);
+    if (dk != DORADO_KEY_NONE)
+        dorado_machine_set_key(app.m, dk, down);
+}
+
+EMSCRIPTEN_KEEPALIVE
+void dorado_web_mouse(int x, int y, int buttons)
+{
+    if (!app.m) return;
+    app.mouse_buttons = buttons;
+    dorado_machine_set_mouse(app.m, x / app.scale, y / app.scale, buttons);
 }
 
 /* (Re)create the machine booting `eftp_path`. When dir_all is set, every
@@ -312,45 +361,10 @@ int dorado_web_boot_disk(void)
     return 0;
 }
 
-/* One animation frame: drain input, advance the emulator, blit the display. */
+/* One animation frame: advance the emulator, blit the display. Input
+ * arrives asynchronously via dorado_web_key()/dorado_web_mouse(). */
 static void frame(void)
 {
-    SDL_Event e;
-    while (SDL_PollEvent(&e)) {
-        switch (e.type) {
-        case SDL_MOUSEMOTION:
-            dorado_machine_set_mouse(app.m, e.motion.x / app.scale,
-                                     e.motion.y / app.scale, app.mouse_buttons);
-            break;
-        case SDL_MOUSEBUTTONDOWN:
-        case SDL_MOUSEBUTTONUP: {
-            int bit = e.button.button == SDL_BUTTON_LEFT   ? DORADO_MOUSE_LEFT
-                    : e.button.button == SDL_BUTTON_MIDDLE ? DORADO_MOUSE_MIDDLE
-                    : e.button.button == SDL_BUTTON_RIGHT  ? DORADO_MOUSE_RIGHT
-                    : 0;
-            if (e.type == SDL_MOUSEBUTTONDOWN) app.mouse_buttons |= bit;
-            else                               app.mouse_buttons &= ~bit;
-            dorado_machine_set_mouse(app.m, e.button.x / app.scale,
-                                     e.button.y / app.scale, app.mouse_buttons);
-            break;
-        }
-        case SDL_KEYDOWN:
-        case SDL_KEYUP: {
-            int down = (e.type == SDL_KEYDOWN);
-            SDL_Keycode k = e.key.keysym.sym;
-            if (down && k == SDLK_F1 && !e.key.repeat) {
-                app.paused = !app.paused;
-                break;
-            }
-            dorado_display_key dk = map_key(k);
-            if (dk != DORADO_KEY_NONE)
-                dorado_machine_set_key(app.m, dk, down);
-            break;
-        }
-        default: break;
-        }
-    }
-
     if (!app.paused) {
         uint64_t now = dorado_machine_cycles(app.m);
         dorado_machine_run_until(app.m, now + app.cycles_per_frame);
@@ -362,6 +376,16 @@ static void frame(void)
     }
 
     int rendered_px = dorado_machine_render_display_list(app.m);
+    /* Console heartbeat (~every 256 frames): emulated-cycle progress and
+     * rendered pixel count, for diagnosing a stalled boot in the browser. */
+    {
+        static unsigned hb;
+        if ((++hb & 0xFF) == 0)
+            printf("dorado_web: heartbeat cyc=%llu px=%d chunk=%llu\n",
+                   (unsigned long long)dorado_machine_cycles(app.m),
+                   rendered_px,
+                   (unsigned long long)app.cycles_per_frame);
+    }
     /* Stay in fast-boot (large cycle chunks) while the screen is still blank,
      * then switch to a responsive chunk once the world paints its UI (herald /
      * prompt / game field). This is keyboard-independent: typing during the
@@ -371,30 +395,23 @@ static void frame(void)
     const uint8_t *fb = app.disp->fb;
 
     /* Present the active world's native raster (Alto 808x606, Cedar lf
-     * 1024x808); resize the canvas/window when the world changes size. */
-    static int win_w = 0, win_h = 0;
+     * 1024x808); js_present resizes the canvas when the world changes. */
     int aw = app.disp->active_w ? app.disp->active_w : DORADO_DISPLAY_W;
     int ah = app.disp->active_h ? app.disp->active_h : DORADO_DISPLAY_H;
-    if (aw != win_w || ah != win_h) {
-        SDL_SetWindowSize(app.win, aw, ah);
-        win_w = aw; win_h = ah;
-    }
 
+    /* Expand the 1bpp framebuffer to packed RGBA rows (stride == aw, the
+     * layout ImageData expects). 0xAABBGGRR little-endian == RGBA bytes:
+     * black ink 0xFF000000, white paper 0xFFFFFFFF. */
     uint32_t *px = pixels;
     for (int y = 0; y < ah; y++) {
         const uint8_t *row = fb + y * DORADO_DISPLAY_ROW_BYTES;
-        uint32_t *out = px + y * DORADO_DISPLAY_W;
+        uint32_t *out = px + y * aw;
         for (int x = 0; x < aw; x++) {
             int bit = (row[x >> 3] >> (7 - (x & 7))) & 1;
             out[x] = bit ? 0xFF000000u : 0xFFFFFFFFu;
         }
     }
-    SDL_UpdateTexture(app.tex, NULL, pixels,
-                      DORADO_DISPLAY_W * (int)sizeof(uint32_t));
-    SDL_Rect src = { 0, 0, aw, ah };
-    SDL_RenderClear(app.ren);
-    SDL_RenderCopy(app.ren, app.tex, &src, NULL);
-    SDL_RenderPresent(app.ren);
+    js_present(pixels, aw, ah);
     app.frame++;
 }
 
@@ -405,22 +422,6 @@ int main(void)
 
     if (dorado_web_boot(WEB_NETEXEC, 1) != 0)
         return 1;
-
-    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-        fprintf(stderr, "dorado_web: SDL_Init: %s\n", SDL_GetError());
-        return 1;
-    }
-    app.win = SDL_CreateWindow("Xerox Dorado", SDL_WINDOWPOS_CENTERED,
-                               SDL_WINDOWPOS_CENTERED, DORADO_DISPLAY_W,
-                               DORADO_DISPLAY_H, 0);
-    app.ren = SDL_CreateRenderer(app.win, -1, SDL_RENDERER_ACCELERATED);
-    app.tex = SDL_CreateTexture(app.ren, SDL_PIXELFORMAT_ARGB8888,
-                                SDL_TEXTUREACCESS_STREAMING,
-                                DORADO_DISPLAY_W, DORADO_DISPLAY_H);
-    if (!app.win || !app.ren || !app.tex) {
-        fprintf(stderr, "dorado_web: SDL setup failed: %s\n", SDL_GetError());
-        return 1;
-    }
 
     /* 0 fps => use requestAnimationFrame; 1 => keep looping (don't return). */
     emscripten_set_main_loop(frame, 0, 1);

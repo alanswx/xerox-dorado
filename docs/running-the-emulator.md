@@ -65,10 +65,32 @@ Streamed by the EFTP server as the "next stage." Two families:
 **Alto boot files (Path A — these WORK):** `chm/bootfiles/*.boot` and
 `*.BOOT` — `NETEXEC.BOOT!8` (the network executive menu), games
 (`Galaxian.boot!1`, `Invaders.boot!1`, `MissileCommand.boot!1`,
-`PinBall.boot!1`, `AstroRoids.boot!1`, `StarWars.boot!1`, `Trek.boot!1`,
-`Reversi.boot!1`, `Pool.boot!1`, …), and tools (`CRTTEST.BOOT!1`,
-`DMT.BOOT!22`, `KeyTest.boot!1`, `MadTest.boot!1`, `FTP.boot!1`,
-`EtherWatch.boot!1`, …).
+`PinBall.boot!1`, `AstroRoids.boot!1`, `Boggs.boot!1`, `Reversi.boot!1`, …),
+and tools (`CRTTEST.BOOT!1`, `DMT.BOOT!22`, `KeyTest.boot!1`,
+`MadTest.boot!1`, `FTP.boot!1`, `EtherWatch.boot!1`, …).
+
+Three caveats, all reproducing real-Dorado behavior (June 2026 findings):
+
+- **Load time.** Boot + the lock-step EFTP transfer cost ~1M cycles per
+  512-byte packet, so a game's own code only starts after ~80M cycles
+  (small file) to ~190M (Trek-sized). A headless `--cycles 100000000` run
+  of a big boot file snapshots the *loader*, not the program.
+- **Blank start screens.** `AstroRoids` and `Invaders` come up waiting for
+  a keystroke on an essentially blank screen (their FullBootInit display
+  stream is empty); type any key and the playfield paints. `Reversi` is a
+  text-prompt UI.
+- **Games that need Alto RAM microcode never run:** `Pool.boot!1`
+  (`JMPRAM`), `StarWars.boot!1` and `Trek.boot!1` (custom `70000B`-family
+  opcodes). They `WRTRAM` a custom Alto microcode image and jump into it.
+  The Dorado has no Alto control RAM and AEmu makes no pretense of one
+  (`chm/doradosource/AEmuSources-cedar6.0.dm!1_/ATraps.mc`: `WRTRAM`
+  no-ops, `RDRAM` returns 0, `JMPRAM` and all of `70000B..77777B` branch
+  to the trap microcode), so they trap into Swat and park in TeleSwat's
+  receive loop — identical to real hardware. `MissileCommand.boot!1`
+  paints its attract screen first, then dies the same way on its first
+  `70000B` opcode. Diagnostic: the machine-debug line `TRAPPC=` (Alto
+  `M[527B]`) is nonzero and the world idles on Pup socket `60B`
+  (TeleSwat), acking the fake server's probes with type-`204B` Pups.
 
 **Cedar/Pilot boot files (Path B — would be loaded by the germ once it
 reaches `DoInLoad`; not yet reached):** `chm/bootfiles/CedarNetExec.boot!4`,
@@ -91,9 +113,11 @@ target per boot file:
 ```
 make run-galaxian      # Galaxian
 make run-netexec       # the NetExec boot menu
-make run-invaders      # Space Invaders
-make run-missilecommand / run-pinball / run-astroids / run-reversi / run-pool
-make run-starwars / run-trek / run-crttest / run-dmt / run-keytest / ...
+make run-invaders      # Space Invaders (type a key once loaded)
+make run-missilecommand / run-pinball / run-astroids / run-reversi
+make run-boggs / run-crttest / run-dmt / run-keytest / ...
+# run-pool / run-starwars / run-trek load but trap into Swat: they need
+# Alto RAM microcode, which no Dorado has (see the caveats above).
 ```
 Any Alto boot file works by hand:
 ```

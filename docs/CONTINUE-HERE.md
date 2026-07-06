@@ -610,6 +610,79 @@ Probe tooling used (all still valid): `DORADO_VM_DUMP` (octal va:count,...),
 `--snapshot-in /tmp/dorado-lisp-lyric-m-7b.snap` (+ a COPY of
 `/tmp/dorado-lisp-lyric-m-pchist.pack`; don't mutate the original).
 
+## RESOLVED (2026-07-06): "some games show nothing" — RAM-microcode games
+## trap into TeleSwat; others just need a keystroke or more load cycles
+
+Investigated Pool/StarWars/Trek (0 display-list pixels at any cycle count)
+plus the "minimal display" games. No emulator bug: every behavior matches
+the real Dorado. Three independent causes:
+
+1. **EFTP load time dominates.** Boot + the lock-step EFTP stream cost
+   ~1M cycles per 512-byte packet, so game code starts at ~77M cycles for
+   a small file and ~190M for Trek (156 packets). A 100M-cycle snapshot of
+   a big boot file is a picture of the loader. (This alone explained the
+   stale "Boggs shows nothing" note — Boggs paints its portrait fine.)
+2. **AstroRoids/Invaders wait for a keystroke on an empty FullBootInit
+   display stream** (zero-width DCB chain at `DASTART`, `nwords=0`). Type
+   any key once loaded and they paint (verified: 437k / 71k px). Reversi
+   is a text-prompt UI (~1.4k px is its real screen).
+3. **Pool, StarWars, Trek load custom Alto RAM microcode and die,
+   authentically.** Pool executes `JMPRAM` (61010B); StarWars and Trek
+   execute custom `70000B`-family opcodes; MissileCommand paints attract
+   first, then does the same. Per the real AEmu source
+   (`chm/doradosource/AEmuSources-cedar6.0.dm!1_/ATraps.mc`): `WRTRAM`
+   no-ops, `RDRAM` returns 0 always, `JMPRAM` -> `NPTrap`, and op bytes
+   160B-177B (`70000B..77777B`) all dispatch to trap microcode. The games
+   never probe (WRTRAM appears to succeed), jump in, trap, and the
+   FullBootBase trap path (all vectors `530B..567B` = `JMP @176B`) ends
+   in Swat.
+
+**Identity of Sessions 4-6's "raw ether exchange service": it is
+TeleSwat** (`chm/altosource/buildboot.dm!2_/TeleSwat.asm`), the remote
+debugger in every BuildBoot FullBootBase resident. Protocol on Pup socket
+60B (`socTeleSwat`): `200B`=Store, `201B`=Fetch, `202B`=Swap (arms the
+~5.4s `dally` deadline against RTC 430B), `203B`=SwapReply (restore +
+resume), `204B`=ptSwatAck (the reply). The mystery 204B transmissions
+with body `[401B, 1000B]` are a Swat-ed program *acking the fake
+server's periodic 201B probes* as Fetch requests ("M[401B]=1000B"), and
+the solid-block/inverting cursor is TeleSwat's `sa2` cursor-invert on
+every ack. A trapped world therefore looks "alive" on the wire while its
+coroutine ring is frozen. Do NOT stop the 201B broadcasts — Session 4
+showed they are what starts NetExec's contexts.
+
+Diagnostics added: machine-debug now prints `TRAPPC=` (Alto `M[527B]`,
+nonzero = the world took an S-group trap), and `DORADO_FINAL_MEMDUMP=1`
+dumps the full 64K Alto space as `MD va val` lines whenever the machine
+debug runs (pairs with `DORADO_FINAL_DEBUG=1`; complements cpu.c's
+`DORADO_MEMDUMP_AT`, which only arms on the disk-boot loader entry).
+Makefile game-target comments and `docs/running-the-emulator.md`
+reclassified accordingly.
+
+**Same day, web frontend: the deployed Pages build was dead in current
+Chrome, and rebuilding with emsdk 6.0.0 exposed two SDL2-port breaks —
+the web build is now SDL-free.** The old deployed build crashed at
+`callMain` (`TextDecoder ... ArrayBuffer must not be resizable` — old
+emscripten vs new Chrome). Rebuilding with emsdk 6.0.0 fixed startup but
+(a) the SDL renderer never presented a frame (SDL_CreateRenderer +
+UpdateTexture + RenderPresent left the canvas black; a raw gl.clear from
+JS painted and even *persisted* across SDL "presents"), and (b) SDL
+keyboard events never reached SDL_PollEvent (mouse-motion did; the
+keydown listener was registered on window but keys never queued).
+Emulation speed was never the problem: the identical core built to wasm
+runs 100M cycles in ~7.7s under node (~native/1.5). Fix: dorado_web.c no
+longer links SDL at all — frames go to the canvas via an EM_JS
+`js_present()` (2d context + putImageData; pixels are COPIED out of the
+heap first because Chrome rejects ImageData views over the resizable
+ALLOW_MEMORY_GROWTH buffer), and web_shell.html feeds input through
+exported `dorado_web_key()`/`dorado_web_mouse()` (unshifted-ASCII + a
+small WEB_KEY_* table — keep the C and JS maps in sync). Verified in
+Chrome: NetExec menu ~20s after load, typing `galaxian` + Return at the
+prompt boots and renders the attract screen. Console diagnostics that
+remain on purpose: a ~256-frame heartbeat (`cyc/px/chunk`) and a
+`slow frame`>1s logger in the shell. Beware while testing: Chrome fully
+suspends rAF for occluded/unfocused tabs, which looks exactly like a
+frozen emulator.
+
 ## ===> PREVIOUS (2026-06-30): Lisp `/M` loads DoradoLispMc and
 ## reaches the post-sysout banner loop.
 
