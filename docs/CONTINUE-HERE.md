@@ -99,6 +99,27 @@ IfuSimple, Alto disk boot 2126 px @700M, Galaxian 121549.
   Verified: make test, Lyric desktop byte-identical (191,993 px incl. the
   {1,101700} scar — sysout data, unaffected as expected), kernel/IfuSimple/
   memMisc diagnostics PASS (eventCounters dm!5 = known pre-existing fail).
+- **FAULT REPRODUCED + STACK FRAME CAPTURED (2026-07-05).** Deterministic
+  reproducer: `DORADO_FAKE_TIME=1783285880` (+ DORADO_DISPM_PRESENT=1, run to
+  >=3.717B) makes the vp-8206 fault occur every boot (73 page-8206 faults;
+  verified via FAULT_TRACE and now the STK probe). IMPORTANT LESSON: the
+  fault was reproducing in earlier sweeps all along — my DETECTION was broken
+  (a) DORADO_STK_ON_FAULT strtol("0o..",0)=0 bug (probe never fired; fixed),
+  and (b) a pixel-count heuristic read mid-fault-storm (2907 px at 3.717B is
+  NOT "no fault" — run to 3.72B to see 3768). Emulation code is byte-identical
+  to 519f30d (no regression). The fault is time-dependent only via the sole
+  `time(NULL)` input (DORADO_FAKE_TIME).
+  Captured frame (`DORADO_STK_ON_FAULT=0o20016`):
+  `pc=0o4130 va=0o10007064 StkP=1 Q=000040: STK[+0]=000040 STK[+1]=007064
+  STK[+2]=056217 STK[+3]=014673` (all STK below StkP = 0). So the scan reads
+  the 2-word pointer {hi=0o40, lo=0o7064}=0o10007064 straight off the Lisp
+  stack (STK[1]/STK[2]); the LOW word increments with the scan, the HIGH word
+  0o40 (which aims it at the 2M region past the 6208-page sysout) is fixed.
+  STK[3]=0o56217, STK[4]=0o14673 are the adjacent frame words. NEXT (now
+  cheap — deterministic reproducer): trace who WRITES STK[1]=0o40 (the bad
+  high word) — a targeted STK-write trace around the fault, OR identify
+  pc=0o4130's routine via the DoradoLispMc symbol map — to decide legit
+  dynamic pointer vs corruption.
 - **REPRODUCTION RECIPE + the `seq` gotcha that wasted hours (2026-07-05).**
   To hunt for a DORADO_FAKE_TIME value that reproduces the vp-8206 fault:
   loop `DORADO_FAKE_TIME=$t DORADO_STK_ON_FAULT=0o20016 DORADO_DISPM_PRESENT=1
