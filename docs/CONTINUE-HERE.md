@@ -131,6 +131,19 @@ IfuSimple, Alto disk boot 2126 px @700M, Galaxian 121549.
   page-churn list (the Map<- at the loader pc doing these ops) and what memory
   word decides 200E — compare that word's value between faulting/non-faulting
   boots; it should reveal a date/time value leaking into a page number.
+- **LEAD: the fault frame looks like STALE pre-LoadRam stack (2026-07-05).**
+  DORADO_STK_WRITE_WATCH (new tool) at the reproducer time shows the fault
+  frame's distinctive word 0o14673 is written to the STK ONLY in the AEMU
+  era (cyc 78M-681M, before the ~3B LoadRam), and only to STK[01] — never in
+  the DoradoLispMc era and never to STK[04] where the fault frame holds it.
+  So DoradoLispMc's pc=0o4130 scan appears to read STACK CELLS IT NEVER
+  WROTE (stale values left over from the AEMU/loader world) and treat
+  {0o40,0o7064} as a pointer -> the out-of-bounds fetch. This points at an
+  emulator STK-state issue across the LoadRam world switch (or a
+  non-rm_stk_write push path the trace misses). NEXT: trace STK[04]/STK[03]
+  writes too (DORADO_STK_WRITE_WATCH=0o56217), and check whether real HW
+  clears/初始izes the STK at LoadRam; confirm via the DoradoLispMc source
+  what pc=0o4130's routine expects on the stack.
 - **FAULT REPRODUCED + STACK FRAME CAPTURED (2026-07-05).** Deterministic
   reproducer: `DORADO_FAKE_TIME=1783285880` (+ DORADO_DISPM_PRESENT=1, run to
   >=3.717B) makes the vp-8206 fault occur every boot (73 page-8206 faults;

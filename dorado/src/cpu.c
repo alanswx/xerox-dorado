@@ -1090,7 +1090,26 @@ static int rm_watch_matches(int idx)
 static void rm_stk_write(dorado_cpu *cpu, int idx, uint16_t value)
 {
     if (idx >= CPU_RMSTK_INVALID) return;
-    if (idx >= CPU_RMSTK_STK_BASE) cpu->STK[idx & 0xFF] = value;
+    if (idx >= CPU_RMSTK_STK_BASE) {
+        /* DORADO_STK_WRITE_WATCH="0oVAL": log every STK write whose value
+         * equals VAL, with the writing pc — value-triggered (reliable,
+         * unlike gated PCDIS) way to find who pushes a distinctive frame
+         * word (e.g. the 0o56217/0o14673 words of the vp-8206 fault frame). */
+        static int wv = -2;
+        if (wv == -2) {
+            const char *w = getenv("DORADO_STK_WRITE_WATCH");
+            wv = (w && w[0]) ? ((w[0]=='0'&&(w[1]=='o'||w[1]=='O'))
+                                ? (int)strtol(w+2,NULL,8) : (int)strtol(w,NULL,0))
+                             : -1;
+        }
+        if (wv >= 0 && (value & 0xFFFF) == (unsigned)wv)
+            fprintf(stderr, "STKWRITE cyc=%llu pc=0o%o task=%o STK[%02o]=%06o "
+                    "T=%06o Q=%06o\n",
+                    (unsigned long long)dorado_trace_cycle, cpu->real_PC,
+                    cpu->ctask & 017, idx & 0xFF, value,
+                    cpu->T & 0177777, cpu->Q & 0177777);
+        cpu->STK[idx & 0xFF] = value;
+    }
     else {
         if (rm_watch_matches(idx) &&
             (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
