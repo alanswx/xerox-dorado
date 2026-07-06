@@ -5929,7 +5929,12 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                  * the emulator is dereferencing. */
                 const char *sf = getenv("DORADO_STK_ON_FAULT");
                 if (sf && sf[0]) {
-                    unsigned wantpg = (unsigned)strtol(sf, NULL, 0);
+                    /* Accept "0o..." / "0O..." (octal) as well as decimal/0x.
+                     * C strtol base 0 does NOT understand the "0o" prefix and
+                     * would parse "0o20016" as 0 — parse octal explicitly. */
+                    unsigned wantpg = (sf[0] == '0' && (sf[1] == 'o' || sf[1] == 'O'))
+                                    ? (unsigned)strtol(sf + 2, NULL, 8)
+                                    : (unsigned)strtol(sf, NULL, 0);
                     if (((va >> 8) & 0xFFFFF) == wantpg) {
                         fprintf(stderr, "STKDUMP cyc=%llu pc=0o%o task=%o "
                                 "va=0o%o StkP=%o T=%06o Q=%06o:",
