@@ -144,6 +144,17 @@ IfuSimple, Alto disk boot 2126 px @700M, Galaxian 121549.
   writes too (DORADO_STK_WRITE_WATCH=0o56217), and check whether real HW
   clears/初始izes the STK at LoadRam; confirm via the DoradoLispMc source
   what pc=0o4130's routine expects on the stack.
+- **CAVEAT on the stale-stack lead (unresolved inconsistency):** rm_stk_write
+  (cpu.c) is the ONLY STK write path, and the value-watch caught 0o14673
+  written ONLY to STK[01] (pre-LoadRam) — yet the fault frame reads
+  STK[04]=0o14673. So either the frame dump / StkP interpretation is off, or
+  the value reached STK[04] by a route not captured. RESOLVE THIS before
+  trusting "stale stack": re-dump with absolute STK indices + StkP at the
+  fault, and value-watch 0o56217 (STK[03]) and the pointer words too. The
+  solid, trustworthy facts remain: deterministic reproducer
+  DORADO_FAKE_TIME=1783285880; captured frame pointer {0o40,0o7064}=
+  0o10007064 at StkP-relative [+0]/[+1]; time-dependent; no emulation-code
+  regression.
 - **FAULT REPRODUCED + STACK FRAME CAPTURED (2026-07-05).** Deterministic
   reproducer: `DORADO_FAKE_TIME=1783285880` (+ DORADO_DISPM_PRESENT=1, run to
   >=3.717B) makes the vp-8206 fault occur every boot (73 page-8206 faults;
