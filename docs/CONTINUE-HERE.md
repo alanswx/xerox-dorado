@@ -112,7 +112,18 @@ IfuSimple, Alto disk boot 2126 px @700M, Galaxian 121549.
     sole time() input. The 9 always-present pages (0000..02FF) plus the
     conditional 200E look like a fixed working-set the loader flushes; 200E's
     presence is data-driven and time-sensitive.
-  OPEN (the actual fix): why is page 200E conditionally in that set? Either
+  IMPORTANT NUANCE (don't over-read the mapping angle): in the NON-faulting
+  boot page 200E is mapped early but then FREED at ~2.735B (loader world) and
+  never re-mapped, so it is ALSO unmapped by the 3.716B fault point — yet that
+  boot does not fault. So the fault is NOT simply "200E unmapped"; the real
+  divergence is whether DoradoLispMc SCANS a pointer into 200E at all. In the
+  faulting boot it does (pointer {0o40,0o7064} sits on the Lisp stack); in the
+  non-faulting boot it does not. The loader's differing 200E map activity and
+  DoradoLispMc's differing stack pointer are correlated effects of the one
+  time() input, not a simple cause->effect. So the real next step is to trace
+  WHO writes {0o40,0o7064} onto the DoradoLispMc stack (STK[1]/STK[2]) in the
+  faulting boot and what time-derived value produces the high word 0o40.
+  OLDER (partial) framing — OPEN (the actual fix): why is page 200E conditionally in that set? Either
   (a) the emulator mishandles the date/time value so a memory word that feeds
   the page list differs (an engine bug — most likely, since time() is the only
   variable and it should NOT change which VM pages exist), or (b) legit
