@@ -99,6 +99,27 @@ IfuSimple, Alto disk boot 2126 px @700M, Galaxian 121549.
   Verified: make test, Lyric desktop byte-identical (191,993 px incl. the
   {1,101700} scar — sysout data, unaffected as expected), kernel/IfuSimple/
   memMisc diagnostics PASS (eventCounters dm!5 = known pre-existing fail).
+- **ROOT LOCALIZED (2026-07-05): the fault is a TIME-DEPENDENT missing map
+  entry for page 200E (vp 8206).** Map-trace comparison of the SAME boot at a
+  faulting vs non-faulting DORADO_FAKE_TIME:
+    - Non-faulting boot: the loader churns (Map<- / vacate / remap) the page
+      set {0000,0001,0052,0056,00FF,0200,0201,02FE,02FF,**200E**} — vp 8206 IS
+      mapped, so DoradoLispMc's later scan of a pointer into it resolves.
+    - Faulting boot (DORADO_FAKE_TIME=1783285880): the loader churns the SAME
+      set MINUS 200E — vp 8206 is NEVER mapped, so the scan (pc=0o4130,
+      pointer {0o40,0o7064}=0o10007064 read off STK[1]/STK[2]) faults.
+    So whether page 200E lands in the loader's mapped-page set depends on the
+    sole time() input. The 9 always-present pages (0000..02FF) plus the
+    conditional 200E look like a fixed working-set the loader flushes; 200E's
+    presence is data-driven and time-sensitive.
+  OPEN (the actual fix): why is page 200E conditionally in that set? Either
+  (a) the emulator mishandles the date/time value so a memory word that feeds
+  the page list differs (an engine bug — most likely, since time() is the only
+  variable and it should NOT change which VM pages exist), or (b) legit
+  Lisp/loader behavior. Next: with the reproducer, trace WHO builds the
+  page-churn list (the Map<- at the loader pc doing these ops) and what memory
+  word decides 200E — compare that word's value between faulting/non-faulting
+  boots; it should reveal a date/time value leaking into a page number.
 - **FAULT REPRODUCED + STACK FRAME CAPTURED (2026-07-05).** Deterministic
   reproducer: `DORADO_FAKE_TIME=1783285880` (+ DORADO_DISPM_PRESENT=1, run to
   >=3.717B) makes the vp-8206 fault occur every boot (73 page-8206 faults;
