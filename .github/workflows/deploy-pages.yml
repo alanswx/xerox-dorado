@@ -30,9 +30,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Emscripten
+        # Pinned, not "latest": emsdk 6.0.2 generates resizable-ArrayBuffer
+        # heap views (toResizableBuffer) whose TextDecoder.decode() throws
+        # "ArrayBuffer must not be resizable" in current stable Chrome --
+        # the page dies at callMain before booting. 6.0.0 uses the legacy
+        # grow path and is what the build was verified against locally.
         uses: mymindstorm/setup-emsdk@v14
         with:
-          version: latest
+          version: 6.0.0
 
       - name: Verify emcc
         run: emcc --version
