@@ -397,6 +397,11 @@ LISP_REMOTE_HOST ?= DORADO
 LISP_REMOTE_VMEM_PAGE_SPEC ?= 1500D
 LISP_REMOTE_FTP_TRACE ?= 1
 LISP_LYRIC_VMEM_PAGE_SPEC ?= 15002D
+# CreateFile.run writes ~1 page of labels per ~250K cycles after a ~1B boot.
+# 5.8B cycles covers 15002D; a 19000D VMEM needs ~9B or the pack is saved
+# with a silently TRUNCATED page chain (2026-07-06: "19000-page" pack really
+# ended at page 17564).  Verify with dsk2trident --extract + altofs --extract
+# LISP.VIRTUALMEM. and check the byte size, not just the CreateFile screen.
 LISP_LYRIC_CREATEFILE_CYCLES ?= 5800000000
 LISP_LYRIC_CYCLES ?= 7000000000
 LISP_LYRIC_SHOT_EVERY ?= 500000000
@@ -419,6 +424,18 @@ LISP_BCPLPROG_PHYSICAL_DSK1 ?= $(TRIDENT_RUN_DIR)/bcplprog-lisp-physical-drive1.
 LISP_BCPLPROG_PHYSICAL_PACK ?= $(TRIDENT_RUN_DIR)/bcplprog-lisp-physical-trident.pack
 LISP_BCPLPROG_SCAVENGED_PACK ?= $(TRIDENT_RUN_DIR)/bcplprog-lisp-scavenged-trident.pack
 LISP_BCPLPROG_SCAVENGED_VMEM_PACK ?= $(TRIDENT_RUN_DIR)/bcplprog-lisp-scavenged-vmem-trident.pack
+LISP_GOOD_PACK ?= build/good-packs/lisp-lyric-desktop.pack
+LISP_GOOD_RUN_PACK ?= $(TRIDENT_RUN_DIR)/lisp-lyric-desktop-run.pack
+LISP_GOOD_SYSOUT_FILE ?= ../chm/archiveorg/_chm-parc_interlisp-lyric/LISP.SYSOUT!1
+LISP_CURRENT_VMEM_PAGES ?= 19000
+LISP_CURRENT_GOOD_PACK ?= build/good-packs/lisp-current-19000.pack
+LISP_CURRENT_DSK0 ?= build/good-packs/lisp-current-drive0.dsk
+LISP_CURRENT_DSK1 ?= build/good-packs/lisp-current-drive1.dsk
+LISP_CURRENT_AUX_DSK0 ?= build/good-packs/lisp-current-aux-drive0.dsk
+LISP_CURRENT_AUX_DSK1 ?= build/good-packs/lisp-current-aux-drive1.dsk
+LISP_CURRENT_RUN_PACK ?= $(TRIDENT_RUN_DIR)/lisp-current-19000-run.pack
+LISP_CURRENT_FAKE_TIME ?= 1783285880
+LISP_CURRENT_WORK_PREFIX ?= build/good-packs/lisp-current-work
 LISP_CORE_INSERTS = \
 	--insert '$(LISP_RUN_FILE)' LISP.RUN. \
 	--insert '$(LISP_SYMS_FILE)' LISP.SYMS. \
@@ -473,6 +490,7 @@ $(ALTO_GOLDEN_PACK): $(ALTO_GOLDEN_PACK_GZ) | $(TRIDENT_GOLDEN_DIR)
 .PHONY: run-lisp-bcplprog-loader-smoke
 .PHONY: run-lisp-remote-sysout-smoke run-lisp-lyric-remote-long
 .PHONY: run-lisp-lyric-resume-debug
+.PHONY: lisp-current-good-pack run-lisp-good-sdl run-lisp-current-sdl
 .PHONY: run-alto-disk run-alto-disk-screenshot
 .PHONY: run-bfstest-smoke run-scavenger-smoke
 .PHONY: run-tricond-nopack run-tricond-pack
@@ -656,6 +674,44 @@ run-lisp-lyric-resume-debug: $(BINDIR)/dorado
 		--shot-prefix /tmp/dorado-lisp-lyric-resume \
 		--shot-every $(LISP_LYRIC_RESUME_SHOT_EVERY) \
 		--out /tmp/dorado-lisp-lyric-resume.pgm
+
+lisp-current-good-pack:
+	mkdir -p '$(dir $(LISP_CURRENT_GOOD_PACK))'
+		$(MAKE) lisp-bcplprog-scavenged-vmem-image \
+		LISP_VMEM_PAGES=$(LISP_CURRENT_VMEM_PAGES) \
+		LISP_LYRIC_VMEM_PAGE_SPEC=$(LISP_CURRENT_VMEM_PAGES)D \
+		LISP_LYRIC_CREATEFILE_CYCLES=9000000000 \
+		LISP_RUN_FILE=../chm/lisp/current/LISP.RUN\!3 \
+		LISP_SYMS_FILE=../chm/lisp/current/LISP.SYMS\!2 \
+		LISP_MC_FILE=../chm/lisp/current/DORADOLISPMC.EB\!1 \
+		LISP_INIT_FILE=../chm/lisp/current/DoradoInit.nonet\!1 \
+		LISP_SYSOUT_FILE=../chm/lisp/current/FULL.SYSOUT\!2 \
+		LISP_BCPLPROG_DSK='$(LISP_CURRENT_WORK_PREFIX)-loader.dsk' \
+		LISP_BCPLPROG_PACK='$(LISP_CURRENT_WORK_PREFIX)-loader.pack' \
+		LISP_BCPLPROG_CREATEFILE_DSK='$(LISP_CURRENT_WORK_PREFIX)-createfile.dsk' \
+		LISP_BCPLPROG_CREATEFILE_PACK='$(LISP_CURRENT_WORK_PREFIX)-createfile.pack' \
+		LISP_BCPLPROG_PHYSICAL_DSK0='$(LISP_CURRENT_DSK0)' \
+		LISP_BCPLPROG_PHYSICAL_DSK1='$(LISP_CURRENT_DSK1)' \
+		LISP_BCPLPROG_PHYSICAL_PACK='$(LISP_CURRENT_WORK_PREFIX)-physical.pack' \
+		LISP_BCPLPROG_SCAVENGED_PACK='$(LISP_CURRENT_WORK_PREFIX)-scavenged.pack' \
+		LISP_BCPLPROG_SCAVENGED_VMEM_PACK='$(LISP_CURRENT_GOOD_PACK)'
+
+run-lisp-good-sdl: sdl
+	@test -r '$(LISP_GOOD_PACK)' || \
+		(echo "Missing $(LISP_GOOD_PACK)." && false)
+	mkdir -p '$(dir $(LISP_GOOD_RUN_PACK))'
+	cp -f '$(LISP_GOOD_PACK)' '$(LISP_GOOD_RUN_PACK)'
+	chmod 644 '$(LISP_GOOD_RUN_PACK)'
+	./build/dorado-sdl \
+		--eb worlds/aemu.eb \
+		--disk 0='$(LISP_GOOD_RUN_PACK)' \
+		--boot-reason disk --no-alto-boot \
+		--ftp-sysout '$(LISP_GOOD_SYSOUT_FILE)' \
+		--type 'lisp.run/M {DORADO}LISP.SYSOUT\n' \
+		--type-at 330000000 --key-hold 4000000 \
+		--scale 1 --speed 4000000
+
+run-lisp-current-sdl: run-lisp-good-sdl
 
 run-tricond-nopack: $(BINDIR)/rundiag
 	RUNDIAG_DISK=1 RUNDIAG_TASK=14 ./build/rundiag '../chm/dorado/expanded/Tricond.dm!5_/TriconD.mb' BEGIN TESTOK-WITHOUT-DISK ERR 50000000
