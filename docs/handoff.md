@@ -94,6 +94,94 @@ you don't repeat them.
 - **Most useful entry points to read:** `CLAUDE.md` (project mission),
   `dorado/CLAUDE.md` (code-side guide), `docs/INDEX.md` (doc map).
 
+## Current Working State
+
+- The current Lisp bring-up shortcut is `make run-lisp-current-sdl`.
+  It copies `build/good-packs/lisp-lyric-desktop.pack` to
+  `build/run-disks/lisp-lyric-desktop-run.pack` and boots that pack with
+  `./build/dorado-sdl`.
+- The SDL frontend now accepts scripted typing options again:
+  `--type`, `--type-at`, and `--key-hold`. The shortcut types
+  `lisp.run/M {DORADO}LISP.SYSOUT` after boot.
+- Verified behavior: the SDL dummy-driver path reaches the Alto/Mesa
+  world load and the scripted typing point; the stored good pack was
+  already verified to reach the Lisp desktop rather than Swat.
+- GitHub `origin/main` and local `main` now match at `a172061` as of
+  2026-07-09 (`docs: Interlisp bring-up — Medley 1.0 boots; scar root =
+  control transfer into dead stack page`).
+
+## High-level outstanding work (July 2026)
+
+The foundational emulator and both software boot paths work. Alto software
+boots over Ethernet, Cedar 6.1 reaches its login prompt, and the Lyric and
+Medley Interlisp-D worlds reach their desktops. The remaining work is no
+longer basic boot bring-up; it falls into five tracks, in this order.
+
+1. **Make the Interlisp desktop genuinely usable (active frontier).** Both
+   Lyric and Medley reach the desktop but enter RAID, which owns the keyboard
+   and prevents normal Exec use. The July 10 trace rules out the previous
+   RETURN/FUNCALL/control-transfer theory: Lyric's fault is the original
+   `GETBITS` microcode issuing an IFetch-kind *data* reference through the long
+   pointer `{1,101700}` at real PC `01451`; PCF/BR31 stay valid. The pointer
+   comes from an archived heap record that initially contains `{74,101700}`.
+   Original `PUTBASEN` microcode deliberately rebases only its high word from
+   space 74 to space 1, preserving the low offset, and then `GETBITS` reaches
+   the absent page. The exact pre-rebase record occurs byte-for-byte in the
+   archived Lyric sysout. Medley has the independent analogous record and
+   transformation `{74,075600}` -> `{1,075600}`. This strongly identifies
+   incomplete saved context/auxiliary VM in both archived sysouts, not an
+   emulator transfer, arithmetic, unboxing, or addressing bug. A usable-image
+   fix now requires identifying the saved record's semantics and restoring or
+   safely discarding that context; do not guess-patch the pointer. The older
+   FULL.SYSOUT and Harmony images are not clean substitutes because their
+   archived sysouts also depend on VM content absent from the files.
+
+2. **Take Cedar beyond the login prompt.** The mounted PDI supplies the Pilot
+   boot file, not an installed Cedar volume. A July 10 regression audit found
+   that the Interlisp DDC-active predicate could wake Cedar task 3 from stale
+   Initial output history before GermBoot; task 3 then starved task 0 in the
+   shared `BootTransfer` loop. `machine.c` now suppresses DDC wake detection for
+   germ worlds and suppresses DCB scanline wakes until germ data is planted.
+   The three germ passes work again at cycle 67.587M. The present PDI nevertheless
+   remains blank through 1.2B cycles; the same blank result occurs in a clean
+   build from immediately before the DDC change, so this remaining discrepancy
+   is not caused by that fix and the documented login gate needs re-validation
+   against the current PDI/artifacts. The era-matched `Dorado.germ!4` plus
+   `OthelloDorado.boot!8` now gets farther: the old germ is planted, the
+   `062400` header is accepted (`germInLoad`, not `germBadBootFile`), and EFTP
+   starts, but it stops after sequence 1. Continue by comparing the old germ's
+   receive/CSB layout and re-arm behavior with the 6.1 germ path. After Othello
+   runs, it still needs a writable real Trident pack on which to build and
+   preserve the system volume.
+
+3. **Replace the remaining bring-up shims with hardware-faithful paths.** The
+   largest items are the Trident sequence-PROM/FIFO/status/ECC/write path
+   (replacing the PDI IOCB-completion bridge), cache-miss/deferred-reference
+   Hold semantics, and Cedar's authentic display-task/vertical-field interrupt
+   path instead of direct C rasterization and notification. Ethernet boots are
+   functional, but wire timing still needs fidelity work such as transmit
+   deferral while receiving and collision/completion timing.
+
+4. **Turn diagnostics and edge cases into stable regression gates.** The unit
+   suite and primary Alto/Cedar gates are green, but some original PARC
+   diagnostics have stale or harness-sensitive expected results. Record exact
+   reproducible invocations, resolve the eventCounters/IfuComplex discrepancy,
+   and extend coverage to the long memA burn-in and pack-backed TriconD paths.
+   Lower-priority C-model gaps include ECC/parity injection, detailed IFU
+   pipeline timing, breakpoint/performance-counter behavior, and disassembler
+   polish. Alto programs that require writable Alto RAM microcode are expected
+   to trap under the real Dorado AEmu and are not emulator bugs.
+
+5. **Begin the synthesizable RTL implementation only after the C timing model
+   is a stable contract.** Phase 2 has not started. Hold, I/O sequencing, and
+   interrupt/timing behavior should be settled in C first so the Verilog model
+   has an authoritative cycle-level reference.
+
+The detailed April/May gap lists below remain useful as implementation history
+and as an inventory of low-level fidelity work, but their statements about
+Ethernet being absent, Alto not booting, Cedar not loading, or the framebuffer
+remaining blank are superseded by this section and `docs/CONTINUE-HERE.md`.
+
 ## Build and run
 
 ```sh

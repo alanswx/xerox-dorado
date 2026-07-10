@@ -2509,8 +2509,16 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
              * state in the IOBR bank and one word later. Waking the display
              * tasks before a real chain exists can run stale pre-LoadRam
              * task TPCs at high priority. */
-            int display_active = machine_alto_display_active(&m->mem) ||
-                                 machine_ddc_display_active(m);
+            /* Pilot boot data can transiently resemble an Alto DCB before
+             * the germ has been planted; waking the freshly loaded task 3
+             * there runs an uninitialised TPC and starves GermBoot.  Once
+             * the germ is live, Cedar installs a real DCB chain and uses the
+             * same scanline wake source.  The DDC predicate remains limited
+             * to non-germ (Alto/Interlisp) worlds below. */
+            int display_active = machine_alto_display_active(&m->mem) &&
+                                 (!m->germ_word_count || m->germ_data_done);
+            if (!m->germ_word_count)
+                display_active |= machine_ddc_display_active(m);
             if (!display_active && dorado_trace_flag("DORADO_FORCE_DISPLAY_WAKE")) {
                 display_active = 1;
             }
@@ -3297,6 +3305,18 @@ static int machine_alto_display_active(dorado_memory *mem)
 static int machine_ddc_display_active(dorado_machine *m)
 {
     if (!m || !m->ether_loaded_world_cycle) return 0;
+
+    /* The native Cedar/Pilot path does not use the Alto/Interlisp DDC
+     * scanline driver.  Initial leaves real terminal-task output history in
+     * the display model when LoadRam installs CedarDorado; treating that
+     * stale history as a live DDC stream wakes task 3 at its newly loaded,
+     * uninitialised TPC.  It can then enter the shared BootTransfer wait loop
+     * and starve task 0 before the germ IOCB shim sees PC 07012.  Cedar's
+     * native display is driven by its DCB chain plus machine_cedar_io(), so
+     * keep the DDC wake predicate specific to the non-germ worlds that use
+     * it (notably Interlisp-D). */
+    if (m->germ_word_count) return 0;
+
     dorado_display *d = &m->display;
 
     if (d->statics & DORADO_DISPLAY_STATICS_DHT_SHUTUP)
