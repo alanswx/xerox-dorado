@@ -27,6 +27,52 @@ typedef struct {
 
 static int repair_file_metadata(struct fs *afs, const char *name);
 
+static int list_directory(struct fs *afs, const char *name, int verbose)
+{
+    afs->checked = 1;
+    if (!fs_print_directory(afs, name, verbose, stdout)) {
+        fprintf(stderr, "altofs: could not list %s\n", name);
+        return 1;
+    }
+    return 0;
+}
+
+static int find_serial(struct fs *afs, uint16_t sn_word2)
+{
+    int found = 0;
+
+    afs->checked = 1;
+    for (uint16_t vda = 0; vda < afs->length; vda++) {
+        const struct page *pg = &afs->pages[vda];
+        if (pg->label.s.version == VERSION_FREE ||
+            pg->label.s.version == VERSION_BAD ||
+            pg->label.s.sn.word2 != sn_word2)
+            continue;
+
+        uint16_t rda = 0;
+        uint16_t next_vda = 0;
+        uint16_t prev_vda = 0;
+        (void)virtual_to_real(&afs->dg, pg->page_vda, &rda);
+        if (pg->label.s.next_rda)
+            (void)real_to_virtual(&afs->dg, pg->label.s.next_rda, &next_vda);
+        if (pg->label.s.prev_rda)
+            (void)real_to_virtual(&afs->dg, pg->label.s.prev_rda, &prev_vda);
+        printf("serial %06o: vda=%u rda=%06o page=%u nbytes=%u "
+               "prev=%u next=%u version=%u sn=%u,%u\n",
+               sn_word2, vda, rda, pg->label.s.file_pgnum,
+               pg->label.s.nbytes, prev_vda, next_vda,
+               pg->label.s.version, pg->label.s.sn.word1,
+               pg->label.s.sn.word2);
+        found = 1;
+    }
+
+    if (!found) {
+        fprintf(stderr, "altofs: no pages found for serial %06o\n", sn_word2);
+        return 1;
+    }
+    return 0;
+}
+
 static int inspect_file_chain(struct fs *afs, const char *name)
 {
     struct file_entry fe, dir_fe;
@@ -331,7 +377,10 @@ static void usage(const char *prog)
         "  --preserve-existing-metadata\n"
         "                     do not rewrite SysDir. DShape or DiskDescriptor.\n"
         "  --inspect NAME     print NAME's leader and first file-chain labels\n"
+        "  --list NAME        list a directory without editing the image\n"
+        "  --find-serial SN   print pages with Alto serial word2 SN\n"
         "  --extract NAME HOST extract Alto file NAME to host path HOST\n"
+        "  --repair NAME      rewrite NAME's leader metadata from its chain\n"
         "  --insert HOST NAME insert a host file as Alto filename NAME\n"
         "  --boot-file NAME   install Alto boot sector from filesystem NAME\n"
         "  --help             show this help\n",
@@ -611,8 +660,12 @@ int main(int argc, char **argv)
     int source_single_drive = 0;
     int source_preserve_vda = 0;
     const char *inspect_name = NULL;
+    const char *list_name = NULL;
+    uint16_t find_serial_word2 = 0;
+    int do_find_serial = 0;
     const char *extract_name = NULL;
     const char *extract_path = NULL;
+    const char *repair_name = NULL;
     struct geometry dg;
     struct geometry src_dg;
     int source_geometry = 0;
@@ -669,9 +722,16 @@ int main(int argc, char **argv)
             preserve_existing_metadata = 1;
         } else if (!strcmp(a, "--inspect") && i + 1 < argc) {
             inspect_name = argv[++i];
+        } else if (!strcmp(a, "--list") && i + 1 < argc) {
+            list_name = argv[++i];
+        } else if (!strcmp(a, "--find-serial") && i + 1 < argc) {
+            find_serial_word2 = (uint16_t)parse_int(argv[++i], "serial");
+            do_find_serial = 1;
         } else if (!strcmp(a, "--extract") && i + 2 < argc) {
             extract_name = argv[++i];
             extract_path = argv[++i];
+        } else if (!strcmp(a, "--repair") && i + 1 < argc) {
+            repair_name = argv[++i];
         } else if (!strcmp(a, "--insert") && i + 2 < argc) {
             if (insert_count >= (int)(sizeof inserts / sizeof inserts[0])) {
                 fprintf(stderr, "altofs: too many --insert entries\n");
@@ -691,8 +751,16 @@ int main(int argc, char **argv)
         }
     }
 
-    if (extract_name && (insert_count || boot_file)) {
+    if (extract_name && (insert_count || boot_file || repair_name)) {
         fprintf(stderr, "altofs: --extract cannot be combined with image edits\n");
+        return 2;
+    }
+    if ((list_name || do_find_serial) &&
+        (insert_count || boot_file || repair_name || extract_name ||
+         create_vmem || init_blank_free || !preserve_existing_metadata)) {
+        fprintf(stderr,
+                "altofs: --list/--find-serial require read-only options "
+                "(use --existing --preserve-existing-metadata --no-vmem)\n");
         return 2;
     }
 
@@ -766,6 +834,18 @@ int main(int argc, char **argv)
         return rc;
     }
 
+    if (list_name) {
+        int rc = list_directory(&afs, list_name, 0);
+        fs_destroy(&afs);
+        return rc;
+    }
+
+    if (do_find_serial) {
+        int rc = find_serial(&afs, find_serial_word2);
+        fs_destroy(&afs);
+        return rc;
+    }
+
     if (init_blank_free) {
         int n = init_blank_free_pages(&afs);
         if (n < 0) {
@@ -803,6 +883,11 @@ int main(int argc, char **argv)
             fs_destroy(&afs);
             return 1;
         }
+    }
+
+    if (repair_name && repair_file_metadata(&afs, repair_name) != 0) {
+        fs_destroy(&afs);
+        return 1;
     }
 
     if (create_vmem && vmem_after_inserts) {
