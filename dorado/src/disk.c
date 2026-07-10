@@ -91,6 +91,7 @@ int dorado_disk_ecc_check(const uint16_t *words, int n,
 
 static void disk_set_subsector_count(dorado_disk_drive *d, int count);
 static void disk_update_fifo_tws(dorado_disk_controller *ctl);
+static int disk_media_sector(const dorado_disk_drive *d);
 
 static int disk_muff_word_bit(uint8_t addr, uint8_t base, uint16_t word)
 {
@@ -138,6 +139,54 @@ static int disk_seq_skip_sector_events(void)
     if (cached < 0)
         cached = dorado_trace_flag("DORADO_DISK_SEQ_NO_SECTOR") ? 1 : 0;
     return cached;
+}
+
+static int disk_target_rda(uint16_t *out)
+{
+    static int cached = -1;
+    static uint16_t value = 0;
+    if (cached < 0) {
+        cached = 0;
+        const char *env = getenv("DORADO_DISK_TARGET_RDA");
+        if (env && *env) {
+            char *end = NULL;
+            unsigned long v = strtoul(env, &end, 0);
+            if (end && *end == '\0' && v <= 0177777u) {
+                value = (uint16_t)v;
+                cached = 1;
+            }
+        }
+    }
+    if (!cached) return 0;
+    if (out) *out = value;
+    return 1;
+}
+
+static int disk_sector_matches_target(const dorado_disk_sector *s)
+{
+    uint16_t target = 0;
+    if (!s || !disk_target_rda(&target)) return 0;
+    return s->header[0] == target || s->header[1] == target;
+}
+
+static void disk_target_trace_sector(const dorado_disk_controller *ctl,
+                                     const char *ev,
+                                     const dorado_disk_sector *s)
+{
+    if (!disk_sector_matches_target(s)) return;
+    const dorado_disk_drive *d = &ctl->drive[ctl->selected_drive];
+    fprintf(stderr,
+            "[disktarget] cyc=%llu %-10s drv=%d chs=%d/%d/%d media_sec=%d "
+            "hdr=%06o,%06o label=%06o,%06o,%06o,%06o,%06o,%06o,%06o,%06o "
+            "ctrl=0o%o blk=%u op=%u pos=%u/%u idx=%d\n",
+            dorado_trace_cycle, ev, ctl->selected_drive,
+            d->cur_cyl, d->cur_head, d->cur_sector, disk_media_sector(d),
+            s->header[0], s->header[1],
+            s->label[0], s->label[1], s->label[2], s->label[3],
+            s->label[4], s->label[5], s->label[6], s->label[7],
+            ctl->control, ctl->current_block, ctl->current_block_op,
+            ctl->current_block_pos, ctl->current_block_words,
+            ctl->write_stream_index);
 }
 
 /* ─── Pack image I/O ────────────────────────────────────────────── */
@@ -858,6 +907,7 @@ static int disk_begin_read_stream(dorado_disk_controller *ctl)
         ? dorado_disk_pack_sector(d->pack, d->cur_cyl, d->cur_head,
                                   disk_media_sector(d))
         : NULL;
+    disk_target_trace_sector(ctl, "read-start", ctl->read_stream_sector);
     if (ctl->read_block_framing && d->pack)
         disk_start_current_block(ctl, d);
     dorado_disk_controller_refill_fifo(ctl);
@@ -1137,9 +1187,16 @@ static void disk_write_stream_word(dorado_disk_controller *ctl, uint16_t w)
         disk_seq_trace(ctl, "write-sync");
         return;
     }
+    disk_target_trace_sector(ctl, "write-before", s);
     disk_write_word_trace(ctl, "data", w);
     int pos = ctl->current_block_pos;
-    if (!ctl->write_block_framing) {
+    if (ctl->compare_err) {
+        /* HM §9 / AltoDiabloDisk.mc ACmmdCheck: an uncleared CompareErr
+         * inhibits writes of subsequent blocks in the same sector command.
+         * The microcode still drains its write buffer and later observes the
+         * error through muffWriteError, so consume the stream without changing
+         * the media. */
+    } else if (!ctl->write_block_framing) {
         /* Tag Write streams a whole sector in logical low-to-high order.
          * Diablo-on-Trident pack blocks are stored in the high-to-low order
          * consumed by AEmu's descending READ loop, so reverse each block. */
@@ -1166,7 +1223,9 @@ static void disk_write_stream_word(dorado_disk_controller *ctl, uint16_t w)
     } else if (idx < total) {
         s->data[idx - hw - lw] = w;
     }
-    s->modified = 1;
+    if (!ctl->compare_err)
+        s->modified = 1;
+    disk_target_trace_sector(ctl, "write-after", s);
     ctl->write_stream_index++;
     ctl->current_block_pos++;
     if (ctl->write_stream_index >= total ||

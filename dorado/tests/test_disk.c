@@ -451,6 +451,11 @@ static int test_mixed_read_write_retargets_latched_sector(void)
     EXPECT(ctl.write_stream_sector == target,
            "write block should retarget to read sector");
 
+    /* AltoDiabloDisk.mc ACmmdCheck clears CompareErr after a successful
+     * check block; an uncleared CompareErr inhibits the write phase. */
+    dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKMUFF,
+                    MUFF_CLEAR_COMPARE_ERR);
+
     dorado_io_write(&io, DORADO_DISK_TASK, DORADO_DISK_TIOA_DISKDATA,
                     0201); /* sync */
     for (int i = 0; i < 8; i++) {
