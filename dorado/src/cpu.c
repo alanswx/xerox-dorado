@@ -86,6 +86,125 @@ static void trace_alto_words(const char *label, dorado_memory *mem,
     fprintf(stderr, "\n");
 }
 
+static int dsk_kcb_trace_enabled(void)
+{
+    static int cached = -1;
+    if (cached < 0) cached = getenv("DORADO_DSK_KCB_TRACE") ? 1 : 0;
+    return cached &&
+           (!dorado_trace_flag("DORADO_TRACE_GATE") || dorado_trace_gate);
+}
+
+static int dsk_kcb_trace_limit_ok(void)
+{
+    static long count = 0;
+    static long limit = -2;
+    if (limit == -2) {
+        const char *env = getenv("DORADO_DSK_KCB_TRACE_LIMIT");
+        limit = env && env[0] ? strtol(env, NULL, 0) : 512;
+    }
+    if (limit > 0 && count >= limit) return 0;
+    count++;
+    return 1;
+}
+
+static uint16_t trace_word_at(dorado_memory *mem, uint32_t va)
+{
+    return dorado_visible_word_at_va(mem, va & 0x0FFFFFFFu) & 0177777;
+}
+
+static void trace_dsk_words(const char *name, dorado_memory *mem,
+                            uint32_t base, uint16_t off, int n)
+{
+    fprintf(stderr, "%s base=%07o off=%06o", name,
+            base & 017777777u, off & 0177777);
+    for (int i = 0; i < n; i++)
+        fprintf(stderr, " %06o",
+                trace_word_at(mem, base + (uint32_t)off + (uint32_t)i));
+    fprintf(stderr, "\n");
+}
+
+static void trace_dsk_kcb(const dorado_cpu *cpu)
+{
+    if (!cpu || !cpu->mem || !dsk_kcb_trace_enabled() ||
+        !dsk_kcb_trace_limit_ok())
+        return;
+
+    enum {
+        DiskRegsBase = 05 << 4,
+        DskKAddr     = DiskRegsBase + 004,
+        DskSector    = DiskRegsBase + 005,
+        DskKPtr      = DiskRegsBase + 007,
+        DskKCmmd     = DiskRegsBase + 010,
+        DskMAddr     = DiskRegsBase + 011,
+        DskKStatus   = DiskRegsBase + 012,
+        DskKSelect   = DiskRegsBase + 013
+    };
+
+    uint32_t br30 = dorado_br_get(cpu->mem, 030);
+    uint32_t br31 = dorado_br_get(cpu->mem, 031);
+    uint32_t br36 = dorado_br_get(cpu->mem, 036);
+    uint16_t kptr = cpu->RM[DskKPtr] & 0177777;
+    uint16_t kcb[012];
+    uint16_t raw_kcb[012];
+    memset(kcb, 0, sizeof kcb);
+    memset(raw_kcb, 0, sizeof raw_kcb);
+    if (kptr) {
+        for (int i = 0; i < 012; i++) {
+            kcb[i] = trace_word_at(cpu->mem, br36 + (uint32_t)kptr +
+                                             (uint32_t)i);
+            raw_kcb[i] = trace_word_at(cpu->mem, (uint32_t)kptr +
+                                                 (uint32_t)i);
+        }
+    }
+
+    uint16_t header_ptr = kcb[3];
+    uint16_t label_ptr = kcb[4];
+    uint16_t data_ptr = kcb[5];
+
+    fprintf(stderr,
+            "DSKKCB cyc=%llu pc=0o%o rb=%02o mb=%02o "
+            "br30=%07o br31=%07o br36=%07o "
+            "KPtr=%06o KCmmd=%06o KAddr=%06o DskMAddr=%06o "
+            "KStatus=%06o KSelect=%06o Sector=%06o "
+            "kcb_next=%06o kcb_st=%06o kcb_cmd=%06o "
+            "hdrp=%06o lblp=%06o datap=%06o noint=%06o errint=%06o "
+            "kcb_da=%06o\n",
+            (unsigned long long)dorado_trace_cycle, cpu->real_PC & 07777,
+            cpu->RBase & 017, cpu->MemBase & 037,
+            br30 & 017777777u, br31 & 017777777u, br36 & 017777777u,
+            kptr, cpu->RM[DskKCmmd] & 0177777,
+            cpu->RM[DskKAddr] & 0177777,
+            cpu->RM[DskMAddr] & 0177777,
+            cpu->RM[DskKStatus] & 0177777,
+            cpu->RM[DskKSelect] & 0177777,
+            cpu->RM[DskSector] & 0177777,
+            kcb[0], kcb[1], kcb[2], header_ptr, label_ptr, data_ptr,
+            kcb[6], kcb[7], kcb[011]);
+
+    if (br36 != 0 && kptr) {
+        fprintf(stderr,
+                "DSKKCB_RAW kcb_next=%06o kcb_st=%06o kcb_cmd=%06o "
+                "hdrp=%06o lblp=%06o datap=%06o noint=%06o errint=%06o "
+                "kcb_da=%06o\n",
+                raw_kcb[0], raw_kcb[1], raw_kcb[2], raw_kcb[3],
+                raw_kcb[4], raw_kcb[5], raw_kcb[6], raw_kcb[7],
+                raw_kcb[011]);
+    }
+
+    if (header_ptr) {
+        trace_dsk_words("DSKKCB_HDR_MDS", cpu->mem, br36, header_ptr, 2);
+        trace_dsk_words("DSKKCB_HDR_DBR", cpu->mem, br30, 0, 2);
+    }
+    if (label_ptr) {
+        trace_dsk_words("DSKKCB_LBL_MDS", cpu->mem, br36, label_ptr, 010);
+        trace_dsk_words("DSKKCB_LBL_DBR", cpu->mem, br30, 0, 010);
+    }
+    if (data_ptr) {
+        trace_dsk_words("DSKKCB_DAT_MDS", cpu->mem, br36, data_ptr, 010);
+        trace_dsk_words("DSKKCB_DAT_DBR", cpu->mem, br30, 0, 010);
+    }
+}
+
 static void trace_low_core_mapping(dorado_memory *mem)
 {
     if (!mem) return;
@@ -905,6 +1024,7 @@ static int stk_underflow_check(const dorado_uinstr *u)
 static int ff_decode_ok(const dorado_uinstr *u);
 static int ff_full_function_ok(const dorado_uinstr *u);
 static uint16_t field_desc_to_shc(uint16_t a, int is_write);
+static const char *ref_kind_name(dorado_ref_kind kind);
 
 /* True when FF decodes to the Table 11a function `code` (low 6 bits),
  * either as a full function with FA=0 or via the memory-reference
@@ -1087,6 +1207,40 @@ static int rm_watch_matches(int idx)
     return 0;
 }
 
+static int octal_or_c_int(const char *s, char **end)
+{
+    if (s && s[0] == '0' && (s[1] == 'o' || s[1] == 'O'))
+        return (int)strtol(s + 2, end, 8);
+    return (int)strtol(s, end, 0);
+}
+
+static int stk_write_index_matches(int idx)
+{
+    static int parsed = 0;
+    static int count = 0;
+    static int watch[32];
+
+    if (!parsed) {
+        const char *w = getenv("DORADO_STK_WRITE_INDEX");
+        parsed = 1;
+        while (w && *w && count < (int)(sizeof watch / sizeof watch[0])) {
+            while (*w == ' ' || *w == '\t' || *w == ',') w++;
+            if (!*w) break;
+            char *end = NULL;
+            watch[count] = octal_or_c_int(w, &end);
+            if (end == w || (w[0] == '0' && (w[1] == 'o' || w[1] == 'O') && end == w + 2))
+                break;
+            count++;
+            w = end;
+        }
+    }
+
+    for (int i = 0; i < count; i++) {
+        if ((idx & 0xFF) == (watch[i] & 0xFF)) return 1;
+    }
+    return 0;
+}
+
 static void rm_stk_write(dorado_cpu *cpu, int idx, uint16_t value)
 {
     if (idx >= CPU_RMSTK_INVALID) return;
@@ -1098,16 +1252,25 @@ static void rm_stk_write(dorado_cpu *cpu, int idx, uint16_t value)
         static int wv = -2;
         if (wv == -2) {
             const char *w = getenv("DORADO_STK_WRITE_WATCH");
-            wv = (w && w[0]) ? ((w[0]=='0'&&(w[1]=='o'||w[1]=='O'))
-                                ? (int)strtol(w+2,NULL,8) : (int)strtol(w,NULL,0))
-                             : -1;
+            wv = (w && w[0]) ? octal_or_c_int(w, NULL) : -1;
         }
-        if (wv >= 0 && (value & 0xFFFF) == (unsigned)wv)
-            fprintf(stderr, "STKWRITE cyc=%llu pc=0o%o task=%o STK[%02o]=%06o "
-                    "T=%06o Q=%06o\n",
+        if (((wv >= 0 && (value & 0xFFFF) == (unsigned)wv) ||
+             stk_write_index_matches(idx)) &&
+            (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+            uint8_t sa = idx & 0xFF;
+            fprintf(stderr, "STKWRITE cyc=%llu pc=0o%o task=%o STK[%03o]=%06o "
+                    "old=%06o StkP=%03o rel=%+d T=%06o Q=%06o md=%06o "
+                    "last_ref=%s va=0o%07o miss=%u\n",
                     (unsigned long long)dorado_trace_cycle, cpu->real_PC,
-                    cpu->ctask & 017, idx & 0xFF, value,
-                    cpu->T & 0177777, cpu->Q & 0177777);
+                    cpu->ctask & 017, sa, value,
+                    cpu->STK[sa] & 0177777, cpu->StkP & 0377,
+                    (int)(int8_t)(sa - (cpu->StkP & 0xFF)),
+                    cpu->T & 0177777, cpu->Q & 0177777,
+                    task_md(cpu) & 0177777,
+                    ref_kind_name(cpu->task_md_ref_kind[cpu->ctask & 0xF]),
+                    cpu->task_md_ref_va[cpu->ctask & 0xF] & 017777777u,
+                    cpu->task_md_ref_miss[cpu->ctask & 0xF]);
+        }
         cpu->STK[idx & 0xFF] = value;
     }
     else {
@@ -2609,6 +2772,9 @@ static void latch_task_md_from_memory(dorado_cpu *cpu)
          * it until the fetch latency has elapsed (Hold model). */
         cpu->task_md_ready[task] =
             cpu->cycles + (uint64_t)cpu->mem->last_ref_latency;
+        cpu->task_md_ref_kind[task] = cpu->mem->last_ref_kind;
+        cpu->task_md_ref_va[task] = cpu->mem->last_ref_va;
+        cpu->task_md_ref_miss[task] = cpu->mem->last_ref_miss;
     }
 }
 
@@ -5059,13 +5225,18 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
     /* Route B / disk D4 diagnostic: trace the DSK task's (14₈) microcode PC,
      * so PilotDisk.mc's idle/seek/WaitForSector loop is visible under
      * --disk-real. Gated on DORADO_DSK_PC_TRACE (+ optional cycle window). */
-    if (dorado_trace_flag("DORADO_DSK_PC_TRACE") && cpu->ctask == 014) {
-        fprintf(stderr, "DSKPC pc=0o%o T=0o%o Q=0o%o md=0o%o lva=0o%o mb=0o%o\n",
-                cpu->real_PC, cpu->T, cpu->Q,
+    if (dorado_trace_flag("DORADO_DSK_PC_TRACE") && cpu->ctask == 014 &&
+        (!dorado_trace_flag("DORADO_TRACE_GATE") || dorado_trace_gate)) {
+        fprintf(stderr,
+                "DSKPC cyc=%llu pc=0o%o rb=%02o T=0o%o Q=0o%o "
+                "md=0o%o lva=0o%o mb=0o%o\n",
+                (unsigned long long)dorado_trace_cycle,
+                cpu->real_PC, cpu->RBase & 017, cpu->T, cpu->Q,
                 cpu->mem ? cpu->mem->md : 0,
                 cpu->mem ? (unsigned)cpu->mem->last_ref_va : 0,
                 cpu->MemBase & 037);
     }
+    if (cpu->ctask == 014) trace_dsk_kcb(cpu);
     /* Which task executes the boot-transfer region? (DORADO_BOOTXFER_TRACE) */
     if (dorado_trace_flag("DORADO_BOOTXFER_TRACE") &&
         cpu->real_PC >= 07000 && cpu->real_PC <= 07015) {
@@ -5963,7 +6134,8 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                                 cpu->T & 0177777, cpu->Q & 0177777);
                         for (int s = -8; s <= 3; s++) {
                             int sa = (cpu->StkP + s) & 0xFF;
-                            fprintf(stderr, " [%+d]=%06o", s, cpu->STK[sa]);
+                            fprintf(stderr, " [%+d/STK[%03o]]=%06o",
+                                    s, sa, cpu->STK[sa]);
                         }
                         fprintf(stderr, "\n");
                     }

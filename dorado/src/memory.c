@@ -1501,15 +1501,29 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
             }
             if (f == DM_FAULT_NONE && hi && trace_gate_open() &&
                 va >= (uint32_t)lo && va <= (uint32_t)hi) {
+                uint32_t idx = dorado_map_index(va);
+                const dorado_map_entry *e = &mem->map[idx];
+                int hit_way = -1;
+                int hit = dorado_cache_lookup(mem, va, &hit_way);
+                size_t trace_phys = 0;
+                dorado_fault_kind tf =
+                    va_translate(mem, va, /*is_write=*/0, &trace_phys);
                 fprintf(stderr,
                         "LOAD_VA cyc=%llu task=%o pc=0o%o va=%07o "
-                        "data=%06o kind=%s pcx=0o%o br31=0o%o op=0o%o\n",
+                        "data=%06o kind=%s pcx=0o%o br31=0o%o op=0o%o "
+                        "idx=%04X rp=%04X wp=%u d=%u r=%u "
+                        "phys=%07o tf=%d cache=%d/%d mcr=%06o "
+                        "noref=%d fdmiss=%d usev=%d victim=%d\n",
                         dorado_trace_cycle, task & 017,
                         dorado_mem_trace_pc,
                         va & 0x0FFFFFFFu, mem->md & 0177777,
                         ref_kind_trace_name(kind),
                         dorado_mem_trace_pcx, dorado_mem_trace_br31,
-                        dorado_mem_trace_op);
+                        dorado_mem_trace_op, idx, e->rp, e->wp, e->dirty,
+                        e->ref, (tf == DM_FAULT_NONE) ? (unsigned)trace_phys : 0,
+                        (int)tf, hit, hit_way, mem->mcr & 0177777,
+                        dorado_mcr_noref(mem), dorado_mcr_fdmiss(mem),
+                        dorado_mcr_usemcrv(mem), dorado_mcr_victim(mem));
             }
         }
         break;
@@ -1567,14 +1581,66 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
             }
             if (hi && trace_gate_open() &&
                 va >= (uint32_t)lo && va <= (uint32_t)hi) {
+                uint32_t idx = dorado_map_index(va);
+                const dorado_map_entry *e = &mem->map[idx];
+                int hit_way = -1;
+                int hit = dorado_cache_lookup(mem, va, &hit_way);
+                size_t trace_phys = 0;
+                dorado_fault_kind tf =
+                    va_translate(mem, va, /*is_write=*/1, &trace_phys);
                 fprintf(stderr,
                         "STORE_VA cyc=%llu task=%o pc=0o%o va=%07o "
-                        "data=%06o pcx=0o%o br31=0o%o op=0o%o\n",
+                        "data=%06o pcx=0o%o br31=0o%o op=0o%o "
+                        "idx=%04X rp=%04X wp=%u d=%u r=%u "
+                        "phys=%07o tf=%d cache=%d/%d mcr=%06o "
+                        "noref=%d fdmiss=%d usev=%d victim=%d\n",
                         dorado_trace_cycle, task & 017,
                         dorado_mem_trace_pc,
                         va & 0x0FFFFFFFu, b & 0177777,
                         dorado_mem_trace_pcx, dorado_mem_trace_br31,
-                        dorado_mem_trace_op);
+                        dorado_mem_trace_op, idx, e->rp, e->wp, e->dirty,
+                        e->ref, (tf == DM_FAULT_NONE) ? (unsigned)trace_phys : 0,
+                        (int)tf, hit, hit_way, mem->mcr & 0177777,
+                        dorado_mcr_noref(mem), dorado_mcr_fdmiss(mem),
+                        dorado_mcr_usemcrv(mem), dorado_mcr_victim(mem));
+            }
+        }
+        /* DORADO_HT_TRACE=1: compact Interlisp GC hash-table monitor.
+         * In the running Lyric/Medley DoradoLispMc world htMainBR (BR 0o16)
+         * = va 0o4000000 (HTMAINSIZE=0o100000 words) and htOfloBR (BR 0o17)
+         * = va 0o4100000 (final-debug BR dump, 2026-07-07). htMain entries
+         * are 16-bit with a count field in HTCNTMASK=0o176000 (LPARAMS.mc),
+         * counted in HT1CNT=0o2000 units; a store of old-0o2000 while the
+         * count field is 0 is a refcount UNDERFLOW (the borrow wrecks the
+         * entry). htOflo receives the .htpuntloop's deferred 2-word punt
+         * records [lo, Case<<8|hi]; log every store there so
+         * \GC.HANDLEOVERFLOW's input stream is auditable. */
+        {
+            static int ht_on = -1;
+            static long ht_cap = 4000;
+            if (ht_on < 0) ht_on = getenv("DORADO_HT_TRACE") ? 1 : 0;
+            if (ht_on && ht_cap > 0 && trace_gate_open()) {
+                uint32_t va24 = va & 0x0FFFFFFFu;
+                int in_main = va24 >= 04000000u && va24 < 04100000u;
+                int in_oflo = va24 >= 04100000u && va24 < 04200000u;
+                if (in_main || in_oflo) {
+                    uint16_t old =
+                        dorado_visible_word_at_va(mem, va) & 0177777;
+                    uint16_t nw = b & 0177777;
+                    int underflow = in_main &&
+                        ((old & 0176000) == 0) &&
+                        nw == (uint16_t)((old - 02000) & 0177777);
+                    if (old != nw && (in_oflo || underflow)) {
+                        ht_cap--;
+                        fprintf(stderr,
+                                "HT%s cyc=%llu task=%o pc=0o%o va=%07o "
+                                "old=%06o new=%06o\n",
+                                underflow ? "_UNDERFLOW" : "_OFLO",
+                                dorado_trace_cycle, task & 017,
+                                dorado_mem_trace_pc, va & 0x0FFFFFFFu,
+                                old, nw);
+                    }
+                }
             }
         }
         trace_lisp_blt_store(mem, va, b, task);

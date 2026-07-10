@@ -364,6 +364,9 @@ typedef struct {
                                  * Holds (jumps to self, yielding to higher-
                                  * priority tasks) if the task reads Md before
                                  * this cycle. HM §5 pp.41-42. */
+    uint8_t  task_md_ref_kind[16];
+    uint32_t task_md_ref_va[16];
+    uint8_t  task_md_ref_miss[16];
     uint8_t  task_alu_zero[16];
     uint8_t  task_alu_lt0[16];
     uint8_t  task_alu_carry[16];
