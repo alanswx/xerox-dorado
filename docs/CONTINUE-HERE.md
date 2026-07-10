@@ -99,6 +99,183 @@ IfuSimple, Alto disk boot 2126 px @700M, Galaxian 121549.
   Verified: make test, Lyric desktop byte-identical (191,993 px incl. the
   {1,101700} scar — sysout data, unaffected as expected), kernel/IfuSimple/
   memMisc diagnostics PASS (eventCounters dm!5 = known pre-existing fail).
+- **CLOSED (2026-07-06 evening): the FULL.SYSOUT panic is NOT fixed by a
+  right-sized VMEM — the archived image references VM content that is not
+  in the file. The `current/` path is unbootable as archived.** Three
+  decisive results on top of the morning's VMEM-size work:
+  1. **The morning's "19000-page" pack was silently truncated.** The
+     CreateFile phase ran under `LISP_LYRIC_CREATEFILE_CYCLES=5.8B`, which
+     is only enough for ~17.5K pages; the saved pack's `LISP.VIRTUALMEM.`
+     label chain ends at page 17,564 (altofs: "discontiguous file_pgnum at
+     VDA 1454: expecting 17565 but got 0"). 17,564 < 18,028, so vp 8206's
+     backing page was STILL unreadable — the morning "still panics" result
+     proved nothing about the size fix. `lisp-current-good-pack` now passes
+     9B cycles; ALWAYS verify a rebuilt pack with `dsk2trident --extract` +
+     `altofs --extract LISP.VIRTUALMEM.` (exact byte length, no chain
+     warning).
+  2. **A verified-complete 19,000-page VMEM still panics identically.**
+     Rebuilt with 9B cycles (verified 19,000 pages, chain clean), booted
+     with the reproducer time: the vp-8206 fault sequence still shows 73
+     word-faults (that alone is not failure — under `noFaultFlg` the BCPL
+     `PageFault` serves each vacant-page reference through the SwapBuf
+     redirect without mapping the page, so a 73-word scan always makes 73
+     faults), and the screen shows the same `Raid: Error in uninterruptable
+     system code` panic by 4.0B, now with page 18028 readable (as zeros —
+     the sequential install only writes sysout pages 0..6207).
+  3. **The panic is time-INDEPENDENT.** On the same pack, the previously
+     "known-good" `DORADO_FAKE_TIME=1783247912` produces the identical
+     panic screen by 5B (and at 8.5B, 3759 px). The 2026-07-05
+     time-dependence only ever gated which page got scanned first on the
+     truncated fixtures; it does not gate the outcome.
+  Mechanism recap (all authentic code paths, no engine bug found): sysout
+  page 252 (real archive data, served byte-exact) contains the pointer
+  `{0o40,0o7064}` into vp 8206; both era installers (`LocalVMemInit.bcpl`
+  and `RemoteVmemInit1.bcpl`) copy the sysout SEQUENTIALLY into the VMEM
+  ("the entries in the page maps on the file have the correct vmem address
+  already"), so any PAGEMAP entry pointing at a file page >= NActivePages
+  (6208) reads whatever the fresh VMEM holds — zeros. FULL.SYSOUT!2 (and
+  the fugue/harmony `basics` images generally) carry many such
+  beyond-NActive mappings; Lyric carries almost none, which is why Lyric
+  boots. Static PMT/PAGEMAP decoding caveat for future sessions: only the
+  FIRST pagemap page is at `IFPfilePnPMP0`; later pagemap pages are located
+  through their own pagemap entries (see `LockSpecialPageVp`), so flat
+  file-offset decodes beyond page 0 are unreliable — trust runtime traces.
+  IFPAGE is sysout file page 1 (byte 512); `IFPValidKey=0o12743` for ALL
+  eras (fugue through Lyric), so the fugue.6 BCPL sources' semantics govern
+  every image we have.
+- **Harmony pairing tried for the first time (2026-07-06 evening): same
+  disease, different page.** Built a scavenged + verified-complete
+  19,000-page-VMEM pack from the complete matched harmony set
+  (`chm/lisp/harmony/basics/` LISP.RUN!1 + Lisp.syms!1 + DORADOLISPMC.EB!1
+  + AltoD1MC.eb!1 + INIT.NONET!3, sysout LISP.SYSOUT!15 over fake FTP).
+  The version gate passes, the world starts, and by 4B it dies with
+  `Raid: Invalid address {26,154074}` — an UNMAPPED page in system space
+  0o26 (vp 0o13330), i.e. the harmony image also references VM state it
+  does not carry. Packs preserved: `build/good-packs/lisp-harmony-*.pack`
+  (scavenged = pre-CreateFile base), run pack `/tmp/lisp-harmony-boot.pack`.
+  Conclusion: only the Lyric-era images are self-contained enough to boot;
+  the pre-Lyric `basics` sysouts on the archive all reference beyond-file
+  VM content. The usable Interlisp-D remains the Lyric desktop
+  (`make -C dorado run-lisp-current-sdl`).
+- **NEW WORLD (2026-07-06 night): Interlisp-D Medley 1.0 BOOTS TO ITS
+  DESKTOP.** `chm/archiveorg/_chm-parc_interlisp-medley1.0/LISP.SYSOUT!1`
+  (LispV=0o115000) declares the same MinRVersion (0o13062) and
+  MinBcplVersion (0o25400) as Lyric, so the existing Lyric pack + Lyric
+  DoradoLispMc + Lisp.run!6 accept it unchanged: serving it with
+  `--ftp-sysout` over the stored `lisp-lyric-desktop.pack` boots to the
+  gray desktop + Prompt Window + Exec (XCL), 190,099 px at 8B
+  (DORADO_FAKE_TIME=1783285880). Booted pack preserved as
+  `build/good-packs/lisp-medley-desktop.pack`.
+  Its Prompt Window scar is `Raid: "Invalid address" {1,75600}` (vp 379)
+  vs Lyric's `{1,101700}` (vp 387) — BOTH bootable worlds show the same
+  CLASS of scar: a stale pointer into the vp-380..390 stack region,
+  unmapped in the respective sysout. Two successive releases carrying the
+  same boot scar weakens the "authentic sysout damage" reading — an
+  emulator-side early-init divergence that both worlds hit (something that
+  should re-establish/ignore saved stack-region state before it is
+  dereferenced) is now equally plausible, and there are two reproducers to
+  compare. That comparison is the top lead for a scar-free desktop.
+- **SCAR MECHANICS + THE REAL BLOCKER (2026-07-06 late night).** Probes on
+  the two desktop worlds established:
+  - The scar is date-INDEPENDENT (period-1988 vs 1998 dates both scar
+    identically; DORADO_FAKE_TIME=1451606400 vs 1783285880).
+  - The scar fault is real and captured: task 0, pc=0o1451 (the
+    GETBITS-family opcode helper from the July-4 {36,103626} analysis),
+    va 0o301700 (Lyric; 3 faults at cyc ~7.653B). The Lyric desktop+scar
+    appears between 7B and 8B on a fresh boot.
+  - **The scar RAID actively owns the TTY at the desktop.** Typing into
+    the booted world is interpreted as RAID debugger commands — chars echo
+    and execute (`T`/`E`/`S`... menus). Keyboard path is fully functional;
+    `char_to_key` in dorado.c/dorado_sdl.c now maps `( ) * < >` (Alto
+    digit-row shifts) so full Lisp forms can be typed.
+  - `^D` + Return exits the scar RAID; the NEXT layer in Medley is
+    `Raid: "DELREF on PTR with 0 refcnt" {74,120600}` — a reference-count
+    UNDERFLOW detected at an htOflo overflow-table address. With Lyric's
+    "Bad array block reclaimed" and FULL.SYSOUT's reclaim panic, THREE
+    worlds show GC refcount corruption → suspect ONE emulator divergence
+    in LGC.mc's GCLOOKUP path (harmony/ucode/lispdmc.dm!1_/LGC.mc):
+    the `rcy[T,LTEMP1,11]` double-word shifter cycle, the `carry'`
+    count-overflow test, the "Cancel BDispatch" DispTable[1,3,3] punt
+    path, or the deferred overflow-table appends (.htpuntloop). The scar
+    itself is plausibly the FIRST dangling-pointer casualty of that
+    corruption.
+  - The July-4 Md-bypass is EXONERATED for the Lisp world:
+    DORADO_BYPASS_TRACE over a full Lyric boot shows zero substitutions
+    after LoadRam (all firings are the known AEMU display-task case), and
+    the desktop is byte-identical (191,993 px).
+  - `make test` note: the CompareErr write-inhibit fix requires tests to
+    clear CompareErr (DISKMUFF) between a RDCHK and WRITE phase like
+    ACmmdCheck does — test_disk.c's mixed-write test was updated; suite
+    is green.
+  NEXT: instrument htMain/htOflo refcount stores (underflow detector =
+  catch the first bad count in vivo), verify GCLOOKUP's dispatch-cancel
+  and rcy/ldf semantics against the loaded control store (DORADO_IM_DUMP),
+  with three reproducing worlds to cross-check any fix.
+- **GC MACHINERY AUDITED — IT IS MECHANICALLY SOUND; the trail leads back
+  to the boot scar (2026-07-07 morning).** Tools + findings:
+  - `DORADO_HT_TRACE=1` (memory.c): logs htMain count-field UNDERFLOW
+    stores and ALL htOflo stores. Real table bases from the final-debug
+    BR dump: **htMainBR(BR 0o16)=va 0o4000000, htOfloBR(BR 0o17)=va
+    0o4100000** (NOT the fugue-era spaces 0o73/0o74 — those are ordinary
+    data spaces in the Lyric/Medley world). 128 pages = vps 0o10000+.
+  - Loaded GCLOOKUP mapped in IM: `.htprobe` DispTable = 0o5210/11/12
+    (add/sub/or with FF,,0 constants 0o2000/0o2000/0o1000 = ht1cnt/
+    htstkbit), `.htpunt`=0o5213 (address ends ...11b — the
+    "Cancel BDispatch" alignment trick verified in the loaded image),
+    `.htstore`=0o5215 (AND 0o177000=htStkCnt), `BDispatch_ Case`=0o5205
+    (FF=0o071, FA0/FB7/FC1 — matches our cpu.c dispatch group).
+  - Audits passed: dispatch OR applied in all 5 next-address forms;
+    Md-hold early-returns BEFORE dispatch consumption (pending dispatch
+    survives holds); BDispatch's Link clobber matches the microcode's
+    explicit LTEMP2 save/restore. Md-bypass fires ZERO times post-LoadRam.
+  - Monitor results (full Medley boot): ZERO count underflow stores;
+    punt records healthy ([Case<<8|hi, lo] pairs, Case∈{0,1}); the
+    \GC.HANDLEOVERFLOW consumer zeroes processed records; oflo traffic
+    only begins at desktop/RAID time (~7.8B).
+  - The Medley `DELREF on PTR with 0 refcnt {74,120600}` decoded end-to-
+    end: the object's htMain slot (lo>>1=0o50300 → va 0o4050300) held
+    ANOTHER object's saved entry (0o010146: hi-bits 0o63, biased count 4)
+    — hash collision; the delref punts; HANDLEOVERFLOW restructures the
+    slot into a collision chain (linkp entry 0o1145 stored by pc 0o761 at
+    cyc 8.3206B — the ONLY store to that slot in 10B cycles); the delref
+    then finds an explicit count 0 → a DOUBLE-DELREF within the ^D
+    RAID-exit sweep operating on the boot-scar's anomalous state.
+    KEY SEMANTIC (opGCREF comment): "Null entry means a refcnt of 1" —
+    the table only stores exceptions; "0 refcnt" = explicit zero entry.
+  - The delref-time pcs (0o1451/0o1425, GETBITS-family) are the SAME pcs
+    as the boot-scar fault — this is the error-reporting machinery
+    walking objects. Everything funnels back to the BOOT SCAR as the one
+    anomaly; the GC refcount engine executes correctly.
+  NEXT (the one target left): why does boot-time code walk a pointer into
+  the never-saved stack region (vp 379/387)? Candidate framing: the RAID/
+  error machinery may be examining/printing an error context object and
+  faulting on it — i.e., the displayed Invalid-address may be the
+  REPORTER's fault, with a smaller first error underneath. Trace the
+  FIRST entry into RAIDCode/\MP error paths before the scar fault at
+  ~7.65B (Lyric) / ~7.7B (Medley), and find what error was being
+  reported and who raised it.
+- **SCAR ROOT NARROWED: it is a CONTROL-FLOW TRANSFER into the dead stack
+  page, not a data dereference (2026-07-07 morning).** DORADO_FAULT_TRACE
+  over the whole 260M-cycle pre-scar window (7.4B..7.66B, Lyric) shows
+  exactly THREE faults, all on the scar page va 0x183C0 (0o301700,
+  vp 387): two `kind=ifetch` (the IFU fetching INSTRUCTIONS from the
+  stack page!) then one `kind=fetch` (the LispIFUMapFault trap's
+  processor re-fetch, per the 519f30d semantics) → unresolvable →
+  RAID "Invalid address". There is NO smaller earlier error — the scar
+  is the first fault, and it is the Lisp PC/code-base landing inside the
+  never-saved stack region: a RETURN or FUNCALL through a stale saved
+  frame/code pointer from the resumed image. The earlier "GETBITS at
+  pc=0o1451 dereferences a pointer" framing is RETIRED — pc 0o1451 is
+  the trap re-fetch machinery, common to every such fault.
+  NEXT CONCRETE MOVE: find who loads the code base/PC with the stack
+  address — DORADO_BR_TRACE=1 DORADO_BR_TRACE_MB=31 gated
+  7640000000,7653000000 shows the BrHi/BrLo loads of BR[31] (code base)
+  into the vp-387 region with the loading pcs; from there identify the
+  FUNCALL/RETURN site and the saved object it read (both worlds have the
+  same shape: Lyric vp 387, Medley vp 379). If the frame walk turns out
+  correct-per-image, the scar is authentic resumed-state damage; if the
+  saved frame is fine and the walk mis-reads it, it is our engine bug in
+  the return path (LCALLRET.mc / LSTACK.mc territory).
 - **ROOT LOCALIZED (2026-07-05): the fault is a TIME-DEPENDENT missing map
   entry for page 200E (vp 8206).** Map-trace comparison of the SAME boot at a
   faulting vs non-faulting DORADO_FAKE_TIME:
@@ -297,6 +474,11 @@ IfuSimple, Alto disk boot 2126 px @700M, Galaxian 121549.
   The map-history / empty-page / BR-trace facts below are individually
   correct but their "GC free" INTERPRETATION is retracted per the above.
 
+- **SUPERSEDED by the 2026-07-06 VMEM-size fix above. Historical trace
+  details follow.** The `vp 8206` pointer and disk reads below are real, but
+  the conclusion was wrong: `vp 8206` is backed by `FULL.SYSOUT!2`'s page map
+  at VMEM file page `0o43154`, beyond a 15002-page fixture and within a
+  20000-page fixture.
 - **New 1983-world frontier — diagnosed 2026-07-05.** FULL.SYSOUT boots
   into Lisp and reaches a live RAID prompt: `Raid: Error in uninterruptable
   system code -- ^N to continue into error handler / -1 / @` at ~4.5B

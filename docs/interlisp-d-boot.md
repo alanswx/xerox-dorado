@@ -57,7 +57,20 @@ FTP <Lisp>Current>:      LYRIC-PARC-INIT.LCOM -> INIT.LCOM
 FTP <Lisp>Lyric>CM>:     UpdateLisp.cm
 ```
 
-`NewUserBigDisk.cm` is identical but with a 20000-page VMEM.
+`NewUserBigDisk.cm` is identical but with a 20000-page VMEM. Use the big-disk
+size for the current/FULL sysout path: `FULL.SYSOUT!2` maps at least one valid
+page (`vp 0o20016`) to VMEM file page `0o43154`, which is beyond a 15002-page
+swap file. **2026-07-06 evening: a verified-complete 19,000-page VMEM does not
+fix it** — the page then reads as zeros (both era installers copy the sysout
+sequentially, so nothing ever writes VMEM pages >= NActivePages=6208) and the
+boot still panics `Raid: Error in uninterruptable system code`, identically at
+two different pinned DORADO_FAKE_TIME values. The archived `FULL.SYSOUT!2`
+references VM content that is not in the file; it looks unbootable standalone.
+The bootable world remains Lyric (`make -C dorado run-lisp-current-sdl` runs
+the stored known-good Lyric desktop pack). Pack-build gotcha: the CreateFile
+phase silently truncates large VMEMs when its cycle budget is too small — a
+19000D file needs ~9B cycles (default budget only covers 15002D); verify the
+extracted `LISP.VIRTUALMEM.` length before trusting a rebuilt pack.
 
 ## Files fetched and where they live
 
