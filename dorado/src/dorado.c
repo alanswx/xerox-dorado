@@ -181,6 +181,12 @@ static dorado_display_key char_to_key(char c, int *shift)
     case '\n': case '\r': return DORADO_KEY_RETURN;
     case '?': *shift = 1; return DORADO_KEY_FSLASH;
     case '/': return DORADO_KEY_FSLASH;
+    /* Alto II digit-row shifts: 8*, 9(, 0) — needed to type Lisp forms. */
+    case '(': *shift = 1; return DORADO_KEY_9;
+    case ')': *shift = 1; return DORADO_KEY_0;
+    case '*': *shift = 1; return DORADO_KEY_8;
+    case '<': *shift = 1; return DORADO_KEY_COMMA;
+    case '>': *shift = 1; return DORADO_KEY_PERIOD;
     case '.': return DORADO_KEY_PERIOD;
     case ',': return DORADO_KEY_COMMA;
     case '-': return DORADO_KEY_MINUS;

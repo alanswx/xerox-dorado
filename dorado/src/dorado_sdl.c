@@ -7,7 +7,7 @@
  * memory each frame. Host keyboard input is translated to the Alto key
  * matrix and delivered to the running world once it is interactive.
  *
- *   dorado-sdl [--eb PATH] [--eftp PATH] [--germ PATH]
+ *   dorado-sdl [--eb PATH] [--eftp PATH] [--ftp-sysout PATH] [--germ PATH]
  *              [--pilot-disk PATH] [--quote] [--no-alto-boot]
  *              [--scale N] [--speed CYCLES]
  *
@@ -84,6 +84,51 @@ static uint64_t parse_u64(const char *s, uint64_t def)
     return (end && *end == '\0') ? (uint64_t)v : def;
 }
 
+static char *decode_type_text_arg(const char *s)
+{
+    size_t n = strlen(s ? s : "");
+    char *out = malloc(n + 1);
+    if (!out) return NULL;
+    char *d = out;
+    for (size_t i = 0; i < n; i++) {
+        if (s[i] != '\\' || i + 1 >= n) {
+            *d++ = s[i];
+            continue;
+        }
+        char c = s[++i];
+        switch (c) {
+        case 'n': *d++ = '\n'; break;
+        case 'r': *d++ = '\r'; break;
+        case 't': *d++ = '\t'; break;
+        case '\\': *d++ = '\\'; break;
+        case 'x': {
+            int hi = (i + 1 < n) ? (unsigned char)s[i + 1] : 0;
+            int lo = (i + 2 < n) ? (unsigned char)s[i + 2] : 0;
+            int hv = (hi >= '0' && hi <= '9') ? hi - '0'
+                   : (hi >= 'a' && hi <= 'f') ? hi - 'a' + 10
+                   : (hi >= 'A' && hi <= 'F') ? hi - 'A' + 10 : -1;
+            int lv = (lo >= '0' && lo <= '9') ? lo - '0'
+                   : (lo >= 'a' && lo <= 'f') ? lo - 'a' + 10
+                   : (lo >= 'A' && lo <= 'F') ? lo - 'A' + 10 : -1;
+            if (hv >= 0 && lv >= 0) {
+                *d++ = (char)((hv << 4) | lv);
+                i += 2;
+            } else {
+                *d++ = '\\';
+                *d++ = 'x';
+            }
+            break;
+        }
+        default:
+            *d++ = '\\';
+            *d++ = c;
+            break;
+        }
+    }
+    *d = '\0';
+    return out;
+}
+
 /* Parse a comma-separated boot-key chord (e.g. "bs" or "bs,quote") into
  * cfg->boot_keys, replacing any prior chord. Returns 0 on success. */
 static int parse_boot_keys(const char *list, dorado_machine_config *cfg)
@@ -124,6 +169,94 @@ static int parse_boot_reason(const char *r, dorado_machine_config *cfg)
     return 0;
 }
 
+static dorado_display_key char_to_key(char c, int *shift)
+{
+    *shift = 0;
+    if (c >= 'A' && c <= 'Z') { *shift = 1; c = (char)(c - 'A' + 'a'); }
+    if (c >= 'a' && c <= 'z') {
+        static const dorado_display_key L[26] = {
+            DORADO_KEY_A, DORADO_KEY_B, DORADO_KEY_C, DORADO_KEY_D,
+            DORADO_KEY_E, DORADO_KEY_F, DORADO_KEY_G, DORADO_KEY_H,
+            DORADO_KEY_I, DORADO_KEY_J, DORADO_KEY_K, DORADO_KEY_L,
+            DORADO_KEY_M, DORADO_KEY_N, DORADO_KEY_O, DORADO_KEY_P,
+            DORADO_KEY_Q, DORADO_KEY_R, DORADO_KEY_S, DORADO_KEY_T,
+            DORADO_KEY_U, DORADO_KEY_V, DORADO_KEY_W, DORADO_KEY_X,
+            DORADO_KEY_Y, DORADO_KEY_Z };
+        return L[c - 'a'];
+    }
+    switch (c) {
+    case '0': return DORADO_KEY_0;  case '1': return DORADO_KEY_1;
+    case '2': return DORADO_KEY_2;  case '3': return DORADO_KEY_3;
+    case '4': return DORADO_KEY_4;  case '5': return DORADO_KEY_5;
+    case '6': return DORADO_KEY_6;  case '7': return DORADO_KEY_7;
+    case '8': return DORADO_KEY_8;  case '9': return DORADO_KEY_9;
+    case ' ':  return DORADO_KEY_SPACE;
+    case '\n': case '\r': return DORADO_KEY_RETURN;
+    case '?': *shift = 1; return DORADO_KEY_FSLASH;
+    case '/': return DORADO_KEY_FSLASH;
+    /* Alto II digit-row shifts: 8*, 9(, 0) — needed to type Lisp forms. */
+    case '(': *shift = 1; return DORADO_KEY_9;
+    case ')': *shift = 1; return DORADO_KEY_0;
+    case '*': *shift = 1; return DORADO_KEY_8;
+    case '<': *shift = 1; return DORADO_KEY_COMMA;
+    case '>': *shift = 1; return DORADO_KEY_PERIOD;
+    case '.': return DORADO_KEY_PERIOD;
+    case ',': return DORADO_KEY_COMMA;
+    case '-': return DORADO_KEY_MINUS;
+    case '=': return DORADO_KEY_PLUS;
+    case '+': *shift = 1; return DORADO_KEY_PLUS;
+    case '[': return DORADO_KEY_LBRACKET;
+    case '{': *shift = 1; return DORADO_KEY_LBRACKET;
+    case ']': return DORADO_KEY_RBRACKET;
+    case '}': *shift = 1; return DORADO_KEY_RBRACKET;
+    case ';': return DORADO_KEY_SEMICOLON;
+    case ':': *shift = 1; return DORADO_KEY_SEMICOLON;
+    case '\'': return DORADO_KEY_QUOTE;
+    case '"': *shift = 1; return DORADO_KEY_QUOTE;
+    case '\\': return DORADO_KEY_BSLASH;
+    case '|': *shift = 1; return DORADO_KEY_BSLASH;
+    default: return DORADO_KEY_NONE;
+    }
+}
+
+typedef struct type_event {
+    char *text;
+    uint64_t at;
+    int typed;
+} type_event;
+
+#define MAX_TYPE_EVENTS 16
+
+static void type_text(dorado_machine *m, const char *text, uint64_t key_hold)
+{
+    printf("dorado-sdl: typing \"%s\" at cyc %llu\n", text,
+           (unsigned long long)dorado_machine_cycles(m));
+    int nk = 0;
+    for (const char *p = text; *p; p++) {
+        int shift = 0, ctrl = 0;
+        char tc = *p;
+        if (tc > 0 && tc <= 0x1A && tc != '\n' && tc != '\r' && tc != '\t') {
+            ctrl = 1;
+            tc = (char)(tc - 1 + 'a');
+        }
+        dorado_display_key k = char_to_key(tc, &shift);
+        if (k == DORADO_KEY_NONE) continue;
+        if (ctrl) dorado_machine_set_key(m, DORADO_KEY_CTRL, 1);
+        if (shift) dorado_machine_set_key(m, DORADO_KEY_LSHIFT, 1);
+        dorado_machine_set_key(m, k, 1);
+        dorado_machine_run_until(m, dorado_machine_cycles(m) + key_hold);
+        dorado_machine_set_key(m, k, 0);
+        if (shift) dorado_machine_set_key(m, DORADO_KEY_LSHIFT, 0);
+        if (ctrl) dorado_machine_set_key(m, DORADO_KEY_CTRL, 0);
+        dorado_machine_run_until(m, dorado_machine_cycles(m) + key_hold);
+        if (++nk % 5 == 0)
+            dorado_machine_run_until(m,
+                dorado_machine_cycles(m) + 3000000ull);
+    }
+    printf("dorado-sdl: typed %d keys total, last @cyc %llu\n", nk,
+           (unsigned long long)dorado_machine_cycles(m));
+}
+
 int main(int argc, char **argv)
 {
     int scale = 1;
@@ -133,6 +266,13 @@ int main(int argc, char **argv)
     long max_shot = -1;
     const char *shot_prefix = "dorado-frame";
     int boot_dir_all_opt = -1;            /* -1 auto, 0 off, 1 on */
+    type_event type_events[MAX_TYPE_EVENTS];
+    int type_event_count = 0;
+    int last_type_event = -1;
+    int last_type_can_update = 0;
+    int pending_type_at = 0;
+    uint64_t key_hold = 600000;
+    uint64_t type_at = 110000000ull;
 
     dorado_machine_config cfg;
     dorado_machine_config_default(&cfg);
@@ -141,6 +281,8 @@ int main(int argc, char **argv)
         const char *a = argv[i];
         if (!strcmp(a, "--eb") && i + 1 < argc)        cfg.eth_boot_110 = argv[++i];
         else if (!strcmp(a, "--eftp") && i + 1 < argc) cfg.eftp_boot = argv[++i];
+        else if (!strcmp(a, "--ftp-sysout") && i + 1 < argc)
+            cfg.ftp_sysout = argv[++i];
         else if (!strcmp(a, "--germ") && i + 1 < argc) cfg.germ_path = argv[++i];
         else if (!strcmp(a, "--pilot-disk") && i + 1 < argc)
             cfg.pilot_disk_pdi = argv[++i];
@@ -178,6 +320,36 @@ int main(int argc, char **argv)
             cycles_per_frame = parse_u64(argv[++i], cycles_per_frame);
         else if (!strcmp(a, "--shot-prefix") && i + 1 < argc)
             shot_prefix = argv[++i];
+        else if (!strcmp(a, "--type") && i + 1 < argc) {
+            if (type_event_count >= MAX_TYPE_EVENTS) {
+                fprintf(stderr, "dorado-sdl: too many --type events (max %d)\n",
+                        MAX_TYPE_EVENTS);
+                return 2;
+            }
+            char *text = decode_type_text_arg(argv[++i]);
+            if (!text) {
+                fprintf(stderr, "dorado-sdl: could not allocate --type text\n");
+                return 2;
+            }
+            type_events[type_event_count] =
+                (type_event){ .text = text, .at = type_at, .typed = 0 };
+            last_type_event = type_event_count++;
+            last_type_can_update = !pending_type_at;
+            pending_type_at = 0;
+        }
+        else if (!strcmp(a, "--key-hold") && i + 1 < argc) {
+            key_hold = parse_u64(argv[++i], key_hold);
+            last_type_can_update = 0;
+        }
+        else if (!strcmp(a, "--type-at") && i + 1 < argc) {
+            type_at = parse_u64(argv[++i], type_at);
+            if (last_type_can_update && last_type_event >= 0) {
+                type_events[last_type_event].at = type_at;
+                last_type_can_update = 0;
+            } else {
+                pending_type_at = 1;
+            }
+        }
         else if (!strcmp(a, "--screenshot") && i + 1 < argc) {
             /* Comma-separated frame numbers, e.g. --screenshot 10,15,20.
              * A PGM is written when the frame counter hits each one. */
@@ -189,7 +361,7 @@ int main(int argc, char **argv)
                 tok = strtok(NULL, ",");
             }
         } else if (!strcmp(a, "--help") || !strcmp(a, "-h")) {
-            printf("usage: %s [--eb PATH] [--eftp PATH] "
+            printf("usage: %s [--eb PATH] [--eftp PATH] [--ftp-sysout PATH] "
                    "[--germ PATH] [--pilot-disk PATH] "
                    "[--germ-netboot-bfn OCTAL] "
                    "[--boot-file-number OCTAL] [--boot-dir NAME=BFN=PATH] "
@@ -197,12 +369,18 @@ int main(int argc, char **argv)
                    "[--quote] [--boot-keys K[,K...]] "
                    "[--boot-reason ethernet|netexec|disk] "
                    "[--no-alto-boot] [--scale N] [--speed CYCLES]\n"
+                   "          [--type-at CYCLES --type TEXT]... "
+                   "[--key-hold CYCLES]\n"
                    "          [--screenshot F1,F2,...] [--shot-prefix NAME]\n",
                    argv[0]);
             return 0;
         } else {
             fprintf(stderr, "dorado-sdl: unknown option '%s'\n", a);
             return 2;
+        }
+        if (strcmp(a, "--type") && strcmp(a, "--type-at")) {
+            last_type_can_update = 0;
+            pending_type_at = 0;
         }
     }
     if (scale < 1) scale = 1;
@@ -313,6 +491,15 @@ int main(int argc, char **argv)
                 printf("dorado-sdl: Alto/Mesa world loaded at cycle %llu\n",
                        (unsigned long long)dorado_machine_cycles(m));
             }
+            if (dorado_machine_booted(m)) {
+                for (int te = 0; te < type_event_count; te++) {
+                    if (!type_events[te].typed &&
+                        dorado_machine_cycles(m) >= type_events[te].at) {
+                        type_events[te].typed = 1;
+                        type_text(m, type_events[te].text, key_hold);
+                    }
+                }
+            }
         }
 
         /* Rasterize the display list into the framebuffer. */
@@ -377,5 +564,6 @@ int main(int argc, char **argv)
     if (win) SDL_DestroyWindow(win);
     SDL_Quit();
     dorado_machine_destroy(m);
+    for (int te = 0; te < type_event_count; te++) free(type_events[te].text);
     return 0;
 }
