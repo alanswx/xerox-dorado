@@ -1,8 +1,141 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## 2026-07-10: clean recovery and web snapshot audit
+
+- `make clean` removes the entire `dorado/build` tree, including experimental
+  `build/good-packs`. The supported Lyric base pack now has a real Make
+  dependency that rehydrates it from `web-assets/lisp-lyric-xcl.pack.gz`.
+  Older Current/Harmony/Medley packs are not supported dependencies;
+  representative descendants remain under `/private/tmp`.
+- Cedar's blank regression is fixed and its verified login is now checkpointed
+  for native SDL and wasm32. `make cedar-login-snapshot` captures the native
+  650M-cycle state; `make run-cedar-snapshot-sdl` restores it immediately and
+  accepts keyboard input. `make cedar-login-web-snapshot` creates the separate
+  wasm32 ABI asset used by the browser's Cedar option. Mesa NetExec remains the
+  next useful web checkpoint after its capture frame is revalidated.
+- Web world switches now clear Lyric's `DORADO_DISPM_PRESENT` setting for
+  Alto/Mesa/Cedar. `display_dispm_present` no longer caches that setting across
+  machines, since the browser changes worlds without reloading the module.
+
 ## ===> MILESTONE (2026-07-04): INTERLISP-D BOOTS TO ITS DESKTOP.
 ## The Md-bypass fix (c9aa818 + 9bd7f76 + 29c7ad8) brings Lyric all the way
 ## up: gray desktop + "Prompt Window" + "Exec (XCL)" window (191,993 px).
+
+## ===> MILESTONE (2026-07-10): LYRIC REACHES ITS DESKTOP WITHOUT STARTUP RAID.
+## `tools/interlisp-sysout/discard_stale_process.py` discards the one
+## unavailable saved RTP process context; an 8.5B-cycle boot reaches a clean
+## Prompt Window + Exec desktop (206,668 display-list pixels).
+
+**Fast restore + input finding (2026-07-10):** SDL now accepts machine
+`--snapshot-in/--snapshot-out`. `make lisp-lyric-desktop-snapshot` captured a
+clean 8.8B-cycle XCL desktop and its matched writable pack;
+`make run-lisp-snapshot-sdl` restores it in about 0.3 seconds, with a
+byte-identical framebuffer after forward execution. The web build now ships a
+separate wasm32-native checkpoint (raw snapshots are ABI-specific) plus its
+pack as 5.6 MB of gzip assets and offers **Interlisp-D Lyric — saved Exec
+(XCL) desktop** in the boot menu.
+
+The input investigation now reaches beyond SDL/web and the keyboard matrix.
+A held `a` is visible at LLKEY's Dorado low-core address as active-low
+`175777`; the display-field reschedule enters the keyboard context; and a
+baseline/key snapshot diff finds exactly one new ASCII `0141` byte in Lisp VM,
+proving `\\DECODETRANSITION` and `\\PUTSYSBUF` ran. Mouse motion and the
+active-low left-button transition reach LLKEY too. Nevertheless, clicking the
+Exec window and typing leaves the framebuffer byte-identical, and the blank
+Prompt/Exec windows never print their initial prompt. A live atom scan also
+finds non-NIL `\\TTY.PROCESS`, `\\RUNNING.PROCESS`, and `\\PROCESSES`.
+The active blocker is therefore the saved guest's process/TTY reader, which
+does not drain SYSBUFFER, not host focus or SDL key mapping.
+
+**Process root cause (2026-07-10):** `\RUNNING.PROCESS={75,6000}` is
+`ERIS#LEAF`, while `\TTY.PROCESS={75,6300}` is Exec. Leaf loops in saved
+cleanup with `PROCOWNEDLOCKS={75,1730}` and never yields, so XCL cannot drain
+SYSBUFFER. A cycle trace shows opcode `CREATECELL` legitimately reusing that
+monitor cell during startup because the saved owned-lock pointer is not a
+live GC root; this is not a torn memory store or SDL focus problem. Restoring
+the cell long enough for Leaf to continue exposes a second archived
+inconsistency: RAID reports `DELREF on PTR with 0 refcnt` for `{57,73730}`,
+the saved `\PROCESSES` list root. Skipping Leaf, clearing process roots for a
+cold `PROCESSWORLD`, and forcing a late reschedule were tested and rejected
+(RAID or Swat); none is wired into Make targets or snapshots. The next safe
+route is a sysout saved with processes off, or a guest-aware repair that also
+updates Interlisp reference counts. Do not patch queue links or top values
+directly.
+
+`DORADO_LISP_FIND_ATOM=NAME[,NAME...]` is a read-only live-sysout probe added
+for this work. The earlier Dandelion IOPage cache helper remains for the
+pre-IFU AEmu path and has an RP0-alias regression test, but post-load Dorado
+Lisp now refreshes only the absolute low-core words selected by LLKEY. This
+also avoids repeatedly clearing unrelated dirty state in the IOPage cache
+line. Do not describe the saved XCL checkpoint as keyboard-usable until a
+typed form is visibly consumed and evaluated.
+
+**Added Cedar media (2026-07-10):** the three images now under `CedarDisk/`
+`CedarDorado-kitchensink*.pdi` images are structurally valid PDI v1 / Pilot
+physical volumes. `pdidump` verifies PRSeal `0121212`, version 6, the
+`CedarKitchenSink` label, root checksum `0x3F79`, one 65,450-page subvolume,
+and coherent page labels. They contain the same 33-page germ and 1,060-page
+boot file but distinct populated data; disk 3 has about 32,996 free pages,
+versus 299 and 42 on disks 1 and 2. Extracted FileID 3 has the identical
+SHA-256 `c1778650...b0e435` on the small boot PDI and all three kitchen-sink
+volumes, so adding boot files or mounting a second disk is not the missing
+step. Each kitchen-sink image independently maps logical pages 0..65449 rather
+than forming three fragments of one logical volume. All three enter the
+installed-system-volume path but remain blank at 700M; disk 1 is still blank at
+1.2B after completing many post-germ IOCB reads. Catalog/software testing now
+depends on finishing that installed-volume disk bridge.
+
+**Cedar regression root and checkpoints (2026-07-11):** a historical build at
+`0993f81` booted the current PDI (15,535 pixels), and a deterministic revision
+bisect found the first regression at `4b54d4d`, where the incomplete fixed
+3/16/24-cycle Md-ready Hold approximation became unconditional. It is opt-in
+again with `DORADO_HOLD`; Hold signal/event-counter accounting and HOLDSIM stay
+active. A second regression was the Interlisp LC=5 same-instruction Md bypass:
+the Hardware Manual's real bypass is previous-instruction pipeline behavior,
+while the collapsed-pipeline compatibility substitution needed by DoradoLispMc
+corrupts planted-germ Pilot state. `compat_same_instr_md_bypass` therefore
+remains enabled for the validated Lisp path and is disabled for `germ_path`
+worlds until the overlapping processor pipeline is modeled. Cedar again
+renders 28,539 pixels at 700M and visibly echoes `abc`; restoring the checkpoint
+and pressing Return advances to `Name: abc.pa  password:`. The clean native
+capture at 650M has 28,467 pixels. Its compressed native copy survives
+`make clean`, and the independently generated wasm32 checkpoint restores and
+accepts `abc` as well.
+
+**SDL launch fix (2026-07-10):** the first version of
+`run-lisp-current-sdl` omitted `DORADO_DISPM_PRESENT=1`, although the
+validated headless command and the older Lisp targets all set it.  The
+interactive shortcut consequently reported no DispM board during
+`DisplayInitConfig` and remained in Swat (`Trap instruction 77400 at 0`).
+The target now reports DispM present and pins `DORADO_FAKE_TIME` to the
+same deterministic value used by the successful 8.5B-cycle validation.
+
+**Boot-scar root and repair (2026-07-10):** the `{1,101700}` value is the
+sleeping-stack pointer in a real `PROCESS` record, not an emulator-generated
+bad pointer.  Static FPTOVP decoding maps the archived Lyric bytes to a
+64-word `PROCESS` at `{74,101600}`.  `PROC!37` defines its first two words as
+`PROCFX0` and `PROCFX`; they contain `{74,101700}`.  The record also has
+`PROCSTATUS=PSTAT.DELETED`, the `PROCDELETED` flag, and a non-NIL
+`PROCRESETVARSLST`.  Hard-reset `PROCESSWORLD` therefore preserves it for
+unwinding, then `\RELEASE.PROCESS` dereferences `PROCFX` before clearing it.
+Startup rebases the saved segment 74 stack pointer to live `STACKHI=1`, whose
+page is absent from the archived sysout, and RAID follows.
+
+The repair clears only `PROCESS.PROCFX`, which is the state
+`\RELEASE.PROCESS` itself establishes after releasing a valid context.  The
+tool requires the record VA explicitly and validates the PROCESS layout,
+deleted state, surviving reset state, and absent rebased stack page before it
+writes a derived sysout.  It never changes the archive.  Full Lyric validation
+with `DORADO_FAKE_TIME=1783285880` reached a scar-free desktop at 8.0B and
+finished at 8.5B with 206,668 pixels.  The analogous Medley record is
+`{74,075500}` with `PROCFX={74,075600}`; the sanitizer validates it and
+produces the expected one-word change, but a full Medley desktop run remains
+to be repeated.  `make run-lisp-current-sdl` now creates and serves the
+sanitized Lyric derivative automatically.  A second 8.6B run delivered all
+11 characters of `(PLUS 1 2)` after the clean desktop appeared; it produced
+  no visible echo. A later focus-aware probe exposed the virtually cached
+  IOPage bug above; after fixing it, guest-visible key state is correct but
+  automated XCL echo remains the last interaction gate.
 
 **The complete bypass semantics (commit 29c7ad8; six-witness triangulation
 in its message):** with LC=5 ("T←Pd, RM/STK←Md") and BSEL=RM/STK, the ALU B

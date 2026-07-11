@@ -243,6 +243,12 @@ static void type_text(dorado_machine *m, const char *text, uint64_t key_hold)
         if (k == DORADO_KEY_NONE) continue;
         if (ctrl) dorado_machine_set_key(m, DORADO_KEY_CTRL, 1);
         if (shift) dorado_machine_set_key(m, DORADO_KEY_LSHIFT, 1);
+        /* LLKEY applies simultaneous matrix transitions in key-number order.
+         * Let a modifier transition be observed before pressing the base key;
+         * otherwise scripted '(' is decoded as '9', for example. */
+        if (ctrl || shift)
+            dorado_machine_run_until(m,
+                dorado_machine_cycles(m) + key_hold);
         dorado_machine_set_key(m, k, 1);
         dorado_machine_run_until(m, dorado_machine_cycles(m) + key_hold);
         dorado_machine_set_key(m, k, 0);
@@ -273,6 +279,8 @@ int main(int argc, char **argv)
     int pending_type_at = 0;
     uint64_t key_hold = 600000;
     uint64_t type_at = 110000000ull;
+    const char *snapshot_in = NULL;
+    const char *snapshot_out = NULL;
 
     dorado_machine_config cfg;
     dorado_machine_config_default(&cfg);
@@ -318,6 +326,10 @@ int main(int argc, char **argv)
         else if (!strcmp(a, "--scale") && i + 1 < argc) scale = atoi(argv[++i]);
         else if (!strcmp(a, "--speed") && i + 1 < argc)
             cycles_per_frame = parse_u64(argv[++i], cycles_per_frame);
+        else if (!strcmp(a, "--snapshot-in") && i + 1 < argc)
+            snapshot_in = argv[++i];
+        else if (!strcmp(a, "--snapshot-out") && i + 1 < argc)
+            snapshot_out = argv[++i];
         else if (!strcmp(a, "--shot-prefix") && i + 1 < argc)
             shot_prefix = argv[++i];
         else if (!strcmp(a, "--type") && i + 1 < argc) {
@@ -369,6 +381,7 @@ int main(int argc, char **argv)
                    "[--quote] [--boot-keys K[,K...]] "
                    "[--boot-reason ethernet|netexec|disk] "
                    "[--no-alto-boot] [--scale N] [--speed CYCLES]\n"
+                   "          [--snapshot-in PATH] [--snapshot-out PATH]\n"
                    "          [--type-at CYCLES --type TEXT]... "
                    "[--key-hold CYCLES]\n"
                    "          [--screenshot F1,F2,...] [--shot-prefix NAME]\n",
@@ -394,6 +407,12 @@ int main(int argc, char **argv)
     dorado_machine *m = dorado_machine_create(&cfg);
     if (!m) {
         fprintf(stderr, "dorado-sdl: failed to create machine\n");
+        return 1;
+    }
+    if (snapshot_in && dorado_machine_restore(m, snapshot_in) != 0) {
+        fprintf(stderr, "dorado-sdl: could not restore snapshot %s\n",
+                snapshot_in);
+        dorado_machine_destroy(m);
         return 1;
     }
 
@@ -558,6 +577,10 @@ int main(int argc, char **argv)
         if (headless && frame >= max_shot) running = 0;
         frame++;
     }
+
+    if (snapshot_out && dorado_machine_snapshot(m, snapshot_out) != 0)
+        fprintf(stderr, "dorado-sdl: could not save snapshot %s\n",
+                snapshot_out);
 
     if (tex) SDL_DestroyTexture(tex);
     if (ren) SDL_DestroyRenderer(ren);

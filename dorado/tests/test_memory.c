@@ -1583,6 +1583,35 @@ static int test_discf_blocks_cflags_and_pipe5_flags(void)
     return 0;
 }
 
+static int test_host_io_write_virtual_cache_alias(void)
+{
+    static dorado_memory mem; memset(&mem, 0, sizeof mem);
+    EXPECT(dorado_memory_init(&mem) == 0, "init");
+
+    /* Lisp maps its Dandelion IOPage VA onto RP 0. Device input must be
+     * visible through that virtual cache tag without overwriting the Alto
+     * low-core word at the aliased physical offset. */
+    const uint32_t va = 0x14041u;
+    const uint32_t off = va & (DM_PAGE_SIZE - 1u);
+    dorado_map_set(&mem, dorado_map_index(va), 0, 0, 0);
+    mem.storage[off] = 0x1234u;
+
+    dorado_memory_host_io_write(&mem, va, 0xABCDu);
+    EXPECT(dorado_visible_word_at_va(&mem, va) == 0xABCDu,
+           "host IO word not visible through virtual cache tag");
+    EXPECT(mem.storage[off] == 0x1234u,
+           "host IO write corrupted RP0 low core: 0x%04X", mem.storage[off]);
+
+    int way = -1;
+    EXPECT(dorado_cache_lookup(&mem, va, &way), "IOPage cache line absent");
+    EXPECT(!mem.cache[(va >> 4) & DM_CACHE_ROW_MASK].ways[way].dirty,
+           "unbacked IOPage cache line left dirty");
+
+    dorado_memory_free(&mem);
+    printf("PASS  test_host_io_write_virtual_cache_alias\n");
+    return 0;
+}
+
 int main(void)
 {
     int rc = 0;
@@ -1630,6 +1659,7 @@ int main(void)
     rc |= test_dummyref_latches_pipe5_from_comparator_hit();
     rc |= test_dummyref_forces_cflags_column_without_dvavic();
     rc |= test_discf_blocks_cflags_and_pipe5_flags();
+    rc |= test_host_io_write_virtual_cache_alias();
     if (rc == 0) printf("\nAll memory tests passed.\n");
     return rc;
 }

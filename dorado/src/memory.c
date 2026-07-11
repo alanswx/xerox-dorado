@@ -1350,6 +1350,40 @@ static void cache_fill(dorado_memory *mem, uint32_t va, int way)
     cache_touch_lru(&mem->cache[va_cache_row(va)], way);
 }
 
+/* Host-side stand-in for an unmodeled memory-mapped input device. Dorado's
+ * cache is virtually addressed, and Lisp deliberately maps its Dandelion
+ * IOPage VA onto RP 0. Writing through the Map would therefore corrupt Alto
+ * low core, while updating only an already-present cache line loses input as
+ * soon as that line is absent or evicted. Install/fill the virtual munch just
+ * as a cache reference would, then replace only the device-owned word. The
+ * line stays clean: this input value must never write back into RP 0. */
+void dorado_memory_host_io_write(dorado_memory *mem, uint32_t va,
+                                 uint16_t value)
+{
+    if (!mem || !mem->storage) return;
+
+    int way = -1;
+    if (!dorado_cache_lookup(mem, va, &way)) {
+        way = cache_pick_victim(mem, va);
+        dorado_cache_line *victim =
+            &mem->cache[va_cache_row(va)].ways[way];
+        if (victim->valid && victim->dirty)
+            (void)cache_writeback_line(mem, (int)va_cache_row(va), way);
+        cache_fill(mem, va, way);
+    } else {
+        cache_touch_lru(&mem->cache[va_cache_row(va)], way);
+    }
+
+    dorado_cache_line *line = &mem->cache[va_cache_row(va)].ways[way];
+    if (line->valid && line->tag == va_cache_tag(va)) {
+        line->data[va_cache_offset(va)] = value;
+        /* The whole munch represents an unbacked device window.  Guest
+         * writes and host input updates must never leak through its RP 0
+         * alias during a later eviction. */
+        line->dirty = 0;
+    }
+}
+
 /* Invalidate any cache entry for the munch containing `va`. Used by
  * IOStore (HM page 40: "a munch in the cache is unconditionally
  * removed (without being stored if dirty)"). Returns 1 if a line was
@@ -1572,6 +1606,31 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
          * `B<-DBuf` FF source can return the most-recent Store's
          * value (gap B3 sub-item). */
         mem->dbuf = b;
+        {
+            static int parsed = 0;
+            static uint16_t wanted = 0;
+            static int enabled = 0;
+            if (!parsed) {
+                const char *w = getenv("DORADO_STORE_TRACE_DATA");
+                parsed = 1;
+                if (w && *w) {
+                    char *end = NULL;
+                    unsigned long v = strtoul(w, &end, 8);
+                    if (end && *end == '\0') {
+                        wanted = (uint16_t)v;
+                        enabled = 1;
+                    }
+                }
+            }
+            if (enabled && b == wanted && trace_gate_open())
+                fprintf(stderr,
+                        "STORE_DATA cyc=%llu task=%o pc=0o%o va=%07o "
+                        "data=%06o pcx=0o%o br31=0o%o op=0o%o\n",
+                        dorado_trace_cycle, task & 017, dorado_mem_trace_pc,
+                        va & 0x0FFFFFFFu, b & 0177777,
+                        dorado_mem_trace_pcx, dorado_mem_trace_br31,
+                        dorado_mem_trace_op);
+        }
         {
             static long lo = -1, hi = -1;
             if (lo == -1) {

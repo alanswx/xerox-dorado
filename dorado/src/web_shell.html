@@ -58,8 +58,11 @@
         <option value="disk">Alto Executive (disk boot) &mdash; type a program name</option>
       </optgroup>
       <optgroup label="Cedar / Mesa (Pilot)">
-        <option value="cedar">Cedar 6.1 (login prompt) &mdash; slow boot</option>
+        <option value="cedar">Cedar 6.1 &mdash; saved login prompt</option>
         <option value="mesa">Mesa Network Executive</option>
+      </optgroup>
+      <optgroup label="Interlisp-D">
+        <option value="lisp">Lyric &mdash; saved Exec (XCL) desktop</option>
       </optgroup>
       <optgroup label="Mesa programs (native Mesa world)">
         <option value="mesa:/chm/bootfiles/PPong.boot!1">Polish Pong (game)</option>
@@ -103,9 +106,14 @@
     mouse buttons map to the Alto's 3-button mouse.
     <br><br>
     Pick <b>Cedar 6.1</b> to boot the real Cedar/Mesa environment from a Pilot
-    disk image instead of the Alto emulator. It is a much longer boot (a minute
-    or two) and ends at a <code>Please login ... / Name:</code> prompt &mdash;
-    click the display and type a name, then <code>Return</code>.
+    disk image instead of the Alto emulator. A saved checkpoint opens directly
+    at the <code>Please login ... / Name:</code> prompt &mdash; click the display
+    and type a name, then <code>Return</code>.
+    <br><br>
+    Choose <b>Interlisp-D Lyric</b> to expand and restore a WebAssembly-native
+    checkpoint directly at its <code>Exec (XCL)</code> desktop; this avoids
+    replaying the multi-billion-cycle Lisp boot. Keyboard delivery reaches
+    Lisp, but this saved desktop's XCL process does not yet consume input.
     <br><br>
     A few Alto games (Pool, Star&nbsp;Wars, Trek; Missile Command past its
     attract screen) load custom microcode into the Alto's writable control
@@ -124,15 +132,69 @@
 
   function setStatus(t) { statusEl.textContent = t; }
 
-  function bootSelected() {
+  var lyricAssetsReady = false;
+  var cedarAssetsReady = false;
+
+  async function expandGzipAsset(src, dst) {
+    var compressed = Module.FS.readFile(src);
+    if (typeof DecompressionStream === 'undefined')
+      throw new Error('this browser does not support gzip decompression');
+    var stream = new Blob([compressed]).stream()
+                    .pipeThrough(new DecompressionStream('gzip'));
+    var bytes = new Uint8Array(await new Response(stream).arrayBuffer());
+    Module.FS.writeFile(dst, bytes);
+    Module.FS.unlink(src);
+  }
+
+  async function prepareLyricAssets() {
+    if (lyricAssetsReady) return;
+    setStatus('Expanding the saved Lyric desktop...');
+    await Promise.all([
+      expandGzipAsset('/worlds/lisp-lyric-xcl.snap.gz',
+                      '/worlds/lisp-lyric-xcl.snap'),
+      expandGzipAsset('/worlds/lisp-lyric-xcl.pack.gz',
+                      '/worlds/lisp-lyric-xcl.pack')
+    ]);
+    lyricAssetsReady = true;
+  }
+
+  async function prepareCedarAssets() {
+    if (cedarAssetsReady) return;
+    setStatus('Expanding the saved Cedar login...');
+    await expandGzipAsset('/worlds/cedar-login.snap.gz',
+                          '/worlds/cedar-login.snap');
+    cedarAssetsReady = true;
+  }
+
+  async function bootSelected() {
     if (!ready) return;
     var opt = gameSel.options[gameSel.selectedIndex];
     var path = opt.value;
     paused = false; pauseBtn.textContent = 'Pause';
     if (path === 'cedar') {
-      Module.ccall('dorado_web_boot_cedar', 'number', [], []);
-      setStatus('Booting Cedar 6.1 from the Pilot disk... this takes a minute '
-                + 'or two to reach the login prompt. Then type a name at Name:.');
+      try {
+        await prepareCedarAssets();
+        var rc = Module.ccall('dorado_web_boot_cedar', 'number', [], []);
+        if (rc) throw new Error('snapshot restore rejected the saved image');
+        setStatus('Cedar 6.1 restored at the login prompt. Type a name at Name:.');
+      } catch (e) {
+        console.error(e);
+        setStatus('Could not restore Cedar: ' + e.message);
+      }
+      document.getElementById('canvas').focus();
+      return;
+    }
+    if (path === 'lisp') {
+      try {
+        await prepareLyricAssets();
+        var rc = Module.ccall('dorado_web_boot_lisp', 'number', [], []);
+        if (rc) throw new Error('snapshot restore rejected the saved image');
+        setStatus('Interlisp-D Lyric restored at Exec (XCL). Click inside '
+                  + 'the Exec window before typing.');
+      } catch (e) {
+        console.error(e);
+        setStatus('Could not restore Lyric: ' + e.message);
+      }
       document.getElementById('canvas').focus();
       return;
     }
@@ -207,6 +269,17 @@
       setStatus('Booting NetExec... type a program name, or pick one above.');
       installInput();
       document.getElementById('canvas').focus();
+      // Useful for direct links and automated smoke tests, e.g. ?boot=lisp.
+      var requested = new URLSearchParams(location.search).get('boot');
+      if (requested) {
+        for (var i = 0; i < gameSel.options.length; i++) {
+          if (gameSel.options[i].value === requested) {
+            gameSel.selectedIndex = i;
+            bootSelected();
+            break;
+          }
+        }
+      }
     },
   };
   Module.setStatus('Downloading emulator...');

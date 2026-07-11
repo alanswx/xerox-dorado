@@ -367,6 +367,12 @@ typedef struct {
     uint8_t  task_md_ref_kind[16];
     uint32_t task_md_ref_va[16];
     uint8_t  task_md_ref_miss[16];
+    /* Compatibility for the collapsed (non-overlapped) processor pipeline.
+     * DoradoLispMc uses an LC=5 multi-assign that needs the modeled Md->ALU-B
+     * substitution. Planted-germ Mesa worlds disable it because real hardware
+     * bypass is previous-instruction-relative and this approximation corrupts
+     * Pilot state. */
+    uint8_t  compat_same_instr_md_bypass;
     uint8_t  task_alu_zero[16];
     uint8_t  task_alu_lt0[16];
     uint8_t  task_alu_carry[16];

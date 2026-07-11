@@ -99,7 +99,67 @@ you don't repeat them.
 - The current Lisp bring-up shortcut is `make run-lisp-current-sdl`.
   It copies `build/good-packs/lisp-lyric-desktop.pack` to
   `build/run-disks/lisp-lyric-desktop-run.pack` and boots that pack with
-  `./build/dorado-sdl`.
+  `./build/dorado-sdl`. It now also derives
+  `build/run-disks/lisp-lyric-usable.sysout` with
+  `tools/interlisp-sysout/discard_stale_process.py`; the archived sysout is
+  never modified. The SDL command must keep `DORADO_DISPM_PRESENT=1`; its
+  initial omission made the interactive target remain in Swat even though
+  the validated headless recipe reached the desktop. The target also pins
+  `DORADO_FAKE_TIME=1783285880` for deterministic startup.
+- Fast startup is now `make run-lisp-snapshot-sdl`; the one-time producer is
+  `make lisp-lyric-desktop-snapshot`. The saved 8.8B-cycle desktop restores in
+  about 0.3 seconds and requires its matching `.pack`. SDL now accepts
+  `--snapshot-in/--snapshot-out` directly. After `make clean`, the producer's
+  real `$(LISP_GOOD_PACK)` prerequisite rehydrates automatically from the
+  preserved compressed web checkpoint pack.
+- `make clean` is `rm -rf build`, so it also removes research packs under
+  `build/good-packs`, not just compiler output. The old 19K-current, Harmony,
+  and Medley experiments were deleted by the July 10 clean; useful descendants
+  still exist under `/private/tmp` (`lisp-cur19k-goodtime.pack`,
+  `lisp-harmony-19k.pack`, and `lisp-medley-boot.pack`). None is required by a
+  supported run target.
+- WebAssembly has a separate wasm32-native checkpoint because raw snapshots
+  contain ABI-sized C structs. `web-assets/` holds the 5.6 MB compressed
+  snapshot/pack pair; the web boot menu restores it through the Interlisp-D
+  Lyric option (`?boot=lisp` is the direct-link/smoke-test form).
+- Cedar login is now a validated native and wasm32 checkpoint. The native
+  launch is `make run-cedar-snapshot-sdl`; its compressed checkpoint survives
+  `make clean`. The browser's Cedar option expands a 447 KB wasm32-native asset
+  and restores the keyboard-responsive `Name:` prompt. Mesa NetExec remains the
+  next web checkpoint candidate after its capture frame is revalidated.
+- The SDL/web keyboard path is working through Interlisp's decoder. A held
+  `a` appears in Dorado low core as active-low `175777`; the display-field
+  reschedule enters LLKEY's keyboard context; and a baseline/key snapshot
+  diff finds the decoded ASCII `0141` newly queued in Lisp VM. Mouse movement
+  and left-button transitions also reach LLKEY. The saved desktop still does
+  not consume the queued character or alter the framebuffer, even after a
+  click in the Exec window, and its Prompt/Exec windows never show an initial
+  prompt. A live atom probe shows non-NIL `\\TTY.PROCESS`,
+  `\\RUNNING.PROCESS`, and `\\PROCESSES`, so the remaining bug is guest
+  process/TTY readiness after startup rather than SDL focus or key mapping.
+  `DORADO_LISP_FIND_ATOM` is available as a read-only live-sysout diagnostic.
+- The saved-process blocker is now specific. `\RUNNING.PROCESS` is
+  `ERIS#LEAF`, not the TTY's Exec process. Leaf spins forever over stale
+  `PROCOWNEDLOCKS={75,1730}` after `CREATECELL` reuses that unrooted monitor
+  cell. Letting Leaf continue then RAID-errors while decrementing the saved
+  `\PROCESSES` root `{57,73730}`, whose reference count is already zero.
+  Direct queue skips, cold process-root clearing, and forced rescheduling all
+  failed validation and were removed. A correct fix needs a sysout saved with
+  processes off or guest-aware process/refcount reconstruction.
+- The added `CedarDorado-kitchensink*.pdi` files now live under `CedarDisk/` and
+  pass PDI/Pilot structural, checksum, subvolume, and label scans. Each is a
+  complete 65,450-page logical volume, not one fragment of a three-disk span.
+  All already contain the same germ and byte-identical boot FileID 3 as the
+  working small PDI. They enter the installed-system-volume path but remain
+  blank (disk 1 through 1.2B cycles), so the next gate is the post-germ volume
+  disk bridge rather than adding boot files or mounting a second disk.
+- The old Dandelion IOPage shortcut remains available for the pre-IFU AEmu
+  path, with `dorado_memory_host_io_write` protecting its RP0 alias. It is no
+  longer refreshed after Dorado Lisp enters the IFU: LLKEY explicitly selects
+  the Dorado absolute low-core addresses, and clearing a whole device cache
+  line's dirty state on every host refresh could discard unrelated guest I/O
+  state. The memory regression still proves the IOPage alias does not corrupt
+  RP0.
 - The SDL frontend now accepts scripted typing options again:
   `--type`, `--type-at`, and `--key-hold`. The shortcut types
   `lisp.run/M {DORADO}LISP.SYSOUT` after boot.
@@ -117,24 +177,25 @@ boots over Ethernet, Cedar 6.1 reaches its login prompt, and the Lyric and
 Medley Interlisp-D worlds reach their desktops. The remaining work is no
 longer basic boot bring-up; it falls into five tracks, in this order.
 
-1. **Make the Interlisp desktop genuinely usable (active frontier).** Both
-   Lyric and Medley reach the desktop but enter RAID, which owns the keyboard
-   and prevents normal Exec use. The July 10 trace rules out the previous
-   RETURN/FUNCALL/control-transfer theory: Lyric's fault is the original
-   `GETBITS` microcode issuing an IFetch-kind *data* reference through the long
-   pointer `{1,101700}` at real PC `01451`; PCF/BR31 stay valid. The pointer
-   comes from an archived heap record that initially contains `{74,101700}`.
-   Original `PUTBASEN` microcode deliberately rebases only its high word from
-   space 74 to space 1, preserving the low offset, and then `GETBITS` reaches
-   the absent page. The exact pre-rebase record occurs byte-for-byte in the
-   archived Lyric sysout. Medley has the independent analogous record and
-   transformation `{74,075600}` -> `{1,075600}`. This strongly identifies
-   incomplete saved context/auxiliary VM in both archived sysouts, not an
-   emulator transfer, arithmetic, unboxing, or addressing bug. A usable-image
-   fix now requires identifying the saved record's semantics and restoring or
-   safely discarding that context; do not guess-patch the pointer. The older
-   FULL.SYSOUT and Harmony images are not clean substitutes because their
-   archived sysouts also depend on VM content absent from the files.
+1. **Interlisp desktop usability: Lyric fixed; finish the Medley gate.** The
+   saved-record semantics are now identified from `PROC!37`: Lyric's record at
+   `{74,101600}` is a 64-word `PROCESS`, and `{74,101700}` is its
+   `PROCFX0/PROCFX` sleeping-stack pointer. It is the deleted `RTP` process,
+   with both `PROCDELETED` and a surviving `PROCRESETVARSLST`. Hard-reset
+   `PROCESSWORLD` preserves it for unwind cleanup, but `\RELEASE.PROCESS`
+   dereferences the unavailable rebased `{1,101700}` stack before clearing
+   `PROCFX`. `tools/interlisp-sysout/discard_stale_process.py` now performs
+   exactly that final `PROCFX=0` state transition on a derived sysout after
+   validating the record, deleted state, reset state, and absent stack page.
+   A fresh 8.5B-cycle Lyric boot reached a RAID-free Prompt Window + Exec
+   desktop (206,668 display-list pixels), and `make run-lisp-current-sdl`
+   uses the sanitized derivative by default. The analogous Medley record is
+   `{74,075500}`, `PROCFX={74,075600}`; structural sanitation passes, but run
+   one full Medley boot before declaring both releases gated. A Lyric
+   follow-up delivered `(PLUS 1 2)` after desktop startup but did not visibly
+   echo because the headless run never clicked a window; make the eventual
+   keyboard gate focus-aware. The older FULL.SYSOUT and Harmony images remain
+   incomplete as archived and are not substitutes.
 
 2. **Take Cedar beyond the login prompt.** The mounted PDI supplies the Pilot
    boot file, not an installed Cedar volume. A July 10 regression audit found

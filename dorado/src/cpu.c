@@ -467,6 +467,7 @@ void dorado_cpu_init(dorado_cpu *cpu, const dorado_microcode *mc,
     cpu->ctask     = 0;
     cpu->ready     = 0x0001;     /* task 0 always ready */
     cpu->tasking_on = 1;
+    cpu->compat_same_instr_md_bypass = 1;
 }
 
 void dorado_cpu_wakeup(dorado_cpu *cpu, int task)
@@ -5010,16 +5011,21 @@ int dorado_cpu_step(dorado_cpu *cpu)
         if ((long)cpu->real_PC >= lo && (long)cpu->real_PC <= hi) {
             if (limit <= 0 || count < limit) {
                 char buf[160];
+                int trace_rm = rm_address(cpu, u);
+                uint16_t trace_rv =
+                    trace_rm < CPU_RMSTK_INVALID ? rm_stk_read(cpu, trace_rm) : 0;
                 dorado_format(u, buf, sizeof buf);
                 fprintf(stderr,
                         "PCDIS cyc=%llu task=%o pc=%04o pcf=0o%o "
                         "rb=%02o mb=0o%x stkp=%03o T=%06o Q=%06o "
+                        "ra=%03o rv=%06o "
                         "rm000=%06o rm006=%06o rm025=%06o rm026=%06o : %s\n",
                         (unsigned long long)dorado_trace_cycle,
                         cpu->ctask & 017, cpu->real_PC,
                         cpu->ifu_pcf & 0177777, cpu->RBase & 017,
                         cpu->MemBase & 0xf, cpu->StkP & 0377,
                         cpu->T & 0177777, cpu->Q & 0177777,
+                        trace_rm & 0377, trace_rv & 0177777,
                         cpu->RM[DORADO_RM_CAND_000] & 0177777,
                         cpu->RM[DORADO_RM_CAND_006] & 0177777,
                         cpu->RM[DORADO_RM_CAND_025] & 0177777,
@@ -5155,11 +5161,16 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
                 (unsigned long long)cpu->task_md_ready[cpu->ctask & 0xF],
                 (unsigned long long)cpu->cycles);
     }
-    /* The engine's *response* to Hold — freeze (convert to jump-to-self this
-     * cycle, let a higher-priority task run, re-run when next selected) — is
-     * suppressed when mcr.disHold is set (boot/init microcode sets it); that
-     * gate is real hardware behavior, not an emulator approximation. */
-    if (md_not_ready && !dorado_mcr_dishold(cpu->mem)) {
+    /* The engine's *response* to Md Hold remains opt-in. The current fixed
+     * 3/16/24-cycle ready-time approximation models only one part of the
+     * Memory Section's autonomous address/cache/storage timing. Enabling it
+     * globally regresses the validated Cedar/Pilot boot before the terminal
+     * DCB is installed. Keep asserting the Hold signal above for event-counter
+     * diagnostics, but do not stall production worlds until the complete
+     * timing model passes the Cedar gate. mcr.disHold is the hardware gate;
+     * DORADO_HOLD is the temporary emulator-model gate. */
+    if (md_not_ready && dorado_trace_flag("DORADO_HOLD") &&
+        !dorado_mcr_dishold(cpu->mem)) {
         /* The IFU JunkTW pendulum is external to the processor/memory hold
          * path. A held Md cycle still consumes a hardware clock, so periodic
          * task-2 wakeups must advance here even though the instruction will be
@@ -5498,7 +5509,8 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
      * register value (b). LC=4 (RM←Md alone, Pd unused) is left alone:
      * eventCounters' `rscr_ Md` encodes BSEL as a don't-care and its
      * hold-count oracle expects the register on B. */
-    uint16_t alu_b = (u->bsel == 1 && u->lc == 5 &&
+    uint16_t alu_b = (cpu->compat_same_instr_md_bypass &&
+                      u->bsel == 1 && u->lc == 5 &&
                       !(u->block && cpu->ctask == 0))
                      ? task_md(cpu) : b;
     /* Gated diagnostic (DORADO_BYPASS_TRACE): log bypass firings that

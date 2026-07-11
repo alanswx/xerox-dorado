@@ -49,21 +49,36 @@ EMCC      ?= emcc
 WEB_SRCS  := src/mb.c src/disasm.c src/microcode.c src/cpu.c src/baseboard.c \
              src/memory.c src/io.c src/display.c src/disk.c src/ethernet.c \
              src/fastio.c src/altoref.c src/pdi.c src/machine.c src/dorado_web.c
+WEB_NODE_SRCS := $(filter-out src/dorado_web.c,$(WEB_SRCS)) src/dorado.c
+WEB_NODE_JS := $(BINDIR)/dorado-node.js
+WEB_LISP_ASSET_DIR := web-assets
+WEB_LISP_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/lisp-lyric-xcl.snap.gz
+WEB_LISP_PACK_GZ := $(WEB_LISP_ASSET_DIR)/lisp-lyric-xcl.pack.gz
+WEB_LISP_RAW_DIR := $(BINDIR)/web-lisp
+WEB_LISP_RAW_SNAPSHOT := $(WEB_LISP_RAW_DIR)/lisp-lyric-xcl.snap
+WEB_LISP_RAW_PACK := $(WEB_LISP_RAW_DIR)/lisp-lyric-xcl.pack
+WEB_LISP_RAW_SYSOUT := $(WEB_LISP_RAW_DIR)/lisp-lyric-usable.sysout
+WEB_CEDAR_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/cedar-login.snap.gz
+WEB_CEDAR_RAW_DIR := $(BINDIR)/web-cedar
+WEB_CEDAR_RAW_SNAPSHOT := $(WEB_CEDAR_RAW_DIR)/cedar-login.snap
 # _GNU_SOURCE exposes timegm()/strcasecmp() in Emscripten's musl sysroot;
 # macOS headers expose them by default, so the native build doesn't need it.
 # No SDL: the web frontend presents via the canvas 2d context and takes
 # input through exported C functions (see src/dorado_web.c header).
 WEB_CFLAGS := -std=c99 -D_GNU_SOURCE -O2 -Iinclude -Ivendor/6502
 WEB_LDFLAGS := -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=67108864 \
-               -sEXPORTED_RUNTIME_METHODS=ccall,cwrap \
-               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_mesa,_dorado_web_boot_disk,_dorado_web_key,_dorado_web_mouse \
+               -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,FS \
+               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_mesa,_dorado_web_boot_disk,_dorado_web_boot_lisp,_dorado_web_key,_dorado_web_mouse \
                --preload-file worlds/aemu.eb@/worlds/aemu.eb \
                --preload-file ../chm/bootfiles@/chm/bootfiles \
                --preload-file '../chm/dorado/AltoMesaDorado.eb!2'@/worlds/AltoMesaDorado.eb \
                --preload-file '../chm/dorado/CedarDorado.eb!6'@/worlds/CedarDorado.eb \
                --preload-file '../chm/cedar/germ-alt/Dorado.germ-6.1.6'@/worlds/Dorado.germ-6.1.6 \
                --preload-file '../CedarDisk/CedarDorado-boot.pdi'@/worlds/CedarDorado-boot.pdi \
+               --preload-file '$(WEB_CEDAR_SNAPSHOT_GZ)'@/worlds/cedar-login.snap.gz \
                --preload-file '../chm/diskpacks/games-trident.pack'@/worlds/games-trident.pack \
+               --preload-file '$(WEB_LISP_SNAPSHOT_GZ)'@/worlds/lisp-lyric-xcl.snap.gz \
+               --preload-file '$(WEB_LISP_PACK_GZ)'@/worlds/lisp-lyric-xcl.pack.gz \
                --preload-file ../chm/dorado/doradobaserom.mb!13@/ucode/doradobaserom.mb!13 \
                --preload-file ../chm/dorado/expanded/bootstrap.dm!20_/Bootstrap.mb@/ucode/Bootstrap.mb \
                --preload-file ../chm/dorado/expanded/bootstrap.dm!20_/Initial.mb@/ucode/Initial.mb \
@@ -76,6 +91,12 @@ WEB_LDFLAGS := -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=67108864 \
 # is gitignored (large); the .gz is tracked, so decompress it on demand for
 # `make web` (and the GitHub Pages CI build, which only has the .gz).
 CEDAR_PDI := ../CedarDisk/CedarDorado-boot.pdi
+CEDAR_EB := ../chm/dorado/CedarDorado.eb!6
+CEDAR_GERM := ../chm/cedar/germ-alt/Dorado.germ-6.1.6
+CEDAR_SNAPSHOT := build/good-packs/cedar-login.snap
+CEDAR_SNAPSHOT_SCREEN := build/good-packs/cedar-login.pgm
+CEDAR_SNAPSHOT_CYCLES ?= 650000000
+CEDAR_NATIVE_SNAPSHOT_GZ := snapshot-assets/cedar-login-native.snap.gz
 $(CEDAR_PDI): $(CEDAR_PDI).gz
 	gunzip -c $< > $@
 
@@ -86,8 +107,69 @@ $(WEB_ALTO_PACK): $(WEB_ALTO_PACK).gz
 	gunzip -c $< > $@
 
 .PHONY: web
-web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) | web-dir
+web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_LISP_SNAPSHOT_GZ) $(WEB_LISP_PACK_GZ) | web-dir
 	$(EMCC) $(WEB_CFLAGS) $(WEB_SRCS) $(WEB_LDFLAGS) -o web/index.html
+
+# Node-hosted wasm32 CLI used only to create ABI-compatible browser snapshots.
+# NODERAWFS lets the ordinary dorado CLI read/write the repository paths.
+$(WEB_NODE_JS): $(WEB_NODE_SRCS) | $(BINDIR)
+	$(EMCC) $(WEB_CFLAGS) $(WEB_NODE_SRCS) \
+		-sENVIRONMENT=node -sNODERAWFS=1 -sALLOW_MEMORY_GROWTH=1 \
+		-sINITIAL_MEMORY=67108864 -o $@
+
+.PHONY: lisp-lyric-web-snapshot
+lisp-lyric-web-snapshot: $(WEB_NODE_JS)
+	@test -r '$(LISP_GOOD_PACK)' || \
+		(echo "Missing $(LISP_GOOD_PACK)." && false)
+	@test -r '$(LISP_DESKTOP_SNAPSHOT_PACK)' || \
+		(echo "Missing deterministic native checkpoint pack $(LISP_DESKTOP_SNAPSHOT_PACK). Run 'make lisp-lyric-desktop-snapshot' first." && false)
+	mkdir -p '$(WEB_LISP_RAW_DIR)' '$(WEB_LISP_ASSET_DIR)'
+	cp -f '$(LISP_GOOD_PACK)' '$(WEB_LISP_RAW_PACK)'
+	chmod 644 '$(WEB_LISP_RAW_PACK)'
+	../tools/interlisp-sysout/discard_stale_process.py \
+		$(foreach record,$(LISP_GOOD_STALE_PROCESSES),--record '$(record)') \
+		'$(LISP_GOOD_SYSOUT_FILE)' '$(WEB_LISP_RAW_SYSOUT)'
+	DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_CURRENT_FAKE_TIME)' \
+	DORADO_SNAPSHOT_NO_PACK_FLUSH=1 \
+	node '$(WEB_NODE_JS)' \
+		--eb worlds/aemu.eb \
+		--disk 0='$(WEB_LISP_RAW_PACK)' \
+		--boot-reason disk --no-alto-boot \
+		--ftp-sysout '$(WEB_LISP_RAW_SYSOUT)' \
+		--type 'lisp.run/M {DORADO}LISP.SYSOUT\n' \
+		--type-at 330000000 --key-hold 4000000 \
+		--cycles '$(LISP_DESKTOP_SNAPSHOT_CYCLES)' \
+		--snapshot-out '$(WEB_LISP_RAW_SNAPSHOT)'
+	# Native and wasm32 runs are cycle/data deterministic, but their raw C
+	# snapshot ABIs differ. Pair the wasm32 checkpoint with the native run's
+	# already-flushed media image; restore validation checks this pair.
+	cp -f '$(LISP_DESKTOP_SNAPSHOT_PACK)' '$(WEB_LISP_RAW_PACK)'
+	gzip -c '$(WEB_LISP_RAW_SNAPSHOT)' > '$(WEB_LISP_SNAPSHOT_GZ)'
+	gzip -c '$(WEB_LISP_RAW_PACK)' > '$(WEB_LISP_PACK_GZ)'
+
+# The compressed browser assets are generated together and intentionally
+# checked into/deployed with the web build. Give make a useful diagnostic in a
+# checkout where they have not been generated yet.
+$(WEB_LISP_SNAPSHOT_GZ) $(WEB_LISP_PACK_GZ):
+	@echo "Missing WebAssembly Lyric checkpoint assets."
+	@echo "Run 'make lisp-lyric-web-snapshot' with emsdk on PATH."
+	@false
+
+.PHONY: cedar-login-web-snapshot
+cedar-login-web-snapshot: $(WEB_NODE_JS) $(CEDAR_PDI)
+	mkdir -p '$(WEB_CEDAR_RAW_DIR)' '$(WEB_LISP_ASSET_DIR)'
+	node '$(WEB_NODE_JS)' \
+		--boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk '$(CEDAR_PDI)' \
+		--cycles '$(CEDAR_SNAPSHOT_CYCLES)' \
+		--snapshot-out '$(WEB_CEDAR_RAW_SNAPSHOT)'
+	gzip -c '$(WEB_CEDAR_RAW_SNAPSHOT)' > '$(WEB_CEDAR_SNAPSHOT_GZ)'
+
+$(WEB_CEDAR_SNAPSHOT_GZ):
+	@echo "Missing WebAssembly Cedar login checkpoint asset."
+	@echo "Run 'make cedar-login-web-snapshot' with emsdk on PATH."
+	@false
 
 web-dir:
 	@mkdir -p web
@@ -316,13 +398,35 @@ run-clock: sdl
 # Cedar/Pilot Route B. This direct disk/germ path reaches the Cedar
 # SimpleTerminal display. The screen stays blank until roughly 650M emulated
 # cycles, so run the SDL frontend with a larger cycles-per-frame budget.
-.PHONY: run-cedar run-cedar-screenshot
+.PHONY: run-cedar run-cedar-screenshot cedar-login-snapshot run-cedar-snapshot-sdl
 run-cedar: sdl
-	./build/dorado-sdl --boot-reason disk --no-alto-boot --eb '../chm/dorado/CedarDorado.eb!6' --germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6' --pilot-disk '../CedarDisk/CedarDorado-boot.pdi' --speed 4000000
+	./build/dorado-sdl --boot-reason disk --no-alto-boot --eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' --pilot-disk '$(CEDAR_PDI)' --speed 4000000
 run-cedar-real: sdl
-	./build/dorado-sdl --boot-reason disk --no-alto-boot --disk-real --eb '../chm/dorado/CedarDorado.eb!6' --germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6' --pilot-disk '../CedarDisk/CedarDorado-boot.pdi' --speed 4000000
+	./build/dorado-sdl --boot-reason disk --no-alto-boot --disk-real --eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' --pilot-disk '$(CEDAR_PDI)' --speed 4000000
 run-cedar-screenshot: sdl
-	SDL_VIDEODRIVER=dummy ./build/dorado-sdl --boot-reason disk --no-alto-boot --eb '../chm/dorado/CedarDorado.eb!6' --germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6' --pilot-disk '../CedarDisk/CedarDorado-boot.pdi' --speed 4000000 --screenshot 300 --shot-prefix /tmp/dorado-sdl-cedar
+	SDL_VIDEODRIVER=dummy ./build/dorado-sdl --boot-reason disk --no-alto-boot --eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' --pilot-disk '$(CEDAR_PDI)' --speed 4000000 --screenshot 300 --shot-prefix /tmp/dorado-sdl-cedar
+
+cedar-login-snapshot: $(BINDIR)/dorado $(CEDAR_PDI)
+	mkdir -p '$(dir $(CEDAR_SNAPSHOT))' '$(dir $(CEDAR_NATIVE_SNAPSHOT_GZ))'
+	./build/dorado --boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk '$(CEDAR_PDI)' \
+		--cycles '$(CEDAR_SNAPSHOT_CYCLES)' \
+		--snapshot-out '$(CEDAR_SNAPSHOT)' \
+		--out '$(CEDAR_SNAPSHOT_SCREEN)'
+	gzip -c '$(CEDAR_SNAPSHOT)' > '$(CEDAR_NATIVE_SNAPSHOT_GZ)'
+
+# `make clean` removes build/, so preserve a compressed native-ABI checkpoint
+# outside it and rehydrate the immediate SDL launch automatically.
+$(CEDAR_SNAPSHOT): $(CEDAR_NATIVE_SNAPSHOT_GZ)
+	mkdir -p '$(dir $@)'
+	gunzip -c '$<' > '$@'
+
+run-cedar-snapshot-sdl: sdl $(CEDAR_SNAPSHOT)
+	./build/dorado-sdl --boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk '$(CEDAR_PDI)' \
+		--snapshot-in '$(CEDAR_SNAPSHOT)' --scale 1 --speed 400000
 
 # Alto-on-Dorado disk boot (Diablo-on-Trident). A read-only golden pack lives
 # under testdata/trident-readonly/ and every run copies it to build/run-disks/
@@ -427,6 +531,14 @@ LISP_BCPLPROG_SCAVENGED_VMEM_PACK ?= $(TRIDENT_RUN_DIR)/bcplprog-lisp-scavenged-
 LISP_GOOD_PACK ?= build/good-packs/lisp-lyric-desktop.pack
 LISP_GOOD_RUN_PACK ?= $(TRIDENT_RUN_DIR)/lisp-lyric-desktop-run.pack
 LISP_GOOD_SYSOUT_FILE ?= ../chm/archiveorg/_chm-parc_interlisp-lyric/LISP.SYSOUT!1
+LISP_GOOD_USABLE_SYSOUT ?= $(TRIDENT_RUN_DIR)/lisp-lyric-usable.sysout
+# Deleted saved PROCESS records whose stack pages are absent from the sysout.
+# The sanitizer makes their contexts safe for Xerox PROCESSWORLD to discard.
+LISP_GOOD_STALE_PROCESSES ?= 74:101500 74:101600 74:101700
+LISP_DESKTOP_SNAPSHOT ?= build/good-packs/lisp-lyric-xcl.snap
+LISP_DESKTOP_SNAPSHOT_PACK ?= build/good-packs/lisp-lyric-xcl.pack
+LISP_DESKTOP_SNAPSHOT_CYCLES ?= 8800000000
+LISP_DESKTOP_SNAPSHOT_SCREEN ?= build/good-packs/lisp-lyric-xcl.pgm
 LISP_CURRENT_VMEM_PAGES ?= 19000
 LISP_CURRENT_GOOD_PACK ?= build/good-packs/lisp-current-19000.pack
 LISP_CURRENT_DSK0 ?= build/good-packs/lisp-current-drive0.dsk
@@ -444,6 +556,16 @@ LISP_CORE_INSERTS = \
 
 $(TRIDENT_GOLDEN_DIR) $(TRIDENT_RUN_DIR) $(LISP_OS_DIR):
 	mkdir -p $@
+
+# `make clean` removes build/good-packs, but the compressed browser checkpoint
+# media is preserved outside build/.  It is a valid writable Lyric pack and is
+# sufficient to perform a fresh deterministic sysout boot for a native ABI
+# snapshot.  Rehydrate it automatically instead of requiring a manually saved
+# local pack.
+$(LISP_GOOD_PACK): $(WEB_LISP_PACK_GZ)
+	mkdir -p '$(dir $@)'
+	gunzip -c '$<' > '$@'
+	chmod 644 '$@'
 
 $(PALO_PAR):
 	$(MAKE) -C ../AltoInfo/palo/src par
@@ -491,6 +613,7 @@ $(ALTO_GOLDEN_PACK): $(ALTO_GOLDEN_PACK_GZ) | $(TRIDENT_GOLDEN_DIR)
 .PHONY: run-lisp-remote-sysout-smoke run-lisp-lyric-remote-long
 .PHONY: run-lisp-lyric-resume-debug
 .PHONY: lisp-current-good-pack run-lisp-good-sdl run-lisp-current-sdl
+.PHONY: lisp-lyric-desktop-snapshot run-lisp-snapshot-sdl
 .PHONY: run-alto-disk run-alto-disk-screenshot
 .PHONY: run-bfstest-smoke run-scavenger-smoke
 .PHONY: run-tricond-nopack run-tricond-pack
@@ -702,16 +825,60 @@ run-lisp-good-sdl: sdl
 	mkdir -p '$(dir $(LISP_GOOD_RUN_PACK))'
 	cp -f '$(LISP_GOOD_PACK)' '$(LISP_GOOD_RUN_PACK)'
 	chmod 644 '$(LISP_GOOD_RUN_PACK)'
+	../tools/interlisp-sysout/discard_stale_process.py \
+		$(foreach record,$(LISP_GOOD_STALE_PROCESSES),--record '$(record)') \
+		'$(LISP_GOOD_SYSOUT_FILE)' '$(LISP_GOOD_USABLE_SYSOUT)'
+	DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_CURRENT_FAKE_TIME)' \
 	./build/dorado-sdl \
 		--eb worlds/aemu.eb \
 		--disk 0='$(LISP_GOOD_RUN_PACK)' \
 		--boot-reason disk --no-alto-boot \
-		--ftp-sysout '$(LISP_GOOD_SYSOUT_FILE)' \
+		--ftp-sysout '$(LISP_GOOD_USABLE_SYSOUT)' \
 		--type 'lisp.run/M {DORADO}LISP.SYSOUT\n' \
 		--type-at 330000000 --key-hold 4000000 \
 		--scale 1 --speed 4000000
 
 run-lisp-current-sdl: run-lisp-good-sdl
+
+# Create a matched machine snapshot + writable pack after Lyric reaches its
+# Prompt Window / Exec (XCL) desktop.  Machine snapshots intentionally do not
+# embed pack media, so these two files are an inseparable pair.
+lisp-lyric-desktop-snapshot: $(BINDIR)/dorado $(LISP_GOOD_PACK)
+	mkdir -p '$(dir $(LISP_DESKTOP_SNAPSHOT))'
+	cp -f '$(LISP_GOOD_PACK)' '$(LISP_DESKTOP_SNAPSHOT_PACK)'
+	chmod 644 '$(LISP_DESKTOP_SNAPSHOT_PACK)'
+	../tools/interlisp-sysout/discard_stale_process.py \
+		$(foreach record,$(LISP_GOOD_STALE_PROCESSES),--record '$(record)') \
+		'$(LISP_GOOD_SYSOUT_FILE)' '$(LISP_GOOD_USABLE_SYSOUT)'
+	DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_CURRENT_FAKE_TIME)' \
+	./build/dorado \
+		--eb worlds/aemu.eb \
+		--disk 0='$(LISP_DESKTOP_SNAPSHOT_PACK)' \
+		--boot-reason disk --no-alto-boot \
+		--ftp-sysout '$(LISP_GOOD_USABLE_SYSOUT)' \
+		--type 'lisp.run/M {DORADO}LISP.SYSOUT\n' \
+		--type-at 330000000 --key-hold 4000000 \
+		--cycles '$(LISP_DESKTOP_SNAPSHOT_CYCLES)' \
+		--snapshot-out '$(LISP_DESKTOP_SNAPSHOT)' \
+		--out '$(LISP_DESKTOP_SNAPSHOT_SCREEN)'
+
+# Resume the saved XCL desktop immediately.  Copy the matched media so the
+# saved pair remains immutable and each interactive run gets a writable pack.
+run-lisp-snapshot-sdl: sdl
+	@test -r '$(LISP_DESKTOP_SNAPSHOT)' || \
+		(echo "Missing $(LISP_DESKTOP_SNAPSHOT). Run 'make lisp-lyric-desktop-snapshot' once." && false)
+	@test -r '$(LISP_DESKTOP_SNAPSHOT_PACK)' || \
+		(echo "Missing matching pack $(LISP_DESKTOP_SNAPSHOT_PACK)." && false)
+	mkdir -p '$(dir $(LISP_GOOD_RUN_PACK))'
+	cp -f '$(LISP_DESKTOP_SNAPSHOT_PACK)' '$(LISP_GOOD_RUN_PACK)'
+	chmod 644 '$(LISP_GOOD_RUN_PACK)'
+	DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_CURRENT_FAKE_TIME)' \
+	./build/dorado-sdl \
+		--eb worlds/aemu.eb \
+		--disk 0='$(LISP_GOOD_RUN_PACK)' \
+		--boot-reason disk --no-alto-boot \
+		--snapshot-in '$(LISP_DESKTOP_SNAPSHOT)' \
+		--scale 1 --speed 400000
 
 run-tricond-nopack: $(BINDIR)/rundiag
 	RUNDIAG_DISK=1 RUNDIAG_TASK=14 ./build/rundiag '../chm/dorado/expanded/Tricond.dm!5_/TriconD.mb' BEGIN TESTOK-WITHOUT-DISK ERR 50000000

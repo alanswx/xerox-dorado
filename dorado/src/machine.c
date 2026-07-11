@@ -440,16 +440,7 @@ static void machine_store_va(dorado_memory *mem, uint32_t va, uint16_t value)
 static void machine_store_host_input(dorado_memory *mem, uint32_t va,
                                      uint16_t value)
 {
-    if (!mem || !mem->storage) return;
-    if ((size_t)va < mem->storage_words) mem->storage[va] = value;
-
-    uint32_t row = (va >> 4) & DM_CACHE_ROW_MASK;
-    uint32_t tag = va >> 10;
-    uint32_t off = va & DM_CACHE_LINE_MASK;
-    for (int way = 0; way < DM_CACHE_WAYS; way++) {
-        dorado_cache_line *line = &mem->cache[row].ways[way];
-        if (line->valid && line->tag == tag) line->data[off] = value;
-    }
+    dorado_memory_host_io_write(mem, va, value);
 }
 
 static int alto_rda_to_vda(uint16_t rda, int cylinders, int sectors, int *vda)
@@ -1041,24 +1032,30 @@ static void machine_seed_lisp_live_io(dorado_machine *m, dorado_display *disp)
     for (int i = 0; i < 4; i++)
         w[i] = dorado_display_keyboard_word(disp, i);
     machine_seed_keyboard(&m->mem, w);
-    machine_seed_lisp_iopage_keyboard(&m->mem, w, m->mouse_present,
-                                      m->mouse_buttons);
+
     if (dorado_trace_flag("DORADO_LISP_FORCE_KEY_MASK")) {
         /* Diagnostic: LLKEY!\KEYBOARDON sets DISPINTERRUPT.EM[020000].
          * If the loaded sysout never gets that far, the display field
          * handler posts only BcplKeyMask and the Lisp key/timer process
          * never runs. */
-        uint16_t mask = dorado_visible_word_at_va(&m->mem, 0421u);
-        machine_store_va(&m->mem, 0421u, (uint16_t)(mask | 020000u));
+        uint16_t force_mask = dorado_visible_word_at_va(&m->mem, 0421u);
+        machine_store_va(&m->mem, 0421u,
+                         (uint16_t)(force_mask | 020000u));
     }
     if (m->mouse_present)
-        machine_seed_mouse(&m->mem, m->mouse_x, m->mouse_y, m->mouse_buttons);
+        machine_seed_mouse(&m->mem, m->mouse_x, m->mouse_y,
+                           m->mouse_buttons);
     if (dorado_trace_flag("DORADO_LISP_KEY_TRACE") &&
         (w[0] != 0177777u || w[1] != 0177777u ||
          w[2] != 0177777u || w[3] != 0177777u)) {
         fprintf(stderr,
-                "[lisp-key] cyc=%llu words=%06o %06o %06o %06o\n",
-                (unsigned long long)m->bb.cycles, w[0], w[1], w[2], w[3]);
+                "[lisp-key] cyc=%llu words=%06o %06o %06o %06o "
+                "NWW=%06o dispint=%06o IOBR=%07o MDS=%07o\n",
+                (unsigned long long)m->bb.cycles, w[0], w[1], w[2], w[3],
+                m->cpu.RM[0],
+                dorado_visible_word_at_va(&m->mem, 0421u),
+                dorado_br_get(&m->mem, 031),
+                dorado_br_get(&m->mem, 036));
     }
 }
 
@@ -1329,6 +1326,13 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
 
     /* Microengine. */
     dorado_cpu_init(&m->cpu, &m->mc, 0);
+    /* The CPU core currently collapses the three-cycle processor pipeline.
+     * Its same-instruction Md bypass compatibility is required by
+     * DoradoLispMc, but is not the real previous-instruction bypass described
+     * by HM pp.6 and 77. Applying it to Cedar's planted-germ Mesa world
+     * corrupts Pilot before TerminalHeadDorado installs its DCB. */
+    if (cfg.germ_path)
+        m->cpu.compat_same_instr_md_bypass = 0;
     m->cpu.baseboard = &m->bb;
     m->cpu.baseboard_cycles_per_uop = 1;
 
@@ -2136,9 +2140,9 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
         }
 
         /* Lisp runs under the IFU after the sysout transfer, so the Alto
-         * live-I/O path above no longer refreshes its input cells.  Keep the
-         * Dandelion-style IOPage keyboard words current until the DDC
-         * terminal back-channel is modeled. */
+         * live-I/O path above no longer refreshes its input cells.  LLKEY's
+         * Dorado machine case reads the absolute low-core keyboard/mouse
+         * words; keep those current until the DDC back-channel is modeled. */
         if (m->ether_loaded_world_cycle && !m->germ_word_count &&
             cpu->ifu_active && m->ethernet.ftp_sysout_path[0] &&
             ((bb->cycles & 037777u) == 0))
@@ -2778,19 +2782,38 @@ static void machine_dump_env_storage_words(dorado_machine *m)
     }
 }
 
+static void machine_dump_inverse_rp(dorado_machine *m)
+{
+    const char *env = getenv("DORADO_FIND_RP");
+    if (!m || !env || !*env) return;
+    char *end = NULL;
+    unsigned long rp = strtoul(env, &end, 0);
+    if (!end || *end) return;
+    fprintf(stderr, "[find-rp] rp=%04lo virtual pages:", rp);
+    int found = 0;
+    for (uint32_t vp = 0; vp < DM_MAP_ENTRIES; vp++) {
+        const dorado_map_entry *e = dorado_map_get(&m->mem, vp);
+        if (e->rp != (uint16_t)rp || (e->wp && e->dirty)) continue;
+        fprintf(stderr, " %06o(%c%c%c)", vp,
+                e->wp ? 'w' : '-', e->dirty ? 'd' : '-', e->ref ? 'r' : '-');
+        found++;
+    }
+    fprintf(stderr, "%s\n", found ? "" : " none");
+}
+
 static void print_lisp_pname_candidate(dorado_memory *mem, const char *tag,
                                        uint32_t va)
 {
     uint16_t w0 = dorado_visible_word_at_va(mem, va);
-    unsigned len = (w0 >> 8) & 0377;
-    unsigned pad = w0 & 0377;
+    unsigned len = (w0 >> 8) & 0377u;
+    unsigned pad = w0 & 0377u;
     if (len == 0 || len > 80)
         return;
 
     char s[81];
     for (unsigned i = 0; i < len && i < sizeof s - 1; i++) {
-        uint16_t w = dorado_visible_word_at_va(mem, va + 1u + i / 2u);
-        uint16_t ch = (i & 1u) ? (w & 0377u) : ((w >> 8) & 0377u);
+        uint16_t w = dorado_visible_word_at_va(mem, va + (i + 1u) / 2u);
+        uint16_t ch = (i & 1u) ? ((w >> 8) & 0377u) : (w & 0377u);
         if (!printable_ascii(ch))
             return;
         s[i] = (char)ch;
@@ -2798,6 +2821,111 @@ static void print_lisp_pname_candidate(dorado_memory *mem, const char *tag,
     s[len] = '\0';
     fprintf(stderr, " pname[%s]@%07o len=%u pad=%03o \"%s\"",
             tag, va & 01777777777u, len, pad, s);
+}
+
+static int lisp_pname_equals(dorado_memory *mem, uint32_t va,
+                             const char *wanted)
+{
+    if (!mem || !wanted) return 0;
+    uint16_t w0 = dorado_visible_word_at_va(mem, va);
+    unsigned len = (w0 >> 8) & 0377u;
+    if (len != strlen(wanted)) return 0;
+    for (unsigned i = 0; i < len; i++) {
+        uint16_t w = dorado_visible_word_at_va(mem, va + (i + 1u) / 2u);
+        uint16_t ch = (i & 1u) ? ((w >> 8) & 0377u) : (w & 0377u);
+        if (ch != (unsigned char)wanted[i]) return 0;
+    }
+    return 1;
+}
+
+static void dump_lisp_atom_space(dorado_memory *mem, const char *name,
+                                 int br, uint32_t idx, int try_pname);
+
+/* DORADO_LISP_FIND_ATOM=NAME[,NAME...] is a read-only live-sysout probe.
+ * Lyric LLPARAMS assigns PNAME and PLIST to fixed virtual spaces {010,0}
+ * and {002,0}.  The running Lisp microcode keeps DEF and TOPVAL bases in
+ * DefBR (4) and ValSpaceBR (035).  Each table has one two-word entry per
+ * atom (LISPDEFS.mc). */
+static void machine_find_lisp_atoms(dorado_machine *m)
+{
+    const char *env = getenv("DORADO_LISP_FIND_ATOM");
+    if (!m || !env || !*env) return;
+
+    char names[512];
+    snprintf(names, sizeof names, "%s", env);
+    for (char *wanted = strtok(names, ","); wanted;
+         wanted = strtok(NULL, ",")) {
+        int found = 0;
+        const uint32_t pname_base = 010u << 16;
+        for (uint32_t atom = 0; atom <= 0177777u; atom++) {
+            uint32_t entry = (pname_base + atom * 2u) & 01777777777u;
+            uint16_t hi = dorado_visible_word_at_va(&m->mem, entry);
+            uint16_t lo = dorado_visible_word_at_va(&m->mem, entry + 1u);
+            uint32_t pname = (((uint32_t)(hi & 0377u)) << 16) | lo;
+            if (!lisp_pname_equals(&m->mem, pname, wanted)) continue;
+
+            uint32_t def = (dorado_br_get(&m->mem, 004) + atom * 2u) &
+                           01777777777u;
+            uint32_t val = (dorado_br_get(&m->mem, 035) + atom * 2u) &
+                           01777777777u;
+            uint32_t plist = ((002u << 16) + atom * 2u) &
+                             01777777777u;
+            fprintf(stderr,
+                    "[lisp-find-atom] %s atom=%06o pname=%07o "
+                    "def@%07o={%06o,%06o} "
+                    "value@%07o={%06o,%06o} "
+                    "plist@%07o={%06o,%06o}\n",
+                    wanted, atom, pname,
+                    def, dorado_visible_word_at_va(&m->mem, def),
+                    dorado_visible_word_at_va(&m->mem, def + 1u),
+                    val, dorado_visible_word_at_va(&m->mem, val),
+                    dorado_visible_word_at_va(&m->mem, val + 1u),
+                    plist, dorado_visible_word_at_va(&m->mem, plist),
+                    dorado_visible_word_at_va(&m->mem, plist + 1u));
+            found = 1;
+            if (found) break;
+        }
+        if (!found)
+            fprintf(stderr, "[lisp-find-atom] %s not found\n", wanted);
+    }
+}
+
+/* DORADO_LISP_FIND_DEF=VA (octal): find the atom whose DEF entry points at
+ * the active compiled-code object.  This is a read-only aid for identifying
+ * a spinning Interlisp frame from IFU BR37. */
+static void machine_find_lisp_def(dorado_machine *m)
+{
+    const char *env = getenv("DORADO_LISP_FIND_DEF");
+    if (!m || !env || !*env) return;
+
+    char *end = NULL;
+    uint32_t wanted = (uint32_t)strtoul(env, &end, 8) & 01777777777u;
+    if (end == env) return;
+
+    const uint32_t pname_base = 010u << 16;
+    const uint32_t def_base = dorado_br_get(&m->mem, 004);
+    int found = 0;
+    for (uint32_t atom = 0; atom <= 0177777u; atom++) {
+        uint32_t def_entry = (def_base + atom * 2u) & 01777777777u;
+        uint16_t def_hi = dorado_visible_word_at_va(&m->mem, def_entry);
+        uint16_t def_lo = dorado_visible_word_at_va(&m->mem, def_entry + 1u);
+        uint32_t def = (((uint32_t)(def_hi & 0377u)) << 16) | def_lo;
+        if (def > wanted || wanted - def >= 0400u) continue;
+
+        uint32_t pname_entry = (pname_base + atom * 2u) & 01777777777u;
+        uint16_t pname_hi = dorado_visible_word_at_va(&m->mem, pname_entry);
+        uint16_t pname_lo = dorado_visible_word_at_va(&m->mem,
+                                                       pname_entry + 1u);
+        uint32_t pname = (((uint32_t)(pname_hi & 0377u)) << 16) | pname_lo;
+        fprintf(stderr,
+                "[lisp-find-def] active=%07o def=%07o delta=%04o atom=%06o",
+                wanted, def, wanted - def, atom);
+        print_lisp_pname_candidate(&m->mem, "PNAME", pname);
+        fputc('\n', stderr);
+        found = 1;
+    }
+    if (!found)
+        fprintf(stderr, "[lisp-find-def] def=%07o not found\n", wanted);
 }
 
 static void dump_lisp_atom_space(dorado_memory *mem, const char *name,
@@ -2868,6 +2996,9 @@ static void machine_dump_lisp_atom_probe(dorado_machine *m)
 void dorado_machine_debug(dorado_machine *m)
 {
     if (!m) return;
+    machine_dump_inverse_rp(m);
+    machine_find_lisp_atoms(m);
+    machine_find_lisp_def(m);
     /* DORADO_IM_DUMP="lo,hi" (octal): disassemble the LOADED control store
      * (m->mc.im, which Write IM/LoadRam has populated with the running
      * world's microcode) over real IM addresses lo..hi. Lets us read what
@@ -3961,6 +4092,22 @@ static dorado_disk_sector *machine_disk_stream_ptr(dorado_machine *m,
 static void machine_flush_dirty_disk_packs(dorado_machine *m)
 {
     if (!m) return;
+    /* The wasm32 snapshot generator runs under Emscripten's NODERAWFS. Its
+     * stdio layer can read the 60 MB pack but corrupts/truncates it when the
+     * snapshot's pre-flush rewrites the file. The web checkpoint is paired
+     * with the deterministic native pack captured at the identical cycle, so
+     * the generator may explicitly suppress this host-only flush. Clear the
+     * dirty flags as well so machine_destroy() does not retry it. This escape
+     * hatch is never used by ordinary native snapshots. */
+    if (getenv("DORADO_SNAPSHOT_NO_PACK_FLUSH")) {
+        for (int s = 0; s < DORADO_DISK_NUM_DRIVES; s++) {
+            dorado_disk_pack *p = &m->disk_packs[s];
+            if (!m->disk_pack_loaded[s] || !p->sectors) continue;
+            for (int i = 0; i < p->num_sectors; i++)
+                p->sectors[i].modified = 0;
+        }
+        return;
+    }
     for (int s = 0; s < DORADO_DISK_NUM_DRIVES; s++) {
         dorado_disk_pack *p = &m->disk_packs[s];
         if (!m->disk_pack_loaded[s] || !p->sectors || p->read_only || !p->path[0])

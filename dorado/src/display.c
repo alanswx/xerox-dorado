@@ -22,12 +22,13 @@ static int display_trace_limit(const char *name, unsigned default_limit,
 
 static int display_dispm_present(void)
 {
-    static int cached = -1;
-    if (cached < 0) {
-        const char *v = getenv("DORADO_DISPM_PRESENT");
-        cached = (v && v[0] && v[0] != '0') ? 1 : 0;
-    }
-    return cached;
+    /* This is a per-world configuration knob in the browser: Lyric has a
+     * DispM board, while Alto/Mesa and Cedar use the terminal display path.
+     * Do not cache it process-wide because the web frontend recreates machines
+     * for different worlds without reloading the WebAssembly module. This is
+     * read only during the display-status probe, not on every microcycle. */
+    const char *v = getenv("DORADO_DISPM_PRESENT");
+    return (v && v[0] && v[0] != '0') ? 1 : 0;
 }
 
 static uint16_t display_ddc_status(void)

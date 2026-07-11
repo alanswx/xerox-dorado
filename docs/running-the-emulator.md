@@ -175,6 +175,20 @@ make run-cedar-screenshot
 ```
 which writes `/tmp/dorado-sdl-cedar-300.pgm`.
 
+For an immediate native launch at the verified, keyboard-responsive login
+prompt, use:
+
+```sh
+make cedar-login-snapshot       # one-time 650M-cycle producer
+make run-cedar-snapshot-sdl     # subsequent launches restore immediately
+```
+
+The native checkpoint is also preserved in compressed form under
+`dorado/snapshot-assets/`, so `make clean` can rehydrate it without repeating
+the Cedar boot. The browser has a separate wasm32-native checkpoint under
+`dorado/web-assets/`; selecting Cedar restores the login prompt instead of
+replaying the boot.
+
 The older `Dorado.germ!4` is the historical default but is version-mismatched
 with the 1984 microcode; prefer `Dorado.germ-6.1.6`.
 
@@ -216,6 +230,43 @@ BaseBoard, Ethernet, disk controller, fast-I/O router, and scalar machine
 state. Pack media bytes are not embedded; restore with the same `--disk`
 arguments used to create the snapshot. Writable dirty packs are flushed before
 snapshot so the restored controller state and media image agree.
+
+For Interlisp-D Lyric, create the XCL checkpoint pair once, then resume it:
+
+```sh
+cd dorado
+make lisp-lyric-desktop-snapshot   # one full 8.8B-cycle boot
+make run-lisp-snapshot-sdl         # subsequent launches are immediate
+```
+
+The SDL frontend accepts `--snapshot-in` and `--snapshot-out`. The generated
+`lisp-lyric-xcl.snap` and `lisp-lyric-xcl.pack` are an inseparable pair because
+pack media is not embedded in the snapshot. The web build has a separate
+wasm32-ABI checkpoint under `web-assets/`; select **Interlisp-D / Lyric — saved
+Exec (XCL) desktop**, or link directly with `?boot=lisp`. Native raw snapshots
+cannot be used by wasm32 because the current format deliberately serializes C
+structs and validates their ABI sizes.
+
+The saved Lyric desktop currently restores and renders but is not yet an
+interactive Lisp listener. Keyboard and mouse transitions reach LLKEY and
+typed characters enter Lisp's SYSBUFFER, but the saved process/TTY state does
+not consume them and the blank Exec window never prints its initial prompt.
+This is a guest-process bring-up bug, not a need to click a different host
+window.
+
+`make clean` removes the native files under `build/good-packs`. The producer
+automatically rehydrates its prerequisite Lyric pack from the preserved
+compressed web checkpoint media before performing the full native boot.
+Historical experimental Current/Harmony/Medley packs in `build/good-packs`
+are not automatically regenerated and are not prerequisites of supported run
+targets; keep anything valuable outside `build/` before cleaning.
+
+For browser snapshots, prefer checkpoints that remove a long wait without
+substantially increasing the initial download. Lyric is already checkpointed.
+Cedar's login is now checkpointed after fixing its blank-display regression.
+Mesa Network Executive is the next high-value target once its exact capture
+frame is revalidated. The directly booted Alto games are fast enough
+that a separate snapshot for every menu item is not currently worthwhile.
 
 `make test` runs the unit suites; the regression "gate" the bring-up keeps
 green is: `make test` (10/10) + AEmu NETEXEC ≈ 1476–1505 px + Galaxian 121553 px

@@ -246,6 +246,12 @@ static void type_text(dorado_machine *m, const char *text, uint64_t key_hold)
         if (k == DORADO_KEY_NONE) continue;
         if (ctrl) dorado_machine_set_key(m, DORADO_KEY_CTRL, 1);
         if (shift) dorado_machine_set_key(m, DORADO_KEY_LSHIFT, 1);
+        /* LLKEY applies simultaneous matrix transitions in key-number order.
+         * Let a modifier transition be observed before pressing the base key;
+         * otherwise scripted '(' is decoded as '9', for example. */
+        if (ctrl || shift)
+            dorado_machine_run_until(m,
+                dorado_machine_cycles(m) + key_hold);
         dorado_machine_set_key(m, k, 1);
         dorado_machine_run_until(m, dorado_machine_cycles(m) + key_hold);
         dorado_machine_set_key(m, k, 0);
@@ -295,7 +301,12 @@ static int type_key_chord(dorado_machine *m, const char *spec,
     if (parse_key_chord_spec(spec, keys, &nkeys)) return 2;
     printf("dorado: typing key chord \"%s\" at cyc %llu\n", spec,
            (unsigned long long)dorado_machine_cycles(m));
-    for (int i = 0; i < nkeys; i++) dorado_machine_set_key(m, keys[i], 1);
+    for (int i = 0; i < nkeys; i++) {
+        dorado_machine_set_key(m, keys[i], 1);
+        if (i + 1 < nkeys)
+            dorado_machine_run_until(m,
+                dorado_machine_cycles(m) + key_hold);
+    }
     dorado_machine_run_until(m, dorado_machine_cycles(m) + key_hold);
     for (int i = nkeys - 1; i >= 0; i--) dorado_machine_set_key(m, keys[i], 0);
     dorado_machine_run_until(m, dorado_machine_cycles(m) + key_hold);
