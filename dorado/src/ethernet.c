@@ -1051,7 +1051,7 @@ static int eth_ftp_resolve_file(dorado_ethernet *eth, char *out, size_t outsz)
  * is `name!version   dd-Mon-yy hh:mm:ss ZONE` (a leading '+' is DF
  * bookkeeping).  Host-side data, so it is a file static rather than emulated
  * state that would have to be snapshotted. */
-#define FTP_DATE_MAX 1024
+#define FTP_DATE_MAX 4096
 static struct {
     char key[128];      /* "dir/name", lowercased */
     char date[40];      /* verbatim from the DF */
@@ -1103,20 +1103,21 @@ static void ftp_dates_scan_df(const char *path)
         pos = end;
         while (pos < got && (buf[pos] == '\r' || buf[pos] == '\n')) pos++;
 
-        /* Section header: `Exports|Directory [Volume]<Dir>` -- the entries
-         * that follow live in Dir.  The volume is dropped, matching how
-         * eth_ftp_resolve_file maps a request onto the served tree. */
-        const char *tag = strchr(line, '<');
-        if (tag && strchr(line, '[') && strchr(line, '[') < tag &&
+        /* Section header: `Exports|Directory [Volume]<Dir>Sub>` -- the entries
+         * that follow live there.  Keep every path component (the header can
+         * be multi-level, `<Cedar6.1>Top>`), drop the volume, and use '/' as
+         * the separator, so the key matches the relative path
+         * eth_ftp_resolve_file derives from a request. */
+        const char *lt = strchr(line, '<');
+        const char *lb = strchr(line, '[');
+        if (lt && lb && lb < lt &&
             (strstr(line, "Exports") || strstr(line, "Directory")) &&
             !strstr(line, "Imports")) {
-            tag++;
-            size_t n = strcspn(tag, ">");
+            const char *last = strrchr(lt, '>');
+            size_t n = last && last > lt + 1 ? (size_t)(last - (lt + 1)) : 0;
             if (n > 0 && n < sizeof dir) {
-                memcpy(dir, tag, n);
+                memcpy(dir, lt + 1, n);
                 dir[n] = '\0';
-                /* "Cedar6.1>Top" style multi-level names keep their form; a
-                 * '>' inside becomes the path separator used by requests. */
                 for (char *p = dir; *p; p++)
                     if (*p == '>') *p = '/';
             }
@@ -1195,10 +1196,9 @@ static const char *eth_ftp_creation_date(const dorado_ethernet *eth,
                                          const char *relative)
 {
     ftp_dates_load(eth);
-    const char *rel = relative;
-    if (strncmp(rel, "Cedar6.1/", 9) == 0) rel += 9;
     char key[128];
-    if ((size_t)snprintf(key, sizeof key, "%s", rel) >= sizeof key) return NULL;
+    if ((size_t)snprintf(key, sizeof key, "%s", relative) >= sizeof key)
+        return NULL;
     for (char *p = key; *p; p++) *p = (char)tolower((unsigned char)*p);
     for (int i = 0; i < ftp_date_count; i++)
         if (strcmp(ftp_dates[i].key, key) == 0) return ftp_dates[i].date;
