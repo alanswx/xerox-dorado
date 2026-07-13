@@ -85,6 +85,45 @@ history: µengine mis-execution around XFER/state-vector/operand delivery in
 freshly-STARTed loadee code (cf. the Md-bypass and IFU-operand offset
 sagas), not data corruption.
 
+**Fast repro (validated cycle-exact).** A snapshot taken 2.7M cycles before
+the fault turns each diagnostic iteration from ~4.5 minutes into ~0.3
+seconds. Because the guest mutates the PDI in memory during the run, a late
+snapshot must be paired with a PDI image saved at the same cycle; and the
+`--type` events must be dropped on restore (their trigger cycles are already
+past, so they would re-fire immediately and inject stray keystrokes).
+Generate the pair once (from `dorado/`):
+
+```sh
+cp /private/tmp/CedarDorado-chs-contig10.pdi /private/tmp/cedar-prefail.pdi
+DORADO_PDI_IGNORE_LABEL_FLAGS=1 DORADO_PDI_SAVE=1 ./build/dorado \
+  --snapshot-in /private/tmp/cedar-chs-contig10-current-700m.snap \
+  --pilot-disk /private/tmp/cedar-prefail.pdi \
+  --ftp-root ../chm/cedar/stp-root \
+  --type-at 760000000 --type 'Guest\n\n' \
+  --cycles 4826000000 --snapshot-out /private/tmp/cedar-prefail2.snap \
+  --out /private/tmp/cedar-prefail2.pgm
+```
+
+Then iterate (no `--type`; without `DORADO_PDI_SAVE` the PDI file is never
+written, so the pair is reusable as-is):
+
+```sh
+DORADO_PDI_IGNORE_LABEL_FLAGS=1 \
+DORADO_FAULT_TRACE=all DORADO_IFUDISP_TRACE=1 \
+DORADO_TRACE_GATE=4828683000,4828693000 ./build/dorado \
+  --snapshot-in /private/tmp/cedar-prefail2.snap \
+  --pilot-disk /private/tmp/cedar-prefail.pdi \
+  --ftp-root ../chm/cedar/stp-root \
+  --cycles 4828695000 --out /private/tmp/cedar-fastcheck.pgm
+```
+
+Validated: the wild fault fires at exactly `4828691614` (identical
+registers/VA/µinstruction) and the first WDC leak at exactly `4828758358`
+from this pair. Caveat: snapshots serialize raw C structs, so the pair is
+ABI-tied to the emulator build — regenerate it after any struct change
+(same recipe), and expect the cycle numbers to hold only while the emulator
+stays behaviorally identical up to 4.826B.
+
 **Source evidence:** `chm/cedar/refs/PilotMesaProcess.mc!1` defines `IWDC`,
 `DWDC`, `MesaInterrupt`, `IdleReschedule`, and `BusyWait` (which rejects an
 idle nonzero WDC). `chm/cedar/tentacles/` (fetched today) holds
