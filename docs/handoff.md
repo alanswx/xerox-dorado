@@ -7,14 +7,50 @@
 `Basic.Loadees` packages, **STARTs them all**, runs `InstallerImpl`, and
 BringOvers the whole `BootEssentials.df` closure -- 93 STP transfers, ending
 with every TIP table, `.icons`, JaM program, style and `User.Profile` the
-Viewers desktop needs. The Installer then **completes and closes
-SimpleTerminal**, which is why the screen goes blank.
+Viewers desktop needs.
 
-The guest is alive and scheduling after that (`ready=0o2364`,
-`currentPSB=0o100`, `NWW=0o100000`, clock advancing, `WDC=1`) but never turns
-the display on: the Cedar CSB DCB-chain head at absolute `0420` stays 0, so
-`dorado_machine_render_display_list` has nothing to rasterize (0 pixels).
-That -- the Viewers/TerminalImpl display turn-on -- is the frontier.
+**Then Cedar takes an uncaught error and its crash path blanks the screen.**
+The blank display is a *symptom*, not the bug -- do not go looking for a
+missing Viewers display turn-on.
+
+Evidence (`DORADO_STORE_TRACE_VA=0420,0421`, the Cedar CSB): across a 30B
+cycle boot the DCB-chain head at absolute `0420` is written exactly four
+times -- `0` early, `003120` (blank DCB = `TerminalFace.Connect`) at 675M,
+`003126` (real DCB = `TurnOn`) at 681M as SimpleTerminal comes up, and then
+**`0` at cycle 11,618,516,237, which is the last write in the whole run.**
+
+That final write is a *bare* Disconnect with no preceding TurnOff. It cannot
+be SimpleTerminal's shutdown or a terminal Select: both go through
+`TerminalImpl.BWTurnOff` first, which writes the blank-DCB value `003120`.
+The only code that nils the head in one write is
+`TerminalHeadDorado.InitializeCleanup`'s DeviceCleanup handler
+(`chm/cedar/os-src/TerminalHeadDorado.mesa!1.cyan61`):
+
+```
+turnOff => { state _ csbPtr^; csbPtr.dcbChainHead _ pDCBNull; ...spin... };
+turnOn  => { csbPtr^ _ state };          -- restores the head
+```
+
+and the only caller of `DeviceCleanup.Perform[turnOff]` is DebugNub's
+`MemorySwap.SwapIt` (`chm/cedar/tentacles/DebugNub.mesa!1.txt`) on its way
+into the debugger. With no debugger to swap to it reaches
+`SetMP[MPCodes.cantWorldSwap]` / `GermSwap.Teledebug` and never gets to the
+matching `DeviceCleanup.Perform[turnOn]`, so the display stays dark forever.
+The final `WDC=1` corroborates it: exactly one unbalanced
+`DisableInterrupts`, from `CoreSwap`.
+
+So the guest is "alive and scheduling" (`ready` non-empty, clock ticking)
+only because the other processes keep running while the faulting one sits in
+the debugger.
+
+**Next step: identify the uncaught error at cycle ~11,618,516,000.** The
+technique that cracked the last two bugs applies directly: gate
+`DORADO_IFUDISP_TRACE=1 DORADO_FAULT_TRACE=all DORADO_RM_WATCH=6` on
+`DORADO_TRACE_GATE=11618300000,11618530000`, find the WDC 0->1 store (uPC
+`0o516`) and any `FAULT_CPU` just before it, then map the faulting code's
+`br31` to a module with `chm/cedar/basiccedar/BasicCedarDorado.loadmap!22`.
+Cycle numbers shift if anything upstream changes, so re-derive the exact
+cycle from a fresh `DORADO_STORE_TRACE_VA=0420,0421` run first.
 
 **Fonts: served, but BringOver still does not pull them.** `TryForFonts` asks
 for `[CedarFonts]<Top>{TiogaFonts,FontMetrics,PressFonts,XC1-2-2-Fonts}.df`.
