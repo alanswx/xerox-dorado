@@ -1,0 +1,655 @@
+
+BasicCedarDorado.loadmap
+
+Loadmap for boot file: BasicCedarDorado.boot   December 3, 1986 8:59:47 pm PST
+Built by: Cedar MakeBoot of May 13, 1985 11:27:45 pm PDT
+
+Input BCDs:
+
+  HeadsDorado.bcd                          09-Jun-86 15:16:07 PDT
+  MesaRuntime.bcd                          03-May-85 11:16:38 PDT
+  Tentacles.bcd                            24-May-86 19:34:42 PDT
+  DiskImpl.bcd                             27-Feb-85 20:55:48 PST
+  VMImpl.bcd                               12-Jun-86 10:25:50 PDT
+  BasicLoadStatePackage.bcd                27-Feb-85 20:59:43 PST
+  CedarRuntime.bcd                         03-Dec-86 18:48:44 PST
+  FilePackage.bcd                          24-May-86 19:32:21 PDT
+  LoadStateImpl.bcd                        28-Mar-86 15:34:31 PST
+  IOPackage.bcd                            07-Feb-86 12:44:19 PST
+  CommDriverPackage.bcd                    10-Jun-86 14:31:16 PDT
+  PupPackage.bcd                           17-Nov-86 16:23:17 PST
+  BasicTimeImpl.bcd                        03-Jun-86 22:41:56 PDT
+  GrapevineUser.bcd                        05-Jun-86 03:17:29 PDT
+  STPImpl.bcd                              05-Jun-86 15:30:48 PDT
+  TerminalImpl.bcd                         09-Jun-86 15:43:22 PDT
+  UserCredentialsImpl.bcd                  13-May-85 22:06:07 PDT
+  DefaultRemoteNamesImpl.bcd               10-Jun-86 17:46:50 PDT
+  SimpleTerminalImpl.bcd                   21-Jan-86 21:01:58 PST
+  FSImpl.bcd                               18-Jul-86 15:16:58 PDT
+  FileStreamPackage.bcd                    11-Jun-86 08:36:54 PDT
+  FormatDiskDorado.bcd                     27-Feb-85 23:06:24 PST
+  Iago.bcd                                 11-Jun-86 09:06:15 PDT
+  RollbackImpl.bcd                         17-Jun-85 16:41:06 PDT
+  RuntimeLoader.bcd                        28-Mar-86 17:07:46 PST
+  LoaderDriver.bcd                         24-Apr-85 21:47:17 PST
+
+Parameter Files:
+
+  Nucleus.bootmesa                         03-Jun-86 16:22:12 PDT
+  BasicCedar.bootmesa                      23-Jun-86 14:15:28 PDT
+  HeadsDorado.bootmesa                     12-Apr-85 17:44:53 PST
+  MesaRuntime.bootmesa                     29-Jan-85 00:22:59 PST
+  Tentacles.bootmesa                       30-Jan-85 17:16:58 PST
+  DiskImpl.bootmesa                        30-Jan-85 21:43:57 PST
+  VMImpl.bootmesa                          21-Apr-86 11:25:19 PST
+  BasicLoadStatePackage.bootmesa           31-Jan-85 11:13:50 PST
+  CedarRuntime.bootmesa                    22-May-85 22:02:31 PDT
+  FilePackage.bootmesa                     12-Aug-83 14:22:05 PDT
+  SimpleTerminalImpl.bootmesa              02-Feb-85 16:49:10 PST
+  FormatDiskDorado.bootmesa                04-Feb-85 12:12:04 PST
+  Iago.bootmesa                            04-Feb-85 16:49:14 PST
+  RollbackImpl.bootmesa                    03-Jun-86 16:23:02 PDT
+
+Input Parameters:
+
+  Version = 6.1
+  Earliest acceptable microcode:
+    Dorado:  02-May-83 17:00:00 PDT
+
+  GFT length = 1024
+  PDA pages = 15
+  Processes = 300
+  MDS base = page 512 [400000]
+  Code base = page 768 [600000]
+
+  Statevector length = 20
+  Statevector counts:
+     0:  2
+     1:  20
+     2:  32
+     3:  20
+     4:  16
+     5:  10
+     6:  5
+     7:  5
+
+  Frame heap pages = 36
+  Frame distribution:  [ FSI (words): weight, next FSI ]
+    0 (   7):  12, 1
+    1 (  11):  16, 2
+    2 (  15):  12, 3
+    3 (  19):  12, 4
+    4 (  23):  9, 5
+    5 (  27):  8, 6
+    6 (  31):  6, 7
+    7 (  39):  5, 8
+    8 (  47):  5, 9
+    9 (  55):  5, 10
+   10 (  67):  4, 11
+   11 (  79):  3, 0
+   12 (  95):  1, 13
+   13 ( 111):  1, 14
+   14 ( 127):  1, 15
+   15 ( 147):  1, 16
+   16 ( 171):  1, 17
+   17 ( 203):  1, 18
+   18 ( 252):  1, 0
+   19 ( 508):  0, 0
+   20 ( 764):  0, 0
+   21 (1020):  0, 0
+   22 (1276):  0, 0
+   23 (1532):  0, 0
+   24 (1788):  0, 0
+   25 (2044):  0, 0
+   26 (2554):  0, 0
+   27 (3068):  0, 0
+   28 (3580):  0, 0
+   29 (4092):  0, 0
+
+  Wart: Wart
+
+  Resident:
+    CODE[ColorDisplayHeadDorado, DeviceCleanupImpl, DiskHeadDorado, DiskHeadSA4000, EthernetHeadDorado, EthernetOneHeadDorado, 
+ProcessorHeadDorado, TerminalHeadDorado],
+    GLOBALFRAME[ColorDisplayHeadDorado, DeviceCleanupImpl, DiskHeadDorado, DiskHeadSA4000, EthernetHeadDorado, 
+EthernetOneHeadDorado, ProcessorHeadDorado, TerminalHeadDorado],
+    CODE[InstructionsImpl, ProcessImpl, SignalsImpl],
+    GLOBALFRAME[InstructionsImpl, ProcessImpl, SignalsImpl],
+    CODE[DebugNub, GermSwapImpl],
+    GLOBALFRAME[DebugNub, GermSwapImpl],
+    CODE[DiskImpl],
+    GLOBALFRAME[DiskImpl],
+    CODE[VMAllocImpl, VMBackingImpl, VMFaultsImpl, VMFrameSnapshotImpl, VMLaundryImpl, VMOpsImpl, VMStateImpl, VMSwapImpl],
+    GLOBALFRAME[VMAllocImpl, VMBackingImpl, VMFaultsImpl, VMFrameSnapshotImpl, VMLaundryImpl, VMOpsImpl, VMStateImpl, VMSwapImpl],
+    CODE[CollectorWatchdogImpl, SafeStoragePinnedImpl],
+    GLOBALFRAME[CollectorWatchdogImpl, SafeStoragePinnedImpl],
+    CODE[BootingImpl],
+    GLOBALFRAME[BootingImpl],
+    CODE[SimpleTerminalImpl],
+    GLOBALFRAME[SimpleTerminalImpl];
+
+  Initially In:
+    BCD[ALL],
+    GLOBALFRAME[ALL],
+    BCD[LoaderDriver],
+    CODE[LoaderDriver],
+    GLOBALFRAME[LoaderDriver],
+    BCD[HeadsDorado],
+    CODE[DESImpl, TextBltImpl],
+    GLOBALFRAME[DESImpl, TextBltImpl],
+    CODE[FrameImpl, TrapsImpl],
+    GLOBALFRAME[FrameImpl, TrapsImpl],
+    BCD[MesaRuntime],
+    CODE[BootStartListImpl, Wart],
+    GLOBALFRAME[BootStartListImpl, Wart],
+    BCD[Tentacles],
+    BCD[DiskImpl],
+    BCD[VMImpl],
+    CODE[VMInitImpl, VMLowCoreImpl],
+    GLOBALFRAME[VMInitImpl, VMLowCoreImpl],
+    BCD[BasicLoadStatePackage],
+    CODE[BasicLoadStatePackage[ALL]],
+    GLOBALFRAME[BasicLoadStatePackage[ALL]],
+    BCD[CedarRuntime],
+    CODE[CedarRuntime[ALL]],
+    GLOBALFRAME[CedarRuntime[ALL]],
+    BCD[FilePackage],
+    CODE[FilePackage[ALL]],
+    GLOBALFRAME[FilePackage[ALL]],
+    BCD[FormatDiskDorado],
+    CODE[FormatDiskDorado],
+    GLOBALFRAME[FormatDiskDorado],
+    BCD[Iago],
+    CODE[Iago[ALL]],
+    GLOBALFRAME[Iago[ALL]],
+    BCD[LoadStateImpl, IOPackage, CommDriverPackage, PupPackage, BasicTimeImpl, GrapevineUser, STPImpl, TerminalImpl, 
+SimpleTerminalImpl, UserCredentialsImpl, DefaultRemoteNamesImpl, RollbackImpl],
+    CODE[LoadStateImpl, IOPackage[ALL], CommDriverPackage[ALL], PupPackage[ALL], BasicTimeImpl, GrapevineUser[ALL], STPImpl, 
+TerminalImpl, UserCredentialsImpl, DefaultRemoteNamesImpl, RollbackImpl],
+    GLOBALFRAME[LoadStateImpl, IOPackage[ALL], CommDriverPackage[ALL], PupPackage[ALL], BasicTimeImpl, GrapevineUser[ALL], STPImpl, 
+TerminalImpl, UserCredentialsImpl, DefaultRemoteNamesImpl, RollbackImpl],
+    BCD[FSImpl, FileStreamPackage, RuntimeLoader],
+    CODE[FSImpl[ALL], FileStreamPackage[ALL], RuntimeLoader[ALL]],
+    GLOBALFRAME[FSImpl[ALL], FileStreamPackage[ALL], RuntimeLoader[ALL]];
+
+  No Trap:
+    DeviceCleanupImpl,
+    TrapsImpl,
+    DebugNub,
+    GermSwapImpl,
+    BootStartListImpl,
+    Wart;
+
+  Control:
+    VMImpl,
+    DiskImpl,
+    BasicLoadStatePackage,
+    CedarRuntime,
+    FilePackage,
+    LoadStateImpl,
+    IOPackage,
+    CommDriverPackage,
+    PupPackage,
+    BasicTimeImpl,
+    GrapevineUser,
+    STPImpl,
+    TerminalImpl,
+    UserCredentialsImpl,
+    DefaultRemoteNamesImpl,
+    SimpleTerminalImpl,
+    FSImpl,
+    FileStreamPackage,
+    Iago,
+    RollbackImpl,
+    RuntimeLoader,
+    LoaderDriver;
+
+
+Global Frames for Modules in HeadsDorado.bcd:
+  New: g = 025400 ColorDisplayHeadDorado [100]
+  New: g = 025454 DESImpl [200]
+  New: g = 025564 DeviceCleanupImpl [300]
+  New: g = 025600 DiskHeadDorado [400]
+  New: g = 025710 DiskHeadSA4000 [500]
+  New: g = 025760 EthernetHeadDorado [600]
+  New: g = 026010 EthernetOneHeadDorado [700]
+  New: g = 026074 ProcessorHeadDorado [1000]
+  New: g = 027220 TerminalHeadDorado [1100]
+  New: g = 027254 TextBltImpl [1200]
+
+Global Frames for Modules in MesaRuntime.bcd:
+  New: g = 000400 FrameImpl [1300]
+  New: g = 000404 InstructionsImpl [1400]
+  New: g = 000410 ProcessImpl [1500]
+  New: g = 000444 SignalsImpl [1600]
+  New: g = 000454 TrapsImpl [1700]
+
+Global Frames for Modules in Tentacles.bcd:
+  New: g = 027400 BootStartListImpl [2000]
+  New: g = 027410 GermSwapImpl [2100]
+  New: g = 027434 DebugNub [2200]
+  New: g = 031544 Wart [2300]
+
+Global Frames for Modules in DiskImpl.bcd:
+  New: g = 025244 DiskImpl [2400]
+
+Global Frames for Modules in VMImpl.bcd:
+  New: g = 032000 VMAllocImpl [2500]
+  New: g = 032024 VMBackingImpl [2600]
+  New: g = 032050 VMInitImpl [2700]
+  New: g = 032064 VMOpsImpl [3000]
+  New: g = 032150 VMStateImpl [3200]
+  New: g = 032304 VMSwapImpl [3400]
+  New: g = 032310 VMLowCoreImpl [3500]
+  New: g = 032334 VMFaultsImpl [3600]
+  New: g = 032400 VMFrameSnapshotImpl [3700]
+  New: g = 032414 VMLaundryImpl [4000]
+
+Global Frames for Modules in BasicLoadStatePackage.bcd:
+  New: g = 033000 BcdOpsImpl [4100]
+  New: g = 033010 BasicLoadStateImpl [4200]
+
+Global Frames for Modules in CedarRuntime.bcd:
+  New: g = 033400 UnsafeAllocatorImpl [4300]
+  New: g = 033454 AllocatorImpl [4400]
+  New: g = 033534 StorageAccountingImpl [4600]
+  New: g = 033564 TypesBasicImpl [4700]
+  New: g = 033640 RefQueueImpl [5000]
+  New: g = 033650 CollectorImpl [5100]
+  New: g = 033734 CollectorWatchdogImpl [5200]
+  New: g = 033744 ReclaimerImpl [5300]
+  New: g = 033760 StorageTrapsImpl [5400]
+  New: g = 034000 SafeStoragePinnedImpl [5500]
+  New: g = 034024 ZCTImpl [5600]
+  New: g = 034034 SafeStorageOpsImpl [6000]
+  New: g = 034054 FQImpl [6100]
+  New: g = 034074 RCMicrocodeImpl [6200]
+  New: g = 034104 RCOvImpl [6300]
+  New: g = 034130 SymbolAccessImpl [6400]
+  New: g = 034144 RTFrameHeapSnapshotImpl [6500]
+  New: g = 034164 TypesBasicExtensionImpl [6600]
+  New: g = 034174 RCMapWalkerImpl [6700]
+  New: g = 034210 RCMapBuilderImpl [7000]
+  New: g = 034244 AtomImpl [7200]
+  New: g = 034274 ListImpl [7300]
+  New: g = 034314 CountedVMImpl [7400]
+  New: g = 034330 SweepCollectableStorageImpl [7500]
+  New: g = 034334 IeeeFloatA [7600]
+  New: g = 034340 IeeeFloatB [7700]
+  New: g = 034344 IeeeUtil [10000]
+  New: g = 034354 IeeeMode [10100]
+  New: g = 034364 IeeeIOA [10200]
+  New: g = 034400 RealFnsImpl [10300]
+  New: g = 034570 RealExceptionsImpl [10400]
+  New: g = 034600 RealControl [10500]
+  New: g = 034610 RefTextImpl [10600]
+  New: g = 034640 RopeImpl [10700]
+  New: g = 034654 RopeImplExt [11000]
+  New: g = 034670 ConvertUnsafeImpl [11100]
+  New: g = 034674 RopeHashImpl [11200]
+  New: g = 034700 ProcessPropsImpl [11300]
+
+Global Frames for Modules in FilePackage.bcd:
+  New: g = 035034 FilePagesImpl [11400]
+  New: g = 035104 BootingImpl [11500]
+  New: g = 035204 FileImpl [11600]
+  New: g = 035270 FileInit [12000]
+  New: g = 035330 FileTableImpl [12100]
+  New: g = 035420 LogicalVolumeImpl [12200]
+  New: g = 035454 PhysicalVolumeImpl [12400]
+
+Global Frames for Modules in LoadStateImpl.bcd:
+  New: g = 022630 LoadStateImpl [12600]
+
+Global Frames for Modules in IOPackage.bcd:
+  New: g = 036000 IOCommonImpl [13000]
+  New: g = 036030 IOSimpleStreamsImpl [13300]
+  New: g = 036064 IOScanImpl [13500]
+  New: g = 036104 IOPrintImpl [13600]
+  New: g = 036134 IOConvertImpl [14000]
+  New: g = 036144 IODateAndTimeImpl [14200]
+  New: g = 036160 IOClassesImpl [14300]
+  New: g = 036204 IOPipeImpl [14400]
+  New: g = 036224 IOEditedStreamImpl [14500]
+
+Global Frames for Modules in CommDriverPackage.bcd:
+  New: g = 036400 CommDriverImpl [14700]
+  New: g = 036444 CommDriverInterceptImpl [15000]
+  New: g = 036470 EthernetDriver [15100]
+  New: g = 036644 EthernetOneDriver [15200]
+  New: g = 037014 EthernetDriverStatsImpl [15300]
+  New: g = 037024 HackPupHostNumber [15400]
+  New: g = 037034 PupEthernetTranslation [15500]
+
+Global Frames for Modules in PupPackage.bcd:
+  New: g = 037400 PupSocketImpl [15600]
+  New: g = 037560 PupRouterImpl [16100]
+  New: g = 037604 PupNameImpl [16200]
+  New: g = 037620 PupStreamImpl [16300]
+  New: g = 037710 PupEchoServerImpl [16600]
+  New: g = 037734 ThisMachineImpl [16700]
+  New: g = 037750 EFTPImpl [17000]
+
+Global Frames for Modules in BasicTimeImpl.bcd:
+  New: g = 025114 BasicTimeImpl [17100]
+
+Global Frames for Modules in GrapevineUser.bcd:
+  New: g = 040000 GVLocateImpl [17200]
+  New: g = 040014 GVNamesImpl [17300]
+  New: g = 040074 GVProtocolImpl [17500]
+  New: g = 040110 GVSendImpl [17700]
+  New: g = 040130 GVRetrieveImpl [20000]
+
+Global Frames for Modules in STPImpl.bcd:
+  New: g = 025160 STPImpl [20200]
+
+Global Frames for Modules in TerminalImpl.bcd:
+  New: g = 022570 TerminalImpl [20500]
+
+Global Frames for Modules in UserCredentialsImpl.bcd:
+  New: g = 022740 UserCredentialsImpl [21000]
+
+Global Frames for Modules in DefaultRemoteNamesImpl.bcd:
+  New: g = 025134 DefaultRemoteNamesImpl [21200]
+
+Global Frames for Modules in SimpleTerminalImpl.bcd:
+  New: g = 023654 SimpleTerminalImpl [21300]
+
+Global Frames for Modules in FSImpl.bcd:
+  New: g = 040414 BTreeRead [21500]
+  New: g = 040470 BTreeWrite [21600]
+  New: g = 040514 BTreeVMImpl [21700]
+  New: g = 040550 FSDirImpl [22000]
+  New: g = 040654 FSFileOpsImpl [22100]
+  New: g = 040720 FSFileSpaceImpl [22200]
+  New: g = 040760 FSFileStreamImpl [22300]
+  New: g = 041030 FSFileLookupImpl [22400]
+  New: g = 041054 FSLockImpl [22500]
+  New: g = 041070 FSLockTableImpl [22600]
+  New: g = 041204 FSMainImpl1 [22700]
+  New: g = 041264 FSMainImpl2 [23000]
+  New: g = 041314 FSNameImpl [23100]
+  New: g = 041364 FSOpenFileImpl [23200]
+  New: g = 041420 FSPropertiesImpl [23300]
+  New: g = 041454 FSPseudoServersImpl [23400]
+  New: g = 041544 FSRemoteFileImpl [23500]
+  New: g = 041604 FSReportImpl [23700]
+
+Global Frames for Modules in FileStreamPackage.bcd:
+  New: g = 042014 FileStreamMoreImpl [24000]
+  New: g = 042104 FileStreamImpl [24100]
+
+Global Frames for Modules in FormatDiskDorado.bcd:
+  New: g = 022500 FormatDiskDorado [24300]
+
+Global Frames for Modules in Iago.bcd:
+  New: g = 042500 IagoOpsImpl [24400]
+  New: g = 042654 IagoMainImpl [24600]
+  New: g = 043040 IagoCommands1Impl [24700]
+  New: g = 043170 IagoCommands2Impl [25000]
+
+Global Frames for Modules in RollbackImpl.bcd:
+  New: g = 012364 RollbackImpl [25100]
+
+Global Frames for Modules in RuntimeLoader.bcd:
+  New: g = 043400 CedarLoaderImpl [25200]
+  New: g = 043420 CedarLinkerImpl [25400]
+  New: g = 043464 CedarExporterImpl [25500]
+
+Global Frames for Modules in LoaderDriver.bcd:
+  New: g = 025304 LoaderDriver [25600]
+
+
+Total of 142 modules, 175 GFIs
+
+LOCAL FRAMES ALLOCATED:
+
+   0:  30
+   1:  39
+   2:  29
+   3:  29
+   4:  22
+   5:  19
+   6:  15
+   7:  12
+   8:  11
+   9:  11
+  10:  9
+  11:  7
+  12:  3
+  13:  3
+  14:  3
+  15:  3
+  16:  3
+  17:  3
+  18:  2
+  19:  0
+  20:  0
+  21:  0
+  22:  0
+  23:  0
+  24:  0
+  25:  0
+  26:  0
+  27:  0
+  28:  0
+  29:  0
+
+
+BOOT FILE MAP
+
+   Bootloaded Memory
+ File      VM     Pages   Map    Type   Source[base,pages]
+ Page    Address (*=Pin) Flags
+     0  Header Page
+     1       400      1*         data
+     2    177400      1*         data
+     3    200000     17*         data
+    22    400400      1*         data
+    23    401000      1*         data
+    24    401400      4*         data
+    30    403400     44*         data
+    74    425400      4*         data
+   100    427400      5*         data
+   105    432000      2*         data
+   107    433000      1          data
+   110    433400      3*         data
+   113    435000      2*         data
+   115    436000      1          data
+   116    436400      2          data
+   120    437400      1          data
+   121    440000      1          data
+   122    440400      3          data
+   123  Trailer Page
+   126    442000      1          data
+   127    442400      2          data
+   131    443400      1          data
+   132    574400      7          data
+   141    600000      4   W      file   HeadsDorado[0,4]
+   145    602000     23          data
+   170    613400      5*  W      code   HeadsDorado[4,5]
+   175    616000     11   W      code   HeadsDorado[11,11]
+   206    622400      1*  W      code   HeadsDorado[22,1]
+   207    623000      3*  W      code   HeadsDorado[23,3]
+   212    624400      2*  W      code   HeadsDorado[26,2]
+   214    625400      2*  W      code   HeadsDorado[30,2]
+   216    626400      2*  W      code   HeadsDorado[32,2]
+   220    627400      3*  W      code   HeadsDorado[34,3]
+   223    631000      2*  W      code   HeadsDorado[37,2]
+   225    632000      1   W      code   HeadsDorado[41,1]
+   226    632400      2   W      file   MesaRuntime[0,2]
+   230    633400      1   W      code   MesaRuntime[2,1]
+   231    634000      3*  W      code   MesaRuntime[3,3]
+   234    635400      4*  W      code   MesaRuntime[6,4]
+   240    637400      2*  W      code   MesaRuntime[12,2]
+   242    640400      2   W      code   MesaRuntime[14,2]
+   244    641400      2   W      file   Tentacles[0,2]
+   246    642400      1   W      code   Tentacles[2,1]
+   247    643000      1*  W      code   Tentacles[3,1]
+   250    643400      5*  W      code   Tentacles[4,5]
+   251  Trailer Page
+   256    646000      1   W      code   Tentacles[11,1]
+   257    646400      1   W      file   DiskImpl[0,1]
+   260    647000      4*  W      code   DiskImpl[1,4]
+   264    651000      4   W      file   VMImpl[0,4]
+   270    653000      6*  W      code   VMImpl[4,6]
+   276    656000      2*  W      code   VMImpl[12,2]
+   300    657000      5   W      code   VMImpl[14,5]
+   305    661400     10*  W      code   VMImpl[21,10]
+   315    665400     14*  W      code   VMImpl[31,14]
+   331    673400      7*  W      code   VMImpl[45,7]
+   340    677000      2   W      code   VMImpl[54,2]
+   342    700000     10*  W      code   VMImpl[56,10]
+   352    704000      2*  W      code   VMImpl[66,2]
+   354    705000      3*  W      code   VMImpl[70,3]
+   357    706400      2   W      file   BasicLoadStatePackage[0,2]
+   361    707400      2   W      code   BasicLoadStatePackage[2,2]
+   363    710400      3   W      code   BasicLoadStatePackage[4,3]
+   366    712000     20   W      file   CedarRuntime[0,20]
+   377  Trailer Page
+   407    722000      3   W      code   CedarRuntime[20,3]
+   412    723400     13   W      code   CedarRuntime[23,13]
+   425    731000      1   W      code   CedarRuntime[36,1]
+   426    731400      4   W      code   CedarRuntime[37,4]
+   432    733400      1   W      code   CedarRuntime[43,1]
+   433    734000      2   W      code   CedarRuntime[44,2]
+   435    735000      1*  W      code   CedarRuntime[46,1]
+   436    735400      2   W      code   CedarRuntime[47,2]
+   440    736400      1   W      code   CedarRuntime[51,1]
+   441    737000      1*  W      code   CedarRuntime[52,1]
+   442    737400      7   W      code   CedarRuntime[53,7]
+   451    743000      5   W      code   CedarRuntime[62,5]
+   456    745400      1   W      code   CedarRuntime[67,1]
+   457    746000      3   W      code   CedarRuntime[70,3]
+   462    747400      2   W      code   CedarRuntime[73,2]
+   464    750400      1   W      code   CedarRuntime[75,1]
+   465    751000      1   W      code   CedarRuntime[76,1]
+   466    751400      1   W      code   CedarRuntime[77,1]
+   467    752000     15   W      code   CedarRuntime[100,15]
+   504    760400     16   W      code   CedarRuntime[115,16]
+   522    767400      4   W      code   CedarRuntime[133,4]
+   525  Trailer Page
+   527    771400      5   W      code   CedarRuntime[137,5]
+   534    774000      1   W      code   CedarRuntime[144,1]
+   535    774400      1   W      code   CedarRuntime[145,1]
+   536    775000      3   W      code   CedarRuntime[146,3]
+   541    776400      3   W      code   CedarRuntime[151,3]
+   544   1000000      3   W      code   CedarRuntime[154,3]
+   547   1001400      1   W      code   CedarRuntime[157,1]
+   550   1002000      3   W      code   CedarRuntime[160,3]
+   553   1003400      5   W      code   CedarRuntime[163,5]
+   560   1006000      2   W      code   CedarRuntime[170,2]
+   562   1007000      2   W      code   CedarRuntime[172,2]
+   564   1010000      2   W      code   CedarRuntime[174,2]
+   566   1011000     14   W      code   CedarRuntime[176,14]
+   602   1017000     11   W      code   CedarRuntime[212,11]
+   613   1023400      2   W      code   CedarRuntime[223,2]
+   615   1024400      1   W      code   CedarRuntime[225,1]
+   616   1025000      2   W      code   CedarRuntime[226,2]
+   620   1026000      7   W      file   FilePackage[0,7]
+   627   1031400      7   W      code   FilePackage[7,7]
+   636   1035000      4*  W      code   FilePackage[16,4]
+   642   1037000     17   W      code   FilePackage[22,17]
+   653  Trailer Page
+   662   1046400      4   W      code   FilePackage[41,4]
+   666   1050400      3   W      code   FilePackage[45,3]
+   671   1052000     15   W      code   FilePackage[50,15]
+   706   1060400     13   W      code   FilePackage[65,13]
+   721   1066000      4   W      file   LoadStateImpl[0,4]
+   725   1070000     13   W      code   LoadStateImpl[4,13]
+   740   1075400     15   W      file   IOPackage[0,15]
+   755   1104000      7   W      code   IOPackage[15,7]
+   764   1107400      6   W      code   IOPackage[24,6]
+   772   1112400     12   W      code   IOPackage[32,12]
+  1001  Trailer Page
+  1005   1117400     13   W      code   IOPackage[44,13]
+  1020   1125000     15   W      code   IOPackage[57,15]
+  1035   1133400     12   W      code   IOPackage[74,12]
+  1047   1140400      3   W      code   IOPackage[106,3]
+  1052   1142000      5   W      code   IOPackage[111,5]
+  1057   1144400     10   W      code   IOPackage[116,10]
+  1067   1150400     10   W      file   CommDriverPackage[0,10]
+  1077   1154400      2   W      code   CommDriverPackage[10,2]
+  1101   1155400      4   W      code   CommDriverPackage[12,4]
+  1105   1157400      7   W      code   CommDriverPackage[16,7]
+  1114   1163000      7   W      code   CommDriverPackage[25,7]
+  1123   1166400      1   W      code   CommDriverPackage[34,1]
+  1124   1167000      2   W      code   CommDriverPackage[35,2]
+  1126   1170000      5   W      code   CommDriverPackage[37,5]
+  1127  Trailer Page
+  1134   1172400     17   W      file   PupPackage[0,17]
+  1153   1202000     14   W      code   PupPackage[17,14]
+  1167   1210000      4   W      code   PupPackage[33,4]
+  1173   1212000      3   W      code   PupPackage[37,3]
+  1176   1213400     23   W      code   PupPackage[42,23]
+  1221   1225000      1   W      code   PupPackage[65,1]
+  1222   1225400      2   W      code   PupPackage[66,2]
+  1224   1226400      3   W      code   PupPackage[70,3]
+  1227   1230000      2   W      file   BasicTimeImpl[0,2]
+  1231   1231000      4   W      code   BasicTimeImpl[2,4]
+  1235   1233000     10   W      file   GrapevineUser[0,10]
+  1245   1237000      3   W      code   GrapevineUser[10,3]
+  1250   1240400      7   W      code   GrapevineUser[13,7]
+  1255  Trailer Page
+  1260   1244000      4   W      code   GrapevineUser[22,4]
+  1264   1246000      3   W      code   GrapevineUser[26,3]
+  1267   1247400     13   W      code   GrapevineUser[31,13]
+  1302   1255000     10   W      file   STPImpl[0,10]
+  1312   1261000     21   W      code   STPImpl[10,21]
+  1333   1271400      3   W      file   TerminalImpl[0,3]
+  1336   1273000     21   W      code   TerminalImpl[3,21]
+  1357   1303400      4   W      file   UserCredentialsImpl[0,4]
+  1363   1305400     10   W      code   UserCredentialsImpl[4,10]
+  1373   1311400      2   W      file   DefaultRemoteNamesImpl[0,2]
+  1375   1312400      1   W      code   DefaultRemoteNamesImpl[2,1]
+  1376   1313000      3   W      file   SimpleTerminalImpl[0,3]
+  1401   1314400     14*  W      code   SimpleTerminalImpl[3,14]
+  1403  Trailer Page
+  1416   1322400     30   W      file   FSImpl[0,30]
+  1446   1336400     10   W      code   FSImpl[30,10]
+  1456   1342400     14   W      code   FSImpl[40,14]
+  1472   1350400      5   W      code   FSImpl[54,5]
+  1477   1353000      7   W      code   FSImpl[61,7]
+  1506   1356400      6   W      code   FSImpl[70,6]
+  1514   1361400      3   W      code   FSImpl[76,3]
+  1517   1363000      4   W      code   FSImpl[101,4]
+  1523   1365000      2   W      code   FSImpl[105,2]
+  1525   1366000      2   W      code   FSImpl[107,2]
+  1527   1367000      2   W      code   FSImpl[111,2]
+  1531   1370000     14   W      code   FSImpl[113,14]
+  1531  Trailer Page
+  1546   1376000      4   W      code   FSImpl[142,4]
+  1552   1400400      5   W      code   FSImpl[127,5]
+  1557   1403000      6   W      code   FSImpl[134,6]
+  1565   1406000      2   W      code   FSImpl[146,2]
+  1567   1407000      3   W      code   FSImpl[150,3]
+  1572   1410400     11   W      code   FSImpl[153,11]
+  1603   1415000      3   W      code   FSImpl[164,3]
+  1606   1416400      4   W      file   FileStreamPackage[0,4]
+  1612   1420400      2   W      code   FileStreamPackage[4,2]
+  1614   1421400     26   W      code   FileStreamPackage[6,26]
+  1642   1434400      2   W      file   FormatDiskDorado[0,2]
+  1644   1435400      3   W      code   FormatDiskDorado[2,3]
+  1647   1437000     41   W      file   Iago[0,41]
+  1657  Trailer Page
+  1711   1457400     13   W      code   Iago[41,13]
+  1724   1465000      5   W      code   Iago[54,5]
+  1731   1467400     16   W      code   Iago[61,16]
+  1747   1476400     11   W      code   Iago[77,11]
+  1760   1503000      6   W      file   RollbackImpl[0,6]
+  1766   1506000     11   W      code   RollbackImpl[6,11]
+  1777   1512400      6   W      file   RuntimeLoader[0,6]
+  2005   1515400     12   W      code   RuntimeLoader[6,12]
+  2005  Trailer Page
+  2020   1522400      4   W      code   RuntimeLoader[20,4]
+  2024   1524400      6   W      code   RuntimeLoader[24,6]
+  2032   1527400      5   W      file   LoaderDriver[0,5]
+  2037   1532000      5   W      code   LoaderDriver[5,5]
+
+   Non-Bootloaded Memory
+ File      VM     Pages          Type   Source[base,pages]
+ Page    Address
+
+
+Boot file pages: 2044 (2027 bootloaded, of which 264 are resident)
+

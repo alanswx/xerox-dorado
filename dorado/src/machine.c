@@ -574,36 +574,49 @@ static void machine_store_va(dorado_memory *mem, uint32_t va, uint16_t value)
                 value & 0177777u, dorado_br_get(mem, 031),
                 dorado_br_get(mem, 036));
     }
-    if ((size_t)va < mem->storage_words) {
-        if (phys_trace_hi &&
-            (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE")) &&
-            va >= phys_trace_lo && va <= phys_trace_hi) {
-            fprintf(stderr,
-                    "MACHINE_STORE_PHYS direct cyc=%llu va=%07o phys=%07o "
-                    "value=%06o br31=%07o br36=%07o\n",
-                    (unsigned long long)dorado_trace_cycle,
-                    va & 017777777u, va & 017777777u, value & 0177777u,
-                    dorado_br_get(mem, 031), dorado_br_get(mem, 036));
-        }
-        mem->storage[va] = value;
-    }
-
+    /* Deliver the word through the Map when the entry holds a real
+     * translation.  The old behavior also wrote storage[va] (raw VA as a
+     * physical address) unconditionally, a relic of identity-mapped
+     * bring-up.  Once Pilot owns the Map that raw write corrupts whatever
+     * physical page happens to share the VA's number: FS-cache IOCB
+     * deliveries around VA 0o3757200 destroyed the germ's credentials
+     * strings (physical page of VM bank 62) and killed the Cedar loadee
+     * START phase.  A vacant entry has no translation (its rp field is
+     * Pilot's software word, NOT a page number), so only then fall back to
+     * the legacy raw write for pre-map planting. */
     uint32_t idx = dorado_map_index(va);
     const dorado_map_entry *e = dorado_map_get(mem, idx);
-    size_t phys = (size_t)e->rp * DM_PAGE_SIZE + (va & (DM_PAGE_SIZE - 1));
-    if (phys < mem->storage_words) {
-        if (phys_trace_hi &&
-            (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE")) &&
-            phys >= phys_trace_lo && phys <= phys_trace_hi) {
-            fprintf(stderr,
-                    "MACHINE_STORE_PHYS mapped cyc=%llu va=%07o idx=%04X "
-                    "rp=%04X phys=%07o value=%06o br31=%07o br36=%07o\n",
-                    (unsigned long long)dorado_trace_cycle,
-                    va & 017777777u, idx, e->rp, (unsigned)phys,
-                    value & 0177777u, dorado_br_get(mem, 031),
-                    dorado_br_get(mem, 036));
+    int vacant = e->wp && e->dirty;
+    if (vacant) {
+        if ((size_t)va < mem->storage_words) {
+            if (phys_trace_hi &&
+                (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE")) &&
+                va >= phys_trace_lo && va <= phys_trace_hi) {
+                fprintf(stderr,
+                        "MACHINE_STORE_PHYS direct cyc=%llu va=%07o phys=%07o "
+                        "value=%06o br31=%07o br36=%07o\n",
+                        (unsigned long long)dorado_trace_cycle,
+                        va & 017777777u, va & 017777777u, value & 0177777u,
+                        dorado_br_get(mem, 031), dorado_br_get(mem, 036));
+            }
+            mem->storage[va] = value;
         }
-        mem->storage[phys] = value;
+    } else {
+        size_t phys = (size_t)e->rp * DM_PAGE_SIZE + (va & (DM_PAGE_SIZE - 1));
+        if (phys < mem->storage_words) {
+            if (phys_trace_hi &&
+                (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE")) &&
+                phys >= phys_trace_lo && phys <= phys_trace_hi) {
+                fprintf(stderr,
+                        "MACHINE_STORE_PHYS mapped cyc=%llu va=%07o idx=%04X "
+                        "rp=%04X phys=%07o value=%06o br31=%07o br36=%07o\n",
+                        (unsigned long long)dorado_trace_cycle,
+                        va & 017777777u, idx, e->rp, (unsigned)phys,
+                        value & 0177777u, dorado_br_get(mem, 031),
+                        dorado_br_get(mem, 036));
+            }
+            mem->storage[phys] = value;
+        }
     }
 
     uint32_t row = (va >> 4) & DM_CACHE_ROW_MASK;

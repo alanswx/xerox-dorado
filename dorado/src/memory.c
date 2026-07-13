@@ -1193,18 +1193,24 @@ uint16_t dorado_visible_word_at_va(const dorado_memory *mem, uint32_t va)
 }
 
 /* Coherent debug poke: write `value` to the word at `va` in backing storage
- * (both the VA-direct slot and the mapped physical slot) and into any cached
- * copy, so a subsequent visible read or cache hit returns it. Diagnostic only
- * (e.g. cross-check experiments); not part of the modeled datapath. */
+ * and into any cached copy, so a subsequent visible read or cache hit
+ * returns it. A mapped entry gets only the translated physical slot; the
+ * legacy raw storage[va] write applies only to vacant entries (no
+ * translation exists, and a vacant entry's rp field is Pilot's software
+ * word, not a page number). Diagnostic only (e.g. cross-check
+ * experiments); not part of the modeled datapath. */
 void dorado_poke_va(dorado_memory *mem, uint32_t va, uint16_t value)
 {
     if (!mem || !mem->storage) return;
-    if ((size_t)va < mem->storage_words) mem->storage[va] = value;
 
     uint32_t idx = dorado_map_index(va);
     const dorado_map_entry *e = dorado_map_get(mem, idx);
-    size_t phys = (size_t)e->rp * DM_PAGE_SIZE + (va & (DM_PAGE_SIZE - 1));
-    if (phys < mem->storage_words) mem->storage[phys] = value;
+    if (e->wp && e->dirty) {
+        if ((size_t)va < mem->storage_words) mem->storage[va] = value;
+    } else {
+        size_t phys = (size_t)e->rp * DM_PAGE_SIZE + (va & (DM_PAGE_SIZE - 1));
+        if (phys < mem->storage_words) mem->storage[phys] = value;
+    }
 
     uint32_t row = va_cache_row(va);
     uint32_t tag = va >> 10;
