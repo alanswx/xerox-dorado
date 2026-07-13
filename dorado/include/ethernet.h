@@ -8,6 +8,11 @@
 
 #define DORADO_ETHERNET_TASK_EOT  06
 #define DORADO_ETHERNET_TASK_EIT  07
+
+/* Concurrent STP/BSP connections the in-process server tracks. Cedar's
+ * Installer phase has LoaderDriver's connection plus one or two from
+ * FS/DFOperations live at the same time. */
+#define DORADO_FTP_MAX_CONN 6
 #define DORADO_ETHERNET_TIOA_DATA 015
 #define DORADO_ETHERNET_TIOA_CTL  016
 
@@ -180,6 +185,33 @@ typedef struct dorado_ethernet {
     size_t ftp_cmd_len;
     uint64_t ftp_packets_seen;
     uint64_t ftp_packets_queued;
+
+    /* Saved BSP/STP state for connections other than the one currently
+     * loaded in the ftp_* working set above.
+     *
+     * Cedar keeps several STP connections to socket 3 open at once --
+     * LoaderDriver's, and the ones FS/DFOperations opens for the Installer
+     * -- and switches between them, so a single connection's state is not
+     * enough.  Each BSP connection has its own byte-ID space (seeded from
+     * its RFC connection ID), so mixing them corrupts the receive cursor.
+     * The working set is context-switched by client socket: an arriving
+     * packet selects its connection's slot, and a new RFC allocates one. */
+    struct dorado_ftp_ctx {
+        uint8_t used;
+        uint8_t open, pending_ack, waiting_for_ack, tx_mode, tx_step, phase;
+        uint8_t cmd_mark;
+        uint16_t tx_in_flight;
+        uint16_t conn_hi, conn_lo;
+        uint16_t client_net_host, client_sock_hi, client_sock_lo;
+        uint16_t server_net_host, server_sock_hi, server_sock_lo;
+        uint16_t client_bytes_per_pup, client_pup_alloc, client_byte_alloc;
+        uint32_t rx_next, tx_next, tx_last_end, last_ack;
+        uint32_t file_pos, file_size;
+        size_t cmd_len;
+        uint8_t cmd_data[4096];
+    } ftp_ctx[DORADO_FTP_MAX_CONN];
+    uint8_t ftp_ctx_cur;      /* slot whose state is in the working set */
+    uint8_t ftp_ctx_valid;    /* working set belongs to ftp_ctx_cur */
 
     uint16_t *rx_words;
     uint8_t  *rx_attention;

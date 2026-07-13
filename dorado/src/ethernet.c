@@ -1039,6 +1039,131 @@ static int eth_ftp_resolve_file(dorado_ethernet *eth, char *out, size_t outsz)
     return 1;
 }
 
+/* ---- Creation dates from the release DFs ---------------------------------
+ *
+ * A DF pins every file it names to an exact creation date, and BringOver asks
+ * the server for that specific version: FSRemoteFileImpl compares the date in
+ * our HereIsPList against the DF's, and on a mismatch reports
+ *   FS.Error: Could not find "<file>" created on <date>
+ * and skips the file.  A synthetic constant date therefore silently installs
+ * nothing.  The dates are recorded in the DFs themselves, so index them --
+ * `Exports`/`Directory [Cedar]<Cedar6.1>Dir>` opens a section, and each entry
+ * is `name!version   dd-Mon-yy hh:mm:ss ZONE` (a leading '+' is DF
+ * bookkeeping).  Host-side data, so it is a file static rather than emulated
+ * state that would have to be snapshotted. */
+#define FTP_DATE_MAX 1024
+static struct {
+    char key[128];      /* "dir/name", lowercased */
+    char date[40];      /* verbatim from the DF */
+} ftp_dates[FTP_DATE_MAX];
+static int ftp_date_count;
+static int ftp_dates_loaded;
+
+static void ftp_date_add(const char *dir, const char *name, const char *date)
+{
+    if (ftp_date_count >= FTP_DATE_MAX) return;
+    char key[128];
+    if ((size_t)snprintf(key, sizeof key, "%s/%s", dir, name) >= sizeof key)
+        return;
+    for (char *p = key; *p; p++) *p = (char)tolower((unsigned char)*p);
+    for (int i = 0; i < ftp_date_count; i++)
+        if (strcmp(ftp_dates[i].key, key) == 0) return;   /* first wins */
+    snprintf(ftp_dates[ftp_date_count].key,
+             sizeof ftp_dates[0].key, "%s", key);
+    snprintf(ftp_dates[ftp_date_count].date,
+             sizeof ftp_dates[0].date, "%s", date);
+    ftp_date_count++;
+}
+
+static void ftp_dates_scan_df(const char *path)
+{
+    FILE *fp = fopen(path, "rb");
+    if (!fp) return;
+    char line[512];
+    char dir[64] = "";
+    while (fgets(line, sizeof line, fp)) {
+        for (char *p = line; *p; p++)
+            if (*p == '\r' || *p == '\n') { *p = '\0'; break; }
+
+        const char *tag = strstr(line, "[Cedar]<Cedar6.1>");
+        if (tag && (strstr(line, "Exports") || strstr(line, "Directory")) &&
+            !strstr(line, "Imports")) {
+            tag += strlen("[Cedar]<Cedar6.1>");
+            size_t n = strcspn(tag, ">");
+            if (n > 0 && n < sizeof dir) {
+                memcpy(dir, tag, n);
+                dir[n] = '\0';
+            }
+            continue;
+        }
+        if (strstr(line, "Imports")) { dir[0] = '\0'; continue; }
+        if (!dir[0] || (line[0] != ' ' && line[0] != '\t')) continue;
+
+        const char *s = line;
+        while (*s == ' ' || *s == '\t' || *s == '+') s++;
+        const char *bang = strchr(s, '!');
+        if (!bang || bang == s) continue;
+        size_t nlen = (size_t)(bang - s);
+        if (nlen >= 64 || !memchr(s, '.', nlen)) continue;  /* needs an ext */
+        const char *d = bang + 1;
+        while (isdigit((unsigned char)*d)) d++;
+        if (d == bang + 1) continue;                        /* no version */
+        while (*d == ' ' || *d == '\t') d++;
+        if (!isdigit((unsigned char)*d)) continue;          /* no date */
+        char name[64];
+        memcpy(name, s, nlen);
+        name[nlen] = '\0';
+        char date[40];
+        snprintf(date, sizeof date, "%s", d);
+        for (int i = (int)strlen(date) - 1; i >= 0 && isspace((unsigned char)date[i]); i--)
+            date[i] = '\0';
+        if (date[0]) ftp_date_add(dir, name, date);
+    }
+    fclose(fp);
+}
+
+static void ftp_dates_load(const dorado_ethernet *eth)
+{
+    if (ftp_dates_loaded || !eth->ftp_sysout_path[0]) return;
+    ftp_dates_loaded = 1;
+    char top[512];
+    if ((size_t)snprintf(top, sizeof top, "%s/Cedar6.1/Top",
+                         eth->ftp_sysout_path) >= sizeof top)
+        return;
+    DIR *dp = opendir(top);
+    if (!dp) return;
+    struct dirent *de;
+    while ((de = readdir(dp)) != NULL) {
+        size_t n = strlen(de->d_name);
+        if (n < 4 || strcmp(de->d_name + n - 3, ".df") != 0) continue;
+        char path[1024];
+        if ((size_t)snprintf(path, sizeof path, "%s/%s", top, de->d_name) <
+            sizeof path)
+            ftp_dates_scan_df(path);
+    }
+    closedir(dp);
+    if (ftp_trace())
+        fprintf(stderr, "STP_DATES indexed %d file dates from %s\n",
+                ftp_date_count, top);
+}
+
+/* Creation date for a resolved relative path ("Cedar6.1/Viewers/Icons.tip"),
+ * or NULL if no DF names it (the Basic.Loadees BCDs, which the Loader takes
+ * without a date check). */
+static const char *eth_ftp_creation_date(const dorado_ethernet *eth,
+                                         const char *relative)
+{
+    ftp_dates_load(eth);
+    const char *rel = relative;
+    if (strncmp(rel, "Cedar6.1/", 9) == 0) rel += 9;
+    char key[128];
+    if ((size_t)snprintf(key, sizeof key, "%s", rel) >= sizeof key) return NULL;
+    for (char *p = key; *p; p++) *p = (char)tolower((unsigned char)*p);
+    for (int i = 0; i < ftp_date_count; i++)
+        if (strcmp(ftp_dates[i].key, key) == 0) return ftp_dates[i].date;
+    return NULL;
+}
+
 static uint32_t eth_ftp_file_size(dorado_ethernet *eth)
 {
     char path[512];
@@ -1230,11 +1355,18 @@ static int eth_ftp_queue_plist(dorado_ethernet *eth)
      * Name-Body, Version, and Byte-Size into every reply.  LoaderDriver
      * needs Byte-Size to open a received BCD as binary even when it did not
      * explicitly list that property in its request. */
+    /* Serve the file's real creation date when a release DF records one:
+     * BringOver asks for a file "created on <date>" and skips anything whose
+     * advertised date differs (see eth_ftp_creation_date).  The synthetic
+     * fallback stands in for files no DF names, such as the Basic.Loadees
+     * BCDs, which the Loader accepts without a date check. */
+    const char *created = eth_ftp_creation_date(eth, relative);
     snprintf(plist, sizeof plist,
              "((Server-Filename <%s>%s!1)(Directory %s)(Name-Body %s)"
              "(Version 1)(Byte-Size 8)"
-             "(Creation-Date 01-Jan-84 00:00:00 GST)(Size %u))",
-             directory, name, directory, name, advertised_size);
+             "(Creation-Date %s)(Size %u))",
+             directory, name, directory, name,
+             created ? created : "01-Jan-84 00:00:00 GST", advertised_size);
     if (ftp_trace()) fprintf(stderr, "STP_PLIST %s\n", plist);
     return eth_ftp_queue_data(eth, (const uint8_t *)plist, strlen(plist),
                               eth_ftp_file_packet_needs_ack(eth));
@@ -1273,6 +1405,8 @@ static int eth_ftp_queue_file_chunk(dorado_ethernet *eth)
 }
 
 static void eth_ftp_maybe_deliver(dorado_ethernet *eth);
+static void eth_ftp_ctx_store(dorado_ethernet *eth);
+static void eth_ftp_ctx_activate(dorado_ethernet *eth, int slot);
 
 static void eth_ftp_handle_command(dorado_ethernet *eth)
 {
@@ -1523,11 +1657,32 @@ static int eth_ftp_tx_next_segment(dorado_ethernet *eth)
     }
 }
 
+/* The pump below runs on the working set, so a connection parked in a slot
+ * would never make progress on its own.  If the loaded connection has
+ * nothing to send, switch to one that does. */
+static void eth_ftp_pick_busy_conn(dorado_ethernet *eth)
+{
+    if (eth->ftp_open && (eth->ftp_pending_ack ||
+                          eth->ftp_tx_mode != FTP_TX_NONE))
+        return;
+    for (int i = 0; i < DORADO_FTP_MAX_CONN; i++) {
+        const struct dorado_ftp_ctx *c = &eth->ftp_ctx[i];
+        if (eth->ftp_ctx_valid && eth->ftp_ctx_cur == (uint8_t)i) continue;
+        if (!c->used || !c->open) continue;
+        if (c->pending_ack || c->tx_mode != FTP_TX_NONE) {
+            eth_ftp_ctx_activate(eth, i);
+            return;
+        }
+    }
+}
+
 static void eth_ftp_maybe_deliver(dorado_ethernet *eth)
 {
-    if (!eth->ftp_enabled || !eth->ftp_open) return;
+    if (!eth->ftp_enabled) return;
     if (eth->rx_pos < eth->rx_count || eth->rx_hold ||
         eth->ftp_delivery_blocked) return;
+    eth_ftp_pick_busy_conn(eth);
+    if (!eth->ftp_open) return;
     if (eth->ftp_pending_ack) {
         (void)eth_ftp_queue_ack(eth);
         return;
@@ -1570,9 +1725,142 @@ static int eth_ftp_queue_rfc_reply(dorado_ethernet *eth)
                                body, sizeof body);
 }
 
+/* ---- Per-connection context switching ------------------------------------
+ *
+ * The ftp_* fields are the working set for exactly one BSP connection. Cedar
+ * runs several to socket 3 concurrently (LoaderDriver's, plus FS/DFOperations
+ * ones for the Installer) and interleaves them, and each has its own byte-ID
+ * space, so the working set is saved to / loaded from a per-connection slot
+ * keyed by the client socket named in that connection's RFC. */
+
+static void eth_ftp_ctx_store(dorado_ethernet *eth)
+{
+    struct dorado_ftp_ctx *c;
+    if (!eth->ftp_ctx_valid) return;
+    c = &eth->ftp_ctx[eth->ftp_ctx_cur];
+    c->used = 1;
+    c->open = eth->ftp_open;
+    c->pending_ack = eth->ftp_pending_ack;
+    c->waiting_for_ack = eth->ftp_waiting_for_ack;
+    c->tx_mode = eth->ftp_tx_mode;
+    c->tx_step = eth->ftp_tx_step;
+    c->phase = eth->ftp_phase;
+    c->cmd_mark = eth->ftp_cmd_mark;
+    c->tx_in_flight = eth->ftp_tx_in_flight;
+    c->conn_hi = eth->ftp_conn_hi;
+    c->conn_lo = eth->ftp_conn_lo;
+    c->client_net_host = eth->ftp_client_net_host;
+    c->client_sock_hi = eth->ftp_client_sock_hi;
+    c->client_sock_lo = eth->ftp_client_sock_lo;
+    c->server_net_host = eth->ftp_server_net_host;
+    c->server_sock_hi = eth->ftp_server_sock_hi;
+    c->server_sock_lo = eth->ftp_server_sock_lo;
+    c->client_bytes_per_pup = eth->ftp_client_bytes_per_pup;
+    c->client_pup_alloc = eth->ftp_client_pup_alloc;
+    c->client_byte_alloc = eth->ftp_client_byte_alloc;
+    c->rx_next = eth->ftp_rx_next;
+    c->tx_next = eth->ftp_tx_next;
+    c->tx_last_end = eth->ftp_tx_last_end;
+    c->last_ack = eth->ftp_last_ack;
+    c->file_pos = eth->ftp_file_pos;
+    c->file_size = eth->ftp_file_size;
+    c->cmd_len = eth->ftp_cmd_len;
+    memcpy(c->cmd_data, eth->ftp_cmd_data, sizeof c->cmd_data);
+}
+
+static void eth_ftp_ctx_activate(dorado_ethernet *eth, int slot)
+{
+    const struct dorado_ftp_ctx *c;
+    if (slot < 0 || slot >= DORADO_FTP_MAX_CONN) return;
+    if (eth->ftp_ctx_valid && eth->ftp_ctx_cur == (uint8_t)slot) return;
+    eth_ftp_ctx_store(eth);
+    c = &eth->ftp_ctx[slot];
+    eth->ftp_ctx_cur = (uint8_t)slot;
+    eth->ftp_ctx_valid = 1;
+    if (!c->used) return;      /* fresh slot: the RFC fills the working set */
+    eth->ftp_open = c->open;
+    eth->ftp_pending_ack = c->pending_ack;
+    eth->ftp_waiting_for_ack = c->waiting_for_ack;
+    eth->ftp_tx_mode = c->tx_mode;
+    eth->ftp_tx_step = c->tx_step;
+    eth->ftp_phase = c->phase;
+    eth->ftp_cmd_mark = c->cmd_mark;
+    eth->ftp_tx_in_flight = c->tx_in_flight;
+    eth->ftp_conn_hi = c->conn_hi;
+    eth->ftp_conn_lo = c->conn_lo;
+    eth->ftp_client_net_host = c->client_net_host;
+    eth->ftp_client_sock_hi = c->client_sock_hi;
+    eth->ftp_client_sock_lo = c->client_sock_lo;
+    eth->ftp_server_net_host = c->server_net_host;
+    eth->ftp_server_sock_hi = c->server_sock_hi;
+    eth->ftp_server_sock_lo = c->server_sock_lo;
+    eth->ftp_client_bytes_per_pup = c->client_bytes_per_pup;
+    eth->ftp_client_pup_alloc = c->client_pup_alloc;
+    eth->ftp_client_byte_alloc = c->client_byte_alloc;
+    eth->ftp_rx_next = c->rx_next;
+    eth->ftp_tx_next = c->tx_next;
+    eth->ftp_tx_last_end = c->tx_last_end;
+    eth->ftp_last_ack = c->last_ack;
+    eth->ftp_file_pos = c->file_pos;
+    eth->ftp_file_size = c->file_size;
+    eth->ftp_cmd_len = c->cmd_len;
+    memcpy(eth->ftp_cmd_data, c->cmd_data, sizeof eth->ftp_cmd_data);
+}
+
+/* Slot whose client socket matches (net_host, sock_hi, sock_lo), or -1. */
+static int eth_ftp_ctx_find(const dorado_ethernet *eth, uint16_t net_host,
+                            uint16_t sock_hi, uint16_t sock_lo)
+{
+    for (int i = 0; i < DORADO_FTP_MAX_CONN; i++) {
+        const struct dorado_ftp_ctx *c = &eth->ftp_ctx[i];
+        /* The slot currently in the working set is authoritative there. */
+        if (eth->ftp_ctx_valid && eth->ftp_ctx_cur == (uint8_t)i) {
+            if (eth->ftp_client_net_host == net_host &&
+                eth->ftp_client_sock_hi == sock_hi &&
+                eth->ftp_client_sock_lo == sock_lo)
+                return i;
+            continue;
+        }
+        if (c->used && c->client_net_host == net_host &&
+            c->client_sock_hi == sock_hi && c->client_sock_lo == sock_lo)
+            return i;
+    }
+    return -1;
+}
+
+/* Pick a slot for a new RFC: reuse the same client socket, else a free slot,
+ * else the oldest connection that is not the working set. */
+static int eth_ftp_ctx_alloc(dorado_ethernet *eth, uint16_t net_host,
+                             uint16_t sock_hi, uint16_t sock_lo)
+{
+    int slot = eth_ftp_ctx_find(eth, net_host, sock_hi, sock_lo);
+    if (slot >= 0) return slot;
+    for (int i = 0; i < DORADO_FTP_MAX_CONN; i++) {
+        if (eth->ftp_ctx[i].used) continue;
+        if (eth->ftp_ctx_valid && eth->ftp_ctx_cur == (uint8_t)i) continue;
+        return i;
+    }
+    for (int i = 0; i < DORADO_FTP_MAX_CONN; i++)
+        if (!eth->ftp_ctx_valid || eth->ftp_ctx_cur != (uint8_t)i) return i;
+    return 0;
+}
+
 static int eth_ftp_handle_rfc(dorado_ethernet *eth, uint16_t server_socket)
 {
     uint16_t req_src_host = (uint16_t)(eth->tx_words[0] & 0377);
+    uint16_t rfc_net_host = eth->tx_count >= 15
+        ? eth->tx_words[12] : eth->tx_words[9];
+    uint16_t rfc_sock_hi = eth->tx_count >= 15
+        ? eth->tx_words[13] : eth->tx_words[10];
+    uint16_t rfc_sock_lo = eth->tx_count >= 15
+        ? eth->tx_words[14] : eth->tx_words[11];
+    if ((rfc_net_host & 0377) == 0)
+        rfc_net_host = (uint16_t)((DORADO_PUP_LOCAL_NET << 8) | req_src_host);
+    /* Give this connection its own slot before initializing the working set,
+     * so an existing connection's state is preserved rather than clobbered. */
+    eth_ftp_ctx_activate(eth,
+                         eth_ftp_ctx_alloc(eth, rfc_net_host, rfc_sock_hi,
+                                           rfc_sock_lo));
     eth->ftp_conn_hi = eth->tx_words[4];
     eth->ftp_conn_lo = eth->tx_words[5];
     eth->ftp_client_net_host = eth->tx_count >= 15
@@ -1605,13 +1893,14 @@ static int eth_ftp_handle_rfc(dorado_ethernet *eth, uint16_t server_socket)
     eth->ftp_open = 1;
     eth->ftp_cmd_mark = 0;
     eth->ftp_cmd_len = 0;
+    eth_ftp_ctx_store(eth);         /* the slot now owns this connection */
     if (ftp_trace()) {
         fprintf(stderr,
-                "FTP_RFC conn=%08x client=%06o/%o/%o server=%06o/%o/%o\n",
+                "FTP_RFC conn=%08x client=%06o/%o/%o server=%06o/%o/%o slot=%u\n",
                 eth->ftp_rx_next, eth->ftp_client_net_host,
                 eth->ftp_client_sock_hi, eth->ftp_client_sock_lo,
                 eth->ftp_server_net_host, eth->ftp_server_sock_hi,
-                eth->ftp_server_sock_lo);
+                eth->ftp_server_sock_lo, eth->ftp_ctx_cur);
     }
     return eth_ftp_queue_rfc_reply(eth);
 }
@@ -1702,27 +1991,30 @@ static void eth_trace_netdir_request(const dorado_ethernet *eth)
     fprintf(stderr, "\"\n");
 }
 
-static int eth_ftp_packet_for_server(const dorado_ethernet *eth)
+/* Select the BSP connection this packet belongs to (by its source socket)
+ * and make it the working set.  Returns 0 if the packet is not for the STP
+ * server or names no connection we have open.
+ *
+ * The source socket identifies the connection, and each connection has its
+ * own byte-ID space (PupBSPProt seeds it from the RFC connection ID), so a
+ * packet must never be ingested against another connection's cursor: doing
+ * that let LoaderDriver's abandoned-but-still-retransmitting connection
+ * advance ftp_rx_next past the Installer's live one, whose Retrieve and Yes
+ * then looked like duplicates and were dropped. */
+static int eth_ftp_select_conn(dorado_ethernet *eth)
 {
-    if (!eth->ftp_enabled || !eth->ftp_open) return 0;
-    if (eth->tx_words[6] != eth->ftp_server_net_host) return 0;
-    if (eth->tx_words[7] != eth->ftp_server_sock_hi ||
-        eth->tx_words[8] != eth->ftp_server_sock_lo)
-        return 0;
-    /* The source socket identifies the BSP connection, and each connection
-     * has its own byte-ID space (PupBSPProt: the RFC's connection ID seeds
-     * it).  Cedar runs more than one STP connection against this server --
-     * LoaderDriver's, then a fresh one from DFOperations/FS for the
-     * Installer's BringOver -- and abandons the earlier one without an RTP
-     * End, so it keeps retransmitting its last command forever.  Serving a
-     * single connection's state, admitting those stale retransmissions let
-     * their old byte IDs advance ftp_rx_next past the live connection's
-     * cursor; the live Retrieve and Yes then looked like duplicates, were
-     * dropped, and BringOver deadlocked with the guest idle.  Only accept
-     * traffic from the client socket named by the current RFC. */
-    return eth->tx_words[9] == eth->ftp_client_net_host &&
-           eth->tx_words[10] == eth->ftp_client_sock_hi &&
-           eth->tx_words[11] == eth->ftp_client_sock_lo;
+    int slot;
+    if (!eth->ftp_enabled) return 0;
+    slot = eth_ftp_ctx_find(eth, eth->tx_words[9], eth->tx_words[10],
+                            eth->tx_words[11]);
+    if (slot < 0) return 0;
+    eth_ftp_ctx_activate(eth, slot);
+    if (!eth->ftp_open) return 0;
+    /* The slot's own server socket, now loaded, is what this packet must be
+     * addressed to (STP lives on socket 3, the Grapevine shim on 050). */
+    return eth->tx_words[6] == eth->ftp_server_net_host &&
+           eth->tx_words[7] == eth->ftp_server_sock_hi &&
+           eth->tx_words[8] == eth->ftp_server_sock_lo;
 }
 
 static int eth_ftp_handle_packet(dorado_ethernet *eth)
@@ -1916,8 +2208,21 @@ static void eth_tx_packet_done(dorado_ethernet *eth)
             (void)eth_ftp_handle_rfc(eth, eth->tx_words[8]);
             return;
         }
-        if (eth_ftp_packet_for_server(eth) && eth_ftp_handle_packet(eth))
+        if (eth_ftp_select_conn(eth) && eth_ftp_handle_packet(eth))
             return;
+        /* Anything else the guest sends that we never answer: a Pup aimed at
+         * a host/socket this shim does not implement (Cedar reaching for a
+         * fonts or file server), or a live connection's packet rejected by
+         * the client-socket filter.  Cedar blocks on those forever, so make
+         * them visible instead of silently dropping them. */
+        if (ftp_trace() && eth->ftp_enabled) {
+            fprintf(stderr,
+                    "FTP_UNSERVED type=0o%o id=%08x d=%06o/%o/%o s=%06o/%o/%o\n",
+                    eth->tx_words[3],
+                    pup_id32(eth->tx_words[4], eth->tx_words[5]),
+                    eth->tx_words[6], eth->tx_words[7], eth->tx_words[8],
+                    eth->tx_words[9], eth->tx_words[10], eth->tx_words[11]);
+        }
     }
 
     /* Stage-2: a Mayday Pup is the Alto software-boot request. Serve the
