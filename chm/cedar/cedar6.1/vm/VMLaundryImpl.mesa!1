@@ -1,0 +1,250 @@
+
+    <<VMLaundryImpl.mesa>>
+        <<Copyright © 1984, 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Levin on December 16, 1983 1:38 pm>>
+        <<Bob Hagmann on April 29, 1986 2:07:05 pm PDT>>
+        <<Russ Atkinson on January 30, 1985 10:22:11 pm PST>>
+
+    DIRECTORY
+        Process USING [Detach, MsecToTicks, priorityFaultHandlers, SetPriority, Ticks, Yield],
+        VM USING [AddressFault, AddressForPageNumber, Age, Allocate, CantAllocate, CantDoIO, Clean, Interval, IOErrorType, LaundryError, 
+        PageCount, PageNumber, PageNumberForAddress, Pin, wordsPerPage], 
+        VMInternal USING [freePages, lastVMPage, LaundryMode, GetCleaningCandidate, HasBackingStorage, PageCount, RealPageNumber, 
+        swapBufferSize],
+        VMInternalExtras USING [SetRemotePageValidity],
+        VMRemotePaging USING [LaundryWriteProc, ValidPageSeq],
+        VMSideDoor USING [rmPages],
+        VMStatistics USING [rmNewClean, rmOldClean];
+
+    VMLaundryImpl: MONITOR
+        IMPORTS Process, VM, VMInternal, VMInternalExtras, VMSideDoor, VMStatistics
+        EXPORTS VM, VMInternal, VMRemotePaging, VMStatistics
+        = BEGIN OPEN VMInternal;
+
+    <<Performance parameters>>
+        <<>>
+        normalHighMark: NAT = MIN[VMSideDoor.rmPages/10, 150];
+        bigHighMark: NAT _ MIN[VMSideDoor.rmPages/5, 400];
+        lowMark: NAT = normalHighMark/3;
+
+        highMark: NAT _ bigHighMark;
+
+        samplingInterval: Process.Ticks = Process.MsecToTicks[250];
+        <<>>
+    <<Remote paging variables>>
+
+        remoteLaundryWriteProc: VMRemotePaging.LaundryWriteProc _ NIL;
+        MaxRemotePage: PUBLIC INT _ -1;
+        RemotePageValid: PUBLIC LONG POINTER TO VMRemotePaging.ValidPageSeq _ NIL;
+
+    <<Global variables protected by the monitor lock>>
+
+        dirtyVictims: BOOL;
+        newVictims: BOOL;
+        laundry: CONDITION _ [timeout: samplingInterval];
+
+        LastLaundryErrorRecord: VM.LaundryError _ [software, 0];
+        errorsNoted: INT _ 0;
+
+    <<Exports to VMStatistics>>
+
+        laundryWakeups, panicLaundryWakeups, uselessLaundryWakeups: PUBLIC INT _ 0;
+        pagesCleaned, pagesCleanedPanic: PUBLIC INT _ 0;
+        laundryCleanCalls: PUBLIC INT _ 0;
+
+    <<Exports to VMInternal>>
+
+    NoteDirtyVictim: PUBLIC ENTRY PROC = {
+        dirtyVictims _ TRUE;
+        NOTIFY laundry;
+        };
+
+    NoteNewVictim: PUBLIC ENTRY PROC = {
+        newVictims _ TRUE;
+        NOTIFY laundry;
+        };
+
+    <<Exports to VM>>
+
+    ForceCleaning: PUBLIC ENTRY SAFE PROC = CHECKED {
+        newVictims _ TRUE;
+        NOTIFY laundry;
+        };
+
+    <<Laundry Process>>
+
+    LaundryProcess: PROC = {
+        <<The following initialization ensures that, on the first pass through the main loop, we will actually try to clean things.>>
+        prevCleanUsed: INT _ uselessLaundryWakeups ;
+        oldRMNewClean: INT _ VMStatistics.rmNewClean;
+            <<wake up with attitude aggressive to try to force some cleaning to avoid a frame fault with no unpinned clean memory>>
+        attitude: LaundryMode _ aggressive ;
+        prevAttitude: LaundryMode _ casual ;
+        prevMin: PageCount _ 1 ;
+
+        Wait: ENTRY PROC RETURNS [LaundryMode] = {
+            WaitReturn: PROC [mode: LaundryMode] RETURNS [LaundryMode]= {
+                dirtyVictims _ FALSE;
+                newVictims _ FALSE ;
+                oldRMNewClean _ VMStatistics.rmNewClean;
+                RETURN[mode];
+                };
+            IF dirtyVictims THEN RETURN[WaitReturn[panic]];
+            IF oldRMNewClean # VMStatistics.rmNewClean OR newVictims THEN RETURN[WaitReturn[aggressive]];
+            dirtyVictims _ FALSE;
+            DO
+                WAIT laundry;
+                IF HasBackingStorage[0] THEN EXIT;
+                ENDLOOP;
+            IF dirtyVictims THEN RETURN[WaitReturn[panic]];
+            IF oldRMNewClean # VMStatistics.rmNewClean OR newVictims THEN RETURN[WaitReturn[aggressive]];
+            RETURN[casual];
+            };
+        <<We want to run above the client foreground processes.  Perhaps we should multiplex with the guys at priorityClient3?  No reserved 
+        state vector is required, since this process is a vanilla client of Clean.  However, it would be nice to include one 
+        anyway, since it is potentially possible for a fault in this process to prohibit anyone else from getting into SwapIn.>>
+
+        Process.SetPriority[Process.priorityFaultHandlers];
+        DO
+            cleanUsed: INT = VMStatistics.rmOldClean + VMStatistics.rmNewClean ;
+            cleanedThisTime: INT _ 0;
+            totalCleanSkipped: PageCount ;
+            startPasses: INT _ -1 ;
+            startRover: RealPageNumber _ 0;
+            minCleaning: PageCount _ 1;
+            knownFreeOrClean: INT _ lowMark;  -- best start guess
+            --*stats*--
+                laundryWakeups _ laundryWakeups.SUCC;
+                IF attitude = panic THEN panicLaundryWakeups _ panicLaundryWakeups.SUCC;
+            totalCleanSkipped _ 0 ;
+            IF attitude # casual THEN {
+                highMark _bigHighMark ;
+                minCleaning _ IF prevAttitude = casual THEN 10 
+                 ELSE IF prevMin = 10 THEN 4 ELSE 1 ;
+                };
+            IF attitude # casual OR (cleanUsed - prevCleanUsed) >= (highMark - lowMark) THEN {
+                UNTIL cleanedThisTime >= highMark DO
+                    interval: VM.Interval;
+                    cleanSkipped: PageCount  ;
+                    passes: INT ;
+                    rover: RealPageNumber ;
+                    [interval: interval, cleanSkipped: cleanSkipped, passes: passes, rover: rover] _ GetCleaningCandidate[
+                        desired: swapBufferSize,  -- larger run than this means multiple transfers in Clean
+                        comfortLevel: lowMark + cleanedThisTime,
+                        tryHard: attitude
+                        ];
+                    IF startPasses < 0 THEN { startPasses _ passes; startRover _ rover;};
+                    totalCleanSkipped _ totalCleanSkipped + cleanSkipped ;
+                    IF interval.count = 0 THEN
+                        <<There is nothing to clean, either because no appropriate dirty, unpinned pages could be found or because there were sufficient 
+                        clean, unreferenced pages aleady available for reclamation.>>
+                        EXIT;
+                    IF interval.count >= minCleaning THEN {
+                        r: VMRemotePaging.LaundryWriteProc _ remoteLaundryWriteProc;
+                        cleanedOK: BOOL _ TRUE;
+                        VMInternalExtras.SetRemotePageValidity[interval, invalid];
+                        VM.Clean[interval
+                            ! VM.AddressFault => {
+                                interval.count _ VM.PageNumberForAddress[address] - interval.page;
+                                cleanedOK _ FALSE;
+                                CONTINUE
+                                };
+                            VM.CantDoIO => {
+                                <<error writing a page; shrink interval to written pages and pin bad page>>
+                                interval.count _ page - interval.page;
+                                VM.Pin[ [page,1] ];
+                                cleanedOK _ FALSE;
+                                ReportError[reason, page];
+                                CONTINUE
+                                };
+                            ];
+                        IF r # NIL AND cleanedOK THEN {
+                            <<After writing the pages to the disk, write them remotely.  A page is either the same remotely as on the disk, or it has been 
+                            dirtied.  If it has been dirtied, then it cannot be reclaimed as clean.  Pin the pages during this time 
+                            to avoid race conditions.>>
+                            success: BOOL;
+                            success _ r[interval];
+                            VM.Age[interval];  -- Writing the pages remotely references them; this may age pages that were referenced previously
+                            VMInternalExtras.SetRemotePageValidity[interval, IF success THEN valid ELSE invalid];
+                            };
+
+                        cleanedThisTime _ cleanedThisTime + interval.count;
+                        <<*stats*-->>
+                            laundryCleanCalls _ laundryCleanCalls.SUCC;
+                        };
+                    knownFreeOrClean _ freePages + cleanedThisTime + totalCleanSkipped - (VMStatistics.rmOldClean + VMStatistics.rmNewClean - 
+                    cleanUsed) ;
+
+                        <<Stop loop if we are not in panic, and there appears to be enough clean pages or we have done a pass through memory in this loop 
+                        (note that memory is scanned in decreasing order)>>
+                    IF ((attitude = casual) AND (knownFreeOrClean >= highMark)) THEN EXIT;
+                    IF (passes > startPasses + 1) OR (passes > startPasses AND rover <= startRover) THEN EXIT;
+                    <<Give up the processor to avoid hogging priority 5>>
+                    Process.Yield[];
+                    ENDLOOP;
+                prevCleanUsed _ VMStatistics.rmOldClean + VMStatistics.rmNewClean;
+                };
+            <<*stats*-->>
+                IF cleanedThisTime = 0 THEN uselessLaundryWakeups _ uselessLaundryWakeups.SUCC
+                ELSE {
+                    pagesCleaned _ pagesCleaned + cleanedThisTime;
+                    IF attitude = panic THEN pagesCleanedPanic _ pagesCleanedPanic + cleanedThisTime;
+                    };
+            prevAttitude _ attitude;
+            prevMin _ minCleaning ;
+            IF knownFreeOrClean < lowMark AND cleanedThisTime >= highMark
+            THEN attitude _ aggressive
+            ELSE attitude _ Wait[];
+            highMark _ normalHighMark ;
+            ENDLOOP; 
+        };
+
+    ReportError: ENTRY PROC [ errorType: VM.IOErrorType, page: VM.PageNumber ] = {
+        LastLaundryErrorRecord _ [errorType,page] ;
+        errorsNoted _ errorsNoted + 1;
+        };
+
+    LastLaundryError: PUBLIC ENTRY SAFE PROC RETURNS [VM.LaundryError] = CHECKED {
+        RETURN[LastLaundryErrorRecord];
+        };
+
+        <<Exports to VMRemotePaging>>
+        <<>>
+    EstablishLaundryWriteProc: PUBLIC ENTRY PROC [proc: VMRemotePaging.LaundryWriteProc] = {
+        ok: BOOL _ TRUE;
+        interval: VM.Interval;
+        IF proc # NIL AND RemotePageValid = NIL THEN {
+            wordsPerItemGroup: INT = SIZE[VMRemotePaging.ValidPageSeq[Basics.bitsPerWord]];
+            interval _ VM.Allocate[count: ((wordsPerItemGroup * VMInternal.lastVMPage-1)/(Basics.bitsPerWord*VM.wordsPerPage))+1 ! 
+            VM.CantAllocate => {
+                ok _ FALSE;
+                CONTINUE;
+                };
+             ];
+            IF ok THEN {
+                RemotePageValid _ VM.AddressForPageNumber[interval.page];
+                MaxRemotePage _ interval.count * Basics.bitsPerWord * VM.wordsPerPage ;
+                VM.Pin[interval];
+                };
+            };
+        IF ok THEN {
+            FOR i: INT IN [0..MaxRemotePage) DO
+                RemotePageValid[i] _ invalid;
+                ENDLOOP;
+            remoteLaundryWriteProc _ proc;
+            }
+         ELSE remoteLaundryWriteProc _ NIL;
+        };
+
+    Process.Detach[FORK LaundryProcess[]];
+
+    END.
+    <<>>
+    <<Bob Hagmann January 30, 1985 10:22:11 pm PST>>
+        <<eliminate VMExtras for 6.0>>
+        <<>>
+    <<>>
+    <<Bob Hagmann April 18, 1986 3:54:40 pm PST>>
+        <<add EstablishLaundryWriteProc and use it, RemotePageValid, RemotePageValid>>
+    <<>>
+    <<>>

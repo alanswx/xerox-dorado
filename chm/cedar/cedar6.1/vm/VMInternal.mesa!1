@@ -1,0 +1,481 @@
+
+    <<VMInternal.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Levin on January 20, 1984 4:00 pm>>
+        <<Russ Atkinson, February 27, 1985 8:43:29 pm PST>>
+        <<Bob Hagmann, May 4, 1984 11:00:04 am PDT>>
+        <<Doug Wyatt, February 27, 1985 9:05:06 am PST>>
+
+    <<This interface is private to the implementation of the virtual memory system.  It implements the representation of the PageState 
+    (see VM interface for the definition of this type) and provides appropriate mutual exclusion in its manipulation.  It also 
+    provides the primitives for allocation of real memory, since this is intimately associated with alterations in the PageState.>>
+    <<>>
+    <<Those quantities declared PRIVATE are logically part of the implementation and should not be used by the clients of this 
+    interface.  This declarations appear here only because of INLINE dependencies.>>
+    <<>>
+    DIRECTORY
+        DebuggerSwap USING [WorryCallDebugger],
+        PrincOps,
+        VM USING [DataState, Interval, LogPageCount, PageCount, PageState, PageNumber, VMPartition, wordsPerPage];
+
+    VMInternal: DEFINITIONS
+    LOCKS vmStateLock
+    IMPORTS DebuggerSwap
+    = BEGIN
+    <<>>
+    <<VMMap and RMMap>>
+
+        PageFlags: TYPE = PrincOps.PageFlags;
+        PageState: TYPE = VM.PageState;
+        PageValue: TYPE = PrincOps.PageValue;
+        DataState: TYPE = VM.DataState;
+
+        InterimPageState: TYPE = PrincOps.InterimPageState;
+        Interval: TYPE = VM.Interval;
+        PageNumber: TYPE = VM.PageNumber;
+        PageCount: TYPE = VM.PageCount;
+        RealPageNumber: TYPE = PrincOps.RealPageNumber;  -- 16M words of real memory
+        VMPartition: TYPE = VM.VMPartition;
+
+        DataLocation: PRIVATE TYPE = {in, out};
+        PinCount: PRIVATE TYPE = CARDINAL;
+
+        VMMapEntry: PRIVATE TYPE = MACHINE DEPENDENT RECORD [
+            state(0): PrincOps.PageState,
+            body(1): SELECT COMPUTED DataLocation FROM
+                in => [real(1): RealPageNumber],
+                out => [
+                    fill(1:0..11): [0..7777B] _ 0,
+                    <<There is a slight subtlety in the interpretation of the following fields.  If 'dataState' = none, 'readOnly' isn't meaningful, 
+                    but if 'checkedOut' is TRUE, the page is not available for allocation.  This is used to handle certain special 
+                    cases in the address space (like page 0) which should never be allocated and which should cause address faults 
+                    if access is attempted.  The only places this special case encoding has to be inspected are the IsFree and 
+                    AllocateForSwapIn procedures.>>
+                    checkedOut(1:12..12): BOOL, readOnly(1:13..13): BOOL, dataState(1:14..15): DataState],
+                ENDCASE];
+                <<Note that VMMapEntry is bitwise equivalent to PageValue, although it is declared somewhat differently.>>
+
+        RMState: PRIVATE TYPE = {free, reclaimable, pinned};
+        RMEntryPointer: PRIVATE TYPE = LONG POINTER TO RMMapEntry;
+
+        RMMapEntry: PRIVATE TYPE = MACHINE DEPENDENT RECORD [
+            <<The following two fields are not used in the 'free' variant.  However, for coding convenience, they appear here rather than in 
+            both the 'reclaimable' and 'pinned' variants.>>
+            dataState(0:0..1): DataState, needsBackingStoreWrite(0:2..2): BOOL,
+            available(0:3..4): [0..3] _ 0,
+            body(0:5..31): SELECT rmState(0:5..6): RMState FROM
+                free => [
+                    availableF(0:7..15): [0..777B] _ 0,
+                    next(1:0..15): RealPageNumber
+                    ],
+                reclaimable => [
+                    <<The following field is used only during cleaning.>>
+                    referenced(0:7..7): BOOL _ FALSE,
+                    <<In principle, 'virtual' should be a VM.PageNumber.  However, the implementation is presently limited to a 24-bit virtual address 
+                    (16 bit PageNumber) by the practicalities of backing storage size.  Accordingly, we can save a word in the 
+                    representation here.>>
+                    virtualHigh(0:8..15): [0..377B] _ 0,  -- will eventually extend 'virtual' to 24 bits.
+                    virtual(1:0..15): WORD
+                    ],
+                pinned => [
+                    pinReason(0:7..15): PinReason _ normal,  -- not essential, could be encoded in large 'pinCount' values
+                    pinCount(1:0..15): PinCount
+                    ]
+                ENDCASE];
+
+        PinReason: TYPE = {
+            normal,
+                <<A pinned RMMapEntry so labelled represents a pinned real page to which VM.Unpin can be legally applied.>>
+            noSuchRealPage,
+                <<A pinned RMMapEntry so labelled represents a real page that doesn't actually exist.>>
+            permanentlyPinned,
+                <<A pinned RMMapEntry so labelled represents a real page that is set aside for special purposes and is never to be used (e.g., the 
+                Germ).>>
+            specialRealPageAvailable,
+                <<A pinned RMMapEntry so labelled represents a real page that is available for allocation by the SpecialRealMemory procedures in 
+                VMSideDoor.>>
+            specialRealPageInUse,
+                <<A pinned RMMapEntry so labelled represents a real page that has been allocated by the SpecialRealMemory procedures in VMSideDoor.>>
+            cantBeWritten
+                <<A pinned RMMapEntry so labelled represents a real page for which a backing store write has failed.>>
+            };
+
+        maxPinCount: PinCount = PinCount.LAST;
+
+        lastVMPage: READONLY PageNumber;
+            <<This is the highest virtual page number supported by the hardware map.  It is set at initialization time and never changed.  It 
+            is intended to be used for (explicit) validation of PageNumber values passed through the VM interface.  Note that this 
+            value is NOT the same as VMSideDoor.vmPages-1.>>
+
+        <<We use the following representation instead of a DESCRIPTOR because we want to permit the RMMap to have 2^16 entries.  The length 
+        field of a DESCRIPTOR is constrained to be 16 bits and is assumed to be 0-origin.  A non-COMPUTED SEQUENCE isn't much 
+        better.>>
+        RMMapEntries: TYPE = RECORD[SEQUENCE COMPUTED RealPageNumber OF RMMapEntry];
+
+        GetVMMap: PROC [vmPage: PageNumber] RETURNS [entry: VMMapEntry] = INLINE {
+            <<We would like to say:  LOOPHOLE[PrincOpsUtils.GetPageState];>>
+            RETURN[LOOPHOLE[GetPageValue[vmPage]]];
+            };
+
+        SetVMMap: PROC [vmPage: PageNumber, entry: VMMapEntry] = INLINE {
+            SetPageValue[vmPage, LOOPHOLE[entry, PageValue] ];
+            };
+
+        InOut: PROC [entry: VMMapEntry] RETURNS [DataLocation] =
+            INLINE {RETURN[IF entry.state.flags = PrincOps.flagsVacant THEN out ELSE in]};
+
+
+    <<Real Memory Allocation>>
+        <<>>
+        vmStateLock: PRIVATE MONITORLOCK;
+        checkIn: PRIVATE CONDITION;
+
+        freeList: PRIVATE RealPageNumber;
+        freePages: PRIVATE INT;
+
+        rmMap: PRIVATE LONG POINTER TO RMMapEntries;
+        lastRealPage: PRIVATE RealPageNumber;
+
+        cleaningRover: PRIVATE RealPageNumber;
+
+        AllocateRealMemoryForLocalFrames: ENTRY PROC [vmPage: PageNumber] = INLINE {
+            <<This procedure (and everything it calls) must be INLINE because it is invoked on the frame fault path.>>
+            victim: Victim = AllocateRealMemoryInternal[
+                vmPage: vmPage, dirtyVictimOK: FALSE, pin: TRUE];
+            SetPageFlags[
+                virtual: vmPage, real: victim.realPage, flags: PrincOps.flagsClean];
+            };
+
+        AllocateRealMemoryInternal: PRIVATE READONLY PROC [
+            vmPage: PageNumber, dirtyVictimOK: BOOL _ TRUE, pin: BOOL _ FALSE]
+            RETURNS [victim: Victim];
+            <<This procedure (actually, coroutine) allocates real memory and tentatively assigns it to the specified vmPage.>>
+         
+        Outcome: TYPE = {ok, addressFault};
+        <<>>
+        Unpin: PROC [vmPage: PageNumber] RETURNS [outcome: Outcome];
+
+        AddToFreeList: PRIVATE PROC [realPage: RealPageNumber] = INLINE {
+            rmMap[realPage].body _ free[next: freeList];
+            freeList _ realPage;
+            freePages _ freePages.SUCC;
+            };
+
+        SpecialMemoryOutcome: TYPE = {
+            needsCopy, needsIO, noTransfer, addressFault, badParameter, noMemory};
+
+        PrepareToAllocateSpecialRealMemory: PROC [
+            vmPage: PageNumber, buffer: PageNumber, special: PageNumber]
+            RETURNS [outcome: SpecialMemoryOutcome];
+            <<If vmPage is already associated with a special real page at the time of the call or if it is pinned, badParameter is returned.  
+            If vmPage has dataState = none, the outcome is addressFault.  Otherwise, special is mapped to a page of special real 
+            memory (if no special real pages are available, the outcome is noMemory), vmPage is checked out, and buffer is set to 
+            the previous contents of vmPage's VMMap.  If vmPage's dataState was undefined, the outcome is noTransfer; if vmPage had 
+            associated real memory, the outcome is needsCopy; otherwise, the outcome is needsIO.>>
+
+        FinishAllocateSpecialRealMemory: PROC [
+            vmPage: PageNumber, buffer: PageNumber, special: PageNumber, worked: BOOL];
+            <<The page parameters must be identical to the ones supplied to PrepareToAllocateSpecialRealMemory.  If worked is TRUE, vmPage is 
+            checked in with the real page associated with special and, if buffer has associated real memory, it is returned to the 
+            free list.  If worked is FALSE, vmPage is checked in with the map entry associated with buffer, and the page associated 
+            with special is returned to the free pool.>>
+
+        PrepareToReleaseSpecialRealMemory: PROC [
+            vmPage: PageNumber, special: PageNumber]
+            RETURNS [outcome: SpecialMemoryOutcome];
+            <<If vmPage is not already associated with a special real page at the time of the call or if vmPage's pin count is positive, 
+            badParameter is returned.  If vmPage has dataState = none, the outcome is addressFault.  Otherwise, vmPage is checked 
+            out, and special is set to the previous contents of vmPage's VMMap.  If vmPage's dataState was undefined, the outcome 
+            is noTransfer; otherwise, the outcome is needsIO.  The outcomes noMemory and needsCopy cannot occur.>>
+
+        FinishReleaseSpecialRealMemory: PROC [
+            vmPage: PageNumber, special: PageNumber, worked: BOOL];
+            <<The page parameters must be identical to the ones supplied to PrepareToAllocateSpecialRealMemory.  If worked is TRUE, vmPage is 
+            checked in and marked vacant, and the real page associated with special is returned to the free list.  If worked is 
+            FALSE, vmPage is checked in with the map entry associated with special.>>
+
+
+    <<Virtual Memory Allocation>>
+    <<>>
+        pagesIn64K: PageCount = 65536/VM.wordsPerPage;
+        logPagesIn64K: VM.LogPageCount = 16 - PrincOps.logWordsPerPage;
+
+        allocationLock: MONITORLOCK;
+            <<This lock is used to serialize calls on AllocateVirtualMemoryInternal from multiple processes.  It must not be the same lock used 
+            by the implementation of most of the procedures in the VM interface (if it were, a deadlock would result if a frame 
+            fault occurred in the implementation of one of those procedures).  This lock is used by VM.Allocate and the 
+            VMFaultsImpl.AllocateForLocalFrames, below.>>
+
+        AllocationOutcome: TYPE = {ok, notFound, badParameters};
+
+        AllocCount: TYPE = RECORD [  --*stats*--
+            requests: INT,
+            requestsSatisfied: INT,
+            pagesAllocated: INT,
+            pagesFreed: INT
+            ];
+
+        Partitions: TYPE = ARRAY VMPartition OF Interval;
+
+        --*stats*-- allocCounts: ARRAY VMPartition OF AllocCount;
+
+        partitions: Partitions;
+        <<>>
+        NoteFreePages: PROC [interval: Interval];
+
+        UpdateVMLimit: PROC [pages: PageCount];
+
+        AllocateVirtualMemoryInternal: READONLY PROC [
+            count: PageCount, partition: VM.VMPartition _ normalVM, subRange: Interval _ [0, 0],
+            start: PageNumber _ 0, alignment: VM.LogPageCount _ 0, in64K: BOOL _ FALSE]
+            RETURNS [outcome: AllocationOutcome, interval: Interval];
+            <<This procedure (actually a coroutine) searches the specified 'partition' of virtual memory for an interval such that (1) for each 
+            page in interval, State[page].data = none, (2) interval.count = count, (3) if subRange.count >= count, then 'interval' 
+            is contained in 'subRange', (4) interval.page MOD 2^alignment is zero, (5) if start is non-zero, then 
+            interval.page-start is minimal, (6) if in64K is TRUE, then the interval doesn't span a 64K word boundary.  If such an 
+            interval is found, it is returned ('outcome' is 'ok') and, for every page in 'interval', State[page] = [data: 
+            undefined, readOnly: FALSE, hasRealMemory: FALSE, pinCount: 0].  If no such interval can be found, 'outcome' becomes 
+            'notFound'.>>
+
+        IsFree: --ENTRY-- PROC [vmPage: PageNumber] RETURNS [BOOL] = INLINE {
+            <<This procedure returns TRUE iff the argument VM page is available for allocation.  Because of the representation of the VMMap, it 
+            need not be an entry procedure.  It (and everything it calls) must be INLINE because it is invoked from 
+            VMInternal.AllocateRealMemoryInternal.>>
+            vmEntry: VMMapEntry = GetVMMap[vmPage];
+            WITH vmE: vmEntry SELECT InOut[vmEntry] FROM
+                in => RETURN[FALSE];
+                out => RETURN[vmE.dataState = none AND ~vmE.checkedOut];
+                ENDCASE => ERROR;
+            };
+
+        MarkAllocated: PROC [vmPage: PageNumber] = INLINE {
+            <<This procedure (and everything it calls) must be INLINE because it is invoked from VMInternal.AllocateRealMemoryInternal.>>
+            vmEntry: VMMapEntry _ GetVMMap[vmPage];
+            WITH vmE: vmEntry SELECT InOut[vmEntry] FROM
+                in => Crash[];
+                out =>
+                    IF vmE.dataState = none THEN {
+                        <<On return from this routine we guarantee that dataState = undefined and readOnly = TRUE.  There was a bug in earleier versions 
+                        such that readOnly = TRUE was not enforced, which caused write protect faults later in life.>>
+                        vmE.dataState _ undefined;
+                        vmE.readOnly _ FALSE;
+                        SetVMMap[vmPage, vmE];
+                        }
+                    ELSE Crash[];
+                ENDCASE;
+            };
+
+    <<State Examination and Modification>>
+
+        State: PROC [vmPage: PageNumber] RETURNS [state: PageState];
+
+        SetDataState: PROC [vmPage: PageNumber, dataState: DataState] RETURNS [outcome: Outcome];
+
+    <<ReadOnly <==> ReadWrite>>
+
+        MakeReadOnly: PROC [vmPage: PageNumber] RETURNS [outcome: Outcome];
+
+        MakeReadWrite: PROC [vmPage: PageNumber] RETURNS [outcome: Outcome];
+
+    <<Utilities for VM.SwapIn and VM.Clean>>
+
+        swapBufferSize: PageCount = 50;
+
+        SwapInOutcome: TYPE = {
+            noReadNecessary,  -- victim has been claimed; read unnecessary (dataState = undefined)
+            alreadyIn,  -- page already swapped in; no victim has been claimed
+            needsRead,  -- victim claimed; read required
+            addressFault,  -- page not allocated
+            writeFault,  -- page is read only
+            couldntCheckOut -- page checked out and AllocateForSwapIn called with dontWait TRUE
+            };
+
+        VictimState: TYPE = {clean, dirty};
+        Victim: TYPE = RECORD [
+            realPage: RealPageNumber,
+            body: SELECT victimState: VictimState FROM
+                clean => NULL,
+                dirty => [vmPage: PageNumber],
+                ENDCASE];
+
+        AllocateForSwapIn: PROC [vmPage: PageNumber, kill, pin: BOOL, dontWait: BOOL]
+            RETURNS [outcome: SwapInOutcome, victim: Victim];
+
+        SwapInDone: PROC [vmPage, bufferPage: PageNumber, worked: BOOL];
+        SwapInDoneWithoutIO: PROC [vmPage: PageNumber, victim: Victim];
+
+        VictimWriteDone: PROC [
+            vmPage, bufferPage: PageNumber, victim: dirty Victim, worked: BOOL];
+
+
+        CleanOutcome: TYPE = {
+            cantWrite,  -- none of the following cases apply
+            checkedOutClean,  -- page is clean and swappable and checkOutClean = TRUE
+            needsWrite,  -- page is dirty and swappable
+            addressFault  -- page not allocated
+            };
+
+        ConsiderCleaning: PROC [vmPage: PageNumber, checkOutClean: BOOL]
+            RETURNS [outcome: CleanOutcome, real: RealPageNumber];
+
+        CleanDone: PROC [vmPage, bufferPage: PageNumber, worked: BOOL];
+        <<>>
+    <<Aging>>
+
+        Age: PROC [vmPage: PageNumber] RETURNS [outcome: Outcome];
+
+        AgeInternal: PROC [vmPage: PageNumber, vmE: in VMMapEntry] = INLINE {
+            <<This procedure must be executed with the monitor held and interrupts disabled (to avoid losing the "referenced" bit.  (Because of 
+            the peculiar structure of InitializeAllocateRealMemoryInternal, it is awkward to declare this INTERNAL.>>
+            IF vmE.state.flags.readonly AND vmE.state.flags.dirty THEN {
+                rmMap[vmE.real].needsBackingStoreWrite _ TRUE;
+                vmE.state.flags.dirty _ FALSE;
+                rmMap[vmE.real].dataState _ changed;
+                };
+            vmE.state.flags.referenced _ FALSE;
+            SetVMMap[vmPage, vmE];
+            };
+
+
+    <<Laundry process support>>
+
+        LaundryMode: TYPE = {casual, aggressive, panic};
+
+        GetCleaningCandidate: PROC [
+            desired: PageCount, comfortLevel: PageCount, tryHard: LaundryMode]
+            RETURNS [interval: Interval, cleanSkipped: PageCount, passes: INT, rover: RealPageNumber];
+
+        NoteDirtyVictim: PROC;
+        NoteNewVictim: PROC;
+    <<>>
+    <<I/O Interface>>
+
+        IODirection: TYPE = {read, write};
+        IOResult: TYPE = {ok, labelCheck, someOtherError};
+
+        DoIO: PROC [
+            direction: IODirection, backingPage: PageNumber, interval: Interval, subsequentSeek: PageNumber _ 0]
+            RETURNS [result: IOResult, done: PageCount];
+
+        HasBackingStorage: SAFE PROC [page: PageNumber] RETURNS [BOOL];
+
+    <<>>
+    <<Frame Fault Handler Structures>>
+    <<>>
+        AnyFrameSizeIndex: TYPE = CARDINAL [0..PrincOps.AllocationVectorSize);  -- note that an AnyFrameSizeIndex immediately precedes a 
+        Frame.
+        NormalFrameSizeIndex: TYPE = PrincOps.FrameSizeIndex;
+
+        FsiFrame: TYPE = MACHINE DEPENDENT RECORD [
+            fsi(0): AnyFrameSizeIndex,  -- must be at 3 MOD 4 boundary.
+            frame(1): local PrincOps.Frame];
+
+        FrameHeapPiece: TYPE = POINTER TO FrameHeapPieceHeader;
+        FrameHeapPieceHeader: TYPE = MACHINE DEPENDENT RECORD [
+            next(0): FrameHeapPiece,  -- must be at 0 MOD 4 boundary.
+            wordsAllocated(1): CARDINAL,  -- actually [0..VM.PagesToWords[PrincOps.shortPointerSpan]]
+            wordsInUse(2): CARDINAL,  -- assert:  wordsInUse MOD 4 = 3
+            fsiFrame(3): SEQUENCE COMPUTED NAT OF FsiFrame];  -- must be at 3 MOD 4 boundary.
+
+        largeFrameThresholdFsi: NormalFrameSizeIndex = 14;  -- frames this size or larger will be allocated in an integral number of pages, 
+        and reclaimed when they are freed.
+
+        LargeFrame: TYPE = POINTER TO LargeFrameHeader;
+        LargeFrameHeader: TYPE = MACHINE DEPENDENT RECORD [
+            next(0): LargeFrame,
+            prev(1): LargeFrame,
+            trueFsi(2): NormalFrameSizeIndex,
+            fsiFrame(3): SEQUENCE COMPUTED NAT OF FsiFrame];  -- must be at 3 MOD 4 boundary.
+
+        <<The following data structures can be safely inspected only when interrupts are disabled and no procedures are called.>>
+
+        frameHeapPieceList: FrameHeapPiece;  -- list of frame heap pieces, excluding large frames
+        largeFrameList: LargeFrame;  -- list of large frames (some allocated, some freed)
+        <<>>
+    <<Utilities for Virtual Memory Map  (wizards only) {stolen from PrincOpsUtils, to be changed when the new microcode is ready to be 
+    used}.>>
+
+        aSETMAP: PrincOps.alpha = 150B;
+
+        aGETMAPFLAGS: PrincOps.alpha = 151B;
+
+        aSETMAPFLAGS: PrincOps.alpha = 152B;
+
+        useLong: READONLY BOOL;
+            <<Exported from VMInitImpl (should be same as ProcessorFace.useLongMapOps)>>
+
+        ExchangePageState: PROC
+            [virtual: PageNumber, newState: PrincOps.PageState] RETURNS [pv: PageValue] = INLINE {
+            <<Gets the state and real page of a virtual page;>>
+                <<If the page is mapped, also sets the flags to newState.>>
+            OldExchangePageState: PROC
+                [virtual: CARDINAL, state: InterimPageState] RETURNS [oldState: InterimPageState] =
+                MACHINE CODE {PrincOps.zMISC, PrincOps.aSETF};
+            NewExchangePageState: PROC
+                [vp: LONG CARDINAL, flgs: PrincOps.PageState]
+                RETURNS [tState: PrincOps.PageState, rp: LONG CARDINAL] =
+                MACHINE CODE {PrincOps.zMISC, aSETMAPFLAGS};
+            IF useLong
+                THEN
+                    [tState: pv.state, rp: pv.real] _ NewExchangePageState[virtual, newState]
+                ELSE
+                    [flags: pv.state.flags, realPage: pv.real] _
+                        OldExchangePageState[virtual, InterimPageState[FALSE, newState.flags, 0]].oldState;
+            };
+
+        ExchangePageFlags: PROC
+            [virtual: PageNumber, newFlags: PageFlags] RETURNS [PageValue] = INLINE {
+            <<Gets the state and real page of a virtual page;>>
+                <<If the page is mapped, also sets the flags to newFlags.>>
+            RETURN ExchangePageState[virtual, PageStateFromFlags[newFlags]];
+            };
+
+        GetPageValue: PROC [virtual: PageNumber] RETURNS [pv: PageValue] = INLINE {
+            <<Gets the state and real page of a virtual page.>>
+            OldGetPageValue: PROC
+                [virtual: CARDINAL] RETURNS [state: InterimPageState] =
+                MACHINE CODE {PrincOps.zMISC, PrincOps.aGETF};
+            NewGetPageValue: PROC
+                [vp: LONG CARDINAL] RETURNS [tState: PrincOps.PageState, rp: LONG CARDINAL] =
+                MACHINE CODE {PrincOps.zMISC, aGETMAPFLAGS};
+            IF useLong
+                THEN
+                    [tState: pv.state, rp: pv.real] _ NewGetPageValue[virtual]
+                ELSE
+                    [flags: pv.state.flags, realPage: pv.real] _ OldGetPageValue[virtual].state;
+            };
+
+        SetPageValue: PROC [virtual: PageNumber, pv: PageValue] = INLINE {
+            <<Sets the real page and state of a virtual page.>>
+            OldSetPageValue: PROC [virtual: CARDINAL, state: InterimPageState] =
+                MACHINE CODE {PrincOps.zMISC, PrincOps.aASSOC};
+            NewSetPageValue: PROC [vp, rp: LONG CARDINAL, flgs: PrincOps.PageState] =
+                MACHINE CODE {PrincOps.zMISC, aSETMAP};
+            IF useLong
+                THEN NewSetPageValue[virtual, pv.real, pv.state]
+                ELSE OldSetPageValue[virtual, InterimPageState[FALSE, pv.state.flags, pv.real]];
+            };
+
+        SetPageFlags: PROC [virtual: PageNumber, real: RealPageNumber, flags: PageFlags] = INLINE {
+            <<Sets the real page and flags of a virtual page.>>
+            SetPageValue[virtual, [state: PageStateFromFlags[flags], real: real]];
+            };
+
+        IsMapped: SAFE PROC [virtual: PageNumber] RETURNS [BOOL] =
+            TRUSTED INLINE {RETURN[GetPageValue[virtual].state.flags ~= PrincOps.flagsVacant]};
+
+        IsVacant: SAFE PROC [virtual: PageNumber] RETURNS [BOOL] =
+            TRUSTED INLINE {RETURN[GetPageValue[virtual].state.flags = PrincOps.flagsVacant]};
+
+        PageStateFromFlags: SAFE PROC [flags: PageFlags] RETURNS [PrincOps.PageState] =
+            TRUSTED INLINE {RETURN[LOOPHOLE[flags]]};
+        <<>>
+    <<>>
+    <<Miscellaneous>>
+
+        InitializeTables: PROC;
+
+        Crash: PROC = INLINE {DebuggerSwap.WorryCallDebugger[NIL]};
+
+
+    END.

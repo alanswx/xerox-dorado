@@ -1,0 +1,151 @@
+
+    <<VMBackingImpl.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Levin on September 20, 1983 12:37 pm>>
+        <<Birrell, July 27, 1983 5:43 pm>>
+    <<Russ Atkinson (RRA) January 30, 1985 10:02:56 pm PST>>
+    <<>>
+    DIRECTORY
+        DebuggerFormat USING [LabelChecksum, Run, VMRunTable],
+        DebuggerSwap USING [NoteVMRunTable],
+        Disk USING [Add, Channel, DriveAttributes, DoIO, Label, labelCheck, ok, PageNumber, Request, SameDrive, Status],
+        VM USING [AddressForPageNumber, lowCore],
+        VMBacking USING [Run, RunTable, RunTableIndex, RunTableObject, RunTablePageNumber],
+        VMInternal USING [Crash, Interval, IODirection, IOResult, PageCount, PageNumber, UpdateVMLimit];
+
+    VMBackingImpl: MONITOR
+        IMPORTS DebuggerFormat, DebuggerSwap, Disk, VM, VMInternal
+        EXPORTS VMBacking, VMInternal = BEGIN OPEN VMInternal, VMBacking;
+    <<>>
+    <<Global variables protected by the monitor>>
+    <<>>
+    backingLabel: Disk.Label;
+    firstBackingDataPage: RunTablePageNumber;
+    backingRunTable: LONG POINTER TO RunTableObject _ NIL;
+    debuggerRunTable: LONG POINTER TO DebuggerFormat.VMRunTable _ NIL;
+
+    <<>>
+    <<Exports to VMBacking>>
+    <<>>
+    AttachBackingStorage: PUBLIC ENTRY UNSAFE PROC [
+        label: Disk.Label, firstDataPage: RunTablePageNumber, runTable: RunTable] = {
+        <<Eventually, a more general mechanism may be necessary to permit mapped files.  For now, we support only a single run.>>
+        IF backingRunTable ~= NIL THEN Crash[];
+        backingLabel _ label;
+        firstBackingDataPage _ firstDataPage;
+        <<runTable.nRuns is the number of extents, but (see comment in interface) the run table is assumed to contain runTable.nRuns+1 
+        entries.>>
+        backingRunTable _ VM.lowCore.NEW[RunTableObject[runTable.nRuns+1]];
+        backingRunTable.nDataPages _ runTable.nDataPages;
+        backingRunTable.nRuns _ runTable.nRuns;
+        FOR i: RunTableIndex IN [RunTableIndex.FIRST..runTable.nRuns] DO
+            backingRunTable.runs[i] _ runTable.runs[i];
+            ENDLOOP;
+        debuggerRunTable _ VM.lowCore.NEW[DebuggerFormat.VMRunTable[runTable.nRuns]];
+        debuggerRunTable.nRuns _ runTable.nRuns;
+        FOR j: RunTableIndex IN [RunTableIndex.FIRST..runTable.nRuns) DO
+            IF firstDataPage IN [runTable.runs[j].filePage..runTable.runs[j+1].filePage) THEN {
+                FOR i: RunTableIndex IN [j..runTable.nRuns) DO
+                    debuggerLabel: Disk.Label _ label;
+                    filePage: RunTablePageNumber = MAX[runTable.runs[i].filePage, firstDataPage];
+                    debuggerLabel.filePage _ filePage;
+                    debuggerRunTable.runs[i-j] _ [
+                        page: filePage-firstDataPage,
+                        count:
+                            IF i = runTable.nRuns-1 THEN runTable.nDataPages-(filePage-firstDataPage)
+                            ELSE runTable.runs[i+1].filePage-filePage,
+                        deviceType: Disk.DriveAttributes[runTable.runs[i].channel].type,
+                        deviceOrdinal: Disk.DriveAttributes[runTable.runs[i].channel].ordinal,
+                        diskPage: [runTable.runs[i].diskPage+filePage-runTable.runs[i].filePage],
+                        labelCheck: DebuggerFormat.LabelChecksum[debuggerLabel,0]
+                        ];
+                    ENDLOOP;
+                EXIT
+                };
+            REPEAT
+                FINISHED => Crash[];
+            ENDLOOP;
+        DebuggerSwap.NoteVMRunTable[debuggerRunTable];
+        UpdateVMLimit[backingRunTable.nDataPages];
+        };
+
+
+    <<Exports to VMInternal>>
+    <<>>
+    DoIO: PUBLIC UNSAFE PROC [
+        direction: IODirection, backingPage: PageNumber, interval: Interval, subsequentSeek: PageNumber]
+        RETURNS [result: IOResult, done: PageCount] = {
+        <<Note:  The implementation assumes that the disk page size equals the map unit size.  If this is not the case, code is required to 
+        read multiple disk pages per map unit, worry about discontinuities in the middle of map units, end-of-file in the middle of 
+        a map unit, and other funny cases.  We'll write this when, and if, we need to.>>
+        request: Disk.Request;
+        channel: Disk.Channel;
+        diskPage: Disk.PageNumber;
+        label: Disk.Label;
+        runLength: PageCount;
+        status: Disk.Status;
+        [channel: channel, diskPage: diskPage, runLength: runLength] _
+            MapToBackingStorage[backingPage, @label];
+        request _ [
+            diskPage: diskPage,
+            data: VM.AddressForPageNumber[interval.page],
+            command:
+                IF direction = read THEN [header: verify, label: verify, data: read]
+                ELSE [header: verify, label: verify, data: write],
+            count: MIN[runLength, interval.count]
+            ];
+        IF INT[request.count] ~= interval.count THEN subsequentSeek _ interval.page + request.count;
+        IF subsequentSeek ~= 0 THEN {
+            seekChannel: Disk.Channel;
+            [channel: seekChannel, diskPage: diskPage] _ MapToBackingStorage[subsequentSeek];
+            IF Disk.SameDrive[channel, seekChannel] THEN request.seek _ diskPage;
+            };
+        <<Initiate the transfer and wait for it to complete>>
+        [status, done] _ Disk.DoIO[channel, @label, @request];
+        result _ SELECT status FROM
+            Disk.ok => ok,
+            Disk.labelCheck => labelCheck,
+            ENDCASE => someOtherError;
+        };
+
+    HasBackingStorage: PUBLIC ENTRY SAFE PROC [page: PageNumber]
+        RETURNS [BOOL] = TRUSTED {
+        RETURN[backingRunTable ~= NIL AND page < backingRunTable.nDataPages];
+        };
+
+    <<>>
+    <<Internal Procedures>>
+    <<>>
+    MapToBackingStorage: PROC [page: PageNumber, label: POINTER TO Disk.Label _ NIL]
+        RETURNS [channel: Disk.Channel, diskPage: Disk.PageNumber, runLength: CARDINAL] = {
+        IF HasBackingStorage[page] THEN {
+            filePage: RunTablePageNumber = firstBackingDataPage + page;
+            low: RunTableIndex _ 0;
+            high: RunTableIndex _ backingRunTable.nRuns;  -- "end marker"
+            nearest: RunTableIndex;
+            nearestRun: Run;
+            UNTIL low > high DO
+                nearest _ (low + high) / 2;
+                SELECT backingRunTable.runs[nearest].filePage FROM
+                    < filePage => low _ nearest + 1;
+                    > filePage => high _ nearest - 1;
+                    ENDCASE -- = filePage -- => EXIT;
+                REPEAT
+                    FINISHED => nearest _ low - 1;
+                ENDLOOP;
+            nearestRun _ backingRunTable[nearest];
+            IF label ~= NIL THEN {
+                label^ _ backingLabel;
+                label.filePage _ filePage - firstBackingDataPage + label.filePage;
+                };
+            RETURN[
+                channel: nearestRun.channel,
+                diskPage: Disk.Add[nearestRun.diskPage, filePage - nearestRun.filePage],
+                runLength: backingRunTable[nearest+1].filePage - filePage
+                ]
+            }
+        ELSE Crash[];  -- no backing storage
+        };
+    <<>>
+    END.
+

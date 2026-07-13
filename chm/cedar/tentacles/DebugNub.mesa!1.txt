@@ -1,0 +1,539 @@
+
+    <<DebugNub.mesa: interface with debugger>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Andrew Birrell  December 2, 1983 11:06 am>>
+        <<Levin, August 8, 1983 3:26 pm>>
+    <<Russ Atkinson (RRA) January 30, 1985 9:23:35 pm PST>>
+        <<Doug Wyatt, April 12, 1985 4:37:28 pm PST>>
+
+    DIRECTORY
+        BootFile USING [Location, nullLink],
+        BootStartList USING [Base],
+        DebuggerFormat USING [ DebugParameter, ExternalStateVector, SwapInfo, SwapReason, VersionID],
+        DebuggerSwap USING [Frozen, VolumeID],
+        DeviceCleanup USING [InitializeDeviceCleanup, Perform],
+        GermSwap USING [GetPStartListHeader, Initialize, InLoad, mdsiGerm, OutLoad, switches--.h, .i, .t--, Teledebug],
+        MPCodes USING [cantWorldSwap, emptyMP, hanging],
+        PrincOps USING [ControlLink, Frame, FrameHandle, FaultIndex, GlobalFrameHandle, NullFrame, NullLink, PageNumber, PDA, Port, 
+        Priority, PsbIndex, QueueHandle, sAlternateBreak, sBreak, sBreakBlock, sBreakBlockSize, SD, sError, sErrorList, 
+        sReturnError, sReturnErrorList, sSignal, sSignalList, StateVector, sUnnamedError, SVPointer, sXferTrap, XferTrapStatus, 
+        zDUP],
+        PrincOpsUtils USING [ DisableInterrupts, EnableAndRequeue, EnableInterrupts, GetReturnFrame, GetReturnLink, HighHalf, MyLocalFrame, 
+        PsbHandleToIndex, PsbIndexToHandle, ReadPSB, ReadPTC, ReadWDC, ReadXTS, SetReturnFrame, SetReturnLink, WritePSB, WritePTC, 
+        WriteWDC, WriteXTS],
+        Process USING [Detach, DisableTimeout, GetPriority, InitializeCondition, InitializeMonitor, Priority, priorityClient3, 
+        prioritySwatWatcher, SetPriority],
+        ProcessorFace USING [BootButton, GetClockPulses, microsecondsPerHundredPulses, SetMP],
+        RuntimeError USING [UCSProc],
+        TerminalDefs USING [DownUp, KeyBits],
+        TerminalFace USING [keyboard];
+
+
+    DebugNub: MONITOR -- for CheckInterrupt
+        IMPORTS DeviceCleanup, GermSwap, PrincOpsUtils, Process, ProcessorFace, TerminalFace
+        EXPORTS DebuggerSwap
+        SHARES DeviceCleanup = BEGIN
+
+        StateVector: TYPE = PrincOps.StateVector;
+
+    <<>>
+    <<******** Global variables ********>>
+
+        teledebug: PUBLIC BOOL; -- TRUE forces teledebugging
+
+        diskDebugger: BOOL; -- TRUE means disk debugging is available
+
+        locDebuggee: BootFile.Location;
+        locDebugger: BootFile.Location;
+        pMicrocodeCopy: LONG POINTER; -- debugger's microcode (not implemented)
+        pGermCopy: LONG POINTER; -- debugger's germ (not implemented)
+        nGerm: CARDINAL; -- number of words in debugger's germ
+
+        CAbort: ERROR = CODE;
+        KillThisTurkey: ERROR = CODE;
+        Quit: ERROR = CODE;
+
+    <<>>
+    <<******** Breakpoints ********>>
+
+
+        InitBreakBlocks: PROC = -- Pilot remnant
+            {
+            PrincOps.SD[PrincOps.sBreakBlock] _ 0 --NIL--;
+            PrincOps.SD[PrincOps.sBreakBlockSize] _ 0;
+            };
+
+        Break: PROC =
+            <<executed by (non-worry) BRK instruction>>
+            {
+            state: RECORD [
+                padding: ARRAY [0..2) OF WORD, v: StateVector];
+            state.v _ STATE;
+            state.v.dest _ PrincOpsUtils.GetReturnLink[];
+            state.v.source _ PrincOps.NullLink;
+            CoreSwap[breakpoint, @state.v];
+            IF PrincOpsUtils.ReadXTS[] = on THEN PrincOpsUtils.WriteXTS[skip1];
+            RETURN WITH state.v;
+            };
+
+        WorryBreaker: PROC RETURNS [PrincOps.FrameHandle] =
+            <<executed by worry-mode BRK instruction>>
+            {
+            state: RECORD [padding: ARRAY [0..2) OF WORD, v: StateVector];
+            state.v.instbyte _ 0;
+            state.v.stkptr _ 1;
+            state.v.stk[0] _ LOOPHOLE[PrincOpsUtils.MyLocalFrame[]];
+            state.v.dest _ PrincOpsUtils.GetReturnLink[];
+            state.v.source _ PrincOps.NullLink;
+            PrincOpsUtils.DisableInterrupts[];
+            DO
+                IF PrincOpsUtils.ReadXTS[] = on THEN PrincOpsUtils.WriteXTS[skip1];
+                PrincOpsUtils.EnableInterrupts[];
+                TRANSFER WITH state.v;
+                PrincOpsUtils.DisableInterrupts[];
+                state.v _ STATE;
+                state.v.dest _ PrincOpsUtils.GetReturnLink[];
+                state.v.source _ PrincOps.NullLink;
+                swapInfo.state _ @state.v;
+                swapInfo.reason _ worrybreak; -- set mds too
+                ToDebugger[@swapInfo];
+                ENDLOOP;
+            };
+
+    <<>>
+    <<******** Uncaught signals ********>>
+
+        Catcher: PUBLIC RuntimeError.UCSProc =
+            {
+            signallerGF: PrincOps.GlobalFrameHandle;
+            state: StateVector;
+            f: PrincOps.FrameHandle;
+            state.stk[0] _ msg;
+            state.stk[1] _ LOOPHOLE[signal];
+            state.stkptr _ 0;
+            <<The call stack below here is: Signaller, [Signaller,] offender>>
+            f _ PrincOpsUtils.GetReturnFrame[];
+            signallerGF _ f.accesslink;
+            f _ (state.dest _ f.returnlink).frame;
+            IF f.accesslink = signallerGF THEN state.dest _ f.returnlink;
+            CoreSwap[uncaughtsignal, @state ! CAbort => GOTO abort];
+            EXITS
+                abort =>
+                    IF signal = LOOPHOLE[ABORTED] THEN {BackStop[frame]; ERROR KillThisTurkey}
+                    ELSE ERROR ABORTED;
+            };
+
+        BackStop: PROC [root: PrincOps.FrameHandle] =
+            {
+            endProcess: PrincOps.ControlLink = root.returnlink;
+            Caller: PROC = LOOPHOLE[PrincOpsUtils.GetReturnLink[]];
+            root.returnlink _ [frame[PrincOpsUtils.MyLocalFrame[]]];
+            PrincOpsUtils.SetReturnFrame[PrincOps.NullFrame];
+            Caller[ ! KillThisTurkey => CONTINUE];
+            PrincOpsUtils.SetReturnLink[endProcess];
+            };
+
+        StubSignalHandler: PROC = -- handles signals before SignalsImpl is available
+            {
+            state: RECORD [padding: ARRAY [0..2) OF WORD, v: StateVector];
+            state.v _ STATE;
+            DO WorryCallDebugger["Signal too early"L] ENDLOOP;
+            };
+
+
+    <<******** Interrupts (CTRL-SWAT) ********>>
+
+        swatWatcherEnabled: BOOL;
+        interruptWanted: BOOL;
+        interrupter: CONDITION;
+
+        CheckInterrupt: ENTRY PROC = {
+            interruptState: TerminalDefs.DownUp _ up;
+            keyboard: LONG POINTER TO READONLY TerminalDefs.KeyBits ~ TerminalFace.keyboard;
+            wakeup: CONDITION;
+            Process.InitializeCondition[@wakeup, 1];
+            DO --FOREVER--
+                ENABLE ABORTED => CONTINUE;
+                WAIT wakeup;
+                IF keyboard[Spare3]=down AND keyboard[Ctrl]=down THEN {
+                    IF interruptState=up AND swatWatcherEnabled THEN {
+                        interruptState _ down;
+                        teledebug _ (keyboard[Spare1]=down);
+                        IF keyboard[LeftShift]=down THEN
+                            WorryCallDebugger["Keyboard interrupt (worry mode)"L]
+                        ELSE { interruptWanted _ TRUE; NOTIFY interrupter };
+                        };
+                    }
+                ELSE interruptState _ up;
+                ENDLOOP;
+            };
+
+        InterruptSpawner: PROC = {
+            WaitUntilWanted: ENTRY PROC = {
+                ENABLE UNWIND => NULL;
+                interruptWanted _ FALSE;
+                UNTIL interruptWanted DO WAIT interrupter ENDLOOP;
+                };
+            DO ENABLE ABORTED => CONTINUE;
+                WaitUntilWanted[];
+                Process.Detach[FORK Interrupt[]];
+                ENDLOOP;
+            };
+
+        Interrupt: PROC = {
+            CallDebugger["Keyboard interrupt"L];
+            };
+
+        swatWatcherStarted: BOOL;
+
+        StartSwatWatcher: PUBLIC ENTRY SAFE PROC[enabled: BOOL] = TRUSTED {
+            <<Must not be invoked until KeyboardFace and Process have been initialized.>>
+            IF NOT swatWatcherStarted
+            THEN {
+                priorityPrev: PrincOps.Priority = Process.GetPriority[];
+                Process.InitializeCondition[@interrupter, 0];
+                Process.DisableTimeout[@interrupter];
+                Process.SetPriority[Process.priorityClient3];
+                Process.Detach[FORK InterruptSpawner[]];
+                Process.SetPriority[Process.prioritySwatWatcher];
+                Process.Detach[FORK CheckInterrupt[]];
+                Process.SetPriority[priorityPrev];
+                swatWatcherStarted _ TRUE;
+                };
+            swatWatcherEnabled _ enabled;
+            };
+
+        EnableSwatWatcher: PUBLIC ENTRY SAFE PROCEDURE[enabled: BOOL] =
+            CHECKED{ swatWatcherEnabled _ enabled };
+
+    <<>>
+    <<******** CallDebugger ********>>
+
+        CallDebugger: PUBLIC SAFE PROC [s: STRING] = TRUSTED
+            {
+            state: RECORD [a, b: WORD, v: StateVector];
+            state.v _ STATE;
+            state.v.stk[0] _ LOOPHOLE[s];
+            state.v.stkptr _ 1;
+            state.v.dest _ PrincOpsUtils.GetReturnLink[];
+            CoreSwap[explicitcall, @state.v]
+            };
+
+        worryCallIndirect: PORT;
+
+        WorryCallDebugger: PUBLIC SAFE PROC[STRING];
+
+        DoWorryCallDebugger: PROC RETURNS [SAFE PROC[STRING]] = { OPEN PrincOps;
+            state: RECORD [padding: ARRAY [0..2) OF WORD, v: StateVector];
+            state.v.instbyte _ 0;
+            state.v.stkptr _ 1;
+            <<The following dance is needed because fixed frame procedures that are not>>
+            <<called as trap handlers don't have source & destination links put on the>>
+            <<stack.  We insert an indirect link to force them to be put there.>>
+            LOOPHOLE[worryCallIndirect, PrincOps.Port].frame _ PrincOpsUtils.MyLocalFrame[];
+            state.v.stk[0] _ LOOPHOLE[@worryCallIndirect];
+            state.v.dest _ PrincOpsUtils.GetReturnLink[];
+            state.v.source _ PrincOps.NullLink;
+            PrincOpsUtils.DisableInterrupts[];
+            DO --FOREVER--
+                IF PrincOpsUtils.ReadXTS[] = on THEN PrincOpsUtils.WriteXTS[skip1];
+                PrincOpsUtils.EnableInterrupts[];
+                TRANSFER WITH state.v;
+                PrincOpsUtils.DisableInterrupts[];
+                state.v _ STATE;
+                state.v.dest _ LOOPHOLE[state.v.stk[state.v.stkptr + 1]];
+                PrincOpsUtils.SetReturnLink[state.v.dest];
+                state.v.source _ PrincOps.NullLink;
+                swapInfo.state _ @state.v;
+                swapInfo.reason _ worrycall;
+                ToDebugger[@swapInfo];
+                ENDLOOP
+            };
+
+    <<>>
+    <<******** Data structures for process freezing ********>>
+
+        freezeesTable: PUBLIC DebuggerSwap.Frozen;
+
+        freezer: PUBLIC POINTER TO local PrincOps.Frame;
+
+        qFreeze: PrincOps.FaultIndex = 3;
+
+        AllocFreezer: PROC RETURNS[ POINTER TO local PrincOps.Frame ] =
+            {
+            Caller: PROC[PrincOps.FrameHandle] = LOOPHOLE[PrincOpsUtils.GetReturnFrame[]];
+            DummyReturnLink: PROC = {ERROR}; -- PrincOps.NullLink breaks ValidateFrame
+            PrincOpsUtils.SetReturnLink[LOOPHOLE[DummyReturnLink]];
+            Caller[FreezingPoint[]];
+            ERROR
+            };
+
+        FreezingPoint: PROC RETURNS[ POINTER TO local PrincOps.Frame ] =
+            {
+            freezeQueue: PrincOps.QueueHandle = @PrincOps.PDA.fault[qFreeze].queue;
+            state: RECORD[a, b: WORD, v: StateVector];
+            Caller: PROC[PrincOps.FrameHandle] = LOOPHOLE[PrincOpsUtils.GetReturnFrame[]];
+            Caller[PrincOpsUtils.MyLocalFrame[]];
+            <<The rest of this procedure is magic.  It is simultaneously on the stack of several processes.>>
+            PrincOpsUtils.DisableInterrupts[];
+            DO
+                state.v _ STATE;
+                FreezeTrapFrame[@state.v];
+                PrincOpsUtils.EnableAndRequeue[@PrincOps.PDA.ready, freezeQueue, PrincOpsUtils.ReadPSB[]];
+                PrincOpsUtils.DisableInterrupts[];
+            ENDLOOP;
+            };
+
+        FreezeTrapFrame: PROC[sv: POINTER TO StateVector] = {
+            -- executed with interrupts disabled --
+            state: RECORD[a, b: WORD, v: StateVector];
+            Caller: PROC = LOOPHOLE[PrincOpsUtils.GetReturnFrame[]];
+            psbi: PrincOps.PsbIndex = PrincOpsUtils.PsbHandleToIndex[PrincOpsUtils.ReadPSB[]];
+            state.v _ sv^;
+            PrincOpsUtils.SetReturnLink[freezeesTable[psbi]];
+            freezeesTable[psbi] _ [frame[PrincOpsUtils.MyLocalFrame[]]];
+            Caller[];
+            state.v.dest.frame _ PrincOpsUtils.GetReturnFrame[];
+            state.v.source _ PrincOps.NullLink;
+            RETURN WITH state.v;
+            };
+
+    <<>>
+    <<******** Procedures that cause swap to debugger ********>>
+
+        swapInfo: DebuggerFormat.ExternalStateVector; -- nub-debugger communication area
+
+        CoreSwap: PROC [why: DebuggerFormat.SwapReason, sp: PrincOps.SVPointer] =
+            {
+            DP: DebuggerFormat.DebugParameter;
+
+            Decode: PROC RETURNS [proceed: BOOLEAN] = -- decode the SwapReason
+                {
+                f: PrincOps.GlobalFrameHandle;
+                lsv: StateVector;
+                SELECT swapInfo.reason FROM
+                    proceed, resume => RETURN[TRUE];
+                    call =>
+                        {
+                        lsv _ swapInfo.parameter.sv;
+                        lsv.source _ [frame[PrincOpsUtils.MyLocalFrame[]]];
+                        TRANSFER WITH lsv;
+                        lsv _ STATE;
+                        swapInfo.parameter.sv _ lsv;
+                        why _ return
+                        };
+                    start =>
+                        {
+                        f _ swapInfo.parameter.frame;
+                        IF ~f.started THEN START LOOPHOLE[f, PROGRAM] ELSE RESTART f;
+                        why _ return
+                        };
+                    quit => ERROR Quit;
+                    ENDCASE => RETURN[TRUE];
+                RETURN[FALSE]
+                }; --decode--
+
+            <<Body of CoreSwap:>>
+
+            swapInfo.state _ sp;
+            DP.spare _ NIL;
+            swapInfo.parameter _ @DP;
+            <<versionident, debuggee, lspages, fill, mapLog set by Initialize>>
+            <<level, mds set by MemorySwap>>
+            DO
+                swapInfo.reason _ why;
+                PrincOpsUtils.DisableInterrupts[];
+                ToDebugger[@swapInfo];
+                PrincOpsUtils.EnableInterrupts[];
+                {
+                IF Decode[
+                    ! CAbort => IF swapInfo.level > 0 THEN {why _ return; CONTINUE};
+                        Quit => GOTO abort] THEN EXIT
+                EXITS abort => ERROR CAbort
+                }
+                ENDLOOP
+            };
+
+        level: INTEGER;
+
+        ToDebugger: PORT [POINTER TO DebuggerFormat.ExternalStateVector]; -- formerly WBPort
+        FromPilot: PORT RETURNS [POINTER TO DebuggerFormat.ExternalStateVector]; -- formerly CSPort
+
+        MemorySwap: PROC [pESV: POINTER TO DebuggerFormat.ExternalStateVector] = {
+
+            SwapIt: PROC = INLINE {
+                savewdc, saveptc: WORD;
+                xferTrapStatus: PrincOps.XferTrapStatus = PrincOpsUtils.ReadXTS[];
+                xferTrapHandler: WORD = PrincOps.SD[PrincOps.sXferTrap];
+                pESV.level _ level;
+                pESV.mds _ PrincOpsUtils.HighHalf[LONG[LOOPHOLE[1, POINTER]]];  -- ("1" since
+                    <<0 collides with NIL.)>>
+                pESV.psb _ PrincOpsUtils.PsbHandleToIndex[PrincOpsUtils.ReadPSB[]];
+                PrincOps.SD[PrincOps.sXferTrap] _ LOOPHOLE[PrincOpsUtils.MyLocalFrame[]];
+                    <<in case we are restarted in trap mode>>
+                PrincOpsUtils.WriteXTS[off];
+                <<Save processor state not captured in PDA:>>
+                saveptc _ PrincOpsUtils.ReadPTC[];
+                savewdc _ PrincOpsUtils.ReadWDC[];
+                <<Manually save the state of the current process so that Copilot>>
+                <<will be able to examine it just as if we were waiting:>>
+                PrincOps.PDA.block[pESV.psb].context.frame _ PrincOpsUtils.MyLocalFrame[];
+                PrincOps.PDA.block[pESV.psb].link.vector _ FALSE;
+                DeviceCleanup.Perform[turnOff];
+                IF GermSwap.switches[h] THEN {
+                    AddToStack: PROC [BOOLEAN] = MACHINE CODE { };
+                    GetTOS: PROC RETURNS [BOOLEAN] = MACHINE CODE { PrincOps.zDUP; };
+                    RemoveFromStack: PROC RETURNS [BOOLEAN] = MACHINE CODE { };
+                    AddToStack[TRUE];
+                    ProcessorFace.SetMP[MPCodes.hanging];
+                    WHILE GetTOS[] DO ENDLOOP;
+                    [] _ RemoveFromStack[];
+                    }
+                ELSE IF NOT diskDebugger OR teledebug OR GermSwap.switches[t] THEN {
+                    ProcessorFace.SetMP[MPCodes.cantWorldSwap];
+                    GermSwap.Teledebug[@locDebugger];
+                    }
+                <<OutLoad onto swatee, then boot Debugger.>>
+                ELSE IF GermSwap.OutLoad[@locDebuggee, restore] = outLoaded THEN {
+                    <<The next line should be in GermSwap.InLoad but blows up the compiler>>
+                    IF pMicrocodeCopy ~= NIL THEN
+                        DeviceCleanup.Perform[kill];
+                    GermSwap.InLoad[
+                        pMicrocodeCopy,
+                        pGermCopy,
+                        nGerm,
+                        @locDebugger]
+                        <<never returns>>
+                    };
+                <<Restore processor state not captured in PDA:>>
+                PrincOpsUtils.WriteWDC[savewdc];
+                PrincOpsUtils.WritePTC[saveptc];
+                <<Restore process state not captured in PDA:>>
+                PrincOpsUtils.WritePSB[PrincOpsUtils.PsbIndexToHandle[pESV.psb]];
+                DeviceCleanup.Perform[turnOn];
+                level _ pESV.level;
+                PrincOpsUtils.WriteXTS[xferTrapStatus];
+                PrincOps.SD[PrincOps.sXferTrap] _ xferTrapHandler;
+                ProcessorFace.SetMP[MPCodes.emptyMP];
+                };
+
+            DO
+                pESV _ FromPilot[];
+                <<Set our return link so Display Stack will work:>>
+                PrincOpsUtils.SetReturnLink[LOOPHOLE[FromPilot, PrincOps.Port].dest.link^];
+                DO
+                    SwapIt[];
+                    SELECT pESV.reason FROM
+                        kill => ProcessorFace.BootButton[];
+                        showscreen => {
+                            pulsesThen: LONG CARDINAL = ProcessorFace.GetClockPulses[];
+                            prevSpare3: TerminalDefs.DownUp _ TerminalFace.keyboard[Spare3];
+                            DO
+                                IF (ProcessorFace.GetClockPulses[] - pulsesThen)
+                                    > LONG[20]*1000000*100/ProcessorFace.microsecondsPerHundredPulses THEN EXIT;
+                                IF prevSpare3=down THEN prevSpare3 _ TerminalFace.keyboard[Spare3]
+                                ELSE IF TerminalFace.keyboard[Spare3]=down THEN {
+                                    WHILE TerminalFace.keyboard[Spare3]=down DO --snore-- ENDLOOP;
+                                    EXIT;
+                                    }
+                                ELSE NULL -- both up
+                                ENDLOOP;
+                            };
+                        ENDCASE => EXIT;
+                    pESV.reason _ return;
+                    ENDLOOP
+                ENDLOOP
+
+            };
+
+    <<>>
+    <<******** Initialization ********>>
+
+        Initialize: PUBLIC PROC = {
+            <<Remember:  this module has NOTRAP in its bootmesa description, so the main program is never executed.  Therefore, this procedure 
+            is responsible for any required initialisation of global variables (like the monitor lock!).  In addition, this 
+            procedure is called before the mesa runtime has been initialised, so beware of KFCB's or instructions that trap to 
+            software.>>
+            h: BootStartList.Base;
+            teledebug _ FALSE;
+            diskDebugger _ FALSE;
+            swatWatcherStarted _ FALSE;
+            swatWatcherEnabled _ FALSE;
+            level _ -1;
+            GermSwap.Initialize[GermSwap.mdsiGerm];
+            Process.InitializeMonitor[@LOCK]; -- because our main program is never executed
+            DeviceCleanup.InitializeDeviceCleanup[];
+            h _ GermSwap.GetPStartListHeader[];
+            pMicrocodeCopy _ pGermCopy _ NIL; -- until microcode swapping installed
+            NoteDiskDebugger[debugger: h.locDebugger, debuggee: h.locDebuggee];
+            NoteLoadstate[h[h.initLoadState].base + h[h[h.initLoadState].parent].vmPage];
+            <<swapInfo.state set in caller of MemorySwap>>
+            <<(e.g. CoreSwap, WorryBreaker, WorryCallDebugger)>>
+            <<swapInfo.reason set in caller of MemorySwap>>
+            <<(e.g. CoreSwap, WorryBreaker, WorryCallDebugger)>>
+            <<swapInfo.level set in MemorySwap>>
+            <<swapInfo.parameter set by debugger and obeyed by CoreSwap>>
+            swapInfo.versionident _ DebuggerFormat.VersionID;
+            swapInfo.vmRunTable _ NIL;
+            <<swapInfo.mds set in MemorySwap>>
+            swapInfo.loadState _ NIL;
+            swapInfo.display _ NIL;
+            swapInfo.systemVolumeKnown _ FALSE;
+            LOOPHOLE[PrincOps.PDA.available, DebuggerFormat.SwapInfo].externalStateVector
+                _ @swapInfo;
+            InitBreakBlocks[];
+            {
+                sd: POINTER TO ARRAY NAT OF PROC ANY RETURNS ANY = LOOPHOLE[PrincOps.SD];
+                sd[PrincOps.sSignalList] _ StubSignalHandler;
+                sd[PrincOps.sSignal] _ StubSignalHandler;
+                sd[PrincOps.sErrorList] _ StubSignalHandler;
+                sd[PrincOps.sError] _ StubSignalHandler;
+                sd[PrincOps.sReturnErrorList] _ StubSignalHandler;
+                sd[PrincOps.sReturnError] _ StubSignalHandler;
+                sd[PrincOps.sUnnamedError] _ StubSignalHandler;
+                sd[PrincOps.sBreak] _ Break;
+                sd[PrincOps.sAlternateBreak] _ LOOPHOLE[WorryBreaker[]];
+                sd[205B] _ LOOPHOLE[freezer _ AllocFreezer[]];
+                };
+            LOOPHOLE[@(PrincOps.SD[206B]), POINTER TO LONG POINTER TO DebuggerSwap.Frozen]^ _
+            LONG[@freezeesTable];
+            FOR p: PrincOps.PsbIndex IN PrincOps.PsbIndex DO
+                freezeesTable[p] _ PrincOps.NullLink;
+                ENDLOOP;
+            WorryCallDebugger _ DoWorryCallDebugger[];
+            LOOPHOLE[ToDebugger, PrincOps.Port].out _ LOOPHOLE[@FromPilot];
+                <<connect ToDebugger to FromPilot>>
+            LOOPHOLE[FromPilot, PrincOps.Port].out _ LOOPHOLE[@ToDebugger];
+                <<connect FromPilot to ToDebugger>>
+            LOOPHOLE[FromPilot, PrincOps.Port].in _ LOOPHOLE[MemorySwap];
+            ToDebugger[NIL]; -- allocate frame for MemorySwap
+            };
+
+        NoteDiskDebugger: PUBLIC PROC[debugger, debuggee: BootFile.Location] = {
+            locDebuggee _ debuggee;
+            locDebugger _ debugger;
+            IF locDebuggee.diskFileID.firstLink ~= BootFile.nullLink THEN diskDebugger _ TRUE;
+            };
+
+        NoteLoadstate: PUBLIC PROC[page: PrincOps.PageNumber] = {
+            swapInfo.loadstatepage _ page;
+            };
+
+        NoteVMRunTable: PUBLIC PROC[table: LONG POINTER] = {
+            swapInfo.vmRunTable _ table;
+            };
+
+        NoteRealLoadState: PUBLIC PROC[loadState: LONG POINTER] = {
+            swapInfo.loadState _ loadState;
+            };
+
+        NoteSystemVolume: PUBLIC PROC[id: DebuggerSwap.VolumeID] = {
+            swapInfo.systemVolume _ LOOPHOLE[id];
+            };
+
+        NoteDisplay: PUBLIC PROC[bitmap: LONG POINTER, w, h: CARDINAL] = {
+            swapInfo.display _ bitmap; swapInfo.displayW _ w; swapInfo.displayH _ h;
+            };
+
+
+    END.

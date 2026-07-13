@@ -1,0 +1,24 @@
+
+    <<VMEmergency.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Russ Atkinson, January 30, 1985 9:48:20 pm PST>>
+        <<Doug Wyatt, February 27, 1985 9:06:12 am PST>>
+
+    DIRECTORY
+        PrincOps USING [PageNumber];
+
+    VMEmergency: DEFINITIONS
+    = BEGIN
+
+    EmergencyList: TYPE = LONG POINTER TO EmergencyListRep;
+    EmergencyListRep: TYPE = RECORD [
+        change: INT _ 0,
+        max: EmergencyPageRange _ 0,
+        pages: ARRAY EmergencyPageRange OF PrincOps.PageNumber
+        ];
+
+    EmergencyPageRange: TYPE = [0..64];
+
+    emergencyList: PUBLIC EmergencyList;
+
+    END.

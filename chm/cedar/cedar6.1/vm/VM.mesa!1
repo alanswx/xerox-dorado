@@ -1,0 +1,295 @@
+
+    <<VM.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Levin on September 20, 1983 11:56 am>>
+        <<Bob Hagmann January 30, 1985 11:09:05 am PST>>
+        <<Russ Atkinson (RRA) February 27, 1985 8:55:14 pm PST>>
+    <<Beach, February 21, 1985 9:30:27 am PST>>
+        <<Doug Wyatt, February 26, 1985 10:09:14 am PST>>
+
+    DIRECTORY
+        Basics USING [BITSHIFT, DoubleShiftLeft, DoubleShiftRight, LongNumber],
+        PrincOps USING [bytesPerPage, logBytesPerPage, logWordsPerPage, PageCount, PageNumber, wordsPerPage];
+
+    <<The client interface to the Cedar virtual memory system.>>
+    <<See VMDoc.tioga for more information.>>
+    <<>>
+    VM: CEDAR DEFINITIONS
+    IMPORTS Basics
+    = BEGIN
+<<Basic Types>>
+    PageNumber: TYPE = PrincOps.PageNumber; -- INT[0..2^24)
+    PageCount: TYPE = PrincOps.PageCount; -- INT[0..2^24]
+        <<The fundamental entities in which the VM traffics are page numbers and page counts.>>
+        <<PrincOps defines these as INTs, but in reality they lie in the indicated subranges.>>
+    <<>>
+    Interval: TYPE = RECORD [page: PageNumber, count: PageCount];
+    nullInterval: Interval = [page: 0, count: 0];
+        <<An Interval refers to a sequence of consecutive pages IN [page .. page+count).>>
+<<Page State Manipulation>>
+    PageState: TYPE = RECORD [
+        dataState: DataState, -- state of the contents of the page (see below)
+        readOnly: BOOL, -- altered only by MakeReadOnly and MakeReadWrite
+        hasRealMemory: BOOL, -- altered only by SwapIn and MakeUndefined
+        needsCleaning: BOOL, -- a hint for clients of "Clean"
+        pinCount: INT -- altered only by Pin and Unpin
+        ];
+        <<Each page in the virtual memory has a client-visible state, called its PageState.>>
+        <<Most of the operations in this interface alter the PageState(s) of the page(s) passed to them.>>
+
+    DataState: TYPE = {
+        none, -- page is unallocated; it has no associated backing storage
+        undefined, -- page is allocated, but content is undefined
+        unchanged, -- page content has not changed since MakeUnchanged was last called
+        changed -- page content has changed
+        };
+        <<This type describes the state of the contents of a virtual memory page, independent of whether it presently resides in real 
+        memory or in backing storage.  The responsibility for maintenance of this state is shared between the VM implementation and 
+        its clients.>>
+        <<Note that the unchanged/changed distinction is not the same as the hardware-supported clean/dirty distinction.  The latter is not 
+        visible to the client of this interface (although the "needsCleaning" bit is a close approximation).>>
+
+    State: PROC [page: PageNumber] RETURNS [state: PageState];
+        <<... returns the current PageState of the indicated page.>>
+
+    <<SetDataState: PRIVATE UNSAFE PROC [interval: Interval, dataState: DataState];>>
+        <<... sets the dataState of all pages in the indicated interval.>>
+        <<Clients should use Free, Kill, MakeChanged, and MakeUnchanged, defined below.>>
+        <<>>
+    <<In most cases, the PageState of a virtual memory page changes only as the result of an operation on that page.  (In this context, 
+    "operation" means a procedure in this interface or a memory access within the addresses bounded by the page.  Thus, a 
+    successful store into a page is construed as an operation that changes the page's dataState to "changed".)  However, there is 
+    one important exception.  The "hasRealMemory" field of a page's PageState may change asynchronously with operations on the 
+    page.  This is because the virtual memory system employs a replacement algorithm that occasionally alters the correspondence 
+    between virtual and real memory.  When real memory is required by a virtual page for which "hasRealMemory" is FALSE, the 
+    replacement algorithm considers pages for which "hasRealMemory" is TRUE and chooses a suitable victim.  The requestor's 
+    "hasRealMemory" state becomes TRUE; the victim's becomes FALSE.  The replacement algorithm's decision process can be affected 
+    by certain operations in this interface (e.g., Pin, Age).>>
+    <<>>
+<<Virtual Memory Allocation>>
+    VMPartition: TYPE = {lowCore, pda, mds, normalVM};
+        <<Virtual memory is divided into four (disjoint) partitions.  The "normalVM" partition describes regular virtual memory and is the 
+        one that most clients will use.  The remaining three partitions are rather special and are intended for use by 
+        knowledgeable clients providing low-level I/O and architectural support facilities; such clients will necessarily operate 
+        below the safe language level.>>
+        <<>>
+    LogPageCount: TYPE = NAT[0..23--LogBase2[PageCount.LAST]-1--];
+
+    Allocate: PROC [count: PageCount, 
+    partition: VMPartition _ normalVM, subRange: Interval _ nullInterval, 
+    start: PageNumber _ 0, alignment: LogPageCount _ 0, in64K: BOOL _ FALSE] 
+    RETURNS [interval: Interval];
+        <<Allocate searches the specified partition of virtual memory for an interval such that>>
+            <<(1) for each page in "interval", State[page].dataState = none,>>
+            <<(2) interval.count = count,>>
+            <<(3) if subRange.count >= count, then "interval" is contained in "subRange",>>
+            <<(4) interval.page MOD 2alignment is zero, and>>
+            <<(5) if start is non-zero, then interval.page-start is minimal, and>>
+            <<(6) if in64K is TRUE, then the interval does not cross a 64K word boundary.>>
+        <<If such an interval is found, it is returned, and, for every page in "interval",>>
+            <<State[page]=[dataState: undefined, readOnly: FALSE, hasRealMemory: FALSE, pinCount: 0].>>
+        <<If no such interval can be found, CantAllocate is raised, passing an interval "bestInterval" such that>>
+            <<(1) for each page in "bestInterval", State[page].dataState = none,>>
+            <<(2) bestInterval.count < count with count-bestInterval.count minimal, and>>
+            <<(3) if subRange.count >= count, then "bestInterval" is contained in "subRange",>>
+        <<Note that "bestInterval" has no guaranteed alignment properties.>>
+
+    SimpleAllocate: PROC [count: PageCount] RETURNS [interval: Interval];
+        <<... equivalent to Allocate[count: count], defaulting all other parameters.>>
+        <<>>
+    CantAllocate: ERROR [bestInterval: Interval];
+        <<... raised by Allocate; bestInterval is the largest available interval within the requested one.>>
+    <<>>
+    Free: UNSAFE PROC [interval: Interval];
+        <<... performs SetDataState[interval, none].>>
+        <<Free makes previously allocated memory again available for allocation.>>
+        <<! AddressFault if State[page].dataState = none for any page in interval.>>
+        <<>>
+<<Procedures that may affect the virtual-real memory correspondence>>
+    <<SwapIn ensures that real memory is associated with the specified interval of virtual memory.>>
+    <<Common variants (Touch and Pin) are defined separately for convenience and clarity.>>
+
+    SwapIn: UNSAFE PROC [interval: Interval, 
+    kill: BOOL _ FALSE, pin: BOOL _ FALSE, nextPage: PageNumber _ 0];
+        <<If kill is TRUE, the equivalent of Kill[interval] is first performed.>>
+        <<The subsequent behavior of SwapIn for each page in "interval" is as follows:>>
+            <<If State[page].dataState = none, AddressFault is raised.>>
+            <<If State[page].hasRealMemory = FALSE (i.e., the page does not already have associated real memory):>>
+                <<A real memory page is assigned, causing State[page].hasRealMemory to become TRUE.  In doing so, other virtual memory pages with 
+                associated real memory and for which State[otherPage].pinCount = 0 may have their real memory reclaimed (after 
+                ensuring that their data are written to backing storage).>>
+                <<If State[page].dataState is "unchanged" or "changed", the real memory page is set to the contents of the corresponding backing 
+                storage page (i.e., it is read from the disk).>>
+            <<State[page].dataState is unaffected by this procedure.>>
+            <<If "pin" is TRUE, State[page].pinCount is incremented by one.>>
+        <<The implementation may perform certain optimizations that cause the actual order of state changes to differ from the sequence 
+        implied by this description.  In particular, disk transfers may be batched, and if an address fault is detected within the 
+        interval, there is no guarantee that the preceding pages in the interval will have reached the states implied by the above 
+        description. Furthermore, if "kill" is TRUE, the implementation may optimize the real memory management to avoid freeing 
+        and reallocating memory.>>
+        <<The "nextPage" parameter is a hint to be used in optimizing the disk arm; if it is non-zero, the disk driver will be informed 
+        that the likely subsequent disk operation will be to the backing storage page associated with "nextPage".>>
+        <<The primary clients of SwapIn will be the PageFault process, which will call with kill and pin FALSE, and the File system, which 
+        will typically call with kill = reading and pin = TRUE before initiating an i/o operation.>>
+
+    Kill, MakeUndefined: UNSAFE PROC [interval: Interval];
+        <<... performs SetDataState[interval, undefined].>>
+        <<For each page in "interval", State[page].dataState is set to "undefined" and State[page].hasRealMemory becomes FALSE (i.e., any 
+        associated real memory is reclaimed).>>
+        <<! AddressFault if State[page].dataState = none for any page in interval.>>
+
+    Touch: PROC [interval: Interval];
+        <<... performs SwapIn[interval: interval].>>
+        <<For each page in "interval", State[page].hasRealMemory becomes TRUE, causing memory accesses to the page to proceed without 
+        delay.  Since the real memory has not been pinned (see below), the real memory may be reclaimed by the replacement 
+        algorithm at any time.>>
+        <<Touch would typically be used by a client who plans to reference an interval in the near future and wants to avoid the delay of a 
+        page fault: Process.Detach[FORK Touch[interval]].>>
+        <<! AddressFault if State[page].dataState = none for any page in interval.>>
+    <<>>
+    <<Virtual memory pages can be "pinned" in real memory; that is, their contents can be forced to reside in main storage until they 
+    are subsequently unpinned.  Since pinning reduces the pool of pages that can participate in the replacement algorithm, it 
+    should be used only when logically required and not to try to reduce swapping (it is likely to have just the opposite effect).  
+    Consequently, only specialized clients should use Pin and Unpin.>>
+
+    Pin: PROC [interval: Interval];
+        <<... performs SwapIn[interval: interval, pin: TRUE].>>
+        <<For each page in interval, the following actions occur:>>
+        <<If State[page].hasRealMemory is FALSE, a page of real memory is acquired, causing State[page].hasRealMemory to become TRUE.  
+        Then, unless State[page].dataState is "undefined", the real memory page is set to the contents of the corresponding backing 
+        storage page (i.e., the page is read from disk).>>
+        <<State[page].pinCount is incremented by one.>>
+        <<! AddressFault if State[page].dataState = none for any page in interval.>>
+
+    Unpin: PROC [interval: Interval];
+        <<For each page in interval, State[page].pinCount, if greater than zero, is decremented by one.>>
+        <<Upon completion of Unpin, any page in "interval" for which State[page].pinCount = 0 becomes eligible for consideration by the 
+        replacement algorithm.>>
+        <<! AddressFault if State[page].dataState = none for any page in interval.>>
+        <<>>
+<<Procedures that do not affect the virtual-real memory correspondence>>
+    <<The following two procedures alter the "readOnly" field of a PageState.  These procedures affect only the virtual memory system's 
+    data structures; they do not cause any I/O operations to occur as side-effects.>>
+        <<>>
+    MakeReadOnly: PROC [interval: Interval];
+        <<For each page in "interval", State[page].readOnly becomes TRUE.>>
+        <<A subsequent attempt to store into any page of the interval will raise WriteProtectFault.>>
+        <<! AddressFault if State[page].dataState = none for any page in interval.>>
+        <<>>
+    MakeReadWrite: PROC [interval: Interval];
+        <<For each page in "interval", State[page].readOnly becomes FALSE.>>
+        <<! AddressFault if State[page].dataState = none for any page in interval.>>
+        <<>>
+    <<>>
+    <<The following two procedures alter the "dataState" field of a PageState.  These procedures affect only the virtual memory 
+    system's data structures; they do not cause any I/O operations to occur as side-effects.>>
+        <<>>
+    MakeUnchanged: PROC [interval: Interval];
+        <<... performs SetDataState[interval, unchanged].>>
+        <<For each page in "interval", State[page].dataState becomes "unchanged".>>
+        <<MakeUnchanged can be used by a client to detect when the contents of a virtual memory page have been altered, since any store 
+        causes the page's dataState to become "changed".>>
+        <<! AddressFault if State[page].dataState = none for any page in interval.>>
+        <<>>
+    MakeChanged: PROC [interval: Interval];
+        <<... performs SetDataState[interval, changed].>>
+        <<For each page in "interval", State[page].dataState becomes "changed".>>
+        <<! AddressFault if State[page].dataState = none for any page in interval.>>
+        <<>>
+<<Performance Accelerators>>
+    <<The procedures described here have no visible effect on the PageState and therefore are not formally necessary.  However, they do 
+    affect the performance of the virtual memory implementation and are intended for use when the client has particular knowledge 
+    of the virtual memory reference patterns.>>
+    <<>>
+    Clean: PROC [interval: Interval];
+        <<... ensures that the backing storage for each page in the interval contains the same information as the associated real memory 
+        (if any).>>
+        <<! AddressFault if State[page].dataState = none for any page in interval.>>
+        <<>>
+    Age: PROC [interval: Interval];
+        <<... increases the likelihood that the backing storage associated with pages in the interval will be selected for replacement.  
+        However, this procedure does not initiate any I/O operations.>>
+        <<! AddressFault if State[page].dataState = none for any page in interval.>>
+        <<>>
+    ForceCleaning: PROC;
+        <<... forces the VM laundry process to clean some memory.>>
+        <<>>
+<<Errors>>
+    AddressFault: ERROR [address: LONG POINTER];
+    WriteProtectFault: ERROR [address: LONG POINTER];
+        <<The above errors generally arise from erroneous memory accesses to virtual memory.  AddressFault means that an unallocated page 
+        (i.e., one for which State[page].dataState = none) has been referenced.  (The name AddressFault is intended to suggest that 
+        the program performing the access has an incorrect address.)  Following this model, the operations in this interface raise 
+        AddressFault if any page they are asked to manipulate is unallocated.  WriteProtectFault is raised by an attempt to store 
+        into a page for which State[page].readOnly is TRUE.  No operations in this interface raise WriteProtectFault explicitly.>>
+        <<>>
+
+    IOErrorType: TYPE = {software, hardware};
+    CantDoIO: ERROR [reason: IOErrorType, page: PageNumber];
+        <<CantDoIO is raised by SwapIn (including its derivatives Touch and Pin) and Clean when the input/output operation from/to backing 
+        storage cannot be performed.  The "reason" parameter is a generic classification of the cause of the error.>>
+
+    <<>>
+    LaundryError: TYPE = RECORD [
+        errorType: IOErrorType, -- error classification
+        page: PageNumber -- page that gave trouble
+        ];
+        <<>>
+    LastLaundryError: PROC RETURNS [LaundryError];
+        <<The Laundry process can have trouble cleaning a page.  It records the error, and returns it when LastLaundryError is called.  A 
+        value of [software, 0] returned means no errors have been encountered.>>
+<<Utilities>>
+    <<It is frequently necessary to convert between counts in different units (pages, words, bytes) and between counts and addresses.  
+    The following definitions and procedures are copied from the PrincOps and PrincOpsUtils interfaces to avoid forcing clients to 
+    acquire those interfaces for these common operations.>>
+    <<>>
+    wordsPerPage: NAT = PrincOps.wordsPerPage;
+        logWordsPerPage: NAT = PrincOps.logWordsPerPage;
+    bytesPerPage: NAT = PrincOps.bytesPerPage;
+        logBytesPerPage: NAT = PrincOps.logBytesPerPage;
+
+    PagesForWords: PROC [words: INT] RETURNS [pages: PageCount] = INLINE {
+        RETURN[Basics.DoubleShiftRight[[li[words+(wordsPerPage-1)]], logWordsPerPage].li]
+        };
+
+    WordsForPages: PROC [pages: PageCount] RETURNS [words: INT] = INLINE {
+        RETURN[Basics.DoubleShiftLeft[[li[li: pages]], logWordsPerPage].li]
+        };
+
+    PagesForBytes: PROC [bytes: INT] RETURNS [pages: PageCount] = INLINE {
+        RETURN[Basics.DoubleShiftRight[[li[li: bytes+(bytesPerPage-1)]], logBytesPerPage].li]
+        };
+
+    BytesForPages: PROC [pages: PageCount] RETURNS [bytes: INT] = INLINE {
+        RETURN[Basics.DoubleShiftLeft[[li[li: pages]], logBytesPerPage].li]
+        };
+        <<>>
+    AddressForPageNumber: PROC [page: PageNumber] 
+    RETURNS [address: LONG POINTER] = INLINE {
+        RETURN[Basics.DoubleShiftLeft[[li[li: page]], logWordsPerPage].lp]
+        };
+
+    PageNumberForAddress: PROC [address: LONG POINTER] 
+    RETURNS [page: PageNumber] = INLINE {
+        RETURN[Basics.DoubleShiftRight[ [lp[address]], logWordsPerPage].li]
+        };
+
+<<Special-purpose Facilities>>
+    <<The following zone provides a simple way for obtaining small blocks of storage from the first 64K of the virtual address space.  
+    All such memory is permanently resident.  At present, only lowCore.NEW is supported; lowCore.FREE doesn't actually reclaim any 
+    storage.  The block of memory returned by lowCore.NEW is guaranteed to be 16-word aligned.>>
+
+    lowCore: UNCOUNTED ZONE;
+
+    END.
+    <<>>
+    <<Bob Hagmann January 30, 1985 9:45:33 pm PST>>
+        <<merged in VMExtras for Cedar 6.0>>
+        <<changes to: ForceCleaning, LaundryError, LastLaundryError, VM>>
+        <<>>
+    <<Beach, February 21, 1985 8:27:39 am PST>>
+        <<cosmetic changes to comments in the interface>>
+        <<>>
+    <<Wyatt, February 26, 1985 9:43:53 am PST>>
+        <<Free, Kill, MakeUnchanged, MakeChanged, Touch, and Pin are no longer INLINE.>>
+        <<Added SimpleAllocate.  More cosmetic changes to the interface; terser comments.>>

@@ -1,6 +1,23 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
-## 2026-07-12: Cedar graphical-OS path — current handoff
+## 2026-07-12 (late): Cedar loadee death root-caused — see docs/handoff.md
+
+The WDC=0333B death after the Basic.Loadees load is fully explained: all 34
+files transfer byte-exact (verified in-VM with `tools/cedar_bcd_verify.py`),
+then during the post-load START phase a monitor-enter executes on a garbage
+long pointer (ASCII text), the uncaught `VM.AddressFault` enters DebugNub's
+debugger machinery (no debugger -> `SetMP[cantWorldSwap]` -> Teledebug), and
+each of the 219 debugger entries permanently leaks +1 WDC, disabling
+interrupts forever. The follow-on `WorryCallDebugger["No VM for frame heap"]`
+storm comes from a garbage state-vector `fsi` producing a 257-page `$mds`
+request; the MDS actually has a ~140-page contiguous free hole. The current
+frontier is the wild pointer's origin (suspect: µengine mis-execution in the
+freshly-STARTed loadee code). Full chain, evidence, exonerations, repro
+windows, and the new `DORADO_MAPCOUNT`/`Pipe3'` diagnostics:
+**docs/handoff.md top section.**
+
+## 2026-07-12: Cedar graphical-OS path — earlier handoff (STP stage;
+## superseded by the section above where they conflict)
 
 **Objective.** Continue past the graphical SimpleTerminal login into Cedar's
 Viewer-based graphical environment.  The emulator, disk-germ boot, display,

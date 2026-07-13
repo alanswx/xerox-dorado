@@ -1,0 +1,136 @@
+
+    <<Wart.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Levin on December 15, 1983 11:46 am>>
+        <<Andrew Birrell on August 24, 1983 7:03 pm>>
+    <<Russ Atkinson (RRA) January 30, 1985 9:26:00 pm PST>>
+        <<Doug Wyatt, April 12, 1985 5:09:54 pm PST>>
+
+    DIRECTORY
+        BootStartList USING [Base, Initialize],
+        DebuggerSwap USING [CallDebugger, Catcher, Initialize, StartSwatWatcher, WorryCallDebugger],
+        GermSwap USING [GetPStartListHeader, Switch, switches],
+        MesaRuntimeInit USING [FrameImpl, InstructionsImpl, ProcessImpl, SignalsImpl, Start, TrapsImpl],
+        MPCodes USING [incorrectMachineType, incorrectMicrocode, initializationStarted, mesaRuntimeInitialized],
+        PrincOps USING [NullFrame, VersionResult],
+        PrincOpsUtils USING [SetReturnFrame, VERSION, WordsForPages, WriteWDC, WriteXTS],
+        Process USING [priorityNormal, SetPriority],
+        ProcessorFace USING [Go, InitializeCleanup, millisecondsPerTick, reservedNakedNotifyMask, SetMP],
+        RuntimeError USING [RegisterUncaughtSignalHandler],
+        SystemVersion USING [Date, MachineType, ReleaseNumber],
+        TerminalDefs USING [KeyName],
+        TerminalFace USING [keyboard];
+
+    Wart: PROGRAM
+    IMPORTS BootStartList, DebuggerSwap, GermSwap, MesaRuntimeInit, PrincOpsUtils, Process, ProcessorFace, RuntimeError, TerminalFace
+    EXPORTS SystemVersion
+    = BEGIN
+    <<>>
+    <<>>
+    <<Exports to SystemVersion>>
+    <<>>
+
+    machineType: PUBLIC SystemVersion.MachineType;
+
+    uCodeDate: PUBLIC SystemVersion.Date;
+    uCodeVersion: PUBLIC CARDINAL;
+
+    uCodeFloatingPoint: PUBLIC BOOL;
+    uCodeCedar: PUBLIC BOOL;
+
+    release: PUBLIC SystemVersion.ReleaseNumber;
+    bootFileDate: PUBLIC SystemVersion.Date;
+
+
+    InitializeBootFile: PROC = {
+        h: BootStartList.Base;
+        <<Let the human know we're here.  On a Dorado, this is a no-op, since ProcessorFace.Start hasn't been called yet and the 
+        "maintenance panel" is implemented in software in the processor head.  On processors with physical maintenance panels 
+        (Dolphin, Dandelion), this works because SetMP is an inline, hence the ProcessorFace need not have been started (a cheat, 
+        but a useful one).>>
+        ProcessorFace.SetMP[MPCodes.initializationStarted];
+        <<Initialize the debugger linkage.>>
+        DebuggerSwap.Initialize[];
+        h _ GermSwap.GetPStartListHeader[]; -- get it while it's still valid (i.e., before first world swap)!
+        <<We can now get to a local world-swap debugger if someone has told us where it is (i.e., if h.locDebugger and friends have been 
+        filled in (by Set Debugger Pointers)).  If not, we can get to a remote debugger.>>
+        IF GermSwap.switches[zero] THEN DebuggerSwap.WorryCallDebugger["Key Stop 0"L];
+        <<Enable the language's START construct.>>
+        MesaRuntimeInit.Start[LOOPHOLE[MesaRuntimeInit.TrapsImpl]];
+        <<Note:  Any module invoked by the code before this point must be specified as "NOTRAP" in the input to MakeBoot and must be coded 
+        without any useful main body (including no initialization variable declarations).  Furthermore, it must not use any 
+        non-microcode instructions, since the processor face has not yet been started.  Such modules should be compiled /-m.>>
+        START MesaRuntimeInit.InstructionsImpl[]; -- goes away in Trinity
+        <<Note:  Any module invoked by the code before this point must  not use any non-microcode instructions, since the processor face 
+        has not yet been started.  Such modules should be compiled /-m.>>
+        <<Initialize processor face.  The Dorado maintenance panel now works.  Other heads are started by control list on the heads 
+        configuration.>>
+        ProcessorFace.Go[];
+        ProcessorFace.InitializeCleanup[];
+        <<Ensure valid microcode.  Since this relies on the VERSION instruction, which may be implemented in software, it can't be invoked 
+        until the processor face is working.>>
+        CheckVersions[h];
+        <<Make FORK, JOIN and the procedures in the Process interface work.>>
+        START MesaRuntimeInit.ProcessImpl[
+            pdaWords: PrincOpsUtils.WordsForPages[h.pdaPages],
+            svCounts: @h.stateVectorCounts,
+            wordsPerSV: h.stateVectorSize,
+            reservedNakedNotifyMask: ProcessorFace.reservedNakedNotifyMask,
+            millisecondsPerTick: ProcessorFace.millisecondsPerTick
+            ];
+        DebuggerSwap.StartSwatWatcher[enabled: GermSwap.switches[i]];
+        <<If we were booted with the "i" swaitch, we can now get to the remote debugger via the keyboard, or to the local debugger if 
+        h.locDebugger and friends have been filled in.>>
+        START MesaRuntimeInit.FrameImpl[];
+        START MesaRuntimeInit.SignalsImpl[];
+        [] _ RuntimeError.RegisterUncaughtSignalHandler[DebuggerSwap.Catcher];
+        <<The Mesa runtime is now fully operational.>>
+        Process.SetPriority[Process.priorityNormal];
+        ProcessorFace.SetMP[MPCodes.mesaRuntimeInitialized];
+        IF GermSwap.switches[one] THEN DebuggerSwap.CallDebugger["Key Stop 1"L];
+        BootStartList.Initialize[h];
+        LookForKeyboardKeys[];
+        <<Start the rest of the boot file.>>
+        MesaRuntimeInit.Start[h.controlList];
+        };
+
+    LookForKeyboardKeys: PROC =
+        BEGIN
+        keyNames: ARRAY GermSwap.Switch[a..z] OF TerminalDefs.KeyName = [
+            a: A, b: B, c: C, d: D, e: E, f: F, g: G, h: H, i: Space, j: J,
+            k: K, l: L, m: M, n: N, o: O, p: P, q: Q, r: R, s: S, t: T,
+            u: U, v: V, w: W, x: X, y: Y, z: Z
+            ];
+        FOR sw: GermSwap.Switch IN GermSwap.Switch[a..z] DO
+            kn: TerminalDefs.KeyName ~ keyNames[sw];
+            IF kn=Space THEN LOOP; -- "Space" => ignore
+            IF TerminalFace.keyboard[kn]=down THEN GermSwap.switches[sw] _ TRUE;
+            ENDLOOP;
+        END;
+
+    CheckVersions: PROC [h: BootStartList.Base] = INLINE {
+        DaysToSeconds: PROC [d: CARDINAL] RETURNS [SystemVersion.Date] = INLINE {
+            RETURN [d.LONG*60*60*24]
+            };
+        info: PrincOps.VersionResult = PrincOpsUtils.VERSION[];
+        IF ~(info.machineType IN SystemVersion.MachineType) THEN
+            {ProcessorFace.SetMP[MPCodes.incorrectMachineType]; DO ENDLOOP};
+        machineType _ info.machineType;
+        IF (uCodeDate _ DaysToSeconds[info.releaseDate]) < h.requiredUCode[machineType] THEN
+            {ProcessorFace.SetMP[MPCodes.incorrectMicrocode]; DO ENDLOOP};
+        uCodeVersion _ info.majorVersion;
+        uCodeFloatingPoint _ info.floatingPoint;
+        uCodeCedar _ info.cedar;
+        release _ h.release;
+        bootFileDate _ h.buildDate;
+        };
+    <<>>
+    <<Main Body>>
+
+    PrincOpsUtils.WriteWDC[1];
+    PrincOpsUtils.WriteXTS[off];
+    PrincOpsUtils.SetReturnFrame[PrincOps.NullFrame];  -- for Detach in MesaRuntime initialization
+    InitializeBootFile[];
+
+    END.
+

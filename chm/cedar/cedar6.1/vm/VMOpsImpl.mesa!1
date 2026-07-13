@@ -1,0 +1,639 @@
+
+    <<VMOpsImpl.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Levin on January 20, 1984 2:33 pm>>
+        <<Bob Hagmann, April 29, 1986 1:55:42 pm PDT>>
+        <<Russ Atkinson, February 20, 1985 5:59:50 pm PST>>
+        <<Doug Wyatt, February 26, 1985 6:28:21 pm PST>>
+
+    DIRECTORY
+        PrincOps USING [flagsNone, flagsReadOnly],
+        PrincOpsUtils USING [LongCopy],
+        Process USING [GetPriority, Priority, priorityFaultHandlers, SetPriority],
+        ProcessorFace USING [SetMP],
+        VM USING [AddressForPageNumber, Allocate, CantAllocate, DataState, Interval, IOErrorType, nullInterval, PageCount, PageNumber, 
+        PageState, wordsPerPage],
+        VMInternal USING [AllocateForSwapIn, Age, CleanDone, CleanOutcome, ConsiderCleaning, Crash, DoIO, FinishAllocateSpecialRealMemory, 
+        FinishReleaseSpecialRealMemory, HasBackingStorage, IOResult, lastVMPage, MakeReadOnly, MakeReadWrite, NoteFreePages, 
+        NoteDirtyVictim, Outcome, PrepareToAllocateSpecialRealMemory, PrepareToReleaseSpecialRealMemory, RealPageNumber, 
+        SetDataState, SetPageFlags, State, SpecialMemoryOutcome, swapBufferSize, SwapInDone, SwapInDoneWithoutIO, SwapInOutcome, 
+        Unpin, Victim, VictimWriteDone],
+        VMInternalExtras USING [],
+        VMRemotePaging USING [MaxRemotePage, RemotePageState, RemotePageValid],
+        VMSideDoor USING [],
+        VMStatistics USING [];
+
+    VMOpsImpl: MONITOR
+        IMPORTS PrincOpsUtils, Process, ProcessorFace, VM, VMInternal, VMRemotePaging
+        EXPORTS VM, VMInternalExtras, VMSideDoor, VMStatistics = BEGIN OPEN VM;
+
+    <<Global aids protected by the monitor>>
+        <<>>
+        debugging: BOOL = TRUE;
+
+        ShowWhatsUp: PROC [code: CARDINAL] = INLINE {
+            IF debugging THEN ProcessorFace.SetMP[code];
+            };
+    <<>>
+    <<Global variables protected by the monitor>>
+    <<>>
+        swapBufferSize: PageCount = VMInternal.swapBufferSize;
+        reservedPriority: Process.Priority = Process.priorityFaultHandlers;
+        swapBuffer: Interval _ VM.nullInterval;  -- allocated on the first call of ReserveSwapBuffer
+
+
+    <<The following are manipulated only by Reserve/ReleaseSwapBuffer>>
+        swapBufferReserved: BOOL _ FALSE;
+        swapBufferAvailable: CONDITION _ [timeout: 0];
+
+    CallerBug: ERROR = CODE;
+
+    <<>>
+    <<Exports to VMStatistics>>
+
+        swapInCalls, swapInVirtualRuns, swapInPhysicalRuns: PUBLIC INT _ 0;
+        swapInPages, swapInAlreadyIn, swapInNoRead, swapInReads: PUBLIC INT _ 0;
+        swapInDirtyVictims, swapInFailedToCleanVictims: PUBLIC INT _ 0;
+
+        cleanCalls, cleanVirtualRuns, cleanPhysicalRuns: PUBLIC INT _ 0;
+        cleanPages, cleanWrites, cleanCantWrites: PUBLIC INT _ 0;
+        cleanCheckOutCleans, cleanUnneededCheckOutCleans: PUBLIC INT _ 0;
+        <<>>
+    <<>>
+    <<Exports to VM>>
+
+    CantDoIO: PUBLIC SAFE ERROR [reason: IOErrorType, page: PageNumber] = CODE;
+
+    AddressFault: PUBLIC SAFE ERROR [address: LONG POINTER] = CODE;
+    WriteProtectFault: PUBLIC SAFE ERROR [address: LONG POINTER] = CODE;
+        <<not actually raised; here for convenience>>
+
+    State: PUBLIC SAFE PROC [page: PageNumber] RETURNS [state: PageState] = TRUSTED {
+        ValidateInterval[[page, 1]];
+        RETURN[VMInternal.State[page]]
+        };
+
+    SetDataState: PROC [interval: Interval, dataState: DataState] = {
+        SetOneDataState: PROC[vmPage: PageNumber] RETURNS [VMInternal.Outcome] = {
+            RETURN[VMInternal.SetDataState[vmPage, dataState]]
+            };
+        DoInterval[interval, SetOneDataState];
+        IF dataState = $none THEN VMInternal.NoteFreePages[interval];
+        };
+
+    Free: PUBLIC UNSAFE PROC[interval: Interval] = {
+        SetDataState[interval, none];
+        };
+    Kill, MakeUndefined: PUBLIC UNSAFE PROC[interval: Interval] = {
+        SetDataState[interval, undefined];
+        };
+    MakeUnchanged: PUBLIC SAFE PROC[interval: Interval] = TRUSTED {
+        SetDataState[interval, unchanged];
+        };
+    MakeChanged: PUBLIC SAFE PROC[interval: Interval] = TRUSTED {
+        SetDataState[interval, changed];
+        };
+
+    SwapIn: PUBLIC UNSAFE PROC [interval: Interval, 
+    kill: BOOL _ FALSE, pin: BOOL _ FALSE, nextPage: PageNumber _ 0] = TRUSTED {
+        <<Conceptually, the implementation is just a loop over the pages of the interval which assigns real memory (unless already 
+        assigned), reads the page from backing store (unless already in or "kill" is TRUE), and pins the real memory if "pin" is 
+        TRUE.  The following performance considerations, however,  transform the simple loop noticeably:>>
+            <<1)  Disk reads are not requested individually; rather, runs of consecutive swapped-out pages are built up and passed to the 
+            DoReads procedure, which typically can initiate all reads as a single disk request.>>
+            <<2)  DoReads (actually, VMInternal.DoIO) breaks up a run of virtual page reads into runs of physically contiguous disk page reads. 
+             Typically, the entire virtual page run will be a single physical page run.>>
+            <<3)  The call of DoReads after a virtual page run has been completed is generally deferred until the first page of the next run is 
+            known.  This permits DoReads to issue the physical I/O request and follow it immediately with a request to seek to the 
+            starting disk address of the subsequent run.>>
+            <<4)  The swap buffer (and the state vector needed to protect it) are not acquired until it is known that a disk operation will 
+            occur.  This optimizes the frequent case of kill=pin=TRUE, which is used by the file system's Read operation.>>
+            <<5)  The swap buffer is of fixed size, and a request to SwapIn an interval larger than the swap buffer may be broken into multiple 
+            calls of DoReads, and consequently multiple disk requests, even though the interval could have been swapped in with a 
+            single disk request.  The size chosen for the swap buffer is supposed to be large enough that this is a rare event.>>
+            <<6)  Dirty victims cause the virtual page run being built up to be terminated and DoReads called immediately.  Dirty victims are 
+            supposed to occur rarely; if they don't, the Laundry process isn't working properly.  For the same reason, no attempt 
+            is made to build up writes of dirty victims into successive runs.>>
+        pagesInSwapBuffer: PageCount _ 0;
+        haveSwapBuffer: BOOL _ FALSE;
+        swapBufferBase: PageNumber;
+        DoReads: PROC [subsequentSeek: PageNumber] = {
+            swapIndex: PageCount _ 0;
+            --*stats*-- IF pagesInSwapBuffer > 0 THEN swapInVirtualRuns _ swapInVirtualRuns.SUCC;
+            UNTIL swapIndex >= pagesInSwapBuffer DO
+                ioResult: VMInternal.IOResult;
+                countDone: PageCount;
+                CleanUpAndReportError: PROC = --INLINE-- {
+                    failedIndex: PageCount = swapIndex + countDone;
+                    errorType: IOErrorType;
+                    FOR page: PageCount IN [swapIndex..pagesInSwapBuffer) DO
+                        VMInternal.SwapInDone[
+                            vmPage: swapBufferBase + page,
+                            bufferPage: swapBuffer.page + page,
+                            worked: page < failedIndex
+                            ];
+                        ENDLOOP;
+                    ReleaseSwapBuffer[];  -- pagesInSwapBuffer _ 0;
+                    SELECT ioResult FROM
+                        labelCheck => errorType _ software;
+                        someOtherError => errorType _ hardware;
+                        ENDCASE => VMInternal.Crash[];
+                    ERROR CantDoIO[reason: errorType, page: swapBufferBase + failedIndex]
+                    };
+                --*stats*-- swapInPhysicalRuns _ swapInPhysicalRuns.SUCC;
+                [ioResult, countDone] _ VMInternal.DoIO[
+                    direction: read, backingPage: swapBufferBase+swapIndex,
+                    interval: [swapBuffer.page+swapIndex, pagesInSwapBuffer-swapIndex],
+                    subsequentSeek: subsequentSeek];
+                IF ioResult ~= ok THEN CleanUpAndReportError[];
+                FOR page: PageCount IN [swapIndex..swapIndex + countDone) DO
+                    VMInternal.SwapInDone[
+                        vmPage: swapBufferBase + page,
+                        bufferPage: swapBuffer.page + page,
+                        worked: TRUE
+                        ];
+                    ENDLOOP;
+                swapIndex _ swapIndex + countDone;
+                ENDLOOP;
+            pagesInSwapBuffer _ 0;
+            };
+        AddToSwapBuffer: PROC [vmPage: PageNumber, rmPage: VMInternal.RealPageNumber] = {
+            IF ~haveSwapBuffer THEN {ReserveSwapBuffer[]; haveSwapBuffer _ TRUE};
+            IF SwapBufferEmpty[] THEN swapBufferBase _ vmPage;
+            <<Assert: swapBufferBase + pagesInSwapBuffer = vmPage>>
+            VMInternal.SetPageFlags[
+                virtual: swapBuffer.page+pagesInSwapBuffer, real: rmPage, flags: PrincOps.flagsNone];
+            pagesInSwapBuffer _ pagesInSwapBuffer.SUCC;
+            };
+        SwapBufferEmpty: PROC RETURNS [empty: BOOL] = INLINE {
+            RETURN[pagesInSwapBuffer = 0]};
+        SwapBufferFull: PROC RETURNS [full: BOOL] = INLINE {
+            RETURN[pagesInSwapBuffer = swapBuffer.count]};
+        CleanVictim: PROC [
+            winner: PageNumber, victim: dirty VMInternal.Victim, willReadWinner: BOOL]
+            RETURNS [worked: BOOL] = {
+            <<Cleaning a victim may require acquisition of the swap buffer and/or allocation of the state vector for the first time.  The 
+            victim is always written from the first page of the swap buffer and a single page at a time.>>
+            AddToSwapBuffer[victim.vmPage, victim.realPage];
+            <<The reasoning behind setting subsequentSeek as indicated below is a little subtle. If "willReadWinner" is TRUE, we are about to 
+            put "winner" into the swap buffer (at the next level up) to be read.  Since the swap buffer has been flushed in 
+            preparation for the dirty victim write, "winner" will be the first page in the swap buffer and therefore will be the 
+            target of the next I/O request we make.>>
+            worked _ VMInternal.DoIO[
+                direction: write, backingPage: swapBufferBase, interval: [swapBuffer.page, 1],
+                subsequentSeek: IF willReadWinner THEN winner ELSE 0].result = ok;
+            --*stats*--
+                IF worked THEN swapInDirtyVictims _ swapInDirtyVictims.SUCC
+                ELSE swapInFailedToCleanVictims _ swapInFailedToCleanVictims.SUCC;
+            VMInternal.VictimWriteDone[winner, swapBuffer.page, victim, worked];
+            IF victim.vmPage < VMRemotePaging.MaxRemotePage THEN SetRemotePageValidity[[victim.vmPage, 1], invalid];
+            pagesInSwapBuffer _ 0;
+            VMInternal.NoteDirtyVictim[];
+            };
+        state: {reading, skipping} _ reading;  -- initially skipping would also be OK, but less efficient
+        page: PageNumber _ interval.page;
+        --*stats*-- swapInCalls _ swapInCalls.SUCC;
+        ValidateInterval[interval];
+        UNTIL page >= interval.page+interval.count DO
+            outcome: VMInternal.SwapInOutcome;
+            victim: VMInternal.Victim;
+
+            [outcome, victim] _ VMInternal.AllocateForSwapIn[vmPage: page, kill: kill, pin: pin, dontWait: haveSwapBuffer];
+                <<If we can't check out the page, then there is a potential deadlock between checking the page out and owning the swap buffer.  
+                This can happen on overlapping SwapIn intervals.  Thus, if we can't check the page in, then we do all pending 
+                reads, release the swap buffer, and then get the page checked in.  Since we never wait for pages, the owner of the 
+                swap buffer can always make progress.>>
+            IF outcome = couldntCheckOut THEN {
+                IF haveSwapBuffer THEN {
+                    DoReads[subsequentSeek: 0];
+                    ReleaseSwapBuffer[];
+                    haveSwapBuffer _ FALSE;
+                    };
+                [outcome, victim] _ VMInternal.AllocateForSwapIn[vmPage: page, kill: kill, pin: pin, dontWait: FALSE];
+                };
+
+            --*stats*-- swapInPages _ swapInPages.SUCC;
+            SELECT outcome FROM
+                noReadNecessary => {
+
+                    <<No read is necessary for this page, although it has been checked out.  A victim has been claimed however, and, if it is dirty, it 
+                    must be written out.>>
+                    --*stats*-- swapInNoRead _ swapInNoRead.SUCC;
+                    WITH victim: victim SELECT FROM
+                        dirty => {
+                            DoReads[subsequentSeek: victim.vmPage];
+                            IF ~CleanVictim[page, victim, FALSE] THEN LOOP;
+                            };
+                        ENDCASE;
+                    VMInternal.SwapInDoneWithoutIO[vmPage: page, victim: victim];
+                    state _ skipping;
+                    };
+                needsRead => {
+                    <<A read is required for this page; it has been checked out.>>
+                    --*stats*-- swapInReads _ swapInReads.SUCC;
+                    SELECT state FROM
+                        reading => {
+                            <<We were already building up a run for DoReads, and this page needs to be added to it.  However, if the victim is dirty, we must 
+                            terminate the run and swap out the victim first.>>
+                            WITH victim: victim SELECT FROM
+                                dirty => {
+                                    DoReads[subsequentSeek: victim.vmPage];
+                                    IF ~CleanVictim[page, victim, TRUE] THEN LOOP;
+                                    };
+                                ENDCASE;
+                            IF SwapBufferFull[] THEN DoReads[subsequentSeek: page];
+                            };
+                        skipping => {
+                            <<This is the first page of a new run.  We can now start to read the preceding run, if any, since we know the "subsequentSeek" 
+                            address to give it.>>
+                            DoReads[subsequentSeek: page];
+                            WITH victim: victim SELECT FROM
+                                dirty => IF ~CleanVictim[page, victim, TRUE] THEN LOOP;
+                                ENDCASE;
+                            state _ reading;
+                            };
+                        ENDCASE;
+                    AddToSwapBuffer[page, victim.realPage];
+                    };
+                alreadyIn => {
+                    <<This page was already swapped in.  If we were reading, this completes a run, so we enter the "skipping" state.  We defer the call 
+                    of DoReads until we find the next page that requires a read (or until we come to the end of the requested 
+                    interval).  This permits us to supply the "subsequentSeek" address.>>
+                    --*stats*-- swapInAlreadyIn _ swapInAlreadyIn.SUCC;
+                    state _ skipping;
+                    };
+                addressFault => {
+                    <<This page isn't allocated.  We issue the pending reads, if any, to clean up the swap buffer and check in the pages, then we 
+                    release the swap buffer and raise a signal.>>
+                    DoReads[subsequentSeek: 0];
+                    IF haveSwapBuffer THEN ReleaseSwapBuffer[];
+                    ERROR AddressFault[address: AddressForPageNumber[page]];
+                    };
+                writeFault => {
+                    <<This page is write-protected, and "kill" was requested.  We issue the pending reads, if any, to clean up the swap buffer and 
+                    check in the pages, then we release the swap buffer and raise a signal.>>
+                    DoReads[subsequentSeek: 0];
+                    IF haveSwapBuffer THEN ReleaseSwapBuffer[];
+                    ERROR WriteProtectFault[address: AddressForPageNumber[page]];
+                    };
+                ENDCASE => VMInternal.Crash[];
+            page _ page.SUCC;
+            ENDLOOP;
+
+        DoReads[subsequentSeek: nextPage];
+        IF haveSwapBuffer THEN ReleaseSwapBuffer[];
+        };
+     
+    Touch: PUBLIC SAFE PROC [interval: Interval] = TRUSTED {
+        SwapIn[interval: interval, kill: FALSE, pin: FALSE];
+        };
+
+    Pin: PUBLIC SAFE PROC [interval: Interval] = TRUSTED {
+        SwapIn[interval: interval, kill: FALSE, pin: TRUE];
+        };
+
+    Unpin: PUBLIC SAFE PROC [interval: Interval] = TRUSTED {
+        <<For each page in "interval", this procedure inspects State[page].pinCount.  If it is zero, Unpin has no effect.  If it is greater 
+        than zero, it is decreased by one and, if the result is zero, the real memory associated with the page becomes eligible to 
+        be reclaimed by a subsequent SwapIn.>>
+        DoInterval[interval, VMInternal.Unpin];
+        };
+
+    MakeReadOnly: PUBLIC SAFE PROC [interval: Interval] = TRUSTED {
+        <<If, for any page in "interval", State[page].data = none, AddressFault is raised.  Otherwise, for each page in "interval", 
+        State[page].readOnly becomes TRUE.  Performance note:  no I/O occurs as a side-effect of this operation.>>
+        DoInterval[interval, VMInternal.MakeReadOnly];
+        };
+
+    MakeReadWrite: PUBLIC SAFE PROC [interval: Interval] = TRUSTED {
+        <<If, for any page in "interval", State[page].data = none, AddressFault is raised.  For each page in "interval", 
+        State[page].readOnly becomes FALSE.  Performance note:  no I/O occurs as a side-effect of this operation.>>
+        DoInterval[interval, VMInternal.MakeReadWrite];
+        };
+
+
+    Clean: PUBLIC SAFE PROC [interval: Interval] = TRUSTED {
+        <<This procedure has no visible effect on the PageState of any page in the interval.  It ensures that the backing storage for each 
+        page in the interval contains the same information as the associated real memory (if any).>>
+        pagesInSwapBuffer, dirtyPagesInSwapBuffer: PageCount _ 0;
+        haveSwapBuffer: BOOL _ FALSE;
+        swapBufferBase: PageNumber;
+        DoWrites: PROC [subsequentSeek: PageNumber] = {
+            swapIndex: PageCount _ 0;
+            --*stats*-- IF dirtyPagesInSwapBuffer > 0 THEN cleanVirtualRuns _ cleanVirtualRuns.SUCC;
+            <<There is a (potentially empty) tail of clean pages in the swap buffer that need not be written.  We mark them clean again (i.e., 
+            check them in) and cut the swap buffer back to the last dirty page.>>
+            FOR page: PageCount IN [dirtyPagesInSwapBuffer..pagesInSwapBuffer) DO
+                VMInternal.CleanDone[
+                    vmPage: swapBufferBase + page,
+                    bufferPage: swapBuffer.page + page,
+                    worked: TRUE
+                    ];
+                ENDLOOP;
+            --*stats*-- cleanUnneededCheckOutCleans _
+                cleanUnneededCheckOutCleans + pagesInSwapBuffer - dirtyPagesInSwapBuffer;
+            pagesInSwapBuffer _ dirtyPagesInSwapBuffer;
+            UNTIL swapIndex >= pagesInSwapBuffer DO
+                ioResult: VMInternal.IOResult;
+                countDone: PageCount;
+                CleanUpAndReportError: PROC = --INLINE-- {
+                    failedIndex: PageCount = swapIndex + countDone;
+                    errorType: IOErrorType;
+                    FOR page: PageCount IN [swapIndex..pagesInSwapBuffer) DO
+                        VMInternal.CleanDone[
+                            vmPage: swapBufferBase + page,
+                            bufferPage: swapBuffer.page + page,
+                            worked: page < failedIndex
+                            ];
+                        ENDLOOP;
+                    ReleaseSwapBuffer[];  -- pagesInSwapBuffer _ 0;
+                    SELECT ioResult FROM
+                        labelCheck => errorType _ software;
+                        someOtherError => errorType _ hardware;
+                        ENDCASE => VMInternal.Crash[];
+                    ERROR CantDoIO[reason: errorType, page: swapBufferBase + failedIndex]
+                    };
+                --*stats*-- cleanPhysicalRuns _ cleanPhysicalRuns.SUCC;
+                [ioResult, countDone] _ VMInternal.DoIO[
+                    direction: write, backingPage: swapBufferBase+swapIndex,
+                    interval: [swapBuffer.page+swapIndex, pagesInSwapBuffer-swapIndex],
+                    subsequentSeek: subsequentSeek];
+                --*stats*-- cleanPages _ cleanPages + countDone;
+                IF ioResult ~= ok THEN CleanUpAndReportError[];
+                FOR page: PageCount IN [swapIndex..swapIndex + countDone) DO
+                    VMInternal.CleanDone[
+                        vmPage: swapBufferBase + page,
+                        bufferPage: swapBuffer.page + page,
+                        worked: TRUE
+                        ];
+                    ENDLOOP;
+                swapIndex _ swapIndex + countDone;
+                ENDLOOP;
+            pagesInSwapBuffer _ dirtyPagesInSwapBuffer _ 0;
+            };
+        AddToSwapBuffer: PROC [vmPage: PageNumber, real: VMInternal.RealPageNumber] = {
+            IF ~haveSwapBuffer THEN {ReserveSwapBuffer[]; haveSwapBuffer _ TRUE};
+            IF SwapBufferEmpty[] THEN swapBufferBase _ vmPage;
+            <<Assert: swapBufferBase + pagesInSwapBuffer = vmPage>>
+            VMInternal.SetPageFlags[
+                virtual: swapBuffer.page+pagesInSwapBuffer, real: real, flags: PrincOps.flagsReadOnly];
+            pagesInSwapBuffer _ pagesInSwapBuffer.SUCC;
+            };
+        SwapBufferEmpty: PROC RETURNS [empty: BOOL] = INLINE {
+            RETURN[pagesInSwapBuffer = 0]};
+        SwapBufferFull: PROC RETURNS [full: BOOL] = INLINE {
+            RETURN[pagesInSwapBuffer = swapBuffer.count]};
+        state: {writing, skipping} _ writing;
+        page: PageNumber _ interval.page;
+        --*stats*-- cleanCalls _ cleanCalls.SUCC;
+        ValidateInterval[interval];
+        UNTIL page >= interval.page+interval.count DO
+            outcome: VMInternal.CleanOutcome _ cantWrite;
+            realPage: VMInternal.RealPageNumber;
+            IF VMInternal.HasBackingStorage[page] THEN
+                [outcome, realPage] _ VMInternal.ConsiderCleaning[
+                    vmPage: page, checkOutClean: ~SwapBufferEmpty[] AND ~SwapBufferFull[]];
+            SELECT outcome FROM
+                checkedOutClean => {
+                    <<The page is clean and swappable and has been checked out.  This can only happen if the swap buffer already contains a dirty page 
+                    and the swap buffer is not already full.  We tentatively add it to the swap buffer, hoping that another dirty 
+                    page will be found before we have to call DoWrites, thereby permitting us to write everything in one operation. 
+                     However, if DoWrites is called first, it will check in the clean pages at the end of the swap buffer without 
+                    actually writing them to backing storage.>>
+                    --*stats*-- cleanCheckOutCleans _ cleanCheckOutCleans.SUCC;
+                    AddToSwapBuffer[page, realPage];
+                    };
+                needsWrite => {
+                    <<This page is dirty and swappable.>>
+                    --*stats*-- cleanWrites _ cleanWrites.SUCC;
+                    SELECT state FROM
+                        writing => {
+                            <<We were already building up a run for DoWrites, and this page needs to be added to it.>>
+                            IF SwapBufferFull[] THEN DoWrites[subsequentSeek: page];
+                            };
+                        skipping => {
+                            <<This is the first page of a new run.  We can now start to write the preceding run, if any, since we know the "subsequentSeek" 
+                            address to give it.>>
+                            state _ writing;
+                            DoWrites[subsequentSeek: page];
+                            };
+                        ENDCASE;
+                    AddToSwapBuffer[page, realPage];
+                    dirtyPagesInSwapBuffer _ pagesInSwapBuffer;
+                    };
+                cantWrite => {
+                    <<This page is pinned and therefore cannot be relocated to the swap buffer.>>
+                    --*stats*-- cleanCantWrites _ cleanCantWrites.SUCC;
+                    state _ skipping;
+                    };
+                addressFault => {
+                    <<This page isn't allocated.  We issue the pending writes, if any, to clean up the swap buffer and check in the pages, then we 
+                    release the swap buffer and raise a signal.>>
+                    DoWrites[subsequentSeek: 0];
+                    IF haveSwapBuffer THEN ReleaseSwapBuffer[];
+                    ERROR AddressFault[address: AddressForPageNumber[page]];
+                    };
+                ENDCASE => VMInternal.Crash[];
+            page _ page.SUCC;
+            ENDLOOP;
+        DoWrites[subsequentSeek: 0];
+        IF haveSwapBuffer THEN ReleaseSwapBuffer[];
+        };
+
+    Age: PUBLIC SAFE PROC [interval: Interval] = TRUSTED {
+        DoInterval[interval, VMInternal.Age];
+        };
+
+
+    <<Exports to VMInternalExtras>>
+
+    SetRemotePageValidity: PUBLIC ENTRY SAFE PROC [interval: Interval, validity: VMRemotePaging.RemotePageState] = TRUSTED {
+        setValidity: PROC [vmPage: PageNumber] RETURNS [outcome: VMInternal.Outcome _ ok] = {
+            IF VMRemotePaging.RemotePageValid[vmPage] # stickyInvalid THEN VMRemotePaging.RemotePageValid[vmPage] _ validity
+             ELSE IF validity = invalid THEN VMRemotePaging.RemotePageValid[vmPage] _ invalid;
+            };
+        IF VMRemotePaging.RemotePageValid # NIL THEN DoInterval[interval, setValidity];
+        };
+        <<>>
+    <<Exports to VMSideDoor>>
+    <<>>
+    AssignSpecialRealMemory: PUBLIC SAFE PROC [interval: Interval] = TRUSTED {
+        buffer: PageNumber;
+        specialPage: PageNumber;
+        pagesCopied: CARDINAL _ 0;
+        pagesRead: CARDINAL _ 0;
+        pagesSkipped: CARDINAL _ 0;
+        AssignSpecialRealMemoryPage: PROC [vmPage: PageNumber]
+            RETURNS [outcome: VMInternal.Outcome _ $ok]= {
+            smo: VMInternal.SpecialMemoryOutcome _
+                VMInternal.PrepareToAllocateSpecialRealMemory[vmPage, buffer, specialPage];
+            SELECT smo FROM
+                needsCopy => {
+                    PrincOpsUtils.LongCopy[
+                        from: AddressForPageNumber[buffer],
+                        to: AddressForPageNumber[specialPage],
+                        nwords: wordsPerPage
+                        ];
+                    pagesCopied _ pagesCopied + 1;
+                    };
+                needsIO => {
+                    errorType: IOErrorType;
+                    SELECT VMInternal.DoIO[
+                        direction: read, backingPage: vmPage,
+                        interval: [specialPage, 1],
+                        subsequentSeek: vmPage+1].result FROM
+                        ok => GO TO allIsWell;
+                        labelCheck => errorType _ software;
+                        someOtherError => errorType _ hardware;
+                        ENDCASE => VMInternal.Crash[];
+                    VMInternal.FinishAllocateSpecialRealMemory[vmPage, buffer, specialPage, FALSE];
+                    ReleaseSwapBuffer[];
+                    ERROR CantDoIO[reason: errorType, page: vmPage];
+                    EXITS
+                        allIsWell => pagesRead _ pagesRead + 1;
+                    };
+                noTransfer => pagesSkipped _ pagesSkipped + 1;
+                addressFault => RETURN[$addressFault];
+                badParameter => {ReleaseSwapBuffer[]; ERROR CallerBug};
+                noMemory => {ReleaseSwapBuffer[]; ERROR CantDoIO[software, vmPage]};
+                ENDCASE;
+            VMInternal.FinishAllocateSpecialRealMemory[vmPage, buffer, specialPage, TRUE];
+            };
+        ReserveSwapBuffer[];
+        specialPage _ (buffer _ swapBuffer.page) + swapBuffer.count - 1;
+        DoInterval[interval, AssignSpecialRealMemoryPage];
+        ReleaseSwapBuffer[];
+        };
+
+    ReleaseSpecialRealMemory: PUBLIC SAFE PROC [interval: Interval] = TRUSTED {
+        specialPage: PageNumber;
+        pagesWritten: CARDINAL _ 0;
+        pagesSkipped: CARDINAL _ 0;
+        ReleaseSpecialRealMemoryPage: PROC [vmPage: PageNumber]
+            RETURNS [outcome: VMInternal.Outcome _ $ok]= {
+            smo: VMInternal.SpecialMemoryOutcome _
+                VMInternal.PrepareToReleaseSpecialRealMemory[vmPage, specialPage];
+            SELECT smo FROM
+                needsIO => {
+                    errorType: IOErrorType;
+                    SELECT VMInternal.DoIO[
+                        direction: write, backingPage: vmPage, interval: [specialPage, 1],
+                        subsequentSeek: vmPage+1].result FROM
+                        ok => GO TO allIsWell;
+                        labelCheck => errorType _ software;
+                        someOtherError => errorType _ hardware;
+                        ENDCASE => VMInternal.Crash[];
+                    VMInternal.FinishReleaseSpecialRealMemory[vmPage, specialPage, FALSE];
+                    ReleaseSwapBuffer[];
+                    ERROR CantDoIO[reason: errorType, page: vmPage];
+                    EXITS
+                        allIsWell => pagesWritten _ pagesWritten + 1;
+                    };
+                noTransfer => pagesSkipped _ pagesSkipped + 1;
+                addressFault => RETURN[$addressFault];
+                badParameter => {ReleaseSwapBuffer[]; ERROR CallerBug};
+                noMemory => {ReleaseSwapBuffer[]; ERROR CantDoIO[software, vmPage]};
+                ENDCASE => VMInternal.Crash[];
+            VMInternal.FinishReleaseSpecialRealMemory[vmPage, specialPage, TRUE];
+            };
+        ReserveSwapBuffer[];
+        specialPage _ swapBuffer.page;
+        DoInterval[interval, ReleaseSpecialRealMemoryPage];
+        ReleaseSwapBuffer[];
+        };
+    <<>>
+    <<>>
+    <<Procedures private to the implementation>>
+
+
+    DoInterval: --EXTERNAL-- PROC [
+        interval: Interval,
+        perPage: PROC [vmPage: PageNumber] RETURNS [outcome: VMInternal.Outcome]] = {
+        ValidateInterval[interval];
+        FOR page: PageNumber IN [interval.page..interval.page+interval.count) DO
+            SELECT perPage[page] FROM
+                $ok => NULL;
+                $addressFault => ERROR AddressFault[AddressForPageNumber[page]];
+                ENDCASE => VMInternal.Crash[];
+            ENDLOOP;
+        };
+    <<>>
+
+    ValidateInterval: --EXTERNAL-- PROC [interval: Interval] = {
+        IF interval.page + interval.count > VMInternal.lastVMPage + 1 THEN
+            ERROR AddressFault[AddressForPageNumber[VMInternal.lastVMPage + 1]]
+        };
+
+    ReserveSwapBuffer: PROC = INLINE {
+        ReserveSwapBufferEntry: ENTRY PROC = INLINE {
+            WHILE swapBufferReserved DO WAIT swapBufferAvailable; ENDLOOP;
+            swapBufferReserved _ TRUE;
+            };
+        ReserveStateVector[];
+        ReserveSwapBufferEntry[];
+        IF swapBuffer.count = 0 THEN
+            swapBuffer _ VM.Allocate[count: swapBufferSize ! VM.CantAllocate => VMInternal.Crash[]];
+        };
+
+    ReleaseSwapBuffer: PROC = INLINE {
+        ReleaseSwapBufferEntry: ENTRY PROC = INLINE {
+            swapBufferReserved _ FALSE;
+            NOTIFY swapBufferAvailable;
+            };
+        ReleaseSwapBufferEntry[];
+        ReleaseStateVector[];
+        };
+
+    <<>>
+    <<Implementation notes concerning state vectors:>>
+        <<A state vector is required for those periods of time when a process might relinquish the processor while holding a resource that 
+        is essential for fault handling.  If a state vector were not guaranteed to be available to a process during such a period, 
+        it might lose its implicitly available state vector when it gives up the processor and not be able to reacquire it later 
+        (because the state vector has been used by a now-faulted process).  The only resources essential for fault handling are the 
+        VMState monitor and the swap buffer.  The former is not a problem because the implementation is guaranteed not to 
+        relinquish the processor while holding the VMState monitor.  Therefore, state vector reservation is required only when the 
+        swap buffer is in use.>>
+        <<At present, the architecture does not permit reservation of the state vector implicitly available to the running process.  
+        (Klamath will fix this.)  In the interim, the only way to guarantee a state vector to a specific process is to reserve a 
+        priority level for the process and set up a state vector (using MakeBoot) at that level.>>
+        <<Since state vector reservation occurs after the swap buffer has been acquired, only one process will ever attempt to do so at a 
+        time.  Consequently, state vector reservation can never cause the process to relinquish the processor, since there is 
+        guaranteed to be one state vector at the reserved priority level.  However, state vector release CAN cause preemption, 
+        since it is implemented by priority change.  This means that, to avoid a deadlock, the priority change cannot occur with 
+        the monitor lock held.  (Actually, preemption can occur on reservation as well, but since that will only occur if priority 
+        is being dropped, the preemption cannot be by a fault handling process)..>>
+        <<The normal case of reservation occurs when SwapIn wishes to do input in response to a call from the page fault process.  We 
+        arrange for this process to operate at the reserved priority level and thereby eliminate unnecessary process switches to 
+        reserve and release the state vector.  This explains the peculiar looking code in the following procedures.>>
+        <<>>
+    stateVectorReserved: BOOL _ FALSE;
+    stateVectorAvailable: CONDITION _ [timeout: 0];
+
+    oldPriority: Process.Priority;
+
+    ReserveStateVector: PROC = INLINE {
+        ReserveInner: ENTRY PROC = INLINE {
+            WHILE stateVectorReserved DO WAIT stateVectorAvailable; ENDLOOP;
+            stateVectorReserved _ TRUE;
+            };
+        ReserveInner[]; 
+        oldPriority _ Process.GetPriority[];
+        IF oldPriority ~= reservedPriority THEN Process.SetPriority[reservedPriority];
+        };
+
+    ReleaseStateVector: PROC = INLINE {
+        ReleaseInner: ENTRY PROC = INLINE {
+            stateVectorReserved _ FALSE;
+            NOTIFY stateVectorAvailable;
+            };
+        p: Process.Priority = oldPriority;
+        ReleaseInner[];
+        IF p ~= reservedPriority THEN Process.SetPriority[p];
+        };
+
+
+    END.
+    <<Bob Hagmann April 29, 1986 1:53:29 pm PDT>>
+        <<added SetRemotePageValidity>>
+        <<changes to: SwapIn>>
+    <<>>

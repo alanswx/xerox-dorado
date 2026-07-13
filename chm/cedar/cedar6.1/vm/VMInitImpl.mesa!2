@@ -1,0 +1,332 @@
+
+    <<VMInitImpl.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Levin on January 23, 1984 11:33 am>>
+        <<Birrell, November 3, 1983 3:35 pm>>
+        <<Russ Atkinson, February 27, 1985 8:47:30 pm PST>>
+        <<Bob Hagmann, June 11, 1986 3:09:37 pm PDT>>
+
+    DIRECTORY
+        BootStartList USING [EntryPointer, Enumerate, h, IndexToEntryPointer, IndexToSpaceEntryPointer, Proc, SpaceEntryPointer],
+        GermSwap USING [mdsiGerm],
+        PrincOps USING [flagsVacant, PDA, shortPointerSpan],
+        ProcessorFace USING [GetNextAvailableVM, firstSpecialRealPage, specialRealPages, useLongMapOps],
+        SystemVersion USING [machineType],
+        VM USING [AddressForPageNumber, MakeReadOnly, PageNumberForAddress, Pin, PagesForWords],
+        VMInternal USING [AddToFreeList, AllocCount, allocCounts, Crash, DataState, freePages, GetVMMap, InOut, Interval, IsVacant, 
+        lastRealPage, PageCount, PageNumber, PageStateFromFlags, partitions, RealPageNumber, rmMap, RMMapEntry, SetVMMap, 
+        VMMapEntry, VMPartition],
+        VMSideDoor USING [];
+
+    VMInitImpl: PROGRAM
+        IMPORTS BootStartList, ProcessorFace, SystemVersion, VM, VMInternal
+        EXPORTS VMInternal, VMSideDoor
+        SHARES VMInternal = BEGIN OPEN VMInternal;
+    <<>>
+    <<Exports to VMSideDoor>>
+    <<>>
+    vmPages: PUBLIC PageCount;
+        <<size of VM currently supported, ignoring holes in address space.  Beware!  This changes when backing storage is supplied (see 
+        VMBacking(Impl)).>>
+
+    rmPages: PUBLIC INT;
+        <<a (possibly generous) estimate of the maximum number of real pages available for use by the reclaimer.>>
+
+    <<>>
+    <<Exports to VMInternal>>
+    <<>>
+    useLong: PUBLIC BOOL _ ProcessorFace.useLongMapOps;
+    lastVMPage: PUBLIC PageNumber;
+
+    InitializeTables: PUBLIC PROC = {
+        rmTable: Interval;
+        AllocateRMMap: PROC RETURNS [rmTable: Interval] = {
+            AssignVMForRMTable: PROC RETURNS [Interval] = {
+                pagesForRMMap: PageCount =
+                    VM.PagesForWords[(lastRealPage.LONG+1)*SIZE[RMMapEntry]];
+                page: PageNumber _ BootStartList.h.lastVMPage + 1;
+                DO
+                    count: PageCount;
+                    [firstPage: page, count: count] _ ProcessorFace.GetNextAvailableVM[page];
+                    SELECT count FROM
+                        0 => Crash[];
+                        < pagesForRMMap => page _ page + count;
+                        ENDCASE => EXIT;
+                    ENDLOOP;
+                RETURN[[page, pagesForRMMap]]
+                };
+            AssignRealMemoryToInterval: PROC [interval: Interval] = {
+                endInterval: PageNumber = interval.page + interval.count - 1;
+                nextUnmapped: PageNumber _ AdvanceToNextUnmapped[interval.page];
+                AdvanceToNextUnmapped: PROC [vmPage: PageNumber] RETURNS [PageNumber] = {
+                    UNTIL VMInternal.IsVacant[vmPage] DO vmPage _ vmPage.SUCC; ENDLOOP;
+                    RETURN[vmPage]
+                    };
+                RealMemoryStealable: PROC [vmPage: PageNumber] RETURNS [BOOL] = {
+                    IF VMInternal.IsVacant[vmPage] THEN RETURN [FALSE];
+                    RETURN[ProcessorFace.GetNextAvailableVM[vmPage].firstPage = vmPage]
+                    };
+                SwapVMEntries: PROC [vm1, vm2: PageNumber] = {
+                    vmE1: VMMapEntry = GetVMMap[vm1];
+                    vmE2: VMMapEntry = GetVMMap[vm2];
+                    SetVMMap[vm1, vmE2];
+                    SetVMMap[vm2, vmE1];
+                    };
+                FindRealMemoryForInterval: BootStartList.Proc = {
+                    WITH e: BootStartList.IndexToEntryPointer[index] SELECT FROM
+                        space => {
+                            IF ~e.bootLoaded THEN
+                                FOR vmPage: PageNumber IN [e.vmPage..e.vmPage+e.pages) DO
+                                    <<It is assumed that "interval" does not overlap the virtual memory spanned by the start list.  If it does, add the following 
+                                    statement:>>
+                                    <<IF vmPage IN [interval.page..interval.page+interval.count) THEN LOOP;>>
+                                    IF RealMemoryStealable[vmPage] THEN
+                                        SwapVMEntries[vmPage, nextUnmapped];
+                                        IF (nextUnmapped _ AdvanceToNextUnmapped[nextUnmapped]) > endInterval THEN
+                                            RETURN[TRUE];
+                                    ENDLOOP;
+                            };
+                        swapUnit => NULL;
+                        ENDCASE => Crash[];
+                    };
+                IF nextUnmapped <= endInterval THEN
+                    BootStartList.Enumerate[FindRealMemoryForInterval];
+                FOR vmPage: PageNumber IN [BootStartList.h.lastBootLoadedPage+1..vmPages) DO
+                    IF vmPage IN [interval.page..interval.page+interval.count) THEN LOOP;
+                    IF RealMemoryStealable[vmPage] THEN {
+                        SwapVMEntries[vmPage, nextUnmapped];
+                        IF (nextUnmapped _ AdvanceToNextUnmapped[nextUnmapped]) > endInterval THEN
+                            EXIT;
+                        };
+                    ENDLOOP;
+                };
+            <<We now know how much virtual (and real) memory will be needed to hold the rmMap.  We allocate virtual memory following the end of 
+            the memory claimed by the boot file, then put real memory behind it.>>
+            AssignRealMemoryToInterval[rmTable _ AssignVMForRMTable[]];
+            };
+        PartitionForPage: PROC [page: PageNumber] RETURNS [partition: VMPartition] = {
+            FOR partition IN VMPartition DO
+                interval: Interval = partitions[partition];
+                IF page IN [interval.page..interval.page+interval.count) THEN EXIT;
+                ENDLOOP;
+            };
+        ProcessSpaces: BootStartList.Proc = {
+            OPEN BootStartList;
+            entry: EntryPointer = IndexToEntryPointer[index];
+            WITH e: entry SELECT FROM
+                space => {
+                    <<The following is adequate because MakeBoot won't build a space that crosses a partition boundary.>>
+                    --*stats*-- partition: VMPartition = PartitionForPage[e.vmPage];
+                    IF e.bootLoaded THEN {
+                        <<This "space" requires real memory.>>
+                        FOR vmPage: PageNumber IN [e.vmPage..e.vmPage+e.pages) DO
+                            vmEntry: VMMapEntry _ GetVMMap[vmPage];
+                            WITH vmE: vmEntry SELECT InOut[vmEntry] FROM
+                                in => {
+                                    <<Note that the following marks bootloaded pages as dirty, so that when (if) backing storage becomes available, they will 
+                                    eventually be written out.>>
+                                    rmMap[vmE.real] _ [
+                                        dataState: unchanged, needsBackingStoreWrite: TRUE,
+                                        body: reclaimable[virtual: vmPage]
+                                        ];
+                                    <<Make sure that the pages are "old" to help the laundry process.>>
+                                    vmE.state.flags.referenced _ FALSE;
+                                    <<Clear the write-protect bit in the VMMapEntry.  This enables us to use VM.MakeReadOnly in the ProcessSwapUnits pass instead of 
+                                    writing special-case code. >>
+                                    vmE.state.flags.readonly _ FALSE;
+                                    SetVMMap[vmPage, vmE];
+                                    };
+                                out => Crash[];
+                                ENDCASE;
+                            ENDLOOP;
+                        --*stats*--
+                            allocCounts[partition].pagesAllocated _
+                                allocCounts[partition].pagesAllocated + e.pages;
+                        }
+                    ELSE { 
+                        <<This "space" doesn't need any real memory.  We put any real memory it might have onto the free list, and, in any event, 
+                        initialize its VMMap entry.>>
+                        EnsureUnmapped[
+                            [e.vmPage, e.pages], IF e.type.class = empty THEN none ELSE undefined];
+                        --*stats*--
+                            IF e.type.class ~= empty THEN
+                                allocCounts[partition].pagesAllocated _
+                                    allocCounts[partition].pagesAllocated + e.pages;
+                        };
+
+                    };
+                swapUnit => NULL;  -- Pinning, where necessary, will be done later.
+                ENDCASE => Crash[];
+            };
+        ProcessSwapUnits: BootStartList.Proc = {
+            OPEN BootStartList;
+            entry: EntryPointer = IndexToEntryPointer[index];
+            WITH e: entry SELECT FROM
+                space => NULL;
+                swapUnit => {
+                    parent: SpaceEntryPointer = IndexToSpaceEntryPointer[e.parent];
+                    IF parent.bootLoaded THEN {
+                        <<We don't need the full generality of the VM operations, and the ProcessSpaces pass has set up the VMMap and RMMap well enough to 
+                        allow us to call the public interface.>>
+                        interval: Interval = [parent.vmPage+e.base, e.pages];
+                        IF e.info.state = resident THEN {
+                            VM.Pin[interval]};
+                        IF e.info.readOnly THEN {
+                            VM.MakeReadOnly[interval]};
+                        };
+                    };
+                ENDCASE => {Crash[]};
+            };
+        ReserveSpecialVM: PROC [interval: Interval] = {
+            <<Arranges that the pages in "interval", as well as any real memory they may have, will never be allocated.>>
+            FOR vmPage: PageNumber IN [interval.page..interval.page+interval.count) DO
+                --*stats*-- partition: VMPartition = PartitionForPage[vmPage];
+                vmEntry: VMMapEntry _ GetVMMap[vmPage];
+                WITH vmE: vmEntry SELECT InOut[vmEntry] FROM
+                    in =>
+                        <<The following test on vmE.real is necessary because lastRealPage is computed ignoring any real memory belonging to unavailable 
+                        VM.  However, this procedure is invoked to place such VM (and its associated real memory) off-limits to the 
+                        allocators, and such real memory might be above lastRealPage.>>
+                        IF vmE.real <= lastRealPage THEN
+                            rmMap[vmE.real] _ [
+                                dataState: changed, needsBackingStoreWrite: TRUE,
+                                body: pinned[pinReason: permanentlyPinned, pinCount: 1]
+                                ];
+                    out => {
+                        vmE.dataState _ none;
+                        vmE.checkedOut _ TRUE;
+                        SetVMMap[vmPage, vmEntry];
+                        };
+                    ENDCASE;
+                --*stats*--
+                    allocCounts[partition].pagesAllocated _ allocCounts[partition].pagesAllocated.SUCC;
+                ENDLOOP;
+            };
+        EnsureUnmapped: PROC [interval: Interval, dataState: DataState] = {
+            AlreadyAllocated: PROC [real: RealPageNumber] RETURNS [inUse: BOOL] = INLINE {
+                WITH rmE: rmMap[real] SELECT FROM
+                    free => Crash[];
+                    reclaimable => RETURN[TRUE];
+                    pinned => RETURN[rmE.pinReason ~= noSuchRealPage];
+                    ENDCASE;
+                };
+            FOR vmPage: PageNumber IN [interval.page..interval.page+interval.count) DO
+                vmEntry: VMMapEntry _ GetVMMap[vmPage];
+                WITH vmE: vmEntry SELECT InOut[vmEntry] FROM
+                    in => IF AlreadyAllocated[vmE.real] THEN LOOP ELSE AddToFreeList[vmE.real];
+                    out => NULL;
+                    ENDCASE;
+                SetVMMap[vmPage,
+                    [state: VMInternal.PageStateFromFlags[PrincOps.flagsVacant],
+                    body: out[checkedOut: FALSE, readOnly: FALSE, dataState: dataState]]];
+                ENDLOOP;
+            };
+        ReserveUnavailableVM: PROC [] = -- INLINE -- {
+            vmPage: PageNumber _ ProcessorFace.GetNextAvailableVM[0].firstPage;
+            ReserveSpecialVM[[0, vmPage]];
+            DO
+                <<Assert: vmPage is available, in the sense of ProcessorFace.GetNextAvailableVM.>>
+                nextAvailable: PageNumber;
+                count: PageCount _ ProcessorFace.GetNextAvailableVM[vmPage].count;
+                [nextAvailable, count] _ ProcessorFace.GetNextAvailableVM[vmPage + count];
+                IF count = 0 THEN EXIT;
+                ReserveSpecialVM[[vmPage + count, nextAvailable - (vmPage + count)]];
+                vmPage _ nextAvailable;
+                ENDLOOP;
+            };
+        <<The memory state at this point is as follows:  The microcode has placed all of the real memory in the virtual memory map and has 
+        loaded the Germ into its predefined area of virtual memory (moving real memory under virtual memory in this interval, as 
+        necessary).  The Germ has subsequently allocated some additional virtual and real memory for i/o buffers and the like, and 
+        has loaded the boot file in which we are executing.  In the course of loading, real memory has been moved under the 
+        bootloaded virtual memory pages. >>
+        firstSpecialReal: RealPageNumber = ProcessorFace.firstSpecialRealPage;
+        countSpecialReal: PageCount = ProcessorFace.specialRealPages;
+        lastRealPage _ RealPageNumber.FIRST;
+        rmPages _ 0;
+        vmPages _ 0;
+        DO
+            page: PageNumber;
+            count: PageCount;
+            [firstPage: page, count: count] _ ProcessorFace.GetNextAvailableVM[vmPages];
+            IF count = 0 THEN EXIT;
+            vmPages _ page + count;
+            lastVMPage _ vmPages.PRED;
+            THROUGH [0..count) DO
+                vmEntry: VMMapEntry = GetVMMap[page];
+                WITH vmE: vmEntry SELECT InOut[vmE] FROM
+                    in => {lastRealPage _ MAX[lastRealPage, vmE.real]; rmPages _ rmPages.SUCC};
+                    out => NULL;
+                    ENDCASE;
+                page _ page.SUCC;
+                ENDLOOP;
+            ENDLOOP;
+        IF countSpecialReal > 0 THEN
+            lastRealPage _ MAX[lastRealPage, RealPageNumber[firstSpecialReal+countSpecialReal-1]];
+        InitializePartitions[];
+        rmTable _ AllocateRMMap[];
+        rmMap _ VM.AddressForPageNumber[rmTable.page];
+        FOR realPage: RealPageNumber IN [RealPageNumber.FIRST..lastRealPage] DO
+            rmMap[realPage].body _ pinned[pinReason: noSuchRealPage, pinCount: 1];
+            ENDLOOP;
+        IF countSpecialReal > 0 THEN
+            FOR realPage: RealPageNumber IN [firstSpecialReal..RealPageNumber[firstSpecialReal+countSpecialReal-1]] DO
+                rmMap[realPage].body _ pinned[pinReason: specialRealPageAvailable, pinCount: 0];
+                ENDLOOP;
+        BootStartList.Enumerate[ProcessSpaces];
+        BootStartList.Enumerate[ProcessSwapUnits];
+        <<The VMMap and RMMap entries for all bootloaded pages are now consistent with each other and with the start list.  In addition, 
+        the real memory for all non-bootloaded pages within the virtual memory interval spanned by the boot file has been placed on 
+        the free list and all VMMap entries for non-bootloaded boot file pages now have dataState = undefined. >>
+        <<We now deal with a few special cases.  (Shouldn't we do something about the dedicated real memory (i.e., the Dandelion's display 
+        memory)?)>>
+        ReserveSpecialVM[rmTable];
+        ReserveSpecialVM[
+            [GermSwap.mdsiGerm*PrincOps.shortPointerSpan, PrincOps.shortPointerSpan]];
+        ReserveSpecialVM[[VM.PageNumberForAddress[LONG[NIL]], 1]];
+        ReserveSpecialVM[[VM.PageNumberForAddress[LONG[LOOPHOLE[1, POINTER]]], 1]];
+        ReserveUnavailableVM[];
+        <<Finally, we initialize all VMMap entries describing the virtual memory not spanned by the boot file or handled explicitly above, 
+        placing any real memory they may have on the free list.  >>
+        EnsureUnmapped[
+            [BootStartList.h.lastVMPage+1, vmPages - (BootStartList.h.lastVMPage+1)], none];
+        <<We now limit the virtual address space to the size of usable real memory (more or less).  The argument for the following 
+        calculation is somewhat subtle.  (rmTable.page + rmTable.count - 1) is the last page of VM allocated on behalf of this boot 
+        file.  However, some of the allocated VM doesn't have associated real memory, most notably the "spaces" in the 
+        BootStartList that are not bootloaded.  Their VM will not be populated with real memory until a VM backing file is 
+        available, since their contents can only be obtained from secondary storage.  So, we can safely raise the VM limit to 
+        'freePages' beyond the last allocated page, on the grounds that, until a VM backing file is located, real memory will be 
+        consumed only to populate newly-allocated virtual memory.  However, there are two other factors to consider.  First, the 
+        unmapped portions of lowCore, pda, and mds have been included in the VM limit, and, in principle, additional pages of these 
+        regions could be allocated and populated with real memory.  Thus, the limit may be too generous.  Second, the simple 
+        calculation of the limit assumes that no unavailable VM (in the sense of ProcessorFace.GetNextAvailableVM) is spanned.  
+        Thus, the limit might be too conservative.  We could correct precisely for the second factor, but not the first.  However, 
+        the only consequence of the limit being too generous is that we may run out of real memory before we run out of virtual 
+        memory.  If this actually happens, the system will die, but some fundamental fix to the higher-level logic will be required 
+        anyway, since there is simply not enough real memory for the system to execute.>>
+        vmPages _ MIN[(rmTable.page + rmTable.count - 1) + freePages, IF SystemVersion.machineType = dorado THEN 64000 ELSE 16000];
+        <<vmPages _ MIN[(rmTable.page + rmTable.count - 1) + freePages, 16000];>>
+            <<RRA sez that this estimate is only OK for small memories.  When the physical memory gets really huge, then this number may well 
+            become larger than the backing file is prepared to handle.  This estimate need only be large enough to take us through 
+            to when we attach the backing file.>>
+        partitions[normalVM].count _ vmPages - partitions[normalVM].page;
+        };
+
+    InitializePartitions: PROC = {
+        lowCoreBase: PageNumber = 0;
+        pdaBase: PageNumber = VM.PageNumberForAddress[PrincOps.PDA];
+        mdsBase: PageNumber = VM.PageNumberForAddress[LONG[LOOPHOLE[1, POINTER]]];
+        vmBase: PageNumber = mdsBase + PrincOps.shortPointerSpan;
+        partitions _ [
+            --lowCore-- [lowCoreBase, PrincOps.shortPointerSpan],
+            --pda-- [pdaBase, PrincOps.shortPointerSpan],
+            --mds-- [mdsBase, PrincOps.shortPointerSpan],
+            --normalVM-- [vmBase, vmPages - vmBase] 
+            ];
+        };
+
+    END.
+    <<Bob Hagmann June 11, 1986 3:09:37 pm PDT>>
+        <<changes to: InitializeTables, DIRECTORY, VMInitImpl>>
+    <<>>
+    <<>>
+    <<>>

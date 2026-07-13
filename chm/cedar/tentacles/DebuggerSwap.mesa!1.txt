@@ -1,0 +1,73 @@
+
+    <<DebuggerSwap.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Andrew Birrell  July 8, 1983 1:34 pm>>
+        <<Levin, June 14, 1983 4:52 pm>>
+    <<Russ Atkinson (RRA) January 30, 1985 6:54:34 pm PST>>
+        <<Doug Wyatt, February 22, 1985 5:55:33 pm PST>>
+
+    <<Interface with worldswap debugger or teledebugger.>>
+    <<>>
+    DIRECTORY
+        BootFile USING [Location],
+        PrincOps USING [ControlLink, Frame, NullLink, PageNumber, PsbIndex],
+        RuntimeError USING [UCSProc];
+
+    DebuggerSwap: DEFINITIONS
+    = BEGIN
+
+    Initialize: PROC;
+        <<Enable debugging.>>
+
+    StartSwatWatcher: SAFE PROC[enabled: BOOL];
+        <<Must have FORK working before calling this.  Swat watcher is initially enabled iff "enable".>>
+
+    EnableSwatWatcher: SAFE PROC[enabled: BOOL];
+        <<Enable or disable the swat watcher.>>
+
+    NoteDiskDebugger: PROC[debugger, debuggee: BootFile.Location];
+        <<Informs world-swap of presence of usable outload/inload files>>
+    <<>>
+    NoteLoadstate: PROC[PrincOps.PageNumber];
+        <<Remembers the loadstate data structure location for the debugger>>
+    <<>>
+    NoteRealLoadState: PROC[LONG POINTER];
+        <<Remembers the real loadstate data structure location for the debugger>>
+
+    NoteVMRunTable: PROC[LONG POINTER];
+        <<Remembers the VM backing storage data structure location for the debugger>>
+        <<>>
+    NoteSystemVolume: PROC[VolumeID];
+        <<Remembers the system volume>>
+
+    VolumeID: TYPE[5];
+
+    NoteDisplay: PROC[bitmap: LONG POINTER, w, h: CARDINAL];
+        <<Remembers the size, shape, and location of the display>>
+
+    Catcher: RuntimeError.UCSProc;
+        <<The default uncuaght signal handler, for use by SignalsImpl>>
+    <<>>
+    teledebug: BOOL;
+        <<TRUE => use teledebugger even if we have a world-swap debugger.>>
+
+    WorryCallDebugger: READONLY SAFE PROC[STRING];
+
+    CallDebugger: SAFE PROC[STRING];
+
+    LocalLink: PROC[given: PrincOps.ControlLink, psbi: PrincOps.PsbIndex] 
+    RETURNS[link: PrincOps.ControlLink] = INLINE {
+        <<Returns the control link that would exist if there were no frozen processes.  Assumes psbi is the process on whose stack the 
+        given link occurred.  If called from resident code this procedure will not fault.>>
+        IF (link _ given) = [frame[freezer]] AND freezer # NIL
+        THEN IF (link _ freezeesTable[psbi]) = PrincOps.NullLink -- not really frozen! --
+            THEN link _ given;
+        };
+
+    Frozen: TYPE = ARRAY PrincOps.PsbIndex OF PrincOps.ControlLink;
+
+    freezeesTable: PRIVATE READONLY Frozen;
+
+    freezer: PRIVATE READONLY POINTER TO local PrincOps.Frame;
+
+    END.

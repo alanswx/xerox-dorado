@@ -2197,6 +2197,75 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                 vd_lo = -1; /* one-shot */
             }
         }
+        /* Periodic map census (env DORADO_MAPCOUNT="lo,hi,interval"),
+         * trace-only. Every `interval` cycles, classifies the map entries
+         * covering VA range [lo,hi) the way Pilot's VM allocator does
+         * (VMInternal.IsFree / VMMapEntry): a mapped (non-vacant) page is
+         * allocated; a vacant page is free iff its software word has
+         * dataState=none (bits 14:15) and checkedOut=0 (bit 12).  Used to
+         * distinguish genuine MDS/VM exhaustion from allocator-state
+         * corruption in the Cedar loadee bring-up. */
+        {
+            static long mc_lo = -2, mc_hi = 0, mc_int = 0;
+            static uint64_t mc_next = 0;
+            if (mc_lo == -2) {
+                const char *w = getenv("DORADO_MAPCOUNT");
+                mc_lo = -1;
+                if (w) sscanf(w, "%li,%li,%li", &mc_lo, &mc_hi, &mc_int);
+                if (mc_lo >= 0 && (mc_int <= 0 || mc_hi <= mc_lo)) mc_lo = -1;
+            }
+            if (mc_lo >= 0 && bb->cycles >= mc_next) {
+                uint32_t lo_pg = (uint32_t)mc_lo / DM_PAGE_SIZE;
+                uint32_t hi_pg = ((uint32_t)mc_hi + DM_PAGE_SIZE - 1) /
+                                 DM_PAGE_SIZE;
+                unsigned in_n = 0, free_n = 0, alloc_out_n = 0;
+                unsigned ref_vacant_n = 0;
+                for (uint32_t pg = lo_pg; pg < hi_pg && pg < DM_MAP_ENTRIES;
+                     pg++) {
+                    const dorado_map_entry *e = dorado_map_get(&m->mem, pg);
+                    if (!(e->wp && e->dirty)) {
+                        in_n++;                    /* mapped: allocated */
+                    } else if (e->ref) {
+                        /* Vacant but Ref set: VMInternal.InOut compares
+                         * against flagsVacant exactly, so Pilot misreads
+                         * this page as mapped/allocated — a free-page
+                         * leak if the emulator ever produces it. */
+                        ref_vacant_n++;
+                    } else if ((e->rp & 0x0003u) == 0 &&
+                               (e->rp & 0x0008u) == 0) {
+                        free_n++;                  /* vacant, IsFree */
+                    } else {
+                        alloc_out_n++;             /* vacant, allocated */
+                    }
+                }
+                fprintf(stderr, "[MAPCOUNT] cyc=%llu va=[0o%lo,0o%lo) "
+                        "in=%u out_free=%u out_alloc=%u ref_vacant=%u\n",
+                        (unsigned long long)bb->cycles, (unsigned long)mc_lo,
+                        (unsigned long)mc_hi, in_n, free_n, alloc_out_n,
+                        ref_vacant_n);
+                if (dorado_trace_flag("DORADO_MAPCOUNT_LAYOUT")) {
+                    /* One char per page: I=in, F=out+free, A=out+alloc,
+                     * R=vacant+ref.  Lets a log reader compute hole sizes
+                     * (runs of F) the way FindHole would. */
+                    fprintf(stderr, "[MAPLAYOUT] cyc=%llu ",
+                            (unsigned long long)bb->cycles);
+                    for (uint32_t pg = lo_pg;
+                         pg < hi_pg && pg < DM_MAP_ENTRIES; pg++) {
+                        const dorado_map_entry *e =
+                            dorado_map_get(&m->mem, pg);
+                        char c;
+                        if (!(e->wp && e->dirty))          c = 'I';
+                        else if (e->ref)                   c = 'R';
+                        else if ((e->rp & 0x0003u) == 0 &&
+                                 (e->rp & 0x0008u) == 0)   c = 'F';
+                        else                               c = 'A';
+                        fputc(c, stderr);
+                    }
+                    fputc('\n', stderr);
+                }
+                mc_next = bb->cycles + (uint64_t)mc_int;
+            }
+        }
         /* Boot-button schedule (three presses). */
         if (!m->pressed && bb->cycles >= T_PRESS1_DOWN &&
             bb->cycles < T_PRESS1_UP) {

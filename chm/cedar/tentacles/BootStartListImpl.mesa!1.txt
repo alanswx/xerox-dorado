@@ -1,0 +1,66 @@
+
+    <<BootStartListImpl.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Levin on August 8, 1983 3:26 pm>>
+        <<Andrew Birrell on April 20, 1983 6:41 pm>>
+    <<Russ Atkinson (RRA) January 30, 1985 5:18:14 pm PST>>
+
+    DIRECTORY
+        BootStartList USING [Base, Entry, EntryPointer, Index, IndexToEntryPointer, IndexToSpaceEntryPointer, Proc, SpaceEntryPointer, 
+        startIndex],
+        PrincOps USING [PageCount, PageNumber],
+        PrincOpsUtils USING [PageNumberForAddress];
+
+    BootStartListImpl: PROGRAM
+        IMPORTS BootStartList, PrincOpsUtils
+        EXPORTS BootStartList = BEGIN
+
+    <<Exports to BootStartList>>
+
+    h: PUBLIC BootStartList.Base;
+
+    StartListHasBeenDestroyed: PUBLIC ERROR = CODE;
+
+    Enumerate: PUBLIC PROC [proc: BootStartList.Proc] = {
+        OPEN BootStartList;
+        index: Index;
+        size: CARDINAL;
+        IF h = NIL THEN ERROR StartListHasBeenDestroyed;
+        FOR index _ startIndex, index + size UNTIL h[index].option = stop DO
+            IF proc[index] THEN EXIT;
+            WITH h[index] SELECT FROM
+                space => size _ SIZE[space Entry];
+                swapUnit => size _ SIZE[swapUnit Entry];
+                ENDCASE;
+            ENDLOOP; 
+        };
+
+    Destroy: PUBLIC PROC RETURNS [page: PrincOps.PageNumber, count: PrincOps.PageCount] = {
+        OPEN BootStartList;
+        FindSwapUnit: Proc = {
+            entry: EntryPointer = IndexToEntryPointer[index];
+            WITH e: entry SELECT FROM
+                space => NULL;
+                swapUnit => {
+                    parent: SpaceEntryPointer = IndexToSpaceEntryPointer[e.parent];
+                    IF page = parent.vmPage + e.base THEN
+                        {count _ e.pages; RETURN[TRUE]};
+                    };
+                ENDCASE;
+            };
+        IF h = NIL THEN RETURN;
+        page _ PrincOpsUtils.PageNumberForAddress[h];
+        Enumerate[FindSwapUnit];
+        h _ NIL;
+        };
+
+    <<Initialization>>
+
+    Initialize: PUBLIC PROC [header: BootStartList.Base] = {
+        h _ header;
+        };
+
+    END.
+
+    <<>>
+

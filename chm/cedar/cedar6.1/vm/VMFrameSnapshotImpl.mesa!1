@@ -1,0 +1,117 @@
+
+    <<VMFrameSnapshotImpl.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Levin on August 25, 1983 1:27 pm>>
+    <<Russ Atkinson (RRA) February 20, 1985 5:59:35 pm PST>>
+
+    DIRECTORY
+        Basics USING [LongDiv],
+        PrincOps USING [AV, AVItem, FrameSizeIndex, FrameVec, PDA, ProcessStateBlock, PsbHandle, StartPsb, StateVector],
+        PrincOpsUtils USING [DisableInterrupts, EnableInterrupts, FrameSize, LongCopy, PsbIndexToHandle],
+        Process USING [Yield],
+        VM USING [AddressForPageNumber, Allocate, Free, Interval, PageCount, PagesForWords, SwapIn, Unpin, WordsForPages],
+        VMInternal USING [FrameHeapPiece, FrameHeapPieceHeader, frameHeapPieceList, LargeFrame, largeFrameList],
+        VMSideDoor USING [FrameMarker, FramesDescriptor, StateVectorDescriptor],
+        VMStatistics USING [];
+
+    VMFrameSnapshotImpl: MONITOR
+        IMPORTS Basics, PrincOpsUtils, Process, VM, VMInternal
+        EXPORTS VMSideDoor, VMStatistics = BEGIN
+
+    vm: VM.Interval;
+
+    <<Exports to VMStatistics>>
+
+    getFramesCalls, getFramesRetries: PUBLIC INT _ 0;
+
+    <<Exports to VMSideDoor>>
+
+    GetFrames: PUBLIC ENTRY PROC RETURNS [
+        frames: VMSideDoor.FramesDescriptor, stateVectors: VMSideDoor.StateVectorDescriptor] = {
+        ZeroFreeFrames: PROC = --INLINE-- {
+            OPEN PrincOps;
+            PrincOpsUtils.DisableInterrupts[];
+            FOR fsi: FrameSizeIndex IN FrameSizeIndex DO
+                FOR avItem: AVItem _ AV[fsi], avItem.link^ UNTIL avItem.tag ~= frame DO
+                    <<Don't use PrincOpsUtils.ZERO, because it might trap and use up a frame (this one!)>>
+                    LongBlkZ[p: avItem.frame+1, count: FrameVec[fsi]-1];
+                    ENDLOOP;
+                ENDLOOP;
+            PrincOpsUtils.EnableInterrupts[];
+            };
+        LongBlkZ: PROC [p: LONG POINTER, count: CARDINAL] = INLINE
+            BEGIN
+            IF count#0 THEN
+                BEGIN
+                p^ _ 0;
+                IF count#1 THEN PrincOpsUtils.LongCopy[from: p, to: p+1, nwords: count-1];
+                END;
+            END;
+        CopyFramesAndStateVectors: PROC RETURNS [pagesNeeded: INT] = --INLINE-- {
+            OPEN VMInternal;
+            base: LONG ORDERED POINTER = LOOPHOLE[VM.AddressForPageNumber[vm.page]];
+            limit: LONG ORDERED POINTER = base + VM.WordsForPages[vm.count];
+            p: LONG ORDERED POINTER _ base;
+            psb: PrincOps.PsbHandle _ PrincOpsUtils.PsbIndexToHandle[PrincOps.StartPsb];
+            wordsPerSV: CARDINAL = SIZE[PrincOps.StateVector];
+            svWords: LONG CARDINAL;
+            PrincOpsUtils.DisableInterrupts[];
+            THROUGH [0..PrincOps.PDA.count) DO
+                IF PrincOps.PDA[psb].link.vector THEN {
+                    IF p + wordsPerSV <= limit THEN
+                        PrincOpsUtils.LongCopy[
+                            from: @PrincOps.PDA[PrincOps.PDA[psb].context.state], to: p, nwords: wordsPerSV];
+                    p _ p + wordsPerSV;
+                    };
+                psb _ psb + SIZE[PrincOps.ProcessStateBlock];
+                ENDLOOP;
+            stateVectors _
+                DESCRIPTOR[base, Basics.LongDiv[svWords _ p - base, wordsPerSV]];
+            FOR piece: FrameHeapPiece _ frameHeapPieceList, piece.next UNTIL piece = NIL DO
+                wordsToCopy: CARDINAL = piece.wordsInUse - SIZE[FrameHeapPieceHeader];
+                IF p + wordsToCopy <= limit THEN
+                    PrincOpsUtils.LongCopy[from: @piece.fsiFrame, to: p, nwords: wordsToCopy];
+                p _ p + wordsToCopy;
+                ENDLOOP;
+            FOR largeFrame: LargeFrame _ largeFrameList, largeFrame.next UNTIL largeFrame = NIL DO
+                wordsToCopy: CARDINAL = PrincOpsUtils.FrameSize[largeFrame.trueFsi] + SIZE[PrincOps.FrameSizeIndex];
+                IF p + wordsToCopy <= limit THEN {
+                    PrincOpsUtils.LongCopy[from: @largeFrame.fsiFrame, to: p, nwords: wordsToCopy];
+                    p^ _ VMSideDoor.FrameMarker[frame[largeFrame.trueFsi]];  -- overwrite "LargeReturnSlot" with FrameMarker
+                    };
+                p _ p + wordsToCopy;
+                ENDLOOP;
+            PrincOpsUtils.EnableInterrupts[];
+            frames _ DESCRIPTOR[base + svWords, p - (base + svWords)];
+            RETURN[VM.PagesForWords[p - base]]
+            };
+        --*stats*-- getFramesCalls _ getFramesCalls.SUCC;
+        DO
+            pagesNeeded: VM.PageCount;
+            VM.SwapIn[interval: vm, kill: TRUE, pin: TRUE];
+            ZeroFreeFrames[];
+            Process.Yield[];
+            pagesNeeded _ CopyFramesAndStateVectors[];
+            VM.Unpin[vm];
+            IF pagesNeeded <= vm.count THEN EXIT;
+            VM.Free[vm];
+            --*stats*-- getFramesRetries _ getFramesRetries.SUCC;
+            vm _ VM.Allocate[pagesNeeded];
+        ENDLOOP;
+        };
+
+    Initialize: PROC = {
+        OPEN VMInternal;
+        slopPages: VM.PageCount = 5;  -- just a guess
+        wordsToCopy: INT _ 0;
+        PrincOpsUtils.DisableInterrupts[];
+        FOR piece: FrameHeapPiece _ frameHeapPieceList, piece.next UNTIL piece = NIL DO
+            wordsToCopy _ wordsToCopy +  (piece.wordsInUse - SIZE[FrameHeapPieceHeader]);
+            ENDLOOP;
+        PrincOpsUtils.EnableInterrupts[];
+        vm _ VM.Allocate[count: VM.PagesForWords[wordsToCopy]+ slopPages];
+        };
+
+    Initialize[];
+
+    END.

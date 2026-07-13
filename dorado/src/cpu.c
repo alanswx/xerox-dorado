@@ -1538,7 +1538,20 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
         /* Pipe3' / Map' is the inverted snapshot of the old real page
          * number for the selected SRN. NewMemory.mc reads old map
          * flags separately through Errors' / Pipe4'. */
-        case 4: *b = (uint16_t)~dorado_pipe_map_rp_at(cpu->mem, psrn); break;
+        case 4: *b = (uint16_t)~dorado_pipe_map_rp_at(cpu->mem, psrn);
+                if (dorado_trace_flag("DORADO_FAULTREG_TRACE") &&
+                    (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+                    fprintf(stderr,
+                            "FAULTREG cyc=%llu task=%o pc=0o%o src=Pipe3' "
+                            "psrn=%o rp=%04X flags=%o va=0o%o kind=%d\n",
+                            (unsigned long long)dorado_trace_cycle,
+                            cpu->ctask & 017, cpu->real_PC & 07777,
+                            psrn & 017,
+                            dorado_pipe_map_rp_at(cpu->mem, psrn),
+                            dorado_pipe_map_flags_at(cpu->mem, psrn) & 07,
+                            va, (int)cpu->mem->pipe[psrn & 017].kind);
+                }
+                break;
         /* Pipe4' is mixed-polarity (HM page 51, EMemDefs.mc).
          * `dorado_pipe4_at` (gap C2) composes the slot's per-ref
          * error state with the no-error baseline `0o150361`.

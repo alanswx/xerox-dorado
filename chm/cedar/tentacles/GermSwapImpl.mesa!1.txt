@@ -1,0 +1,79 @@
+
+    <<GermSwapImpl.mesa: Interface with Germ>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Andrew Birrell  May 26, 1983 9:28 am>>
+        <<Levin, June 14, 1983 4:48 pm>>
+    <<Russ Atkinson (RRA) February 19, 1985 5:22:02 pm PST>>
+    <<>>
+    DIRECTORY
+        BootFile USING [MDSIndex],
+        GermSwap USING [gCross, lCross, LP, mdsiGerm, nGCross, nLCross, pMon, pRequest, ReadMDS, Request, Switches],
+        PrincOps USING [Port, SD, sBootSwitches, TrapLink],
+        PrincOpsUtils USING [Copy, Free, LongCopy, MyGlobalFrame, MyLocalFrame, WriteMDS];
+
+    GermSwapImpl: PROGRAM
+        IMPORTS GermSwap, PrincOpsUtils
+        EXPORTS GermSwap
+        SHARES GermSwap = BEGIN
+
+    <<Initialisation>>
+
+        Initialize: PUBLIC PROC [mdsiOther: BootFile.MDSIndex] = BEGIN
+            <<Strategy: GermSwap.gCross and lCross are allocated in each MDS, initialised identically.>>
+            OPEN port: LOOPHOLE[Port, PrincOps.Port];
+            InitializeMDS[];
+            <<Set up frame for Procedure and make it pending on Port>>
+            port.dest _ [frame[PrincOpsUtils.MyLocalFrame[]]]; -- temporarily connect Port to self
+            Procedure[];
+            <<Now set up local and global frames with copy in other MDS>>
+            GermSwap.lCross.accesslink _ GermSwap.gCross;
+            GermSwap.lCross.pc _ port.frame.pc;
+            GermSwap.lCross.returnlink _ PrincOps.TrapLink;
+            PrincOpsUtils.Free[port.frame];
+            port.frame _ GermSwap.lCross;
+            <<now mustn't set global variables>>
+            PrincOpsUtils.Copy[
+                from: PrincOpsUtils.MyGlobalFrame[],
+                nwords: GermSwap.nGCross,
+                to: GermSwap.gCross];
+            PrincOpsUtils.LongCopy[
+                from: GermSwap.lCross,
+                nwords: GermSwap.nLCross+GermSwap.nGCross,
+                to: GermSwap.LP[GermSwap.lCross, mdsiOther]];
+            <<connect CrossMDSCall to Port>>
+            GermSwap.pMon.CrossMDSCall _
+            LOOPHOLE[GermSwap.gCross+(@port-LOOPHOLE[PrincOpsUtils.MyGlobalFrame[], POINTER TO PrincOps.Port])];
+            GermSwap.pMon.pcCross _ GermSwap.lCross.pc
+            END;
+
+        switches: PUBLIC GermSwap.Switches;
+        bootedFrom: PUBLIC GermSwap.Request;
+
+        InitializeMDS: PUBLIC PROC = BEGIN
+            switches _ LOOPHOLE[GermSwap.LP[@PrincOps.SD[PrincOps.sBootSwitches], GermSwap.mdsiGerm], LONG POINTER TO GermSwap.Switches]^;
+            bootedFrom _ LOOPHOLE[GermSwap.LP[GermSwap.pRequest, GermSwap.mdsiGerm], LONG POINTER TO GermSwap.Request]^;
+            END;
+
+    <<Cross-MDS co-routine>>
+
+        Port: PORT RETURNS [mdsiOther: BootFile.MDSIndex, Dest: PROC];
+
+        Procedure: PROC = BEGIN
+            <<address of this frame must be same in both MDS's; global frames must be "similar">>
+            mdsiOther: BootFile.MDSIndex;
+            Dest: PROC;
+            mdsiBack: BootFile.MDSIndex;
+            DO
+                [mdsiOther, Dest] _ Port[];
+                [Dest, mdsiBack] _ Save2AndWriteMDS[Dest, GermSwap.ReadMDS[], mdsiOther];
+                Dest[];
+                PrincOpsUtils.WriteMDS[mdsiBack];
+                ENDLOOP
+            END;
+
+        Save2AndWriteMDS: PROC [p: PROC, d: WORD, mdsi: BootFile.MDSIndex]
+        RETURNS [pp: PROC, nx: BootFile.MDSIndex] =
+            LOOPHOLE[PrincOpsUtils.WriteMDS]; -- t1=s1 AND t2=s2!
+
+    END.
+

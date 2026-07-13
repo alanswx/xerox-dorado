@@ -1,0 +1,107 @@
+
+    <<VMLowCoreImpl.mesa>>
+        <<Copyright © 1985, 1986 by Xerox Corporation.  All rights reserved.>>
+    <<Russ Atkinson (RRA) April 9, 1986 2:31:19 pm PST>>
+
+        DIRECTORY
+            VM USING [Allocate, Interval, AddressForPageNumber, PageCount, PagesForWords, PageNumberForAddress, Pin, WordsForPages],
+            VMInternal USING [Crash],
+            VMStatistics USING [];
+VMLowCoreImpl: MONITOR
+    IMPORTS VM, VMInternal
+    EXPORTS VM, VMStatistics = BEGIN
+
+    <<Types>>
+        <<>>
+        ZoneRep: TYPE = LONG POINTER TO ZoneObject;
+        ZoneObject: TYPE = MACHINE DEPENDENT RECORD [
+            procs(0:0..31): LONG POINTER TO ZoneProcs,
+            data(2:0..31): ZoneData
+            ];
+
+        ZoneProcs: TYPE = MACHINE DEPENDENT RECORD [
+            allocate(0): PROC [UNCOUNTED ZONE, WordCount] RETURNS [LONG POINTER],
+            free(1): PROC [UNCOUNTED ZONE, LONG POINTER]
+            ];
+
+        ZoneData: TYPE = ZoneChunk;
+        ZoneChunk: TYPE = LONG POINTER TO ZoneChunkObject;
+        ZoneChunkObject: TYPE = RECORD [
+            seal: INT _ chunkSeal,
+            nextChunk:  ZoneChunk,  -- could be a 16-bit relative pointer, but why bother?
+            wordsInChunk: INT,
+            wordsInUse: INT
+            ];
+
+        WordCount: TYPE = CARDINAL;
+
+    <<Global "Variables">>
+
+        lowCoreZone: ZoneObject _ [procs: @lowCoreZoneProcs, data: NIL];
+        lowCoreZoneProcs: ZoneProcs _ [allocate: Allocate, free: Free];
+
+        chunkSeal: INT = 32415;
+
+        alignment: WordCount = 16;
+        chunkOverhead: WordCount = Align[SIZE[ZoneChunkObject]]; 
+        <<>>
+    <<Exports to VMStatistics>>
+
+        lowCoreAllocations, lowCoreWords, lowCorePages: PUBLIC INT _ 0;
+
+    <<Exports to VMSideDoor>>
+
+        lowCore: PUBLIC UNCOUNTED ZONE;
+        <<>>
+    <<Internal Procedures>>
+        <<>>
+        Align: PROC [w: WordCount] RETURNS [WordCount] = INLINE {
+            RETURN[((w + alignment - 1) / alignment) * alignment];
+            };
+
+        Allocate: ENTRY PROC [z: UNCOUNTED ZONE, nWords: WordCount] RETURNS [p: LONG POINTER] = {
+            previousChunk: ZoneChunk _ NIL;
+            chunk: ZoneChunk;
+            IF z ~= lowCore THEN VMInternal.Crash[];
+            nWords _ Align[MAX[nWords, 1]];
+            FOR chunk _ lowCoreZone.data, chunk.nextChunk UNTIL chunk = NIL DO
+                IF chunk.seal ~= chunkSeal THEN VMInternal.Crash[];
+                IF chunk.wordsInUse + nWords <= chunk.wordsInChunk
+                AND ( -- verify block would lie in a single page
+                    VM.PageNumberForAddress[chunk + chunk.wordsInUse] =
+                        VM.PageNumberForAddress[chunk + chunk.wordsInUse + nWords - 1]
+                    OR VM.PagesForWords[nWords+chunkOverhead] > 1
+                    )
+                THEN EXIT;
+                previousChunk _ chunk;
+                REPEAT
+                    FINISHED => {
+                        pages: VM.PageCount = VM.PagesForWords[nWords+chunkOverhead];
+                        interval: VM.Interval = VM.Allocate[count: pages, partition: $lowCore];
+                        --*stats*-- lowCorePages _ lowCorePages + pages;
+                        VM.Pin[interval];
+                        chunk _ VM.AddressForPageNumber[interval.page];
+                        chunk^ _ [
+                            nextChunk: IF previousChunk = NIL THEN NIL ELSE previousChunk.nextChunk,
+                            wordsInChunk: VM.WordsForPages[interval.count],
+                            wordsInUse: chunkOverhead
+                            ];
+                        IF previousChunk = NIL THEN lowCoreZone.data _ chunk
+                        ELSE previousChunk.nextChunk _ chunk;
+                        };
+                ENDLOOP;
+            p _ chunk + chunk.wordsInUse;
+            chunk.wordsInUse _ chunk.wordsInUse + nWords;
+            --*stats*-- lowCoreAllocations _ lowCoreAllocations.SUCC;
+            --*stats*-- lowCoreWords _ lowCoreWords + nWords;
+            };
+
+        Free: ENTRY PROC [z: UNCOUNTED ZONE, p: LONG POINTER] = {};
+        <<>>
+    <<Initialization>>
+        <<>>
+        lowCore _ LOOPHOLE[LONG[@lowCoreZone]];
+
+    END.
+    <<>>
+    <<>>

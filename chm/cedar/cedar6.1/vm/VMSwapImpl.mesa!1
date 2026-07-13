@@ -1,0 +1,448 @@
+
+    <<VMSwapImpl.mesa>>
+        <<Copyright © 1984, 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Russ Atkinson, January 30, 1985 10:37:48 pm PST>>
+        <<Bob Hagmann, April 30, 1986 8:17:48 am PDT>>
+        <<>>
+    DIRECTORY
+        PrincOps USING [flagsDirty, flagsVacant, PageFlags, PageState],
+        PrincOpsUtils USING [DisableInterrupts, EnableInterrupts],
+        VM USING [nullInterval],
+        VMInternal USING [AddToFreeList, AgeInternal, AllocateRealMemoryInternal, checkIn, cleaningRover, CleanOutcome, Crash, GetVMMap, 
+        InOut, Interval, lastRealPage, LaundryMode, maxPinCount, Outcome, PageCount, PageNumber, PageStateFromFlags, 
+        RealPageNumber, RMEntryPointer, rmMap, RMMapEntry, SetVMMap, SwapInOutcome, Victim, VMMapEntry, vmStateLock],
+        VMInternalExtras USING [],
+        VMRemotePaging USING [RemotePageValid],
+        VMStatistics USING [checkoutConflicts, pinnedPages, rmCleanPasses, trappedPages];
+
+    VMSwapImpl: MONITOR LOCKS VMInternal.vmStateLock
+        IMPORTS PrincOpsUtils, VMInternal, VMRemotePaging, VMStatistics
+        EXPORTS VMInternal, VMInternalExtras
+        SHARES VMInternal =
+        BEGIN OPEN VMInternal, VMStatistics;
+
+    <<Utilities for VM.SwapIn and VM.Clean>>
+
+        AllocateForSwapIn: PUBLIC ENTRY PROC
+            [vmPage: PageNumber, kill, pin: BOOL, dontWait: BOOL]
+            RETURNS [outcome: SwapInOutcome, victim: Victim] = {
+            <<This is a specialized procedure for VM.SwapIn.>>
+            vmEntry: VMMapEntry;
+            success: BOOL;
+            [vmEntry, success] _ GetCheckedInVMMap[vmPage, dontWait];
+            IF ~success THEN RETURN [outcome: couldntCheckOut, victim: NULL];
+            WITH vmE: vmEntry SELECT InOut[vmEntry] FROM
+                out => {
+                    IF vmE.dataState = none THEN RETURN [outcome: addressFault, victim: NULL];
+                    IF kill THEN
+                        IF vmE.readOnly THEN RETURN [outcome: writeFault, victim: NULL]
+                        ELSE vmE.dataState _ undefined;
+                    outcome _ IF vmE.dataState = undefined THEN noReadNecessary ELSE needsRead;
+                    vmE.checkedOut _ TRUE;
+                    SetVMMap[vmPage, vmE];
+                    victim _ AllocateRealMemoryInternal[vmPage: vmPage, pin: pin];
+                    <<Note: the rmMap entry has now been updated for eventual association (by SwapInDone) with vmPage.>>
+                    };
+                in => {
+                    rmE: RMEntryPointer = @rmMap[vmE.real];
+                    outcome _ alreadyIn;
+                    IF kill THEN {
+                        <<Strictly speaking, we should disable interrupts, reread the map, clear the dirty bit, and set the map before enabling interrupts. 
+                         This will avoid losing the referenced bit.  However, since the page is being killed, the referenced bit 
+                        isn't very interesting now anyway.>>
+                        IF vmE.state.flags.readonly THEN RETURN [outcome: writeFault, victim: NULL];
+                        vmE.state.flags.dirty _ rmE.needsBackingStoreWrite _ FALSE;
+                        SetVMMap[vmPage, vmE];
+                        rmE.dataState _ undefined;
+                        };
+                    IF pin THEN {
+                        WITH rmE: rmE SELECT FROM
+                            free => Crash[];
+                            reclaimable => {
+                                rmMap[vmE.real].body _ pinned[pinCount: 1];
+                                --*stats*-- pinnedPages _ pinnedPages.SUCC;
+                                };
+                            pinned =>
+                                IF rmE.pinCount < maxPinCount THEN rmE.pinCount _ rmE.pinCount + 1
+                                ELSE Crash[];
+                            ENDCASE;
+                        };
+                    };
+                ENDCASE;
+            };
+
+        SwapInDone: PUBLIC ENTRY PROC [vmPage, bufferPage: PageNumber, worked: BOOL] = {
+            <<This is a specialized procedure for VM.SwapIn.  "bufferPage" should be a page whose VMMapEntry is "in" and whose real page 
+            matches the one returned for the corresponding "vmPage" by AllocateForSwapIn, above.>>
+            vmEntry: VMMapEntry _ GetVMMap[vmPage];
+            WITH vmE: vmEntry SELECT InOut[vmEntry] FROM
+                out => {
+                    bufferEntry: VMMapEntry _ GetVMMap[bufferPage];
+                    WITH bE: bufferEntry SELECT InOut[bufferEntry] FROM
+                        in => {
+                            rmE: RMEntryPointer = @rmMap[bE.real];
+                            IF worked THEN {
+                                --*stats*--
+                                    SELECT rmE.rmState FROM
+                                        free => Crash[];
+                                        pinned => pinnedPages _ pinnedPages.SUCC;
+                                        reclaimable => NULL;
+                                        ENDCASE;
+                                bE.state _ VMInternal.PageStateFromFlags[
+                                    [readonly: vmE.readOnly, dirty: FALSE, referenced: TRUE]];
+                                SetVMMap[vmPage, bE];
+                                }
+                            ELSE {
+                                IF rmE.rmState = free THEN Crash[];
+                                AddToFreeList[bE.real];
+                                vmE.checkedOut _ FALSE;
+                                SetVMMap[vmPage, vmEntry];
+                                };
+                            <<In either case above, 'vmPage' has been checked back in, so...>>
+                            BROADCAST checkIn;
+                            <<Now we make the swap buffer page vacant.>>
+                            vmE.checkedOut _ vmE.readOnly _ FALSE;
+                            vmE.dataState _ undefined;
+                            SetVMMap[bufferPage, vmE];
+                            };
+                        out => Crash[];
+                        ENDCASE;
+                    };
+                in => Crash[];
+                ENDCASE;
+            };
+
+        RemoteSwapInDone: PUBLIC ENTRY PROC [vmPage, bufferPage: PageNumber] RETURNS [vmPageAlreadyIn: BOOL _ FALSE, worked: BOOL _ TRUE] = 
+        {
+            <<This is a specialized procedure for VMFaultsImpl.PageFaultProcess.  "bufferPage" should be a page whose VMMapEntry is "in" and 
+            pinned.>>
+            vmEntry: VMMapEntry;
+            IF VMRemotePaging.RemotePageValid[vmPage] # valid THEN RETURN[FALSE, FALSE];
+            vmEntry _ GetVMMap[vmPage];
+            WITH vmE: vmEntry SELECT InOut[vmEntry] FROM
+                out => {
+                    bufferEntry: VMMapEntry _ GetVMMap[bufferPage];
+                    WITH bE: bufferEntry SELECT InOut[bufferEntry] FROM
+                        in => {
+                            rmE: RMEntryPointer = @rmMap[bE.real];
+                            <<*stats*-->>
+                            WITH rmE: rmE SELECT FROM
+                                free => Crash[];
+                                pinned => {
+                                    IF rmE.pinReason = normal THEN {
+                                        SELECT rmE.pinCount FROM
+                                            0 => Crash[];
+                                            1 => {
+                                                rmMap[bE.real].body _ reclaimable[virtual: vmPage];
+                                                --*stats*-- pinnedPages _ pinnedPages.PRED;
+                                                };
+                                            ENDCASE =>
+                                                rmE.pinCount _ rmE.pinCount - 1;
+                                        };
+                                    };
+                                reclaimable => Crash[];
+                                ENDCASE;
+                            bE.state _ VMInternal.PageStateFromFlags[
+                                [readonly: vmE.readOnly, dirty: FALSE, referenced: TRUE]];
+                            SetVMMap[vmPage, bE];
+                            <<In either case above, 'vmPage' has been checked back in, so...>>
+                            BROADCAST checkIn;
+                            <<Now we make the swap buffer page vacant.>>
+                            vmE.checkedOut _ vmE.readOnly _ FALSE;
+                            vmE.dataState _ undefined;
+                            SetVMMap[bufferPage, vmE];
+                            };
+                        out => Crash[];
+                        ENDCASE;
+                    RETURN[FALSE];
+                    };
+                in => RETURN[TRUE];
+                ENDCASE;
+            };
+
+        SwapInDoneWithoutIO: PUBLIC ENTRY PROC [vmPage: PageNumber, victim: Victim] = {
+            vmEntry: VMMapEntry = GetVMMap[vmPage];
+            WITH vmE: vmEntry SELECT InOut[vmEntry] FROM
+                out => {
+                    SetVMMap[vmPage, [
+                        state: VMInternal.PageStateFromFlags[
+                            [readonly: vmE.readOnly, dirty: FALSE, referenced: TRUE]],
+                        body: in[victim.realPage]
+                        ]];
+                    <<This SetVMMap implicitly cleared the "checkedOut" bit, so...>>
+                    BROADCAST checkIn;
+                    --*stats*--
+                        SELECT rmMap[victim.realPage].rmState FROM
+                            free => Crash[];
+                            pinned => pinnedPages _ pinnedPages.SUCC;
+                            reclaimable => NULL;
+                            ENDCASE;
+                    };
+                in => Crash[];
+                ENDCASE;
+            };
+
+        VictimWriteDone: PUBLIC ENTRY PROC [
+            vmPage, bufferPage: PageNumber, victim: dirty Victim, worked: BOOL] = {
+            vmEntry: VMMapEntry _ GetVMMap[vmPage];
+            WITH vmE: vmEntry SELECT InOut[vmEntry] FROM
+                out => {
+                    IF ~worked THEN {
+                        <<Restore victim's map entry, but pin the page (permanently), since it can't be written out.  The only way anyone will discover 
+                        this happened is by looking at the counter in VMStatistics.>>
+                        victimEntry: VMMapEntry = [
+                            state: VMInternal.PageStateFromFlags[PrincOps.flagsDirty],
+                            body: in[victim.realPage]];
+                        rmE: RMEntryPointer = @rmMap[victim.realPage];
+                        IF rmE.rmState = free THEN Crash[];
+                        rmE^ _ [
+                            dataState: vmE.dataState, needsBackingStoreWrite: TRUE,
+                            body: pinned[pinReason: cantBeWritten, pinCount: 1]];
+                        SetVMMap[victim.vmPage, victimEntry];
+                        --*stats*-- pinnedPages _ pinnedPages.SUCC;
+                        --*stats*-- trappedPages _ trappedPages.SUCC;
+                        <<Check the original page back in.>>
+                        vmE.checkedOut _ FALSE;
+                        SetVMMap[vmPage, vmE];
+                        BROADCAST checkIn;
+                        };
+                    <<Make the swap buffer page vacant.>>
+                    vmE.readOnly _ vmE.checkedOut _ FALSE;
+                    vmE.dataState _ undefined;
+                    SetVMMap[bufferPage, vmE];
+                    };
+                in => Crash[];
+                ENDCASE;
+            };
+
+        ConsiderCleaning: PUBLIC ENTRY PROC [vmPage: PageNumber, checkOutClean: BOOL]
+            RETURNS [outcome: CleanOutcome, real: RealPageNumber] = {
+            <<This is a specialized procedure for VM.Clean.>>
+            <<Interrupts must be disabled if the map entry says "present", so that the test for "dirty" and subsequent setting of "vacant" are 
+            atomic.  Interrupts need not be disabled if the map entry says "vacant", but it doesn't hurt, since we spend minimal 
+            time in that state and it simplifies the code.>>
+            vmEntry: VMMapEntry;
+            PrincOpsUtils.DisableInterrupts[];
+            vmEntry _ GetVMMap[vmPage];
+            WITH vmE: vmEntry SELECT InOut[vmEntry] FROM
+                out => outcome _ IF vmE.dataState = none THEN addressFault ELSE cantWrite;
+                in => {
+                    rmE: RMEntryPointer = @rmMap[real _ vmE.real];
+                    WITH rmE: rmE SELECT FROM
+                        free => Crash[];
+                        reclaimable => {
+                            dirty: BOOL = vmE.state.flags.dirty OR rmE.needsBackingStoreWrite;
+                            IF dirty OR checkOutClean THEN {
+                                newEntry: VMMapEntry = [
+                                    state: VMInternal.PageStateFromFlags[PrincOps.flagsVacant],
+                                    body: out[
+                                        checkedOut: TRUE,
+                                        readOnly: vmE.state.flags.readonly,
+                                        dataState: IF vmE.state.flags.dirty THEN changed ELSE rmE.dataState
+                                        ]];
+                                rmE.referenced _ vmE.state.flags.referenced;  -- save until CleanDone
+                                SetVMMap[vmPage, newEntry];
+                                };
+                            outcome _
+                                SELECT TRUE FROM
+                                    dirty => needsWrite,
+                                    checkOutClean => checkedOutClean,
+                                    ENDCASE => cantWrite;
+                            };
+                        pinned => outcome _ cantWrite;
+                        ENDCASE;
+                    };
+                ENDCASE;
+            PrincOpsUtils.EnableInterrupts[];
+            };
+
+        CleanDone: PUBLIC ENTRY PROC [vmPage, bufferPage: PageNumber, worked: BOOL] = {
+            <<This is a specialized procedure for VM.Clean.  "bufferPage" should be a page whose VMMapEntry is "in" and whose real page matches 
+            the one returned for the corresponding "vmPage" by ConsiderCleaning, above.>>
+            vmEntry: VMMapEntry _ GetVMMap[vmPage];
+            WITH vmE: vmEntry SELECT InOut[vmEntry] FROM
+                out => {
+                    bufferEntry: VMMapEntry _ GetVMMap[bufferPage];
+                    WITH bE: bufferEntry SELECT InOut[bufferEntry] FROM
+                        in => {
+                            rmEntry: RMEntryPointer = @rmMap[bE.real];
+                            WITH rmE: rmEntry SELECT FROM
+                                reclaimable => {
+                                    newEntry: VMMapEntry = [
+                                        state: VMInternal.PageStateFromFlags[
+                                            [readonly: vmE.readOnly, dirty: FALSE, referenced: rmE.referenced]],
+                                        body: in[real: bE.real]
+                                        ];
+                                    IF rmE.virtual ~= vmPage THEN Crash[];
+                                    IF worked THEN {
+                                        rmE.dataState _ vmE.dataState;  -- computed by ConsiderCleaning
+                                        rmE.needsBackingStoreWrite _ FALSE;
+                                        }
+                                    ELSE {
+                                        rmEntry^ _ [
+                                            dataState: vmE.dataState, needsBackingStoreWrite: TRUE,
+                                            body: pinned[pinReason: cantBeWritten, pinCount: 1]];
+                                        --*stats*-- pinnedPages _ pinnedPages.SUCC;
+                                        --*stats*-- trappedPages _ trappedPages.SUCC;
+                                        };
+                                    SetVMMap[vmPage, newEntry];
+                                    <<The above SetVMMap implicitly cleared the "checkedOut" bit, so we must wake up any potential waiters.>>
+                                    BROADCAST checkIn;
+                                    };
+                                free, pinned => Crash[];
+                                ENDCASE;
+                            };
+                        out => Crash[];
+                        ENDCASE;
+                    vmE.checkedOut _ FALSE;
+                    vmE.dataState _ undefined;
+                    SetVMMap[bufferPage, vmE];
+                    };
+                in => Crash[];
+                ENDCASE;
+            };
+
+
+    <<Aging>>
+
+        Age: PUBLIC ENTRY PROC [vmPage: PageNumber] RETURNS [outcome: Outcome _ ok] = {
+            <<Interrupts must be disabled if the map entry says present, so that the resetting of "referenced" is atomic.  Interrupts need not 
+            be disabled if the map entry says "vacant", but it doesn't hurt, since we spend minimal time in that state and it 
+            simplifies the code.>>
+            <<This is a specialized procedure for VM.Age.>>
+            vmEntry: VMMapEntry;
+            PrincOpsUtils.DisableInterrupts[];
+            vmEntry _ GetVMMap[vmPage];
+            WITH vmE: vmEntry SELECT InOut[vmEntry] FROM
+                out => IF vmE.dataState = none THEN outcome _ addressFault;
+                in => AgeInternal[vmPage, vmE];
+                ENDCASE;
+            PrincOpsUtils.EnableInterrupts[];
+            };
+        <<>>
+    <<Laundry process support>>
+
+        GetCleaningCandidate: PUBLIC ENTRY PROC [
+            desired: PageCount, comfortLevel: PageCount, tryHard: LaundryMode]
+            RETURNS [interval: Interval _ VM.nullInterval, cleanSkipped: PageCount _ 0,
+            passes: INT, rover: RealPageNumber] = {
+            <<We could probably get away without claiming the monitor lock.>>
+            firstPass: BOOL _ TRUE;
+            ExpandAroundVP: PROC [vP: PageNumber] RETURNS [interval: Interval] = INLINE {
+                <<This procedure constructs an interval surrounding it whose 'dirty' and 'referenced' states are the same as 'vP'.  It implicitly 
+                uses 'desired' and 'firstPass' and updates 'cleaningRover'.>>
+                lowerLimit: PageNumber = (IF vP < desired THEN 0 ELSE vP - desired).SUCC;
+                p: PageNumber _ vP;
+                interval.page _ vP;
+                UNTIL interval.page = lowerLimit DO
+                    vmPage: PageNumber = interval.page.PRED;
+                    vmEntry: VMMapEntry = GetVMMap[vmPage];
+                    WITH vmE: vmEntry SELECT InOut[vmEntry] FROM
+                        in =>
+                            WITH rmMap[vmE.real] SELECT FROM
+                                rmE: reclaimable RMMapEntry =>
+                                    IF rmE.virtual ~= vmPage OR  -- in swap buffer
+                                        ~(vmE.state.flags.dirty OR rmE.needsBackingStoreWrite) OR
+                                        (vmE.state.flags.referenced AND tryHard = casual AND (vP-vmPage >  5)) THEN EXIT;
+                                rmE: pinned RMMapEntry => EXIT;
+                                rmE: free RMMapEntry => Crash[];
+                                ENDCASE;
+                        out => EXIT;
+                        ENDCASE;
+                    interval.page _ vmPage;
+                    ENDLOOP;
+                UNTIL (p - interval.page).SUCC = desired OR p = lastRealPage DO
+                    vmPage: PageNumber = p.SUCC;
+                    vmEntry: VMMapEntry = GetVMMap[vmPage];
+                    WITH vmE: vmEntry SELECT InOut[vmEntry] FROM
+                        in =>
+                            WITH rmMap[vmE.real] SELECT FROM
+                                rmE: reclaimable RMMapEntry =>
+                                    IF rmE.virtual ~= vmPage OR  -- in swap buffer
+                                        ~(vmE.state.flags.dirty OR rmE.needsBackingStoreWrite) OR
+                                        (vmE.state.flags.referenced AND tryHard = casual AND (vP-vmPage >  5)) THEN EXIT;
+                                rmE: pinned RMMapEntry => EXIT;
+                                rmE: free RMMapEntry => Crash[];
+                                ENDCASE;
+                        out => EXIT;
+                        ENDCASE;
+                    p _ vmPage;
+                    ENDLOOP;
+                interval.count _ (p - interval.page).SUCC;
+                };
+            cleanPages: PageCount _ 0;
+            current: RealPageNumber _ cleaningRover;
+            recentDirtyFound: BOOL _ FALSE;
+            DO
+                IF current = RealPageNumber.FIRST THEN {
+                    current _ lastRealPage;
+                    --*stats*-- rmCleanPasses _ rmCleanPasses.SUCC;
+                    }
+                ELSE current _ current.PRED;
+                SELECT TRUE FROM
+                    current = cleaningRover =>
+                        <<We have completed a scan of real memory.>>
+                        IF firstPass AND recentDirtyFound AND tryHard # casual THEN {
+                            firstPass _ FALSE;
+                            cleanPages _ 0;
+                            }
+                        ELSE EXIT;
+                    tryHard = casual AND cleanPages >= comfortLevel => {
+                        cleanSkipped _ cleanPages;
+                        EXIT;
+                        };
+                    ENDCASE;
+                WITH rmMap[current] SELECT FROM
+                    rmE: reclaimable RMMapEntry => {
+                        vP: PageNumber = rmE.virtual;
+                        vmEntry: VMMapEntry = GetVMMap[vP];
+                        WITH vmE: vmEntry SELECT InOut[vmEntry] FROM
+                            in => {
+                                refed: BOOL = vmE.state.flags.referenced;
+                                dirty: BOOL = vmE.state.flags.dirty OR rmE.needsBackingStoreWrite;
+                                IF vmE.real ~= current THEN Crash[];
+                                IF dirty THEN
+                                    IF refed AND firstPass THEN recentDirtyFound _ TRUE
+                                    ELSE {interval _ ExpandAroundVP[vP]; cleanSkipped _ cleanPages; EXIT}
+                                ELSE cleanPages _ cleanPages.SUCC;
+                                };
+                            out => NULL;  -- probably being swapped in
+                            ENDCASE;
+                        };
+                    ENDCASE => NULL;
+                ENDLOOP;
+            cleaningRover _ current;
+            passes _ rmCleanPasses;
+            rover _ cleaningRover;
+            };
+
+    <<>>
+    <<INTERNAL procedures>>
+
+            <<Warning: duplicate code for this procedure in VMStateImpl.GetCheckedInVMMap>>
+        GetCheckedInVMMap: INTERNAL PROC [vmPage: PageNumber, dontWait: BOOL _ FALSE]
+            RETURNS [vmEntry: VMMapEntry, success: BOOL _ TRUE] = INLINE {
+            firstTime: BOOL _ TRUE;
+            DO
+                vmEntry _ GetVMMap[vmPage];
+                WITH vmE: vmEntry SELECT InOut[vmEntry] FROM
+                    in => EXIT;
+                    out =>
+                        <<A note in VMInternal.VMMapEntry explains the following non-intuitive test.>>
+                        IF ~vmE.checkedOut OR vmE.dataState = none THEN EXIT;
+                    ENDCASE;
+                IF dontWait THEN {success_ FALSE; EXIT};
+                <<*stats*-->>
+                    IF firstTime THEN {checkoutConflicts _ checkoutConflicts.SUCC; firstTime _ FALSE};
+                WAIT checkIn;
+                ENDLOOP;
+            };
+
+    END.
+
+
+
+    <<Bob Hagmann April 21, 1986 10:59:13 am PST>>
+        <<added RemoteSwapInDone>>
+    <<>>
+    <<>>

@@ -1,0 +1,357 @@
+
+    <<VMAllocImpl.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Levin on November 15, 1983 2:59 pm>>
+    <<Russ Atkinson (RRA) January 30, 1985 10:01:12 pm PST>>
+        <<Doug Wyatt, February 26, 1985 10:01:32 am PST>>
+
+    DIRECTORY
+        Basics USING [bitsPerWord],
+        PrincOps USING [Port, zEXCH, zOR, zPOP, zPUSH, zXOR],
+        PrincOpsUtils USING [--DBITOR, DBITXOR,-- --D--BITSHIFT, GetReturnLink, SetReturnLink],
+        VM USING [Free, Interval, LogPageCount, nullInterval, PageCount, PageNumber, VMPartition],
+        VMInternal USING [AllocationOutcome, allocCounts, Crash, IsFree, logPagesIn64K, MarkAllocated, pagesIn64K, partitions],
+        VMSideDoor USING [vmPages],
+        VMStatistics USING [HistogramCounts, HistogramSizes];
+
+
+    VMAllocImpl: MONITOR LOCKS allocationLock
+    IMPORTS PrincOpsUtils, VM, VMInternal, VMSideDoor
+    EXPORTS VM, VMInternal, VMStatistics
+    = BEGIN OPEN VM;
+
+    CallerBug: ERROR = CODE;
+
+    <<>>
+    <<Global Variables protected by the monitor>>
+
+    rovers: ARRAY VMPartition OF PageNumber;
+
+    clump: Interval _ nullInterval;
+    <<>>
+    <<>>
+    <<Exports to VM>>
+
+
+    CantAllocate: PUBLIC ERROR [bestInterval: Interval] = CODE;
+
+    Allocate: PUBLIC SAFE PROC [
+        count: PageCount, partition: VMPartition _ normalVM, subRange: Interval _ [0, 0],
+        start: PageNumber _ 0, alignment: LogPageCount _ 0, in64K: BOOL _ FALSE]
+        RETURNS [interval: Interval] =  TRUSTED {
+        pagesIn64K: PageCount = VMInternal.pagesIn64K;
+        logPagesIn64K: PageCount = VMInternal.logPagesIn64K;
+        oldClump: Interval _ nullInterval;
+        AllocateEntry: ENTRY PROC RETURNS [outcome: VMInternal.AllocationOutcome] = INLINE {
+            <<Since we have acquired the allocation lock, we must not trigger any frame allocation, since a frame fault would then cause a 
+            deadlock.>>
+            IF in64K THEN {
+                IF count > pagesIn64K OR alignment > logPagesIn64K THEN RETURN[$badParameters];
+                IF partition = $normalVM AND subRange.count < count AND start = 0 THEN {
+                    breakage: PageCount;
+                    interval _ [page: RoundUp[clump.page, PagesForAlignment[alignment]], count: count];
+                    IF clump.count >= interval.count + (breakage _ interval.page - clump.page) THEN {
+                        oldClump _ [page: clump.page, count: breakage];
+                        clump.count _ clump.count - breakage - interval.count;
+                        clump.page _ interval.page + interval.count;
+                        RETURN[$ok]
+                        }
+                    ELSE { 
+                        savedRover: PageNumber = rovers[$normalVM];
+                        oldClump _ clump;  -- can't call Free here, since the monitor is held.
+                        IF ([interval: clump] _ AllocateVirtualMemoryInternal[
+                            count: pagesIn64K, alignment: logPagesIn64K, in64K: TRUE]).outcome = $ok THEN {
+                            interval _ [page: clump.page, count: count];
+                            clump.count _ clump.count - interval.count;
+                            clump.page _ interval.page + interval.count;
+                            rovers[$normalVM] _ savedRover;  -- try to avoid fragmentation
+                            RETURN[$ok]
+                            }
+                        ELSE clump _ nullInterval;
+                        };
+                    };
+                };
+            [outcome, interval] _
+                AllocateVirtualMemoryInternal[count, partition, subRange, start, alignment, in64K];
+            };
+        outcome: VMInternal.AllocationOutcome = AllocateEntry[];
+        IF oldClump.count ~= 0 THEN Free[oldClump];
+        SELECT outcome FROM
+            $ok => NULL;
+            $notFound => ERROR CantAllocate[bestInterval: interval];
+            $badParameters => ERROR CallerBug;
+            ENDCASE;
+        };
+
+    SimpleAllocate: PUBLIC SAFE PROC[count: PageCount] RETURNS[interval: Interval] = CHECKED {
+        RETURN[Allocate[count: count]];
+        };
+
+
+    <<Exports to VMStatistics>>
+
+    <<>>
+    FreeSpaceHistogram: PUBLIC PROC [
+        partition: VMPartition _ $normalVM,
+        sizes: VMStatistics.HistogramSizes _ NIL, counts: VMStatistics.HistogramCounts] = {
+        range: VM.Interval = VMInternal.partitions[partition];
+        limit: PageNumber = range.page + range.count;
+        page: PageNumber _ range.page;
+        runProc: PROC [size: PageCount] _ IF sizes = NIL THEN DefaultSizes ELSE ClientSizes;
+        DefaultSizes: PROC [size: PageCount] = {
+            IF size <= counts.LENGTH THEN counts[size.PRED] _ counts[size.PRED].SUCC
+            ELSE counts[counts.LENGTH.PRED] _ counts[counts.LENGTH.PRED].SUCC;
+            };
+        ClientSizes: PROC [size: PageCount] = {
+            <<Binary search>>
+            low: NAT _ 0;
+            high: NAT _ sizes.LENGTH.PRED;
+            probe: NAT;
+            UNTIL low > high DO
+                probe _ (low + high) / 2;
+                SELECT sizes[probe] FROM
+                    = size => EXIT;
+                    > size => IF probe = 0 THEN EXIT ELSE high _ probe.PRED;
+                    < size => IF (probe _ probe.SUCC) = sizes.LENGTH THEN EXIT ELSE low _ probe;
+                    ENDCASE;
+                REPEAT
+                    FINISHED => probe _ low;
+                ENDLOOP;
+            counts[probe] _ counts[probe].SUCC;
+            };
+        <<Validate parameters.>>
+        IF counts = NIL OR counts.LENGTH <= 1 THEN ERROR CallerBug;
+        IF sizes ~= NIL THEN {
+            IF sizes.LENGTH ~= counts.LENGTH.PRED THEN ERROR CallerBug;
+            IF sizes[0] = 0 THEN ERROR CallerBug;
+            FOR i: NAT IN [1..sizes.LENGTH) DO
+                IF sizes[i-1] >= sizes[i] THEN ERROR CallerBug;
+                ENDLOOP;
+            };
+        <<Build histogram.>>
+        FOR i: NAT IN [0..counts.LENGTH) DO counts[i] _ 0; ENDLOOP;
+        DO
+            runStart: PageNumber;
+            UNTIL page >= limit DO
+                <<skip over in-use run>>
+                IF VMInternal.IsFree[page] THEN EXIT;
+                page _ page.SUCC;
+                REPEAT
+                    FINISHED => EXIT;
+                ENDLOOP;
+            runStart _ page;
+            page _ page.SUCC;
+            UNTIL page >= limit DO
+                IF ~VMInternal.IsFree[page] THEN EXIT;
+                page _ page.SUCC;
+                ENDLOOP;
+            runProc[page - runStart];
+            ENDLOOP;
+        };
+    <<>>
+    <<>>
+    <<Exports to VMInternal>>
+
+    allocationLock: PUBLIC MONITORLOCK;
+
+    AllocateVirtualMemoryInternal: PUBLIC PROC [
+        count: PageCount, partition: VMPartition _ $normalVM, subRange: Interval _ [0, 0],
+        start: PageNumber _ 0, alignment: LogPageCount _ 0, in64K: BOOL _ FALSE]
+        RETURNS [outcome: VMInternal.AllocationOutcome, interval: Interval] _
+            LOOPHOLE[@AwaitAllocate];
+
+    <<>>
+    <<Internal procedures>>
+
+    AwaitAllocate: PORT [outcome: VMInternal.AllocationOutcome, interval: Interval]
+        RETURNS [count: PageCount, partition: VMPartition, subRange: Interval,
+        start: PageNumber, alignment: LogPageCount, in64K: BOOL];
+
+    InitializeAllocateVirtualMemoryInternal: PROC
+        RETURNS [outcome: VMInternal.AllocationOutcome, interval: Interval] = {
+        LOOPHOLE[AwaitAllocate, PrincOps.Port].dest _ PrincOpsUtils.GetReturnLink[];
+        DO
+            count: PageCount;
+            partition: VMPartition;
+            subRange: Interval;
+            start: PageNumber;
+            alignment: LogPageCount;
+            in64K: BOOL;
+            [count, partition, subRange, start, alignment, in64K] _ AwaitAllocate[outcome, interval];
+            <<The following is to permit the debugger to trace the stack.>>
+            PrincOpsUtils.SetReturnLink[LOOPHOLE[AwaitAllocate, PrincOps.Port].dest];
+            BEGIN
+            <<This block is the body of the actual allocation algorithm.>>
+            within: Interval _ VMInternal.partitions[partition];
+            --*stats*--
+                VMInternal.allocCounts[partition].requests _
+                    VMInternal.allocCounts[partition].requests.SUCC;
+            IF subRange.count >= count THEN {
+                IF ~(subRange.page IN [within.page..within.page+within.count)) OR
+                    ~(subRange.page+subRange.count IN (within.page..within.page+within.count]) THEN
+                        {outcome _ $badParameters; LOOP};
+                within _ subRange;
+                };
+            IF start = 0 THEN start _ rovers[partition]
+            ELSE IF ~(start IN [within.page..within.page+within.count)) THEN
+                {outcome _ $badParameters; LOOP};
+            interval _ FindHole[count, within, start, alignment, in64K];
+            IF interval.count = count THEN {
+                FOR page: PageNumber IN [interval.page..interval.page+interval.count) DO
+                    VMInternal.MarkAllocated[page];
+                    ENDLOOP;
+                outcome _ $ok;
+                rovers[partition] _ interval.page + interval.count - 1;
+                --*stats*--
+                    VMInternal.allocCounts[partition].requestsSatisfied _
+                        VMInternal.allocCounts[partition].requestsSatisfied.SUCC;
+                    VMInternal.allocCounts[partition].pagesAllocated _
+                        VMInternal.allocCounts[partition].pagesAllocated + count;
+                }
+            ELSE outcome _ $notFound;
+            END;
+            ENDLOOP;
+        };
+
+    FindHole: PROC [
+        count: PageCount, range: Interval, start: PageNumber, alignment: LogPageCount, in64K: BOOL]
+        RETURNS [bestFound: Interval] = INLINE {
+        <<This code was adapted from IFS's DiskFindHole.bcpl.>>
+        FindNextHole: PROC [
+            count: PageCount, scanRange: Interval, alignPages: PageCount, in64K: BOOL]
+            RETURNS [bestSeen: Interval _ [page: , count: 0]] = INLINE {
+            <<This procedure searches the interval "scanRange" looking for a contiguous hole of "count" pages beginning at a page "base" such 
+            that base MOD alignPages = 0.  If such a hole exists, the base of the hole is returned in "bestSeen.page" and 
+            "bestSeen.count" will equal "count".  Furthermore, this procedure guarantees to return the "leftmost" such hole, that 
+            is, bestSeen.page will be minimal (within "scanRange").  If no such hole exists, "bestSeen" will describe the largest 
+            hole actually encountered during the scan (which, however, may not be the largest hole present in "scanRange").  This 
+            hole will generally not satisfy the alignment constraint.>>
+            Crosses64KBoundary: PROC [start, end: PageNumber] RETURNS [BOOL] = INLINE {
+                DBITXOR: PROC [a, b: INT] RETURNS [INT] = MACHINE CODE {
+                    <<When Trinity/Klamath comes, use PrincOpsUtils.DBITXOR directly>>
+                    PrincOps.zPOP; PrincOps.zEXCH; PrincOps.zPUSH; PrincOps.zXOR; PrincOps.zEXCH;
+                    PrincOps.zPOP; PrincOps.zEXCH; PrincOps.zPUSH; PrincOps.zXOR; PrincOps.zEXCH;
+                    };
+                RETURN[--PrincOpsUtils.--DBITXOR[start, end] >= VMInternal.pagesIn64K]
+                };
+            IF count <= scanRange.count THEN {
+                base, exBase: PageNumber _ RoundUp[scanRange.page, alignPages];
+                lastPage: PageNumber _ scanRange.page + scanRange.count - count;
+                UNTIL base > lastPage DO
+                    <<Invariants:>>
+                        <<exBase >= base>>
+                        <<[base..exBase) have been searched exhaustively and are known to be free>>
+                    top: PageNumber = base + count - 1;
+                    IF in64K AND Crosses64KBoundary[base, top] THEN
+                        base _ exBase _ RoundUp[base, VMInternal.pagesIn64K]
+                    ELSE
+                        FOR page: PageNumber DECREASING IN [exBase..top] DO
+                            IF ~VMInternal.IsFree[page] THEN {
+                                IF top - page > bestSeen.count THEN {
+                                    bestSeen.count _ top - page; bestSeen.page _ page + 1};
+                                <<Try now for a new hole starting at page+1. (page..top] are known to be free.>>
+                                base _ RoundUp[page + 1, alignPages];
+                                exBase _ MAX[top + 1, base];
+                                EXIT
+                                };
+                            REPEAT
+                                FINISHED => RETURN [[base, count]];
+                            ENDLOOP;
+                    ENDLOOP;
+                };
+            };
+        endRange: PageNumber = range.page + range.count - 1;
+        alignPages: PageCount = PagesForAlignment[alignment];
+        bestFound _ FindNextHole[count, [start, range.count - (start - range.page)], alignPages, in64K];
+        IF bestFound.count = count THEN RETURN;
+        IF start ~= range.page THEN {
+            bestFound _ FindNextHole[
+                count, [range.page, MIN[start - range.page + count, range.count]], alignPages, in64K];
+            IF bestFound.count = count THEN RETURN;
+            };
+        <<There is no hole of the requested size and alignment.  "bestFound" is some smaller hole, probably misaligned.  The code that 
+        follows sets "bestFound" to the leftmost, largest free interval less than "count" plages in length, but does not guarantee 
+        that this interval satisfies the alignment constraint.  (Implementation note for future reference:  to do this would seem 
+        to require iterating on FindNextHole with decreasing counts until an interval is found that satisfies the alignment 
+        constraint.  Unfortunately, this is much more expensive, since the trick used below to limit the search to a single pass of 
+        the VM map doesn't work.)>>
+        IF bestFound.count = 0 THEN
+            FOR page: PageNumber IN [range.page..range.page + range.count) DO
+                IF VMInternal.IsFree[page] THEN {bestFound.page _ page; bestFound.count _ 1; EXIT};
+                REPEAT
+                    FINISHED => RETURN;  -- "range" is completely allocated
+                ENDLOOP;
+        <<The following two conditions now hold:>>
+            <<"bestFound" describes a non-empty hole within "range">>
+            <<For any range q with range.page <= q.page < bestFound.page and q.count = bestFound.count, q contains at least one allocated page. 
+             That is, bestFound.page describes the "leftmost" hole of size bestFound.count.>>
+        <<The following loop increases bestFound.count holding the above conditions invariant.  When it terminates, bestFound describes the 
+        leftmost, largest interval of fewer than "count" pages that is unallocated.  Note that "remainingRange.page" increases 
+        monotonically throughout this loop, thus at worst a single pass over the VM map is required to find the best hole.>>
+        DO
+            remainingRange: Interval _
+                [page: bestFound.page + bestFound.count,
+                count: range.count - (bestFound.page + bestFound.count - range.page)];
+            newBest: Interval _ FindNextHole[bestFound.count + 1, remainingRange, 1, FALSE];
+            page: PageNumber _ newBest.page + bestFound.count + 1;
+            IF newBest.count <= bestFound.count THEN EXIT;  -- no progress
+            <<Assert: newBest.count = bestFound.count + 1>>
+            <<Find out how many pages immediately following newBest are also unallocated.>>
+            WHILE page <= endRange AND VMInternal.IsFree[page] DO
+                page _ page + 1;
+                ENDLOOP;
+            bestFound _ [page: newBest.page, count: page - newBest.page];
+            ENDLOOP;
+        };
+
+    RoundUp: PROC [page: PageNumber, count: PageCount] RETURNS [PageNumber] = INLINE {
+        <<"count" must be a power of two.>>
+        DBITOR: PROC [a, b: INT] RETURNS [INT] = MACHINE CODE {
+            <<When Trinity/Klamath comes, use PrincOpsUtils.DBITOR directly>>
+            PrincOps.zPOP; PrincOps.zEXCH; PrincOps.zPUSH; PrincOps.zOR; PrincOps.zEXCH;
+            PrincOps.zPOP; PrincOps.zEXCH; PrincOps.zPUSH; PrincOps.zOR; PrincOps.zEXCH;
+            };
+        RETURN[--PrincOpsUtils.--DBITOR[page-1, count-1]+1]
+        };
+
+    PagesForAlignment: PROC [alignment: LogPageCount] RETURNS [PageCount] = INLINE {
+        Hack: TYPE = MACHINE DEPENDENT RECORD [low, high: CARDINAL];
+        RETURN[  -- Trinity/Klamath:  PrincOpsUtils.DBITSHIFT[1, alignment]
+            IF alignment >= Basics.bitsPerWord THEN
+                LOOPHOLE[Hack[low: 0, high: PrincOpsUtils.BITSHIFT[1, alignment - Basics.bitsPerWord]]]
+            ELSE LONG[PrincOpsUtils.BITSHIFT[1, alignment]]
+            ]
+        };
+
+    UpdateVMLimit: PUBLIC ENTRY PROC [pages: VM.PageCount] = {
+        IF pages < VMSideDoor.vmPages THEN VMInternal.Crash[];
+        VMSideDoor.vmPages _ pages;
+        VMInternal.partitions[$normalVM].count _ pages - VMInternal.partitions[$normalVM].page;
+        };
+    <<>>
+    <<>>
+    NoteFreePages: PUBLIC ENTRY PROC [interval: VM.Interval] = {
+        <<Since we have acquired the allocation lock, we must not trigger any frame allocation, since a frame fault would then cause a 
+        deadlock.>>
+        FOR partition: VMPartition IN VMPartition DO
+            pi: VM.Interval = VMInternal.partitions[partition];
+            IF interval.page IN [pi.page..pi.page+pi.count) THEN {
+                IF rovers[partition] > interval.page THEN rovers[partition] _ interval.page;
+                --*stats*--
+                    VMInternal.allocCounts[partition].pagesFreed _
+                        VMInternal.allocCounts[partition].pagesFreed + interval.count;
+                EXIT
+                }
+            ENDLOOP;
+        };
+
+    <<Initialization>>
+
+    FOR partition: VMPartition IN VMPartition DO
+        rovers[partition] _ VMInternal.partitions[partition].page;
+        ENDLOOP;
+    [] _ InitializeAllocateVirtualMemoryInternal[];
+
+    END.
+    <<>>
+    <<>>

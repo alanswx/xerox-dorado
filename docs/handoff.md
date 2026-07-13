@@ -1,44 +1,114 @@
 # Handoff: continue building the Xerox Dorado emulator
 
-## 2026-07-12 Cedar GUI / STP-loader bring-up
+## 2026-07-12 (late): Cedar loadee death root-caused — the WDC climb is the
+## debugger-entry storm; the real frontier is a wild monitor-lock pointer in
+## the post-load START phase
 
 **Current goal:** bring Cedar 6.1 from the SimpleTerminal login through
 `Basic.Loadees` to the Viewer desktop.  Do not call this path working until a
 Viewer/desktop framebuffer is captured.
 
-**Where it currently stops:** Guest login completes the complete remote-loader
-sequence: `Basic.Loadees` plus all 33 BCDs (**34 distinct payload files**) are
-requested and transferred from `chm/cedar/stp-root`, including `End.bcd`.
-There is no longer an STP/EFTP server-name, missing-file, packet, or transfer
-hang at this point. A stale `FS.Error: Couldn't find the server` message can
-remain in SimpleTerminal scrollback; do not use it as evidence of the current
-network state.
+**All 34 files transfer.** Guest login completes the full remote-loader
+sequence from `chm/cedar/stp-root`, ending with `Viewers>End.bcd` at cycle
+~4,820,750,000. The failure comes **after** the load, while LoaderDriver
+STARTs the loaded packages — not at `InterpreterTool.bcd` as previously
+written. A stale `FS.Error` line in SimpleTerminal scrollback is not
+evidence of network state.
 
-**Actual current blocker:** the loader reaches `InterpreterTool.bcd`, then
-Pilot's Wakeup Disable Counter (`WDC`, RM[6]) climbs without a matching
-`DWDC`. The first deterministic write of `0333B` is at cycle
-`4963123921`, task 0, micro-PC `0516`, while the IFU is dispatching Mesa
-opcode `370B` (`PCX=1554B`, `PCF=1556B`). The loaded instruction is a real
-`WDC <- WDC+1` / `IWDC` increment, not host-memory corruption.
+**Proven death chain** (RM[6] write-watch, gated IFUDISP captures, µtrace,
+and map census, all deterministic from the 700M snapshot):
 
-**Dead state:** by 5B cycles `WDC=0333B`, `NWW=100000B`,
-`CurrentPSB=0`, and `PDA.ready=0`; `CurrentTime` remains frozen at `17613B`.
-`PilotMesaProcess.mc` defines that as an invalid idle state: `BusyWait`
-branches to `MTrap` when `WDC # 0`, so it cannot consume the pending timer
-interrupt.  An opt-in diagnostic that clears WDC restores 60-Hz timer ticks;
-an opt-in ready-queue probe then finds PSB `0100B` detached despite being
-runnable. Re-inserting that PSB makes it fault into the Pilot fault queue,
-so neither host-side recovery is a valid fix. The underlying bug is therefore
-the unmatched `IWDC` / scheduler path before that point, not STP, EFTP, or a
-missing BCD.
+1. At cycle `4828691614`, task-0 guest code executes a monitor-enter-family
+   opcode (`0o147`, alpha `0o20`, µdispatch vec `0o714`) whose long lock
+   pointer is garbage: the fetch goes through `MemBase=MLBR (0o34)` with
+   `BR=0o1431263151` — the low bytes are ASCII `"efi"`, a pointer field
+   read from string text. The executing module's code lies inside the
+   mapped `FilePackage` BCD region (`br31=0x42708` = VA `0o1023410`, inside
+   `file FilePackage[0,7]` per `BasicCedarDorado.loadmap!69`, fetched to
+   `chm/cedar/basiccedar/`); its caller is freshly-loaded loadee code at
+   VA ~`0o1305440` (`br31=0x58B20`).
+2. The page fault on that wild VA becomes an uncaught `VM.AddressFault`:
+   Signaller -> `DebugNub.Catcher` -> `CoreSwap` -> `DisableInterrupts`
+   (WDC 0->1) -> `ToDebugger` port -> `MemorySwap.SwapIt` -> no debugger ->
+   `SetMP[cantWorldSwap]` -> `GermSwap.Teledebug`. The rebalancing
+   `WriteWDC[savewdc]`/`EnableInterrupts` path never runs for these entries,
+   so **every debugger entry permanently increments WDC**. After the first
+   one, `MesaResched1` always takes `MesaIntDisabled` (WDC#0): no interrupt
+   is ever processed again and `CurrentTime` freezes.
+3. Frame faults follow whose state-vector `fsi`
+   (`PDA[PDA[process].context.state].fsi`, `FrameFaultProcess`) yields
+   `frSize ~= 0xFFFF`, so `framePiecePages = 257` — one page more than the
+   entire 256-page `$mds` partition. `AllocateVirtualMemoryInternal[count,
+   $mds]` fails **without a single FindHole map probe** (count > partition;
+   verified: zero `aGETMAPFLAGS` MISC-alpha-`0o151` reads in the failing
+   window), and VMFaultsImpl calls `WorryCallDebugger["No VM for frame
+   heap"L]` — 217 more times, each leaking +1 WDC through the same debugger
+   entry. The MDS is NOT full: the map census shows ~140 free pages in ONE
+   contiguous hole at failure time.
+4. By cycle `4963123921` WDC reaches `0333B` (219 unmatched debugger-entry
+   `IWDC`s). With every faulted process frozen on `PDA.fault[qFreeze]` (the
+   earlier "detached but runnable PSB 0100B" was a frozen PSB) and WDC#0,
+   `BusyWait` MTraps: dead state `NWW=100000B`, `CurrentPSB=0`,
+   `CurrentTime=17613B`, as previously recorded.
+
+**Superseded:** the "unmatched IWDC / scheduler / Requeue bug" framing. The
+WDC climb is Cedar's *intended* stop-the-world debugger reaction repeated
+219 times; `IWDC`/`DWDC`/`MesaInterrupt`/`Requeue` execute correctly (5,419
+increments vs 5,420 decrements balanced outside the debugger entries). The
+host-side WDC/ready recovery probes remain invalid fixes, as before.
+
+**Exonerated (do not re-investigate):**
+
+- STP/BSP protocol and the per-sector IOCB cache path: a pre-failure
+  snapshot's guest storage matches **all 34 BCD files byte-exact**
+  (`tools/cedar_bcd_verify.py`; zero partial-mismatch pages; "absent" pages
+  are merely swapped out).
+- Map-op emulation on this path: the world uses the *long* map ops (`zMISC`
+  alphas `0o150 SETMAP` / `0o151 GETMAPFLAGS`; `useLong=TRUE` per
+  `VMInternal`), implemented in microcode (dispatch observed), and the
+  successful `$normalVM` allocations read the map correctly through our
+  `RMap<-`/Pipe path.
+- Background only: the old 1-word map ops (`aGETF`/`aASSOC`, see
+  `chm/doradomicrocode/doradomicrocodesources/CedarMesa10MBMiscOps.mc!1`,
+  fetched today) carry a pre-Trinity "crock" that VACATES any map entry
+  whose real page exceeds `0o7777` when read. Not implicated here, but it
+  matters if a world ever runs those ops with `useLong=FALSE` on our >1MW
+  configuration.
+
+**Next diagnostic:** chase the wild monitor-lock pointer of step 1. Rerun
+with `DORADO_TRACE_GATE=4828683000,4828693000 DORADO_IFUDISP_TRACE=1
+DORADO_FAULT_TRACE=all` and walk back from the `FAULT_CPU` line (µPC
+`0o606`, `mesa_pc=0x029A`, opcode `0o147 alpha=0o20` at `pcf=0o1232`,
+`br31=0x42708`) to where the caller (`br31=0x58B20`, `pcf`
+`0o2676..0o3263`) obtained the pointer argument. Suspect class per project
+history: µengine mis-execution around XFER/state-vector/operand delivery in
+freshly-STARTed loadee code (cf. the Md-bypass and IFU-operand offset
+sagas), not data corruption.
 
 **Source evidence:** `chm/cedar/refs/PilotMesaProcess.mc!1` defines `IWDC`,
-`DWDC`, `MesaInterrupt`, `IdleReschedule`, and `BusyWait`; the latter explicitly
-rejects an idle nonzero WDC. `chm/cedar/cedar6.1/vm/VMFaultsImpl.mesa!1` shows
-that `PageFaultProcess` receives `qPageFault` and calls `VM.SwapIn`, while
-`FrameFaultProcess` allocates/maps frames locally then restarts the faultee.
-Neither handler should produce another STP transfer. The absence of an
-additional network request is therefore expected after the 34-file load.
+`DWDC`, `MesaInterrupt`, `IdleReschedule`, and `BusyWait` (which rejects an
+idle nonzero WDC). `chm/cedar/tentacles/` (fetched today) holds
+DebugNub/GermSwapImpl/DebuggerSwap: `CoreSwap`'s `DI; ToDebugger; EI` loop,
+`MemorySwap.SwapIt`'s `savewdc`/`WriteWDC` bracket, and the freeze machinery
+(`FreezingPoint`, `qFreeze=3`). `chm/cedar/cedar6.1/vm/` (completed today)
+holds VMFaultsImpl/VMAllocImpl/VMInternal/VMInitImpl: `FrameFaultProcess`,
+`AllocateForLocalFrames`, `AllocateVirtualMemoryInternal`,
+`FindHole`/`IsFree`, and the `VMMapEntry`/`useLong` definitions cited above.
+
+**New diagnostics (all trace-only):**
+
+- `DORADO_MAPCOUNT="lo,hi,interval"` — periodic census of map entries over a
+  VA range, classified the way Pilot's allocator reads them (mapped /
+  vacant-free / vacant-allocated / vacant-with-Ref); with
+  `DORADO_MAPCOUNT_LAYOUT=1` also prints a per-page I/F/A/R string so hole
+  sizes can be computed (machine.c).
+- `FAULTREG src=Pipe3'` — `B<-Pipe3'`/`Map'` reads now log under
+  `DORADO_FAULTREG_TRACE=1` like the existing Pipe2'/Pipe4' lines (cpu.c).
+- `tools/cedar_bcd_verify.py` — verifies loadee BCD content inside a
+  `--snapshot-out` image against the `--ftp-root` originals.
+- Offline disk inspection: copy the PDI, run with `DORADO_PDI_SAVE=1`, then
+  `build/pdidump`. Note Cedar's laundry keeps the STP cache almost entirely
+  in VM, so the disk image alone does not contain the transferred BCDs.
 
 **Recent emulator fixes:** the CPU cycle counter is now 64-bit (long Cedar
 runs no longer wrap), and the Pilot timer channel mask is `0100000B`, as in
@@ -103,15 +173,21 @@ DORADO_PDI_IGNORE_LABEL_FLAGS=1 DORADO_FTP_TRACE=1 ./build/dorado \
   --pilot-disk /private/tmp/CedarDorado-chs-contig10.pdi \
   --ftp-root ../chm/cedar/stp-root \
   --type-at 760000000 --type 'Guest\n\n' \
-  --cycles 2400000000 --out /private/tmp/cedar-request.pgm \
+  --cycles 5400000000 --out /private/tmp/cedar-request.pgm \
   2>/private/tmp/cedar-request.log
 ```
 
+(The full timeline needs ~5B cycles: End.bcd transfers at ~4.82B, the wild
+fault is at 4,828,691,614, the final WDC write at 4,963,123,921. A 2.4B run
+stops mid-transfer at TiogaPackage.bcd.)
+
 `make build/dorado build/test_cpu && ./build/test_cpu` and `./build/test_pdi`
 pass after the 64-bit/timer changes. The full `make test` still has the
-pre-existing `test_ethernet` NetDir reply mismatch. Next diagnostic: log only
-the queue roots and PSB words around cycle `2015316632`, then trace the
-specific original `Requeue` path rather than guessing at a scheduler fix.
+pre-existing `test_ethernet` NetDir reply mismatch. Next diagnostic: the
+wild-monitor-lock-pointer capture described at the top of this file (the
+earlier "trace the Requeue path around cycle 2015316632" suggestion is
+superseded — that store was `MesaFault` legitimately parking a faulted
+process on a fault queue).
 
 This document is for the next person (or LLM) picking up this project.
 Read it first. It tells you the current state, what's runnable, what's

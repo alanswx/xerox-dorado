@@ -1,0 +1,811 @@
+
+    <<VMStateImpl.mesa>>
+        <<Copyright © 1984 by Xerox Corporation.  All rights reserved.>>
+        <<Russ Atkinson on January 30, 1985 10:35:27 pm PST>>
+        <<Bob Hagmann on April 21, 1986 10:54:34 am PST>>
+
+    DIRECTORY
+        PrincOps USING [flagsClean, flagsNone, flagsVacant, PageFlags, PageState, PageValue, Port, RealPageNumber],
+        PrincOpsUtils USING [DisableInterrupts, EnableInterrupts, GetReturnLink, SetReturnLink],
+        ProcessorFace USING [firstSpecialRealPage, specialRealPages],
+        VMBacking USING [BriefPageState],
+        VMEmergency USING [EmergencyList],
+        VMInternal USING [AddToFreeList, AgeInternal, AllocCount, Crash, DataState, freeList, freePages, GetPageValue, GetVMMap, 
+        InitializeTables, InOut, Interval, IsVacant, Outcome, PageCount, PageNumber, PageState, PageStateFromFlags, RMEntryPointer, 
+        rmMap, RMMapEntries, RMMapEntry, SetPageFlags, SetPageValue, SetVMMap, SpecialMemoryOutcome, Victim, VMMapEntry, 
+        VMPartition],
+        VMSideDoor USING [vmPages],
+        VMStatistics USING [pinnedPages];
+
+    VMStateImpl: MONITOR LOCKS vmStateLock
+        IMPORTS PrincOpsUtils, ProcessorFace, VMInternal, VMSideDoor, VMStatistics
+        EXPORTS VMBacking, VMEmergency, VMInternal, VMStatistics
+        SHARES VMInternal = BEGIN OPEN PrincOps, VMInternal;
+    <<>>
+    <<Notes on the implementation:>>
+        <<>>
+        <<The representation of the mapping from virtual page number to its associated PageState is partitioned into two pieces.  A portion 
+        called the VM map is used for virtual memory pages that do not have an associated real memory page.  A portion called the 
+        RM map is used for virtual memory pages that have an associated real memory page.  (The RM map also holds other 
+        information, as will be discussed shortly.)  Thus, to locate the PageState for a given (virtual) page, one first consults 
+        the hardware PageMap.  If the flags say "vacant", the PageState is stored in the VM map; otherwise, it is stored in the RM 
+        map.>>
+        <<>>
+        <<The representation of information in the VM map can be considerably optimized.  First, PageState.hasRealMemory is implicitly 
+        FALSE and PageState.pinCount isn't meaningful.  Thus, only PageState.readOnly and PageState.dataState need to be explicitly 
+        represented, requiring 3 bits per page.  Second, we can use a trick that relies on the hardware implementation of the 
+        PageMap on all of the machines of interest (Dolphin, Dorado, Dandelion).  Although the PrincOps specifies that if both 
+        dirty and write-protected are TRUE (indicating "vacant"), the real page number is undefined, the hardware does not enforce 
+        this restriction and is capable of retaining a few bits of information (<= 12) in what would otherwise be the real page 
+        number.  This is simply because the map is implemented as a table lookup in a memory at least 16 bits wide of which at most 
+        4 are used for flags.  The VM map can therefore be comfortably stored in the available memory of the PageMap.>>
+        <<>>
+        <<If RMEntry.rmState is "reclaimable", the real memory is available for reclamation by the real memory allocator (if it does so, it 
+        uses the "virtual" field to set the PageMap entry to "vacant").  If RMEntry.rmState is "pinned", the real memory allocator 
+        is prohibited from reclaiming this page.  Note that the RMMap does not encode the virtual memory location of pinned real 
+        memory.  This is not necessary, since the operation that changes rmState from "pinned" to "reclaimable" (Unpin) supplies 
+        the necessary PageNumber.  Furthermore, this representation permits the reservation of specific real memory without 
+        necessarily associating it with virtual memory, a convenience in dealing with the Dandelion's display memory.  If the 
+        needsBackingStoreWrite Boolean is TRUE, the bits in this page of real memory are known not to be present on backing 
+        storage.  The "or" of needsBackingStoreWrite and the PageMap "dirty" bit is used to decide if the page must be written out 
+        as part of reclaiming it (see the AllocateForSwapIn and ConsiderCleaning procedures, below).  The dataState field in an 
+        RMMap entry should never be "none", but may be "undefined" (implying "killed").  Finally, if RMEntry.rmState is "free", the 
+        "next" field is used to chain unallocated real memory pages together.  This provides the real memory allocator with a list 
+        of prime candidates for allocation.>>
+        <<>>
+        <<All of the procedures in this interface share a monitor that protects the RM map, VM map, and PageMap.  
+        AllocateRealMemoryInternal needs to be available to the frame fault handler (via AllocateForLocalFrames) and therefore must 
+        be a coroutine (AllocateRealMemoryInternal) with its two callers, AllocateForLocalFrames and AllocateForSwapIn, entering 
+        the monitor to ensure mutual exclusion.  To avoid possible recursion in frame fault handling, AllocateRealMemoryInternal 
+        must not call any procedures.  To avoid deadlock, therefore, all other procedures that enter the monitor must not call 
+        procedures either.>>
+        <<>>
+        <<A note on checkout/checkin:>>
+            <<This is not a general purpose facility.  It is intended to permit parellelism between the VM operations that do not require I/O 
+            and those that do (SwapIn, Clean).  Thus, a page can only be checked out when its hardware map entry says "vacant" (the 
+            map is always in this state during swapper I/O).  The procedures below that implement non-I/O VM operations all test if 
+            the page in question is checked out and, if so, wait until it is checked in (releasing the monitor while they wait).  
+            Checkout occurs only as a part of AllocateForSwapIn and ConsiderCleaning, and checkin occurs only as a part of 
+            RelocateAfterSwapIn and MarkClean.>>
+
+
+
+    <<The following monitor lock is used to protect the data structures of this module.  It is exported so that the inline procedures 
+    in the VMInternal interface (which logically belong to this implementation module) can use it.>>
+
+    vmStateLock: PUBLIC MONITORLOCK;
+
+    <<The following global variables are protected by vmStateLock.>>
+
+    freeList: PUBLIC RealPageNumber;
+    freePages: PUBLIC INT _ 0;
+
+    rmMap: PUBLIC LONG POINTER TO RMMapEntries;
+    lastRealPage: PUBLIC RealPageNumber;
+        <<index of last entry in rmMap>>
+    cleaningRover: PUBLIC RealPageNumber _ RealPageNumber.FIRST;
+        <<rover for GetCleaningCandidate>>
+
+    checkIn: PUBLIC CONDITION _ [timeout: 0];
+
+    <<The following constant is useful in various places>>
+    <<>>
+    vacantEntry: VMMapEntry =  [
+        state: VMInternal.PageStateFromFlags[PrincOps.flagsVacant],
+        body: out[
+            checkedOut: FALSE,
+            readOnly: FALSE,
+            dataState: undefined
+            ]
+        ];
+    <<>>
+    <<Emergency pages for frame allocation>>
+
+        emergencyList: PUBLIC VMEmergency.EmergencyList _ NIL;
+
+    <<Exports to VMStatistics>>
+    <<>>
+        rmCleanPasses: PUBLIC INT _ 0;
+
+        readOnlyPages: PUBLIC INT _ 0;
+        pinnedPages, trappedPages: PUBLIC INT _ 0;
+
+        checkoutConflicts: PUBLIC INT _ 0;
+        rmReclamations: PUBLIC INT _ 0;
+        rmFreeList, rmOldClean, rmNewClean, rmDirty: PUBLIC INT _ 0;
+        rmAllocPasses: PUBLIC INT _ 0;
+
+    <<Exports to VMStatistics>>
+    <<>>
+        VirtualAllocation: PUBLIC PROC [partition: VMPartition]
+            RETURNS [pagesAllocated, pagesFreed, pagesInPartition: PageCount] = {
+            RETURN[
+                pagesAllocated: allocCounts[partition].pagesAllocated,
+                pagesFreed: allocCounts[partition].pagesFreed,
+                pagesInPartition: partitions[partition].count
+                ]
+            };
+
+    <<Exports to VMBacking>>
+    <<>>
+        StateFromPageValue: PUBLIC SAFE PROC [map: PrincOps.PageValue]
+            RETURNS [VMBacking.BriefPageState] = TRUSTED {
+            <<The following works even if we are presented with a non-vacant map entry, but Andrew assures me that we won't!>>
+            vmEntry: VMMapEntry _ [
+                state: map.state,
+                body: in[real: map.real]
+                ];
+            WITH vmE: vmEntry SELECT InOut[vmEntry] FROM
+                out => RETURN[
+                    SELECT vmE.dataState FROM
+                        none => free,
+                        undefined => killed,
+                        ENDCASE => active
+                    ];
+                in => RETURN[active];
+                ENDCASE => ERROR;
+            };
+
+    <<Exports to VMBacking>>
+        <<>>
+        RecoverRealMemory: PUBLIC PROC = {
+            <<See comment in the interface for a description of this crock.  It completely trashes the virtual memory abstraction, except for 
+            those pages that already have real memory.>>
+            vmPage: PageNumber _ 0;
+            firstSpecialReal: RealPageNumber = ProcessorFace.firstSpecialRealPage;
+            countSpecialReal: PageCount = ProcessorFace.specialRealPages;
+            THROUGH [0..freePages) DO
+                realPage: RealPageNumber = freeList;
+                UNTIL VMInternal.IsVacant[vmPage] DO vmPage _ vmPage.SUCC; ENDLOOP;
+                VMInternal.SetPageValue[
+                    vmPage, [VMInternal.PageStateFromFlags[PrincOps.flagsNone], realPage]];
+                vmPage _ vmPage.SUCC;
+                WITH rmMap[realPage] SELECT FROM
+                    rmE: free RMMapEntry => freeList _ rmE.next;
+                    ENDCASE => Crash[]; 
+                ENDLOOP;
+            IF countSpecialReal > 0 THEN
+                FOR vmPage IN [0..VMSideDoor.vmPages) DO
+                    state: PrincOps.PageState;
+                    real: RealPageNumber;
+                    [state, real] _ VMInternal.GetPageValue[vmPage].pv;
+                    IF state.flags ~= PrincOps.flagsVacant AND
+                        real IN [firstSpecialReal..firstSpecialReal+countSpecialReal) THEN
+                        VMInternal.SetPageFlags[vmPage, 0, PrincOps.flagsVacant];
+                    ENDLOOP;
+            };
+
+    <<>>
+    <<Exports to VMInternal>>
+    <<>>
+        <<Virtual Memory Allocation>>
+        <<>>
+        partitions: PUBLIC ARRAY VMPartition OF Interval;
+        <<>>
+        --*stats*-- allocCounts: PUBLIC ARRAY VMPartition OF AllocCount _ ALL[[0, 0, 0, 0]];
+
+        <<Real Memory Allocation>>
+
+        Unpin: PUBLIC ENTRY PROC [vmPage: PageNumber] RETURNS [outcome: Outcome _ ok] = {
+            vmEntry: VMMapEntry = GetCheckedInVMMap[vmPage].vmEntry;
+            WITH vmE: vmEntry SELECT InOut[vmEntry] FROM
+                in => {
+                    rmE: RMEntryPointer = @rmMap[vmE.real];
+                    WITH rmE: rmE SELECT FROM
+                        free => Crash[];
+                        reclaimable => NULL;
+                        pinned =>
+                            <<Perhaps we should complain if rmE.pinReason ~= normal?>>
+                            IF rmE.pinReason = normal THEN
+                                SELECT rmE.pinCount FROM
+                                    0 => Crash[];
+                                    1 => {
+                                        rmMap[vmE.real].body _ reclaimable[virtual: vmPage];
+                                        --*stats*-- pinnedPages _ pinnedPages.PRED;
+                                        };
+                                    ENDCASE =>
+                                        rmE.pinCount _ rmE.pinCount - 1;
+                        ENDCASE;
+                    };
+                out => IF vmE.dataState = none THEN outcome _ addressFault;
+                ENDCASE;
+            };
+
+        PrepareToAllocateSpecialRealMemory: PUBLIC ENTRY PROC [
+            vmPage: PageNumber, buffer: PageNumber, special: PageNumber]
+            RETURNS [outcome: SpecialMemoryOutcome _ needsCopy] = {
+            vmEntry: VMMapEntry _ GetCheckedInVMMap[vmPage].vmEntry;
+            specialFlags: PrincOps.PageFlags _ PrincOps.flagsNone;
+            readOnly: BOOL _ FALSE;
+            specialEntry: in VMMapEntry;
+            newRME: RMMapEntry _ [
+                dataState: NULL, needsBackingStoreWrite: FALSE,
+                body: pinned[pinReason: specialRealPageInUse, pinCount: 0]
+                ];
+            WITH vmE: vmEntry SELECT InOut[vmEntry] FROM
+                out => {
+                    SELECT (newRME.dataState _ vmE.dataState) FROM
+                        none => RETURN[addressFault];
+                        undefined => outcome _ noTransfer;
+                        ENDCASE => outcome _ needsIO;
+                    readOnly _ vmE.readOnly;
+                    };
+                in => {
+                    WITH rmE: rmMap[vmE.real] SELECT FROM
+                        free => Crash[];
+                        reclaimable => {
+                            SELECT (newRME.dataState _ rmE.dataState) FROM
+                                none => Crash[];
+                                undefined =>
+                                    outcome _ IF vmE.state.flags.dirty THEN needsCopy ELSE noTransfer;
+                                ENDCASE => outcome _ needsCopy;
+                            newRME.needsBackingStoreWrite _ rmE.needsBackingStoreWrite;
+                            };
+                        pinned => RETURN[badParameter];   -- either already special or pinned
+                        ENDCASE;
+                    specialFlags _ vmE.state.flags;
+                    readOnly _ specialFlags.readonly;
+                    specialFlags.readonly _ FALSE;
+                    };
+                ENDCASE;
+            specialEntry _ [
+                state: VMInternal.PageStateFromFlags[specialFlags],
+                body: in[real: NULL]
+                ];
+            IF ~([realPage: specialEntry.real] _ AllocateSpecialPage[newRME]).ok THEN
+                RETURN[noMemory];
+            SetVMMap[vmPage, [
+                state: VMInternal.PageStateFromFlags[PrincOps.flagsVacant],
+                body: out[checkedOut: TRUE, readOnly: readOnly, dataState: newRME.dataState]
+                ]];
+            SetVMMap[buffer, vmEntry];
+            SetVMMap[special, specialEntry];
+            };
+        <<>>
+        FinishAllocateSpecialRealMemory: PUBLIC ENTRY PROC [
+            vmPage: PageNumber, buffer: PageNumber, special: PageNumber, worked: BOOL] = {
+            specialEntry: VMMapEntry _ GetVMMap[special];
+            vmEntry: VMMapEntry = GetVMMap[vmPage];
+            readOnly: BOOL;
+            WITH vmE: vmEntry SELECT InOut[vmEntry] FROM
+                out => readOnly _ vmE.readOnly;
+                ENDCASE => Crash[];
+            WITH specialE: specialEntry SELECT InOut[specialEntry] FROM
+                in =>
+                    IF worked THEN {
+                        bufferEntry: VMMapEntry = GetVMMap[buffer];
+                        WITH bE: bufferEntry SELECT InOut[bufferEntry] FROM
+                            in => AddToFreeList[bE.real];
+                            ENDCASE;
+                        <<The following implicitly checks in vmPage.>>
+                        specialE.state.flags.readonly _ readOnly;
+                        SetVMMap[vmPage, specialE];
+                        }
+                    ELSE {
+                        bufferEntry: VMMapEntry = GetVMMap[buffer];
+                        <<The following implicitly checks in vmPage.>>
+                        SetVMMap[vmPage, bufferEntry];
+                        FreeSpecialPage[specialE.real];
+                        };
+                out => Crash[];
+                ENDCASE;
+            BROADCAST checkIn;
+            <<Now we make the swap buffer pages vacant.>>
+            SetVMMap[buffer, vacantEntry];
+            SetVMMap[special, vacantEntry];
+            };
+
+        PrepareToReleaseSpecialRealMemory: PUBLIC ENTRY PROC [
+            vmPage: PageNumber, special: PageNumber]
+            RETURNS [outcome: SpecialMemoryOutcome] = {
+            vmEntry: VMMapEntry _ GetCheckedInVMMap[vmPage].vmEntry;
+            checkedEntry: out VMMapEntry _ [
+                state: VMInternal.PageStateFromFlags[PrincOps.flagsVacant],
+                body: out[checkedOut: TRUE, readOnly: vmEntry.state.flags.readonly, dataState: NULL]
+                ];
+            WITH vmE: vmEntry SELECT InOut[vmEntry] FROM
+                out => RETURN[IF vmE.dataState = none THEN addressFault ELSE badParameter];
+                in =>
+                    WITH rmE: rmMap[vmE.real] SELECT FROM
+                        pinned => {
+                            IF rmE.pinCount > 0 THEN RETURN[badParameter];
+                            checkedEntry.dataState _ rmE.dataState;
+                                <<Need to set this to keep from having none in the data state (sigh).>>
+                            outcome _
+                                IF rmE.dataState = undefined AND ~vmE.state.flags.dirty
+                                    THEN noTransfer ELSE needsIO;
+                            };
+                        ENDCASE => RETURN[badParameter];
+                ENDCASE;
+            SetVMMap[vmPage, checkedEntry];
+            SetVMMap[special, vmEntry];
+            };
+
+        FinishReleaseSpecialRealMemory: PUBLIC ENTRY PROC [
+            vmPage: PageNumber, special: PageNumber, worked: BOOL] = {
+            specialEntry: VMMapEntry = GetVMMap[special];
+            WITH specialE: specialEntry SELECT InOut[specialEntry] FROM
+                in =>
+                    IF worked THEN
+                        WITH rmE: rmMap[specialE.real] SELECT FROM
+                            pinned => {
+                                IF rmE.pinReason ~= specialRealPageInUse THEN Crash[];
+                                <<The following implicitly checks in vmPage.>>
+                                SetVMMap[vmPage, [
+                                    state: VMInternal.PageStateFromFlags[PrincOps.flagsVacant],
+                                    body: out[
+                                        checkedOut: FALSE,
+                                        readOnly: specialE.state.flags.readonly,
+                                        dataState: rmE.dataState
+                                        ]
+                                    ]];
+                                FreeSpecialPage[specialE.real];
+                                };
+                            ENDCASE => Crash[]
+                    ELSE
+                        <<The following implicitly checks in vmPage.>>
+                        SetVMMap[vmPage, specialEntry];
+                out => Crash[];
+                ENDCASE;
+            BROADCAST checkIn;
+            SetVMMap[special, vacantEntry];
+            };
+
+        <<>>
+        <<State Examination and Modification>>
+
+        State: PUBLIC ENTRY PROC [vmPage: PageNumber] RETURNS [state: PageState] = {
+            <<It's OK to call GetVMMap instead of GetCheckedInVMMap, since we have the monitor lock and the data structures won't change under 
+            us.>>
+            vmEntry: VMMapEntry = GetVMMap[vmPage];
+            WITH vmE: vmEntry SELECT InOut[vmEntry] FROM
+                out => state _ [
+                    dataState: vmE.dataState,
+                    readOnly: vmE.readOnly,
+                    hasRealMemory: FALSE,
+                    needsCleaning: FALSE,
+                    pinCount: 0
+                    ];
+                in => {
+                    rmE: RMEntryPointer = @rmMap[vmE.real];
+                    state _ [
+                        dataState: IF vmE.state.flags.dirty THEN changed ELSE rmE.dataState,
+                        readOnly: vmE.state.flags.readonly,
+                        hasRealMemory: TRUE,
+                        needsCleaning: vmE.state.flags.dirty OR rmE.needsBackingStoreWrite,
+                        pinCount: WITH rmE^ SELECT FROM pinned => pinCount, ENDCASE => 0
+                        ];
+                    };
+                ENDCASE;
+            };
+
+        SetDataState: PUBLIC ENTRY PROC [vmPage: PageNumber, dataState: DataState]
+            RETURNS [outcome: Outcome _ ok] = {
+            <<Note:  If this procedure were made a coroutine (with an appropriate INLINE entry procedure), it could be invoked directly from 
+            the frame fault handler's "FlushLargeFrames" logic.  Otherwise, that logic must reside in a separate process, which is 
+            allowed to call procedures and therefore take frame faults.>>
+            vmEntry: VMMapEntry _ GetCheckedInVMMap[vmPage].vmEntry;
+            WITH vmE: vmEntry SELECT InOut[vmEntry] FROM
+                out =>
+                    IF vmE.dataState = none THEN outcome _ addressFault
+                    ELSE {
+                        IF ~(dataState = unchanged AND vmE.dataState = undefined) THEN {  -- pages that are "undefined" are not modified to "unchanged".  
+                        This is necessary to run without a backing file and is a slight optimization.
+                            vmE.dataState _ dataState;
+                            SetVMMap[vmPage, vmE];
+                            };
+                        };
+                in => {
+                    rmE: RMEntryPointer = @rmMap[vmE.real];
+                    SELECT dataState FROM
+                        none => {
+                            SetVMMap[vmPage,
+                                [state: VMInternal.PageStateFromFlags[PrincOps.flagsVacant],
+                                    body: out[checkedOut: FALSE, readOnly: FALSE, dataState: dataState]]
+                                ];
+                            WITH rmE: rmE SELECT FROM
+                                free => Crash[];
+                                reclaimable => AddToFreeList[vmE.real];
+                                pinned =>
+                                    IF rmE.pinReason = specialRealPageInUse THEN FreeSpecialPage[vmE.real]
+                                    ELSE AddToFreeList[vmE.real];
+                                ENDCASE;
+                            };
+                        undefined => {
+                            WITH rmE: rmE SELECT FROM
+                                free => Crash[];
+                                reclaimable => {
+                                    SetVMMap[vmPage,
+                                        [state: VMInternal.PageStateFromFlags[PrincOps.flagsVacant],
+                                            body: out[checkedOut: FALSE, readOnly: FALSE, dataState: dataState]]
+                                        ];
+                                    AddToFreeList[vmE.real];
+                                    };
+                                pinned => {
+                                    <<Strictly speaking, we should disable interrupts, reread the map, clear the dirty bit, and set the map before enabling interrupts. 
+                                     This will avoid losing the referenced bit.  However, since the page is being killed, the 
+                                    referenced bit isn't very interesting now anyway.>>
+                                    vmE.state.flags.dirty _ rmE.needsBackingStoreWrite _ FALSE;
+                                    SetVMMap[vmPage, vmE];
+                                    rmE.dataState _ dataState;
+                                    };
+                                ENDCASE;
+                            };
+                        unchanged => {
+                            newEntry: VMMapEntry;
+                            <<We must do the following atomically to avoid losing the referenced bit.>>
+                            PrincOpsUtils.DisableInterrupts[];
+                            newEntry _ GetVMMap[vmPage];
+                            WITH newE: newEntry SELECT InOut[newEntry] FROM
+                                in =>
+                                    IF newE.state.flags.dirty THEN {
+                                        rmE.needsBackingStoreWrite _ TRUE;
+                                        newE.state.flags.dirty _ FALSE;
+                                        SetVMMap[vmPage, newE];
+                                        }; 
+                                out => Crash[];
+                                ENDCASE;
+                            PrincOpsUtils.EnableInterrupts[];
+                            rmE.dataState _ dataState;
+                            };
+                        changed => rmE.dataState _ dataState;
+                        ENDCASE;
+                    };
+                ENDCASE;
+            };
+
+        <<ReadOnly <==> ReadWrite>>
+
+        MakeReadOnly: PUBLIC ENTRY PROC [vmPage: PageNumber]
+            RETURNS [outcome: Outcome _ ok] = {
+            <<Interrupts must be disabled if the map entry says present, so that the test for "dirty" and subsequent resetting of "dirty" are 
+            atomic.  Interrupts need not be disabled if the map entry says "vacant", but it doesn't hurt, since we spend minimal 
+            time in that state and it simplifies the code.>>
+            vmEntry: VMMapEntry _ GetCheckedInVMMap[vmPage].vmEntry;
+            PrincOpsUtils.DisableInterrupts[];
+            vmEntry _ GetVMMap[vmPage];  -- reread map to ensure atomicity
+            WITH vmE: vmEntry SELECT InOut[vmEntry] FROM
+                out =>
+                    IF vmE.dataState = none THEN outcome _ addressFault
+                    ELSE
+                        IF ~vmE.readOnly THEN {
+                            vmE.readOnly _ TRUE;
+                            SetVMMap[vmPage, vmE];
+                            --*stats*-- readOnlyPages _ readOnlyPages.SUCC;
+                            };
+                in =>
+                    IF ~vmE.state.flags.readonly THEN {
+                        IF vmE.state.flags.dirty THEN {
+                            rmMap[vmE.real].needsBackingStoreWrite _ TRUE;
+                            vmE.state.flags.dirty _ FALSE;
+                            rmMap[vmE.real].dataState _ changed;
+                            };
+                        vmE.state.flags.readonly _ TRUE;
+                        SetVMMap[vmPage, vmE];
+                        --*stats*-- readOnlyPages _ readOnlyPages.SUCC;
+                        };
+                ENDCASE;
+            PrincOpsUtils.EnableInterrupts[];
+            };
+
+        MakeReadWrite: PUBLIC ENTRY PROC [vmPage: PageNumber]
+            RETURNS [outcome: Outcome _ ok] = {
+            <<Interrupts must be disabled if the map entry says present, so that the resetting of "readonly" is atomic (otherwise, the 
+            "referenced" bit might be lost).  Interrupts need not be disabled if the map entry says "vacant", but it doesn't hurt, 
+            since we spend minimal time in that state and it simplifies the code.>>
+            vmEntry: VMMapEntry _ GetCheckedInVMMap[vmPage].vmEntry;
+            PrincOpsUtils.DisableInterrupts[];
+            vmEntry _ GetVMMap[vmPage];  -- reread map to ensure atomicity
+            WITH vmE: vmEntry SELECT InOut[vmEntry] FROM
+                out =>
+                    IF vmE.dataState = none THEN outcome _ addressFault
+                    ELSE
+                        IF vmE.readOnly THEN {
+                            vmE.readOnly _ FALSE;
+                            SetVMMap[vmPage, vmE];
+                            --*stats*-- readOnlyPages _ readOnlyPages.PRED;
+                            };
+                in =>
+                    IF vmE.state.flags.readonly THEN {
+                        vmE.state.flags.readonly _ FALSE;
+                        SetVMMap[vmPage, vmE];
+                        --*stats*-- readOnlyPages _ readOnlyPages.PRED;
+                        };
+                ENDCASE;
+            PrincOpsUtils.EnableInterrupts[];
+            };
+
+    <<>>
+    <<Exports to VMInternal>>
+        <<>>
+        <<Real Memory Allocation>>
+
+        allocationRover: RealPageNumber _ RealPageNumber.FIRST;
+            <<rover for AllocateRealMemoryInternal>>
+        <<>>
+        AllocateRealMemoryInternal: PUBLIC PROC [
+            vmPage: PageNumber, dirtyVictimOK: BOOL _ TRUE, pin: BOOL _ FALSE]
+            RETURNS [victim: Victim] _ LOOPHOLE[@AwaitAllocateRealMemoryInternal];
+            <<This procedure allocates real memory and tentatively assigns it to the specified vmPage.  Actually, this is one half of the 
+            coroutine linkage whose other half is AwaitAllocateRealMemoryInternal.  The actual algorithm is in 
+            InitializeAllocateRealMemoryInternal.>>
+
+    <<INTERNAL procedures>>
+
+    AllocateSpecialPage: PROC [rmE: RMMapEntry]
+        RETURNS [ok: BOOL _ FALSE, realPage: RealPageNumber] = INLINE {
+        count: CARDINAL = ProcessorFace.specialRealPages;
+        realPage _ ProcessorFace.firstSpecialRealPage;
+        THROUGH [0..count) DO
+            WITH rmE: rmMap[realPage] SELECT FROM
+                pinned => IF rmE.pinReason = specialRealPageAvailable THEN EXIT;
+                ENDCASE;
+            realPage _ realPage + 1;
+            REPEAT
+                FINISHED => RETURN;
+            ENDLOOP;
+        rmMap[realPage] _ rmE;
+        ok _ TRUE;
+        };
+
+    FreeSpecialPage: PROC [realPage: RealPageNumber] = INLINE {
+        WITH rmE: rmMap[realPage] SELECT FROM
+            pinned =>
+                IF rmE.pinReason = specialRealPageInUse THEN rmE.pinReason _ specialRealPageAvailable
+                ELSE Crash[];
+            ENDCASE => Crash[];
+        };
+
+        <<Warning: duplicate code for this procedure in VMSwapImpl.GetCheckedInVMMap>>
+    GetCheckedInVMMap: INTERNAL PROC [vmPage: PageNumber, dontWait: BOOL _ FALSE]
+        RETURNS [vmEntry: VMMapEntry, success: BOOL _ TRUE] = INLINE {
+        firstTime: BOOL _ TRUE;
+        DO
+            vmEntry _ GetVMMap[vmPage];
+            WITH vmE: vmEntry SELECT InOut[vmEntry] FROM
+                in => EXIT;
+                out =>
+                    <<A note in VMInternal.VMMapEntry explains the following non-intuitive test.>>
+                    IF ~vmE.checkedOut OR vmE.dataState = none THEN EXIT;
+                ENDCASE;
+            IF dontWait THEN {success_ FALSE; EXIT};
+            --*stats*--
+                IF firstTime THEN {checkoutConflicts _ checkoutConflicts.SUCC; firstTime _ FALSE};
+            WAIT checkIn;
+            ENDLOOP;
+        };
+
+    AwaitAllocateRealMemoryInternal: PORT [victim: Victim]
+        RETURNS [vmPage: PageNumber, dirtyVictimOK, pin: BOOL];
+
+    InitializeAllocateRealMemoryInternal: PROC RETURNS [victim: Victim] = {
+        LOOPHOLE[AwaitAllocateRealMemoryInternal, PrincOps.Port].dest _ PrincOpsUtils.GetReturnLink[];
+        DO
+            vmPage: PageNumber;
+            dirtyVictimOK, pin: BOOL;
+            [vmPage, dirtyVictimOK, pin] _ AwaitAllocateRealMemoryInternal[victim];
+            <<The following is to permit the debugger to trace the stack.>>
+            PrincOpsUtils.SetReturnLink[LOOPHOLE[AwaitAllocateRealMemoryInternal, PrincOps.Port].dest];
+            BEGIN
+            <<This block is the body of the actual allocation algorithm.>>
+            targetVMEntry: VMMapEntry _ GetVMMap[vmPage];
+            WITH tVM: targetVMEntry SELECT InOut[targetVMEntry] FROM
+                out => {
+                    IF freePages > 0 THEN {
+                        <<There is something on the free list.>>
+                        victim _  [realPage: freeList, body: clean[]];
+                        WITH rmMap[freeList] SELECT FROM
+                            rmE: free RMMapEntry => {freeList _ rmE.next; freePages _ freePages.PRED};
+                            ENDCASE => Crash[];  -- free list trashed
+                        --*stats*-- rmFreeList _ rmFreeList.SUCC;
+                        }
+                    ELSE {
+                        <<The free list is empty; reclamation is necessary.>>
+                        current: RealPageNumber _ allocationRover;
+                        firstPass: BOOL _ TRUE;
+                        secondPassWorthWhile: BOOL _ FALSE;
+                        victimP: PageNumber;
+                        dirtyVictimState: {none, unreferenced, referenced} _ none;
+                        dirtyVictimRP: RealPageNumber;
+                        dirtyVictimDataState: DataState;
+                        DO
+                            IF current = RealPageNumber.FIRST THEN {
+                                current _ lastRealPage;
+                                --*stats*-- rmAllocPasses _ rmAllocPasses.SUCC;
+                                }
+                            ELSE current _ current.PRED;
+                            IF current = allocationRover THEN  -- a pass has completed
+                                SELECT TRUE FROM
+                                    firstPass AND secondPassWorthWhile => firstPass _ FALSE;
+                                    dirtyVictimOK =>
+                                        IF dirtyVictimState ~= none THEN {
+                                            --*stats*-- rmDirty _ rmDirty.SUCC;
+                                            WITH rmMap[dirtyVictimRP] SELECT FROM
+                                                rmE: reclaimable RMMapEntry => {
+                                                    victimP _ rmE.virtual;
+                                                    victim _ [realPage: dirtyVictimRP, body: dirty[vmPage: victimP]];
+                                                    SetVMMap[victimP,  [
+                                                        state: VMInternal.PageStateFromFlags[PrincOps.flagsVacant],
+                                                        body: out[
+                                                            checkedOut: FALSE,
+                                                            readOnly: GetVMMap[victimP].state.flags.readonly,
+                                                            dataState: dirtyVictimDataState]]
+                                                        ];
+                                                    };
+                                                ENDCASE => Crash[];  -- dirtyVictimRP improperly set
+                                            EXIT
+                                            }
+                                        ELSE Crash[];  -- all memory pinned or in transit
+                                    emergencyList = NIL => Crash[];
+                                        <<Frame fault and nothing in the emergency list>>
+                                    ENDCASE => {
+                                        <<Frame fault and no unpinned clean memory, but there is something in the emergency list.  The idea is to force it to be a clean 
+                                        victim, which will then get snarfed up by the allocator.>>
+                                        FOR i: NAT IN [0..emergencyList.max) DO
+                                            vp: PageNumber = emergencyList.pages[i];
+                                            IF vp # 0 THEN {
+                                                entry: VMMapEntry _ GetVMMap[vp];
+                                                WITH tE: entry SELECT InOut[entry] FROM
+                                                    in => {
+                                                        <<Force the real page to be unpinned, and the virtual page to be clean.  Also decrement the available count.>>
+                                                        current _ tE.real;
+                                                        IF rmMap[current].rmState = pinned THEN
+                                                            VMStatistics.pinnedPages _ VMStatistics.pinnedPages - 1;
+                                                        rmMap[current] _ [
+                                                            dataState: undefined,
+                                                            needsBackingStoreWrite: FALSE,
+                                                            body: reclaimable[virtual: vp]];
+                                                        tE.state.flags _ PrincOps.flagsClean;
+                                                        SetVMMap[vp, entry];
+                                                        GO TO foundOne;
+                                                        };
+                                                    ENDCASE;
+                                                };
+                                            ENDLOOP;
+                                        Crash[];
+                                        EXITS foundOne => {
+                                            emergencyList.change _ emergencyList.change - 1;
+                                            };
+                                        };
+                            WITH rmMap[current] SELECT FROM
+                                rmE: free RMMapEntry => Crash[];  -- the free list is supposed to be empty
+                                rmE: reclaimable RMMapEntry => {
+                                    victimE: VMMapEntry;
+                                    <<We must disable interrupts to make sure that the dirty bit doesn't get lost during the following machinations.>>
+                                    PrincOpsUtils.DisableInterrupts[];
+                                    victimE _ GetVMMap[victimP _ rmE.virtual];
+                                    <<A reclaimable rmMap entry will have an "out VMMapEntry" if it has previously been allocated by this procedure but I/O is still in 
+                                    progress at a higher level.  (It will also be checked out.)  Such entries are therefore not 
+                                    considered as victims, just like quiescent, swapped out pages.>>
+                                    WITH vE: victimE SELECT InOut[victimE] FROM
+                                        out => NULL;
+                                        in => {
+                                            vRefed: BOOL = vE.state.flags.referenced;
+                                            vDirty: BOOL = vE.state.flags.dirty OR rmE.needsBackingStoreWrite;
+                                            SELECT TRUE FROM
+                                                vE.real ~= current => Crash[];
+                                                vRefed AND firstPass AND ~vDirty => {
+                                                    <<On the first pass, we convert referenced pages to unreferenced pages, but don't reclaim them.>>
+                                                    AgeInternal[victimP, vE];
+                                                    secondPassWorthWhile _ TRUE;
+                                                    };
+                                                vDirty => {
+                                                    IF vRefed THEN AgeInternal[victimP, vE];
+                                                    <<We remember the first unreferenced dirty page or, if none, the first referenced dirty page.  Of course, an unreferenced page may 
+                                                    be referenced by the time (and if) it actually becomes a victim.>>
+                                                    SELECT dirtyVictimState FROM
+                                                        none => {
+                                                            dirtyVictimState _
+                                                                IF vRefed THEN referenced ELSE unreferenced;
+                                                            dirtyVictimRP _ current;
+                                                            dirtyVictimDataState _
+                                                                IF vE.state.flags.dirty THEN changed ELSE rmE.dataState;
+                                                            };
+                                                        unreferenced => NULL;
+                                                        referenced =>
+                                                            IF ~vRefed THEN {
+                                                                dirtyVictimState _ unreferenced;
+                                                                dirtyVictimRP _ current;
+                                                                dirtyVictimDataState _
+                                                                    IF vE.state.flags.dirty THEN changed ELSE rmE.dataState;
+                                                                };
+                                                        ENDCASE;
+                                                        };
+                                                ENDCASE =>  {
+                                                    <<This page is clean and, if this is the first pass, it is unreferenced.  We've found our victim.>>
+                                                    victim _ [realPage: current, body: clean[]];
+                                                    SetVMMap[victimP,
+                                                        [state: VMInternal.PageStateFromFlags[PrincOps.flagsVacant], body: out[
+                                                            checkedOut: FALSE,
+                                                            readOnly: vE.state.flags.readonly,
+                                                            dataState: rmE.dataState]]
+                                                        ];
+                                                    PrincOpsUtils.EnableInterrupts[];
+                                                    --*stats*-- 
+                                                        IF firstPass THEN rmOldClean _ rmOldClean.SUCC
+                                                        ELSE rmNewClean _ rmNewClean.SUCC;
+                                                    EXIT
+                                                    };
+                                            };
+                                        ENDCASE;
+                                    PrincOpsUtils.EnableInterrupts[];
+                                    };
+                                rmE: pinned RMMapEntry => NULL;
+                                ENDCASE;
+                            ENDLOOP;
+                        allocationRover _ current;  -- advance round-robin pointer
+                        };
+                    rmMap[victim.realPage] _ 
+                        IF pin THEN
+                            RMMapEntry[dataState: tVM.dataState, needsBackingStoreWrite: FALSE,
+                                body: pinned[pinCount: 1]]
+                        ELSE
+                            RMMapEntry[dataState: tVM.dataState, needsBackingStoreWrite: FALSE,
+                                body: reclaimable[virtual: vmPage]];
+                    --*stats*-- rmReclamations _ rmReclamations.SUCC;
+                    };
+                in => Crash[];  -- already has real memory
+                ENDCASE;
+            END;
+            ENDLOOP;
+        };
+
+    <<Debugging procedures (Russ Atkinson, February 9, 1984)>>
+
+        VMPageInfo: TYPE = RECORD [
+            body: SELECT inOut: * FROM
+                in => [inEntry: VMMapEntry[in], entry: RMMapEntry],
+                out => [outEntry: VMMapEntry[out]],
+                none => NULL,
+                ENDCASE];
+
+        ShowVirtual: PROC [vmPage: PageNumber] RETURNS [VMPageInfo] = {
+            <<Given a virtual page, returns VMPageInfo which will contain the virtual page info and real page info for a legal page that is 
+            mapped in, or virtual page info for a legal page that is mapped out, or an indication of illegal page number.>>
+            IF vmPage IN [0..VMSideDoor.vmPages) THEN {
+                vmEntry: VMMapEntry _ GetVMMap[vmPage];
+                WITH vmE: vmEntry SELECT InOut[vmEntry] FROM
+                    in => RETURN [[in[vmE, rmMap[vmE.real]]]];
+                    out => RETURN [[out[vmE]]];
+                    ENDCASE;
+                };
+            RETURN [[none[]]];
+            };
+
+        ShowReal: PROC [rmPage: RealPageNumber]
+            RETURNS [ok: BOOL _ FALSE, info: RMMapEntry] = {
+            <<Given a valid real page, show its state (ok = TRUE).  If not valid, ok = FALSE.>>
+            info _ rmMap[0];
+            IF rmPage IN [0..lastRealPage] THEN {ok _ TRUE; info _ rmMap[rmPage]};
+            };
+
+        FindVirtual: PROC
+            [rmPage: RealPageNumber, last: PageNumber _ 0]
+            RETURNS [vmPage: PageNumber _ 0, info: VMPageInfo] = {
+            <<Given a real page number, find the corresponding virtual page > last and report on its contents.  If no such virtual page, a null 
+            result is returned.  Note that we are reasonably sure that virtual page 0 is not mapped.>>
+            FOR vmPage IN (last..VMSideDoor.vmPages) DO
+                vmEntry: VMMapEntry _ GetVMMap[vmPage];
+                WITH vmE: vmEntry SELECT InOut[vmEntry] FROM
+                    in => IF vmE.real = rmPage THEN {info _ [in[vmE, rmMap[vmE.real]]]; RETURN};
+                    ENDCASE;
+                ENDLOOP;
+            info _ [none[]];
+            };
+
+    <<>>
+    <<Initialization>>
+    <<>>
+    InitializeTables[];
+    [] _ InitializeAllocateRealMemoryInternal[];
+    <<>>
+    END.
+
+
+    <<Bob Hagmann May 17, 1985 1:35:31 pm PDT>>
+        <<changes to: SetDataState>>
+    <<Bob Hagmann April 21, 1986 9:37:11 am PST>>
+        <<merge in VMReplacementImpl; add comment to GetCheckedInVMMap>>
+    <<>>
+    <<>>
+    <<>>
