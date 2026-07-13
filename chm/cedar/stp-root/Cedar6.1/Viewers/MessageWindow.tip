@@ -1,0 +1,1 @@
+-- MessageWindow.tip; edited by McGregor, 26-Jan-82 11:14:54OPTIONS  Small,   PrintKeys;SELECT TRIGGER FROM  DEL Down => Char;  ESC Down => Char;  BS Down => Char;  A Down WHILE Ctrl Down => Char;  Red Up => Yes;  Yellow Up => Maybe;  Blue Up => No  ENDCASE.

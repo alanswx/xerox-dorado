@@ -1706,8 +1706,23 @@ static int eth_ftp_packet_for_server(const dorado_ethernet *eth)
 {
     if (!eth->ftp_enabled || !eth->ftp_open) return 0;
     if (eth->tx_words[6] != eth->ftp_server_net_host) return 0;
-    return eth->tx_words[7] == eth->ftp_server_sock_hi &&
-           eth->tx_words[8] == eth->ftp_server_sock_lo;
+    if (eth->tx_words[7] != eth->ftp_server_sock_hi ||
+        eth->tx_words[8] != eth->ftp_server_sock_lo)
+        return 0;
+    /* The source socket identifies the BSP connection, and each connection
+     * has its own byte-ID space (PupBSPProt: the RFC's connection ID seeds
+     * it).  Cedar runs more than one STP connection against this server --
+     * LoaderDriver's, then a fresh one from DFOperations/FS for the
+     * Installer's BringOver -- and abandons the earlier one without an RTP
+     * End, so it keeps retransmitting its last command forever.  Serving a
+     * single connection's state, admitting those stale retransmissions let
+     * their old byte IDs advance ftp_rx_next past the live connection's
+     * cursor; the live Retrieve and Yes then looked like duplicates, were
+     * dropped, and BringOver deadlocked with the guest idle.  Only accept
+     * traffic from the client socket named by the current RFC. */
+    return eth->tx_words[9] == eth->ftp_client_net_host &&
+           eth->tx_words[10] == eth->ftp_client_sock_hi &&
+           eth->tx_words[11] == eth->ftp_client_sock_lo;
 }
 
 static int eth_ftp_handle_packet(dorado_ethernet *eth)

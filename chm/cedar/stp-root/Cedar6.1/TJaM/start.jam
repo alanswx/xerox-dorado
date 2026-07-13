@@ -1,0 +1,1 @@
+-- start.jam-- Copyright (C) 1985 by Xerox Corporation.  All rights reserved.-- last changed by Stone&Paxton, March 28, 1983 3:45 pm-- last changed by Doug Wyatt, March 26, 1985 10:01:30 am PST(user) 256 .dict .defuser .begin(util.jam).run(errordefs.jam).run.end(.start){user .begin}.cvx .def.start
