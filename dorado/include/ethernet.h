@@ -156,9 +156,11 @@ typedef struct dorado_ethernet {
     uint8_t ftp_open;
     uint8_t ftp_pending_ack;
     uint8_t ftp_waiting_for_ack;
+    uint8_t ftp_delivery_blocked; /* Cedar direct-IOCB bridge awaits repost */
     uint8_t ftp_tx_mode;
     uint8_t ftp_tx_step;
     uint8_t ftp_phase;
+    uint16_t ftp_tx_in_flight; /* PupStream output fingers since last ACK */
     uint16_t ftp_conn_hi, ftp_conn_lo;
     uint16_t ftp_client_net_host;
     uint16_t ftp_client_sock_hi, ftp_client_sock_lo;
@@ -247,6 +249,16 @@ void dorado_ethernet_set_eftp_boot_file(dorado_ethernet *eth,
  * the fake network directory advertises this host as an FTP server and the
  * server streams PATH in response to Retrieve. */
 void dorado_ethernet_set_ftp_sysout(dorado_ethernet *eth, const char *path);
+
+/* Serve a read-only directory tree through the same Pup FTP/STP endpoint.
+ * Requested IFS names such as [Cedar]<Cedar6.1>Top>Basic.Loadees map below
+ * ROOT as Cedar6.1/Top/Basic.Loadees. */
+void dorado_ethernet_set_ftp_root(dorado_ethernet *eth, const char *root);
+
+/* True while an STP file body or its source-defined Yes/text/EOC trailer is
+ * being delivered.  The Cedar CSB bridge uses this to apply receive repost
+ * backpressure without delaying the preceding plist negotiation. */
+int dorado_ethernet_ftp_file_delivery_active(const dorado_ethernet *eth);
 
 /* Optional Stage-2 delivery gate for clients such as the Cedar/Pilot germ
  * that post Ethernet input IOCBs through a controller status block. */

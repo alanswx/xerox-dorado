@@ -110,7 +110,8 @@ int main(int argc, char **argv)
            budget);
 
     cpu_halt_reason r = dorado_cpu_run(&cpu, budget);
-    printf("# halted after %d cycles: %s\n", cpu.cycles,
+    printf("# halted after %llu cycles: %s\n",
+           (unsigned long long)cpu.cycles,
            cpu_halt_reason_str(r));
 
     if (r == CPU_HALT_UNSUPPORTED_ASEL ||

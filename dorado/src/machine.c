@@ -91,11 +91,11 @@ struct dorado_machine {
     dorado_disk_pack disk_pack;
     dorado_disk_pack disk_packs[DORADO_DISK_NUM_DRIVES]; /* --disk SLOT=PATH */
     uint8_t          disk_pack_loaded[DORADO_DISK_NUM_DRIVES];
-    dorado_pdi pilot_pdi;
+    dorado_pdi pilot_pdi[DORADO_DISK_NUM_DRIVES];
     dorado_fastio_router fastio;
 
     int disk_attached;
-    int pilot_pdi_loaded;
+    uint8_t pilot_pdi_loaded[DORADO_DISK_NUM_DRIVES];
     int pilot_pdi_stream_active;
     uint32_t pilot_pdi_next_page;
     int alto_ether_boot;
@@ -160,12 +160,23 @@ struct dorado_machine {
     int      germ_netboot_seeded;
     int      germ_netboot_diag_done;
     int      germ_netboot_header_seeded;
+    /* A BSP file packet completed through the Cedar EthernetOne CSB bridge.
+     * Keep the one-packet fake wire closed until RecvInner has reposted an
+     * IOCB, observed via ControllerStatusBlock.lastInput. */
+    uint8_t  stp_direct_wait_repost;
+    uint16_t stp_direct_last_input;
     int      pilot_timer_started;
     uint64_t next_pilot_timer_cycle;
     uint64_t next_cedar_field_cycle; /* next display vertical-field notify */
 };
 
 static uint32_t machine_pchist_task[16][4096];
+/* PDI media is normally an ephemeral host attachment.  This one-process path
+ * table supports the explicit DORADO_PDI_SAVE diagnostic without changing the
+ * machine snapshot ABI. */
+static char machine_pdi_path[DORADO_DISK_NUM_DRIVES][512];
+
+static void machine_store_va(dorado_memory *mem, uint32_t va, uint16_t value);
 
 static uint16_t machine_disk_dmux_read(uint16_t addr, int *handled, void *ctx)
 {
@@ -196,6 +207,21 @@ static uint16_t machine_disk_dmux_read(uint16_t addr, int *handled, void *ctx)
 #define DISK_CMD_DESCRIPTOR 0274u   /* [check,read,read], descriptor->page 0 */
 #define DISK_CMD_LABEL      0260u   /* [check,read,none], first-page label    */
 #define DISK_CMD_GERMDATA   0100254u/* incrementDataPtr|[check,check,read]    */
+#define DISK_CMD_ACTION_MASK 077777u
+/* DiskHeadDorado.mesa: DiskCommand has header, label, and data Action fields
+ * in hardware bit positions 8..9, 10..11, and 12..13 respectively.  Mesa
+ * bit 0 is the numeric high bit, hence these masks/shifts in a host word. */
+#define DISK_CMD_HEADER_ACTION(cmd) (((cmd) >> 6) & 3u)
+#define DISK_CMD_LABEL_ACTION(cmd)  (((cmd) >> 4) & 3u)
+#define DISK_CMD_DATA_ACTION(cmd)   (((cmd) >> 2) & 3u)
+#define DISK_ACTION_NONE  0u
+#define DISK_ACTION_WRITE 1u
+#define DISK_ACTION_CHECK 2u
+#define DISK_ACTION_READ  3u
+/* PilotDiskDefs.mc: Lab.fileFlags occupies the low three bits of word 7.
+ * PilotDisk.mc/KSectorDone clears it after every successfully transferred
+ * page while retaining the File.type in the rest of that word. */
+#define PILOT_LABEL_FILE_FLAGS 0007u
 
 /* PilotBoot.mc: baseGerm = BootSwap.countSkip*wordsPerPage = 0o1000.
  * GermBoot sets BootDataPtr_ baseGerm, so pass 3 reads the germ into the
@@ -229,6 +255,7 @@ static uint16_t machine_disk_dmux_read(uint16_t addr, int *handled, void *ctx)
 #define GERM_DISK_CSB_VA       0177520u
 #define ETH_CSB_NEXT_INPUT     0000u
 #define ETH_CSB_IN_INTERRUPT   0001u
+#define ETH_CSB_LAST_INPUT     0004u
 #define ETH_CSB_NEXT_OUTPUT    0010u
 #define ETH_CSB_OUT_INTERRUPT  0011u
 #define ETH_IOCB_NEXT          0000u
@@ -238,11 +265,11 @@ static uint16_t machine_disk_dmux_read(uint16_t addr, int *handled, void *ctx)
 #define ETH_IOCB_WORDS         0004u
 #define ETH_IOCB_BUFFER        0005u
 #define ETH_COMPLETION_DONE    000400u
-
-/* PilotMesaProcess.mc: NWW's sign bit is the timer interrupt channel.
- * Hardware should raise this through the junk/RTC path; until that task is
- * faithful enough for Cedar/Pilot, inject the same channel only after Pilot
- * has parked in BusyWait. */
+/* PilotMesaProcess.mc: TimerChanMask = 100000B.  This is intentionally not
+ * AltoMesaProcess.mc's 20B timer channel: Cedar's Pilot process scheduler
+ * tests the sign bit in MesaInterrupt before entering CheckForTimeouts.
+ * Inject the Pilot-specific source-defined channel at display-field cadence
+ * once the germ has loaded the world. */
 #define PILOT_TIMER_CHAN_MASK       0100000u
 #define PILOT_TIMER_INTERVAL_CYCLES 277778ull
 
@@ -280,6 +307,7 @@ static uint16_t machine_disk_dmux_read(uint16_t addr, int *handled, void *ctx)
 /* DiskHeadDorado IOCB layout (os-src/DiskHeadDorado.mesa). */
 #define SA_IOCB_NEXT           0u
 #define SA_IOCB_SEAL           1u
+#define SA_IOCB_DRIVE          2u
 #define SA_IOCB_PAGECOUNT      3u
 #define SA_IOCB_COMMAND        4u
 #define SA_IOCB_DISKADDR       5u
@@ -291,6 +319,76 @@ static uint16_t machine_disk_dmux_read(uint16_t addr, int *handled, void *ctx)
 #define SA_IOCB_DATAPTR        023u
 #define SA_IOCB_DATASTATUS     027u
 #define SA_IOCB_DISKLABEL      030u
+
+/* DiskHeadDorado.mesa: DoradoOperation = [operation(0), iocb(15B)].
+ * DiskFace.mesa: Operation.labelPtr is the client's LONG POINTER TO Label at
+ * word 2B (words 2B and 3B). */
+#define SA_DORADO_OPERATION_IOCB   015u
+#define SA_OPERATION_LABELPTR      002u
+
+/* The germ's private, polled boot chain stores a flat PDI VDA in the two
+ * DiskAddress words.  Once Pilot starts the interrupt-driven disk head, those
+ * words are a real Dorado CHS address on every drive. */
+#define PILOT_DISK_CYLINDERS   815u
+#define PILOT_DISK_HEADS       5u
+#define PILOT_DISK_SECTORS     28u
+
+static uint32_t machine_pilot_disk_address_to_vda(uint16_t drive,
+                                                   uint16_t cylinder,
+                                                   uint16_t head_sector,
+                                                   int flat)
+{
+    uint32_t head = (head_sector >> 8) & 0377u;
+    uint32_t sector = head_sector & 0377u;
+    if (flat)
+        return (uint32_t)cylinder + (uint32_t)head_sector;
+    if (sector >= PILOT_DISK_SECTORS) return UINT32_MAX;
+    /* FileImpl.ComputeVMBackingLocation calls the Dorado an
+     * Alto-environment-compatible disk: cylinder changes before head.  The
+     * boot drive's low address range therefore advances cylinder every
+     * 28 sectors.  Pilot reports later drives in conventional head-first
+     * order in the IOCBs observed during volume discovery. */
+    if (drive == 0) {
+        /* PilotDiskDefs.mc specifies the Alto-compatible boot drive as
+         * 4075 (= 5 * 815) virtual cylinders with one head.  Its IOCB
+         * cylinder field is therefore a virtual cylinder and legitimately
+         * exceeds a physical Trident's 815-cylinder limit.  Rejecting it at
+         * 815 made File's later cache allocations read no PDI page and turn
+         * otherwise valid BCD headers into Loader.Error[invalid BCD]. */
+        if (cylinder >= PILOT_DISK_CYLINDERS * PILOT_DISK_HEADS)
+            return UINT32_MAX;
+        return (uint32_t)cylinder * PILOT_DISK_SECTORS + sector;
+    }
+    if (head >= PILOT_DISK_HEADS || cylinder >= PILOT_DISK_CYLINDERS)
+        return UINT32_MAX;
+    return ((uint32_t)cylinder * PILOT_DISK_HEADS + head) *
+           PILOT_DISK_SECTORS + sector;
+}
+
+static void machine_pilot_disk_address_advance(uint16_t drive,
+                                                uint16_t *cylinder,
+                                                uint16_t *head_sector,
+                                                uint16_t pages,
+                                                int flat)
+{
+    if (flat) {
+        *head_sector = (uint16_t)(*head_sector + pages);
+        return;
+    }
+    if (drive == 0) {
+        uint32_t sector = (*head_sector & 0377u) + pages;
+        *cylinder = (uint16_t)(*cylinder + sector / PILOT_DISK_SECTORS);
+        *head_sector = (uint16_t)(sector % PILOT_DISK_SECTORS);
+        return;
+    }
+    uint32_t head = (*head_sector >> 8) & 0377u;
+    uint32_t sector = (*head_sector & 0377u) + pages;
+    head += sector / PILOT_DISK_SECTORS;
+    sector %= PILOT_DISK_SECTORS;
+    *cylinder = (uint16_t)(*cylinder + head / PILOT_DISK_HEADS);
+    head %= PILOT_DISK_HEADS;
+    *head_sector = (uint16_t)((head << 8) | sector);
+}
 
 static const uint8_t standard_alufm[ALUFM_SIZE] = {
     025, 000, 014, 054, 062, 022, 035, 027,
@@ -325,14 +423,100 @@ static void machine_pilot_timer_channel(dorado_machine *m, dorado_cpu *cpu,
                                         dorado_baseboard *bb, uint16_t pre_pc,
                                         int is_imfetch)
 {
+    static int stop_init = 0;
+    static uint64_t stop_at = 0;
+    static int prereq_reported = 0;
+    static int status_reported = 0;
+    /* Diagnostic only: distinguish a queue/scheduler defect from the
+     * host-injected 60 Hz Pilot timer.  The real path remains the default;
+     * a Cedar snapshot taken after login can safely continue without this
+     * synthetic source while investigating one reschedule window. */
+    if (dorado_trace_flag("DORADO_NO_PILOT_TIMER")) return;
+    if (!stop_init) {
+        const char *stop = getenv("DORADO_PILOT_TIMER_STOP_AT");
+        stop_at = (stop && *stop) ? strtoull(stop, NULL, 0) : 0;
+        stop_init = 1;
+    }
+    if (stop_at && bb->cycles >= stop_at) return;
     if (!m->germ_word_count || !m->germ_data_done ||
-        !m->ether_loaded_world_cycle || !is_imfetch || cpu->ctask != 0)
+        !m->ether_loaded_world_cycle) {
+        /* Snapshot continuations depend on these three Route-B markers.
+         * Log the first failed prerequisite so an apparently idle Cedar
+         * scheduler is not mistaken for a guest-side deadlock. */
+        if (dorado_trace_flag("DORADO_PILOT_TIMER_TRACE") &&
+            !prereq_reported) {
+            fprintf(stderr,
+                    "[pilot-timer] disabled: germ_words=%d data_done=%d "
+                    "world_cycle=%llu bb_cycle=%llu cpu_cycle=%llu\n",
+                    m->germ_word_count, m->germ_data_done,
+                    (unsigned long long)m->ether_loaded_world_cycle,
+                    (unsigned long long)bb->cycles,
+                    (unsigned long long)cpu->cycles);
+            prereq_reported = 1;
+        }
         return;
+    }
+
+    if (dorado_trace_flag("DORADO_PILOT_TIMER_TRACE") &&
+        !status_reported) {
+        fprintf(stderr,
+                "[pilot-timer] armed: bb_cycle=%llu next=%llu cpu_cycle=%llu "
+                "started=%d nww=0o%o\n",
+                (unsigned long long)bb->cycles,
+                (unsigned long long)m->next_pilot_timer_cycle,
+                (unsigned long long)cpu->cycles, m->pilot_timer_started,
+                cpu->RM[0] & 0177777);
+        status_reported = 1;
+    }
+
+    (void)is_imfetch;
 
     if (!m->pilot_timer_started) {
-        if (pre_pc != 03445) return; /* PilotMesaProcess BusyWait. */
         m->pilot_timer_started = 1;
         m->next_pilot_timer_cycle = bb->cycles;
+    }
+
+    /* PilotMesaProcess.mc's BusyWait declares an idle processor with a
+     * nonzero WDC a RescheduleError.  Keep this deliberately opt-in while
+     * isolating the earlier WDC corruption: it lets an otherwise valid
+     * saved Cedar state take its pending timer interrupt instead of spinning
+     * forever in MTrap. */
+    if (dorado_trace_flag("DORADO_PILOT_WDC_RECOVER") &&
+        cpu->RM[1] == 0 && cpu->RM[6] != 0 &&
+        (cpu->RM[0] & PILOT_TIMER_CHAN_MASK)) {
+        if (dorado_trace_flag("DORADO_PILOT_TIMER_TRACE")) {
+            fprintf(stderr,
+                    "[pilot-timer] recovering idle WDC=0o%o @cyc=%llu\n",
+                    cpu->RM[6] & 0177777,
+                    (unsigned long long)bb->cycles);
+        }
+        cpu->RM[6] = 0;
+    }
+
+    /* Diagnostic companion to the WDC recovery.  The Pilot scheduler's
+     * Ready queue is a circular list rooted by PDA.ready.  A preempted PSB
+     * at handle 0100 with a self link, a state-vector context, and waiting
+     * clear is runnable by definition; leaving PDA.ready nil in that state
+     * violates PilotMesaProcess.mc's IdleReschedule invariant. */
+    if (dorado_trace_flag("DORADO_PILOT_READY_RECOVER") &&
+        cpu->RM[1] == 0) {
+        uint32_t pda = dorado_br_get(&m->mem, 3);
+        uint32_t psb = pda + PDA_PSBS;
+        uint16_t ready = dorado_visible_word_at_va(&m->mem, pda + PDA_READY);
+        uint16_t link = dorado_visible_word_at_va(&m->mem, psb + PSB_LINK);
+        uint16_t flags = dorado_visible_word_at_va(&m->mem, psb + PSB_FLAGS);
+        uint16_t context = dorado_visible_word_at_va(&m->mem,
+                                                      psb + PSB_CONTEXT);
+        if (ready == 0 && (link & 07774u) == PDA_PSBS &&
+            (link & 1u) != 0 && (flags & 0002u) == 0 && context != 0) {
+            machine_store_va(&m->mem, pda + PDA_READY, PDA_PSBS);
+            if (dorado_trace_flag("DORADO_PILOT_TIMER_TRACE")) {
+                fprintf(stderr,
+                        "[pilot-timer] recovering detached ready PSB 0o100 "
+                        "@cyc=%llu context=0o%o\n",
+                        (unsigned long long)bb->cycles, context);
+            }
+        }
     }
 
     if (bb->cycles < m->next_pilot_timer_cycle) return;
@@ -348,7 +532,6 @@ static void machine_pilot_timer_channel(dorado_machine *m, dorado_cpu *cpu,
                         PILOT_TIMER_INTERVAL_CYCLES));
         }
     }
-
     do {
         m->next_pilot_timer_cycle += PILOT_TIMER_INTERVAL_CYCLES;
     } while (m->next_pilot_timer_cycle <= bb->cycles);
@@ -526,7 +709,13 @@ static void machine_dump_pilot_pda(dorado_machine *m)
     uint32_t pda = dorado_br_get(mem, 3);
     uint16_t ready = dorado_visible_word_at_va(mem, pda + PDA_READY);
     uint16_t count = dorado_visible_word_at_va(mem, pda + PDA_COUNT);
-    uint16_t n = count > 64 ? 64 : count;
+    /* Normal final-state diagnostics keep this bounded, but a fault queue
+     * stores a PDA-relative handle.  The Cedar pager lives beyond the first
+     * 64 PSBs (for example at 02414B), so DORADO_PDA_DUMP_ALL must really
+     * traverse the complete declared array rather than silently omitting the
+     * process which a fault condition names. */
+    uint16_t n = dorado_trace_flag("DORADO_PDA_DUMP_ALL")
+               ? count : (count > 64 ? 64 : count);
 
     fprintf(stderr,
             "[pilot-pda] PDA=0o%o ready=0o%o count=0o%o currentPSB=0o%o "
@@ -595,6 +784,23 @@ static void machine_germ_complete_ethernet_rx(dorado_machine *m,
     if (!eth->rx_words || eth->rx_pos != 0 || eth->rx_count == 0) return;
     if (!machine_ethernet_plausible_iocb(m, iocb_va)) return;
 
+    /* EthernetOneDriver.QueueInput waits on the naked condition named by
+     * CSB.inInterruptBit.  A non-NIL-looking nextInput with a zero mask is
+     * an inactive/stale IOCB while the driver reshapes its input chain; a
+     * completion there is invisible to Cedar and drops the Pup.  Hardware
+     * would leave the packet at the receiver until a live input chain is
+     * armed, so keep our one-packet wire buffer intact as well. */
+    uint16_t interrupt_mask = dorado_visible_word_at_va(
+        &m->mem, GERM_ETH_CSB_VA + ETH_CSB_IN_INTERRUPT);
+    if (interrupt_mask == 0) {
+        if (dorado_trace_flag("DORADO_ETH_IOCB_TRACE")) {
+            fprintf(stderr,
+                    "[machine] germ EthernetOne direct RX hold: "
+                    "iocb=0o%o has no inInterruptBit\n", iocb_va);
+        }
+        return;
+    }
+
     uint16_t completion =
         dorado_visible_word_at_va(&m->mem, iocb_va + ETH_IOCB_COMPLETION);
     if (completion != 0) return;
@@ -608,6 +814,13 @@ static void machine_germ_complete_ethernet_rx(dorado_machine *m,
     int is_eftp = eth->rx_count > 3 &&
         (eth->rx_words[3] == DORADO_PUP_TYPE_EFTP_DATA ||
          eth->rx_words[3] == DORADO_PUP_TYPE_EFTP_END);
+    /* EthernetOneDriver.RecvInner queues exactly one input IOCB, wakes the
+     * network receiver, then waits until the driver has consumed and reposted
+     * that buffer before it queues the next one.  Apply that hardware FIFO
+     * backpressure to the whole STP exchange, not only a BCD body: a
+     * HereIsPList mark/data/EOC triple can otherwise consume three of the
+     * five IOCBs before STP has entered its confirmation callback. */
+    int is_stp_pup = !is_eftp && eth->ftp_enabled && eth->ftp_open;
     uint16_t used = (uint16_t)eth->rx_count;
     if (!is_eftp && used >= 2)
         used = (uint16_t)(used - 2); /* omit hardware CRC/status trailer */
@@ -652,20 +865,10 @@ static void machine_germ_complete_ethernet_rx(dorado_machine *m,
         machine_store_va(&m->mem, GERM_ETH_CSB_VA + ETH_CSB_NEXT_INPUT,
                          next_iocb);
     }
-    {
-        uint16_t interrupt_mask =
-            dorado_visible_word_at_va(&m->mem,
-                                      GERM_ETH_CSB_VA + ETH_CSB_IN_INTERRUPT);
-        if (interrupt_mask) {
-            m->cpu.RM[0] |= interrupt_mask;
-            m->cpu.reschedule_pending = 1;
-        }
-    }
+    m->cpu.RM[0] |= interrupt_mask;
+    m->cpu.reschedule_pending = 1;
 
     if (dorado_trace_flag("DORADO_CSB_TRACE") || dorado_trace_flag("DORADO_ETH_IOCB_TRACE")) {
-        uint16_t interrupt_mask =
-            dorado_visible_word_at_va(&m->mem,
-                                      GERM_ETH_CSB_VA + ETH_CSB_IN_INTERRUPT);
         fprintf(stderr,
                 "[machine] germ EthernetOne direct RX complete: "
                 "iocb=0o%o buffer=0o%o used=0o%o status=0o%o "
@@ -680,6 +883,24 @@ static void machine_germ_complete_ethernet_rx(dorado_machine *m,
     eth->rx_count = 0;
     eth->rx_pos = 0;
     eth->rx_hold = 0;
+    if (is_stp_pup) {
+        /* QueueInput writes CSB.lastInput after it has accepted an input
+         * buffer.  Require that repost before exposing another STP Pup: the
+         * real hardware's DMA/FIFO provides this backpressure but the old
+         * host shortcut could otherwise consume all five IOCBs in a few host
+         * instructions.  This includes the short Yes/text/EOC tail, which
+         * is otherwise able to overwrite itself after the final data Pup. */
+        m->stp_direct_last_input = dorado_visible_word_at_va(
+            &m->mem, GERM_ETH_CSB_VA + ETH_CSB_LAST_INPUT);
+        m->stp_direct_wait_repost = 1;
+        eth->ftp_delivery_blocked = 1;
+        if (dorado_trace_flag("DORADO_ETH_IOCB_TRACE")) {
+            fprintf(stderr,
+                    "[machine] Cedar direct RX waits for repost after "
+                    "IOCB=0o%o lastInput=0o%o\n",
+                    iocb_va, m->stp_direct_last_input);
+        }
+    }
 }
 
 static void machine_germ_complete_ethernet_tx(dorado_machine *m)
@@ -775,7 +996,7 @@ static void machine_write_long_va(dorado_memory *mem, uint32_t va,
 
 static void machine_germ_complete_disk_iocb(dorado_machine *m)
 {
-    if (!m || !m->pilot_pdi_loaded || !m->germ_data_done) return;
+    if (!m || !m->germ_data_done) return;
 
     uint16_t csb_next = 0, csb_interrupt_mask = 0;
     uint32_t iocb = machine_germ_disk_csb_iocb(&m->mem,
@@ -801,75 +1022,423 @@ static void machine_germ_complete_disk_iocb(dorado_machine *m)
 
     uint16_t count = dorado_visible_word_at_va(&m->mem,
                                                iocb + SA_IOCB_PAGECOUNT);
+    /* A sealed zero-page IOCB is a valid no-op completion in the Cedar driver.
+     * It must clear its seal, but has not transferred a sector and therefore
+     * must not publish its stale private diskLabel back to the client. */
+    uint16_t drive = dorado_visible_word_at_va(&m->mem, iocb + SA_IOCB_DRIVE);
+    dorado_pdi *pdi =
+        drive < DORADO_DISK_NUM_DRIVES && m->pilot_pdi_loaded[drive]
+            ? &m->pilot_pdi[drive] : NULL;
     uint16_t command = dorado_visible_word_at_va(
         &m->mem, iocb + SA_IOCB_COMMAND);
     uint16_t disk_addr_low = dorado_visible_word_at_va(
         &m->mem, iocb + SA_IOCB_DISKADDR);
     uint16_t disk_addr_high = dorado_visible_word_at_va(
         &m->mem, iocb + SA_IOCB_DISKADDR + 1u);
-    uint32_t disk_page = (uint32_t)disk_addr_low + (uint32_t)disk_addr_high;
-    if (command == DISK_CMD_GERMDATA && disk_addr_low >= 0100u) {
-        if (!m->pilot_pdi_stream_active) {
-            m->pilot_pdi_stream_active = 1;
-            m->pilot_pdi_next_page = disk_page;
-        }
-        disk_page = m->pilot_pdi_next_page;
+    if (drive == 0 && m->pilot_pdi_stream_active && csb_interrupt_mask != 0 &&
+        dorado_trace_flag("DORADO_PILOT_BOOT_ONLY")) {
+        /* Diagnostic mode for a transient slot-0 bootstrap volume.  Once its
+         * germ/boot-file stream has completed, let Pilot discover the data
+         * volume in a later slot without rejecting its cloned volume IDs as
+         * duplicates of the bootstrap image. */
+        pdi = NULL;
     }
+    /* Every post-germ IOCB carries PilotDisk's real drive-0 DiskAddress
+     * (virtual cylinder plus sector). The germ's three early disk passes are
+     * planted before this bridge is enabled, so no flat-PDI convention leaks
+     * into the ordinary boot-file and filesystem traffic. */
+    int flat_address = 0;
+    uint32_t disk_page = machine_pilot_disk_address_to_vda(
+        drive, disk_addr_low, disk_addr_high, flat_address);
     uint32_t label_ptr = machine_read_long_va(&m->mem, iocb + SA_IOCB_LABELPTR);
+    uint32_t iocb_label = iocb + SA_IOCB_DISKLABEL;
+    uint32_t operation = iocb - SA_DORADO_OPERATION_IOCB;
+    /* Dorado virtual addresses are 28 bits (the high nibble in a Mesa LONG
+     * POINTER is not an address bit). */
+    uint32_t client_label_ptr = machine_read_long_va(
+        &m->mem, operation + SA_OPERATION_LABELPTR) & 0x0fffffffu;
+    uint32_t client_label_file_page = 0;
+    if (client_label_ptr && pdi && pdi->label_words >= 7) {
+        client_label_file_page =
+            (uint32_t)dorado_visible_word_at_va(&m->mem,
+                                                client_label_ptr + 5u) |
+            ((uint32_t)(dorado_visible_word_at_va(&m->mem,
+                                                   client_label_ptr + 6u) &
+                        0177u) << 16);
+    }
     uint32_t data_ptr = machine_read_long_va(&m->mem, iocb + SA_IOCB_DATAPTR);
     uint16_t next = dorado_visible_word_at_va(&m->mem, iocb + SA_IOCB_NEXT);
+    unsigned label_action = DISK_CMD_LABEL_ACTION(command);
+    unsigned data_action = DISK_CMD_DATA_ACTION(command);
+    /* PilotDisk.mc's KCheckError reports DS.checkErr (0100B).  Keep the
+     * three independently reported block statuses here, just as IOCB does. */
+    uint16_t header_status = pdi ? 0 : 004000u; /* DS.notOnLine */
+    uint16_t label_status = header_status;
+    uint16_t data_status = header_status;
+    int disk_error = 0;
+    /* PilotDisk.mc/KSectorDone updates IOCB.diskLabel after every successful
+     * page, irrespective of the label Action.  That is deliberately distinct
+     * from labelPtr: a label-read points at the client's label, but the
+     * controller still advances its private IOCB copy. */
+    uint32_t label_file_page = 0;
+    if (pdi && pdi->label_words >= 7) {
+        label_file_page =
+            (uint32_t)dorado_visible_word_at_va(&m->mem, iocb_label + 5u) |
+            ((uint32_t)(dorado_visible_word_at_va(&m->mem, iocb_label + 6u) &
+                        0177u) << 16);
+    }
+    if (dorado_trace_flag("DORADO_DISK_IOCB_TRACE")) {
+        fprintf(stderr,
+                "[machine] PDI disk IOCB start @cyc=%llu: iocb=0o%o cmd=0o%o "
+                "page=0o%o count=0o%o diskLabel={id=0o%o/0o%o "
+                "fp=0o%o attr=0o%o} clientLabel=0o%o/fp=0o%o\n",
+                (unsigned long long)m->bb.cycles, iocb, command, disk_page, count,
+                dorado_visible_word_at_va(&m->mem, iocb_label),
+                dorado_visible_word_at_va(&m->mem, iocb_label + 1u),
+                (unsigned)label_file_page,
+                dorado_visible_word_at_va(&m->mem, iocb_label + 7u),
+                client_label_ptr, (unsigned)client_label_file_page);
+    }
 
+    /* Optional timing probe for the direct PDI bridge.  The ordinary bridge
+     * deliberately has no media delay, but a real Trident produces at most
+     * one 256-word sector roughly every 9,920 Dorado cycles.  Retaining the
+     * source-level one-page IOCB state while spacing sectors lets us check
+     * whether a Pilot file-cache race is hiding behind the instantaneous
+     * host media.  It is strictly opt-in and has no snapshot ABI state. */
+    const char *sector_delay_text = getenv("DORADO_PDI_SECTOR_CYCLES");
+    unsigned long sector_delay = sector_delay_text && *sector_delay_text
+        ? strtoul(sector_delay_text, NULL, 0) : 0;
+    if (sector_delay && pdi && count) {
+        static const dorado_machine *paced_machine;
+        static uint64_t next_pdi_sector_cycle;
+        if (paced_machine != m || m->bb.cycles < next_pdi_sector_cycle) {
+            paced_machine = m;
+            next_pdi_sector_cycle = 0;
+        }
+        if (m->bb.cycles < next_pdi_sector_cycle)
+            return;
+        next_pdi_sector_cycle = m->bb.cycles + sector_delay;
+    }
+
+    /* PilotDisk.mc/KSectorDone is deliberately a one-sector state machine:
+     * it updates the IOCB after each sector and returns through
+     * KContinueCmmd while the seal remains set.  Completing an entire PDI
+     * request atomically used to look equivalent, but it is not: File's
+     * multi-page allocation/cache operations cross a 32-page boundary and
+     * rely on those intermediate IOCB updates.  Mirror the controller one
+     * page at a time.  The sealed IOCB remains at CSB.next until the final
+     * page below, so the next machine tick naturally resumes this same
+     * command without any host-only continuation state. */
     uint16_t done = 0;
+    uint16_t budget = count ? 1u : 0u;
     /* --disk-real: temp buffers for the controller-mediated read (the read
      * path delivers header+label+data via the FIFO). */
     uint16_t cl[DORADO_PILOT_LABEL_WORDS];
     uint16_t cd[DORADO_PILOT_DATA_WORDS];
-    int lw = (int)m->pilot_pdi.label_words;
-    int dw = (int)m->pilot_pdi.data_words;
+    int lw = pdi ? (int)pdi->label_words : DORADO_PILOT_LABEL_WORDS;
+    int dw = pdi ? (int)pdi->data_words : DORADO_PILOT_DATA_WORDS;
     if (lw > DORADO_PILOT_LABEL_WORDS) lw = DORADO_PILOT_LABEL_WORDS;
     if (dw > DORADO_PILOT_DATA_WORDS)  dw = DORADO_PILOT_DATA_WORDS;
-    for (; done < count; done++) {
+    for (; done < budget; done++) {
         uint32_t page = disk_page + done;
         const uint16_t *label, *data;
-        if (m->disk_real) {
+        if (!pdi) {
+            break;
+        } else if (m->disk_real && label_action != DISK_ACTION_WRITE &&
+                   data_action != DISK_ACTION_WRITE) {
             /* Route this page's read through the real controller (FIFO path). */
+            m->disk.selected_drive = (uint8_t)drive;
             if (dorado_disk_controller_read_page(&m->disk, page,
                                                  cl, lw, cd, dw) != 0)
                 break;
             label = cl; data = cd;
         } else {
-            label = dorado_pdi_page_label(&m->pilot_pdi, page);
-            data = dorado_pdi_page_data(&m->pilot_pdi, page);
+            label = dorado_pdi_page_label(pdi, page);
+            data = dorado_pdi_page_data(pdi, page);
             if (!label || !data) break;
         }
 
-        if (label_ptr) {
-            for (uint16_t w = 0; w < m->pilot_pdi.label_words; w++)
+        /* DiskHeadDorado.Initiate directs only a label-read at the client's
+         * labelPtr; label writes use IOCB.diskLabel at that same pointer.
+         * The PDI bridge used to copy in the read direction unconditionally.
+         * Cedar's File.Create therefore kept rereading its old VAM/root page
+         * for 100244B ([check,check,write]) and could never create the STP
+         * cache stream.  Honor each Action field just as the controller does. */
+        if (label_action == DISK_ACTION_READ && label_ptr) {
+            for (uint16_t w = 0; w < pdi->label_words; w++)
                 machine_store_va(&m->mem, label_ptr + w, label[w]);
         }
-        if (data_ptr) {
-            uint32_t dst = data_ptr + (uint32_t)done * m->pilot_pdi.data_words;
-            for (uint16_t w = 0; w < m->pilot_pdi.data_words; w++)
+        if (label_action == DISK_ACTION_CHECK && label_ptr) {
+            /* PilotDiskDefs.mc and PilotDisk.mc/DoDiskBlock: checking a
+             * label compares its first eight words, then transfers the last
+             * two unconditionally.  Those two words are the boot-chain
+             * link, so dropping them is observable even when the comparison
+             * succeeds. */
+            uint16_t compare_words = pdi->label_words < 8u
+                ? pdi->label_words : 8u;
+            /* PilotDisk.mc/KSectorDone clears Lab.fileFlags (the low three
+             * bits of label word 7) after every successful sector.  Cedar's
+             * File code subsequently reconstructs HeaderLabel/DataLabel for
+             * a later request to that same file page.  This opt-in probe
+             * leaves the file type bits and all other identity fields exact,
+             * but treats only the microcode-mutated flags as nonpersistent.
+             * It exists to reconcile those two original-source behaviours;
+             * keep the default hardware-exact comparison for regression
+             * work until the compatibility result is established. */
+            int ignore_label_flags =
+                dorado_trace_flag("DORADO_PDI_IGNORE_LABEL_FLAGS");
+            int mismatch = 0;
+            for (uint16_t w = 0; w < compare_words; w++) {
+                uint16_t want = dorado_visible_word_at_va(&m->mem,
+                                                           label_ptr + w);
+                uint16_t have = label[w];
+                if (w == 7u && ignore_label_flags) {
+                    want &= (uint16_t)~PILOT_LABEL_FILE_FLAGS;
+                    have &= (uint16_t)~PILOT_LABEL_FILE_FLAGS;
+                }
+                if (want != have) {
+                    mismatch = 1;
+                }
+            }
+            if (mismatch) {
+                /* PilotDisk.mc/KCheckError exits the compare loop directly,
+                 * before its read-the-last-two-words tail.  In particular it
+                 * preserves diskLabel.bootChainLink from the last successful
+                 * sector; DiskBootTransfer uses that saved link to find the
+                 * next allocation run.  PageCount, diskAddress, dataPtr, and
+                 * the private label remain unadvanced as well. */
+                label_status |= 0100u; /* DS.checkErr */
+                disk_error = 1;
+                if (dorado_trace_flag("DORADO_DISK_IOCB_TRACE")) {
+                    fprintf(stderr,
+                            "[machine] PDI label check mismatch: page=0o%o "
+                            "iocb=0o%o label=0o%o cmd=0o%o count=0o%o "
+                            "addr=[0o%o,0o%o] "
+                            "want={0o%o,0o%o,0o%o,0o%o;0o%o,0o%o,0o%o,0o%o} "
+                            "have={0o%o,0o%o,0o%o,0o%o;0o%o,0o%o,0o%o,0o%o} "
+                            "link={want:[0o%o,0o%o] have:[0o%o,0o%o]}\n",
+                            page, iocb, label_ptr, command, count,
+                            disk_addr_low, disk_addr_high,
+                            dorado_visible_word_at_va(&m->mem, label_ptr),
+                            dorado_visible_word_at_va(&m->mem, label_ptr + 1u),
+                            dorado_visible_word_at_va(&m->mem, label_ptr + 2u),
+                            dorado_visible_word_at_va(&m->mem, label_ptr + 3u),
+                            dorado_visible_word_at_va(&m->mem, label_ptr + 4u),
+                            dorado_visible_word_at_va(&m->mem, label_ptr + 5u),
+                            dorado_visible_word_at_va(&m->mem, label_ptr + 6u),
+                            dorado_visible_word_at_va(&m->mem, label_ptr + 7u),
+                            label[0], label[1], label[2], label[3],
+                            label[4], label[5], label[6], label[7],
+                            dorado_visible_word_at_va(&m->mem, label_ptr + 8u),
+                            dorado_visible_word_at_va(&m->mem, label_ptr + 9u),
+                            label[8], label[9]);
+                }
+                break;
+            }
+            /* A successful check compares words 0..7 then reads the final
+             * two words (normally a boot-chain link) into IOCB.diskLabel. */
+            if (pdi->label_words > 8u) {
+                for (uint16_t w = 8u; w < pdi->label_words; w++)
+                    machine_store_va(&m->mem, label_ptr + w, label[w]);
+            }
+        }
+        if (label_action == DISK_ACTION_WRITE && label_ptr) {
+            uint16_t *dst = pdi->labels + (size_t)page * pdi->label_words;
+            if (dorado_trace_flag("DORADO_DISK_IOCB_TRACE")) {
+                fprintf(stderr,
+                        "[machine] PDI label write: page=0o%o src=0o%o "
+                        "words={0o%o,0o%o,0o%o,0o%o; fp=0o%o/0o%o, attr=0o%o}\n",
+                        page, label_ptr,
+                        dorado_visible_word_at_va(&m->mem, label_ptr),
+                        dorado_visible_word_at_va(&m->mem, label_ptr + 1u),
+                        dorado_visible_word_at_va(&m->mem, label_ptr + 2u),
+                        dorado_visible_word_at_va(&m->mem, label_ptr + 3u),
+                        dorado_visible_word_at_va(&m->mem, label_ptr + 5u),
+                        dorado_visible_word_at_va(&m->mem, label_ptr + 6u),
+                        dorado_visible_word_at_va(&m->mem, label_ptr + 7u));
+            }
+            for (uint16_t w = 0; w < pdi->label_words; w++)
+                dst[w] = dorado_visible_word_at_va(&m->mem, label_ptr + w);
+            if (pdi->label_words >= 7) {
+                uint32_t file_page = label_file_page + done;
+                dst[5] = (uint16_t)file_page;
+                dst[6] = (uint16_t)((dst[6] & ~0177u) |
+                                    ((file_page >> 16) & 0177u));
+                if (done != 0)
+                    dst[7] &= (uint16_t)~PILOT_LABEL_FILE_FLAGS;
+            }
+        }
+        if (data_action == DISK_ACTION_READ && data_ptr) {
+            uint32_t dst = data_ptr + (uint32_t)done * pdi->data_words;
+            if (dorado_trace_flag("DORADO_PDI_BCD_TRACE") &&
+                (data[0] == 0x0500u ||
+                 (page >= 03500u && page < 03700u))) {
+                fprintf(stderr,
+                        "[machine] PDI BCD read: page=0o%o dst=0o%o "
+                        "words={%04x,%04x,%04x,%04x}\n",
+                        page, dst, data[0], data[1], data[2], data[3]);
+            }
+            for (uint16_t w = 0; w < pdi->data_words; w++)
                 machine_store_va(&m->mem, dst + w, data[w]);
+        }
+        if (data_action == DISK_ACTION_WRITE && data_ptr) {
+            uint16_t *dst = pdi->data + (size_t)page * pdi->data_words;
+            uint32_t src = data_ptr + (uint32_t)done * pdi->data_words;
+            if (dorado_trace_flag("DORADO_PDI_BCD_TRACE") &&
+                (dorado_visible_word_at_va(&m->mem, src) == 0x0500u ||
+                 (page >= 03500u && page < 03700u))) {
+                const uint16_t *lab = dorado_pdi_page_label(pdi, page);
+                fprintf(stderr,
+                        "[machine] PDI BCD write: page=0o%o src=0o%o "
+                        "words={%04x,%04x,%04x,%04x} "
+                        "label={id=%04x/%04x fp=%04x/%04x attr=%04x}\n",
+                        page, src,
+                        dorado_visible_word_at_va(&m->mem, src),
+                        dorado_visible_word_at_va(&m->mem, src + 1u),
+                        dorado_visible_word_at_va(&m->mem, src + 2u),
+                        dorado_visible_word_at_va(&m->mem, src + 3u),
+                        lab ? lab[0] : 0, lab ? lab[1] : 0,
+                        lab ? lab[5] : 0, lab ? lab[6] : 0,
+                        lab ? lab[7] : 0);
+            }
+            if (dorado_trace_flag("DORADO_DISK_IOCB_TRACE")) {
+                fprintf(stderr,
+                        "[machine] PDI data write: page=0o%o src=0o%o "
+                        "words={0o%o,0o%o,0o%o,0o%o}\n",
+                        page, src,
+                        dorado_visible_word_at_va(&m->mem, src),
+                        dorado_visible_word_at_va(&m->mem, src + 1u),
+                        dorado_visible_word_at_va(&m->mem, src + 2u),
+                        dorado_visible_word_at_va(&m->mem, src + 3u));
+            }
+            for (uint16_t w = 0; w < pdi->data_words; w++)
+                dst[w] = dorado_visible_word_at_va(&m->mem, src + w);
         }
     }
 
-    uint32_t new_data_ptr = data_ptr +
-        (uint32_t)done * (uint32_t)m->pilot_pdi.data_words;
-    if (m->pilot_pdi_stream_active && command == DISK_CMD_GERMDATA)
-        m->pilot_pdi_next_page = disk_page + done;
+    /* KSectorDone increments the private IOCB label and clears its flags;
+     * DiskHeadDorado.Poll later copies that label to the client for every
+     * Action except label-read. */
+    if (pdi && done != 0 && pdi->label_words >= 7) {
+        uint32_t next_file_page = label_file_page + done;
+        uint16_t high = dorado_visible_word_at_va(&m->mem, iocb_label + 6u);
+        uint16_t flags = dorado_visible_word_at_va(&m->mem, iocb_label + 7u);
+        machine_store_va(&m->mem, iocb_label + 5u,
+                         (uint16_t)next_file_page);
+        machine_store_va(&m->mem, iocb_label + 6u,
+                         (uint16_t)((high & ~0177u) |
+                                    ((next_file_page >> 16) & 0177u)));
+        machine_store_va(&m->mem, iocb_label + 7u,
+                         (uint16_t)(flags & ~PILOT_LABEL_FILE_FLAGS));
+        if (dorado_trace_flag("DORADO_DISK_IOCB_TRACE")) {
+            fprintf(stderr,
+                    "[machine] PDI disk label advanced @cyc=%llu: "
+                    "iocb=0o%o fp=0o%o attr=0o%o\n",
+                    (unsigned long long)m->bb.cycles, iocb,
+                    (unsigned)((uint32_t)dorado_visible_word_at_va(
+                        &m->mem, iocb_label + 5u) |
+                        ((uint32_t)(dorado_visible_word_at_va(
+                            &m->mem, iocb_label + 6u) & 0177u) << 16)),
+                    dorado_visible_word_at_va(&m->mem, iocb_label + 7u));
+        }
+    }
 
-    machine_store_va(&m->mem, iocb + SA_IOCB_DISKADDR, disk_addr_low);
+    /* DiskHeadDorado.mesa: DiskCommand.incrementDataPtr is an IOCB-only
+     * control bit.  Poll copies IOCB.dataPtr back to the client, so ordinary
+     * multi-page operations must retain their starting buffer address; only
+     * explicit streaming transfers (the germ's 0100254B read, for example)
+     * advance it.  Advancing unconditionally corrupts the caller's next
+     * cache/file operation after a multi-page write. */
+    uint32_t new_data_ptr = data_ptr;
+    if (command & 0100000u)
+        new_data_ptr += (uint32_t)done * (uint32_t)dw;
+    uint16_t next_disk_addr_low = disk_addr_low;
+    uint16_t next_disk_addr_high = disk_addr_high;
+    /* DiskHeadDorado.Poll copies IOCB.diskHeader back to the client after a
+     * completed operation.  The controller has overwritten that field with
+     * the header from the last physical page it touched; retaining the
+     * caller's first-page request makes a multi-page File/Create operation
+     * look as though it ended on the wrong sector.  A PDI has no separate
+     * hardware-header bytes, so synthesize that final DiskAddress. */
+    uint16_t final_header_low = disk_addr_low;
+    uint16_t final_header_high = disk_addr_high;
+    if (done != 0) {
+        machine_pilot_disk_address_advance(drive, &final_header_low,
+                                           &final_header_high,
+                                           (uint16_t)(done - 1u),
+                                           flat_address);
+    }
+    {
+        machine_pilot_disk_address_advance(drive, &next_disk_addr_low,
+                                           &next_disk_addr_high, done,
+                                           flat_address);
+    }
+    machine_store_va(&m->mem, iocb + SA_IOCB_DISKADDR,
+                     next_disk_addr_low);
     machine_store_va(&m->mem, iocb + SA_IOCB_DISKADDR + 1u,
-                     (uint16_t)(disk_addr_high + done));
-    machine_store_va(&m->mem, iocb + SA_IOCB_DISKHEADER, disk_addr_low);
-    machine_store_va(&m->mem, iocb + SA_IOCB_DISKHEADER + 1u, disk_addr_high);
+                     next_disk_addr_high);
+    machine_store_va(&m->mem, iocb + SA_IOCB_DISKHEADER, final_header_low);
+    machine_store_va(&m->mem, iocb + SA_IOCB_DISKHEADER + 1u,
+                     final_header_high);
     machine_write_long_va(&m->mem, iocb + SA_IOCB_DATAPTR, new_data_ptr);
     machine_store_va(&m->mem, iocb + SA_IOCB_PAGECOUNT,
                      (uint16_t)(count - done));
-    machine_store_va(&m->mem, iocb + SA_IOCB_HEADERSTATUS, 0);
-    machine_store_va(&m->mem, iocb + SA_IOCB_LABELSTATUS, 0);
-    machine_store_va(&m->mem, iocb + SA_IOCB_DATASTATUS, 0);
+    machine_store_va(&m->mem, iocb + SA_IOCB_HEADERSTATUS, header_status);
+    machine_store_va(&m->mem, iocb + SA_IOCB_LABELSTATUS, label_status);
+    machine_store_va(&m->mem, iocb + SA_IOCB_DATASTATUS, data_status);
+
+    if (disk_error) {
+        /* PilotDisk.mc/KSectorError freezes the chain by replacing CSB.next
+         * with the failed IOCB's even pointer, then wakes the client. */
+        machine_store_va(&m->mem, iocb + SA_IOCB_SEAL, 0);
+        machine_store_va(&m->mem, GERM_DISK_CSB_VA,
+                         (uint16_t)(iocb - 1u));
+        if (csb_interrupt_mask) {
+            m->cpu.RM[0] |= csb_interrupt_mask;
+            m->cpu.reschedule_pending = 1;
+        }
+        return;
+    }
+
+    /* KSectorDone branches back to KContinueCmmd until pageCount reaches
+     * zero.  In particular, do not publish the next IOCB or its interrupt
+     * before the final sector: Pilot's DiskHead polls the sealed IOCB as the
+     * completion fence. */
+    if (done != 0 && done < count) {
+        if (dorado_trace_flag("DORADO_DISK_IOCB_TRACE")) {
+            fprintf(stderr,
+                    "[machine] PDI disk IOCB progress: iocb=0o%o "
+                    "cmd=0o%o page=0o%o remaining=0o%o data=0o%o->0o%o\n",
+                    iocb, command, disk_page, (uint16_t)(count - done),
+                    data_ptr, new_data_ptr);
+        }
+        return;
+    }
+
+    /* DiskHeadDorado.mesa/Poll copies the controller's private diskLabel back
+     * to Operation.labelPtr on completion, except after a label-read (which
+     * was directed to the client pointer in the first place).  The direct PDI
+     * bridge is the controller's completion boundary, so publish the same
+     * value before clearing the seal.  Without this, a follow-on IOCB is
+     * rebuilt from the client's stale filePage and rechecks the wrong label. */
+    if (pdi && done != 0 && label_action != DISK_ACTION_READ &&
+        client_label_ptr) {
+        for (uint16_t w = 0; w < pdi->label_words; w++)
+            machine_store_va(&m->mem, client_label_ptr + w,
+                             dorado_visible_word_at_va(&m->mem,
+                                                       iocb_label + w));
+        if (dorado_trace_flag("DORADO_DISK_IOCB_TRACE")) {
+            fprintf(stderr,
+                    "[machine] PDI disk label copyback: iocb=0o%o "
+                    "client=0o%o fp=0o%o\n",
+                    iocb, client_label_ptr,
+                    (unsigned)((uint32_t)dorado_visible_word_at_va(
+                        &m->mem, iocb_label + 5u) |
+                        ((uint32_t)(dorado_visible_word_at_va(
+                            &m->mem, iocb_label + 6u) & 0177u) << 16)));
+        }
+    }
     machine_store_va(&m->mem, iocb + SA_IOCB_SEAL, 0);
     machine_store_va(&m->mem, GERM_DISK_CSB_VA, next);
     if (csb_interrupt_mask) {
@@ -887,11 +1456,11 @@ static void machine_germ_complete_disk_iocb(dorado_machine *m)
     if (dorado_trace_flag("DORADO_DISK_IOCB_TRACE")) {
         fprintf(stderr,
                 "[machine] PDI disk IOCB complete: iocb=0o%o "
-                "csb=[0o%o,0o%o] cmd=0o%o "
+                "csb=[0o%o,0o%o] drive=0o%o cmd=0o%o "
                 "page=0o%o raw=[0o%o,0o%o] count=0o%o done=0o%o "
                 "data=0o%o->0o%o nextPage=0o%o "
                 "label=0o%o next=0o%o\n",
-                iocb, csb_next, csb_interrupt_mask, command, disk_page,
+                iocb, csb_next, csb_interrupt_mask, drive, command, disk_page,
                 disk_addr_low, disk_addr_high, count, done, data_ptr,
                 new_data_ptr, m->pilot_pdi_next_page, label_ptr, next);
     }
@@ -1219,12 +1788,14 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
         cfg.eth_boot_110 = pick(user_cfg->eth_boot_110, cfg.eth_boot_110);
         cfg.eftp_boot    = pick(user_cfg->eftp_boot,    cfg.eftp_boot);
         cfg.ftp_sysout   = pick(user_cfg->ftp_sysout,   cfg.ftp_sysout);
+        cfg.ftp_root     = pick(user_cfg->ftp_root,     cfg.ftp_root);
         cfg.germ_path    = pick(user_cfg->germ_path,    cfg.germ_path);
-        cfg.pilot_disk_pdi = pick(user_cfg->pilot_disk_pdi,
-                                  cfg.pilot_disk_pdi);
         cfg.disk_real    = user_cfg->disk_real;
-        for (int s = 0; s < 4; s++)
+        for (int s = 0; s < 4; s++) {
+            cfg.pilot_disk_pdi[s] = pick(user_cfg->pilot_disk_pdi[s],
+                                         cfg.pilot_disk_pdi[s]);
             cfg.disk_pack[s] = pick(user_cfg->disk_pack[s], cfg.disk_pack[s]);
+        }
         cfg.germ_netboot = user_cfg->germ_netboot;
         cfg.germ_netboot_bfn = user_cfg->germ_netboot_bfn;
         cfg.alto_ether_boot  = user_cfg->alto_ether_boot;
@@ -1378,21 +1949,25 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
                                   cfg.eth_boot_110);
     dorado_ethernet_set_eftp_boot_file(&m->ethernet, cfg.eftp_boot);
     dorado_ethernet_set_ftp_sysout(&m->ethernet, cfg.ftp_sysout);
-    if (cfg.pilot_disk_pdi) {
+    dorado_ethernet_set_ftp_root(&m->ethernet, cfg.ftp_root);
+    for (int s = 0; s < DORADO_DISK_NUM_DRIVES; s++) {
+        if (!cfg.pilot_disk_pdi[s]) continue;
         char err[128];
-        if (dorado_pdi_load(cfg.pilot_disk_pdi, &m->pilot_pdi,
+        if (dorado_pdi_load(cfg.pilot_disk_pdi[s], &m->pilot_pdi[s],
                             err, sizeof err) != 0) {
-            fprintf(stderr, "dorado: cannot load Pilot disk '%s': %s\n",
-                    cfg.pilot_disk_pdi, err);
+            fprintf(stderr, "dorado: cannot load Pilot disk %d '%s': %s\n",
+                    s, cfg.pilot_disk_pdi[s], err);
         } else {
-            m->pilot_pdi_loaded = 1;
-            dorado_disk_controller_attach_pdi(&m->disk, 0, &m->pilot_pdi);
+            m->pilot_pdi_loaded[s] = 1;
+            snprintf(machine_pdi_path[s], sizeof machine_pdi_path[s], "%s",
+                     cfg.pilot_disk_pdi[s]);
+            dorado_disk_controller_attach_pdi(&m->disk, s, &m->pilot_pdi[s]);
             m->disk.allow_pdi_timing = (uint8_t)m->disk_real;  /* D4 */
             m->disk_attached = 1;
             if (dorado_trace_flag("DORADO_MACHINE_TRACE"))
-                fprintf(stderr, "[machine] Pilot PDI mounted: %s "
-                        "(%u pages)\n", cfg.pilot_disk_pdi,
-                        (unsigned)m->pilot_pdi.page_count);
+                fprintf(stderr, "[machine] Pilot PDI mounted in slot %d: %s "
+                        "(%u pages)\n", s, cfg.pilot_disk_pdi[s],
+                        (unsigned)m->pilot_pdi[s].page_count);
         }
     }
 
@@ -1527,7 +2102,17 @@ void dorado_machine_destroy(dorado_machine *m)
 {
     if (!m) return;
     dorado_ethernet_free(&m->ethernet);
-    if (m->pilot_pdi_loaded) dorado_pdi_free(&m->pilot_pdi);
+    for (int s = 0; s < DORADO_DISK_NUM_DRIVES; s++) {
+        if (!m->pilot_pdi_loaded[s]) continue;
+        if (getenv("DORADO_PDI_SAVE") && machine_pdi_path[s][0]) {
+            char err[128];
+            if (dorado_pdi_save(machine_pdi_path[s], &m->pilot_pdi[s], err,
+                                sizeof err) != 0)
+                fprintf(stderr, "dorado: cannot save Pilot disk %d '%s': %s\n",
+                        s, machine_pdi_path[s], err);
+        }
+        dorado_pdi_free(&m->pilot_pdi[s]);
+    }
     if (m->disk_attached && m->disk_pack.sectors)
         dorado_disk_pack_free(&m->disk_pack);
     for (int s = 0; s < DORADO_DISK_NUM_DRIVES; s++) {
@@ -1581,6 +2166,17 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
             dorado_trace_gate =
                 (tg_hi && bb->cycles >= (uint64_t)tg_lo &&
                  bb->cycles <= (uint64_t)tg_hi);
+
+            /* Opt-in raw microinstruction trace for a bounded standalone
+             * diagnosis.  Couple it to the existing cycle gate so a Cedar
+             * continuation can expose the exact IM loop without producing
+             * billions of lines.  Do not touch a caller-installed trace
+             * unless this explicit diagnostic is requested. */
+            if (dorado_trace_flag("DORADO_UCODE_TRACE")) {
+                int trace_now = dorado_trace_gate ||
+                    !dorado_trace_flag("DORADO_TRACE_GATE");
+                dorado_cpu_trace(cpu, trace_now ? stderr : NULL);
+            }
         }
         /* One-shot VM memory dump (env DORADO_VMDUMP="lo,hi,cycle"),
          * trace-only. Dumps visible words [lo,hi) once at/after cycle. */
@@ -2077,13 +2673,35 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                 dorado_visible_word_at_va(&m->mem,
                                           GERM_ETH_CSB_VA +
                                           ETH_CSB_NEXT_INPUT);
+            if (m->stp_direct_wait_repost) {
+                uint16_t last_input = dorado_visible_word_at_va(
+                    &m->mem, GERM_ETH_CSB_VA + ETH_CSB_LAST_INPUT);
+                if (last_input != m->stp_direct_last_input) {
+                    m->stp_direct_wait_repost = 0;
+                    eth->ftp_delivery_blocked = 0;
+                    if (dorado_trace_flag("DORADO_ETH_IOCB_TRACE")) {
+                        fprintf(stderr,
+                                "[machine] Cedar direct RX reposted "
+                                "lastInput=0o%o; release next file Pup\n",
+                                last_input);
+                    }
+                }
+            }
             int plausible_input = machine_ethernet_plausible_iocb(m, next_input);
             uint16_t next_completion = next_input
                 ? dorado_visible_word_at_va(&m->mem, (uint32_t)next_input + 1u)
                 : 0;
             dorado_ethernet_set_eftp_rx_armed(
                 eth, eth->rx_on && plausible_input && next_completion == 0);
-            if (eth->eftp_wait_for_rx_arm && eth->eftp_rx_armed && plausible_input)
+            /* The CSB-level completion shim is only for the germ's EFTP
+             * boot reader.  Once EFTP has finished, the running Cedar
+             * EthernetOne driver must receive ordinary BSP/STP Pups through
+             * EIT; completing those directly exhausts its five IOCBs before
+             * the driver has a chance to repost them. */
+            if (eth->eftp_wait_for_rx_arm &&
+                (eth->eftp_state != 0 ||
+                 dorado_trace_flag("DORADO_ETH_STP_DIRECT_RX")) &&
+                eth->eftp_rx_armed && plausible_input)
                 machine_germ_complete_ethernet_rx(m, next_input);
             if (dorado_trace_flag("DORADO_CSB_TRACE") && plausible_input) {
                 static uint16_t last_seen_iocb;
@@ -2596,6 +3214,44 @@ void dorado_machine_set_key(dorado_machine *m, dorado_display_key key,
     dorado_display_keyboard_set_key(&m->display, key, down ? 1 : 0);
 }
 
+void dorado_machine_set_ftp_source(dorado_machine *m, const char *sysout,
+                                   const char *root)
+{
+    if (!m) return;
+    if (sysout && *sysout)
+        dorado_ethernet_set_ftp_sysout(&m->ethernet, sysout);
+    if (root && *root)
+        dorado_ethernet_set_ftp_root(&m->ethernet, root);
+}
+
+int dorado_machine_set_pilot_disk(dorado_machine *m, int slot,
+                                  const char *path)
+{
+    char err[128];
+    if (!m || !path || !*path || slot < 0 || slot >= DORADO_DISK_NUM_DRIVES)
+        return -1;
+    if (m->pilot_pdi_loaded[slot]) {
+        dorado_pdi_free(&m->pilot_pdi[slot]);
+        m->pilot_pdi_loaded[slot] = 0;
+    }
+    if (dorado_pdi_load(path, &m->pilot_pdi[slot], err, sizeof err) != 0) {
+        fprintf(stderr, "dorado: cannot load Pilot disk %d '%s': %s\n",
+                slot, path, err);
+        return -1;
+    }
+    m->pilot_pdi_loaded[slot] = 1;
+    snprintf(machine_pdi_path[slot], sizeof machine_pdi_path[slot], "%s",
+             path);
+    dorado_disk_controller_attach_pdi(&m->disk, slot, &m->pilot_pdi[slot]);
+    m->disk.allow_pdi_timing = (uint8_t)m->disk_real;
+    m->disk_attached = 1;
+    if (slot == 0) {
+        m->pilot_pdi_stream_active = 0;
+        m->pilot_pdi_next_page = 0;
+    }
+    return 0;
+}
+
 int dorado_machine_interactive(const dorado_machine *m)
 {
     return m && m->keys_live;
@@ -2996,6 +3652,34 @@ static void machine_dump_lisp_atom_probe(dorado_machine *m)
 void dorado_machine_debug(dorado_machine *m)
 {
     if (!m) return;
+    /* DORADO_FIND_BCD_HEADER is a final-state transport probe for the Cedar
+     * STP path.  RPCRuntime.bcd begins 0500,F9E0,7CC6,DC08 (big-endian
+     * Mesa words).  Looking for that sequence in physical storage tells us
+     * whether PupStream/File has retained the received BCD at all; it does
+     * not alter guest state. */
+    if (dorado_trace_flag("DORADO_FIND_BCD_HEADER") && m->mem.storage) {
+        static const uint16_t bcd_prefix[] = {
+            02400u, 0174740u, 076306u, 0156010u
+        };
+        size_t matches = 0;
+        for (size_t i = 0; i + sizeof bcd_prefix / sizeof bcd_prefix[0] <=
+                           m->mem.storage_words; i++) {
+            if (m->mem.storage[i] != bcd_prefix[0] ||
+                m->mem.storage[i + 1] != bcd_prefix[1] ||
+                m->mem.storage[i + 2] != bcd_prefix[2] ||
+                m->mem.storage[i + 3] != bcd_prefix[3])
+                continue;
+            fprintf(stderr,
+                    "[machine] BCD RPCRuntime prefix at physical 0o%07o "
+                    "words={0o%o,0o%o,0o%o,0o%o}\n",
+                    (unsigned)i, m->mem.storage[i], m->mem.storage[i + 1],
+                    m->mem.storage[i + 2], m->mem.storage[i + 3]);
+            matches++;
+            if (matches == 16) break;
+        }
+        if (!matches)
+            fprintf(stderr, "[machine] BCD RPCRuntime prefix not in storage\n");
+    }
     machine_dump_inverse_rp(m);
     machine_find_lisp_atoms(m);
     machine_find_lisp_def(m);
@@ -3187,7 +3871,8 @@ void dorado_machine_debug(dorado_machine *m)
                 "[machine] ftp: open=%u phase=%u tx_mode=%u tx_step=%u "
                 "pend_ack=%u wait_ack=%u rx_next=%08x tx_next=%08x "
                 "tx_last=%08x last_ack=%08x file=%u/%u cmd=%03o/%zu "
-                "seen=%llu queued=%llu rxq=%zu/%zu hold=%u "
+                "seen=%llu queued=%llu rxq=%zu/%zu hold=%u rxon=%u "
+                "nowake=%u world=%u eitctl=0o%o eitwrites=%llu reads=%llu "
                 "client=%06o/%o/%o server=%06o/%o/%o alloc=%u/%u/%u\n",
                 e->ftp_open, e->ftp_phase, e->ftp_tx_mode, e->ftp_tx_step,
                 e->ftp_pending_ack, e->ftp_waiting_for_ack,
@@ -3196,7 +3881,11 @@ void dorado_machine_debug(dorado_machine *m)
                 e->ftp_cmd_mark, e->ftp_cmd_len,
                 (unsigned long long)e->ftp_packets_seen,
                 (unsigned long long)e->ftp_packets_queued,
-                e->rx_pos, e->rx_count, e->rx_hold,
+                e->rx_pos, e->rx_count, e->rx_hold, e->rx_on,
+                e->no_wakeups, e->world_rx_words,
+                e->control_last[DORADO_ETHERNET_TASK_EIT],
+                (unsigned long long)e->control_writes[DORADO_ETHERNET_TASK_EIT],
+                (unsigned long long)e->data_reads,
                 e->ftp_client_net_host, e->ftp_client_sock_hi,
                 e->ftp_client_sock_lo, e->ftp_server_net_host,
                 e->ftp_server_sock_hi, e->ftp_server_sock_lo,
@@ -3230,6 +3919,13 @@ void dorado_machine_debug(dorado_machine *m)
             m->cpu.ifu_n, m->cpu.ifu_pcx, m->cpu.ifu_pcf,
             m->cpu.ifu_idcnt,
             (unsigned long long)m->cpu.ifu_dispatch_count);
+    fprintf(stderr,
+            "[machine] tasking: ready=%04x wake=%04x pipe={%04x,%04x} "
+            "tpc[eot]=0o%o tpc[eit]=0o%o\n",
+            m->cpu.ready, m->cpu.wakeup_pending,
+            m->cpu.wakeup_pipe[0], m->cpu.wakeup_pipe[1],
+            dorado_cpu_get_task_tpc(&m->cpu, DORADO_ETHERNET_TASK_EOT),
+            dorado_cpu_get_task_tpc(&m->cpu, DORADO_ETHERNET_TASK_EIT));
     for (int i = 0; i < 8; i++)
         fprintf(stderr, " %06o", m->cpu.STK[i] & 0177777);
     fprintf(stderr, "\n");
@@ -4379,7 +5075,7 @@ uint64_t dorado_machine_state_digest(const dorado_machine *m)
     h = snap_fnv1a(h, regs, sizeof regs);
 
     uint64_t counters[] = {
-        (uint64_t)(unsigned)m->cpu.cycles,
+        m->cpu.cycles,
         m->cpu.ifu_dispatch_count,
         m->bb.cycles,
     };

@@ -97,7 +97,14 @@ CEDAR_SNAPSHOT := build/good-packs/cedar-login.snap
 CEDAR_SNAPSHOT_SCREEN := build/good-packs/cedar-login.pgm
 CEDAR_SNAPSHOT_CYCLES ?= 650000000
 CEDAR_NATIVE_SNAPSHOT_GZ := snapshot-assets/cedar-login-native.snap.gz
+CEDAR_BESTOF_PDI := ../CedarDisk/CedarDorado-bestof.pdi
+CEDAR_BESTOF_SNAPSHOT := build/good-packs/cedar-bestof-login.snap
+CEDAR_BESTOF_SNAPSHOT_SCREEN := build/good-packs/cedar-bestof-login.pgm
+CEDAR_BESTOF_SNAPSHOT_CYCLES ?= 1200000000
+CEDAR_BESTOF_NATIVE_SNAPSHOT_GZ := snapshot-assets/cedar-bestof-login-native.snap.gz
 $(CEDAR_PDI): $(CEDAR_PDI).gz
+	gunzip -c $< > $@
+$(CEDAR_BESTOF_PDI): $(CEDAR_BESTOF_PDI).gz
 	gunzip -c $< > $@
 
 # Alto disk-boot pack (Diablo-on-Trident). The raw .pack is gitignored (large);
@@ -398,7 +405,8 @@ run-clock: sdl
 # Cedar/Pilot Route B. This direct disk/germ path reaches the Cedar
 # SimpleTerminal display. The screen stays blank until roughly 650M emulated
 # cycles, so run the SDL frontend with a larger cycles-per-frame budget.
-.PHONY: run-cedar run-cedar-screenshot cedar-login-snapshot run-cedar-snapshot-sdl
+.PHONY: run-cedar run-cedar-screenshot cedar-login-snapshot run-cedar-snapshot-sdl \
+	run-cedar-bestof cedar-bestof-snapshot run-cedar-bestof-snapshot-sdl
 run-cedar: sdl
 	./build/dorado-sdl --boot-reason disk --no-alto-boot --eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' --pilot-disk '$(CEDAR_PDI)' --speed 4000000
 run-cedar-real: sdl
@@ -427,6 +435,33 @@ run-cedar-snapshot-sdl: sdl $(CEDAR_SNAPSHOT)
 		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
 		--pilot-disk '$(CEDAR_PDI)' \
 		--snapshot-in '$(CEDAR_SNAPSHOT)' --scale 1 --speed 400000
+
+# Corrected Cedar filesystem populated with a representative application set.
+run-cedar-bestof: sdl $(CEDAR_BESTOF_PDI)
+	./build/dorado-sdl --boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk '$(CEDAR_BESTOF_PDI)' --speed 4000000
+
+cedar-bestof-snapshot: $(BINDIR)/dorado $(CEDAR_BESTOF_PDI)
+	mkdir -p '$(dir $(CEDAR_BESTOF_SNAPSHOT))' \
+		'$(dir $(CEDAR_BESTOF_NATIVE_SNAPSHOT_GZ))'
+	./build/dorado --boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk '$(CEDAR_BESTOF_PDI)' \
+		--cycles '$(CEDAR_BESTOF_SNAPSHOT_CYCLES)' \
+		--snapshot-out '$(CEDAR_BESTOF_SNAPSHOT)' \
+		--out '$(CEDAR_BESTOF_SNAPSHOT_SCREEN)'
+	gzip -c '$(CEDAR_BESTOF_SNAPSHOT)' > '$(CEDAR_BESTOF_NATIVE_SNAPSHOT_GZ)'
+
+$(CEDAR_BESTOF_SNAPSHOT): $(CEDAR_BESTOF_NATIVE_SNAPSHOT_GZ)
+	mkdir -p '$(dir $@)'
+	gunzip -c '$<' > '$@'
+
+run-cedar-bestof-snapshot-sdl: sdl $(CEDAR_BESTOF_SNAPSHOT) $(CEDAR_BESTOF_PDI)
+	./build/dorado-sdl --boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk '$(CEDAR_BESTOF_PDI)' \
+		--snapshot-in '$(CEDAR_BESTOF_SNAPSHOT)' --scale 1 --speed 400000
 
 # Alto-on-Dorado disk boot (Diablo-on-Trident). A read-only golden pack lives
 # under testdata/trident-readonly/ and every run copies it to build/run-disks/

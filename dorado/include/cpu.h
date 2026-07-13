@@ -417,7 +417,12 @@ typedef struct {
     /* Termination / debug. */
     int      halted;            /* nonzero = stop stepping */
     int      halt_reason;
-    int      cycles;            /* cycles executed */
+    /* The standalone Cedar loader runs for billions of microinstructions.
+     * Keep this distinct from the BaseBoard's clock but give it the same
+     * range; an int wrapped at 2^31 and poisoned deferred-Md timing.  This
+     * remains snapshot-layout compatible with the former int plus alignment
+     * padding before ifu_dispatch_count. */
+    uint64_t cycles;            /* cycles executed */
 
     /* Count of successful IFU opcode dispatches (each real IFUJump that
      * reads an opcode and dispatches to its handler). Incremented in
@@ -470,7 +475,7 @@ void dorado_cpu_init(dorado_cpu *cpu, const dorado_microcode *mc,
 int dorado_cpu_step(dorado_cpu *cpu);
 
 /* Run until halt or `max_cycles` reached. Returns the halt reason. */
-cpu_halt_reason dorado_cpu_run(dorado_cpu *cpu, int max_cycles);
+cpu_halt_reason dorado_cpu_run(dorado_cpu *cpu, uint64_t max_cycles);
 
 /* Enable line-by-line tracing to stderr (or a user FILE*). */
 void dorado_cpu_trace(dorado_cpu *cpu, void *fp);

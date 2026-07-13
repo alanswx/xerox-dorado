@@ -1,0 +1,92 @@
+DIRECTORYPrincOps USING [MaxFrameSize, MaxNGfi],Table USING [Base, Limit, Selector],TimeStamp USING [Null, Stamp];BcdDefs: DEFINITIONS= BEGIN OPEN Table;Base: TYPE = Table.Base;BcdBase: TYPE = LONG POINTER TO BCD;NTHandle: TYPE = LONG POINTER TO NTRecord;CTHandle: TYPE = LONG POINTER TO CTRecord;MTHandle: TYPE = LONG POINTER TO MTRecord;IMPHandle: TYPE = LONG POINTER TO IMPRecord;EXPHandle: TYPE = LONG POINTER TO EXPRecord;EVHandle: TYPE = LONG POINTER TO EVRecord;SGHandle: TYPE = LONG POINTER TO SGRecord;FTHandle: TYPE = LONG POINTER TO FTRecord;SPHandle: TYPE = LONG POINTER TO SPRecord;FPHandle: TYPE = LONG POINTER TO FPRecord;TYPHandle: TYPE = LONG POINTER TO TYPRecord;TMHandle: TYPE = LONG POINTER TO TMRecord;NameString: TYPE = LONG POINTER TO PackedString;BinderNTables: CARDINAL = 20;treetype: Selector = 0; -- treeshttype: Selector = 1; -- hash tablesstype: Selector = 2; -- (packed) string tablecttype: Selector = 3; -- config tablemttype: Selector = 4; -- module tableimptype: Selector = 5; -- import tableexptype: Selector = 6; -- export tablesgtype: Selector = 7; -- segment tablefttype: Selector = 8; -- file tablesttype: Selector = 9; -- semantic tablecxtype: Selector = 10; -- context tablenttype: Selector = 11; -- name tableevtype: Selector = 12; -- external variable tablesptype: Selector = 13; -- space tablefptype: Selector = 14; -- frame pack tabletyptype: Selector = 15; -- type tabletmtype: Selector = 16; -- type tablelftype: Selector = 17; -- link fragment tablerftype: Selector = 18; -- ref literal and atom fragment tabletftype: Selector = 19; -- type fragment tableVersionStamp: TYPE = TimeStamp.Stamp;NullVersion: TimeStamp.Stamp = TimeStamp.Null;VersionID: CARDINAL = 01280;BCD: TYPE = RECORD [versionIdent: CARDINAL,version: VersionStamp,creator: VersionStamp,sourceVersion: VersionStamp,source: NameRecord,spare1, spare2: BOOL,nPages: [0..512),nConfigs, nModules: CARDINAL,nImports, nExports: CARDINAL,definitions, repackaged, typeExported, tableCompiled: BOOL,versions, extended: BOOL,firstdummy: ModuleIndex,nDummies: CARDINAL,ssOffset: CARDINAL, -- string tablessLimit: CARDINAL,ctOffset: CARDINAL, -- config tablectLimit: CTIndex,mtOffset: CARDINAL, -- module tablemtLimit: MTIndex,impOffset: CARDINAL, -- import tableimpLimit: IMPIndex,expOffset: CARDINAL, -- export tableexpLimit: EXPIndex,evOffset: CARDINAL, -- external variable tableevLimit: EVIndex,sgOffset: CARDINAL, -- segment tablesgLimit: SGIndex,ftOffset: CARDINAL, -- file tableftLimit: FTIndex,spOffset: CARDINAL, -- space tablespLimit: SPIndex,ntOffset: CARDINAL, -- name tablentLimit: NTIndex,typOffset: CARDINAL, -- type tabletypLimit: TYPIndex,tmOffset: CARDINAL, -- type map tabletmLimit: TMIndex,fpOffset: CARDINAL, -- frame pack tablefpLimit: FPIndex,lfOffset: CARDINAL, -- link fragment tablelfLimit: LFIndex,rfOffset: CARDINAL, -- ref literal fragment tablerfLimit: RFIndex,tfOffset: CARDINAL, -- type fragment tabletfLimit: TFIndex,rtPages: RECORD [relPageBase, pages: [0..256)] -- atom print names, type table, etc.];Portable: TYPE = {module, interface};PackedString: TYPE = MACHINE DEPENDENT RECORD [SELECT OVERLAID * FROMstring => [string: StringBody],size => [size: PACKED ARRAY [-3..-3) OF [0..256)]ENDCASE];NameRecord: TYPE = RECORD [CARDINAL];NullName: NameRecord = [1];NTRecord: TYPE = RECORD [name: NameRecord, item: Namee];Namee: TYPE = RECORD [SELECT type: * FROMconfig => [cti: CTIndex],module => [mti: MTIndex],import => [impi: IMPIndex],export => [expi: EXPIndex]ENDCASE];NTIndex: TYPE = Table.Base RELATIVE POINTER [0..Limit) TO NTRecord;NTNull: NTIndex = LAST[NTIndex];CTRecord: TYPE = --MACHINE DEPENDENT-- RECORD [name: NameRecord,namedInstance: BOOL,file: FTIndex,config: CTIndex,nControls: CARDINAL,controls: ARRAY [0..0) OF ControlItem];ControlItem: TYPE = --MACHINE DEPENDENT-- RECORD [SELECT kind: * FROMmodule => [mti: MTIndex],		-- kind = 0 for compatibilityconfig => [cti: CTIndex]ENDCASE];CTIndex: TYPE = Table.Base RELATIVE POINTER [0..Limit) TO CTRecord;CTNull: CTIndex = LAST[CTIndex];LinkLocation: TYPE = {frame, code};MTRecord: TYPE = --MACHINE DEPENDENT-- RECORD [name: NameRecord,namedInstance: BOOL,initial: BOOL,file: FTIndex,linkLoc: LinkLocation,config: CTIndex,code: CodeDesc,sseg: SGIndex,long, tableCompiled, boundsChecks, nilChecks: BOOL,frameRefs: BOOL,frameType: [0..Limit/2),		-- type frag index	framesize: [0..PrincOps.MaxFrameSize),altoCode, residentFrame, crossJumped, packageable: BOOL,gfi: ModuleIndex,variables: EVIndex,ngfi: [1..PrincOps.MaxNGfi],extension: SELECT kind: * FROMdirect => [length: [0..Limit), frag: ARRAY [0..0) OF Link],indirect => [links: LFIndex],multiple => [links: LFIndex,refLiterals: RFIndex,types: TFIndex]ENDCASE];CodeDesc: TYPE = RECORD [sgi: SGIndex, packed: BOOL, linkspace: BOOL, offset, length: CARDINAL];MTIndex: TYPE = Table.Base RELATIVE POINTER [0..Limit) TO MTRecord;MTNull: MTIndex = LAST[MTIndex];IMPRecord: TYPE = RECORD [name: NameRecord,port: Portable,namedInstance: BOOL,file: FTIndex,gfi: ModuleIndex,ngfi: [1..PrincOps.MaxNGfi]];IMPIndex: TYPE = Table.Base RELATIVE POINTER [0..Limit) TO IMPRecord;IMPNull: IMPIndex = LAST[IMPIndex];EXPRecord: TYPE = --MACHINE DEPENDENT-- RECORD [name: NameRecord,size: [0..377b],port: Portable,namedInstance, typeExported: BOOL,file: FTIndex,links: ARRAY [0..0) OF Link];EXPIndex: TYPE = Table.Base RELATIVE POINTER [0..Limit) TO EXPRecord;EXPNull: EXPIndex = LAST[EXPIndex];EVRecord: TYPE = RECORD [length: CARDINAL, offsets: ARRAY [1..1) OF CARDINAL];EVIndex: TYPE = Table.Base RELATIVE POINTER [0..Limit) TO EVRecord;EVNull: EVIndex = LAST[EVIndex];SegClass: TYPE = {code, symbols, acMap, other};SGRecord: TYPE = RECORD [class: SegClass, file: FTIndex, base: CARDINAL, pages, extraPages: [0..256)];SGIndex: TYPE = Table.Base RELATIVE POINTER [0..Limit) TO SGRecord;SGNull: SGIndex = LAST[SGIndex];FTRecord: TYPE = RECORD [name: NameRecord, version: VersionStamp];FTIndex: TYPE = Table.Base RELATIVE POINTER [0..Limit) TO FTRecord;FTNull: FTIndex = LAST[FTIndex];FTSelf: FTIndex = LAST[FTIndex] - 1;SPRecord: TYPE = --MACHINE DEPENDENT-- RECORD [seg: SGIndex, length: CARDINAL, spaces: ARRAY [0..0) OF SpaceID];SpaceID: TYPE = RECORD [name: NameRecord, resident: BOOL, offset: [0..256), pages: [1..128]];SPIndex: TYPE = Table.Base RELATIVE POINTER [0..Limit) TO SPRecord;SPNull: SPIndex = LAST[SPIndex];FPRecord: TYPE = --MACHINE DEPENDENT-- RECORD [name: NameRecord, length: CARDINAL, modules: ARRAY [0..0) OF MTIndex];FPIndex: TYPE = Table.Base RELATIVE POINTER [0..Limit) TO FPRecord;FPNull: FPIndex = LAST[FPIndex];TYPRecord: TYPE = RECORD [version: VersionStamp, id: RECORD [WORD]];TYPIndex: TYPE = Table.Base RELATIVE POINTER [0..Limit) TO TYPRecord;TYPNull: TYPIndex = LAST[TYPIndex];TMRecord: TYPE = RECORD [version: VersionStamp, offset: CARDINAL, map: TYPIndex];TMIndex: TYPE = Table.Base RELATIVE POINTER [0..Limit) TO TMRecord;TMNull: TMIndex = LAST[TMIndex];ModuleIndex: TYPE = [0..1777B];NullModule: ModuleIndex = ModuleIndex.FIRST;ProcIndex: TYPE = [0..37B];ProcLimit: CARDINAL = LAST[ProcIndex] + 1;VarIndex: TYPE = [0..17B];VarLimit: CARDINAL = LAST[VarIndex] + 1;NullLink: Link = [procedure[0, 0, FALSE]];UnboundLink: Link = [procedure[0, 0, TRUE]];LinkTag: TYPE = {variable, procedure, type};VarTag: TYPE = MACHINE DEPENDENT {var(0), proc0(1), type(2), proc1(3)};LinkFrag: TYPE = RECORD [frag: SEQUENCE length: NAT OF Link];Link: TYPE = MACHINE DEPENDENT RECORD [rep(0): SELECT OVERLAID LinkTag FROM	-- decoded by self.vtagvariable => [vgfi(0:0..9): ModuleIndex, var(0:10..13): VarIndex, vtag(0:14..15): VarTag],procedure => [gfi(0:0..9): ModuleIndex, ep(0:10..14): ProcIndex, tag(0:15..15): BOOL],type => [typeID(0:0..13): TYPIndex, type(0:14..14): BOOL, proc(0:15..15): BOOL]ENDCASE];LFIndex: TYPE = Table.Base RELATIVE POINTER [0..Limit) TO LinkFrag;LFNull: LFIndex = LAST[LFIndex];RefLitFrag: TYPE = RECORD [offset: CARDINAL, frag: SEQUENCE length: NAT OF RefLitIndex];RefLitIndex: TYPE = RECORD [NAT];RFIndex: TYPE = Table.Base RELATIVE POINTER [0..Limit) TO RefLitFrag;RFNull: RFIndex = LAST[RFIndex];TypeFrag: TYPE = RECORD [offset: CARDINAL, frag: SEQUENCE length: NAT OF TypeIndex];TypeIndex: TYPE = RECORD [NAT];TFIndex: TYPE = Table.Base RELATIVE POINTER [0..Limit) TO TypeFrag;TFNull: TFIndex = LAST[TFIndex];END.   r  BcdDefs.mesaCopyright c 1985 by Xerox Corporation.  All rights reserved.Satterthwaite on 19-Apr-82 12:59:52Rovner on May 12, 1983 4:51 pmLevin, May 25, 1983 7:32 pmRuss Atkinson (RRA) January 31, 1985 10:56:52 am PSTDoug Wyatt, February 27, 1985 9:15:37 am PSTallocation codes for the binderversion identificationBCD Headerfollowing only if extended = TRUEPortable TypeName TableConfiguration TableModule TableImport TableExport TableExternal Variable TableSegment TableFile TableSpace TableFrame Pack TableType TableType Map TableLinksAtoms and REFs to literals (Cedar only)Types (Cedar only)ù ∂  ò codeöúôKöú
+œmú1ô<Köú#ô#KöúôKöúôKô4Kô,óKò öœk	ò	Köú	ûúò'Köúûúò$Köú
+ûúòóKò Kö–blúûòKöúûúûúòKò KöúûúòKò Köú	ûúûúûúûúûúò$Kò Kö	ú
+ûúûúûúûú
+ò*Kö	ú
+ûúûúûúûú
+ò*Kö	ú
+ûúûúûúûú
+ò*Kö	úûúûúûúûúò,Kö	úûúûúûúûúò,Kö	ú
+ûúûúûúûú
+ò*Kö	ú
+ûúûúûúûú
+ò*Kö	ú
+ûúûúûúûú
+ò*Kö	ú
+ûúûúûúûú
+ò*Kö	ú
+ûúûúûúûú
+ò*Kö	úûúûúûúûúò,Kö	ú
+ûúûúûúûú
+ò*Kò Kö	úûúûúûúûúò0Kò KöúôKò KöúûúòKò Köúœcò Köú†ò#Köú†ò.Köú†ò%Köú†ò%Köú†ò&Köú†ò&Köú†ò&Köú†ò#Köú†ò'Köú†ò'Köú†ò$Köú†ò1Köú†ò%Köú†ò*Köú†ò%Köú†ò$Köú†ò-Köú†&ò=Köú†ò-Kò KöúôKò Köúûúò%Kò.Kò Köú
+ô
+Kò Köúûú	òKò öûúûúûúòKöúûúòKòKòKòKòKöúûúòKòKöúûúòKöúûúòKöú6ûúò;KöúûúòKòKöú
+ûúòKöú
+ûú†ò#Köú	ûúòKöú
+ûú†ò#KòKöú
+ûú†ò#KòKöúûú†ò$KòKöúûú†ò$KòKöú
+ûú†ò.KòKöú
+ûú†ò$KòKöú
+ûú†ò!KòKöú
+ûú†ò"KòKöú
+ûú†ò!KòKöúûú†ò"KòKöú
+ûú†ò%KòKöú
+ûú†ò'Kòöú!ô!Köú
+ûú†ò*KòKöú
+ûú†ò1KòKöú
+ûú†ò*KòKöú	ûú †%òTóöúòKò óóKöúôKò Köú
+ûúò%Kò Köú
+ô
+Kò ö	úûúûúû	úûúò/öûúûúûòKòKöúûúûú
+ûú
+ò1KöûòóöúòKò óóKöúûúûúûúò%KòKò Köú
+ûúûú!ò8Kò öúûúûúòöûú	ûòKòKòKòKòKöûòóöúòKò óóKö	ú	ûúûúûúûú
+òCKöúûú
+ò Kò KöúôKò öú
+ûú†úûúò/KòKöúûúòKòKòKöúûúòKöú
+ûúûúò%KöúòKò óöúûú†úûúò2öûú	ûòKöú†ò8KòKöûòóöúòKò óóKö	ú	ûúûúûúûú
+òCKöúûú
+ò Kò KöúôKò Köúûúò#Kò öú
+ûú†úûúò/KòKöúûúòKöú	ûúòKòKòKòKòKòKöú.ûúò3KöúûúòKöú†ò-Kò&Köú3ûúò8KòKòKòöúûú	ûòKöú%ûúûúò;KòòKòKòKòKòóKöûòóöúòKò óóöú
+ûúûúòKöúûúûúûòEKöúòKò óKö	ú	ûúûúûúûú
+òCKöúûú
+ò Kò Kò KöúôKò öúûúûúòKòKòKöúûúòKòKòKòKòKò óKö	ú
+ûúûúûúûúòEKöúûúò#Kò KöúôKò öúûú†úûúò0KòKòKòKöúûúò"KòKöúûúûúòKöúòKò óKö	ú
+ûúûúûúûúòEKöúûúò#Kò KöúôKò Köú
+ûúûú
+ûúûúûúûúòNKò Kö	ú	ûúûúûúûú
+òCKöúûú
+ò Kò KöúôKò Köú
+ûú!ò/Kò öú
+ûúûúòKöú&ûúòKKöúòKò óKö	ú	ûúûúûúûú
+òCKöúûú
+ò Kò Köú
+ô
+Kò Köú
+ûúûú+òBKò Kö	ú	ûúûúûúûú
+òCKöúûú
+ò Köúûúò$Kò KöúôKò öú
+ûú†úûúò/Köúûú
+ûúûúò?KöúòKò óöú	ûúûúòKöúûú#òCKöúòKò óKö	ú	ûúûúûúûú
+òCKöúûú
+ò Kò KöúôKò öú
+ûú†úûúò/KöúûúûúûúòDKöúòKò óKö	ú	ûúûúûúûú
+òCKöúûú
+ò Kò Köú
+ô
+Kò Kö	úûúûúûúûúòDKò Kö	ú
+ûúûúûúûúòEKöúûúò#Kò KöúôKò öú
+ûúûú!ûúòQKò óKö	ú	ûúûúûúûú
+òCKöúûú
+ò Kò KöúôKò KöúûúòKöú&ûúò,Kò KöúûúòKöúûúûúò*Kò Köú
+ûúòKöú
+ûúûúò(Kò Köú"ûúò*Köú%ûúò,Kò Köú	ûúò,Köúûúûúû	ú'òGKò Köú
+ûúûúûú	ûúûúò=Kò ö	úûúûúû	úûúò'öúûúûú	ûú†ò<KòYKöúPûúòVKöú4ûúûúòOKöûòóöúòKò óóKö	ú	ûúûúûúûú
+òCKöúûú
+ò Kò Köú'ô'Kò Köúûúûú
+ûúûú	ûúûúòXKöúûúûúûúò!Kò Kö	ú	ûúûúûúûúòEKöúûú
+ò Kò KöúôKò Köú
+ûúûú
+ûúûú	ûúûúòTKöúûúûúûúòKò Kö	ú	ûúûúûúûú
+òCKöúûú
+ò Kò Köûúòó Öó    !®  0–  

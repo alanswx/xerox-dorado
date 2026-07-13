@@ -1,5 +1,118 @@
 # Handoff: continue building the Xerox Dorado emulator
 
+## 2026-07-12 Cedar GUI / STP-loader bring-up
+
+**Current goal:** bring Cedar 6.1 from the SimpleTerminal login through
+`Basic.Loadees` to the Viewer desktop.  Do not call this path working until a
+Viewer/desktop framebuffer is captured.
+
+**Where it currently stops:** Guest login completes the complete remote-loader
+sequence: `Basic.Loadees` plus all 33 BCDs (**34 distinct payload files**) are
+requested and transferred from `chm/cedar/stp-root`, including `End.bcd`.
+There is no longer an STP/EFTP server-name, missing-file, packet, or transfer
+hang at this point. A stale `FS.Error: Couldn't find the server` message can
+remain in SimpleTerminal scrollback; do not use it as evidence of the current
+network state.
+
+**Actual current blocker:** the loader reaches `InterpreterTool.bcd`, then
+Pilot's Wakeup Disable Counter (`WDC`, RM[6]) climbs without a matching
+`DWDC`. The first deterministic write of `0333B` is at cycle
+`4963123921`, task 0, micro-PC `0516`, while the IFU is dispatching Mesa
+opcode `370B` (`PCX=1554B`, `PCF=1556B`). The loaded instruction is a real
+`WDC <- WDC+1` / `IWDC` increment, not host-memory corruption.
+
+**Dead state:** by 5B cycles `WDC=0333B`, `NWW=100000B`,
+`CurrentPSB=0`, and `PDA.ready=0`; `CurrentTime` remains frozen at `17613B`.
+`PilotMesaProcess.mc` defines that as an invalid idle state: `BusyWait`
+branches to `MTrap` when `WDC # 0`, so it cannot consume the pending timer
+interrupt.  An opt-in diagnostic that clears WDC restores 60-Hz timer ticks;
+an opt-in ready-queue probe then finds PSB `0100B` detached despite being
+runnable. Re-inserting that PSB makes it fault into the Pilot fault queue,
+so neither host-side recovery is a valid fix. The underlying bug is therefore
+the unmatched `IWDC` / scheduler path before that point, not STP, EFTP, or a
+missing BCD.
+
+**Source evidence:** `chm/cedar/refs/PilotMesaProcess.mc!1` defines `IWDC`,
+`DWDC`, `MesaInterrupt`, `IdleReschedule`, and `BusyWait`; the latter explicitly
+rejects an idle nonzero WDC. `chm/cedar/cedar6.1/vm/VMFaultsImpl.mesa!1` shows
+that `PageFaultProcess` receives `qPageFault` and calls `VM.SwapIn`, while
+`FrameFaultProcess` allocates/maps frames locally then restarts the faultee.
+Neither handler should produce another STP transfer. The absence of an
+additional network request is therefore expected after the 34-file load.
+
+**Recent emulator fixes:** the CPU cycle counter is now 64-bit (long Cedar
+runs no longer wrap), and the Pilot timer channel mask is `0100000B`, as in
+the original `PilotMesaProcess.mc`, rather than the Alto timer bit. The PDI
+bridge remains enabled for post-germ IOCBs. The current synthetic-media run
+uses `DORADO_PDI_IGNORE_LABEL_FLAGS=1`; strict label correctness is separate
+unfinished work.
+
+**Source-backed STP behavior:**
+
+- Xerox `chm/cedar/stp/server-6.0/STPServerImpl.mesa!9`, `RetrieveFile`,
+  specifies: `HereIsPList`, wait for client `Yes`, `HereIsFile`, copy bytes,
+  `Yes "Transfer complete"`, EOC.  `Finish` uses `PupStream.SendMark`, so
+  the response EOC is an ordinary BSP `Mark`, not an `AMark` that demands an
+  immediate client acknowledgement.
+- Its `SendPropList` forces `Server-Filename`, `Directory`, `Name-Body`,
+  `Version`, and `Byte-Size` into a response.  The emulator now sends those
+  fields, with `Byte-Size 8`, along with the requested creation date and
+  size.  It also sends BCD payloads as ordinary BSP Data under Cedar's
+  advertised 31-Pup / ~45-KB window.
+- The matching original client source,
+  `chm/cedar/stp/client-6.1/STPImpl.mesa!5`, has `GetFile` consume
+  `HereIsFile`, copy the byte stream, then require `Yes` and EOC.  Use this
+  exact state machine when investigating any subsequent stall; do not invent
+  a different STP handshake.
+- More specifically, `STPImpl.DoFiles` and `StartRemote` send
+  `PutCommand[yes, 0C, "Yes, please"]` only after their confirmation callback
+  returns a local writable stream.  `FSRemoteFileImpl.Retrieve` obtains that
+  stream from the local cache.  The absence of the command is therefore a
+  local-cache/disk completion problem, not an STP filename or a missing BCD.
+- The earlier no-`Yes` state was the cache allocation failure at the first
+  32-page boundary.  Per-sector IOCB progression now makes the client emit
+  its live `Yes`, allowing every list entry to transfer.  The remaining
+  failure is after local disk writes, when the Loader reads the cached BCD.
+
+**Logging and media:** `DORADO_FTP_TRACE=1` emits one `STP_SERVE` line per
+metadata request and one `STP_TRANSFER` line per actual BCD payload, plus
+`STP_MISSING` and `FTP_ABORT` failures. `DORADO_PDI_BCD_TRACE=1` is the
+focused local-file trace; `DORADO_PDI_SECTOR_CYCLES=10000` is an opt-in
+real-sector-cadence experiment. `DORADO_UCODE_TRACE=1` plus
+`DORADO_TRACE_GATE=lo,hi` limits microcode trace to a fault/scheduler window;
+`DORADO_STORE_TRACE_VA=lo,hi` records stores. `DORADO_RM_WATCH=6` with
+`DORADO_RM_WATCH_VALUE=333` pinpoints the first bad WDC increment. The
+temporary `DORADO_PILOT_WDC_RECOVER` and `DORADO_PILOT_READY_RECOVER` probes
+are diagnostics only, not fixes. All CHM source/media downloads
+are stored in `chm/`, never `/tmp`; temporary logs, snapshots, and framebuffer
+captures belong in `/private/tmp`. The complete release tree is
+`chm/cedar/stp-root/Cedar6.1/`.
+
+**Expected load order:** `chm/cedar/stp-root/Cedar6.1/Top/Basic.Loadees`
+contains 33 BCDs, starting `RPCRuntime`, `UserProfileImpl`, `IdleImpl`,
+`DFPackage`, `BasicPackages`, `InstallerImpl`, then the Viewers and tool
+packages.  All real list entries are present under the tree; the final
+`Viewers>End.bcd/e` is a LoaderDriver `/e` switch, not a missing file.
+
+**Repro:**
+
+```sh
+cd dorado
+DORADO_PDI_IGNORE_LABEL_FLAGS=1 DORADO_FTP_TRACE=1 ./build/dorado \
+  --snapshot-in /private/tmp/cedar-chs-contig10-current-700m.snap \
+  --pilot-disk /private/tmp/CedarDorado-chs-contig10.pdi \
+  --ftp-root ../chm/cedar/stp-root \
+  --type-at 760000000 --type 'Guest\n\n' \
+  --cycles 2400000000 --out /private/tmp/cedar-request.pgm \
+  2>/private/tmp/cedar-request.log
+```
+
+`make build/dorado build/test_cpu && ./build/test_cpu` and `./build/test_pdi`
+pass after the 64-bit/timer changes. The full `make test` still has the
+pre-existing `test_ethernet` NetDir reply mismatch. Next diagnostic: log only
+the queue roots and PSB words around cycle `2015316632`, then trace the
+specific original `Requeue` path rather than guessing at a scheduler fix.
+
 This document is for the next person (or LLM) picking up this project.
 Read it first. It tells you the current state, what's runnable, what's
 broken, what to work on next, and the gotchas that cost me hours so

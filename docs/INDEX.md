@@ -189,6 +189,7 @@ Example queries:
 |---|---|
 | `running-the-emulator.md` | ★ **Runbook** — every software combination (microcode worlds, Pilot germs, OS/app boot files), which ones work, and the exact command to load each. Current status snapshot of both boot paths. |
 | `CONTINUE-HERE.md` | ★ **Live bring-up log** — newest-first, session by session. The current germ-boot (Route B) state and the next concrete step live at the top. |
+| `cedar-media-provenance.md` | How the reconstructed Cedar Pilot `.pdi` volumes were built with Rusty Backup, their exact boot-fixture recipe, and safe modification constraints. |
 | `schematic-audit.md` | Schematic-vs-emulator audit findings (microengine cross-checked against the board drawings) — discrepancies, confidence, what's verified consistent. |
 | `hardware-specs.md` | Implementation specs for hardware the emulator does not yet faithfully model (Hold/Miss state machine, memory pipeline, ECC/Pipe4, IFU pipeline timing, disk read, DDC back-channel). |
 | `handoff.md` | ★ **Read first** if you're a new session picking this up. Current state, build/run, what works, what doesn't, pitfalls, suggested first action. |

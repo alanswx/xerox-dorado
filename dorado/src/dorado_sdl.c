@@ -291,9 +291,21 @@ int main(int argc, char **argv)
         else if (!strcmp(a, "--eftp") && i + 1 < argc) cfg.eftp_boot = argv[++i];
         else if (!strcmp(a, "--ftp-sysout") && i + 1 < argc)
             cfg.ftp_sysout = argv[++i];
+        else if (!strcmp(a, "--ftp-root") && i + 1 < argc)
+            cfg.ftp_root = argv[++i];
         else if (!strcmp(a, "--germ") && i + 1 < argc) cfg.germ_path = argv[++i];
-        else if (!strcmp(a, "--pilot-disk") && i + 1 < argc)
-            cfg.pilot_disk_pdi = argv[++i];
+        else if (!strcmp(a, "--pilot-disk") && i + 1 < argc) {
+            const char *spec = argv[++i];
+            const char *eq = strchr(spec, '=');
+            if (!eq) {
+                cfg.pilot_disk_pdi[0] = spec;
+            } else {
+                int slot = (eq != spec) ? atoi(spec) : -1;
+                if (slot >= 0 && slot < 4) cfg.pilot_disk_pdi[slot] = eq + 1;
+                else fprintf(stderr, "dorado-sdl: --pilot-disk needs PATH "
+                                     "or SLOT=PATH (SLOT 0..3)\n");
+            }
+        }
         else if (!strcmp(a, "--disk-real")) cfg.disk_real = 1;
         else if (!strcmp(a, "--disk") && i + 1 < argc) {
             const char *spec = argv[++i];
@@ -373,7 +385,7 @@ int main(int argc, char **argv)
                 tok = strtok(NULL, ",");
             }
         } else if (!strcmp(a, "--help") || !strcmp(a, "-h")) {
-            printf("usage: %s [--eb PATH] [--eftp PATH] [--ftp-sysout PATH] "
+            printf("usage: %s [--eb PATH] [--eftp PATH] [--ftp-sysout PATH] [--ftp-root DIR] "
                    "[--germ PATH] [--pilot-disk PATH] "
                    "[--germ-netboot-bfn OCTAL] "
                    "[--boot-file-number OCTAL] [--boot-dir NAME=BFN=PATH] "
@@ -415,6 +427,16 @@ int main(int argc, char **argv)
         dorado_machine_destroy(m);
         return 1;
     }
+    /* See dorado.c: host file sources are intentionally reapplied after a
+     * restored machine state, allowing snapshot launches to serve Cedar's
+     * release tree. */
+    if (snapshot_in && (cfg.ftp_sysout || cfg.ftp_root))
+        dorado_machine_set_ftp_source(m, cfg.ftp_sysout, cfg.ftp_root);
+    if (snapshot_in)
+        for (int s = 0; s < 4; s++)
+            if (cfg.pilot_disk_pdi[s])
+                (void)dorado_machine_set_pilot_disk(m, s,
+                                                     cfg.pilot_disk_pdi[s]);
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         fprintf(stderr, "dorado-sdl: SDL_Init: %s\n", SDL_GetError());

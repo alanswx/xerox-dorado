@@ -693,13 +693,15 @@ static int test_load_constant(void)
     EXPECT(rc == 0, "step failed: %s", cpu_halt_reason_str(cpu.halt_reason));
     EXPECT(cpu.T == 0123, "expected T=0o123, got 0o%o", cpu.T);
     EXPECT(cpu.real_PC == 0, "expected PC=0 (self-loop), got 0o%o", cpu.real_PC);
-    EXPECT(cpu.cycles == 1, "cycles=%d", cpu.cycles);
+    EXPECT(cpu.cycles == 1, "cycles=%llu",
+           (unsigned long long)cpu.cycles);
 
     /* Second iteration just rewrites T with the same value. */
     rc = dorado_cpu_step(&cpu);
     EXPECT(rc == 0, "second step failed");
     EXPECT(cpu.T == 0123, "T still 0o123");
-    EXPECT(cpu.cycles == 2, "cycles=%d", cpu.cycles);
+    EXPECT(cpu.cycles == 2, "cycles=%llu",
+           (unsigned long long)cpu.cycles);
 
     printf("PASS  test_load_constant\n");
     return 0;
@@ -762,12 +764,13 @@ static int test_increment_loop(void)
     cpu_halt_reason r = dorado_cpu_run(&cpu, 20);
     EXPECT(r == CPU_HALT_USER, "expected to time out at 20 cycles, got %s",
            cpu_halt_reason_str(r));
-    EXPECT(cpu.cycles == 20, "expected 20 cycles total, got %d", cpu.cycles);
+    EXPECT(cpu.cycles == 20, "expected 20 cycles total, got %llu",
+           (unsigned long long)cpu.cycles);
     EXPECT(cpu.T == 012,
            "after 9 increments + initial 1, T = 0o%o (expected 0o12)", cpu.T);
 
-    printf("PASS  test_increment_loop (T reached 0o%o after %d cycles)\n",
-           cpu.T, cpu.cycles);
+    printf("PASS  test_increment_loop (T reached 0o%o after %llu cycles)\n",
+           cpu.T, (unsigned long long)cpu.cycles);
     return 0;
 }
 
@@ -1192,8 +1195,8 @@ static int probe_bootstrap_pure(void)
     }
     if (!cpu.halted) r = CPU_HALT_NONE;
 
-    printf("PROBE  bootstrap_pure: entry=0o%o, ran %d cycles, halt: %s at PC=0o%o\n",
-           real_start, cpu.cycles, cpu_halt_reason_str(r),
+    printf("PROBE  bootstrap_pure: entry=0o%o, ran %llu cycles, halt: %s at PC=0o%o\n",
+           real_start, (unsigned long long)cpu.cycles, cpu_halt_reason_str(r),
            cpu.halted ? cpu.real_PC : 0);
 
     /* Print trail with run-length compression. */
@@ -1295,11 +1298,11 @@ static int probe_bootstrap(void)
 
     cpu_halt_reason r = dorado_cpu_run(&cpu, 1000);
     printf("PROBE  bootstrap entry=0o%o, BB=%s (PC=0x%04X, %llu cycles), "
-           "Dorado ran %d cycles, halt: %s at PC=0o%o\n",
+           "Dorado ran %llu cycles, halt: %s at PC=0o%o\n",
            real_start, have_bb ? "real-6502" : "counter-stub",
            have_bb ? baseboard_pc(&bb) : 0,
            have_bb ? (unsigned long long)bb.cycles : 0ULL,
-           cpu.cycles, cpu_halt_reason_str(r),
+           (unsigned long long)cpu.cycles, cpu_halt_reason_str(r),
            cpu.halted ? cpu.real_PC : 0);
 
     /* Print the offending uinstr if we halted on something we don't
@@ -2296,10 +2299,10 @@ static int probe_aemu(void)
         const char *base = strrchr(layers[i].path, '/');
         printf(" %s=%d", base ? base + 1 : layers[i].path, layers[i].n);
     }
-    printf(", total=%d) entry=0o%o (image=0o0=%s), ran %d cycles, "
+    printf(", total=%d) entry=0o%o (image=0o0=%s), ran %llu cycles, "
            "halt: %s at real_PC=0o%o%s%s\n",
            aemu_count, real_start, entry_sym ? entry_sym : "<no-sym>",
-           cpu.cycles, cpu_halt_reason_str(r),
+           (unsigned long long)cpu.cycles, cpu_halt_reason_str(r),
            cpu.real_PC,
            sym ? " sym=" : "", sym ? sym : "");
     /* Print first trail: entry flow. */
@@ -6827,9 +6830,9 @@ static int probe_initial(void)
     if (!cpu.halted) r = CPU_HALT_NONE;
 
     const char *sym = dorado_microcode_symbol_at_real(&mc, cpu.real_PC);
-    printf("PROBE  initial: entry=0o%o(INITIAL), ran %d cycles, "
+    printf("PROBE  initial: entry=0o%o(INITIAL), ran %llu cycles, "
            "halt: %s at PC=0o%o%s%s\n",
-           initial_real, cpu.cycles, cpu_halt_reason_str(r),
+           initial_real, (unsigned long long)cpu.cycles, cpu_halt_reason_str(r),
            cpu.real_PC,
            sym ? " sym=" : "", sym ? sym : "");
 

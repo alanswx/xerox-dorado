@@ -34,6 +34,9 @@ typedef struct dorado_machine_config {
     const char *eftp_boot;     /* Stage-2 Alto boot file (NETEXEC.BOOT)*/
     const char *ftp_sysout;    /* Optional Pup FTP sysout served to
                                 * Interlisp-D RemoteVmemInit. */
+    const char *ftp_root;      /* Optional read-only FTP/STP file tree.
+                                * Cedar's LoaderDriver retrieves release
+                                * modules from this tree over Pup socket 3. */
 
     int alto_ether_boot;       /* 1 = drive the Stage-2 Alto ether boot
                                 *     (breath-of-life + EFTP server)   */
@@ -75,7 +78,9 @@ typedef struct dorado_machine_config {
      * disk read. NULL leaves the plant disabled, so the Alto worlds in
      * the regression gate are structurally untouched. */
     const char *germ_path;
-    const char *pilot_disk_pdi; /* Route B Pilot/Cedar PDI disk image. */
+    /* Route B Pilot/Cedar PDI media. `--pilot-disk PATH` fills slot 0;
+     * `--pilot-disk SLOT=PATH` mounts up to four physical volumes. */
+    const char *pilot_disk_pdi[4];
     const char *disk_pack[4];   /* --disk SLOT=PATH: a real Trident pack image
                                  * (T-80/T-300, R/W) mounted on drive SLOT. */
     int      disk_real;        /* 1 = drive the real disk controller for the
@@ -135,6 +140,17 @@ void dorado_machine_set_key(dorado_machine *m, dorado_display_key key,
 /* 1 once the boot-key selection phase is over and live keyboard input
  * is delivered to the running world. */
 int dorado_machine_interactive(const dorado_machine *m);
+
+/* Reapply explicitly selected host-side FTP/STP sources after restoring a
+ * snapshot.  These source paths are not part of the emulated machine state. */
+void dorado_machine_set_ftp_source(dorado_machine *m, const char *sysout,
+                                   const char *root);
+
+/* Replace one Pilot PDI after snapshot restore.  PDI bytes are host media,
+ * not guest state; this permits a checkpoint to be resumed against an
+ * explicitly selected writable/free-space volume.  Returns zero on success. */
+int dorado_machine_set_pilot_disk(dorado_machine *m, int slot,
+                                  const char *path);
 
 /* Mouse button flags (Alto convention, matches UTILIN bit values). */
 #define DORADO_MOUSE_MIDDLE 0x1

@@ -1,7 +1,7 @@
 /*
  * pdidump.c — offline inspector for a Pilot/Cedar PARC Disk Image (PDI).
  *
- *   pdidump <image.pdi> [--files] [--scan]
+ *   pdidump <image.pdi> [--files] [--scan] [--verify] [--locate FILEID]
  *
  * Dumps the physical-volume root (page 0), the subvolume table, and a
  * label scan (attribute histogram + located boot files). Used to verify a
@@ -152,23 +152,270 @@ static int extract_file(const dorado_pdi *p, uint32_t fid, const char *out)
     return 0;
 }
 
+static void locate_file(const dorado_pdi *p, uint32_t fid)
+{
+    uint32_t count = 0;
+    printf("== FileID %u locations ==\n", fid);
+    for (uint32_t pg = 0; pg < p->page_count; pg++) {
+        const uint16_t *l = dorado_pdi_page_label(p, pg);
+        if (dorado_pdi_label_fileid(l) != fid) continue;
+        printf("  pvPage=%u filePage=%u attr=%u (%s)\n", pg,
+               dorado_pdi_label_filepage(l), dorado_pdi_label_attr(l),
+               attr_name(dorado_pdi_label_attr(l)));
+        count++;
+    }
+    if (!count) printf("  (none)\n");
+}
+
+static int verify_cedar_volume(const dorado_pdi *p)
+{
+    const uint16_t *pv = dorado_pdi_page_data(p, 0);
+    enum { ROOTFILE_VAM_WORD = 85 + 7 * 6,
+           ROOTFILE_CLIENT_WORD = 85 + 8 * 6 };
+    if (!pv || pv[64] == 0) {
+        printf("== Cedar volume verification ==\n  FAIL: no subvolume\n");
+        return 1;
+    }
+    uint32_t lv_page = long_lo_first(pv + 75, 7);
+    uint32_t pv_page = long_lo_first(pv + 75, 9);
+    uint32_t n_pages = long_lo_first(pv + 75, 11);
+    const uint16_t *lv = dorado_pdi_page_data(p, pv_page);
+    printf("== Cedar volume verification ==\n");
+    if (!lv || pv_page + n_pages > p->page_count) {
+        printf("  FAIL: subvolume range is outside the image\n");
+        return 1;
+    }
+    printf("  LV root       seal=0%o version=%u type=%u checksum=%s\n",
+           lv[0], lv[1], lv[28],
+           dorado_pilot_checksum(lv, 255) == lv[255] ? "OK" : "MISMATCH");
+
+    uint32_t vam_fid = long_lo_first(lv, ROOTFILE_VAM_WORD);
+    uint32_t vam_lp = long_lo_first(lv, ROOTFILE_VAM_WORD + 2);
+    uint32_t vam_hint = long_lo_first(lv, ROOTFILE_VAM_WORD + 4);
+    uint32_t client_fid = long_lo_first(lv, ROOTFILE_CLIENT_WORD);
+    uint32_t client_lp = long_lo_first(lv, ROOTFILE_CLIENT_WORD + 2);
+    uint32_t client_hint = long_lo_first(lv, ROOTFILE_CLIENT_WORD + 4);
+    printf("  rootFile[VAM] id=%u fp.da=%u page=%u\n",
+           vam_fid, vam_lp, vam_hint);
+    printf("  rootFile[client] id=%u fp.da=%u page=%u%s\n",
+           client_fid, client_lp, client_hint,
+           client_fid && (!client_lp || client_lp != client_hint)
+               ? " (BAD HINT)" : "");
+
+    if (vam_lp < lv_page || vam_lp - lv_page >= n_pages) {
+        printf("  FAIL: VAM leader logical page is outside subvolume\n");
+        return 1;
+    }
+    uint32_t vam_pv = pv_page + vam_lp - lv_page;
+    const uint16_t *vh = dorado_pdi_page_data(p, vam_pv);
+    const uint16_t *vl = dorado_pdi_page_label(p, vam_pv);
+    if (!vh || dorado_pdi_label_fileid(vl) != vam_fid ||
+        dorado_pdi_label_attr(vl) != 9729) {
+        printf("  FAIL: VAM hint does not identify its header label\n");
+        return 1;
+    }
+
+    /* VolumeFormat.LogicalRunObject: headerPages/maxRuns precede the run
+     * sequence at word 5; each run is {first LONG, size CARDINAL}. */
+    uint32_t header_pages = vh[0];
+    uint32_t run_first = long_lo_first(vh, 5);
+    uint32_t run_pages = vh[7];
+    uint32_t data_lp = run_first + header_pages;
+    uint32_t data_pages = run_pages >= header_pages
+        ? run_pages - header_pages : 0;
+    uint32_t last = long_lo_first(vh, 8);
+    printf("  VAM run       leader=%u headers=%u first=%u count=%u "
+           "data=%u+%u terminator=0x%08X\n",
+           vam_lp, header_pages, run_first, run_pages, data_lp, data_pages,
+           last);
+    if (!data_pages || data_lp < lv_page ||
+        data_lp - lv_page + data_pages > n_pages || last != 0x7FFFFFFFu) {
+        printf("  FAIL: malformed VAM run table\n");
+        return 1;
+    }
+
+    uint32_t data_pv = pv_page + data_lp - lv_page;
+    const uint16_t *v0 = dorado_pdi_page_data(p, data_pv);
+    uint32_t bitmap_size = v0 ? long_lo_first(v0, 2) : 0;
+    printf("  VAM object    size=%u (subvolume=%u)\n", bitmap_size, n_pages);
+    if (!v0 || bitmap_size != n_pages) {
+        printf("  FAIL: VAM size disagrees with subvolume size\n");
+        return 1;
+    }
+
+    uint32_t label_free = 0, bitmap_free = 0, mismatches = 0;
+    for (uint32_t lp = 0; lp < n_pages; lp++) {
+        const uint16_t *label = dorado_pdi_page_label(p, pv_page + lp);
+        int label_used = dorado_pdi_label_attr(label) != 9728;
+        uint32_t wi = 4u + lp / 16u;
+        uint32_t dp = wi / p->data_words;
+        uint32_t off = wi % p->data_words;
+        const uint16_t *vd = dp < data_pages
+            ? dorado_pdi_page_data(p, data_pv + dp) : NULL;
+        int bitmap_used = vd && (vd[off] & (uint16_t)(1u << (lp % 16u)));
+        if (!label_used) label_free++;
+        if (!bitmap_used) bitmap_free++;
+        if (label_used != bitmap_used) {
+            if (mismatches < 8)
+                printf("    mismatch logicalPage=%u label=%s bitmap=%s\n",
+                       lp, label_used ? "used" : "free",
+                       bitmap_used ? "used" : "free");
+            mismatches++;
+        }
+    }
+    printf("  allocation    labels=%u free bitmap=%u free mismatches=%u %s\n",
+           label_free, bitmap_free, mismatches,
+           mismatches ? "(FAIL)" : "(OK)");
+    return mismatches ? 1 : 0;
+}
+
+/* Kept only to reject the obsolete command explicitly.  The historical
+ * writer's defect affects every file header and the VAM size, so patching the
+ * client-root hint alone produces a volume that looks plausible to an offline
+ * reader but cannot be mounted by Cedar.  Regenerate with corrected Rusty
+ * Backup instead. */
+static int repair_client_hint(const char *input, dorado_pdi *p,
+                              const char *output)
+{
+    (void)input;
+    (void)p;
+    (void)output;
+    fprintf(stderr, "--repair-cedar is unsafe for old Rusty Backup images; "
+                    "regenerate or repack the volume instead\n");
+    return 1;
+#if 0
+    uint16_t *pv = p->data;
+    if (pv[64] == 0) {
+        fprintf(stderr, "repair-client: no subvolume\n");
+        return 1;
+    }
+    uint32_t lv_page = long_lo_first(pv + 75, 7);
+    uint32_t pv_page = long_lo_first(pv + 75, 9);
+    if (pv_page >= p->page_count) {
+        fprintf(stderr, "repair-client: LV root is outside image\n");
+        return 1;
+    }
+    uint16_t *lv = p->data + (size_t)pv_page * p->data_words;
+    enum { ROOTFILE_VAM_WORD = 85 + 7 * 6,
+           ROOTFILE_CLIENT_WORD = 85 + 8 * 6 };
+    uint32_t fid = long_lo_first(lv, ROOTFILE_CLIENT_WORD);
+    if (fid == 0) {
+        fprintf(stderr, "repair-client: no client root FileID\n");
+        return 1;
+    }
+    uint32_t header_pv = UINT32_MAX;
+    for (uint32_t pg = 0; pg < p->page_count; pg++) {
+        const uint16_t *l = dorado_pdi_page_label(p, pg);
+        if (dorado_pdi_label_fileid(l) == fid &&
+            dorado_pdi_label_attr(l) == 9729 &&
+            dorado_pdi_label_filepage(l) == 0) {
+            header_pv = pg;
+            break;
+        }
+    }
+    if (header_pv == UINT32_MAX || header_pv < pv_page) {
+        fprintf(stderr, "repair-client: FileID %u has no leader in subvolume\n",
+                fid);
+        return 1;
+    }
+    uint32_t header_lv = lv_page + header_pv - pv_page;
+    lv[ROOTFILE_CLIENT_WORD + 2] = (uint16_t)header_lv;
+    lv[ROOTFILE_CLIENT_WORD + 3] = (uint16_t)(header_lv >> 16);
+    lv[ROOTFILE_CLIENT_WORD + 4] = (uint16_t)header_lv;
+    lv[ROOTFILE_CLIENT_WORD + 5] = (uint16_t)(header_lv >> 16);
+    lv[255] = dorado_pilot_checksum(lv, 255);
+
+    uint32_t volume_size = long_lo_first(lv, 29);
+    uint32_t vam_header_lv = long_lo_first(lv, ROOTFILE_VAM_WORD + 2);
+    uint32_t vam_header_pv = pv_page + vam_header_lv - lv_page;
+    if (vam_header_pv >= p->page_count) {
+        fprintf(stderr, "repair-client: VAM leader is outside image\n");
+        return 1;
+    }
+    uint16_t *vam = p->data + (size_t)vam_header_pv * p->data_words;
+    uint32_t vam_words = 4u + (volume_size + 15u) / 16u;
+    uint16_t vam_pages = (uint16_t)((vam_words + 255u) / 256u);
+    /* Rusty Backup's older writer placed the run at word 4 and transposed
+     * first/size, yielding {first=nPages,size=1}.  VolumeFormat's
+     * LogicalRunObject begins its run sequence at word 5. */
+    vam[4] = 0;
+    vam[5] = (uint16_t)(vam_header_lv + 1u);
+    vam[6] = (uint16_t)((vam_header_lv + 1u) >> 16);
+    vam[7] = vam_pages;
+    vam[8] = 0xFFFFu;
+    vam[9] = 0x7FFFu;
+
+    FILE *in = fopen(input, "rb");
+    if (!in) { fprintf(stderr, "repair-client: cannot reopen input\n"); return 1; }
+    if (fseek(in, 0, SEEK_END) != 0) { fclose(in); return 1; }
+    long size = ftell(in);
+    rewind(in);
+    uint8_t *raw = malloc((size_t)size);
+    if (!raw || fread(raw, 1, (size_t)size, in) != (size_t)size) {
+        free(raw); fclose(in); return 1;
+    }
+    fclose(in);
+    size_t sector_bytes = 2u * (p->label_words + p->data_words);
+    size_t base = DORADO_PDI_HEADER_BYTES + (size_t)pv_page * sector_bytes +
+                  2u * p->label_words;
+    static const int patch_words[] = {
+        ROOTFILE_CLIENT_WORD + 2, ROOTFILE_CLIENT_WORD + 3,
+        ROOTFILE_CLIENT_WORD + 4, ROOTFILE_CLIENT_WORD + 5, 255
+    };
+    for (size_t i = 0; i < sizeof patch_words / sizeof patch_words[0]; i++) {
+        size_t off = base + 2u * (size_t)patch_words[i];
+        raw[off] = (uint8_t)(lv[patch_words[i]] >> 8);
+        raw[off + 1] = (uint8_t)lv[patch_words[i]];
+    }
+    size_t vam_base = DORADO_PDI_HEADER_BYTES +
+                      (size_t)vam_header_pv * sector_bytes +
+                      2u * p->label_words;
+    for (int w = 4; w <= 9; w++) {
+        size_t off = vam_base + 2u * (size_t)w;
+        raw[off] = (uint8_t)(vam[w] >> 8);
+        raw[off + 1] = (uint8_t)vam[w];
+    }
+    FILE *out = fopen(output, "wb");
+    int ok = out && fwrite(raw, 1, (size_t)size, out) == (size_t)size;
+    if (out) fclose(out);
+    free(raw);
+    if (!ok) { fprintf(stderr, "repair-client: cannot write output\n"); return 1; }
+    printf("repaired VAM run: logicalPage=%u dataPage=%u count=%u\n",
+           vam_header_lv, vam_header_lv + 1u, vam_pages);
+    printf("repaired client FileID=%u hint: logicalPage=%u (pvPage=%u) -> %s\n",
+           fid, header_lv, header_pv, output);
+    return 0;
+#endif
+}
+
 int main(int argc, char **argv)
 {
     if (argc < 2) {
         fprintf(stderr, "usage: %s <image.pdi> [--files] [--scan] "
-                        "[--extract FILEID OUT]\n", argv[0]);
+                        "[--verify] [--locate FILEID] [--extract FILEID OUT] "
+                        "[--repair-cedar OUT]\n", argv[0]);
         return 2;
     }
-    int files = 0, scan = 0;
-    uint32_t ext_fid = 0; const char *ext_out = NULL;
+    int files = 0, scan = 0, verify = 0;
+    uint32_t locate_fid = 0, ext_fid = 0;
+    int locate = 0;
+    const char *ext_out = NULL, *repair_out = NULL;
     for (int i = 2; i < argc; i++) {
         if (!strcmp(argv[i], "--files")) files = 1;
         else if (!strcmp(argv[i], "--scan")) scan = 1;
+        else if (!strcmp(argv[i], "--verify")) verify = 1;
+        else if (!strcmp(argv[i], "--locate") && i + 1 < argc) {
+            locate_fid = (uint32_t)strtoul(argv[++i], NULL, 0);
+            locate = 1;
+        }
         else if (!strcmp(argv[i], "--extract") && i + 2 < argc) {
             ext_fid = (uint32_t)strtoul(argv[i + 1], NULL, 0);
             ext_out = argv[i + 2];
             i += 2;
         }
+        else if ((!strcmp(argv[i], "--repair-cedar") ||
+                  !strcmp(argv[i], "--repair-client")) && i + 1 < argc)
+            repair_out = argv[++i];
     }
 
     dorado_pdi pdi;
@@ -184,7 +431,16 @@ int main(int argc, char **argv)
     dump_pv_root(&pdi);
     dump_subvolumes(&pdi);
     if (scan || files) label_scan(&pdi, files);
+    if (verify && verify_cedar_volume(&pdi) != 0) {
+        dorado_pdi_free(&pdi);
+        return 1;
+    }
+    if (locate) locate_file(&pdi, locate_fid);
     if (ext_out) extract_file(&pdi, ext_fid, ext_out);
+    if (repair_out && repair_client_hint(argv[1], &pdi, repair_out) != 0) {
+        dorado_pdi_free(&pdi);
+        return 1;
+    }
 
     dorado_pdi_free(&pdi);
     return 0;

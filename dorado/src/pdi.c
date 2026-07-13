@@ -88,6 +88,50 @@ int dorado_pdi_load(const char *path, dorado_pdi *out, char *err, size_t errlen)
     return 0;
 }
 
+int dorado_pdi_save(const char *path, const dorado_pdi *p,
+                    char *err, size_t errlen)
+{
+    if (!path || !p || !p->labels || !p->data || !p->page_count ||
+        !p->label_words || !p->data_words)
+        return fail(err, errlen, "invalid PDI state");
+
+    FILE *f = fopen(path, "r+b");
+    if (!f) return fail(err, errlen, "cannot open PDI for update");
+    if (fseek(f, DORADO_PDI_HEADER_BYTES, SEEK_SET) != 0) {
+        fclose(f);
+        return fail(err, errlen, "seek");
+    }
+
+    size_t words = (size_t)p->label_words + p->data_words;
+    uint8_t *sector = malloc(words * 2u);
+    if (!sector) {
+        fclose(f);
+        return fail(err, errlen, "out of memory");
+    }
+    int rc = 0;
+    for (uint32_t page = 0; page < p->page_count; page++) {
+        const uint16_t *label = p->labels + (size_t)page * p->label_words;
+        const uint16_t *data = p->data + (size_t)page * p->data_words;
+        for (uint16_t w = 0; w < p->label_words; w++) {
+            sector[2u * w] = (uint8_t)(label[w] >> 8);
+            sector[2u * w + 1u] = (uint8_t)label[w];
+        }
+        for (uint16_t w = 0; w < p->data_words; w++) {
+            size_t off = 2u * ((size_t)p->label_words + w);
+            sector[off] = (uint8_t)(data[w] >> 8);
+            sector[off + 1u] = (uint8_t)data[w];
+        }
+        if (fwrite(sector, 1, words * 2u, f) != words * 2u) {
+            rc = -1;
+            break;
+        }
+    }
+    free(sector);
+    if (fclose(f) != 0) rc = -1;
+    if (rc) return fail(err, errlen, "write error");
+    return 0;
+}
+
 void dorado_pdi_free(dorado_pdi *p)
 {
     if (!p) return;

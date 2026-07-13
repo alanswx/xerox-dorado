@@ -14,6 +14,7 @@
  *     --eb PATH         boot-file 0110 netboot world (.eb)
  *     --eftp PATH       Stage-2 Alto boot file (default NETEXEC.BOOT)
  *     --ftp-sysout PATH Pup FTP sysout served to Lisp RemoteVmemInit
+ *     --ftp-root DIR    read-only Cedar release tree served over Pup STP
  *     --germ PATH       Pilot germ image to plant into VM for the Cedar
  *                       germ-boot (Route B; e.g. Dorado.germ!4)
  *     --pilot-disk PATH Pilot/Cedar PDI disk image to mount as drive 0
@@ -378,10 +379,21 @@ int main(int argc, char **argv)
             cfg.eftp_boot = argv[++i];
         } else if (!strcmp(a, "--ftp-sysout") && i + 1 < argc) {
             cfg.ftp_sysout = argv[++i];
+        } else if (!strcmp(a, "--ftp-root") && i + 1 < argc) {
+            cfg.ftp_root = argv[++i];
         } else if (!strcmp(a, "--germ") && i + 1 < argc) {
             cfg.germ_path = argv[++i];
         } else if (!strcmp(a, "--pilot-disk") && i + 1 < argc) {
-            cfg.pilot_disk_pdi = argv[++i];
+            const char *spec = argv[++i];
+            const char *eq = strchr(spec, '=');
+            if (!eq) {
+                cfg.pilot_disk_pdi[0] = spec;
+            } else {
+                int slot = (eq != spec) ? atoi(spec) : -1;
+                if (slot >= 0 && slot < 4) cfg.pilot_disk_pdi[slot] = eq + 1;
+                else fprintf(stderr, "dorado: --pilot-disk needs PATH or "
+                                     "SLOT=PATH (SLOT 0..3)\n");
+            }
         } else if (!strcmp(a, "--disk-real")) {
             cfg.disk_real = 1;
         } else if (!strcmp(a, "--disk") && i + 1 < argc) {
@@ -494,6 +506,7 @@ int main(int argc, char **argv)
         } else if (!strcmp(a, "--help") || !strcmp(a, "-h")) {
             printf("usage: %s [--cycles N] [--eb PATH] [--eftp PATH] "
                    "[--ftp-sysout PATH] "
+                   "[--ftp-root DIR] "
                    "[--germ PATH] [--germ-netboot-bfn OCTAL] "
                    "[--pilot-disk PATH] [--disk SLOT=PATH] [--disk-real] "
                    "[--boot-file-number OCTAL] [--boot-dir NAME=BFN=PATH] "
@@ -544,6 +557,17 @@ int main(int argc, char **argv)
         dorado_machine_destroy(m);
         return 1;
     }
+    /* A snapshot includes live controller state, but command-line network
+     * sources describe host-side resources rather than emulated state.  Put
+     * explicitly requested sources back after restore so a fast checkpoint
+     * can be paired with a new/read-only Cedar release tree. */
+    if (snapshot_in && (cfg.ftp_sysout || cfg.ftp_root))
+        dorado_machine_set_ftp_source(m, cfg.ftp_sysout, cfg.ftp_root);
+    if (snapshot_in)
+        for (int s = 0; s < 4; s++)
+            if (cfg.pilot_disk_pdi[s])
+                (void)dorado_machine_set_pilot_disk(m, s,
+                                                     cfg.pilot_disk_pdi[s]);
 
     printf("dorado: booting (target %llu cycles)...\n",
            (unsigned long long)cycles);

@@ -1279,11 +1279,19 @@ static void rm_stk_write(dorado_cpu *cpu, int idx, uint16_t value)
             (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
             static long n = 0;
             static long limit = -2;
+            static int exact_init = 0;
+            static long exact_value = -1;
             if (limit == -2) {
                 const char *w = getenv("DORADO_RM_WATCH_LIMIT");
                 limit = w ? strtol(w, NULL, 0) : 100;
             }
-            if (limit <= 0 || n++ < limit) {
+            if (!exact_init) {
+                const char *w = getenv("DORADO_RM_WATCH_VALUE");
+                exact_value = (w && *w) ? strtol(w, NULL, 8) : -1;
+                exact_init = 1;
+            }
+            if ((exact_value < 0 || value == (uint16_t)exact_value) &&
+                (limit <= 0 || n++ < limit)) {
                 fprintf(stderr,
                         "RM_WATCH cyc=%llu RM[%03o]=%06o task=%o "
                         "pc=0o%o rb=%02o pcx=0o%o pcf=0o%o op=%03o\n",
@@ -6413,7 +6421,7 @@ memory_ref_done: ;
     return 0;
 }
 
-cpu_halt_reason dorado_cpu_run(dorado_cpu *cpu, int max_cycles)
+cpu_halt_reason dorado_cpu_run(dorado_cpu *cpu, uint64_t max_cycles)
 {
     while (!cpu->halted && cpu->cycles < max_cycles) {
         if (dorado_cpu_step(cpu) != 0) break;

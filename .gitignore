@@ -72,3 +72,9 @@ AltoDisks/
 chm/diskpacks/*.pack
 dorado/testdata/trident-readonly/*.pack
 tools/nova-trace-diff/ca-cache/
+
+# External rusty-backup tool clone (built the CedarDisk PDI images; ~9 GB)
+tools/rusty-backup/
+
+# Scratch uncompressed PDI images (the tracked copies are the .pdi.gz in CedarDisk/)
+dorado/*.pdi

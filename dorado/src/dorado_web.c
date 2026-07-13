@@ -258,7 +258,7 @@ int dorado_web_boot_cedar(void)
     cfg.ifu_mb       = WEB_IFU;
     cfg.eth_boot_110 = WEB_CEDAR_EB;
     cfg.germ_path    = WEB_CEDAR_GERM;
-    cfg.pilot_disk_pdi = WEB_CEDAR_PDI;
+    cfg.pilot_disk_pdi[0] = WEB_CEDAR_PDI;
     cfg.eftp_boot    = NULL;          /* Cedar boots from the PDI, not EFTP */
     cfg.alto_ether_boot = 0;          /* native Cedar, not Alto-on-Dorado   */
     cfg.boot_dir_all = 0;

@@ -54,6 +54,12 @@ typedef struct dorado_pdi {
  * writes a message to err (if non-NULL, errlen bytes). */
 int dorado_pdi_load(const char *path, dorado_pdi *out, char *err, size_t errlen);
 
+/* Write the mutable LABEL+DATA sectors back into an existing PDI while
+ * preserving its 512-byte container header.  This is intentionally explicit:
+ * callers decide whether a mounted PDI is a disposable working medium. */
+int dorado_pdi_save(const char *path, const dorado_pdi *p,
+                    char *err, size_t errlen);
+
 void dorado_pdi_free(dorado_pdi *p);
 
 /* Page accessors. Return NULL if page is out of range. */

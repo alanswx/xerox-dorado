@@ -1664,6 +1664,58 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
                         dorado_mcr_usemcrv(mem), dorado_mcr_victim(mem));
             }
         }
+        /* DORADO_STORE_TRACE_LIST is a compact complement to the contiguous
+         * VA range trace above.  It takes a colon/comma-separated list of
+         * octal VAs and is intended for sparse control structures such as the
+         * Pilot PDA queues: for example
+         *   200000:200060:200061:200100:202404:202405:202406:202407
+         * Keeping this test in the Store path means the trace observes the
+         * microcode-issued write before cache/writeback details obscure it. */
+        {
+            static int parsed = 0;
+            static uint32_t wanted[32];
+            static size_t wanted_n = 0;
+            if (!parsed) {
+                const char *p = getenv("DORADO_STORE_TRACE_LIST");
+                parsed = 1;
+                while (p && *p && wanted_n < sizeof wanted / sizeof wanted[0]) {
+                    char *end = NULL;
+                    unsigned long value;
+                    while (*p == ':' || *p == ',' || *p == ' ' || *p == '\t')
+                        p++;
+                    if (!*p) break;
+                    value = strtoul(p, &end, 8);
+                    if (end == p) {
+                        wanted_n = 0;
+                        break;
+                    }
+                    wanted[wanted_n++] = (uint32_t)value;
+                    p = end;
+                    if (*p && *p != ':' && *p != ',' && *p != ' ' &&
+                        *p != '\t') {
+                        wanted_n = 0;
+                        break;
+                    }
+                }
+            }
+            if (wanted_n && trace_gate_open()) {
+                for (size_t i = 0; i < wanted_n; i++) {
+                    if (va != wanted[i]) continue;
+                    fprintf(stderr,
+                            "STORE_LIST cyc=%llu task=%o pc=0o%o va=%07o "
+                            "old=%06o new=%06o pcx=0o%o br31=0o%o op=0o%o "
+                            "mb=0o%o br=0o%o mar=0o%o\n",
+                            dorado_trace_cycle, task & 017,
+                            dorado_mem_trace_pc, va & 0x0FFFFFFFu,
+                            dorado_visible_word_at_va(mem, va) & 0177777,
+                            b & 0177777, dorado_mem_trace_pcx,
+                            dorado_mem_trace_br31, dorado_mem_trace_op,
+                            dorado_mem_trace_membase, dorado_mem_trace_br,
+                            dorado_mem_trace_mar);
+                    break;
+                }
+            }
+        }
         /* DORADO_HT_TRACE=1: compact Interlisp GC hash-table monitor.
          * In the running Lyric/Medley DoradoLispMc world htMainBR (BR 0o16)
          * = va 0o4000000 (HTMAINSIZE=0o100000 words) and htOfloBR (BR 0o17)

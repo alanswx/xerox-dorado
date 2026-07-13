@@ -100,7 +100,24 @@ int main(void)
     CHECK(buf[256] == 0xBEEF && buf[257] == 2, "file 7 page 1 (filePage 1) marker");
 
     CHECK(dorado_pdi_page_data(&p, 99) == NULL, "out-of-range page returns NULL");
+
+    /* PDI persistence is explicit: update both label and data, save the
+     * existing container, and ensure a fresh load sees the changes. */
+    p.data[1 * p.data_words + 2] = 0xCAFE;
+    p.labels[1 * p.label_words + 7] = 0x2601;
+    CHECK(dorado_pdi_save(path, &p, err, sizeof err) == 0,
+          "save synthetic PDI");
     dorado_pdi_free(&p);
+    {
+        dorado_pdi saved;
+        CHECK(dorado_pdi_load(path, &saved, err, sizeof err) == 0,
+              "reload saved synthetic PDI");
+        CHECK(saved.data[1 * saved.data_words + 2] == 0xCAFE,
+              "saved page data persists");
+        CHECK(saved.labels[1 * saved.label_words + 7] == 0x2601,
+              "saved page label persists");
+        dorado_pdi_free(&saved);
+    }
 
     /* informational: probe the real image if present */
     dorado_pdi real;

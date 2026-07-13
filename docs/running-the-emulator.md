@@ -192,6 +192,22 @@ replaying the boot.
 The older `Dorado.germ!4` is the historical default but is version-mismatched
 with the 1984 microcode; prefer `Dorado.germ-6.1.6`.
 
+For the corrected software-filled Cedar volume, use:
+
+```sh
+make run-cedar-bestof                 # cold boot
+make cedar-bestof-snapshot            # regenerate the 1.2B-cycle login checkpoint
+make run-cedar-bestof-snapshot-sdl    # immediate interactive restore
+```
+
+`CedarDorado-bestof.pdi` was rebuilt with Cedar-compatible two-page file
+headers and a 17-page VAM. It currently carries 2,240 files recovered from the
+first historical kitchen-sink image, with named launchers including ChessHack,
+Celtics, Football, Draw2d, Clock, ColorTool, Chat, FTP, FontEdit, IconEditor,
+Interpress, Animation3D, and Clip3d. The compressed PDI is the reproducible
+source for the gitignored raw image; the compressed native snapshot survives
+`make clean`.
+
 ---
 
 ## Useful flags and trace env vars

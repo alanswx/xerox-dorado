@@ -5,11 +5,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <time.h>
 
 enum {
     PUP_SOCKET_MISC = 04,
     PUP_SOCKET_FTP = 03,
+    /* PupWKS.mesa: Grapevine registry enquiry/poll sockets. */
+    PUP_SOCKET_GV_RS_ENQUIRY = 050,
+    PUP_SOCKET_GV_RS_POLL = 052,
 
     PUP_TYPE_ERROR = 04,
     PUP_TYPE_RTP_RFC = 010,
@@ -30,18 +34,25 @@ enum {
     FTP_MARK_EOC = 06,
     FTP_MARK_VERSION = 010,
     FTP_MARK_HERE_IS_PLIST = 013,
+    FTP_MARK_NEW_DIRECTORY = 014,
 
     FTP_TX_NONE = 0,
     FTP_TX_VERSION = 1,
     FTP_TX_PLIST = 2,
     FTP_TX_FILE = 3,
     FTP_TX_DONE = 4,
+    FTP_TX_NOT_FOUND = 5,
+    FTP_TX_GV_AUTH_REPLY = 6,
 
     FTP_PHASE_IDLE = 0,
     FTP_PHASE_WAIT_RETRIEVE_YES = 1,
     FTP_PHASE_STREAMING = 2,
-    FTP_PHASE_DONE = 3
+    FTP_PHASE_DONE = 3,
+    FTP_PHASE_GV_WAIT = 4,
+    FTP_PHASE_GV_DONE = 5
 };
+
+#define DORADO_ETH_STP_INTERPACKET_TICKS 60000u
 
 static uint32_t pup_id32(uint16_t hi, uint16_t lo)
 {
@@ -215,6 +226,17 @@ void dorado_ethernet_set_ftp_sysout(dorado_ethernet *eth, const char *path)
     eth->ftp_enabled = 0;
     if (!path || !path[0]) return;
     snprintf(eth->ftp_sysout_path, sizeof eth->ftp_sysout_path, "%s", path);
+    eth->ftp_enabled = 1;
+}
+
+void dorado_ethernet_set_ftp_root(dorado_ethernet *eth, const char *root)
+{
+    /* The fixed Interlisp sysout and the Cedar release tree share the original
+     * Pup FTP/STP endpoint (socket 3).  Keep the state ABI stable for existing
+     * snapshots: a directory in ftp_sysout_path means a rooted STP tree; a
+     * regular file retains the old single-sysout behaviour. */
+    if (!eth || !root || !root[0]) return;
+    snprintf(eth->ftp_sysout_path, sizeof eth->ftp_sysout_path, "%s", root);
     eth->ftp_enabled = 1;
 }
 
@@ -859,6 +881,14 @@ static const uint16_t eth_bol_loader[254] = {
  * completion and the faithful rx pacing. Active only with DORADO_ETH_WIRE. */
 #define DORADO_ETH_WIRE_TICKS_PER_WORD 170u
 
+/* On a physical 3 Mb/s Ethernet, the next Pup cannot appear in the few
+ * microinstructions between EIT consuming a packet's status word and its
+ * WaitForBOP re-arm.  The in-process STP server used to enqueue the next
+ * packet immediately from wakeup_mask(), so EIT saw it as stale input and
+ * discarded/re-armed forever.  Keep the packet on the wire for this small
+ * turnaround interval; 60,000 wakeup polls is the same conservative delay
+ * used by the EFTP receiver handoff above. */
+
 /* Faithful transmit wire model toggle (DORADO_ETH_WIRE). Default OFF so the
  * EFTP boot -- which relies on instant tx-completion -- is unaffected. */
 static int eth_wire_model(void)
@@ -925,9 +955,95 @@ static int eth_queue_pup_bytes(dorado_ethernet *eth, uint16_t pup_type,
     return 1;
 }
 
+/* Translate an IFS Server-filename property into a safe path below the
+ * configured release root.  Cedar's STP client sends names such as
+ * [Cedar]<Cedar6.1>Top>Basic.Loadees.  The original STP server receives
+ * that property list at the FTP endpoint (STPServerImpl.mesa DoFiles); our
+ * first read-only implementation intentionally supports only this lookup /
+ * retrieve path. */
+static int eth_ftp_resolve_file(dorado_ethernet *eth, char *out, size_t outsz)
+{
+    struct stat st;
+    if (!eth || !out || !outsz || !eth->ftp_sysout_path[0]) return 0;
+    if (stat(eth->ftp_sysout_path, &st) != 0 || !S_ISDIR(st.st_mode)) {
+        snprintf(out, outsz, "%s", eth->ftp_sysout_path);
+        return 1;
+    }
+
+    const char *value = strstr((const char *)eth->ftp_cmd_data,
+                               "Server-filename");
+    char requested[384];
+    if (!value) {
+        /* Cedar's STP client normally supplies the decomposed IFS form:
+         * (Directory Cedar6.1)(Name-Body Top>Basic.Loadees), rather than
+         * the optional Server-filename string used by older FTP clients. */
+        const char *directory = strstr((const char *)eth->ftp_cmd_data,
+                                       "Directory ");
+        const char *name_body = strstr((const char *)eth->ftp_cmd_data,
+                                       "Name-Body ");
+        if (directory && name_body) {
+            directory += strlen("Directory ");
+            name_body += strlen("Name-Body ");
+            size_t dn = strcspn(directory, ") \t");
+            size_t nn = strcspn(name_body, ") \t");
+            if (dn == 0 || nn == 0 || dn + 1 + nn >= sizeof requested)
+                return 0;
+            memcpy(requested, directory, dn);
+            requested[dn] = '>';
+            memcpy(requested + dn + 1, name_body, nn);
+            requested[dn + 1 + nn] = '\0';
+            value = requested;
+        } else {
+            value = (const char *)eth->ftp_cmd_data; /* normalized form */
+        }
+    } else {
+        value += strlen("Server-filename");
+        while (*value == ' ' || *value == '\t') value++;
+    }
+    if (*value == '[') {
+        const char *close = strchr(value, ']');
+        if (!close) return 0;
+        value = close + 1;
+    }
+    while (*value == '<' || *value == '>' || *value == ' ' || *value == '\t')
+        value++;
+
+    char relative[384];
+    size_t n = 0;
+    for (; *value && *value != ')' && n + 1 < sizeof relative; value++) {
+        unsigned char c = (unsigned char)*value;
+        if (c == '>') c = '/';
+        if (!(isalnum(c) || c == '.' || c == '_' || c == '-' || c == '/' ||
+              c == '!'))
+            return 0;
+        relative[n++] = (char)c;
+    }
+    relative[n] = '\0';
+    while (relative[0] == '/') memmove(relative, relative + 1, strlen(relative));
+    if (!relative[0] || strstr(relative, "..")) return 0;
+    char response_relative[sizeof relative];
+    snprintf(response_relative, sizeof response_relative, "%s", relative);
+
+    /* LoaderDriver's per-user probe has no standalone User volume.  Serve the
+     * shared command-file bytes, but retain the requested pathname in
+     * ftp_cmd_data: STP's confirmation compares the HereIsPList name with the
+     * name it requested, while a following Yes will resolve this alias again. */
+    if (strcmp(relative, "Guest/6.1/Basic.Loadees") == 0)
+        snprintf(relative, sizeof relative, "Cedar6.1/Top/Basic.Loadees");
+    snprintf((char *)eth->ftp_cmd_data, sizeof eth->ftp_cmd_data, "%s",
+             response_relative);
+    eth->ftp_cmd_len = strlen((char *)eth->ftp_cmd_data);
+    if (snprintf(out, outsz, "%s/%s", eth->ftp_sysout_path, relative) >=
+        (int)outsz)
+        return 0;
+    return 1;
+}
+
 static uint32_t eth_ftp_file_size(dorado_ethernet *eth)
 {
-    FILE *fp = fopen(eth->ftp_sysout_path, "rb");
+    char path[512];
+    if (!eth_ftp_resolve_file(eth, path, sizeof path)) return 0;
+    FILE *fp = fopen(path, "rb");
     if (!fp) return 0;
     if (fseek(fp, 0, SEEK_END) != 0) {
         fclose(fp);
@@ -939,10 +1055,42 @@ static uint32_t eth_ftp_file_size(dorado_ethernet *eth)
     return (uint32_t)n;
 }
 
+static int eth_ftp_file_exists(dorado_ethernet *eth)
+{
+    char path[512];
+    struct stat st;
+    return eth_ftp_resolve_file(eth, path, sizeof path) &&
+           stat(path, &st) == 0 && S_ISREG(st.st_mode);
+}
+
 static void eth_ftp_start_tx(dorado_ethernet *eth, uint8_t mode)
 {
     eth->ftp_tx_mode = mode;
     eth->ftp_tx_step = 0;
+}
+
+/* PupStreamImpl's Handle owns one ring of output fingers for the lifetime of
+ * the BSP connection. WaitOutputReady marks every half-window packet as
+ * AData/AMark, so the count spans STP's version reply, directory plist,
+ * retrieve plist, file, and trailing completion -- it does not restart at
+ * HereIsFile. Cedar advertises 32 input fingers, hence an acknowledgement is
+ * requested every 16 outgoing fingers while as many as 32 may be in flight. */
+static unsigned eth_ftp_file_ack_window(const dorado_ethernet *eth)
+{
+    unsigned n = eth->ftp_client_pup_alloc;
+    if (n < 2) n = 32;       /* RFC allocation arrives before file traffic. */
+    return (n + 1u) / 2u;
+}
+
+static int eth_ftp_file_packet_needs_ack(const dorado_ethernet *eth)
+{
+    if (!eth->ftp_open) return 0;
+    unsigned next = eth->ftp_tx_in_flight + 1u;
+    unsigned half = eth_ftp_file_ack_window(eth);
+    unsigned full = eth->ftp_client_pup_alloc;
+    /* PupStreamImpl.WaitOutputReady marks precisely the half-window and
+     * full-window fingers, not every later packet. */
+    return next == half || (full != 0 && next == full);
 }
 
 static int eth_ftp_queue_ack(dorado_ethernet *eth)
@@ -988,6 +1136,13 @@ static int eth_ftp_queue_mark(dorado_ethernet *eth, uint8_t mark,
     eth->ftp_tx_next += 1;
     eth->ftp_tx_last_end = eth->ftp_tx_next;
     eth->ftp_waiting_for_ack = request_ack ? 1 : 0;
+    if (eth->ftp_open)
+        eth->ftp_tx_in_flight++;
+    if (ftp_trace() && eth->ftp_open) {
+        fprintf(stderr, "FTP_WINDOW mark=0o%o ack=%d mode=%u in_flight=%u/%u\n",
+                mark, request_ack, eth->ftp_tx_mode, eth->ftp_tx_in_flight,
+                eth_ftp_file_ack_window(eth));
+    }
     return 1;
 }
 
@@ -1010,6 +1165,13 @@ static int eth_ftp_queue_data(dorado_ethernet *eth, const uint8_t *data,
     eth->ftp_tx_next += (uint32_t)nbytes;
     eth->ftp_tx_last_end = eth->ftp_tx_next;
     eth->ftp_waiting_for_ack = request_ack ? 1 : 0;
+    if (eth->ftp_open)
+        eth->ftp_tx_in_flight++;
+    if (ftp_trace() && eth->ftp_open) {
+        fprintf(stderr, "FTP_WINDOW data=%zu ack=%d mode=%u in_flight=%u/%u\n",
+                nbytes, request_ack, eth->ftp_tx_mode, eth->ftp_tx_in_flight,
+                eth_ftp_file_ack_window(eth));
+    }
     return 1;
 }
 
@@ -1019,28 +1181,76 @@ static int eth_ftp_queue_text_with_code(dorado_ethernet *eth, uint8_t code,
     uint8_t buf[256];
     size_t n = 0;
     buf[n++] = code;
-    if (text) {
+    if (text)
         while (*text && n < sizeof buf) buf[n++] = (uint8_t)*text++;
-    }
     return eth_ftp_queue_data(eth, buf, n, 0);
 }
 
 static int eth_ftp_queue_plist(dorado_ethernet *eth)
 {
-    char plist[384];
-    const char *name = strrchr(eth->ftp_sysout_path, '/');
-    name = name ? name + 1 : eth->ftp_sysout_path;
+    char plist[512];
+    char path[512];
+    uint32_t advertised_size = eth->ftp_file_size;
+    /* Diagnostic only: lets the Cedar cache callback be tested with a
+     * smaller allocation while the transmitted host file remains unchanged.
+     * Normal runs always preserve the source file's exact byte count. */
+    const char *override_size = getenv("DORADO_FTP_PLIST_SIZE_OVERRIDE");
+    if (override_size && *override_size) {
+        char *end = NULL;
+        unsigned long value = strtoul(override_size, &end, 0);
+        if (end && *end == '\0' && value <= UINT32_MAX)
+            advertised_size = (uint32_t)value;
+    }
+    if (!eth_ftp_resolve_file(eth, path, sizeof path)) return 0;
+    const char *relative = (const char *)eth->ftp_cmd_data;
+    const char *name = strrchr(relative, '/');
+    name = name ? name + 1 : relative;
+    char directory[384];
+    size_t dn = (size_t)(name - relative);
+    if (dn && relative[dn - 1] == '/') dn--;
+    if (dn >= sizeof directory) return 0;
+    memcpy(directory, relative, dn);
+    directory[dn] = '\0';
+    for (size_t i = 0; i < dn; i++)
+        if (directory[i] == '/') directory[i] = '>';
+
+    /* Preserve LoaderDriver's requested property decomposition for its user
+     * override probe.  Its Name-Body deliberately includes "6.1>"; folding
+     * that component into Directory changes the plist it confirms. */
+    if (strcmp(relative, "Guest/6.1/Basic.Loadees") == 0) {
+        snprintf(directory, sizeof directory, "Guest");
+        name = "6.1>Basic.Loadees";
+    }
+
+    /* STPServerMainImpl.SendPropList: honor Cedar's requested names and
+     * spelling.  In particular, `Creation-Date` is case-sensitive in its
+     * Lisp property parser; our old FTP-style Server-filename plist made
+     * STP.Open unwind before it could accept the transfer. */
+    /* STPServerImpl.SendPropList forces Server-Filename, Directory,
+     * Name-Body, Version, and Byte-Size into every reply.  LoaderDriver
+     * needs Byte-Size to open a received BCD as binary even when it did not
+     * explicitly list that property in its request. */
     snprintf(plist, sizeof plist,
-             "((Server-filename %s)(Type Binary)(Byte-size 8)"
-             "(Size %u)(Creation-date 1-Jan-84 00:00:00 GMT))",
-             name, eth->ftp_file_size);
-    return eth_ftp_queue_data(eth, (const uint8_t *)plist, strlen(plist), 0);
+             "((Server-Filename <%s>%s!1)(Directory %s)(Name-Body %s)"
+             "(Version 1)(Byte-Size 8)"
+             "(Creation-Date 01-Jan-84 00:00:00 GST)(Size %u))",
+             directory, name, directory, name, advertised_size);
+    if (ftp_trace()) fprintf(stderr, "STP_PLIST %s\n", plist);
+    return eth_ftp_queue_data(eth, (const uint8_t *)plist, strlen(plist),
+                              eth_ftp_file_packet_needs_ack(eth));
 }
 
 static int eth_ftp_queue_file_chunk(dorado_ethernet *eth)
 {
-    uint8_t buf[512];
-    FILE *fp = fopen(eth->ftp_sysout_path, "rb");
+    /* PupStreamImpl's get-hop buffer is maxDataBytes (1,478 bytes on this
+     * directly connected Cedar host).  Preserve its finger granularity: the
+     * 18,432-byte RPCRuntime BCD then needs 13 data Pups, not 36, and fits
+     * inside the receiver's 16-finger half-window before an acknowledgement
+     * is required. */
+    uint8_t buf[1478];
+    char path[512];
+    if (!eth_ftp_resolve_file(eth, path, sizeof path)) return 0;
+    FILE *fp = fopen(path, "rb");
     if (!fp) return 0;
     if (fseek(fp, (long)eth->ftp_file_pos, SEEK_SET) != 0) {
         fclose(fp);
@@ -1048,10 +1258,16 @@ static int eth_ftp_queue_file_chunk(dorado_ethernet *eth)
     }
     size_t want = eth->ftp_file_size - eth->ftp_file_pos;
     if (want > sizeof buf) want = sizeof buf;
+    if (eth->ftp_client_bytes_per_pup != 0 &&
+        want > eth->ftp_client_bytes_per_pup)
+        want = eth->ftp_client_bytes_per_pup;
     size_t got = fread(buf, 1, want, fp);
     fclose(fp);
     if (got == 0) return 0;
-    if (!eth_ftp_queue_data(eth, buf, got, 1)) return 0;
+    /* Most file fingers are ordinary Data.  Every half-window is AData so
+     * PupStream can replenish Cedar's finite input-finger pool. */
+    if (!eth_ftp_queue_data(eth, buf, got,
+                            eth_ftp_file_packet_needs_ack(eth))) return 0;
     eth->ftp_file_pos += (uint32_t)got;
     return 1;
 }
@@ -1063,14 +1279,28 @@ static void eth_ftp_handle_command(dorado_ethernet *eth)
     if (ftp_trace()) {
         fprintf(stderr, "FTP_CMD mark=0o%o len=%zu phase=%u\n",
                 eth->ftp_cmd_mark, eth->ftp_cmd_len, eth->ftp_phase);
+        if (eth->ftp_cmd_mark == FTP_MARK_RETRIEVE)
+            fprintf(stderr, "FTP_RETRIEVE \"%.*s\"\n",
+                    (int)eth->ftp_cmd_len, eth->ftp_cmd_data);
     }
     switch (eth->ftp_cmd_mark) {
     case FTP_MARK_VERSION:
         eth_ftp_start_tx(eth, FTP_TX_VERSION);
         break;
     case FTP_MARK_RETRIEVE:
-        eth->ftp_file_size = eth_ftp_file_size(eth);
+    case FTP_MARK_NEW_DIRECTORY:
         eth->ftp_file_pos = 0;
+        if (!eth_ftp_file_exists(eth)) {
+            if (ftp_trace())
+                fprintf(stderr, "STP_MISSING %s\n", eth->ftp_cmd_data);
+            eth_ftp_start_tx(eth, FTP_TX_NOT_FOUND);
+            eth->ftp_phase = FTP_PHASE_DONE;
+            break;
+        }
+        eth->ftp_file_size = eth_ftp_file_size(eth);
+        if (ftp_trace())
+            fprintf(stderr, "STP_SERVE %s (%u bytes)\n",
+                    eth->ftp_cmd_data, eth->ftp_file_size);
         if (eth->ftp_file_size == 0) {
             eth_ftp_start_tx(eth, FTP_TX_DONE);
             eth->ftp_phase = FTP_PHASE_DONE;
@@ -1081,6 +1311,9 @@ static void eth_ftp_handle_command(dorado_ethernet *eth)
         break;
     case FTP_MARK_YES:
         if (eth->ftp_phase == FTP_PHASE_WAIT_RETRIEVE_YES) {
+            if (ftp_trace())
+                fprintf(stderr, "STP_TRANSFER %s (%u bytes)\n",
+                        eth->ftp_cmd_data, eth->ftp_file_size);
             eth_ftp_start_tx(eth, FTP_TX_FILE);
             eth->ftp_phase = FTP_PHASE_STREAMING;
         }
@@ -1092,7 +1325,11 @@ static void eth_ftp_handle_command(dorado_ethernet *eth)
         break;
     }
     eth->ftp_cmd_mark = 0;
-    eth->ftp_cmd_len = 0;
+    /* A Retrieve request's normalized name remains in ftp_cmd_data until the
+     * transfer ends; a following Yes carries no text and must not erase it. */
+    if (eth->ftp_tx_mode != FTP_TX_PLIST && eth->ftp_tx_mode != FTP_TX_FILE &&
+        eth->ftp_tx_mode != FTP_TX_DONE)
+        eth->ftp_cmd_len = 0;
 }
 
 static void eth_ftp_ingest_payload(dorado_ethernet *eth)
@@ -1100,18 +1337,71 @@ static void eth_ftp_ingest_payload(dorado_ethernet *eth)
     uint16_t type = eth->tx_words[3];
     uint32_t id = pup_id32(eth->tx_words[4], eth->tx_words[5]);
     size_t nbytes = eth->tx_words[2] > 026 ? (size_t)(eth->tx_words[2] - 026) : 0;
+    int duplicate = id + nbytes <= eth->ftp_rx_next;
 
     if (id + nbytes > eth->ftp_rx_next)
         eth->ftp_rx_next = id + (uint32_t)nbytes;
-    eth->ftp_pending_ack = 1;
+    /* PupBSPProt.BSPPupProc schedules an immediate acknowledgement only for
+     * AData/AMark.  Ordinary Data/Mark packets advance rcvByteID but are
+     * acknowledged by the normal BSP timer/allocation path.  In particular,
+     * do not inject an ACK between Cedar's Retrieve EOC and our HereIsPList. */
+    eth->ftp_pending_ack = type == PUP_TYPE_BSP_ADATA ||
+                           type == PUP_TYPE_BSP_AMARK;
 
     if (type == PUP_TYPE_BSP_MARK || type == PUP_TYPE_BSP_AMARK) {
         if (nbytes > 0) {
             uint8_t mark = (uint8_t)(eth->tx_words[12] >> 8);
+            if (ftp_trace()) {
+                fprintf(stderr,
+                        "FTP_MARK id=%08x mark=0o%o phase=%u rx_next=%08x\n",
+                        id, mark, eth->ftp_phase, eth->ftp_rx_next);
+            }
             if (mark == FTP_MARK_EOC) {
+                /* The client retransmits an acknowledged Retrieve EOC while
+                 * it waits for our first plist segment.  It belongs to the
+                 * preceding command stream (and can have a lower byte ID
+                 * than the current receive cursor), so acknowledge it but
+                 * do not restart the pending plist transfer. */
+                if (eth->ftp_phase == FTP_PHASE_WAIT_RETRIEVE_YES &&
+                    eth->ftp_cmd_mark != FTP_MARK_YES && duplicate) {
+                    eth->ftp_pending_ack = 0;
+                    return;
+                }
+                eth->ftp_cmd_data[eth->ftp_cmd_len] = '\0';
                 eth_ftp_handle_command(eth);
             } else {
+                /* The Loader checkpoint can retransmit an older Retrieve
+                 * after the current one has advanced the receive cursor.
+                 * Ignore that duplicate command. */
+                if (mark == FTP_MARK_RETRIEVE &&
+                    eth->ftp_phase == FTP_PHASE_WAIT_RETRIEVE_YES &&
+                    duplicate) {
+                    eth->ftp_pending_ack = 0;
+                    return;
+                }
+                /* BSP's DataPacket ignores a finger at or below pullId.
+                 * Cedar can retransmit a prior STP Yes while it begins the
+                 * next Retrieve; its old byte ID must not replace the new
+                 * Retrieve mark in any server phase.  In particular, after
+                 * a completed file the older Yes otherwise changes the
+                 * command mark just before the new Retrieve's EOC arrives. */
+                if (mark == FTP_MARK_YES && duplicate) {
+                    if (eth->ftp_phase != FTP_PHASE_WAIT_RETRIEVE_YES)
+                        eth->ftp_pending_ack = 0;
+                    return;
+                }
                 eth->ftp_cmd_mark = mark;
+                /* STPImpl.PutCommand sends a complete command, not a bare
+                 * mark: Yes, its zero reply-code plus text, then EOC.  The
+                 * original STPServerImpl.RetrieveFile calls GetCommandString
+                 * before it emits HereIsFile.  Preserve the normalized
+                 * Retrieve path while that Yes command arrives; its code and
+                 * text are not a pathname. */
+                if (mark == FTP_MARK_YES &&
+                    eth->ftp_phase == FTP_PHASE_WAIT_RETRIEVE_YES) {
+                    eth->ftp_cmd_mark = mark;
+                    return;
+                }
                 eth->ftp_cmd_len = 0;
                 for (size_t i = 1; i < nbytes; i++) {
                     if (eth->ftp_cmd_len >= sizeof eth->ftp_cmd_data) break;
@@ -1122,11 +1412,33 @@ static void eth_ftp_ingest_payload(dorado_ethernet *eth)
             }
         }
     } else {
-        for (size_t i = 0; i < nbytes; i++) {
-            if (eth->ftp_cmd_len >= sizeof eth->ftp_cmd_data) break;
-            uint16_t w = eth->tx_words[12 + i / 2];
-            eth->ftp_cmd_data[eth->ftp_cmd_len++] =
-                (uint8_t)((i & 1) ? (w & 0xFF) : (w >> 8));
+        if (!(eth->ftp_phase == FTP_PHASE_WAIT_RETRIEVE_YES &&
+              eth->ftp_cmd_mark == FTP_MARK_YES)) {
+            for (size_t i = 0; i < nbytes; i++) {
+                if (eth->ftp_cmd_len >= sizeof eth->ftp_cmd_data) break;
+                uint16_t w = eth->tx_words[12 + i / 2];
+                eth->ftp_cmd_data[eth->ftp_cmd_len++] =
+                    (uint8_t)((i & 1) ? (w & 0xFF) : (w >> 8));
+            }
+        }
+        /* GVProtocol.SendNow flushes an unmarked BSP byte stream.  This is
+         * deliberately not a fake credential authority: report AllDown(9).
+         * UserCredentialsImpl treats that source-defined result as
+         * "Grapevine down, proceeding anyway", which permits a standalone
+         * historical release tree to continue into LoaderDriver/STP.
+         * GVProtocol.ReturnCode is one Mesa word: the machine-dependent
+         * Code and RNameType occupy its high and low byte respectively.
+         * The complete Authenticate request is at least operation + an empty
+         * RName + Password, so wait for a full record before replying. */
+        if (eth->ftp_server_sock_lo == PUP_SOCKET_GV_RS_ENQUIRY &&
+            eth->ftp_phase == FTP_PHASE_GV_WAIT && eth->ftp_cmd_len >= 14) {
+            eth_ftp_start_tx(eth, FTP_TX_GV_AUTH_REPLY);
+            eth->ftp_phase = FTP_PHASE_GV_DONE;
+            if (ftp_trace()) {
+                fprintf(stderr, "GV_AUTH request bytes=%zu op=%02x%02x\n",
+                        eth->ftp_cmd_len, eth->ftp_cmd_data[0],
+                        eth->ftp_cmd_data[1]);
+            }
         }
     }
 }
@@ -1137,29 +1449,37 @@ static int eth_ftp_tx_next_segment(dorado_ethernet *eth)
     case FTP_TX_VERSION:
         if (eth->ftp_tx_step == 0) {
             eth->ftp_tx_step++;
-            return eth_ftp_queue_mark(eth, FTP_MARK_VERSION, 0);
+            return eth_ftp_queue_mark(eth, FTP_MARK_VERSION,
+                                      eth_ftp_file_packet_needs_ack(eth));
         }
         if (eth->ftp_tx_step == 1) {
             eth->ftp_tx_step++;
-            return eth_ftp_queue_text_with_code(eth, 1, "Dorado FTP Server");
+            return eth_ftp_queue_data(eth,
+                                      (const uint8_t *)"\1Dorado FTP Server",
+                                      sizeof "\1Dorado FTP Server" - 1,
+                                      eth_ftp_file_packet_needs_ack(eth));
         }
         eth->ftp_tx_mode = FTP_TX_NONE;
-        return eth_ftp_queue_mark(eth, FTP_MARK_EOC, 1);
+        return eth_ftp_queue_mark(eth, FTP_MARK_EOC,
+                                  eth_ftp_file_packet_needs_ack(eth));
     case FTP_TX_PLIST:
         if (eth->ftp_tx_step == 0) {
             eth->ftp_tx_step++;
-            return eth_ftp_queue_mark(eth, FTP_MARK_HERE_IS_PLIST, 0);
+            return eth_ftp_queue_mark(eth, FTP_MARK_HERE_IS_PLIST,
+                                      eth_ftp_file_packet_needs_ack(eth));
         }
         if (eth->ftp_tx_step == 1) {
             eth->ftp_tx_step++;
             return eth_ftp_queue_plist(eth);
         }
         eth->ftp_tx_mode = FTP_TX_NONE;
-        return eth_ftp_queue_mark(eth, FTP_MARK_EOC, 1);
+        return eth_ftp_queue_mark(eth, FTP_MARK_EOC,
+                                  eth_ftp_file_packet_needs_ack(eth));
     case FTP_TX_FILE:
         if (eth->ftp_tx_step == 0) {
             eth->ftp_tx_step++;
-            return eth_ftp_queue_mark(eth, FTP_MARK_HERE_IS_FILE, 0);
+            return eth_ftp_queue_mark(eth, FTP_MARK_HERE_IS_FILE,
+                                      eth_ftp_file_packet_needs_ack(eth));
         }
         if (eth->ftp_file_pos < eth->ftp_file_size)
             return eth_ftp_queue_file_chunk(eth);
@@ -1169,14 +1489,35 @@ static int eth_ftp_tx_next_segment(dorado_ethernet *eth)
     case FTP_TX_DONE:
         if (eth->ftp_tx_step == 0) {
             eth->ftp_tx_step++;
-            return eth_ftp_queue_mark(eth, FTP_MARK_YES, 0);
+            return eth_ftp_queue_mark(eth, FTP_MARK_YES,
+                                      eth_ftp_file_packet_needs_ack(eth));
         }
         if (eth->ftp_tx_step == 1) {
             eth->ftp_tx_step++;
-            return eth_ftp_queue_text_with_code(eth, 0, "Transfer complete");
+            return eth_ftp_queue_data(eth,
+                                      (const uint8_t *)"\0Transfer complete",
+                                      sizeof "\0Transfer complete" - 1,
+                                      eth_ftp_file_packet_needs_ack(eth));
         }
         eth->ftp_tx_mode = FTP_TX_NONE;
-        return eth_ftp_queue_mark(eth, FTP_MARK_EOC, 1);
+        return eth_ftp_queue_mark(eth, FTP_MARK_EOC,
+                                  eth_ftp_file_packet_needs_ack(eth));
+    case FTP_TX_NOT_FOUND:
+        if (eth->ftp_tx_step == 0) {
+            eth->ftp_tx_step++;
+            return eth_ftp_queue_mark(eth, FTP_MARK_NO, 0);
+        }
+        if (eth->ftp_tx_step == 1) {
+            eth->ftp_tx_step++;
+            return eth_ftp_queue_text_with_code(eth, 0100, "File not found");
+        }
+        eth->ftp_tx_mode = FTP_TX_NONE;
+        return eth_ftp_queue_mark(eth, FTP_MARK_EOC, 0);
+    case FTP_TX_GV_AUTH_REPLY: {
+        static const uint8_t reply[] = { 9, 0 }; /* AllDown, group */
+        eth->ftp_tx_mode = FTP_TX_NONE;
+        return eth_ftp_queue_data(eth, reply, sizeof reply, 1);
+    }
     default:
         return 0;
     }
@@ -1185,14 +1526,28 @@ static int eth_ftp_tx_next_segment(dorado_ethernet *eth)
 static void eth_ftp_maybe_deliver(dorado_ethernet *eth)
 {
     if (!eth->ftp_enabled || !eth->ftp_open) return;
-    if (eth->rx_pos < eth->rx_count || eth->rx_hold) return;
+    if (eth->rx_pos < eth->rx_count || eth->rx_hold ||
+        eth->ftp_delivery_blocked) return;
     if (eth->ftp_pending_ack) {
         (void)eth_ftp_queue_ack(eth);
         return;
     }
-    if (eth->ftp_waiting_for_ack || eth->ftp_tx_mode == FTP_TX_NONE)
+    /* An AData/AMark asks for an acknowledgement but does not itself stall
+     * PupStream's pusher.  The source continues until all advertised output
+     * fingers are in flight; only then must the next segment wait. */
+    if ((eth->ftp_waiting_for_ack && eth->ftp_client_pup_alloc != 0 &&
+         eth->ftp_tx_in_flight >= eth->ftp_client_pup_alloc) ||
+        eth->ftp_tx_mode == FTP_TX_NONE)
         return;
     (void)eth_ftp_tx_next_segment(eth);
+}
+
+int dorado_ethernet_ftp_file_delivery_active(const dorado_ethernet *eth)
+{
+    if (!eth || !eth->ftp_enabled || !eth->ftp_open) return 0;
+    return eth->ftp_tx_mode == FTP_TX_FILE ||
+           eth->ftp_tx_mode == FTP_TX_DONE ||
+           eth->ftp_phase == FTP_PHASE_DONE;
 }
 
 static int eth_ftp_queue_rfc_reply(dorado_ethernet *eth)
@@ -1215,7 +1570,7 @@ static int eth_ftp_queue_rfc_reply(dorado_ethernet *eth)
                                body, sizeof body);
 }
 
-static int eth_ftp_handle_rfc(dorado_ethernet *eth)
+static int eth_ftp_handle_rfc(dorado_ethernet *eth, uint16_t server_socket)
 {
     uint16_t req_src_host = (uint16_t)(eth->tx_words[0] & 0377);
     eth->ftp_conn_hi = eth->tx_words[4];
@@ -1235,16 +1590,18 @@ static int eth_ftp_handle_rfc(dorado_ethernet *eth)
     eth->ftp_server_net_host =
         (uint16_t)((DORADO_PUP_LOCAL_NET << 8) | eth->remote_host);
     eth->ftp_server_sock_hi = 0;
-    eth->ftp_server_sock_lo = PUP_SOCKET_FTP;
+    eth->ftp_server_sock_lo = server_socket;
     eth->ftp_rx_next = pup_id32(eth->ftp_conn_hi, eth->ftp_conn_lo);
     eth->ftp_tx_next = eth->ftp_rx_next;
     eth->ftp_tx_last_end = eth->ftp_tx_next;
     eth->ftp_last_ack = eth->ftp_rx_next;
+    eth->ftp_tx_in_flight = 0;
     eth->ftp_pending_ack = 1;       /* Initial BSP allocation for client. */
     eth->ftp_waiting_for_ack = 0;
     eth->ftp_tx_mode = FTP_TX_NONE;
     eth->ftp_tx_step = 0;
-    eth->ftp_phase = FTP_PHASE_IDLE;
+    eth->ftp_phase = server_socket == PUP_SOCKET_GV_RS_ENQUIRY
+        ? FTP_PHASE_GV_WAIT : FTP_PHASE_IDLE;
     eth->ftp_open = 1;
     eth->ftp_cmd_mark = 0;
     eth->ftp_cmd_len = 0;
@@ -1259,10 +1616,14 @@ static int eth_ftp_handle_rfc(dorado_ethernet *eth)
     return eth_ftp_queue_rfc_reply(eth);
 }
 
-static int eth_queue_netdir_reply(dorado_ethernet *eth)
+static int eth_queue_netdir_reply(dorado_ethernet *eth, uint16_t server_socket)
 {
     uint16_t req_src_host = (uint16_t)(eth->tx_words[0] & 0377);
     uint8_t body[6];
+    /* The in-process server is the explicit host on the synthetic local
+     * segment.  PupName validates a NameReply with PupHop, so callers must
+     * receive a GatewayInfo announcement (above, and again after Loader's
+     * rollback) before this net-1 address can be used. */
     uint16_t port0 =
         (uint16_t)((DORADO_PUP_LOCAL_NET << 8) | eth->remote_host);
     body[0] = (uint8_t)(port0 >> 8);
@@ -1270,7 +1631,7 @@ static int eth_queue_netdir_reply(dorado_ethernet *eth)
     body[2] = 0;
     body[3] = 0;
     body[4] = 0;
-    body[5] = PUP_SOCKET_FTP;
+    body[5] = (uint8_t)server_socket;
     return eth_queue_pup_bytes(eth, DORADO_PUP_TYPE_NETDIR_REPLY,
                                pup_id32(eth->tx_words[4], eth->tx_words[5]),
                                (uint16_t)((DORADO_PUP_LOCAL_NET << 8) |
@@ -1278,6 +1639,67 @@ static int eth_queue_netdir_reply(dorado_ethernet *eth)
                                eth->tx_words[10], eth->tx_words[11],
                                port0, eth->tx_words[7], eth->tx_words[8],
                                body, sizeof body);
+}
+
+/* PupRouterImpl learns routes from GatewayInfo (201B) at socket 2.  A
+ * standalone Cedar image has no physical gateway to announce its directly
+ * attached release server, so this one-entry announcement says net 1 is one
+ * hop through the in-process server. */
+static int eth_queue_gateway_info(dorado_ethernet *eth)
+{
+    uint8_t body[] = { DORADO_PUP_LOCAL_NET, DORADO_PUP_LOCAL_NET,
+                       eth->remote_host, 0 };
+    uint16_t req_src_host = (uint16_t)(eth->tx_words[0] & 0377);
+    return eth_queue_pup_bytes(eth, DORADO_PUP_TYPE_GATEWAY_REPLY,
+                               pup_id32(eth->tx_words[4], eth->tx_words[5]),
+                               (uint16_t)((DORADO_PUP_LOCAL_NET << 8) |
+                                          req_src_host),
+                               0, 02,
+                               (uint16_t)((DORADO_PUP_LOCAL_NET << 8) |
+                                          eth->remote_host),
+                               0, 02, body, sizeof body);
+}
+
+/* A NetDir lookup carries the requested service/host name as raw Pup bytes. */
+static int eth_netdir_requests_name(const dorado_ethernet *eth,
+                                    const char *wanted)
+{
+    size_t nbytes = eth->tx_words[2] > 026 ?
+        (size_t)(eth->tx_words[2] - 026) : 0;
+    size_t wn = strlen(wanted);
+    if (wn == 0 || nbytes < wn) return 0;
+    for (size_t i = 0; i + wn <= nbytes; i++) {
+        size_t j = 0;
+        for (; j < wn; j++) {
+            uint16_t w = eth->tx_words[12 + (i + j) / 2];
+            unsigned char c = (unsigned char)(((i + j) & 1) ?
+                                               (w & 0xFF) : (w >> 8));
+            if (tolower(c) != tolower((unsigned char)wanted[j])) break;
+        }
+        if (j == wn) return 1;
+    }
+    return 0;
+}
+
+/* Keep the exact lookup token in the trace.  LoaderDriver's post-Loadees
+ * request is the boundary between a successful command-file transfer and a
+ * failed BCD lookup, and the raw token tells us whether it is a host-name
+ * query or a differently encoded NetDir operation. */
+static void eth_trace_netdir_request(const dorado_ethernet *eth)
+{
+    if (!ftp_trace()) return;
+    size_t nbytes = eth->tx_words[2] > 026 ?
+        (size_t)(eth->tx_words[2] - 026) : 0;
+    if (nbytes > 96) nbytes = 96;
+    fprintf(stderr, "FTP_NETDIR request id=%04o%04o src=%06o/%o/%o text=\"",
+            eth->tx_words[4], eth->tx_words[5], eth->tx_words[9],
+            eth->tx_words[10], eth->tx_words[11]);
+    for (size_t i = 0; i < nbytes; i++) {
+        uint16_t w = eth->tx_words[12 + i / 2];
+        unsigned char c = (unsigned char)((i & 1) ? (w & 0xFF) : (w >> 8));
+        fputc(isprint(c) ? c : '.', stderr);
+    }
+    fprintf(stderr, "\"\n");
 }
 
 static int eth_ftp_packet_for_server(const dorado_ethernet *eth)
@@ -1303,14 +1725,27 @@ static int eth_ftp_handle_packet(dorado_ethernet *eth)
     switch (type) {
     case PUP_TYPE_BSP_ACK: {
         uint32_t ack = pup_id32(eth->tx_words[4], eth->tx_words[5]);
-        eth->ftp_last_ack = ack;
+        uint32_t previous_ack = eth->ftp_last_ack;
         if (eth->tx_count >= 15) {
             eth->ftp_client_bytes_per_pup = eth->tx_words[12];
             eth->ftp_client_pup_alloc = eth->tx_words[13];
             eth->ftp_client_byte_alloc = eth->tx_words[14];
+            if (ftp_trace()) {
+                fprintf(stderr, "FTP_ACK ack=%08x alloc=%u*%u bytes\n",
+                        ack, eth->ftp_client_pup_alloc,
+                        eth->ftp_client_bytes_per_pup);
+            }
         }
-        if (ack >= eth->ftp_tx_last_end)
+        if (ack != previous_ack) {
+            /* Acknowledge all fingers up to this byte position.  Keeping
+             * the one later packet (if any) would be more exact, but this
+             * server has no retransmit ring; resetting the accounting is
+             * the safe approximation and matches PupStream's unblocking
+             * behavior at the acknowledged half-window. */
             eth->ftp_waiting_for_ack = 0;
+            eth->ftp_tx_in_flight = 0;
+        }
+        eth->ftp_last_ack = ack;
         eth_ftp_maybe_deliver(eth);
         return 1;
     }
@@ -1350,6 +1785,29 @@ static int eth_ftp_handle_packet(dorado_ethernet *eth)
     default:
         return 0;
     }
+}
+
+/* GVLocate probes the registry with an EchoMe Pup before it opens the BSP
+ * stream.  Echo the packet body back from the requested poll socket, as the
+ * Pup specification's iAmEcho service requires. */
+static int eth_queue_gv_echo_reply(dorado_ethernet *eth)
+{
+    uint8_t body[512];
+    size_t nbytes = eth->tx_words[2] > 026 ?
+        (size_t)(eth->tx_words[2] - 026) : 0;
+    if (nbytes > sizeof body) return 0;
+    for (size_t i = 0; i < nbytes; i++) {
+        uint16_t w = eth->tx_words[12 + i / 2];
+        body[i] = (uint8_t)((i & 1) ? (w & 0xFF) : (w >> 8));
+    }
+    return eth_queue_pup_bytes(eth, 02 /* iAmEcho */,
+                               pup_id32(eth->tx_words[4], eth->tx_words[5]),
+                               eth->tx_words[9], eth->tx_words[10],
+                               eth->tx_words[11],
+                               (uint16_t)((DORADO_PUP_LOCAL_NET << 8) |
+                                          eth->remote_host),
+                               eth->tx_words[7], eth->tx_words[8],
+                               body, nbytes);
 }
 
 /* "Transmit" the buffered packet. Called when EOT sets TxEOP with words
@@ -1392,13 +1850,55 @@ static void eth_tx_packet_done(dorado_ethernet *eth)
 
     if (eth->ftp_enabled && eth->tx_words[1] == DORADO_PUP_TYPE_ETHERNET) {
         if (eth->tx_words[3] == DORADO_PUP_TYPE_NETDIR_LOOKUP) {
-            if (ftp_trace()) fprintf(stderr, "FTP_NETDIR lookup\n");
-            (void)eth_queue_netdir_reply(eth);
+            static int route_primed;
+            static int cyan_route_refreshed;
+            int cedar = eth_netdir_requests_name(eth, "Cedar");
+            int gv = eth_netdir_requests_name(eth, "GrapevineRServer");
+            int cyan = eth_netdir_requests_name(eth, "Cyan");
+            eth_trace_netdir_request(eth);
+            if (!route_primed) {
+                route_primed = 1;
+                if (ftp_trace()) fprintf(stderr, "FTP_NETDIR prime route\n");
+                (void)eth_queue_gateway_info(eth);
+                return;
+            }
+            /* LoaderDriver's Basic boot rolls Cedar's network environment
+             * back before it resolves the release host Cyan.  PupRouterImpl
+             * Rollback explicitly discards non-direct routes, so a NameReply
+             * alone is unusable: PupName rejects it with noRoute before it
+             * can issue the STP RFC.  Re-announce the directly attached
+             * release segment first; PupName retries its query and receives
+             * the ordinary address response below. */
+            if (cyan && !cyan_route_refreshed) {
+                cyan_route_refreshed = 1;
+                if (ftp_trace())
+                    fprintf(stderr, "FTP_NETDIR refresh route for Cyan\n");
+                (void)eth_queue_gateway_info(eth);
+                return;
+            }
+            if (ftp_trace()) fprintf(stderr, "FTP_NETDIR lookup %s\n",
+                                     cedar ? "Cedar -> STP" :
+                                     gv ? "GrapevineRServer -> GV" : "release host -> STP");
+            if (gv)
+                (void)eth_queue_netdir_reply(eth, PUP_SOCKET_GV_RS_ENQUIRY);
+            else
+                /* PupName can fragment its short name query across several
+                 * lookup Pups.  Once the registry name above is handled,
+                 * the standalone release server is intentionally the answer
+                 * for every remaining host lookup (first User/Guest, then
+                 * Cedar), letting STP return fileNotFound where appropriate. */
+                (void)eth_queue_netdir_reply(eth, PUP_SOCKET_FTP);
+            return;
+        }
+        if (eth->tx_words[3] == 01 /* echoMe */ &&
+            eth->tx_words[8] == PUP_SOCKET_GV_RS_POLL) {
+            (void)eth_queue_gv_echo_reply(eth);
             return;
         }
         if (eth->tx_words[3] == PUP_TYPE_RTP_RFC &&
-            eth->tx_words[8] == PUP_SOCKET_FTP) {
-            (void)eth_ftp_handle_rfc(eth);
+            (eth->tx_words[8] == PUP_SOCKET_FTP ||
+             eth->tx_words[8] == PUP_SOCKET_GV_RS_ENQUIRY)) {
+            (void)eth_ftp_handle_rfc(eth, eth->tx_words[8]);
             return;
         }
         if (eth_ftp_packet_for_server(eth) && eth_ftp_handle_packet(eth))
@@ -1838,6 +2338,18 @@ static uint16_t eth_read(void *ctx, int task, int subtask,
         eth->rx_count > 3 && eth->rx_words[3] == DORADO_PUP_TYPE_BOOTDIR_REPLY)
         fprintf(stderr, "[bootdir] 260b reply CONSUMED by the Alto "
                 "(%zu words read)\n", eth->rx_count);
+    if (eth->rx_pos == eth->rx_count && eth->ftp_enabled && eth->ftp_open &&
+        !eth_wire_model()) {
+        if (ftp_trace() && eth->rx_count >= 6) {
+            fprintf(stderr, "FTP_RX_CONSUMED type=0o%o id=%08x words=%zu\n",
+                    eth->rx_words[3], pup_id32(eth->rx_words[4],
+                                                eth->rx_words[5]),
+                    eth->rx_count);
+        }
+        /* Let the EIT tail execute its source-defined WaitForBOP before the
+         * fake server makes the next BSP segment visible. */
+        eth->rx_hold = DORADO_ETH_STP_INTERPACKET_TICKS;
+    }
     eth_trace(eth, "read", task, tioa, word);
     return word;
 }
@@ -1944,15 +2456,19 @@ static void eth_write(void *ctx, int task, int subtask,
                 /* During a hold nothing has arrived yet, so there is
                  * nothing to discard: WaitForBOP just waits. */
             }
-            if (!on && eth->eftp_wait_for_rx_arm) {
+            if (!on && eth->eftp_wait_for_rx_arm && !eth->ftp_enabled) {
                 /* HM §11: clearing RxOn resets the receiver; no more
                  * wakeups are generated and queued/current words are
                  * discarded until the receiver is re-armed at a packet
                  * boundary. This packet-level model has no wire FIFO, so
                  * discard the queued packet stream immediately.
                  *
-                 * Only for the Cedar/Pilot germ (eftp_wait_for_rx_arm), whose
-                 * IOCB-gated delivery re-arms per input buffer. The Alto
+                 * Only for the Cedar/Pilot germ before its STP server is
+                 * active (eftp_wait_for_rx_arm && !ftp_enabled), whose
+                 * IOCB-gated delivery re-arms per input buffer. Once Cedar
+                 * switches to Pup STP, its receive task can toggle RxOn
+                 * between packets; clearing the one-packet bridge then
+                 * loses a queued HereIsPList/HereIsFile reply. The Alto
                  * EtherBoot loader toggles RxOn off/on between EFTP packets
                  * while the fake server holds the next (already-delivered)
                  * lock-step packet on the wire; discarding it there drops the

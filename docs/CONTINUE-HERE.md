@@ -1,5 +1,81 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## 2026-07-12: Cedar graphical-OS path — current handoff
+
+**Objective.** Continue past the graphical SimpleTerminal login into Cedar's
+Viewer-based graphical environment.  The emulator, disk-germ boot, display,
+keyboard, and Guest login all work.  The present stop is the Cedar remote-file
+cache confirmation that precedes LoaderDriver's `Basic.Loadees` transfer.
+
+**Reproducible work volume.** Rusty Backup now builds a fresh 65K-page,
+matched-germ Cedar volume with:
+
+```sh
+tools/rusty-backup/scripts/build-cedar-work-volume.sh \
+  CedarDisk/CedarDorado-work.pdi CedarWork
+```
+
+It installs `Dorado.germ-6.1.6`, `BasicCedarDorado.boot!22`, and a writable
+Cedar `client` B-tree; `pilot_probe verify` and `dorado/build/pdidump` pass.
+A cold 720M-cycle boot reaches the graphical login.  Guest login must be
+typed at approximately 760M cycles:
+
+```sh
+cd dorado
+./build/dorado --boot-reason disk --no-alto-boot \
+  --eb ../chm/dorado/CedarDorado.eb!6 \
+  --germ ../chm/cedar/germ-alt/Dorado.germ-6.1.6 \
+  --pilot-disk ../CedarDisk/CedarDorado-work.pdi \
+  --ftp-root ../chm/cedar/stp-root \
+  --type-at 760000000 --type 'Guest\n\n' --cycles 1800000000 \
+  --out /tmp/cedar-current.pgm
+```
+
+**Release content is present.** `chm/cedar/stp-root/Cedar6.1/` now contains
+`Basic.Loadees` plus all 33 Cedar 6.1 BCDs it names.  Recreate that tree with
+`python3 tools/fetch_cedar_loadees.py`; it reads the local CHM cross-reference
+and downloads the archive revisions, including `ViewersPackage.bcd` and
+`End.bcd`.
+
+**Exact observed STP boundary.** With `DORADO_FTP_TRACE=1`, Cedar:
+
+1. authenticates through the Grapevine-down fallback;
+2. opens the STP socket and sends `iAmVersion` then `Retrieve` for
+   `[User]<Guest>6.1>Basic.Loadees`;
+3. receives `hereIsPList` with the source-faithful requested properties;
+4. acknowledges the BSP EOC, but never sends STP `yes`.
+
+The original `STPServerMainImpl.Mesa!1` confirms that the server must wait for
+that `yes` before it sends `hereIsFile`; `FSRemoteFileImpl.mesa!2` confirms
+that Cedar sends `yes` only after its local confirmation callback creates a
+cache stream.  Therefore the active gate is the guest's local cache/name-file
+creation, not missing BCDs or an unavailable STP server.
+
+**Important tested facts.**
+
+- The STP plist now follows Xerox `SendPropList`: only requested properties,
+  original `Directory`/`Name-Body` decomposition, `Version 1`, and
+  `Creation-Date ... GST`.
+- Xerox `PupBSPStreams.bcpl` distinguishes ordinary `Mark` from acknowledged
+  `AMark`; both EOC variants were tested.  The acknowledged EOC is the only
+  variant that lets Cedar complete receipt of the plist, but it still does not
+  reach `yes`.
+- A forced server-side `hereIsFile` stream without the client `yes` is ignored
+  by Cedar, as the original protocol predicts.
+- A no-client-root control PDI reaches Guest login but does **not** enter
+  LoaderDriver at all.  The client B-tree is required; deleting it is not a
+  solution.
+- The authoritative Cedar 6.1 B-tree sources are now local:
+  `chm/cedar/cedar6.1/btree/{BTreeInternal,BTreeWrite}.mesa!1`.  They confirm
+  the free-page marker and `firstFreePage` chain fields in the Rusty writer,
+  but the complete guest-writable client/cache volume semantics still need
+  comparison against a period installed volume.
+
+**Fast debug snapshot.** A Guest/Loader checkpoint can be made at 1.35B
+cycles and restored with the PDI and FTP root supplied again; details are in
+`tools/rusty-backup/docs/dorado_cedar_work_volume.md`.  Do not use the old
+ABI-incompatible Cedar snapshots for this work.
+
 ## 2026-07-10: clean recovery and web snapshot audit
 
 - `make clean` removes the entire `dorado/build` tree, including experimental
@@ -16,6 +92,103 @@
 - Web world switches now clear Lyric's `DORADO_DISPM_PRESENT` setting for
   Alto/Mesa/Cedar. `display_dispm_present` no longer caches that setting across
   machines, since the browser changes worlds without reloading the module.
+
+## 2026-07-11: Cedar LoaderDriver / STP bring-up — in progress
+
+**Objective.** Make the regenerated Cedar best-of PDI reach the real Cedar
+desktop, not merely the verified SimpleTerminal login.  The PDI itself is a
+valid Pilot volume, but Cedar's `LoaderDriver` obtains its desktop BCD set over
+STP; it does not load that release tree from the Pilot disk.
+
+**Source material is in the tree, never `/tmp`.** The original client/server
+sources are cached under `chm/cedar/stp/{client-6.1,client-6.0,server-6.1,server-6.0}/`.
+Related LoaderDriver, FS remote-file, Grapevine, and Pup sources are under
+`chm/cedar/cedar6.1/{loaderdriver,fs,grapevineuser,pup,usercredentials}/`.
+The initial shared release command file is
+`chm/cedar/stp-root/Cedar6.1/Top/Basic.Loadees`.
+
+**Confirmed Cedar path.** Starting from
+`build/good-packs/cedar-bestof-login.snap`, typing `Guest` plus two Returns
+does all of the following:
+
+- calls the Grapevine registry (`GrapevineRServer`, Pup WKS 050/052);
+- receives the source-defined `AllDown` result and visibly prints
+  `Grapevine down, proceeding anyway`;
+- enters LoaderDriver and prints `This is the Basic boot file`;
+- opens the real STP endpoint on Pup socket 3 and issues an STP `iAmVersion`
+  followed by `Retrieve`.
+
+The first request is the expected user override:
+
+```
+((User-Name Guest.pa)(Directory Guest)(Name-Body 6.1>Basic.Loadees)...)
+```
+
+The read-only server recognizes Cedar's decomposed `Directory`/`Name-Body`
+form and maps the standalone archive's initial lookup to
+`Cedar6.1/Top/Basic.Loadees`.  `--ftp-root ../chm/cedar/stp-root` is reapplied
+after `--snapshot-in`, since snapshots intentionally restore the Ethernet
+controller state too.
+
+**Current implementation.** `dorado/src/ethernet.c` has a deliberately small
+in-process STP/Grapevine shim behind `--ftp-root`:
+
+- NetDir replies advertise a local RServer and the STP endpoint.
+- `echoMe`/`iAmEcho` and a minimal RServer reply permit Cedar's documented
+  Grapevine-down fallback; this is not an authentication implementation.
+- socket 3 accepts RTP/BSP and handles `iAmVersion`, `Retrieve`, plist,
+  `Yes`, file chunks, and `No fileNotFound` replies from a safe rooted tree.
+- `dorado_machine_set_ftp_source` reapplies explicit host-side sources after
+  snapshot restore without changing the snapshot ABI.
+
+**Exact blocker.** Cedar accepts the RTP/BSP transport and sends its Retrieve
+command, but sends RTP Abort text `Unwinding...` immediately after the server
+returns `HereIsPList` plus EOC.  This reproduces even when the plist is the
+syntactically valid empty `()`, so it is not a filename, BCD, or plist-property
+spelling issue.  The server's normal plist currently mirrors
+`STPServerMainImpl.SendPropList` property names:
+`Directory`, `Name-Body`, `Version`, `Creation-Date`, and `Size`.
+
+**2026-07-11 late — guest-visible root cause.** A native SDL capture of the
+same login snapshot shows that STP has reached Cedar: after `Guest` signs in,
+LoaderDriver prints `This is the Basic boot file`, then both its user and
+shared `Basic.Loadees` lookups fail with `FS.Error: No more free pages on a
+local volume`.  The abort is the remote-file cache's unwind, not rejection of
+the plist or BSP stream.  `CedarDorado-bestof.pdi` is full enough to trigger
+this; the separately authored kitchen-sink disk 3 has ~32,996 free pages but
+does not by itself reproduce the working login boot.  The next media task is
+therefore to derive a bootable PDI which preserves the working installed boot
+state while retaining enough free Pilot pages for the STP cache.  The
+standalone `CedarDorado-boot.pdi` has room but its saved login checkpoint is
+currently ABI-incompatible; regenerating that 650M-cycle snapshot needs to be
+made reliable before it can be used as the writable base.
+
+**Important protocol result.** Do **not** group a BSP mark and the following
+data in one Pup.  `PupBSPStreams.bcpl:BSPPutMark` calls `BSPForceOutput` after
+writing the mark, so the real exchange is a standalone `typeMark`, then a
+`typeData`, then the EOC `typeAMark`.  A trial that grouped Version/PList
+payload into the mark caused Cedar to fail earlier, before Retrieve; it was
+reverted.  The remaining work is a packet-level comparison of the post-plist
+Data/EOC/ACK state against a real PupStream server, especially BSP allocation
+and acknowledgement timing.
+
+**Useful repro.** Run from `dorado/`:
+
+```sh
+DORADO_FTP_TRACE=1 ./build/dorado \
+  --boot-reason disk --no-alto-boot --eb worlds/cedar.eb \
+  --germ ../chm/cedar/germ-alt/Dorado.germ-6.1.6 \
+  --pilot-disk ../CedarDisk/CedarDorado-bestof.pdi \
+  --ftp-root ../chm/cedar/stp-root \
+  --snapshot-in build/good-packs/cedar-bestof-login.snap \
+  --type-at 1201000000 --type 'Guest\n\n' --cycles 1500000000 \
+  --out /tmp/cedar-stp.pgm
+```
+
+`make test` passed after this work; `make build/dorado build/dorado-sdl` is
+also clean.  Do not bulk-download the 33 BCDs listed by `Basic.Loadees` until
+the plist-to-file transition works: the server has not yet received Cedar's
+`Yes` or transferred the command file.
 
 ## ===> MILESTONE (2026-07-04): INTERLISP-D BOOTS TO ITS DESKTOP.
 ## The Md-bypass fix (c9aa818 + 9bd7f76 + 29c7ad8) brings Lyric all the way
