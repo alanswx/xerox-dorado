@@ -16,16 +16,29 @@ the display on: the Cedar CSB DCB-chain head at absolute `0420` stays 0, so
 `dorado_machine_render_display_list` has nothing to rasterize (0 pixels).
 That -- the Viewers/TerminalImpl display turn-on -- is the frontier.
 
-Fonts are the prime suspect and are now served: `TryForFonts` asked for
-`[CedarFonts]<Top>{TiogaFonts,FontMetrics,PressFonts,XC1-2-2-Fonts}.df`, all
-of which missed. `tools/fetch_cedar_fonts.py` now populates
-`chm/cedar/stp-root/{CedarFonts/Top,Fonts}` (122 of the 187 fonts
-`TiogaFonts.df` names resolve in the CHM index; the other 65 are absent from
-the archive). Re-run and see whether the desktop paints. If it still does
-not, the question is whether Cedar's full display head (not SimpleTerminal's
-`TerminalHeadDorado` path our shim rasterizes) uses a different control
-block -- see the `Fugue DCSB` lines in `--final-debug`, which are all
-`177777`.
+**Fonts: served, but BringOver still does not pull them.** `TryForFonts` asks
+for `[CedarFonts]<Top>{TiogaFonts,FontMetrics,PressFonts,XC1-2-2-Fonts}.df`.
+`tools/fetch_cedar_fonts.py` populates `chm/cedar/stp-root/CedarFonts/Top/`
+and `chm/cedar/stp-root/Fonts/` (122 of the 187 fonts `TiogaFonts.df` names
+resolve in the CHM index; the other 65 are simply absent from the archive).
+As of the last run `TiogaFonts.df` is requested, served and transferred --
+but **zero font files are then requested**, and the other three fonts DFs are
+still `STP_MISSING` (the archive has no `[CedarFonts]<Top>` equivalents; the
+one we serve is `[Indigo]<Fonts>Top>TiogaFonts.df!5`, which exports to
+`[Fonts]<Fonts>`). So the next questions are, in order:
+
+1. Why does BringOver of `TiogaFonts.df` request no files? Suspect the
+   `Using` filter in `InstallerImpl.GetFonts` (it passes `action: enter`, not
+   `fetch`), or the missing sibling DFs aborting the enclosing BringOver.
+   Read `InstallerImpl.TryForFonts` (`chm/cedar/cedar6.1/installer/`) and
+   `BringOverImpl` (`chm/cedar/cedar6.1/dfpackage/`).
+2. Is a font actually required for the display to turn on at all? The
+   display-on path (TerminalFace/`SetBWBitmapState[displayed]`) should not
+   need one, which would mean the blank screen has a different cause.
+3. Does Cedar's full display head use a control block our shim does not
+   rasterize? Our renderer walks the Cedar CSB DCB chain at absolute `0420`
+   (SimpleTerminal's `TerminalHeadDorado` path). The `Fugue DCSB` lines in
+   `--final-debug` are all `177777`.
 
 **Four emulator bugs fixed to get here** (all in the last session):
 
