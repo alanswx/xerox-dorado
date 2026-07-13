@@ -1077,22 +1077,48 @@ static void ftp_date_add(const char *dir, const char *name, const char *date)
 
 static void ftp_dates_scan_df(const char *path)
 {
+    /* These are original Mesa text files: lines end with CR, not LF, so they
+     * must be split by hand rather than with fgets(). */
     FILE *fp = fopen(path, "rb");
     if (!fp) return;
-    char line[512];
-    char dir[64] = "";
-    while (fgets(line, sizeof line, fp)) {
-        for (char *p = line; *p; p++)
-            if (*p == '\r' || *p == '\n') { *p = '\0'; break; }
+    if (fseek(fp, 0, SEEK_END) != 0) { fclose(fp); return; }
+    long size = ftell(fp);
+    if (size <= 0 || size > (1 << 20)) { fclose(fp); return; }
+    rewind(fp);
+    char *buf = malloc((size_t)size + 1);
+    if (!buf) { fclose(fp); return; }
+    size_t got = fread(buf, 1, (size_t)size, fp);
+    fclose(fp);
+    buf[got] = '\0';
 
-        const char *tag = strstr(line, "[Cedar]<Cedar6.1>");
-        if (tag && (strstr(line, "Exports") || strstr(line, "Directory")) &&
+    char dir[64] = "";
+    char line[512];
+    for (size_t pos = 0; pos < got; ) {
+        size_t end = pos;
+        while (end < got && buf[end] != '\r' && buf[end] != '\n') end++;
+        size_t len = end - pos;
+        if (len >= sizeof line) len = sizeof line - 1;
+        memcpy(line, buf + pos, len);
+        line[len] = '\0';
+        pos = end;
+        while (pos < got && (buf[pos] == '\r' || buf[pos] == '\n')) pos++;
+
+        /* Section header: `Exports|Directory [Volume]<Dir>` -- the entries
+         * that follow live in Dir.  The volume is dropped, matching how
+         * eth_ftp_resolve_file maps a request onto the served tree. */
+        const char *tag = strchr(line, '<');
+        if (tag && strchr(line, '[') && strchr(line, '[') < tag &&
+            (strstr(line, "Exports") || strstr(line, "Directory")) &&
             !strstr(line, "Imports")) {
-            tag += strlen("[Cedar]<Cedar6.1>");
+            tag++;
             size_t n = strcspn(tag, ">");
             if (n > 0 && n < sizeof dir) {
                 memcpy(dir, tag, n);
                 dir[n] = '\0';
+                /* "Cedar6.1>Top" style multi-level names keep their form; a
+                 * '>' inside becomes the path separator used by requests. */
+                for (char *p = dir; *p; p++)
+                    if (*p == '>') *p = '/';
             }
             continue;
         }
@@ -1119,32 +1145,47 @@ static void ftp_dates_scan_df(const char *path)
             date[i] = '\0';
         if (date[0]) ftp_date_add(dir, name, date);
     }
-    fclose(fp);
+    free(buf);
 }
 
-static void ftp_dates_load(const dorado_ethernet *eth)
+/* Index every DF in one directory of the served tree. */
+static void ftp_dates_scan_dir(const char *dir)
 {
-    if (ftp_dates_loaded || !eth->ftp_sysout_path[0]) return;
-    ftp_dates_loaded = 1;
-    char top[512];
-    if ((size_t)snprintf(top, sizeof top, "%s/Cedar6.1/Top",
-                         eth->ftp_sysout_path) >= sizeof top)
-        return;
-    DIR *dp = opendir(top);
+    DIR *dp = opendir(dir);
     if (!dp) return;
     struct dirent *de;
     while ((de = readdir(dp)) != NULL) {
         size_t n = strlen(de->d_name);
         if (n < 4 || strcmp(de->d_name + n - 3, ".df") != 0) continue;
         char path[1024];
-        if ((size_t)snprintf(path, sizeof path, "%s/%s", top, de->d_name) <
+        if ((size_t)snprintf(path, sizeof path, "%s/%s", dir, de->d_name) <
             sizeof path)
             ftp_dates_scan_df(path);
     }
     closedir(dp);
+}
+
+static void ftp_dates_load(const dorado_ethernet *eth)
+{
+    if (ftp_dates_loaded || !eth->ftp_sysout_path[0]) return;
+    ftp_dates_loaded = 1;
+    /* DFs live in the "Top" directory of each release volume served from the
+     * root (Cedar6.1/Top, CedarFonts/Top, ...). */
+    DIR *dp = opendir(eth->ftp_sysout_path);
+    if (!dp) return;
+    struct dirent *de;
+    while ((de = readdir(dp)) != NULL) {
+        if (de->d_name[0] == '.') continue;
+        char top[768];
+        if ((size_t)snprintf(top, sizeof top, "%s/%s/Top",
+                             eth->ftp_sysout_path, de->d_name) >= sizeof top)
+            continue;
+        ftp_dates_scan_dir(top);
+    }
+    closedir(dp);
     if (ftp_trace())
-        fprintf(stderr, "STP_DATES indexed %d file dates from %s\n",
-                ftp_date_count, top);
+        fprintf(stderr, "STP_DATES indexed %d file dates under %s\n",
+                ftp_date_count, eth->ftp_sysout_path);
 }
 
 /* Creation date for a resolved relative path ("Cedar6.1/Viewers/Icons.tip"),

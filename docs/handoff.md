@@ -1,8 +1,103 @@
 # Handoff: continue building the Xerox Dorado emulator
 
+## 2026-07-13: Cedar reaches the Installer and installs the boot essentials;
+## frontier is the Viewers display turn-on
+
+**Where it stops now.** A clean cold boot logs in as Guest, transfers all 34
+`Basic.Loadees` packages, **STARTs them all**, runs `InstallerImpl`, and
+BringOvers the whole `BootEssentials.df` closure -- 93 STP transfers, ending
+with every TIP table, `.icons`, JaM program, style and `User.Profile` the
+Viewers desktop needs. The Installer then **completes and closes
+SimpleTerminal**, which is why the screen goes blank.
+
+The guest is alive and scheduling after that (`ready=0o2364`,
+`currentPSB=0o100`, `NWW=0o100000`, clock advancing, `WDC=1`) but never turns
+the display on: the Cedar CSB DCB-chain head at absolute `0420` stays 0, so
+`dorado_machine_render_display_list` has nothing to rasterize (0 pixels).
+That -- the Viewers/TerminalImpl display turn-on -- is the frontier.
+
+Fonts are the prime suspect and are now served: `TryForFonts` asked for
+`[CedarFonts]<Top>{TiogaFonts,FontMetrics,PressFonts,XC1-2-2-Fonts}.df`, all
+of which missed. `tools/fetch_cedar_fonts.py` now populates
+`chm/cedar/stp-root/{CedarFonts/Top,Fonts}` (122 of the 187 fonts
+`TiogaFonts.df` names resolve in the CHM index; the other 65 are absent from
+the archive). Re-run and see whether the desktop paints. If it still does
+not, the question is whether Cedar's full display head (not SimpleTerminal's
+`TerminalHeadDorado` path our shim rasterizes) uses a different control
+block -- see the `Fugue DCSB` lines in `--final-debug`, which are all
+`177777`.
+
+**Four emulator bugs fixed to get here** (all in the last session):
+
+1. **Host stores bypassed the Map** (`6e54812`). `machine_store_va()` wrote
+   *both* `storage[va]` -- treating a virtual address as physical -- and the
+   mapped physical slot. Once Pilot owns the Map that raw write lands on
+   whatever physical page shares the VA's number. FS-cache disk deliveries
+   around VA `0o3757200` were overwriting the germ's credentials strings
+   (`nameInGerm`/`passwordInGerm`), so `UserCredentialsImpl` dereferenced
+   ASCII text as a `LONG STRING`, a monitor-enter faulted on a garbage lock,
+   and the uncaught `VM.AddressFault` entered DebugNub. Each of the 219
+   debugger entries leaked +1 WDC until interrupts were dead (`WDC=0333B`)
+   and `BusyWait` MTrapped. That was the whole "unmatched IWDC" mystery. A
+   vacant map entry has no translation (its `rp` field is Pilot's software
+   word), so the legacy raw write survives only for that case, which is what
+   pre-map germ planting needs.
+
+2. **STP served only one BSP connection** (`892797d`, `45e99ba`). Cedar keeps
+   several connections to socket 3 open at once -- LoaderDriver's, plus the
+   ones FS/DFOperations open for the Installer -- and interleaves them. Each
+   has its own byte-ID space seeded from its RFC connection ID, so a single
+   cursor let the abandoned-but-still-retransmitting connection advance
+   `ftp_rx_next` past the live one; the live `Retrieve`/`Yes` then looked like
+   duplicates, were dropped, and BringOver deadlocked with the guest idle.
+   Filtering by client socket instead just starved the other connection (87
+   unanswered AMarks). The `ftp_*` fields are now a working set that is
+   context-switched by client socket across `ftp_ctx[]` slots.
+
+3. **Creation dates were synthetic** (`45e99ba`). A DF pins every file to an
+   exact creation date and BringOver asks for that version; `FSRemoteFileImpl`
+   compares it against our `HereIsPList` and on a mismatch reports
+   `FS.Error: Could not find "<file>" created on <date>` and **skips the
+   file** -- so the Installer silently installed nothing. The dates live in
+   the DFs themselves, so the server now indexes them (961 dates) and serves
+   each file's real date. Note the DFs are **CR-delimited**: `fgets()` reads a
+   whole DF as one line and indexes zero dates.
+
+4. `dorado_poke_va()` had the same Map bug as (1).
+
+**Content added.** `tools/fetch_cedar_essentials.py` resolves the
+BootEssentials DF closure (16 sub-DFs -> 42 files) from the CHM archive;
+`tools/fetch_cedar_fonts.py` does the fonts. Both write into
+`chm/cedar/stp-root/`.
+
+**Snapshots are stale.** `dorado_ethernet` grew, so every committed snapshot
+asset (Cedar login, Lisp desktop, the wasm32 web assets) must be regenerated
+before those `make` targets and the web build work again.
+
+**Repro (cold boot; ~25 min to 30B cycles):**
+
+```sh
+cd dorado
+DORADO_PDI_IGNORE_LABEL_FLAGS=1 DORADO_FTP_TRACE=1 ./build/dorado \
+  --boot-reason disk --no-alto-boot \
+  --eb "../chm/dorado/CedarDorado.eb!6" \
+  --germ ../chm/cedar/germ-alt/Dorado.germ-6.1.6 \
+  --pilot-disk /private/tmp/CedarDorado-chs-contig10.pdi \
+  --ftp-root ../chm/cedar/stp-root \
+  --type-at 760000000 --type 'Guest\n\n' \
+  --cycles 30000000000 --out /private/tmp/cedar.pgm 2>/private/tmp/cedar.log
+```
+
+Useful greps: `STP_DATES` (date index size), `STP_TRANSFER` / `STP_MISSING`
+(what installed and what did not), `FTP_UNSERVED` (a Pup the shim never
+answered -- Cedar blocks forever on those), and `--final-debug`'s
+`[pilot-pda]` line (is the guest scheduling or idle?).
+
+Alto Galaxian still renders (121,513 px) and all seven test binaries pass.
+
 ## 2026-07-12 (late): Cedar loadee death root-caused — the WDC climb is the
 ## debugger-entry storm; the real frontier is a wild monitor-lock pointer in
-## the post-load START phase
+## the post-load START phase (SUPERSEDED — that wild pointer was bug 1 above)
 
 **Current goal:** bring Cedar 6.1 from the SimpleTerminal login through
 `Basic.Loadees` to the Viewer desktop.  Do not call this path working until a
