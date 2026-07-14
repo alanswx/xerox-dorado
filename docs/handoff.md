@@ -1,7 +1,16 @@
 # Handoff: continue building the Xerox Dorado emulator
 
-## 2026-07-13: Cedar reaches the Installer and installs the boot essentials;
-## frontier is the Viewers display turn-on
+## 2026-07-13: Cedar installs the boot essentials, then crashes in the Imager
+## for want of fonts. FONTS ARE THE ONE REMAINING BLOCKER TO THE DESKTOP.
+
+**TL;DR for whoever picks this up.** Four emulator bugs fixed (below). A cold
+boot now logs in as Guest, transfers all 34 `Basic.Loadees` packages, STARTs
+them all, runs `InstallerImpl`, and BringOvers the entire `BootEssentials.df`
+closure. It then dies on an **uncaught signal raised by `ImagerPackage.bcd`,
+because no font ever reaches the guest**; Cedar's crash path blanks the
+screen on the way into the (nonexistent) debugger. Get fonts into the guest
+and the Viewers desktop should follow. Nothing else is known to be broken.
+Pin `DORADO_FAKE_TIME=1783285880` on every run or nothing reproduces.
 
 **Where it stops now.** A clean cold boot logs in as Guest, transfers all 34
 `Basic.Loadees` packages, **STARTs them all**, runs `InstallerImpl`, and
@@ -105,29 +114,22 @@ DORADO_TRACE_GATE=11503600000,11503752000 ./build/dorado ...
 DORADO_FAKE_TIME=1783285880 DORADO_VMDUMP=04404400,04404700,11503000000 ./build/dorado ...
 ```
 
-**Fonts: served, but BringOver still does not pull them.** `TryForFonts` asks
-for `[CedarFonts]<Top>{TiogaFonts,FontMetrics,PressFonts,XC1-2-2-Fonts}.df`.
+**State of the fonts.** `TryForFonts` asks for
+`[CedarFonts]<Top>{TiogaFonts,FontMetrics,PressFonts,XC1-2-2-Fonts}.df`.
 `tools/fetch_cedar_fonts.py` populates `chm/cedar/stp-root/CedarFonts/Top/`
 and `chm/cedar/stp-root/Fonts/` (122 of the 187 fonts `TiogaFonts.df` names
 resolve in the CHM index; the other 65 are simply absent from the archive).
 As of the last run `TiogaFonts.df` is requested, served and transferred --
 but **zero font files are then requested**, and the other three fonts DFs are
-still `STP_MISSING` (the archive has no `[CedarFonts]<Top>` equivalents; the
+still `STP_MISSING`. The archive has no `[CedarFonts]<Top>` equivalents; the
 one we serve is `[Indigo]<Fonts>Top>TiogaFonts.df!5`, which exports to
-`[Fonts]<Fonts>`). So the next questions are, in order:
+`[Fonts]<Fonts>` (so a font request would arrive as `Fonts/<name>` and
+resolve under `chm/cedar/stp-root/Fonts/`, which is populated and ready).
 
-1. Why does BringOver of `TiogaFonts.df` request no files? Suspect the
-   `Using` filter in `InstallerImpl.GetFonts` (it passes `action: enter`, not
-   `fetch`), or the missing sibling DFs aborting the enclosing BringOver.
-   Read `InstallerImpl.TryForFonts` (`chm/cedar/cedar6.1/installer/`) and
-   `BringOverImpl` (`chm/cedar/cedar6.1/dfpackage/`).
-2. Is a font actually required for the display to turn on at all? The
-   display-on path (TerminalFace/`SetBWBitmapState[displayed]`) should not
-   need one, which would mean the blank screen has a different cause.
-3. Does Cedar's full display head use a control block our shim does not
-   rasterize? Our renderer walks the Cedar CSB DCB chain at absolute `0420`
-   (SimpleTerminal's `TerminalHeadDorado` path). The `Fugue DCSB` lines in
-   `--final-debug` are all `177777`.
+Two questions that earlier drafts of this file raised are now **answered, do
+not re-ask them**: a font *is* required (the Imager signals without one), and
+our renderer *is* watching the right control block (absolute `0420` -- the
+guest writes it correctly right up until the crash path nils it).
 
 **Four emulator bugs fixed to get here** (all in the last session):
 

@@ -1,23 +1,40 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
-## 2026-07-12 (late): Cedar loadee death root-caused — see docs/handoff.md
+## 2026-07-13: Cedar loads + installs everything; FONTS are the last blocker.
+## Full detail: docs/handoff.md top section.
 
-The WDC=0333B death after the Basic.Loadees load is fully explained: all 34
-files transfer byte-exact (verified in-VM with `tools/cedar_bcd_verify.py`),
-then during the post-load START phase a monitor-enter executes on a garbage
-long pointer (ASCII text), the uncaught `VM.AddressFault` enters DebugNub's
-debugger machinery (no debugger -> `SetMP[cantWorldSwap]` -> Teledebug), and
-each of the 219 debugger entries permanently leaks +1 WDC, disabling
-interrupts forever. The follow-on `WorryCallDebugger["No VM for frame heap"]`
-storm comes from a garbage state-vector `fsi` producing a 257-page `$mds`
-request; the MDS actually has a ~140-page contiguous free hole. The current
-frontier is the wild pointer's origin (suspect: µengine mis-execution in the
-freshly-STARTed loadee code). Full chain, evidence, exonerations, repro
-windows, and the new `DORADO_MAPCOUNT`/`Pipe3'` diagnostics:
-**docs/handoff.md top section.**
+Cedar 6.1 now boots as Guest, transfers **and STARTs** all 34 `Basic.Loadees`
+packages, runs `InstallerImpl`, and BringOvers the entire `BootEssentials.df`
+closure (93 STP transfers: TIP tables, `.icons`, JaM programs, styles,
+`User.Profile`). It then dies on an **uncaught signal from
+`ImagerPackage.bcd` — no font ever reaches the guest** — and Cedar's crash
+path (DebugNub -> `SetMP[cantWorldSwap]` -> DeviceCleanup `turnOff`) blanks
+the display, which is why the screen goes white. **The blank screen is a
+symptom, not a missing display turn-on; do not chase the display.**
+
+Get fonts into the guest and the Viewers desktop should follow. Nothing else
+is known to be broken.
+
+Four emulator bugs were fixed to get here: host stores bypassing the Map (the
+one that corrupted the germ's credentials and caused the old WDC=0333B
+death), a single-connection STP server (Cedar runs several concurrent BSP
+connections), synthetic creation dates (BringOver skips any file whose date
+does not match the DF, so the Installer was installing nothing), and the same
+Map bug in `dorado_poke_va()`.
+
+**Two traps that cost hours:** pin `DORADO_FAKE_TIME=1783285880` on every run
+(the guest reads host wall-clock time, so cycle numbers drift between
+identical runs and gated traces silently miss), and the release DFs are
+**CR-delimited** (`fgets()` swallows one as a single line).
+
+**Snapshots are stale** — `dorado_ethernet` grew, so the committed Cedar
+login / Lisp desktop / wasm web snapshot assets must be regenerated.
+
+## 2026-07-12 (superseded): the WDC=0333B loadee death — root cause turned out
+## to be the Map bug above; the "wild monitor-lock pointer" was its symptom
 
 ## 2026-07-12: Cedar graphical-OS path — earlier handoff (STP stage;
-## superseded by the section above where they conflict)
+## superseded by the sections above where they conflict)
 
 **Objective.** Continue past the graphical SimpleTerminal login into Cedar's
 Viewer-based graphical environment.  The emulator, disk-germ boot, display,
