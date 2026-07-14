@@ -1,5 +1,70 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## 2026-07-14: cold-boot regression fixed (germ polled disk path); fonts now
+## served end to end. Full detail: docs/handoff.md top section.
+
+Two things happened this session:
+
+1. **The committed PDIs cold-boot again.** Commit 2e8018b had hard-coded CHS
+   decoding of every IOCB DiskAddress in the PDI bridge, but the committed
+   images (`CedarDisk/CedarDorado-boot.pdi`, `CedarDorado-work.pdi`) store
+   flat page numbers in their boot-chain links, so the germ's first
+   boot-file read decoded link 119 as CHS page 3332 and hung forever. That
+   is why the 2026-07-13 session needed the ad-hoc `chs-contig10` image
+   (lost in a `/private/tmp` wipe, recipe never committed). The fix
+   (`machine.c machine_germ_complete_disk_iocb`): polled IOCBs — CSB
+   interrupt mask 0, and only the germ polls — get the pre-2e8018b bridge
+   semantics verbatim (flat addressing, raw label copyback, GERMDATA
+   sequential streaming, unconditional success); Pilot's interrupt-driven
+   traffic keeps the per-action CHS-faithful path. Both committed PDIs now
+   reach the SimpleTerminal login at ~646M cycles, byte-consistent with a
+   pre-regression reference build.
+
+2. **The fonts are now served.** `[Indigo]<Fonts>Top>FontMetrics.df!2` and
+   `PressFonts.df!1` fetched into `stp-root/CedarFonts/Top/`
+   (XC1-2-2-Fonts.df does not survive anywhere in the archive); the font
+   files now live at their full export paths (`Fonts/TiogaFonts/*.ks`,
+   `Fonts/FontMetrics/*.tfm`, `PressFonts/*.sd`) matching the STP
+   resolver's Directory/Name-Body mapping — the old flat `Fonts/` layout
+   could never have served a demand-fetch; and the resolver strips IFS
+   `!<version>` suffixes (a demand-fetch names the DF-pinned version).
+   `tools/fetch_cedar_fonts.py` handles all three DFs, full export paths,
+   and the archive's case-sensitive URLs.
+
+   **Why zero font files were requested (2026-07-13 mystery, resolved):**
+   `BringOver[action: enter]` with autoConfirm does `FS.Copy[remoteCheck:
+   FALSE, attach: TRUE]` — a pure local attach, no network. The crash is
+   `VFontsImpl.CreateDefaultFont` (ViewersPackage START):
+   `ImagerFont.Find["Xerox/TiogaFonts/Tioga10"]` fails, and its fallback
+   `EstablishFont["Tioga", 10]` has **no catch**, so the second
+   `Imager.Error[$fontNotFound]` propagates uncaught (raised by
+   ImagerTypefaceImpl inside ImagerPackage.bcd — matching the 2026-07-13
+   VM-dump identification). The find is `FS.EnumerateForNames` over local
+   attached names, then `FS.Open` demand-fetches `[Fonts]<Fonts>TiogaFonts>
+   Tioga10.ks!1` via STP. `Tioga10.ks` is now present in the served tree.
+
+**Media lives in the repo now, not /tmp.** The work volume is tracked as
+`CedarDisk/CedarDorado-work.pdi.gz` (free-page labels already stamped with
+the volume ID -- see `tools/pdi_stamp_free_labels.py` and the 2026-07-14
+handoff section); `make run-cedar-work` rehydrates it and boots the full
+install path interactively (log in as `Guest` at the prompt). Headless
+repro, from `dorado/`:
+
+```sh
+DORADO_FAKE_TIME=1783285880 DORADO_PDI_IGNORE_LABEL_FLAGS=1 \
+DORADO_FTP_TRACE=1 ./build/dorado \
+  --boot-reason disk --no-alto-boot \
+  --eb "../chm/dorado/CedarDorado.eb!6" \
+  --germ ../chm/cedar/germ-alt/Dorado.germ-6.1.6 \
+  --pilot-disk ../CedarDisk/CedarDorado-work.pdi \
+  --ftp-root ../chm/cedar/stp-root \
+  --type-at 760000000 --type 'Guest\n\n' \
+  --cycles 30000000000 --out /private/tmp/cedar.pgm 2>/private/tmp/cedar.log
+```
+
+Runs do not write the PDI back unless `DORADO_PDI_SAVE=1`, so running the
+repo copy in place is safe; only scratch logs/screens belong in /tmp.
+
 ## 2026-07-13: Cedar loads + installs everything; FONTS are the last blocker.
 ## Full detail: docs/handoff.md top section.
 

@@ -1,5 +1,93 @@
 # Handoff: continue building the Xerox Dorado emulator
 
+## 2026-07-14: cold-boot regression root-caused and fixed; the FS.Error wall
+## was the File.FP DA hint; fonts now served at their real export paths.
+
+**Context.** A host reboot wiped `/private/tmp`, taking the 2026-07-13
+session's load-bearing artifacts with it: `CedarDorado-chs-contig10.pdi` (the
+only image that cold-booted end to end) and the prefail snapshots. Neither
+committed PDI could reproduce the baseline. Root-causing that exposed two
+emulator-side problems that the lost image had been masking, both now fixed:
+
+1. **Cold boots stalled in the germ (fixed).** Commit 2e8018b hard-coded CHS
+   decoding of every IOCB DiskAddress, but the committed images store *flat*
+   page numbers in their boot-chain links (`bootFile firstLink=119`), so the
+   germ's first chain read decoded as page 119*28=3332 and retried forever.
+   The fix restores the pre-2e8018b bridge semantics verbatim for *polled*
+   IOCBs (CSB interrupt mask 0 -- only the germ polls): flat addressing, raw
+   label copyback, GERMDATA sequential streaming, unconditional success.
+   Pilot's interrupt-driven traffic keeps the per-action CHS-faithful path.
+   `machine_germ_complete_disk_iocb` in machine.c; verified against a
+   pre-regression reference build (worktree at 2e8018b^) -- both committed
+   PDIs reach the SimpleTerminal login at ~646M cycles.
+
+2. **`FS.Error: File.FP from directory/cache doesn't correspond to a local
+   volume file` on every volume (fixed).** The Cedar-nucleus label fileID
+   field is `File.FP` = FileID (words 0-1) + **DA, a 32-bit disk-address
+   hint (words 2-3)** -- see `CedarDisk/PARC_PILOT_FORMAT.md` §2.1. Pilot
+   builds its expected label from the FP it holds (directory/cache B-tree),
+   so on real media the stored labels carry the hint and the 8-word hardware
+   compare covers it. All our converted/synthetic PDIs store DA=0 in every
+   label, so FS's FP-to-label validation failed -- LoaderDriver could not
+   even open its command-file cache, printed the FS.Error above for both
+   `Basic.Loadees` paths, and gave up before any STP traffic. Under the
+   existing media-compat switch `DORADO_PDI_IGNORE_LABEL_FLAGS=1`, label
+   words 2-3 are now treated as dontCare (the lost chs-contig10 image
+   presumably carried correct DA hints -- that is what its name meant).
+   With this, both bestof and the work volume resolve and serve
+   `Basic.Loadees` over STP again; bestof then hits its documented
+   "No more free pages" wall, so the 65K-page work volume is the medium.
+
+   Also fixed on the way: a successful label *check* now reads the final
+   two label words (the boot-chain link) into `IOCB.diskLabel` -- the
+   controller's private label, per PilotDisk.mc -- instead of the client's
+   labelPtr, where the completion copyback used to clobber the fresh link
+   with the stale private one.
+
+**Fonts are served properly now.** Three parts:
+
+- `[Indigo]<Fonts>Top>FontMetrics.df!2` and `PressFonts.df!1` fetched into
+  `chm/cedar/stp-root/CedarFonts/Top/`. `XC1-2-2-Fonts.df` does not survive
+  anywhere in the archive (only `[Cyan]<CedarPrinter6.1>` printer variants);
+  its GetFonts probe fails cleanly and is skipped by InstallerImpl.
+- The font files moved to their full export paths -- `Fonts/TiogaFonts/*.ks`
+  (127), `Fonts/FontMetrics/*.tfm` (234), `PressFonts/*.sd` (34) -- matching
+  the STP resolver's Directory/Name-Body mapping (`Exports
+  [Fonts]<Fonts>TiogaFonts>` -> `Fonts/TiogaFonts/...`). The old flat
+  `Fonts/` layout could never have served a demand-fetch.
+  `tools/fetch_cedar_fonts.py` now parses all three DFs, keeps every export
+  path component, and uses the archive's own (case-sensitive) file names --
+  34 `.sd` + 5 `.ks` files had failed on case alone.
+- `eth_ftp_resolve_file` strips an IFS `!<version>` suffix (FS demand-fetches
+  an attached file by the exact version its DF pinned; our tree stores bare
+  names and the DF date index is keyed the same way).
+
+**The 2026-07-13 "zero font requests" mystery is resolved -- it was correct
+behavior.** `InstallerImpl.TryForFonts` runs `DFOperations.BringOver[action:
+enter]` under autoConfirm (the normal non-long-dialogue boot answers every
+question with its default instantly): `enter` with explicit dates skips the
+remote GetFileInfo and does `FS.Copy[remoteCheck: FALSE, attach: TRUE]` -- a
+pure local attach, zero network traffic. The demand-fetch happens later, at
+ViewersPackage START: `VFontsImpl.CreateDefaultFont` calls
+`ImagerFont.Find["Xerox/TiogaFonts/Tioga10"]`, which is
+`FS.EnumerateForNames["///Fonts/Xerox/TiogaFonts/Tioga10.*!h"]` over the
+*local* (attached) name table followed by `FS.Open` on the match -- and that
+open issues the STP Retrieve. If Find fails, CreateDefaultFont retries
+`EstablishFont["Tioga", 10]` **with no catch**, so the second
+`Imager.Error[$fontNotFound]` (raised by ImagerTypefaceImpl, which lives in
+ImagerPackage.bcd -- matching the 2026-07-13 VM-dump identification)
+propagates uncaught and DebugNub blanks the screen. Sources fetched to
+`chm/cedar/cedar6.1/{imager,dfpackage}/` and `viewers/VFontsImpl.mesa!1`.
+
+**Verification state.** Unit tests: all pass except the documented
+pre-existing `test_ethernet` NetDir reply mismatch. The full 30B-cycle cold
+boot on the work volume (fonts served, all fixes in) was still running when
+this section was written -- see docs/CONTINUE-HERE.md for the outcome.
+
+**Beware:** `make run-galaxian` is an *interactive* SDL target, not the
+pixel gate. `/private/tmp` does not survive reboots -- keep load-bearing
+media derivations reproducible from committed files and tools.
+
 ## 2026-07-13: Cedar installs the boot essentials, then crashes in the Imager
 ## for want of fonts. FONTS ARE THE ONE REMAINING BLOCKER TO THE DESKTOP.
 

@@ -102,9 +102,16 @@ CEDAR_BESTOF_SNAPSHOT := build/good-packs/cedar-bestof-login.snap
 CEDAR_BESTOF_SNAPSHOT_SCREEN := build/good-packs/cedar-bestof-login.pgm
 CEDAR_BESTOF_SNAPSHOT_CYCLES ?= 1200000000
 CEDAR_BESTOF_NATIVE_SNAPSHOT_GZ := snapshot-assets/cedar-bestof-login-native.snap.gz
+# The work volume (65K pages, matched germ + BasicCedar boot, free-page labels
+# stamped with the volume ID) is the medium that carries the full LoaderDriver
+# install: login -> Basic.Loadees -> BootEssentials -> fonts. Runs never write
+# the image back unless DORADO_PDI_SAVE=1, so targets run it in place.
+CEDAR_WORK_PDI := ../CedarDisk/CedarDorado-work.pdi
 $(CEDAR_PDI): $(CEDAR_PDI).gz
 	gunzip -c $< > $@
 $(CEDAR_BESTOF_PDI): $(CEDAR_BESTOF_PDI).gz
+	gunzip -c $< > $@
+$(CEDAR_WORK_PDI): $(CEDAR_WORK_PDI).gz
 	gunzip -c $< > $@
 
 # Alto disk-boot pack (Diablo-on-Trident). The raw .pack is gitignored (large);
@@ -406,9 +413,14 @@ run-clock: sdl
 # SimpleTerminal display. The screen stays blank until roughly 650M emulated
 # cycles, so run the SDL frontend with a larger cycles-per-frame budget.
 .PHONY: run-cedar run-cedar-screenshot cedar-login-snapshot run-cedar-snapshot-sdl \
-	run-cedar-bestof cedar-bestof-snapshot run-cedar-bestof-snapshot-sdl
+	run-cedar-bestof cedar-bestof-snapshot run-cedar-bestof-snapshot-sdl \
+	run-cedar-work
 run-cedar: sdl
 	./build/dorado-sdl --boot-reason disk --no-alto-boot --eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' --pilot-disk '$(CEDAR_PDI)' --speed 4000000
+# The full install path: log in as Guest at the prompt; LoaderDriver then
+# transfers Basic.Loadees + BootEssentials + fonts from --ftp-root.
+run-cedar-work: sdl $(CEDAR_WORK_PDI)
+	DORADO_PDI_IGNORE_LABEL_FLAGS=1 ./build/dorado-sdl --boot-reason disk --no-alto-boot --eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' --pilot-disk '$(CEDAR_WORK_PDI)' --ftp-root ../chm/cedar/stp-root --speed 4000000
 run-cedar-real: sdl
 	./build/dorado-sdl --boot-reason disk --no-alto-boot --disk-real --eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' --pilot-disk '$(CEDAR_PDI)' --speed 4000000
 run-cedar-screenshot: sdl
