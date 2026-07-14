@@ -43,14 +43,67 @@ So the guest is "alive and scheduling" (`ready` non-empty, clock ticking)
 only because the other processes keep running while the faulting one sits in
 the debugger.
 
-**Next step: identify the uncaught error at cycle ~11,618,516,000.** The
-technique that cracked the last two bugs applies directly: gate
-`DORADO_IFUDISP_TRACE=1 DORADO_FAULT_TRACE=all DORADO_RM_WATCH=6` on
-`DORADO_TRACE_GATE=11618300000,11618530000`, find the WDC 0->1 store (uPC
-`0o516`) and any `FAULT_CPU` just before it, then map the faulting code's
-`br31` to a module with `chm/cedar/basiccedar/BasicCedarDorado.loadmap!22`.
-Cycle numbers shift if anything upstream changes, so re-derive the exact
-cycle from a fresh `DORADO_STORE_TRACE_VA=0420,0421` run first.
+**The uncaught signal is raised by `ImagerPackage.bcd` -- it is the missing
+fonts.** Traced end to end (see recipe below). With the clock pinned, the
+IWDC (`CoreSwap`'s `DisableInterrupts`, uPC `0o516`) lands at cycle
+11,503,742,140 and the display blanks 8,000 cycles later. There is **no page
+fault** -- it is a Mesa SIGNAL, not a memory fault. The `br31` call chain
+across the window reads:
+
+```
+br31=0x120808 (VA 0o4404564)  a loaded BCD    -- raises the signal
+  -> br31=0x34100 / 0x33F00   MesaRuntime     -- SignalsImpl hunts for a catcher (2454 dispatches)
+  -> br31=0x3470C             Tentacles       -- DebugNub.CoreSwap
+  -> br31=0x32500             HeadsDorado     -- ProcessorHead SetMP[cantWorldSwap]
+  -> br31=0x33208             HeadsDorado     -- TerminalHead DeviceCleanup turnOff, then the
+                                                 GetClockPulses spin (op=364 alpha=011 = RClockM)
+```
+
+Dumping the raiser's code (`DORADO_VMDUMP=04404400,04404700,<cycle>`) and
+matching the words against the BCDs we serve identifies it exactly:
+**`ImagerPackage.bcd`** (offset `0x6600`). The Imager cannot paint without a
+font, and no font ever reaches the guest -- so it signals, nothing catches
+it, and the crash path takes the display down. Everything else in this
+section (BringOver requesting no font files, the missing sibling fonts DFs)
+is the same bug seen from the other end.
+
+**So: fix the fonts and the desktop should follow.** Concretely:
+
+1. `InstallerImpl.GetFonts` calls `DFOperations.BringOver[... action: enter]`
+   -- **`enter`, not `fetch`**. In `BringOverImpl.Localize`, `enter` skips
+   `DFInternal.GetFileInfo` for explicit dates and takes the `AttachNeeded`
+   path: it *attaches* files (local FS links to the remote copy) rather than
+   copying bytes, so zero font transfers is arguably correct behavior and the
+   fonts should be demand-fetched when the Imager opens one. Confirm whether
+   the attach actually happens, and why no later font Retrieve appears.
+2. Three of the four fonts DFs are still `STP_MISSING`
+   (`FontMetrics`, `PressFonts`, `XC1-2-2-Fonts`); only `TiogaFonts.df` is
+   served, and it is `[Indigo]<Fonts>Top>TiogaFonts.df!5` (exports to
+   `[Fonts]<Fonts>`), not a genuine `[CedarFonts]<Top>` DF. FontMetrics in
+   particular is what the Imager wants.
+3. A blunter fallback if the DF path stays stubborn: pre-place the fonts on
+   the Pilot disk / in the local FS so the Imager finds them without any
+   BringOver at all.
+
+**IMPORTANT -- pin the clock or nothing reproduces.** The guest reads host
+wall-clock time (the Cedar banner shows today's real date), so Cedar's
+timeouts make cycle numbers drift between otherwise identical runs -- the
+same crash landed at 11.618B, 11.536B and 11.504B on three runs. Add
+`DORADO_FAKE_TIME=1783285880` (the value the Lisp targets use) to every run
+and cycle-exact gating works again. All cycle numbers quoted above assume it.
+
+**Recipe used** (both runs need the same `DORADO_FAKE_TIME`):
+
+```sh
+# 1. find the crash cycle: the last write of 0 to the CSB head, and the IWDC
+DORADO_FAKE_TIME=1783285880 DORADO_RM_WATCH=6 DORADO_RM_WATCH_VALUE=1 \
+DORADO_RM_WATCH_LIMIT=0 DORADO_STORE_TRACE_VA=0420,0420 ./build/dorado ...
+# 2. capture the call chain into it
+DORADO_FAKE_TIME=1783285880 DORADO_IFUDISP_TRACE=1 DORADO_FAULT_TRACE=all \
+DORADO_TRACE_GATE=11503600000,11503752000 ./build/dorado ...
+# 3. name the module: dump its code and match it against the served BCDs
+DORADO_FAKE_TIME=1783285880 DORADO_VMDUMP=04404400,04404700,11503000000 ./build/dorado ...
+```
 
 **Fonts: served, but BringOver still does not pull them.** `TryForFonts` asks
 for `[CedarFonts]<Top>{TiogaFonts,FontMetrics,PressFonts,XC1-2-2-Fonts}.df`.
