@@ -1083,6 +1083,88 @@ static void machine_germ_complete_disk_iocb(dorado_machine *m)
     uint16_t next = dorado_visible_word_at_va(&m->mem, iocb + SA_IOCB_NEXT);
     unsigned label_action = DISK_CMD_LABEL_ACTION(command);
     unsigned data_action = DISK_CMD_DATA_ACTION(command);
+    /* The germ's boot chain is polled (CSB interrupt mask 0) and follows
+     * its own conventions: a rusty-backup image stores a flat PDI VDA in
+     * the link words (not the hardware CHS DiskAddress Pilot's
+     * interrupt-driven head uses), and the germ's DiskBootTransfer
+     * expectations were validated against the original flat bridge -- the
+     * raw page label copied back verbatim, sequential streaming for the
+     * GERMDATA command, and unconditional success.  Restore exactly those
+     * semantics for polled IOCBs; the per-action, CHS, KSectorDone-faithful
+     * path below remains for everything Pilot issues once it owns the
+     * disk head (2e8018b). */
+    if (csb_interrupt_mask == 0 && pdi) {
+        uint32_t flat_page = machine_pilot_disk_address_to_vda(
+            drive, disk_addr_low, disk_addr_high, 1);
+        if (command == DISK_CMD_GERMDATA && disk_addr_low >= 0100u) {
+            if (!m->pilot_pdi_stream_active) {
+                m->pilot_pdi_stream_active = 1;
+                m->pilot_pdi_next_page = flat_page;
+            }
+            flat_page = m->pilot_pdi_next_page;
+        }
+        uint16_t polled_done = 0;
+        for (; polled_done < count; polled_done++) {
+            uint32_t page = flat_page + polled_done;
+            const uint16_t *label, *data;
+            uint16_t pl[DORADO_PILOT_LABEL_WORDS];
+            uint16_t pd[DORADO_PILOT_DATA_WORDS];
+            if (m->disk_real) {
+                /* --disk-real: route the read through the controller. */
+                int plw = pdi->label_words < DORADO_PILOT_LABEL_WORDS
+                    ? pdi->label_words : DORADO_PILOT_LABEL_WORDS;
+                int pdw = pdi->data_words < DORADO_PILOT_DATA_WORDS
+                    ? pdi->data_words : DORADO_PILOT_DATA_WORDS;
+                m->disk.selected_drive = (uint8_t)drive;
+                if (dorado_disk_controller_read_page(&m->disk, page,
+                                                     pl, plw, pd, pdw) != 0)
+                    break;
+                label = pl; data = pd;
+            } else {
+                label = dorado_pdi_page_label(pdi, page);
+                data = dorado_pdi_page_data(pdi, page);
+                if (!label || !data) break;
+            }
+            if (label_ptr) {
+                for (uint16_t w = 0; w < pdi->label_words; w++)
+                    machine_store_va(&m->mem, label_ptr + w, label[w]);
+            }
+            if (data_ptr) {
+                uint32_t dst = data_ptr +
+                    (uint32_t)polled_done * pdi->data_words;
+                for (uint16_t w = 0; w < pdi->data_words; w++)
+                    machine_store_va(&m->mem, dst + w, data[w]);
+            }
+        }
+        if (m->pilot_pdi_stream_active && command == DISK_CMD_GERMDATA)
+            m->pilot_pdi_next_page = flat_page + polled_done;
+        if (dorado_trace_flag("DORADO_DISK_IOCB_TRACE")) {
+            fprintf(stderr,
+                    "[machine] PDI germ polled IOCB @cyc=%llu: iocb=0o%o "
+                    "cmd=0o%o page=0o%o count=0o%o done=0o%o "
+                    "label=0o%o data=0o%o next=0o%o\n",
+                    (unsigned long long)m->bb.cycles, iocb, command,
+                    flat_page, count, polled_done, label_ptr, data_ptr,
+                    next);
+        }
+        machine_store_va(&m->mem, iocb + SA_IOCB_DISKADDR, disk_addr_low);
+        machine_store_va(&m->mem, iocb + SA_IOCB_DISKADDR + 1u,
+                         (uint16_t)(disk_addr_high + polled_done));
+        machine_store_va(&m->mem, iocb + SA_IOCB_DISKHEADER, disk_addr_low);
+        machine_store_va(&m->mem, iocb + SA_IOCB_DISKHEADER + 1u,
+                         disk_addr_high);
+        machine_write_long_va(&m->mem, iocb + SA_IOCB_DATAPTR,
+                              data_ptr + (uint32_t)polled_done *
+                              (uint32_t)pdi->data_words);
+        machine_store_va(&m->mem, iocb + SA_IOCB_PAGECOUNT,
+                         (uint16_t)(count - polled_done));
+        machine_store_va(&m->mem, iocb + SA_IOCB_HEADERSTATUS, 0);
+        machine_store_va(&m->mem, iocb + SA_IOCB_LABELSTATUS, 0);
+        machine_store_va(&m->mem, iocb + SA_IOCB_DATASTATUS, 0);
+        machine_store_va(&m->mem, iocb + SA_IOCB_SEAL, 0);
+        machine_store_va(&m->mem, GERM_DISK_CSB_VA, next);
+        return;
+    }
     /* PilotDisk.mc's KCheckError reports DS.checkErr (0100B).  Keep the
      * three independently reported block statuses here, just as IOCB does. */
     uint16_t header_status = pdi ? 0 : 004000u; /* DS.notOnLine */
@@ -1210,6 +1292,17 @@ static void machine_germ_complete_disk_iocb(dorado_machine *m)
                     want &= (uint16_t)~PILOT_LABEL_FILE_FLAGS;
                     have &= (uint16_t)~PILOT_LABEL_FILE_FLAGS;
                 }
+                /* Cedar-nucleus fileID label words 2-3 are File.FP's DA --
+                 * a 32-bit disk-address hint (PARC_PILOT_FORMAT.md 2.1).
+                 * Pilot builds its expected label from the FP it holds, so
+                 * on real media the stored labels carry the hint and the
+                 * hardware compare covers it.  Our converted/synthetic PDIs
+                 * store DA=0 in every label, which fails FS's FP-to-label
+                 * validation ("File.FP from directory/cache doesn't
+                 * correspond to a local volume file").  Under the same
+                 * media-compat switch, treat the hint words as dontCare. */
+                if ((w == 2u || w == 3u) && ignore_label_flags)
+                    continue;
                 if (want != have) {
                     mismatch = 1;
                 }
@@ -1250,10 +1343,13 @@ static void machine_germ_complete_disk_iocb(dorado_machine *m)
                 break;
             }
             /* A successful check compares words 0..7 then reads the final
-             * two words (normally a boot-chain link) into IOCB.diskLabel. */
+             * two words (normally a boot-chain link) into IOCB.diskLabel --
+             * the controller's private label, not the client's.  Writing
+             * them to labelPtr instead let the completion copyback replace
+             * the client's fresh link with the private label's stale one. */
             if (pdi->label_words > 8u) {
                 for (uint16_t w = 8u; w < pdi->label_words; w++)
-                    machine_store_va(&m->mem, label_ptr + w, label[w]);
+                    machine_store_va(&m->mem, iocb_label + w, label[w]);
             }
         }
         if (label_action == DISK_ACTION_WRITE && label_ptr) {
