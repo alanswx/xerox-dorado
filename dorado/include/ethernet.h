@@ -12,7 +12,13 @@
 /* Concurrent STP/BSP connections the in-process server tracks. Cedar's
  * Installer phase has LoaderDriver's connection plus one or two from
  * FS/DFOperations live at the same time. */
-#define DORADO_FTP_MAX_CONN 6
+/* Cedar keeps several BSP connections open at once (LoaderDriver, the
+ * Installer's FS/DFOperations connections, the Grapevine enquiry) and the
+ * install phase churns through dozens more.  Evicting a live connection
+ * strands its client mid-conversation (retransmit forever, install hangs),
+ * so keep enough slots for the deepest observed concurrency with headroom.
+ * Part of the snapshot ABI: growing this invalidates raw snapshots. */
+#define DORADO_FTP_MAX_CONN 16
 #define DORADO_ETHERNET_TIOA_DATA 015
 #define DORADO_ETHERNET_TIOA_CTL  016
 

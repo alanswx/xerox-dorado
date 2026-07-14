@@ -1888,8 +1888,12 @@ static int eth_ftp_ctx_find(const dorado_ethernet *eth, uint16_t net_host,
     return -1;
 }
 
-/* Pick a slot for a new RFC: reuse the same client socket, else a free slot,
- * else the oldest connection that is not the working set. */
+/* Pick a slot for a new RFC: reuse the same client socket, else a free
+ * slot, else a slot whose connection has ended (RTP End/Abort cleared its
+ * open flag), else the oldest connection that is not the working set.
+ * Evicting a live connection strands its client -- the guest retransmits
+ * into FTP_UNSERVED forever and the install hangs -- so closed slots must
+ * be recycled first. */
 static int eth_ftp_ctx_alloc(dorado_ethernet *eth, uint16_t net_host,
                              uint16_t sock_hi, uint16_t sock_lo)
 {
@@ -1897,6 +1901,11 @@ static int eth_ftp_ctx_alloc(dorado_ethernet *eth, uint16_t net_host,
     if (slot >= 0) return slot;
     for (int i = 0; i < DORADO_FTP_MAX_CONN; i++) {
         if (eth->ftp_ctx[i].used) continue;
+        if (eth->ftp_ctx_valid && eth->ftp_ctx_cur == (uint8_t)i) continue;
+        return i;
+    }
+    for (int i = 0; i < DORADO_FTP_MAX_CONN; i++) {
+        if (eth->ftp_ctx[i].open) continue;
         if (eth->ftp_ctx_valid && eth->ftp_ctx_cur == (uint8_t)i) continue;
         return i;
     }
