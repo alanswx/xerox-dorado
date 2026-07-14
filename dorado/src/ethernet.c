@@ -1021,6 +1021,25 @@ static int eth_ftp_resolve_file(dorado_ethernet *eth, char *out, size_t outsz)
     relative[n] = '\0';
     while (relative[0] == '/') memmove(relative, relative + 1, strlen(relative));
     if (!relative[0] || strstr(relative, "..")) return 0;
+
+    /* An IFS name may carry an explicit "!<version>" (FS demand-fetches an
+     * attached file by the exact version its DF pinned).  The real server
+     * parses the version into a separate property (STPServerImpl
+     * SendPropList sends `Version` alongside the name); our tree stores one
+     * version of each file under its bare name, and the DF date index is
+     * keyed the same way, so strip the suffix. */
+    {
+        char *bang = strrchr(relative, '!');
+        if (bang && bang != relative && strchr(bang, '/') == NULL) {
+            const char *d = bang + 1;
+            if (*d == 'H' || *d == 'h' || *d == 'L' || *d == 'l') {
+                if (d[1] == '\0') *bang = '\0';
+            } else {
+                while (isdigit((unsigned char)*d)) d++;
+                if (*d == '\0' && d != bang + 1) *bang = '\0';
+            }
+        }
+    }
     char response_relative[sizeof relative];
     snprintf(response_relative, sizeof response_relative, "%s", relative);
 

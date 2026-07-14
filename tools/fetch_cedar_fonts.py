@@ -2,17 +2,21 @@
 """Fetch the Cedar font files the Installer's TryForFonts step asks for.
 
 Cedar's InstallerImpl.TryForFonts does a BringOver of the fonts DFs named by
-the Installer.*DF user-profile tokens ([CedarFonts]<Top>TiogaFonts.df and
-friends).  Without fonts the Imager has nothing to paint text with, so the
-Viewers desktop never comes up.
+the Installer.*DF user-profile tokens ([Fonts]<CedarFonts>Top>TiogaFonts.df
+and friends).  Without fonts the Imager has nothing to paint text with, so
+the Viewers desktop never comes up.
 
     python3 tools/fetch_cedar_fonts.py [--dry-run]
 
-TiogaFonts.df is served from chm/cedar/stp-root/CedarFonts/Top/.  It exports
-its files to [Fonts]<Fonts>, which the STP server maps to
-chm/cedar/stp-root/Fonts/.  The emulator indexes creation dates out of the
-same DF it serves (dorado/src/ethernet.c), so the dates it advertises match
-the ones BringOver demands.
+The DFs themselves are served from chm/cedar/stp-root/CedarFonts/Top/
+(TiogaFonts.df, FontMetrics.df, PressFonts.df; the archive has no
+XC1-2-2-Fonts.df).  Each DF exports its files with a full directory path --
+`Exports [Fonts]<Fonts>TiogaFonts>` -- and the STP server maps a demand
+fetch's (Directory Fonts)(Name-Body TiogaFonts>Classic10.ks) request to
+stp-root/Fonts/TiogaFonts/Classic10.ks, so the destination must keep every
+path component after the volume.  The emulator indexes creation dates out of
+the same DFs it serves (dorado/src/ethernet.c), so the dates it advertises
+match the ones BringOver demands.
 """
 import os
 import re
@@ -22,21 +26,35 @@ import urllib.request
 HOST = 'https://xeroxparcarchive.computerhistory.org'
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ROOT = os.path.join(REPO, 'chm', 'cedar', 'stp-root')
-DF = os.path.join(ROOT, 'CedarFonts', 'Top', 'TiogaFonts.df')
+DF_DIR = os.path.join(ROOT, 'CedarFonts', 'Top')
 XREF = os.path.join(REPO, 'chm', 'cross-reference.html')
 
-SECTION_RE = re.compile(r'^\s*(?:Exports|Directory)\s+\[(\w+)\]<([^>]+)>', re.I)
+# Capture the whole export path: `Exports [Fonts]<Fonts>TiogaFonts>` ->
+# volume "Fonts", path "Fonts>TiogaFonts".
+SECTION_RE = re.compile(r'^\s*(?:Exports|Directory)\s+\[(\w+)\]<(.+)>\s*$', re.I)
+IMPORTS_RE = re.compile(r'^\s*Imports\b', re.I)
 FILE_RE = re.compile(r'^\s+\+?([^\s+][^\s]*\.[^\s!]+)!(\d+)\s')
 # <li><a href="_cd6_/tioga/ksfonts/.index.html">...</a>Tioga10B.ks!1 22528 ...
 XREF_RE = re.compile(r'href="([^"]+)/\.index\.html">[^<]*</a>([^\s!]+)!(\d+)\s')
 
+# Preferred archive directory substring per extension: the DFs name the files
+# but not where the archive keeps them (the .ks sets live under _cd6_/tioga,
+# the .tfm metrics under cyan/cedarfonts/fontmetrics, the .sd splines under
+# indigo/pressfonts).
+PREFER = {
+    '.ks': 'tioga',
+    '.strike': 'tioga',
+    '.tfm': 'fontmetrics',
+    '.sd': 'pressfonts',
+}
+
 
 def build_xref():
-    """lowercased filename -> [(archive dir, version), ...].
+    """lowercased filename -> [(archive dir, archive-cased name, version), ...].
 
-    TiogaFonts.df names the fonts but not where the archive keeps them (the
-    .ks and .strike sets live under separate _cd6_/tioga directories, not
-    under Indigo), so resolve each file through the archive's own index.
+    The archive URLs are case-sensitive and IFS was not: the DF says
+    Classic-mrr.sd where [Indigo]<PressFonts> stores CLASSIC-MRR.sd, so the
+    URL must use the archive's own casing.
     """
     index = {}
     if not os.path.exists(XREF):
@@ -46,29 +64,43 @@ def build_xref():
             m = XREF_RE.search(line.decode('latin-1', 'replace'))
             if m:
                 index.setdefault(m.group(2).lower(), []).append(
-                    (m.group(1), m.group(3)))
+                    (m.group(1), m.group(2), m.group(3)))
     return index
 
 
-def main():
-    dry = '--dry-run' in sys.argv
-    if not os.path.exists(DF):
-        sys.exit(f'missing {DF} -- fetch it from '
-                 f'{HOST}/indigo/fonts/top/TiogaFonts.df!5 first')
-    text = open(DF, 'rb').read().decode('latin-1').replace('\r', '\n')
-
+def parse_df(path):
+    """Yield (export path with '/' separators, filename, version)."""
+    text = open(path, 'rb').read().decode('latin-1').replace('\r', '\n')
     cur = None
-    want = []
     for line in text.split('\n'):
+        if IMPORTS_RE.match(line):
+            cur = None
+            continue
         m = SECTION_RE.match(line)
         if m:
             cur = m.group(2).replace('>', '/')
             continue
         m = FILE_RE.match(line)
         if m and cur:
-            want.append((cur, m.group(1), m.group(2)))
+            yield cur, m.group(1), m.group(2)
 
-    print(f'{len(want)} font files named by TiogaFonts.df')
+
+def main():
+    dry = '--dry-run' in sys.argv
+    dfs = sorted(f for f in os.listdir(DF_DIR) if f.endswith('.df'))
+    if not dfs:
+        sys.exit(f'no DFs under {DF_DIR} -- fetch them from '
+                 f'{HOST}/indigo/fonts/top/ first')
+
+    want = []
+    for df in dfs:
+        entries = list(parse_df(os.path.join(DF_DIR, df)))
+        # Skip each DF's self-export ([Fonts]<Fonts>Top>X.df); the DFs are
+        # already served from CedarFonts/Top.
+        entries = [e for e in entries if not e[1].lower().endswith('.df')]
+        print(f'{len(entries)} files named by {df}')
+        want.extend(entries)
+
     xref = build_xref()
     tally = {}
 
@@ -83,21 +115,22 @@ def main():
             continue
         cands = xref.get(name.lower())
         if not cands:
-            print(f'  MISSING from archive index: {name}')
+            print(f'  MISSING from archive index: {directory}/{name}')
             note('fail')
             continue
-        # Prefer the Tioga font directories; fall back to whatever exists.
-        cands.sort(key=lambda c: (0 if 'tioga' in c[0] else 1, -int(c[1])))
-        adir, aver = cands[0]
+        prefer = PREFER.get(os.path.splitext(name)[1].lower(), '')
+        cands.sort(key=lambda c: (0 if prefer and prefer in c[0].lower() else 1,
+                                  -int(c[2])))
+        adir, aname, aver = cands[0]
         if dry:
-            print(f'  would fetch {directory}/{name} <- {adir}/{name}!{aver}')
+            print(f'  would fetch {directory}/{name} <- {adir}/{aname}!{aver}')
             note('dry')
             continue
         data = None
-        for adir, aver in cands[:3]:
+        for adir, aname, aver in cands[:3]:
             try:
                 with urllib.request.urlopen(
-                        f'{HOST}/{adir}/{name}!{aver}', timeout=60) as r:
+                        f'{HOST}/{adir}/{aname}!{aver}', timeout=60) as r:
                     data = r.read()
                 break
             except Exception:                                 # noqa: BLE001
