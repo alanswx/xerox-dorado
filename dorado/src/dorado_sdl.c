@@ -492,12 +492,35 @@ int main(int argc, char **argv)
                 break;
             case SDL_MOUSEBUTTONDOWN:
             case SDL_MOUSEBUTTONUP: {
-                int bit = e.button.button == SDL_BUTTON_LEFT   ? DORADO_MOUSE_LEFT
+                /* Three-button (Red/Yellow/Blue) mouse. A real 3-button
+                 * mouse maps directly; for one-button laptops a modified
+                 * LEFT click substitutes:
+                 *   Option/Alt + click  = Yellow (middle)
+                 *   Cmd/Ctrl   + click  = Blue   (right)
+                 * The substitution is decided at button-DOWN and
+                 * remembered per physical button, so releasing the
+                 * modifier before the mouse-up still releases the same
+                 * emulated button. */
+                static int down_bit[8];
+                unsigned pb = e.button.button & 7;
+                int bit;
+                if (e.type == SDL_MOUSEBUTTONDOWN) {
+                    bit = e.button.button == SDL_BUTTON_LEFT   ? DORADO_MOUSE_LEFT
                         : e.button.button == SDL_BUTTON_MIDDLE ? DORADO_MOUSE_MIDDLE
                         : e.button.button == SDL_BUTTON_RIGHT  ? DORADO_MOUSE_RIGHT
                         : 0;
-                if (e.type == SDL_MOUSEBUTTONDOWN) mouse_buttons |= bit;
-                else                               mouse_buttons &= ~bit;
+                    if (e.button.button == SDL_BUTTON_LEFT) {
+                        SDL_Keymod mod = SDL_GetModState();
+                        if (mod & KMOD_ALT)               bit = DORADO_MOUSE_MIDDLE;
+                        else if (mod & (KMOD_GUI | KMOD_CTRL)) bit = DORADO_MOUSE_RIGHT;
+                    }
+                    down_bit[pb] = bit;
+                    mouse_buttons |= bit;
+                } else {
+                    bit = down_bit[pb];
+                    down_bit[pb] = 0;
+                    mouse_buttons &= ~bit;
+                }
                 dorado_machine_set_mouse(m, e.button.x / scale,
                                          e.button.y / scale, mouse_buttons);
                 break;

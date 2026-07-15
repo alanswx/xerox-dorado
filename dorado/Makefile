@@ -61,6 +61,10 @@ WEB_LISP_RAW_SYSOUT := $(WEB_LISP_RAW_DIR)/lisp-lyric-usable.sysout
 WEB_CEDAR_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/cedar-login.snap.gz
 WEB_CEDAR_RAW_DIR := $(BINDIR)/web-cedar
 WEB_CEDAR_RAW_SNAPSHOT := $(WEB_CEDAR_RAW_DIR)/cedar-login.snap
+WEB_CEDAR_DESKTOP_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/cedar-desktop.snap.gz
+WEB_CEDAR_DESKTOP_PDI_GZ := $(WEB_LISP_ASSET_DIR)/cedar-desktop.pdi.gz
+WEB_CEDAR_DESKTOP_RAW_SNAPSHOT := $(WEB_CEDAR_RAW_DIR)/cedar-desktop.snap
+WEB_CEDAR_DESKTOP_RAW_PDI := $(WEB_CEDAR_RAW_DIR)/cedar-desktop.pdi
 # _GNU_SOURCE exposes timegm()/strcasecmp() in Emscripten's musl sysroot;
 # macOS headers expose them by default, so the native build doesn't need it.
 # No SDL: the web frontend presents via the canvas 2d context and takes
@@ -68,7 +72,7 @@ WEB_CEDAR_RAW_SNAPSHOT := $(WEB_CEDAR_RAW_DIR)/cedar-login.snap
 WEB_CFLAGS := -std=c99 -D_GNU_SOURCE -O2 -Iinclude -Ivendor/6502
 WEB_LDFLAGS := -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=67108864 \
                -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,FS \
-               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_mesa,_dorado_web_boot_disk,_dorado_web_boot_lisp,_dorado_web_key,_dorado_web_mouse \
+               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_cedar_desktop,_dorado_web_boot_mesa,_dorado_web_boot_disk,_dorado_web_boot_lisp,_dorado_web_key,_dorado_web_mouse \
                --preload-file worlds/aemu.eb@/worlds/aemu.eb \
                --preload-file ../chm/bootfiles@/chm/bootfiles \
                --preload-file '../chm/dorado/AltoMesaDorado.eb!2'@/worlds/AltoMesaDorado.eb \
@@ -76,6 +80,8 @@ WEB_LDFLAGS := -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=67108864 \
                --preload-file '../chm/cedar/germ-alt/Dorado.germ-6.1.6'@/worlds/Dorado.germ-6.1.6 \
                --preload-file '../CedarDisk/CedarDorado-boot.pdi'@/worlds/CedarDorado-boot.pdi \
                --preload-file '$(WEB_CEDAR_SNAPSHOT_GZ)'@/worlds/cedar-login.snap.gz \
+               --preload-file '$(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ)'@/worlds/cedar-desktop.snap.gz \
+               --preload-file '$(WEB_CEDAR_DESKTOP_PDI_GZ)'@/worlds/cedar-desktop.pdi.gz \
                --preload-file '../chm/diskpacks/games-trident.pack'@/worlds/games-trident.pack \
                --preload-file '$(WEB_LISP_SNAPSHOT_GZ)'@/worlds/lisp-lyric-xcl.snap.gz \
                --preload-file '$(WEB_LISP_PACK_GZ)'@/worlds/lisp-lyric-xcl.pack.gz \
@@ -121,7 +127,7 @@ $(WEB_ALTO_PACK): $(WEB_ALTO_PACK).gz
 	gunzip -c $< > $@
 
 .PHONY: web
-web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_LISP_SNAPSHOT_GZ) $(WEB_LISP_PACK_GZ) | web-dir
+web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_PDI_GZ) $(WEB_LISP_SNAPSHOT_GZ) $(WEB_LISP_PACK_GZ) | web-dir
 	$(EMCC) $(WEB_CFLAGS) $(WEB_SRCS) $(WEB_LDFLAGS) -o web/index.html
 
 # Node-hosted wasm32 CLI used only to create ABI-compatible browser snapshots.
@@ -183,6 +189,32 @@ cedar-login-web-snapshot: $(WEB_NODE_JS) $(CEDAR_PDI)
 $(WEB_CEDAR_SNAPSHOT_GZ):
 	@echo "Missing WebAssembly Cedar login checkpoint asset."
 	@echo "Run 'make cedar-login-web-snapshot' with emsdk on PATH."
+	@false
+
+# Cedar Viewers DESKTOP checkpoint for the browser (wasm32 ABI — raw
+# snapshots serialize C structs, so the native .snap cannot be reused).
+# Re-runs the full Guest install under node with the wasm build; the
+# snapshot pairs with the PDI image saved at the same cycle
+# (DORADO_PDI_SAVE=1 on a copy). NODERAWFS lets the node build read the
+# repository stp-root and write the pair to build/web-cedar/.
+.PHONY: cedar-desktop-web-snapshot
+cedar-desktop-web-snapshot: $(WEB_NODE_JS) $(CEDAR_WORK_PDI)
+	mkdir -p '$(WEB_CEDAR_RAW_DIR)' '$(WEB_LISP_ASSET_DIR)'
+	cp -f '$(CEDAR_WORK_PDI)' '$(WEB_CEDAR_DESKTOP_RAW_PDI)'
+	DORADO_PDI_IGNORE_LABEL_FLAGS=1 DORADO_PDI_SAVE=1 node '$(WEB_NODE_JS)' \
+		--boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk '$(WEB_CEDAR_DESKTOP_RAW_PDI)' \
+		--ftp-root ../chm/cedar/stp-root \
+		--type-at 760000000 --type 'Guest\n\n' \
+		--cycles '$(CEDAR_DESKTOP_CYCLES)' \
+		--snapshot-out '$(WEB_CEDAR_DESKTOP_RAW_SNAPSHOT)'
+	gzip -c '$(WEB_CEDAR_DESKTOP_RAW_SNAPSHOT)' > '$(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ)'
+	gzip -c '$(WEB_CEDAR_DESKTOP_RAW_PDI)' > '$(WEB_CEDAR_DESKTOP_PDI_GZ)'
+
+$(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_PDI_GZ):
+	@echo "Missing WebAssembly Cedar desktop checkpoint assets."
+	@echo "Run 'make cedar-desktop-web-snapshot' with emsdk on PATH."
 	@false
 
 web-dir:
@@ -421,6 +453,50 @@ run-cedar: sdl
 # transfers Basic.Loadees + BootEssentials + fonts from --ftp-root.
 run-cedar-work: sdl $(CEDAR_WORK_PDI)
 	DORADO_PDI_IGNORE_LABEL_FLAGS=1 ./build/dorado-sdl --boot-reason disk --no-alto-boot --eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' --pilot-disk '$(CEDAR_WORK_PDI)' --ftp-root ../chm/cedar/stp-root --speed 4000000
+
+# ---- Cedar Viewers DESKTOP checkpoint (2026-07-15 milestone) --------------
+# The guest mutates the PDI during the install, so the snapshot is only valid
+# with the PDI image saved at the same cycle: the producer runs on a COPY with
+# DORADO_PDI_SAVE=1 and preserves the pair as gzipped assets that survive
+# `make clean`. Restore must supply the SAVED pdi and --ftp-root (reapplied
+# after --snapshot-in), and no --type (its trigger cycles are already past).
+CEDAR_DESKTOP_SNAPSHOT := build/good-packs/cedar-desktop.snap
+CEDAR_DESKTOP_PDI := build/good-packs/cedar-desktop.pdi
+CEDAR_DESKTOP_SCREEN := build/good-packs/cedar-desktop.pgm
+CEDAR_DESKTOP_CYCLES ?= 21000000000
+CEDAR_DESKTOP_SNAPSHOT_GZ := snapshot-assets/cedar-desktop-native.snap.gz
+CEDAR_DESKTOP_PDI_GZ := snapshot-assets/cedar-desktop-native.pdi.gz
+
+.PHONY: cedar-desktop-snapshot run-cedar-desktop-sdl
+cedar-desktop-snapshot: $(BINDIR)/dorado $(CEDAR_WORK_PDI)
+	mkdir -p '$(dir $(CEDAR_DESKTOP_SNAPSHOT))' '$(dir $(CEDAR_DESKTOP_SNAPSHOT_GZ))'
+	cp -f '$(CEDAR_WORK_PDI)' '$(CEDAR_DESKTOP_PDI)'
+	DORADO_PDI_IGNORE_LABEL_FLAGS=1 DORADO_PDI_SAVE=1 ./build/dorado \
+		--boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk '$(CEDAR_DESKTOP_PDI)' \
+		--ftp-root ../chm/cedar/stp-root \
+		--type-at 760000000 --type 'Guest\n\n' \
+		--cycles '$(CEDAR_DESKTOP_CYCLES)' \
+		--snapshot-out '$(CEDAR_DESKTOP_SNAPSHOT)' \
+		--out '$(CEDAR_DESKTOP_SCREEN)'
+	gzip -c '$(CEDAR_DESKTOP_SNAPSHOT)' > '$(CEDAR_DESKTOP_SNAPSHOT_GZ)'
+	gzip -c '$(CEDAR_DESKTOP_PDI)' > '$(CEDAR_DESKTOP_PDI_GZ)'
+
+$(CEDAR_DESKTOP_SNAPSHOT): $(CEDAR_DESKTOP_SNAPSHOT_GZ)
+	mkdir -p '$(dir $@)'
+	gunzip -c '$<' > '$@'
+$(CEDAR_DESKTOP_PDI): $(CEDAR_DESKTOP_PDI_GZ)
+	mkdir -p '$(dir $@)'
+	gunzip -c '$<' > '$@'
+
+run-cedar-desktop-sdl: sdl $(CEDAR_DESKTOP_SNAPSHOT) $(CEDAR_DESKTOP_PDI)
+	DORADO_PDI_IGNORE_LABEL_FLAGS=1 ./build/dorado-sdl \
+		--boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk '$(CEDAR_DESKTOP_PDI)' \
+		--ftp-root ../chm/cedar/stp-root \
+		--snapshot-in '$(CEDAR_DESKTOP_SNAPSHOT)' --speed 4000000
 run-cedar-real: sdl
 	./build/dorado-sdl --boot-reason disk --no-alto-boot --disk-real --eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' --pilot-disk '$(CEDAR_PDI)' --speed 4000000
 run-cedar-screenshot: sdl

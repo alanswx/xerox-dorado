@@ -58,6 +58,7 @@
         <option value="disk">Alto Executive (disk boot) &mdash; type a program name</option>
       </optgroup>
       <optgroup label="Cedar / Mesa (Pilot)">
+        <option value="cedar-desktop">Cedar 6.1 &mdash; saved Viewers desktop</option>
         <option value="cedar">Cedar 6.1 &mdash; saved login prompt</option>
         <option value="mesa">Mesa Network Executive</option>
       </optgroup>
@@ -166,11 +167,39 @@
     cedarAssetsReady = true;
   }
 
+  var cedarDesktopAssetsReady = false;
+  async function prepareCedarDesktopAssets() {
+    if (cedarDesktopAssetsReady) return;
+    setStatus('Expanding the saved Cedar desktop (snapshot + disk)...');
+    await Promise.all([
+      expandGzipAsset('/worlds/cedar-desktop.snap.gz',
+                      '/worlds/cedar-desktop.snap'),
+      expandGzipAsset('/worlds/cedar-desktop.pdi.gz',
+                      '/worlds/cedar-desktop.pdi')
+    ]);
+    cedarDesktopAssetsReady = true;
+  }
+
   async function bootSelected() {
     if (!ready) return;
     var opt = gameSel.options[gameSel.selectedIndex];
     var path = opt.value;
     paused = false; pauseBtn.textContent = 'Pause';
+    if (path === 'cedar-desktop') {
+      try {
+        await prepareCedarDesktopAssets();
+        var rc = Module.ccall('dorado_web_boot_cedar_desktop', 'number', [], []);
+        if (rc) throw new Error('snapshot restore rejected the saved image');
+        setStatus('Cedar 6.1 Viewers desktop restored. Click a viewer, then '
+                  + 'type; Option+click = middle (Yellow), '
+                  + 'Cmd/Ctrl+click = right (Blue) mouse button.');
+      } catch (e) {
+        console.error(e);
+        setStatus('Could not restore the Cedar desktop: ' + e.message);
+      }
+      document.getElementById('canvas').focus();
+      return;
+    }
     if (path === 'cedar') {
       try {
         await prepareCedarAssets();
@@ -321,21 +350,48 @@
     }
     window.addEventListener('keydown', function (e) { sendKey(e, 1); });
     window.addEventListener('keyup',   function (e) { sendKey(e, 0); });
+    // Three-button (Red/Yellow/Blue) mouse. A real 3-button mouse maps
+    // directly; for one-button laptops/trackpads a modified LEFT click
+    // substitutes: Option/Alt+click = Yellow (middle), Cmd/Ctrl+click =
+    // Blue (right). The substitution is decided at mousedown and
+    // remembered until that physical button's mouseup, so releasing the
+    // modifier first still releases the same emulated button.
+    var emuButtons = 0;              // Dorado bits: left=4 right=2 middle=1
+    var downBit = {};                // physical JS button -> emulated bit
+    function emuBitFor(e) {
+      if (e.button === 0) {          // left: apply modifier substitution
+        if (e.altKey) return 1;                   // Yellow (middle)
+        if (e.metaKey || e.ctrlKey) return 2;     // Blue (right)
+        return 4;                                 // Red (left)
+      }
+      if (e.button === 1) return 1;  // middle
+      if (e.button === 2) return 2;  // right
+      return 0;
+    }
     function sendMouse(e) {
       var r = canvas.getBoundingClientRect();
       var x = Math.round((e.clientX - r.left) * (canvas.width / r.width));
       var y = Math.round((e.clientY - r.top) * (canvas.height / r.height));
-      // JS e.buttons: left=1 right=2 middle=4; Dorado: left=4 right=2 middle=1.
-      var b = (e.buttons & 1 ? 4 : 0) | (e.buttons & 2 ? 2 : 0)
-            | (e.buttons & 4 ? 1 : 0);
       Module.ccall('dorado_web_mouse', null,
-                   ['number', 'number', 'number'], [x, y, b]);
+                   ['number', 'number', 'number'], [x, y, emuButtons]);
     }
     canvas.addEventListener('mousemove', sendMouse);
     canvas.addEventListener('mousedown', function (e) {
+      var bit = emuBitFor(e);
+      downBit[e.button] = bit;
+      emuButtons |= bit;
       canvas.focus(); sendMouse(e); e.preventDefault();
     });
-    canvas.addEventListener('mouseup', sendMouse);
+    // Listen on window so a release outside the canvas (mid-drag) still
+    // clears the emulated button rather than leaving it stuck down.
+    window.addEventListener('mouseup', function (e) {
+      emuButtons &= ~(downBit[e.button] || 0);
+      downBit[e.button] = 0;
+      sendMouse(e);
+    });
+    // Right-click must reach the guest as the Blue button, not open the
+    // browser context menu.
+    canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
   }
 </script>
 {{{ SCRIPT }}}
