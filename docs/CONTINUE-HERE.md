@@ -1,5 +1,58 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## 2026-07-14 (late): the FULL INSTALL now runs from committed artifacts —
+## 96 STP transfers including all three fonts DFs. The Imager crash remains,
+## still with ZERO font-file demand-fetches; that is the frontier.
+
+On top of the morning's fixes (next section), three more landed tonight:
+
+1. **Free-page labels lacked the volume ID** (`a687874`). Cedar's allocator
+   verifies candidates against `FileInternal.FreeLabel[volume]`, whose
+   fileID is the logical volume's VolumeID (FilePagesImpl.mesa); rusty
+   wrote fileID=0, so every VerifyLabels failed (33K label-check mismatches
+   in one boot) and FS said "No more free pages on a local volume" with
+   64,309 pages free. `tools/pdi_stamp_free_labels.py` stamps them; the
+   stamped work volume is tracked as `CedarDisk/CedarDorado-work.pdi.gz`
+   and `make run-cedar-work` boots it (638e5f0).
+
+2. **Live BSP connections were being evicted** (`02a1203`). Six slots +
+   an allocator that never preferred closed slots meant the install's
+   connection churn could strand a live conversation (observed: a
+   Grapevine enquiry retransmitting into FTP_UNSERVED forever, install
+   hung at transfer #50). Now 16 slots, closed slots recycled first.
+
+3. With those, a 30B cold boot completes the ENTIRE install: Guest login,
+   34 loadees, the BootEssentials closure, and the three fonts DFs
+   (TiogaFonts/PressFonts/FontMetrics transferred; XC1-2-2 correctly
+   STP_MISSING), then the optional VersionMap lookups — 96 transfers.
+
+**The remaining frontier is unchanged in character from 2026-07-13:** at
+ViewersPackage START (cycle 12,939,649,700 with `DORADO_FAKE_TIME=
+1783285880`; bare `0` written to the CSB head at `0420`), the uncaught
+Imager signal fires and the crash path blanks the screen — and **no font
+file was ever demand-fetched** (zero `Fonts/TiogaFonts/*.ks` retrieves).
+Connectivity is exonerated: the VersionMap STP lookups succeed AFTER the
+fonts BringOver. So the failure is in-guest, between `BringOver[enter]`'s
+`FS.Copy[attach: TRUE]` and `ImagerFont.Find`'s `FS.EnumerateForNames` --
+either the attaches never landed or they landed under names the Imager
+does not enumerate (`///Fonts/Xerox/TiogaFonts/...`).
+
+**Diagnostics staged (in /private/tmp, regenerate if lost — recipes here):**
+a pre-crash framebuffer at 12.90B (`cedar-precrash.pgm`; with autoConfirm
+the Installer prints one `local <-- remote` line per attach, so the
+terminal transcript shows whether the attaches happened and under what
+names), and a fast-iteration snapshot+PDI pair at 12.8B
+(`cedar-prefonts.{snap,pdi}`, built with `DORADO_PDI_SAVE=1` on a copy;
+restore with `--snapshot-in ... --pilot-disk /private/tmp/cedar-prefonts.pdi
+--ftp-root ../chm/cedar/stp-root` and NO `--type` per the 2026-07-12
+snapshot rules). The crash window for gated traces is
+`DORADO_TRACE_GATE=12939500000,12939700000`.
+
+Gateway-info noise: the guest sends GatewayInfoRequests (type 0o200)
+throughout the install; they print as FTP_UNSERVED but ARE answered by the
+handler further down the dispatch — singletons are benign; only a
+repeating identical packet indicates a stranded connection.
+
 ## 2026-07-14: cold-boot regression fixed (germ polled disk path); fonts now
 ## served end to end. Full detail: docs/handoff.md top section.
 

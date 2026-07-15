@@ -81,8 +81,18 @@ propagates uncaught and DebugNub blanks the screen. Sources fetched to
 
 **Verification state.** Unit tests: all pass except the documented
 pre-existing `test_ethernet` NetDir reply mismatch. The full 30B-cycle cold
-boot on the work volume (fonts served, all fixes in) was still running when
-this section was written -- see docs/CONTINUE-HERE.md for the outcome.
+boot outcome (later the same day): after two more fixes -- free-page labels
+stamped with the volume ID (a687874: Cedar verifies allocation candidates
+against `FileInternal.FreeLabel`, whose fileID is the VolumeID; rusty wrote
+0, so FS reported volumeFull with 64K pages free) and BSP connection slots
+raised to 16 with closed-slot recycling (02a1203: evicting a live
+connection stranded its client and hung the install at transfer #50) --
+the ENTIRE install completes from committed artifacts: 96 STP transfers
+including all three fonts DFs. The Imager crash then still fires at
+ViewersPackage START (12,939,649,700 cycles pinned) with ZERO font-file
+demand-fetches, so the frontier is in-guest between BringOver[enter]'s
+attach and ImagerFont.Find's EnumerateForNames. Live state and staged
+diagnostics: docs/CONTINUE-HERE.md top section.
 
 **Beware:** `make run-galaxian` is an *interactive* SDL target, not the
 pixel gate. `/private/tmp` does not survive reboots -- keep load-bearing
