@@ -79,29 +79,44 @@ init/binding failure, or (per project history — see the
 germ-blockers-tend-to-be-emulator-offset-bugs memory) a microengine bug
 in freshly loaded code.
 
-**Next diagnostic:** name the actual ERROR. Progress so far: the raise
-site is file offset 0x6614..0x66DD of ImagerPackage.bcd (raiser br31
-maps to file 0x6410; recompute with the VMDUMP-and-find recipe). The
-BCD's module config order is recovered (41 impls, string table at file
-0x0..0x1770: RealConvertImpl, ScaledImpl, FunctionCacheImpl,
-Vector2Impl, ..., ImagerFontImpl, ImagerFontAtomImpl,
-ImagerTypefaceImpl, ImagerStrikeTypefaceImpl, ...). The
-fontNotFound/"Could not find font"/"[]<>fonts>xerox>*" literal blocks
-sit at 0x3250..0x33a0 and again at 0x52cb..0x53f5 -- the raise site is
-just past the second block, i.e. in ImagerTypefaceImpl or its neighbor
-ImagerStrikeTypefaceImpl. Since the trace proves no name text was read,
-the raise must be a CONSTANT-argument ERROR (the $fontNotFound path
-formats the name via IO.PutFR1 and would read it; raises like
-Imager.Error[[code: $bug, explanation: <constant rope>]] read nothing).
-To finish: parse the BCD MTRecord table properly (BcdDefs.mesa is at
-chm/cedar/cedar6.1/bcd/; MTRecord.code = CodeDesc[sgi, offset, length])
-to map file 0x6614 -> module + PC -> exact source statement. The
-signaller-stack route is also open: the ERROR args pointer is in the
-IFUDISP `acs=` values at the 34100 entry (cpu cyc 3496208657).
-Clock mapping for gates: machine ~= 12939500000 + (cpu_cyc - 3496183757)
-* 3.7047 (cpu counter = µinstructions; calibrate per-window against the
-IWDC at machine 12,939,641,547). IFUDISP lines now print `cyc=` (cpu
-clock).
+**THE ERROR IS NAMED: uncaught `StackError`** (RuntimeError.StackError,
+raised by TrapsImpl's StackErrorTrap -- the µcode-invoked Mesa
+stack-consistency trap). Decode, fully verified:
+
+- At DebugNub.Catcher entry (`UCSProc [msg: WORD, signal: SIGNAL, frame]`,
+  IFUDISP cpu-cyc 3496221834) the stack is [msg=0o177777, signal=0o1721,
+  frame=0o3664].
+- Signal value encoding `[gfi | sei<<1 | 1]`: gfi = 0o1700>>6 = 15, sei=8.
+- `BasicCedarDorado.loadmap!69` bracket numbers are gfi<<6; counting:
+  HeadsDorado = gfi 1..10, FrameImpl 11, InstructionsImpl 12, ProcessImpl
+  13, SignalsImpl 14, **TrapsImpl [1700] = gfi 15**.
+- TrapsImpl.mesa (`chm/cedar/cedar6.1/mesaruntime/`, fetched) `= CODE`
+  declaration order: BoundsFault 0, ControlFault 1, DivideCheck 2,
+  HardwareError 3, LinkageFault 4, PointerFault 5, PortFault 6,
+  StartFault 7, **StackError 8**, UnboundProcedure 9, ...
+- msg=0o177777 fits (StackError has no parameters); the two 80-dispatch
+  br31=34100 stints before the SignalsImpl hunt are StackErrorTrap.
+
+**The victim instruction** (last dispatch before the trap): opcode
+`0o364` (ESC/MISC family) `alpha=0o34` at pcf=0o1010, br31=0x120808
+(inside ImagerPackage, code at BCD file offset ~0x661x), executed during
+InterpreterPackage's START. The 2026-07-13 "missing fonts" theory is
+fully retired: this is the microengine mis-maintaining the Mesa
+evaluation stack (StkP) around that instruction -- the same emulator-bug
+family as the Md-bypass and IFU-operand sagas (see the
+germ-blockers-tend-to-be-emulator-offset-bugs memory).
+
+**Next:** identify MISC/ESC alpha 0o34 in the Cedar Dorado microcode
+(`chm/doradomicrocode/doradomicrocodesources/CedarMesa10MBMiscOps.mc!1`,
+PilotMesaProcess.mc, and the ESC dispatch in Cedar.mb/CedarDorado.eb),
+µtrace its execution in the crash window (snapshot pair, ~30 s per
+iteration; the trapping dispatch is at cpu-cyc 3496208548 ≈ machine
+12,939,630,3xx), and compare StkP before/after against the opcode's
+defined stack effect. Note the same instruction stream first runs
+pcf 0o1310/1312/1315 (ops 0o162, 0o070, 0o115) nine dispatches earlier --
+the module's main body -- then pcf 0o1004(0o021)/0o1006(0o141)/0o1010
+(0o364) raises. Clock mapping: machine ~= 12939500000 + (cpu_cyc -
+3496183757) * 3.7047; IFUDISP lines now print `cyc=` (cpu clock).
 
 **Diagnostics staged (in /private/tmp, regenerate if lost — recipes here):**
 a pre-crash framebuffer at 12.90B (`cedar-precrash.pgm`), and a
