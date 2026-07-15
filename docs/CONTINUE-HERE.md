@@ -106,17 +106,48 @@ evaluation stack (StkP) around that instruction -- the same emulator-bug
 family as the Md-bypass and IFU-operand sagas (see the
 germ-blockers-tend-to-be-emulator-offset-bugs memory).
 
-**Next:** identify MISC/ESC alpha 0o34 in the Cedar Dorado microcode
-(`chm/doradomicrocode/doradomicrocodesources/CedarMesa10MBMiscOps.mc!1`,
-PilotMesaProcess.mc, and the ESC dispatch in Cedar.mb/CedarDorado.eb),
-µtrace its execution in the crash window (snapshot pair, ~30 s per
-iteration; the trapping dispatch is at cpu-cyc 3496208548 ≈ machine
-12,939,630,3xx), and compare StkP before/after against the opcode's
-defined stack effect. Note the same instruction stream first runs
-pcf 0o1310/1312/1315 (ops 0o162, 0o070, 0o115) nine dispatches earlier --
-the module's main body -- then pcf 0o1004(0o021)/0o1006(0o141)/0o1010
-(0o364) raises. Clock mapping: machine ~= 12939500000 + (cpu_cyc -
-3496183757) * 3.7047; IFUDISP lines now print `cyc=` (cpu clock).
+**The victim opcodes are the FLOATING-POINT escapes, and the failure is
+in the punt/state-save path.** Findings from the µtrace (all real
+addresses from Cedar.mb!6 symbols via mbdis; µtrace now prints
+tsk=/stkp=):
+
+- MISC alphas 0o20..0o35 are the FP family in this build (MiscTable0
+  slot = 4*alpha+1 at real 0o4000+): FADD 0o4101, FSUB 0o4105, FMUL
+  0o4111, FDIV 0o4115, **FCOMP 0o4121 (=alpha 0o24)**, FIX 0o4125,
+  FLOAT 0o4131, FIXI 0o4135, FIXC 0o4141, FSTICKY 0o4145, ROUND 0o4155,
+  **ROUNDI 0o4161 (=alpha 0o34)**, ROUNDC 0o4165. ImagerPackage init
+  does Real arithmetic; the crash sequence is FCOMP ... then ROUNDI.
+- Both ops immediately branch into a common punt path (the build runs
+  with FP-microcode-absent semantics; FLOATINGPOINTPRESENT at 0o4400):
+  0o0300/0o0400-region code builds an opcode-trap state for the
+  software FP (RealImpl).
+- **The kill shot**: the punt/resume validation reads a saved
+  [bank,,stkp] word of 0o103 (= STK bank 1, index 3), tests it with
+  AND 0o300 at µPC 0o1355 (task 0; the fault task 0o17 runs the same
+  test at 0o1627), branches 0o1356 -> 0o1366 -> long jump to
+  **0o2035 = STACKERROR**. A valid Mesa saved stkp must be < 0o100;
+  the spurious 0o100 (bank-1) bit is the corruption. The word is
+  computed at µPC 0o1530 as A-B(+2): 0o346 - 0o245 -> 0o103.
+- The µtrace also shows the same FCOMP state (stkp=004, T=000120)
+  re-entering the 0o410 MISC entry repeatedly WITHOUT new IFUDISP
+  dispatches -- a punt-retry loop, consistent with the punt-resume
+  never validating.
+- Hardware doubt to resolve FIRST: our per-instruction StkP (now in the
+  µtrace) stays in bank 0 (values 1..5) through these windows, so
+  either the save-time StkP transiently carries 0o100 (StackSelect /
+  task-switch exposure our model mishandles), or the save µcode's
+  subtraction operands (0o346/0o245) are themselves off -- compare
+  against PilotMesaProcess.mc's state-save/stack-save code
+  (chm/cedar/refs/PilotMesaProcess.mc!1, local) and HM Table 6
+  (StkP[0:1] = stack region, StkP[2:7] = offset).
+
+**Repro one-liners** (from dorado/, ~30 s each): µtrace the punt window
+with `DORADO_UCODE_TRACE=1 DORADO_TRACE_GATE=12939585000,12939615000`
+from the snapshot pair; the ROUNDI entry is at trace PC=4161, the
+StackError raise at PC=2035. IFUDISP gate 12939580000,12939645000 shows
+the two MISC dispatches (alpha 0o24 at cpu-cyc 3496208505, alpha 0o34 at
+3496208548). Clock mapping: machine ~= 12939500000 + (cpu_cyc -
+3496183757) * 3.7047; IFUDISP lines print `cyc=` (cpu clock).
 
 **Diagnostics staged (in /private/tmp, regenerate if lost — recipes here):**
 a pre-crash framebuffer at 12.90B (`cedar-precrash.pgm`), and a

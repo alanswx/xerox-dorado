@@ -6399,9 +6399,11 @@ memory_ref_done: ;
         char line[256];
         dorado_format(u, line, sizeof line);
         fprintf(fp,
-                "  PC=%04o T=%06o Q=%06o A=%06o B=%06o ALU=%06o  → PC=%04o\n"
+                "  PC=%04o tsk=%o stkp=%03o T=%06o Q=%06o A=%06o B=%06o "
+                "ALU=%06o  → PC=%04o\n"
                 "    %s\n",
-                cpu->real_PC, cpu->T, cpu->Q, a, b, alu, np, line);
+                cpu->real_PC, cpu->ctask & 017, cpu->StkP & 0377,
+                cpu->T, cpu->Q, a, b, alu, np, line);
     }
 
     cpu->prev_PC = cpu->real_PC;
