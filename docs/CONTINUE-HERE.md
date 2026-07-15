@@ -37,33 +37,58 @@ recipe below. Next frontier candidates: serve the optional
 BootTool/Clock/EditorComforts content; keyboard/mouse interaction with
 the desktop; snapshot+web checkpoints of the desktop state.
 
-**Herald boot buttons (2026-07-15): root-caused and media-fixed;
-runtime verification pending.** With BootTool served and run, the
-herald shows volume boot buttons (`Alto | Basic | CedarWork`); clicking
-`CedarWork` raised an uncaught `File.Error` from FileImpl.bcd (Event
-`11601B`, `NoSymbols[FileImpl.bcd]`) into the debugger viewer — click
-**Abort** there to recover. Root cause, verified against the media: the
-work PDI's single logical volume (`CedarWork`, 65,450 pages) had **all
-six LV `bootingInfo` slots empty** — rusty-backup's installer only
-wrote the PHYSICAL volume root's bootingInfo (all the cold-boot
-microcode/germ chain reads), but Pilot's soft boot (BootTool buttons,
-`Booting.Boot`, RollBack) resolves the LOGICAL root's `bootingInfo`
-(37B) + `rootFile` (125B) instead — a real Othello install writes both
-via `File.SetRoot`/`RecordRootFile` (FileImpl.mesa). Fixed both ways:
-`pilot::install_boot_file` now writes the LV records on fresh builds,
-and `tools/pdi_install_lv_bootfiles.py` retrofits existing images
-(committed `CedarDorado-work.pdi.gz` carries germ@104 + bootFile@139 in
-both roots; cold boot re-gated to the login screen). Still to verify at
-runtime: click CedarWork on a desktop booted from the patched media —
-expected path is Booting.Boot → `Boot.Request{inLoad, DiskFileID}` at
-germ-MDS `1360B` → germ re-entry → polled-disk inload of the Basic boot
-file (a fresh Cedar boot). The germ re-entry after months in VM is the
-untested half. `RollBack` stays struck out until Cedar's `Checkpoint`
-command is run (writes `bootingInfo[checkpoint]`; would be the first
-heavy disk-write workout). Cedar user-level semantics (BootTool, boot
-switches, checkpoint/rollback):
+**Herald boot buttons (2026-07-15): root-caused, media-fixed, and
+RUNTIME-VERIFIED — clicking `CedarWork` reboots the volume.** With
+BootTool served and run, left-clicking the herald's `Boot` button makes
+BootTool's `MakeSimpleButtons` paint the volume buttons
+(`Alto | Basic | CedarWork`); the buttons are NOT painted at START, so
+the saved desktop checkpoint shows them only after that click
+(BootTool.mesa, fetched to `chm/cedar/boottool-src/`). Clicking
+`CedarWork` originally raised an uncaught `File.Error` from FileImpl.bcd
+(Event `11601B`, `NoSymbols[FileImpl.bcd]`) into the debugger viewer.
+Root cause, verified against the media: the work PDI's single logical
+volume (`CedarWork`, 65,450 pages) had **all six LV `bootingInfo` slots
+empty** — rusty-backup's installer only wrote the PHYSICAL volume root's
+bootingInfo (all the cold-boot microcode/germ chain reads), but Pilot's
+soft boot (BootTool buttons, `Booting.Boot`, RollBack) resolves the
+LOGICAL root's `bootingInfo` (37B) + `rootFile` (125B) instead — a real
+Othello install writes both via `File.SetRoot`/`RecordRootFile`
+(FileImpl.mesa). Fixed both ways: `pilot::install_boot_file` now writes
+the LV records on fresh builds, and `tools/pdi_install_lv_bootfiles.py`
+retrofits existing images (committed `CedarDorado-work.pdi.gz` carries
+germ@104 + bootFile@139 in both roots; 997dbb2). **Runtime verification
+(2026-07-15, headless, from the desktop checkpoint):** restore the
+snapshot, `--type-at 21050000000 --click 830,8` (herald `Boot`) then
+`--type-at 21300000000 --click 780,8` (`CedarWork`) — 700M cycles later
+the screen shows the fresh `Cedar 6.1.0 ... CedarWork on Dorado` banner,
+"This is the Basic boot file.", and by +3.2B cycles all 34 Basic.Loadees
+have loaded and STARTed through the Guest-profile prompts. So
+Booting.Boot → `Boot.Request{inLoad, DiskFileID}` at germ-MDS `1360B` →
+germ re-entry after 21B cycles in VM → polled-disk inload all work.
+Scripted-desktop-interaction notes: keyboard input needs the input
+focus first (click into the CommandTool viewer, e.g. `--click 700,467`);
+runs of repeated characters (`///`) drop keys at the default cadence —
+use `--key-hold 1600000`. `RollBack` stays struck out until Cedar's
+`Checkpoint` command is run (writes `bootingInfo[checkpoint]`; would be
+the first heavy disk-write workout). Cedar user-level semantics
+(BootTool, boot switches, checkpoint/rollback):
 `DoradoDocs/manuals/Introduction_to_Cedar_7.0.md` (added 2026-07-15;
 written for 7.0 but matches our 6.1 world).
+
+**WASM stack overflow (2026-07-15): found and fixed — the web builds
+were silently corrupting static data on every display-list render.**
+`dorado_machine_render_display_list` kept a framebuffer-sized scratch
+copy (`ddc_fb`, 101 KB) on the stack; Emscripten's default wasm stack is
+64 KB and overflow tramples the static-data segment with no guard page.
+Observed symptom: `getenv()` went NULL mid-run in the node build, so
+`DORADO_PDI_SAVE=1` was silently ignored and `make
+cedar-desktop-web-snapshot` paired the desktop snapshot with the
+PRISTINE work PDI (582 KB gz vs the real 1.6 MB gz) — a checkpoint that
+would corrupt on first disk access. The browser build calls the same
+renderer every frame and had been overflowing all along. Fix: `ddc_fb`
+is now static (machine.c) and both wasm links get `-sSTACK_SIZE=1048576`
+(Makefile). Native builds were never affected (8 MB stacks); Galaxian
+gate re-verified at 121,549 px @160M.
 
 ## 2026-07-14 (late): the FULL INSTALL now runs from committed artifacts —
 ## 96 STP transfers including all three fonts DFs. The Imager crash remains,
