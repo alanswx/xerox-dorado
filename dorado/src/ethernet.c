@@ -1147,13 +1147,25 @@ static void ftp_dates_scan_df(const char *path)
 
         const char *s = line;
         while (*s == ' ' || *s == '\t' || *s == '+') s++;
-        const char *bang = strchr(s, '!');
-        if (!bang || bang == s) continue;
-        size_t nlen = (size_t)(bang - s);
-        if (nlen >= 64 || !memchr(s, '.', nlen)) continue;  /* needs an ext */
-        const char *d = bang + 1;
-        while (isdigit((unsigned char)*d)) d++;
-        if (d == bang + 1) continue;                        /* no version */
+        /* An entry is `name[!version]   date`.  A DF's own self-export
+         * carries NO "!version" (`BootEssentials.df   02-Jul-86 ...`),
+         * and BringOver validates the DF against exactly that date --
+         * requiring the bang here made the server advertise a synthetic
+         * date for every DF and tripped "Could not find <df> created on
+         * <date> / Shall I continue anyway?" on each install. */
+        size_t tok = strcspn(s, " \t");
+        if (tok == 0) continue;
+        const char *bang = memchr(s, '!', tok);
+        size_t nlen = bang ? (size_t)(bang - s) : tok;
+        if (nlen == 0 || nlen >= 64 || !memchr(s, '.', nlen)) continue;
+        const char *d;
+        if (bang) {
+            d = bang + 1;
+            while (isdigit((unsigned char)*d)) d++;
+            if (d == bang + 1) continue;                    /* bare '!' */
+        } else {
+            d = s + tok;
+        }
         while (*d == ' ' || *d == '\t') d++;
         if (!isdigit((unsigned char)*d)) continue;          /* no date */
         char name[64];
