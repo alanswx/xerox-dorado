@@ -79,15 +79,29 @@ init/binding failure, or (per project history — see the
 germ-blockers-tend-to-be-emulator-offset-bugs memory) a microengine bug
 in freshly loaded code.
 
-**Next diagnostic:** name the actual ERROR. In the signaller stint right
-after the raise (module 34100, then 33F00's 2454-dispatch catcher hunt),
-the ERROR record pointer (with its `code` ATOM for Imager.Error) is on
-the Mesa stack -- the IFUDISP `acs=` values carry it. Chase it with
-VMDUMPs (30 s per iteration from the snapshot pair) to the atom's print
-name. Clock mapping for gates: machine_cycles = 12939500000 + (cpu_cyc -
-3496183757) * 3.7047 (cpu counter = µinstructions, machine = clock
-cycles; calibrate per-window against the IWDC at machine 12,939,641,547).
-IFUDISP lines now print `cyc=` (cpu clock).
+**Next diagnostic:** name the actual ERROR. Progress so far: the raise
+site is file offset 0x6614..0x66DD of ImagerPackage.bcd (raiser br31
+maps to file 0x6410; recompute with the VMDUMP-and-find recipe). The
+BCD's module config order is recovered (41 impls, string table at file
+0x0..0x1770: RealConvertImpl, ScaledImpl, FunctionCacheImpl,
+Vector2Impl, ..., ImagerFontImpl, ImagerFontAtomImpl,
+ImagerTypefaceImpl, ImagerStrikeTypefaceImpl, ...). The
+fontNotFound/"Could not find font"/"[]<>fonts>xerox>*" literal blocks
+sit at 0x3250..0x33a0 and again at 0x52cb..0x53f5 -- the raise site is
+just past the second block, i.e. in ImagerTypefaceImpl or its neighbor
+ImagerStrikeTypefaceImpl. Since the trace proves no name text was read,
+the raise must be a CONSTANT-argument ERROR (the $fontNotFound path
+formats the name via IO.PutFR1 and would read it; raises like
+Imager.Error[[code: $bug, explanation: <constant rope>]] read nothing).
+To finish: parse the BCD MTRecord table properly (BcdDefs.mesa is at
+chm/cedar/cedar6.1/bcd/; MTRecord.code = CodeDesc[sgi, offset, length])
+to map file 0x6614 -> module + PC -> exact source statement. The
+signaller-stack route is also open: the ERROR args pointer is in the
+IFUDISP `acs=` values at the 34100 entry (cpu cyc 3496208657).
+Clock mapping for gates: machine ~= 12939500000 + (cpu_cyc - 3496183757)
+* 3.7047 (cpu counter = µinstructions; calibrate per-window against the
+IWDC at machine 12,939,641,547). IFUDISP lines now print `cyc=` (cpu
+clock).
 
 **Diagnostics staged (in /private/tmp, regenerate if lost — recipes here):**
 a pre-crash framebuffer at 12.90B (`cedar-precrash.pgm`), and a
