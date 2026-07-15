@@ -70,7 +70,10 @@ WEB_CEDAR_DESKTOP_RAW_PDI := $(WEB_CEDAR_RAW_DIR)/cedar-desktop.pdi
 # No SDL: the web frontend presents via the canvas 2d context and takes
 # input through exported C functions (see src/dorado_web.c header).
 WEB_CFLAGS := -std=c99 -D_GNU_SOURCE -O2 -Iinclude -Ivendor/6502
+# STACK_SIZE: Emscripten's default wasm stack is 64 KB and overflow corrupts
+# static data silently (no guard page); give the emulator real headroom.
 WEB_LDFLAGS := -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=67108864 \
+               -sSTACK_SIZE=1048576 \
                -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,FS \
                -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_cedar_desktop,_dorado_web_boot_mesa,_dorado_web_boot_disk,_dorado_web_boot_lisp,_dorado_web_key,_dorado_web_mouse \
                --preload-file worlds/aemu.eb@/worlds/aemu.eb \
@@ -135,7 +138,7 @@ web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_CEDAR_D
 $(WEB_NODE_JS): $(WEB_NODE_SRCS) | $(BINDIR)
 	$(EMCC) $(WEB_CFLAGS) $(WEB_NODE_SRCS) \
 		-sENVIRONMENT=node -sNODERAWFS=1 -sALLOW_MEMORY_GROWTH=1 \
-		-sINITIAL_MEMORY=67108864 -o $@
+		-sINITIAL_MEMORY=67108864 -sSTACK_SIZE=1048576 -o $@
 
 .PHONY: lisp-lyric-web-snapshot
 lisp-lyric-web-snapshot: $(WEB_NODE_JS)

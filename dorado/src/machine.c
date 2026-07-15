@@ -4673,7 +4673,10 @@ int dorado_machine_render_display_list(dorado_machine *m)
     if (!m) return 0;
     dorado_memory *mem = &m->mem;
     dorado_display *disp = &m->display;
-    uint8_t ddc_fb[sizeof disp->fb];
+    /* Static, not stack: a framebuffer-sized (101 KB) local overflows the
+     * 64 KB Emscripten wasm stack and silently corrupts static data (the
+     * symptom was getenv() going NULL mid-run in the node/web builds). */
+    static uint8_t ddc_fb[sizeof disp->fb];
     int ddc_pixels_before = machine_display_fb_pixels(disp);
     memcpy(ddc_fb, disp->fb, sizeof ddc_fb);
 
