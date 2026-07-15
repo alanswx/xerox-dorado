@@ -62,14 +62,22 @@ regression gate (`make run-galaxian` = 121553 px, `make run-netexec`, etc.).
 rx queue on every Alto RxOn toggle drops the held lock-step packet and
 stalls the Alto boot mid-stream; see `src/ethernet.c eth_write`.)
 
-**Path B - Cedar/Pilot: BOOTS TO THE LOGIN PROMPT.** Initial netboots
-`CedarDorado.eb!6` (the Cedar/Mesa microcode), the matched Pilot germ is
-planted into VM (`--germ`), and Cedar boots its Pilot **physical volume** from
-a PDI disk image (`--pilot-disk ../CedarDisk/CedarDorado-boot.pdi`,
-`--boot-reason disk`). The full chain reaches **Cedar 6.1.0's SimpleTerminal
-login prompt** ("Please login… / Name:"), and the **keyboard works**: typing a
-name + Return advances the login. Run it with `make run-cedar`. **Germ and
-microcode versions must match** -- `CedarDorado.eb!6` (17-May-1984) shipped
+**Path B - Cedar/Pilot: BOOTS TO THE VIEWERS DESKTOP (2026-07-15).**
+Initial netboots `CedarDorado.eb!6` (the Cedar/Mesa microcode), the matched
+Pilot germ is planted into VM (`--germ`), and Cedar boots its Pilot
+**physical volume** from a PDI disk image (`--pilot-disk`, `--boot-reason
+disk`). The full chain now runs from committed artifacts all the way up:
+SimpleTerminal login (type `Guest` + two Returns), Grapevine-down fallback,
+LoaderDriver transferring all 34 `Basic.Loadees` over the in-process STP
+server, the Installer's `BootEssentials.df` closure, font DFs attached and
+demand-fetched, every loadee STARTed, and **the Cedar 6.1.0 Viewers desktop
+comes up live** — Ready. menu, CommandTool at a `%` prompt, WatchTool/
+EditTool icons painted with real Tioga fonts (screenshot:
+`docs/images/cedar-desktop-first-boot-2026-07-15.png`). Run it with
+`make run-cedar-work` (the 65K-page work volume,
+`CedarDisk/CedarDorado-work.pdi.gz`); `make run-cedar` still boots the
+small login-only volume. **Germ and microcode versions must match** --
+`CedarDorado.eb!6` (17-May-1984) shipped
 with Cedar 5.3/6.0/6.1, so the matched germ is `Dorado.germ-6.1.6` (Cedar
 6.1), NOT the older `Dorado.germ!4` (Dec 1983, version-mismatch fault).
 Cedar's keyboard is delivered to KeyBits at absolute `LONG[177033B]` with a

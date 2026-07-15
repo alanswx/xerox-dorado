@@ -504,11 +504,14 @@ see git log and `docs/handoff.md`.
 
 **Both boot paths now run.** Stage 2 Alto software boot works end to end
 (NetExec + games come up, render, and take keyboard input over the fake
-Mayday/EFTP server), and **Cedar 6.1 boots to its SimpleTerminal login
-prompt** from the Pilot PDI disk image with a working keyboard
-(`make run-cedar`). The frontends (SDL + WebAssembly) present each world at
-its native raster. See the top-level `CLAUDE.md` status and
-`docs/CONTINUE-HERE.md` for the live state.
+Mayday/EFTP server), and **Cedar 6.1 boots all the way to its Viewers
+desktop** (2026-07-15) from the Pilot PDI disk image — login, the full
+remote install over the in-process STP server, demand-fetched Tioga fonts,
+and a live CommandTool prompt (`make run-cedar-work`; screenshot at
+`docs/images/cedar-desktop-first-boot-2026-07-15.png`). The frontends
+(SDL + WebAssembly) present each world at its native raster. See the
+top-level `CLAUDE.md` status and `docs/CONTINUE-HERE.md` for the live
+state.
 
 **Active focus: take Cedar past the login prompt and harden the disk path.**
 Remaining work, roughly ordered:

@@ -1,5 +1,42 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## ===> MILESTONE (2026-07-15): CEDAR 6.1 BOOTS TO ITS VIEWERS DESKTOP.
+## Screenshot: docs/images/cedar-desktop-first-boot-2026-07-15.png
+
+A full 30B-cycle cold boot from committed artifacts reaches the live
+Cedar Viewers desktop: "Ready." + Cmd/Open/New/Idle menu, a CommandTool
+viewer at a `%` prompt (WD ///Users/Guest.pa/), WatchTool and EditTool
+desktop icons painted with demand-fetched Tioga fonts, and the User
+Profile's boot commands executed (with graceful errors only for optional
+content not in the served tree: BootTool.df, Clock).
+
+**The fix that unlocked it** (c25240b, cpu.c): on a Subroutine Return,
+`Link <- CIA+1` must NOT be reloaded when the same instruction loads
+Link explicitly -- the co-routine contract DMesaFloat.mc's RoundLong
+states verbatim ("Note Link_ overrides Return's normal action of
+loading Link with .+1"). `RoundI` of 0.0 runs FixZero -> CoReturn ->
+`FTemp2_ T, Link_ FTemp2, Return` -> FixRoundRet -> Return-to-caller;
+with the unconditional reload, that last Return jumped into @JNE2's
+microcode, whose stack pops underflowed StkP, and the uncaught
+StackError (via StkError HOLD -> fault task ChkStkErr -> EmuFault ->
+TrapsImpl -> no catcher -> DebugNub display blank) killed every boot at
+InterpreterPackage START -- the "fonts crash" of 2026-07-13.
+
+**Font demand-fetches work end to end**: attached names (BringOver
+enter) -> ImagerFont.Find -> FS.EnumerateForNames -> FS.Open -> STP
+Retrieve; the run serves Fonts/TiogaFonts/{Tioga10B,Helvetica10,
+TimesRoman10,...}.ks live from chm/cedar/stp-root.
+
+**Gates after the fix**: all unit tests pass (test_ethernet NetDir =
+documented pre-existing), Galaxian @160M = 121,549 px (historical
+band), diagnostics kernel/eventCounters/IfuSimple/memMisc/TriconD PASS
+(IfuComplex fails identically pre/post fix -- the known discrepancy).
+
+Repro: `make run-cedar-work` (SDL, log in as Guest) or the headless
+recipe below. Next frontier candidates: serve the optional
+BootTool/Clock/EditorComforts content; keyboard/mouse interaction with
+the desktop; snapshot+web checkpoints of the desktop state.
+
 ## 2026-07-14 (late): the FULL INSTALL now runs from committed artifacts —
 ## 96 STP transfers including all three fonts DFs. The Imager crash remains,
 ## still with ZERO font-file demand-fetches; that is the frontier.
