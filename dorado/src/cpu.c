@@ -1131,6 +1131,14 @@ static void stk_signal_error(dorado_cpu *cpu, int underflow, int overflow)
     cpu->stk_und = (uint8_t)underflow;
     cpu->stk_ovf = (uint8_t)overflow;
     cpu->wakeup_pending |= (uint16_t)(1u << 15);
+    if (dorado_trace_flag("DORADO_STKERR_TRACE")) {
+        fprintf(stderr,
+                "STKERR cyc=%llu task=%o pc=0o%o stkp=%03o und=%d ovf=%d "
+                "pcx=0o%o pcf=0o%o\n",
+                (unsigned long long)dorado_trace_cycle, cpu->ctask & 017,
+                cpu->real_PC, cpu->StkP & 0377, underflow, overflow,
+                cpu->ifu_pcx, cpu->ifu_pcf);
+    }
 }
 
 static void stk_apply_post(dorado_cpu *cpu, const dorado_uinstr *u)
@@ -4730,8 +4738,17 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                 *next = (uint16_t)((cpu->link_at_issue & 0xFFF) |
                                    ff_cond_or | cpu->dispatch_or);
                 /* Per HM §4.5: Link is reloaded with CIA+1 by Return,
-                 * supporting CoReturn. */
-                cpu->Link = (uint16_t)(cpu->real_PC + 1);
+                 * supporting CoReturn — unless the instruction loads
+                 * Link explicitly. DMesaFloat.mc RoundLong states the
+                 * hardware contract verbatim ("Note Link_ overrides
+                 * Return's normal action of loading Link with .+1")
+                 * and depends on it: `FTemp2_ T, Link_ FTemp2, Return`
+                 * restores the co-routine link while returning. With
+                 * the unconditional reload, RoundI of 0.0 returned
+                 * into @JNE2's microcode and every Cedar boot died in
+                 * an uncaught StackError at InterpreterPackage START. */
+                if (!ff_loads_link(u))
+                    cpu->Link = (uint16_t)(cpu->real_PC + 1);
                 return 0;
             }
             if (fn == 7) {
