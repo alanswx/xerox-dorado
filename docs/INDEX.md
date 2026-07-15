@@ -14,6 +14,7 @@ Sizes are approximate; "★" marks files you will reach for repeatedly.
 |---|---|---|
 | ★ `DoradoDocs/manuals/Dorado_Hardware_Manual_Sep1981.pdf` | 14 MB | E.R. Fiala, 14 Sep 1981. The Dorado architecture bible. 150 pp. + glossary + crib sheet. |
 | ★ `DoradoDocs/manuals/Dorado_Booting_Operation_and_Mechanisms_Apr80.pdf` | 836 KB | Ed Taft memo, 21 Apr 1980. How the BaseBoard, Bootstrap microcode, Initial microcode, and emulator microcode hand off. Read before touching the boot path. |
+| ★ `DoradoDocs/manuals/Introduction_to_Cedar_7.0.md` (+ `04_Introduction_to_Cedar_Version_7.0_May1987.pdf`) | 1.1k lines | The PARC user-level guide to living in the Cedar world: herald boot buttons (BootTool), CommandTool, DF files/Bringover, checkpoint/rollback, user profiles, Iago, boot switches, MP codes. Written for Cedar 7.0 — one version past our 6.1 — but the concepts and commands match what our booted desktop presents. |
 | `DoradoDocs/manuals/DoradoManual-A.press!8.pdf` | 142 KB | Same content as Hardware Manual front matter, "press" file format. Treat as duplicate. |
 | `DoradoDocs/manuals/DoradoManual-B.press!8.pdf` | 190 KB | Companion press file. |
 | `DoradoDocs/manuals/DoradoManual-Figs.press!8.pdf` | 93 KB | Figures only (programmer's view, card cage, control section, etc.). |
@@ -203,6 +204,14 @@ Example queries:
 | `interlisp-d-boot.md` | Interlisp-D-on-Dorado boot model from a first-hand Xerox user (Nick): net-boot Alto exec -> `Lisp.run` (BCPL) loads `DoradoLispMC.EB` + maps a disk `LISP.VIRTUALMEM` swap. Multi-partition Alto/Diablo disk format (reconstructable). Records the CHM `phylum/lisp/lyric/` files fetched to `chm/lisp/` and the emulator validation (all three `.eb` load via our Stage-1 path; `DoradoLispMC.EB` is a brand-new microcode world). |
 | `research/chm-hard-disk-pack.md` | CHM research note on the Dorado Initial hard-microcode disk pack. Distinguishes the Dorado Pilot 28-sector, 256-word-page layout from Alto/IFS 9-sector Trident packs, records the private page-4 boot-file convention, and lists what is still missing. |
 | `jcn-encoding.md` | The JCN field's 7-way encoding split (local / global / long / conditional / return / IFU jump). Distilled from HM §4.3 + Figure 6. |
+| `running-diagnostics.md` | How to run PARC's real Dorado hardware diagnostics via `build/rundiag` — a regression gate. |
+| `dorado-software.md` | Survey of all Dorado-targeted software found in the CHM archive. |
+| `cedar-boot-plan.md`, `cedar-disk-boot-plan.md` | Cedar bring-up plan docs (largely historical now that Cedar boots to the desktop; kept for the reasoning and references). |
+| `disk-subsystem-plan.md` | The real-disk-controller plan (`--disk-real`) that will retire the PDI IOCB shim. |
+| `cycle-accurate-timing-plan.md`, `timing-project-scope.md`, `fidelity-audit.md` | Cycle-accuracy program: the timing plan, its scope, and the fidelity audit that motivates it. |
+| `alto-game-compatibility.md` | Per-game compatibility notes for the Alto boot files (what runs, what needs RAM microcode, pixel gates). |
+| `contralto-oracle-validity.md` | Where ContrAlto is a valid cross-validation oracle (architectural state) and where it is not (I/O timing). |
+| `architecture.md`, `glossary.md` | Distilled architecture notes (HM §1–4) and the Dorado jargon glossary. |
 | `parc-archive-survey.md` | End-to-end survey of `xeroxparcarchive.computerhistory.org` for Dorado material. Covers the four Alto disk-pack image formats (`.bfs`/`.altodisk`/`.copydisk`/`.disk`), the 9 BFS packs in `BasicDisks/`, why no Trident packs are public, and the tools (`restore_alto_files`, `palo`, ContrAlto's AltoFS) for reading/writing them. |
 
 ## Suggested reading order for a new contributor

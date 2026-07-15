@@ -40,14 +40,18 @@ The microengine, memory subsystem, IFU, 16-way tasking, slow/fast-I/O
 routing, and the BaseBoard 6502 model all work and are test-covered. The
 full BaseBoard -> Bootstrap -> Initial boot chain runs. The microengine has
 been thoroughly cross-checked against the board schematics
-(`docs/schematic-audit.md`); the bring-up fixed five real microengine bugs
+(`docs/schematic-audit.md`); the bring-up fixed six real microengine bugs
 (WF/RF field opcodes, TisId/RisId + IFetch, Q<-B for Pipe sources, the
-Overflow branch condition, and shifter Pd-mux masking). The emulator runs
-~24 M microinstructions/s (≈1.4x the real 16.67 MIPS Dorado) after caching
-the per-step trace `getenv()` calls (`dorado_trace_flag`, ~2.7x speedup). It
-also builds to **WebAssembly** (`make web`) and auto-deploys to GitHub Pages
+Overflow branch condition, shifter Pd-mux masking, and Return clobbering a
+same-instruction explicit Link<- load -- the Cedar-desktop blocker; an
+explicit Link<- overrides Return's Link<-CIA+1 reload, per DMesaFloat.mc).
+The emulator runs ~24 M microinstructions/s (≈1.4x the real 16.67 MIPS
+Dorado) after caching the per-step trace `getenv()` calls
+(`dorado_trace_flag`, ~2.7x speedup). It also builds to **WebAssembly**
+(`make web`) and auto-deploys to GitHub Pages
 (`.github/workflows/deploy-pages.yml`): a dropdown picks the Alto games,
-NetExec, or Cedar 6.1.
+NetExec, Mesa NetExec, Cedar 6.1 (saved desktop or login checkpoints), or
+Interlisp-D Lyric.
 
 There are **two software paths**; how to load every combination is in
 `docs/running-the-emulator.md`.

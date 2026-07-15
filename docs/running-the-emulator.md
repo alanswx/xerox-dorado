@@ -18,14 +18,14 @@ running; then it forks:
 
 ```
 BaseBoard ROM ─► Bootstrap ─► Initial ─► [microcode world] ─► [OS / app]
- (6502)          (IM 7700+)   (loads     ┌─ AEmu world ──► Alto sw boot (EFTP)   ◄── WORKS
-                              the world)  └─ Cedar world ─► Pilot germ ─► OS boot  ◄── in bring-up
+ (6502)          (IM 7700+)   (loads     ┌─ AEmu world ──► Alto sw boot (EFTP)      ◄── WORKS
+                              the world)  └─ Cedar world ─► Pilot germ ─► OS boot   ◄── WORKS
 ```
 
 | Path | Microcode world | Second stage | Status |
 |---|---|---|---|
 | **A. Alto-on-Dorado** | `worlds/aemu.eb` (AEmu) | Alto boot file over EFTP | **Working** — Galaxian 121553 px, NetExec menu renders |
-| **B. Cedar/Pilot germ** | `CedarDorado.eb` | `Dorado.germ` → Pilot disk | **Boots Cedar 6.1 to the SimpleTerminal login prompt; keyboard input works** |
+| **B. Cedar/Pilot germ** | `CedarDorado.eb` | `Dorado.germ` → Pilot disk | **Boots Cedar 6.1 all the way to the Viewers desktop** (2026-07-15): Guest login → LoaderDriver install over the in-process STP server → live Clock + CommandTool |
 | **C. Alto/Mesa** | `AltoMesaDorado.eb!2` | `MesaNetExec.boot` over EFTP | **Boots the Mesa Network Executive to an interactive `>` prompt** — herald + live clock + cursor; typed keys echo (the prompt appears ~155M cycles in) (`./build/dorado-sdl --eb '../chm/dorado/AltoMesaDorado.eb!2' --eftp '../chm/bootfiles/MesaNetExec.boot!1'`) |
 
 Both stages share an in-process fake Pup/EFTP boot server (`src/ethernet.c`)
@@ -54,7 +54,7 @@ match.**
 | File | Version | Status |
 |---|---|---|
 | `chm/cedar/germ/Dorado.germ!4` | Dec 1983 (Cedar ~5) | **Mismatched** with the 1984 microcode → faults early (`0o27132`) |
-| `chm/cedar/germ-alt/Dorado.germ-6.1.6` | **Cedar 6.1, 1986** | **Current debug target** — the matched pair with `CedarDorado.eb!6`; gets furthest |
+| `chm/cedar/germ-alt/Dorado.germ-6.1.6` | **Cedar 6.1, 1986** | **The working germ** — the matched pair with `CedarDorado.eb!6`; boots Cedar to the desktop |
 | `chm/cedar/germ-alt/Dorado.germ-6.0.6` | Cedar 6.0, 1985 | Behaves like !4 (same early fault) |
 | `chm/cedar/germ-alt/Dorado10.germ-6.1.5` | Cedar 6.1 (Dorado10) | Same early-fault family |
 | `chm/cedar/germ-alt/Dorado.germ-5.3.1` | Cedar 5.3, 1984 | Same early-fault family |
@@ -92,10 +92,22 @@ Three caveats, all reproducing real-Dorado behavior (June 2026 findings):
   `M[527B]`) is nonzero and the world idles on Pup socket `60B`
   (TeleSwat), acking the fake server's probes with type-`204B` Pups.
 
-**Cedar/Pilot boot files (Path B — would be loaded by the germ once it
-reaches `DoInLoad`; not yet reached):** `chm/bootfiles/CedarNetExec.boot!4`,
-`MesaNetExec.boot!1`, `NEWOS.BOOT!21`, and `chm/cedar/germ/OthelloDorado.boot!8`
-(Othello, the Pilot disk/volume utility).
+**Cedar/Pilot boot files (Path B net-boot alternative):**
+`chm/bootfiles/CedarNetExec.boot!4`, `MesaNetExec.boot!1`, `NEWOS.BOOT!21`,
+and `chm/cedar/germ/OthelloDorado.boot!8` (Othello, the Pilot disk/volume
+utility). The EFTP/Mayday server serves these byte-exact; they are what the
+germ would request via `DoInLoad` if driven to net-boot. The working Cedar
+path boots from the PDI disk instead.
+
+### Pilot disk images (`--pilot-disk`, Path B)
+
+Gzipped in `CedarDisk/` and rehydrated by make on demand:
+
+| File | What it is |
+|---|---|
+| `CedarDisk/CedarDorado-boot.pdi` | The minimal boot volume — reaches the SimpleTerminal login prompt (`make run-cedar`) |
+| `CedarDisk/CedarDorado-work.pdi` | The working volume the **desktop install** runs on — log in as Guest and LoaderDriver installs Basic.Loadees/BootEssentials/fonts from `--ftp-root` (`make run-cedar-work`) |
+| `CedarDisk/CedarDorado-bestof.pdi` | Corrected kitchen-sink volume with 2,240 recovered files (`make run-cedar-bestof`) |
 
 ---
 
@@ -127,10 +139,29 @@ Booting the NetExec menu (`make run-netexec`) lets you pick from the served
 directory interactively; pass `--boot-dir` / `--boot-dir-all` to control
 what the directory server advertises.
 
-### Path B — Cedar/Pilot germ (in bring-up)
+### Path B — Cedar/Pilot germ (boots to the Viewers desktop)
 
-Use the **matched** pair (Cedar 6.1 germ + the Cedar microcode) with the
-Pilot/Cedar PDI mounted as drive 0:
+Fastest first:
+
+```sh
+make run-cedar-desktop-sdl   # restore the saved Viewers-desktop checkpoint
+make run-cedar-work          # full cold boot + install; log in as "Guest"
+make run-cedar               # boot volume only, to the login prompt
+```
+
+`run-cedar-work` boots `CedarDorado-work.pdi` with
+`--ftp-root ../chm/cedar/stp-root` (the in-process STP file server) and
+`DORADO_PDI_IGNORE_LABEL_FLAGS=1` (masks the label DA-hint words that
+synthetic PDI media store as 0). After the Guest login, LoaderDriver
+installs the loadee set and the desktop comes up. `make
+cedar-desktop-snapshot` regenerates the checkpoint headlessly (it replays
+the whole ~21 G-cycle boot + install and saves the snapshot **together with
+the mutated PDI** — a matched pair, preserved gzipped in
+`dorado/snapshot-assets/`); `make cedar-desktop-web-snapshot` produces the
+separate wasm32-ABI pair for the browser build.
+
+Under the hood, use the **matched** pair (Cedar 6.1 germ + the Cedar
+microcode) with the Pilot/Cedar PDI mounted as drive 0:
 ```
 cd dorado
 ./build/dorado --boot-reason disk \
@@ -213,11 +244,21 @@ source for the gitignored raw image; the compressed native snapshot survives
 ## Useful flags and trace env vars
 
 CLI flags (`./build/dorado --help`): `--cycles N`, `--eb PATH`, `--germ PATH`,
-`--eftp PATH`, `--out PATH` (final snapshot PGM), `--shot-prefix PATH`,
-`--shot-every N` (periodic headless snapshots), `--snapshot-in PATH`,
-`--snapshot-out PATH`, `--quote` / `--boot-keys` (DDC boot keys),
-`--no-alto-boot`, `--progress`, `--boot-file-number`, `--boot-dir[-all]`,
-`--type`, `--key-hold`.
+`--eftp PATH`, `--pilot-disk PATH` + `--boot-reason disk` (Cedar/Pilot disk
+boot), `--ftp-root DIR` (in-process STP file server), `--out PATH` (final
+snapshot PGM), `--shot-prefix PATH`, `--shot-every N` (periodic headless
+snapshots), `--snapshot-in PATH`, `--snapshot-out PATH`, `--quote` /
+`--boot-keys` (DDC boot keys), `--no-alto-boot`, `--progress`,
+`--boot-file-number`, `--boot-dir[-all]`, `--type`, `--type-at CYC`,
+`--key-hold`. SDL adds `--scale N`, `--speed CYCLES/frame`,
+`--screenshot F1,F2,…`. A running instance (headless or SDL) writes a
+`<shot-prefix>-<cycle>.pgm` screenshot on **SIGUSR1**.
+
+Controls in the SDL window: F1 pauses/resumes, Cmd/Ctrl+Q quits, and the
+three-button Dorado mouse is mapped left/middle/right = Red/Yellow/Blue with
+laptop modifiers Option/Alt+click = Yellow (middle) and Cmd- or Ctrl+click =
+Blue (right) — details in the top-level `README.md` "Controls" section (the
+browser build behaves identically).
 
 Disk (`docs/disk-subsystem-plan.md`): `--disk-real` boots Cedar through the
 **real disk controller** read path (FIFO + framing) instead of the IOCB shim
@@ -284,30 +325,38 @@ Mesa Network Executive is the next high-value target once its exact capture
 frame is revalidated. The directly booted Alto games are fast enough
 that a separate snapshot for every menu item is not currently worthwhile.
 
-`make test` runs the unit suites; the regression "gate" the bring-up keeps
-green is: `make test` (10/10) + AEmu NETEXEC ≈ 1476–1505 px + Galaxian 121553 px
-+ AltoMesaDorado in band + `make sdl` compiles.
+`make test` runs the unit suites (11 binaries); the regression "gate" the
+bring-up keeps green is: `make test` + AEmu NETEXEC ≈ 1476–1505 px +
+Galaxian ≈ 121.5k px + AltoMesaDorado in band + `make sdl` compiles +
+PARC's real hardware diagnostics via `build/rundiag`
+(`docs/running-diagnostics.md`).
 
 ---
 
-## Current status (June 2026)
+## Current status (July 2026)
 
 - **Path A (Alto-on-Dorado): working.** AEmu boots Alto software over EFTP and
   renders — games and the NetExec menu come up. This is the validated path and
   the regression gate.
-- **Path B (Cedar/Pilot germ): active bring-up.** The full
-  BaseBoard→Bootstrap→Initial→Cedar-microcode→germ chain runs; the germ
-  executes its boot prologue, installs its trap handlers, and drives its
-  module-startup chain. It does not yet load an OS. The blocker is germ-state:
-  with the matched Cedar-6.1 germ it stops on a single malformed code pointer
-  (a long pointer whose high word is a codebase value `0o6530` instead of the
-  MDS bank `0o76`); forcing it correct lets the germ run ~5.9M bytecodes, so
-  it's a confirmed, specific bug. See `docs/CONTINUE-HERE.md` for the live
-  detail and the next step.
-- **Stage-2 server is ready:** the in-process EFTP/Mayday boot server serves
-  Cedar boot files byte-exact (proven by `make test`); the germ just needs to
-  reach `DoInLoad` to request one.
+- **Path B (Cedar/Pilot germ): boots to the Viewers desktop (2026-07-15).**
+  The full BaseBoard→Bootstrap→Initial→Cedar-microcode→germ→Pilot chain
+  boots Cedar 6.1 from the PDI disk to the SimpleTerminal login; logging in
+  as Guest on the work volume drives LoaderDriver's remote install over the
+  in-process STP server, Tioga fonts are demand-fetched, and the Viewers
+  desktop comes up live (Clock, CommandTool, menus). Screenshot:
+  `docs/images/cedar-desktop-first-boot-2026-07-15.png`. Saved checkpoints
+  restore it instantly (`make run-cedar-desktop-sdl`; browser dropdown
+  entry). See `docs/CONTINUE-HERE.md` for the live detail and next steps.
+- **Interlisp-D: boots to the Lyric desktop.** `make run-lisp-snapshot-sdl`
+  restores the saved Exec (XCL) desktop; the full boot is
+  `make run-lisp-good-sdl`.
+- **Stage-2 net-boot server is ready:** the in-process EFTP/Mayday boot
+  server serves Cedar boot files byte-exact (proven by `make test`); driving
+  the germ to `DoInLoad` over the net is an unexercised alternative to the
+  working disk path.
 - **Microengine:** thoroughly schematic-audited (`docs/schematic-audit.md`);
-  the bring-up fixed five real microengine bugs in the Mesa/field/shifter/
-  branch paths. Remaining hardware gaps and their specs:
+  the bring-up fixed six real microengine bugs in the Mesa/field/shifter/
+  branch/Link paths (the sixth — `Return` clobbering a same-instruction
+  explicit `Link←` load — was the final blocker in front of the Cedar
+  desktop). Remaining hardware gaps and their specs:
   `docs/hardware-specs.md`.

@@ -51,16 +51,25 @@ boot-file directory** (`257B`/`260B`). All replies are spec-correct
 Museum IFS server), including the Pup checksum and the hardware-CRC framing
 the AEmu receive microcode requires.
 
-**Cedar/Pilot (Route B) now boots to the login prompt.** A second path loads
-the Cedar/Mesa microcode (`CedarDorado.eb!6`), plants the matched Pilot
-**germ** (`--germ Dorado.germ-6.1.6`) into VM, and boots the Pilot/Cedar
-physical volume from a PDI disk image (`--pilot-disk`). The full chain —
-BaseBoard → Bootstrap → Initial → Cedar microcode → germ → Pilot → Cedar —
-reaches **Cedar 6.1.0's SimpleTerminal login prompt** ("Please login… /
-Name:"), and **keyboard input works**: typing a name and Return advances the
-login. (Germ and microcode versions must match: `CedarDorado.eb!6` is the
-1984 build shipped with Cedar 5.3/6.0/6.1, so the germ is `Dorado.germ-6.1.6`,
-not the older `Dorado.germ!4`.) Run it with `make run-cedar`; live state is in
+**Cedar 6.1 boots all the way to its Viewers desktop (2026-07-15).** The
+second path loads the Cedar/Mesa microcode (`CedarDorado.eb!6`), plants the
+matched Pilot **germ** (`--germ Dorado.germ-6.1.6`) into VM, and boots the
+Pilot/Cedar physical volume from a PDI disk image (`--pilot-disk`). The full
+chain — BaseBoard → Bootstrap → Initial → Cedar microcode → germ → Pilot →
+Cedar → SimpleTerminal login (log in as `Guest`) → LoaderDriver remote
+install over the in-process STP file server → demand-fetched Tioga fonts —
+ends at the **live Cedar 6.1.0 Viewers desktop**: black herald bar, icon row,
+a running Clock, and a CommandTool you can type at. This is, to our
+knowledge, the first time a Dorado Cedar desktop has come up since the PARC
+hardware was retired.
+
+![Cedar 6.1 Viewers desktop, first boot 2026-07-15](docs/images/cedar-desktop-first-boot-2026-07-15.png)
+
+Run it instantly from the saved checkpoint with `make run-cedar-desktop-sdl`,
+or watch the whole cold boot + install with `make run-cedar-work` (log in as
+`Guest` at the `Name:` prompt). (Germ and microcode versions must match:
+`CedarDorado.eb!6` is the 1984 build shipped with Cedar 5.3/6.0/6.1, so the
+germ is `Dorado.germ-6.1.6`, not the older `Dorado.germ!4`.) Live state is in
 `docs/CONTINUE-HERE.md`.
 
 The keyboard for the native Cedar world is delivered to its KeyBits at
@@ -72,23 +81,33 @@ framebuffer presents each world at its native raster (Alto 808×606, Cedar
 1024×808).
 
 **It runs in your browser.** A WebAssembly build (`make web`, deployed to
-GitHub Pages by `.github/workflows/deploy-pages.yml`) boots the Alto games,
-the NetExec menu, **and Cedar 6.1** — pick the world from a dropdown. The
-emulator runs ~24 M microinstructions/s (≈1.4× the real 16.67 MIPS Dorado)
-after a hot-path `getenv()` caching fix (~2.7× speedup).
+GitHub Pages by `.github/workflows/deploy-pages.yml`) boots every world from
+a dropdown: the Alto games and NetExec menu, the Alto Executive from disk,
+the Mesa Network Executive, **Cedar 6.1** (a saved Viewers-desktop
+checkpoint and a saved login-prompt checkpoint), and **Interlisp-D Lyric**
+(a saved Exec/XCL desktop). The emulator runs ~24 M microinstructions/s
+(≈1.4× the real 16.67 MIPS Dorado) after a hot-path `getenv()` caching fix
+(~2.7× speedup).
 
-Along the way the bring-up fixed **five real microengine bugs** — the Mesa
+Along the way the bring-up fixed **six real microengine bugs** — the Mesa
 `WF`/`RF` field opcodes, `TisId`/`RisId` + `IFetch` operand handling, the
-`Q←B` Pipe-source side-effect, the `Overflow` branch condition, and
-shifter Pd-mux masking — and the microengine was cross-checked against the
-board schematics (`docs/schematic-audit.md`).
+`Q←B` Pipe-source side-effect, the `Overflow` branch condition, shifter
+Pd-mux masking, and `Return` clobbering a same-instruction explicit
+`Link←` load (the bug that kept Cedar's desktop from coming up — an
+explicit `Link←` overrides Return's normal `Link←CIA+1` reload, per the
+PARC microcode's own comments in `DMesaFloat.mc`) — and
+the microengine was cross-checked against the board schematics
+(`docs/schematic-audit.md`).
 
 **Boot media.** The Alto worlds boot over the in-process fake Ethernet/EFTP
 server (no preserved Alto Dorado pack exists — the CHM PARC archive is an IFS
 file-server dump, not bootable packs). Cedar boots from a Pilot/Cedar **PDI**
-disk image (`CedarDisk/CedarDorado-boot.pdi`, served through a PDI-backed
-SA4000 bridge over the still-incomplete disk sequence-PROM path); the
-compressed image is tracked in-repo and decompressed on demand by `make web`.
+disk image served through a PDI-backed SA4000 bridge (the boot volume
+`CedarDisk/CedarDorado-boot.pdi`, and the larger `CedarDorado-work.pdi`
+working volume the desktop install runs on); the compressed images are
+tracked in-repo and decompressed on demand by make. The desktop checkpoint
+(snapshot + matching PDI, since the install mutates the disk) lives gzipped
+in `dorado/snapshot-assets/` and is rehydrated automatically.
 
 **`docs/running-the-emulator.md` is the runbook** — every software
 combination (microcode worlds, germs, OS/app boot files) and the exact
@@ -116,10 +135,14 @@ The core emulator is C99 with no external dependencies. Tested on macOS
 `make web` (needs the Emscripten SDK on `PATH`) builds a WebAssembly build
 that runs entirely in the browser; the live build is published to GitHub
 Pages by `.github/workflows/deploy-pages.yml` on every push to `main`. A
-dropdown picks the world: the **NetExec** menu and Alto games, or **Cedar
-6.1** (boots to the login prompt — a slower boot; then click the display and
-type at `Name:`). Serve `dorado/web/` over http (a `file://` URL won't load
-the `.wasm`).
+dropdown picks the world: the **NetExec** menu and Alto games, the **Alto
+Executive** (disk boot), the **Mesa Network Executive**, **Cedar 6.1** —
+a saved **Viewers desktop** checkpoint (instant) or a saved login-prompt
+checkpoint — and **Interlisp-D Lyric** (saved Exec/XCL desktop). Serve
+`dorado/web/` over http (a `file://` URL won't load the `.wasm`). Mouse
+buttons work as described under "Controls" below — including the
+Option/Alt- and Cmd/Ctrl-click modifiers on laptops (the page suppresses
+the browser context menu over the display).
 
 ### Windowed frontend (SDL) — boot a world and type at it
 
@@ -148,6 +171,30 @@ make worlds       # -> worlds/aemu.eb (the Alto-emulator world, from AEmu.mb)
 
 The Cedar/Mesa worlds need no generation — they are ready `.eb` files
 already checked into `../chm`.
+
+#### Controls (keyboard + three-button mouse)
+
+The keyboard maps through to the running world once its prompt is up.
+**F1** pauses/resumes the emulation; **Cmd/Ctrl+Q** quits.
+
+The Dorado's mouse has **three buttons**, and Cedar uses all of them
+(Xerox names in parentheses): **left = Red** — point/select, **middle =
+Yellow** — pop up menus, **right = Blue** — extend/adjust. Both frontends
+(SDL and the browser build) wire them the same way:
+
+| You do | Dorado button |
+|---|---|
+| Left click | **Red** (point/select) |
+| Middle click | **Yellow** (menus) |
+| Right click | **Blue** (extend) |
+| **Option/Alt + left click** | **Yellow** (menus) |
+| **Cmd or Ctrl + left click** | **Blue** (extend) |
+
+A real three-button mouse just works. On a laptop trackpad, hold the
+modifier *before* pressing: the button is decided at press time and held
+until release, so a modifier chord behaves like holding the real middle or
+right button (drag included). In the browser, right-click is delivered to
+the emulator and the page's context menu is suppressed over the display.
 
 #### Boot recipes by environment
 
@@ -268,17 +315,31 @@ are snapshot display-list pixels from `dorado-screen.pgm`. All load at ~32 M cyc
 ./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/FTP.boot!1'               # make run-ftp
 ```
 
-##### Group B — Cedar 6.1 / Pilot — boots to the login prompt
+##### Group B — Cedar 6.1 / Pilot — boots to the Viewers desktop
 
 Cedar boots from a Pilot/Cedar physical volume, not over Ethernet (Dorado
 Booting memo §1.3). The emulator loads the Cedar microcode, plants the
-matched Pilot germ, and boots the bundled PDI disk image — reaching Cedar
-6.1.0's SimpleTerminal login prompt, where the **keyboard works**:
+matched Pilot germ, and boots a PDI disk image. Three ways in, fastest
+first:
 
 ```sh
-make run-cedar          # windowed; type a name at the Name: prompt + Return
+# 1. THE DESKTOP, INSTANTLY — restore the saved Viewers-desktop checkpoint
+#    (snapshot + its matching post-install disk, rehydrated from
+#    snapshot-assets/). Live Clock, CommandTool, menus — use the mouse
+#    (see Controls above).
+make run-cedar-desktop-sdl
 
-# the same, by hand (the login prompt appears around 640 M cycles):
+# 2. The full cold boot + install, end to end (~21 G cycles): boots the
+#    work volume, log in as "Guest" (+ Return twice) at the Name: prompt;
+#    LoaderDriver then installs Basic.Loadees/BootEssentials/fonts over the
+#    in-process STP server and the desktop comes up.
+make run-cedar-work
+
+# 3. Just the boot volume to the SimpleTerminal login prompt (the login
+#    prompt appears around 640 M cycles; no install set on this volume):
+make run-cedar
+
+# by hand, recipe 3 is:
 ./build/dorado-sdl --boot-reason disk --no-alto-boot \
     --eb '../chm/dorado/CedarDorado.eb!6' \
     --germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6' \
@@ -289,13 +350,22 @@ make run-cedar-screenshot
 ```
 
 `--germ` plants the Pilot germ into VM and `--pilot-disk` mounts the PDI as
-drive 0; `--boot-reason disk` selects the disk boot (no boot-key chord).
-Germ and microcode versions must match (`CedarDorado.eb!6` ↔
-`Dorado.germ-6.1.6`). The Mesa/Pilot outload boot files (`CedarNetExec.boot`,
-`MesaNetExec.boot`, `NEWOS.BOOT`, …) are the *next* stage the germ would
-request once it reaches `DoInLoad`; the EFTP/Mayday server already serves
-them byte-exact, but the current bring-up boots Cedar from the disk image
-instead.
+drive 0; `--boot-reason disk` selects the disk boot (no boot-key chord);
+`--ftp-root` points the in-process STP file server at the install tree
+(`chm/cedar/stp-root/`). Germ and microcode versions must match
+(`CedarDorado.eb!6` ↔ `Dorado.germ-6.1.6`).
+
+To regenerate the desktop checkpoint after changing the emulator or the
+install tree, run `make cedar-desktop-snapshot` (headless, hours — it
+replays the whole cold boot + install and saves the snapshot together with
+the mutated PDI; the two are a matched pair) and
+`make cedar-desktop-web-snapshot` for the browser build (wasm snapshots are
+ABI-separate from native ones).
+
+The Mesa/Pilot outload boot files (`CedarNetExec.boot`, `MesaNetExec.boot`,
+`NEWOS.BOOT`, …) are the *next* stage the germ would request once it reaches
+`DoInLoad` over the net; the EFTP/Mayday server already serves them
+byte-exact, but Cedar boots from the disk image.
 
 ##### Group C — Mesa Network Executive — boots and paints its herald
 
@@ -327,9 +397,17 @@ through the boot chain, but Smalltalk needs its own loaded image to come up
                    --eftp '../chm/bootfiles/NETEXEC.BOOT!8'
 ```
 
-**Interlisp-D (Lisp).** Build `DoradoLisp` from
-`chm/dorado/expanded/UnBug.bfs!1_/DoradoLisp.MB`; it loads and draws a
-display, but the contents are garbage — it needs a sysout (not wired).
+**Interlisp-D — boots to the Lyric desktop.** The Lisp path boots
+`lisp.run` from a Trident pack and loads a Lyric (1987) sysout, coming up
+in the Interlisp-D Exec (XCL) desktop with its Prompt Window:
+
+```sh
+make run-lisp-snapshot-sdl   # resume the saved XCL-desktop checkpoint
+make run-lisp-good-sdl       # the full boot + sysout load, end to end
+```
+
+(`make lisp-lyric-desktop-snapshot` regenerates the checkpoint. In the
+browser build this is the "Lyric — saved Exec (XCL) desktop" entry.)
 
 #### Booting a second-stage file *through* NetExec (`--boot-dir`)
 
@@ -363,11 +441,14 @@ works. A second-stage file you select (e.g. `CedarNetExec`) is itself a
 large transfer — give it a moment after the screen clears.
 
 Flags: `--eb PATH` (emulator-microcode world), `--eftp PATH` (Stage-2 boot
-file), `--boot-file-number OCTAL` (boot file number, default `110`),
+file), `--germ PATH` + `--pilot-disk PATH` + `--boot-reason disk` (the
+Cedar/Pilot disk boot), `--ftp-root DIR` (in-process STP file server),
+`--snapshot-in/--snapshot-out PATH` (machine checkpoints),
+`--boot-file-number OCTAL` (boot file number, default `110`),
 `--boot-dir NAME=BFN=PATH` (advertise a boot file to NetExec; repeatable),
 `--scale N` (window scale), `--speed CYCLES` (cycles/frame), `--quote`,
-`--no-alto-boot`, `--screenshot F1,F2,...`. Controls: **F1**
-pauses/resumes; **Cmd/Ctrl+Q** quits.
+`--no-alto-boot`, `--screenshot F1,F2,...`. Keyboard and three-button-mouse
+bindings are under "Controls" above.
 
 `--boot-file-number` sets the Mesa/Dorado **boot file number** — the value
 a real machine derives from the boot button and keyboard and hands to the

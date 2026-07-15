@@ -698,9 +698,12 @@ you don't repeat them.
 ## High-level outstanding work (July 2026)
 
 The foundational emulator and both software boot paths work. Alto software
-boots over Ethernet, Cedar 6.1 reaches its login prompt, and the Lyric and
-Medley Interlisp-D worlds reach their desktops. The remaining work is no
-longer basic boot bring-up; it falls into five tracks, in this order.
+boots over Ethernet, **Cedar 6.1 boots to its Viewers desktop (2026-07-15:
+Guest login -> LoaderDriver STP install -> demand-fetched fonts -> live
+Clock/CommandTool; `make run-cedar-work`, checkpoint restore via
+`make run-cedar-desktop-sdl`)**, and the Lyric and Medley Interlisp-D worlds
+reach their desktops. The remaining work is no longer basic boot bring-up;
+it falls into five tracks, in this order.
 
 1. **Interlisp desktop usability: Lyric fixed; finish the Medley gate.** The
    saved-record semantics are now identified from `PROC!37`: Lyric's record at
@@ -722,23 +725,20 @@ longer basic boot bring-up; it falls into five tracks, in this order.
    keyboard gate focus-aware. The older FULL.SYSOUT and Harmony images remain
    incomplete as archived and are not substitutes.
 
-2. **Take Cedar beyond the login prompt.** The mounted PDI supplies the Pilot
-   boot file, not an installed Cedar volume. A July 10 regression audit found
-   that the Interlisp DDC-active predicate could wake Cedar task 3 from stale
-   Initial output history before GermBoot; task 3 then starved task 0 in the
-   shared `BootTransfer` loop. `machine.c` now suppresses DDC wake detection for
-   germ worlds and suppresses DCB scanline wakes until germ data is planted.
-   The three germ passes work again at cycle 67.587M. The present PDI nevertheless
-   remains blank through 1.2B cycles; the same blank result occurs in a clean
-   build from immediately before the DDC change, so this remaining discrepancy
-   is not caused by that fix and the documented login gate needs re-validation
-   against the current PDI/artifacts. The era-matched `Dorado.germ!4` plus
-   `OthelloDorado.boot!8` now gets farther: the old germ is planted, the
-   `062400` header is accepted (`germInLoad`, not `germBadBootFile`), and EFTP
-   starts, but it stops after sequence 1. Continue by comparing the old germ's
-   receive/CSB layout and re-arm behavior with the 6.1 germ path. After Othello
-   runs, it still needs a writable real Trident pack on which to build and
-   preserve the system volume.
+2. **Deepen the Cedar desktop (the login-prompt wall fell 2026-07-15).**
+   The cold boot + Guest install now ends at the live Viewers desktop from
+   committed artifacts (see `docs/CONTINUE-HERE.md` for the full account —
+   the final blocker was `Return` clobbering a same-instruction explicit
+   `Link←` load, c25240b). Remaining depth work: (a) the herald's boot
+   buttons and RollBack cannot work yet — the work volume's six
+   `bootingInfo` slots are all empty (we plant the germ into VM; nothing is
+   installed on-disk) — so run Cedar's `Checkpoint` command and/or install
+   a germ+boot file into `bootingInfo` to make soft boot/rollback real;
+   (b) serve more optional content (EditorComforts and friends) via the
+   STP tree; (c) the era-matched `Dorado.germ!4` + `OthelloDorado.boot!8`
+   net-boot path still stops after EFTP sequence 1 — compare the old
+   germ's receive/CSB layout and re-arm behavior with the 6.1 germ path if
+   Othello-built volumes are pursued.
 
 3. **Replace the remaining bring-up shims with hardware-faithful paths.** The
    largest items are the Trident sequence-PROM/FIFO/status/ECC/write path

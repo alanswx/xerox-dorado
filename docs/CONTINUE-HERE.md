@@ -37,6 +37,26 @@ recipe below. Next frontier candidates: serve the optional
 BootTool/Clock/EditorComforts content; keyboard/mouse interaction with
 the desktop; snapshot+web checkpoints of the desktop state.
 
+**Known limitation — the herald's boot buttons cannot boot anything yet
+(2026-07-15).** With BootTool served and run, the herald shows volume
+boot buttons (`Alto | Basic | CedarWork`); clicking `CedarWork` raises
+an uncaught `File.Error` from FileImpl.bcd (Event `11601B`,
+`NoSymbols[FileImpl.bcd]`) and drops into the debugger viewer — click
+**Abort** there to return to the desktop. Root cause, verified against
+the media: the work PDI has a single logical volume (`CedarWork`,
+65,450 pages) and **all six of its `bootingInfo` slots (checkpoint /
+microcode / germ / bootFile / debugger / debuggee) are empty** — we
+boot Cedar by planting the germ into VM (`--germ`), never through the
+on-disk boot chain, and no checkpoint has ever been written (hence
+`RollBack` is struck through too). To make soft boot / rollback real:
+run Cedar's `Checkpoint` command (writes `bootingInfo[checkpoint]`;
+exercises the disk write path), and/or install a germ + boot file into
+`bootingInfo` (see `CedarDisk/PARC_PILOT_FORMAT.md` §"Install germ +
+physical-volume boot file" — `pilot_probe install-boot`). The Cedar
+user-level semantics (BootTool, boot switches, checkpoint/rollback) are
+documented in `DoradoDocs/manuals/Introduction_to_Cedar_7.0.md` (added
+2026-07-15; written for 7.0 but matches our 6.1 world).
+
 ## 2026-07-14 (late): the FULL INSTALL now runs from committed artifacts —
 ## 96 STP transfers including all three fonts DFs. The Imager crash remains,
 ## still with ZERO font-file demand-fetches; that is the frontier.
