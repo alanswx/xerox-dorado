@@ -26,27 +26,58 @@ On top of the morning's fixes (next section), three more landed tonight:
    (TiogaFonts/PressFonts/FontMetrics transferred; XC1-2-2 correctly
    STP_MISSING), then the optional VersionMap lookups — 96 transfers.
 
-**The remaining frontier is unchanged in character from 2026-07-13:** at
-ViewersPackage START (cycle 12,939,649,700 with `DORADO_FAKE_TIME=
-1783285880`; bare `0` written to the CSB head at `0420`), the uncaught
-Imager signal fires and the crash path blanks the screen — and **no font
-file was ever demand-fetched** (zero `Fonts/TiogaFonts/*.ks` retrieves).
-Connectivity is exonerated: the VersionMap STP lookups succeed AFTER the
-fonts BringOver. So the failure is in-guest, between `BringOver[enter]`'s
-`FS.Copy[attach: TRUE]` and `ImagerFont.Find`'s `FS.EnumerateForNames` --
-either the attaches never landed or they landed under names the Imager
-does not enumerate (`///Fonts/Xerox/TiogaFonts/...`).
+**The remaining frontier, now precisely characterized** (the crash is at
+cycle 12,939,649,700 with `DORADO_FAKE_TIME=1783285880`; bare `0` written
+to the CSB head at `0420`, debugger-entry IWDC at 12,939,641,547):
+
+- **The attaches are PERFECT.** The pre-crash terminal transcript shows
+  every `local <-- remote` attach line and a clean `End BringOver of
+  [Fonts]<CedarFonts>Top>FontMetrics.df`; the client B-tree on the saved
+  PDI contains exactly the names the Imager wants, e.g.
+  `Fonts>Xerox>TiogaFonts>Tioga10.ks` attached to
+  `[Fonts]<Fonts>TiogaFonts>Tioga10.ks!3`.
+- **The crash site is a loadee START after the installer** -- the
+  transcript ends at `Starting ... InterpreterPackage.bcd ...` (it paints
+  a viewer, needing the default font). The raise chain replays 2026-07-13
+  exactly: raiser br31=0x120808 (ImagerPackage; ImagerTypefaceImpl's
+  Create fall-through per the fetched source), 2454 SignalsImpl
+  catcher-hunt dispatches, DebugNub CoreSwap, SetMP[cantWorldSwap],
+  TerminalHead turnOff. Module IDs confirmed by VMDUMP-vs-BCD matching:
+  126B08/128010 = ImagerPackage, F5300 = BasicPackages, 3A720/3B204 =
+  boot-resident FS/BTree code.
+- **The failing step is `FS.EnumerateForNames` returning nothing** with
+  zero network traffic in the final 140M cycles (the demand-fetch never
+  starts). The enumeration mechanism (FSMainImpl2.InnerEnumerate +
+  FSDirImpl.EnumerateEntries over the client B-tree) STOPS at the first
+  key that `Match` classifies as `clash`, so one out-of-scan-order key
+  between the start position (`Fonts>Xerox>TiogaFonts>Tioga10.`) and the
+  target makes the wildcard find nothing while exact-name lookups (tree
+  descent) still work -- and NOTHING else in the whole boot uses wildcard
+  enumeration, so a broken scan order would be invisible until now.
+- Verified NOT the cause: rusty's initial B-tree free-list conventions
+  (chain through minPage, freePageMarker in freeWords) match
+  BTreeWrite.mesa's allocator exactly, and AllocatePage would raise
+  Bug[pageNotFree] loudly on a bad chain.
+- Offline tree-walk is blocked by design: the on-disk TreeState says
+  rootPage=29/greatestPage=33/depth=3 while the client file holds only 24
+  data pages (6 tree pages) -- the live tree is mostly in FS's VM cache
+  (laundry lag), so only in-guest observation can see what the
+  enumeration sees.
+
+**Next diagnostic:** µtrace one B-tree `ReadEntry[greater, key]` descent
+inside the crash window and read the actual key bytes being compared (the
+compare loop's ALU operands), to see where the scan lands and which key
+"clashes". The IFUDISP segments before the raise alternate
+(3A720 x72, 3B204 x47) -- those are the descents.
 
 **Diagnostics staged (in /private/tmp, regenerate if lost — recipes here):**
-a pre-crash framebuffer at 12.90B (`cedar-precrash.pgm`; with autoConfirm
-the Installer prints one `local <-- remote` line per attach, so the
-terminal transcript shows whether the attaches happened and under what
-names), and a fast-iteration snapshot+PDI pair at 12.8B
-(`cedar-prefonts.{snap,pdi}`, built with `DORADO_PDI_SAVE=1` on a copy;
-restore with `--snapshot-in ... --pilot-disk /private/tmp/cedar-prefonts.pdi
---ftp-root ../chm/cedar/stp-root` and NO `--type` per the 2026-07-12
-snapshot rules). The crash window for gated traces is
-`DORADO_TRACE_GATE=12939500000,12939700000`.
+a pre-crash framebuffer at 12.90B (`cedar-precrash.pgm`), and a
+fast-iteration snapshot+PDI pair at 12.8B (`cedar-prefonts.{snap,pdi}`,
+built with `DORADO_PDI_SAVE=1` on a copy; restore with `--snapshot-in ...
+--pilot-disk <copy of cedar-prefonts.pdi> --ftp-root ../chm/cedar/stp-root`
+and NO `--type`; the window replays cycle-exact, ~30 s per iteration).
+The crash window for gated traces is
+`DORADO_TRACE_GATE=12939500000,12939645000`.
 
 Gateway-info noise: the guest sends GatewayInfoRequests (type 0o200)
 throughout the install; they print as FTP_UNSERVED but ARE answered by the
