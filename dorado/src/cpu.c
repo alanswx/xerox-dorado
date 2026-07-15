@@ -4054,12 +4054,13 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
                 uint32_t op_va = (ifu_br31 + (uint16_t)(cpu->ifu_pcf >> 1)) &
                                  0x0FFFFFFFu;
                 fprintf(stderr,
-                        "IFUDISP pc=0o%o pcf=0o%o opva=%07o br31=%05X op=%03o "
+                        "IFUDISP cyc=%llu pc=0o%o pcf=0o%o opva=%07o br31=%05X op=%03o "
                         "len=%u alpha=%03o beta=%03o flt=%d n=%d "
                         "insset=%u rh=%06o lh=%06o vec=0o%o "
                         "pc_after=0o%o stkp=%03o "
                         "acs=%06o,%06o,%06o,%06o "
                         "aacs=%06o,%06o,%06o,%06o rtrap=%d\n",
+                        (unsigned long long)cpu->cycles,
                         cpu->real_PC, cpu->ifu_pcf, op_va, ifu_br31,
                         opcode, length, cpu->ifu_alpha, cpu->ifu_beta,
                         fetch_faulted, n_slot, cpu->ifu_insset & 3,

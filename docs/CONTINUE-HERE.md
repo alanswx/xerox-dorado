@@ -64,11 +64,30 @@ to the CSB head at `0420`, debugger-entry IWDC at 12,939,641,547):
   (laundry lag), so only in-guest observation can see what the
   enumeration sees.
 
-**Next diagnostic:** µtrace one B-tree `ReadEntry[greater, key]` descent
-inside the crash window and read the actual key bytes being compared (the
-compare loop's ALU operands), to see where the scan lands and which key
-"clashes". The IFUDISP segments before the raise alternate
-(3A720 x72, 3B204 x47) -- those are the descents.
+**LATE-NIGHT REFRAME — the crash may not be about fonts at all.** A
+full-VA `DORADO_LOAD_TRACE_VA` sweep over the final 1.5M cycles before
+the raise (125K fetches) contains ZERO font-name text: no
+`FetchTypeface` SymTab hash, no `Rope.Cat` pattern text, no B-tree key
+characters. `ImagerFont.Find` cannot execute without reading the name's
+characters, so **no font lookup precedes the raise**. The 2026-07-13
+"it is the missing fonts" conclusion rested only on the raiser being
+ImagerPackage.bcd; the actual failing operation is something
+InterpreterPackage's START asks of ImagerPackage that fails with little
+compute (raise stint: ~90 dispatches at pcf 0o1004..0o1315, br31
+0x120808, same code region as 2026-07-13). Suspects: an ImagerPackage
+init/binding failure, or (per project history — see the
+germ-blockers-tend-to-be-emulator-offset-bugs memory) a microengine bug
+in freshly loaded code.
+
+**Next diagnostic:** name the actual ERROR. In the signaller stint right
+after the raise (module 34100, then 33F00's 2454-dispatch catcher hunt),
+the ERROR record pointer (with its `code` ATOM for Imager.Error) is on
+the Mesa stack -- the IFUDISP `acs=` values carry it. Chase it with
+VMDUMPs (30 s per iteration from the snapshot pair) to the atom's print
+name. Clock mapping for gates: machine_cycles = 12939500000 + (cpu_cyc -
+3496183757) * 3.7047 (cpu counter = µinstructions, machine = clock
+cycles; calibrate per-window against the IWDC at machine 12,939,641,547).
+IFUDISP lines now print `cyc=` (cpu clock).
 
 **Diagnostics staged (in /private/tmp, regenerate if lost — recipes here):**
 a pre-crash framebuffer at 12.90B (`cedar-precrash.pgm`), and a
