@@ -119,6 +119,22 @@ verification and Dorado's `pdidump`, then cold-booted to the graphical Cedar
 6.1 SimpleTerminal login prompt.  Guest local-file creation remains the next
 runtime acceptance gate.
 
+**Logical-volume boot records (2026-07-15).** A properly installed Cedar
+disk records the germ + boot file twice: the PHYSICAL volume root's
+`bootingInfo` (10B) — all the microcode/germ cold boot reads — and the
+LOGICAL volume root's `bootingInfo` (37B) + `rootFile` (125B) arrays, which
+Pilot's soft boot (BootTool's herald volume buttons, `Booting.Boot`,
+RollBack) resolves instead; a real Othello install writes both via
+`File.SetRoot` (FileImpl.mesa `RecordRootFile`).  Volumes built before
+2026-07-15 have only the PV records, so clicking a herald boot button
+raised an uncaught `File.Error` from FileImpl.  Fixed twice over:
+`pilot::install_boot_file` now writes the LV records on fresh builds, and
+`python3 tools/pdi_install_lv_bootfiles.py image.pdi` retrofits an existing
+image in place (idempotent; copies the PV DiskFileID words verbatim so the
+committed images' flat-VDA `firstLink` convention is preserved — do NOT
+re-encode to CHS, that recreates the 2e8018b cold-boot regression).  The
+committed `CedarDorado-work.pdi.gz` carries the LV records.
+
 `Basic.Loadees` is only the command file: its 33 BCD dependencies must also be
 available below the STP root.  Recreate that rooted release tree from the local
 CHM index with `python3 tools/fetch_cedar_loadees.py`; the script downloads the
