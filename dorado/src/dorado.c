@@ -191,6 +191,7 @@ static dorado_display_key char_to_key(char c, int *shift)
     case '.': return DORADO_KEY_PERIOD;
     case ',': return DORADO_KEY_COMMA;
     case '-': return DORADO_KEY_MINUS;
+    case '_': *shift = 1; return DORADO_KEY_MINUS;   /* Cedar's <- */
     case '=': return DORADO_KEY_PLUS;
     case '+': *shift = 1; return DORADO_KEY_PLUS;
     case '[': return DORADO_KEY_LBRACKET;
