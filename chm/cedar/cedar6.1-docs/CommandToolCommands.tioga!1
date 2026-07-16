@@ -1,0 +1,1453 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;Cedar6.1>Documentation>CommandToolCommands.tioga!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>CommandToolCommands.Tioga</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985, 1986 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Russ Atkinson (RRA) April 8, 1986 10:19:26 pm PST</i>
+</div>
+</div>
+<div class="block">
+C<span class="look-s"/>OMMAND</span>T<span class="look-s"/>OOL </span>C<span class="look-s"/>OMMANDS</span>
+</div>
+<div class="block">
+C<span class="look-s"/>OMMAND</span>T<span class="look-s"/>OOL </span>C<span class="look-s"/>OMMANDS</span>
+</div>
+<div class="block">
+<span class="look-s"/>CEDAR 6.0 &mdash; FOR INTERNAL XEROX USE ONLY</span>
+</div>
+<div class="block">
+<span class="look-s"/>CEDAR 6.0 &mdash; FOR INTERNAL XEROX USE ONLY</span>
+</div>
+<div class="title">
+CommandTool Commands
+</div>
+<div class="abstract">
+<br><span class="look-s"/><span class="look-m"/>©</span>  Copyright 1984, 1985, 1986 Xerox Corporation.  All rights reserved.<br></span>
+</div>
+<div class="abstract">
+<span class="look-b"/>Abstract:  </span><span class="look-t"/>This document is a user&apos;s guide for the default commands provided by the CommandTool in Cedar 6.</span>
+</div>
+<div class="boilerplate">
+<span class="look-q"/>XEROX</span>&emsp;<span class="look-o"/>&emsp;&emsp;Xerox Corporation</span><br>&emsp;<span class="look-o"/>&emsp;&emsp;&emsp;Palo Alto Research Center</span><br>&emsp;<span class="look-o"/>&emsp;&emsp;&emsp;3333 Coyote Hill Road</span><br>&emsp;<span class="look-o"/>&emsp;&emsp;&emsp;Palo Alto, California 94304<br><span class="look-x"/><span class="look-b"/><br>For Internal Xerox Use Only</span></span></span>
+</div>
+<div class="head">
+Commands
+</div>
+<div class="head4">
+<i>This document lists the commands available through the Command Tool (see CommandToolDoc.tioga for additional information), or are registered with the Commander after a full boot.  The commands are (mostly) listed in alphabetical order for ease of reference.  The exceptions are the working directory commands, which are listed at the end of this document.  Level-clipping this document is a good way to browse the command list.  Where commands are registered under additional names, the additional names are in parentheses following the &quot;official&quot; names.</i>
+</div>
+<div class="head4">
+<i>The syntax of commands is given along with the command name.  As examples:</i>
+<div class="item">
+<i>{directory}*&emsp;denotes zero or more directory specifications</i>
+</div>
+<div class="item">
+<i>fileName&emsp;&emsp;denotes exactly one file name specification</i>
+</div>
+<div class="item">
+<i>{number}&emsp;&emsp;denotes an optional number specification</i>
+</div>
+<div class="item">
+<i>{*}&emsp;&emsp;&emsp;denotes the rest of the command line</i>
+</div>
+</div>
+<div class="head4">
+<i>Many of the these commands can accept switch specifications.  Unless otherwise specified, switch specifications always start with &quot;-&quot;, they can occur in any position, and they affect the sense of named switch for the remainder of the command line.  For example, &quot;-ax~d&quot; causes the A and X switches to be set to TRUE, and the D switch to be set to FALSE.</i>
+</div>
+<div class="head">
+Abort
+<div class="head4">
+<i>Raises the error ABORTED.  This command will cause itself to exit abnormally.  It will also have the effect of unwinding all nested instances of the command tool.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>The simple example:</i>
+<div class="indent">
+<i>% Abort<br> ...Aborted</i>
+</div>
+</div>
+<div class="indent">
+<i>Suppose that Abort1.cm contains &quot;Abort2.cm\nDate\n&quot; and Abort2.cm contains &quot;Abort\n&quot;:</i>
+<div class="indent">
+<i>% Abort1.cm<br>&gt; Abort2.cm<br>&gt;&gt; Abort<br> ...Aborted</i>
+</div>
+</div>
+<div class="indent">
+<i>Notice that the Date command was not executed.</i>
+</div>
+</div>
+</div>
+<div class="head">
+AddDebugSearchRules<span class="look-s"/>  {directory}*</span>
+<div class="head4">
+<i>The symbol table machinery, in particular, the interface AMFiles, maintains a list of directories in which to look for symbols and source files.  This command changes that list by adding each of the directories on the command line to the end of the search list.  If a directory is already there, it will not be added again.</i>
+</div>
+<div class="head4">
+<i>Related commands are SetDebugSearchRules and PrintDebugSearchRules.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% PrintDebugSearchRules<br>( /// )<br>% AddDebugSearchRules ///Junk/ ///Acme/<br>% PrintDebugSearchRules<br>( /// ///Junk/ ///Acme/ )<br>% </i>
+</div>
+</div>
+<div class="head">
+<i><span class="look-e"/>warnings</span></i>
+<div class="indent">
+<i>AddDebugSearchRules does not make many consistancy checks on directory names.</i>
+</div>
+</div>
+</div>
+<div class="head">
+AddSearchRules<span class="look-s"/>  {directory}*</span>
+<div class="head4">
+<i>Adds a directory to the tail of the CommandTool search rules.</i>
+</div>
+<div class="head4">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% PrintSearchRules<br>( ///Commands/ )<br>% AddSearchRules ///Wierd  /Ivy/Stewart/Commands/<br>% PrintSearchRules<br>( ///Commands/ ///Wierd/ /Ivy/Stewart/Commands/ )</i>
+</div>
+</div>
+<div class="head4">
+<i><span class="look-e"/>warnings</span></i>
+<div class="head4">
+<i>Like SetSearchRules, AddSearchRules makes little attemp to check the validity of its arguments.</i>
+</div>
+</div>
+</div>
+<div class="head">
+Alias<span class="look-s"/>  newName {(nameList)} {*}</span>
+<div class="head4">
+<i>Aliases provide a substitution macro facility for the first token on a line.   Alias bro bringover /o will cause bro mumble to be expanded into bringover /o mumble. Aliases can also be given an (optional) argument list, in which case the tokens on the command line following the alias name will be substituted for the formal parameters, e.g., Alias brob (file df) bringover /a /o file.mesa file.bcd df would cause brob rope rigging to expand to bringover /a /o rope.mesa rope.bcd rigging.df.</i>
+</div>
+<div class="head4">
+<i>Most things that can be done with Alias can also be done with command files.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% Alias Backup List -u *!H<br>% Backup<br>AliasDoc.tioga!2<br>Binder.Log!1<br>commandtool.df!12</i>
+</div>
+<div class="indent">
+<i>% Alias</i>
+</div>
+</div>
+</div>
+<div class="head">
+Boot<span class="look-s"/>  {volume}</span>
+<div class="head4">
+<i>Boot boots the specified volume (default is the current running volume) with the given switches.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% Boot -f</i>
+<div class="indent">
+<i><span class="look-i"/>(performs a full boot of the current volume)</span></i>
+</div>
+</div>
+<div class="indent">
+<i>% Boot</i>
+<div class="indent">
+<i><span class="look-i"/>(performs a normal rollback boot of the current volume)</span></i>
+</div>
+</div>
+</div>
+</div>
+<div class="head">
+CacheFindExcessVersions<span class="look-s"/>  {pattern}*</span>
+<div class="head4">
+<i>CacheFindExcessVersions finds excess versions of files in the file cache.  Excess versions are all versions other than the highest numbered version of a file.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% CacheFindExcessVersions /Indigo/*fs.df<br>[Indigo]&lt;Cedar5.3&gt;Top&gt;FS.df!1</i>
+</div>
+</div>
+</div>
+<div class="head">
+CacheKillExcessVersions<span class="look-s"/>  {pattern}*</span>
+<div class="head4">
+<i>CacheKillExcessVersions flushes excess versions of files in the file cache.  Excess versions are all versions other than the highest numbered version of a file.  The K switch can be used to indicate that the following number is the number of versions to keep.</i>
+</div>
+</div>
+<div class="head">
+Checkpoint
+<div class="head4">
+<i>Create a checkpoint.  This is a simple interface to Booting.Checkpoint and is otherwise the same as the procedure called by the Checkpoint button in the herald.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% Checkpoint<br>Creating checkpoint at April 23, 1985 9:19:18 am PST<br>    made by Atkinson.pa<br>...</i>
+</div>
+</div>
+</div>
+<div class="head">
+ClearMenu
+<div class="head4">
+<i>ClearMenu restores the Command Tool menu to its initial pristine state, with only the <span class="look-o"/>STOP!</span>, <span class="look-o"/>Find</span>, and <span class="look-o"/>Split</span> buttons.  For shared machine users, this command is useful to execute prior to establishing your own personal buttons.</i>
+</div>
+</div>
+<div class="head">
+Copy  <span class="look-s"/>{pattern}*</span>
+<div class="head4">
+<i>The copy command has three forms</i>
+<div class="indent">
+<i><span class="look-o"/>Copy toFile &#x2190 fromFile</span></i>
+<div class="indent">
+<i>This form copies the file named by <span class="look-o"/>fromFile</span> to the file named by <span class="look-o"/>toFile</span>.</i>
+</div>
+</div>
+<div class="indent">
+<i><span class="look-o"/>Copy toDirectory &#x2190 {pattern}*</span></i>
+<div class="indent">
+<i>This form copies all files matching the patterns into the directory named <span class="look-o"/>toDirectory</span>.  Using the R switch will retain the subdirectory structure of the patterns.</i>
+</div>
+</div>
+<div class="indent">
+<i><span class="look-o"/>Copy {pattern}*</span></i>
+<div class="indent">
+<i>This form copies all files matching the patterns into the local directory under local names.  Using the R switch will retain the subdirectory structure of the patterns.</i>
+</div>
+</div>
+</div>
+<div class="head4">
+<i>The copy command is a thin veneer user interface to FS.Copy.   In particular: FS.Copy[from: from, to: to, keep: createKeep, attach: <span class="look-k"/>TRUE</span>].  FS.Copy will be called with attach: <span class="look-k"/>FALSE</span> if the -c switch is set.  FS uses the current working directory if either to or from are not full path names.</i>
+<div class="note">
+<i>createKeep is a global variable in FSFileCommandsImpl, and can be set by the interpreter (the default is 2).</i>
+</div>
+</div>
+<div class="head4">
+<i>The version of the &quot;to&quot; file created is one larger than the existing !H version, unless &quot;to&quot; is a GName on a server that does not support version numbers, in which case an existing global file will be overwritten.</i>
+</div>
+<div class="head4">
+<i>Case 1: &quot;to&quot; is a GName and &quot;attach&quot; is <span class="look-k"/>FALSE</span> &mdash; <span class="look-k"/>FS</span> does an <span class="look-k"/>FS</span>.Open[from, read, wantedCreatedTime, remoteCheck, wdir] and stores the contents and properties of the opened file directly in the new &quot;to&quot; file on the remote server.</i>
+</div>
+<div class="head4">
+<i>Case 2: &quot;to&quot; is an LName and &quot;attach&quot; is <span class="look-k"/>FALSE</span> &mdash; <span class="look-k"/>FS</span> does an <span class="look-k"/>FS</span>.Open[from, read, wantedCreatedTime, remoteCheck, wDir] to generate a &quot;from&quot; open file, and <span class="look-k"/>FS</span>.Create[to, setKeep, keep, wDir] to generate a &quot;to&quot; OpenFile.  The contents and properties are copied from the &quot;from&quot; OpenFile to the &quot;to&quot; OpenFile, and both are closed.  (In the case of copying from an uncached global file, the global file is not added to the cache.  The only pages allocated on the local volume are those needed to hold the target local file.)</i>
+</div>
+<div class="head4">
+<i>Case 3: &quot;to&quot; is a GName, &quot;attach&quot; is <span class="look-k"/>TRUE</span>, and &quot;from&quot; is a LName &mdash; Things proceed as in case 1, except a &quot;write&quot; lock is acquired for the &quot;from&quot; file.  Once the transfer is completed, the LName is attached to the GName.  Case 3 is used by &quot;SModel&quot;.</i>
+</div>
+<div class="head4">
+<i>Case 4:  &quot;to&quot; is an LName, &quot;attach&quot; is <span class="look-k"/>TRUE</span>, and from&quot; is a GName &mdash; Like case 2 except that instead of an actual transfer of contents and properties, the LName is attached to the GName / created-time.  If no &quot;wantedCreatedTime&quot; is specified, or if &quot;remoteCheck&quot; is TRUE, then FS.FileInfo[to, wantedCreatedTime, <span class="look-k"/>TRUE</span>] is performed first to determine/check the version number and created-time for the GName and any resulting FS.Error is passed on to the client.  When &quot;remoteCheck&quot; is FALSE (but a wantedCreatedTime&quot; is specified) then the attachment is made to the &quot;from&quot; and &quot;wantedCreatedTime&quot; arguments without checking either the remote server or the cache.  Case 4 is used by &quot;BringOver&quot;.</i>
+</div>
+<div class="head4">
+<i>Case 5: both &quot;from&quot; and &quot;to&quot; are LNames, or both are GNames, and &quot;attach is &quot;<span class="look-k"/>TRUE</span>&quot; &mdash; FS proceeds as though &quot;attach&quot; were FALSE (see cases 1 and 2 above).</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% Copy TrapsImpl.bcd &#x2190 /indigo/PreCedar/MesaRuntime/TrapsImpl.bcd!1<br>% Copy /Ivy/Stewart/Temp/Compiler.log &#x2190 Compiler.log<br>% </i>
+</div>
+<div class="indent">
+<i>% CD ///test/<br>% Copy /ivy/stewart/temp/W*<br>  ///test/w1aw.txt &#x2190 [ivy]&lt;Stewart&gt;temp&gt;w1aw.txt!3<br>  ///test/WFReal.mesa &#x2190 [ivy]&lt;Stewart&gt;temp&gt;WFReal.mesa!1<br>  ///test/wfrealimpl.mesa &#x2190 [ivy]&lt;Stewart&gt;temp&gt;wfrealimpl.mesa!4<br>  ///test/wfrealtest.mesa &#x2190 [ivy]&lt;Stewart&gt;temp&gt;wfrealtest.mesa!4<br>  ///test/wink.mesa &#x2190 [ivy]&lt;Stewart&gt;temp&gt;wink.mesa!1<br>% </i>
+</div>
+<div class="indent">
+<i>% Copy ///test/ &#x2190 /ivy/stewart/temp/protocol.txt /ivy/stewart/temp/printcl.bcd<br>  ///test/protocol.txt &#x2190 [ivy]&lt;Stewart&gt;temp&gt;protocol.txt!1<br>  ///test/printcl.bcd &#x2190 [ivy]&lt;Stewart&gt;temp&gt;printcl.bcd!1<br>% </i>
+</div>
+</div>
+<div class="head">
+<i><span class="look-e"/>warnings</span></i>
+<div class="indent">
+<i>There is presently no way to change the value of createKeep, but the SetKeep command will change the keep for a particular file.</i>
+</div>
+<div class="indent">
+<i>If a pattern does not include a version number specification, then !H is appended.</i>
+</div>
+<div class="indent">
+<i>If a pattern which matches a subtree (files in subdirectories) is used, the subdirectory structure will be lost.</i>
+</div>
+<div class="indent">
+<i>It is likely that Copy remote-pattern!* does not do what you think!</i>
+<div class="indent">
+<i>% Copy /Ivy/Stewart/temp/W1aw.txt!*<br>  ///wierd/w1aw.txt &#x2190 [Ivy]&lt;Stewart&gt;temp&gt;w1aw.txt!1<br>  ///wierd/w1aw.txt &#x2190 [Ivy]&lt;Stewart&gt;temp&gt;w1aw.txt!2<br>  ///wierd/w1aw.txt &#x2190 [Ivy]&lt;Stewart&gt;temp&gt;w1aw.txt!3<br>% list -bof w1aw.txt<br>  []&lt;&gt;wierd&gt;w1aw.txt!2  []&lt;&gt;wierd&gt;w1aw.txt!3</i>
+</div>
+</div>
+<div class="indent">
+<i>The attachments were made in the order shown, but the default keep = 2 has causes w1aw.txt!1 to fall off the edge.  There is no guarantee that the local w1aw.txt!2 is the same as the remote w1aw.txt!2, as can be seen by the following example:</i>
+<div class="indent">
+<i>% Copy /Ivy/Stewart/temp/W1aw.txt!*<br>  ///wierd/w1aw.txt &#x2190 [ivy]&lt;Stewart&gt;temp&gt;w1aw.txt!1<br>  ///wierd/w1aw.txt &#x2190 [ivy]&lt;Stewart&gt;temp&gt;w1aw.txt!2<br>  ///wierd/w1aw.txt &#x2190 [ivy]&lt;Stewart&gt;temp&gt;w1aw.txt!3<br>% list w1aw.txt<br>  []&lt;&gt;wierd&gt;w1aw.txt!5  []&lt;&gt;wierd&gt;w1aw.txt!6 </i>
+</div>
+</div>
+</div>
+</div>
+<div class="head">
+CreateButton <span class="look-s"/>buttonName {*}</span>
+<div class="head4">
+<i>The command appends a button to the herald of the CommandTool in which it is run.  The name of the button is given by <span class="look-o"/><span class="look-e"/>buttonName</span></span>.  When the button is clicked, the remainder of the command line is transformed as described below and stuffed into the CommandTool input.  Before stuffing, the button procedure checks to see whether or not the current input buffer of the CommandTool ends with a CR.  If it does not, then the buffer is erased back to the last CR.</i>
+</div>
+<div class="head4">
+<i>The button procedure appends a CR to the end of commandLine if there is not one there already.</i>
+</div>
+<div class="head4">
+<i>Substitutions are done on commandLine before stuffing it.  The following special strings are replaced as shown:</i>
+<div class="code">
+<i></i>
+</div>
+<div class="item">
+$CurrentSelection$  =&gt; replaced by the current selection up to but not including the first carriage return
+</div>
+<div class="item">
+$FileNameSelection$ =&gt; replaced by the current selection if it appears to be a file name, otherwise replaced by the name of the selected viewer
+</div>
+<div class="item">
+$ShortFileNameSelection$ =&gt; same as $FileNameSelection$ except that version number and directory are omitted
+</div>
+<div class="item">
+$SelectedViewerName$ =&gt; replaced by the name of the selected viewer
+</div>
+<div class="item">
+$ViewerPosition$ =&gt; replaced by the position of the current selection in a viewer
+</div>
+<div class="item">
+$MouseButton$ =&gt; &quot;left&quot; | &quot;middle&quot; | &quot;right&quot;
+</div>
+<div class="item">
+$ShiftKey$ =&gt; &quot;shift&quot; | &quot;noShift&quot;
+</div>
+<div class="item">
+$ControlKey$ =&gt; &quot;control&quot; | &quot;noControl&quot;
+</div>
+</div>
+<div class="head4">
+The idea is that one writes an ordinary command line CommandProc to do some job, then use CreateButton to hook up a button to it.
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="item">
+<i>% CreateButton Test // CurrentSelection = $CurrentSelection$, FileNameSelection = $FileNameSelection$, SelectedViewerName = $SelectedViewerName$, ViewerPosition = $ViewerPosition$, MouseButton = $MouseButton$, ShiftKey = $ShiftKey$, ControlKey = $ControlKey$</i>
+</div>
+<div class="item">
+<i>% -- Select something like &quot;Atom&quot; in the viewer CommandsCImpl.mesa and click control shift middle</i>
+</div>
+<div class="item">
+<i>% // CurrentSelection = Atom, FileNameSelection = Atom, SelectedViewerName = []&lt;&gt;ct&gt;commandscimpl.mesa, ViewerPosition = 12, MouseButton = middle, ShiftKey = shift, ControlKey = control </i>
+</div>
+</div>
+</div>
+<div class="head">
+Date
+<div class="head4">
+<i>Prints date and time on standard output stream.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% Date<br>  Monday, April 22, 1985 7:02 pm PST</i>
+</div>
+</div>
+</div>
+<div class="head">
+Delete (Del)<span class="look-s"/>  {pattern}*</span>
+<div class="head4">
+<i>Delete deletes the FS files matching the given patterns.  <span class="look-b"/>It does not ask for confirmation.</span>  Both local and remote patterns can be used.  If there is no version number, the default is !L.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>switches</span></i>
+<div class="item">
+<i>X&emsp;forces an exact level match for the pattern, so that the same number of  directry separators must appear both in the matching files and the pattern</i>
+</div>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% Delete /Ivy/Stewart/Temp/W1aw.txt!2<br> deleting /Ivy/Stewart/Temp/W1aw.txt!2<br><br>% Delete ///temp/*<br> deleting []&lt;&gt;temp&gt;Binder.Log!1<br> deleting []&lt;&gt;temp&gt;commands.txt!1<br> deleting []&lt;&gt;temp&gt;foo.cm!1<br><br>% Delete ///temp/*<br> deleting []&lt;&gt;temp&gt;commands.txt!2</i>
+</div>
+</div>
+<div class="head">
+<i><span class="look-e"/>warnings</span></i>
+<div class="indent">
+<i><span class="look-b"/>Delete does not ask for confirmation.</span></i>
+</div>
+</div>
+</div>
+<div class="head">
+Echo<span class="look-s"/>  {*}</span>
+<div class="head4">
+<i>Echo parses its command line with CommandTool.Parse and prints the resulting tokens with separating spaces and a final carriage return.  It is most useful to see what one of your command lines expands into.  It is also useful for getting star patterns into a file.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% Echo a b c<br>a b c </i>
+</div>
+</div>
+</div>
+<div class="head">
+Eval (&#x2190)<span class="look-s"/>  {*}</span>
+<div class="head4">
+<i>Eval calls the interpreter to evaluate and print the remainder of the command line (which is uninterpreted as far as the Command Tool is concerned).</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% Eval 1.2+3.4<br>4.6 </i>
+</div>
+</div>
+</div>
+<div class="head">
+Fail
+<div class="head4">
+<i>This Commander.CommandProc merely returns [$Failure, &quot;This Command Always Fails&quot;].  This will terminate processing of further commands on the same line.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% Date; Fail; Date<br>  Monday, April 22, 1985 7:17 pm PST<br>This Command Always Fails<br>[[Command Failed]] </i>
+</div>
+</div>
+</div>
+<div class="head">
+FindExcessVersions<span class="look-s"/>  {pattern}*</span>
+<div class="head4">
+<i>FindExcessVersions finds excess versions of files that match the given patterns (* is the default).  Excess versions are all versions other than the highest numbered version of a file.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i><span class="look-t"/>% </span>FindExcessVersions<span class="look-t"/><br></span> []&lt;&gt;Cedar6.0&gt;CommandToolCommands.tioga!5 <span class="look-t"/><br> . . .</span></i>
+</div>
+</div>
+</div>
+<div class="head">
+FindR<span class="look-s"/>  {pattern}*</span>
+<div class="head4">
+<i>FindR finds matching file names in the release.  It is useful for finding a file name given partial information.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i><span class="look-t"/>% </span>FindR CommandTool<span class="look-t"/><br></span>CommandTool.* =&gt;<br>  [Cedar]&lt;Cedar6.0&gt;Top&gt;CommandTool.df!23<br>      April 22, 1985 8:16:10 pm PST<br>  [Cedar]&lt;Cedar6.0&gt;CommandTool&gt;CommandTool.mesa!2<br>      March 5, 1985 5:11:50 pm PST</i>
+</div>
+</div>
+<div class="head">
+<i><span class="look-e"/>warnings</span></i>
+<div class="indent">
+<i>Starting a pattern with &apos;* will cause the match to be extremely slow.  In general, the more prefix given, the faster the search.</i>
+</div>
+</div>
+</div>
+<div class="head">
+FlushCache<span class="look-s"/>  {pattern}*</span>
+<div class="head4">
+<i>FlushCache deletes files from the FS local disk cache.</i>
+</div>
+<div class="head4">
+<i>It can be used:</i>
+<div class="indent">
+<i>a) to force a retrieval of a certain file when next referenced.</i>
+</div>
+<div class="indent">
+<i>b) to give advice to FS that a file or group of files will not be needed for a long time.</i>
+</div>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i><span class="look-t"/>% </span>FlushCache<span class="look-t"/> [Ivy]&lt;Stewart&gt;</span>CommandTool<span class="look-t"/>&gt;*<br></span>  flushing [Ivy]&lt;Stewart&gt;CommandTool&gt;CompileCommandTool.cm!2<br>  flushing [Ivy]&lt;Stewart&gt;CommandTool&gt;FSFileCommandsImpl.bcd!4<br><span class="look-t"/>  . . .</span></i>
+</div>
+</div>
+</div>
+<div class="head">
+Help (?, ??)<span class="look-s"/>  {pattern}*</span>
+<div class="head4">
+<i>If pattern does not include a *, then a CommandTool.LookupCommand is done to find the command.  This has some interesting consequences described in the warnings section!</i>
+</div>
+<div class="head4">
+<i>If pattern is a directory name, then a * is appended -- ? directoryName will display all commands registered in a particular directory and its subdirectories.</i>
+</div>
+<div class="head4">
+<i>If pattern is not a full path name, and includes a *, then a * is prepended.  Thus ? lis* will behave like ? *Lis*.</i>
+</div>
+<div class="head4">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% ? Version Date<br>///Commands/Version   Print Cedar version number<br>///Commands/Date      Print date and time </i>
+</div>
+<div class="indent">
+<i>% ? ve*<br>///Commands/FSBringover FSBringover list-of-remote-patterns<br>///Commands/Scavenge Scavenge {volumeName} -- FS scavenge<br>///Commands/Version  Print Cedar version number </i>
+</div>
+</div>
+</div>
+<div class="head">
+Indent<span class="look-s"/>  {number}</span>
+<div class="head4">
+<i>Indent is a filter which reads the standard input and prints each line (delimited by CR) on the standard output after printing some number of spaces.  The default argument is 8.</i>
+</div>
+<div class="head4">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% Date | Indent 10<br>            November 1, 1983 7:20 pm </i>
+</div>
+</div>
+</div>
+<div class="head">
+KillExcessVersions<span class="look-s"/>  {pattern}*</span>
+<div class="head4">
+<i>FindExcessVersions finds excess versions of files that match the given patterns (* is the default).  Excess versions are all versions other than the highest numbered version of a file.  The K switch can be used to indicate that the following number is the number of versions to keep.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i><span class="look-t"/>% </span>KillExcessVersions<span class="look-t"/><br></span> deleting []&lt;&gt;Cedar5.3&gt;Binder.df!1<span class="look-t"/><br> . . .</span></i>
+</div>
+<div class="indent">
+<i><span class="look-t"/>% </span>KillExcessVersions<span class="look-t"/> -K 2 *<br></span> deleting []&lt;&gt;Cedar5.3&gt;Binder.df!1<span class="look-t"/><br> . . .</span></i>
+</div>
+</div>
+</div>
+<div class="head">
+List (LS)<span class="look-s"/>  {switch | pattern}*</span>
+<div class="block">
+<i>The list command prints names and possibly information about files in the FS directory system.  It is a user interface for the FS.EnumerateForInfo and FS.EnumerateForNames calls.</i>
+</div>
+<div class="block">
+<i>List works for both local and remote patterns.<br>List works in the current working directory if a pattern is not a full path.<br>List works with both / and [ style filenames.<br>If a pattern given to List is a directory name, (ends with a &apos;/ or &apos;&gt;) then a &apos;* is appended.</i>
+</div>
+<div class="head">
+<i>Switches (case not important)</i>
+<div class="item">
+<i>~&emsp;negates the sense of the following switch</i>
+</div>
+<div class="item">
+<i>A&emsp;prints Attachments  (&#x2190 false)</i>
+</div>
+<div class="item">
+<i>B&emsp;inhibits printing of size and create date  (&#x2190 false)</i>
+</div>
+<div class="item">
+<i>D&emsp;sorts files by create Date  (&#x2190 no sort)</i>
+</div>
+<div class="item">
+<i>F&emsp;forces Full file name printing  (&#x2190 false)</i>
+</div>
+<div class="item">
+<i>G&emsp;forces Global file name printing  (&#x2190 false)</i>
+</div>
+<div class="item">
+<i>K&emsp;prints Keep information   (&#x2190 false)</i>
+</div>
+<div class="item">
+<i>N&emsp;forces Narrow printing (size and date on separate line)  (&#x2190 false)</i>
+</div>
+<div class="item">
+<i>O&emsp;forces printing to One line where reasonable  (&#x2190 false)</i>
+</div>
+<div class="item">
+<i>P&emsp;prints only Prefixes (directories)   (&#x2190 false)</i>
+</div>
+<div class="item">
+<i>R&emsp;forces Remote checking   (&#x2190 false)</i>
+</div>
+<div class="item">
+<i>S&emsp;sorts files by Size in bytes   (&#x2190 no sort)</i>
+</div>
+<div class="item">
+<i>U&emsp;prints only Unattached files   (&#x2190 false)</i>
+</div>
+<div class="item">
+<i>X&emsp;eXact level match (causes &quot;*&quot; to not match &quot;&gt;&quot;)   (&#x2190 false)</i>
+</div>
+<div class="item">
+<i>&gt;&emsp;causes sorting by most recent first for dates, largest first for sizes (default)</i>
+</div>
+<div class="item">
+<i>&lt;&emsp;causes sorting by least recent first for dates, smallest first for sizes</i>
+</div>
+</div>
+<div class="block">
+<i>Switches can appear anywhere within a command line.  Their effect is cumulative within the command.</i>
+</div>
+<div class="block">
+<i>List -U prints only those files which are not FS attachments and which consequently are not backed up anywhere.  List -u ///* is a good way to get a list of all such files.  List -u ///*!H is probably most helpful, since only the most recent files are of particular interest.</i>
+</div>
+<div class="block">
+<i>The user can tailor the default switches for List by the user profile.  As an example, to default the F and R switches to true, use:</i>
+<div class="indent">
+<i>ListCommand.DefaultSwitches: fr</i>
+</div>
+</div>
+<div class="head">
+<i>examples</i>
+<div class="indent">
+<i>% list ///Compiler.log<br>[]&lt;&gt;Compiler.log!212        237 11-Jul-84 20:39:07 PDT<br>-- 1 files, 237 total bytes</i>
+</div>
+<div class="indent">
+<i>% list -f ///Compiler.*<br>[]&lt;&gt;Compiler.bcd!3       294400 16-May-84 19:47:10 PDT<br>[]&lt;&gt;Compiler.config!1      3064 25-Jan-84 12:49:23 PST<br>[]&lt;&gt;Compiler.df!6         17634 30-May-84 10:40:40 PDT<br>[]&lt;&gt;Compiler.load!2          78 21-Nov-83 14:55:08 PST<br>[]&lt;&gt;Compiler.log!212        237 11-Jul-84 20:39:07 PDT<br>-- 5 files, 315413 total bytes</i>
+</div>
+<div class="indent">
+<i>% list -bfo ///Compiler.log<br>[]&lt;&gt;Compiler.bcd!3 []&lt;&gt;Compiler.config!1 []&lt;&gt;Compiler.df!7 []&lt;&gt;Compiler.load!2<br>-- 4 files</i>
+</div>
+<div class="indent">
+<i>% list -n ///Compiler.* -d ///Compiler.*<br>[]&lt;&gt;<br>  Compiler.bcd!3           294400 16-May-84 19:47:10 PDT<br>  Compiler.config!1          3064 25-Jan-84 12:49:23 PST<br>  Compiler.df!6             17634 30-May-84 10:40:40 PDT<br>  Compiler.load!2              78 21-Nov-83 14:55:08 PST<br>  Compiler.log!212            237 11-Jul-84 20:39:07 PDT<br>[]&lt;&gt;<br>  Compiler.log!212            237 11-Jul-84 20:39:07 PDT<br>  Compiler.df!6             17634 30-May-84 10:40:40 PDT<br>  Compiler.bcd!3           294400 16-May-84 19:47:10 PDT<br>  Compiler.config!1          3064 25-Jan-84 12:49:23 PST<br>  Compiler.load!2              78 21-Nov-83 14:55:08 PST<br>-- 10 files, 630826 total bytes</i>
+</div>
+</div>
+</div>
+<div class="head">
+ListBTree<span class="look-s"/>  {pattern}*</span>
+<div class="head4">
+<i>ListBTree lists files in the FS cache.  The first character of a line indicates the type of file (L means local, A means attached, C means cached).  Local files print their names only, attached files prinnt both LName and GName.  Cached files print their GNames and the time last used.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>switches</span></i>
+<div class="indent">
+<i>A&emsp;(attached)  print files which are attachments but which are not cached locally</i>
+</div>
+<div class="indent">
+<i>C&emsp;(cached)  print files which are attachments and which are cached locally</i>
+</div>
+<div class="indent">
+<i>L&emsp;(local)  print files which are local (not-backed up)</i>
+</div>
+<div class="indent">
+<i>The default switches are C and L because those are precisely the files which occupy space on the local disk.</i>
+</div>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i><span class="look-t"/>% </span>ListBTree<span class="look-t"/> [Ivy]*<br></span>[Ivy]&lt;CedarViewers&gt;Viewers&gt;Standard.icons!6<br>  used at November 4, 1983 1:16 pm<br>[Ivy]&lt;Stewart&gt;Cedar&gt;bugs.txt!1<br>  used at November 2, 1983 5:32 pm<br><span class="look-t"/>. . .</span></i>
+</div>
+</div>
+</div>
+<div class="head">
+Load<span class="look-s"/>  {file}*</span>
+<div class="head4">
+<i>Load causes programs to be loaded without being started.  The Start command can then be used to start the programs (perhaps after breakpoints have been set).</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% Load Binder<br>  Loaded: Binder, from: [Cedar]&lt;Cedar6.0&gt;Binder&gt;Binder.bcd!5</i>
+</div>
+</div>
+</div>
+<div class="head">
+Lookup<span class="look-s"/>  {name}</span>
+<div class="head4">
+<i>Lookup performs the command lookup algorithm without actually executing the command if one is found.  This is useful for testing the meaning of a command name before its execution would have bad side effects.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% Lookup Lookup<br>Found: ///Commands/Lookup</i>
+</div>
+</div>
+</div>
+<div class="head">
+Open<span class="look-s"/>  {pattern}*</span>
+<div class="head4">
+<i>Open tioga viewer(s) on file(s) or create an empty tioga viewer.  Patterns with *&apos;s will open all matching files.  If a version number is not explicit, !H will be used.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% Open CommandTool<br>Opened: CommandTool</i>
+</div>
+</div>
+</div>
+<div class="head">
+OpenR<span class="look-s"/>  {pattern}*</span>
+<div class="head4">
+<i>OpenR opens Tioga viewers on matching files in the release.  It will try to only open the most recent version if more than one is present, and will try to open the file with the &quot;best&quot; suffix if more than one name is matched.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% OpenR CommandTool<br>  Created Viewer: []&lt;&gt;Cedar6.0&gt;Bogus.cm</i>
+</div>
+</div>
+</div>
+<div class="head">
+PrintDebugSearchRules
+<div class="head4">
+<i>The symbol table machinery, in particular, the interface AMFiles, maintains a list of directories in which to look for symbols and source files.  This command prints that list.</i>
+</div>
+<div class="head4">
+<i>Related commands are AddDebugSearchRules and SetDebugSearchRules.</i>
+</div>
+<div class="head">
+<i>examples</i>
+<div class="indent">
+<i>% PrintDebugSearchRules<br>( /// ///ct/ )</i>
+</div>
+</div>
+</div>
+<div class="head">
+PseudoServerAdd (PSAdd)<span class="look-s"/>  {name}*</span>
+<div class="head4">
+<i>PseudoServerAdd adds a pseudo-server translation to FS.  This can cause a server name to denote one or several other actual servers.  The meaning of the names is position sensitive, as in:</i>
+<div class="indent">
+<i>PSAdd server writeServer readServer ...</i>
+</div>
+</div>
+<div class="head4">
+<i>There can only be one write server, but there can be multiple read servers.  The R switch can be specified after the server name to denote that the files accessed through this server name are to be treated as replicated (when a file is absent on one readServer, the others are not searched).  If no writeServer or readServer is specified, any current translation for the name is deleted.</i>
+</div>
+<div class="head">
+<i>examples</i>
+<div class="indent">
+<i>% PSAdd Cedar -r Indigo Indigo Cyan<br>&apos;Cedar&apos; updated in pseudo server list</i>
+</div>
+<div class="indent">
+<i>% PSAdd Cedar<br>&apos;Cedar&apos; deleted from pseudo server list.</i>
+</div>
+</div>
+</div>
+<div class="head">
+PseudoServerPrint (PSPrint)
+<div class="head4">
+<i>PseudoServerPrint prints the current pseudo-server translations.</i>
+</div>
+<div class="head">
+<i>examples</i>
+<div class="indent">
+<i>% PseudoServerPrint<br>   Cedar  -r Indigo Indigo Cyan<br>   User Ivy Ivy</i>
+</div>
+</div>
+</div>
+<div class="head">
+RemoveButton<span class="look-s"/>  buttonName</span>
+<div class="head4">
+<i>The command removes a button from the menu of the CommandTool in which it is run.  The name of the button is <span class="look-i"/><span class="look-e"/>buttonName</span></span>.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% CreateButton Test Echo Test</i>
+<div class="indent">
+<i><span class="look-i"/>(creates a button labelled &quot;Test&quot;)</span></i>
+</div>
+</div>
+<div class="indent">
+<i>% RemoveButton Test</i>
+<div class="indent">
+<i><span class="look-i"/>(removes the button labelled &quot;Test&quot;)</span></i>
+</div>
+</div>
+</div>
+</div>
+<div class="head">
+Rename<span class="look-s"/>  {pattern}*</span>
+<div class="head4">
+<i>Rename renames files using FS.Rename, and has interpretes its arguments as the Copy command does.  If full path names are not used, FS will operate on files in the current working directory.  If a pattern does not include a version number specification, then !H is appended.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% rename bar &#x2190 junk.txt<br>% rename bar.txt &#x2190 [ivy]&lt;Stewart&gt;temp&gt;w1aw.txt<br>% rename /Ivy/Stewart/Temp/Compiler.log &#x2190 Compiler.log<br>% rename /Ivy/Stewart/Notes/Compiler.log &#x2190 /Ivy/Stewart/Temp/Compiler.log</i>
+</div>
+<div class="indent">
+<i>% rename /Ivy/Stewart/Temp/*</i>
+<div class="indent">
+<i><span class="look-i"/>Moves all files in /Ivy/Stewart/Temp/ to the current working directory.</span></i>
+</div>
+</div>
+<div class="indent">
+<i>% rename ///Temp/ &#x2190 /Ivy/Stewart/Temp/*</i>
+<div class="indent">
+<i><span class="look-i"/>Moves all files in /Ivy/Stewart/Temp/ to ///Temp/.</span></i>
+</div>
+</div>
+</div>
+</div>
+<div class="head">
+Rollback
+<div class="head4">
+<i>Rollback to previous a checkpoint.  This is a simple interface to Booting.Boot and is otherwise the same as the procedure called by the Rollback button in the herald.</i>
+</div>
+</div>
+<div class="head">
+Run<span class="look-s"/><span class="look-b"/>  </span> {file}*</span>
+<div class="head4">
+<i>Loads and starts a BCD unless it is already loaded.  You may omit the extension if it is &quot;.bcd&quot;.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>switches</span></i>
+<div class="indent">
+<i>A&emsp;Always runs the file, even if it has been run before</i>
+</div>
+<div class="indent">
+<i>D&emsp;Don&apos;t start the bcd if it has unbound imports</i>
+</div>
+</div>
+<div class="head">
+<i><span class="look-e"/>warnings</span></i>
+<div class="indent">
+<i>You will find out about version mismatches etc. If there are any errors other than unbound imports, the module or configuration will not be STARTed.  If there were unbound imports, the BCD will be STARTed unless the -d switch is set.</i>
+</div>
+</div>
+</div>
+<div class="head">
+Scavenge<span class="look-s"/>  {volumeName}</span>
+<div class="head4">
+<i>Scavenge invokes FSBackdoor.ScavengeDirectoryAndCache on the named volume (the current volume is the default).</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>warnings</span></i>
+<div class="indent">
+<i>This command takes a long time, and should not normally be necessary.</i>
+</div>
+</div>
+</div>
+<div class="head">
+SetDebugSearchRules<span class="look-s"/>  {directory}*</span>
+<div class="head4">
+<i>The symbol table machinery, in particular, the interface AMFiles, maintains a list of directories in which to look for symbols and source files.  This command changes that list by deleting the old one and installing each of the directories on the command line.</i>
+</div>
+<div class="head4">
+<i>Related commands are AddDebugSearchRules and PrintDebugSearchRules.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% SetDebugSearchRules ///Junk/ ///Acme/<br>% PrintDebugSearchRules<br>( ///Junk/ ///Acme/ /// )</i>
+</div>
+</div>
+<div class="head">
+<i><span class="look-e"/>warnings</span></i>
+<div class="indent">
+<i>SetDebugSearchRules does not make many consistancy checks on directory names.</i>
+</div>
+</div>
+</div>
+<div class="head">
+SetFreeboard<span class="look-s"/><span class="look-b"/>  </span>number</span>
+<div class="head4">
+<i>Set the FS cache freeboard parameter (nPages should be a positive integer).  This command is an interface to FSBackdoor.SetFreeboard.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% SetFreeboard 1100<br>% PrintFSCacheInfo<br>  size = 27999, free = 1501, freeboard = 1100</i>
+</div>
+</div>
+<div class="head">
+<i><span class="look-e"/>warnings</span></i>
+<div class="indent">
+<i>SetFreeboard to a large value may not work properly.</i>
+</div>
+</div>
+</div>
+<div class="head">
+SetKeep<span class="look-s"/><span class="look-b"/>  </span>number {pattern}*</span>
+<div class="head4">
+<i>Set the FS keep parameter of local files (<span class="look-o"/>number</span> should be a positive integer).  SetKeep will actually delete on the spot any versions of the file which are not in use and which would not be retained given the new value of keep.  A keep value of 0 leaves the current keep alone, but does the keep processing of deleting any versions that are not in use and which are inconsistant with the existing keep value.  SetKeep doesn&apos;t work for remote files (they have no FS keep property).</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% SetKeep 2 /ivy/stewart/temp/w1aw.txt<br> ... FS.Error[Can&apos;t set the keep on a GName.]</i>
+</div>
+<div class="indent">
+<i>% SetKeep 2 Test3.cm</i>
+</div>
+</div>
+</div>
+<div class="head">
+SetSearchRules<span class="look-s"/><span class="look-b"/>  </span>{directory}*</span>
+<div class="head4">
+<i>Set the CommandTool search rules.  The arguments should be names of directories.  SetSearchRules will append a &apos;/ (or &apos;&gt; as appropriate) to any directory name that does not already have one.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% SetSearchRules ///Commands/ ///Wierd/<br>% PrintSearchRules<br>( ///Commands/ ///Wierd/ )</i>
+</div>
+</div>
+<div class="head">
+<i><span class="look-e"/>warnings</span></i>
+<div class="indent">
+<i>SetSearchRules makes only brief checks that its arguments are really directories.  SetSearchRules rejects any directory name shorter than three characters because /// is the shortest directory name and it rejects any name that does not start with &apos;/ or &apos;[.</i>
+</div>
+</div>
+</div>
+<div class="head">
+ShiftInterp (Shift)<span class="look-s"/><span class="look-b"/>  </span>{*}</span>
+<div class="head4">
+<i>Execute the remainder of the command line using CommandTool.DoCommand.  Shift is an uninterpreted command while ShiftInterp is interpreted.  You can user ShiftInterp to run a normally uninterpreted command in interpreted mode, getting IO redirection etc. </i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% Shift Echo a b c<br>% Echo a b c<br>a b c</i>
+</div>
+</div>
+<div class="head">
+<i><span class="look-e"/>warnings</span></i>
+<div class="indent">
+<i>Be careful that the command line syntax interpreted by the command tool does not conflict with that required by an uninterpreted command.</i>
+</div>
+<div class="indent">
+<i>There is no way to get a normally interpreted command to run uninterpreted.</i>
+</div>
+</div>
+</div>
+<div class="head">
+Sleep<span class="look-s"/><span class="look-b"/>  </span>number</span>
+<div class="head4">
+<i>Pause for <span class="look-o"/>number</span> seconds (<span class="look-o"/>number</span> &lt; <span class="look-k"/>LAST</span>[<span class="look-k"/>CARDINAL</span>], using Process.Pause.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% Sleep 5</i>
+</div>
+</div>
+</div>
+<div class="head">
+Source<span class="look-s"/>  {*}</span>
+<div class="head4">
+<i>With no arguments, this command creates a new, independent, command tool.</i>
+</div>
+<div class="head4">
+<i><span class="look-e"/>With arguments, takes the first argument as the name of a command file (searched for according to the search rules), and passes the remaining arguments to the command as $1$, $2$, $3$, and so forth.</span></i>
+</div>
+<div class="head4">
+<i>The source command does not copy the process and command tool property lists, so that commands run from a &quot;source&quot; can change the properties seen by the command tool which invoked the source.  A ChangeWorkingDirectory in a command file run with &quot;Cmd&quot; does not persist, but a ChangeWorkingDirectory in a command file run with &quot;Source&quot; holds its effects.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>Suppose the file Test1.cm contains &quot;Date\nCommander Test2.cm\n&quot; and Test2.cm contains &quot;User\n&quot;:</i>
+</div>
+<div class="indent">
+<i>% Command Test1<br>&gt; Date<br>Monday, April 22, 1985 7:50 pm PST<br>&gt; Command Test2.cm<br>&gt;&gt; User<br>Atkinson.pa</i>
+</div>
+</div>
+<div class="head">
+<i><span class="look-e"/>warnings</span></i>
+<div class="indent">
+<i>There are doubtless many bugs.  A careful reading of <span class="look-t"/>CommandToolDoc.tioga will answer many questions.</span></i>
+</div>
+<div class="indent">
+<i>Don&apos;t type Command&amp;, it doesn&apos;t do anything useful.  Actually, it directs the error streams to the new window that gets created, which isn&apos;t that useful.</i>
+</div>
+<div class="indent">
+<i>Suppose the file Test3.cm contains &quot;Command Test3.cm\n&quot;:</i>
+</div>
+<div class="indent">
+<i>% Command Test3.cm<br>&gt; Command Test3.cm<br>&gt;&gt; Command Test3.cm<br>&gt;&gt;&gt; Command Test3.cm<br>&gt;&gt;&gt;&gt; Command Test3.cm<br>&gt;&gt;&gt;&gt;&gt; Command Test3.cm<br>&gt;&gt;&gt;&gt;&gt;&gt; Command Test3.cm<br> ...Aborted</i>
+</div>
+</div>
+</div>
+<div class="head">
+Statistics<span class="look-s"/><span class="look-b"/>  </span>{on | off}</span>
+<div class="head4">
+<i>Governs statistics printing.  When statistics are on, every command prints running time, number of words allocated, and page faults.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% Statistics on<br>% Date<br>Monday, April 22, 1985 7:52 pm PST<br>   {0.01 seconds, 80 words}<br>% Statistics off<br>% Date<br>Monday, April 22, 1985 7:52 pm PST</i>
+</div>
+</div>
+<div class="head">
+<i><span class="look-e"/>warnings</span></i>
+<div class="indent">
+<i>Statistics do not behave sensibly with commands started with &amp; or pipes.</i>
+</div>
+</div>
+</div>
+<div class="head">
+Tee<span class="look-s"/>  fileName</span>
+<div class="head4">
+<i>Tee is a filter which copies the standard input to a file and to the standard output.  It can be used to obtain a log copy of the activities of some command.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% List -u * | Tee UnbackedUpFiles.txt<br>. . .</i>
+</div>
+</div>
+<div class="head">
+<i><span class="look-e"/>warnings</span></i>
+<div class="indent">
+<i>Tee catches ViewerIO.Rubout, so if it is started reading from the keyboard, a DEL will stop it.  It catches IO.Error, so an unexpectedly closed stream will not break it.</i>
+</div>
+</div>
+</div>
+<div class="head">
+Time<span class="look-s"/><span class="look-b"/>  </span>commandLine</span>
+<div class="head4">
+<i>Print the execution time of a command.  Time uses CommandTool.DoCommand to &quot;run&quot; its arguments as a command line, then prints how long it took.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% time Date<br>Monday, April 22, 1985 7:54 pm PST<br>Running time: 00:00:00.069088 </i>
+</div>
+</div>
+</div>
+<div class="head">
+Type<span class="look-s"/><span class="look-b"/>  </span>{pattern}*</span>
+<div class="head4">
+<i>Type prints the contents of one or more files on the standard output. fileName (in executive window).</i>
+</div>
+<div class="head4">
+<i>Because standard streams are used to read from the file, Tioga formatting and comment nodes disappear.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% type test.cm<br>-- test.cm<br>///Commands/echo sleeping now<br>///Commands/sleep 1<br>///Commands/echo done sleeping</i>
+</div>
+</div>
+</div>
+<div class="head">
+Unregister<span class="look-s"/><span class="look-b"/>  </span>name</span>
+<div class="head4">
+<i>Unregister a command, so that it can no longer be invoked.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% Unregister Alias<br>Unregister: Alias not found<br>% Unregister ///Commands/Alias<br>% Alias<br>[[Alias . . . not found]] </i>
+</div>
+</div>
+<div class="head">
+<i><span class="look-e"/>warnings</span></i>
+<div class="indent">
+<i>Unregister just sets the proc field of the stored record to NIL, so that clients of Commander.Lookup must be careful to check that the proc field of the CommandProcHandles returned by Lookup are not NIL.</i>
+</div>
+<div class="indent">
+<i>Someday, this command may merely rename these to-be-deleted commands into another &quot;directory&quot; from which they can be retrieved.</i>
+</div>
+</div>
+</div>
+<div class="head">
+User
+<div class="head4">
+<i>Print name of logged in user on standard output stream.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% User<br>Atkinson.pa</i>
+</div>
+</div>
+</div>
+<div class="head">
+Version
+<div class="head4">
+<i>Print Cedar version number and creation date on standard output stream.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>% Version<br>Cedar 6.0 of April 4, 1985 11:46:16 am PST</i>
+</div>
+</div>
+</div>
+<div class="head">
+Working<span class="look-b"/> directory commands</span>
+<div class="block">
+The working directory commands are grouped together to facilitate understanding their interactions.
+</div>
+<div class="head">
+ChangeWorkingDirectory<span class="look-b"/> (CD CDR)  {directory}</span>
+<div class="head4">
+<i>ChangeWorkingDirectory sets the $WorkingDirectory property of the process properties list.  FS uses this property whenever no explicit working directory is passed to an FS procedure.  ChangeWorkingDirectory clears the &quot;stack&quot; that Push and Pop use.  CDR is similar to CD, except that it interpretes the directory specification relative to the root directory.</i>
+</div>
+</div>
+<div class="head">
+PrintWorkingDirectory<span class="look-b"/> (PWD)</span>
+<div class="head4">
+<i>PrintWorkingDirectory prints the current working directory.</i>
+</div>
+</div>
+<div class="head">
+PushWorkingDirectory<span class="look-b"/> (Push PushR)  {directory}</span>
+<div class="head4">
+<i>Push sets the working directory and saves the previous working directory on a stack (implemented as the $WorkingDirectoryStack property).  PushR is the same, except that it pushes relative to the root directory.</i>
+</div>
+</div>
+<div class="head">
+PopWorkingDirectory<span class="look-b"/> (Pop) </span>
+<div class="head4">
+<i>Pop restores the working directory from the stack.  If the stack was empty, Pop does nothing.</i>
+</div>
+</div>
+<div class="head4">
+<i>All these commands rewrite the herald of the CommandTool viewer if there is one.</i>
+</div>
+<div class="head4">
+<i>CD and Push will accept relative path names as well as full path names.  For example, .. refers to the parent of the current working directory.</i>
+</div>
+<div class="head">
+<i><span class="look-e"/>examples</span></i>
+<div class="indent">
+<i>Suppose you want to switch directories to work on the Bustle program.</i>
+<div class="indent">
+<i>% cd ///Projects/Bustle/<br>% pwd<br>///Projects/Bustle/ </i>
+</div>
+</div>
+<div class="indent">
+<i>Suppose you want to browse for a while in the Cedar documentation, but then wish to return.</i>
+<div class="indent">
+<i>% PrintWorkingDirectory<br>///Projects/Bustle/<br>% Push [Indigo]&lt;Cedar&gt;Documentation&gt;<br>% Open DFIncludes.txt<br>  Created Viewer: [Indigo]&lt;Cedar&gt;Documentation&gt;DFIncludes.txt<br>    . . .<br>  <br>% Pop<br>% PrintWorkingDirectory<br>///Projects/Bustle/ </i>
+</div>
+</div>
+<div class="indent">
+<i>Here are some examples of the kinds of names that work:</i>
+<div class="indent">
+<i>% cd ///<br>% cd []&lt;&gt; </i>
+</div>
+</div>
+<div class="indent">
+<i>Both slash and bracket format names work.</i>
+<div class="indent">
+<i>% pwd<br>% ///Projects/Bustle/<br>% cd temp/foo </i>
+</div>
+</div>
+<div class="indent">
+<i>Relative change to the directory ///Projects/Bustle/temp/foo/.</i>
+<div class="indent">
+<i>% cd ../.. </i>
+</div>
+</div>
+<div class="indent">
+<i>Change the working directory back to ///Projects/Bustle/, which is the grandparent of ///Projects/Bustle/temp/foo/.</i>
+<div class="indent">
+<i>% cd ../bar/.  </i>
+</div>
+</div>
+<div class="indent">
+<i>Change the working directory to be bar/, which is a subdirectory of the parent directory of the present working directory.</i>
+</div>
+</div>
+<div class="head">
+<i><span class="look-e"/>warnings</span></i>
+<div class="indent">
+<i><span class="look-t"/>CD (and Push) do not make many checks on the reasonableness of the </span>directoryName<span class="look-t"/> parameter:</span></i>
+<div class="indent">
+<i>% cd #~#~#~#<br>% </i>
+</div>
+</div>
+<div class="indent">
+<i>PrintWorkingDirectory calls CommandTool.CurrentWorkingDirectory[] which has a couple of side effects besides just returning the property value.  If the working directory property doesn&apos;t exist, CurrentWorkingDirectory sets it to the same as the default working directory.  CurrentWorkingDirectory also converts the working directory name to slash format and appends a &apos;/ if the last character is not &apos;/.</i>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -184,6 +184,15 @@ Example queries:
 - `grep -i 'mesa.mb\|mesa.eb\|mesa.dm' "chm/cross-reference.html"`
 - `grep -i 'microd' "chm/cross-reference.html"`
 
+## First-hand background
+
+- `docs/parc-veteran-notes.md` — pointers and hardware history from a
+  former PARC engineer (July 2026): PSAdd prefix servers, the Cedar
+  build-system `.df` genealogy, CedarSnapshotDorado.boot, board wiring
+  technologies (stitch-weld / Multi-Wire / PCB), SIL, Midas + the
+  manifold, ECL PROM generators, and the original microcode source
+  archives — cross-referenced against our local mirrors.
+
 ## Project plans (kept in sync with code)
 
 | File | Notes |

@@ -1,0 +1,4885 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;Cedar6.1>Documentation>ReleaseMessage.tioga!9</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>ReleaseMessage.tioga</i>
+<div class="code">
+<i>Doug Wyatt, June 13, 1986 5:22:40 pm PDT</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="unleaded">
+<span class="look-s"/>CEDAR 6.1 RELEASE</span>
+</div>
+<div class="unleaded">
+<span class="look-s"/>CEDAR 6.1 &mdash; FOR INTERNAL XEROX USE ONLY</span>
+</div>
+<div class="title">
+Cedar 6.1 Release
+</div>
+<div class="abstract">
+<span class="look-s"/><span class="look-m"/>©</span>  Copyright 1986 Xerox Corporation. All rights reserved.</span>
+</div>
+<div class="abstract">
+This is the first complete release of the Cedar programming environment in nearly a year (Cedar 6.0 was first released on 27 Jun 85, though it has &quot;bounced&quot; many times since then).  Users should first read this message, then carefully follow the installation procedure.
+</div>
+<div class="abstract">
+New communications software in this release replaces one of Cedar&apos;s last vestiges of aging Pilot code.  This release was also an opportunity for some Spring cleaning; in nearly a year&apos;s worth of development, &lt;Cedar6.0&gt; and &lt;CedarChest6.0&gt; had accumulated a lot of clutter.  
+</div>
+<div class="abstract">
+Most interfaces in this release are unchanged from Cedar 6.0; notable exceptions are the lower level communications interfaces from Communication.df, Pup.df, and RPCRuntime.df.  You probably won&apos;t need to recompile, but you will need to change DFs to point to &lt;Cedar6.1&gt; and &lt;CedarChest6.1&gt;.
+</div>
+<div class="abstract">
+Send messages about particular components to their maintainers.  Send other messages regarding the release to CedarSupport^.pa (not just to Wyatt.pa).
+</div>
+<div class="abstract">
+There are several global documentation files that you may find useful:
+<div class="item">
+<span class="look-o"/>[Cedar]&lt;Cedar6.1&gt;Documentation&gt;ReleaseMessage.tioga</span>
+</div>
+<div class="item">
+<span class="look-o"/>[Cedar]&lt;Cedar6.1&gt;Documentation&gt;CedarCatalog.tioga</span>
+</div>
+<div class="item">
+<span class="look-o"/>[Cedar]&lt;CedarChest6.1&gt;Documentation&gt;CedarChestCatalog.tioga</span>
+</div>
+</div>
+<div class="abstract">
+The <span class="look-i"/>openr</span> command can be used to open a viewer on any source file in the release given only its short name.  For example, &quot;<span class="look-o"/>openr ReleaseMessage.tioga</span>&quot; opens a viewer on this release message.  This command is particularly useful for browsing through documentation.  A companion command, <span class="look-i"/>findr</span>, can be used to find all source files in the release whose short names match a pattern (the first letter of the pattern cannot be *).
+</div>
+<div class="boilerplate">
+<span class="look-q"/>XEROX</span>&emsp;<span class="look-o"/>&emsp;&emsp;Xerox Corporation</span><br>&emsp;<span class="look-o"/>&emsp;&emsp;&emsp;Palo Alto Research Center</span><br>&emsp;<span class="look-o"/>&emsp;&emsp;&emsp;3333 Coyote Hill Road</span><br>&emsp;<span class="look-o"/>&emsp;&emsp;&emsp;Palo Alto, California 94304<span class="look-x"/><span class="look-b"/><br><br>For Internal Xerox Use Only</span></span></span>
+</div>
+<div class="head">
+Significant changes in Cedar/CedarChest 6.1
+<div class="head">
+Communication
+<div class="block">
+Cedar&apos;s communication software has been completely rewritten.  Many thanks to Hal Murray and Alan Demers.  This code enables performance improvements in Pup communication, and lays the groundwork for XNS communication in Cedar.
+</div>
+</div>
+<div class="head">
+Cypress
+<div class="block">
+Cypress has been rewritten<span class="look-e"/>.</span>  <span class="look-e"/>All existing Cypress databases must first be dumped with the old Cypress, then reloaded with the new Cypress.  </span>For Walnut users, this is easy &mdash; you&apos;ll simply be forced to scavenge the first time you use the new Cypress and Walnut.  Whiteboards and WalnutSort users should dump any existing databases using the 6.0 version before converting to Cedar 6.1.  If you have questions, consult Jim Donahue &lt;Donahue.pa&gt;.
+</div>
+</div>
+<div class="head">
+New DLion microcode
+<div class="block">
+New Dandelion microcode allows use of up to 4 megabytes of storage.  DLion users should be sure to install microcode as well as the boot file (see the Installation Procedure, below).  Some of the DLions in CSL need to have their storage boards reconfigured to take advantage of this (consult Mike Overton or Doug Walters). 
+</div>
+</div>
+<div class="head">
+No D0 support
+<div class="block">
+D0s (Dolphins) will not run Cedar6.1.  Don&apos;t say we didn&apos;t warn you.
+</div>
+</div>
+<div class="head">
+CedarChest
+<div class="block">
+[Cedar]&lt;CedarChest6.1&gt; is now available for all Cedar users. Many CedarChest packages have already been converted to 6.1; if you&apos;re thinking of converting a package from &lt;CedarChest6.0&gt;, first look for it on &lt;CedarChest6.1&gt;.  The following components have moved from Cedar to CedarChest: Chat, Clock, Dependencies, DFIncludes, DFTool, LFBoundingBox, Lupine, LupineStubs, Maintain, VersionMapBuilder, VTables.  Check your Imports clauses for packages that might have moved.
+</div>
+</div>
+</div>
+<div class="head">
+Known Problems in Cedar 6.1
+<div class="head">
+Maintainer overload
+<div class="block">
+Many of the original authors of Cedar are no longer with CSL.  This places a strain on the implementors.  Cedar maintenance will proceed, but at a stately pace.  Please be patient.
+</div>
+</div>
+<div class="head">
+Big buffers and old gateways
+<div class="block">
+Cedar 6.1 is prepared to deal in big (1500 byte) packets, but some gateways are not yet willing to forward such packets.  For Cedar 6.1, big packets are enabled only when the current registry is &quot;.pa&quot;.  We believe that will avoid problems, but be on the lookout for strange behavior if DLion gateways are involved.  Here is Hal Murray&apos;s description of the situation:
+</div>
+<div class="indent">
+Cedar 6.1 now assumes that gateways will forward big (1500 byte) packets. All the Dicentras around <span class="look-k"/>PARC</span> have been updated to support this. I assume the others will be soon. (The latest Oscar is on Dexter.)
+</div>
+<div class="indent">
+Unfortunately, DLions can&apos;t yet play this game. Their RS232 microcode has a 600 byte (or so) limit. (The head may know this limit too.) So far, nobody has signed up to fix this. It shouldn&apos;t be too hard, but it won&apos;t be trivial. We&apos;ll have to rip out the floppy code or something to make room. I&apos;d guess a day or two. Wes has a new TajoDLion ready to go if we ever get that far.
+</div>
+<div class="indent">
+When I was first working out the logistics of this change, I overlooked the new 56KB line from CP-10 to Pasa. Without that complication, Wbst and Pasa are connected to PARC via Dicentras so we didn&apos;t need to have DLions playing the big buffer game in order for the new Cedar to work. (Fortunately, Russ asked me a question at the critical time.)
+</div>
+<div class="indent">
+Note that this will only be a problem for Cedar to Cedar communications. Cedar to IFS will work fine no matter where the IFS is located. (At least with respect to buffer size problems - no promises about overloaded phone lines.)
+</div>
+<div class="indent">
+I&apos;ve added a handful of simple cm files to Pup.df. These just use the Interpreter to do things like set the buffer size back to the old way.
+<div class="indent">
+SmallBufffers.cm sets things up so that any new PupStreams will use small buffers.
+</div>
+<div class="indent">
+BigBufffers.cm switches to full size buffers.
+</div>
+<div class="indent">
+MoreBuffersDorado.cm gives lots of buffers to the 3MB Ethernet driver so things like PupWatch won&apos;t miss as many packets.
+</div>
+<div class="indent">
+MoreBuffersDlion.cm does the same for the 10MB world.
+</div>
+</div>
+</div>
+<div class="head">
+Viewers and Tioga locking
+<div class="block">
+In an attempt to reduce painting bugs and increase viewer and document data integrity, locking of viewers and documents was made much more aggressive in Cedar 6.0.  This has not changed in Cedar6.1.  There are several negative effects:
+</div>
+<div class="indent">
+1.  Auto-scrolling (usually in typescripts) works worse.  This feature was an add-on, and its design is not well understood.  Reduced concurrency seems to make the judgements about when to scroll happen at unfortunate times.  The most common effect is failure to scroll.
+</div>
+<div class="indent">
+2.  It will be necessary to wait for Save and Get, since the viewers involved are locked while these actions occur.  The input focus is removed from a viewer being saved to allow work to proceed in other viewers, but this prevents clicking Save and then Compile for the viewer being saved.  It will work to click Compile and then Save for the viewer.
+</div>
+<div class="indent">
+3.  Not all places that should lock viewers have been found.  This can lead to new lockup problems.  It is believed that only a few of these remain.
+</div>
+</div>
+<div class="head">
+File locking
+<div class="block">
+The failure to delete <span class="look-i"/>some</span> files that have been edited is a consequence of the use of RopeFile objects to edit files beyond a certain size.  There are three contributors:
+</div>
+<div class="indent">
+<span class="look-i"/>Edit history</span> - You can go backwards in edit time.  Therefore, one can&apos;t delete the file until it really can&apos;t be accessed.  Setting your edit history smaller may help (see the Tioga documentation).
+</div>
+<div class="indent">
+<span class="look-i"/>Rope sharing</span> - If you have moved segments of your file into other viewers, then the original file is still held open to back up those segments.  It might be possible in Tioga to have some kind of threshold that would force copying instead of sharing, but not for Cedar 6.1.
+</div>
+<div class="indent">
+<span class="look-i"/>Conservative scan</span> - The collector sometimes has to assume that things are being held when they are not really held.  The conservative scan is known to be even more conservative than it needs to be, but it will always be at least a little conservative.
+</div>
+<div class="block">
+None of the above features is truly a bug.  What you gain from the use of RopeFile is the ability to edit very large files using relatively little VM.  What you lose is the ability to delete files whenever you want to.
+</div>
+</div>
+</div>
+<div class="head">
+Cedar 6.1 Installation Procedure
+<div class="block">
+If you have never installed Cedar before, you may want to get the assistance of someone who has.  This is particularly recommended in the case of Dandelion users.
+</div>
+<div class="block">
+Two installation procedures are given below, one for upgrading from Cedar 6.0 to Cedar 6.1, the other for installing Cedar 6.1 from scratch on a clean disk.  If you are already running 6.0, it should not be necessary to erase your disk and start over.  Choose whichever procedure applies.
+</div>
+<div class="block">
+The directions below assume that the file servers to use are [Cedar] for system files and [User] for personal files.  These defaults can be changed once you are in Iago by the Set Remote Names command.
+</div>
+<div class="head">
+Making a new user profile
+<div class="block">
+Whether you&apos;re upgrading from Cedar 6.0 or starting from scratch, it&apos;s helpful to store a 6.1 profile on your <span class="look-o"/>[User]</span> file server before you begin the installation. 
+</div>
+<div class="block">
+If you already have a user profile for Cedar 6.0, edit it to make a new profile for Cedar 6.1;  changing &quot;6.0&quot; to &quot;6.1&quot; wherever it occurs is probably good enough.  If you don&apos;t have your own profile yet, use the file <span class="look-o"/>[Cedar]&lt;Cedar6.1&gt;Top&gt;User.profile</span> as a starting point.  Store the new profile on <span class="look-o"/>[User]&lt;<span class="look-i"/>user</span>&gt;6.1&gt;<span class="look-i"/>user</span>.profile</span>, where <span class="look-o"/><span class="look-i"/>user</span></span> is your user name.
+</div>
+<div class="block">
+What if you&apos;re just getting started and don&apos;t even have a user profile on your local disk?  In this case, the booting machinery will try to find a user profile in a reasonable place.  First, if you have a directory on <span class="look-o"/>User</span>, it will be searched for <span class="look-o"/>[User]&lt;<span class="look-i"/>user</span>&gt;6.1&gt;<span class="look-i"/>user</span>.profile</span>.  If this fails, then the default profile is taken from <span class="look-o"/>[Cedar]&lt;Cedar6.1&gt;Top&gt;User.Profile</span>. 
+</div>
+<div class="block">
+If you have doubts about what should be in your user profile, look at
+<div class="indent">
+<span class="look-o"/>[Cedar]&lt;Cedar6.1&gt;Documentation&gt;UserProfileDoc.tioga</span>
+</div>
+</div>
+</div>
+<div class="head">
+Upgrading from Cedar 6.0 to Cedar 6.1
+<div class="block">
+If your machine is already running Cedar 6.0, you can convert to Cedar 6.1 without the bother of storing all your files on a server and erasing your disk.  (Of course, your files should be stored on a server anyway, just for safety; keep those bags packed!)  If you were already running 6.1, follow this procedure anyway to be sure you have the released version.  Read the instructions below first, then perform the steps with the &quot;<span class="look-m"/>Ò</span>&quot; marks.
+</div>
+<div class="indent">
+<span class="look-m"/>Ò</span> Make a 6.1 profile
+</div>
+<div class="indent">
+<span class="look-m"/>Ò</span> Install the 6.1 command environment:
+<div class="indent">
+Execute in the CommandTool:
+<div class="indent">
+<span class="look-o"/><span class="look-b"/>Push ///Commands/<br>Delete *!*<br>Bringover /Cedar/CedarChest6.1/Top/Environment.df<br>Pop<br></span></span>
+</div>
+</div>
+<div class="note">
+This step gets rid of your old 6.0 commands, and fetches new 6.1 commands.  There shouldn&apos;t be any unsaved files in your ///Commands/ directory, but if you want to be certain, you can execute <span class="look-o"/><span class="look-b"/>List -u ///Commands/*!h</span></span> first.
+</div>
+<div class="note">
+The Delete may take a while (typically there are hundreds of files), and the Bringover will take an even longer while.
+</div>
+</div>
+<div class="indent">
+<span class="look-m"/>Ò</span> Install the 6.1 boot file:
+<div class="indent">
+Boot with the <span class="look-o"/><span class="look-b"/>L</span></span> switch to get to the 6.0 Iago.
+</div>
+<div class="indent">
+Use Iago&apos;s <span class="look-o"/><span class="look-b"/>Install Boot</span></span> command and override the 6.0 file name with the 6.1 boot file name appropriate for your machine type:
+<div class="indent">
+<span class="look-o"/><span class="look-b"/>[Cedar]&lt;Cedar6.1&gt;Top&gt;BasicCedarDorado.boot</span></span>
+</div>
+<div class="indent">
+<span class="look-o"/><span class="look-b"/>[Cedar]&lt;Cedar6.1&gt;Top&gt;BasicCedarDLion.boot</span></span>
+</div>
+</div>
+</div>
+<div class="indent">
+<span class="look-m"/>Ò</span> Boot the 6.1 boot file and install 6.1 microcode and germ:
+<div class="indent">
+Use Iago&apos;s <span class="look-o"/><span class="look-b"/>Boot</span></span> command with the <span class="look-o"/><span class="look-b"/>L</span></span> switch to get to the 6.1 Iago.
+</div>
+<div class="indent">
+Invoke the following Iago commands, using the default names supplied:
+<div class="item">
+<span class="look-o"/><span class="look-b"/>Install Initial Microcode</span></span>
+</div>
+<div class="item">
+<span class="look-o"/><span class="look-b"/>Install Cedar Microcode</span></span>
+</div>
+<div class="item">
+<span class="look-o"/><span class="look-b"/>Install Germ</span></span>
+</div>
+</div>
+</div>
+<div class="indent">
+<span class="look-m"/>Ò</span> Do a full boot of Cedar with the boot button:
+<div class="indent">
+On a Dorado, do a triple boot with the F switch.
+</div>
+<div class="indent">
+On a DLion, do a 1-boot with the F switch.
+</div>
+<div class="note">
+This ensures that you are running the new microcode and germ.  Full booting takes a while on a Dorado; on a DLion, it may seem to take forever.
+</div>
+</div>
+<div class="indent">
+<span class="look-m"/>Ò</span> Make a new checkpoint:
+<div class="indent">
+Use the <span class="look-o"/><span class="look-b"/>Checkpoint</span></span> command in the CommandTool.
+</div>
+<div class="note">
+Don&apos;t omit this step, or you might roll back to an old 6.0 checkpoint!
+</div>
+</div>
+<div class="indent">
+
+</div>
+</div>
+<div class="head">
+Installing Cedar 6.1 from scratch
+<div class="block">
+This is the recommended method for installing Cedar on your personal machine if you are not already running on a valid Cedar6.0 or Cedar6.1 world.  Shortcuts are not recommended.  DLion and DTiger users should read the section on <span class="look-b"/>Cedar 6.1 Dandelion (DLion) Support</span> first!
+</div>
+<div class="block">
+You may also use this procedure if you just want to be tidy.  Just be aware that <span class="look-e"/>this procedure will erase your entire disk!</span>  Before you proceed with the installation instructions given below, first clean up your old world and move the files you want to save to a file server.  You can use &quot;List -u ///*!h&quot; in the CommandTool to list all files whose most recent versions are not safely stored on a server.
+</div>
+<div class="indent">
+<span class="look-m"/>Ò</span> On Dorados, get to the CedarNetExec by using the standard NetExec to run the CedarNetExec.  Alternatively, for Dorados, triple-boot holding down the <span class="look-s"/>BS</span>, <span class="look-s"/>RETURN</span> and <span class="look-s"/>X</span> keys.  If your disk has never been formatted, use the Switches command to specify the N switch (for No disk).  In the CedarNetExec, type <span class="look-e"/>Cedar</span>.  A Cedar 6.1 screen will eventually appear.  You should then log in.  You will be asked if you want to initialize your disk from scratch; type <span class="look-e"/>N</span>.  When asked if you want to use Iago, type <span class="look-e"/>Y</span>.
+</div>
+<div class="indent">
+<span class="look-m"/>Ò</span> Alternatively, for those already running Cedar, get to Iago (boot with the L switch).  Then install the Cedar 6.1 boot file via the <span class="look-o"/>Install Boot</span> command, and specify that the boot file comes from one of (depending on your machine kind):
+<div class="item">
+<span class="look-o"/>[Cyan]&lt;Cedar6.1&gt;Top&gt;BasicCedarDorado.boot</span>
+</div>
+<div class="item">
+<span class="look-o"/>[Cyan]&lt;Cedar6.1&gt;Top&gt;BasicCedarDLion.boot</span>
+</div>
+</div>
+<div class="indent">
+Users not close to Cyan may wish to specify their local server to reduce file transfer time.  Then boot your machine with the L switch to get into a Cedar 6.1 world.
+</div>
+<div class="indent">
+<span class="look-m"/>Ò</span> If they are not already valid, you should set up your server translations.  Use the <span class="look-o"/>Set Pseudo Server</span> command (once for each translation) to establish the following translations (do not be concerned with messages about inability to save the translations):
+<div class="item">
+<span class="look-o"/>Cedar Cyan Cyan</span>
+</div>
+<div class="item">
+<span class="look-o"/>User Ivy Ivy</span>
+</div>
+<div class="item">
+<span class="look-o"/>Fonts $ Cyan</span>
+</div>
+<div class="note">
+Again, users not close to Cyan may wish to specify their local server to reduce file transfer time.
+</div>
+</div>
+<div class="indent">
+<span class="look-m"/>Ò</span> Issue the <span class="look-o"/>Create User World</span> command. You will then be asked questions to determine what operations must be performed to initialize your disk:
+<div class="indent">
+<span class="look-m"/>õ</span> How many Alto partitions?  For personal Dorados you want 0 or 1 partitions (roughly 20K pages) for Alto emulation.
+</div>
+<div class="indent">
+<span class="look-m"/>õ</span> Is your disk is already formatted?  Read the instructions carefully, but the most likely answer is yes.  You don&apos;t want to reformat if you don&apos;t have to -- formatting takes a long time.  However, if you have changed the number of Alto partitions or are uncertain about the number of Alto partitions, then you must reformat.
+</div>
+<div class="indent">
+<span class="look-m"/>õ</span> Do you want a Debugger volume?  Probably not.
+</div>
+<div class="note">
+Note that clients who wish to have non-standard volumes will have to do the various steps by hand.  See (or be) a wizard before attempting to perform a non-standard installation.
+</div>
+</div>
+<div class="indent">
+<span class="look-m"/>Ò</span> After you answer these questions, the list of the operations to be performed is printed and you will be asked for confirmation.  If you made a mistake or changed your mind about how you would like the disk structured, don&apos;t worry -- nothing has been done and you can just repeat the sequence of questions and answers.  Only after you give confirmation will the actions be performed.
+</div>
+<div class="indent">
+<span class="look-m"/>Ò</span> Once the initialization has been confirmed, you can go get a cup of coffee (or two) while the volumes are initialized; no further confirmations are necessary (except when the file servers are unavailable).  The installation will take roughly half an hour for a Dorado, somewhat more for other machines.
+</div>
+<div class="indent">
+<span class="look-m"/>Ò</span> <span class="look-e"/>When the installation finishes, boot your machine with the boot button.</span>  This ensures that you are running the germ and microcode now installed on your disk.
+</div>
+<div class="indent">
+<span class="look-m"/>Ò</span> Once your Cedar world has finished booting, you should make a checkpoint (use the Checkpoint command in the CommandTool).
+</div>
+</div>
+<div class="head">
+<i>Moving Around</i>
+<div class="block">
+After doing all this, you will find that triple-booting the machine will get you into the 6.1 world (even if you have an Alto partition). If you have an Alto partition you can get there with the BootTool or by triple-booting with the M switch.<span class="look-b"/>  Note</span>: To boot with a particular switch, either use the BootTool and set the Switches field, or hold the appropriate key down until 845 appears on the control panel after beginning the booting.
+</div>
+<div class="head">
+Booting and Rollback
+<div class="block">
+Booting a Cedar volume with no switches will perform a rollback unless there is no checkpoint file.  Use the F switch to get the full boot sequence.
+</div>
+<div class="block">
+Warning about sticky checkpoints:  Installing and booting a new boot file does not destroy your old checkpoint; your old checkpoint includes the old boot file, which you were presumably trying to get rid of by booting.  So the very next thing to do after installing a new boot file and booting -- with the F switch -- is to take a new checkpoint.
+</div>
+</div>
+</div>
+<div class="head">
+<i>Installing a bounce</i>
+<div class="block">
+<span class="look-i"/>This section is only for those already running Cedar 6.1.  </span>When Cedar &quot;bounces&quot; there is much less need to go through the previous steps.  Instead, follow these directions:
+</div>
+<div class="indent">
+<span class="look-m"/>Ò</span> First, get to Iago (boot with the L switch).  If necessary (read the bounce message) install the Cedar 6.1 boot file via the <span class="look-o"/>Install Boot</span> command, and use the file name defaults.
+</div>
+<div class="indent">
+<span class="look-m"/>Ò</span> In Iago, use the <span class="look-o"/>Boot</span> command to boot the Cedar volume with the F switch.
+</div>
+<div class="indent">
+<span class="look-m"/>Ò</span> When finished booting, take a checkpoint (use the <span class="look-o"/>Checkpoint</span> command in the CommandTool).
+</div>
+</div>
+<div class="head">
+<i>Tracking CedarChest</i>
+<div class="block">
+From time to time you may want to ensure that you have up-to-date attachments to the files in CedarChest.  The best way to do this is (in the CommandTool):
+<div class="item">
+<span class="look-o"/>pushr Commands</span>
+</div>
+<div class="item">
+<span class="look-o"/>bringover /Cedar/CedarChest6.1/Top/Environment.df</span>
+</div>
+<div class="item">
+<span class="look-o"/>pop</span>
+</div>
+</div>
+<div class="block">
+This will take some time, so it may be best to do it on your way out the door.
+</div>
+</div>
+</div>
+<div class="head">
+Cedar 6.1 Dandelion (DLion) support
+<div class="block">
+Dandelions differ from Dorados in several respects:
+<div class="item">
+<span class="look-m"/>Ò</span>  no boot button on the keyboard, and a different boot mechanism
+</div>
+<div class="item">
+<span class="look-m"/>Ò</span>  different keyboard layout
+</div>
+<div class="item">
+<span class="look-m"/>Ò</span>  slower (by a factor of 4-5)
+</div>
+<div class="item">
+<span class="look-m"/>Ò</span>  less physical memory
+</div>
+<div class="item">
+<span class="look-m"/>Ò</span>  less disk space
+</div>
+</div>
+<div class="head">
+The Dandelion control panel
+<div class="block">
+The control panel of a Dandelion, from left to right, has a set of 4 lighted digits, 2 buttons, and a rocker switch.  The two buttons are labeled <span class="look-s"/><span class="look-o"/>B RESET</span></span> and <span class="look-s"/><span class="look-o"/>ALT B</span></span>.  The rocker switch is labeled with <span class="look-o"/>O</span> and <span class="look-o"/>I</span>.  The <span class="look-o"/>O</span>/<span class="look-o"/>I</span> switch is the power switch.  Press <span class="look-o"/>I</span> for on, <span class="look-o"/>O</span> for off.
+</div>
+</div>
+<div class="head">
+Booting a Dandelion
+<div class="block">
+Booting a Dandelion is done with a combination of the lighted digits, and the 2 buttons.  
+</div>
+<div class="block">
+For an &quot;N boot&quot; (N = 1 or 6 in the instructions below).
+<div class="indent">
+Press both buttons, then release the <span class="look-s"/><span class="look-o"/>B RESET</span></span> button, while continuing to hold down the <span class="look-s"/><span class="look-o"/>ALT B</span></span> button.  You will observe that the lighted digits begin to display a sequence of numbers: <span class="look-o"/>0000</span>, <span class="look-o"/>0001</span>, <span class="look-o"/>0002</span>, ..., <span class="look-o"/>0010</span>, <span class="look-o"/>0000</span>, ...  repeating the sequence after <span class="look-o"/>0010</span>.  For a &quot;6 boot&quot; release the <span class="look-s"/><span class="look-o"/>ALT B</span></span> button while a <span class="look-o"/>0006</span> is displayed; similarly, for a &quot;1 boot&quot; release the <span class="look-s"/><span class="look-o"/>ALT B</span></span> button while a <span class="look-o"/>0001</span> is displayed.
+</div>
+</div>
+<div class="block">
+For an &quot;N sub boot&quot; (N = 20 in the instructions below)
+<div class="indent">
+After a &quot;6 boot&quot; you will observe that eventually a <span class="look-o"/>7777</span> is displayed in the lights.  Once <span class="look-o"/>7777</span> is displayed, again push the <span class="look-s"/><span class="look-o"/>ALT B</span></span> button.  You will now observe that the following repeated sequence of numbers is displayed: <span class="look-o"/>0003</span>, <span class="look-o"/>0006</span>, <span class="look-o"/>0020</span>, <span class="look-o"/>0021</span>, <span class="look-o"/>0022</span>, ..., <span class="look-o"/>0027</span>, <span class="look-o"/>0003</span>, ....  For a &quot;20 sub boot&quot; release the <span class="look-s"/><span class="look-o"/>ALT B</span></span> button while <span class="look-o"/>0020</span> is displayed.
+</div>
+</div>
+<div class="block">
+To boot an installed system, do a &quot;1 boot&quot;.  This is the equivalent of pressing the boot button on a Dorado keyboard.
+</div>
+</div>
+<div class="head">
+Cedar 6.1 Installation
+<div class="block">
+The installation (from scratch) sequence starts differently.  To install Cedar 6.1 on your DLion, you first get to Iago.  To get to Iago, you need to boot Cedar from the net.  To do this, use a &quot;6 boot&quot; (pronounced &quot;six boot&quot;), followed by a &quot;20 sub boot&quot;  (the booting terms are explained under &quot;Booting a Dandelion&quot;).  Once you are in Iago, you proceed just as if you are on a Dorado, and have just reached Iago from the Cedar Net Exec.
+</div>
+<div class="block">
+Note that during net booting the DLion may show <span class="look-o"/>0816</span> in the maintenence panel.  This means that the DLion is searching for the boot file.  If this number becomes <span class="look-o"/>0828</span>, then the net booting has timed out, and you will have to try again.  <span class="look-o"/>0821</span> denotes a less specific crash while booting, and again you should retry at least a few times to make sure.  Halting at other strange numbers often indicates a hardware problem.
+</div>
+</div>
+<div class="head">
+Keyboard arrangement
+<div class="block">
+The DLion keyboard is different from a Dorado keyboard in two respects, some keys have different labels, and some keys are in different positions, and some are changed in both ways.  Here is a list of Dorado keys, followed by the label on the D-Lion key which does the same thing:<br>
+<div class="table4">
+
+<div class="table4">
+<span class="look-f"/><span class="look-b"/>Dorado</span>&emsp;&emsp;<span class="look-b"/>DLion</span></span>
+</div>
+<div class="table4">
+<span class="look-f"/>LF&emsp;&emsp;&emsp;COPY</span>
+</div>
+<div class="table4">
+<span class="look-f"/>DEL&emsp;&emsp;&emsp;DELETE</span>
+</div>
+<div class="table4">
+<span class="look-f"/>BS&emsp;&emsp;&emsp;&#x2190 </span><span class="look-i"/>(at top right)</span>
+</div>
+<div class="table4">
+<span class="look-f"/>(LOOK)&emsp;&emsp;UNDO</span>
+</div>
+<div class="table4">
+<span class="look-f"/>(NEXT)&emsp;&emsp;KEYBOARD</span>
+</div>
+<div class="table4">
+<span class="look-f"/>(SWAT)&emsp;&emsp;STOP</span>
+</div>
+<div class="table4">
+<span class="look-f"/>ESC&emsp;&emsp;&emsp;CENTER</span>
+</div>
+<div class="table4">
+<span class="look-f"/>TAB&emsp;&emsp;<span class="look-m"/>&emsp;Ò</span> </span><span class="look-i"/>(just above the <span class="look-f"/>LOCK</span> key)</span>
+</div>
+<div class="table4">
+<span class="look-f"/>CTRL&emsp;&emsp;&emsp;OPEN</span>
+</div>
+<div class="table4">
+<span class="look-f"/>&#x2190&emsp;&emsp;&emsp;&apos; </span><span class="look-i"/>(the right one)</span>
+</div>
+<div class="table4">
+<span class="look-f"/>&apos;&emsp;&emsp;&emsp;&apos; </span><span class="look-i"/>(the left one)</span>
+</div>
+<div class="table4">
+<span class="look-f"/>^&emsp;&emsp;&emsp;&quot; </span><span class="look-i"/>(the right one)</span>
+</div>
+<div class="table4">
+<span class="look-f"/>&quot;&emsp;&emsp;&emsp;&quot; </span><span class="look-i"/>(the left one)</span>
+</div>
+<div class="table4">
+<span class="look-f"/>~&emsp;&emsp;&emsp;</span><span class="look-m"/></span><span class="look-f"/> </span><span class="look-i"/>(the cent sign)</span>
+</div>
+<div class="table4">
+<span class="look-f"/>\&emsp;&emsp;&emsp;DEFAULTS</span>
+</div>
+<div class="table4">
+<span class="look-f"/>|&emsp;&emsp;&emsp;shift-DEFAULTS.</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="head">
+Cedar and CedarChest Components
+<div class="block">
+The following list includes all components of Cedar6.1, plus those components of CedarChest6.1 that were available at release time.  Examine the DF name to see whether a component lives on Cedar or CedarChest.  If you are viewing this document on-line, a convenient way to find the information for a particular component is to select the component&apos;s name somewhere and middle-click &quot;Def&quot; in this viewer&apos;s menu.  
+</div>
+<div class="block">
+The best way to access documentation is via the OpenR command while running Cedar6.1.  Otherwise, the documentation file is assumed to be accessible using the DF file name and BringOver, i.e.,
+<div class="indent">
+<span class="look-o"/>BringOver -o <span class="look-i"/>DocFileName</span> <span class="look-i"/>DFFileName</span></span>
+</div>
+</div>
+<div class="block">
+In general, documentation is stored on the directories
+<div class="indent">
+<span class="look-o"/>[Cedar]&lt;Cedar6.1&gt;Documentation&gt;</span>
+</div>
+<div class="indent">
+<span class="look-o"/>[Cedar]&lt;CedarChest6.1&gt;Documentation&gt;</span>
+</div>
+</div>
+<div class="block">
+but there are occasional exceptions.
+</div>
+<div class="block">
+Questions about changes in individual components should be addressed to their maintainers.
+</div>
+<div class="head">
+Abutters: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Abutters.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> AbuttersDoc.Tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Abutters
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+ACFind: [Cedar]&lt;CedarChest6.1&gt;Top&gt;ACFind.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Dave &lt;Rumph.pasa&gt;, Intelnet 844-2818
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+AIS: [Cedar]&lt;CedarChest6.1&gt;Top&gt;AIS.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Michael Plass &lt;Plass.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> AISDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+AISCopy: [Cedar]&lt;CedarChest6.1&gt;Top&gt;AISCopy.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Rick Beach &lt;Beach.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> AISCopy
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+AISShow: (deleted)
+<div class="indent">
+AISShow is withdrawn since its functionality was replaced by PreView.  [Diebert]
+</div>
+</div>
+<div class="head">
+AISTools: [Cedar]&lt;CedarChest6.1&gt;Top&gt;AISTools.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Mik Lamming
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> AISToolsDoc.tioga, BuildTRCDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> BuildTRC, ApplyTRC
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+AISViewer: [Cedar]&lt;CedarChest6.1&gt;Top&gt;AISViewer.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> TIm Diebert &lt;Diebert.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> AISViewerDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+AlpineBackup: [Cedar]&lt;CedarChest6.1&gt;Top&gt;AlpineBackup.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> AlpineImplementors^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> AlpineBackupDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> AlpineBackup, AlpineRestore, AlpineVerify
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+AlpineServer: [Cedar]&lt;CedarChest6.1&gt;Top&gt;AlpineServer.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> AlpineImplementors^.pa 
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> AlpineServerDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+AlpineShared: [Cedar]&lt;CedarChest6.1&gt;Top&gt;AlpineShared.df
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+AlpineUser: [Cedar]&lt;CedarChest6.1&gt;Top&gt;AlpineUser.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> AlpineImplementors^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> AlpineUserDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> AlpineUser
+</div>
+<div class="indent">
+When storing filename!n, if !n = !H+1, keep processing will be done. Directories being trickle-charged should require less maintenance as a result. 
+</div>
+<div class="indent">
+Fixed MakeAlpineUser.cm to use new Makedo switches (-om instead of -md).  [CHauser]
+</div>
+</div>
+<div class="head">
+AMEvents: [Cedar]&lt;Cedar6.1&gt;Top&gt;AMEvents.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+AMModel: [Cedar]&lt;Cedar6.1&gt;Top&gt;AMModel.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+AMProcess: [Cedar]&lt;Cedar6.1&gt;Top&gt;AMProcess.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+AMTypes: [Cedar]&lt;Cedar6.1&gt;Top&gt;AMTypes.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+Bug fixes.
+</div>
+</div>
+<div class="head">
+ArchivistBTree: [Cedar]&lt;CedarChest6.1&gt;Top&gt;ArchivistBTree.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Tim Diebert &lt;Diebert.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ArchivistBTreeDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Args: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Args.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Jules Bloomenthal &lt;Bloomenthal.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ArgsDoc.Tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+ArpaWatch: [Cedar]&lt;CedarChest6.1&gt;Top&gt;ArpaWatch.df (new)
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Hal Murray &lt;Murray.PA&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ArpaWatchDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> ArpaWatch
+</div>
+<div class="indent">
+Another PupWatch ripoff. This one watches Arpa (<span class="look-k"/>IP</span>, <span class="look-k"/>UDP</span>, <span class="look-k"/>TCP</span>) packets on the ethernet. Also works for the funny packets going to/from the Alto that&apos;s our relay to the <span class="look-k"/>IMP</span>.
+</div>
+</div>
+<div class="head">
+Asserting: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Asserting.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Mike Spreitzer &lt;Spreitzer.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> AssertingDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Asserting
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+AutoBackUp: [Cedar]&lt;CedarChest6.1&gt;Top&gt;AutoBackUp.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Eric &lt;Nickell.pasa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> AutoBackUpDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> AutoBackUp
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+BasicCedar: [Cedar]&lt;Cedar6.1&gt;Top&gt;BasicCedar.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+Now includes Nucleus.df.  LoaderDriver moved to a separate package.
+</div>
+</div>
+<div class="head">
+BasicLoadState: [Cedar]&lt;Cedar6.1&gt;Top&gt;BasicLoadState.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+BasicPackages: [Cedar]&lt;Cedar6.1&gt;Top&gt;BasicPackages.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Russ Atkinson &lt;Atkinson.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> BasicPackagesDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+BasicTime: [Cedar]&lt;Cedar6.1&gt;Top&gt;BasicTime.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+BCDStuff: [Cedar]&lt;Cedar6.1&gt;Top&gt;BCDStuff.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+RCMapBuilderImpl has been rewritten.  RCMapBuilderImpl lives in BcdStuff.df, but its only use is in SafeStorage (the Compiler and Binder have their own versions, which remain entirely valid).  This change makes loading significantly faster (10-15% for Walnut).  [Atkinson]
+</div>
+</div>
+<div class="head">
+Binder: [Cedar]&lt;Cedar6.1&gt;Top&gt;Binder.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> BinderDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Bind, Binder
+</div>
+<div class="indent">
+Tries to protect its global variables by serializing use of the binder. 
+</div>
+<div class="indent">
+Uses 1 fewer GFIs.  [Satterthwaite]
+</div>
+</div>
+<div class="head">
+BiScrollers: [Cedar]&lt;CedarChest6.1&gt;Top&gt;BiScrollers.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Spreitzer.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> BiScrollersDoc.Tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> BiScrollers, Geom2D
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+BootEssentials: [Cedar]&lt;Cedar6.1&gt;Top&gt;BootEssentials.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+BootTool: [Cedar]&lt;Cedar6.1&gt;Top&gt;BootTool.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> BootTool
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+BTree: [Cedar]&lt;Cedar6.1&gt;Top&gt;BTree.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+BTreeSimple: [Cedar]&lt;Cedar6.1&gt;Top&gt;BTreeSimple.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+CardTable: [Cedar]&lt;CedarChest6.1&gt;Top&gt;CardTable.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Doug Terry &lt;Terry.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> CardTableDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Catalog: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Catalog.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Beach.pa, Wyatt.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> CatalogDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Catalog
+</div>
+<div class="indent">
+The Catalog command now takes a DF file name rather than a directory as its argument.  The DF file is expected to contain a list of Includes items (as in Cedar.df or CedarChest.df).  The new -releaseMessage option generates a list of package entries suitable for the Cedar release message.  [Wyatt]
+</div>
+</div>
+<div class="head">
+CedarChestRelease: [Cedar]&lt;CedarChest6.1&gt;Top&gt;CedarChestRelease.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> CedarChestDoc.tioga, CedarChestCatalog.tioga
+</div>
+<div class="indent">
+Added command files for updating version maps, catalog, etc.
+</div>
+</div>
+<div class="head">
+CedarExamples: [Cedar]&lt;CedarChest6.1&gt;Top&gt;CedarExamples.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> CedarExamplesDoc.Tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+CedarRelease: [Cedar]&lt;Cedar6.1&gt;Top&gt;CedarRelease.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ReleaseCoordinator.tioga, CedarCatalog.tioga, ReleaseMessage.tioga
+</div>
+<div class="indent">
+Added command files for updating boot servers.  Added command files for updating version maps, catalog, etc.
+</div>
+</div>
+<div class="head">
+CedarRuntime: [Cedar]&lt;Cedar6.1&gt;Top&gt;CedarRuntime.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+CedarSyntax: [Cedar]&lt;CedarChest6.1&gt;Top&gt;CedarSyntax.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Doug Wyatt &lt;Wyatt.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> CedarSyntaxDoc.tioga, CedarSyntax.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Celtics: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Celtics.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Russ Atkinson &lt;Atkinson.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> CelticsDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> BreakTool, Celtics
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Chat: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Chat.df (moved)
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ChatDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Chat
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Checksummer: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Checksummer.df (new)
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Hal Murray &lt;Murray.PA&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ChecksummerDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Checksummer
+</div>
+<div class="indent">
+Checksummer computes the checksum of a set of files. With some help from Waterlily, it can be used to locate mashed files on file servers holding secondary copies.
+</div>
+</div>
+<div class="head">
+ChessHack: [Cedar]&lt;CedarChest6.1&gt;Top&gt;ChessHack.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Russ Atkinson &lt;Atkinson.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ChessHackDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> ChessHack
+</div>
+<div class="indent">
+Uses a new font to display the chess pieces.  [Wyatt]
+</div>
+</div>
+<div class="head">
+CircularGarbage: [Cedar]&lt;CedarChest6.1&gt;Top&gt;CircularGarbage.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Hagmann.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> CircularGarbageDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+CKViewer: [Cedar]&lt;CedarChest6.1&gt;Top&gt;CKViewer.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Ken Pier &lt;Pier.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> CKViewerDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> CKViewer
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Clock: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Clock.df (moved)
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Clock
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+ColorDisplay: [Cedar]&lt;CedarChest6.1&gt;Top&gt;ColorDisplay.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Tim Diebert &lt;Diebert.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ColorDisplayDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> ColorDisplay
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+ColorTrix: [Cedar]&lt;CedarChest6.1&gt;Top&gt;ColorTrix.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Bloomenthal.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ColorTrixDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> ColorTrixPackage, Clear, CmAdd, CmBlend, CmColor, CmCompose, CmCycle, CmEdit, CmFlash, CmGamma, CmGauss, CmInterp, CmLoad, CmMono, CmNBits, CmSnake, CmOnly, CmPrint, CmRamp, CmRandom, CmRipple, CmRotate, CmSave, CmScale, CmScramble, CmShow, CmSin, CmSpeckle, CmTents, Grid, Left, Lum, Mirror, Negate, Pal, Pie, PrintWindow, PVal, Ramp, Reflect, ResetWindow, SetWindow, UnPal, Up
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+ColumnLs: [Cedar]&lt;CedarChest6.1&gt;Top&gt;ColumnLs.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Bloomenthal.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ColumnLsDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Ls, ColumnLs
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+CommanderPriority: [Cedar]&lt;CedarChest6.1&gt;Top&gt;CommanderPriority.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Bob Hagmann &lt;Hagmann.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> CommanderPriorityDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> CommanderPriority
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+CommandTool: [Cedar]&lt;Cedar6.1&gt;Top&gt;CommandTool.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> CommandToolDoc.tioga, CommandToolCommands.tioga, CommandToolStructureDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> SetProcessProperty, SetProperty, GetProperties, GetProcessProperties
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+CommandToolProcedures: [Cedar]&lt;CedarChest6.1&gt;Top&gt;CommandToolProcedures.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Mike Spreitzer &lt;Spreitzer.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> CommandToolProceduresDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> CommandToolProcedures
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+CommDriver: [Cedar]&lt;Cedar6.1&gt;Top&gt;CommDriver.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+New package.  The communication driver package sends and receives packets on 3 and 10 Mb Ethernets, and manages a common pool of packet buffers.
+</div>
+</div>
+<div class="head">
+Communication: [Cedar]&lt;Cedar6.1&gt;Top&gt;Communication.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+Completely changed.  The old Pilot Communication packages is gone.  Communication.df no longer describes an implementation; instead, it describes several basic communication interfaces: Endian, Arpa, Pup, XNS, ThisMachine, EthernetDriverStats, and IOExtras.
+</div>
+</div>
+<div class="head">
+Compare: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Compare.df (new)
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Hal Murray &lt;Murray.PA&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> CompareDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Compare
+</div>
+<div class="indent">
+Compare does a byte by byte compare of two sets of files.
+</div>
+</div>
+<div class="head">
+Compiler: [Cedar]&lt;Cedar6.1&gt;Top&gt;Compiler.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> CompilerDoc.Tioga, CompilerMessagesDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Compile, Compiler, RCompile, RCompiler, ComplexCompile
+</div>
+<div class="indent">
+Changes:
+<div class="indent">
+Uses 7 fewer GFIs.
+</div>
+<div class="indent">
+Recognizes &apos;\254 (<span class="look-t"/>¬</span>) and &apos;\255 (<span class="look-t"/>­</span>) as &apos;&#x2190 and &apos;^ respectively.  
+</div>
+<div class="indent">
+All relative pointer types (including <span class="look-k"/>LONG</span> relative types) have <span class="look-k"/>FIRST</span> and <span class="look-k"/>LAST</span> operations.
+</div>
+<div class="indent">
+<span class="look-k"/>CARD</span> is a predeclared synonym for <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span>.
+</div>
+</div>
+<div class="indent">
+Note:  This is not an invitation to use <span class="look-k"/>CARD</span> without due thought and consideration.  I think that the best hope for digging out of the signed/unsigned mess is to (1) interpret all existing 16 bit numeric types as subranges of <span class="look-k"/>INT</span> and (2) disallow mixing values of type <span class="look-k"/>INT</span> (or subrange thereof) and values of type <span class="look-k"/>CARD</span> (or subrange thereof) unless explicit conversion operations are used.  The 6.1 compiler will <span class="look-i"/>not</span> enforce this, however.  [Satterthwaite]
+</div>
+</div>
+<div class="head">
+ComputeServerUser: [Cedar]&lt;Cedar6.1&gt;Top&gt;ComputeServerUser.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+ComputeWorkingSet: [Cedar]&lt;CedarChest6.1&gt;Top&gt;ComputeWorkingSet.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Bob Hagmann &lt;Hagmann.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ComputeWorkingSetDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> ComputeWorkingSet
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Controls: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Controls.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Jules Bloomenthal &lt;Bloomenthal.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ControlsDoc.Tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> TestControls
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+ConvolutionFilter: [Cedar]&lt;CedarChest6.1&gt;Top&gt;ConvolutionFilter.df (new)
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Tim Diebert &lt;Diebert.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ConvolutionFilterDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> ConvolutionFilter, CFilter
+</div>
+<div class="indent">
+This package performs NxM convolution filtering on an AIS image.
+</div>
+</div>
+<div class="head">
+Cookie: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Cookie.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> CookieDoc.Tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Cookie
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+CopyFromVersionMap: [Cedar]&lt;CedarChest6.1&gt;Top&gt;CopyFromVersionMap.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Russ &lt;Atkinson.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> CopyFromVersionMapDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> CopyFromVersionMap
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+CubicSplinePackage: [Cedar]&lt;CedarChest6.1&gt;Top&gt;CubicSplinePackage.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Maureen Stone &lt;Stone.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> CubicSplinePackageDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Cucumber: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Cucumber.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Mike Spreitzer &lt;Spreitzer.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> CucumberDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Cucumber
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Cypress: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Cypress.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Donahue.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> CypressDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Cypress
+</div>
+<div class="indent">
+This is it &mdash; the new smaller, faster, more wonderful Cypress you&apos;ve all been waiting for!
+</div>
+<div class="indent">
+<span class="look-l"/><span class="look-e"/><span class="look-b"/>Note</span></span></span>: All existing Cypress databases will need to rebuilt to use the latest version.  For Walnut users, this is easy &mdash; you&apos;ll simply be forced to scavenge the first time you use the new Cypress and Walnut.  Whiteboards users should dump any existing whiteboard databases using the previous version and then reload them using the new Cypress.  A new version of the Cedar whiteboards has been stored on Luther.
+</div>
+<div class="indent">
+A patch was made to the lower layers of Cypress to reduce the chances of tuple allocations extending over a page boundary (for which the system cannot currently recover).
+</div>
+</div>
+<div class="head">
+DBIcons: [Cedar]&lt;CedarChest6.1&gt;Top&gt;DBIcons.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Donahue.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> OpenIconDB
+</div>
+<div class="indent">
+Changed to use the new Cypress.
+</div>
+</div>
+<div class="head">
+DBTools: [Cedar]&lt;CedarChest6.1&gt;Top&gt;DBTools.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Donahue.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> OpenToolDB
+</div>
+<div class="indent">
+Changed to use the new Cypress.
+</div>
+</div>
+<div class="head">
+DebuggingWorld: [Cedar]&lt;CedarChest6.1&gt;Top&gt;DebuggingWorld.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Doug Wyatt &lt;Wyatt.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> DebuggingWorldDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+DebugTool: [Cedar]&lt;Cedar6.1&gt;Top&gt;DebugTool.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> DebugToolDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Dependencies: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Dependencies.df (moved)
+<div class="indent">
+<span class="look-b"/>Commands:</span> Dependencies
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+DeskTops: [Cedar]&lt;CedarChest6.1&gt;Top&gt;DeskTops.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Peter Kessler &lt;PeterKessler.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> DeskTopsDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> DeskTops
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+DFCommands: [Cedar]&lt;Cedar6.1&gt;Top&gt;DFCommands.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> DFCommandsDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+DFDependencies: [Cedar]&lt;CedarChest6.1&gt;Top&gt;DFDependencies.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Mike Spreitzer &lt;Spreitzer.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> DFDependenciesDoc.Tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+DFIncludes: [Cedar]&lt;CedarChest6.1&gt;Top&gt;DFIncludes.df (moved)
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> DFIncludes
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+DFPackage: [Cedar]&lt;Cedar6.1&gt;Top&gt;DFPackage.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+DFTool: [Cedar]&lt;CedarChest6.1&gt;Top&gt;DFTool.df (moved)
+<div class="indent">
+<span class="look-b"/>Documentation:</span> DFToolDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> DFTool, DeleteDFTools
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+DicentraRS232CAsync: [Cedar]&lt;CedarChest6.1&gt;Top&gt;DicentraRS232CAsync.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Tim Diebert &lt;Diebert.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> DicentraRS232CAsyncDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+DirectoryList: [Cedar]&lt;CedarChest6.1&gt;Top&gt;DirectoryList.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Michael Plass &lt;Plass.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> DirectoryListDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Dir, SubDir
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Disk: [Cedar]&lt;Cedar6.1&gt;Top&gt;Disk.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+DiskTool: [Cedar]&lt;CedarChest6.1&gt;Top&gt;DiskTool.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Willie-Sue &lt;Willie-Sue.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> DiskToolDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Documentation: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Documentation.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> Copyright.tioga, ManualContents.tioga, BriefingBlurb.tioga, Glossary.tioga, Introduction.tioga, HowToUseAPublicCedarMachine.tioga, OverviewDoc.tioga, CedarProgramStyle.tioga, DoradoBooting.tioga, DiskErrorRecovery.tioga, PseudoServerDoc.Tioga, ExampleUserProfile.Tioga
+</div>
+<div class="indent">
+Updated BriefingBlurb and Introduction to resemble the current truth somewhat more closely.  Note there are a couple of files mentioned in Introduction.tioga that no longer exist, at least under those names; they are marked with placeholder brackets.  [Plass, Hagmann]
+</div>
+</div>
+<div class="head">
+Dunn: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Dunn.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Bloomenthal.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> DunnDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Dunn, DunnTool, DunnView, DunnSnap
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+EchoTool: (deleted)
+<div class="indent">
+Replaced by PupEchoTool.
+</div>
+</div>
+<div class="head">
+EditorComforts: [Cedar]&lt;CedarChest6.1&gt;Top&gt;EditorComforts.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Russ Atkinson &lt;Atkinson.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> EditorComfortsDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+EditTool: [Cedar]&lt;Cedar6.1&gt;Top&gt;EditTool.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Eikonix: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Eikonix.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Tim Diebert &lt;Diebert.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> EikonixDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+EssentialStyles: [Cedar]&lt;Cedar6.1&gt;Top&gt;EssentialStyles.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> TiogaImplementors^.pa
+</div>
+<div class="indent">
+Added artworkFigure, artworkCaption formats (these will be used by ArtworkInterpress).
+</div>
+<div class="item">
+<i>Changed `keep&apos; values on heads to a smaller value.</i>
+</div>
+<div class="item">
+<i>Increased maxHorizontalExpansion in body format from 3 to 4.  [Plass]</i>
+</div>
+</div>
+<div class="head">
+EtherLoad: [Cedar]&lt;CedarChest6.1&gt;Top&gt;EtherLoad.df (new)
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Hal Murray &lt;Murray.PA&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> EtherLoadDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> EtherLoad
+</div>
+<div class="indent">
+EtherLoad displays a bar graph of the ethernet activity.
+</div>
+</div>
+<div class="head">
+EtherWatch: [Cedar]&lt;CedarChest6.1&gt;Top&gt;EtherWatch.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Hal Murray &lt;Murray.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> EtherWatchDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> EtherWatch
+</div>
+<div class="indent">
+EtherWatch is a tool for observing raw packets on an Ethernet.
+</div>
+</div>
+<div class="head">
+ExamineStorage: [Cedar]&lt;CedarChest6.1&gt;Top&gt;ExamineStorage.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Russ Atkinson &lt;Atkinson.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ExamineStorageDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> FindBadGuys, TakeHeapStats, FindCyclicTypes, ValidateHeap, AutoReclaimFreePages, ForceReclaimFreePages
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+ExecHacks: [Cedar]&lt;CedarChest6.1&gt;Top&gt;ExecHacks.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ExecHacksDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> ExecHacks
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+ExpungeOpens: [Cedar]&lt;CedarChest6.1&gt;Top&gt;ExpungeOpens.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Michael Plass &lt;Plass.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ExpungeOpensDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> ExpungeOpens
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+ExtraIago: [Cedar]&lt;Cedar6.1&gt;Top&gt;ExtraIago.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ExtraIagoDoc.Tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> LocalIago
+</div>
+<div class="indent">
+This version fixes a bug and allows one to read the VAM files.  Iago2 is renamed LocalIago.  [Willie-Sue]
+</div>
+</div>
+<div class="head">
+FastMouse: [Cedar]&lt;CedarChest6.1&gt;Top&gt;FastMouse.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Frank Crow &lt;Crow.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> FastMouseDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> FastMouse
+</div>
+<div class="indent">
+X and Y accelerations may now be varied by a ratio (as requested by PeterKessler).
+</div>
+<div class="indent">
+The FastMouse process has been bumped up to Process.priorityRealTime.  This appears to get it out of the Spy&apos;s way.  Report any funny behavior quickly, please.
+</div>
+</div>
+<div class="head">
+Ferret: (deleted)
+<div class="indent">
+I don&apos;t plan to convert it to 6.1. I think Hagmann has better toys.  [Murray]
+</div>
+</div>
+<div class="head">
+File: [Cedar]&lt;Cedar6.1&gt;Top&gt;File.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+FileCmds: [Cedar]&lt;CedarChest6.1&gt;Top&gt;FileCmds.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> FileCmdsDoc.Tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> FileCmds, CmdPerFile, CmdAllFiles, ListFileSet, lfs, DeleteFileSet, dfs, ArchiveFileSet, afs, RetrieveFileSet, rfs
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+FileStream: [Cedar]&lt;Cedar6.1&gt;Top&gt;FileStream.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Hagmann.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> FileStreamDoc.Tioga
+</div>
+<div class="indent">
+Made <span class="look-t"/>FileStream</span> more robust in the face of errors (like the &quot;FileStreamImpl.UnsafeGetBlock infinite loop&quot; reported by Spreitzer).  While in the area, saved 2 GFI&apos;s by combining compilation units.
+</div>
+</div>
+<div class="head">
+FileStreamTest: [Cedar]&lt;CedarChest6.1&gt;Top&gt;FileStreamTest.df
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+FileUtil: [Cedar]&lt;CedarChest6.1&gt;Top&gt;FileUtil.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Hagmann.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> FileUtilDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> VAMStats, ComputeVAM, DeleteOrphanPages
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Finch: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Finch.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> LarkSupport &lt;LarkSupport.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> FinchDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Finch, WalnutVoice
+</div>
+<div class="indent">
+Tiny changes to sample telephone directory and to the manual.  No longer employs an interface named &quot;Log&quot;.
+</div>
+</div>
+<div class="head">
+FindKeywords: [Cedar]&lt;CedarChest6.1&gt;Top&gt;FindKeywords.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Michael Plass &lt;Plass.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> FindKeywordsDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> FindKeywords
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+FontEdit: [Cedar]&lt;CedarChest6.1&gt;Top&gt;FontEdit.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Michael Plass &lt;Plass.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> FontEditDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> FontEdit, FontBold, FontSlant, FontMerge, FontWidthsCopy, SDtoSF, MakeRasterFont, StippleEdit
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+FormatDisk: [Cedar]&lt;Cedar6.1&gt;Top&gt;FormatDisk.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Forms: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Forms.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Rick Beach &lt;Beach.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> FormsDoc.tioga, SampleSheet.tioga, FontCache.tioga
+</div>
+<div class="indent">
+Added a command:
+</div>
+<div class="indent">
+Form [ fileOrDirectoryName &#x2190 ] formName
+<div class="indent">
+Makes a new viewer (and perhaps file) from the named form.  If formName is a short name, the &quot;.form&quot; extension is added and the file is searched for in the directory that FormImpl was started in (typically []&lt;&gt;Commands&gt;); otherwise the form file is looked up in the usual way.
+</div>
+<div class="indent">
+Examples:
+<div class="indent">
+Form CedarDoc
+</div>
+<div class="indent">
+Form ///mumble/ &#x2190 Slides
+</div>
+<div class="indent">
+Form New.slide &#x2190 Slides
+</div>
+</div>
+</div>
+<div class="indent">
+[Plass]
+</div>
+</div>
+<div class="head">
+FS: [Cedar]&lt;Cedar6.1&gt;Top&gt;FS.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> FSDoc.tioga
+</div>
+<div class="indent">
+Fixed a deadlock avoidance test in FSMainImpl1. [Hagmann]
+</div>
+</div>
+<div class="head">
+FSRope: [Cedar]&lt;CedarChest6.1&gt;Top&gt;FSRope.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Doug Wyatt &lt;Wyatt.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> FSRopeDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+FSUtil: [Cedar]&lt;CedarChest6.1&gt;Top&gt;FSUtil.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> FSUtilDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> OpenFiles, ActiveFiles, FileStreams, LRUChain, LRUInfo, LRUFlush, ForceClose, FSEstablishInvariants
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+FTP: [Cedar]&lt;CedarChest6.1&gt;Top&gt;FTP.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> AlpineImplementors^.pa
+</div>
+<div class="indent">
+Kept 5 marks worth of history for debugging occasional protocol errors that occur;  corrected misspelling in an error text in FTPCommon; added an import of Endian.bcd to the DF file.  [CHauser]
+</div>
+</div>
+<div class="head">
+Geometry3d: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Geometry3d.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Jules Bloomenthal &lt;Bloomenthal.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> Geometry3dDoc.Tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Geometry3dApplied: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Geometry3dApplied.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Jules Bloomenthal &lt;Bloomenthal.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> Geometry3dAppliedDoc.Tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Germ: [Cedar]&lt;Cedar6.1&gt;Top&gt;Germ.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+All I did was make a few tweaks to EthernetFace and EthernetOneFace.....
+</div>
+<div class="indent">
+In the process of putting the germs back together, I wanted to test the EtherBooting case. It didn&apos;t work at first because the germ couldn&apos;t get a scratch page after it had already inloaded somebody. So I moved the buffer that was already allocated from TeleDebugImpl to MiniEthernet(One)Driver...
+</div>
+<div class="indent">
+I think this will save a page of real memory when you EtherBoot, and more interestingly, it will make the size of the germ (or rather the total real memory that the boot file sees) the same whether you have etherbooted or disk booted. The old code could get confused if you made a checkpoint after EtherBooting.
+</div>
+<div class="indent">
+I also got annoyed with how out of date MPCodes was, so I pulled that string. Aside from the heads and germ, a handful of initialization modules were recompiled and FilePackage, Tenacles, SafeStorage/CedarRuntime, and VMImpl were rebound.
+</div>
+<div class="indent">
+ProcessorHeadDorado now complains if the processorID changes after a rollback. The corresponding code has been removed from both ethernet heads. MiniEthernetDriver and HackPupHostNumber now put a 862 in the MP if the server says this machine isn&apos;t registered in Pup-network.txt. (They keep trying, just like the old days. This tells you that the hardware is working well enough to talk to some server.)
+</div>
+<div class="indent">
+The meaning of 862 has changed. Are these numbers (other than 815) written up anyplace?
+</div>
+<div class="indent">
+Old:
+<div class="code">
+findPupAddress: Code = 861; <span class="look-c"/>-- Ethernet2 trying to find its Pup address</span>
+</div>
+<div class="code">
+ethernetHostChanged: Code = 862; <span class="look-c"/>-- ethernet host different at DeviceCleanup.TurnOn</span>
+</div>
+<div class="code">
+communicationInitialized: Code = 865;
+</div>
+</div>
+<div class="indent">
+New:
+<div class="code">
+findingPupAddress: Code = 861; <span class="look-c"/>-- 10MB Ethernet trying to find its Pup address</span>
+</div>
+<div class="code">
+serverSaysNoPupAddress: Code = 862; <span class="look-c"/>-- Machine not &quot;Registered&quot; in Pup-network.txt</span>
+</div>
+<div class="code">
+processorIDChanged: Code = 863; <span class="look-c"/>-- processorID different at DeviceCleanup.TurnOn</span>
+</div>
+<div class="code">
+ethernetHostChanged: Code = 864; <span class="look-c"/>-- ethernet host changed or hardware vanished</span>
+</div>
+<div class="code">
+communicationInitialized: Code = 865;
+</div>
+</div>
+<div class="indent">
+MiniEthernetDriverDLion.* is no longer used. (It should get deleted from the release directory.)
+</div>
+<div class="indent">
+I moved the Dorado &quot;MP&quot; over to the middle of the screen rather than the middle of old Alto size screen. If your MP jumps back and forth, you have an old germ and a new boot file or the reverse.
+</div>
+<div class="indent">
+-----
+</div>
+<div class="indent">
+We now have a Dorado10.germ. It&apos;s only interesting if you want to debug MiniEthernetDriver and you can find a Dorado with a 10MB board. (I didn&apos;t bother to make the etherbootable version.)
+</div>
+<div class="indent">
+It seems as though the DLions implement multiword compares in microcode. (10MB Ethernet host numbers are 3 words long.) In case you couldn&apos;t guess, I found this the hard way while debugging the new 10MB germ code on my Dorado.
+</div>
+<div class="indent">
+I&apos;m reasonably sure there is a patch in <span class="look-k"/>KFCB</span> that checks for a few magic numbers. The Dicentra microcode has a comment in the change log, but I couldn&apos;t find any code. I assume it got removed when the <span class="look-k"/>XDE</span> Compiler was fixed to generate <span class="look-k"/>MISC</span> <span class="look-k"/>XX</span> rather than <span class="look-k"/>KFCB</span> xx for complicated compares.  [Murray]
+</div>
+</div>
+<div class="head">
+GetDWIM: [Cedar]&lt;CedarChest6.1&gt;Top&gt;GetDWIM.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> GetDWIMDoc.Tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> GetDWIM
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+GetFromRelease: [Cedar]&lt;CedarChest6.1&gt;Top&gt;GetFromRelease.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Rick Beach &lt;Beach.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> GetFromReleaseDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> GetFromRelease
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+GetMe: [Cedar]&lt;CedarChest6.1&gt;Top&gt;GetMe.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Mike Spreitzer &lt;Spreitzer.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> GetMeDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> GetMe
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+GList: [Cedar]&lt;CedarChest6.1&gt;Top&gt;GList.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Bertrand Serlet &lt;Serlet.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> GListDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> GList
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+GmtDebug: [Cedar]&lt;CedarChest6.1&gt;Top&gt;GmtDebug.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Hal Murray &lt;Murray.PA&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> GmtDebugDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+GoodTimes: [Cedar]&lt;CedarChest6.1&gt;Top&gt;GoodTimes.df
+<div class="indent">
+<span class="look-b"/>Commands:</span> GoodTimes
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+GPIB: [Cedar]&lt;CedarChest6.1&gt;Top&gt;GPIB.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Neil &lt;Gunther.pa&gt;, Jim &lt;Gasbarro.pa&gt;, Tim &lt;Diebert.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> GPIBDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> GPIBServer, GPIBClient
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+GrapevineUser: [Cedar]&lt;Cedar6.1&gt;Top&gt;GrapevineUser.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Graphs: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Graphs.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Mike Spreitzer &lt;Spreitzer.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> GraphsDoc.Tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Graphs, GraphBrowsers
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Grep: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Grep.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Russ Atkinson &lt;Atkinson.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> GrepDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Grep, GrepI
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Griffin: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Griffin.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Maureen Stone &lt;Stone.pa&gt;, Ken Pier &lt;Pier.PA&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> GriffinDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Griffin
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+GriffinToIP: [Cedar]&lt;CedarChest6.1&gt;Top&gt;GriffinToIP.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Eric Nickell &lt;Nickell.pasa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> GriffinToIPDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> GriffinToIP
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+GVMail: [Cedar]&lt;Cedar6.1&gt;Top&gt;GVMail.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+GVTools: [Cedar]&lt;CedarChest6.1&gt;Top&gt;GVTools.df (new)
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> John &lt;JLarson.pa&gt;, Hal &lt;Murray.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> GVToolsDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> DBCompare, DBPurge, GVWatcher, InboxCount, InvertDLs, DLMap
+</div>
+<div class="indent">
+A collection of Cedar based Grapevine tools.
+</div>
+</div>
+<div class="head">
+HashTable: [Cedar]&lt;CedarChest6.1&gt;Top&gt;HashTable.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Bertrand Serlet &lt;Serlet.pa&gt;, Mike Spreitzer &lt;Spreitzer.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> HashTableDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> HashTable
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+HeadsCommon: [Cedar]&lt;Cedar6.1&gt;Top&gt;HeadsCommon.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+The Ethernet faces have been reworked.  MPCodes defines some new codes, and redefines one or two old ones.  ColorDisplayDefsExtras and ColorDisplayFaceExtras were added to support TerminalExtras.
+</div>
+</div>
+<div class="head">
+HeadsD0: (deleted)
+</div>
+<div class="head">
+HeadsDLion: [Cedar]&lt;Cedar6.1&gt;Top&gt;HeadsDLion.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+The Ethernet heads have been reworked.
+</div>
+</div>
+<div class="head">
+HeadsDorado: [Cedar]&lt;Cedar6.1&gt;Top&gt;HeadsDorado.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+The Ethernet heads have been reworked.
+</div>
+</div>
+<div class="head">
+HierarchicalDisplays: [Cedar]&lt;CedarChest6.1&gt;Top&gt;HierarchicalDisplays.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Mike Spreitzer &lt;Spreitzer.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> HierarchicalDisplaysDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> HierarchicalDisplays
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Histograms: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Histograms.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Mike Spreitzer &lt;Spreitzer.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> HistogramsDoc.Tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Histograms
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Histograph: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Histograph.df (new)
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Russ &lt;Atkinson.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> HistographDoc.tioga
+</div>
+<div class="indent">
+A Histograph viewer displays a history graph of samples.  Each sample is displayed as a one-pixel wide vertical bar.  A Histograph viewer can be either a top-level viewer or an embedded viewer.  A Histograph viewer can be historical, as with a strip-chart, or random access, as with a histogram.
+</div>
+<div class="indent">
+Histograph viewers are derived from the graphical displays used in Watcher, but Histograph viewers have been generalized, parameterized, and documented.
+</div>
+</div>
+<div class="head">
+HistoVAM: [Cedar]&lt;CedarChest6.1&gt;Top&gt;HistoVAM.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Carl Hauser &lt;Hauser.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> HistoVAMDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> HistoVAM
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+HostButton: [Cedar]&lt;CedarChest6.1&gt;Top&gt;HostButton.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Hal Murray &lt;Murray.PA&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> HostButtonDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> HostButton
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+HostName: [Cedar]&lt;CedarChest6.1&gt;Top&gt;HostName.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Mike Spreitzer &lt;Spreitzer.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> HostNameDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> HostName
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Iago: [Cedar]&lt;Cedar6.1&gt;Top&gt;Iago.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+Never suggests a default VM size greater than 16000 pages on a DLion.
+</div>
+<div class="indent">
+A temporary hack sets the PupStream buffer size to &quot;small&quot; if the registry is not &quot;.pa&quot;.  See the discussion about &quot;big buffers&quot; above.  [Wyatt]
+</div>
+</div>
+<div class="head">
+IconEditor: [Cedar]&lt;CedarChest6.1&gt;Top&gt;IconEditor.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> IconEditorDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> IconEditor
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+IconRegistry: [Cedar]&lt;CedarChest6.1&gt;Top&gt;IconRegistry.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Rick Beach &lt;Beach.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> IconRegistryDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Idle: [Cedar]&lt;Cedar6.1&gt;Top&gt;Idle.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+IdleHacks: [Cedar]&lt;CedarChest6.1&gt;Top&gt;IdleHacks.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Mike Spreitzer &lt;Spreitzer.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> IdleHacksDoc.Tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> ColorKal, PolyKal
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+IFSFile: (deleted)
+</div>
+<div class="head">
+ImageFFT: [Cedar]&lt;CedarChest6.1&gt;Top&gt;ImageFFT.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Tim Diebert &lt;Diebert.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ImageFFTDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> ClipAIS, FFTFilter, FFTShow
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Imager: [Cedar]&lt;Cedar6.1&gt;Top&gt;Imager.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> The Imager Implementors &lt;ImagerImplementors^.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ImagerDoc.tioga
+</div>
+<div class="indent">
+The new ImagerExtras interface provides some additional functionality for Interpress 3.0, including beveled stroke joints and dashed strokes.
+</div>
+<div class="indent">
+A few private interfaces have changed: ImagerPrivate, ImagerState, ImagerTypeface.
+</div>
+</div>
+<div class="head">
+ImagerMemory: [Cedar]&lt;CedarChest6.1&gt;Top&gt;ImagerMemory.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> ImagerImplementors^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ImagerMemoryDoc.tioga
+</div>
+<div class="indent">
+Tracked changes in ImagerPrivate.  Now understands dashed strokes.
+</div>
+</div>
+<div class="head">
+ImagerPD: [Cedar]&lt;CedarChest6.1&gt;Top&gt;ImagerPD.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> ImagerImplementors^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ImagerPDDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> CheckPD, TypePD
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+ImagerPress: [Cedar]&lt;CedarChest6.1&gt;Top&gt;ImagerPress.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ImagerPressDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+ImagerSmooth: [Cedar]&lt;CedarChest6.1&gt;Top&gt;ImagerSmooth.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> ImagerImplementors^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ImagerSmoothDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+ImagerToJaM: [Cedar]&lt;CedarChest6.1&gt;Top&gt;ImagerToJaM.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ImagerToJaMDoc.tioga
+</div>
+<div class="indent">
+Tracked changes in ImagerPrivate.  Now emits JaM code for dashed strokes.
+</div>
+</div>
+<div class="head">
+ImagerViewer: [Cedar]&lt;CedarChest6.1&gt;Top&gt;ImagerViewer.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Plass.pa? Diebert.pa? Lamming.pa? Beach.pa?
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ImagerViewerDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Inscript: [Cedar]&lt;Cedar6.1&gt;Top&gt;Inscript.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> InscriptDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Install: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Install.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Mike Spreitzer &lt;Spreitzer.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> InstallDoc.Tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Install
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Installer: [Cedar]&lt;Cedar6.1&gt;Top&gt;Installer.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Interpress: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Interpress.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> ImagerImplementors^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> InterpressDoc.tioga
+</div>
+<div class="indent">
+Upgraded (nearly) to Interpress version 3.0.  (Doesn&apos;t yet cope with fancy skeleton structure, sequenceInsertMaster, or sequenceInsertFile.)
+</div>
+</div>
+<div class="head">
+InterpressTools: [Cedar]&lt;CedarChest6.1&gt;Top&gt;InterpressTools.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Doug &lt;Wyatt.pa&gt;, Michael &lt;Plass.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> InterpressToolsDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> IPWrittenFromXerox, IPXeroxFromWritten, InterpressOverlay, AISToInterpress, ColorAISToInterpress, PressToInterpress, InterpressArrows, InterpressToPD, IPToPD, InterpressToAIS, InterpressToPress, InterpressToJaM, InterpressToTiogaArtwork, ArtworkInterpress, ArtworkRule
+</div>
+<div class="indent">
+Upgraded to Interpress version 3.0.
+</div>
+<div class="indent">
+ImagerArtwork now puts `artworkFigure&apos; and `artworkCaption&apos; formats on the nodes it inserts.
+</div>
+<div class="indent">
+IPtoPD and InterpressToPD are now the same.
+</div>
+<div class="indent">
+The default pixels-per-dot for the raven and platemaker devices have been changed to hit the fast case of PDPrint (for black, anyway), so you don&apos;t need to remember the magic numbers.
+</div>
+</div>
+<div class="head">
+Interpreter: [Cedar]&lt;Cedar6.1&gt;Top&gt;Interpreter.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+InterpreterTool: [Cedar]&lt;Cedar6.1&gt;Top&gt;InterpreterTool.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> InterpreterToolDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+IntervalTimer: [Cedar]&lt;Cedar6.1&gt;Top&gt;IntervalTimer.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> IntervalTimerDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+InterVoice: [Cedar]&lt;CedarChest6.1&gt;Top&gt;InterVoice.df
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+IntHashTable: [Cedar]&lt;CedarChest6.1&gt;Top&gt;IntHashTable.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Mike Spreitzer &lt;Spreitzer.pa&gt;, Bertrand Serlet &lt;Serlet.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> IntHashTableDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> IntHashTable
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+IO: [Cedar]&lt;Cedar6.1&gt;Top&gt;IO.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> IODoc.tioga, IOConversionDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+JaM: [Cedar]&lt;CedarChest6.1&gt;Top&gt;JaM.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Doug Wyatt &lt;Wyatt.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> JaMDoc.tioga, JaMObsoleteDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> JaM
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+JaMImager: [Cedar]&lt;CedarChest6.1&gt;Top&gt;JaMImager.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Tim Diebert &lt;Diebert.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> JaMImagerDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> JaMImager
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+KeyboardTioga: [Cedar]&lt;CedarChest6.1&gt;Top&gt;KeyboardTioga.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> KeyboardTiogaDoc.Tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> KeyboardTioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Kipper: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Kipper.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Howard Sturgis &lt;Sturgis.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> KipperDoc.Tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Kipper, TestSubject
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+LFBoundingBox: [Cedar]&lt;CedarChest6.1&gt;Top&gt;LFBoundingBox.df (moved)
+<div class="indent">
+<span class="look-b"/>Documentation:</span> LFBoundingBoxDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Lightning: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Lightning.df (ndw)
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Hal Murray &lt;Murray.PA&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> LightningDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Lightning
+</div>
+<div class="indent">
+Lightning zaps some of your packets so you can debug retransmission heuristics.
+</div>
+</div>
+<div class="head">
+ListArchives: [Cedar]&lt;CedarChest6.1&gt;Top&gt;ListArchives.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Tim Diebert &lt;Diebert.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ListArchivesDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> ListArchives
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Lister: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Lister.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ListerDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> BcdLister, BodyLister, CodeLister, ExportsLister, FGTLister, FilesLister, GlobalFramesLister, RTBcdLister, ShortBcdLister, SortedDefsLister, SortedSymbolLister, SymbolLister, UnboundLister, UsingLister
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Loader: [Cedar]&lt;Cedar6.1&gt;Top&gt;Loader.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+LoaderDriver: [Cedar]&lt;Cedar6.1&gt;Top&gt;LoaderDriver.df (new)
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+The program that processes Basic.loadees.  It used to live in BasicCedar.df.
+</div>
+</div>
+<div class="head">
+LoadState: [Cedar]&lt;Cedar6.1&gt;Top&gt;LoadState.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+LoganBerry: [Cedar]&lt;CedarChest6.1&gt;Top&gt;LoganBerry.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Doug Terry &lt;Terry.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> LoganBerryDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> LoganBerry, LoganBerryBrowser
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Lupine: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Lupine.df (moved)
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Swinehart.pa, Hagmann.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> LupineUsersGuide.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Lupine
+</div>
+<div class="indent">
+This is Lupine version 1.3.  It has moved from &lt;Cedar<span class="look-m"/>®</span>&gt; to &lt;CedarChest<span class="look-m"/>®</span>&gt; It supports three changes in the way Cedar RPC is used (assume that the remote interface is named &quot;Target&quot;):
+</div>
+<div class="indent">
+<span class="look-b"/>1. Promiscuous interfaces:</span>
+</div>
+<div class="indent">
+TargetRpcControl.ExportInterface[
+<div class="code">
+interfaceName: [type: &quot;TargetType&quot;, instance: NIL, ...], ...]
+</div>
+</div>
+<div class="indent">
+results in an exported interface that will match any import request for type &quot;TargetType&quot;.  The type field should not take the form of an R-Name, since a valid instance field is required for Grapevine registration.  (This feature did not require changes in Lupine, but is documented here for the edification of RPC client programmers.)
+</div>
+<div class="indent">
+<span class="look-b"/>2. Acceleration of binding:</span>   Both <span class="look-i"/>TargetRPCControl.ImportInterface</span> and <span class="look-i"/>TargetRPCControl.ImportNewInterface </span>include an optional hostHint argument, whose declaration is equivalent to <span class="look-e"/>hostHint: Pup.Address</span>.   Only the <span class="look-e"/>net</span> and<span class="look-e"/> host</span> fields are significant.  <span class="look-e"/>hostHint</span> specifies a network address of a connect site to try as the exporter of the specified interface before consulting Grapevine or the Pup Name Lookup server.  If the binding attempt at this site fails, the standard queries are made to locate a valid site.  Since a Grapevine lookup can take several seconds, a successful <span class="look-e"/>hostHint</span> can improve startup performance considerably.  Methods for obtaining <span class="look-e"/>hostHint</span> values are up to the client.
+</div>
+<div class="indent">
+<span class="look-b"/>3. Change in the marshaling of NIL Atoms: </span>Atom values of <span class="look-k"/>NIL</span> are transmitted as <span class="look-k"/>NIL</span>.  In previous versions of the system, they either caused a runtime error or were converted to the Atom whose print-name is the zero-length rope (&quot;&quot;) during transmission.
+</div>
+<div class="indent">
+
+</div>
+<div class="indent">
+<span class="look-b"/>N.B. </span><span class="look-e"/>TargetRpcClientImpl</span> imports <span class="look-e"/>LupineRuntimeExtras.bcd </span>(obtained from RpcRuntime.df).  Config files may have to be changed to include it.
+</div>
+<div class="indent">
+
+</div>
+</div>
+<div class="head">
+LupineStubs: [Cedar]&lt;CedarChest6.1&gt;Top&gt;LupineStubs.df (moved)
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Magnifier: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Magnifier.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Plass.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> MagnifierDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Magnifier
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Maintain: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Maintain.df (moved)
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> JLarson.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Maintain
+</div>
+<div class="indent">
+New features for Normal users, Owners, and Administrators.
+</div>
+<div class="indent">
+Maintain knows about NS names now.  It also knows about two-level converted GV-NS lists and tries to behave reasonably when referencing these lists.  Please let me know if you find problems.  [JLarson]
+</div>
+</div>
+<div class="head">
+MakeBoot: [Cedar]&lt;Cedar6.1&gt;Top&gt;MakeBoot.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> MakeBoot
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+MakeDo: [Cedar]&lt;CedarChest6.1&gt;Top&gt;MakeDo.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Mike Spreitzer &lt;Spreitzer.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> MakeDoDoc.Tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> MakeDo, MakePrediction, MakeCommandList, MakeExcuses, MakeSuspicion, MakeEmpty, MakeProducer
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Math: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Math.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Tim Diebert &lt;Diebert.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> MathDoc.Tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+MazeWar: [Cedar]&lt;CedarChest6.1&gt;Top&gt;MazeWar.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Mike Spreitzer &lt;Spreitzer.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> MazeWarDoc.Tioga, MazeWarCmds.Tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> MazeWar
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+MesaRuntime: [Cedar]&lt;Cedar6.1&gt;Top&gt;MesaRuntime.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+MetaCedar: [Cedar]&lt;CedarChest6.1&gt;Top&gt;MetaCedar.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Michael Plass &lt;Plass.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> MetaCedarDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> MetaCedar
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+MF: [Cedar]&lt;CedarChest6.1&gt;Top&gt;MF.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Plass.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> MFDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> MF, IniMF
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+MicrocodeD0: (deleted)
+</div>
+<div class="head">
+MicrocodeDLion: [Cedar]&lt;Cedar6.1&gt;Top&gt;MicrocodeDLion.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+Recent changes allow use of up to 4 megabytes of storage with Cedar; previous configurations supported a maximum of 2 megabytes.  In conjunction with more than 2 megabytes of storage, you must use a Cedar boot file which uses &quot;long&quot; map opcodes.  (The 6.1 DLion boot file uses &quot;long&quot; map opcodes.)<br><br>This microcode has been successfully tested with both the 3.0 megabyte modified DLion storage boards and the 3.5 megabyte DTiger storage board.<br><br>Many people will presently have 2.0 megabyte storage configurations, which are really 3.0 megabyte storage boards with 1 megabyte of storage disabled by a two-wire change; if your storage is configured this way, then you will need to have the modification undone.  CSL folks, see either Mike Overton or Doug Walters.<br><br>[According to Mike Overton, every CSL DLion will have either a 3 megabyte or 2 megabyte storage board set.  The 3 megabyte board set previously permitted use of only 1.5 megabytes, so a two-wire hardware change was made on about half of the CSL DLions so that 2 megabytes could be used.  Machines with 2 megabyte board sets cannot use the newest Initial microcode.  They can run the new Cedar microcode and boot files but must use the old Initial microcode from &lt;Cedar6.0&gt;Top&gt;InitialDiskDLion2.db.  Since performance will be significantly better with 3 megabytes of storage, it is desirable to convert these machines to 3 mb as soon as possible.]<br><br>Note that a coordinated update of all of the following will avoid problems:<br>  1) Obtain 3.0 megabyte storage boards.<br>  2) Install Initial microcode with Iago.<br>  3) Install Cedar microcode with Iago.<br>  4) Install a Cedar boot file which uses long map opcodes.<br>  5) Boot the machine from the switches (to change microcode) and do a full boot (F switch).<br><br>The new Cedar microcode will run happily with the old initial and with either short or long map opcodes (i.e., it is backward compatible).  The 6.1 boot file can be used with either the new or old Cedar microcode (with the old microcode, it will revert to short map op codes).  The new Initial should be used only with the new Cedar microcode and new boot file.<br><br>The new Initial also allows a 0-boot either with or without installed diagnostics.  Previously, you had to do a 1-boot or your machine would crash due to the absence of installed diagnostics on the disk.  With this change, your machine will boot automatically.<br><br>
+</div>
+</div>
+<div class="head">
+MicrocodeDorado: [Cedar]&lt;Cedar6.1&gt;Top&gt;MicrocodeDorado.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Misp: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Misp.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Mike Spreitzer &lt;Spreitzer.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> MispDoc.Tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Misp
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+NewCalc: [Cedar]&lt;CedarChest6.1&gt;Top&gt;NewCalc.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> NewCalcDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> NewCalc
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Nut: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Nut.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> WalnutSupport^.pa
+</div>
+<div class="indent">
+This version can only be run with the new Cypress.
+</div>
+</div>
+<div class="head">
+OneCasaba: [Cedar]&lt;CedarChest6.1&gt;Top&gt;OneCasaba.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Sturgis.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> OneCasabaDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> GenOneCasabaParser, DemoOneCasaba
+</div>
+<div class="indent">
+Corrected the conflict analysis printout.  This analysis attempts to find a sequence of LR items that leads to an unresolvable conflict.  Certain LR1 items  in the sequence were being printed as LR0 items.
+</div>
+<div class="indent">
+Fixed two miscellaneous bugs.  An erroneous consistency check during construction of the LALR(1) parser, and an NIL fault which can occur while removing inconsistent actions from the parser table.  (When allowing conflicts, and the action to be removed was the last action in a chain.)
+</div>
+</div>
+<div class="head">
+OperatorPrecedenceParse: [Cedar]&lt;CedarChest6.1&gt;Top&gt;OperatorPrecedenceParse.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Mike Spreitzer &lt;Spreitzer.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> OperatorPrecedenceParseDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> OperatorPrecedenceParse
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+PascalRuntime: [Cedar]&lt;CedarChest6.1&gt;Top&gt;PascalRuntime.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Plass.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+PeachPrint: [Cedar]&lt;CedarChest6.1&gt;Top&gt;PeachPrint.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Don Curry &lt;Curry.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> PeachPrintDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> PeachPrint
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Peanut: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Peanut.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Doug Wyatt and Michael Plass &lt;Wyatt.pa, Plass.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> PeanutDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Peanut
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+PeekMail: [Cedar]&lt;CedarChest6.1&gt;Top&gt;PeekMail.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Willie-Sue.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> PeekMail
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+PGS: [Cedar]&lt;Cedar6.1&gt;Top&gt;PGS.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> PGS.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> PGS, TableCompiler
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+PigsInSpace: [Cedar]&lt;CedarChest6.1&gt;Top&gt;PigsInSpace.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> PigsInSpaceDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> PigsInSpace
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+PipeFitting: (deleted)
+<div class="indent">
+This package duplicated &mdash; with only minor extensions &mdash; the ``type&apos;&apos; and ``tee&apos;&apos; commands that come with the released CommandTool.  I couldn&apos;t hack on the released CommandTool, so I made my own package.  I haven&apos;t ever used the features (argument ``-&apos;&apos; meaning ``read from cmd^.in&apos;&apos; in ``cat&apos;&apos;, and output to more than one file in ``tee&apos;&apos;), so I don&apos;t think anyone will miss them.  If pipes were more useful, they would be more used, and these extensions might be needed.  If they are needed, the right way to put them in is to hack the CommandTool.  The package included a programmers interface, but so what?  [PeterKessler]
+</div>
+</div>
+<div class="head">
+Pixels: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Pixels.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Frank Crow &lt;Crow.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> PixelsDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+PolyHack: [Cedar]&lt;CedarChest6.1&gt;Top&gt;PolyHack.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Mike Spreitzer &lt;Spreitzer.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> PolyHackDoc.Tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> PolyHack
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+PopUpCommand: [Cedar]&lt;CedarChest6.1&gt;Top&gt;PopUpCommand.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Eric Nickell &lt;Nickell.pasa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> PopUpCommandDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> PopUpCommand
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+PopUpMenu: [Cedar]&lt;CedarChest6.1&gt;Top&gt;PopUpMenu.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Christian Jacobi &lt;Jacobi.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> PopUpMenuDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> PopUpMenu
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+PositionRange: (deleted)
+<div class="indent">
+Retracted, since its functionality has been put in EditorComforts.  [Spreitzer]
+</div>
+</div>
+<div class="head">
+PowerOff: [Cedar]&lt;CedarChest6.1&gt;Top&gt;PowerOff.df
+<div class="indent">
+<span class="look-b"/>Commands:</span> PowerOff
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+PressFileUtilities: [Cedar]&lt;CedarChest6.1&gt;Top&gt;PressFileUtilities.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Michael Plass &lt;Plass.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> PressFileUtilitiesDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> PressExtract, PressPages, SendSinglePages, PressOverlay, PressBBox, PressRescue, PressImageExtract, ListFontsInPressFile, SetPressPrintingMode
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+PressReader: [Cedar]&lt;CedarChest6.1&gt;Top&gt;PressReader.df
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+PrettyPrint: [Cedar]&lt;CedarChest6.1&gt;Top&gt;PrettyPrint.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> PrettyPrintDoc.Tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> PrettyPrint
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+PreView: [Cedar]&lt;CedarChest6.1&gt;Top&gt;PreView.df
+<div class="indent">
+<span class="look-b"/>Commands:</span> PreView, CPreView1, CPreView2, ShowPress
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Print: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Print.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> PrintDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Print
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+PrintTV: [Cedar]&lt;Cedar6.1&gt;Top&gt;PrintTV.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+ProcessProps: [Cedar]&lt;Cedar6.1&gt;Top&gt;ProcessProps.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+ProcessWatcher: [Cedar]&lt;CedarChest6.1&gt;Top&gt;ProcessWatcher.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Mike Spreitzer &lt;Spreitzer.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ProcessWatcherDoc.Tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> InstantaneousProcessWatcher, TraceProcessWatcher
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Promptery: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Promptery.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Mike Spreitzer &lt;Spreitzer.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> PrompteryDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Promptery
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Properties: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Properties.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Christian Jacobi &lt;Jacobi.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> PropertiesDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Properties
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+PropertyLists: [Cedar]&lt;CedarChest6.1&gt;Top&gt;PropertyLists.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Christian Jacobi &lt;Jacobi.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> PropertyListsDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> PropertyLists
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Pup: [Cedar]&lt;Cedar6.1&gt;Top&gt;Pup.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+Completely rewritten.  Pup is now a Cedar package.
+</div>
+</div>
+<div class="head">
+PupBSPTool: [Cedar]&lt;CedarChest6.1&gt;Top&gt;PupBSPTool.df (new)
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Hal Murray &lt;Murray.PA&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> PupBSPToolDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> PupBSPTool
+</div>
+<div class="indent">
+PupBSPTool tests Pup Byte Streams.
+</div>
+</div>
+<div class="head">
+PupDebug: [Cedar]&lt;CedarChest6.1&gt;Top&gt;PupDebug.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Hal Murray &lt;Murray.PA&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> PupDebugDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+PupDocs: [Cedar]&lt;CedarChest6.1&gt;Top&gt;PupDocs.df (new)
+<div class="indent">
+Tioga versions of several Pup documents.
+</div>
+</div>
+<div class="head">
+PupEchoTool: [Cedar]&lt;CedarChest6.1&gt;Top&gt;PupEchoTool.df (new)
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Hal Murray &lt;Murray.PA&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> PupEchoToolDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> PupEchoTool
+</div>
+<div class="indent">
+Formerly called EchoTool.  Rewritten for the new Pup interfaces.
+</div>
+</div>
+<div class="head">
+PupEtherBoot: [Cedar]&lt;CedarChest6.1&gt;Top&gt;PupEtherBoot.df (new)
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Hal Murray &lt;Murray.PA&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> PupEtherBootDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> PupEtherBoot
+</div>
+<div class="indent">
+PupEtherBoot is just a quick hack for testing germs.
+</div>
+</div>
+<div class="head">
+PupNetWatcher: [Cedar]&lt;CedarChest6.1&gt;Top&gt;PupNetWatcher.df (new)
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Hal Murray &lt;Murray.PA&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> PupNetWatcherDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> PupNetWatcher
+</div>
+<div class="indent">
+PupNetWatcher prints a line of info whenever the Pup routing tables change.
+</div>
+</div>
+<div class="head">
+PupRouterTool: [Cedar]&lt;CedarChest6.1&gt;Top&gt;PupRouterTool.df (new)
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Hal Murray &lt;Murray.PA&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> PupRouterToolDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> PupRouterTool
+</div>
+<div class="indent">
+PupRouterTool prints the local Pup routing table, or the routing table from a Pup Gateway.
+</div>
+</div>
+<div class="head">
+PupTool: (deleted)
+</div>
+<div class="head">
+PupWatch: [Cedar]&lt;CedarChest6.1&gt;Top&gt;PupWatch.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Hal Murray, &lt;Murray.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> PupWatchDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> PupWatch
+</div>
+<div class="indent">
+Fixed up the documentation a bit, including the maintainer info.  [Murray]
+</div>
+</div>
+<div class="head">
+QFind: [Cedar]&lt;CedarChest6.1&gt;Top&gt;QFind.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> QFindDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> QFind
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+QuickViewer: [Cedar]&lt;CedarChest6.1&gt;Top&gt;QuickViewer.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Frank Crow &lt;Crow.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> QuickViewerDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> QuickViewer
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+ReadEvalPrint: [Cedar]&lt;Cedar6.1&gt;Top&gt;ReadEvalPrint.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Real: [Cedar]&lt;Cedar6.1&gt;Top&gt;Real.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+RecoverFromCache: [Cedar]&lt;CedarChest6.1&gt;Top&gt;RecoverFromCache.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> RecoverFromCacheDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> RecoverFromCache
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+RecursivelyNIL: [Cedar]&lt;CedarChest6.1&gt;Top&gt;RecursivelyNIL.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Bob Hagmann &lt;Hagmann.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> RecursivelyNILDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+RedBlackTreeExtras: [Cedar]&lt;CedarChest6.1&gt;Top&gt;RedBlackTreeExtras.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Mike Spreitzer &lt;Spreitzer.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> RedBlackTreeExtrasDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> RedBlackTreeExtras
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+RegularExpression: [Cedar]&lt;CedarChest6.1&gt;Top&gt;RegularExpression.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Russ Atkinson &lt;Atkinson.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> RegularExpressionDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+ReleaseTool: (deleted)
+<div class="indent">
+The ReleaseTool itself is obsolete.  Other useful little tools are now in ReleaseTools.df.
+</div>
+</div>
+<div class="head">
+ReleaseTools: [Cedar]&lt;CedarChest6.1&gt;Top&gt;ReleaseTools.df (new)
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Atkinson.pa, Wyatt.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> CheckRoot, CheckBasicLoadees, BootSmash, CountReleaseSize, RootCompare, SetDateLikeRemote
+</div>
+<div class="indent">
+Various little hacks to help the release coordinator, formerly in ReleaseTool.df.
+</div>
+</div>
+<div class="head">
+Remember: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Remember.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> RememberDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Remember, ShowRem, ShowReminders
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+RepeatCommand: [Cedar]&lt;CedarChest6.1&gt;Top&gt;RepeatCommand.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Carl Hauser &lt;CHauser.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> RepeatCommandDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Repeat
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Rollback: [Cedar]&lt;Cedar6.1&gt;Top&gt;Rollback.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+RollbackAndAnything: [Cedar]&lt;CedarChest6.1&gt;Top&gt;RollbackAndAnything.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Mike Spreitzer &lt;Spreitzer.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> RollbackAndAnythingDoc.Tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> RollbackAndAnything, DoRollbackStuff, RollbackAnd
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Rope: [Cedar]&lt;Cedar6.1&gt;Top&gt;Rope.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> RopeDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Rosary: [Cedar]&lt;Cedar6.1&gt;Top&gt;Rosary.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> RosaryDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+RPCEchoTool: [Cedar]&lt;CedarChest6.1&gt;Top&gt;RPCEchoTool.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Hal Murray &lt;Murray.PA&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> RPCEchoToolDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> RPCEchoTool
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+RPCRuntime: [Cedar]&lt;Cedar6.1&gt;Top&gt;RPCRuntime.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+RPCRuntime has a minor tweak that might help Dan&apos;s Voice work.  [Murray]
+</div>
+</div>
+<div class="head">
+SafeStorage: [Cedar]&lt;Cedar6.1&gt;Top&gt;SafeStorage.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> SafeStorageDoc.tioga, SafeStoragePrimerDoc.tioga, SafeStoragePaper.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Scaled: [Cedar]&lt;Cedar6.1&gt;Top&gt;Scaled.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Scanner: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Scanner.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Tim Diebert &lt;Diebert.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ScannerDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Scanner
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Sequin: (deleted)
+</div>
+<div class="head">
+ShowIP: (deleted)
+<div class="indent">
+Superseded by PreView.
+</div>
+</div>
+<div class="head">
+ShowPD: (deleted)
+<div class="indent">
+Superseded by PreView.
+</div>
+</div>
+<div class="head">
+ShowVAM: [Cedar]&lt;CedarChest6.1&gt;Top&gt;ShowVAM.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Bob Hagmann, Michael Plass &lt;Hagmann.pa, Plass.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ShowVAMDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> ShowVAM, ShowVM
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Sil: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Sil.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Ken Pier &lt;Pier.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> SilDoc.Tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Sil
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+SimpleTerminal: [Cedar]&lt;Cedar6.1&gt;Top&gt;SimpleTerminal.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+SirPress: [Cedar]&lt;CedarChest6.1&gt;Top&gt;SirPress.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> SirPressDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+SleepPeek: [Cedar]&lt;CedarChest6.1&gt;Top&gt;SleepPeek.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> SleepPeekDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> SleepPeek
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+SortLabels: [Cedar]&lt;CedarChest6.1&gt;Top&gt;SortLabels.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> SortLabelsDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> SortLabels
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+SpellingTool: [Cedar]&lt;CedarChest6.1&gt;Top&gt;SpellingTool.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> SpellingToolDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> SpellingTool
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Spy: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Spy.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Russ Atkinson &lt;Atkinson.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> SpyDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Spy
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+StatementInterpreter: [Cedar]&lt;CedarChest6.1&gt;Top&gt;StatementInterpreter.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> StatementInterpreterDoc.Tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> StatementInterpreter, EQT, AMHacks
+</div>
+</div>
+<div class="head">
+STP: [Cedar]&lt;Cedar6.1&gt;Top&gt;STP.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+The implementation has been merged into one module.  The STPOps interface has been replaced by STPPrivate (private definitions for the implementation) and STPBackdoor (a semi-private interface for the Archivist).  [Diebert, Murray, Wyatt]
+</div>
+<div class="indent">
+STP now tries harder to avoid connections that timed out when it wasn&apos;t looking and to recover from them. SetHost should be flushed from STP whenever it&apos;s reasonable. (We couldn&apos;t find anybody that used it.)  [Murray]
+</div>
+</div>
+<div class="head">
+STPServer: [Cedar]&lt;CedarChest6.1&gt;Top&gt;STPServer.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Rick Beach &lt;Beach.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> STPServerDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> STPServer
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+StructuredStreams: [Cedar]&lt;CedarChest6.1&gt;Top&gt;StructuredStreams.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> StructuredStreamsDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> UnparserBuffer, StructuredStreams
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Summoner: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Summoner.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> SummonerDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Hagmann.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> SubmitSummonerPackage, RemoveSummonerPackage, SummonerInfo, SummonerCluster, SummonerClient, StartClient, SummonerClientOn, SummonerClientOff, SummonerServerOff, SummonerServerOn, SummonerEnableAutoIdle, SummonerDisableAutoIdle
+</div>
+<div class="indent">
+This version is incompatable with the 6.0 version.  It runs in a different &quot;cluster&quot; so it should never see the 6.0 servers (the new Grapevine RName is PaloAlto1.summoner while the old one is PaloAlto.summoner).
+</div>
+<div class="indent">
+Due to changes in the Pup world, the Summoner now has new RPC interfaces for CedarChest6.1.  I&apos;ve used this chance to make other changes.  This summarizes the changes from 6.0.
+</div>
+<div class="indent">
+Changes from CedarChest6.0:
+<div class="indent">
+Added SummonerCommandInfo to discover some information about available commands and servers willing to run them.
+</div>
+<div class="indent">
+ComputeClientExtras is the only client visible interface that has been recompiled.  New procedures <span class="look-n"/>OutstandingRequests</span> and <span class="look-n"/>RemoteProcessSite</span> have been added.
+</div>
+<div class="indent">
+The performance monitoring of the CPU on a server has changed.  I now compute average number of ready background processes and CPU load greater than background priority.  The controller can now assign compute bound requests &quot;better&quot;.
+</div>
+<div class="indent">
+The Server/Controller now uses 6 fewer GFI&apos;s (13) and the Client now uses 3 fewer GFI&apos;s (7).
+</div>
+<div class="indent">
+Fixed a file caching problem.  The &quot;load the server&apos;s cache from the client&quot; code never worked, but the system was robust enough to work anyway!!
+</div>
+<div class="indent">
+I&apos;ve had another shot at the &quot;looping on busy&quot; problem when there are few servers around.
+</div>
+<div class="indent">
+Fixed a bug that prevented some servers from using bcd&apos;s that had been already run, but had the OKToRunBCDs profile switch off.
+</div>
+</div>
+</div>
+<div class="head">
+Tapes: [Cedar]&lt;Cedar6.1&gt;Top&gt;Tapes.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Diebert.pa
+</div>
+<div class="indent">
+Changed to track new PupStream interface.
+</div>
+</div>
+<div class="head">
+TapeTool: [Cedar]&lt;CedarChest6.1&gt;Top&gt;TapeTool.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Diebert.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> TapeToolDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> TapeTool, PGTape
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Tempus: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Tempus.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Ken Pier &lt;Pier.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Tempus
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Tentacles: [Cedar]&lt;Cedar6.1&gt;Top&gt;Tentacles.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Terminal: [Cedar]&lt;Cedar6.1&gt;Top&gt;Terminal.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Wyatt.pa
+</div>
+<div class="indent">
+The new interface TerminalExtras lets you change an entire color map all at once.
+</div>
+</div>
+<div class="head">
+TerminalEmulator: [Cedar]&lt;CedarChest6.1&gt;Top&gt;TerminalEmulator.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> TerminalEmulatorDoc.Tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> TerminalEmulator
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+TeX: [Cedar]&lt;CedarChest6.1&gt;Top&gt;TeX.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Plass.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> TeXDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> TeX, IniTeX, RTeX, RIniTeX
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+TextReplace: [Cedar]&lt;CedarChest6.1&gt;Top&gt;TextReplace.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Mike Spreitzer &lt;Spreitzer.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> TextReplaceDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> TextReplace
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Texture2D: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Texture2D.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Michael Plass &lt;Plass.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> Texture2DDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Texture2D, Wedge
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+ThreeCasabaFour: [Cedar]&lt;CedarChest6.1&gt;Top&gt;ThreeCasabaFour.df
+<div class="indent">
+<span class="look-b"/>Commands:</span> ThreeC4
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+ThreeDWorld: [Cedar]&lt;CedarChest6.1&gt;Top&gt;ThreeDWorld.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Frank Crow &lt;Crow.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ThreeDWorldDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> ThreeDWorld
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Tioga: [Cedar]&lt;Cedar6.1&gt;Top&gt;Tioga.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> TiogaImplementors^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> TiogaDoc.tioga, TiogaAccessDoc.tioga, ViewersAndTiogaLocking.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+TiogaButtons: [Cedar]&lt;CedarChest6.1&gt;Top&gt;TiogaButtons.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Richard J. Beach &lt;Beach.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> TiogaButtonsDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> TiogaButtons
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+TiogaExecCommands: [Cedar]&lt;CedarChest6.1&gt;Top&gt;TiogaExecCommands.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> TiogaImplementors^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> TiogaExecCommandsDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> AnnotateProperties, DoTiogaOps, PruneAnnotations, ReadIndent, ReadTiogaTipTables, TiogaMesa, WriteMesaPlain, WritePlain
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+TiogaImager: [Cedar]&lt;CedarChest6.1&gt;Top&gt;TiogaImager.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Michael Plass &lt;Plass.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> TiogaImagerDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> TiogaToInterpress
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+TiogaStreams: [Cedar]&lt;CedarChest6.1&gt;Top&gt;TiogaStreams.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> TiogaStreamsDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> TiogaStreams
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+TIP: [Cedar]&lt;Cedar6.1&gt;Top&gt;TIP.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> TIPDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+TJaM: [Cedar]&lt;Cedar6.1&gt;Top&gt;TJaM.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Trans: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Trans.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> TransDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Trans
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+TrickleChargeServer: [Cedar]&lt;CedarChest6.1&gt;Top&gt;TrickleChargeServer.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> AlpineImplementors^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> TrickleChargeServerDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> TrickleChargeServer
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+TRope: [Cedar]&lt;Cedar6.1&gt;Top&gt;TRope.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+TSetter: [Cedar]&lt;CedarChest6.1&gt;Top&gt;TSetter.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> TSetterDoc.Tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> TSetter, PressScreen
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Tube: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Tube.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Bloomenthal.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> TubeDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Tube
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+UserCredentials: [Cedar]&lt;Cedar6.1&gt;Top&gt;UserCredentials.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+UserProfile: [Cedar]&lt;Cedar6.1&gt;Top&gt;UserProfile.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> UserProfileDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+UserProfileOps: [Cedar]&lt;CedarChest6.1&gt;Top&gt;UserProfileOps.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Lamming.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> UserProfileOpsDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+UsingDependencies: [Cedar]&lt;CedarChest6.1&gt;Top&gt;UsingDependencies.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Michael Plass &lt;Plass.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> UsingDependenciesDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> UsingDependencies
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+VBounce: [Cedar]&lt;CedarChest6.1&gt;Top&gt;VBounce.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Russ Atkinson &lt;Atkinson.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> VBounceDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> VBounce
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+VersionMap: [Cedar]&lt;Cedar6.1&gt;Top&gt;VersionMap.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+VersionMapBuilder: [Cedar]&lt;CedarChest6.1&gt;Top&gt;VersionMapBuilder.df (moved)
+<div class="indent">
+<span class="look-b"/>Documentation:</span> VersionMapBuilderDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> GenSortedClosure, GenMap, GenCedarMap, MergeMap, MergeCedarMap
+</div>
+<div class="indent">
+No longer uses the Leaf protocol to get version stamps from remote bcd files.  This means that making version maps may tend to clutter up your FS cache (any bcd that wasn&apos;t in the previous version map will get fetched into the cache).
+</div>
+</div>
+<div class="head">
+ViewerIO: [Cedar]&lt;Cedar6.1&gt;Top&gt;ViewerIO.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Viewers: [Cedar]&lt;Cedar6.1&gt;Top&gt;Viewers.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> TiogaImplementors^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ViewersDoc.tioga, ToolDesignDoc.tioga, Introduction.tioga
+</div>
+<div class="indent">
+Fixed PieViewers to notice their height as well as their width, and to not leave garbage bits behind.
+</div>
+<div class="indent">
+Right-clicking the message window now replays the last few messages; left-clicking clears it (as it always has).  [Plass]
+</div>
+</div>
+<div class="head">
+ViewRec: [Cedar]&lt;CedarChest6.1&gt;Top&gt;ViewRec.df
+<div class="indent">
+<span class="look-b"/>Documentation:</span> ViewRecIntroduction.Tioga, ViewRecDoc.Tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> ViewRec, MJSContainers, TypeProps, VBug
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+VisibleMouseClicks: [Cedar]&lt;CedarChest6.1&gt;Top&gt;VisibleMouseClicks.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Peter B. Kessler &lt;PeterKessler.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> VisibleMouseClicksDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> VisibleMouseClicks
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+VM: [Cedar]&lt;Cedar6.1&gt;Top&gt;VM.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> VMDoc.tioga
+</div>
+<div class="indent">
+Now allows big physical memory machines to run without a backing file.  [Hagmann]
+</div>
+</div>
+<div class="head">
+VoiceUtils: [Cedar]&lt;CedarChest6.1&gt;Top&gt;VoiceUtils.df
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+VTables: [Cedar]&lt;CedarChest6.1&gt;Top&gt;VTables.df (moved)
+<div class="indent">
+<span class="look-b"/>Commands:</span> VTables, VTablesImpl
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Walnut: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Walnut.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> WalnutSupport^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> WalnutDoc.Tioga, WalnutInterfacesDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Walnut, WalnutScavenge
+</div>
+<div class="indent">
+This version of Walnut can only be run with the new Cypress; all old Walnut databases will have to be scavenged.
+</div>
+<div class="indent">
+Before scavenging with the new Walnut, you may be interested in a new profile option.
+<div class="indent">
+Walnut.UseFromFieldForTOC: TRUE
+</div>
+</div>
+<div class="indent">
+It defaults to FALSE.  If TRUE, the TOC entry in MsgSet displayers will show the From field instead of the Sender field.
+</div>
+</div>
+<div class="head">
+WalnutKernel: [Cedar]&lt;CedarChest6.1&gt;Top&gt;WalnutKernel.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Willie-Sue Orr &lt;Willie-Sue.pa&gt;, Jim Donahue &lt;Donahue.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> WalnutKernelDoc.Tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> NewWalnutUser
+</div>
+<div class="indent">
+This version can only be run with the new Cypress; all old Walnut databases will have to be scavenged.
+</div>
+</div>
+<div class="head">
+WalnutQuery: [Cedar]&lt;CedarChest6.1&gt;Top&gt;WalnutQuery.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Mike Spreitzer &lt;Spreitzer.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> WalnutQueryDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> WalnutQuery
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+WalnutRegistry: [Cedar]&lt;CedarChest6.1&gt;Top&gt;WalnutRegistry.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Willie-Sue Orr &lt;Willie-Sue&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> WalnutRegistry
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+WalnutRescue: [Cedar]&lt;CedarChest6.1&gt;Top&gt;WalnutRescue.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Willie-Sue Orr &lt;Willie-Sue.pa&gt;, Jim Donahue &lt;Donahue.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> WalnutRescueDoc.Tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> WalnutRescue, ScanWalnutLog, FixWalnutLog, QuickFixWalnutLog
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+WalnutSend: [Cedar]&lt;CedarChest6.1&gt;Top&gt;WalnutSend.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Willie-Sue Orr &lt;Willie-Sue&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> WalnutSendDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> WalnutSend
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+WalnutSort: [Cedar]&lt;CedarChest6.1&gt;Top&gt;WalnutSort.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Donahue.pa, Rumph.pasa, Nickell.pasa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> WalnutSortDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> WalnutSort
+</div>
+<div class="indent">
+Converted to run with the new Walnut and Cypress.  All existing WalnutSort databases will need to be dumped (with the old WalnutSort) and reloaded with the new WalnutSort.
+</div>
+</div>
+<div class="head">
+Watch: [Cedar]&lt;Cedar6.1&gt;Top&gt;Watch.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> WatchDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Watcher: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Watcher.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Hal &lt;Murray.pa&gt;, Russ &lt;Atkinson.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> WatcherDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Watcher
+</div>
+<div class="indent">
+Watcher has been converted to use Histograph (it used to have its own graphing class, which was the origin of Histograph).  The layout is slightly more compact, the labelling is slightly improved, and the samples are no longer lost when the graphs change size.  Watcher.mesa is now a third of its former size.  [Atkinson]
+</div>
+</div>
+<div class="head">
+Waterlily: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Waterlily.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Dan Swinehart &lt;Swinehart.pa&gt;, Russ Atkinson &lt;Atkinson.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> WaterlilyDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Waterlily, Cedarlily, Tigerlily, Mergelily
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Whiteboard: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Whiteboard.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Donahue.pa
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> WhiteboardDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Whiteboard, WBOpen, WBDump
+</div>
+<div class="indent">
+This is a new version of whiteboards, using the new Cypress.  A new Cedar whiteboard database has been constructed for Cedar6.1 and is the default database with this version.
+</div>
+<div class="indent">
+<span class="look-e"/>If you have private whiteboard databases, you will need to dump them (using the Cedar6.0 Cypress) and reload them with the new version!</span>
+</div>
+<div class="indent">
+Because of changes in Cypress, names of Whiteboards are now case-sensitive.  To make things less error-prone, the WBDisplay and Whiteboard commands have been changed to not create a new whiteboard if one is not found with the given name (which is more likely with case-sensitive names).  Use WBCreate to create a new whiteboard.
+</div>
+</div>
+<div class="head">
+WordCount: [Cedar]&lt;CedarChest6.1&gt;Top&gt;WordCount.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Swinehart.pa? Beach.pa?
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> WordCountDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> WordCount
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+WorkingDirectory: [Cedar]&lt;CedarChest6.1&gt;Top&gt;WorkingDirectory.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Peter Kessler &lt;PeterKessler&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> WorkingDirectoryDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> WorkingDirectory
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+WorldVM: [Cedar]&lt;Cedar6.1&gt;Top&gt;WorldVM.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> CedarSupport^.pa
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+XBus: [Cedar]&lt;CedarChest6.1&gt;Top&gt;XBus.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> Jim &lt;Gasbarro.pa&gt;
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> XBusDoc.tioga
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+<div class="head">
+Yodel: [Cedar]&lt;CedarChest6.1&gt;Top&gt;Yodel.df
+<div class="indent">
+<span class="look-b"/>Maintained by:</span> AlpineImplementors^.pa 
+</div>
+<div class="indent">
+<span class="look-b"/>Documentation:</span> YodelDoc.tioga
+</div>
+<div class="indent">
+<span class="look-b"/>Commands:</span> Yodel
+</div>
+<div class="indent">
+No significant changes.
+</div>
+</div>
+</div>
+</body>
+</html>
