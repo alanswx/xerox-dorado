@@ -61,13 +61,27 @@ reads the PV root, BootTool/Booting.Boot soft boots read the LV root.
 
 ### Open problems, in priority order
 
-1. **`Run AISViewer` (a packaging CONFIG) hangs the CommandTool** —
-   >2.5B cycles, no `Ran:` line, world otherwise alive. Plain modules
-   (`Run AISImpl`, `Run AISViewerImpl`) load fine, including straight
-   from the remote release dir. Root-cause the config-load path (Loader
-   pulling inner modules? a second STP conversation wedging?). Repro is
-   scripted — see running-the-emulator.md "Installing CedarChest
-   applications".
+1. **The interpreter (CommandTool `Eval`) raises undecoded errors** —
+   the deepest-diagnosed open problem, and the key to the full Cedar
+   experience (Eval, readable error names, source debugging, AISViewer
+   display calls). The 2026-07-16 debugging chain, so it isn't redone:
+   `Eval 3+4` -> NoSymbols[ListImpl.bcd] -> the interpreter resolves
+   symbols ONLY from locally ATTACHED files (never remote) -> plain
+   `Bringover [Cedar]<Cedar6.1>Top>SafeStorage` (NOT -p: symbol-bearing
+   Impl bcds live in DFs' private Directory sections) attaches them ->
+   NoSymbols clears, but Eval still raises UnknownError[sig: varies,
+   msg: 177777B] even with SafeStorage+Rope+MesaRuntime+AMTypes+
+   Interpreter attached (78+130 files). The complete release closure is
+   now served (a4d32b8), so content is no longer the suspect: the
+   interpreter's introspection machinery (AMBridge/RemoteFrameImpl
+   frame-walking, RTSymbolOps) likely exercises a PrincOps corner the
+   emulator gets wrong — same genre as the StateVector/IFU-operand bugs
+   of the germ bring-up (see memory: germ blockers tend to be emulator
+   offset bugs). Next: DORADO_PCX/IFUDISP trace during a failing
+   `Eval 3+4`, diff the raise site against SignalsImpl expectations.
+   Secondary: `Run AISViewer` (a packaging CONFIG) hangs the
+   CommandTool; plain modules (`Run AISImpl`, `Run AISViewerImpl`) load
+   fine — possibly the same underlying corner.
 2. **Installed-system-volume boot** (the kitchensink images): still
    renders 0 px at 2B cycles even with LV records + stamped labels
    (2026-07-16 test on a patched copy). These volumes take the
