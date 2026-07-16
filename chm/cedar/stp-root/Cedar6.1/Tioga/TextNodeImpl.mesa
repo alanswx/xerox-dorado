@@ -1,0 +1,70 @@
+DIRECTORYRope USING [ROPE, Size], TextLooks USING [Runs], TextNode USING [Body, Location, MaxLen, NodeItself, NodeProps, Ref, RefTextNode, Span];TextNodeImpl: CEDAR PROGRAMIMPORTS RopeEXPORTS TextNode= BEGIN OPEN TextNode;ROPE: TYPE ~ Rope.ROPE;MakeNodeLoc: PUBLIC PROC [n: Ref] RETURNS [Location]= { RETURN [[node: n, where: NodeItself]] };MakeNodeSpan: PUBLIC PROC [first, last: Ref] RETURNS [Span]= { RETURN [[MakeNodeLoc[first], MakeNodeLoc[last]]] };NarrowToTextNode: PUBLIC PROC [n: Ref] RETURNS [txt: RefTextNode] ~ {RETURN [n]};NewTextNode: PUBLIC PROC RETURNS [txt: RefTextNode] = {txt _ NEW[Body]; txt.last _ TRUE };Parent: PUBLIC PROC [n: Ref] RETURNS [Ref] = { RETURN [InlineParent[n]] };InlineParent: PROC [n: Ref] RETURNS [Ref] = INLINE { DO IF n=NIL OR n.deleted THEN RETURN [NIL];IF n.last THEN RETURN [n.next];n _ n.next;ENDLOOP;};Root: PUBLIC PROC [n: Ref] RETURNS [Ref] = { p: Ref;DO IF (p _ InlineParent[n])=NIL THEN RETURN [IF n=NIL OR n.deleted THEN NIL ELSE n];n _ p;ENDLOOP;};Next: PUBLIC PROC [n: Ref] RETURNS [Ref] = {RETURN[IF n=NIL OR n.last OR n.deleted THEN NIL ELSE n.next];};Previous: PUBLIC PROC [n: Ref, parent: Ref _ NIL] RETURNS [nx: Ref] = {nx2: Ref;IF parent=NIL THEN parent _ InlineParent[n];IF n=NIL OR parent=NIL OR (nx _ parent.child)=n THEN RETURN [NIL];DO IF (nx2_nx.next)=n THEN RETURN; nx _ nx2; ENDLOOP;};Forward: PUBLIC PROC [node: Ref] RETURNS [nx: Ref, levelDelta: INTEGER] = {[nx, levelDelta] _ InlineForward[node];};InlineForward: PROC [node: Ref] RETURNS [nx: Ref, levelDelta: INTEGER] = INLINE {child: Ref;IF node=NIL THEN RETURN [NIL, 0];IF (child _ node.child) # NIL THEN RETURN [child, 1]; -- descend in the treelevelDelta _ 0;DO -- move to next node, sibling or up* then siblingIF NOT node.last THEN RETURN [node.next, levelDelta]; -- the siblingIF (node _ node.next) = NIL THEN RETURN [NIL, levelDelta]; -- the parentlevelDelta _ levelDelta-1;ENDLOOP;};Backward: PUBLIC PROC [node: Ref, parent: Ref _ NIL]RETURNS [back, backparent: Ref, levelDelta: INTEGER] = {child, child2: Ref;IF parent = NIL THEN parent _ InlineParent[node];IF parent = NIL OR node = NIL THEN RETURN [NIL, NIL, 0];IF (child _ parent.child) = node THEN RETURN [parent, Parent[parent], -1];DO IF child.last THEN ERROR; -- incorrect value supplied for parentIF (child2 _ child.next)=node THEN EXIT;child _ child2;ENDLOOP;levelDelta _ 0;DO IF (child2 _ LastChild[child]) = NIL THEN RETURN [child, parent, levelDelta];levelDelta _ levelDelta+1;parent _ child; child _ child2;ENDLOOP;};StepForward: PUBLIC PROC [node: Ref] RETURNS [Ref]= { RETURN[Forward[node].nx] };StepBackward: PUBLIC PROC [node: Ref, parent: Ref _ NIL] RETURNS [Ref]= { RETURN[Backward[node, parent].back] };Level: PUBLIC PROC [node: Ref] RETURNS [level: INTEGER] = {level _ 0;UNTIL (node _ InlineParent[node])=NIL DO level _ level+1 ENDLOOP;};ForwardClipped: PUBLIC PROC [node: Ref, maxLevel: INTEGER, nodeLevel: INTEGER _ 0]RETURNS [nx: Ref, nxLevel: INTEGER] = {child: Ref;IF node=NIL THEN RETURN [NIL, 0];IF nodeLevel <= 0 THEN nodeLevel _ Level[node];IF nodeLevel < maxLevel AND (child _ node.child) # NIL THENRETURN [child, nodeLevel+1]; -- return the childDO -- move to next node, sibling or up* then siblingIF NOT node.last THEN RETURN [node.next, nodeLevel]; -- return the siblingIF (node _ node.next) = NIL THEN RETURN [NIL, 0]; -- go to the parentnodeLevel _ nodeLevel-1;ENDLOOP;};BackwardClipped: PUBLIC PROC [node: Ref, maxLevel: INTEGER, parent: Ref _ NIL, nodeLevel: INTEGER _ 0]RETURNS [back, backparent: Ref, backLevel: INTEGER] = {child, child2: Ref;IF parent = NIL THEN parent _ InlineParent[node];IF parent = NIL OR node = NIL THEN RETURN [NIL, NIL, 0];IF nodeLevel <= 0 THEN nodeLevel _ Level[node];IF (child _ parent.child) = node THEN RETURN [parent, InlineParent[parent], nodeLevel-1];DO -- search for sibling just before nodeIF child.last THEN ERROR; -- incorrect value supplied for parentIF (child2 _ child.next)=node THEN EXIT;child _ child2;ENDLOOP;DO -- go deeper in tree until reach maxLevelIF nodeLevel >= maxLevel OR (child2 _ LastChild[child]) = NIL THENRETURN [child, parent, nodeLevel];nodeLevel _ nodeLevel+1;parent _ child;child _ child2;ENDLOOP;};LocRelative: PUBLIC PROC [location: Location, count: INT _ 0, break: NAT _ 1, skipCommentNodes: BOOL _ FALSE] RETURNS [Location] = {n: Ref _ location.node;size, lastSize, where: INT _ 0;init: Ref _ n;lastTxt: RefTextNode;IF count=0 AND InlineParent[n]=NIL THENRETURN [[FirstChild[n], 0]]; -- avoid returning root nodewhere _ MAX[location.where, 0]; -- where we are in the current nodeWHILE n # NIL DOIF n # NIL AND (NOT skipCommentNodes OR NOT n.comment) THEN {lastSize _ size _ Rope.Size[n.rope];IF (count _ count-(size-where)) <= 0 THEN RETURN [[n, MAX[0, count+size]]];lastTxt _ n;count _ count-break;};[n, ] _ InlineForward[n];where _ 0;ENDLOOP;IF lastTxt # NIL THEN RETURN [[lastTxt, lastSize]]; -- end of last text nodeRETURN [[init, 0]];};LocWithin: PUBLIC PROC [n: Ref, count: INT, break: NAT _ 1, skipCommentNodes: BOOL _ FALSE] RETURNS [Location]= { RETURN[LocRelative[[n, 0], count, break, skipCommentNodes]] };BadArgs: PUBLIC ERROR = CODE;LocOffset: PUBLIC PROC [loc1, loc2: Location, break: NAT _ 1, skipCommentNodes: BOOL _ FALSE] RETURNS [count: INT _ 0] = {node: Ref _ loc2.node;n: Ref _ loc1.node;count _ IF loc2.where # NodeItself THEN loc2.where ELSE 0;count _ count - MAX[loc1.where, 0];DO -- add in counts for text nodes before locationSELECT n FROMnode => RETURN;NIL => ERROR BadArgs;ENDCASE; IF n # NIL AND (NOT skipCommentNodes OR NOT n.comment) THENcount _ count+Rope.Size[n.rope]+break;[n, ] _ InlineForward[n];ENDLOOP;};LocNumber: PUBLIC PROC [at: Location, break: NAT _ 1, skipCommentNodes: BOOL _ FALSE] RETURNS [count: INT]= { RETURN[LocOffset[[Root[at.node], 0], at, break, skipCommentNodes]] };FirstSibling: PUBLIC PROC [n: Ref] RETURNS [Ref] = {RETURN[FirstChild[Parent[n]]];};LastSibling: PUBLIC PROC [n: Ref] RETURNS [Ref] = {IF n=NIL THEN RETURN [NIL];UNTIL n.last DO n _ n.next ENDLOOP;RETURN[n];};FirstChild: PUBLIC PROC [n: Ref] RETURNS [Ref] = {RETURN[IF n=NIL THEN NIL ELSE n.child];};LastChild: PUBLIC PROC [n: Ref] RETURNS [Ref] = {RETURN[LastSibling[FirstChild[n]]];};LastWithin: PUBLIC PROC [n: Ref] RETURNS [Ref] = {nxt: Ref;IF n=NIL THEN RETURN [NIL];IF (nxt _ n.child)=NIL THEN RETURN [n];n _ nxt;DO -- keep going to child of last siblingIF n.last THEN {IF (nxt _ n.child)=NIL THEN RETURN [n];n _ nxt }ELSE n _ n.next;ENDLOOP;};LastLocWithin: PUBLIC PROC [n: Ref] RETURNS [Location] = {last: Ref _ LastWithin[n];where: INT _ IF last # NIL THEN Rope.Size[last.rope] ELSE NodeItself;RETURN [[last, where]];};NthChild: PUBLIC PROC [n: Ref, location: INT _ 0] RETURNS [child: Ref] = {IF n=NIL OR (child _ n.child)=NIL THEN RETURN;DO IF location=0 THEN RETURN [child];IF child.last THEN RETURN [NIL];child _ child.next;location _ location-1;ENDLOOP;};NthSibling: PUBLIC PROC [n: Ref, cnt: INT _ 0] RETURNS [Ref] = {IF n=NIL THEN RETURN [NIL];DO IF cnt=0 THEN RETURN [n];IF n.last THEN RETURN [NIL];n _ n.next;cnt _ cnt-1;ENDLOOP;};CountChildren: PUBLIC PROC [n: Ref] RETURNS [count: INT _ 0] = {child: Ref;IF (child _ FirstChild[n])=NIL THEN RETURN;DO count _ count+1;IF child.last THEN RETURN;child _ child.next;ENDLOOP;};CountFollowing: PUBLIC PROC [n: Ref] RETURNS [count: INT _ 0] = {IF n=NIL THEN RETURN;UNTIL n.last DOn _ n.next;count _ count+1;ENDLOOP;};CountToParent: PUBLIC PROC [n: Ref] RETURNS [count: INT _ 0, parent: Ref] = {IF n=NIL THEN RETURN;UNTIL n.last DOn _ n.next;count _ count+1;ENDLOOP;parent _ n.next;};CountToChild: PUBLIC PROC [parent, child: Ref] RETURNS [count: INT _ 0] = {n: Ref;IF parent=NIL OR child=NIL THEN RETURN;n _ parent.child;DO SELECT n FROMchild => RETURN [count];NIL => RETURN [MaxLen];ENDCASE;n _ Next[n];count _ count+1;ENDLOOP;};NodeRope: PUBLIC PROC [n: RefTextNode] RETURNS [ROPE] = {RETURN[IF n=NIL THEN NIL ELSE n.rope];};NodeRuns: PUBLIC PROC [n: RefTextNode] RETURNS [TextLooks.Runs] = {RETURN[IF n=NIL THEN NIL ELSE n.runs];};Props: PUBLIC PROC [n: Ref] RETURNS [NodeProps] = {RETURN[IF n=NIL THEN NIL ELSE n.props];};NodeFormat: PUBLIC PROC [n: Ref] RETURNS [ATOM] = {RETURN[IF n=NIL THEN NIL ELSE n.formatName];};IsLastSibling: PUBLIC PROC [n: Ref] RETURNS [BOOL] = {RETURN[IF n=NIL THEN FALSE ELSE n.last];};EndPos: PUBLIC PROC [n: Ref] RETURNS [INT] = {IF n=NIL THEN RETURN [0]; RETURN [MAX[Rope.Size[n.rope], 1]-1];};END.   ¦  TextNodeImpl.mesaCopyright c 1985 by Xerox Corporation.  All rights reserved.written by Bill Paxton, March 1981last edit by Bill Paxton, August 11, 1982 9:51 amDoug Wyatt, March 3, 1985 3:01:39 pm PSTMichael Plass, March 27, 1985 3:50:32 pm PSTRick Beach, March 27, 1985 10:13:12 am PSTFor backwards compatability.applies Parent repeatedly until reaches rootreturns next node in standard tree walk orderreturns preceeding node in standard tree walk orderreturns next node in standard tree walk orderreturns preceding node in standard tree walk orderLevel[Root[x]] == 0; Level[FirstChild[n]]=Level[n]+1like Forward, but limits how deep will go in treeif pass nodeLevel=0, correct value will be computed nxLevel = Level[nx] <= MAX[maxLevel, Level[node]]like Backward, but limits how deep will go in treebackLevel = Level[back] <= MAX[maxLevel, Level[node]]returns character offset of location2 relative to location1returns character offset of location relative to rootnote: NthChild[n, 0]==FirstChild[n]; NthChild[n, k+1]==Next[NthChild[n, k]]note: NthSibling[n, 0]==n; NthSibling[n, k+1]==Next[NthSibling[n, k]]note: CountToChild[parent, FirstChild[parent]]==0Ê  ˜ codešœ™Kšœ
+Ïmœ1™<Kšœ"™"Kšœ1™1Kšœ(™(Kšœ,™,K™*—K™ šÏk	˜	Kšœžœžœ	˜Kšœ
+žœ	˜Kšœ	žœI˜W—K˜ KšÐblœžœž˜Kšžœ˜Kšžœ	˜šœžœžœ
+˜K˜ šžœžœžœ˜K˜ —šÏnœžœžœ
+žœ˜4Kšœžœ"˜,K˜ —š œžœžœžœ˜;Kšœžœ-˜7K˜ —š
+ œžœžœ
+žœžœ˜QK™K˜ —š œžœžœžœ˜7Kšœžœžœ˜!K˜—K˜ Kš
+ œžœžœ
+žœžœ˜Jš œžœ
+žœ	žœ˜5šžœžœžœžœžœžœžœ˜+Kšžœžœžœ
+˜K˜Kšžœ˜—K˜—K˜ š œžœžœ
+žœ˜-Kšœ,™,K˜šžœžœžœžœžœžœžœžœžœžœžœ˜TK˜Kšžœ˜—K˜—K˜ š œžœžœ
+žœ
+˜,Kšžœžœžœžœžœžœžœžœ	˜=K˜—K˜ š
+ œžœžœžœžœ˜GK˜	Kšžœžœžœ˜,Kšžœžœžœžœžœžœžœžœ˜BKš
+žœžœžœžœžœ˜5K˜—K˜ š
+ œžœžœžœžœ˜KK˜'K˜—K˜ š
+ œžœžœžœžœ˜QKšœ-™-K˜Kš
+žœžœžœžœžœ˜!Kš	žœžœžœžœÏc˜LK˜šžœ¡œ¡˜4Kš	žœžœžœžœ¡˜DKšžœžœžœžœžœ¡˜HK˜Kšžœ˜—K˜—K˜ š œžœžœžœ˜4Kšžœ%žœ˜8Kšœ3™3K˜Kšžœ
+žœžœ˜1Kšžœ
+žœžœžœžœžœžœžœ˜8Kšžœžœžœ˜Jš	žœžœžœžœ¡&˜CKšžœžœžœ˜(K˜Kšžœ˜—K˜š
+žœžœžœžœžœ˜PK˜Kšœ˜Kšžœ˜—K˜—K˜ š œžœžœžœ˜2Kšœžœ˜Kšœ-™-K˜ —š
+ œžœžœžœžœ˜FKšœžœ ˜*Kšœ2™2K˜ —š
+ œžœžœžœ	žœ˜;Kšœ4™4Kšœ
+˜
+Kšžœžœžœžœ˜AK˜—K˜ š œžœžœ˜Kšœžœžœ˜5Kšžœžœ˜'Kšœ1™1Kšœ4™4Kšœ1™1K˜Kš
+žœžœžœžœžœ˜!Kšžœžœ˜/šžœžœžœž˜;Kšžœ¡˜0—šžœ¡œ¡˜4Kš	žœžœžœžœ¡˜JKšžœžœžœžœžœ¡˜EK˜Kšžœ˜—K˜—K˜ š œžœžœ˜Kšœžœžœžœ˜HKšžœ$žœ˜7Kšœ2™2Kšœ5™5K˜Kšžœ
+žœžœ˜1Kšžœ
+žœžœžœžœžœžœžœ˜8Kšžœžœ˜/Kšžœžœžœ-˜Yšžœ¡&˜)Kšžœžœžœ¡&˜@Kšžœžœžœ˜(K˜Kšžœ˜—šžœ¡)˜,Kšžœžœžœž˜BKšžœ˜"K˜K˜K˜Kšžœ˜—K˜—K˜ š œžœžœžœ˜>Kš	œžœžœžœžœ˜FK˜Kšœžœ˜K˜K˜Kšžœ	žœžœž˜'Kšžœ¡˜9Kšœžœ¡#˜Cšžœžœž˜šžœžœžœžœžœžœžœ˜=Kšœ$˜$Kšžœ#žœžœžœ˜KK˜K˜K˜—K˜K˜
+Kšžœ˜—Kš	žœžœžœžœ¡˜LKšžœ˜K˜—K˜ š 	œžœžœžœ	žœžœžœžœ˜nKšœžœ8˜BK˜ —Kšœ	žœžœžœ˜š 	œžœžœžœžœžœžœ	žœ	˜zKšœ;™;K˜K˜Kšœžœžœžœ˜:Kšœžœ˜#šžœ¡/˜2šžœž˜Kšœžœ˜Kšžœžœ	˜Kšžœ˜	—Kšžœžœžœžœžœžœž˜;Kšœ&˜&K˜Kšžœ˜—K˜—K˜ š 	œžœžœžœžœžœžœ	žœ˜jKšœžœ?˜IKšœ5™5K˜ —š œžœžœ
+žœ
+˜4Kšžœ˜K˜—K˜ š œžœžœ
+žœ
+˜3Kš
+žœžœžœžœžœ˜Kšžœžœžœ˜#Kšžœ˜
+K˜—K˜ š 
+œžœžœ
+žœ
+˜2Kšžœžœžœžœžœžœ
+˜'K˜—K˜ š 	œžœžœ
+žœ
+˜1Kšžœ˜#K˜—K˜ š 
+œžœžœ
+žœ
+˜2K˜	Kš
+žœžœžœžœžœ˜Kšžœžœžœžœ˜'K˜šžœ¡&˜)šžœžœ˜Kšžœžœžœžœ˜'K˜K˜—Kšžœ˜Kšžœ˜—K˜—K˜ š œžœžœ
+žœ˜:K˜Kšœžœžœžœžœžœ˜EKšžœ˜K˜—K˜ š
+ œžœžœžœžœ˜JKšœK™KKšžœžœžœžœžœžœ˜.šžœžœžœžœ	˜%Kšžœžœžœžœ˜ K˜Kšœ˜Kšžœ˜—K˜—K˜ š
+ 
+œžœžœžœžœ
+˜@KšœE™EKš
+žœžœžœžœžœ˜šžœžœžœžœ˜Kšžœžœžœžœ˜K˜Kšœ˜Kšžœ˜—K˜—K˜ š
+ œžœžœ
+žœ	žœ	˜@K˜Kšžœžœžœžœ˜+šžœ˜Kšžœžœžœ˜K˜Kšžœ˜—K˜—K˜ š
+ œžœžœ
+žœ	žœ	˜AKšžœžœžœžœ˜šžœž˜K˜K˜Kšžœ˜—K˜—K˜ š
+ œžœžœ
+žœ	žœ˜MKšžœžœžœžœ˜šžœž˜K˜K˜Kšžœ˜—K˜K˜—K˜ š
+ œžœžœžœ	žœ	˜KKšœ1™1K˜Kšžœžœžœžœžœžœ˜'K˜šžœžœž˜Kšœ	žœ	˜Kšžœžœ
+˜Kšžœ˜K˜K˜Kšžœ˜—K˜—K˜ š
+ œžœžœžœžœ˜9Kšžœžœžœžœžœžœ	˜&K˜—K˜ š œžœžœžœ˜CKšžœžœžœžœžœžœ	˜&K˜—K˜ š œžœžœ
+žœ˜3Kšžœžœžœžœžœžœ
+˜'K˜—K˜ š
+ 
+œžœžœ
+žœžœ˜3Kšžœžœžœžœžœžœ˜,K˜—K˜ š
+ œžœžœ
+žœžœ˜6Kšžœžœžœžœžœžœ	˜(K˜—K˜ š
+ œžœžœ
+žœžœ˜.Kšžœžœžœžœ˜Kšžœžœ˜%K˜——K˜ Kšžœ˜K˜ — …—    !þ  5»  

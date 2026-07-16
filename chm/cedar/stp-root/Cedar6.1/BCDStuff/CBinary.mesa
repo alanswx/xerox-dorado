@@ -1,0 +1,1 @@
+-- file: CBinary.mesa-- edited by Satterthwaite, October 10, 1978  3:20 PMCBinary: DEFINITIONS =  BEGIN -- the compiler's table segments (keep first for MakeModule)  MesaTab: PROGRAM;		-- parsing table  ErrorTab: PROGRAM;		-- message strings  DebugTab: PROGRAM;		-- debugging text    END.
