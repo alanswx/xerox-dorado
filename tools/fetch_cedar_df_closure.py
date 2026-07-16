@@ -32,8 +32,54 @@ def fetch(url):
         return r.read()
 
 
+TOP_INDEX = f'{HOST}/cyan/cedar6.1/top/.index.html'
+IMPORT_DF_RE = re.compile(r'Imports\s+\[Cedar\]<Cedar6.1>Top>([A-Za-z0-9]+\.df)', re.I)
+
+
+def complete_top_dfs(dry):
+    """Fetch any Top DF referenced by a served DF's Imports, to fixpoint."""
+    index = fetch(TOP_INDEX).decode('latin-1')
+    versions = {}
+    for name, ver in re.findall(r'"\.?([A-Za-z0-9]+\.df)!(\d+)\.?h?', index):
+        versions[name.lower()] = max(versions.get(name.lower(), 0), int(ver))
+    while True:
+        wanted = set()
+        for df in sorted(os.listdir(TOP)):
+            if not df.lower().endswith('.df'):
+                continue
+            text = open(os.path.join(TOP, df), 'rb').read() \
+                .decode('latin-1').replace('\r', '\n')
+            for m in IMPORT_DF_RE.finditer(text):
+                name = m.group(1)
+                if not (os.path.exists(os.path.join(TOP, name)) or
+                        os.path.exists(os.path.join(TOP, name + '.missing'))):
+                    wanted.add(name)
+        if not wanted:
+            return
+        for name in sorted(wanted):
+            ver = versions.get(name.lower())
+            if not ver:
+                print(f'NO VERSION for Top>{name} in the archive index')
+                # write a stub? no — record and skip permanently
+                open(os.path.join(TOP, name + '.missing'), 'w').close()
+                continue
+            if dry:
+                print(f'would fetch Top/{name}!{ver}')
+                continue
+            data = fetch(f'{HOST}/cyan/cedar6.1/top/{name}!{ver}')
+            if data.lstrip()[:9] == b'<!DOCTYPE':
+                print(f'MISSING Top/{name}!{ver}')
+                open(os.path.join(TOP, name + '.missing'), 'w').close()
+                continue
+            open(os.path.join(TOP, name), 'wb').write(data)
+            print(f'Top/{name}!{ver}  ({len(data)} bytes)')
+        if dry:
+            return
+
+
 def main():
     dry = '--dry-run' in sys.argv
+    complete_top_dfs(dry)
     fetched = skipped = missing = 0
     for df in sorted(os.listdir(TOP)):
         if not df.lower().endswith('.df'):
