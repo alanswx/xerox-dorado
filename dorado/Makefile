@@ -500,6 +500,33 @@ run-cedar-desktop-sdl: sdl $(CEDAR_DESKTOP_SNAPSHOT) $(CEDAR_DESKTOP_PDI)
 		--pilot-disk '$(CEDAR_DESKTOP_PDI)' \
 		--ftp-root ../chm/cedar/stp-root \
 		--snapshot-in '$(CEDAR_DESKTOP_SNAPSHOT)' --speed 4000000
+# The "archive" checkpoint: the desktop plus every 2026-07-16 CedarChest
+# package attached (AIS/AISViewer/AISImages, PressReader+ShowPress,
+# Sil+BiScrollers/ViewRec/Abutters/SirPress/ImagerPress/Interpress) and the
+# ORIGINAL Dorado artifacts on the volume (ProcH/IFU press schematics, the
+# SIL symbol libraries, Taft's Booting memo as a Tioga file). Built by
+# scripted BringOver from the desktop checkpoint; assets survive make clean.
+CEDAR_ARCHIVE_SNAPSHOT := build/good-packs/cedar-archive.snap
+CEDAR_ARCHIVE_PDI := build/good-packs/cedar-archive.pdi
+CEDAR_ARCHIVE_SNAPSHOT_GZ := snapshot-assets/cedar-archive-native.snap.gz
+CEDAR_ARCHIVE_PDI_GZ := snapshot-assets/cedar-archive-native.pdi.gz
+
+$(CEDAR_ARCHIVE_SNAPSHOT): $(CEDAR_ARCHIVE_SNAPSHOT_GZ)
+	mkdir -p '$(dir $@)'
+	gunzip -c '$<' > '$@'
+$(CEDAR_ARCHIVE_PDI): $(CEDAR_ARCHIVE_PDI_GZ)
+	mkdir -p '$(dir $@)'
+	gunzip -c '$<' > '$@'
+
+.PHONY: run-cedar-archive-sdl
+run-cedar-archive-sdl: sdl $(CEDAR_ARCHIVE_SNAPSHOT) $(CEDAR_ARCHIVE_PDI)
+	DORADO_PDI_IGNORE_LABEL_FLAGS=1 ./build/dorado-sdl \
+		--boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk '$(CEDAR_ARCHIVE_PDI)' \
+		--ftp-root ../chm/cedar/stp-root \
+		--snapshot-in '$(CEDAR_ARCHIVE_SNAPSHOT)' --speed 4000000
+
 run-cedar-real: sdl
 	./build/dorado-sdl --boot-reason disk --no-alto-boot --disk-real --eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' --pilot-disk '$(CEDAR_PDI)' --speed 4000000
 run-cedar-screenshot: sdl
