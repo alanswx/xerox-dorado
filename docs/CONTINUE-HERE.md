@@ -75,6 +75,39 @@ the first heavy disk-write workout). Cedar user-level semantics
 `DoradoDocs/manuals/Introduction_to_Cedar_7.0.md` (added 2026-07-15;
 written for 7.0 but matches our 6.1 world).
 
+**Herald soft-reboot wedge (2026-07-15 evening): root-caused and FIXED —
+the PDI germ-stream cursor survived into the second boot.** Clicking
+`CedarWork` in SDL or the browser wedged the world (cursor stops
+XOR-ing and streaks; Mesa spins at a jump-to-self, IFU hot PCX
+`005263` with br31 in germ MDS; disk counts show `ctrl=36 xfer=0`).
+Root cause: the polled germ-boot IOCB bridge streams GERMDATA pages
+sequentially through `pilot_pdi_stream_active`/`pilot_pdi_next_page`
+(the germ's mid-stream requested addresses are stale flat links, so the
+cursor must override them) — but the latch persisted for the process
+lifetime AND through snapshot restore, so a SECOND germ boot (herald
+button -> Booting.Boot -> germ re-entry) continued the old stream at
+the wrong page (germ asks for the LV bootFile page 0o213, got 0o2257)
+and the germ halt-spun. The CLI accidentally masked it: dorado.c
+re-applies --pilot-disk after --snapshot-in, which resets the cursor —
+which is why every scripted CLI/node replay booted while every
+interactive SDL/web click wedged. Fix (machine.c): any non-GERMDATA
+polled command (the 0o260 label read the germ issues to follow a
+boot-file link) resets the stream, so the next GERMDATA re-seeds from
+its own (correct) first address. Verified: the previously-wedging
+condition (stale restored cursor, no CLI re-apply) now boots to the
+Basic banner + loadees; cold boot to login, unit tests, and Galaxian
+(121,549 px) unchanged. Debug leverage added along the way:
+`dorado_web_debug()` (exported; run
+`Module.ccall('dorado_web_debug')` in the browser console) dumps the
+machine X-ray (hot PCs, IFU dispatches, disk/PDA state) — build with
+DORADO_MACHINE_PCHIST=1 for the histograms.
+Two related notes: (a) the browser main loop is rAF-driven, so a
+hidden/backgrounded tab suspends the emulator — looks like a hang,
+isn't one; (b) the herald `Basic` button posts "BasicCedarDorado.boot
+not found" by design — BootTool's BasicCedar does a purely local
+FS.Open and the volume has no file by that name (the CHM mirror has
+BasicCedarDorado.boot!22 if we ever want to plant/attach it).
+
 **WASM stack overflow (2026-07-15): found and fixed — the web builds
 were silently corrupting static data on every display-list render.**
 `dorado_machine_render_display_list` kept a framebuffer-sized scratch

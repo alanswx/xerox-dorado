@@ -1102,6 +1102,17 @@ static void machine_germ_complete_disk_iocb(dorado_machine *m)
                 m->pilot_pdi_next_page = flat_page;
             }
             flat_page = m->pilot_pdi_next_page;
+        } else {
+            /* Any other polled command (e.g. the 0o260 label read the germ
+             * issues to follow a boot-file link) starts a new transfer whose
+             * first GERMDATA carries a fresh, correct start address.  A
+             * cursor left over from an EARLIER germ boot must not override
+             * it: the stream latch used to persist for the process lifetime
+             * (and through snapshot restore), so a soft reboot -- BootTool's
+             * herald volume buttons -> Booting.Boot -> germ re-entry --
+             * continued the old stream at the wrong page and the germ
+             * halt-spun with zero disk transfers (2026-07-15 wedge). */
+            m->pilot_pdi_stream_active = 0;
         }
         uint16_t polled_done = 0;
         for (; polled_done < count; polled_done++) {
@@ -1142,10 +1153,13 @@ static void machine_germ_complete_disk_iocb(dorado_machine *m)
             fprintf(stderr,
                     "[machine] PDI germ polled IOCB @cyc=%llu: iocb=0o%o "
                     "cmd=0o%o page=0o%o count=0o%o done=0o%o "
-                    "label=0o%o data=0o%o next=0o%o\n",
+                    "label=0o%o data=0o%o next=0o%o "
+                    "req_lo=0o%o req_hi=0o%o stream={act=%d next=0o%o}\n",
                     (unsigned long long)m->bb.cycles, iocb, command,
                     flat_page, count, polled_done, label_ptr, data_ptr,
-                    next);
+                    next, disk_addr_low, disk_addr_high,
+                    m->pilot_pdi_stream_active,
+                    (unsigned)m->pilot_pdi_next_page);
         }
         machine_store_va(&m->mem, iocb + SA_IOCB_DISKADDR, disk_addr_low);
         machine_store_va(&m->mem, iocb + SA_IOCB_DISKADDR + 1u,

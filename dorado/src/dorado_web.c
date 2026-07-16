@@ -498,6 +498,14 @@ int dorado_web_boot_lisp(void)
     return 0;
 }
 
+/* Console X-ray of the running machine (hot PCs per task, IFU dispatch
+ * history): Module.ccall('dorado_web_debug') from the browser console. */
+EMSCRIPTEN_KEEPALIVE
+void dorado_web_debug(void)
+{
+    if (app.m) dorado_machine_debug(app.m);
+}
+
 /* One animation frame: advance the emulator, blit the display. Input
  * arrives asynchronously via dorado_web_key()/dorado_web_mouse(). */
 static void frame(void)
