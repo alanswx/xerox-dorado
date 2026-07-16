@@ -241,6 +241,61 @@ source for the gitignored raw image; the compressed native snapshot survives
 
 ---
 
+## Installing CedarChest applications onto the desktop
+
+The desktop world installs software exactly the way PARC did: `Bringover`
+reads a package's `.df` from the in-process STP server and fetches its
+files, then `Run` starts it. The served tree is `chm/cedar/stp-root/`;
+mirror any CedarChest6.1 package into it with
+
+```sh
+python3 tools/fetch_cedarchest_app.py 'ChessHack.df!3'   # name!version
+```
+
+(the version number comes from
+`https://xeroxparcarchive.computerhistory.org/cyan/cedarchest6.1/top/.index.html`;
+if a payload directory is missing on cyan, try the CedarChest6.0 directory —
+CardTable's files survive only there, with identical creation dates).
+
+Already mirrored: **AIS**, **AISViewer**, **ChessHack**, **CardTable**,
+plus Clock and BootTool. In the running desktop (click the CommandTool
+first for type-in focus):
+
+```
+Bringover -p [Cedar]<CedarChest6.1>Top>ChessHack
+Run ChessHack
+```
+
+AISViewer is a library (a viewer class, no Commander command); display an
+image through the CommandTool's interpreter escape:
+
+```
+Bringover -p [Cedar]<CedarChest6.1>Top>AIS [Cedar]<CedarChest6.1>Top>AISViewer
+Run AISImpl
+Run AISViewer
+Eval AISViewer.DisplayAIS[AISViewer.CreateAISViewer[], "[Cedar]<CedarChest6.1>AISImages>ProcH-BitSlice07.ais"]
+```
+
+`stp-root/CedarChest6.1/AISImages/` serves period images from `[Cyan]<AIS>`
+(uscmoon, reducedparc, AlbumMusician) and **the Dorado's own schematics**,
+converted from `DoradoDocs/schematics/*.pdf` with
+
+```sh
+pdftoppm -mono -f 10 -l 10 -scale-to-x 1000 -scale-to-y -1 \
+    DoradoDocs/schematics/ProcH.pdf /tmp/page
+python3 tools/pbm2ais.py /tmp/page-10.pbm \
+    chm/cedar/stp-root/CedarChest6.1/AISImages/ProcH-BitSlice07.ais
+```
+
+(`pbm2ais.py` implements AISFormat.mesa's uca raster layout; header fields
+validated byte-for-byte against the period files.)
+
+To make installs permanent, run with `DORADO_PDI_SAVE=1` so the volume
+keeps them, or bake them into the checkpoint recipe
+(`make cedar-desktop-snapshot` types its install commands itself).
+
+---
+
 ## Useful flags and trace env vars
 
 CLI flags (`./build/dorado --help`): `--cycles N`, `--eb PATH`, `--germ PATH`,

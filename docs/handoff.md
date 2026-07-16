@@ -1,5 +1,109 @@
 # Handoff: continue building the Xerox Dorado emulator
 
+## ===> 2026-07-16: WHERE EVERYTHING STANDS (read this first)
+
+**The emulator boots Cedar 6.1 to a live, usable Viewers desktop, and the
+desktop installs and runs period software over the in-process network.**
+This section is the self-contained handoff; the dated sections below it
+are the historical log.
+
+### What works, with the exact repro for each
+
+| Capability | Repro | Gate |
+|---|---|---|
+| Alto games / NetExec (netboot) | `make run-galaxian` etc. | headless `--cycles 160000000` = 121,549 px |
+| Cedar 6.1 cold boot -> login | `make run-cedar-work`, type `Guest` + 2 Returns | login at ~1B cycles |
+| Cedar 6.1 full install -> Viewers desktop | same, keep running | desktop at ~21B cycles (34 loadees, fonts, icons) |
+| Desktop checkpoint (instant) | `make run-cedar-desktop-sdl` / web dropdown | restores at 21.0B |
+| Herald soft reboot | click `Boot` then `CedarWork` on the desktop | fresh Basic boot to desktop (germ re-entry) |
+| App install into the live desktop | `Bringover -p [Cedar]<CedarChest6.1>Top>ChessHack` then `Run ...` | 2026-07-16 scripted run |
+| Interlisp-D Lyric desktop | web dropdown / lisp targets | saved Exec checkpoint |
+| Diagnostics | `build/rundiag` | all six PASS |
+
+Media/PDI invariants that keep the Cedar path alive: germ and microcode
+versions must match (`CedarDorado.eb!6` + `Dorado.germ-6.1.6`); synthetic
+PDIs need `DORADO_PDI_IGNORE_LABEL_FLAGS=1` (File.FP DA hints are 0),
+free-page labels stamped with the volume ID
+(`tools/pdi_stamp_free_labels.py`), and BOTH physical- and logical-root
+bootingInfo records (`tools/pdi_install_lv_bootfiles.py`) — cold boot
+reads the PV root, BootTool/Booting.Boot soft boots read the LV root.
+
+### The three bugs that cost the most this week (don't rediscover them)
+
+1. **WASM stack overflow** (fixed d22bcc3): a framebuffer-sized stack
+   local overflowed Emscripten's 64 KB stack and silently corrupted
+   static data (symptom: `getenv()` going NULL mid-run, PDI save-back
+   ignored). `ddc_fb` is now static; both wasm links use
+   `-sSTACK_SIZE=1048576`. If the web build acts haunted, suspect stack
+   first.
+2. **PDI germ-stream cursor** (fixed 02da524): the polled germ-boot
+   bridge streams GERMDATA pages via a cursor that used to persist across
+   boots and snapshot restore, so herald soft reboots continued the OLD
+   stream (germ asked page 0o213, got 0o2257) and halt-spun. Any
+   non-GERMDATA polled command now resets the stream. The CLI masked it
+   (re-applies `--pilot-disk` after `--snapshot-in`); SDL/web didn't.
+3. **Return-vs-Link** (fixed c25240b): an explicit `Link<-` in the same
+   microinstruction overrides Return's `Link<-CIA+1` reload (HM 4.5,
+   DMesaFloat.mc's co-routine contract). This was the "fonts crash".
+
+### Live debugging leverage (browser included)
+
+- `Module.ccall('dorado_web_debug')` in the browser console dumps the
+  machine X-ray (per-task hot PCs, IFU dispatch history, disk/PDA/FTP
+  state). Histograms need a build with `DORADO_MACHINE_PCHIST=1`.
+- The same dump is `DORADO_FINAL_DEBUG=1` (or `--progress`) on the CLI.
+- `DORADO_DISK_IOCB_TRACE=1` now prints requested-vs-streamed pages per
+  polled IOCB — how the germ-stream bug was caught.
+- A hidden/backgrounded browser tab suspends the rAF main loop — it looks
+  exactly like a hang and isn't one.
+- Scripted desktop interaction: focus-click the CommandTool first
+  (`--click 700,467`); repeated characters need `--key-hold 1600000`.
+
+### Open problems, in priority order
+
+1. **`Run AISViewer` (a packaging CONFIG) hangs the CommandTool** —
+   >2.5B cycles, no `Ran:` line, world otherwise alive. Plain modules
+   (`Run AISImpl`, `Run AISViewerImpl`) load fine, including straight
+   from the remote release dir. Root-cause the config-load path (Loader
+   pulling inner modules? a second STP conversation wedging?). Repro is
+   scripted — see running-the-emulator.md "Installing CedarChest
+   applications".
+2. **Installed-system-volume boot** (the kitchensink images): still
+   renders 0 px at 2B cycles even with LV records + stamped labels
+   (2026-07-16 test on a patched copy). These volumes take the
+   installed-volume path (not our login volumes' simple path); finishing
+   that disk bridge unlocks the three software-stuffed volumes in
+   `CedarDisk/`. Start from the 2026-07-10 analysis in CONTINUE-HERE.md.
+3. **Disk-resident microcode boot** ("disk bootable" in the historical
+   sense): we still netboot `CedarDorado.eb!6` via the fake Ethernet.
+   A real CSL Dorado read microcode + germ from the disk (Othello
+   installs them; `MicrocodeDorado.df` lists the set; Initial's
+   disk-boot path reads them). Needs: Initial's disk microcode-fetch
+   path in the emulator + a PDI carrying the microcode partition.
+   References: `docs/parc-veteran-notes.md`,
+   `chm/cedar/cedar6.1-docs/ReleaseMessage.tioga!9` (the from-scratch
+   install procedure), Booting memo.
+4. **Multiple volumes**: `--pilot-disk SLOT=PATH` mounts 4 drives, and
+   the IOCB bridge honors the drive field, but whether Cedar's Dorado
+   head enumerates a second drive is unproven. Alternative: multiple
+   LOGICAL volumes on one physical disk is the authentic layout
+   (Alto | Basic | CedarWork | ... on one T-300) — rusty-backup writes
+   single-LV images today; extending it to multi-LV + using Othello's
+   partitioning is the cleaner road.
+5. **Replace rusty-backup with a real Othello install** — the veteran's
+   pointers (ReleaseMessage.tioga, Othello, `File.SetRoot`) describe the
+   authentic procedure; it would produce media with correct DA hints,
+   VAM, and multi-LV layout, retiring most compat switches at once.
+
+### Fetching more software
+
+`tools/fetch_cedarchest_app.py 'Name.df!N'` mirrors any CedarChest6.1
+package into the served tree (versions from
+`cyan/cedarchest6.1/top/.index.html`; some payloads survive only in
+`cedarchest6.0/...` with identical dates). `tools/pbm2ais.py` turns any
+`pdftoppm -mono` page (e.g. the Dorado schematics in
+`DoradoDocs/schematics/`) into an AIS raster the desktop can display.
+
 ## 2026-07-14: cold-boot regression root-caused and fixed; the FS.Error wall
 ## was the File.FP DA hint; fonts now served at their real export paths.
 

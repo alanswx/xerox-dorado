@@ -1,5 +1,41 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## 2026-07-16: CedarChest applications install into the live desktop;
+## AIS raster pipeline; the Dorado's own schematics as .ais files.
+
+Software installation now works the way PARC did it, end to end: a
+scripted desktop session BringOvers **AIS, AISViewer, ChessHack, and
+CardTable** from `[Cedar]<CedarChest6.1>Top>` (34 files, every creation
+date matched) and `Run AISImpl` loads and starts straight from the
+remote release directory (`Ran: [Cedar]<CedarChest6.1>AIS>AISImpl.bcd!1`).
+New tooling and content, all committed:
+
+- `tools/fetch_cedarchest_app.py NAME.df!N` mirrors any CedarChest6.1
+  package into `chm/cedar/stp-root/` (CardTable's payload survives only
+  under CedarChest6.0 — same dates, shifted versions; the tool prints
+  what's missing so you can fetch by hand).
+- `tools/pbm2ais.py` converts PBM (from `pdftoppm -mono` over our
+  schematic PDFs) into AIS rasters per AISFormat.mesa — header layout
+  verified byte-for-byte against period `[Cyan]<AIS>` files (password
+  -31574, 1024-word attribute page, uca part, scanDir=3).
+  `stp-root/CedarChest6.1/AISImages/` now serves ProcH-BitSlice07 /
+  ProcH-Title / IFU-Sheet02 (the machine's own schematics!) plus period
+  images uscmoon, reducedparc, AlbumMusician.
+- Display route (AISViewer is a library, not a command): CommandTool
+  `Eval` escape —
+  `Eval AISViewer.DisplayAIS[AISViewer.CreateAISViewer[], "[Cedar]<CedarChest6.1>AISImages>ProcH-BitSlice07.ais"]`.
+  OPEN: `Run AISViewer` (the packaging CONFIG) hangs the CommandTool
+  (>2.5B cycles, no "Ran:"); plain modules (`Run AISImpl`,
+  `Run AISViewerImpl`) are the workaround under test — root-causing the
+  config load is the next debugging target. See handoff.md.
+
+Also today: kitchensink volumes re-tested with LV boot records + stamped
+free labels on a copy — still blank at 2B cycles (0 px). The
+installed-system-volume boot path (vs our login/work volumes' simple
+path) remains the real blocker for those images; media fixes alone don't
+move it. `--pilot-disk SLOT=PATH` mounts up to 4 PDIs (drives 0-3) but
+nothing yet proves Cedar's Dorado disk head enumerates a second SA4000.
+
 ## ===> MILESTONE (2026-07-15): CEDAR 6.1 BOOTS TO ITS VIEWERS DESKTOP.
 ## Screenshot: docs/images/cedar-desktop-first-boot-2026-07-15.png
 

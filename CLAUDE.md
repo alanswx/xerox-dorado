@@ -91,6 +91,16 @@ display vertical-field naked-notify driving SimpleTerminalImpl's watcher
 world presents at its native raster (Alto 808x606, Cedar lf 1024x808). Live
 detail + next steps: `docs/CONTINUE-HERE.md`.
 
+**Beyond the desktop (2026-07-16):** the herald's `Boot`/`CedarWork`
+buttons soft-reboot the volume live (germ re-entry works), and CedarChest
+applications install into the running desktop the way PARC did it --
+`Bringover -p [Cedar]<CedarChest6.1>Top>ChessHack` + `Run` against the
+in-process STP server. `tools/fetch_cedarchest_app.py` mirrors packages
+from the CHM archive; `tools/pbm2ais.py` converts the Dorado's own
+schematic PDFs into AIS rasters the desktop's AISViewer can display.
+First-hand background from a PARC veteran (PSAdd name lookup, build
+genealogy, board/DA history): `docs/parc-veteran-notes.md`.
+
 The Stage-2 EFTP/Mayday boot server also serves Cedar boot files
 (`CedarNetExec.boot`, `NEWOS.BOOT`, `OthelloDorado.boot`) byte-exact -- the
 next stage once the germ reaches `DoInLoad` over the net rather than the disk.
