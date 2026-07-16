@@ -294,6 +294,31 @@ To make installs permanent, run with `DORADO_PDI_SAVE=1` so the volume
 keeps them, or bake them into the checkpoint recipe
 (`make cedar-desktop-snapshot` types its install commands itself).
 
+### The "archive" checkpoint (2026-07-16)
+
+`make run-cedar-archive-sdl` boots the desktop with everything above
+already attached PLUS PressReader/ShowPress, Cedar SIL (+its
+BiScrollers/ViewRec/Abutters/SirPress/ImagerPress/Interpress closure)
+and the ORIGINAL Dorado artifacts on the volume:
+`ProcH-Rev-Ce.press`, `IFU-Rev-Ch.press`, `DoradoLibraries.press`
+(the 1979-81 drawings) and Ed Taft's `DoradoBooting.tioga` memo.
+
+Verified working: `Open DoradoBooting.tioga` in the CommandTool
+displays the memo fully formatted in Tioga. Notes from verification:
+
+- Scripted focus clicks on this checkpoint must hit the PROMPT line at
+  the bottom of the CommandTool (`--click 700,733`), not mid-transcript
+  — clicking into the scrolled log turns keystrokes into text edits.
+- `Run ShowPressPackage` reports unbound `[PressReader,*]` imports:
+  run `Run PressReaderImpl` FIRST (the config does not include the
+  reader impl). Displaying a page then needs the interpreter
+  (`ShowPress.CreateShowViewer` / `Open`+`DrawPressPage`), which is
+  gated on the interpreter open problem (handoff #1).
+- `Run Sil` currently traps at startup into a debugger event viewer
+  (`NoSymbols[TrapsImpl.bcd]` — the debugger wants symbols for
+  BOOT-FILE modules to even decode the trap; BringOver MesaRuntime
+  first to see the real event). Sil bring-up is open.
+
 ---
 
 ## Useful flags and trace env vars
