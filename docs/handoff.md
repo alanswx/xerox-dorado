@@ -102,6 +102,30 @@ reads the PV root, BootTool/Booting.Boot soft boots read the LV root.
    DisplayAIS (the ProcH schematic on screen), ShowPress page drawing,
    and assignment (`&v _ expr`) in the interpreter.
 
+   FURTHER NARROWED (session end): the interception evidence points at
+   the PROCESS-LEVEL state save. sig=0B means the interpreter read a
+   ZERO where the callee's signal/result data should be — consistent
+   with the microcode's SaveState writing the StateVector wrong (or the
+   readback missing it): AMEvents.Apply runs applies so results/signals
+   are picked up from captured process state; void calls survive
+   because nothing is read back. The microcode that writes the SV is
+   PilotMesaProcess.mc's SaveProcess/SaveState path — FETCHED to
+   chm/doradomicrocode/dmesasources/ (with DMesaXfer.mc + MTraps.mc).
+   Staged artifacts for the kill:
+   - 2-command repro from build/good-packs/cedar-live.{snap,pdi}
+     (restore @37B, click 700,733, `Eval Rope.Length["abcd"]\n`;
+     failure executes 37.30-37.36B; void-call control:
+     `Eval MessageWindow.Append["..."]` succeeds visibly).
+   - A full task-0 microinstruction trace of the failing window:
+     scratchpad/xfail.log (1.4 GB; DORADO_TRACE_GATE=37300000000,
+     37360000000 DORADO_XFER_TRACE=1) — regenerate the same way if the
+     scratchpad is gone.
+   - Compare the executed SaveState sequence against
+     PilotMesaProcess.mc (AllocState/SaveState/EndSaveProcess) — watch
+     the `LDF[T,3,14]` priority extract, PSBL.vector bit ops, and the
+     Store_/DBuf_ pairs; then dump the written SV (machine-debug's
+     [pilot-pda] prints the state-list heads; DORADO_VMDUMP reads it).
+
    Practical demo note until then: apps whose START CODE builds their UI
    need no interpreter — try `Run ChessHack` in the healthy world; and
    retry `Run AISViewer` (the config hang was plausibly the poisoned
