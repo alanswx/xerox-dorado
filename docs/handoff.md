@@ -61,7 +61,27 @@ reads the PV root, BootTool/Booting.Boot soft boots read the LV root.
 
 ### Open problems, in priority order
 
-1. **The interpreter (CommandTool `Eval`) raises undecoded errors** —
+1. **SOLVED 2026-07-16 (late): the interpreter works — the checkpoints
+   were poisoned, not the emulator.** `Eval 3+4` prints `7` on a FRESH
+   cold boot against the complete release tree: the symbol machinery
+   loads CedarSymbols/CedarSource.VersionMap at boot (36 versionmap
+   fetches in the trace) and resolves symbols through them to the
+   served release files — no local attachments needed. Every prior
+   failure (NoSymbols[ListImpl.bcd], every UnknownError[sig],
+   undecodable debugger traps, likely the Run AISViewer config hang)
+   traces to ONE cause: the desktop/archive checkpoints were captured
+   from a world that booted against the old sparse tree, whose
+   boot-time versionmap loads failed and were cached
+   (VersionMapDefaultsImpl caches per-profile-change). Consequences:
+   (a) REBUILD all Cedar checkpoints from cold boots against the
+   complete tree — in-flight; (b) partial healing of an old world is
+   possible (`Bringover -mp X` lazily retries the maps; plain
+   `Bringover <pkg>` attaches symbol bcds — the debugger then decodes
+   traps, e.g. Run Sil = TrapsImpl.UnboundProcedure) but fresh boots
+   are the real fix. The paragraph below records the (now historical)
+   diagnostic chain.
+
+   HISTORICAL — the diagnosis chain that led here:
    the deepest-diagnosed open problem, and the key to the full Cedar
    experience (Eval, readable error names, source debugging, AISViewer
    display calls). The 2026-07-16 debugging chain, so it isn't redone:
