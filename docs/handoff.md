@@ -102,7 +102,30 @@ reads the PV root, BootTool/Booting.Boot soft boots read the LV root.
    DisplayAIS (the ProcH schematic on screen), ShowPress page drawing,
    and assignment (`&v _ expr`) in the interpreter.
 
-   FURTHER NARROWED (session end): the interception evidence points at
+   CORRECTED (2026-07-17 late, IMPORTANT NEGATIVES): the surgical
+   DST/LST/RET dispatch trace (DORADO_DSTLST_TRACE, added to cpu.c)
+   shows the state-vector theory is WRONG for this failure: in the
+   failing Eval's execution window (37.33-37.36B on the cedar-live
+   checkpoint) NO DST/LST executes at all, no KFCB signal/error raise
+   (alpha 40B-47B) occurs, and the callee provably runs correctly —
+   the trace catches Rope.Length's RET with the right answer on the
+   stack top (cyc 37335953747: op=343 stk=[000004 ...]). So: calls
+   execute, results return, and the failure is INSIDE the interpreter's
+   post-call result handling (EvaluateImpl/AMTypes TV construction),
+   pure Mesa code. The printed "UnknownError[sig: 0B, msg: 177777B]"
+   means the BackStop's ANY arm caught something whose identity query
+   (SIGNAL RuntimeError.SendMsgSignal resume values) came back zeros.
+   Note AMTypes.Error reasons OUTSIDE the backstop's known SELECT list
+   also fall through to ANY — so this may still be an
+   AMTypes.Error[<later reason>] from result-TYPE resolution (e.g. RTT
+   lookup for the result type), i.e. possibly environmental again
+   rather than an emulator bug. Next probes: (a) trace SFC(342B)/EFC
+   into SignalsImpl during the window to find the actual raise site;
+   (b) Eval a proc returning a REF vs a plain INT vs CARDINAL to see if
+   result TYPE changes the failure; (c) check BBUrpEval/EvaluateImpl's
+   result path for what it looks up per result type.
+
+   SUPERSEDED THEORY (kept for context): the interception evidence points at
    the PROCESS-LEVEL state save. sig=0B means the interpreter read a
    ZERO where the callee's signal/result data should be — consistent
    with the microcode's SaveState writing the StateVector wrong (or the

@@ -4685,6 +4685,31 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
             cpu->ifu_save_stkp_pending = 1;
             cpu->ifu_dispatch_count++;
 
+            /* Surgical trace of the state-vector opcode family (DST 370B,
+             * LST 371B, LSTF 372B, RET 343B, iset 1): dump StkP and the
+             * stack top at dispatch, so AMEvents.Apply's result pickup
+             * (TRANSFER WITH state; state _ STATE) can be audited. */
+            if (cpu->ctask == 0 && cpu->ifu_insset == 1 &&
+                (cpu->ifu_opcode == 0370 || cpu->ifu_opcode == 0371 ||
+                 cpu->ifu_opcode == 0372 || cpu->ifu_opcode == 0347) &&
+                dorado_trace_flag("DORADO_DSTLST_TRACE") &&
+                (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
+                fprintf(stderr,
+                        "DSTLST cyc=%llu op=%03o pcx=0o%o stkp=%03o "
+                        "stk=[%06o %06o %06o %06o %06o %06o] alpha=0o%o "
+                        "mb=%02o\n",
+                        (unsigned long long)dorado_trace_cycle,
+                        cpu->ifu_opcode & 0377, cpu->ifu_pcx & 0177777,
+                        cpu->StkP & 0377,
+                        cpu->STK[(cpu->StkP - 1) & 0xFF] & 0177777,
+                        cpu->STK[(cpu->StkP - 2) & 0xFF] & 0177777,
+                        cpu->STK[(cpu->StkP - 3) & 0xFF] & 0177777,
+                        cpu->STK[(cpu->StkP - 4) & 0xFF] & 0177777,
+                        cpu->STK[(cpu->StkP - 5) & 0xFF] & 0177777,
+                        cpu->STK[(cpu->StkP - 6) & 0xFF] & 0177777,
+                        cpu->ifu_alpha & 0377, cpu->MemBase & 037);
+            }
+
             /* Compute TNIA: TNIA[4:13] = IFaddr', TNIA[14:15] = n.
              * Conditional IFUJump OR's the condition into TNIA[15],
              * routing to entry n|1 of the vector. */
