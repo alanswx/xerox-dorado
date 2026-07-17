@@ -81,6 +81,32 @@ reads the PV root, BootTool/Booting.Boot soft boots read the LV root.
    are the real fix. The paragraph below records the (now historical)
    diagnostic chain.
 
+   REMAINING (2026-07-17, surgically narrowed): in the HEALTHY world the
+   interpreter evaluates arithmetic (`Eval 3+4` -> 7) and EXECUTES
+   procedure calls (`Eval MessageWindow.Append["..."]` paints the herald
+   message, no error), but **any call whose RESULT must be picked up
+   fails** with UnknownError[sig: 0B]: `Eval Rope.Length["abcd"]` is the
+   minimal repro (2 commands from the cedar-live checkpoint,
+   build/good-packs/cedar-live.{snap,pdi} — restored at 37B, click
+   700,733, type the Eval). Mechanism under suspicion: the interpreter
+   intercepts the callee's return and reads its results via
+   AMBridge.TVForFrame[fh, evalStack: SVPointer, return: TRUE] — a
+   PrincOps STATE-VECTOR capture done by the Mesa microcode's trap path
+   (STATE/SaveState + LSTF), the exact machinery of the earlier
+   ifu_saved_stkp/StateVector bugs (CONTINUE-HERE ~line 2540). Attack:
+   DORADO_TRACE_GATE the Eval window (~37.2-37.4B) with DORADO_XFER_TRACE
+   + DORADO_STKP_TRACE, find the return-interception XFER, dump the
+   written SV against what Rope.Length's 1-word INT result should look
+   like, and compare with a void-call (Append) trace. This is very
+   likely THE emulator bug of the family; fixing it lights up AISViewer
+   DisplayAIS (the ProcH schematic on screen), ShowPress page drawing,
+   and assignment (`&v _ expr`) in the interpreter.
+
+   Practical demo note until then: apps whose START CODE builds their UI
+   need no interpreter — try `Run ChessHack` in the healthy world; and
+   retry `Run AISViewer` (the config hang was plausibly the poisoned
+   world too).
+
    HISTORICAL — the diagnosis chain that led here:
    the deepest-diagnosed open problem, and the key to the full Cedar
    experience (Eval, readable error names, source debugging, AISViewer
