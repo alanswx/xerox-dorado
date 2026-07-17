@@ -102,7 +102,32 @@ reads the PV root, BootTool/Booting.Boot soft boots read the LV root.
    DisplayAIS (the ProcH schematic on screen), ShowPress page drawing,
    and assignment (`&v _ expr`) in the interpreter.
 
-   CORRECTED (2026-07-17 late, IMPORTANT NEGATIVES): the surgical
+   ROOT CAUSE PROVEN (2026-07-17): **locally-attached interface bcds
+   shadow the loaded world and break the interpreter's interface
+   resolution.** The complete A/B matrix on the cedar-live checkpoint:
+   every Eval through an interface whose .bcd BringOver attached
+   locally (Rope, FS, Real, AIS, AISViewer — pulled by import
+   recursion) fails with UnknownError[sig: 0B]; every Eval through an
+   unattached interface (VFonts, BasicTime, MessageWindow, Process)
+   resolves from the loaded world and WORKS — `Eval
+   Process.MsecToTicks[10]` -> `1B (1)`, `Eval VFonts.CharWidth[65]` ->
+   `10`, `Eval BasicTime.Now[]` prints. Literals are fine (`Eval
+   "abcd"` -> "abcd"). Confirmed structurally: working applies execute
+   the full DST/LST(371) transfer; failing ones die BEFORE the
+   transfer, in interface/procedure resolution. Likely mechanism: the
+   attached interface bcd (from the mixed-vintage cyan mirror, e.g.
+   Rope.bcd!1 of Feb-85 vs the Dec-86 boot) carries a version stamp
+   that mismatches the loaded module, and the resulting AMTypes/
+   AMMiniModel error is outside the backstop's known list. Fixes, best
+   first: (1) DON'T attach interface bcds — Run impl bcds by remote
+   path and let Eval resolve interfaces from the loadstate (the
+   cedar-golden run); (2) mirror stamp-consistent files — the
+   CedarSymbols.VersionMap names the exact file for each loaded stamp,
+   so a versionmap-driven fetcher would make attachments safe; (3)
+   check GetInterfaceRecord's failure path to confirm (a mismatch
+   should arguably fall back to the loadstate).
+
+   EARLIER NOTES (2026-07-17, negatives that led here): the surgical
    DST/LST/RET dispatch trace (DORADO_DSTLST_TRACE, added to cpu.c)
    shows the state-vector theory is WRONG for this failure: in the
    failing Eval's execution window (37.33-37.36B on the cedar-live
