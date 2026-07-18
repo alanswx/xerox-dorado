@@ -641,6 +641,16 @@ static int test_ftp_netdir_rtp_and_bsp_alloc(void)
     dorado_ethernet_direct_transmit(&eth, netdir,
                                     sizeof netdir / sizeof netdir[0]);
     EXPECT(eth.rx_count >= 17, "NetDir reply queued");
+    /* The server's first lookup response is a GatewayInfo route
+     * announcement (PupName rejects a NameReply for a net it has no
+     * route to); the client retries the lookup and then receives the
+     * ordinary address reply. */
+    if (eth.rx_words[3] == DORADO_PUP_TYPE_GATEWAY_REPLY) {
+        eth.rx_pos = eth.rx_count;  /* consume the route announcement */
+        dorado_ethernet_direct_transmit(&eth, netdir,
+                                        sizeof netdir / sizeof netdir[0]);
+        EXPECT(eth.rx_count >= 17, "NetDir reply queued after route prime");
+    }
     EXPECT(eth.rx_words[3] == DORADO_PUP_TYPE_NETDIR_REPLY,
            "NetDir reply type 0o%o", eth.rx_words[3]);
     EXPECT(eth.rx_words[12] == (uint16_t)((01 << 8) | 01),
