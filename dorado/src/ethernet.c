@@ -1282,12 +1282,24 @@ static unsigned eth_ftp_file_ack_window(const dorado_ethernet *eth)
 static int eth_ftp_file_packet_needs_ack(const dorado_ethernet *eth)
 {
     if (!eth->ftp_open) return 0;
-    unsigned next = eth->ftp_tx_in_flight + 1u;
-    unsigned half = eth_ftp_file_ack_window(eth);
-    unsigned full = eth->ftp_client_pup_alloc;
-    /* PupStreamImpl.WaitOutputReady marks precisely the half-window and
-     * full-window fingers, not every later packet. */
-    return next == half || (full != 0 && next == full);
+    /* Byte-window liveness: once the bytes outstanding since the last
+     * acknowledged position pass half the client's advertised byte
+     * allocation, every further packet asks for an ack.  The old
+     * pup-count marks (next == half/full) drifted out of alignment with
+     * the client's own finger accounting on multi-window transfers, so a
+     * window could pass with no AData mark at all; the client then never
+     * acked, the byte window overran, and (with no retransmit ring) the
+     * transfer wedged -- the >100 KB demand-fetch stall of 2026-07-18. */
+    if (eth->ftp_client_byte_alloc != 0) {
+        uint32_t outstanding = eth->ftp_tx_next - eth->ftp_last_ack;
+        return outstanding * 2u >= eth->ftp_client_byte_alloc;
+    }
+    {
+        unsigned next = eth->ftp_tx_in_flight + 1u;
+        unsigned half = eth_ftp_file_ack_window(eth);
+        unsigned full = eth->ftp_client_pup_alloc;
+        return next == half || (full != 0 && next == full);
+    }
 }
 
 static int eth_ftp_queue_ack(dorado_ethernet *eth)
@@ -1762,6 +1774,14 @@ static void eth_ftp_maybe_deliver(dorado_ethernet *eth)
     /* An AData/AMark asks for an acknowledgement but does not itself stall
      * PupStream's pusher.  The source continues until all advertised output
      * fingers are in flight; only then must the next segment wait. */
+    /* Honor the client's BYTE allocation: never run more than its
+     * advertised window past the last acknowledged position (the client
+     * buffers exactly that much; excess is dropped and, with no
+     * retransmit ring here, lost forever -> wedge). */
+    if (eth->ftp_client_byte_alloc != 0 &&
+        (uint32_t)(eth->ftp_tx_next - eth->ftp_last_ack) >=
+            eth->ftp_client_byte_alloc)
+        return;
     if ((eth->ftp_waiting_for_ack && eth->ftp_client_pup_alloc != 0 &&
          eth->ftp_tx_in_flight >= eth->ftp_client_pup_alloc) ||
         eth->ftp_tx_mode == FTP_TX_NONE)
