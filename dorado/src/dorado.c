@@ -305,8 +305,9 @@ int main(int argc, char **argv)
     type_event type_events[MAX_TYPE_EVENTS];
     int type_event_count = 0;
     static dorado_typequeue paste_queue;  /* --paste-at: the frontends' */
-    const char *paste_text = NULL;        /* paced clipboard-typing queue */
-    uint64_t paste_at = 0;
+    struct { const char *text; uint64_t at; int done; }
+        paste_events[MAX_TYPE_EVENTS];    /* paced clipboard-typing queue */
+    int paste_event_count = 0;
     key_chord_event key_chord_events[MAX_KEY_CHORD_EVENTS];
     int key_chord_event_count = 0;
     click_event click_events[MAX_CLICK_EVENTS];
@@ -453,9 +454,17 @@ int main(int argc, char **argv)
             /* --paste-at CYCLES --paste TEXT: exercise the frontends'
              * clipboard queue (dorado_typequeue) headlessly -- unlike
              * --type, typing is paced across the run loop's frames. */
-            paste_at = parse_u64(argv[++i], 0);
+            if (paste_event_count >= MAX_TYPE_EVENTS) {
+                fprintf(stderr, "dorado: too many --paste events (max %d)\n",
+                        MAX_TYPE_EVENTS);
+                return 2;
+            }
+            paste_events[paste_event_count].at = parse_u64(argv[++i], 0);
             i++;                          /* the --paste flag */
-            paste_text = decode_type_text_arg(argv[++i]);
+            paste_events[paste_event_count].text =
+                decode_type_text_arg(argv[++i]);
+            paste_events[paste_event_count].done = 0;
+            paste_event_count++;
         } else if (!strcmp(a, "--type-at") && i + 1 < argc) {
             type_at = parse_u64(argv[++i], type_at);
             if (last_type_can_update && last_type_event >= 0) {
@@ -552,11 +561,14 @@ int main(int argc, char **argv)
          * scheduled segment. Multiple segments are useful for programs that
          * intentionally ignore destructive-confirmation typeahead. */
         if (dorado_machine_booted(m)) {
-            if (paste_text && dorado_machine_cycles(m) >= paste_at) {
-                printf("dorado: pasting %zu chars\n", strlen(paste_text));
-                dorado_typequeue_start(&paste_queue, paste_text, 1600000ull,
-                                       dorado_machine_cycles(m));
-                paste_text = NULL;
+            for (int pe = 0; pe < paste_event_count; pe++) {
+                if (paste_events[pe].done ||
+                    dorado_machine_cycles(m) < paste_events[pe].at) continue;
+                paste_events[pe].done = 1;
+                printf("dorado: pasting %zu chars\n",
+                       strlen(paste_events[pe].text));
+                dorado_typequeue_start(&paste_queue, paste_events[pe].text,
+                                       1600000ull, dorado_machine_cycles(m));
             }
             dorado_typequeue_pump(&paste_queue, m);
             for (int te = 0; te < type_event_count; te++) {

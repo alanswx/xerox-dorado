@@ -241,6 +241,84 @@ source for the gitignored raw image; the compressed native snapshot survives
 
 ---
 
+## The friendly desktop: type a word, or click a button
+
+The desktop checkpoint boots with a small set of **command files** already
+fetched and **menu buttons** already created, so a first-time visitor never
+has to type a line of Mesa. At the CommandTool's `%` prompt (click the
+prompt line first for type-in focus) type any of:
+
+| Type this | What happens |
+|---|---|
+| `Welcome.cm` | prints the menu of everything below |
+| `Schematic.cm` | the Dorado displays **its own** ProcH bit-slice drawing |
+| `Moon.cm` | a 1978 Lick Observatory moon photograph, halftoned |
+| `Ifu.cm` | the IFU board drawing |
+| `Memo.cm` | Ed Taft's 1980 "Dorado Booting" memo, formatted in Tioga |
+| `Chess.cm` | installs and runs ChessHack from CedarChest |
+| `Images.cm` | fetches the picture collection and lists it |
+| `Source Show.cm <name>.ais` | displays any picture by name |
+
+The same actions are **buttons in the CommandTool menu line** (next to
+`STOP!` / `Find` / `Split`) — click one with the red (left) mouse button.
+
+Pictures take real time to appear: the Imager is doing genuine 1985
+halftone work, and the schematics are 500x644. The moon is the quick one.
+
+### How this works — Cedar's own mechanisms (not emulator features)
+
+Everything above is period-authentic, lifted from Xerox's own sample
+configurations (`chm/cedar/cedar6.1-docs/StandardUser.Profile` and
+`StandardUser-LoginWork.cm`, both by Mike Spreitzer, 1987):
+
+- **`.cm` command files** are batch scripts of CommandTool commands. Typing
+  the file name runs it; `Command <file>` and `Source <file>` do the same,
+  and `Source` additionally passes arguments as `$1`, `$2`, ... and lets a
+  `cd` inside persist. Ours live in
+  `chm/cedar/stp-root/CedarChest6.1/DoradoWelcome/` and are published by
+  `DoradoWelcome.df`.
+- **`CreateButton <label> <command> [args]`** adds a clickable button to the
+  CommandTool menu; `ClearMenu` empties it first. (`CreateButton Moon
+  Moon.cm` verified live, 2026-07-18.)
+- **`Alias <name> [(args)] <expansion>`** defines a one-word command, e.g.
+  Spreitzer's `Alias BRCM (pkg) pushr Commands; Bringover -mp pkg.DF; pop`.
+- **`Install <Package> ...`** loads one or more packages in a single
+  command — the idiomatic launcher, and shorter than a `Bringover` plus a
+  `Run` per implementation module.
+- **`.load` files** are a package's own launch manifest; the CedarChest
+  catalog is built by enumerating them (`CedarChestDoc.tioga`).
+- **Profile hook points**: `CommandTool.BootCommands` (first CommandTool
+  after a full boot — where our setup lives), plus `.NewUser`, `.PerLogin`,
+  `.PerCommandTool`, and `Debugger.CommandTool.BootCommands`. Each has a
+  matching `///Commands/Note*` command that re-runs it.
+- **`&cmd["Name"]`** invokes a command from the interpreter, and a line
+  beginning `_` (ASCII 0x5F = Cedar's `←`) *is* an interpreter line — the
+  file-side spelling of the `Eval` we type.
+
+**Correction to an earlier note in this file:** quoted strings inside a
+profile value are fine — Xerox's own profiles are full of `\"` escapes
+inside `CommandTool.BootCommands`. Our earlier profile corruption was a
+formatting error of ours, not a Cedar limitation.
+
+**Serving your own files** — two rules, each of which cost us a debugging
+round on 2026-07-18, and which fail in the *same* silent way ("1 files acted
+upon", meaning the `.df` itself and nothing else):
+
+1. **Cedar text files use CR (`\r`) line endings, not LF.** A `.df` or `.cm`
+   written with Unix newlines is one enormous line to Cedar's parser, so no
+   entry is ever seen. Convert anything you author for the guest:
+   `python3 -c "b=open(p,'rb').read().replace(b'\r\n',b'\n').replace(b'\n',b'\r'); open(p,'wb').write(b)"`
+   (`od -c` on any period file in the tree shows the `\r`.)
+2. **Fetch with a plain `Bringover`, not `Bringover -p`.** The `-p` flag
+   means public files only; data files (images, `.cm`, documents) are not
+   public, so `-p` brings over just the `.df`.
+
+Otherwise: drop files in `chm/cedar/stp-root/CedarChest6.1/<Package>/` and
+list them in a `<Package>.df` under `Top/`, following the layout of
+`AISImages.df` or `DoradoWelcome.df`.
+
+---
+
 ## Installing CedarChest applications onto the desktop
 
 The desktop world installs software exactly the way PARC did: `Bringover`
@@ -267,6 +345,11 @@ Run ChessHack
 ```
 
 ### The schematics viewer (AISViewer) — the PROVEN recipe (2026-07-18)
+
+**Most of the time you want `Schematic.cm` or `Moon.cm`** (see the section
+above) — the command files wrap exactly what follows. This is the long
+form, for displaying something the command files don't cover or for
+understanding what they do.
 
 AISViewer is a library (a viewer class, no Commander command); images are
 displayed through the CommandTool's `Eval` interpreter escape. The current
@@ -372,7 +455,15 @@ snapshots), `--snapshot-in PATH`, `--snapshot-out PATH`, `--quote` /
 `--screenshot F1,F2,…`. A running instance (headless or SDL) writes a
 `<shot-prefix>-<cycle>.pgm` screenshot on **SIGUSR1**.
 
-Controls in the SDL window: F1 pauses/resumes, Cmd/Ctrl+Q quits, and the
+Scripted input: `--type-at CYCLES --type TEXT` types a string synchronously,
+and `--paste-at CYCLES --paste TEXT` runs it through the **same paced queue
+the frontends' clipboard paste uses** (repeatable — give as many pairs as
+you like, up to 16). Prefer `--paste-at` when you want to exercise the
+interactive path exactly as a user would.
+
+Controls in the SDL window: **Cmd/Ctrl+V pastes the host clipboard** as
+paced keystrokes (the browser build uses its native paste event), F1
+pauses/resumes, Cmd/Ctrl+Q quits, and the
 three-button Dorado mouse is mapped left/middle/right = Red/Yellow/Blue with
 laptop modifiers Option/Alt+click = Yellow (middle) and Cmd- or Ctrl+click =
 Blue (right) — details in the top-level `README.md` "Controls" section (the

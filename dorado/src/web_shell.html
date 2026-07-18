@@ -35,6 +35,29 @@
   .tips {
     margin-top: 14px; max-width: 820px; color: #99a1aa; font-size: 13px;
   }
+  /* "What can I do?" panel: shown for the Cedar desktop world. */
+  #guide {
+    margin-top: 14px; max-width: 820px; display: none;
+    background: #1b1f25; border: 1px solid #2f3640; border-radius: 8px;
+    padding: 14px 16px;
+  }
+  #guide h2 {
+    font-size: 14px; margin: 0 0 4px; color: #e6eaef; font-weight: 600;
+  }
+  #guide .lead { color: #99a1aa; font-size: 13px; margin: 0 0 10px; }
+  #guide table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  #guide td { padding: 4px 8px 4px 0; vertical-align: top; }
+  #guide td.cmd { white-space: nowrap; width: 1%; }
+  #guide code.k {
+    background: #23272e; border: 1px solid #3a4049; border-radius: 4px;
+    padding: 2px 7px; color: #9ecbff; font-size: 13px;
+  }
+  #guide .note { color: #7f8892; font-size: 12px; margin: 10px 0 0; }
+  #guide button.try {
+    background: #26313d; border: 1px solid #3b5064; color: #cfe3f5;
+    border-radius: 5px; padding: 3px 9px; font-size: 12px; cursor: pointer;
+  }
+  #guide button.try:hover { background: #2f3d4c; }
   .tips code {
     background: #23272e; border: 1px solid #333a43; border-radius: 4px;
     padding: 1px 5px; color: #cdd5de;
@@ -99,6 +122,46 @@
   </div>
   <div id="status">Loading emulator&hellip;</div>
 
+  <div id="guide">
+    <h2>What can I do here?</h2>
+    <p class="lead">This is a real Cedar 6.1 desktop. Click the
+      <b>CommandTool</b> (the text window on the right) on its bottom
+      <code class="k">%</code> prompt line to give it the keyboard, then type
+      one of these and press <code class="k">Return</code>. Each is also a
+      <b>button in the CommandTool's menu line</b> (beside
+      <code class="k">STOP!</code> / <code class="k">Find</code>) &mdash;
+      click it with the left mouse button instead, if you prefer.</p>
+    <table>
+      <tr><td class="cmd"><code class="k">Welcome.cm</code></td>
+          <td>Prints this list inside Cedar itself.
+              <button class="try" onclick="typeIntoCedar('Welcome.cm')">type it for me</button></td></tr>
+      <tr><td class="cmd"><code class="k">Schematic.cm</code></td>
+          <td>The Dorado draws <b>its own processor board</b> &mdash; the 1979
+              ProcH &ldquo;bit slice 07&rdquo; sheet, scanned at PARC, displayed
+              by the machine it documents.
+              <button class="try" onclick="typeIntoCedar('Schematic.cm')">type it for me</button></td></tr>
+      <tr><td class="cmd"><code class="k">Moon.cm</code></td>
+          <td>A 1978 photograph of the moon, halftoned by Cedar's Imager
+              (the quickest picture to paint).
+              <button class="try" onclick="typeIntoCedar('Moon.cm')">type it for me</button></td></tr>
+      <tr><td class="cmd"><code class="k">Ifu.cm</code></td>
+          <td>The Instruction Fetch Unit board drawing.</td></tr>
+      <tr><td class="cmd"><code class="k">Memo.cm</code></td>
+          <td>Ed Taft's 1980 <i>Dorado Booting</i> memo, formatted in Tioga,
+              Cedar's document editor.</td></tr>
+      <tr><td class="cmd"><code class="k">Chess.cm</code></td>
+          <td>Installs and runs ChessHack from the CedarChest library, over
+              the emulated Ethernet.</td></tr>
+      <tr><td class="cmd"><code class="k">Images.cm</code></td>
+          <td>Fetches the picture collection and lists what's available.</td></tr>
+    </table>
+    <p class="note">Pictures take a while to appear &mdash; the Imager is doing
+      real 1985 halftone work, and the schematics are large. Watch the
+      CommandTool for progress. Everything here is Cedar's own machinery:
+      <code class="k">.cm</code> command files and menu buttons, exactly as
+      PARC's own sample user profiles set them up.</p>
+  </div>
+
   <div class="tips">
     Click the display to give it keyboard focus.
     In the <b>NetExec menu</b>, type a program name (e.g. <code>Galaxian</code>)
@@ -134,6 +197,23 @@
   var paused = false;
 
   function setStatus(t) { statusEl.textContent = t; }
+
+  // Send a command to the running world as paced synthetic keystrokes,
+  // via the same C queue the clipboard paste uses. The canvas must have
+  // been clicked first so the CommandTool owns the type-in focus.
+  function typeIntoCedar(cmd) {
+    if (!ready) return;
+    Module.ccall('dorado_web_paste', 'number', ['string'], [cmd + '\r']);
+    setStatus('Typed "' + cmd + '" into the CommandTool. If nothing appears, '
+              + 'click the CommandTool\'s % prompt line first, then retry.');
+    document.getElementById('canvas').focus();
+  }
+  window.typeIntoCedar = typeIntoCedar;
+
+  // The guide panel only makes sense for the Cedar desktop world.
+  function showGuide(on) {
+    document.getElementById('guide').style.display = on ? 'block' : 'none';
+  }
 
   var lyricAssetsReady = false;
   var cedarAssetsReady = false;
@@ -187,14 +267,17 @@
     var opt = gameSel.options[gameSel.selectedIndex];
     var path = opt.value;
     paused = false; pauseBtn.textContent = 'Pause';
+    showGuide(false);          /* only the Cedar desktop guide applies */
     if (path === 'cedar-desktop') {
       try {
         await prepareCedarDesktopAssets();
         var rc = Module.ccall('dorado_web_boot_cedar_desktop', 'number', [], []);
         if (rc) throw new Error('snapshot restore rejected the saved image');
-        setStatus('Cedar 6.1 Viewers desktop restored. Click a viewer, then '
-                  + 'type (Cmd/Ctrl+V pastes); Option+click = middle (Yellow), '
-                  + 'Cmd/Ctrl+click = right (Blue) mouse button.');
+        showGuide(true);
+        setStatus('Cedar 6.1 Viewers desktop restored. Click the CommandTool\'s '
+                  + '% prompt line, then type a command from the list below '
+                  + '(Cmd/Ctrl+V pastes; Option+click = middle/Yellow, '
+                  + 'Cmd/Ctrl+click = right/Blue mouse button).');
       } catch (e) {
         console.error(e);
         setStatus('Could not restore the Cedar desktop: ' + e.message);

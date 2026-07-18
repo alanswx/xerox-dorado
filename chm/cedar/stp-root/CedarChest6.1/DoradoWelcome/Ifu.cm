@@ -1,0 +1,1 @@
+-- Ifu.cm -- the Instruction Fetch Unit board drawing.Echo Fetching the IFU board drawing...Bringover [Cedar]<CedarChest6.1>Top>AISImagesEcho Painting IFU sheet 2...Eval AISViewer.DisplayAIS[AISViewer.CreateAISViewer[], "IFU-Sheet02.ais", NIL, FALSE, NIL, NIL, NIL, TRUE]Eval ViewerOps.OpenIcon[ViewerOps.FindViewer["AIS Viewer"], FALSE, TRUE, TRUE]

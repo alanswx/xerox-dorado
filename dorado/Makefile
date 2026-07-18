@@ -484,9 +484,10 @@ run-cedar-work: sdl $(CEDAR_WORK_PDI)
 CEDAR_DESKTOP_SNAPSHOT := build/good-packs/cedar-desktop.snap
 CEDAR_DESKTOP_PDI := build/good-packs/cedar-desktop.pdi
 CEDAR_DESKTOP_SCREEN := build/good-packs/cedar-desktop.pgm
-# 26B: the complete-tree profile boot (incl. the AIS packages) reaches the
-# desktop ~25B with BSP sender retransmission; the wedge-era 47B is history.
-CEDAR_DESKTOP_CYCLES ?= 26000000000
+# 31B: the complete-tree profile boot (AIS packages + the DoradoWelcome
+# command files, buttons, and welcome banner) settles ~29B with BSP sender
+# retransmission; the wedge-era 47B is history.
+CEDAR_DESKTOP_CYCLES ?= 31000000000
 CEDAR_DESKTOP_SNAPSHOT_GZ := snapshot-assets/cedar-desktop-native.snap.gz
 CEDAR_DESKTOP_PDI_GZ := snapshot-assets/cedar-desktop-native.pdi.gz
 

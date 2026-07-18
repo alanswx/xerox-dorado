@@ -1,0 +1,1 @@
+-- Show.cm -- display the AIS picture named by the first argument.-- Use: Source Show.cm uscmoon.aisEcho Painting $1. This takes a while. The Imager is doing real work.Eval AISViewer.DisplayAIS[AISViewer.CreateAISViewer[], "$1", NIL, FALSE, NIL, NIL, NIL, TRUE]Eval ViewerOps.OpenIcon[ViewerOps.FindViewer["AIS Viewer"], FALSE, TRUE, TRUE]

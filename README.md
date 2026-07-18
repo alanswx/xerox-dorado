@@ -175,7 +175,9 @@ already checked into `../chm`.
 #### Controls (keyboard + three-button mouse)
 
 The keyboard maps through to the running world once its prompt is up.
-**F1** pauses/resumes the emulation; **Cmd/Ctrl+Q** quits.
+**Cmd/Ctrl+V** pastes the host clipboard into the guest as paced
+keystrokes (handy for Cedar's long `Eval` lines); **F1** pauses/resumes
+the emulation; **Cmd/Ctrl+Q** quits.
 
 The Dorado's mouse has **three buttons**, and Cedar uses all of them
 (Xerox names in parentheses): **left = Red** — point/select, **middle =
@@ -326,7 +328,14 @@ first:
 # 1. THE DESKTOP, INSTANTLY — restore the saved Viewers-desktop checkpoint
 #    (snapshot + its matching post-install disk, rehydrated from
 #    snapshot-assets/). Live Clock, CommandTool, menus — use the mouse
-#    (see Controls above).
+#    (see Controls above). It comes up with a printed welcome menu, and
+#    one-word commands ready to type at the CommandTool's % prompt:
+#      Schematic.cm  the Dorado draws its OWN processor board
+#      Moon.cm       a 1978 moon photograph, halftoned
+#      Memo.cm       Ed Taft's 1980 Dorado Booting memo, in Tioga
+#      Chess.cm      installs and runs ChessHack over the emulated net
+#      Welcome.cm    prints the full list again
+#    The same actions are buttons in the CommandTool's menu line.
 make run-cedar-desktop-sdl
 
 # 2. The full cold boot + install, end to end (~21 G cycles): boots the
