@@ -304,6 +304,9 @@ int main(int argc, char **argv)
     int progress = 0;
     type_event type_events[MAX_TYPE_EVENTS];
     int type_event_count = 0;
+    static dorado_typequeue paste_queue;  /* --paste-at: the frontends' */
+    const char *paste_text = NULL;        /* paced clipboard-typing queue */
+    uint64_t paste_at = 0;
     key_chord_event key_chord_events[MAX_KEY_CHORD_EVENTS];
     int key_chord_event_count = 0;
     click_event click_events[MAX_CLICK_EVENTS];
@@ -445,6 +448,14 @@ int main(int argc, char **argv)
         } else if (!strcmp(a, "--key-hold") && i + 1 < argc) {
             key_hold = parse_u64(argv[++i], key_hold);
             last_type_can_update = 0;
+        } else if (!strcmp(a, "--paste-at") && i + 3 < argc &&
+                   !strcmp(argv[i + 2], "--paste")) {
+            /* --paste-at CYCLES --paste TEXT: exercise the frontends'
+             * clipboard queue (dorado_typequeue) headlessly -- unlike
+             * --type, typing is paced across the run loop's frames. */
+            paste_at = parse_u64(argv[++i], 0);
+            i++;                          /* the --paste flag */
+            paste_text = decode_type_text_arg(argv[++i]);
         } else if (!strcmp(a, "--type-at") && i + 1 < argc) {
             type_at = parse_u64(argv[++i], type_at);
             if (last_type_can_update && last_type_event >= 0) {
@@ -541,6 +552,13 @@ int main(int argc, char **argv)
          * scheduled segment. Multiple segments are useful for programs that
          * intentionally ignore destructive-confirmation typeahead. */
         if (dorado_machine_booted(m)) {
+            if (paste_text && dorado_machine_cycles(m) >= paste_at) {
+                printf("dorado: pasting %zu chars\n", strlen(paste_text));
+                dorado_typequeue_start(&paste_queue, paste_text, 1600000ull,
+                                       dorado_machine_cycles(m));
+                paste_text = NULL;
+            }
+            dorado_typequeue_pump(&paste_queue, m);
             for (int te = 0; te < type_event_count; te++) {
                 if (!type_events[te].typed &&
                     dorado_machine_cycles(m) >= type_events[te].at) {
