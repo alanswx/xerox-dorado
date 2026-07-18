@@ -266,15 +266,53 @@ Bringover -p [Cedar]<CedarChest6.1>Top>ChessHack
 Run ChessHack
 ```
 
-AISViewer is a library (a viewer class, no Commander command); display an
-image through the CommandTool's interpreter escape:
+### The schematics viewer (AISViewer) — the PROVEN recipe (2026-07-18)
+
+AISViewer is a library (a viewer class, no Commander command); images are
+displayed through the CommandTool's `Eval` interpreter escape. The current
+desktop checkpoint's profile already runs `AISImpl`/`AISViewerImpl` at
+boot, so in a fresh desktop (`make run-cedar-desktop-sdl`, click the
+CommandTool prompt line first for type-in focus) the whole recipe is:
 
 ```
-Bringover -p [Cedar]<CedarChest6.1>Top>AIS [Cedar]<CedarChest6.1>Top>AISViewer
-Run AISImpl
-Run AISViewer
-Eval AISViewer.DisplayAIS[AISViewer.CreateAISViewer[], "[Cedar]<CedarChest6.1>AISImages>ProcH-BitSlice07.ais"]
+Bringover [Cedar]<CedarChest6.1>Top>AISImages
+Delete AISViewer.bcd AIS.bcd ViewerOps.bcd ViewerClasses.bcd TIPUser.bcd TIPTables.bcd Real.bcd AISFormat.bcd
+Eval AISViewer.DisplayAIS[AISViewer.CreateAISViewer[], "ProcH-BitSlice07.ais", NIL, FALSE, NIL, NIL, NIL, TRUE]
+Eval ViewerOps.OpenIcon[ViewerOps.FindViewer["AIS Viewer"], FALSE, TRUE, TRUE]
 ```
+
+Line by line, because every deviation here cost us a debugging session:
+
+- `Bringover` (no `-p`) attaches the image DF's files; content is
+  demand-fetched over STP when the viewer first reads a file.
+- `Delete` removes ATTACHED interface bcds. Attached-but-not-loaded
+  interface bcds from the mixed-vintage mirror shadow the loadstate and
+  poison every `Eval` through those interfaces ("NoSymbols"/version
+  faults); after `Delete`, symbols resolve from the RUNNING modules. Do
+  NOT delete `AISImpl.bcd`/`AISViewerImpl.bcd` — runtime-loaded modules
+  are their own symbols and must stay attached. (On the CURRENT desktop
+  checkpoint every name reports `-- not found!`: the profile's selective
+  `-o` Bringovers never create the poisoning attachments, so the line is
+  a harmless no-op — kept for worlds that did full Bringovers.)
+- The `Eval` passes ALL EIGHT DisplayAIS arguments positionally: the
+  interpreter cannot synthesize defaulted arguments ("can't hack default
+  for argument 5") or build partial record constructors.
+- The last `TRUE` displays into the (iconic) viewer; `OpenIcon` opens it
+  on screen. Expect the halftone paint to take a while — the 500x644
+  ProcH sheet is ~20 emulated seconds of honest 1985 Imager work.
+
+Both frontends also accept **Cmd/Ctrl+V paste** (typed as paced
+keystrokes), so these lines can be pasted instead of typed; headless
+scripts can use `--paste-at CYCLES --paste TEXT` for the same path.
+
+Other images to try in place of `ProcH-BitSlice07.ais`: `uscmoon.ais`
+(the 1978 Lick Observatory moon photograph), `IFU-Sheet02.ais`,
+`ProcH-Title.ais`, `reducedparc.ais`, `AlbumMusician.ais`. Images must be
+8-bit AIS: `AISViewerImpl` hardcodes `GrayLinearColorModel[sWhite~255]`,
+so 1-bit files render black (convert with `pdftoppm -gray` +
+`tools/pbm2ais.py`). Big fetches are safe since the BSP
+sender-retransmission fix (`FTP_REWIND` in the `DORADO_FTP_TRACE` log is
+the server rescuing a dropped packet, not an error).
 
 `stp-root/CedarChest6.1/AISImages/` serves period images from `[Cyan]<AIS>`
 (uscmoon, reducedparc, AlbumMusician) and **the Dorado's own schematics**,

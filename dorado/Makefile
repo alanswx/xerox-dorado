@@ -53,6 +53,7 @@ WEB_SRCS  := src/mb.c src/disasm.c src/microcode.c src/cpu.c src/baseboard.c \
 WEB_NODE_SRCS := $(filter-out src/dorado_web.c,$(WEB_SRCS)) src/dorado.c
 WEB_NODE_JS := $(BINDIR)/dorado-node.js
 WEB_LISP_ASSET_DIR := web-assets
+WEB_STP_DIR := build/web-stp
 WEB_LISP_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/lisp-lyric-xcl.snap.gz
 WEB_LISP_PACK_GZ := $(WEB_LISP_ASSET_DIR)/lisp-lyric-xcl.pack.gz
 WEB_LISP_RAW_DIR := $(BINDIR)/web-lisp
@@ -141,7 +142,6 @@ web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_CEDAR_D
 # and AISViewer demand-fetches. The full stp-root would push index.data past
 # GitHub's 100 MB per-file limit; Cedar6.1 itself stays out because the
 # desktop checkpoint already carries the installed release.
-WEB_STP_DIR := build/web-stp
 .PHONY: web-stp
 web-stp:
 	rm -rf '$(WEB_STP_DIR)'

@@ -105,6 +105,8 @@
     and press <code>Return</code> to boot it; or pick one from the dropdown
     above to boot it directly. <code>F1</code> pauses/resumes. The middle/right
     mouse buttons map to the Alto's 3-button mouse.
+    <code>Cmd/Ctrl+V</code> pastes the clipboard as keystrokes &mdash; handy
+    for the long Cedar <code>Eval</code> lines.
     <br><br>
     Pick <b>Cedar 6.1</b> to boot the real Cedar/Mesa environment from a Pilot
     disk image instead of the Alto emulator. A saved checkpoint opens directly
@@ -191,7 +193,7 @@
         var rc = Module.ccall('dorado_web_boot_cedar_desktop', 'number', [], []);
         if (rc) throw new Error('snapshot restore rejected the saved image');
         setStatus('Cedar 6.1 Viewers desktop restored. Click a viewer, then '
-                  + 'type; Option+click = middle (Yellow), '
+                  + 'type (Cmd/Ctrl+V pastes); Option+click = middle (Yellow), '
                   + 'Cmd/Ctrl+click = right (Blue) mouse button.');
       } catch (e) {
         console.error(e);
