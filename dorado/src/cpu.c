@@ -23,15 +23,24 @@ unsigned long long dorado_trace_cycle = 0;
  * dorado_trace_flag() calls must stay direct. */
 int dorado_trace_flag(const char *name)
 {
-    enum { TRACE_FLAG_CACHE = 128 };
+    /* Pointer-keyed memo of getenv(name)!=NULL, open-addressed so the
+     * lookup is O(1). Each CALL SITE's string literal is its own key, so
+     * the table must hold more entries than there are call sites (~250):
+     * the old 128-entry linear scan overflowed, and every overflowed site
+     * paid a 128-entry scan plus a real getenv() per call -- 40% of the
+     * whole emulator's runtime went to "is tracing off?". */
+    enum { TRACE_FLAG_CACHE = 1024 };   /* power of two, >> call sites */
     static const char *keys[TRACE_FLAG_CACHE];
     static signed char vals[TRACE_FLAG_CACHE];
-    static int n = 0;
-    for (int i = 0; i < n; i++)
+    uintptr_t h = ((uintptr_t)name >> 3) * 0x9E3779B1u;
+    unsigned i = (unsigned)(h & (TRACE_FLAG_CACHE - 1));
+    while (keys[i]) {
         if (keys[i] == name) return vals[i];
-    int v = getenv(name) ? 1 : 0;
-    if (n < TRACE_FLAG_CACHE) { keys[n] = name; vals[n] = (signed char)v; n++; }
-    return v;
+        i = (i + 1) & (TRACE_FLAG_CACHE - 1);
+    }
+    keys[i] = name;
+    vals[i] = (signed char)(getenv(name) ? 1 : 0);
+    return vals[i];
 }
 
 static int pcx_trace_enabled(void)

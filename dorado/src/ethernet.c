@@ -3076,7 +3076,12 @@ uint16_t dorado_ethernet_wakeup_mask(dorado_ethernet *eth)
          * buffer that fits. See eth_read() and world_rx_words (HM Sec 7). */
         mask |= (uint16_t)(1u << DORADO_ETHERNET_TASK_EIT);
     }
-    if (getenv("DORADO_ETH_WAKE_TRACE") &&
+    /* Cached: this runs on every wakeup poll, and a raw getenv() here was
+     * ~17% of the whole emulator's runtime (profiled 2026-07-18). */
+    static int wake_trace_env = -1;
+    if (wake_trace_env < 0)
+        wake_trace_env = getenv("DORADO_ETH_WAKE_TRACE") ? 1 : 0;
+    if (wake_trace_env &&
         (eth->rx_count || eth->tx_on || eth->no_wakeups) &&
         (wake_trace_count++ % 1024u) == 0) {
         extern int dorado_trace_gate;
