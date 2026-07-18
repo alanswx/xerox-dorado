@@ -24,6 +24,7 @@
 
 #include "machine.h"
 #include "display.h"
+#include "typetext.h"
 
 #include <emscripten.h>
 
@@ -58,6 +59,10 @@
  * mutates the disk during the install, so the pair is inseparable). */
 #define WEB_CEDAR_DESKTOP_SNAPSHOT "/worlds/cedar-desktop.snap"
 #define WEB_CEDAR_DESKTOP_PDI      "/worlds/cedar-desktop.pdi"
+/* Pruned STP release tree (CedarChest6.1 + font directories) preloaded
+ * into the wasm FS so the in-process server can answer Bringovers and
+ * demand-fetches from the browser. */
+#define WEB_STP_ROOT               "/stp"
 
 /* Alto/Mesa world: the full Mesa VM microcode (vs aemu.eb, Alto/Nova only).
  * Boots the Mesa Network Executive (a Mesa/Pilot environment, sibling of
@@ -96,6 +101,11 @@ static struct {
 } app;
 
 static uint32_t pixels[DORADO_DISPLAY_W * DORADO_DISPLAY_H];
+
+/* Clipboard paste queue (see dorado_web_paste below); cleared on
+ * every machine teardown so a half-typed paste never leaks into a
+ * freshly booted world. */
+static dorado_typequeue paste_queue;
 
 /* Present RGBA pixels straight onto Module.canvas with a 2d context.
  * SDL is kept for input only: under emsdk 6 the SDL2 port's renderer
@@ -205,6 +215,7 @@ int dorado_web_boot(const char *eftp_path, int dir_all)
     unsetenv("DORADO_DISPM_PRESENT");
     if (app.m) {
         dorado_machine_destroy(app.m);
+        paste_queue.active = 0;
         app.m = NULL;
         app.disp = NULL;
     }
@@ -250,6 +261,7 @@ int dorado_web_boot_cedar(void)
     unsetenv("DORADO_DISPM_PRESENT");
     if (app.m) {
         dorado_machine_destroy(app.m);
+        paste_queue.active = 0;
         app.m = NULL;
         app.disp = NULL;
     }
@@ -270,6 +282,7 @@ int dorado_web_boot_cedar(void)
     cfg.boot_dir_all = 0;
     cfg.boot_keys[0] = DORADO_KEY_NONE;  /* no chord = disk boot reason */
     cfg.boot_keys_count = 1;
+    cfg.ftp_root     = WEB_STP_ROOT;  /* in-process STP server file tree */
 
     app.m = dorado_machine_create(&cfg);
     if (!app.m) {
@@ -283,10 +296,12 @@ int dorado_web_boot_cedar(void)
         if (dorado_machine_restore(app.m, WEB_CEDAR_SNAPSHOT) != 0) {
             fprintf(stderr, "dorado_web: failed to restore Cedar snapshot\n");
             dorado_machine_destroy(app.m);
+        paste_queue.active = 0;
             app.m = NULL;
             return 1;
         }
         restored = 1;
+        dorado_machine_set_ftp_source(app.m, NULL, WEB_STP_ROOT);
     }
     app.disp      = dorado_machine_display(app.m);
     app.mouse_buttons = 0;
@@ -300,9 +315,10 @@ int dorado_web_boot_cedar(void)
 }
 
 /* (Re)create the machine at the saved Cedar Viewers DESKTOP: the snapshot
- * restores with its matched (install-mutated) PDI mounted as drive 0. There
- * is no STP server in the browser, so post-restore Bringovers error
- * gracefully; the installed desktop itself is complete. Exported
+ * restores with its matched (install-mutated) PDI mounted as drive 0. The
+ * in-process STP server serves the pruned tree preloaded at /stp
+ * (CedarChest6.1 + fonts), so post-restore Bringovers and demand-fetches
+ * (e.g. AISViewer image content) work in the browser. Exported
  * (KEEPALIVE) so JS can ccall it. */
 EMSCRIPTEN_KEEPALIVE
 int dorado_web_boot_cedar_desktop(void)
@@ -310,6 +326,7 @@ int dorado_web_boot_cedar_desktop(void)
     unsetenv("DORADO_DISPM_PRESENT");
     if (app.m) {
         dorado_machine_destroy(app.m);
+        paste_queue.active = 0;
         app.m = NULL;
         app.disp = NULL;
     }
@@ -330,6 +347,7 @@ int dorado_web_boot_cedar_desktop(void)
     cfg.boot_dir_all = 0;
     cfg.boot_keys[0] = DORADO_KEY_NONE;
     cfg.boot_keys_count = 1;
+    cfg.ftp_root     = WEB_STP_ROOT;
 
     app.m = dorado_machine_create(&cfg);
     if (!app.m) {
@@ -339,9 +357,11 @@ int dorado_web_boot_cedar_desktop(void)
     if (dorado_machine_restore(app.m, WEB_CEDAR_DESKTOP_SNAPSHOT) != 0) {
         fprintf(stderr, "dorado_web: failed to restore the desktop snapshot\n");
         dorado_machine_destroy(app.m);
+        paste_queue.active = 0;
         app.m = NULL;
         return 1;
     }
+    dorado_machine_set_ftp_source(app.m, NULL, WEB_STP_ROOT);
     app.disp      = dorado_machine_display(app.m);
     app.mouse_buttons = 0;
     app.paused    = 0;
@@ -363,6 +383,7 @@ int dorado_web_boot_mesa(const char *eftp_path)
     unsetenv("DORADO_DISPM_PRESENT");
     if (app.m) {
         dorado_machine_destroy(app.m);
+        paste_queue.active = 0;
         app.m = NULL;
         app.disp = NULL;
     }
@@ -406,6 +427,7 @@ int dorado_web_boot_disk(void)
     unsetenv("DORADO_DISPM_PRESENT");
     if (app.m) {
         dorado_machine_destroy(app.m);
+        paste_queue.active = 0;
         app.m = NULL;
         app.disp = NULL;
     }
@@ -451,6 +473,7 @@ int dorado_web_boot_lisp(void)
 {
     if (app.m) {
         dorado_machine_destroy(app.m);
+        paste_queue.active = 0;
         app.m = NULL;
         app.disp = NULL;
     }
@@ -481,6 +504,7 @@ int dorado_web_boot_lisp(void)
     if (dorado_machine_restore(app.m, WEB_LISP_SNAPSHOT) != 0) {
         fprintf(stderr, "dorado_web: failed to restore Lisp snapshot\n");
         dorado_machine_destroy(app.m);
+        paste_queue.active = 0;
         app.m = NULL;
         return 1;
     }
@@ -506,13 +530,28 @@ void dorado_web_debug(void)
     if (app.m) dorado_machine_debug(app.m);
 }
 
+/* Clipboard paste: web_shell.html's 'paste' listener ccalls this with the
+ * clipboard text; the queue types it as paced synthetic keystrokes across
+ * the following frames. */
+EMSCRIPTEN_KEEPALIVE
+int dorado_web_paste(const char *text)
+{
+    if (!app.m || !text || !*text) return 1;
+    printf("dorado_web: pasting %d chars\n", (int)strlen(text));
+    dorado_typequeue_start(&paste_queue, text, 1600000ull,
+                           dorado_machine_cycles(app.m));
+    return 0;
+}
+
 /* One animation frame: advance the emulator, blit the display. Input
  * arrives asynchronously via dorado_web_key()/dorado_web_mouse(). */
 static void frame(void)
 {
     if (!app.paused) {
         uint64_t now = dorado_machine_cycles(app.m);
+        dorado_typequeue_pump(&paste_queue, app.m);
         dorado_machine_run_until(app.m, now + app.cycles_per_frame);
+        dorado_typequeue_pump(&paste_queue, app.m);
         if (!app.announced && dorado_machine_booted(app.m)) {
             app.announced = 1;
             printf("dorado_web: world loaded at cycle %llu\n",

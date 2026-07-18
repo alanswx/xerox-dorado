@@ -350,6 +350,14 @@
     }
     window.addEventListener('keydown', function (e) { sendKey(e, 1); });
     window.addEventListener('keyup',   function (e) { sendKey(e, 0); });
+    // Cmd/Ctrl+V: the browser's native paste event delivers the clipboard;
+    // the C side types it as paced synthetic keystrokes (dorado_web_paste).
+    window.addEventListener('paste', function (e) {
+      var text = e.clipboardData ? e.clipboardData.getData('text') : '';
+      if (text)
+        Module.ccall('dorado_web_paste', 'number', ['string'], [text]);
+      e.preventDefault();
+    });
     // Three-button (Red/Yellow/Blue) mouse. A real 3-button mouse maps
     // directly; for one-button laptops/trackpads a modified LEFT click
     // substitutes: Option/Alt+click = Yellow (middle), Cmd/Ctrl+click =

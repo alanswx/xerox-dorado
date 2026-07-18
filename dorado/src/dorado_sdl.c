@@ -17,6 +17,7 @@
 
 #include "machine.h"
 #include "display.h"
+#include "typetext.h"
 
 #include <SDL.h>
 
@@ -169,55 +170,8 @@ static int parse_boot_reason(const char *r, dorado_machine_config *cfg)
     return 0;
 }
 
-static dorado_display_key char_to_key(char c, int *shift)
-{
-    *shift = 0;
-    if (c >= 'A' && c <= 'Z') { *shift = 1; c = (char)(c - 'A' + 'a'); }
-    if (c >= 'a' && c <= 'z') {
-        static const dorado_display_key L[26] = {
-            DORADO_KEY_A, DORADO_KEY_B, DORADO_KEY_C, DORADO_KEY_D,
-            DORADO_KEY_E, DORADO_KEY_F, DORADO_KEY_G, DORADO_KEY_H,
-            DORADO_KEY_I, DORADO_KEY_J, DORADO_KEY_K, DORADO_KEY_L,
-            DORADO_KEY_M, DORADO_KEY_N, DORADO_KEY_O, DORADO_KEY_P,
-            DORADO_KEY_Q, DORADO_KEY_R, DORADO_KEY_S, DORADO_KEY_T,
-            DORADO_KEY_U, DORADO_KEY_V, DORADO_KEY_W, DORADO_KEY_X,
-            DORADO_KEY_Y, DORADO_KEY_Z };
-        return L[c - 'a'];
-    }
-    switch (c) {
-    case '0': return DORADO_KEY_0;  case '1': return DORADO_KEY_1;
-    case '2': return DORADO_KEY_2;  case '3': return DORADO_KEY_3;
-    case '4': return DORADO_KEY_4;  case '5': return DORADO_KEY_5;
-    case '6': return DORADO_KEY_6;  case '7': return DORADO_KEY_7;
-    case '8': return DORADO_KEY_8;  case '9': return DORADO_KEY_9;
-    case ' ':  return DORADO_KEY_SPACE;
-    case '\n': case '\r': return DORADO_KEY_RETURN;
-    case '?': *shift = 1; return DORADO_KEY_FSLASH;
-    case '/': return DORADO_KEY_FSLASH;
-    /* Alto II digit-row shifts: 8*, 9(, 0) — needed to type Lisp forms. */
-    case '(': *shift = 1; return DORADO_KEY_9;
-    case ')': *shift = 1; return DORADO_KEY_0;
-    case '*': *shift = 1; return DORADO_KEY_8;
-    case '<': *shift = 1; return DORADO_KEY_COMMA;
-    case '>': *shift = 1; return DORADO_KEY_PERIOD;
-    case '.': return DORADO_KEY_PERIOD;
-    case ',': return DORADO_KEY_COMMA;
-    case '-': return DORADO_KEY_MINUS;
-    case '=': return DORADO_KEY_PLUS;
-    case '+': *shift = 1; return DORADO_KEY_PLUS;
-    case '[': return DORADO_KEY_LBRACKET;
-    case '{': *shift = 1; return DORADO_KEY_LBRACKET;
-    case ']': return DORADO_KEY_RBRACKET;
-    case '}': *shift = 1; return DORADO_KEY_RBRACKET;
-    case ';': return DORADO_KEY_SEMICOLON;
-    case ':': *shift = 1; return DORADO_KEY_SEMICOLON;
-    case '\'': return DORADO_KEY_QUOTE;
-    case '"': *shift = 1; return DORADO_KEY_QUOTE;
-    case '\\': return DORADO_KEY_BSLASH;
-    case '|': *shift = 1; return DORADO_KEY_BSLASH;
-    default: return DORADO_KEY_NONE;
-    }
-}
+/* char_to_key lives in src/typetext.c now (dorado_char_to_key) — one
+ * canonical map shared with the headless CLI and the paste queue. */
 
 typedef struct type_event {
     char *text;
@@ -239,7 +193,7 @@ static void type_text(dorado_machine *m, const char *text, uint64_t key_hold)
             ctrl = 1;
             tc = (char)(tc - 1 + 'a');
         }
-        dorado_display_key k = char_to_key(tc, &shift);
+        dorado_display_key k = dorado_char_to_key(tc, &shift);
         if (k == DORADO_KEY_NONE) continue;
         if (ctrl) dorado_machine_set_key(m, DORADO_KEY_CTRL, 1);
         if (shift) dorado_machine_set_key(m, DORADO_KEY_LSHIFT, 1);
@@ -273,6 +227,7 @@ int main(int argc, char **argv)
     const char *shot_prefix = "dorado-frame";
     int boot_dir_all_opt = -1;            /* -1 auto, 0 off, 1 on */
     type_event type_events[MAX_TYPE_EVENTS];
+    static dorado_typequeue paste_queue;  /* Cmd/Ctrl+V clipboard typing */
     int type_event_count = 0;
     int last_type_event = -1;
     int last_type_can_update = 0;
@@ -538,6 +493,23 @@ int main(int argc, char **argv)
                     running = 0;
                     break;
                 }
+                /* Cmd/Ctrl+V: paste the host clipboard as paced synthetic
+                 * keystrokes (swallow the chord — no stray 'v'). */
+                if (down && k == SDLK_v &&
+                    (e.key.keysym.mod & (KMOD_GUI | KMOD_CTRL))) {
+                    char *clip = SDL_GetClipboardText();
+                    if (clip && *clip) {
+                        printf("dorado-sdl: pasting %zu chars\n",
+                               strlen(clip));
+                        dorado_typequeue_start(&paste_queue, clip,
+                                               1600000ull,
+                                               dorado_machine_cycles(m));
+                    }
+                    if (clip) SDL_free(clip);
+                    break;
+                }
+                if (!down && k == SDLK_v && paste_queue.active)
+                    break;            /* release of the swallowed chord */
                 dorado_display_key dk = map_key(k);
                 if (dk != DORADO_KEY_NONE)
                     dorado_machine_set_key(m, dk, down);
@@ -549,7 +521,9 @@ int main(int argc, char **argv)
 
         if (!paused) {
             uint64_t now = dorado_machine_cycles(m);
+            dorado_typequeue_pump(&paste_queue, m);
             dorado_machine_run_until(m, now + cycles_per_frame);
+            dorado_typequeue_pump(&paste_queue, m);
             if (!announced && dorado_machine_booted(m)) {
                 announced = 1;
                 printf("dorado-sdl: Alto/Mesa world loaded at cycle %llu\n",

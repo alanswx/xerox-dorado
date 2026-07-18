@@ -24,7 +24,7 @@ PALO_FS_OBJS := $(addprefix $(PALO_SRC)/,fs/basic.o fs/check.o fs/dir.o fs/disk.
 
 all: $(BINDIR)/dorado $(BINDIR)/mbdis $(BINDIR)/mb2eb $(BINDIR)/dsk2trident $(BINDIR)/rundiag $(BINDIR)/mctrace $(BINDIR)/bbtrace $(BINDIR)/bbdis $(BINDIR)/pdidump $(BINDIR)/test_pdi $(BINDIR)/test_mb $(BINDIR)/test_disasm $(BINDIR)/test_microcode $(BINDIR)/test_cpu $(BINDIR)/test_baseboard $(BINDIR)/test_memory $(BINDIR)/test_display $(BINDIR)/test_disk $(BINDIR)/test_dsk2trident $(BINDIR)/test_ethernet $(BINDIR)/test_fastio $(BINDIR)/test_snapshot
 
-$(BINDIR)/dorado: $(LIB_OBJS) $(OBJDIR)/machine.o $(OBJDIR)/dorado.o | $(BINDIR)
+$(BINDIR)/dorado: $(LIB_OBJS) $(OBJDIR)/machine.o $(OBJDIR)/typetext.o $(OBJDIR)/dorado.o | $(BINDIR)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 # Bootable microcode worlds, generated from the checked-in .mb sources via
@@ -48,7 +48,8 @@ sdl: $(BINDIR)/dorado-sdl
 EMCC      ?= emcc
 WEB_SRCS  := src/mb.c src/disasm.c src/microcode.c src/cpu.c src/baseboard.c \
              src/memory.c src/io.c src/display.c src/disk.c src/ethernet.c \
-             src/fastio.c src/altoref.c src/pdi.c src/machine.c src/dorado_web.c
+             src/fastio.c src/altoref.c src/pdi.c src/machine.c \
+             src/typetext.c src/dorado_web.c
 WEB_NODE_SRCS := $(filter-out src/dorado_web.c,$(WEB_SRCS)) src/dorado.c
 WEB_NODE_JS := $(BINDIR)/dorado-node.js
 WEB_LISP_ASSET_DIR := web-assets
@@ -75,7 +76,7 @@ WEB_CFLAGS := -std=c99 -D_GNU_SOURCE -O2 -Iinclude -Ivendor/6502
 WEB_LDFLAGS := -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=67108864 \
                -sSTACK_SIZE=1048576 \
                -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,FS \
-               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_cedar_desktop,_dorado_web_boot_mesa,_dorado_web_boot_disk,_dorado_web_boot_lisp,_dorado_web_key,_dorado_web_mouse,_dorado_web_debug \
+               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_cedar_desktop,_dorado_web_boot_mesa,_dorado_web_boot_disk,_dorado_web_boot_lisp,_dorado_web_key,_dorado_web_mouse,_dorado_web_debug,_dorado_web_paste \
                --preload-file worlds/aemu.eb@/worlds/aemu.eb \
                --preload-file ../chm/bootfiles@/chm/bootfiles \
                --preload-file '../chm/dorado/AltoMesaDorado.eb!2'@/worlds/AltoMesaDorado.eb \
@@ -88,6 +89,7 @@ WEB_LDFLAGS := -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=67108864 \
                --preload-file '../chm/diskpacks/games-trident.pack'@/worlds/games-trident.pack \
                --preload-file '$(WEB_LISP_SNAPSHOT_GZ)'@/worlds/lisp-lyric-xcl.snap.gz \
                --preload-file '$(WEB_LISP_PACK_GZ)'@/worlds/lisp-lyric-xcl.pack.gz \
+               --preload-file '$(WEB_STP_DIR)'@/stp \
                --preload-file ../chm/dorado/doradobaserom.mb!13@/ucode/doradobaserom.mb!13 \
                --preload-file ../chm/dorado/expanded/bootstrap.dm!20_/Bootstrap.mb@/ucode/Bootstrap.mb \
                --preload-file ../chm/dorado/expanded/bootstrap.dm!20_/Initial.mb@/ucode/Initial.mb \
@@ -130,8 +132,24 @@ $(WEB_ALTO_PACK): $(WEB_ALTO_PACK).gz
 	gunzip -c $< > $@
 
 .PHONY: web
-web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_PDI_GZ) $(WEB_LISP_SNAPSHOT_GZ) $(WEB_LISP_PACK_GZ) | web-dir
+web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_PDI_GZ) $(WEB_LISP_SNAPSHOT_GZ) $(WEB_LISP_PACK_GZ) web-stp | web-dir
 	$(EMCC) $(WEB_CFLAGS) $(WEB_SRCS) $(WEB_LDFLAGS) -o web/index.html
+
+# Pruned STP release tree preloaded into the wasm FS at /stp: CedarChest6.1
+# (AISImages, AIS/AISViewer, PressReader, Sil, ...) plus the font
+# directories, so the browser's in-process STP server can answer Bringovers
+# and AISViewer demand-fetches. The full stp-root would push index.data past
+# GitHub's 100 MB per-file limit; Cedar6.1 itself stays out because the
+# desktop checkpoint already carries the installed release.
+WEB_STP_DIR := build/web-stp
+.PHONY: web-stp
+web-stp:
+	rm -rf '$(WEB_STP_DIR)'
+	mkdir -p '$(WEB_STP_DIR)'
+	cp -R ../chm/cedar/stp-root/CedarChest6.1 '$(WEB_STP_DIR)/'
+	cp -R ../chm/cedar/stp-root/Fonts '$(WEB_STP_DIR)/'
+	cp -R ../chm/cedar/stp-root/PressFonts '$(WEB_STP_DIR)/'
+	cp -R ../chm/cedar/stp-root/CedarFonts '$(WEB_STP_DIR)/'
 
 # Node-hosted wasm32 CLI used only to create ABI-compatible browser snapshots.
 # NODERAWFS lets the ordinary dorado CLI read/write the repository paths.
@@ -226,7 +244,7 @@ web-dir:
 $(OBJDIR)/dorado_sdl.o: src/dorado_sdl.c | $(OBJDIR)
 	$(CC) $(CFLAGS) $(SDL_CFLAGS) $(DEPFLAGS) -c -o $@ $<
 
-$(BINDIR)/dorado-sdl: $(LIB_OBJS) $(OBJDIR)/machine.o $(OBJDIR)/dorado_sdl.o | $(BINDIR)
+$(BINDIR)/dorado-sdl: $(LIB_OBJS) $(OBJDIR)/machine.o $(OBJDIR)/typetext.o $(OBJDIR)/dorado_sdl.o | $(BINDIR)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(SDL_LIBS)
 
 $(BINDIR)/mbdis: $(MB_OBJS) | $(BINDIR)
@@ -466,7 +484,9 @@ run-cedar-work: sdl $(CEDAR_WORK_PDI)
 CEDAR_DESKTOP_SNAPSHOT := build/good-packs/cedar-desktop.snap
 CEDAR_DESKTOP_PDI := build/good-packs/cedar-desktop.pdi
 CEDAR_DESKTOP_SCREEN := build/good-packs/cedar-desktop.pgm
-CEDAR_DESKTOP_CYCLES ?= 21000000000
+# 26B: the complete-tree profile boot (incl. the AIS packages) reaches the
+# desktop ~25B with BSP sender retransmission; the wedge-era 47B is history.
+CEDAR_DESKTOP_CYCLES ?= 26000000000
 CEDAR_DESKTOP_SNAPSHOT_GZ := snapshot-assets/cedar-desktop-native.snap.gz
 CEDAR_DESKTOP_PDI_GZ := snapshot-assets/cedar-desktop-native.pdi.gz
 
