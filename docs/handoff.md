@@ -263,16 +263,25 @@ Interpreter lessons distilled (the week's second saga):
   PROC fields ([iconic: FALSE] fails); use ViewerOps.OpenIcon after.
 - `&v _ expr` needs keyboard chars the scripted map lacks ('&').
 
-**REMAINING BLOCKER (crisp repro)**: STP demand-fetch of attachments
->~100 KB stalls forever (67 KB moon fine; 324 KB schematic wedges,
-20B+ cycles). The BSP byte-window fix (committed, gates green) did NOT
-clear this path — trace the 324 KB fetch with DORADO_FTP_TRACE on the
-FIXED code from cedar-live (BringOver AISImages / DisplayAIS
-"ProcH-BitSlice07.ais") and find where the conversation stops. The
-same stall previously wedged boot-time BringOver of the complete tree
-(all new cold boots) and the 1.3 MB remote FS open. Killing it
-unlocks: the schematic at full quality, golden cold-boot checkpoints,
-and any big-file serving.
+**THE STALL IS FIXED (2026-07-18, later the same day)**: the full
+DORADO_FTP_TRACE forensic showed the client's acks freezing at one
+byte ID and repeating forever — a Pup queued while the guest receiver
+re-armed was lost (the wire is a single-packet buffer; FTP_QUEUE with
+no matching FTP_RX_CONSUMED), and BSP clients discard everything after
+a gap as out-of-sequence. BSP makes retransmission the SENDER's job.
+Fix (src/ethernet.c, PUP_TYPE_BSP_ACK): on a duplicate acknowledgement
+rewind the transmit cursor to the acked byte — during a retrieve the
+file itself is the retransmit ring (rewind ftp_file_pos), and past EOF
+the fixed 20-byte completion tail re-enters FTP_TX_DONE at the lost
+step. Verified end to end: the 324 KB ProcH-BitSlice07.ais demand-
+fetch completes after 3 rewinds, DisplayAIS returns cleanly, and the
+Dorado's own ProcH BIT SLICE 07 schematic displays in an open AIS
+Viewer (docs/images/cedar-ais-proch-bitslice07-2026-07-18.png;
+checkpoint build/good-packs/cedar-schematic-v2.snap). This same drop
+class was the cold-boot BringOver wedge and the big-file FS-open
+wedge — retest those next (golden cold boot through BootEssentials
+against the complete tree, then regenerate the desktop/archive/web
+checkpoints from healthy cold boots).
 
 The 8-bit AIS content is staged: served ProcH-BitSlice07.ais!2 IS the
 500px 8-bit sheet (AISViewerImpl hardcodes sWhite~255 — 1-bit files
