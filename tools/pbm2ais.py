@@ -23,6 +23,30 @@ ATTR_WORDS = 1024          # aisWordsPerPage; attributeLength must be a
                            # AIS page keeps CreateFile/ReadAttributes happy
 
 
+def pgm_read(path):
+    """P5 (8-bit) reader: returns (w, h, rows of raw bytes)."""
+    with open(path, 'rb') as f:
+        data = f.read()
+    if not data.startswith(b'P5'):
+        sys.exit(f'{path}: not a raw PGM (P5)')
+    pos, fields = 2, []
+    while len(fields) < 3:
+        while data[pos] in b' \t\r\n':
+            pos += 1
+        if data[pos:pos + 1] == b'#':
+            while data[pos] not in b'\r\n':
+                pos += 1
+            continue
+        start = pos
+        while data[pos] not in b' \t\r\n':
+            pos += 1
+        fields.append(int(data[start:pos]))
+    pos += 1
+    w, h, maxv = fields
+    rows = [data[pos + y * w: pos + (y + 1) * w] for y in range(h)]
+    return w, h, rows
+
+
 def pbm_read(path):
     with open(path, 'rb') as f:
         data = f.read()
@@ -49,8 +73,8 @@ def pbm_read(path):
     return w, h, rows
 
 
-def ais_write(path, w, h, rows):
-    words_per_line = (w + 15) // 16
+def ais_write(path, w, h, rows, bits=1):
+    words_per_line = ((w * bits) + 15) // 16
     attr = struct.pack('>hH', AIS_PASSWORD, ATTR_WORDS)
     # RasterPart(uca): 10 words incl. its PartHeader (type=1).
     attr += struct.pack('>HHHHHHHHhH',
@@ -60,7 +84,7 @@ def ais_write(path, w, h, rows):
                         3,                     # scanDir (as period files)
                         1,                     # samplesPerPixel
                         1,                     # codingType = uca
-                        1,                     # bitsPerSample
+                        bits,                  # bitsPerSample
                         words_per_line,
                         -1,                    # scanLinesPerBlock: unblocked
                         0)                     # paddingPerBlock
@@ -78,8 +102,14 @@ def ais_write(path, w, h, rows):
 def main():
     if len(sys.argv) != 3:
         sys.exit(__doc__)
-    w, h, rows = pbm_read(sys.argv[1])
-    ais_write(sys.argv[2], w, h, rows)
+    src = sys.argv[1]
+    head = open(src, 'rb').read(2)
+    if head == b'P5':                     # 8-bit gray (AISViewer's native
+        w, h, rows = pgm_read(src)        # expectation: sWhite~255)
+        ais_write(sys.argv[2], w, h, rows, bits=8)
+    else:
+        w, h, rows = pbm_read(src)
+        ais_write(sys.argv[2], w, h, rows, bits=1)
 
 
 if __name__ == '__main__':

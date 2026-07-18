@@ -236,6 +236,48 @@ package into the served tree (versions from
 `pdftoppm -mono` page (e.g. the Dorado schematics in
 `DoradoDocs/schematics/`) into an AIS raster the desktop can display.
 
+## ===> 2026-07-18: THE IMAGE PIPELINE WORKS — the moon is on screen.
+## One transfer stall remains between us and the schematic.
+
+**PROVEN END TO END** (screenshot: scratchpad moon-final /
+build/good-packs/cedar-moon.snap): the 1978 `[Cyan]<AIS>uscmoon.ais`
+photograph displays halftoned in an OPEN AIS Viewer on the Cedar
+desktop. The full working recipe from the cedar-live checkpoint:
+
+    Delete AISViewer.bcd AIS.bcd ViewerOps.bcd ViewerClasses.bcd
+        TIPUser.bcd TIPTables.bcd Real.bcd AISFormat.bcd
+    Eval AISViewer.DisplayAIS[AISViewer.CreateAISViewer[],
+        "uscmoon.ais", NIL, FALSE, NIL, NIL, NIL, TRUE]
+    Eval ViewerOps.OpenIcon[ViewerOps.FindViewer["AIS Viewer"],
+        FALSE, TRUE, TRUE]
+
+Interpreter lessons distilled (the week's second saga):
+- Attached interface bcds from the mixed-vintage mirror POISON Evals
+  through those interfaces; `Delete` of the attachment restores
+  loadstate resolution. Runtime-loaded modules NEED their impl bcds
+  attached (they are their own symbols). Never BringOver full packages
+  you intend to Eval through; attach data files with -o.
+- The Eval interpreter cannot synthesize defaulted PROC arguments
+  ("can't hack default for argument 5") — pass every argument
+  explicitly. It also cannot build partial RECORDs with defaulted
+  PROC fields ([iconic: FALSE] fails); use ViewerOps.OpenIcon after.
+- `&v _ expr` needs keyboard chars the scripted map lacks ('&').
+
+**REMAINING BLOCKER (crisp repro)**: STP demand-fetch of attachments
+>~100 KB stalls forever (67 KB moon fine; 324 KB schematic wedges,
+20B+ cycles). The BSP byte-window fix (committed, gates green) did NOT
+clear this path — trace the 324 KB fetch with DORADO_FTP_TRACE on the
+FIXED code from cedar-live (BringOver AISImages / DisplayAIS
+"ProcH-BitSlice07.ais") and find where the conversation stops. The
+same stall previously wedged boot-time BringOver of the complete tree
+(all new cold boots) and the 1.3 MB remote FS open. Killing it
+unlocks: the schematic at full quality, golden cold-boot checkpoints,
+and any big-file serving.
+
+The 8-bit AIS content is staged: served ProcH-BitSlice07.ais!2 IS the
+500px 8-bit sheet (AISViewerImpl hardcodes sWhite~255 — 1-bit files
+render black; tools/pbm2ais.py now emits 8-bit from pdftoppm -gray).
+
 ## 2026-07-14: cold-boot regression root-caused and fixed; the FS.Error wall
 ## was the File.FP DA hint; fonts now served at their real export paths.
 
