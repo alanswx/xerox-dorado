@@ -143,3 +143,51 @@ Custom combinatorial logic lived in ECL PROMs; the BCPL generators are in
 | Pilot/Mesa | `indigo/doradosource/trinity/` | NEW (we have the built TriEmu/TriMesa/Mesa .mb) |
 | Cedar/Pilot | `indigo/doradosource/DMesaSources.dm!85_` | partial LOCAL: `chm/doradomicrocode/doradomicrocodesources/DMesa*.mc` (the singles used in bring-up debugging); the full `.dm` archive is NEW |
 | Smalltalk | `indigo/doradosource/DSemuSources.dm!17_` | NEW (we have built DSemu.mb) |
+
+
+---
+
+# Second veteran: Tim Diebert (July 2026)
+
+A second former PARC/CSL engineer reached out — **Tim Diebert**, author
+and maintainer of AISViewer itself (see AISViewerDoc.tioga: "Maintained
+by: Tim Diebert <Diebert.pa>"), and with Nick [Briggs?] a 20+-year
+veteran of the Cedar print-server lineage that became the Xerox
+DocuPrint product. Highlights, all fetched into
+`chm/cedar/cedar6.1-docs/`:
+
+## The four /cyan/ Cedar directories, explained first-hand
+
+For Cedar 6 and beyond, software was classified **core** vs **other
+useful**: core packages went to `/Cedar/Cedar6.x/`, the rest to
+`/Cedar/CedarChest6.x/`, each with its own `Top` of DFs. Two more
+directories served printing: `/Cedar/CedarPrinter6.1/` (early print
+server driving a Raven from a DLion) and `/Cedar/CedarPS/` (the
+Cedar7.0-based multi-printer server for DLion/Dorado — the genesis of
+DocuPrint on SPARC).
+
+**The XC1-2-2 fonts live at `/Cedar/CedarPS/Top>XC1-2-2-CD-bits.df`**
+(fetched; exports `.cd-bit300` printer bitmap fonts, Diebert's own DF,
+Apr-1987) — resolving the installer's long-mysterious XC1-2-2 probe.
+
+## Documentation set (all fetched)
+
+Glossary.tioga (PARC server/jargon glossary), BriefingBlurb.tioga (the
+new-CSL-member document), Introduction.tioga (An Introduction to
+Cedar), OverviewDoc.tioga (Cedar Language Overview),
+NoviceUserProfile.Tioga + StandardUser.Profile (canonical starting
+profiles — compare ours!), StandardUser-LoginWork.cm,
+CedarChestDoc.tioga (Cedar-vs-CedarChest in detail),
+CedarExamplesDoc/CedarProgramStyle/CedarSyntaxDoc (the language docs),
+and **EtherBoot.tioga — the net-booting protocol documentation** (goes
+straight to the Stage-2/DoInLoad work).
+
+## A living use case
+
+Diebert wrote software at PARC that produced the actual page negatives
+for his book (Southern Pacific Steam Locomotive Compendium, Diebert &
+Strapac, started 1985, printed via PARC's high-resolution film
+printer) — and would like to run that software again on this emulator
+for the revised edition. A concrete, personal target for the
+CedarPS/printing bring-up: the emulated Dorado producing book pages
+again, four decades later.
