@@ -65,6 +65,14 @@ hardware was retired.
 
 ![Cedar 6.1 Viewers desktop, first boot 2026-07-15](docs/images/cedar-desktop-first-boot-2026-07-15.png)
 
+The saved desktop now boots ready to use: a printed menu of one-word
+commands, and matching buttons in the CommandTool's menu line
+(`Schematic`, `Moon`, `Memo`, `Chess`, `Help`) — Cedar's own `.cm`
+command files and `CreateButton`, set up the way PARC's sample user
+profiles did it.
+
+![The welcome desktop with command buttons](docs/images/cedar-desktop-welcome-2026-07-18.png)
+
 Run it instantly from the saved checkpoint with `make run-cedar-desktop-sdl`,
 or watch the whole cold boot + install with `make run-cedar-work` (log in as
 `Guest` at the `Name:` prompt). (Germ and microcode versions must match:
