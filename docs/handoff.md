@@ -388,6 +388,37 @@ interpreter ~15%.
      teach the emulator's germ path to accept CHS); doing it by
      post-processing is a stopgap.
 
+     **And it reaches the desktop and LISTS RECOVERED FILES** —
+     `docs/images/cedar-corpus-files-listed-2026-07-19.png`. The volume
+     boots through the whole install to the welcome desktop, and
+     `List ///*` answers with real corpus files, names, sizes and 1985
+     dates:
+
+     ```
+     % List ///*
+     []<>
+        AMEvents.df!1            0 ??
+        AMEventsImpl.bcd!1   36602 26-Nov-85 18:04:20 EST
+        AMTypes.df!1             0 ??
+     ```
+
+     **Remaining defect, precisely located.** The listing then stops with
+
+     ```
+     ERROR FSReportImpl.Error[group: bug, code: $badFP,
+       "File.FP from directory/cache doesn't correspond to a local volume"]
+     ```
+
+     — a directory entry whose `File.FP` does not match where the file
+     actually landed on the new volume. That is `cedar_repack`'s
+     directory writer, and it is the same root as the poor naming
+     (`named 25` of 1200): the repack copies file CONTENT correctly but
+     does not rewrite the name-directory's FPs to the new placement.
+     Fixing that in rusty-backup is the next concrete step, and it is
+     now a well-defined one — content and boot path are proven, only the
+     directory's FPs are wrong. The `0 ??` sizes on `.df` entries are
+     likely the same defect seen from the other side.
+
      Two things that path needs, both known:
      1. **LV bootingInfo.** bestof's LV root is all zeros where the work
         volume names its germ (FileID 2 @104) and boot file (3 @139);
