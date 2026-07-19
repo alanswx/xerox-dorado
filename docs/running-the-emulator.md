@@ -303,6 +303,23 @@ profile value are fine — Xerox's own profiles are full of `\"` escapes
 inside `CommandTool.BootCommands`. Our earlier profile corruption was a
 formatting error of ours, not a Cedar limitation.
 
+**The browser serves a PRUNED tree — test the web build against it.**
+`make web` preloads `dorado/build/web-stp` at `/stp`, not the whole
+`chm/cedar/stp-root` (the full `Cedar6.1` is 24 MB and index.data has to
+stay under GitHub's 100 MB per-file limit). Cedar's interpreter
+demand-fetches while evaluating, so anything missing there fails ONLY in
+the browser: on 2026-07-19 `Moon.cm` worked in SDL and returned
+`Error: UnknownError[sig: 10724B, msg: 17777B]` on the web, because
+`Cedar6.1/Viewers/{ViewerOps,ButtonsImpl}.bcd` were absent. Reproduce
+browser file behaviour natively — no browser needed — with
+
+```sh
+./build/dorado ... --ftp-root build/web-stp --snapshot-in ...
+```
+
+and watch for `STP_MISSING` lines under `DORADO_FTP_TRACE=1`; each one is
+a file the deployed site will fail on. Add it to the `web-stp` target.
+
 **Serving your own files** — two rules, each of which cost us a debugging
 round on 2026-07-18, and which fail in the *same* silent way ("1 files acted
 upon", meaning the `.df` itself and nothing else):

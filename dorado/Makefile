@@ -150,6 +150,15 @@ web-stp:
 	cp -R ../chm/cedar/stp-root/Fonts '$(WEB_STP_DIR)/'
 	cp -R ../chm/cedar/stp-root/PressFonts '$(WEB_STP_DIR)/'
 	cp -R ../chm/cedar/stp-root/CedarFonts '$(WEB_STP_DIR)/'
+	# Cedar6.1 is 24 MB and would push index.data past GitHub's 100 MB
+	# per-file limit, but the interpreter DEMAND-FETCHES from it: an Eval
+	# through ViewerOps asks for Cedar6.1/Viewers/{ViewerOps,ButtonsImpl}.bcd
+	# and fails with "UnknownError[sig: ...]" if they are absent (that was
+	# the browser-only Moon.cm failure of 2026-07-19). Ship the Top DFs
+	# (the date index scans <vol>/Top) and the Viewers directory.
+	mkdir -p '$(WEB_STP_DIR)/Cedar6.1'
+	cp -R ../chm/cedar/stp-root/Cedar6.1/Top '$(WEB_STP_DIR)/Cedar6.1/'
+	cp -R ../chm/cedar/stp-root/Cedar6.1/Viewers '$(WEB_STP_DIR)/Cedar6.1/'
 
 # Node-hosted wasm32 CLI used only to create ABI-compatible browser snapshots.
 # NODERAWFS lets the ordinary dorado CLI read/write the repository paths.
