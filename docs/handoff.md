@@ -50,6 +50,23 @@ Not a trap, a correction: **quotes are fine inside a profile value**
 (Xerox's own profiles are full of `\"`); an earlier note here claiming
 otherwise was our own formatting error.
 
+### Checkpoint bakes are NOT reproducible yet (open, 2026-07-18)
+
+`time(NULL)` in `eth_fill_alto_time` is the emulator's only unpinned
+wall-clock input, and it visibly changes how far a boot gets: two bakes
+of the same recipe an hour apart landed ~6 B cycles apart, one at the
+desktop and one still installing fonts. Symptom to recognize: a baked
+checkpoint whose screen shows the installer ("Starting ...Package.bcd")
+instead of the desktop, and a much lower display-list pixel count than a
+good bake (~167 K is the welcome desktop; ~87 K was the mid-install
+run).
+
+Workaround used: give the bake more cycles. **Real fix: set
+`DORADO_FAKE_TIME=<unix-seconds>` in the `cedar-desktop-snapshot` and
+`cedar-desktop-web-snapshot` recipes** so both are deterministic and a
+rebake reproduces the shipped artifact byte-for-byte. Do this before
+relying on rebakes for regression comparison.
+
 ### Performance: profile, don't guess (2026-07-18)
 
 The emulator runs **20.4 M cycles/s on the Alto path, ~27 M on Cedar** —
