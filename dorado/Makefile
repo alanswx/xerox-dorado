@@ -64,6 +64,10 @@ WEB_CEDAR_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/cedar-login.snap.gz
 WEB_CEDAR_RAW_DIR := $(BINDIR)/web-cedar
 WEB_CEDAR_RAW_SNAPSHOT := $(WEB_CEDAR_RAW_DIR)/cedar-login.snap
 WEB_CEDAR_DESKTOP_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/cedar-desktop.snap.gz
+WEB_CEDAR_CORPUS_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/cedar-corpus.snap.gz
+WEB_CEDAR_CORPUS_PDI_GZ := $(WEB_LISP_ASSET_DIR)/cedar-corpus.pdi.gz
+WEB_CEDAR_CORPUS_RAW_SNAPSHOT := $(WEB_CEDAR_RAW_DIR)/cedar-corpus.snap
+WEB_CEDAR_CORPUS_RAW_PDI := $(WEB_CEDAR_RAW_DIR)/cedar-corpus.pdi
 WEB_CEDAR_DESKTOP_PDI_GZ := $(WEB_LISP_ASSET_DIR)/cedar-desktop.pdi.gz
 WEB_CEDAR_DESKTOP_RAW_SNAPSHOT := $(WEB_CEDAR_RAW_DIR)/cedar-desktop.snap
 WEB_CEDAR_DESKTOP_RAW_PDI := $(WEB_CEDAR_RAW_DIR)/cedar-desktop.pdi
@@ -77,7 +81,7 @@ WEB_CFLAGS := -std=c99 -D_GNU_SOURCE -O2 -Iinclude -Ivendor/6502
 WEB_LDFLAGS := -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=67108864 \
                -sSTACK_SIZE=1048576 \
                -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,FS \
-               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_cedar_desktop,_dorado_web_boot_mesa,_dorado_web_boot_disk,_dorado_web_boot_lisp,_dorado_web_key,_dorado_web_mouse,_dorado_web_debug,_dorado_web_paste \
+               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_cedar_desktop,_dorado_web_boot_cedar_corpus,_dorado_web_boot_mesa,_dorado_web_boot_disk,_dorado_web_boot_lisp,_dorado_web_key,_dorado_web_mouse,_dorado_web_debug,_dorado_web_paste \
                --preload-file worlds/aemu.eb@/worlds/aemu.eb \
                --preload-file ../chm/bootfiles@/chm/bootfiles \
                --preload-file '../chm/dorado/AltoMesaDorado.eb!2'@/worlds/AltoMesaDorado.eb \
@@ -87,6 +91,8 @@ WEB_LDFLAGS := -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=67108864 \
                --preload-file '$(WEB_CEDAR_SNAPSHOT_GZ)'@/worlds/cedar-login.snap.gz \
                --preload-file '$(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ)'@/worlds/cedar-desktop.snap.gz \
                --preload-file '$(WEB_CEDAR_DESKTOP_PDI_GZ)'@/worlds/cedar-desktop.pdi.gz \
+               --preload-file '$(WEB_CEDAR_CORPUS_SNAPSHOT_GZ)'@/worlds/cedar-corpus.snap.gz \
+               --preload-file '$(WEB_CEDAR_CORPUS_PDI_GZ)'@/worlds/cedar-corpus.pdi.gz \
                --preload-file '../chm/diskpacks/games-trident.pack'@/worlds/games-trident.pack \
                --preload-file '$(WEB_LISP_SNAPSHOT_GZ)'@/worlds/lisp-lyric-xcl.snap.gz \
                --preload-file '$(WEB_LISP_PACK_GZ)'@/worlds/lisp-lyric-xcl.pack.gz \
@@ -133,7 +139,7 @@ $(WEB_ALTO_PACK): $(WEB_ALTO_PACK).gz
 	gunzip -c $< > $@
 
 .PHONY: web
-web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_PDI_GZ) $(WEB_LISP_SNAPSHOT_GZ) $(WEB_LISP_PACK_GZ) web-stp | web-dir
+web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_PDI_GZ) $(WEB_CEDAR_CORPUS_SNAPSHOT_GZ) $(WEB_CEDAR_CORPUS_PDI_GZ) $(WEB_LISP_SNAPSHOT_GZ) $(WEB_LISP_PACK_GZ) web-stp | web-dir
 	$(EMCC) $(WEB_CFLAGS) $(WEB_SRCS) $(WEB_LDFLAGS) -o web/index.html
 
 # Pruned STP release tree preloaded into the wasm FS at /stp: CedarChest6.1
@@ -227,6 +233,27 @@ $(WEB_CEDAR_SNAPSHOT_GZ):
 # snapshot pairs with the PDI image saved at the same cycle
 # (DORADO_PDI_SAVE=1 on a copy). NODERAWFS lets the node build read the
 # repository stp-root and write the pair to build/web-cedar/.
+.PHONY: cedar-corpus-web-snapshot
+cedar-corpus-web-snapshot: $(WEB_NODE_JS) $(CEDAR_CORPUS_PDI)
+	mkdir -p '$(WEB_CEDAR_RAW_DIR)' '$(WEB_LISP_ASSET_DIR)'
+	cp -f '$(CEDAR_CORPUS_PDI)' '$(WEB_CEDAR_CORPUS_RAW_PDI)'
+	DORADO_PDI_IGNORE_LABEL_FLAGS=1 DORADO_PDI_SAVE=1 \
+	DORADO_FAKE_TIME='$(CEDAR_DESKTOP_FAKE_TIME)' node '$(WEB_NODE_JS)' \
+		--boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk '$(WEB_CEDAR_CORPUS_RAW_PDI)' \
+		--ftp-root ../chm/cedar/stp-root \
+		--type-at 760000000 --type 'Guest\n\n' \
+		--cycles '$(CEDAR_CORPUS_CYCLES)' \
+		--snapshot-out '$(WEB_CEDAR_CORPUS_RAW_SNAPSHOT)'
+	gzip -c '$(WEB_CEDAR_CORPUS_RAW_SNAPSHOT)' > '$(WEB_CEDAR_CORPUS_SNAPSHOT_GZ)'
+	gzip -c '$(WEB_CEDAR_CORPUS_RAW_PDI)' > '$(WEB_CEDAR_CORPUS_PDI_GZ)'
+
+$(WEB_CEDAR_CORPUS_SNAPSHOT_GZ) $(WEB_CEDAR_CORPUS_PDI_GZ):
+	@echo "Missing WebAssembly Cedar corpus checkpoint assets."
+	@echo "Run 'make cedar-corpus-web-snapshot' with emsdk on PATH."
+	@false
+
 .PHONY: cedar-desktop-web-snapshot
 cedar-desktop-web-snapshot: $(WEB_NODE_JS) $(CEDAR_WORK_PDI)
 	mkdir -p '$(WEB_CEDAR_RAW_DIR)' '$(WEB_LISP_ASSET_DIR)'
@@ -484,6 +511,64 @@ run-cedar: sdl
 # transfers Basic.Loadees + BootEssentials + fonts from --ftp-root.
 run-cedar-work: sdl $(CEDAR_WORK_PDI)
 	DORADO_PDI_IGNORE_LABEL_FLAGS=1 ./build/dorado-sdl --boot-reason disk --no-alto-boot --eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' --pilot-disk '$(CEDAR_WORK_PDI)' --ftp-root ../chm/cedar/stp-root --speed 4000000
+
+# ---- The CORPUS pack: recovered PARC files on a bootable Cedar volume ----
+# Built by tools/make_corpus_volume.sh (see it for why each step is needed).
+# The volume is a repack of the recovered corpus into Cedar's own layout with
+# free space and flat boot links; it boots, installs, and reaches the desktop,
+# where List shows real 1985 files. Checkpoint so it opens instantly.
+CEDAR_CORPUS_PDI := ../CedarDisk/CedarDorado-corpus.pdi
+CEDAR_CORPUS_PDI_GZ := ../CedarDisk/CedarDorado-corpus.pdi.gz
+CEDAR_CORPUS_SNAPSHOT := build/good-packs/cedar-corpus.snap
+CEDAR_CORPUS_RUN_PDI := build/good-packs/cedar-corpus.pdi
+CEDAR_CORPUS_SNAPSHOT_GZ := snapshot-assets/cedar-corpus-native.snap.gz
+CEDAR_CORPUS_RUN_PDI_GZ := snapshot-assets/cedar-corpus-native.pdi.gz
+CEDAR_CORPUS_CYCLES ?= 33000000000
+
+$(CEDAR_CORPUS_PDI): $(CEDAR_CORPUS_PDI_GZ)
+	gunzip -c '$<' > '$@'
+
+.PHONY: cedar-corpus-snapshot
+cedar-corpus-snapshot: $(BINDIR)/dorado $(CEDAR_CORPUS_PDI)
+	mkdir -p '$(dir $(CEDAR_CORPUS_SNAPSHOT))' '$(dir $(CEDAR_CORPUS_SNAPSHOT_GZ))'
+	cp -f '$(CEDAR_CORPUS_PDI)' '$(CEDAR_CORPUS_RUN_PDI)'
+	DORADO_PDI_IGNORE_LABEL_FLAGS=1 DORADO_PDI_SAVE=1 \
+	DORADO_FAKE_TIME='$(CEDAR_DESKTOP_FAKE_TIME)' ./build/dorado \
+		--boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk '$(CEDAR_CORPUS_RUN_PDI)' \
+		--ftp-root ../chm/cedar/stp-root \
+		--type-at 760000000 --type 'Guest\n\n' \
+		--cycles '$(CEDAR_CORPUS_CYCLES)' \
+		--snapshot-out '$(CEDAR_CORPUS_SNAPSHOT)' \
+		--out build/good-packs/cedar-corpus.pgm
+	gzip -c '$(CEDAR_CORPUS_SNAPSHOT)' > '$(CEDAR_CORPUS_SNAPSHOT_GZ)'
+	gzip -c '$(CEDAR_CORPUS_RUN_PDI)' > '$(CEDAR_CORPUS_RUN_PDI_GZ)'
+
+$(CEDAR_CORPUS_SNAPSHOT): $(CEDAR_CORPUS_SNAPSHOT_GZ)
+	mkdir -p '$(dir $@)'
+	gunzip -c '$<' > '$@'
+$(CEDAR_CORPUS_RUN_PDI): $(CEDAR_CORPUS_RUN_PDI_GZ)
+	mkdir -p '$(dir $@)'
+	gunzip -c '$<' > '$@'
+
+# Cold boot the corpus volume (the whole install, ~33 G cycles).
+.PHONY: run-cedar-corpus run-cedar-corpus-sdl
+run-cedar-corpus: sdl $(CEDAR_CORPUS_PDI)
+	DORADO_PDI_IGNORE_LABEL_FLAGS=1 ./build/dorado-sdl \
+		--boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk '$(CEDAR_CORPUS_PDI)' \
+		--ftp-root ../chm/cedar/stp-root --speed 4000000
+
+# Open the corpus desktop instantly from its checkpoint.
+run-cedar-corpus-sdl: sdl $(CEDAR_CORPUS_SNAPSHOT) $(CEDAR_CORPUS_RUN_PDI)
+	DORADO_PDI_IGNORE_LABEL_FLAGS=1 ./build/dorado-sdl \
+		--boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk '$(CEDAR_CORPUS_RUN_PDI)' \
+		--ftp-root ../chm/cedar/stp-root \
+		--snapshot-in '$(CEDAR_CORPUS_SNAPSHOT)' --speed 4000000
 
 # ---- Cedar desktop verification gate --------------------------------------
 # Catches the two bug classes that shipped on 2026-07-18/19, both of which

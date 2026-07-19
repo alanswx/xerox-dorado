@@ -59,6 +59,13 @@
  * mutates the disk during the install, so the pair is inseparable). */
 #define WEB_CEDAR_DESKTOP_SNAPSHOT "/worlds/cedar-desktop.snap"
 #define WEB_CEDAR_DESKTOP_PDI      "/worlds/cedar-desktop.pdi"
+
+/* The CORPUS pack: the same Cedar desktop, but running from a volume that
+ * carries the recovered PARC file corpus (repacked into Cedar's layout with
+ * room to run; see tools/make_corpus_volume.sh). List in the CommandTool
+ * shows real 1985 files. */
+#define WEB_CEDAR_CORPUS_SNAPSHOT  "/worlds/cedar-corpus.snap"
+#define WEB_CEDAR_CORPUS_PDI       "/worlds/cedar-corpus.pdi"
 /* Pruned STP release tree (CedarChest6.1 + font directories) preloaded
  * into the wasm FS so the in-process server can answer Bringovers and
  * demand-fetches from the browser. */
@@ -369,6 +376,60 @@ int dorado_web_boot_cedar_desktop(void)
     app.frame     = 0;
     app.cycles_per_frame = WEB_CYCLES_INTERACTIVE;
     printf("dorado_web: restored the Cedar 6.1 Viewers desktop\n");
+    return 0;
+}
+
+/* (Re)create the machine at the saved CORPUS desktop: a Cedar desktop whose
+ * disk is the recovered PARC file corpus. Same restore contract as the
+ * desktop pack (snapshot + its matched PDI). Exported (KEEPALIVE). */
+EMSCRIPTEN_KEEPALIVE
+int dorado_web_boot_cedar_corpus(void)
+{
+    unsetenv("DORADO_DISPM_PRESENT");
+    if (app.m) {
+        dorado_machine_destroy(app.m);
+        paste_queue.active = 0;
+        app.m = NULL;
+        app.disp = NULL;
+    }
+
+    dorado_machine_config cfg;
+    dorado_machine_config_default(&cfg);
+    cfg.bb_rom       = WEB_BB_ROM;
+    cfg.bootstrap_mb = WEB_BOOTSTRAP;
+    cfg.initial_mb   = WEB_INITIAL;
+    cfg.kernel_mb    = WEB_KERNEL;
+    cfg.memmisc_mb   = WEB_MEMMISC;
+    cfg.ifu_mb       = WEB_IFU;
+    cfg.eth_boot_110 = WEB_CEDAR_EB;
+    cfg.germ_path    = WEB_CEDAR_GERM;
+    cfg.pilot_disk_pdi[0] = WEB_CEDAR_CORPUS_PDI;
+    cfg.eftp_boot    = NULL;
+    cfg.alto_ether_boot = 0;
+    cfg.boot_dir_all = 0;
+    cfg.boot_keys[0] = DORADO_KEY_NONE;
+    cfg.boot_keys_count = 1;
+    cfg.ftp_root     = WEB_STP_ROOT;
+
+    app.m = dorado_machine_create(&cfg);
+    if (!app.m) {
+        fprintf(stderr, "dorado_web: failed to create the corpus machine\n");
+        return 1;
+    }
+    if (dorado_machine_restore(app.m, WEB_CEDAR_CORPUS_SNAPSHOT) != 0) {
+        fprintf(stderr, "dorado_web: failed to restore the corpus snapshot\n");
+        dorado_machine_destroy(app.m);
+        app.m = NULL;
+        return 1;
+    }
+    dorado_machine_set_ftp_source(app.m, NULL, WEB_STP_ROOT);
+    app.disp      = dorado_machine_display(app.m);
+    app.mouse_buttons = 0;
+    app.paused    = 0;
+    app.announced = 1;
+    app.frame     = 0;
+    app.cycles_per_frame = WEB_CYCLES_INTERACTIVE;
+    printf("dorado_web: restored the Cedar corpus desktop\n");
     return 0;
 }
 

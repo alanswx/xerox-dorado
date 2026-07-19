@@ -82,6 +82,7 @@
       </optgroup>
       <optgroup label="Cedar / Mesa (Pilot)">
         <option value="cedar-desktop">Cedar 6.1 &mdash; saved Viewers desktop</option>
+        <option value="cedar-corpus">Cedar 6.1 &mdash; recovered PARC file corpus</option>
         <option value="cedar">Cedar 6.1 &mdash; saved login prompt</option>
         <option value="mesa">Mesa Network Executive</option>
       </optgroup>
@@ -239,6 +240,17 @@
     lyricAssetsReady = true;
   }
 
+  var corpusAssetsReady = false;
+  async function prepareCedarCorpusAssets() {
+    if (corpusAssetsReady) return;
+    setStatus('Expanding the corpus volume (a few seconds)...');
+    await Promise.all([
+      expandGzipAsset('/worlds/cedar-corpus.snap.gz', '/worlds/cedar-corpus.snap'),
+      expandGzipAsset('/worlds/cedar-corpus.pdi.gz', '/worlds/cedar-corpus.pdi')
+    ]);
+    corpusAssetsReady = true;
+  }
+
   async function prepareCedarAssets() {
     if (cedarAssetsReady) return;
     setStatus('Expanding the saved Cedar login...');
@@ -266,6 +278,23 @@
     var path = opt.value;
     paused = false; pauseBtn.textContent = 'Pause';
     showGuide(false);          /* only the Cedar desktop guide applies */
+    if (path === 'cedar-corpus') {
+      try {
+        await prepareCedarCorpusAssets();
+        var rcc = Module.ccall('dorado_web_boot_cedar_corpus', 'number', [], []);
+        if (rcc) throw new Error('snapshot restore rejected the saved image');
+        showGuide(true);
+        setStatus('Cedar 6.1 running from the recovered PARC corpus volume. '
+                  + 'Click the CommandTool\'s % prompt line, then try '
+                  + '"List ///*" to see real 1985 files (it stops partway '
+                  + 'on a known directory defect), or any command below.');
+      } catch (e) {
+        console.error(e);
+        setStatus('Could not restore the corpus desktop: ' + e.message);
+      }
+      document.getElementById('canvas').focus();
+      return;
+    }
     if (path === 'cedar-desktop') {
       try {
         await prepareCedarDesktopAssets();

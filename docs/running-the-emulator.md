@@ -241,6 +241,43 @@ source for the gitignored raw image; the compressed native snapshot survives
 
 ---
 
+## Ready-to-run packs
+
+Each of these opens from a saved checkpoint, so it appears in seconds
+rather than replaying a multi-billion-cycle boot. The same set is in the
+browser build's **Boot** dropdown.
+
+| Pack | SDL | What you get |
+|---|---|---|
+| **Cedar desktop** | `make run-cedar-desktop-sdl` | The Viewers desktop with the welcome menu and the `Schematic`/`Moon`/`Memo`/`Ifu`/`Help` buttons. The one to start with. |
+| **Cedar corpus** | `make run-cedar-corpus-sdl` | The same desktop, but its disk is the **recovered PARC file corpus** — `List ///*` shows real 1985 files. |
+| **Cedar archive** | `make run-cedar-archive-sdl` | The desktop plus PressReader/Sil and the original Dorado press drawings. |
+| **Cedar login** | `make run-cedar` | The bare SimpleTerminal login prompt, for watching a boot from the start. |
+| **Interlisp-D Lyric** | `make run-lisp-snapshot-sdl` | The Lyric Exec (XCL) desktop. |
+| **Alto games / NetExec** | `make run-galaxian`, `make run-netexec`, … | Alto software through the Dorado's Alto-emulator microcode. |
+
+Cold boots, if you want to watch the whole thing: `make run-cedar-work`
+(the desktop install, ~31 G cycles) and `make run-cedar-corpus` (the
+corpus volume, ~33 G).
+
+### Rebuilding the corpus volume
+
+`tools/make_corpus_volume.sh` builds it from the recovered corpus in one
+command, and documents why each step is needed. In short: repack from
+`CedarDorado-bestof.pdi` (the kitchensink images use one-page file
+headers, which Cedar 6.1 cannot read), cap the file count so the volume
+keeps free space (Cedar cannot even complete a lookup on a full volume),
+and rewrite the PV-root boot links to the flat convention the emulator's
+germ path expects.
+
+**Known limitation:** only ~25 of 1,200 files keep their names, and a
+long `List` eventually stops with `FSReportImpl $badFP`. `cedar_repack`
+copies file content correctly but does not rewrite the name-directory's
+`File.FP`s to the new placement — that fix is the next job, tracked in
+`docs/handoff.md`.
+
+---
+
 ## The friendly desktop: type a word, or click a button
 
 The desktop checkpoint boots with a small set of **command files** already
