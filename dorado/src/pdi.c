@@ -47,7 +47,19 @@ int dorado_pdi_load(const char *path, dorado_pdi *out, char *err, size_t errlen)
 
     out->version    = be16(raw + 8);
     out->fs_family  = be16(raw + 10);
-    out->page_count = be16(raw + 16);         /* word 8 */
+    /* Words 8..10 are the drive's CHS geometry, and the page count is their
+     * product -- NOT word 8 alone. Reading only the cylinder word capped an
+     * image at 65535 pages (33 MB), so every image we build carries the
+     * degenerate geometry 65535x1x1 to satisfy that misreading. A real
+     * Trident T-300 is an order of magnitude larger, and a second logical
+     * volume needs the room, so honor all three fields. Old images still
+     * load unchanged: 65535 * 1 * 1 == 65535. */
+    uint32_t cylinders = be16(raw + 16);      /* word 8  */
+    uint32_t heads     = be16(raw + 18);      /* word 9  */
+    uint32_t sectors   = be16(raw + 20);      /* word 10 */
+    if (heads == 0) heads = 1;                /* tolerate under-filled */
+    if (sectors == 0) sectors = 1;            /* headers from old writers */
+    out->page_count = cylinders * heads * sectors;
     uint16_t label_bytes = be16(raw + 24);    /* word 12 */
     uint16_t data_bytes  = be16(raw + 26);    /* word 13 */
 
