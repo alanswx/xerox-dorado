@@ -336,6 +336,16 @@ interpreter ~15%.
      If that reading is right, the route to the corpus is to boot the
      CedarBestOf volume, not to list it from CedarWork.
 
+     **And it does boot, standalone, today (2026-07-19).**
+     `CedarDisk/CedarDorado-bestof.pdi` on its own reaches the Cedar
+     login prompt — 28,510 px, herald reading "CedarKitchenSink on
+     Dorado" (`make run-cedar-bestof`, or headless with
+     `--pilot-disk CedarDisk/CedarDorado-bestof.pdi`). So the recovered
+     corpus is reachable NOW without any multi-volume work: boot that
+     volume and use its own Cedar. The old kitchensink images stay
+     unbootable for the single/two-page-header reason above; bestof is
+     the repack that fixed it.
+
      Two things that path needs, both known:
      1. **LV bootingInfo.** bestof's LV root is all zeros where the work
         volume names its germ (FileID 2 @104) and boot file (3 @139);
