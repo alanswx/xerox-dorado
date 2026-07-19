@@ -523,7 +523,10 @@ CEDAR_CORPUS_SNAPSHOT := build/good-packs/cedar-corpus.snap
 CEDAR_CORPUS_RUN_PDI := build/good-packs/cedar-corpus.pdi
 CEDAR_CORPUS_SNAPSHOT_GZ := snapshot-assets/cedar-corpus-native.snap.gz
 CEDAR_CORPUS_RUN_PDI_GZ := snapshot-assets/cedar-corpus-native.pdi.gz
-CEDAR_CORPUS_CYCLES ?= 33000000000
+# The corpus volume finds Basic.Loadees on its OWN disk and loads packages
+# locally (the authentic on-disk install), which runs longer than the network
+# path: at 33 G it is still loading AMModel.
+CEDAR_CORPUS_CYCLES ?= 48000000000
 
 $(CEDAR_CORPUS_PDI): $(CEDAR_CORPUS_PDI_GZ)
 	gunzip -c '$<' > '$@'

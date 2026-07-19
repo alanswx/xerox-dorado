@@ -50,6 +50,21 @@ Not a trap, a correction: **quotes are fine inside a profile value**
 (Xerox's own profiles are full of `\"`); an earlier note here claiming
 otherwise was our own formatting error.
 
+### Two traps when driving long bakes from this repo (2026-07-19)
+
+- **`cd dorado && <edit> && make ...` loses the edit if the `cd` fails.**
+  Background shells here do not always start in the directory you think,
+  and `cd` failing kills the whole `&&` chain -- including a file edit
+  earlier in it. The bake then runs happily with the OLD setting and you
+  get a plausible-looking artifact. Symptom that caught it: two bakes at
+  supposedly different cycle counts produced the IDENTICAL display-list
+  pixel count. Use absolute paths, and verify a setting actually changed
+  (`grep` it) before spending 40 minutes on a bake.
+- **Identical pixel counts across two runs mean "stuck or unchanged",
+  never "coincidence".** The display-list count is a good cheap
+  fingerprint of machine state; treat an exact match as evidence that
+  something did not vary.
+
 ### Checkpoint bakes are NOT reproducible yet (open, 2026-07-18)
 
 `time(NULL)` in `eth_fill_alto_time` is the emulator's only unpinned
