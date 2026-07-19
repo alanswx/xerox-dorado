@@ -319,7 +319,36 @@ interpreter ~15%.
      corpus mounted. Rebuilding the kitchensink corpus through
      `cedar_repack` is the route if its extra ~40 files are wanted.
 
-   - **OPEN: mounted, but not yet enumerable.** With CedarBestOf mounted
+   - **MEASURED: Cedar never reads the second volume at all.** With
+     CedarBestOf as LV1 and a full disk trace, the highest page Cedar
+     ever touches is 1199 — entirely inside LV0. Zero requests reach the
+     LV1 range. So `List` returning nothing is not a directory problem:
+     Cedar is not looking.
+
+   - **The likely reason — logical volumes are BOOT TARGETS, not
+     simultaneous mounts.** The CommandTool has `Boot {volume}`, and
+     Cedar 6.1's ReleaseMessage describes moving between the Cedar
+     volume, a Debugger volume and an Alto partition by BOOTING them
+     ("triple-booting will get you into the 6.1 world ... if you have an
+     Alto partition you can get there with the BootTool"). Nothing in
+     the period documentation describes a second Pilot volume appearing
+     inside a running Cedar's name space, which fits what we measured.
+     If that reading is right, the route to the corpus is to boot the
+     CedarBestOf volume, not to list it from CedarWork.
+
+     Two things that path needs, both known:
+     1. **LV bootingInfo.** bestof's LV root is all zeros where the work
+        volume names its germ (FileID 2 @104) and boot file (3 @139);
+        `tools/pdi_install_lv_bootfiles.py` is what installs those, and
+        without them a herald boot button raises an uncaught File.Error
+        (seen 2026-07-15).
+     2. **DA-hint fixups after relocation.** Those DiskFileID firstLinks
+        are physical VDA hints. `pdi_add_volume.py --copy-from` moves an
+        LV to a new pv_page, so every such hint in the copied volume is
+        stale by exactly the relocation delta. Either fix them up during
+        the copy or build the corpus volume at its final offset.
+
+   - **Superseded reading: "mounted, but not yet enumerable."** With CedarBestOf mounted
      as LV1, `List [CedarBestOf]<>*` is accepted without error and lists
      nothing. The volume is not empty and its directory IS registered --
      the LV root's `rootFile[client]` (word 133) holds FileID 2245 at
