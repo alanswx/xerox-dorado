@@ -255,12 +255,15 @@ prompt line first for type-in focus) type any of:
 | `Moon.cm` | a 1978 Lick Observatory moon photograph, halftoned |
 | `Ifu.cm` | the IFU board drawing |
 | `Memo.cm` | Ed Taft's 1980 "Dorado Booting" memo, formatted in Tioga |
-| `Chess.cm` | installs and runs ChessHack from CedarChest |
 | `Images.cm` | fetches the picture collection and lists it |
 | `Source Show.cm <name>.ais` | displays any picture by name |
 
 The same actions are **buttons in the CommandTool menu line** (next to
 `STOP!` / `Find` / `Split`) — click one with the red (left) mouse button.
+Note that clicking a *button* does not move the type-in focus, so if you
+want to type afterwards, click the `%` prompt line again first. (This
+also bites scripted runs: a `--click` on a button followed by
+`--paste-at` sends the keystrokes nowhere.)
 
 Pictures take real time to appear: the Imager is doing genuine 1985
 halftone work, and the schematics are 500x644. The moon is the quick one.
@@ -309,9 +312,13 @@ upon", meaning the `.df` itself and nothing else):
    entry is ever seen. Convert anything you author for the guest:
    `python3 -c "b=open(p,'rb').read().replace(b'\r\n',b'\n').replace(b'\n',b'\r'); open(p,'wb').write(b)"`
    (`od -c` on any period file in the tree shows the `\r`.)
-2. **Fetch with a plain `Bringover`, not `Bringover -p`.** The `-p` flag
-   means public files only; data files (images, `.cm`, documents) are not
-   public, so `-p` brings over just the `.df`.
+2. **Fetch data files with a plain `Bringover`, not `Bringover -p`.**
+   The `-p` flag means public files only. For a CODE package that is
+   usually what you want (the exported `.bcd`s and its `.load`); for a
+   package of DATA files (images, `.cm`, documents) nothing is public, so
+   `-p` brings over just the `.df` and the payload never arrives.
+   Rule of thumb: `-p` for code, plain for data, plain when unsure (it
+   fetches the import closure too, which is slower but complete).
 
 Otherwise: drop files in `chm/cedar/stp-root/CedarChest6.1/<Package>/` and
 list them in a `<Package>.df` under `Top/`, following the layout of
@@ -341,12 +348,30 @@ first for type-in focus):
 
 ```
 Bringover [Cedar]<CedarChest6.1>Top>ChessHack
-Run ChessHack
+Run ChessHackImpl
+ChessHack
 ```
 
-(or just `Chess.cm` / the `Chess` button. Note the **plain** `Bringover`:
-`-p` fetches public files only and will leave the payload behind — see
-the authoring rules above.)
+**A package's run name is not always its DF name.** ChessHack ships
+`ChessDefs.bcd`, `ChessHackImpl.bcd` and a `ChessHack.load` manifest —
+there is no `ChessHack.bcd`, so `Run ChessHack` fails with "Could not
+find ...ChessHack.bcd" no matter how it was fetched (an older note in
+this file claiming that recipe worked was only ever verified as far as
+the download). Look at the `.df` or the `.load` to see what a package
+actually exports, and `Run` an implementation module. Same pattern as
+AIS, where the working commands are `Run AISImpl` / `Run AISViewerImpl`.
+`Run ChessHackImpl` then `ChessHack` is verified to load and start.
+
+**ChessHack is OPEN — it needs a font we cannot yet install.** Starting
+it raises `ImagerImpl.Error[$fontNotFound, "Xerox/TiogaFonts/Chess40"]`
+into a debugger viewer. The font exists and is now served
+(`chm/cedar/stp-root/Fonts/TiogaFonts/Chess40.ks`, fetched from
+`[_CDCSL_93-16_]<1>Cedar>imagerfonts>xerox>tiogafonts>`), but a
+`DORADO_FTP_TRACE` of the failure shows the guest **never requests it**:
+Cedar resolves fonts from a catalog local to the volume, not over STP,
+so a served font is not enough. The next step is installing it into the
+volume's font catalog the way the BootEssentials font DFs do. Until
+then ChessHack is left out of the welcome set.
 
 ### The schematics viewer (AISViewer) — the PROVEN recipe (2026-07-18)
 

@@ -67,7 +67,7 @@ hardware was retired.
 
 The saved desktop now boots ready to use: a printed menu of one-word
 commands, and matching buttons in the CommandTool's menu line
-(`Schematic`, `Moon`, `Memo`, `Chess`, `Help`) — Cedar's own `.cm`
+(`Schematic`, `Moon`, `Memo`, `Ifu`, `Help`) — Cedar's own `.cm`
 command files and `CreateButton`, set up the way PARC's sample user
 profiles did it.
 
@@ -343,8 +343,8 @@ first:
 #    one-word commands ready to type at the CommandTool's % prompt:
 #      Schematic.cm  the Dorado draws its OWN processor board
 #      Moon.cm       a 1978 moon photograph, halftoned
+#      Ifu.cm        the Instruction Fetch Unit board drawing
 #      Memo.cm       Ed Taft's 1980 Dorado Booting memo, in Tioga
-#      Chess.cm      installs and runs ChessHack over the emulated net
 #      Welcome.cm    prints the full list again
 #    The same actions are buttons in the CommandTool's menu line.
 make run-cedar-desktop-sdl
