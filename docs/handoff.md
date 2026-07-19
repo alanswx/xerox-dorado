@@ -284,13 +284,33 @@ interpreter ~15%.
      and needs a fresh, non-aliasing id. Control test: copying the
      desktop volume into LV1 boots normally, which also proves duplicate
      FileIDs across volumes are harmless.
-   - **The kitchensink volume still does not work — but for its OWN
-     reasons, not the multi-volume mechanism.** Merged in as LV1 the
-     machine renders 0 px, exactly as that volume does when booted
-     standalone (item 2, unchanged since 2026-07-16). The blank-LV and
-     twin-LV controls above boot fine on the identical machinery, so the
-     defect is in that volume's structure. Diagnose it as item 2; the
-     multi-volume path is ready and waiting for it.
+   - **Why the kitchensink volume renders 0 px: ROOT-CAUSED
+     (2026-07-19), and it is a format mismatch, not corruption.** Traced
+     the standalone boot against a known-good one: the two are
+     read-for-read IDENTICAL for 77 disk reads, then the good boot reads
+     the VAM file's DATA page 0 and kitchensink simply stops. The reason
+     is visible in the page labels:
+
+     | volume | file headers | VAM layout |
+     |---|---|---|
+     | work (good) | 2 files, **2 header pages each** | filePages 0,1 header; data renumbered from 0 |
+     | kitchensink | 2,281 files, **1 header page each** | filePage 0 header; data starts at filePage 1 |
+
+     The whole volume is in the ORIGINAL-PILOT single-header layout;
+     Cedar 6.1 wants its own two-page file header, looks for VAM data
+     page 0, does not find it, and dies before painting anything. No
+     amount of label stamping or LV-record surgery could have fixed
+     that, which is why previous attempts failed.
+
+     **The fix is to use the volume that is already in the right
+     format.** `CedarDisk/CedarDorado-bestof.pdi` is a later
+     reconstruction from the same corpus with, in the provenance doc's
+     words, "a corrected Cedar-compatible two-page file-header/VAM
+     layout" (`examples/cedar_repack.rs`). Verified: 2,242 files, every
+     one with two header pages, VAM laid out exactly like the good
+     volume. Merged in as LV1 it BOOTS (28,721 px login, same as the
+     single-volume image). Rebuilding the kitchensink corpus through
+     `cedar_repack` is the route if its extra files are wanted.
 
    Prerequisite fixed along the way: our PDI loader read the header's
    CYLINDER word as the page count, capping images at 65535 pages
