@@ -92,6 +92,9 @@ def main():
     ap.add_argument("src")
     ap.add_argument("out")
     ap.add_argument("--name", required=True, help="new logical volume name")
+    ap.add_argument("--copy-from", metavar="PDI",
+                    help="populate the new volume from this image's first "
+                         "logical volume instead of leaving it blank")
     ap.add_argument("--pages", type=int, default=0,
                     help="size of the new LV in pages (default: fill the disk)")
     ap.add_argument("--geometry", default="815,19,9",
@@ -161,7 +164,30 @@ def main():
 
     new_pv_page = end
     avail = total - new_pv_page - 1              # leave room for our marker
-    n_pages = args.pages if args.pages else avail
+
+    src2 = src2_lv = None
+    if args.copy_from:
+        src2 = bytearray(open(args.copy_from, "rb").read())
+        if src2[:8] != MAGIC:
+            sys.exit(f"{args.copy_from}: not a PDI")
+        if rdw(src2, 12) != label_bytes or rdw(src2, 13) != data_bytes:
+            sys.exit("--copy-from image has a different sector layout")
+        _, pr2 = (memoryview(src2)[HEADER_BYTES:HEADER_BYTES + label_bytes],
+                  memoryview(src2)[HEADER_BYTES + label_bytes:
+                                   HEADER_BYTES + record])
+        if rdw(pr2, 0) != PR_SEAL:
+            sys.exit(f"{args.copy_from}: page 0 is not a physical-volume root")
+        if rdw(pr2, SUBVOL_COUNT_WORD) < 1:
+            sys.exit(f"{args.copy_from}: no logical volume to copy")
+        wi2 = SUBVOL_BASE_WORD
+        src2_lv = dict(lv_id=[rdw(pr2, wi2 + k) for k in range(5)],
+                       lv_size=rdlong(pr2, wi2 + 5),
+                       lv_page=rdlong(pr2, wi2 + 7),
+                       pv_page=rdlong(pr2, wi2 + 9),
+                       n_pages=rdlong(pr2, wi2 + 11))
+        n_pages = src2_lv["n_pages"]
+    else:
+        n_pages = args.pages if args.pages else avail
     if n_pages < 4 or n_pages > avail:
         sys.exit(f"new volume needs 4..{avail} pages, asked for {n_pages}")
     marker = new_pv_page + n_pages
@@ -186,31 +212,54 @@ def main():
     wi = SUBVOL_BASE_WORD + count * SUBVOL_WORDS
     for k, w in enumerate(lv_id):
         wrw(pr, wi + k, w)
-    wrlong(pr, wi + 5, n_pages)                  # lvSize
+    wrlong(pr, wi + 5, src2_lv["lv_size"] if src2_lv else n_pages)  # lvSize
     wrlong(pr, wi + 7, 0)                        # lvPage: LV root is logical 0
     wrlong(pr, wi + 9, new_pv_page)              # pvPage
     wrlong(pr, wi + 11, n_pages)                 # nPages
     wrw(pr, SUBVOL_COUNT_WORD, count + 1)
     set_page_checksum(pr, page_words)
 
-    # --- logical page 0 of the new volume: its logical-volume root ---
-    lab, d = page(img, new_pv_page)
-    lab[:] = make_label(label_words, lv_id, 0, ATTR_LOGICAL_ROOT)
-    wrw(d, 0, LR_SEAL)
-    wrw(d, 1, LR_VERSION)
-    for k, w in enumerate(lv_id):
-        wrw(d, 2 + k, w)
     name = args.name[:VOLUME_LABEL_LEN]
-    wrw(d, 7, len(name))
-    d[8 * 2:8 * 2 + VOLUME_LABEL_LEN] = name.encode().ljust(VOLUME_LABEL_LEN, b"\0")
-    wrw(d, 28, VOLUME_TYPE_CEDAR)
-    wrlong(d, 29, n_pages)
-    set_page_checksum(d, page_words)
+    if src2_lv:
+        # Copy the donor volume verbatim. Page labels carry FILE ids (and 0
+        # for free pages), not the volume id, so the file system moves
+        # unchanged; only the logical-volume root names the volume, and only
+        # it needs renumbering. File ids may repeat across volumes -- a
+        # logical volume is their namespace.
+        base = src2_lv["pv_page"]
+        for lp in range(n_pages):
+            so = HEADER_BYTES + (base + lp) * record
+            do = HEADER_BYTES + (new_pv_page + lp) * record
+            img[do:do + record] = src2[so:so + record]
+        lab, d = page(img, new_pv_page)
+        if rdw(d, 0) != LR_SEAL:
+            sys.exit("copied logical page 0 is not a logical-volume root")
+        lab[:] = make_label(label_words, lv_id, 0, ATTR_LOGICAL_ROOT)
+        for k, w in enumerate(lv_id):
+            wrw(d, 2 + k, w)
+        wrw(d, 7, len(name))
+        d[8 * 2:8 * 2 + VOLUME_LABEL_LEN] = \
+            name.encode().ljust(VOLUME_LABEL_LEN, b"\0")
+        set_page_checksum(d, page_words)
+    else:
+        # --- logical page 0 of the new volume: its logical-volume root ---
+        lab, d = page(img, new_pv_page)
+        lab[:] = make_label(label_words, lv_id, 0, ATTR_LOGICAL_ROOT)
+        wrw(d, 0, LR_SEAL)
+        wrw(d, 1, LR_VERSION)
+        for k, w in enumerate(lv_id):
+            wrw(d, 2 + k, w)
+        wrw(d, 7, len(name))
+        d[8 * 2:8 * 2 + VOLUME_LABEL_LEN] = \
+            name.encode().ljust(VOLUME_LABEL_LEN, b"\0")
+        wrw(d, 28, VOLUME_TYPE_CEDAR)
+        wrlong(d, 29, n_pages)
+        set_page_checksum(d, page_words)
 
-    # --- the rest of the new volume: free pages ---
-    for lp in range(1, n_pages):
-        lab, _ = page(img, new_pv_page + lp)
-        lab[:] = make_label(label_words, lv_id, lp, ATTR_FREE_PAGE)
+        # --- the rest of the new volume: free pages ---
+        for lp in range(1, n_pages):
+            lab, _ = page(img, new_pv_page + lp)
+            lab[:] = make_label(label_words, lv_id, lp, ATTR_FREE_PAGE)
 
     # --- end-of-subvolume marker ---
     lab, d = page(img, marker)
