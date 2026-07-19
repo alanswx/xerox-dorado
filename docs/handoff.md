@@ -346,6 +346,48 @@ interpreter ~15%.
      unbootable for the single/two-page-header reason above; bestof is
      the repack that fixed it.
 
+     **But bestof is FULL** — 4 free pages of 65,450. Booting it reaches
+     the login prompt, accepts Guest, and then dies with
+     `FS.Error: No more free pages on a local volume` looking for
+     `Basic.Loadees`. Cedar cannot even complete a lookup without
+     scratch space.
+
+     **Working recipe for a bootable corpus volume WITH room
+     (2026-07-19).** Two steps, and the second one is not optional:
+
+     ```sh
+     # 1. repack from the CORRECT-format volume, capping the file count
+     #    so the volume keeps free space. Repacking from the OLD
+     #    kitchensink instead loses every name (named 0) because its
+     #    directory is in the format Cedar cannot read; from bestof you
+     #    get some back (named 25 of 1200 -- most corpus files are
+     #    genuinely nameless, which is a separate limitation).
+     cargo build --release --example cedar_repack     # the prebuilt
+                                                      # binary predates
+                                                      # the max-files arg
+     tools/rusty-backup/target/release/examples/cedar_repack \
+       CedarDisk/CedarDorado-bestof.pdi \
+       chm/cedar/germ-alt/Dorado.germ-6.1.6 \
+       'chm/cedar/cedar6.1/BasicCedarDorado.boot!22' out.pdi 1200
+
+     # 2. rewrite the PV-root boot links to the FLAT convention.
+     #    The writer emits proper CHS (germ firstLink=(3,20)); our polled
+     #    germ path wants the flat page number ((104,0)) -- same VDA 104,
+     #    different encoding. Without this the volume renders 0 px, which
+     #    is the 2e8018b regression the provenance doc warns about.
+     #    Decode with vda = w0*28 + (w1 & 0xff), write back (vda, 0),
+     #    then recompute the page-0 checksum.
+     ```
+
+     Result: the corpus volume BOOTS, logs in as Guest, and runs the full
+     Cedar installation from the STP server — EssentialStyles, Tioga,
+     TJaM, Viewers, Watch, BootEssentials and the font sets
+     (`docs/images/cedar-corpus-volume-installing-2026-07-19.png`).
+
+     The real fix for step 2 is to make the writer emit flat links (or
+     teach the emulator's germ path to accept CHS); doing it by
+     post-processing is a stopgap.
+
      Two things that path needs, both known:
      1. **LV bootingInfo.** bestof's LV root is all zeros where the work
         volume names its germ (FileID 2 @104) and boot file (3 @139);
