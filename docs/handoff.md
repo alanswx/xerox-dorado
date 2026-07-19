@@ -273,11 +273,17 @@ interpreter ~15%.
    volume?", and Pilot's PV/LV model is its own (the Alto had no such
    concept, so this is not an Alto holdover). Three results, in order:
 
-   - **A second logical volume is enumerated and usable.**
-     `tools/pdi_add_volume.py` appends an LV to an existing image without
-     touching it (LV0's pages verify byte-identical). Cedar cold boots
-     from the result and `Open [CedarData]<>` in the CommandTool answers
-     `Created Viewer: [CedarData]<>` — a Tioga viewer on the new volume.
+   - **A second logical volume can be added, and the machine still
+     boots.** `tools/pdi_add_volume.py` appends an LV to an existing
+     image without touching it (LV0's pages verify byte-identical), and
+     Cedar cold boots from the result exactly as before.
+
+     **Correction to an earlier reading of this evidence:** `Open
+     [CedarData]<>` answering `Created Viewer: [CedarData]<>` does NOT
+     prove Cedar read the volume. The same answer comes back for a BLANK
+     volume, because Tioga creates an empty new document for a path it
+     cannot find. Treat "Created Viewer" as syntax acceptance, not
+     access. The open question below is the real test.
    - **A whole logical volume can be relocated in** (`--copy-from`).
      Page labels carry FILE ids (0 for free pages), not the volume id, so
      an LV moves verbatim; only its logical-volume root names the volume
