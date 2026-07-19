@@ -309,8 +309,30 @@ interpreter ~15%.
      layout" (`examples/cedar_repack.rs`). Verified: 2,242 files, every
      one with two header pages, VAM laid out exactly like the good
      volume. Merged in as LV1 it BOOTS (28,721 px login, same as the
-     single-volume image). Rebuilding the kitchensink corpus through
-     `cedar_repack` is the route if its extra files are wanted.
+     single-volume image) and the full welcome desktop comes up with the
+     corpus mounted. Rebuilding the kitchensink corpus through
+     `cedar_repack` is the route if its extra ~40 files are wanted.
+
+   - **OPEN: mounted, but not yet enumerable.** With CedarBestOf mounted
+     as LV1, `List [CedarBestOf]<>*` is accepted without error and lists
+     nothing. The volume is not empty and its directory IS registered --
+     the LV root's `rootFile[client]` (word 133) holds FileID 2245 at
+     page 1115, and `rootFile[VAM]` (word 127) holds FileID 1 -- so the
+     next question is whether Cedar 6.1's FS reads that name-directory
+     B-tree, or whether the volume must be opened/registered first.
+     Useful reference points measured 2026-07-19:
+
+     | volume | rootFile[VAM] | rootFile[client] |
+     |---|---|---|
+     | work (good, boots) | FileID 1, page 1 | FileID 4, page 1115 |
+     | bestof | FileID 1, page 1 | FileID 2245, page 1115 |
+     | kitchensink | FileID 1, page 1 | FileID 2283, page **0** |
+
+     Note also that bestof's LV root carries NO bootingInfo (words
+     49/56/58/65 are zero where the work volume names its germ and boot
+     file) -- irrelevant while it is a data volume on someone else's
+     disk, but `tools/pdi_install_lv_bootfiles.py` is what installs
+     those if it should ever boot itself.
 
    Prerequisite fixed along the way: our PDI loader read the header's
    CYLINDER word as the page count, capping images at 65535 pages
