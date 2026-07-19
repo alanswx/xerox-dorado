@@ -1,1 +1,1 @@
--- Chess.cm -- install and run ChessHack, a CedarChest package.Echo Installing ChessHack from the CedarChest release...Bringover -p [Cedar]<CedarChest6.1>Top>ChessHackRun ChessHack
+-- Chess.cm -- install and run ChessHack, a CedarChest package.Echo Installing ChessHack from the CedarChest release...Bringover [Cedar]<CedarChest6.1>Top>ChessHackRun ChessHack

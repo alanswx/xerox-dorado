@@ -186,12 +186,23 @@ Example queries:
 
 ## First-hand background
 
-- `docs/parc-veteran-notes.md` — pointers and hardware history from a
-  former PARC engineer (July 2026): PSAdd prefix servers, the Cedar
+- `docs/parc-veteran-notes.md` — pointers and hardware history from two
+  former PARC engineers (July 2026): PSAdd prefix servers, the Cedar
   build-system `.df` genealogy, CedarSnapshotDorado.boot, board wiring
   technologies (stitch-weld / Multi-Wire / PCB), SIL, Midas + the
   manifold, ECL PROM generators, and the original microcode source
-  archives — cross-referenced against our local mirrors.
+  archives — cross-referenced against our local mirrors. Also the
+  Cedar/CedarChest split, the CedarPS printing lineage, and where the
+  XC1-2-2 fonts live.
+- `chm/cedar/cedar6.1-docs/` — Cedar 6.1's own documentation, fetched on
+  that advice: the release message, CommandTool command reference,
+  CedarChest conventions, the glossary/introduction/overview, the style
+  and syntax guides, `EtherBoot.tioga`, and **Xerox's own sample user
+  profiles** (`StandardUser.Profile`, `StandardUser-LoginWork.cm`,
+  `NoviceUserProfile.Tioga`). The profiles are the reference for how
+  software was actually loaded and launched — `Install`, `.cm` command
+  files, `Alias`, `CreateButton`, `.load` manifests, profile hooks — and
+  are what our friendly desktop is modeled on.
 
 ## Project plans (kept in sync with code)
 
@@ -202,7 +213,7 @@ Example queries:
 | `cedar-media-provenance.md` | How the reconstructed Cedar Pilot `.pdi` volumes were built with Rusty Backup, their exact boot-fixture recipe, and safe modification constraints. |
 | `schematic-audit.md` | Schematic-vs-emulator audit findings (microengine cross-checked against the board drawings) — discrepancies, confidence, what's verified consistent. |
 | `hardware-specs.md` | Implementation specs for hardware the emulator does not yet faithfully model (Hold/Miss state machine, memory pipeline, ECC/Pipe4, IFU pipeline timing, disk read, DDC back-channel). |
-| `handoff.md` | ★ **Read first** if you're a new session picking this up. Current state, build/run, what works, what doesn't, pitfalls, suggested first action. |
+| `handoff.md` | ★ **Read first** if you're a new session picking this up. Current state, build/run, what works, what doesn't, pitfalls, suggested first action. Includes the guest-file authoring traps (CR line endings, `Bringover -p`) and the performance profile. |
 | `boot-bringup-plan.md` | Phased plan from "Bootstrap microengine runs" (current state, post ALUFM/quadrant fixes) to "Mesa boots Pilot from disk." Includes the normal boot sequence reference (Path A power-on/3-push, Path B LoadMB shortcut). |
 | `memory-architecture.md` | Reference for the Map/cache/Pipe/BR design (HM §5). Read before memory work. |
 | `io-systems-architecture.md` | High-level reference for Slow I/O, Fast I/O, the task scheduler/Wakeup-Block-Next protocol, plus an overview of the Disk, Display, and Ethernet controllers. Read first; then drill down into the per-subsystem docs below. |

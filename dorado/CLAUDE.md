@@ -46,6 +46,7 @@ dorado/
 │   ├── io.c              slow-I/O routing (per-(task,TIOA) device table)
 │   ├── display.c         framebuffer + DDC slow-IO catch-all
 │   ├── disk.c            disk pack + drive + DSK controller (slow-IO at TIOA 10₈-14₈)
+│   ├── typetext.c        canonical ASCII→Alto key map + paced typing/paste queue
 │   └── mbdis.c           CLI: dump / symbolic disasm
 └── tests/
     ├── test_mb.c         loader
@@ -552,6 +553,31 @@ Remaining work, roughly ordered:
 **Don't regress:** the EFTP RxOn-clear in `src/ethernet.c eth_write` is gated
 to the Cedar path (`eftp_wait_for_rx_arm`); ungating it drops the held
 lock-step EFTP packet on every Alto RxOn toggle and stalls the Alto boot
-mid-stream (Galaxian -> 0 px). The per-step trace `getenv()` calls are cached
-via `dorado_trace_flag()` (cpu.c) -- a ~2.7x speedup; keep new per-step trace
-checks on that helper, not raw `getenv()`.
+mid-stream (Galaxian -> 0 px).
+
+**Trace-flag discipline (perf).** Per-step trace checks go through
+`dorado_trace_flag()` (cpu.c) -- never a raw `getenv()` in a hot path.
+The helper memoizes on the CALL SITE's string-literal POINTER, so each
+call site consumes a slot: the table is an open-addressed 1024-entry
+hash for ~250 sites. When it was a 128-entry linear scan, overflowed
+sites silently fell back to a full scan plus a real `getenv()` on every
+call -- ~40% of total runtime, found by profiling on 2026-07-18
+(`sample <pid>`), together with a raw `getenv` in
+`dorado_ethernet_wakeup_mask` (~17%). Fixing both doubled throughput
+with byte-identical output: **20.4 M cycles/s Alto, ~27 M Cedar**
+(1.2x / 1.6x the real 16.67 MIPS machine). If more is needed, profile
+first -- the next spots are `dorado_visible_word_at_va` VA
+re-translation (~20%) and the interpreter (~15%).
+
+**Frontend input.** `src/typetext.c` owns the ONE canonical ASCII->Alto
+key map (`dorado_char_to_key`) plus a non-blocking paced typing queue.
+`dorado.c` and `dorado_sdl.c` used to carry diverging static copies (the
+SDL one lacked `_`, Cedar's `<-`). Clipboard paste rides the queue in
+both frontends (SDL `Cmd/Ctrl+V`, browser paste event ->
+`dorado_web_paste`), and `--paste-at CYCLES --paste TEXT` exercises the
+same path headlessly. Keep the map in one place.
+
+**Serving files to the Cedar guest** (`chm/cedar/stp-root/`): text files
+must be **CR-terminated** and data files need a plain `Bringover`, not
+`Bringover -p`. Both mistakes fail identically and silently ("1 files
+acted upon" = the `.df` alone). See `docs/running-the-emulator.md`.

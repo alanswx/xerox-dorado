@@ -13,10 +13,12 @@ are the historical log.
 |---|---|---|
 | Alto games / NetExec (netboot) | `make run-galaxian` etc. | headless `--cycles 160000000` = 121,549 px |
 | Cedar 6.1 cold boot -> login | `make run-cedar-work`, type `Guest` + 2 Returns | login at ~1B cycles |
-| Cedar 6.1 full install -> Viewers desktop | same, keep running | desktop at ~21B cycles (34 loadees, fonts, icons) |
-| Desktop checkpoint (instant) | `make run-cedar-desktop-sdl` / web dropdown | restores at 21.0B |
+| Cedar 6.1 full install -> Viewers desktop | same, keep running | desktop at ~25B cycles, settled by 31B with the welcome setup (34 loadees, fonts, icons) |
+| Desktop checkpoint (instant) | `make run-cedar-desktop-sdl` / web dropdown | restores at 31.0B, welcome menu + 5 buttons |
+| Friendly commands | type `Moon.cm` / `Schematic.cm` / `Memo.cm`, or click the matching button | 2026-07-18 verified on the shipped pair |
+| The Dorado's own schematic on screen | `Schematic.cm` | ProcH bit-slice 07 in an open AIS Viewer |
 | Herald soft reboot | click `Boot` then `CedarWork` on the desktop | fresh Basic boot to desktop (germ re-entry) |
-| App install into the live desktop | `Bringover -p [Cedar]<CedarChest6.1>Top>ChessHack` then `Run ...` | 2026-07-16 scripted run |
+| App install into the live desktop | `Bringover [Cedar]<CedarChest6.1>Top>ChessHack` then `Run ...` | 2026-07-16 scripted run (NOTE: plain Bringover, not `-p`) |
 | Interlisp-D Lyric desktop | web dropdown / lisp targets | saved Exec checkpoint |
 | Diagnostics | `build/rundiag` | all six PASS |
 
@@ -27,6 +29,39 @@ free-page labels stamped with the volume ID
 (`tools/pdi_stamp_free_labels.py`), and BOTH physical- and logical-root
 bootingInfo records (`tools/pdi_install_lv_bootfiles.py`) — cold boot
 reads the PV root, BootTool/Booting.Boot soft boots read the LV root.
+
+### Authoring files for the Cedar guest — three silent traps
+
+All three fail identically: `Bringover` reports "1 files acted upon",
+meaning the `.df` itself and nothing else, and the thing you wanted never
+arrives.
+
+1. **Cedar text files are CR-terminated** (`\r`, not `\n`). An
+   LF-terminated `.df`/`.cm` is one enormous line to the parser. `od -c`
+   any period file to see it.
+2. **`Bringover -p` fetches public files only.** Data files (`.cm`,
+   images, documents) need a plain `Bringover`. This one bit twice —
+   the second time inside our own `Memo.cm`/`Chess.cm`, whose buttons
+   errored until it was found.
+3. **A semicolon is a command separator** — it cannot appear in `Echo`
+   text (it silently splits the line and runs the tail as a command).
+
+Not a trap, a correction: **quotes are fine inside a profile value**
+(Xerox's own profiles are full of `\"`); an earlier note here claiming
+otherwise was our own formatting error.
+
+### Performance: profile, don't guess (2026-07-18)
+
+The emulator runs **20.4 M cycles/s on the Alto path, ~27 M on Cedar** —
+1.2x and 1.6x the real 16.67 MIPS machine. Getting there was a 2x
+speedup found with `sample <pid>`, not intuition: ~40% of ALL runtime
+was trace-enable checks (`dorado_trace_flag`'s pointer-keyed memo held
+128 entries for ~250 call sites, so overflowed sites paid a linear scan
+plus a real `getenv()` on every call — now a 1024-slot open-addressed
+hash), plus ~17% in a raw `getenv` inside
+`dorado_ethernet_wakeup_mask`. Output stayed byte-identical. If you need
+more: `dorado_visible_word_at_va` VA re-translation is ~20% and the
+interpreter ~15%.
 
 ### The three bugs that cost the most this week (don't rediscover them)
 

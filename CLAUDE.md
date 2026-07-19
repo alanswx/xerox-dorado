@@ -45,9 +45,17 @@ been thoroughly cross-checked against the board schematics
 Overflow branch condition, shifter Pd-mux masking, and Return clobbering a
 same-instruction explicit Link<- load -- the Cedar-desktop blocker; an
 explicit Link<- overrides Return's Link<-CIA+1 reload, per DMesaFloat.mc).
-The emulator runs ~24 M microinstructions/s (≈1.4x the real 16.67 MIPS
-Dorado) after caching the per-step trace `getenv()` calls
-(`dorado_trace_flag`, ~2.7x speedup). It also builds to **WebAssembly**
+The emulator runs **20.4 M microinstructions/s on the Alto path and
+~27 M on the Cedar desktop** (measured 2026-07-18) -- 1.2x and 1.6x the
+real 16.67 MIPS Dorado. Trace-enable checks had quietly become ~40% of
+runtime: `dorado_trace_flag`'s pointer-keyed memo held 128 entries for
+~250 call sites, so every overflowed site fell back to a full scan plus
+a real `getenv()` per call; it is an open-addressed 1024-slot hash now,
+and `dorado_ethernet_wakeup_mask`'s raw `getenv` (another ~17%) is
+cached. That was a 2x speedup with byte-identical output. Next hot
+spots, if more is needed: `dorado_visible_word_at_va` VA re-translation
+(~20%) and the interpreter itself (~15%). It also builds to
+**WebAssembly**
 (`make web`) and auto-deploys to GitHub Pages
 (`.github/workflows/deploy-pages.yml`): a dropdown picks the Alto games,
 NetExec, Mesa NetExec, Cedar 6.1 (saved desktop or login checkpoints), or
@@ -94,12 +102,44 @@ detail + next steps: `docs/CONTINUE-HERE.md`.
 **Beyond the desktop (2026-07-16):** the herald's `Boot`/`CedarWork`
 buttons soft-reboot the volume live (germ re-entry works), and CedarChest
 applications install into the running desktop the way PARC did it --
-`Bringover -p [Cedar]<CedarChest6.1>Top>ChessHack` + `Run` against the
+`Bringover [Cedar]<CedarChest6.1>Top>ChessHack` + `Run` against the
 in-process STP server. `tools/fetch_cedarchest_app.py` mirrors packages
 from the CHM archive; `tools/pbm2ais.py` converts the Dorado's own
 schematic PDFs into AIS rasters the desktop's AISViewer can display.
-First-hand background from a PARC veteran (PSAdd name lookup, build
-genealogy, board/DA history): `docs/parc-veteran-notes.md`.
+First-hand background from two PARC veterans (PSAdd name lookup, build
+genealogy, board/DA history; Cedar/CedarChest architecture and the
+XC1-2-2 fonts): `docs/parc-veteran-notes.md`.
+
+**The machine displays itself, and a friendly front door (2026-07-18).**
+Three things landed together:
+
+- **The Dorado draws its own schematic.** `ProcH-BitSlice07.ais` (the
+  1979 processor-board sheet) paints in an open AIS Viewer on the Cedar
+  desktop -- screenshot
+  `docs/images/cedar-ais-proch-bitslice07-2026-07-18.png`. The blocker
+  was an ethernet bug, not graphics: our STP server had no retransmit
+  ring, so a Pup dropped while the guest receiver re-armed froze the
+  client's ack forever and every transfer over ~100 KB wedged. BSP makes
+  retransmission the SENDER's job; on a duplicate ack the server now
+  rewinds the transmit cursor (during a retrieve the file itself is the
+  ring). Same bug had wedged cold-boot BringOvers of the complete tree.
+- **A friendly desktop.** The saved checkpoint boots with `.cm` command
+  files fetched, CommandTool menu buttons created, and a printed menu:
+  a visitor types `Schematic.cm` / `Moon.cm` / `Memo.cm` / `Chess.cm`
+  (or clicks the matching button) instead of a 100-character `Eval`.
+  These are Cedar's own mechanisms, copied from Xerox's sample profiles
+  (`chm/cedar/cedar6.1-docs/StandardUser*.Profile`); ours live in
+  `chm/cedar/stp-root/CedarChest6.1/DoradoWelcome/`.
+- **Clipboard paste** (`Cmd/Ctrl+V`) in SDL and the browser, plus
+  `--paste-at CYCLES --paste TEXT` headless, all through one paced
+  typing queue (`src/typetext.c`).
+
+**Three traps when authoring files for the guest** (all fail silently as
+"1 files acted upon", i.e. the `.df` and nothing else): Cedar text files
+are **CR-terminated** (LF makes the whole file one line to the parser);
+**`Bringover -p` fetches public files only**, so data files (`.cm`,
+images, documents) need a plain `Bringover`; and a **semicolon is a
+command separator**, so it cannot appear in `Echo` text.
 
 The Stage-2 EFTP/Mayday boot server also serves Cedar boot files
 (`CedarNetExec.boot`, `NEWOS.BOOT`, `OthelloDorado.boot`) byte-exact -- the

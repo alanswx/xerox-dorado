@@ -93,9 +93,12 @@ GitHub Pages by `.github/workflows/deploy-pages.yml`) boots every world from
 a dropdown: the Alto games and NetExec menu, the Alto Executive from disk,
 the Mesa Network Executive, **Cedar 6.1** (a saved Viewers-desktop
 checkpoint and a saved login-prompt checkpoint), and **Interlisp-D Lyric**
-(a saved Exec/XCL desktop). The emulator runs ~24 M microinstructions/s
-(≈1.4× the real 16.67 MIPS Dorado) after a hot-path `getenv()` caching fix
-(~2.7× speedup).
+(a saved Exec/XCL desktop). The emulator runs **20.4 M microinstructions/s** on the Alto
+path and **~27 M** on the Cedar desktop — 1.2× and 1.6× the real 16.67 MIPS
+Dorado. (A 2× speedup on 2026-07-18 came from profiling: trace-enable
+checks were ~40% of runtime because a pointer-keyed memo table was too
+small for its call sites, plus a raw `getenv()` on every ethernet wakeup
+poll.)
 
 Along the way the bring-up fixed **six real microengine bugs** — the Mesa
 `WF`/`RF` field opcodes, `TisId`/`RisId` + `IFetch` operand handling, the
@@ -346,7 +349,7 @@ first:
 #    The same actions are buttons in the CommandTool's menu line.
 make run-cedar-desktop-sdl
 
-# 2. The full cold boot + install, end to end (~21 G cycles): boots the
+# 2. The full cold boot + install, end to end (~25-31 G cycles): boots the
 #    work volume, log in as "Guest" (+ Return twice) at the Name: prompt;
 #    LoaderDriver then installs Basic.Loadees/BootEssentials/fonts over the
 #    in-process STP server and the desktop comes up.

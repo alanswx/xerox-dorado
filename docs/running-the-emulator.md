@@ -155,7 +155,7 @@ make run-cedar               # boot volume only, to the login prompt
 synthetic PDI media store as 0). After the Guest login, LoaderDriver
 installs the loadee set and the desktop comes up. `make
 cedar-desktop-snapshot` regenerates the checkpoint headlessly (it replays
-the whole ~21 G-cycle boot + install and saves the snapshot **together with
+the whole ~31 G-cycle boot + install and saves the snapshot **together with
 the mutated PDI** — a matched pair, preserved gzipped in
 `dorado/snapshot-assets/`); `make cedar-desktop-web-snapshot` produces the
 separate wasm32-ABI pair for the browser build.
@@ -340,9 +340,13 @@ plus Clock and BootTool. In the running desktop (click the CommandTool
 first for type-in focus):
 
 ```
-Bringover -p [Cedar]<CedarChest6.1>Top>ChessHack
+Bringover [Cedar]<CedarChest6.1>Top>ChessHack
 Run ChessHack
 ```
+
+(or just `Chess.cm` / the `Chess` button. Note the **plain** `Bringover`:
+`-p` fetches public files only and will leave the payload behind — see
+the authoring rules above.)
 
 ### The schematics viewer (AISViewer) — the PROVEN recipe (2026-07-18)
 

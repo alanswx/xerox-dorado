@@ -1,5 +1,80 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## 2026-07-18: THE MACHINE DISPLAYS ITSELF. Friendly desktop, 2x faster,
+## clipboard paste, and the ethernet bug behind every big-transfer wedge.
+
+**The Dorado draws its own schematic.** `ProcH-BitSlice07.ais` -- the 1979
+processor-board sheet, converted from the PDFs in `DoradoDocs/schematics/`
+-- paints in an open AIS Viewer on the Cedar 6.1 desktop
+(`docs/images/cedar-ais-proch-bitslice07-2026-07-18.png`). The moon photo
+`uscmoon.ais` came first and proved the pipeline.
+
+**Root cause of the >100 KB transfer wedge (the real find).** Full
+`DORADO_FTP_TRACE` forensics showed the client's acks freezing at one byte
+ID and repeating forever, with an `FTP_QUEUE` that had no matching
+`FTP_RX_CONSUMED`: a Pup queued while the guest receiver re-armed was lost
+(the wire is a single-packet buffer, exactly like a real dropped frame),
+and BSP clients discard everything after a gap. **Retransmission is the
+SENDER's job in BSP** and our STP server had no retransmit ring. Fix
+(`src/ethernet.c`, `PUP_TYPE_BSP_ACK`): on a *duplicate* acknowledgement,
+rewind the transmit cursor to the acked byte -- during a retrieve the file
+itself is the ring (rewind `ftp_file_pos`), and past EOF the fixed 20-byte
+completion tail re-enters `FTP_TX_DONE` at the lost step. The 324 KB
+fetch now completes after 3 rewinds. This same drop class was wedging
+cold-boot BringOvers of the complete tree.
+
+**A friendly front door.** Tim Diebert (AISViewer's author) pointed at
+Xerox's own sample configurations, now mirrored in
+`chm/cedar/cedar6.1-docs/`. They document the software-loading layer we
+had been doing by hand: `Install <pkg>`, `.cm` command files (run by
+typing their name; `Source` passes `$1`), `Alias`, `CreateButton`,
+`.load` manifests, and the profile hooks (`BootCommands`, `NewUser`,
+`PerLogin`, `PerCommandTool`). We adopted them:
+`chm/cedar/stp-root/CedarChest6.1/DoradoWelcome/` serves eight `.cm`
+files, and the profile fetches them, creates five CommandTool buttons,
+and prints a menu. A visitor now types `Moon.cm` -- verified end to end
+on the shipped checkpoint -- instead of a 100-character `Eval`.
+
+**Three traps when authoring guest files**, all failing identically and
+silently as "1 files acted upon" (the `.df` alone):
+1. Cedar text files are **CR-terminated**; LF makes the file one line.
+2. **`Bringover -p` is public-files-only** -- data files need plain
+   `Bringover`. (This bit us twice: first on `DoradoWelcome.df`, then
+   again in our own `Memo.cm`/`Chess.cm`, which is why their buttons
+   errored until 2026-07-18 late.)
+3. A **semicolon is a command separator** -- it cannot appear in `Echo`
+   text.
+Also corrected: quotes do NOT break a profile value (Xerox's own profiles
+are full of `\"`); our earlier corruption was a formatting error.
+
+**2x faster, by profiling instead of guessing.** `sample` on a live Cedar
+run showed **~40% of all runtime in trace-enable checks**:
+`dorado_trace_flag`'s memo is keyed by call-site string-literal pointer
+and held 128 entries for ~250 sites, so overflowed sites paid a full scan
+plus a real `getenv()` every call. Now an open-addressed 1024-slot hash.
+Second find: `dorado_ethernet_wakeup_mask` called raw
+`getenv("DORADO_ETH_WAKE_TRACE")` on every wakeup poll (~17%). Both
+fixed, byte-identical output: **Alto 11.6 -> 20.4 M cycles/s, Cedar
+~12 -> ~27 M** (1.2x / 1.6x the real 16.67 MIPS Dorado). Next spots if
+needed: `dorado_visible_word_at_va` VA re-translation (~20%), the
+interpreter (~15%).
+
+**Clipboard paste** in SDL (`Cmd/Ctrl+V`) and the browser (native paste
+event -> `dorado_web_paste`), plus headless `--paste-at CYCLES --paste
+TEXT`, all through one paced queue in the new `src/typetext.c` -- which
+also unifies the ASCII->Alto key map that `dorado.c` and `dorado_sdl.c`
+had drifting copies of.
+
+**Web:** the browser build now runs the in-process STP server against a
+pruned tree preloaded at `/stp` (CedarChest6.1 + fonts; Cedar6.1 stays
+out to keep `index.data` under GitHub's 100 MB file limit), so Bringover
+and demand-fetch work there too. The page gained a "What can I do here?"
+panel with a type-it-for-me button per command.
+
+Open next: mount the kitchensink volumes as secondary drives (read-only
+access to 2,240 recovered files) before attempting an installed-volume
+disk boot; XC1-2-2/CedarPS fonts and printing; Diebert's book software.
+
 ## 2026-07-16: CedarChest applications install into the live desktop;
 ## AIS raster pipeline; the Dorado's own schematics as .ais files.
 
