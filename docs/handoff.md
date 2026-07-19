@@ -416,7 +416,20 @@ interpreter ~15%.
      does not rewrite the name-directory's FPs to the new placement.
      Fixing that in rusty-backup is the next concrete step, and it is
      now a well-defined one — content and boot path are proven, only the
-     directory's FPs are wrong. The `0 ??` sizes on `.df` entries are
+     directory's FPs are wrong.
+
+     **Unexpected bonus: the corpus volume installs from its OWN DISK.**
+     Because it carries the Cedar file corpus, its boot finds
+     `[User]<Guest>6.1>Basic.Loadees` locally and loads
+     RPCRuntime / UserProfile / Idle / DFPackage / BasicPackages /
+     Installer / Inscript / VersionMap / WorldVM / AMTypes / AMModel …
+     straight off the disk, instead of pulling everything over the
+     in-process STP server the way the work volume does. That is the
+     authentic CSL configuration (the PARC veteran notes: "In CSL the
+     Dorados were always booted from the local disk"), and it is the
+     first time we have seen it happen here. It is also slower than the
+     network path — at 33 G cycles it is still loading AMModel, so the
+     checkpoint bakes at 48 G. The `0 ??` sizes on `.df` entries are
      likely the same defect seen from the other side.
 
      Two things that path needs, both known:
