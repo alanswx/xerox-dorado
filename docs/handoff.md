@@ -267,8 +267,39 @@ interpreter ~15%.
    References: `docs/parc-veteran-notes.md`,
    `chm/cedar/cedar6.1-docs/ReleaseMessage.tioga!9` (the from-scratch
    install procedure), Booting memo.
-4. **Multiple volumes — the second DRIVE is now a proven dead end
-   (2026-07-19).** Tested directly: `--pilot-disk 1=CedarDorado-kitchensink.pdi`
+4. **Multiple LOGICAL volumes on one disk: WORKING (2026-07-19).**
+   This is the authentic layout — Cedar 6.1's `ReleaseMessage.tioga` asks
+   the installer "How many Alto partitions?" and "Do you want a Debugger
+   volume?", and Pilot's PV/LV model is its own (the Alto had no such
+   concept, so this is not an Alto holdover). Three results, in order:
+
+   - **A second logical volume is enumerated and usable.**
+     `tools/pdi_add_volume.py` appends an LV to an existing image without
+     touching it (LV0's pages verify byte-identical). Cedar cold boots
+     from the result and `Open [CedarData]<>` in the CommandTool answers
+     `Created Viewer: [CedarData]<>` — a Tioga viewer on the new volume.
+   - **A whole logical volume can be relocated in** (`--copy-from`).
+     Page labels carry FILE ids (0 for free pages), not the volume id, so
+     an LV moves verbatim; only its logical-volume root names the volume
+     and needs a fresh, non-aliasing id. Control test: copying the
+     desktop volume into LV1 boots normally, which also proves duplicate
+     FileIDs across volumes are harmless.
+   - **The kitchensink volume still does not work — but for its OWN
+     reasons, not the multi-volume mechanism.** Merged in as LV1 the
+     machine renders 0 px, exactly as that volume does when booted
+     standalone (item 2, unchanged since 2026-07-16). The blank-LV and
+     twin-LV controls above boot fine on the identical machinery, so the
+     defect is in that volume's structure. Diagnose it as item 2; the
+     multi-volume path is ready and waiting for it.
+
+   Prerequisite fixed along the way: our PDI loader read the header's
+   CYLINDER word as the page count, capping images at 65535 pages
+   (33 MB) — which is why every image we build carries the fake geometry
+   65535x1x1. It now honors cylinders x heads x sectors, so a Trident
+   T-300 (278,730 pages, 136 MB) is available; two volumes need ~131 K
+   pages and never fit before.
+
+5. **Multiple DRIVES are a proven dead end (2026-07-19).** Tested directly: `--pilot-disk 1=CedarDorado-kitchensink.pdi`
    alongside the boot volume. Mounting is harmless (the machine boots to
    the login prompt and to the desktop exactly as before), but Cedar
    **never issues a single IOCB to drive 1** — a `DORADO_DISK_IOCB_TRACE`
