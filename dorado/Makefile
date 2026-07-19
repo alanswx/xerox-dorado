@@ -231,7 +231,8 @@ $(WEB_CEDAR_SNAPSHOT_GZ):
 cedar-desktop-web-snapshot: $(WEB_NODE_JS) $(CEDAR_WORK_PDI)
 	mkdir -p '$(WEB_CEDAR_RAW_DIR)' '$(WEB_LISP_ASSET_DIR)'
 	cp -f '$(CEDAR_WORK_PDI)' '$(WEB_CEDAR_DESKTOP_RAW_PDI)'
-	DORADO_PDI_IGNORE_LABEL_FLAGS=1 DORADO_PDI_SAVE=1 node '$(WEB_NODE_JS)' \
+	DORADO_PDI_IGNORE_LABEL_FLAGS=1 DORADO_PDI_SAVE=1 \
+	DORADO_FAKE_TIME='$(CEDAR_DESKTOP_FAKE_TIME)' node '$(WEB_NODE_JS)' \
 		--boot-reason disk --no-alto-boot \
 		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
 		--pilot-disk '$(WEB_CEDAR_DESKTOP_RAW_PDI)' \
@@ -484,6 +485,52 @@ run-cedar: sdl
 run-cedar-work: sdl $(CEDAR_WORK_PDI)
 	DORADO_PDI_IGNORE_LABEL_FLAGS=1 ./build/dorado-sdl --boot-reason disk --no-alto-boot --eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' --pilot-disk '$(CEDAR_WORK_PDI)' --ftp-root ../chm/cedar/stp-root --speed 4000000
 
+# ---- Cedar desktop verification gate --------------------------------------
+# Catches the two bug classes that shipped on 2026-07-18/19, both of which
+# passed every test we had at the time:
+#   1. a checkpoint baked MID-INSTALL (screen shows the installer, not the
+#      desktop) -- the pixel count gives it away;
+#   2. a file the BROWSER's pruned tree lacks. Cedar's interpreter
+#      demand-fetches while evaluating, so a missing Cedar6.1 bcd fails
+#      ONLY on the web ("UnknownError[sig: ...]"), never in SDL.
+# So this gate deliberately serves the PRUNED web tree, and drives the
+# desktop the way a visitor does: click the prompt, type Moon.cm, watch
+# for the picture. Discriminating counts (2026-07-19): plain desktop
+# 167K px, failed Eval 169K (just error text), moon painted 246K.
+CEDAR_GATE_MIN_PX ?= 200000
+CEDAR_GATE_CYCLES ?= 40000000000
+
+.PHONY: verify-cedar-gate-selftest
+verify-cedar-gate-selftest:
+	@echo "gate self-test: a log with missing files must FAIL"
+	@printf 'STP_MISSING Cedar6.1/Viewers/ViewerOps.bcd\ndorado: 168952 display-list pixels\n' > build/gate-bad.log
+	@if ../tools/check_cedar_gate.sh build/gate-bad.log 200000 >/dev/null 2>&1; then \
+		echo "SELFTEST FAIL: the gate passed a bad log"; exit 1; fi
+	@echo "gate self-test: a clean painted log must PASS"
+	@printf 'dorado: 245822 display-list pixels\n' > build/gate-good.log
+	@../tools/check_cedar_gate.sh build/gate-good.log 200000 >/dev/null \
+		|| (echo "SELFTEST FAIL: the gate failed a good log"; exit 1)
+	@rm -f build/gate-bad.log build/gate-good.log
+	@echo "gate self-test: PASS (fails bad logs, passes good ones)"
+
+.PHONY: verify-cedar-desktop
+verify-cedar-desktop: $(BINDIR)/dorado $(CEDAR_DESKTOP_SNAPSHOT) $(CEDAR_DESKTOP_PDI) web-stp
+	@echo "verify-cedar-desktop: restoring the desktop and running Moon.cm"
+	@echo "  (serving the PRUNED web tree, so browser-only gaps fail here)"
+	@cp -f '$(CEDAR_DESKTOP_PDI)' build/verify-cedar.pdi
+	@DORADO_FTP_TRACE=1 DORADO_PDI_IGNORE_LABEL_FLAGS=1 \
+	DORADO_FAKE_TIME='$(CEDAR_DESKTOP_FAKE_TIME)' ./build/dorado \
+		--boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk build/verify-cedar.pdi \
+		--ftp-root '$(WEB_STP_DIR)' \
+		--snapshot-in '$(CEDAR_DESKTOP_SNAPSHOT)' --key-hold 1600000 \
+		--type-at 31100000000 --click 700,733 \
+		--paste-at 31300000000 --paste 'Moon.cm\n' \
+		--cycles '$(CEDAR_GATE_CYCLES)' \
+		--out build/verify-cedar.pgm > build/verify-cedar.log 2>&1
+	@../tools/check_cedar_gate.sh build/verify-cedar.log '$(CEDAR_GATE_MIN_PX)'
+
 # ---- Cedar Viewers DESKTOP checkpoint (2026-07-15 milestone) --------------
 # The guest mutates the PDI during the install, so the snapshot is only valid
 # with the PDI image saved at the same cycle: the producer runs on a COPY with
@@ -497,6 +544,12 @@ CEDAR_DESKTOP_SCREEN := build/good-packs/cedar-desktop.pgm
 # command files, buttons, and welcome banner) settles ~29B with BSP sender
 # retransmission; the wedge-era 47B is history.
 CEDAR_DESKTOP_CYCLES ?= 31000000000
+# PIN THE CLOCK. time(NULL) in eth_fill_alto_time is the emulator's only
+# nondeterministic input, and it moves how far a boot gets: two bakes of
+# this same recipe once landed ~6B cycles apart, one at the desktop and
+# one still installing fonts (recognizable by ~87K display-list pixels
+# instead of ~167K). Pinned, a rebake reproduces the shipped artifact.
+CEDAR_DESKTOP_FAKE_TIME ?= 1783285880
 CEDAR_DESKTOP_SNAPSHOT_GZ := snapshot-assets/cedar-desktop-native.snap.gz
 CEDAR_DESKTOP_PDI_GZ := snapshot-assets/cedar-desktop-native.pdi.gz
 
@@ -504,7 +557,8 @@ CEDAR_DESKTOP_PDI_GZ := snapshot-assets/cedar-desktop-native.pdi.gz
 cedar-desktop-snapshot: $(BINDIR)/dorado $(CEDAR_WORK_PDI)
 	mkdir -p '$(dir $(CEDAR_DESKTOP_SNAPSHOT))' '$(dir $(CEDAR_DESKTOP_SNAPSHOT_GZ))'
 	cp -f '$(CEDAR_WORK_PDI)' '$(CEDAR_DESKTOP_PDI)'
-	DORADO_PDI_IGNORE_LABEL_FLAGS=1 DORADO_PDI_SAVE=1 ./build/dorado \
+	DORADO_PDI_IGNORE_LABEL_FLAGS=1 DORADO_PDI_SAVE=1 \
+	DORADO_FAKE_TIME='$(CEDAR_DESKTOP_FAKE_TIME)' ./build/dorado \
 		--boot-reason disk --no-alto-boot \
 		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
 		--pilot-disk '$(CEDAR_DESKTOP_PDI)' \

@@ -488,6 +488,41 @@ displays the memo fully formatted in Tioga. Notes from verification:
 
 ---
 
+## Verification gates
+
+| Command | Runtime | What it protects |
+|---|---|---|
+| `make test` | seconds | the C unit/integration suite (11 binaries) |
+| `make verify-cedar-gate-selftest` | instant | that the Cedar gate's pass/fail logic still discriminates |
+| `make verify-cedar-desktop` | ~12 min | the shipped desktop checkpoint AND the browser build |
+| `./build/dorado --eb worlds/aemu.eb --eftp '../chm/bootfiles/Galaxian.boot!1' --cycles 2500000000` | ~2 min | the Alto path (expect 121,515 px) |
+
+`verify-cedar-desktop` exists because three bugs shipped on 2026-07-18/19
+that every test at the time passed. It restores the desktop checkpoint,
+clicks the prompt and types `Moon.cm` exactly as a visitor would, and
+**serves the pruned `build/web-stp` tree** rather than the full one, so
+browser-only gaps fail here instead of in production. Two independent
+signals, both real failures we hit:
+
+- **`STP_MISSING` lines** — a file the served tree lacks. Cedar's
+  interpreter demand-fetches while evaluating, so a missing `Cedar6.1`
+  bcd breaks the deployed site and nothing else.
+- **display-list pixel count** — the picture must actually paint.
+  Reference values: mid-install checkpoint ~87 K, bare desktop ~167 K,
+  failed `Eval` ~169 K (error text only), moon painted ~246 K. The
+  threshold is 200 K.
+
+The decision logic lives in `tools/check_cedar_gate.sh` (not inline in
+the Makefile) so it can be exercised against known-good and known-bad
+logs; `verify-cedar-gate-selftest` does exactly that in a second.
+
+Checkpoint bakes are now deterministic: both snapshot recipes pin
+`DORADO_FAKE_TIME` (`CEDAR_DESKTOP_FAKE_TIME`), because `time(NULL)` was
+the emulator's one unpinned input and moved how far a boot got — once by
+6 B cycles, which shipped a mid-install checkpoint.
+
+---
+
 ## Useful flags and trace env vars
 
 CLI flags (`./build/dorado --help`): `--cycles N`, `--eb PATH`, `--germ PATH`,
