@@ -267,9 +267,31 @@ interpreter ~15%.
    References: `docs/parc-veteran-notes.md`,
    `chm/cedar/cedar6.1-docs/ReleaseMessage.tioga!9` (the from-scratch
    install procedure), Booting memo.
-4. **Multiple volumes**: `--pilot-disk SLOT=PATH` mounts 4 drives, and
-   the IOCB bridge honors the drive field, but whether Cedar's Dorado
-   head enumerates a second drive is unproven. Alternative: multiple
+4. **Multiple volumes — the second DRIVE is now a proven dead end
+   (2026-07-19).** Tested directly: `--pilot-disk 1=CedarDorado-kitchensink.pdi`
+   alongside the boot volume. Mounting is harmless (the machine boots to
+   the login prompt and to the desktop exactly as before), but Cedar
+   **never issues a single IOCB to drive 1** — a `DORADO_DISK_IOCB_TRACE`
+   cold boot shows 56 IOCBs, all `drive=0` — and from the desktop
+   `List [CedarKitchenSink]<>*` returns nothing. So the plumbing we have
+   (4 PDI slots, an IOCB bridge that honors the drive field, re-attach
+   after snapshot restore) is all correct and all unused: Cedar's device
+   table only ever contains one drive, because nothing in our model tells
+   Pilot's Dorado disk head that a second unit exists. Making it work
+   means modelling whatever that head probes — i.e. finishing the real
+   disk controller path (item 2), not a small patch.
+
+   **Prefer the other route: multiple LOGICAL volumes on ONE physical
+   disk.** That is also the authentic PARC layout (Alto | Basic |
+   CedarWork | ... on a single T-300), and it sidesteps drive
+   enumeration entirely — Pilot reads the subvolume table from the disk
+   it has already found. Our images are all `subVolumeCount = 1`
+   (confirmed with `pdidump`); `tools/pdi_install_lv_bootfiles.py`
+   already parses multi-subvolume tables (count at word 64, 13-word
+   descriptors), so the reading side exists. The work is on the writing
+   side: teach `tools/rusty-backup` to lay down several LVs in one PV.
+   The kitchensink volume is worth the effort — `pdidump --files` shows
+   2,281 file headers across 62,870 data pages. Alternative: multiple
    LOGICAL volumes on one physical disk is the authentic layout
    (Alto | Basic | CedarWork | ... on one T-300) — rusty-backup writes
    single-LV images today; extending it to multi-LV + using Othello's
