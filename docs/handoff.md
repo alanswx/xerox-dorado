@@ -454,9 +454,31 @@ interpreter ~15%.
      directory writer, and it is the same root as the poor naming
      (`named 25` of 1200): the repack copies file CONTENT correctly but
      does not rewrite the name-directory's FPs to the new placement.
-     Fixing that in rusty-backup is the next concrete step, and it is
-     now a well-defined one — content and boot path are proven, only the
-     directory's FPs are wrong.
+     **FIXED upstream (2026-07-20).** Cedar's `File.FP` is
+     `RECORD[id(0): FileID, da(2): DA]` and `FileImpl.Open` dereferences
+     `da` as `VolumeFormat.LogicalRun[first: fp.da, size: headerPages]`
+     — so `da` is the LOGICAL PAGE of the file's header. rusty-backup's
+     directory writer left it 0 (literally `// fp.da left 0`), pointing
+     every entry at logical page 0, and `FSMainImpl2` rejected the first
+     one with `$badFP`, abandoning the whole enumeration. The writer now
+     records it, the reader recovers it, and `set_client_directory`
+     resolves each entry's header page. Verified in the emulator: the
+     listing now COMPLETES (`-- 3 files, 36602 total bytes`) instead of
+     dropping into the debugger. Patch: `docs/rusty-backup-cedar-fp-da.patch`;
+     pushed to `alanswx/rusty-backup` branch `add-missing-filesystems`.
+
+     **NEXT defect, precisely located: blank property pages.** Only 3 of
+     the 25 named files list. The repack now reports "offered 25 names,
+     25 resolved and listed", so the directory is complete and the loss
+     is on Cedar's side: it opens each file for properties and 22 fail
+     with "Property page of a local file has a bad property page", then
+     skips them. `pilot::add_file` writes the file's SECOND header page
+     — its property storage — as zeros, and says so:
+     `// Second header page: normal property storage (currently blank)`.
+     Cedar populates that page through `FSFileOps.InitializePropertyStorage`
+     (passed to `File.Create` in `FSFileOpsImpl.mesa`), so that routine
+     is the specification to match. Worth understanding why 3 files pass
+     the check — that difference should identify the required field.
 
      **Unexpected bonus: the corpus volume installs from its OWN DISK.**
      Because it carries the Cedar file corpus, its boot finds

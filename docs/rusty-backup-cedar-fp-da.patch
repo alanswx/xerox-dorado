@@ -1,8 +1,8 @@
 From 1645bff536216317bc2130fbb75b6c0806db2cf7 Mon Sep 17 00:00:00 2001
 From: Alan Steremberg <alan.steremberg@gmail.com>
 Date: Mon, 20 Jul 2026 11:39:25 -0400
-Subject: [PATCH] rusty-backup: Cedar name-directory entries need File.FP.da,
- not just the FileID
+Subject: [PATCH 1/2] rusty-backup: Cedar name-directory entries need
+ File.FP.da, not just the FileID
 
 Cedar's directory enumeration died on the first entry with
   FS.Error $badFP -- 'File.FP from directory/cache doesn't correspond to
@@ -210,6 +210,69 @@ index f24ffdf..d66aa66 100644
          assert_eq!(
              read_volume(&disk, Generation::CedarNucleus)
                  .unwrap()
+-- 
+2.50.1 (Apple Git-155)
+
+
+From 3c39989085a68c35f82b93e94b50458a19803eff Mon Sep 17 00:00:00 2001
+From: Alan Steremberg <alan.steremberg@gmail.com>
+Date: Mon, 20 Jul 2026 12:11:21 -0400
+Subject: [PATCH 2/2] cedar_repack: report how many names actually resolve and
+ get listed
+
+set_client_directory drops entries it cannot resolve to a header page
+(writing a null File.FP.da instead makes Cedar abandon the enumeration),
+so the count of names offered is not the count that land. Print both, and
+name the reason when they differ, instead of leaving a silent gap between
+'named N' and what the volume shows.
+
+On the recovered PARC corpus this reports 'offered 25 names, 25 resolved
+and listed' -- which is what localised the remaining loss to Cedar's
+property-page check rather than to the directory.
+
+Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>
+---
+ examples/cedar_repack.rs | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
+
+diff --git a/examples/cedar_repack.rs b/examples/cedar_repack.rs
+index 6971e30..7c1f681 100644
+--- a/examples/cedar_repack.rs
++++ b/examples/cedar_repack.rs
+@@ -102,6 +102,33 @@ fn main() {
+         }
+     }
+ 
++    // Report what the volume will actually show. set_client_directory drops
++    // entries whose file it cannot resolve to a header page (writing a null
++    // File.FP.da instead would make Cedar abandon the whole enumeration with
++    // $badFP), so the number of names offered is not the number that land.
++    {
++        let mut fs = PilotFilesystem::open(disk.clone(), Generation::CedarNucleus)
++            .expect("reopen new volume");
++        let root = fs.root().expect("new root");
++        let listed = fs.list_directory(&root).expect("list new volume");
++        let real = listed
++            .iter()
++            .filter(|e| !e.name.starts_with("LV0_"))
++            .count();
++        println!(
++            "directory: offered {} names, {real} resolved and listed{}",
++            names.len(),
++            if real < names.len() {
++                format!(
++                    " ({} dropped: no resolvable header page)",
++                    names.len() - real
++                )
++            } else {
++                String::new()
++            }
++        );
++    }
++
+     let out = pilot::write_pdi(&disk, Generation::CedarNucleus);
+     fs::write(new_path, out).expect("write new PDI");
+     println!(
 -- 
 2.50.1 (Apple Git-155)
 
