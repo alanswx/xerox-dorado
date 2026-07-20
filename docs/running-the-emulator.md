@@ -293,6 +293,7 @@ prompt line first for type-in focus) type any of:
 | `Ifu.cm` | the IFU board drawing |
 | `Memo.cm` | Ed Taft's 1980 "Dorado Booting" memo, formatted in Tioga |
 | `Images.cm` | fetches the picture collection and lists it |
+| `Browse.cm` | lists the files on this disk (click a name, then Open) |
 | `Source Show.cm <name>.ais` | displays any picture by name |
 
 The same actions are **buttons in the CommandTool menu line** (next to

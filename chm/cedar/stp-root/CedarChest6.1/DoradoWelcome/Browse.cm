@@ -1,0 +1,1 @@
+-- Browse.cm -- list the files on this volume so you can open them.Echo Files on this volume. Click a name with the LEFT mouse button, thenEcho pick Open from the CommandTool menu line, or type Open <name>.Echo ----------------------------------------------------------------List ///*
