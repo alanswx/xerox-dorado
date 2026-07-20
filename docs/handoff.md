@@ -50,6 +50,31 @@ Not a trap, a correction: **quotes are fine inside a profile value**
 (Xerox's own profiles are full of `\"`); an earlier note here claiming
 otherwise was our own formatting error.
 
+### OPEN BUG: the local-disk install hangs intermittently (2026-07-19)
+
+The corpus volume loads its packages from its own disk (the authentic CSL
+path, see above). That path sometimes **hangs forever** at
+
+    Loading "[Cedar]<Cedar6.1>AMModel>AMModelPackage.bcd" ...
+
+Signature: ~40 K display-list pixels instead of the desktop's ~167 K, the
+screen frozen on the loading list, but the herald clock still ticking —
+so the machine is alive and only this load never completes.
+
+What rules out the easy explanations: the same volume (verified
+byte-identical with `cmp`), the same pinned `DORADO_FAKE_TIME`, and the
+same emulator binary reached the full desktop in another run.
+`DORADO_PDI_SAVE` is read only at teardown (`machine.c`), so it cannot
+change the run. Two bakes hung; two runs of the same volume finished. So
+it is a genuine race on our side, not a property of the image.
+
+Where to start: the load is a local disk read of a bcd through the PDI
+IOCB bridge, so trace `DORADO_DISK_IOCB_TRACE` on a hung run and compare
+the final IOCBs against a good one — the same read-for-read diff
+technique that root-caused the single-header VAM bug. Until it is fixed,
+bake the corpus checkpoint and CHECK THE PIXEL COUNT before shipping it;
+`make verify-cedar-desktop`'s threshold logic is the same idea.
+
 ### Two traps when driving long bakes from this repo (2026-07-19)
 
 - **`cd dorado && <edit> && make ...` loses the edit if the `cd` fails.**

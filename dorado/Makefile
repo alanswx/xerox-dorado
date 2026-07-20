@@ -524,9 +524,17 @@ CEDAR_CORPUS_RUN_PDI := build/good-packs/cedar-corpus.pdi
 CEDAR_CORPUS_SNAPSHOT_GZ := snapshot-assets/cedar-corpus-native.snap.gz
 CEDAR_CORPUS_RUN_PDI_GZ := snapshot-assets/cedar-corpus-native.pdi.gz
 # The corpus volume finds Basic.Loadees on its OWN disk and loads packages
-# locally (the authentic on-disk install), which runs longer than the network
-# path: at 33 G it is still loading AMModel.
-CEDAR_CORPUS_CYCLES ?= 48000000000
+# locally -- the authentic CSL configuration, and slower than our network
+# path. 36 G reaches the desktop.
+#
+# INTERMITTENT: this local-load path sometimes HANGS at
+# "Loading [Cedar]<Cedar6.1>AMModel>AMModelPackage.bcd" and never
+# proceeds (~40 K display-list pixels instead of ~167 K, screen frozen on
+# the loading list while the herald clock keeps ticking). Same volume,
+# same pinned clock, so it is a real emulator-side race worth chasing --
+# see docs/handoff.md. If a bake lands there, just run it again and check
+# the pixel count before shipping the checkpoint.
+CEDAR_CORPUS_CYCLES ?= 36000000000
 
 $(CEDAR_CORPUS_PDI): $(CEDAR_CORPUS_PDI_GZ)
 	gunzip -c '$<' > '$@'
