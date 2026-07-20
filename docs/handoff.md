@@ -467,7 +467,27 @@ interpreter ~15%.
      dropping into the debugger. Patch: `docs/rusty-backup-cedar-fp-da.patch`;
      pushed to `alanswx/rusty-backup` branch `add-missing-filesystems`.
 
-     **NEXT defect, precisely located: blank property pages.** Only 3 of
+     **ALSO FIXED (2026-07-20) — the corpus is now BROWSABLE.** With both
+     fixes in, `List ///*` fills the screen with recovered PARC files,
+     their real sizes and their 1985 dates:
+
+     ```
+     Hebrew14.ks!1        2324  21-May-85 01:07:45 EDT
+     Helvetica10.ks!1     1472  21-May-85 01:07:46 EDT
+     Helvetica14BI.ks!1     -1  23-May-85 12:40:38 EDT
+     Hippo12BI.ks!1         -1  21-May-85 01:10:04 EDT
+     ```
+
+     Screenshot: `docs/images/cedar-corpus-files-browsable-2026-07-20.png`.
+     These really are corpus files and not our own served fonts coming
+     back: `Helvetica14BI`, `Helvetica16BI`, `Hippo10BI`, `Hippo12BI`,
+     `Hippo18B`, `Helvetica9BI`, `Hebrew14B` and `Hebrew14BI` exist
+     nowhere in `chm/cedar/stp-root` — 8 of 10 sampled names are
+     corpus-only.
+
+     The second fix, for the record:
+
+     **Blank property pages.** Only 3 of
      the 25 named files list. The repack now reports "offered 25 names,
      25 resolved and listed", so the directory is complete and the loss
      is on Cedar's side: it opens each file for properties and 22 fail
