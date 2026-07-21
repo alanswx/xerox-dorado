@@ -592,7 +592,7 @@ int main(int argc, char **argv)
                 printf("dorado: pasting %zu chars\n",
                        strlen(paste_events[pe].text));
                 dorado_typequeue_start(&paste_queue, paste_events[pe].text,
-                                       1600000ull, dorado_machine_cycles(m));
+                                       800000ull, dorado_machine_cycles(m));
             }
             dorado_typequeue_pump(&paste_queue, m);
             for (int te = 0; te < type_event_count; te++) {

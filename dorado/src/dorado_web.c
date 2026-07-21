@@ -599,7 +599,8 @@ int dorado_web_paste(const char *text)
 {
     if (!app.m || !text || !*text) return 1;
     printf("dorado_web: pasting %d chars\n", (int)strlen(text));
-    dorado_typequeue_start(&paste_queue, text, 1600000ull,
+    /* 800000 ~= the keyboard buffer's 3-field drain rate. */
+    dorado_typequeue_start(&paste_queue, text, 800000ull,
                            dorado_machine_cycles(app.m));
     return 0;
 }

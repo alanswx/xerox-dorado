@@ -170,6 +170,20 @@ struct dorado_machine {
     uint64_t next_cedar_field_cycle; /* next display vertical-field notify */
 };
 
+/* Host-side keyboard buffer. Cedar samples the physical key matrix once per
+ * display field (CEDAR_FIELD_INTERVAL_CYCLES); a key that goes down AND up
+ * between two samples is never seen. The interactive frontends deliver
+ * keydown/keyup at wall-clock speed, so a fast key roll (or a browser
+ * autorepeat tap) could apply both transitions inside one field and vanish.
+ * This FIFO decouples delivery from sampling: set_key enqueues, and
+ * machine_cedar_io applies one transition per field so every press and
+ * release is sampled. Kept at file scope (not in dorado_machine) so it does
+ * NOT change the machine struct size -- the snapshot ABI rejects a restore
+ * whose struct size differs, and every baked checkpoint would break. There is
+ * one live machine at a time; dorado_machine_create resets it. */
+static struct { uint16_t key; uint8_t down; } machine_key_queue[512];
+static unsigned machine_key_q_head, machine_key_q_tail, machine_key_field_wait;
+
 static uint32_t machine_pchist_task[16][4096];
 /* PDI media is normally an ephemeral host attachment.  This one-process path
  * table supports the explicit DORADO_PDI_SAVE diagnostic without changing the
@@ -279,6 +293,14 @@ static uint16_t machine_disk_dmux_read(uint16_t addr, int *handled, void *ctx)
  * keyboard watcher (ProcessKeyboard) blocks on this retrace notify, so the
  * cadence sets how often it samples the keyboard. */
 #define CEDAR_FIELD_INTERVAL_CYCLES 277778ull
+/* Fields to hold each buffered key transition before applying the next. Three
+ * fields (~63 ms/char wall at emulator speed, ~16 char/s) is lossless even
+ * when a paste dumps a whole line into the buffer at once: each state is
+ * sampled several times, and applying transitions at field boundaries removes
+ * the misalignment that dropped keys at even ~2 fields with the old
+ * unbuffered "set matrix and hope a field samples it". Still >2x the old
+ * scripted rate (a fixed 1.6 M-cycle hold, ~7 char/s). */
+#define KEY_FIELDS_PER_TRANSITION 3u
 
 /* Cedar/Pilot KeyBits (TerminalDefs.KeyBits) live at absolute LONG[177033B]
  * (TerminalHeadDorado.mesa: keyboard _ LOOPHOLE[LONG[177033B]]). It is a
@@ -1814,6 +1836,23 @@ static void machine_cedar_io(dorado_machine *m, dorado_baseboard *bb,
         m->keys_live = 1;
     }
 
+    /* Drain the keyboard buffer: apply at most one queued transition per
+     * KEY_FIELDS_PER_TRANSITION fields, so each key press and release is
+     * applied at a field boundary and held long enough to be sampled below.
+     * This is what makes fast typing lossless -- delivery no longer races the
+     * field clock. */
+    if (machine_key_field_wait > 0) {
+        machine_key_field_wait--;
+    } else if (machine_key_q_head != machine_key_q_tail) {
+        unsigned cap = (unsigned)(sizeof machine_key_queue /
+                                  sizeof machine_key_queue[0]);
+        uint16_t key = machine_key_queue[machine_key_q_head].key;
+        uint8_t down = machine_key_queue[machine_key_q_head].down;
+        machine_key_q_head = (machine_key_q_head + 1u) % cap;
+        dorado_display_keyboard_set_key(disp, (dorado_display_key)key, down);
+        machine_key_field_wait = KEY_FIELDS_PER_TRANSITION - 1u;
+    }
+
     uint16_t w[4];
     for (int i = 0; i < 4; i++)
         w[i] = dorado_display_keyboard_word(disp, i);
@@ -1945,6 +1984,9 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
 
     dorado_machine *m = calloc(1, sizeof *m);
     if (!m) return NULL;
+    /* Reset the process-global keyboard buffer for this machine (the web
+     * frontend destroys and recreates machines when switching worlds). */
+    machine_key_q_head = machine_key_q_tail = machine_key_field_wait = 0;
     m->alto_ether_boot  = cfg.alto_ether_boot;
     m->disk_real        = cfg.disk_real;
     m->alto_ether_quote = cfg.alto_ether_quote;
@@ -3403,7 +3445,26 @@ void dorado_machine_set_key(dorado_machine *m, dorado_display_key key,
                             int down)
 {
     if (!m) return;
-    dorado_display_keyboard_set_key(&m->display, key, down ? 1 : 0);
+    /* Before the Cedar world is live (Alto path, or during boot), the field
+     * sampler that drains the queue is not running; apply directly so the
+     * Alto keyboard and the boot chord behave exactly as before. */
+    if (m->alto_ether_boot || !m->keys_live) {
+        dorado_display_keyboard_set_key(&m->display, key, down ? 1 : 0);
+        return;
+    }
+    unsigned cap = (unsigned)(sizeof machine_key_queue /
+                              sizeof machine_key_queue[0]);
+    unsigned next = (machine_key_q_tail + 1u) % cap;
+    if (next == machine_key_q_head) {
+        /* Full (a huge paste burst): drain synchronously rather than drop.
+         * The buffer smooths normal typing; this only trips on extreme
+         * bursts, where applying directly is still better than losing keys. */
+        dorado_display_keyboard_set_key(&m->display, key, down ? 1 : 0);
+        return;
+    }
+    machine_key_queue[machine_key_q_tail].key = (uint16_t)key;
+    machine_key_queue[machine_key_q_tail].down = (uint8_t)(down ? 1 : 0);
+    machine_key_q_tail = next;
 }
 
 void dorado_machine_set_ftp_source(dorado_machine *m, const char *sysout,

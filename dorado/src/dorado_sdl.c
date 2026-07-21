@@ -501,8 +501,11 @@ int main(int argc, char **argv)
                     if (clip && *clip) {
                         printf("dorado-sdl: pasting %zu chars\n",
                                strlen(clip));
+                        /* 800000 ~= the machine keyboard buffer's 3-field
+                         * drain rate, so paste feeds the buffer without
+                         * overrunning it and runs ~2x the old 1.6M pace. */
                         dorado_typequeue_start(&paste_queue, clip,
-                                               1600000ull,
+                                               800000ull,
                                                dorado_machine_cycles(m));
                     }
                     if (clip) SDL_free(clip);
