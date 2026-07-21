@@ -82,6 +82,7 @@
       </optgroup>
       <optgroup label="Cedar / Mesa (Pilot)">
         <option value="cedar-desktop">Cedar 6.1 &mdash; saved Viewers desktop</option>
+        <option value="cedar-demo">Cedar 6.1 &mdash; apps demo (Chess, Clock, offline)</option>
         <option value="cedar-corpus">Cedar 6.1 &mdash; recovered PARC file corpus</option>
         <option value="cedar">Cedar 6.1 &mdash; saved login prompt</option>
         <option value="mesa">Mesa Network Executive</option>
@@ -272,6 +273,19 @@
     cedarDesktopAssetsReady = true;
   }
 
+  var cedarDemoAssetsReady = false;
+  async function prepareCedarDemoAssets() {
+    if (cedarDemoAssetsReady) return;
+    setStatus('Expanding the Cedar apps demo (snapshot + disk)...');
+    await Promise.all([
+      expandGzipAsset('/worlds/cedar-demo.snap.gz',
+                      '/worlds/cedar-demo.snap'),
+      expandGzipAsset('/worlds/cedar-demo.pdi.gz',
+                      '/worlds/cedar-demo.pdi')
+    ]);
+    cedarDemoAssetsReady = true;
+  }
+
   async function bootSelected() {
     if (!ready) return;
     var opt = gameSel.options[gameSel.selectedIndex];
@@ -291,6 +305,22 @@
       } catch (e) {
         console.error(e);
         setStatus('Could not restore the corpus desktop: ' + e.message);
+      }
+      document.getElementById('canvas').focus();
+      return;
+    }
+    if (path === 'cedar-demo') {
+      try {
+        await prepareCedarDemoAssets();
+        var rcd = Module.ccall('dorado_web_boot_cedar_demo', 'number', [], []);
+        if (rcd) throw new Error('snapshot restore rejected the saved image');
+        showGuide(true);
+        setStatus('Cedar 6.1 apps demo. Click the ChessHack icon (bottom-left) '
+                  + 'to select it, then click "Open" (top-right menu) to play '
+                  + 'chess -- it runs with NO network. The Clock is running too.');
+      } catch (e) {
+        console.error(e);
+        setStatus('Could not restore the apps demo: ' + e.message);
       }
       document.getElementById('canvas').focus();
       return;

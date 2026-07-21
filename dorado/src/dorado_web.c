@@ -59,6 +59,8 @@
  * mutates the disk during the install, so the pair is inseparable). */
 #define WEB_CEDAR_DESKTOP_SNAPSHOT "/worlds/cedar-desktop.snap"
 #define WEB_CEDAR_DESKTOP_PDI      "/worlds/cedar-desktop.pdi"
+#define WEB_CEDAR_DEMO_SNAPSHOT    "/worlds/cedar-demo.snap"
+#define WEB_CEDAR_DEMO_PDI         "/worlds/cedar-demo.pdi"
 
 /* The CORPUS pack: the same Cedar desktop, but running from a volume that
  * carries the recovered PARC file corpus (repacked into Cedar's layout with
@@ -376,6 +378,64 @@ int dorado_web_boot_cedar_desktop(void)
     app.frame     = 0;
     app.cycles_per_frame = WEB_CYCLES_INTERACTIVE;
     printf("dorado_web: restored the Cedar 6.1 Viewers desktop\n");
+    return 0;
+}
+
+/* (Re)create the machine at the saved APPS-DEMO desktop: a clean Cedar
+ * desktop with ChessHack and Clock parked as icons, both modules already
+ * loaded and the Chess40 font pre-cached in memory. Opening ChessHack
+ * (click its icon) paints the chess board with NO network. Same restore
+ * contract as the desktop; the pruned /stp tree is still served so the
+ * picture-viewer .cm launchers keep working. Exported for JS ccall. */
+EMSCRIPTEN_KEEPALIVE
+int dorado_web_boot_cedar_demo(void)
+{
+    unsetenv("DORADO_DISPM_PRESENT");
+    if (app.m) {
+        dorado_machine_destroy(app.m);
+        paste_queue.active = 0;
+        app.m = NULL;
+        app.disp = NULL;
+    }
+
+    dorado_machine_config cfg;
+    dorado_machine_config_default(&cfg);
+    cfg.bb_rom       = WEB_BB_ROM;
+    cfg.bootstrap_mb = WEB_BOOTSTRAP;
+    cfg.initial_mb   = WEB_INITIAL;
+    cfg.kernel_mb    = WEB_KERNEL;
+    cfg.memmisc_mb   = WEB_MEMMISC;
+    cfg.ifu_mb       = WEB_IFU;
+    cfg.eth_boot_110 = WEB_CEDAR_EB;
+    cfg.germ_path    = WEB_CEDAR_GERM;
+    cfg.pilot_disk_pdi[0] = WEB_CEDAR_DEMO_PDI;
+    cfg.eftp_boot    = NULL;
+    cfg.alto_ether_boot = 0;
+    cfg.boot_dir_all = 0;
+    cfg.boot_keys[0] = DORADO_KEY_NONE;
+    cfg.boot_keys_count = 1;
+    cfg.ftp_root     = WEB_STP_ROOT;
+
+    app.m = dorado_machine_create(&cfg);
+    if (!app.m) {
+        fprintf(stderr, "dorado_web: failed to create Cedar apps-demo machine\n");
+        return 1;
+    }
+    if (dorado_machine_restore(app.m, WEB_CEDAR_DEMO_SNAPSHOT) != 0) {
+        fprintf(stderr, "dorado_web: failed to restore the apps-demo snapshot\n");
+        dorado_machine_destroy(app.m);
+        paste_queue.active = 0;
+        app.m = NULL;
+        return 1;
+    }
+    dorado_machine_set_ftp_source(app.m, NULL, WEB_STP_ROOT);
+    app.disp      = dorado_machine_display(app.m);
+    app.mouse_buttons = 0;
+    app.paused    = 0;
+    app.announced = 1;
+    app.frame     = 0;
+    app.cycles_per_frame = WEB_CYCLES_INTERACTIVE;
+    printf("dorado_web: restored the Cedar 6.1 apps demo (ChessHack + Clock)\n");
     return 0;
 }
 

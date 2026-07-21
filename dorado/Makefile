@@ -71,6 +71,10 @@ WEB_CEDAR_CORPUS_RAW_PDI := $(WEB_CEDAR_RAW_DIR)/cedar-corpus.pdi
 WEB_CEDAR_DESKTOP_PDI_GZ := $(WEB_LISP_ASSET_DIR)/cedar-desktop.pdi.gz
 WEB_CEDAR_DESKTOP_RAW_SNAPSHOT := $(WEB_CEDAR_RAW_DIR)/cedar-desktop.snap
 WEB_CEDAR_DESKTOP_RAW_PDI := $(WEB_CEDAR_RAW_DIR)/cedar-desktop.pdi
+WEB_CEDAR_DEMO_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/cedar-demo.snap.gz
+WEB_CEDAR_DEMO_PDI_GZ := $(WEB_LISP_ASSET_DIR)/cedar-demo.pdi.gz
+WEB_CEDAR_DEMO_RAW_SNAPSHOT := $(WEB_CEDAR_RAW_DIR)/cedar-demo.snap
+WEB_CEDAR_DEMO_RAW_PDI := $(WEB_CEDAR_RAW_DIR)/cedar-demo.pdi
 # _GNU_SOURCE exposes timegm()/strcasecmp() in Emscripten's musl sysroot;
 # macOS headers expose them by default, so the native build doesn't need it.
 # No SDL: the web frontend presents via the canvas 2d context and takes
@@ -81,7 +85,7 @@ WEB_CFLAGS := -std=c99 -D_GNU_SOURCE -O2 -Iinclude -Ivendor/6502
 WEB_LDFLAGS := -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=67108864 \
                -sSTACK_SIZE=1048576 \
                -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,FS \
-               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_cedar_desktop,_dorado_web_boot_cedar_corpus,_dorado_web_boot_mesa,_dorado_web_boot_disk,_dorado_web_boot_lisp,_dorado_web_key,_dorado_web_mouse,_dorado_web_debug,_dorado_web_paste \
+               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_cedar_desktop,_dorado_web_boot_cedar_demo,_dorado_web_boot_cedar_corpus,_dorado_web_boot_mesa,_dorado_web_boot_disk,_dorado_web_boot_lisp,_dorado_web_key,_dorado_web_mouse,_dorado_web_debug,_dorado_web_paste \
                --preload-file worlds/aemu.eb@/worlds/aemu.eb \
                --preload-file ../chm/bootfiles@/chm/bootfiles \
                --preload-file '../chm/dorado/AltoMesaDorado.eb!2'@/worlds/AltoMesaDorado.eb \
@@ -91,6 +95,8 @@ WEB_LDFLAGS := -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=67108864 \
                --preload-file '$(WEB_CEDAR_SNAPSHOT_GZ)'@/worlds/cedar-login.snap.gz \
                --preload-file '$(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ)'@/worlds/cedar-desktop.snap.gz \
                --preload-file '$(WEB_CEDAR_DESKTOP_PDI_GZ)'@/worlds/cedar-desktop.pdi.gz \
+               --preload-file '$(WEB_CEDAR_DEMO_SNAPSHOT_GZ)'@/worlds/cedar-demo.snap.gz \
+               --preload-file '$(WEB_CEDAR_DEMO_PDI_GZ)'@/worlds/cedar-demo.pdi.gz \
                --preload-file '$(WEB_CEDAR_CORPUS_SNAPSHOT_GZ)'@/worlds/cedar-corpus.snap.gz \
                --preload-file '$(WEB_CEDAR_CORPUS_PDI_GZ)'@/worlds/cedar-corpus.pdi.gz \
                --preload-file '../chm/diskpacks/games-trident.pack'@/worlds/games-trident.pack \
@@ -139,7 +145,7 @@ $(WEB_ALTO_PACK): $(WEB_ALTO_PACK).gz
 	gunzip -c $< > $@
 
 .PHONY: web
-web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_PDI_GZ) $(WEB_CEDAR_CORPUS_SNAPSHOT_GZ) $(WEB_CEDAR_CORPUS_PDI_GZ) $(WEB_LISP_SNAPSHOT_GZ) $(WEB_LISP_PACK_GZ) web-stp | web-dir
+web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_PDI_GZ) $(WEB_CEDAR_DEMO_SNAPSHOT_GZ) $(WEB_CEDAR_DEMO_PDI_GZ) $(WEB_CEDAR_CORPUS_SNAPSHOT_GZ) $(WEB_CEDAR_CORPUS_PDI_GZ) $(WEB_LISP_SNAPSHOT_GZ) $(WEB_LISP_PACK_GZ) web-stp | web-dir
 	$(EMCC) $(WEB_CFLAGS) $(WEB_SRCS) $(WEB_LDFLAGS) -o web/index.html
 
 # Pruned STP release tree preloaded into the wasm FS at /stp: CedarChest6.1
@@ -273,6 +279,35 @@ cedar-desktop-web-snapshot: $(WEB_NODE_JS) $(CEDAR_WORK_PDI)
 $(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_PDI_GZ):
 	@echo "Missing WebAssembly Cedar desktop checkpoint assets."
 	@echo "Run 'make cedar-desktop-web-snapshot' with emsdk on PATH."
+	@false
+
+# Cedar offline apps-demo checkpoint for the browser (wasm32 ABI). Cold-boots
+# the work volume (the install attaches Chess40 into the font catalog), logs
+# in as Guest, then at the desktop BringOvers ChessHack + Clock into memory,
+# starts them (they park as icons), and pre-caches the Chess40 font -- so the
+# restored world opens ChessHack (click the icon) with NO network. Same recipe
+# as the native `cedar-demo-snapshot`, run under node for the wasm ABI.
+.PHONY: cedar-demo-web-snapshot
+cedar-demo-web-snapshot: $(WEB_NODE_JS) $(CEDAR_WORK_PDI)
+	mkdir -p '$(WEB_CEDAR_RAW_DIR)' '$(WEB_LISP_ASSET_DIR)'
+	cp -f '$(CEDAR_WORK_PDI)' '$(WEB_CEDAR_DEMO_RAW_PDI)'
+	DORADO_PDI_IGNORE_LABEL_FLAGS=1 DORADO_PDI_SAVE=1 \
+	DORADO_FAKE_TIME='$(CEDAR_DESKTOP_FAKE_TIME)' node '$(WEB_NODE_JS)' \
+		--boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk '$(WEB_CEDAR_DEMO_RAW_PDI)' \
+		--ftp-root ../chm/cedar/stp-root \
+		--type-at 760000000 --type 'Guest\n\n' \
+		--type-at 31100000000 --click 700,733 \
+		--paste-at 31300000000 --paste 'Bringover -p [Cedar]<CedarChest6.1>Top>ChessHack\nBringover -p [Cedar]<CedarChest6.1>Top>Clock\nRun ChessHackImpl\nRun Clock\nClock\nChessHack\nEval ImagerFont.Find["Xerox/TiogaFonts/Chess40"]\n' \
+		--cycles '$(CEDAR_DEMO_CYCLES)' \
+		--snapshot-out '$(WEB_CEDAR_DEMO_RAW_SNAPSHOT)'
+	gzip -c '$(WEB_CEDAR_DEMO_RAW_SNAPSHOT)' > '$(WEB_CEDAR_DEMO_SNAPSHOT_GZ)'
+	gzip -c '$(WEB_CEDAR_DEMO_RAW_PDI)' > '$(WEB_CEDAR_DEMO_PDI_GZ)'
+
+$(WEB_CEDAR_DEMO_SNAPSHOT_GZ) $(WEB_CEDAR_DEMO_PDI_GZ):
+	@echo "Missing WebAssembly Cedar apps-demo checkpoint assets."
+	@echo "Run 'make cedar-demo-web-snapshot' with emsdk on PATH."
 	@false
 
 web-dir:
