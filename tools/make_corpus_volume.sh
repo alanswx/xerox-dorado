@@ -24,10 +24,12 @@
 #     polled germ path wants the flat page number ((104,0)) -- the same VDA
 #     104, a different encoding. Skip this and the volume renders 0 px.
 #
-# Known limitation: only ~25 of 1200 files keep their names, and listing
-# eventually stops on FSReportImpl $badFP, because cedar_repack copies file
-# content without rewriting the name-directory's File.FPs to the new
-# placement. Fixing that is the next job; see docs/handoff.md.
+# Naming: --names chm recovers a file's real name by matching its content
+# against the CHM archive (the corpus payload came from there). Combined with
+# the multi-page B-tree writer, this names ~73 of 1200 files (vs ~27 before);
+# the rest have valid content but no name because their source is not in the
+# local mirror. Cedar lists and opens the named ones; the FP.da and
+# property-page fixes make a full List complete instead of crashing.
 
 set -e
 cd "$(dirname "$0")/.."
@@ -47,7 +49,7 @@ echo "1/3 building cedar_repack (the committed binary predates --max-files)"
 ( cd tools/rusty-backup && cargo build --release --example cedar_repack )
 
 echo "2/3 repacking $SRC -> $OUT (cap $MAX_FILES files, leaving free space)"
-"$REPACK" "$SRC" "$GERM" "$BOOT" "$OUT" "$MAX_FILES"
+"$REPACK" "$SRC" "$GERM" "$BOOT" "$OUT" "$MAX_FILES" --names chm
 
 echo "3/3 rewriting PV-root boot links to the flat convention"
 python3 - "$OUT" <<'PY'

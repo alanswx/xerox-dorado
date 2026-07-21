@@ -485,6 +485,36 @@ interpreter ~15%.
      nowhere in `chm/cedar/stp-root` — 8 of 10 sampled names are
      corpus-only.
 
+     **FILENAME RECOVERY (2026-07-20) — the corpus went from ~27 named
+     files to 73, and it is now browsable by name.** Two facts had to be
+     understood first: (1) the names were never LOST — the historical
+     writer named only ~50 "headliners" because its B-tree writer could
+     only fill ONE leaf page; (2) there is no saved manifest, so the
+     remaining names must come from the file CONTENT. Both were fixed in
+     rusty-backup (on `alanswx/rusty-backup`, branch
+     `add-missing-filesystems`; patch
+     `docs/rusty-backup-cedar-dorado-fixes.patch`):
+
+     - **Multi-page B-tree writer.** `build_client_directory` now emits a
+       proper 2-level tree (root internal node + leaf pages, promoted
+       separators, minPage/grPage links per `BTreeInternal.mesa`) instead
+       of erroring past one leaf. Proven in the emulator: `List ///*.bcd`
+       enumerated a depth-2 directory of 88 files
+       (`docs/images/cedar-corpus-named-multipage-2026-07-20.png`), so
+       Cedar reads the multi-page tree.
+     - **Content-based name recovery.** `cedar_repack --names <dir>`
+       matches each copied file's bytes (zero-padded to a page) against
+       an archive directory and uses that file's real name. Against local
+       `chm/` this recovers ~46 more names within the 1200-file cap (73
+       total); the recovered ones — `SilColor.bcd`, `TypeProps.BCD`,
+       `MJSContainersExtras.bcd` … — list and open in Cedar.
+
+     `tools/make_corpus_volume.sh` now passes `--names chm`. **Ceiling:**
+     the local mirror only holds a fraction of the corpus payload, so most
+     files stay nameless; recovering the rest needs the fuller online CHM
+     archive (or the lost build manifest). The plumbing now supports any
+     number of names — only the name SOURCE is the limit.
+
      The second fix, for the record:
 
      **Blank property pages.** Only 3 of
