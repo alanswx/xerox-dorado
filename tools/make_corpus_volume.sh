@@ -24,12 +24,14 @@
 #     polled germ path wants the flat page number ((104,0)) -- the same VDA
 #     104, a different encoding. Skip this and the volume renders 0 px.
 #
-# Naming: --names chm recovers a file's real name by matching its content
-# against the CHM archive (the corpus payload came from there). Combined with
-# the multi-page B-tree writer, this names ~73 of 1200 files (vs ~27 before);
-# the rest have valid content but no name because their source is not in the
-# local mirror. Cedar lists and opens the named ones; the FP.da and
-# property-page fixes make a full List complete instead of crashing.
+# Naming: --crc-names recovers a file's real name from the CHM archive's
+# cross-reference listing, which records every file's size and CRC-32 (plain
+# zlib CRC-32). tools/chm_crc_index.py turns that 45 MB HTML into a compact
+# crc/size/name index; cedar_repack matches each copied file's content CRC-32
+# against it -- NO downloads. This names ~1109 of 1200 files (92%), on a
+# multi-page B-tree directory that Cedar lists in full. (An earlier approach,
+# --names <dir>, matched only the fraction of the payload we mirror locally:
+# ~73 files.)
 
 set -e
 cd "$(dirname "$0")/.."
@@ -48,10 +50,15 @@ done
 echo "1/3 building cedar_repack (the committed binary predates --max-files)"
 ( cd tools/rusty-backup && cargo build --release --example cedar_repack )
 
-echo "2/3 repacking $SRC -> $OUT (cap $MAX_FILES files, leaving free space)"
-"$REPACK" "$SRC" "$GERM" "$BOOT" "$OUT" "$MAX_FILES" --names chm
+echo "2/4 generating the CHM CRC name index (once, from cross-reference.html)"
+NAMES=build/corpus-names.tsv
+mkdir -p build
+[ -s "$NAMES" ] || python3 tools/chm_crc_index.py chm/cross-reference.html > "$NAMES"
 
-echo "3/3 rewriting PV-root boot links to the flat convention"
+echo "3/4 repacking $SRC -> $OUT (cap $MAX_FILES files, leaving free space)"
+"$REPACK" "$SRC" "$GERM" "$BOOT" "$OUT" "$MAX_FILES" --crc-names "$NAMES"
+
+echo "4/4 rewriting PV-root boot links to the flat convention"
 python3 - "$OUT" <<'PY'
 import struct, sys
 path = sys.argv[1]

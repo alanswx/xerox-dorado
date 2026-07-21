@@ -509,11 +509,28 @@ interpreter ~15%.
        total); the recovered ones — `SilColor.bcd`, `TypeProps.BCD`,
        `MJSContainersExtras.bcd` … — list and open in Cedar.
 
-     `tools/make_corpus_volume.sh` now passes `--names chm`. **Ceiling:**
-     the local mirror only holds a fraction of the corpus payload, so most
-     files stay nameless; recovering the rest needs the fuller online CHM
-     archive (or the lost build manifest). The plumbing now supports any
-     number of names — only the name SOURCE is the limit.
+     **CEILING LIFTED (2026-07-20, later) — no downloads needed, the
+     HTML index is enough.** The CHM `cross-reference.html` (already in the
+     repo) lists every archived file's exact size and a 32-bit checksum
+     that is plain zlib/IEEE **CRC-32** (verified: `Clock.bcd!1` ->
+     `5f13dc2e`). Since a corpus file is just an archive file zero-padded
+     to a page, its content CRC-32 matches the listing directly. So:
+
+     - `tools/chm_crc_index.py` turns the 45 MB HTML into a compact
+       `crc / size / name` index (114,740 rows).
+     - `cedar_repack --crc-names <index>` (crc32fast) matches each copied
+       file's content CRC-32 against it.
+
+     Result: **1109 of 1200 files named (92%)** — up from 73 — on a
+     **depth-2 B-tree with 22 leaf pages** that Cedar enumerates in full.
+     Proven: `List ///Football*` returns the whole Football suite
+     (`Football.bcd`, `FootballMaster.bcd`,
+     `FootballMasterRpcServerImpl.bcd`, 10 files) — all previously
+     nameless, all recovered by CRC alone
+     (`docs/images/cedar-corpus-crc-recovered-2026-07-20.png`).
+     `make_corpus_volume.sh` uses `--crc-names` now. The ~90 still-nameless
+     files are ones whose bytes are not in the archive listing (locally
+     generated boot payloads, profile variants, etc.).
 
      The second fix, for the record:
 
