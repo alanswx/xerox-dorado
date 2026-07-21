@@ -78,3 +78,6 @@ tools/rusty-backup/
 
 # Scratch uncompressed PDI images (the tracked copies are the .pdi.gz in CedarDisk/)
 dorado/*.pdi
+
+# Generated corpus name index (regenerate with tools/chm_crc_index.py)
+/build/
