@@ -173,6 +173,10 @@ typedef struct click_event {
     int x, y;
     uint64_t at;
     int done;
+    int button;   /* DORADO_MOUSE_LEFT/MIDDLE/RIGHT (0 = left) */
+    int menu;     /* 1 = press-and-HOLD, screenshot mid-hold, then release
+                   * (captures a Cedar pop-up menu, which the yellow/middle
+                   * button raises while held) */
 } click_event;
 
 #define MAX_TYPE_EVENTS 16
@@ -427,6 +431,26 @@ int main(int argc, char **argv)
             click_event_count++;
             last_type_can_update = 0;
             pending_type_at = 0;
+        } else if (!strcmp(a, "--menu") && i + 1 < argc) {
+            /* --menu X,Y — press+HOLD the middle (yellow) button at (X,Y),
+             * screenshot the pop-up menu while held, then release. Proves
+             * the mouse->context-menu path renders. */
+            if (click_event_count >= MAX_CLICK_EVENTS) {
+                fprintf(stderr, "dorado: too many click/menu events (max %d)\n",
+                        MAX_CLICK_EVENTS);
+                return 2;
+            }
+            int cx = 0, cy = 0;
+            if (sscanf(argv[++i], "%d,%d", &cx, &cy) != 2) {
+                fprintf(stderr, "dorado: --menu wants X,Y (decimal)\n");
+                return 2;
+            }
+            click_events[click_event_count] =
+                (click_event){ .x = cx, .y = cy, .at = type_at, .done = 0,
+                               .button = DORADO_MOUSE_MIDDLE, .menu = 1 };
+            click_event_count++;
+            last_type_can_update = 0;
+            pending_type_at = 0;
         } else if (!strcmp(a, "--key-chord") && i + 1 < argc) {
             if (key_chord_event_count >= MAX_KEY_CHORD_EVENTS) {
                 fprintf(stderr,
@@ -593,20 +617,34 @@ int main(int argc, char **argv)
                 if (!click_events[ce].done &&
                     dorado_machine_cycles(m) >= click_events[ce].at) {
                     click_events[ce].done = 1;
-                    printf("dorado: click (%d,%d) at cyc %llu\n",
+                    int btn = click_events[ce].button
+                                  ? click_events[ce].button
+                                  : DORADO_MOUSE_LEFT;
+                    printf("dorado: %s (%d,%d) at cyc %llu\n",
+                           click_events[ce].menu ? "menu" : "click",
                            click_events[ce].x, click_events[ce].y,
                            (unsigned long long)dorado_machine_cycles(m));
                     /* Move first so the tracking software sees the cursor
-                     * arrive, then press-hold-release the left button. */
+                     * arrive, then press the button. */
                     dorado_machine_set_mouse(m, click_events[ce].x,
                                              click_events[ce].y, 0);
                     dorado_machine_run_until(m,
                         dorado_machine_cycles(m) + 2000000ull);
                     dorado_machine_set_mouse(m, click_events[ce].x,
-                                             click_events[ce].y,
-                                             DORADO_MOUSE_LEFT);
+                                             click_events[ce].y, btn);
                     dorado_machine_run_until(m,
                         dorado_machine_cycles(m) + key_hold);
+                    if (click_events[ce].menu) {
+                        /* A pop-up menu is up now, under the cursor and still
+                         * held. Give it several fields to paint, capturing a
+                         * shot at each so timing can't hide it, then release. */
+                        for (int k = 0; k < 6; k++) {
+                            dorado_machine_run_until(m,
+                                dorado_machine_cycles(m) + 4000000ull);
+                            dorado_machine_render_display_list(m);
+                            write_snapshot(m, "dorado-menu", "menu");
+                        }
+                    }
                     dorado_machine_set_mouse(m, click_events[ce].x,
                                              click_events[ce].y, 0);
                     dorado_machine_run_until(m,
