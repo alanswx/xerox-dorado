@@ -680,6 +680,55 @@ run-cedar-desktop-sdl: sdl $(CEDAR_DESKTOP_SNAPSHOT) $(CEDAR_DESKTOP_PDI)
 		--pilot-disk '$(CEDAR_DESKTOP_PDI)' \
 		--ftp-root ../chm/cedar/stp-root \
 		--snapshot-in '$(CEDAR_DESKTOP_SNAPSHOT)' --speed 4000000
+
+# Offline "apps demo" checkpoint: restore the desktop (which now carries
+# Chess40 in its font catalog), BringOver ChessHack + Clock into memory,
+# start them (they park as icons), and pre-cache the Chess40 font -- then
+# snapshot. The result restores to a clean desktop with ChessHack + Clock
+# icons and runs the apps with NO network (click an icon to open it; the
+# chess board paints from the cached font). Pins the clock; input is the
+# desktop checkpoint. Board screenshot: docs/images/cedar-chesshack-board-*.
+CEDAR_DEMO_SNAPSHOT := build/good-packs/cedar-demo.snap
+CEDAR_DEMO_PDI := build/good-packs/cedar-demo.pdi
+CEDAR_DEMO_SCREEN := build/good-packs/cedar-demo.pgm
+CEDAR_DEMO_SNAPSHOT_GZ := snapshot-assets/cedar-demo-native.snap.gz
+CEDAR_DEMO_PDI_GZ := snapshot-assets/cedar-demo-native.pdi.gz
+CEDAR_DEMO_CYCLES ?= 52000000000
+
+.PHONY: cedar-demo-snapshot run-cedar-demo-sdl
+cedar-demo-snapshot: $(BINDIR)/dorado $(CEDAR_DESKTOP_SNAPSHOT) $(CEDAR_DESKTOP_PDI)
+	mkdir -p '$(dir $(CEDAR_DEMO_SNAPSHOT))' '$(dir $(CEDAR_DEMO_SNAPSHOT_GZ))'
+	cp -f '$(CEDAR_DESKTOP_PDI)' '$(CEDAR_DEMO_PDI)'
+	DORADO_PDI_IGNORE_LABEL_FLAGS=1 DORADO_PDI_SAVE=1 \
+	DORADO_FAKE_TIME='$(CEDAR_DESKTOP_FAKE_TIME)' ./build/dorado \
+		--boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk '$(CEDAR_DEMO_PDI)' \
+		--ftp-root ../chm/cedar/stp-root \
+		--snapshot-in '$(CEDAR_DESKTOP_SNAPSHOT)' --key-hold 1600000 \
+		--type-at 31100000000 --click 700,733 \
+		--paste-at 31300000000 --paste 'Bringover -p [Cedar]<CedarChest6.1>Top>ChessHack\nBringover -p [Cedar]<CedarChest6.1>Top>Clock\nRun ChessHackImpl\nRun Clock\nClock\nChessHack\nEval ImagerFont.Find["Xerox/TiogaFonts/Chess40"]\n' \
+		--cycles '$(CEDAR_DEMO_CYCLES)' \
+		--snapshot-out '$(CEDAR_DEMO_SNAPSHOT)' \
+		--out '$(CEDAR_DEMO_SCREEN)'
+	gzip -c '$(CEDAR_DEMO_SNAPSHOT)' > '$(CEDAR_DEMO_SNAPSHOT_GZ)'
+	gzip -c '$(CEDAR_DEMO_PDI)' > '$(CEDAR_DEMO_PDI_GZ)'
+
+$(CEDAR_DEMO_SNAPSHOT): $(CEDAR_DEMO_SNAPSHOT_GZ)
+	mkdir -p '$(dir $@)'
+	gunzip -c '$<' > '$@'
+$(CEDAR_DEMO_PDI): $(CEDAR_DEMO_PDI_GZ)
+	mkdir -p '$(dir $@)'
+	gunzip -c '$<' > '$@'
+
+run-cedar-demo-sdl: sdl $(CEDAR_DEMO_SNAPSHOT) $(CEDAR_DEMO_PDI)
+	DORADO_PDI_IGNORE_LABEL_FLAGS=1 ./build/dorado-sdl \
+		--boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk '$(CEDAR_DEMO_PDI)' \
+		--ftp-root ../chm/cedar/stp-root \
+		--snapshot-in '$(CEDAR_DEMO_SNAPSHOT)' --speed 4000000
+
 # The "archive" checkpoint: the desktop plus every 2026-07-16 CedarChest
 # package attached (AIS/AISViewer/AISImages, PressReader+ShowPress,
 # Sil+BiScrollers/ViewRec/Abutters/SirPress/ImagerPress/Interpress) and the
