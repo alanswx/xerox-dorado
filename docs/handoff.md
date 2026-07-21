@@ -75,6 +75,21 @@ technique that root-caused the single-header VAM bug. Until it is fixed,
 bake the corpus checkpoint and CHECK THE PIXEL COUNT before shipping it;
 `make verify-cedar-desktop`'s threshold logic is the same idea.
 
+### Bumping a served DF version stales dependent checkpoints (2026-07-21)
+
+Adding `Browse.cm` bumped `DoradoWelcome.df` to `!3`, but the
+`cedar-desktop` checkpoint was baked against the older version and NOT
+rebaked. `verify-cedar-desktop` then failed: restoring the stale
+checkpoint and serving the newer tree, Cedar requested `Moon.cm Version
+2` while the server offered `Moon.cm!1`, the command silently didn't run,
+and the moon never painted (167 K px, bare desktop). The keyboard-buffer
+change committed just before was NOT the cause -- typing worked (the
+command was entered and triggered the fetch); the corpus checkpoint,
+baked against the SAME current tree, ran Moon.cm fine. Lesson: when you
+change a served `.df` version, rebake every checkpoint that caches it
+(desktop, corpus, archive) and re-run the gate. The gate did its job --
+it caught a real staleness the Browse commit introduced.
+
 ### Two traps when driving long bakes from this repo (2026-07-19)
 
 - **`cd dorado && <edit> && make ...` loses the edit if the `cd` fails.**
