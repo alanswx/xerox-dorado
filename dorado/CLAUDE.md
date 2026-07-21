@@ -569,6 +569,19 @@ with byte-identical output: **20.4 M cycles/s Alto, ~27 M Cedar**
 first -- the next spots are `dorado_visible_word_at_va` VA
 re-translation (~20%) and the interpreter (~15%).
 
+**Keyboard buffer (input reliability).** Cedar samples the physical key
+matrix once per display field (`CEDAR_FIELD_INTERVAL_CYCLES`); a key whose
+down and up fall inside one field is never seen. `dorado_machine_set_key`
+therefore ENQUEUES into a file-scope FIFO (`machine_key_queue`), and
+`machine_cedar_io` applies one transition every `KEY_FIELDS_PER_TRANSITION`
+(3) fields at a field boundary -- so fast typing and paste never drop keys
+(measured: sub-field typing dropped 4+/36 chars unbuffered, 0/36 with the
+buffer). The queue is a STATIC, not a `dorado_machine` member, on purpose:
+adding a struct member changes the snapshot ABI and every baked checkpoint
+fails to restore. Reset in `dorado_machine_create`. Engages only for the
+live Cedar world (Alto path applies keys directly). Paste pacing is 800K
+cyc (~= the 3-field drain rate), down from 1.6M.
+
 **Frontend input.** `src/typetext.c` owns the ONE canonical ASCII->Alto
 key map (`dorado_char_to_key`) plus a non-blocking paced typing queue.
 `dorado.c` and `dorado_sdl.c` used to carry diverging static copies (the
