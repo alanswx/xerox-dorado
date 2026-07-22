@@ -1,5 +1,57 @@
 # Handoff: continue building the Xerox Dorado emulator
 
+## ===> 2026-07-21: playable Chess offline, font mechanism, Othello/Iago map
+
+Newest first; the 2026-07-16 section below is still the self-contained
+"where everything stands." This session:
+
+- **Offline apps demo shipped (native + web).** A clean Cedar desktop with
+  ChessHack + Clock as icons, modules pre-loaded and the Chess40 font
+  pre-cached in memory; opening ChessHack paints a full, playable chess
+  board with ZERO network. Web dropdown "Cedar 6.1 — apps demo (Chess,
+  Clock, offline)" is live. Targets: `make cedar-demo-snapshot`,
+  `cedar-demo-web-snapshot`, `run-cedar-demo-sdl`. This is **Path B**
+  (pre-load into the checkpoint's memory) because on-disk file injection
+  crashes Cedar (below).
+- **Cedar font resolution cracked (6 attempts).** No font catalog exists;
+  `ImagerFont.Find` searches the FS name tree for `///Fonts/Xerox/
+  TiogaFonts/<name>.*` and the Imager ERRORs unless the stored name has the
+  `Xerox` component. Fonts get it only via the installer's cold-boot attach.
+  Chess works after adding one CR line to the served `TiogaFonts.df` +
+  `make cedar-desktop-snapshot`. Memory: `cedar-font-install-attach`.
+- **rusty-backup on-disk injection is a DEAD END.** Its writer produces
+  files valid to its own reader, but Cedar's live FS can't digest the
+  modified client directory — it slows ~4x then crashes to the "Type Key"
+  herald. So arbitrary files (fonts, app data) cannot be forced onto a
+  bootable Cedar volume; only Cedar's own install path works → reinforces
+  the Othello track.
+- **Othello/Iago track mapped (see the new "Building a clean system volume"
+  gap below).** Standalone `OthelloDorado.boot!8` is version/format-dead;
+  Iago inside Cedar 6.1 is the path; the L-switch mechanism is traced and
+  the interpreter/herald routes are ruled out; boot-time
+  `Booting.switches[l]` injection is the remaining task. Memory:
+  `othello-dead-end-iago-is-the-path`.
+- **Corpus + desktop web checkpoints rebaked/redeployed**; the corpus web
+  assets never existed, so `make web` (and the last two Pages deploys) had
+  been failing — now green with 1109 CRC-recovered names.
+- **Host-side keyboard buffer** (fast typing no longer drops keys;
+  `machine.c` file-scope FIFO, snapshot ABI unchanged).
+
+### Building a clean system volume (Othello/Iago) — new gap, priority-ranked
+
+Goal: a cold-bootable, fully-installed Cedar 6.1 volume with files in the
+right directories, so apps run off disk with no network and no
+memory-snapshot. Blocker: reaching a running Iago. `Booting.switches[l]=TRUE`
+fires Iago's "use Iago?" prompt and its install command set (Create
+Physical/Logical Volume, Format Disk, Install Boot/Germ/Microcode). NEXT:
+inject that switch at germ boot (`StartListHeader.switches`, `BootStartList.
+Header` word 34, the `l` bit — or the germ-request seeding in `machine.c`
+~245), confirm Iago is in the disk-boot start list, then drive Format (the
+first heavy disk-write workload — may expose write-path gaps). Directory
+spec is `ReleaseMessage.tioga` "Installing from scratch" + the `.df` files
+(`[Cedar]<Cedar6.1><Package>>` + `Top>`; local `///Commands/`,
+`///Users/<user>/`, `///Fonts/Xerox/TiogaFonts/`).
+
 ## ===> 2026-07-16: WHERE EVERYTHING STANDS (read this first)
 
 **The emulator boots Cedar 6.1 to a live, usable Viewers desktop, and the
@@ -19,6 +71,8 @@ are the historical log.
 | The Dorado's own schematic on screen | `Schematic.cm` | ProcH bit-slice 07 in an open AIS Viewer |
 | Herald soft reboot | click `Boot` then `CedarWork` on the desktop | fresh Basic boot to desktop (germ re-entry) |
 | App install into the live desktop | `Bringover [Cedar]<CedarChest6.1>Top>ChessHack` then `Run ...` | 2026-07-16 scripted run (NOTE: plain Bringover, not `-p`) |
+| Playable Chess board | `Run ChessHackImpl; ChessHack; Eval ViewerOps.OpenIcon[...]` (needs Chess40 in TiogaFonts.df + a desktop rebake) | full board paints, `Chess40.ks` demand-fetched (2026-07-21) |
+| Offline apps demo (Chess + Clock) | `make run-cedar-demo-sdl` / web "apps demo (offline)" option | restores clean desktop + icons, opens ChessHack offline (0 STP fetches) |
 | Interlisp-D Lyric desktop | web dropdown / lisp targets | saved Exec checkpoint |
 | Diagnostics | `build/rundiag` | all six PASS |
 

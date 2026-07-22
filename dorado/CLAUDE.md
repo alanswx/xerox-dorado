@@ -514,20 +514,32 @@ and a live CommandTool prompt (`make run-cedar-work`; screenshot at
 top-level `CLAUDE.md` status and `docs/CONTINUE-HERE.md` for the live
 state.
 
-**Active focus: take Cedar past the login prompt and harden the disk path.**
-Remaining work, roughly ordered:
+**Update (2026-07-21): Cedar boots to the desktop, runs apps offline, and
+plays chess.** The login/desktop bring-up below is DONE; the current
+frontier is a clean system volume (Othello/Iago) and the deep-fidelity disk
+controller. See the top-level `CLAUDE.md` 2026-07-21 status,
+`docs/CONTINUE-HERE.md`, and memory `othello-dead-end-iago-is-the-path` /
+`cedar-font-install-attach`.
 
-1. **Cedar login / system volume.** Cedar reports "No System Volume on
-   Dorado" -- the PDI is a boot file, not a full installed system volume. To
-   go further it needs a real system volume (build one with Othello) or a
-   logged-in herald path that doesn't require one. Figure out what the login
-   does next and what state it expects.
+**Remaining work, roughly ordered:**
 
-2. **Real disk controller, not the PDI shim.** `--pilot-disk` completes
-   PDI-backed SA4000 IOCBs through a narrow bridge in `machine.c` over the
-   still-incomplete disk sequence-PROM / data-transfer path (gaps F1-F5).
-   Replacing the shim with a faithful controller is what a write path
-   (Othello, installing a volume) needs.
+1. **Clean system volume via Othello/Iago** (was "Cedar login / system
+   volume"). The desktop works from the checkpoint, but a cold-bootable,
+   fully-installed volume needs Iago (standalone `OthelloDorado.boot!8` is
+   version/format-dead). Path is MAPPED: reach a running Iago by injecting
+   `Booting.switches[l]=TRUE` at germ boot, then drive Format/Install. Iago
+   writes via normal Pilot IOCBs -- which the shim's write path already
+   models (a live Cedar Bringover + `DORADO_PDI_SAVE` mutates and persists
+   the PDI today; that is how the demo/corpus checkpoints are baked). Note:
+   forcing arbitrary files onto the volume with rusty-backup INJECTION
+   crashes Cedar's live FS -- only Cedar's own install path works.
+
+2. **Faithful disk controller, not the PDI shim (Phase-2 fidelity).**
+   `--pilot-disk` completes PDI-backed SA4000 IOCBs through a narrow bridge
+   in `machine.c` over the still-incomplete disk sequence-PROM / data-
+   transfer path (gaps F1-F5). This is not a functional blocker (read+write
+   both work through the shim); replacing it with a cycle-accurate
+   sequence-PROM/FIFO/ECC controller is a Verilog-fidelity item.
 
 3. **Live display + interrupts for Cedar.** The display is rasterized in C
    (`dorado_machine_render_display_list`) and the field interrupt is injected

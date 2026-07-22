@@ -417,16 +417,38 @@ actually exports, and `Run` an implementation module. Same pattern as
 AIS, where the working commands are `Run AISImpl` / `Run AISViewerImpl`.
 `Run ChessHackImpl` then `ChessHack` is verified to load and start.
 
-**ChessHack is OPEN — it needs a font we cannot yet install.** Starting
-it raises `ImagerImpl.Error[$fontNotFound, "Xerox/TiogaFonts/Chess40"]`
-into a debugger viewer. The font exists and is now served
-(`chm/cedar/stp-root/Fonts/TiogaFonts/Chess40.ks`, fetched from
-`[_CDCSL_93-16_]<1>Cedar>imagerfonts>xerox>tiogafonts>`), but a
-`DORADO_FTP_TRACE` of the failure shows the guest **never requests it**:
-Cedar resolves fonts from a catalog local to the volume, not over STP,
-so a served font is not enough. The next step is installing it into the
-volume's font catalog the way the BootEssentials font DFs do. Until
-then ChessHack is left out of the welcome set.
+**ChessHack now WORKS — the board paints (2026-07-21).** It once raised
+`ImagerImpl.Error[$fontNotFound, "Xerox/TiogaFonts/Chess40"]` because Cedar
+has NO font catalog: `ImagerFont.Find` does
+`FS.EnumerateForNames["///Fonts/Xerox/TiogaFonts/Chess40.*!h"]` over the
+volume's FS name tree, and `ImagerTypefaceImpl` ERRORs unless the stored
+name carries the `Xerox` component — a name fonts get ONLY from the
+installer's cold-boot attach of the font DFs (not from a served file, not
+from a runtime `Bringover`, not from rusty-backup injection — the latter two
+crash the world). **Fix:** one CR-terminated line was added to the served
+`chm/cedar/stp-root/CedarFonts/Top/TiogaFonts.df` in its
+`Exports [Fonts]<Fonts>TiogaFonts>` section — `Chess40.ks!1  18-Mar-86
+06:18:12 PST` (size 2624) — then the desktop checkpoint was rebaked (`make
+cedar-desktop-snapshot`) so the installer attaches it like the other 187
+fonts. Now `Run ChessHackImpl` / `ChessHack` / `Eval
+ViewerOps.OpenIcon[ViewerOps.FindViewer["ChessHack"], FALSE, TRUE, TRUE]`
+paints the full board and `STP_SERVE Fonts/TiogaFonts/Chess40.ks` fires on
+first use (screenshot `docs/images/cedar-chesshack-board-2026-07-21.png`).
+See memory `cedar-font-install-attach` for the full mechanism.
+
+### The offline apps demo (Chess + Clock, no network) — `make run-cedar-demo-sdl`
+
+The **apps-demo checkpoint** (`make cedar-demo-snapshot` bakes it;
+`run-cedar-demo-sdl` runs it; web dropdown "Cedar 6.1 — apps demo (Chess,
+Clock, offline)") restores a clean Viewers desktop with **ChessHack and
+Clock parked as icons**, both modules already loaded and the Chess40 font
+pre-cached in memory. Clicking the ChessHack icon (then "Open") paints the
+chess board with **zero network** (verified: 0 `STP_SERVE`/`STP_MISSING`
+against an empty ftp-root). This is **Path B** — apps live in the
+checkpoint's *memory*, not on disk, because rusty-backup file injection into
+the volume crashes Cedar's live FS. A faithful files-on-disk install needs
+Othello/Iago (see `docs/handoff.md` "Building a clean system volume" and
+memory `othello-dead-end-iago-is-the-path`).
 
 ### The schematics viewer (AISViewer) — the PROVEN recipe (2026-07-18)
 

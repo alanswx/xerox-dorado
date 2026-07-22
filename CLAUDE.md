@@ -145,6 +145,34 @@ The Stage-2 EFTP/Mayday boot server also serves Cedar boot files
 (`CedarNetExec.boot`, `NEWOS.BOOT`, `OthelloDorado.boot`) byte-exact -- the
 next stage once the germ reaches `DoInLoad` over the net rather than the disk.
 
+**Playable Chess offline + the Othello track mapped (2026-07-21).** Three
+things landed:
+
+- **ChessHack plays chess in Cedar, offline.** The board paints with all
+  pieces in the Chess40 font and runs with zero network. This required
+  cracking Cedar's font resolution: there is NO font catalog --
+  `ImagerFont.Find` searches the FS name tree for
+  `///Fonts/Xerox/TiogaFonts/<name>.*` and the Imager ERRORs unless the
+  stored name carries the `Xerox` component, which fonts get ONLY from the
+  installer's cold-boot attach. Fix = one CR line in the served
+  `TiogaFonts.df` + `make cedar-desktop-snapshot`.
+- **An offline apps demo (Path B).** rusty-backup injecting files onto the
+  volume CRASHES Cedar's live FS, so the demo instead pre-loads ChessHack +
+  Clock into the checkpoint's MEMORY and pre-caches the font; it restores to
+  a clean desktop with app icons and opens them with no network. Native
+  `make cedar-demo-snapshot`/`run-cedar-demo-sdl`; web dropdown "Cedar 6.1 --
+  apps demo (Chess, Clock, offline)". The corpus browser checkpoint (1109
+  CRC-recovered names) was also finally baked + deployed.
+- **The Othello/Iago track is mapped.** Standalone `OthelloDorado.boot!8` is
+  version/format-dead (`062400` vs the germ's `063000`; a one-byte patch
+  clears `germBadBootFile` but the payload misparses). The authentic path is
+  **Iago** inside the working Cedar 6.1 -- a boot-time installer gated by
+  `Booting.switches[l]`, writing via normal Pilot IOCBs our write path
+  models. The interpreter and herald-button routes to set that switch are
+  ruled out; the remaining task is boot-time injection of
+  `Booting.switches[l]=TRUE`. See memory `othello-dead-end-iago-is-the-path`,
+  `cedar-font-install-attach`.
+
 Plans/state: `docs/running-the-emulator.md` (how to run everything),
 `docs/CONTINUE-HERE.md` (live bring-up state), `docs/handoff.md` +
 `dorado/CLAUDE.md` (gaps), `docs/hardware-specs.md` (specs for unbuilt

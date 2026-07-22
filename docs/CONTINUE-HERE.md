@@ -1,5 +1,70 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## 2026-07-21: PLAYABLE CHESS OFFLINE, the font mechanism cracked, and the Othello/Iago track mapped.
+
+**A real chess program runs in Cedar with zero network.** ChessHack's board
+paints with all pieces in the period Chess40 font, and the whole thing
+restores and runs offline (0 STP fetches). New web dropdown option **"Cedar
+6.1 — apps demo (Chess, Clock, offline)"** at alanswx.github.io/xerox-dorado
+(commits `d5f9daa`, `ebb2cdd`, `23888c1`, deployed green). Board screenshot:
+`docs/images/cedar-chesshack-board-2026-07-21.png`.
+
+**Cedar has NO font catalog — the 6-attempt font saga, resolved.**
+`ImagerFont.Find[name]` does `FS.EnumerateForNames["///Fonts/" + name +
+".*!h"]` over the volume's FS name B-tree; `ImagerTypefaceImpl` ERRORs
+`$fontNotFound` unless the stored name carries the `Xerox` component
+(`///Fonts/Xerox/TiogaFonts/Chess40.*`). Fonts get that name ONLY from the
+installer's cold-boot attach of the font DFs. **Fix: one CR-terminated line
+in `chm/cedar/stp-root/CedarFonts/Top/TiogaFonts.df`** (`Chess40.ks!1
+18-Mar-86 06:18:12 PST`, size 2624) **+ a cold-boot rebake** (`make
+cedar-desktop-snapshot`) so the installer attaches it like the other 187.
+Two shortcuts that BOTH crash the world to the blank "Type Key" herald (81
+px): a runtime `Bringover TiogaFonts` (pulls the imager import closure,
+poisons the loadstate) and rusty-backup file INJECTION into the volume
+(Cedar's live FS can't digest the modified client directory — slows ~4x then
+crashes). Full detail: memory `cedar-font-install-attach`.
+
+**The offline demo model = Path B (pre-load into the checkpoint's memory).**
+Because on-disk injection crashes Cedar, the offline apps demo loads
+ChessHack + Clock into memory + pre-caches the Chess40 font, then snapshots.
+It restores to a clean desktop with app ICONS; clicking ChessHack opens the
+board from cache, no network. `make cedar-demo-snapshot` (native) /
+`cedar-demo-web-snapshot` (wasm) / `run-cedar-demo-sdl`;
+`cedar-demo-native.{snap,pdi}.gz` + `web-assets/cedar-demo.{snap,pdi}.gz`.
+The corpus browser checkpoint (1109 CRC-recovered names) + desktop were also
+rebaked and redeployed this session (the corpus web assets never existed, so
+`make web` and the last two Pages deploys had been failing).
+
+**Othello / clean system-volume track — dead-end killed, Iago is the path.**
+Standalone `OthelloDorado.boot!8` cannot boot: its header is `062400`
+(Cedar-6.0), the germ's `DoInLoad` (`BootSwapGerm.mesa`) requires
+`currentVersion`=`063000` (germ-6.1.6) or the `150` outload seal. Patching
+the one-byte version CLEARS `germBadBootFile` but the load stalls — the
+`062400` header layout physically differs (an extra word). The `062400`-era
+germs (`!4`/`6.0.6`/`5.3.1`) fault in `TrapsImpl` before `DoInLoad`. **The
+authentic path is Iago inside the working Cedar 6.1** (present locally,
+`063000`-compatible, writes via normal Pilot `channel.DoIO` IOCBs our write
+path models). Iago is a BOOT-TIME program gated by `Booting.switches[l]`
+(fires "Do you want to use Iago?"; `Booting.switches ← GermSwap.switches`).
+RULED OUT this session: the interpreter route (`Eval Booting.switches['l] ←
+TRUE` is syntax-rejected; `Run Iago` says "previously loaded" so `DoIt`
+won't re-fire) and the herald `Boot` button (only SELECTS on --click).
+Plain `Bringover [Cedar]<Cedar6.1>Top>Iago` DOES fetch Iago + its 69-file
+closure onto the volume. **NEXT: boot-time injection of
+`Booting.switches[l]=TRUE`** — patch the loaded boot file's
+`StartListHeader.switches` (`BootStartList.Header` word 34, 64-bit
+`[a,b,c,d]`; find the `l` bit) in VM after load, or extend the germ-request
+seeding (`machine.c` ~245). Then drive Iago's `Create Physical/Logical
+Volume` + `Format` (the first HEAVY disk-write workload). Full plan: memory
+`othello-dead-end-iago-is-the-path` + the a93dbb research report.
+
+**Input reliability: a host-side keyboard buffer.** Cedar samples the key
+matrix once per display field, so a keystroke whose down+up fell in one
+field was dropped (fast typing lost 4+/36 chars). `dorado_machine_set_key`
+now enqueues into a file-scope FIFO drained one transition per 3 fields
+(`machine.c`); lossless 36/36. Kept a static (not a struct member) so the
+snapshot ABI is unchanged.
+
 ## 2026-07-18: THE MACHINE DISPLAYS ITSELF. Friendly desktop, 2x faster,
 ## clipboard paste, and the ethernet bug behind every big-transfer wedge.
 
