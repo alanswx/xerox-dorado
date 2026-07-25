@@ -610,6 +610,67 @@ all files ... are you sure?", then "password-protect this disk?".
 pages (default = all free), "are you sure?", then "debugger volume?".
 Set `DORADO_PDI_SAVE=1` or the writes are discarded at teardown.
 
+## Building a Cedar volume from a blank disk
+
+Three make targets, in order:
+
+| target | what it does |
+|---|---|
+| `make cedar-diskvolume` | Iago builds the volume on RD1 and rewrites the root checksums |
+| `make cedar-diskvolume-desktop` | boots it; Cedar installs itself, ending at the Viewers desktop |
+| `make cedar-diskvolume-software` | one `Bringover` per CedarChest6.1 package (16 packages, ~279 files) |
+
+**What the period procedure actually says.** `ReleaseMessage.tioga!9`,
+"Installing Cedar 6.1 from scratch", has you **net boot** Cedar first --
+"get to the CedarNetExec ... type `Cedar` ... log in ... When asked if you
+want to use Iago, type `Y`" -- so the local disk RD0 is free and Iago's
+`Create User World` formats and fills it. That is why `Create User World`
+only ever targets RD0. Our emulator boots Cedar from RD0, so we build on
+RD1 and run the steps individually; the same document calls that the hand
+path: *"clients who wish to have non-standard volumes will have to do the
+various steps by hand. See (or be) a wizard before attempting to perform a
+non-standard installation."*
+
+Other guidance from the same section, worth honoring:
+- *"How many Alto partitions? For personal Dorados you want 0 or 1
+  partitions (roughly 20K pages) for Alto emulation."* We answer 0.
+- *"Is your disk already formatted? ... You don't want to reformat if you
+  don't have to -- formatting takes a long time."* We never `Format Disk`;
+  a blank PDI needs no media formatting.
+- *"the installation will take roughly half an hour for a Dorado"* -- ours
+  is ~34 B cycles.
+- *"When the installation finishes, boot your machine with the boot
+  button."*
+
+**The one deliberate omission: `Install Initial Microcode`.** It writes
+`InitialDiskDorado.eb` (5192 bytes = exactly 11 pages) into the disk's
+hard-microcode region at low physical pages, and `IagoOps.ReservePages`
+reserves that region only on the boot drive:
+
+```
+IF Disk.DriveAttributes[...].ordinal # 0 OR p = reserved THEN RETURN
+```
+
+On RD1 those pages belong to the logical volume, so the microcode lands on
+the VAM's header (logical page 1 = physical page 4) and the volume boots to
+`FS.Error: Local volume's permanent data structures are inconsistent`. The
+emulator supplies microcode with `--eb`, so skipping it costs nothing.
+
+**Root-page checksums.** Cedar zeroes a volume root's checksum while the
+volume is mounted and rewrites it on a clean dismount. The emulator never
+dismounts, so `tools/pdi_fix_root_checksums.py` does what the dismount
+would have done. (Necessary for a tidy volume; it was NOT the cause of the
+inconsistency above.)
+
+**What ends up on the disk.** Measured: the Iago build leaves 9 files /
+17.1 MB (mostly the 32,000-page VM backing file); the Cedar install adds
+131 more, reaching 140 files / 19.8 MB. But `List ///*.bcd` still shows
+only 18 bcds -- Cedar 6.1's `Basic` boot file loads its 34 loadees from the
+file server on every boot, because `Basic.Loadees` names each one by
+UNVERSIONED remote path and unversioned forces a server round trip. A
+volume boots from disk; the base system still streams. Software you
+`Bringover` does land locally.
+
 ## Verification gates
 
 | Command | Runtime | What it protects |
