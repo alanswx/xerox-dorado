@@ -104,6 +104,15 @@ typedef struct dorado_machine_config {
                                 * Initial requests and the STK[1..3] seed
                                 * the loaded world reads. 0 -> default 0110
                                 * (the normal Mesa/Alto net boot). */
+
+    const char *boot_switches;  /* Pilot boot switches to present to the
+                                 * booting world, as the letters/digits a
+                                 * user would type at the herald's
+                                 * "Switches:" prompt (e.g. "l" to run Iago).
+                                 * GermSwap.Switch is the enumeration
+                                 * {zero..nine, a..z}; NULL or "" boots with
+                                 * none, which is what every world did
+                                 * before. See GermSwap.Mesa. */
 } dorado_machine_config;
 
 /* Fill cfg with the default Alto-on-Dorado NetExec boot configuration. */

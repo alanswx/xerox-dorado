@@ -366,6 +366,8 @@ int main(int argc, char **argv)
             cfg.germ_netboot_bfn = (uint16_t)strtoul(argv[++i], NULL, 8);
         } else if (!strcmp(a, "--boot-file-number") && i + 1 < argc) {
             cfg.boot_file_number = (uint16_t)strtoul(argv[++i], NULL, 8);
+        } else if (!strcmp(a, "--boot-switches") && i + 1 < argc) {
+            cfg.boot_switches = argv[++i];
         } else if (!strcmp(a, "--boot-dir") && i + 1 < argc) {
             if (cfg.boot_dir_count <
                 (int)(sizeof cfg.boot_dir / sizeof cfg.boot_dir[0]))
@@ -504,6 +506,7 @@ int main(int argc, char **argv)
                    "[--germ PATH] [--germ-netboot-bfn OCTAL] "
                    "[--pilot-disk PATH] [--disk SLOT=PATH] [--disk-real] "
                    "[--boot-file-number OCTAL] [--boot-dir NAME=BFN=PATH] "
+                   "[--boot-switches LETTERS] "
                    "[--boot-dir-all] [--no-boot-dir-all] "
                    "[--out PATH] [--shot-prefix PREFIX] [--shot-every N] "
                    "[--snapshot-in PATH] [--snapshot-out PATH] "
@@ -516,6 +519,10 @@ int main(int argc, char **argv)
                    "bs, +quote with --quote); e.g. bs,quote\n"
                    "  --boot-reason: alias for the chord (ethernet=bs, "
                    "netexec=bs,quote, disk=none)\n"
+                   "  --boot-switches: Pilot boot switches for the world, as "
+                   "typed at the herald's \"Switches:\" prompt\n"
+                   "                   (GermSwap.Switch: 0-9 and a-z); e.g. "
+                   "'l' runs Iago at boot\n"
                    "  --disk SLOT=PATH: mount a real Trident pack (T-80/T-300) "
                    "R/W on drive SLOT (0..3)\n"
                    "  --disk-real: boot Cedar through the real disk controller "

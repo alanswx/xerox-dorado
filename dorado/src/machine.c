@@ -259,6 +259,68 @@ static uint16_t machine_disk_dmux_read(uint16_t addr, int *handled, void *ctx)
 #define GERM_REQ_ETH_NET       4u
 #define GERM_REQ_ETH_HOST      5u
 
+/* Pilot boot switches.  GermSwap.Mesa:
+ *   Switch:   TYPE = MACHINE DEPENDENT {zero..nine, a..z}   -- 36 values
+ *   Switches: TYPE = PACKED ARRAY Switch OF BOOL _ []       -- 36 bits
+ * and GermSwap.InLoad plants them at
+ *   LOOPHOLE[LP[@PrincOps.SD[PrincOps.sBootSwitches], mdsiGerm], ...]^
+ * i.e. in the GERM's MDS at SD(1100B) + sBootSwitches(142B) = 1242B
+ * (PrincOps.mesa).  GermSwapImpl reads that same absolute location back
+ * into GermSwap.switches, BootingImpl copies it to Booting.switches, and
+ * boot-time programs gate on it -- IagoMainImpl's DoIt fires its "Do you
+ * want to use Iago?" prompt on Booting.switches[l].  A cold boot leaves
+ * the location zero, which is why every world so far booted with none. */
+#define GERM_SWITCHES_VA       (GERM_MDS_BASE + 01242u)
+#define GERM_SWITCH_WORDS      4u    /* BootStartList.Switches carrier */
+#define GERM_SWITCH_COUNT      36u   /* SIZE[Switch] */
+
+/* Boot switches to plant in the germ's MDS, parsed once at create.  File
+ * scope for the snapshot-ABI reason noted above machine_pdi_path: they are a
+ * property of how this machine was started, like the media paths. */
+static uint16_t machine_boot_switches[GERM_SWITCH_WORDS];
+static int      machine_boot_switches_any;
+static int      machine_boot_switches_planted;
+static int      machine_boot_switches_held;
+static uint64_t machine_boot_switches_next_check;
+/* Sample rate and the run of samples that has to agree before we stop
+ * re-planting.  100 K cycles is ~4 ms of Dorado time -- far finer than the
+ * relocation window, and far too coarse to matter to the boot. */
+#define BOOT_SWITCH_CHECK_CYCLES  100000u
+#define BOOT_SWITCH_HOLD_SAMPLES  8
+
+/* Map one herald "Switches:" character to its GermSwap.Switch ordinal:
+ * zero..nine = 0..9, a..z = 10..35.  Returns -1 for anything else. */
+static int machine_boot_switch_ordinal(char c)
+{
+    if (c >= '0' && c <= '9') return c - '0';
+    if (c >= 'a' && c <= 'z') return 10 + (c - 'a');
+    if (c >= 'A' && c <= 'Z') return 10 + (c - 'A');
+    return -1;
+}
+
+/* Mesa packs an array into words most-significant-bit first, so element i of
+ * a PACKED ARRAY OF BOOL is bit (i mod 16) counted down from bit 15. */
+static void machine_boot_switches_parse(const char *text)
+{
+    memset(machine_boot_switches, 0, sizeof machine_boot_switches);
+    machine_boot_switches_any = 0;
+    machine_boot_switches_planted = 0;
+    machine_boot_switches_held = 0;
+    machine_boot_switches_next_check = 0;
+    if (!text) return;
+    for (const char *p = text; *p; p++) {
+        if (*p == ' ' || *p == ',' || *p == '-') continue;
+        int ord = machine_boot_switch_ordinal(*p);
+        if (ord < 0 || (unsigned)ord >= (int)GERM_SWITCH_COUNT) {
+            fprintf(stderr, "dorado: ignoring unknown boot switch '%c' "
+                    "(GermSwap.Switch is 0-9 and a-z)\n", *p);
+            continue;
+        }
+        machine_boot_switches[ord / 16] |= (uint16_t)(0x8000u >> (ord % 16));
+        machine_boot_switches_any = 1;
+    }
+}
+
 #define GERM_ACT_INLOAD        0u
 #define GERM_ACT_BOOT_PV       2u
 #define GERM_DTYPE_SA4000      3u
@@ -2032,6 +2094,7 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
         }
         cfg.germ_netboot = user_cfg->germ_netboot;
         cfg.germ_netboot_bfn = user_cfg->germ_netboot_bfn;
+        cfg.boot_switches = pick(user_cfg->boot_switches, cfg.boot_switches);
         cfg.alto_ether_boot  = user_cfg->alto_ether_boot;
         cfg.alto_ether_quote = user_cfg->alto_ether_quote;
         cfg.no_disk          = user_cfg->no_disk;
@@ -2187,6 +2250,13 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
     dorado_ethernet_set_eftp_boot_file(&m->ethernet, cfg.eftp_boot);
     dorado_ethernet_set_ftp_sysout(&m->ethernet, cfg.ftp_sysout);
     dorado_ethernet_set_ftp_root(&m->ethernet, cfg.ftp_root);
+    {
+        /* The env form lets a Makefile recipe or a baked run add switches
+         * without a CLI change; an explicit --boot-switches wins. */
+        const char *sw = cfg.boot_switches;
+        if (!sw || !*sw) sw = getenv("DORADO_BOOT_SWITCHES");
+        machine_boot_switches_parse(sw);
+    }
     for (int s = 0; s < DORADO_DISK_NUM_DRIVES; s++) {
         if (!cfg.pilot_disk_pdi[s]) continue;
         char err[128];
@@ -2889,6 +2959,48 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                 dorado_storage_store_at_va(&m->mem, IOCB_PAGECOUNT_VA, 0);
                 dorado_storage_store_at_va(&m->mem, IOCB_LABELSTAT_VA, 0);
                 m->germ_passes++;
+            }
+        }
+
+        /* Present the requested Pilot boot switches to the booting world.
+         * On a real machine these come from the herald's "Switches:" prompt
+         * (a soft boot, where GermSwap.InLoad writes them) or from the keys
+         * held at the boot button; a cold boot through our planted germ has
+         * neither, so plant them directly at the location both writers use.
+         *
+         * It has to be planted more than once.  The germ's data pass lands
+         * the germ in the low buffer and GERMREMAP then relocates it over
+         * the MDS this location lives in, so a single early write is wiped
+         * (measured: zero again 2.7 M cycles later).  Re-plant whenever the
+         * location reads all-zero, sampled cheaply, and stop once the value
+         * has survived several samples -- by then the relocation is done and
+         * the world owns the location, so we never fight a real writer such
+         * as Booting.Boot arming a soft boot. */
+        if (machine_boot_switches_any && !machine_boot_switches_planted &&
+            m->germ_data_done && is_imfetch && cpu->ctask == 0 &&
+            bb->cycles >= machine_boot_switches_next_check) {
+            machine_boot_switches_next_check =
+                bb->cycles + BOOT_SWITCH_CHECK_CYCLES;
+            int holds = 1;
+            for (unsigned w = 0; w < GERM_SWITCH_WORDS; w++) {
+                if (dorado_visible_word_at_va(&m->mem, GERM_SWITCHES_VA + w) !=
+                    machine_boot_switches[w]) { holds = 0; break; }
+            }
+            if (holds) {
+                if (++machine_boot_switches_held >= BOOT_SWITCH_HOLD_SAMPLES) {
+                    machine_boot_switches_planted = 1;
+                    fprintf(stderr,
+                        "[machine] boot switches planted @cyc=%llu: "
+                        "SD[sBootSwitches] 0o%o = 0o%o 0o%o 0o%o 0o%o\n",
+                        (unsigned long long)bb->cycles, GERM_SWITCHES_VA,
+                        machine_boot_switches[0], machine_boot_switches[1],
+                        machine_boot_switches[2], machine_boot_switches[3]);
+                }
+            } else {
+                machine_boot_switches_held = 0;
+                for (unsigned w = 0; w < GERM_SWITCH_WORDS; w++)
+                    machine_store_va(&m->mem, GERM_SWITCHES_VA + w,
+                                     machine_boot_switches[w]);
             }
         }
 
