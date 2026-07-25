@@ -95,14 +95,57 @@ straight to Iago's `>` prompt (31,348 px) instead of re-booting 3.2 B
 cycles. Screenshots `docs/images/cedar-iago-prompt-2026-07-25.png` and
 `cedar-iago-describe-volumes-2026-07-25.png`.
 
+### A Cedar-built volume BOOTS (808d263)
+
+The full sequence runs and the result is bootable. `Erase Logical Volume`
+completes -- 114,098 of 114,100 pages carry a label afterwards -- and
+`Install Boot File` fetches BasicCedarDorado.boot (542 KB) over the
+in-process STP server, writes it as `BootFile.DontDeleteMe`, and registers
+it in both roots ("copying ... installing ... done"). Booting the result
+gives **"CedarCleanLV on Dorado"** at its own login prompt, 28,543 px
+(`docs/images/cedar-cleanlv-first-boot-2026-07-25.png`).
+
+Two emulator fixes were needed, both flat-convention assumptions:
+
+1. **Three link encodings, not two.** Pilot's DiskAddress cylinder/head
+   split differs BETWEEN DRIVES -- the Alto-compatible boot drive has one
+   head and virtual cylinders (`cyl*28 + sector`), conventional drives are
+   head-first (`(cyl*5 + head)*28 + sector`). Iago wrote
+   `firstLink=(1,259)` = page 171, the conventional form, because the
+   volume was built on RD1. That is not a corner case: you cannot format
+   the drive you booted from, so building on a second drive and booting it
+   as drive 0 is the normal way. The detector decodes every link all three
+   ways and keeps the one whose target page label matches the entry.
+2. **The GERMDATA stream latch was gated on the raw IOCB low word**
+   (`>= 0100B`). Under the flat convention that word is the page number
+   (139); on a CHS volume it is the cylinder (1, 2, 5), so the latch never
+   engaged, the germ's own addresses were honored instead of sequential
+   ones, and the boot-file read wandered off and stalled at file page 531
+   of 1060. Gate on the DECODED page -- same meaning under every encoding,
+   and identical to the old value for a flat volume.
+
+**Two wrong theories, recorded so they are not repeated.** The installed
+boot file is byte-identical to the source (1062 pages, file pages
+0..1059, none missing), so "the copy is incomplete" was wrong. And the
+zero boot-chain links in the file's page labels are NORMAL -- the
+known-good work volume has them too -- so "MakeBootable never ran" was
+also wrong. The A/B that actually found it was tracing the germ's polled
+IOCBs on the good volume beside the new one and noticing
+`stream={act=1 ...}` versus `act=0` on every line.
+
 ### Next
 
-Erase Logical Volume (the first whole-volume write -- 114 K page labels
-plus the VAM, and the real test of the write path), then Install Boot
-File / Install Germ / Install Cedar Microcode, Create VM Backing File,
-and the Cedar install onto the new volume. `Create User World` is the
-macro that does the whole sequence and prints its plan first, so run it
-once just to read the plan.
+Install Germ / Install Cedar Microcode / Install Initial Microcode (same
+prompt shape as Install Boot File), Create VM Backing File, and then
+installing the Cedar software onto the new volume so it reaches a desktop
+rather than just a login prompt. `Create User World` is the macro that
+does the whole sequence and prints its plan first, so run it once just to
+read the plan.
+
+**Scripted-prompt gotcha:** `Install Boot File` asks FOUR questions --
+logical volume, remote file name, *local* file name, then "use this file
+when you boot the physical volume?". Missing the local-name CR feeds the
+next answer into it (ours became a file called `y`).
 
 ## ===> 2026-07-21: playable Chess offline, font mechanism, Othello/Iago map
 
