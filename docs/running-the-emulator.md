@@ -548,6 +548,68 @@ displays the memo fully formatted in Tioga. Notes from verification:
 
 ---
 
+## Iago — Cedar's own disk utility (`--boot-switches l`)
+
+Iago formats disks, creates physical and logical volumes, and installs
+boot files, germs and microcode. It is a BOOT-TIME program: it offers
+itself only when `Booting.switches[l]` is set, which on a real machine
+comes from the herald's "Switches:" prompt. `--boot-switches` supplies
+them (letters and digits, as typed there; `DORADO_BOOT_SWITCHES` does the
+same from a recipe).
+
+**You must log in first.** `IagoMainImpl.DoIt` calls `IagoCommands.Login`
+itself, before the switch test — so the Cedar login prompt you have always
+seen IS Iago running. A run that stops at login has not reached the test.
+
+```sh
+# Cold boot to Iago's "> " prompt: log in, then answer y.
+DORADO_PDI_IGNORE_LABEL_FLAGS=1 DORADO_FAKE_TIME=1783285880 ./build/dorado \
+  --boot-reason disk --no-alto-boot \
+  --eb '../chm/dorado/CedarDorado.eb!6' \
+  --germ ../chm/cedar/germ-alt/Dorado.germ-6.1.6 \
+  --pilot-disk work.pdi --ftp-root ../chm/cedar/stp-root \
+  --boot-switches l \
+  --type-at 760000000  --type 'Guest\n\n' \
+  --type-at 2400000000 --type 'y' \
+  --cycles 3200000000 --out iago.pgm
+```
+
+The prompt appears at ~2.4 B cycles; the `>` interpreter is live by 3.2 B.
+`dorado/build/good-packs/cedar-iago.{snap,pdi}` is a checkpoint of exactly
+that state (31,348 px), so restore it instead of re-booting.
+
+**Typing commands.** `IagoOps.GetCommand` auto-completes on a SPACE, so
+typing a command's FULL name leaves the tail as input for the NEXT prompt
+— it silently lands in whatever question follows. Type only through the
+token that makes the name unique:
+
+| want | type |
+|---|---|
+| Describe Machine | `Describe M\n` |
+| Describe Drives | `Describe D\n` |
+| Describe Physical Volumes | `Describe P\n` (then `0` for "How many Alto partitions") |
+| Create Physical Volume | `Create P\n` |
+| Create Logical Volume | `Create L\n` |
+| Erase Logical Volume | `Erase L\n` |
+
+`?` lists matches, DEL returns to top level, `Quit` resumes the
+interrupted boot.
+
+**Building a volume on a second drive.** Iago sees RD0..RD3 at 114,100
+pages each. Make a blank target and mount it in another slot:
+
+```sh
+python3 ../tools/pdi_create_blank.py target.pdi     # 815 x 5 x 28, sparse
+./build/dorado ... --pilot-disk work.pdi --pilot-disk 1=target.pdi \
+  --boot-switches l ...
+```
+
+`Create Physical Volume` prompts: drive number, new volume name, "destroy
+all files ... are you sure?", then "password-protect this disk?".
+`Create Logical Volume` prompts: new volume name, physical volume, size in
+pages (default = all free), "are you sure?", then "debugger volume?".
+Set `DORADO_PDI_SAVE=1` or the writes are discarded at teardown.
+
 ## Verification gates
 
 | Command | Runtime | What it protects |
