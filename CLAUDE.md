@@ -173,6 +173,40 @@ things landed:
   `Booting.switches[l]=TRUE`. See memory `othello-dead-end-iago-is-the-path`,
   `cedar-font-install-attach`.
 
+**Iago runs, and Cedar builds its own volumes (2026-07-25).** The
+Othello/Iago track is open. Two things landed:
+
+- **The disk bridge no longer assumes a link convention.** The germ's
+  polled IOCB path decoded `PhysicalRoot.bootingInfo` links as flat PDI
+  page numbers; Pilot -- and anything Othello or Iago installs -- writes a
+  real CHS `DiskAddress`. It now decodes each link both ways at mount and
+  keeps the reading whose target page label matches that entry's fileID and
+  firstPage, so the medium decides. Every shipped volume still reads flat
+  and boots bit-identically; `tools/pdi_boot_links_to_chs.py` produces the
+  CHS form for testing (germ link `(3,20)`, the value the period notes
+  record).
+- **`--boot-switches` reaches Iago.** `GermSwap.Switch` is the enumeration
+  `{zero..nine, a..z}`, so `l` is ordinal 21 (word 1, mask `0400B`), and
+  `GermSwap.InLoad` plants switches at `PrincOps.SD[sBootSwitches]` = germ
+  MDS + `1242B`. The plant must be repeated: GERMREMAP relocates the germ
+  over that MDS a few million cycles later, so the emulator re-plants until
+  the value sticks. Two things that hid this: `IagoMainImpl.DoIt` calls
+  `IagoCommands.Login` ITSELF before the switch test, so the Cedar login
+  prompt we have always seen IS Iago -- you must log in first; and
+  `IagoOps.GetCommand` auto-completes on a space, so scripted input must
+  type only through the token that makes a command unique.
+
+Iago then drives our disk path for real: `Describe Machine` (Dorado, 16339
+real pages), `Describe Drives` (RD0..RD3, 114100 pages each), `Describe
+Physical Volumes` (reads CedarWork correctly), and **`Create Physical
+Volume` + `Create Logical Volume` on a blank disk from
+`tools/pdi_create_blank.py`** -- a real `PhysicalRoot` at page 0 and
+`LogicalRoot` at page 3, 114096 pages, written entirely through the
+emulated disk. Checkpoint `dorado/build/good-packs/cedar-iago.{snap,pdi}`
+restores straight to Iago's `>` prompt. Remaining: Erase Logical Volume
+(the first whole-volume write), Install Boot File/Germ/Microcode, and the
+Cedar install onto it.
+
 Plans/state: `docs/running-the-emulator.md` (how to run everything),
 `docs/CONTINUE-HERE.md` (live bring-up state), `docs/handoff.md` +
 `dorado/CLAUDE.md` (gaps), `docs/hardware-specs.md` (specs for unbuilt

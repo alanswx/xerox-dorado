@@ -1,5 +1,109 @@
 # Handoff: continue building the Xerox Dorado emulator
 
+## ===> 2026-07-25: Iago runs; Cedar creates its own volumes
+
+The Othello/Iago track that the 2026-07-21 session mapped is open. Commits
+`10cdba7`, `e8839de`, `8408c38`, `cb4e6bb`, `2732b1e`.
+
+### The disk bridge detects the boot-link convention (10cdba7)
+
+The germ's polled IOCB path decoded `PhysicalRoot.bootingInfo.firstLink`
+as a flat PDI page number unconditionally. That is what rusty-backup
+writes, but Pilot -- and therefore anything Othello or Iago installs --
+writes a real Dorado `DiskAddress` `(cylinder, head||sector)`, where the
+Alto-compatible boot drive advances cylinder every 28 sectors. An
+authentically encoded volume rendered 0 px, and the corpus recipe carried
+a hand-run stopgap that rewrote CHS back to flat.
+
+Now the medium decides: at mount, each bootingInfo link is decoded both
+ways and the reading kept whose target page LABEL matches that entry's
+fileID and firstPage. The label carries the file's identity, so this
+checks against the disk rather than guessing; empty and ambiguous slots
+do not vote, and the default stays flat. The IOCB DiskAddress writeback
+went through the same assumption and now advances in the volume's own
+convention. `dorado_machine_set_pilot_disk` (the snapshot-restore remount
+path) does the same determination -- it was missed at first (2732b1e).
+
+Verified: every shipped volume detects flat and is bit-identical;
+`tools/pdi_boot_links_to_chs.py` converts the work volume to CHS (germ
+link `(3,20)`, the value the period notes record) and it cold boots to a
+byte-identical login screen.
+
+### --boot-switches, and how Iago is actually reached (e8839de)
+
+Traced in period sources, not guessed:
+
+| source | fact |
+|---|---|
+| `GermSwap.Mesa` | `Switch: TYPE = MACHINE DEPENDENT {zero..nine, a..z}`; `Switches: TYPE = PACKED ARRAY Switch OF BOOL` |
+| `GermSwap.Mesa` | `InLoad` writes them to `PrincOps.SD[sBootSwitches]` |
+| `PrincOps.mesa!1` | `SD = 1100B`, `sBootSwitches = 142B` -> germ MDS + `1242B` |
+| `GermSwapImpl` | reads that location back into `GermSwap.switches` |
+| `BootingImpl` | `switches: PUBLIC Booting.Switches _ GermSwap.switches` |
+| `IagoMainImpl` | `Booting.switches[l] OR etherBoot => "Do you want to use Iago?"` |
+
+So `l` is ordinal 21, and Mesa packs MSB-first: word 1, mask `0400B`.
+`--boot-switches LETTERS` (or `DORADO_BOOT_SWITCHES`) takes what a user
+would type at the herald's "Switches:" prompt.
+
+**Three things that cost time here, in order of how much:**
+
+1. **`IagoMainImpl.DoIt` calls `IagoCommands.Login` ITSELF, before the
+   switch test.** The Cedar login prompt we have always seen IS Iago
+   running. A run that stops at login has not reached the test. Type
+   `Guest` + 2 Returns first; the Iago question appears ~2.4 B cycles.
+2. **A single plant is wiped.** GERMREMAP relocates the germ over that
+   MDS a few million cycles after the germ's data pass (measured: zero
+   again by cycle 70 M). Re-plant whenever the location reads all-zero,
+   sampled every 100 K cycles, stopping after 8 stable samples --
+   converges at 68.9 M.
+3. **`dorado_machine_create` copies config field by field.** A new
+   `dorado_machine_config` member is silently dropped unless you add it
+   to that copy. The symptom is an option that parses and does nothing.
+
+A/B proof, same pinned clock, both typing Guest: with the switch the boot
+stops at 2.5 B on "Do you want to use Iago, the Cedar disk utility
+program?" (29,952 px); without it the same boot is 48,816 px into the
+ordinary install.
+
+### What Iago does through our disk path
+
+`--boot-switches l`, log in, answer `y`, and the `>` prompt is live.
+
+| command | result |
+|---|---|
+| `Describe Machine` | "This processor is a Dorado, id = 25224200400, available real memory: 16339 pages. The microcode is version 0 of May 12, 1984." |
+| `Describe Drives` | RD0..RD3, 114100 pages each (815 x 5 x 28, the `PILOT_DISK_*` T-80 geometry) |
+| `Describe Physical Volumes` | PV `[1H,0H,0H,0B]` on RD0, Name CedarWork, 114100 pages, 48564 free, logical sub-volume at physical page 84, `[0..65450)`; RD1..RD3 report no root |
+| `Create Physical Volume` on RD1 | writes a real `PhysicalRoot` (page 0 word 0 = `121212B`) to a blank PDI |
+| `Create Logical Volume` | `Size in pages: 114096 ... done`; `LogicalRoot` seal `131313B` at page 3 |
+
+Blank targets come from `tools/pdi_create_blank.py` (defaults to the T-80
+815 x 5 x 28 = 114,100 pages, written sparse).
+
+**Driving Iago from a script.** `IagoOps.GetCommand` auto-completes on a
+SPACE, so typing a command's FULL name leaves the tail as input for the
+next prompt -- ours landed in "How many Alto partitions...?" and read back
+"not a number". Type only through the token that makes the name unique:
+`Describe P` + CR, not `Describe Physical Volumes`. `?` lists matches, DEL
+returns to top level, `Quit` resumes the interrupted boot. Note
+`Describe Physical Volumes` itself asks the Alto-partitions question --
+answer `0`.
+
+**Checkpoint:** `dorado/build/good-packs/cedar-iago.{snap,pdi}` restores
+straight to Iago's `>` prompt (31,348 px) instead of re-booting 3.2 B
+cycles. Screenshots `docs/images/cedar-iago-prompt-2026-07-25.png` and
+`cedar-iago-describe-volumes-2026-07-25.png`.
+
+### Next
+
+Erase Logical Volume (the first whole-volume write -- 114 K page labels
+plus the VAM, and the real test of the write path), then Install Boot
+File / Install Germ / Install Cedar Microcode, Create VM Backing File,
+and the Cedar install onto the new volume. `Create User World` is the
+macro that does the whole sequence and prints its plan first, so run it
+once just to read the plan.
+
 ## ===> 2026-07-21: playable Chess offline, font mechanism, Othello/Iago map
 
 Newest first; the 2026-07-16 section below is still the self-contained
