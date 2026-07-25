@@ -147,6 +147,58 @@ logical volume, remote file name, *local* file name, then "use this file
 when you boot the physical volume?". Missing the local-name CR feeds the
 next answer into it (ours became a file called `y`).
 
+### Booting Cedar from the local disk: what is actually on a volume
+
+The goal is a volume carrying a lot of software that boots from disk. Four
+measurements, all on installed volumes:
+
+| test | result |
+|---|---|
+| installed `cedar-desktop.pdi`, **no** `--ftp-root` | after login: `Trying "[User]<Guest>6.1>Basic.Loadees" ... Couldn't find the server` (x2), `Can't find any command file` |
+| **corpus** volume, no network | **identical failure** -- its documented "loads packages from its own disk" does NOT mean it boots offline |
+| desktop volume, **empty** `--ftp-root` | errors become `not found` -- FS reaches the server, gets a negative, and still does not fall back to anything local |
+| desktop volume, server holding **only Basic.Loadees** | `Trying "[User]<Guest>6.1>Basic.Loadees" ... ok`, `Parsing ... ok`, then `Loading "[Cedar]<Cedar6.1>RPCRuntime>RPCRuntime.bcd" ... not found` |
+
+And `List ///*.bcd` from the desktop checkpoint shows what the volume
+really holds: **18 files, 500 KB** (`AMEventsImpl`, `EvaluateImpl`,
+`InterpreterToolImpl`, `Commands>BootTool`, `Commands>Clock`,
+`Users>Guest.pa>AISImpl`, `AISViewerImpl`, ...). The Cedar system is NOT
+on the disk -- the install populates MEMORY, and only what `Bringover`
+explicitly fetched lands on the volume.
+
+So Cedar 6.1's `Basic` boot file loads every package from the server on
+every boot. `Basic.Loadees` names them all by UNVERSIONED remote path, and
+unversioned forces a server round trip. Two escapes checked and ruled out:
+a fuller `CedarDorado.boot` exists (`!58`/`!59`, 1.6 MB vs 542 KB) but both
+are **1983**, the same version wall that killed `OthelloDorado.boot`; and
+FS attachments cannot help, because `FS.mesa`'s `attachedTo` is a property
+of a LOCAL file recording where it came from -- `Attach File` is
+`FS.Copy[..., attach: TRUE]`, which does not redirect a remote name to a
+local one.
+
+**`Create User World` is the canonical recipe**, and reading it
+(`IagoCommands1Impl`) shows the order and the step we had missed:
+
+```
+DoFormatOrScan[format: TRUE]                  -- optional
+CreatePhysicalVolume[...]; ReservePages[...]
+CreateLogicalVolume[... size: all free, name: "Cedar"]
+EraseVolume[newC]
+CreateVMFile[out, newC, cedarVMPages]         <-- WE SKIPPED THIS
+Install[microcode]; Install[germ]; Install[bootFile]
+SetPhysicalRoot x3
+DoInitialMicrocodeInstallation[...]
+Booting.Boot[[logical[newC]], ...]            -- boot it to initialize
+```
+
+`CreateVMFile` comes BEFORE the installs and we never ran it. Our
+Iago-built volume boots and logs in, then fails its `Basic.Loadees` lookup
+with `FS.Error: Local volume's permanent data structures are inconsistent`
+-- a DIFFERENT error from the desktop volume's, and this one is ours: the
+volume has no VM root file. Note also that `Create User World` targets
+drive RD0 (the drive you booted from), so it cannot be used as-is to build
+a volume on RD1; run the steps individually.
+
 ### Smalltalk: first survey (open track)
 
 What is local:
