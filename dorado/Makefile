@@ -923,7 +923,11 @@ cedar-diskvolume-desktop: $(BINDIR)/dorado
 # locally as they are used, which is why the volume's file count grows.
 CEDAR_VOL_SOFTWARE_PDI := build/good-packs/cedar-vol-software.pdi
 CEDAR_VOL_SOFTWARE_SNAPSHOT := build/good-packs/cedar-vol-software.snap
-CEDAR_VOL_SOFTWARE_CYCLES ?= 58000000000
+# 3 B cycles per package.  1.2 B was not enough: the big ones (Sil is 59
+# files, Interpress 47) were still transferring when the run ended, and a
+# command typed afterwards interleaves with the Bringover's own output.
+CEDAR_VOL_SOFTWARE_CYCLES ?= 86000000000
+CEDAR_VOL_SOFTWARE_SPACING ?= 3000000000
 # Every CedarChest6.1 package we hold a payload for, biggest first so the
 # long transfers start early.
 CEDAR_CHEST_PACKAGES := Sil Interpress ViewRec BiScrollers PopUpButtons \
@@ -938,7 +942,7 @@ cedar-diskvolume-software: $(BINDIR)/dorado
 	set -e; args=""; at=34200000000; \
 	for p in $(CEDAR_CHEST_PACKAGES); do \
 	  args="$$args --paste-at $$at --paste 'Bringover [Cedar]<CedarChest6.1>Top>'$$p'\n'"; \
-	  at=$$((at + 1200000000)); \
+	  at=$$((at + $(CEDAR_VOL_SOFTWARE_SPACING))); \
 	done; \
 	eval DORADO_PDI_IGNORE_LABEL_FLAGS=1 DORADO_PDI_SAVE=1 \
 	DORADO_FAKE_TIME='$(CEDAR_DESKTOP_FAKE_TIME)' ./build/dorado \
