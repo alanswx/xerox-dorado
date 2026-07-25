@@ -1298,7 +1298,16 @@ static void machine_germ_complete_disk_iocb(dorado_machine *m)
         uint32_t flat_page = machine_pdi_link_page(links_kind,
                                                    disk_addr_low,
                                                    disk_addr_high);
-        if (command == DISK_CMD_GERMDATA && disk_addr_low >= 0100u) {
+        /* Engage the stream on the DECODED page, not on the raw low word.
+         * The low word is a page number only under the flat convention; on a
+         * CHS volume it is the CYLINDER, which for a boot file near the front
+         * of the disk is 1..5 and never passed a `>= 0100B` test -- so the
+         * stream silently stayed off, the germ's own (wrong) addresses were
+         * honored instead of sequential ones, and the boot-file read walked
+         * off into unrelated file pages.  The decoded page means the same
+         * thing under every encoding; for a flat volume at stream start it is
+         * exactly the old value. */
+        if (command == DISK_CMD_GERMDATA && flat_page >= 0100u) {
             if (!m->pilot_pdi_stream_active) {
                 m->pilot_pdi_stream_active = 1;
                 m->pilot_pdi_next_page = flat_page;
