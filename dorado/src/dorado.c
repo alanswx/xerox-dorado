@@ -179,7 +179,12 @@ typedef struct click_event {
                    * button raises while held) */
 } click_event;
 
-#define MAX_TYPE_EVENTS 16
+/* Driving an Iago install from the command line needs a lot of these: each
+ * of Create Physical Volume, Create Logical Volume, Erase, the three
+ * Installs and Create VM Backing File asks three to five questions, so the
+ * volume-build recipe alone is 22 events.  The array is a few hundred bytes;
+ * 16 was simply the number nobody had needed to exceed yet. */
+#define MAX_TYPE_EVENTS 64
 #define MAX_KEY_CHORD_EVENTS 16
 #define MAX_CLICK_EVENTS 16
 

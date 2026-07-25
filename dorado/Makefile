@@ -799,6 +799,161 @@ cedar-iago-volume: $(BINDIR)/dorado $(CEDAR_IAGO_SNAPSHOT)
 		--snapshot-out '$(CEDAR_IAGO_VOL_SNAPSHOT)' \
 		--out build/good-packs/cedar-iago-erased.pgm
 
+# ---- A Cedar volume built from a blank disk, the way Iago builds one -----
+#
+# What the period procedure actually says (ReleaseMessage.tioga!9, "Installing
+# Cedar 6.1 from scratch"): you NET boot Cedar ("get to the CedarNetExec ...
+# type Cedar ... log in ... When asked if you want to use Iago, type Y"), so
+# the local disk RD0 is free, and Iago's Create User World then formats and
+# fills it.  That is why Create User World only ever targets RD0.  Our
+# emulator boots Cedar from RD0, so we build on RD1 instead and run the steps
+# individually -- which the same document calls out as the hand path:
+# "clients who wish to have non-standard volumes will have to do the various
+# steps by hand."
+#
+# The step order below is Create User World's own (IagoCommands1Impl):
+#   CreatePhysicalVolume -> CreateLogicalVolume -> EraseVolume ->
+#   CreateVMFile -> Install microcode/germ/bootFile
+# with ONE deliberate omission.  Install Initial Microcode writes
+# InitialDiskDorado.eb (5192 bytes = exactly 11 pages) into the disk's
+# hard-microcode region at low physical pages, and IagoOps.ReservePages
+# reserves that region only when the drive ordinal is 0:
+#     IF Disk.DriveAttributes[...].ordinal # 0 OR p = reserved THEN RETURN
+# On RD1 those pages belong to the logical volume, so the microcode lands on
+# the VAM's header (logical page 1 = physical page 4) and the volume boots to
+# "FS.Error: Local volume's permanent data structures are inconsistent".
+# The emulator supplies microcode with --eb, so skipping it costs nothing.
+#
+# Iago's prompts are answered positionally by cycle, so these --type-at
+# offsets are part of the recipe.  GetCommand auto-completes on a SPACE, so
+# each command name is typed only through the token that makes it unique.
+CEDAR_VOL_TARGET := build/good-packs/cedar-vol-target.pdi
+CEDAR_VOL_WORK := build/good-packs/cedar-vol-work.pdi
+CEDAR_VOL_CYCLES ?= 24000000000
+
+.PHONY: cedar-diskvolume cedar-diskvolume-desktop
+cedar-diskvolume: $(BINDIR)/dorado $(CEDAR_IAGO_SNAPSHOT)
+	cp -f '$(CEDAR_IAGO_PDI)' '$(CEDAR_VOL_WORK)'
+	python3 ../tools/pdi_create_blank.py '$(CEDAR_VOL_TARGET)'
+	DORADO_PDI_IGNORE_LABEL_FLAGS=1 DORADO_PDI_SAVE=1 \
+	DORADO_FAKE_TIME='$(CEDAR_DESKTOP_FAKE_TIME)' ./build/dorado \
+		--boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk '$(CEDAR_VOL_WORK)' \
+		--pilot-disk 1='$(CEDAR_VOL_TARGET)' \
+		--ftp-root ../chm/cedar/stp-root --boot-switches l \
+		--snapshot-in '$(CEDAR_IAGO_SNAPSHOT)' \
+		--type-at 3250000000 --type 'Create P\n' \
+		--type-at 3400000000 --type '1\n' \
+		--type-at 3550000000 --type 'CedarClean\n' \
+		--type-at 3700000000 --type 'y' \
+		--type-at 3850000000 --type 'n' \
+		--type-at 4050000000 --type 'Create L\n' \
+		--type-at 4200000000 --type 'CedarCleanLV\n' \
+		--type-at 4350000000 --type 'CedarClean\n' \
+		--type-at 4500000000 --type '\n' \
+		--type-at 4650000000 --type 'y' \
+		--type-at 4900000000 --type 'n' \
+		--type-at 5250000000 --type 'Erase L\n' \
+		--type-at 5400000000 --type 'CedarCleanLV\n' \
+		--type-at 5550000000 --type 'y' \
+		--type-at 12050000000 --type 'Install B\n' \
+		--type-at 12200000000 --type 'CedarCleanLV\n' \
+		--type-at 12350000000 --type '\n' \
+		--type-at 12550000000 --type '\n' \
+		--type-at 14500000000 --type 'y' \
+		--type-at 14800000000 --type 'Install G\n' \
+		--type-at 14950000000 --type 'CedarCleanLV\n' \
+		--type-at 15100000000 --type '\n' \
+		--type-at 15300000000 --type '\n' \
+		--type-at 15900000000 --type 'Install Cedar\n' \
+		--type-at 16050000000 --type 'CedarCleanLV\n' \
+		--type-at 16200000000 --type '\n' \
+		--type-at 16400000000 --type '\n' \
+		--type-at 17000000000 --type 'Create V\n' \
+		--type-at 17150000000 --type 'CedarCleanLV\n' \
+		--type-at 17300000000 --type '\n' \
+		--cycles '$(CEDAR_VOL_CYCLES)' \
+		--out build/good-packs/cedar-vol-build.pgm
+	@echo "cedar-diskvolume: rewriting the root page checksums"
+	@# Cedar zeroes a root page's checksum while the volume is mounted and
+	@# rewrites it on a clean dismount.  The emulator never dismounts, so do
+	@# what the dismount would have done.
+	python3 ../tools/pdi_fix_root_checksums.py '$(CEDAR_VOL_TARGET)'
+	@echo "built $(CEDAR_VOL_TARGET) -- boot it with:"
+	@echo "  ./build/dorado --boot-reason disk --no-alto-boot \\"
+	@echo "    --eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \\"
+	@echo "    --pilot-disk $(CEDAR_VOL_TARGET) --ftp-root ../chm/cedar/stp-root"
+
+# Boot the fresh volume and let Cedar install itself onto it, ending at the
+# Viewers desktop.  ReleaseMessage: "the installation will take roughly half
+# an hour for a Dorado" -- here it is ~34 B cycles.
+CEDAR_VOL_DESKTOP_PDI := build/good-packs/cedar-vol-desktop.pdi
+CEDAR_VOL_DESKTOP_SNAPSHOT := build/good-packs/cedar-vol-desktop.snap
+CEDAR_VOL_DESKTOP_CYCLES ?= 34000000000
+
+cedar-diskvolume-desktop: $(BINDIR)/dorado
+	cp -f '$(CEDAR_VOL_TARGET)' '$(CEDAR_VOL_DESKTOP_PDI)'
+	DORADO_PDI_IGNORE_LABEL_FLAGS=1 DORADO_PDI_SAVE=1 \
+	DORADO_FAKE_TIME='$(CEDAR_DESKTOP_FAKE_TIME)' ./build/dorado \
+		--boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk '$(CEDAR_VOL_DESKTOP_PDI)' \
+		--ftp-root ../chm/cedar/stp-root \
+		--type-at 760000000 --type 'Guest\n\n' \
+		--cycles '$(CEDAR_VOL_DESKTOP_CYCLES)' \
+		--snapshot-out '$(CEDAR_VOL_DESKTOP_SNAPSHOT)' \
+		--out build/good-packs/cedar-vol-desktop.pgm
+
+# Load a substantial CedarChest collection onto the volume.
+#
+# CedarChestDoc.tioga: "The directory and DF-file structure for <CedarChestr>
+# is the same as that for <Cedarr>.  Each package should be entirely
+# described by a DF-file on <CedarChestr>Top>."  So one Bringover per package
+# DF is the documented way in, and it is what the 2026-07-16 session used for
+# ChessHack.  Two rules that make it work, both learned the hard way:
+#   - plain Bringover, NOT `Bringover -p`.  -p fetches public files only, so
+#     a package's data files silently do not arrive and you get "1 files
+#     acted upon" (the .df and nothing else).
+#   - the served .df files are CR-terminated; an LF-terminated one parses as
+#     a single line.
+# CommandToolCommands.tioga records what Bringover does underneath: "Case 4:
+# 'to' is an LName, 'attach' is TRUE ... Case 4 is used by BringOver" -- it
+# attaches the local name to the remote file, and the bytes are cached
+# locally as they are used, which is why the volume's file count grows.
+CEDAR_VOL_SOFTWARE_PDI := build/good-packs/cedar-vol-software.pdi
+CEDAR_VOL_SOFTWARE_SNAPSHOT := build/good-packs/cedar-vol-software.snap
+CEDAR_VOL_SOFTWARE_CYCLES ?= 58000000000
+# Every CedarChest6.1 package we hold a payload for, biggest first so the
+# long transfers start early.
+CEDAR_CHEST_PACKAGES := Sil Interpress ViewRec BiScrollers PopUpButtons \
+	PressReader SirPress ImagerPress AIS AISImages AISViewer CardTable \
+	Abutters ChessHack Clock DoradoArchive
+
+.PHONY: cedar-diskvolume-software
+cedar-diskvolume-software: $(BINDIR)/dorado
+	cp -f '$(CEDAR_VOL_DESKTOP_PDI)' '$(CEDAR_VOL_SOFTWARE_PDI)'
+	@# Build the --paste series: click the CommandTool for type-in focus,
+	@# then one Bringover per package, 1.2 B cycles apart.
+	set -e; args=""; at=34200000000; \
+	for p in $(CEDAR_CHEST_PACKAGES); do \
+	  args="$$args --paste-at $$at --paste 'Bringover [Cedar]<CedarChest6.1>Top>'$$p'\n'"; \
+	  at=$$((at + 1200000000)); \
+	done; \
+	eval DORADO_PDI_IGNORE_LABEL_FLAGS=1 DORADO_PDI_SAVE=1 \
+	DORADO_FAKE_TIME='$(CEDAR_DESKTOP_FAKE_TIME)' ./build/dorado \
+		--boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk '$(CEDAR_VOL_SOFTWARE_PDI)' \
+		--ftp-root ../chm/cedar/stp-root \
+		--snapshot-in '$(CEDAR_VOL_DESKTOP_SNAPSHOT)' \
+		--key-hold 1600000 --click 700,733 \
+		$$args \
+		--cycles '$(CEDAR_VOL_SOFTWARE_CYCLES)' \
+		--snapshot-out '$(CEDAR_VOL_SOFTWARE_SNAPSHOT)' \
+		--out build/good-packs/cedar-vol-software.pgm
+	python3 ../tools/pdi_fix_root_checksums.py '$(CEDAR_VOL_SOFTWARE_PDI)'
+
 # Offline "apps demo" checkpoint: restore the desktop (which now carries
 # Chess40 in its font catalog), BringOver ChessHack + Clock into memory,
 # start them (they park as icons), and pre-cache the Chess40 font -- then
