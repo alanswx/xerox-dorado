@@ -21,8 +21,16 @@
 #
 #   * Rewrite the PV-root boot links to the FLAT convention. The writer emits
 #     a proper CHS DiskAddress (germ firstLink = (3,20)); the emulator's
-#     polled germ path wants the flat page number ((104,0)) -- the same VDA
-#     104, a different encoding. Skip this and the volume renders 0 px.
+#     polled germ path wanted the flat page number ((104,0)) -- the same VDA
+#     104, a different encoding. Skip this and the volume rendered 0 px.
+#     NO LONGER REQUIRED as of 2026-07-25 (10cdba7/8e2603c): the emulator
+#     detects the encoding from the medium, decoding each bootingInfo link
+#     three ways and keeping the one whose target page label matches that
+#     entry. The step is kept because it is idempotent and keeps the shipped
+#     image byte-stable, but a CHS volume now boots as-is -- verified by
+#     converting the work volume with tools/pdi_boot_links_to_chs.py (which
+#     yields exactly this (3,20)) and cold booting it to a byte-identical
+#     login screen.
 #
 # Naming: --crc-names recovers a file's real name from the CHM archive's
 # cross-reference listing, which records every file's size and CRC-32 (plain
