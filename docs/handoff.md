@@ -147,6 +147,38 @@ logical volume, remote file name, *local* file name, then "use this file
 when you boot the physical volume?". Missing the local-name CR feeds the
 next answer into it (ours became a file called `y`).
 
+### Smalltalk: first survey (open track)
+
+What is local:
+
+| path | what |
+|---|---|
+| `chm/microcode/SmalltalkDorado.eb!1` | 32 KB, netbootable world |
+| `chm/dorado/DSemu.mb!1` + `chm/dorado/dsemu-src/` | the emulator and its full microcode sources |
+| `chm/archiveorg/smalltalk-80/VirtualImage` | 596 KB Smalltalk-80 image + `Smalltalk-80.sources` |
+| `chm/bitsavers/.../dolphin_smalltalk`, `1186_Smalltalk-80_DV6` | other-machine ST-80 |
+
+**DSemu is Smalltalk-76, not 80.** `DSmallDefs.mc` heads itself
+"Definitions for Dorado Smalltalk Microcode / Dorado Model 1, XM version /
+last edited July 9, 1979 by Deutsch", and the object model it defines is
+the ST-76 one: an object table ("Rot") with reference counts and oops,
+small-integer oops at `174000B`/`176000B`, and traps out to companion
+"Nova code". So the Smalltalk-80 `VirtualImage` we have is almost
+certainly not loadable by it -- pairing those two would be the first
+thing to get wrong.
+
+**First probe.** `--eb chm/microcode/SmalltalkDorado.eb!1` loads through
+the real Initial/LoadRam path ("Alto/Mesa world loaded at cycle
+32000029") and then renders 0 px, which is what a world with no image
+should do. `SmalltalkDorado.eb` is NOT a byte-identical build of our
+`DSemu.mb` (31,832 vs 32,208 bytes through `mb2eb`, 22,942 bytes
+differing) -- same family, different build, so which one to drive is
+still open.
+
+**Next:** work out how the Dorado Smalltalk world obtains its image (disk
+partition vs net) from `dsemu-src` and `Smalltalk.midas!17`, then find a
+matching ST-76 image. Do not assume the ST-80 image will work.
+
 ## ===> 2026-07-21: playable Chess offline, font mechanism, Othello/Iago map
 
 Newest first; the 2026-07-16 section below is still the self-contained
