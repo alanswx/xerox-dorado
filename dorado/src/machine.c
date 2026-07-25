@@ -189,11 +189,11 @@ static uint32_t machine_pchist_task[16][4096];
  * table supports the explicit DORADO_PDI_SAVE diagnostic without changing the
  * machine snapshot ABI. */
 static char machine_pdi_path[DORADO_DISK_NUM_DRIVES][512];
-/* Per-slot boot-link convention, detected once at mount (see
- * machine_pdi_links_are_chs).  File scope for the same reason as the path
+/* Per-slot boot-link encoding, detected once at mount (see
+ * machine_pdi_links_kind_of).  File scope for the same reason as the path
  * table: it must not change the machine snapshot ABI.  The medium's own
  * layout decides it, so it survives a restore without being serialized. */
-static uint8_t machine_pdi_links_chs[DORADO_DISK_NUM_DRIVES];
+static uint8_t machine_pdi_links_kind[DORADO_DISK_NUM_DRIVES];
 
 static void machine_store_va(dorado_memory *mem, uint32_t va, uint16_t value);
 
@@ -465,6 +465,42 @@ static uint32_t machine_pilot_disk_address_to_vda(uint16_t drive,
 #define DISK_FILE_ID_WORDS     9u
 #define PV_BOOTING_INFO_SLOTS  4u
 
+/* How a volume encodes the DiskAddress in its on-disk boot links.  Three
+ * forms occur in practice, and a volume cannot be read without knowing
+ * which: rusty-backup writes a flat page number, while Pilot writes a real
+ * DiskAddress -- whose cylinder/head split differs between the
+ * Alto-compatible boot drive (one head, "virtual" cylinders) and the
+ * conventional drives.  A volume built by Iago on RD1 and then booted as
+ * RD0 therefore carries CONV links while sitting on the boot drive, which
+ * is the normal way to build one (you cannot format the drive you booted
+ * from). */
+#define PDI_LINKS_FLAT      0
+#define PDI_LINKS_CHS_BOOT  1   /* drive 0: cyl*28 + sector           */
+#define PDI_LINKS_CHS_CONV  2   /* drives 1+: (cyl*5 + head)*28 + sec */
+
+static void machine_pilot_disk_address_advance(uint16_t drive,
+                                                uint16_t *cylinder,
+                                                uint16_t *head_sector,
+                                                uint16_t pages,
+                                                int flat);
+
+static uint32_t machine_pdi_link_page(uint8_t kind, uint16_t lo, uint16_t hi)
+{
+    if (kind == PDI_LINKS_CHS_BOOT)
+        return machine_pilot_disk_address_to_vda(0, lo, hi, 0);
+    if (kind == PDI_LINKS_CHS_CONV)
+        return machine_pilot_disk_address_to_vda(1, lo, hi, 0);
+    return machine_pilot_disk_address_to_vda(0, lo, hi, 1);
+}
+
+static void machine_pdi_link_advance(uint8_t kind, uint16_t *lo, uint16_t *hi,
+                                     uint16_t pages)
+{
+    machine_pilot_disk_address_advance(
+        kind == PDI_LINKS_CHS_CONV ? 1u : 0u, lo, hi, pages,
+        kind == PDI_LINKS_FLAT);
+}
+
 /* Does the page a link decodes to actually hold the boot file it names?  The
  * page label carries the file's own identity (fileID 5 words + filePage), so
  * this is a direct check against the medium rather than a guess. */
@@ -480,21 +516,25 @@ static int machine_pdi_link_lands_on(const dorado_pdi *p, uint32_t page,
     return dorado_pdi_label_filepage(label) == first_page;
 }
 
-/* Decide whether a mounted volume stores its boot links as a flat PDI VDA or
- * as a real Dorado CHS DiskAddress, by decoding each bootingInfo link both
- * ways and seeing which one lands on the page whose label matches that entry.
+/* Decide how a mounted volume encodes its boot links, by decoding each
+ * bootingInfo link every way we know and keeping the one that lands on the
+ * page whose LABEL matches that entry's fileID and firstPage.  The label
+ * carries the file's own identity, so this checks against the medium rather
+ * than guessing; a link that satisfies more than one reading (page 0, say)
+ * says nothing and does not vote.
  *
- * Both conventions are in the tree: every image rusty-backup writes today
- * carries flat links (the corpus recipe used to post-process CHS back to flat
- * by hand), while Pilot -- and therefore anything Othello or Iago installs --
- * writes CHS.  Hard-coding flat made an authentically installed volume render
- * 0 px.  Returns 1 for CHS, 0 for flat (also the default when nothing votes,
- * which preserves the behavior every shipped image relies on). */
-static int machine_pdi_links_are_chs(const dorado_pdi *p)
+ * All three forms are in the tree: every image rusty-backup writes carries
+ * flat links (the corpus recipe used to convert CHS back to flat by hand),
+ * a Pilot-installed boot drive carries CHS_BOOT, and a volume Iago built on
+ * another drive carries CHS_CONV.  Hard-coding flat made an authentically
+ * installed volume render 0 px.  Defaults to flat when nothing votes, which
+ * preserves the behavior every shipped image relies on. */
+static uint8_t machine_pdi_links_kind_of(const dorado_pdi *p)
 {
     const uint16_t *root = dorado_pdi_page_data(p, 0);
-    if (!root || p->data_words < 256 || root[0] != PV_ROOT_SEAL) return 0;
-    int flat_votes = 0, chs_votes = 0;
+    if (!root || p->data_words < 256 || root[0] != PV_ROOT_SEAL)
+        return PDI_LINKS_FLAT;
+    int votes[3] = {0, 0, 0};
     for (unsigned slot = 0; slot < PV_BOOTING_INFO_SLOTS; slot++) {
         const uint16_t *entry =
             root + PV_BOOTING_INFO_WORD + slot * DISK_FILE_ID_WORDS;
@@ -502,15 +542,25 @@ static int machine_pdi_links_are_chs(const dorado_pdi *p)
         int empty = (lo == 0 && hi == 0);
         for (int w = 0; empty && w < 5; w++) empty = (entry[w] == 0);
         if (empty) continue;
-        int flat_ok = machine_pdi_link_lands_on(
-            p, machine_pilot_disk_address_to_vda(0, lo, hi, 1), entry);
-        int chs_ok = machine_pdi_link_lands_on(
-            p, machine_pilot_disk_address_to_vda(0, lo, hi, 0), entry);
-        /* A link that satisfies both readings (e.g. page 0) says nothing. */
-        if (flat_ok && !chs_ok) flat_votes++;
-        else if (chs_ok && !flat_ok) chs_votes++;
+        int ok[3], n = 0, which = 0;
+        for (int k = 0; k < 3; k++) {
+            ok[k] = machine_pdi_link_lands_on(
+                p, machine_pdi_link_page((uint8_t)k, lo, hi), entry);
+            if (ok[k]) { n++; which = k; }
+        }
+        if (n == 1) votes[which]++;
     }
-    return chs_votes > flat_votes;
+    uint8_t best = PDI_LINKS_FLAT;
+    for (int k = 1; k < 3; k++)
+        if (votes[k] > votes[best]) best = (uint8_t)k;
+    return best;
+}
+
+static const char *machine_pdi_links_name(uint8_t kind)
+{
+    return kind == PDI_LINKS_CHS_BOOT ? "CHS (boot drive)"
+         : kind == PDI_LINKS_CHS_CONV ? "CHS (conventional)"
+         : "flat";
 }
 
 static void machine_pilot_disk_address_advance(uint16_t drive,
@@ -1242,11 +1292,12 @@ static void machine_germ_complete_disk_iocb(dorado_machine *m)
      * path below remains for everything Pilot issues once it owns the
      * disk head (2e8018b). */
     if (csb_interrupt_mask == 0 && pdi) {
-        /* Which of the two link conventions this volume uses was settled at
-         * mount from the medium itself (machine_pdi_links_are_chs). */
-        int links_flat = !machine_pdi_links_chs[drive];
-        uint32_t flat_page = machine_pilot_disk_address_to_vda(
-            drive, disk_addr_low, disk_addr_high, links_flat);
+        /* Which encoding this volume uses was settled at mount from the
+         * medium itself (machine_pdi_links_kind_of). */
+        uint8_t links_kind = machine_pdi_links_kind[drive];
+        uint32_t flat_page = machine_pdi_link_page(links_kind,
+                                                   disk_addr_low,
+                                                   disk_addr_high);
         if (command == DISK_CMD_GERMDATA && disk_addr_low >= 0100u) {
             if (!m->pilot_pdi_stream_active) {
                 m->pilot_pdi_stream_active = 1;
@@ -1316,8 +1367,7 @@ static void machine_germ_complete_disk_iocb(dorado_machine *m)
          * flat arm reproduces the previous unconditional high-word bump, and
          * CHS carries sector into cylinder the way the hardware does. */
         uint16_t next_lo = disk_addr_low, next_hi = disk_addr_high;
-        machine_pilot_disk_address_advance(drive, &next_lo, &next_hi,
-                                           polled_done, links_flat);
+        machine_pdi_link_advance(links_kind, &next_lo, &next_hi, polled_done);
         machine_store_va(&m->mem, iocb + SA_IOCB_DISKADDR, next_lo);
         machine_store_va(&m->mem, iocb + SA_IOCB_DISKADDR + 1u, next_hi);
         machine_store_va(&m->mem, iocb + SA_IOCB_DISKHEADER, disk_addr_low);
@@ -2268,8 +2318,8 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
             m->pilot_pdi_loaded[s] = 1;
             snprintf(machine_pdi_path[s], sizeof machine_pdi_path[s], "%s",
                      cfg.pilot_disk_pdi[s]);
-            machine_pdi_links_chs[s] =
-                (uint8_t)machine_pdi_links_are_chs(&m->pilot_pdi[s]);
+            machine_pdi_links_kind[s] =
+                machine_pdi_links_kind_of(&m->pilot_pdi[s]);
             dorado_disk_controller_attach_pdi(&m->disk, s, &m->pilot_pdi[s]);
             m->disk.allow_pdi_timing = (uint8_t)m->disk_real;  /* D4 */
             m->disk_attached = 1;
@@ -2277,7 +2327,7 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
                 fprintf(stderr, "[machine] Pilot PDI mounted in slot %d: %s "
                         "(%u pages, %s boot links)\n", s, cfg.pilot_disk_pdi[s],
                         (unsigned)m->pilot_pdi[s].page_count,
-                        machine_pdi_links_chs[s] ? "CHS" : "flat");
+                        machine_pdi_links_name(machine_pdi_links_kind[s]));
         }
     }
 
@@ -3682,11 +3732,11 @@ int dorado_machine_set_pilot_disk(dorado_machine *m, int slot,
     m->pilot_pdi_loaded[slot] = 1;
     snprintf(machine_pdi_path[slot], sizeof machine_pdi_path[slot], "%s",
              path);
-    /* Same determination as the create-time mount: the medium decides
-     * whether its boot links are flat or CHS.  A snapshot restore re-mounts
-     * every --pilot-disk through here, so it has to be made here too. */
-    machine_pdi_links_chs[slot] =
-        (uint8_t)machine_pdi_links_are_chs(&m->pilot_pdi[slot]);
+    /* Same determination as the create-time mount: the medium decides how
+     * its boot links are encoded.  A snapshot restore re-mounts every
+     * --pilot-disk through here, so it has to be made here too. */
+    machine_pdi_links_kind[slot] =
+        machine_pdi_links_kind_of(&m->pilot_pdi[slot]);
     dorado_disk_controller_attach_pdi(&m->disk, slot, &m->pilot_pdi[slot]);
     m->disk.allow_pdi_timing = (uint8_t)m->disk_real;
     m->disk_attached = 1;
