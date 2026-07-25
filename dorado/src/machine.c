@@ -3682,6 +3682,11 @@ int dorado_machine_set_pilot_disk(dorado_machine *m, int slot,
     m->pilot_pdi_loaded[slot] = 1;
     snprintf(machine_pdi_path[slot], sizeof machine_pdi_path[slot], "%s",
              path);
+    /* Same determination as the create-time mount: the medium decides
+     * whether its boot links are flat or CHS.  A snapshot restore re-mounts
+     * every --pilot-disk through here, so it has to be made here too. */
+    machine_pdi_links_chs[slot] =
+        (uint8_t)machine_pdi_links_are_chs(&m->pilot_pdi[slot]);
     dorado_disk_controller_attach_pdi(&m->disk, slot, &m->pilot_pdi[slot]);
     m->disk.allow_pdi_timing = (uint8_t)m->disk_real;
     m->disk_attached = 1;
