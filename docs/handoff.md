@@ -167,17 +167,49 @@ small-integer oops at `174000B`/`176000B`, and traps out to companion
 certainly not loadable by it -- pairing those two would be the first
 thing to get wrong.
 
-**First probe.** `--eb chm/microcode/SmalltalkDorado.eb!1` loads through
-the real Initial/LoadRam path ("Alto/Mesa world loaded at cycle
-32000029") and then renders 0 px, which is what a world with no image
-should do. `SmalltalkDorado.eb` is NOT a byte-identical build of our
-`DSemu.mb` (31,832 vs 32,208 bytes through `mb2eb`, 22,942 bytes
-differing) -- same family, different build, so which one to drive is
-still open.
+**How it boots: through the Alto path.** `DSemu.cm` gives the MicroD build
+line, and it is decisive:
 
-**Next:** work out how the Dorado Smalltalk world obtains its image (disk
-partition vs net) from `dsemu-src` and `Smalltalk.midas!17`, then find a
-matching ST-76 image. Do not assume the ST-80 image will work.
+```
+MicroD/n DSemu/o AltoEmuDefs ^AltoEmu AltoVarious AltoBitBlt SMTraps
+  BCPLRuntime ^AltoEther AltoEtherEmu AltoDiabloDisk AltoDiskSubrs
+  ^AltoDisplayMain AltoDisplayAux AltoColorDisplay AltoJunk
+  ^DSmallint DSmallops DSmalltrapped DSmallmsgs DSmallsubrs ...
+```
+
+DSemu is **the Alto emulator plus the Smalltalk microcode** -- it carries
+`AltoEmu`, `AltoEther`, `AltoDiabloDisk`, `AltoDisplayMain`, the lot. So
+Smalltalk-76 comes up the way Alto software does, off a Diablo pack, and
+the "Nova code" the microcode traps to is Alto-side code. `mb2eb` agrees:
+DSemu is IM=3402/IFUM=512 against AEmu's 2084/256 -- two instruction sets
+rather than one.
+
+**The pack is good and the disk path is good; the Smalltalk world is not.**
+`AltoInfo/.../xmsmall.dsk` ("XM Smalltalk", matching DSemu's "XM version")
+converts with `dsk2trident --all-heads`, and:
+
+| world | result |
+|---|---|
+| `worlds/aemu.eb` | **boots the pack** -- "XEROX Alto Executive/12, OS Version 18/16, Alto 1#42#" at a `>` prompt, 2,709 px |
+| `chm/microcode/SmalltalkDorado.eb!1` | 0 px |
+| our `mb2eb` build of `DSemu.mb!1` | 0 px |
+
+Remember `--no-alto-boot`, or the run silently falls back to Ethernet and
+a "renders from pack" result is not what it looks like (see
+`docs/alto-disk-boot-plan.md`).
+
+So the pack boots the Alto OS to an Executive, from which Smalltalk would
+be started by command -- but neither Smalltalk world reaches that prompt.
+Neither halts, either: the microengine runs without an `UNSUPPORTED`/fault
+report and simply never installs a display list.
+
+**Next:** this is a real bring-up, the same shape as the Cedar one. Diff a
+DSemu run against the AEmu run that works (per-task PC histograms,
+`DORADO_MACHINE_PCHIST`, the IFU dispatch ring) to find where the extra
+instruction set diverges. Also settle which world to drive:
+`SmalltalkDorado.eb` is not a byte-identical build of our `DSemu.mb`
+(31,832 vs 32,208 bytes, 22,942 differing), so it may be a later or
+different port.
 
 ## ===> 2026-07-21: playable Chess offline, font mechanism, Othello/Iago map
 
