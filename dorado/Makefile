@@ -716,6 +716,89 @@ run-cedar-desktop-sdl: sdl $(CEDAR_DESKTOP_SNAPSHOT) $(CEDAR_DESKTOP_PDI)
 		--ftp-root ../chm/cedar/stp-root \
 		--snapshot-in '$(CEDAR_DESKTOP_SNAPSHOT)' --speed 4000000
 
+# ---- IAGO: Cedar's own disk utility, and the volumes it builds ----------
+# Iago formats disks and creates physical/logical volumes.  It is a
+# BOOT-TIME program, offered only when Booting.switches[l] is set, which
+# --boot-switches supplies (GermSwap.Switch is {zero..nine, a..z}, so l is
+# ordinal 21; the emulator plants it at PrincOps.SD[sBootSwitches]).
+#
+# You MUST log in first: IagoMainImpl.DoIt calls IagoCommands.Login itself,
+# BEFORE the switch test, so the Cedar login prompt IS Iago running.  A run
+# that stops at login never reaches the question.
+#
+# Command entry: IagoOps.GetCommand auto-completes on a SPACE, so typing a
+# command's FULL name leaves the tail as input for the NEXT prompt.  Type
+# only through the token that makes the name unique ('Create P', not
+# 'Create Physical Volume').
+CEDAR_IAGO_SNAPSHOT := build/good-packs/cedar-iago.snap
+CEDAR_IAGO_PDI := build/good-packs/cedar-iago.pdi
+CEDAR_IAGO_SCREEN := build/good-packs/cedar-iago.pgm
+CEDAR_IAGO_CYCLES ?= 3200000000
+
+.PHONY: cedar-iago-snapshot run-cedar-iago-sdl cedar-iago-volume
+# Cold boot to Iago's "> " prompt (31,348 px): log in as Guest, answer y.
+cedar-iago-snapshot: $(BINDIR)/dorado $(CEDAR_WORK_PDI)
+	mkdir -p '$(dir $(CEDAR_IAGO_SNAPSHOT))'
+	cp -f '$(CEDAR_WORK_PDI)' '$(CEDAR_IAGO_PDI)'
+	DORADO_PDI_IGNORE_LABEL_FLAGS=1 DORADO_PDI_SAVE=1 \
+	DORADO_FAKE_TIME='$(CEDAR_DESKTOP_FAKE_TIME)' ./build/dorado \
+		--boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk '$(CEDAR_IAGO_PDI)' \
+		--ftp-root ../chm/cedar/stp-root \
+		--boot-switches l \
+		--type-at 760000000  --type 'Guest\n\n' \
+		--type-at 2400000000 --type 'y' \
+		--cycles '$(CEDAR_IAGO_CYCLES)' \
+		--snapshot-out '$(CEDAR_IAGO_SNAPSHOT)' \
+		--out '$(CEDAR_IAGO_SCREEN)'
+
+run-cedar-iago-sdl: sdl $(CEDAR_IAGO_SNAPSHOT)
+	DORADO_PDI_IGNORE_LABEL_FLAGS=1 ./build/dorado-sdl \
+		--boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk '$(CEDAR_IAGO_PDI)' \
+		--ftp-root ../chm/cedar/stp-root --boot-switches l \
+		--snapshot-in '$(CEDAR_IAGO_SNAPSHOT)' --speed 4000000
+
+# Build a Cedar volume from nothing on a second drive: Create Physical
+# Volume, Create Logical Volume, Erase Logical Volume (a label on every one
+# of the 114,100 sectors plus the VAM -- the heaviest write the emulator is
+# asked for; it takes most of the cycle budget below).
+CEDAR_IAGO_TARGET := build/good-packs/cedar-iago-target.pdi
+CEDAR_IAGO_VOL_SNAPSHOT := build/good-packs/cedar-iago-erased.snap
+CEDAR_IAGO_VOL_PDI := build/good-packs/cedar-iago-erased.pdi
+CEDAR_IAGO_VOL_CYCLES ?= 12000000000
+
+cedar-iago-volume: $(BINDIR)/dorado $(CEDAR_IAGO_SNAPSHOT)
+	cp -f '$(CEDAR_IAGO_PDI)' '$(CEDAR_IAGO_VOL_PDI)'
+	python3 ../tools/pdi_create_blank.py '$(CEDAR_IAGO_TARGET)'
+	DORADO_PDI_IGNORE_LABEL_FLAGS=1 DORADO_PDI_SAVE=1 \
+	DORADO_FAKE_TIME='$(CEDAR_DESKTOP_FAKE_TIME)' ./build/dorado \
+		--boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk '$(CEDAR_IAGO_VOL_PDI)' \
+		--pilot-disk 1='$(CEDAR_IAGO_TARGET)' \
+		--ftp-root ../chm/cedar/stp-root --boot-switches l \
+		--snapshot-in '$(CEDAR_IAGO_SNAPSHOT)' \
+		--type-at 3250000000 --type 'Create P\n' \
+		--type-at 3400000000 --type '1\n' \
+		--type-at 3550000000 --type 'CedarClean\n' \
+		--type-at 3700000000 --type 'y' \
+		--type-at 3850000000 --type 'n' \
+		--type-at 4050000000 --type 'Create L\n' \
+		--type-at 4200000000 --type 'CedarCleanLV\n' \
+		--type-at 4350000000 --type 'CedarClean\n' \
+		--type-at 4500000000 --type '\n' \
+		--type-at 4650000000 --type 'y' \
+		--type-at 4900000000 --type 'n' \
+		--type-at 5250000000 --type 'Erase L\n' \
+		--type-at 5400000000 --type 'CedarCleanLV\n' \
+		--type-at 5550000000 --type 'y' \
+		--cycles '$(CEDAR_IAGO_VOL_CYCLES)' \
+		--snapshot-out '$(CEDAR_IAGO_VOL_SNAPSHOT)' \
+		--out build/good-packs/cedar-iago-erased.pgm
+
 # Offline "apps demo" checkpoint: restore the desktop (which now carries
 # Chess40 in its font catalog), BringOver ChessHack + Clock into memory,
 # start them (they park as icons), and pre-cache the Chess40 font -- then
