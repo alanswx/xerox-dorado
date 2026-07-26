@@ -278,6 +278,23 @@ static uint16_t machine_disk_dmux_read(uint16_t addr, int *handled, void *ctx)
  * scope for the snapshot-ABI reason noted above machine_pdi_path: they are a
  * property of how this machine was started, like the media paths. */
 static uint16_t machine_boot_switches[GERM_SWITCH_WORDS];
+
+/* Display-controller activity as it stood when the ether-booted world was
+ * installed by LoadRam.  Initial drives the terminal task while it runs, so
+ * output_task_count[] is already ~386 at the LoadRam handoff; treating that
+ * stale history as a live DDC stream wakes the display tasks 3 cycles into
+ * a world that has not initialised its TPCs yet.  Measured across worlds:
+ * a real Alto world grows out[3] from 386 to over 1,000,000 within the
+ * first 400 M cycles, while Smalltalk (DSemu) never touches the controller
+ * at all -- 386 -> 387 and then flat forever.  So "has the LOADED world
+ * driven the controller?" is what the wake predicate actually wants.
+ *
+ * File-scope static, NOT a dorado_machine member: adding a struct member
+ * changes the snapshot ABI and every baked checkpoint fails to restore.
+ * After a snapshot restore this stays all-zero, which makes the test
+ * degrade to the historical `!= 0` and keeps restored checkpoints
+ * bit-identical. */
+static uint64_t machine_disp_out_baseline[16];
 static int      machine_boot_switches_any;
 static int      machine_boot_switches_planted;
 static int      machine_boot_switches_held;
@@ -2181,6 +2198,7 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
     /* Reset the process-global keyboard buffer for this machine (the web
      * frontend destroys and recreates machines when switching worlds). */
     machine_key_q_head = machine_key_q_tail = machine_key_field_wait = 0;
+    memset(machine_disp_out_baseline, 0, sizeof machine_disp_out_baseline);
     m->alto_ether_boot  = cfg.alto_ether_boot;
     m->disk_real        = cfg.disk_real;
     m->alto_ether_quote = cfg.alto_ether_quote;
@@ -2884,6 +2902,12 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
             if (!dorado_trace_flag("DORADO_NO_ALUFM_RESTORE"))
                 restore_standard_alufm(&m->mc);
             m->ether_loaded_world_cycle = bb->cycles;
+            /* Snapshot the controller-activity counters so the DDC wake
+             * predicate can tell Initial's history from the loaded world's
+             * own output. */
+            for (int t = 0; t < 16; t++)
+                machine_disp_out_baseline[t] =
+                    m->display.output_task_count[t];
             /* Quiet the junk timer and drop any stale pending wakeups at the
              * LoadRam handoff so high-priority I/O tasks do not run their
              * pre-reload microcode and starve the emulator task. Do NOT
@@ -3630,6 +3654,33 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
              * stale-TPC hazard described above. */
             if (display_active && dorado_trace_flag("DORADO_NO_DISPLAY_WAKE")) {
                 display_active = 0;
+            }
+            if (display_active &&
+                dorado_trace_flag("DORADO_DISPLAY_WAKE_DEBUG")) {
+                static uint64_t wake_dbg_next = 0;
+                if (bb->cycles >= wake_dbg_next) {
+                    dorado_display *dd = &m->display;
+                    wake_dbg_next = bb->cycles + 100000000ull;
+                    fprintf(stderr,
+                        "[wake] display_active cyc=%llu load=%llu "
+                        "delta=%lld | alto_dcb=%d ddc=%d | termtask=%o "
+                        "out[3]=%llu out[4]=%llu out[11]=%llu out[13]=%llu "
+                        "rasterlt=%d wcb=%d%d%d%d\n",
+                        (unsigned long long)bb->cycles,
+                        (unsigned long long)m->ether_loaded_world_cycle,
+                        (long long)bb->cycles -
+                            (long long)m->ether_loaded_world_cycle,
+                        machine_alto_display_active(&m->mem),
+                        machine_ddc_display_active(m),
+                        dd->terminal_task,
+                        (unsigned long long)dd->output_task_count[3],
+                        (unsigned long long)dd->output_task_count[4],
+                        (unsigned long long)dd->output_task_count[011],
+                        (unsigned long long)dd->output_task_count[013],
+                        dd->raster_lt_enabled,
+                        dd->next_wcb_flag[0], dd->next_wcb_flag[1],
+                        dd->current_wcb_flag[0], dd->current_wcb_flag[1]);
+                }
             }
             if (display_active && bb->cycles >= m->next_display_scanline_cycle) {
                 uint16_t mask = dorado_display_scanline_wakeup_mask(disp);
@@ -4661,7 +4712,14 @@ static int machine_ddc_display_active(dorado_machine *m)
         return 0;
     if (d->terminal_task == DORADO_DISPLAY_TASK_DHT ||
         d->terminal_task == DORADO_DISPLAY_TASK_AHT) {
-        if (d->output_task_count[d->terminal_task] != 0 ||
+        /* Compare against the LoadRam baseline, not against zero: Initial
+         * leaves ~386 terminal-task outputs behind, so `!= 0` reports a live
+         * DDC stream for every world the instant it loads -- including
+         * Dorado-native worlds (Smalltalk) that never drive the controller,
+         * whose display tasks then run uninitialised TPCs at high priority
+         * and starve the emulator task. */
+        if (d->output_task_count[d->terminal_task] >
+                machine_disp_out_baseline[d->terminal_task] ||
             d->next_wcb_flag[0] || d->next_wcb_flag[1] ||
             d->current_wcb_flag[0] || d->current_wcb_flag[1])
             return 1;
