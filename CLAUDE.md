@@ -264,6 +264,29 @@ our DMux model), the `DummyRef`+Pipe0/Pipe1 VA readback, `B←Pipe5'` and the
 9-cycle MapBufBusy model, `B←Config'`, and `Carry20`. Detail and the next
 probes: `docs/handoff.md`.
 
+**Smalltalk boots and runs its interpreter (2026-07-26).**
+`SmalltalkDorado.eb!1` now completes all of `InitMem` and enters the
+Smalltalk bytecode interpreter (`0o421` = `LOADX`, 3.2 M executions;
+`JUNKTASKLOOP` idling in task 2). Two defects were in the way. **Fixed:**
+IFU opcode fetches were landing in `pipe[ProcSRN]`, so an autonomous
+prefetch could overwrite the slot between a `DummyRef` and the microcode's
+readback of `VALo`/`VAHi` -- `InitMem.mc`'s map walk restarted from VA=1
+forever. `DM_REF_IFETCH` now selects ASRN, like IOFetch/IOStore (HM §5:
+"the IFU is using the AS for an opcode-fetch reference"). **Diagnosed, not
+fixed:** `machine_alto_display_active()` decides whether to wake the
+display tasks by scanning memory for a "sane" Alto DCB chain, and
+false-positives on Dorado-native worlds -- tasks 3/4 then run
+uninitialized TPCs at high priority and starve the emulator task. Cedar and
+Interlisp each carry a bespoke guard for this; the predicate itself is the
+bug, since on real hardware DHT/DWT wakeups come from the display
+controller, not from memory contents. `DORADO_NO_DISPLAY_WAKE=1` suppresses
+it for now (off by default, provably inert: Alto framebuffer
+byte-identical, `verify-cedar-desktop` passes). Smalltalk renders 0 px
+until that wake is fixed and a virtual image is supplied -- DSemu is
+Smalltalk-76/78-era, so the ST-80 `chm/archiveorg/smalltalk-80/VirtualImage`
+may not match; sources are in `chm/dorado/dsemu-src/`. Detail:
+`docs/CONTINUE-HERE.md`.
+
 Plans/state: `docs/running-the-emulator.md` (how to run everything),
 `docs/CONTINUE-HERE.md` (live bring-up state), `docs/handoff.md` +
 `dorado/CLAUDE.md` (gaps), `docs/hardware-specs.md` (specs for unbuilt
