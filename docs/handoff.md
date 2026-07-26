@@ -476,17 +476,53 @@ the VA add is `(br + disp) & 0x0FFFFFFF`; `DummyRef` DOES pipe_push its VA
 within a bank; `B←Pipe5'` + the 9-cycle MapBufBusy model; `B←Config'`; the
 DMux `MapIs64K`/`MapIs256K` reads; and `Carry20`.
 
-**Next, carefully.** One reading is still unverified and everything hinges
-on it: at `pc=0o5067` the RM read shows `ra=110 rv=000400`, which I took to
-be `VirtualBanks` = 256. `VirtualBanks` is an `RVN` in the EMULATOR-SPECIFIC
-`EORegs` region (`Reserve[Add[And[IP[RealPages], 17], 1]]`), so DSemu's RM
-allocation need not match AEmu's and RM[110] may be something else
-entirely. Confirm what DSemu actually has in `VirtualBanks` -- and what
-`GetMemConfig` computed for `ModMask`/`PgsPerMod`/`RealPages` -- before
-theorising further. If `VirtualBanks` really is 256 while the walk is
-stuck in banks 0..2, then the BR is being reloaded from somewhere other
-than the pipe readback, and the next probe is a `DORADO_BR_TRACE` on the
-enumeration MemBase.
+**Latest measurements (all gated after the world load).**
+
+It is ONE enumeration, not repeated restarts:
+
+| symbol | real PC | hits after world load |
+|---|---|---|
+| BeginEnumerateMap | 0o6100 | **0** |
+| NextMapEntry | 0o5060 | >=40 (capped), running |
+| CacheFlush | 0o6115 | 0 |
+| CacheFlushLoop | 0o6116 | 0 |
+
+`BeginEnumerateMap` is never re-entered, so the walk is not being restarted
+from the top -- and CacheFlush is never reached, so it never finishes.
+
+But `VaHi` (the `T` compared against `VirtualBanks`) does not climb.
+Sampling it at `pc=0o5067` at ten points from 35 M to 390 M cycles:
+
+```
+35M:0  60M:0  90M:0  120M:0  160M:0  200M:0  240M:0  290M:2  340M:0  390M:1
+```
+
+Eight of ten are ZERO and the maximum ever seen is 2. Each sample window is
+200 K cycles and the loop runs at ~120 cycles per iteration (~1,666
+iterations, ~6 banks' worth), so a walk marching uniformly 0..255 could not
+produce that distribution. Yet the map trace does show `br` reaching
+0o400000 (bank 2). So inside a SINGLE enumeration `VaHi` is not monotonic:
+it keeps coming back to the low banks.
+
+**THE OPEN QUESTION, stated precisely:** why is `VaHi` non-monotonic within
+one enumeration, when the `DummyRef`+Pipe0/Pipe1 readback demonstrably
+advances by exactly one page per step? Either the VA is being reset from
+something other than the pipe readback, or the readback is correct only
+locally and wrong across a bank boundary.
+
+**Next probe -- and stop sampling.** Sampling has now produced three wrong
+conclusions in a row (see the retractions above). Take a CONTIGUOUS
+`DORADO_PIPEVA_TRACE` over a few thousand consecutive iterations and read
+the actual VA sequence, looking for the point where it jumps backwards.
+That single trace answers it; no more inference from spot checks.
+
+Still unverified, and do not build on it: at `pc=0o5067` the RM read shows
+`ra=110 rv=000400`, taken to be `VirtualBanks` = 256. `VirtualBanks` is an
+`RVN` in the EMULATOR-SPECIFIC `EORegs` region
+(`Reserve[Add[And[IP[RealPages], 17], 1]]`), so DSemu's RM allocation need
+not match AEmu's and RM[110] may be something else. The .MB carries no RM
+symbols (`RM ... 0 entries used`), so confirm it by tracing the RM address
+written by `GetMemConfig`'s `VirtualBanks_ 400C` instead.
 
 Checked and eliminated: entry point (INITMAP is real 0o1076 in both, which
 is where `mb2eb` starts them); storage size (new `--storage-modules N`; 2
