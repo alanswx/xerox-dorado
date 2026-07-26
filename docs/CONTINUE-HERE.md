@@ -106,14 +106,95 @@ cannot cross-contaminate flags. Remaining suspects are the `malloc`'d
 `rx_attention`) and any other uninitialized read. The Alto path IS
 deterministic, so this is specific to the germ/PDI path.
 
-**Next steps for Smalltalk**, in order:
-1. Supply a virtual image. `SmalltalkDorado.eb!1` boots the *microcode*;
-   the Smalltalk world itself still has to come from somewhere.
-   `chm/archiveorg/smalltalk-80/VirtualImage` exists but is the standard
-   ST-80 image, whereas DSemu is Smalltalk-76/78-era — the format match
-   needs checking before assuming it will load. Full DSemu sources are in
-   `chm/dorado/dsemu-src/` (`DSmallint.mc`, `DSmallops.mc`,
-   `Smalltalk.midas!17`, and the `DSemu.cm` build command file).
+### How the Smalltalk environment is actually set up (period sources)
+
+Settled from the archive, so nobody re-derives it:
+
+- **`chm/dorado/dsemu-src/Smalltalk.midas!17`** is the period setup script,
+  and it is short:
+
+      L X Reset ;   smalltalk.midas.  February 25, 1980  11:07 AM...Taft
+      L X Do-it  L X SetClk  L X 32  L X Ld DSEMUL
+      A19 Val 0
+      L X TimeOut 7777777777;  as close to infinite timeout as we can manage.
+      L X Go INITMAP;  this is the standard emulator entrypoint.
+
+  Load the `DSEMUL` microcode, then `Go INITMAP` — the *Alto emulator*
+  entrypoint, which is exactly what our `.eb` path already does.
+- **`DSemu.cm`** shows why: DSemu is the **Alto emulator plus Smalltalk
+  microcode**, built from `AltoEmuDefs ^AltoEmu AltoVarious AltoBitBlt
+  SMTraps BCPLRuntime ^AltoEther AltoEtherEmu AltoDiabloDisk AltoDiskSubrs
+  ^AltoDisplayMain ... ^DSmallint DSmallops ...`. That is why `DSemu.mb`
+  carries `AEMU*` labels.
+- **`DSmallDefs.mc`** header: "Dorado Model 1, **XM version**", and notes
+  registers "known to the **Nova code**" — Smalltalk-76's Alto-side code.
+
+So there is **no standalone virtual-image file**. Smalltalk comes up the way
+Alto software does: off a Diablo pack. The ST-80 `VirtualImage` in
+`chm/archiveorg/smalltalk-80/` is a red herring for this world.
+
+**We have the packs.** `AltoInfo/ContrAlto2-beta/Disks/xmsmall.dsk` ("XM
+Smalltalk", matching DSemu's XM version) and `maststlk.dsk` ("Master
+Smalltalk"). Recipe:
+
+    ./build/dsk2trident --all-heads ../AltoInfo/ContrAlto2-beta/Disks/xmsmall.dsk /tmp/xmsmall-trident.pack
+    ./build/dorado --cycles 300000000 --eb WORLD --disk 0=/tmp/xmsmall-trident.pack \
+        --boot-reason disk --no-alto-boot --out /tmp/out.pgm
+
+Remember `--no-alto-boot`, or the run silently falls back to Ethernet and a
+"renders from pack" result is not what it looks like.
+
+### Where Smalltalk stops now: a page-377 write-protect fault storm
+
+| world | result on `xmsmall` pack |
+|---|---|
+| `worlds/aemu.eb` | **2,709 px** — "XEROX Alto Executive" at a `>` prompt |
+| `SmalltalkDorado.eb!1` | 0 px |
+
+Both worlds now *run* (that was today's fix); they diverge on the disk:
+
+| | AEmu | DSemu |
+|---|---|---|
+| disk counts | `ctrl=476 xfer=469 rs=469 fr=126482` | **`ctrl=8 xfer=1 rs=1`** |
+| task-13 (DWT) | 719,269 | **0** |
+| task-17 (fault) | **2** | **8,832,783** |
+
+DSemu does exactly ONE sector read, then the fault task storms. The
+`memref` dump names it:
+
+    last=STORE va=0177400 fault=WRITE_PROTECT fault_va=0177400
+    fault_real=0o2035 fault_task=0.0 fault_mb=36
+
+`0177400` is **page 377**, and `InitMem.mc` write-protects it on purpose —
+this is the XM Alto emulation's I/O-page trap:
+
+    * Then, if XM Alto emulation is desired, write-protect page 377 of
+    * the 64K space for Alto emulation (MDS).
+        T_ 177400C;
+        ITemp0_ A0, BRLo_ T;
+        Cnt_ 17S;
+        ITemp0_ (Flush_ ITemp0), Carry20, Branch[., Cnt#0&-1];
+        ITemp0_ TIOAwProtect, Call[IWriteMapFlags];
+
+`GetEmulatorMapParams` returns "1 to write-protect page 377, for XM Alto
+emulation; 0 to emulate a non-XM Alto" — so AEmu (non-XM) never arms it and
+DSemu (XM) always does. Page 377 is the Alto's memory-mapped I/O page, so
+the trap IS the mechanism by which the emulator intercepts Alto I/O stores.
+
+**The fault storm is therefore expected; failing to RESOLVE it is the bug.**
+The emulator task spins in a 2-instruction loop at `0o2035`/`0o2066`
+(8,754,528 each, in the `BLKLP`/`BLKNPF` BitBlt region) while the fault task
+runs a 6-instruction handler at `0o6032`-`0o6046` 519,576 times. Handler
+runs, returns, store re-faults, forever.
+
+**Next step:** find how the Alto emulator is supposed to service that trap
+and check our fault semantics against it — in particular whether a
+write-protected store should be aborted-and-continue (fault reported
+asynchronously) or should stall. `AltoEmu.mc` is **not** in
+`chm/doradomicrocode/doradomicrocodesources/` locally; it needs pulling from
+the CHM archive (grep `chm/cross-reference.html`). The XM bank-register
+behaviour in ContrAlto (`AltoInfo/Contralto2-2.0-Beta/`) is a usable
+cross-check for what the trap must accomplish.
 
 **Method note.** All three of the earlier wrong calls on this world traced
 to one mistake: counting PCs without gating the trace to after the world
