@@ -345,13 +345,47 @@ terminates, so the difference is world-specific -- register allocation
 (`VirtualBanks` is an `RVN` in the emulator-specific EORegs region),
 MemBase/BR setup, or the VA range actually reached.
 
-**Next:** the suspect is the `DummyRef`-plus-Pipe0/Pipe1 readback that the
-loop uses to do its address arithmetic. Instrument the values DSemu
-actually gets back (`VALo`, `VAHi`, `VirtualBanks`) against AEmu's at the
-same point, and check the VA width: the wrap says BRHi is being truncated
-somewhere it should not be. Also confirm which `InitMem` each world
-actually embeds -- both declare the same GetMemConfig symbols, but
-`DSemu.mb!1` is ~1982 and the source read here is dated June 1985.
+**SHARPENED AGAIN: the map walk is CORRECT; InitMap is being re-entered.**
+`DORADO_PIPEVA_TRACE=1` with a `DORADO_TRACE_GATE` window shows the
+`DummyRef`+Pipe readback advancing exactly as it should, in BOTH phases:
+
+```
+PIPEVA pc=0o5034 psrn=0 va=0000100 (Pipe1/VaLo)
+PIPEVA pc=0o5054 psrn=0 va=0000100 (Pipe0/VaHi)
+PIPEVA pc=0o5034 psrn=0 va=0000200 (Pipe1/VaLo)
+...  0000300, 0000400, 0000500, 0000600, 0000700, 0000800
+```
+
+One page (0x100 words) per step, VaHi and VaLo agreeing. So Pipe0/Pipe1,
+the DummyRef address add, ProcSRN and MapBufBusy are all behaving.
+
+Counting PASSES is what gives it away. `DORADO_MAP_TRACE` is index-filtered
+(nine indices per full enumeration), so entries/9 = passes:
+
+| world | filtered entries @40 M cycles | passes |
+|---|---|---|
+| AEmu | 27 | **3** -- exactly Map1to1Loop, CacheFlushLoop, MapInitLoop |
+| DSemu | 1280 | **~142** |
+
+InitMap has three loops and AEmu runs each once. DSemu runs the whole of
+InitMap over and over -- ~142 times by 40 M cycles, and the 12.9 M
+`MAP1TO1LOOP` hits at 1.5 B cycles are ~197 full re-runs of a 65,536-entry
+enumeration, not one enumeration that fails to end.
+
+So the earlier "br wraps to 0000001" reading was the START OF THE NEXT
+RE-RUN, not a corrupted walk. The question is no longer "why does the loop
+not terminate" but **"what keeps sending control back to InitMap
+(0o1076)?"** Nothing in `machine.c` jumps there, so it is coming from the
+microcode: most likely InitMap completes, branches to the
+emulator-specific external `StartEmulator` (the Smalltalk entry), and that
+faults or traps in a way that lands back at InitMap. `initseq` only keeps
+the first 600 PCs so it cannot show the re-entry.
+
+**Next:** catch the transition out of InitMap. Trace task-0 PCs in a window
+around the END of the first pass (phase 1 ends ~cycle 17.2 M, phase 2
+starts ~31.3 M in the 40 M run) and see where control goes after
+`InitMemDone`/`StartEmulator` and how it gets back to 0o1076. Compare with
+AEmu at the same point -- AEmu leaves InitMap once and never returns.
 
 Checked and eliminated: entry point (INITMAP is real 0o1076 in both, which
 is where `mb2eb` starts them); storage size (new `--storage-modules N`; 2
