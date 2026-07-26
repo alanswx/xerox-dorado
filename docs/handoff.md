@@ -293,12 +293,73 @@ BOTH microcodes, which is what `mb2eb` starts them at); storage size (new
 `--storage-modules N`; 2 and 3 behave the same as 1); and the XM opcode
 set (AEmu and DSemu declare the same `XMLDA`/`XMSTA`/`XMBSTOREONLY`).
 
-**Next:** instrument the map-initialization window. `initseq[600]` already
-records the first task-0 PCs after world load and there is a print for it
-in the final-debug block, but it is gated behind a condition that
-`DORADO_FINAL_DEBUG=1` alone does not satisfy -- reach it (or add a plain
-env gate) and diff DSemu's first few hundred task-0 PCs against AEmu's.
-The divergence point is the bug.
+**LOCALIZED to one microcode loop (2026-07-25).** `DORADO_MACHINE_PCHIST=1`
+is an env flag, not a build option, and it gives both the init sequence and
+the hot PCs. Results:
+
+- The first 600 task-0 PCs are structurally IDENTICAL in both worlds (same
+  shape, different addresses: AEmu 1640..1661, DSemu 2040..2073) and both
+  end at 1077. So early InitMap is fine.
+- Over a full run they diverge completely. AEmu's hottest PC is 0o4000
+  (4.2 M) -- it is running the emulator. DSemu's is `0o6247` at 7.7 M
+  inside `WAITFORMAPBUF`, with an equal-count cluster at
+  `MAP1TO1LOOP`/`NEXTMAP1`/`IWRITEMAP`/`IWRITEMAP1`.
+- It is not merely slow: at 1.5 B cycles `MAP1TO1LOOP` has run **12.9
+  million** times. The Dorado map holds at most 64 K entries, so the loop
+  is not terminating.
+
+The source is `chm/doradomicrocode/doradomicrocodesources/InitMem.mc!1`
+(also under `chm/doradosource/AemuSources.dm!82_/`), and the termination
+condition is an EXACT equality:
+
+```
+Map1to1Loop:  ITemp0_ A0, Call[IWriteMap];
+              SCall[NextMapEntry];
+               ITemp1_ (ITemp1)+1, Branch[Map1to1Loop];
+NextMapEntry: T_ LShift[1, logWordsPerPage]C;
+              DummyRef_ T, T_ MD;      * "let the memory system do the add"
+              ITemp17_ VALo;
+              T_ VAHi;
+NextMap1:     BRLo_ ITemp17;
+              PD_ (BRHi_ T)-(VirtualBanks);
+              T_ A0, Return[ALU=0];
+```
+
+So the enumeration walks the map by issuing a `DummyRef` at BR+256 and
+reading the resulting VA back out of **Pipe0 (VaHi) / Pipe1 (VaLo)**, and
+stops when BRHi EQUALS `VirtualBanks`. `VirtualBanks` comes from the DMux
+(`GetMemConfig` reads `DMux[1512]=MapIs256K` then `DMux[1511]=MapIs64K`);
+we model the 64 K map, so it should be 400C = 256 banks.
+
+`DORADO_MAP_TRACE=1` shows the enumeration **wrapping**:
+
+```
+br=0053001  va=05601  idx=0056
+br=0000001  va=00001  idx=0000     <- back to 0
+br=0000401  va=00101  idx=0001
+```
+
+It cycles through a small index range instead of climbing to 256 banks, so
+the exact-equality test never fires. AEmu runs this same InitMem and
+terminates, so the difference is world-specific -- register allocation
+(`VirtualBanks` is an `RVN` in the emulator-specific EORegs region),
+MemBase/BR setup, or the VA range actually reached.
+
+**Next:** the suspect is the `DummyRef`-plus-Pipe0/Pipe1 readback that the
+loop uses to do its address arithmetic. Instrument the values DSemu
+actually gets back (`VALo`, `VAHi`, `VirtualBanks`) against AEmu's at the
+same point, and check the VA width: the wrap says BRHi is being truncated
+somewhere it should not be. Also confirm which `InitMem` each world
+actually embeds -- both declare the same GetMemConfig symbols, but
+`DSemu.mb!1` is ~1982 and the source read here is dated June 1985.
+
+Checked and eliminated: entry point (INITMAP is real 0o1076 in both, which
+is where `mb2eb` starts them); storage size (new `--storage-modules N`; 2
+and 3 behave as 1); the XM opcode set (both declare the same
+`XMLDA`/`XMSTA`/`XMBSTOREONLY`); and the FF decode for the poll itself --
+`WAITFORMAPBUF` reads `B←Pipe5'` (FA=1 FB=6 FC=7), which cpu.c DOES
+implement (the summary in `dorado/CLAUDE.md` listing only FC=0/1/2/4 is
+stale), backed by a real MapBufBusy model (9 cycles, `memory.c`).
 
 ## ===> 2026-07-21: playable Chess offline, font mechanism, Othello/Iago map
 

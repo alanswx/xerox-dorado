@@ -285,7 +285,14 @@ FF dispatcher (`ff_override_b()` + `ff_apply_post()`):
     flags (WP/Dirty/Ref) at slot `ProcSRN`.
   - **`B←Link`** (FB=7 FC=7) — the per-task Link register.
   - **`B←RWCPReg`** (FB=7 FC=6) — Link←B, B←CPReg' from the BB.
-  - Other Pipe / Config / EventCnt / IFUMRH / DBuf stubs return 0.
+  - **`B←Pipe4'`** (FB=6 FC=5) — inverted per-slot error state.
+  - **`B←Config'`** (FB=6 FC=6) — storage configuration word
+    (`dorado_memory_config_word`, per EMemDefs.mc: ASRN, ChipSize,
+    module-present mask).
+  - **`B←Pipe5'`** (FB=6 FC=7) — cache flags, Victim/NextVictim and
+    **MapBufBusy in the sign bit**, which is what InitMem.mc's
+    `WaitForMapBuf` polls (`PD_ PRef, Branch[., ALU<0]`).
+  - EventCnt / IFUMRH / DBuf stubs return 0.
 - B-sink post-effects (FA=1 FB=2 FC=…):
   - **`ProcSRN←B[12:15]`** (FC=7) — sets the pipe-slot index for
     subsequent `B←Pipei` reads.
