@@ -272,20 +272,28 @@ IFU opcode fetches were landing in `pipe[ProcSRN]`, so an autonomous
 prefetch could overwrite the slot between a `DummyRef` and the microcode's
 readback of `VALo`/`VAHi` -- `InitMem.mc`'s map walk restarted from VA=1
 forever. `DM_REF_IFETCH` now selects ASRN, like IOFetch/IOStore (HM §5:
-"the IFU is using the AS for an opcode-fetch reference"). **Diagnosed, not
-fixed:** `machine_alto_display_active()` decides whether to wake the
-display tasks by scanning memory for a "sane" Alto DCB chain, and
-false-positives on Dorado-native worlds -- tasks 3/4 then run
-uninitialized TPCs at high priority and starve the emulator task. Cedar and
-Interlisp each carry a bespoke guard for this; the predicate itself is the
-bug, since on real hardware DHT/DWT wakeups come from the display
-controller, not from memory contents. `DORADO_NO_DISPLAY_WAKE=1` suppresses
-it for now (off by default, provably inert: Alto framebuffer
-byte-identical, `verify-cedar-desktop` passes). Smalltalk renders 0 px
-until that wake is fixed and a virtual image is supplied -- DSemu is
+"the IFU is using the AS for an opcode-fetch reference"). **Also fixed:** the
+display-wake predicate tested controller activity against zero rather than
+against a LoadRam baseline. Initial drives the terminal task while it runs,
+so `output_task_count` is already 386 at the handoff -- nonzero for every
+world the instant it loads, which woke tasks 3/4 at TPCs the world had not
+initialized yet, starving the emulator task. Measured over time, a real
+Alto world grows that counter past 1,000,000 while DSemu never touches the
+controller (386 -> 387, flat), so the predicate now asks "has the LOADED
+world driven the controller?" against a baseline captured at
+`ether_loaded_world_cycle`. With that, Smalltalk completes InitMem on
+default settings. (The baseline is a file-scope static, not a
+`dorado_machine` member -- a new member changes the snapshot ABI and every
+baked checkpoint fails to restore; after a restore it stays zero and
+degrades to the old test, keeping checkpoints bit-identical.) Gates: Alto
+framebuffer byte-identical, `verify-cedar-desktop` unchanged, 11/11 tests.
+Smalltalk still renders 0 px because it has no virtual image -- DSemu is
 Smalltalk-76/78-era, so the ST-80 `chm/archiveorg/smalltalk-80/VirtualImage`
-may not match; sources are in `chm/dorado/dsemu-src/`. Detail:
-`docs/CONTINUE-HERE.md`.
+may not match; sources are in `chm/dorado/dsemu-src/`. Also found while
+gating (open, undiagnosed): the **Cedar cold-boot login path is
+non-deterministic** run to run (28,490 vs 28,494 px from the identical
+binary), so it is not a byte-exact gate; the Alto path is deterministic.
+Detail: `docs/CONTINUE-HERE.md`.
 
 Plans/state: `docs/running-the-emulator.md` (how to run everything),
 `docs/CONTINUE-HERE.md` (live bring-up state), `docs/handoff.md` +

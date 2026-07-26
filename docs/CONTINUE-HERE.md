@@ -38,14 +38,10 @@ now selects ASRN alongside IOFetch/IOStore. Measured on DSemu over the same
 | `WaitForMapBuf` spin (`0o6247`) | 127,792,449 | **648,740** |
 | `CacheFlush` reached | no | yes |
 
-**Bug 2 (DIAGNOSED, not yet fixed): the display-wake predicate is a
-content heuristic and false-positives on non-Alto worlds.**
-`machine_alto_display_active()` (`src/machine.c`) decides whether to wake
-the display tasks by scanning four candidate addresses for a "sane" Alto
-DCB chain. Smalltalk is a Dorado-native world that does not use Alto DCBs
-at `MDS+0420`, but during InitMem its memory transiently matches, so tasks
-3/4 get woken at TPCs their world has not initialized yet. Because they
-outrank the emulator task, they starve it:
+**Bug 2 (FIXED): the display-wake predicate tested controller activity
+against zero instead of against the LoadRam baseline.** Display tasks were
+woken 3 cycles after Smalltalk's world loaded, at TPCs the world had not
+initialized; outranking the emulator task, they starved it:
 
 | | default wake | wake suppressed |
 |---|---|---|
@@ -59,30 +55,59 @@ task 0 settles into the interpreter: `0o421` = `LOADX` (a Smalltalk
 opcode) at 3,197,445 executions, with `0o4615` = `JUNKTASKLOOP` idling in
 task 2. That is genuine Smalltalk bytecode execution.
 
-The hazard is already described in two comments in `src/machine.c`
-(the scanline-wake block and `machine_ddc_display_active`), which note that
-waking display tasks early "can run stale pre-LoadRam task TPCs at high
-priority". Cedar and Interlisp each got a bespoke guard; Smalltalk exposes
-that the predicate itself is the problem. **On real hardware DHT/DWT
-wakeups come from the display controller, which is off until microcode
-starts it over slow I/O — not from memory contents.** The proper fix is to
-drive the wake from controller state. Note `machine_ddc_display_active`'s
-own comment: `output_task_count` can be stale from Initial, so it is not a
-drop-in replacement; the controller history probably needs clearing at
-world load (`ether_loaded_world_cycle`).
+**The trigger was NOT the Alto DCB heuristic**, as first supposed, but
+`machine_ddc_display_active()`'s `output_task_count[terminal_task] != 0`.
+Initial drives the terminal task while it runs, so that counter is already
+386 at the LoadRam handoff — nonzero for every world the instant it loads.
+Instrumenting the predicate over time (`DORADO_DISPLAY_WAKE_DEBUG`) shows
+the two worlds are identical at the moment of the wake and diverge
+completely afterwards:
 
-For now `DORADO_NO_DISPLAY_WAKE=1` suppresses the content-derived wake, as
-a diagnostic counterpart to the existing `DORADO_FORCE_DISPLAY_WAKE`. It is
-off by default and provably inert: the Alto Galaxian framebuffer is
-byte-identical with and without the change (121,602 px both ways, verified
-by stash-and-diff), `make verify-cedar-desktop` passes (246,086 px), and
-all 11 test binaries plus the snapshot fidelity tests pass.
+| | t=+3 cyc | t=+100M | t=+400M |
+|---|---|---|---|
+| Alto | `dcb=0 ddc=1 out[3]=386` | `dcb=1 out[3]=221,664` | `out[3]=1,093,495` |
+| Smalltalk | `dcb=0 ddc=1 out[3]=386` | `dcb=0 out[3]=387` | `out[3]=387` |
+
+A real Alto world drives the controller past a million outputs; DSemu never
+touches it. So the question the predicate wants to ask is **"has the LOADED
+world driven the controller?"**, which needs a baseline captured at
+LoadRam — exactly the stale-history hazard the function's own comment
+already warned about, and which Cedar and Interlisp each worked around with
+a bespoke guard. On real hardware DHT/DWT wakeups come from the display
+controller, which is off until microcode starts it over slow I/O.
+
+`machine_disp_out_baseline[]` is snapshotted when `ether_loaded_world_cycle`
+is set and compared with `>` rather than `!= 0`. It is a **file-scope
+static, not a `dorado_machine` member** — adding a member changes the
+snapshot ABI and every baked checkpoint fails to restore. After a restore it
+stays all-zero, degrading the test to the historical `!= 0`, which keeps
+restored checkpoints bit-identical.
+
+With that in place Smalltalk completes all four InitMem milestones with
+**default settings and no knobs**. `DORADO_NO_DISPLAY_WAKE=1` remains as a
+diagnostic counterpart to `DORADO_FORCE_DISPLAY_WAKE`.
+
+Gates: 11/11 test binaries plus snapshot fidelity pass; the Alto Galaxian
+framebuffer is **byte-identical** to baseline (121,602 px, verified by
+stash-and-diff); `make verify-cedar-desktop` passes unchanged (246,086 px).
+Cedar cold boot is untouched by construction — the germ path never
+evaluates the DDC branch.
+
+**Found while gating, NOT diagnosed: the Cedar cold-boot login path is
+non-deterministic run to run** — 28,490 vs 28,494 px from the *identical*
+binary, so it cannot serve as a byte-exact gate (an earlier note in this
+file treating 28,580 px as a fixed baseline is therefore unreliable). Ruled
+out so far: no wall-clock/RNG calls anywhere in `src/*.c`; the PDI is not
+mutated by the run (`git status` clean afterwards); `dorado_machine` is
+`calloc`'d; and `dorado_trace_flag`'s pointer-keyed memo verifies
+`keys[i] == name` before returning, so ASLR-varying literal addresses
+cannot cross-contaminate flags. Remaining suspects are the `malloc`'d
+(un-zeroed) ethernet buffers in `machine.c` (`eftp_words`, `rx_words`,
+`rx_attention`) and any other uninitialized read. The Alto path IS
+deterministic, so this is specific to the germ/PDI path.
 
 **Next steps for Smalltalk**, in order:
-1. Replace the content heuristic with real controller state so the display
-   tasks wake correctly instead of being suppressed. Smalltalk renders
-   0 px today only because the wake is off.
-2. Supply a virtual image. `SmalltalkDorado.eb!1` boots the *microcode*;
+1. Supply a virtual image. `SmalltalkDorado.eb!1` boots the *microcode*;
    the Smalltalk world itself still has to come from somewhere.
    `chm/archiveorg/smalltalk-80/VirtualImage` exists but is the standard
    ST-80 image, whereas DSemu is Smalltalk-76/78-era — the format match
