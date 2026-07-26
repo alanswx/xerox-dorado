@@ -381,11 +381,65 @@ emulator-specific external `StartEmulator` (the Smalltalk entry), and that
 faults or traps in a way that lands back at InitMap. `initseq` only keeps
 the first 600 PCs so it cannot show the re-entry.
 
-**Next:** catch the transition out of InitMap. Trace task-0 PCs in a window
-around the END of the first pass (phase 1 ends ~cycle 17.2 M, phase 2
-starts ~31.3 M in the 40 M run) and see where control goes after
-`InitMemDone`/`StartEmulator` and how it gets back to 0o1076. Compare with
-AEmu at the same point -- AEmu leaves InitMap once and never returns.
+**PINNED DOWN: it dies in the XM-ONLY write-protect path, which is exactly
+what AEmu skips.** Two earlier readings here were wrong and are corrected:
+InitMap is NOT re-entered (PC 0o1076 executes exactly once in both worlds
+over 400 M cycles), and the map walk is NOT broken. Also note the world
+does not load until cycle ~32 M, so any run shorter than that measures
+Initial, not the world -- that invalidated the first round of comparisons.
+
+What is actually true, from `DORADO_PCDIS="<pc>,<pc>"` hit counts on DSemu
+over 300 M cycles:
+
+| symbol | real PC | hits |
+|---|---|---|
+| MapInitLoop | 0o6147 | >=3 |
+| FindModule | 0o6142 | >=3 |
+| MapModule | 0o6105 | >=3 |
+| **EndOfStorage** | 0o6133 | **1** |
+| **InitMemDone** | 0o6206 | **0** |
+| NoStorage | 0o1017 | 0 |
+| IWriteMapFlags | 0o6200 | >=4 |
+| GetEmulatorMapParams | 0o4420 | **0** |
+
+So all three map loops complete, storage exhaustion is detected correctly
+(`EndOfStorage` reached, `NoStorage` never), and control then never
+arrives at `InitMemDone`. The gap between them is the XM-only branch:
+
+```
+EndOfStorage:
+  Call[GetEmulatorMapParams];
+  ITemp0_ T;  T_ T AND (7777C);
+  EmuXMBRHiReg_ T;  EmuBRHiReg_ T;
+  BRHi_ T, ITemp0, Branch[InitMemDone, R>=0];   * non-XM: straight to done
+  * XM only -- flush page 377B and write-protect it:
+  T_ 177400C;  ITemp0_ A0, BRLo_ T;  Cnt_ 17S;
+  ITemp0_ (Flush_ ITemp0), Carry20, Branch[., Cnt#0&-1];
+  ITemp0_ TIOAwProtect, Call[IWriteMapFlags];
+InitMemDone: ...
+```
+
+`GetEmulatorMapParams` returns T[0]=1 "to write-protect page 377, for XM
+Alto emulation; 0 to emulate a non-XM Alto". **AEmu is non-XM and branches
+straight to `InitMemDone`; DSemu is the XM build, takes the write-protect
+path, and never comes out.** That is the whole difference between the
+world that runs and the world that does not.
+
+Also supporting the confirmed VA machinery: at `NEXTMAP1` the operands are
+right -- `rv=000400` is `VirtualBanks` = 0o400 = 256 (our DMux model), and
+`ITemp17`/VALo advances by 0o400 per step with T=VaHi tracking the bank.
+
+**Next, and unresolved:** `IWriteMapFlags` is entered (>=4) but
+`GetEmulatorMapParams` shows ZERO hits, even though `EndOfStorage` calls it
+first. Either the real address for `GETEMULATORMAPPARAMS` (0o4420) is not
+where control actually goes, or `IWriteMapFlags` is reached from somewhere
+else. Resolve that first, then single-step the XM block: the suspects are
+the 16-iteration `Flush`/`Carry20`/`Cnt#0&-1` loop, and `IWriteMapFlags`'s
+`RMap_` + `ITemp1_ NOT (Map')` map-entry readback followed by
+`Link_ Q, Branch[WaitForMapBuf]` -- that last idiom is the same
+Link-versus-Return interaction that caused the Cedar-desktop blocker fixed
+in c25240b (an explicit `Link<-` in the same microinstruction overrides
+Return's `Link<-CIA+1`).
 
 Checked and eliminated: entry point (INITMAP is real 0o1076 in both, which
 is where `mb2eb` starts them); storage size (new `--storage-modules N`; 2
