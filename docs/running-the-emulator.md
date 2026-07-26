@@ -612,7 +612,19 @@ Set `DORADO_PDI_SAVE=1` or the writes are discarded at teardown.
 
 ## Building a Cedar volume from a blank disk
 
-Three make targets, in order:
+**If you just want to use the result**, it ships: `make
+run-cedar-diskvolume-sdl` opens the finished volume -- a Cedar 6.1 Viewers
+desktop on a disk built from a blank file by Iago, carrying ten CedarChest
+packages. The checkpoints unpack from `snapshot-assets/` automatically
+(`cedar-iago-native.*`, 1.0 MB; `cedar-vol-software-native.*`, 3.8 MB).
+
+The Iago pair is shipped because it is a **dependency, not a convenience**:
+`cedar-diskvolume` takes the Iago checkpoint as its INPUT, so without it
+none of the volume targets can run. `make cedar-iago-snapshot` rebakes it
+(a 3.2 B-cycle cold boot).
+
+To build the whole thing yourself -- three make targets, in order,
+~2.5 hours of wall clock:
 
 | target | what it does |
 |---|---|

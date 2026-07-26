@@ -734,6 +734,19 @@ CEDAR_IAGO_SNAPSHOT := build/good-packs/cedar-iago.snap
 CEDAR_IAGO_PDI := build/good-packs/cedar-iago.pdi
 CEDAR_IAGO_SCREEN := build/good-packs/cedar-iago.pgm
 CEDAR_IAGO_CYCLES ?= 3200000000
+# Shipped, because this pair is a real DEPENDENCY and not just a
+# convenience: cedar-diskvolume takes the Iago checkpoint as its INPUT, so
+# without it none of the volume targets can run at all.  1.0 MB gzipped
+# against a 3.2 B-cycle cold boot.  `make cedar-iago-snapshot` rebakes it.
+CEDAR_IAGO_SNAPSHOT_GZ := snapshot-assets/cedar-iago-native.snap.gz
+CEDAR_IAGO_PDI_GZ := snapshot-assets/cedar-iago-native.pdi.gz
+
+$(CEDAR_IAGO_SNAPSHOT): $(CEDAR_IAGO_SNAPSHOT_GZ)
+	mkdir -p '$(dir $@)'
+	gunzip -c '$<' > '$@'
+$(CEDAR_IAGO_PDI): $(CEDAR_IAGO_PDI_GZ)
+	mkdir -p '$(dir $@)'
+	gunzip -c '$<' > '$@'
 
 .PHONY: cedar-iago-snapshot run-cedar-iago-sdl cedar-iago-volume
 # Cold boot to Iago's "> " prompt (31,348 px): log in as Guest, answer y.
@@ -923,6 +936,29 @@ cedar-diskvolume-desktop: $(BINDIR)/dorado
 # locally as they are used, which is why the volume's file count grows.
 CEDAR_VOL_SOFTWARE_PDI := build/good-packs/cedar-vol-software.pdi
 CEDAR_VOL_SOFTWARE_SNAPSHOT := build/good-packs/cedar-vol-software.snap
+# Shipped so the finished volume is usable without a rebuild: the three
+# targets together are ~2.5 hours of wall clock (24 B + 34 B + 90 B cycles).
+# 3.8 MB gzipped.  run-cedar-diskvolume-sdl opens it directly.
+CEDAR_VOL_SOFTWARE_PDI_GZ := snapshot-assets/cedar-vol-software-native.pdi.gz
+CEDAR_VOL_SOFTWARE_SNAPSHOT_GZ := snapshot-assets/cedar-vol-software-native.snap.gz
+
+$(CEDAR_VOL_SOFTWARE_PDI): $(CEDAR_VOL_SOFTWARE_PDI_GZ)
+	mkdir -p '$(dir $@)'
+	gunzip -c '$<' > '$@'
+$(CEDAR_VOL_SOFTWARE_SNAPSHOT): $(CEDAR_VOL_SOFTWARE_SNAPSHOT_GZ)
+	mkdir -p '$(dir $@)'
+	gunzip -c '$<' > '$@'
+
+# Open the finished volume: a Cedar 6.1 Viewers desktop on a disk that was
+# built from a blank file by Iago, carrying ten CedarChest packages.
+.PHONY: run-cedar-diskvolume-sdl
+run-cedar-diskvolume-sdl: sdl $(CEDAR_VOL_SOFTWARE_SNAPSHOT) $(CEDAR_VOL_SOFTWARE_PDI)
+	DORADO_PDI_IGNORE_LABEL_FLAGS=1 ./build/dorado-sdl \
+		--boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk '$(CEDAR_VOL_SOFTWARE_PDI)' \
+		--ftp-root ../chm/cedar/stp-root \
+		--snapshot-in '$(CEDAR_VOL_SOFTWARE_SNAPSHOT)' --speed 4000000
 # MEASURED, twice, because guessing wasted two long bakes: a CedarChest
 # package takes roughly 15 B cycles to Bringover -- the cost is per-file STP
 # round trips, not the byte count.  1.2 B/package got through one; 3 B/package
