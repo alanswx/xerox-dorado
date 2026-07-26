@@ -1443,9 +1443,22 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
      * pipe[ProcSRN] and corrupt e.g. InitMem's NextMapEntry VALo/VAHi
      * readback (the DummyRef VA), hanging the map enumeration. PreFetch-
      * with-miss also uses ASRN (handled below). */
+    /* IFU opcode fetches must NOT use ProcSRN either.  The IFU prefetches
+     * autonomously against BR[31] (HM §5 "the IFU is using the AS for an
+     * opcode-fetch reference"), asynchronously with respect to whatever the
+     * emulator microcode is doing, so landing them in pipe[ProcSRN] lets a
+     * prefetch overwrite the slot between a reference and the microcode's
+     * readback of it.  Measured: InitMem.mc's Map1to1Loop issues
+     * `DummyRef_ T` and then reads VALo/VAHi back out of Pipe1/Pipe0, and
+     * an IFetch landing in the same slot replaced the DummyRef's VA -- the
+     * enumeration's VA reset to 1 about every 150 iterations and the
+     * one-to-one map walk never reached VirtualBanks, so the Smalltalk
+     * (DSemu) world never got past map initialization.  The pipe slot for
+     * an autonomous requestor is the automatically-allocated ring. */
     int io_task_uses_asrn = (task != 0 && task != 017);
     int use_asrn = io_task_uses_asrn ||
-                   (kind == DM_REF_IOFETCH) || (kind == DM_REF_IOSTORE);
+                   (kind == DM_REF_IOFETCH) || (kind == DM_REF_IOSTORE) ||
+                   (kind == DM_REF_IFETCH);
     int prefetch_was_miss = 0;
     if (kind == DM_REF_PREFETCH) {
         if (!dorado_mcr_noref(mem) &&
