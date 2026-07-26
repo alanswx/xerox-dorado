@@ -3624,6 +3624,13 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
             if (!display_active && dorado_trace_flag("DORADO_FORCE_DISPLAY_WAKE")) {
                 display_active = 1;
             }
+            /* Diagnostic counterpart: suppress the content-derived wake so a
+             * world whose memory merely RESEMBLES an Alto DCB chain can be
+             * run without task 3/4 preempting the emulator task.  See the
+             * stale-TPC hazard described above. */
+            if (display_active && dorado_trace_flag("DORADO_NO_DISPLAY_WAKE")) {
+                display_active = 0;
+            }
             if (display_active && bb->cycles >= m->next_display_scanline_cycle) {
                 uint16_t mask = dorado_display_scanline_wakeup_mask(disp);
                 for (int task = 0; task < 16; task++) {

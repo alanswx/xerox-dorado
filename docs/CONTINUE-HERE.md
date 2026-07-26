@@ -1,5 +1,101 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## 2026-07-26: SMALLTALK BOOTS AND RUNS ITS INTERPRETER. Two real emulation
+## bugs found: IFU fetches used the wrong Pipe ring, and the display-wake
+## predicate is a content heuristic that derails non-Alto worlds.
+
+`SmalltalkDorado.eb!1` (equivalently a hand-built `.eb` from `DSemu.mb!1`)
+now loads, completes the whole of `InitMem`, and enters the Smalltalk
+bytecode interpreter. Previously it hung forever inside the first of
+InitMem's three enumerations. Two independent defects were in the way.
+
+**Bug 1 (FIXED, committed): IFU opcode fetches used ProcSRN, not ASRN.**
+`InitMem.mc!1`'s `NextMapEntry` does
+
+    T_ LShift[1, logWordsPerPage]C;
+    DummyRef_ T, T_ MD;      * "let the memory system do the add"
+    ITemp17_ VALo;  T_ VAHi;
+
+i.e. it issues a `DummyRef` and reads the resulting VA back out of
+Pipe1/Pipe0. A contiguous `DORADO_PIPEVA_TRACE` showed the walk's VA
+advancing correctly (+256/step, 17,405 times) and then snapping back to
+exactly `0x000001` — 110 times in a 2 M-cycle window. Tagging each pipe
+slot with its owner identified the clobber: the resetting entries were
+`kind=9` (`DM_REF_IFETCH`) where the loop's own were `kind=6`
+(`DM_REF_DUMMYREF`).
+
+The IFU prefetches autonomously against BR[31] (HM §5, "the IFU is using
+the AS for an opcode-fetch reference"), asynchronously with respect to the
+microcode. Landing those in `pipe[ProcSRN]` lets a prefetch overwrite the
+slot between a reference and the microcode's readback. An autonomous
+requestor belongs in the automatically-allocated ring, so `DM_REF_IFETCH`
+now selects ASRN alongside IOFetch/IOStore. Measured on DSemu over the same
+400 M cycles:
+
+| | before | after |
+|---|---|---|
+| NEXTMAP1 region | 12,908,745 | **65,539** (= exactly one 65,536-entry pass) |
+| `WaitForMapBuf` spin (`0o6247`) | 127,792,449 | **648,740** |
+| `CacheFlush` reached | no | yes |
+
+**Bug 2 (DIAGNOSED, not yet fixed): the display-wake predicate is a
+content heuristic and false-positives on non-Alto worlds.**
+`machine_alto_display_active()` (`src/machine.c`) decides whether to wake
+the display tasks by scanning four candidate addresses for a "sane" Alto
+DCB chain. Smalltalk is a Dorado-native world that does not use Alto DCBs
+at `MDS+0420`, but during InitMem its memory transiently matches, so tasks
+3/4 get woken at TPCs their world has not initialized yet. Because they
+outrank the emulator task, they starve it:
+
+| | default wake | wake suppressed |
+|---|---|---|
+| task 0 | 93,353,210 — **93,350,889 of them pinned at `0o334`** | 98,549,913, InitMem completes |
+| task 3 | 6,257,534 (BootTransfer wait loop) | 2,446 (real display code at `0o4257`+) |
+| other tasks | none | tasks 1, 2, 6, 7, 14, 17 all live |
+
+With the wake suppressed, all four InitMem milestones are reached —
+`CacheFlushLoop`, `MapInitLoop`, `EndOfStorage`, **`InitMemDone`** — and
+task 0 settles into the interpreter: `0o421` = `LOADX` (a Smalltalk
+opcode) at 3,197,445 executions, with `0o4615` = `JUNKTASKLOOP` idling in
+task 2. That is genuine Smalltalk bytecode execution.
+
+The hazard is already described in two comments in `src/machine.c`
+(the scanline-wake block and `machine_ddc_display_active`), which note that
+waking display tasks early "can run stale pre-LoadRam task TPCs at high
+priority". Cedar and Interlisp each got a bespoke guard; Smalltalk exposes
+that the predicate itself is the problem. **On real hardware DHT/DWT
+wakeups come from the display controller, which is off until microcode
+starts it over slow I/O — not from memory contents.** The proper fix is to
+drive the wake from controller state. Note `machine_ddc_display_active`'s
+own comment: `output_task_count` can be stale from Initial, so it is not a
+drop-in replacement; the controller history probably needs clearing at
+world load (`ether_loaded_world_cycle`).
+
+For now `DORADO_NO_DISPLAY_WAKE=1` suppresses the content-derived wake, as
+a diagnostic counterpart to the existing `DORADO_FORCE_DISPLAY_WAKE`. It is
+off by default and provably inert: the Alto Galaxian framebuffer is
+byte-identical with and without the change (121,602 px both ways, verified
+by stash-and-diff), `make verify-cedar-desktop` passes (246,086 px), and
+all 11 test binaries plus the snapshot fidelity tests pass.
+
+**Next steps for Smalltalk**, in order:
+1. Replace the content heuristic with real controller state so the display
+   tasks wake correctly instead of being suppressed. Smalltalk renders
+   0 px today only because the wake is off.
+2. Supply a virtual image. `SmalltalkDorado.eb!1` boots the *microcode*;
+   the Smalltalk world itself still has to come from somewhere.
+   `chm/archiveorg/smalltalk-80/VirtualImage` exists but is the standard
+   ST-80 image, whereas DSemu is Smalltalk-76/78-era — the format match
+   needs checking before assuming it will load. Full DSemu sources are in
+   `chm/dorado/dsemu-src/` (`DSmallint.mc`, `DSmallops.mc`,
+   `Smalltalk.midas!17`, and the `DSemu.cm` build command file).
+
+**Method note.** All three of the earlier wrong calls on this world traced
+to one mistake: counting PCs without gating the trace to after the world
+load at cycle ~32 M. Always use
+`DORADO_TRACE_GATE=32100000,<end>` — ungated counts are dominated by
+Initial's microcode sitting at the same IM addresses and are meaningless.
+
 ## 2026-07-25 (late): A CEDAR VOLUME BUILT FROM A BLANK DISK, WITH SOFTWARE.
 
 Three make targets take 60 MB of zeros to a Cedar volume that boots from
