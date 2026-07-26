@@ -934,16 +934,26 @@ CEDAR_VOL_SOFTWARE_SNAPSHOT := build/good-packs/cedar-vol-software.snap
 # list below is a curated eight at 15 B each; override to take the rest:
 #   make cedar-diskvolume-software CEDAR_CHEST_PACKAGES="Sil Interpress ..." \
 #        CEDAR_VOL_SOFTWARE_SPACING=15000000000 CEDAR_VOL_SOFTWARE_CYCLES=280000000000
-CEDAR_VOL_SOFTWARE_CYCLES ?= 158000000000
-CEDAR_VOL_SOFTWARE_SPACING ?= 15000000000
-# A curated eight, biggest first.  Sil is PARC's illustrator, Interpress and
-# ImagerPress the page-description work, ViewRec/BiScrollers/PopUpButtons the
-# Viewers toolkit, ChessHack a program to actually play.  The other packages
-# we hold payloads for -- PressReader SirPress AIS AISImages AISViewer
-# CardTable Abutters Clock DoradoArchive -- are equally installable; they are
-# left out of the default only so the bake finishes in about an hour.
-CEDAR_CHEST_PACKAGES ?= Sil Interpress ViewRec BiScrollers PopUpButtons \
-	ImagerPress PressReader ChessHack
+CEDAR_VOL_SOFTWARE_CYCLES ?= 90000000000
+CEDAR_VOL_SOFTWARE_SPACING ?= 6000000000
+# The DEFAULT set is the SMALL-CLOSURE packages, and the distinction matters
+# far more than the file count.  A package's Bringover cost is dominated by
+# its IMPORT CLOSURE, not its own payload: Interpress is 47 files but its
+# Bringover goes on to pull MesaRuntime.df, Rope.df, Real.df,
+# BasicPackages.df, IO.df, FS.df ... i.e. most of the Cedar runtime, and it
+# had not finished after 15 B cycles.  Sil (59 files) is the same shape.
+#
+# These eight are self-contained (AIS/AISViewer/ChessHack/Clock are the ones
+# earlier sessions already installed and ran), so the bake completes:
+CEDAR_CHEST_PACKAGES ?= AIS AISViewer AISImages ChessHack Clock CardTable \
+	Abutters DoradoArchive
+# The heavy ones want their own, much longer run.  They work -- the transfers
+# are correct, they are just slow:
+#   make cedar-diskvolume-software \
+#     CEDAR_CHEST_PACKAGES="Sil Interpress ViewRec BiScrollers PopUpButtons \
+#                           ImagerPress PressReader SirPress" \
+#     CEDAR_VOL_SOFTWARE_SPACING=40000000000 \
+#     CEDAR_VOL_SOFTWARE_CYCLES=360000000000
 
 .PHONY: cedar-diskvolume-software
 cedar-diskvolume-software: $(BINDIR)/dorado
