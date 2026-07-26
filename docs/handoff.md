@@ -429,17 +429,64 @@ Also supporting the confirmed VA machinery: at `NEXTMAP1` the operands are
 right -- `rv=000400` is `VirtualBanks` = 0o400 = 256 (our DMux model), and
 `ITemp17`/VALo advances by 0o400 per step with T=VaHi tracking the bank.
 
-**Next, and unresolved:** `IWriteMapFlags` is entered (>=4) but
-`GetEmulatorMapParams` shows ZERO hits, even though `EndOfStorage` calls it
-first. Either the real address for `GETEMULATORMAPPARAMS` (0o4420) is not
-where control actually goes, or `IWriteMapFlags` is reached from somewhere
-else. Resolve that first, then single-step the XM block: the suspects are
-the 16-iteration `Flush`/`Carry20`/`Cnt#0&-1` loop, and `IWriteMapFlags`'s
-`RMap_` + `ITemp1_ NOT (Map')` map-entry readback followed by
-`Link_ Q, Branch[WaitForMapBuf]` -- that last idiom is the same
-Link-versus-Return interaction that caused the Cedar-desktop blocker fixed
-in c25240b (an explicit `Link<-` in the same microinstruction overrides
-Return's `Link<-CIA+1`).
+**RETRACTED -- the XM reading above was measured wrong.** `EndOfStorage`
+fires at cycle **24,288,181**, and the world does not load until ~32 M, so
+that hit was **Initial's** microcode at the same IM address, not DSemu's.
+That also explains the `GetEmulatorMapParams`-zero-hits contradiction.
+Every per-PC count has to be gated after the world load.
+
+**MEASURE PC COUNTS WITH `DORADO_TRACE_GATE=32100000,<end>` OR THEY ARE
+MEANINGLESS.** Initial runs the same InitMem-derived code from the same
+addresses before LoadRam replaces IM.
+
+Re-measured properly (DSemu, gate 32.1 M..400 M):
+
+| symbol | real PC | hits after world load |
+|---|---|---|
+| InitMap | 0o1076 | 0 (entry happens just before the gate) |
+| **Map1to1Loop** | 0o6112 | **>=5, running** |
+| MapInitLoop | 0o6147 | 0 |
+| FindModule | 0o6142 | 0 |
+| EndOfStorage | 0o6133 | 0 |
+| InitMemDone | 0o6206 | 0 |
+| IWriteMapFlags | 0o6200 | 0 |
+| GetEmulatorMapParams | 0o4420 | 0 |
+| NoStorage | 0o1017 | 0 |
+
+So the FIRST reading was the right one after all: **DSemu never leaves
+`Map1to1Loop`** -- the very first of InitMem's three enumerations. It never
+reaches CacheFlush, MapInit, EndOfStorage or InitMemDone.
+
+**The new fact, and the one to chase.** Sampling `T` (= VaHi, the value
+compared against `VirtualBanks`) at `NEXTMAP1` across the run:
+
+| cycle | 40 M | 80 M | 150 M | 250 M | 380 M |
+|---|---|---|---|---|---|
+| VaHi | 2 | 0 | 0 | 1 | 0 |
+
+It **oscillates in the low banks and never climbs toward 256**. The walk is
+confined to roughly banks 0..2 and restarts, so the exact-equality exit
+`PD_ (BRHi_ T)-(VirtualBanks); Return[ALU=0]` can never fire.
+
+Confirmed sound and not worth re-checking: `BrLo←A`/`BrHi←A` compose the
+28-bit BR correctly (`(BRHi&0xFFF)<<16 | BRLo`, masked to 0x0FFFFFFF);
+the VA add is `(br + disp) & 0x0FFFFFFF`; `DummyRef` DOES pipe_push its VA
+(the exclusion at the `dvavic` branch is a different path); the
+`DummyRef`+Pipe0/Pipe1 readback advances by exactly one page per step
+within a bank; `B←Pipe5'` + the 9-cycle MapBufBusy model; `B←Config'`; the
+DMux `MapIs64K`/`MapIs256K` reads; and `Carry20`.
+
+**Next, carefully.** One reading is still unverified and everything hinges
+on it: at `pc=0o5067` the RM read shows `ra=110 rv=000400`, which I took to
+be `VirtualBanks` = 256. `VirtualBanks` is an `RVN` in the EMULATOR-SPECIFIC
+`EORegs` region (`Reserve[Add[And[IP[RealPages], 17], 1]]`), so DSemu's RM
+allocation need not match AEmu's and RM[110] may be something else
+entirely. Confirm what DSemu actually has in `VirtualBanks` -- and what
+`GetMemConfig` computed for `ModMask`/`PgsPerMod`/`RealPages` -- before
+theorising further. If `VirtualBanks` really is 256 while the walk is
+stuck in banks 0..2, then the BR is being reloaded from somewhere other
+than the pipe readback, and the next probe is a `DORADO_BR_TRACE` on the
+enumeration MemBase.
 
 Checked and eliminated: entry point (INITMAP is real 0o1076 in both, which
 is where `mb2eb` starts them); storage size (new `--storage-modules N`; 2
