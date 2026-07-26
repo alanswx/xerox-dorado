@@ -923,16 +923,27 @@ cedar-diskvolume-desktop: $(BINDIR)/dorado
 # locally as they are used, which is why the volume's file count grows.
 CEDAR_VOL_SOFTWARE_PDI := build/good-packs/cedar-vol-software.pdi
 CEDAR_VOL_SOFTWARE_SNAPSHOT := build/good-packs/cedar-vol-software.snap
-# 3 B cycles per package.  1.2 B was not enough: the big ones (Sil is 59
-# files, Interpress 47) were still transferring when the run ended, and a
-# command typed afterwards interleaves with the Bringover's own output.
-CEDAR_VOL_SOFTWARE_CYCLES ?= 86000000000
-CEDAR_VOL_SOFTWARE_SPACING ?= 3000000000
-# Every CedarChest6.1 package we hold a payload for, biggest first so the
-# long transfers start early.
-CEDAR_CHEST_PACKAGES := Sil Interpress ViewRec BiScrollers PopUpButtons \
-	PressReader SirPress ImagerPress AIS AISImages AISViewer CardTable \
-	Abutters ChessHack Clock DoradoArchive
+# MEASURED, twice, because guessing wasted two long bakes: a CedarChest
+# package takes roughly 15 B cycles to Bringover -- the cost is per-file STP
+# round trips, not the byte count.  1.2 B/package got through one; 3 B/package
+# (86 B total) reached package 3 of 16, still mid-transfer.  A command typed
+# while a Bringover is still running interleaves with its output and is lost,
+# so the budget has to cover the LAST package, not the average.
+#
+# 16 packages would therefore need ~270 B cycles (~2.5 hours).  The default
+# list below is a curated eight at 15 B each; override to take the rest:
+#   make cedar-diskvolume-software CEDAR_CHEST_PACKAGES="Sil Interpress ..." \
+#        CEDAR_VOL_SOFTWARE_SPACING=15000000000 CEDAR_VOL_SOFTWARE_CYCLES=280000000000
+CEDAR_VOL_SOFTWARE_CYCLES ?= 158000000000
+CEDAR_VOL_SOFTWARE_SPACING ?= 15000000000
+# A curated eight, biggest first.  Sil is PARC's illustrator, Interpress and
+# ImagerPress the page-description work, ViewRec/BiScrollers/PopUpButtons the
+# Viewers toolkit, ChessHack a program to actually play.  The other packages
+# we hold payloads for -- PressReader SirPress AIS AISImages AISViewer
+# CardTable Abutters Clock DoradoArchive -- are equally installable; they are
+# left out of the default only so the bake finishes in about an hour.
+CEDAR_CHEST_PACKAGES ?= Sil Interpress ViewRec BiScrollers PopUpButtons \
+	ImagerPress PressReader ChessHack
 
 .PHONY: cedar-diskvolume-software
 cedar-diskvolume-software: $(BINDIR)/dorado
