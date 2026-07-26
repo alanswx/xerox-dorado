@@ -373,6 +373,11 @@ int main(int argc, char **argv)
             cfg.boot_file_number = (uint16_t)strtoul(argv[++i], NULL, 8);
         } else if (!strcmp(a, "--boot-switches") && i + 1 < argc) {
             cfg.boot_switches = argv[++i];
+        } else if (!strcmp(a, "--storage-modules") && i + 1 < argc) {
+            /* 1..4 4MW storage modules.  AEmu needs only one; the Smalltalk
+             * microcode is the "XM" (extended memory) build, so it is worth
+             * being able to hand it more. */
+            cfg.storage_modules = atoi(argv[++i]);
         } else if (!strcmp(a, "--boot-dir") && i + 1 < argc) {
             if (cfg.boot_dir_count <
                 (int)(sizeof cfg.boot_dir / sizeof cfg.boot_dir[0]))

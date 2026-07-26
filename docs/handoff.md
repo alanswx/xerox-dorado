@@ -255,13 +255,50 @@ be started by command -- but neither Smalltalk world reaches that prompt.
 Neither halts, either: the microengine runs without an `UNSUPPORTED`/fault
 report and simply never installs a display list.
 
-**Next:** this is a real bring-up, the same shape as the Cedar one. Diff a
-DSemu run against the AEmu run that works (per-task PC histograms,
-`DORADO_MACHINE_PCHIST`, the IFU dispatch ring) to find where the extra
-instruction set diverges. Also settle which world to drive:
-`SmalltalkDorado.eb` is not a byte-identical build of our `DSemu.mb`
-(31,832 vs 32,208 bytes, 22,942 differing), so it may be a later or
-different port.
+**NARROWED (2026-07-25, second look). It is not Smalltalk at all -- the
+DSemu-class microcode world does not come up on our microengine.** Boot a
+plain Alto program over Ethernet, the path AEmu handles perfectly, and
+both Smalltalk worlds fail identically:
+
+| world | Galaxian over Ethernet |
+|---|---|
+| `worlds/aemu.eb` | **121,549 px** |
+| our `mb2eb` build of `DSemu.mb!1` | 0 px |
+| `chm/microcode/SmalltalkDorado.eb!1` | 0 px |
+
+So no Smalltalk image is involved, no disk, no pack -- the world itself.
+That rules out the whole "find a matching ST-76 image" line of attack for
+now; the image cannot matter until the microcode runs.
+
+What the machine looks like when it fails (`DORADO_FINAL_DEBUG=1`,
+DSemu beside AEmu):
+
+| | AEmu (works) | DSemu (0 px) |
+|---|---|---|
+| IFU | `active=1 pcx=000034 dispatch=8379445` | `active=0 pcx=000000 dispatch=1104273` |
+| display | `iofetch=3758032 outputs=1376884` | `iofetch=0 outputs=388` |
+| last memref | `FETCH va=0130701` | **`MAP va=0070001`** |
+| MDS | 0 | 0o70000 |
+| every probe (DCB, DCSB, keybits, ColorDisplay) | real data | **all `177777`** |
+
+So the world LOADS (LoadRam succeeds, "Alto/Mesa world loaded at cycle
+32000029") and EXECUTES (1.1 M IFU dispatches), then stalls in early
+memory-map initialization: MDS has been moved to 0o70000 and everything at
+MDS+x reads unmapped. No halt, no fault, no `UNSUPPORTED` -- it just never
+finishes bringing the map up, so the Alto emulator never starts and no
+display list is ever installed.
+
+Checked and eliminated: the entry point (INITMAP is real address 0o1076 in
+BOTH microcodes, which is what `mb2eb` starts them at); storage size (new
+`--storage-modules N`; 2 and 3 behave the same as 1); and the XM opcode
+set (AEmu and DSemu declare the same `XMLDA`/`XMSTA`/`XMBSTOREONLY`).
+
+**Next:** instrument the map-initialization window. `initseq[600]` already
+records the first task-0 PCs after world load and there is a print for it
+in the final-debug block, but it is gated behind a condition that
+`DORADO_FINAL_DEBUG=1` alone does not satisfy -- reach it (or add a plain
+env gate) and diff DSemu's first few hundred task-0 PCs against AEmu's.
+The divergence point is the bug.
 
 ## ===> 2026-07-21: playable Chess offline, font mechanism, Othello/Iago map
 
