@@ -203,9 +203,66 @@ Volume` + `Create Logical Volume` on a blank disk from
 `tools/pdi_create_blank.py`** -- a real `PhysicalRoot` at page 0 and
 `LogicalRoot` at page 3, 114096 pages, written entirely through the
 emulated disk. Checkpoint `dorado/build/good-packs/cedar-iago.{snap,pdi}`
-restores straight to Iago's `>` prompt. Remaining: Erase Logical Volume
-(the first whole-volume write), Install Boot File/Germ/Microcode, and the
-Cedar install onto it.
+restores straight to Iago's `>` prompt.
+
+**A Cedar volume built from a blank disk, with software on it
+(2026-07-25).** The whole chain is three reproducible make targets:
+
+```
+make cedar-diskvolume           # 60 MB of zeros -> bootable Cedar volume
+make cedar-diskvolume-desktop   # boot it; Cedar installs itself (167,732 px)
+make cedar-diskvolume-software  # one Bringover per CedarChest package
+```
+
+Result: 158 files / 19.94 MB on the volume, and `List ///*.df` shows 75
+DFs / 862 KB -- ten CedarChest packages carrying real 1985-86 dates
+(Abutters, AIS, AISImages, AISViewer, CardTable, ChessHack, Clock,
+DoradoArchive, PopUpButtons, ViewRec) beside the Cedar runtime DFs their
+import closures pulled. Screenshots:
+`docs/images/cedar-cleanlv-desktop-2026-07-25.png`,
+`cedar-diskvolume-software-2026-07-25.png`.
+
+Written against the period procedure. `ReleaseMessage.tioga!9` ("Installing
+Cedar 6.1 from scratch") NET boots Cedar first so the local RD0 is free for
+`Create User World` -- which is why that macro only ever targets RD0, and
+why our RD1 build is the same document's "clients who wish to have
+non-standard volumes will have to do the various steps by hand". The step
+order is `Create User World`'s own, with ONE deliberate omission: **Install
+Initial Microcode** writes 11 pages into the hard-microcode region that
+`IagoOps.ReservePages` reserves only on drive 0, so on RD1 it lands on the
+VAM header and the volume boots to "Local volume's permanent data
+structures are inconsistent". The emulator supplies microcode with `--eb`,
+so skipping it costs nothing.
+
+Two things worth not rediscovering:
+
+- **Bringover cost is the IMPORT CLOSURE, not the payload.** Interpress is
+  47 files but pulls MesaRuntime, Rope, Real, BasicPackages, IO, FS -- most
+  of the Cedar runtime -- and had not finished after 15 B cycles. The
+  default package set is the self-contained ones at 6 B cycles each; the
+  heavy set is a documented override in the recipe.
+- **Cedar 6.1 still streams its base system.** `Basic.Loadees` names all 34
+  loadees by UNVERSIONED remote path, which forces a server round trip, so
+  a volume boots from disk and carries its own software but the base system
+  comes off the file server every boot. That is 6.1's design: the fuller
+  `CedarDorado.boot` exists only as 1983 builds (the same version wall that
+  killed `OthelloDorado.boot`), and FS attachments cannot redirect a remote
+  name (`FS.mesa`: `attachedTo` is a property of a LOCAL file).
+
+**Smalltalk: narrowed to one microcode branch (2026-07-25, open).** It is
+not the image, the disk or the pack -- the DSemu-class world itself does
+not come up: `worlds/aemu.eb` boots Galaxian over Ethernet at 121,549 px
+while both `SmalltalkDorado.eb!1` and our `mb2eb` build of `DSemu.mb!1`
+render 0 px on the same path. Per-PC counts put the failure between two
+labels in `InitMem.mc`: all three map loops complete and `EndOfStorage` is
+reached once, but `InitMemDone` is never reached. The gap is the **XM-only**
+page-377 write-protect path -- `GetEmulatorMapParams` returns "1 to
+write-protect page 377, for XM Alto emulation; 0 to emulate a non-XM
+Alto", so AEmu branches straight past it and DSemu, the XM build, goes in
+and never comes out. Confirmed sound on the way: `VirtualBanks` (0o400 via
+our DMux model), the `DummyRef`+Pipe0/Pipe1 VA readback, `B←Pipe5'` and the
+9-cycle MapBufBusy model, `B←Config'`, and `Carry20`. Detail and the next
+probes: `docs/handoff.md`.
 
 Plans/state: `docs/running-the-emulator.md` (how to run everything),
 `docs/CONTINUE-HERE.md` (live bring-up state), `docs/handoff.md` +

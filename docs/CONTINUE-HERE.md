@@ -1,5 +1,59 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## 2026-07-25 (late): A CEDAR VOLUME BUILT FROM A BLANK DISK, WITH SOFTWARE.
+
+Three make targets take 60 MB of zeros to a Cedar volume that boots from
+disk to the full Viewers desktop and carries a package collection:
+
+```
+make cedar-diskvolume           # Iago builds the volume on RD1
+make cedar-diskvolume-desktop   # boot it; Cedar installs itself (167,732 px)
+make cedar-diskvolume-software  # one Bringover per CedarChest package
+```
+
+158 files / 19.94 MB on the volume; `List ///*.df` shows 75 DFs / 862 KB,
+including ten CedarChest packages with real 1985-86 dates (Abutters, AIS,
+AISImages, AISViewer, CardTable, ChessHack, Clock, DoradoArchive,
+PopUpButtons, ViewRec) plus the Cedar runtime DFs their closures pulled.
+
+**The blocker that had to be found first.** The Iago-built volume booted,
+logged in, then died with `FS.Error: Local volume's permanent data
+structures are inconsistent`. Running Iago ON the booted volume
+(`--boot-switches l`) and using `Describe Logical Volumes` printed the
+discriminator -- "Don't understand the VAM" / "VAM fp: [id:1B,da:1B] ...
+the file has been deleted" -- so it was `vamStatus`, not `rootStatus`.
+Label dumps across build stages showed physical page 4 (the VAM header,
+logical page 1) correct after Erase and clobbered after the Installs, with
+pages 4..14 -- ELEVEN of them -- overwritten. `InitialDiskDorado.eb` is
+5192 bytes = exactly 11 pages: **Install Initial Microcode** writes it into
+the hard-microcode region at low physical pages, and `IagoOps.ReservePages`
+reserves that region only when the drive ordinal is 0. Building on RD1 left
+those pages inside the logical volume. Skipping that one step (the
+emulator supplies microcode with `--eb`) makes the volume work.
+
+**Period documentation, which corrected how we were driving it.**
+`ReleaseMessage.tioga!9` net boots Cedar first so RD0 is free for `Create
+User World` -- hence that macro's RD0-only target, and hence our RD1 path
+being the document's own "steps by hand". `CedarChestDoc.tioga` gives the
+one-DF-per-package convention; `CommandToolCommands.tioga` records that
+Bringover is `FS.Copy` with `attach: TRUE` ("Case 4 ... is used by
+BringOver").
+
+**Two numbers worth keeping.** Bringover cost is dominated by the IMPORT
+CLOSURE, not payload -- Interpress is 47 files but pulls most of the Cedar
+runtime and had not finished in 15 B cycles; the default package set is the
+self-contained ones at 6 B each. And Cedar 6.1 still streams its base
+system: `Basic.Loadees` names all 34 loadees by unversioned remote path, so
+the server is consulted every boot. Both escapes are closed (a fuller
+`CedarDorado.boot` exists only as 1983 builds; FS attachments cannot
+redirect a remote name).
+
+Also new: `--storage-modules N`, `MAX_TYPE_EVENTS` 16 -> 64 (driving Iago
+needs 22 answers for the volume build alone), and
+`tools/pdi_fix_root_checksums.py` (Cedar zeroes a root checksum while the
+volume is mounted and rewrites it on a clean dismount, which the emulator
+never performs).
+
 ## 2026-07-25: IAGO RUNS. Cedar creates its own physical and logical volumes.
 
 **The Othello/Iago dead end is open.** `--boot-switches l` (new) reaches
