@@ -403,11 +403,71 @@ violates that requirement**, so a BLT sweeping through write-protected
 page 377 cannot make progress under this fault handler -- on real hardware
 either.
 
-That points at reading 2: **this pack/boot path is probably not how DSemu
-was driven.** `Smalltalk.midas!17` only loads DSEMUL and does `Go INITMAP`;
-it does not say what medium the Smalltalk world came from. Worth checking
-next: whether Dorado Smalltalk booted over Ethernet or from a Trident pack
-carrying a Dorado-specific installation rather than an Alto Diablo pack.
+### How every Dorado world was boot-selected (period source, reusable)
+
+`DSemuRelease.cm` shows the release builds **two** files:
+
+    LoadMB/e DoradoSmalltalk.eb/o DSemu.mb 1076/s
+    LoadMB/e DoradoInitialSmalltalk.eb/o InitialSelect.mb 40
+
+The second is a bootstrap, and `InitialSelectMain.mc` (Taft, 19-Jun-1982,
+local copy at `chm/doradosource/BootstrapSources.dm!12_/`) documents the
+whole scheme -- "T[0]=0 => Ether-boot microcode whose BFN is given in
+T[8:15]":
+
+| entry | T | meaning |
+|---|---|---|
+| `InitialEtherMesaEntry` | `110C` | Mesa (this is our `DEF_ETH_110`) |
+| `InitialEtherSmalltalkEntry` | **`111C`** | **Smalltalk** |
+| `InitialEtherLispEntry` | `112C` | Lisp |
+| `InitialEtherCedarEntry` | `113C` | Cedar |
+| `InitialEtherTestEntry` | `114C` | Test |
+| `InitialDiskEntry` | `177400C` | installed Pilot "soft" microcode |
+| `InitialOverlayEntry` | `177401C` | next overlay from the same `.eb` |
+
+So Smalltalk's microcode is ether-booted as **BFN `0o111`**, which is the
+path we already use via `--eb`. `InitialDiskEntry` loads "the one pointed to
+by the softMicrocode entry of the physical volume root page, installed by
+Othello's Pilot microcode fetch command" -- worth remembering for the Iago
+track too. Holding **`P`** at boot forces the disk entry.
+
+### It is NOT Smalltalk-specific: DSemu cannot boot ANY Alto pack
+
+| pack | AEmu | DSemu |
+|---|---|---|
+| `xmsmall.dsk` | 2,709 px | 0 px |
+| `maststlk.dsk` | 2,285 px | 0 px |
+| **`games.dsk`** | **2,104 px** | **0 px** |
+
+`games.dsk` under DSemu fails with **instruction counts identical to the
+digit** to the Smalltalk packs (`0o2035`=8,754,528, task-17=8,832,783, same
+`WRITE_PROTECT va=0177400`), so the hang does not depend on pack contents at
+all -- it is in the Alto boot path every pack shares.
+
+**That reframes the conclusion of the previous section.** DSemu was a
+shipped, used microcode; it obviously booted Alto packs on real hardware. So
+"this boot path is not how DSemu was driven" is no longer tenable, and the
+defect is much more likely ours after all, somewhere in the XM page-377
+path.
+
+Ruled out along the way: the `task=14` (disk task) fetch page faults on
+vacant bank-1 pages are **normal** -- AEmu logs exactly the same 1,245 of
+them over the same window and boots fine. Not a lead.
+
+**Strongest remaining lead.** Dropping non-bank-register stores in page 377
+is harmless in itself (the Alto's top page is largely memory-mapped I/O, and
+a 64 K BLT sweeping through it does not care). The damage is that the
+instruction is *restarted*. So the question is narrow: what does real
+hardware do to a long, multi-store instruction when one of its stores is
+write-protected? HM Section 6.2 fixes `PCX` = current opcode, and
+`XMFaultTask` assumes only STA faults and only on its last microinstruction
+-- an assumption BLT violates on every boot. Something must break that
+cycle, and it is not PCX, Reschedule, StkP, the ACs, or the trap machinery
+(all verified). Look next at the fault *abort* semantics: whether a
+write-protected store should suppress the fault-task wake entirely once
+`IgnoreStore` has run, or whether the Dorado retries/aborts differently than
+we model. HM Memory Section pp. 46-48 is canon here per memory
+[[memory-fixes-validate-against-hw-manual]].
 
 **Oracle harness note.** `AltoInfo/` is gitignored, so the probe added to
 `AltoInfo/contralto-headless/Program.cs` is recorded here to be
