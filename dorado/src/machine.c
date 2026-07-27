@@ -3751,8 +3751,19 @@ void dorado_machine_set_key(dorado_machine *m, dorado_display_key key,
     if (!m) return;
     /* Before the Cedar world is live (Alto path, or during boot), the field
      * sampler that drains the queue is not running; apply directly so the
-     * Alto keyboard and the boot chord behave exactly as before. */
-    if (m->alto_ether_boot || !m->keys_live) {
+     * Alto keyboard and the boot chord behave exactly as before.
+     *
+     * The test must mirror machine_cedar_io()'s own guard EXACTLY, because
+     * that is the only drainer of the queue. It used to ask
+     * `m->alto_ether_boot || !m->keys_live`, using alto_ether_boot as a proxy
+     * for "this is the Alto path" -- but a DISK-booted Alto has that flag
+     * clear, and machine_seed_alto_live_io() sets keys_live, so its keys were
+     * queued for a drainer that never runs and silently vanished. That made
+     * the Alto Executive unresponsive on the --disk path (verified: typing
+     * left the framebuffer byte-identical) while the Ethernet path worked. */
+    int cedar_world_live = !m->alto_ether_boot && m->germ_word_count &&
+                           m->germ_data_done && m->ether_loaded_world_cycle;
+    if (!cedar_world_live || !m->keys_live) {
         dorado_display_keyboard_set_key(&m->display, key, down ? 1 : 0);
         return;
     }
