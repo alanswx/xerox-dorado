@@ -367,14 +367,86 @@ design, and nothing advances the ACs. Two readings remain:
    DSEMUL and does `Go INITMAP`, so how the pack got booted is not
    documented there).
 
-**Next step: use an external oracle.** Run the same `xmsmall`/`maststlk`
-pack under ContrAlto (`AltoInfo/Contralto2-2.0-Beta/`, or the prebuilt
-`AltoInfo/ContrAlto-mono/`) and compare the Alto-level state at PC `0o350`
--- specifically AC0/AC1/AC3 going into the BLT. That is the only way to
-tell reading 1 from reading 2, and it is exactly the cross-validation the
-top-level `CLAUDE.md` prescribes. Caveat from memory
-[[contralto-oracle-only-architectural]]: ContrAlto is a valid oracle for
-architectural state but NOT for I/O timing.
+### ORACLE RESULT: our Alto-level state is CORRECT. Reading 1 is dead.
+
+Cross-validated against ContrAlto, and **our ACs match exactly**:
+
+| | AC0 | AC1 | AC2 | AC3 |
+|---|---|---|---|---|
+| ContrAlto at PC `0o350` | `177777` | `176777` | `0` | `0` |
+| Dorado `aacs` at PC `0o350` | `177777` | `176777` | `0` | `0` |
+
+> **Correction, and a trap to avoid.** The previous analysis here claimed
+> `AC1=0, AC3=006373` driving a 62,208-word BLT. That read the **wrong
+> field** of our own `DORADO_IFUDISP_TRACE` line, which prints both:
+>
+>     stkp=004 acs=000000,000000,006126,006373 aacs=177777,176777,000000,000000
+>
+> `acs=` is **StkP-relative** and `src/cpu.c` already comments that it "is
+> wrong for comparison once StkP moves off 1"; `aacs=` is the fixed Alto AC
+> window `STK[1..4]` per `Start.mc`. Use `aacs`. Everything derived from
+> `acs` in earlier revisions of this section was wrong.
+
+Corrected reading of the instruction: `AC3 = 0`, so `-count = 0` and BLT
+sweeps the **whole 64 K**, with `ETemp = AC1 + AC3 + 1 = 0o177000` -- which
+enters page 377 just 256 words later. The sweep is authentic, not an
+artifact, and both non-XM emulations (our AEmu, ContrAlto) run straight
+through it.
+
+**So the Dorado emulator is validated at the point of divergence.** The
+hang is not a bad AC, not PCX, not Reschedule, not StkP, and not the trap
+machinery -- all checked. What remains is a genuine incompatibility:
+`XMFaultTask` requires that "all instructions must wait for faults before
+changing any permanent state, and instructions that can cause faults
+(presumably only STA) must do so as their last microinstruction". **BLT
+violates that requirement**, so a BLT sweeping through write-protected
+page 377 cannot make progress under this fault handler -- on real hardware
+either.
+
+That points at reading 2: **this pack/boot path is probably not how DSemu
+was driven.** `Smalltalk.midas!17` only loads DSEMUL and does `Go INITMAP`;
+it does not say what medium the Smalltalk world came from. Worth checking
+next: whether Dorado Smalltalk booted over Ethernet or from a Trident pack
+carrying a Dorado-specific installation rather than an Alto Diablo pack.
+
+**Oracle harness note.** `AltoInfo/` is gitignored, so the probe added to
+`AltoInfo/contralto-headless/Program.cs` is recorded here to be
+recreatable. Insert before `sys.Controller.StartExecution(AlternateBootType.Disk)`:
+
+    string probe = Environment.GetEnvironmentVariable("PROBE_PC");
+    if (!string.IsNullOrEmpty(probe)) {
+        int want = Convert.ToInt32(probe, 8);
+        sys.Controller.Reset(AlternateBootType.Disk);
+        int hits = 0; ushort prev = 0xffff;
+        for (long i = 0; i < maxSteps && hits < wantHits; i++) {
+            sys.SingleStep();
+            ushort pc = sys.CPU.R[6];
+            if (pc == want && prev != want) {
+                hits++;
+                // Alto ACs are backwards in the R file (altoIIcode3.mu:
+                // "$AC0 $R3; AC'S ARE BACKWARDS"); PC is R[6].
+                Console.Error.WriteLine($"PROBE step={i} " +
+                    $"AC0={Convert.ToString(sys.CPU.R[3],8)} " +
+                    $"AC1={Convert.ToString(sys.CPU.R[2],8)} " +
+                    $"AC2={Convert.ToString(sys.CPU.R[1],8)} " +
+                    $"AC3={Convert.ToString(sys.CPU.R[0],8)}");
+            }
+            prev = pc;
+        }
+        return 0;
+    }
+
+Run with `DOTNET_ROLL_FORWARD=Major PROBE_PC=350 dotnet run --no-build --
+<pack.dsk> /tmp/out.pgm` (the project targets .NET 8; only 10 is installed
+here, hence the roll-forward). Note `SystemType.OneKRom` is already
+"Alto II **XM**", so no config change is needed for the XM packs.
+
+**Do not use that harness's pixel count as a boot indicator** -- it reports
+~489 K ink pixels (~99.5 %) for every pack including `games.dsk`, so it is
+saturated and says nothing about whether the pack booted.
+
+Caveat from memory [[contralto-oracle-only-architectural]]: ContrAlto is a
+valid oracle for architectural state but NOT for I/O timing.
 
 ### Superseded analysis (kept for the reasoning trail)
 
