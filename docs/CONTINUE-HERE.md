@@ -187,14 +187,105 @@ The emulator task spins in a 2-instruction loop at `0o2035`/`0o2066`
 runs a 6-instruction handler at `0o6032`-`0o6046` 519,576 times. Handler
 runs, returns, store re-faults, forever.
 
-**Next step:** find how the Alto emulator is supposed to service that trap
-and check our fault semantics against it — in particular whether a
-write-protected store should be aborted-and-continue (fault reported
-asynchronously) or should stall. `AltoEmu.mc` is **not** in
-`chm/doradomicrocode/doradomicrocodesources/` locally; it needs pulling from
-the CHM archive (grep `chm/cross-reference.html`). The XM bank-register
-behaviour in ContrAlto (`AltoInfo/Contralto2-2.0-Beta/`) is a usable
-cross-check for what the trap must accomplish.
+### The trap handler, and why it never terminates (leading hypothesis)
+
+The AEmu microcode sources were **not** in the local tree; they are now
+mirrored to `chm/dorado/aemu-src/` from
+`https://xeroxparcarchive.computerhistory.org/_cd8_/doradosource/AemuSources.dm!82_/`.
+Note the URL case: the volume is lowercase (`_cd8_/doradosource`) but the
+archive name is display case (`AemuSources.dm!82_`) — the all-lowercase form
+from `cross-reference.html`'s href 404s.
+
+`XMFaultTask.mc` (Taft, 3-Sep-1980) is the handler, and its header states
+the contract:
+
+> This version does a partial emulation of an Extended Memory Alto.
+> Specifically, it supports changing the emulator task's alternate bank
+> register (for XMLDA, XMSTA, and BITBLT) and the display task's normal
+> bank register. **If a fault occurs as a result of storing into
+> write-protected page 377**, and the emulator's or Alto display task's
+> bank register is the word addressed, allow the store to proceed and also
+> update the base register. **If any other word in page 377 was addressed,
+> ignore the store.**
+
+The fault task redirects the *emulator* task into `Fault0` by writing its
+TPC:
+
+    EmuFault:  FaultVal_ DBuf;
+               RdTPC_ EMU;
+               FltEmuPC_ NOT (Link);   * TPC data is complemented
+               Call[GetEmuFaultPC];
+               LdTPC_ T;               * <-- redirect EMU to Fault0
+               Block, Branch[FaultTask];
+
+**All of that machinery works in our emulator.** Measured (real addresses
+from `mbdis`: `FAULT0`=`0o6061`, `MAPFAULT`=`0o326`, `IGNORESTORE`=`0o346`,
+`XMBSTOREONLY`=`0o352`, `TASK0XM`=`0o367`, `DISPXM`=`0o353`):
+
+| label | hits |
+|---|---|
+| `FAULT0` | reached |
+| `IGNORESTORE` | reached |
+| `MAPFAULT` breakpoint | **0** |
+| `XMBSTOREONLY` / `TASK0XM` / `DISPXM` | **0** |
+
+So `RdTPC`/`LdTPC` redirect correctly and the handler decodes without
+hitting its "can't handle" breakpoints. `DORADO_PIPEVA_TRACE` shows the
+handler's `T_ VAHi` / `FltPipe1_ VALo` (real `0o6045`/`0o6056`, 519,575
+reads each — one per fault) always returning **`va=0x000FF00` = `0177400`**,
+the first word of page 377, never the bank register at `0177740`. The
+microcode is therefore right to take `IgnoreStore`.
+
+**The problem is that the VA never changes.** 519,575 faults, all on
+`0177400`: the same Alto instruction re-executing forever, never advancing.
+`IgnoreStore` ends with `Branch[AEmuReschedule]`, and the source says why
+that is supposed to be safe:
+
+    * Restart the current instruction -- the instruction following the
+    * one that caused the fault.  All instructions must wait for faults
+    * before changing any permanent state, and instructions that can cause
+    * faults (presumably only STA) must do so as their last
+    * microinstruction, so it is guaranteed that a new instruction will
+    * have begun by the time the fault occurs.
+
+**Leading hypothesis (NOT yet proven): we report the map fault too early.**
+The design depends on the fault arriving late enough that the emulator has
+already begun the *next* Alto instruction; `AEmuReschedule` then resumes
+that one. If our fault is delivered synchronously with the store, the same
+STA restarts and loops forever — precisely the observed behaviour, and it
+explains why the VA is frozen.
+
+Partial confirmation: `DORADO_FINAL_DEBUG` gives
+
+    ifu={active=1 op=142 alpha=005 len=2 pcx=000006 pcf=000010 dispatch=519727}
+
+`dispatch=519,727` is ~one IFU dispatch per fault (519,575), and **`pcx` is
+frozen at `000006`** — the same Alto instruction re-dispatched half a
+million times, matching the `fault_pc=000006` in the `memref` dump. So the
+Alto PC provably never advances. (`pcf=000010` is ahead of `pcx`, so the
+byte cursor did move; it is the instruction restart that repeats.)
+
+Two candidate explanations remain, and the evidence so far does not
+separate them:
+
+1. **Fault delivered too early** (above): the emulator restarts the same
+   STA instead of the next instruction. Check our fault-wake timing in
+   `src/cpu.c` (`wakeup_pending |= 1u << 15`) against the Hardware Manual's
+   fault-reporting latency.
+2. **The store address is wrong upstream.** The faulting VA `0177400` is
+   the first word of page 377, and `XMFaultTask` only ever expects the bank
+   registers (`0177740`, `0177751`) there. If the Alto code at PC 6 should
+   not be storing to `0177400` at all, then the fault is a *symptom* of a
+   bad address computation earlier and the timing is a red herring. Note
+   the handler's own caveat — "instructions that can cause faults
+   (presumably only STA) must do so as their last microinstruction" — and
+   that `0o2035` is in the BitBlt `BLKLP` region, which is NOT an STA.
+
+Discriminate by disassembling what the pack's boot sector puts at Alto
+location 6 and what `op=142` is, then comparing against ContrAlto running
+the same pack (`AltoInfo/Contralto2-2.0-Beta/`), which is a working oracle
+for both the Alto instruction stream and what the XM bank-register trap
+must ultimately accomplish.
 
 **Method note.** All three of the earlier wrong calls on this world traced
 to one mistake: counting PCs without gating the trace to after the world

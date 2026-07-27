@@ -1,0 +1,1 @@
+Set[AltoMode, -1];
