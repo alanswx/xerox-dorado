@@ -299,12 +299,19 @@ upstream divergence:
     AEMU:  stkp=004 acs=000000,000000,006126,006373
     DSEMU: stkp=004 acs=000000,000000,006126,006373
 
-BLT computes `ETemp = AC1 + AC3 + 1 = 0o6374` and runs upward with count
-`0o171405` (~61,701 words), so the block legitimately runs off the top of
-memory and **through page 377**. AEmu (non-XM) writes straight through --
-it never references `0177400` at all, verified with
-`DORADO_LOAD_TRACE_VA=177400,177400`: zero hits across its whole successful
-boot. DSemu (XM) write-protects that page, so the store traps.
+BLT computes `ETemp = AC1 + AC3 + 1 = 0o6374` and sweeps upward over ~62,208
+words, so the block legitimately runs off the top of memory and **through
+page 377**. AEmu (non-XM) writes straight through: `DORADO_LOAD_TRACE_VA=177400,177400`
+records **exactly one** reference, after which it continues. DSemu (XM)
+write-protects that page, so the same store traps.
+
+> **Correction.** An earlier revision of this section claimed AEmu "never
+> references `0177400`, zero hits". That was a trace-gating artifact -- the
+> BLT runs at cycle ~20.9 M, before the `DORADO_TRACE_GATE=32100000` that
+> was in force, so the store was filtered out. Ungated, the reference is
+> there. Same trap as [[gate-pc-traces-after-world-load]]; the gate that is
+> mandatory for PC histograms silently lies about anything that happens
+> before the world load.
 
 **The bug is the restart, not the trap.** `XMFaultTask` states its own
 precondition:
@@ -322,12 +329,52 @@ the rest of the BLT. Our IFU instead re-dispatches the *same* opcode: every
 re-dispatch shows `pcf=0o6` with `pc_after=0o10`, i.e. the byte cursor is
 reset to 6 each time rather than advancing to the prefetched 8.
 
-**Next step:** find what resets `ifu_pcf` across the fault redirect
-(`RdTPC`/`LdTPC` into `Fault0`, then `IgnoreStore` -> `AEmuReschedule`) and
-make the post-fault dispatch use the prefetched next opcode. Note BLT is
-*not* an STA, so the microcode's stated precondition is genuinely violated
-here; confirm against HM Section 6 what the IFU is required to hold across
-a fault before changing behaviour.
+**Everything on our side that this path touches has now been checked and
+matches the manual and the microcode:**
+
+- `RdTPC`/`LdTPC` are implemented and the redirect into `Fault0` works.
+- `Fault0` decodes correctly and takes `IgnoreStore`, never its
+  "can't handle" breakpoints.
+- **`PCX` is right.** `AEmuReschedule` -> `RestartIFU` resumes via
+  `T_ NOT (PCX')` -> `StartIFU: PCF_ T`, and HM Section 6.2 says
+  "`B<-PCX'` reads the PC of the **current** opcode, and `PCF<-B` does not
+  change `PCX`". Our `ifu_pcx = ifu_pcf` latch at dispatch matches that, so
+  restarting at PCX re-executing BLT is the specified behaviour, not a bug.
+  (An earlier revision of this file proposed "make the post-fault dispatch
+  use the prefetched next opcode" -- that would contradict HM Section 6.2
+  and is withdrawn.)
+- **A fault does not assert `Reschedule`.** That was the one mechanism that
+  would let BLT exit through its own `BLTlpx` checkpoint and save
+  `AC3 = -count remaining`, making progress across restarts. Per HM Table 20
+  the Reschedule branch condition is set only by the microcode `Reschedule`
+  function and cleared by `NoReschedule`; `src/cpu.c` does exactly that.
+  Ruled out.
+- `StkP` is **not** corrupted. It varies per instruction in AEmu too
+  (001, 002, 004, 003 ...), so the differing `stkp` values across DSemu's
+  restarts are normal, not damage.
+
+**So as modelled, XMFaultTask + a BLT sweeping through page 377 cannot
+terminate**: the store is ignored by design, the instruction restarts by
+design, and nothing advances the ACs. Two readings remain:
+
+1. **The Alto-level state is wrong**, i.e. `AC3 = 006373` at Alto PC `0o350`
+   is not what a real machine would have, and the enormous 62,208-word BLT
+   is itself the symptom. Note both our worlds share our IFU/ALU/STK
+   emulation, so their agreeing on the ACs proves only self-consistency --
+   **an internal comparison cannot catch a bug they both inherit.**
+2. **This boot path is not the one DSemu was used with**, and the period
+   setup drove Smalltalk differently (`Smalltalk.midas!17` only loads
+   DSEMUL and does `Go INITMAP`, so how the pack got booted is not
+   documented there).
+
+**Next step: use an external oracle.** Run the same `xmsmall`/`maststlk`
+pack under ContrAlto (`AltoInfo/Contralto2-2.0-Beta/`, or the prebuilt
+`AltoInfo/ContrAlto-mono/`) and compare the Alto-level state at PC `0o350`
+-- specifically AC0/AC1/AC3 going into the BLT. That is the only way to
+tell reading 1 from reading 2, and it is exactly the cross-validation the
+top-level `CLAUDE.md` prescribes. Caveat from memory
+[[contralto-oracle-only-architectural]]: ContrAlto is a valid oracle for
+architectural state but NOT for I/O timing.
 
 ### Superseded analysis (kept for the reasoning trail)
 
