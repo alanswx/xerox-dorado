@@ -265,8 +265,75 @@ million times, matching the `fault_pc=000006` in the `memref` dump. So the
 Alto PC provably never advances. (`pcf=000010` is ahead of `pcx`, so the
 byte cursor did move; it is the instruction restart that repeats.)
 
-Two candidate explanations remain, and the evidence so far does not
-separate them:
+### RESOLVED to a single instruction: BLT restarts instead of resuming
+
+Diffing the Alto instruction streams of the two worlds on the same pack
+(`DORADO_IFUDISP_TRACE`) isolates it exactly. They are identical for seven
+dispatches and then:
+
+| # | AEmu (works) | DSemu (hangs) |
+|---|---|---|
+| 6 | `opva=0000350 op=142` | `opva=0000350 op=142` |
+| 7 | `opva=0000350 op=142` | `opva=0000350 op=142` |
+| 8 | `opva=0000351 op=134` | `opva=0000350 op=142` (forever) |
+
+`op=142 alpha=005` is Alto instruction `0o61005`, which `S-Group.mc` names:
+
+    * BLT (61005)
+    * Accepts AC0: first source -1, AC1: last destination, AC3: -count.
+    * If interrupted, returns with ACs prepared for remainder of transfer.
+    BLT:    Stack&+3_ (Stack&+3)+1, At[SD400, 5]
+    BLTlp:  Stack_ (Fetch_ Stack)+1, T_ MD
+            ETemp_ (Store_ ETemp)+1, DBuf_ T, Branch[BLTlp, Cnt#0&-1]
+    BLTlpx: T_ ETemp3, Cnt_ 20S, Branch[BLTint, Reschedule]
+    BLTint: Stack&+3_ (Stack&+3)-(2C), Branch[BLKint]  * AC3_ -count remaining
+
+`BLTlp` is a two-microinstruction loop — matching our two spin PCs
+`0o2035`/`0o2066` at 8,754,528 each, which is ~16.8 per fault, i.e. one
+16-word munch per fault. (`0o61004` is SIO; BLT is 61005. Not an STA, which
+matters below.)
+
+**The ACs are identical in both worlds at that dispatch**, so there is no
+upstream divergence:
+
+    AEMU:  stkp=004 acs=000000,000000,006126,006373
+    DSEMU: stkp=004 acs=000000,000000,006126,006373
+
+BLT computes `ETemp = AC1 + AC3 + 1 = 0o6374` and runs upward with count
+`0o171405` (~61,701 words), so the block legitimately runs off the top of
+memory and **through page 377**. AEmu (non-XM) writes straight through --
+it never references `0177400` at all, verified with
+`DORADO_LOAD_TRACE_VA=177400,177400`: zero hits across its whole successful
+boot. DSemu (XM) write-protects that page, so the store traps.
+
+**The bug is the restart, not the trap.** `XMFaultTask` states its own
+precondition:
+
+    * Restart the current instruction -- the instruction following the
+    * one that caused the fault. ... instructions that can cause faults
+    * (presumably only STA) must do so as their last microinstruction, so
+    * it is guaranteed that a new instruction will have begun by the time
+    * the fault occurs.
+
+So `AEmuReschedule` is meant to consume the opcode the IFU has **already
+prefetched** — on real hardware the IFU has fetched `0o351` while BLT is
+still running, and after `IgnoreStore` execution continues there, abandoning
+the rest of the BLT. Our IFU instead re-dispatches the *same* opcode: every
+re-dispatch shows `pcf=0o6` with `pc_after=0o10`, i.e. the byte cursor is
+reset to 6 each time rather than advancing to the prefetched 8.
+
+**Next step:** find what resets `ifu_pcf` across the fault redirect
+(`RdTPC`/`LdTPC` into `Fault0`, then `IgnoreStore` -> `AEmuReschedule`) and
+make the post-fault dispatch use the prefetched next opcode. Note BLT is
+*not* an STA, so the microcode's stated precondition is genuinely violated
+here; confirm against HM Section 6 what the IFU is required to hold across
+a fault before changing behaviour.
+
+### Superseded analysis (kept for the reasoning trail)
+
+Two candidate explanations were open before the instruction-stream diff
+above resolved it; hypothesis 2 is now ruled out (the ACs match, so nothing
+diverges upstream):
 
 1. **Fault delivered too early** (above): the emulator restarts the same
    STA instead of the next instruction. Check our fault-wake timing in
