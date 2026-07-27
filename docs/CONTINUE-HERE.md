@@ -519,8 +519,66 @@ Smalltalk instruction set.
 revision used it to conclude "nothing references bank 1", which was never valid
 evidence about *stores*. Use `DORADO_PHYS_WRITE_TRACE` for writes.
 
-**Next.** Find what selects the Smalltalk InsSet (`InsSetOrEvent←B`, B[0]=1
-loads InsSet from B[6:7]) and why nothing on this path ever reaches it. The
+### What the boot is supposed to do, and where ours dies
+
+An S-group opcode histogram from ContrAlto (`CA_COUNTOP`, added to
+`EmulatorTask.TraceInstructionPC`; `AltoInfo/` is gitignored so the patch is
+recorded at the end of this section) shows what a **working** Smalltalk-76
+boot executes on the same pack and command:
+
+    SGROUP 61005=2390 61006=2181 61014=1027 61024=375 61004=1049
+           61012=18028 61011=4 61010=4251 61021=3732 61020=1628 ...
+
+That is: **`WRTRAM` 18,028 times** (it loads its own Alto RAM microcode),
+**`JMPRAM` 4,251 times** (it enters that microcode), **`VERS` 1,027 times**,
+and **`BITBLT` 375 times**. Ours executes **zero** of all four.
+
+**Ours crashes to Alto location 0.** `DORADO_MACHINE_PCHIST` gives
+
+    IFU hot PCX: 000000=9280172 000002=8450664 000004=8009016 000006=7606203
+                 000010=1156681 000012=734853 ...
+
+-- byte cursors at words 0-3, i.e. the machine repeatedly jumps to address 0
+and runs forward through the interrupt-vector area. And it is **not slow, it
+is dead**: between 1.2 B and 2.5 B cycles the disk counters are frozen at
+exactly `ctrl=2689 xfer=2664 rs=2664` and the pixel count is unchanged at
+248,995. So `xmsmall.boot` loads (2,664 sectors), transfers control somewhere
+wrong, and loops in low memory forever.
+
+So the noise on screen is simply uninitialised memory at `0o76400`; nothing
+ever drew, because the Smalltalk system died before reaching its microcode
+setup -- which is also why `VERS` is never consulted.
+
+**Next.** Diff the Alto instruction stream against ContrAlto across the
+transfer of control, the same technique that isolated the BLT bug. ContrAlto
+has a built-in Alto PC trace: `CA_TRACEPC=<max>` prints
+`CATRACEPC n pc ir cyc= acs=` per instruction, with `CA_TRACEPC_RANGE=lo,hi`
+and `CA_TRACEPC_AFTER=<cycle>` to bound the volume; ours is
+`DORADO_IFUDISP_TRACE`. Find the last common Alto PC before we land at 0.
+
+The `CA_COUNTOP` patch, for recreation -- in
+`ContraltoLib/CPU/Tasks/EmulatorTask.cs`, at the top of
+`TraceInstructionPC()`:
+
+    public static readonly Dictionary<ushort,long> SGroupCounts = new();
+    private static readonly bool _countOp =
+        Environment.GetEnvironmentVariable("CA_COUNTOP") != null;
+    ...
+    if (_countOp && _mpc == 349) {
+        ushort ir = _busData;
+        if (ir >= 0x6200 && ir <= 0x62ff) {      // 0o61000..0o61377
+            SGroupCounts.TryGetValue(ir, out long n); SGroupCounts[ir] = n + 1;
+        }
+    }
+
+`_mpc == 349` is DIS0, the normal instruction-fetch `IR<-`; other `IR<-` uses
+are helper opcodes and are not architectural. Program.cs dumps the dictionary
+by reflection at exit.
+
+**Superseded next-step** (kept for the trail): find what selects the Smalltalk
+InsSet (`InsSetOrEvent←B`, B[0]=1 loads InsSet from B[6:7]). That framing
+assumed we were healthy but in the wrong instruction set; in fact the guest
+has crashed, so the InsSet is a symptom. The
 ether-booted DSemu run *does* execute Smalltalk microcode (`0o421` = `LOADX`,
 3.2 M executions), so the second instruction set works in principle -- though
 that run had no image loaded, so it may simply have been interpreting garbage;
