@@ -533,17 +533,57 @@ That is: **`WRTRAM` 18,028 times** (it loads its own Alto RAM microcode),
 **`JMPRAM` 4,251 times** (it enters that microcode), **`VERS` 1,027 times**,
 and **`BITBLT` 375 times**. Ours executes **zero** of all four.
 
-**Ours crashes to Alto location 0.** `DORADO_MACHINE_PCHIST` gives
+**Ours stops in a 4-instruction poll loop at Alto `0176442`-`0176445`.**
 
-    IFU hot PCX: 000000=9280172 000002=8450664 000004=8009016 000006=7606203
-                 000010=1156681 000012=734853 ...
+> **Correction.** An earlier revision of this section said the guest "crashes
+> to Alto location 0", from `IFU hot PCX: 000000=9280172 000002=8450664 ...`.
+> That was wrong: **`pcx` is a byte offset relative to BR[31], not an absolute
+> address** (`DORADO_ALTO_PC_TRAP=0` fires at cycle 76.9 M with `br31=00001`,
+> i.e. during the ordinary early boot). The absolute Alto PC is `opva` in
+> `DORADO_IFUDISP_TRACE`. Histogram `opva`, never `pcx`.
 
--- byte cursors at words 0-3, i.e. the machine repeatedly jumps to address 0
-and runs forward through the interrupt-vector area. And it is **not slow, it
-is dead**: between 1.2 B and 2.5 B cycles the disk counters are frozen at
-exactly `ctrl=2689 xfer=2664 rs=2664` and the pixel count is unchanged at
-248,995. So `xmsmall.boot` loads (2,664 sectors), transfers control somewhere
-wrong, and loops in low memory forever.
+Histogramming `opva` over a 2 M-cycle window late in the run gives exactly four
+addresses, ~14,478 hits each: `0176442, 0176443, 0176444, 0176445`. The words
+there decode as a poll:
+
+    176442  035000   LDA 3,0(AC2)
+    176443  021401   LDA 0,1(AC3)
+    176444  101015   ALC, skip
+    176445  000775   JMP .-3
+
+With `AC2=0176173` and `AC3=0176217`, it chases `M[0176173] = 0176217` and then
+polls **`M[0176220]`, which stays `0` forever**. (`M[0176214..16] = 052525`,
+the classic poison fill, sits just below the structure.) It is dead rather than
+slow: between 1.2 B and 2.5 B cycles the disk counters are frozen at exactly
+`ctrl=2689 xfer=2664 rs=2664` and the pixel count is unchanged at 248,995.
+
+**The oracle spins in the same loop and escapes.** ContrAlto visits
+`0176442-0176445` **60,987** times on the same pack and command
+(`CA_TRACEPC=100000 CA_TRACEPC_RANGE=176442,176445`) and then goes on to the
+full Smalltalk UI. So this is a legitimate wait, and something must eventually
+store into `M[0176220]` -- in our run nothing ever does.
+
+There is also a concrete state divergence right at the loop:
+
+| | AC0 | AC1 | AC2 | AC3 |
+|---|---|---|---|---|
+| ContrAlto | 0 | **`176217`** | `176173` | `176217` |
+| ours | 0 | **`000003`** | `176173` | `176217` |
+
+`AC1` is not read by the loop itself, so this is a symptom rather than the
+cause, but it is a cheap landmark for backing up the instruction streams to the
+point where the two machines part company.
+
+**Next, in order:**
+1. Find who writes `M[0176220]` on a healthy boot -- add a memory-write watch
+   to ContrAlto (`Memory.Write`) keyed on that address and report the writing
+   task and PC. That names the device or handler we are failing to drive.
+2. Back up from the `AC1` divergence with `CA_TRACEPC` vs `DORADO_IFUDISP_TRACE`
+   to find the last common Alto PC.
+3. Suspicious and worth a look either way: our disk reports
+   `chs=409/4/13` while `dsk2trident` built the pack with 406 cylinders and
+   2 heads, so both the cylinder and the head are out of range, and the
+   controller is idle (`act=0 pend=0`) rather than mid-command.
 
 So the noise on screen is simply uninitialised memory at `0o76400`; nothing
 ever drew, because the Smalltalk system died before reaching its microcode

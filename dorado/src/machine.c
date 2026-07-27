@@ -3509,6 +3509,44 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                 m->ifu_ring[r].rm[ri] = cpu->RM[ri];
             m->ifu_ring[r].br31 = dorado_br_get(&m->mem, 31);
             m->ifu_ring[r].br36 = dorado_br_get(&m->mem, 036);
+
+            /* DORADO_ALTO_PC_TRAP=<octal byte-PC>: one-shot dump of the
+             * preceding Alto instruction stream the first time the guest
+             * dispatches at that PC. Built to catch a wild jump -- the Alto
+             * Smalltalk boot lands at PC 0 and loops there forever, and the
+             * ring holds the 64 dispatches that led in. */
+            {
+                static long trap_pc = -2;
+                static int trap_fired = 0;
+                if (trap_pc == -2) {
+                    const char *tv = getenv("DORADO_ALTO_PC_TRAP");
+                    trap_pc = tv ? strtol(tv, NULL, 8) : -1;
+                }
+                if (trap_pc >= 0 && !trap_fired && pcx == (uint16_t)trap_pc) {
+                    trap_fired = 1;
+                    unsigned rl = (unsigned)(sizeof m->ifu_ring /
+                                             sizeof m->ifu_ring[0]);
+                    unsigned have = m->ifu_ring_next < rl ? m->ifu_ring_next
+                                                          : rl;
+                    fprintf(stderr,
+                            "[pctrap] first dispatch at pcx=%06o cyc=%llu; "
+                            "preceding %u dispatches:\n", pcx,
+                            (unsigned long long)bb->cycles, have);
+                    for (unsigned i = 0; i < have; i++) {
+                        unsigned ix = (m->ifu_ring_next - have + i) &
+                                      (rl - 1u);
+                        fprintf(stderr,
+                                "  [%2u] pcx=%06o op=%03o a=%03o b=%03o "
+                                "len=%u ins=%u acs=%06o,%06o,%06o,%06o "
+                                "br31=%05X\n", i,
+                                m->ifu_ring[ix].pcx, m->ifu_ring[ix].opcode,
+                                m->ifu_ring[ix].alpha, m->ifu_ring[ix].beta,
+                                m->ifu_ring[ix].len, m->ifu_ring[ix].insset,
+                                cpu->STK[1], cpu->STK[2], cpu->STK[3],
+                                cpu->STK[4], m->ifu_ring[ix].br31);
+                    }
+                }
+            }
         }
 
         if (alto_check_trace) {
