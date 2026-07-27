@@ -346,10 +346,30 @@ static int test_map_write_protect(void)
            "clean fetch must not set MapTrouble, errors=0x%X",
            mem.pipe[0].pipe4_errors);
 
-    /* Store to a WP page faults. */
+    /* A Store← that HITS a write-protected line does NOT fault -- HM page
+     * 46 lists the WP fault sources as "Store← that MISSES, IOStore←, or
+     * dirty-victim write with WP true". The fetch above filled this line,
+     * so this store hits: it is dropped silently, leaving storage alone and
+     * (critically) not dirtying the line. Dirtying it would manufacture the
+     * dirty-victim WP fault that page 46 says "should not occur", and page
+     * 47's "Before turning on WP, a flush prevents dirty cache entries from
+     * being written into the now write-protected page" is the same point.
+     * Faulting here instead broke XM Alto emulation outright: page 377 is
+     * write-protected for XM, and the Alto boot BLT sweeps all 64K through
+     * it, so the restart after XMFaultTask's IgnoreStore re-faulted forever. */
+    f = dorado_memory_ref(&mem, DM_REF_STORE, 0x10, 0xBEEF, 0);
+    EXPECT(f == DM_FAULT_NONE, "WP store that HITS must not fault, got %d",
+           (int)f);
+    EXPECT(mem.storage[0x10] == 0,
+           "WP store that hits must not reach storage: 0x%04X",
+           mem.storage[0x10]);
+
+    /* Now flush the munch so the next store MISSES, which is the case the
+     * manual says faults. */
+    dorado_memory_ref(&mem, DM_REF_FLUSH, 0x10, 0, 0);
     f = dorado_memory_ref(&mem, DM_REF_STORE, 0x10, 0xBEEF, 0);
     EXPECT(f == DM_FAULT_WRITE_PROTECT,
-           "expected WP fault, got %d", (int)f);
+           "expected WP fault on a MISSING store, got %d", (int)f);
 
     /* QW3 / HM Table 17: a WP fault sets the Pipe4 MapTrouble bit
      * (same encoding as PageFlt, distinguished by Store'/WP'). */

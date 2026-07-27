@@ -1800,8 +1800,43 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
         if (!dorado_mcr_fdmiss(mem) && dorado_cache_lookup(mem, va, &way)) {
             dorado_cache_line *line =
                 &mem->cache[va_cache_row(va)].ways[way];
+            /* HM page 46 "Faults" enumerates the WP fault sources exactly:
+             * "Store<- that MISSES, IOStore<-, or dirty-victim write with WP
+             * true".  A Store<- that HITS is not one of them -- it simply
+             * writes the cached line, and the protection is enforced later,
+             * when the dirty victim is written back.  We used to fault here
+             * on any hit whose line carried WP, which made a write-protected
+             * page fault on EVERY store rather than only the first.
+             *
+             * That broke XM Alto emulation outright.  InitMem.mc
+             * write-protects page 377 for XM ("Make page 377B be
+             * write-protected.  First, flush the page, then set WP in map
+             * entry"), and XMFaultTask.mc handles the resulting trap by
+             * ignoring the store and restarting the instruction.  The Alto
+             * boot code's BLT sweeps all 64K and so crosses page 377 on
+             * every boot: the first store missed and faulted (correct), but
+             * the restart re-stored into the now-cached line, which faulted
+             * again forever.  XMFaultTask itself confirms the semantics --
+             * its XMBStoreOnly path brackets the real store with
+             * "Flush_ FltPipe1" *precisely* to force the next store to miss
+             * and fault again, which would be pointless if hits faulted too.
+             *
+             * IOStore<- is a separate case (DM_REF_IOSTORE) and still
+             * faults with WP true, per the same sentence.
+             *
+             * A hit on a WP line is DROPPED: no fault, and crucially no data
+             * change and no dirty bit.  Dirtying it would be wrong -- HM page
+             * 47 says "Before turning on WP, a flush prevents dirty cache
+             * entries from being written into the now write-protected page",
+             * and page 46 notes dirty-victim WP faults "should not occur if
+             * the map and cache are handled as proposed".  Letting the store
+             * dirty the line manufactures exactly that fault when the victim
+             * is later written back.  Dropping the write is also precisely
+             * what XM Alto emulation wants: XMFaultTask ignores every
+             * page-377 store except the bank registers. */
             if (line->wp) {
-                f = DM_FAULT_WRITE_PROTECT;
+                cache_touch_lru(&mem->cache[va_cache_row(va)], way);
+                cache_select(mem, va, way, srn);
             } else {
                 /* Optional emulator guard: if the current Map can translate
                  * this hit, preserve the protected physical cell. A vacant

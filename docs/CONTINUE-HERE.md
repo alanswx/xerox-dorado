@@ -454,7 +454,61 @@ Ruled out along the way: the `task=14` (disk task) fetch page faults on
 vacant bank-1 pages are **normal** -- AEmu logs exactly the same 1,245 of
 them over the same window and boots fine. Not a lead.
 
-**Strongest remaining lead.** Dropping non-bank-register stores in page 377
+### FIXED: a WP fault must come from a store that MISSES (HM p.46)
+
+**`DSemu` now boots every Alto pack, with pixel counts identical to AEmu:**
+
+| pack | AEmu | DSemu before | DSemu after |
+|---|---|---|---|
+| `games.dsk` | 2104 | 0 | **2104** |
+| `xmsmall.dsk` | 2709 | 0 | **2709** |
+| `maststlk.dsk` | 2285 | 0 | **2285** |
+
+HM page 46 "Faults" enumerates the WP-fault sources exactly:
+
+> **WP fault** — `Store←` that **misses**, `IOStore←`, or dirty-victim write
+> with WP true.
+
+A `Store←` that **hits** is not one of them. `src/memory.c` faulted on any
+store whose cache line carried WP, so a write-protected page faulted on
+*every* store rather than only the first. The `memref` dump said so all
+along -- `miss=0` beside `fault=WRITE_PROTECT`.
+
+The correct behaviour on a hit is to **drop the store silently**: no fault,
+no data change, and critically **no dirty bit**. Dirtying it manufactures
+the dirty-victim WP fault that page 46 says "should not occur", which is
+the same point page 47 makes: "Before turning on WP, a flush prevents dirty
+cache entries from being written into the now write-protected page."
+(I hit exactly that when I first fixed only the fault and let the store
+through: the fault task then spun on its `NotMapFault` breakpoint.)
+
+`XMFaultTask.mc` independently confirms the semantics -- its `XMBStoreOnly`
+path brackets the real store with `Flush_ FltPipe1` *precisely* to force the
+next store to miss and fault again, which would be pointless if hits faulted
+too.
+
+So the sequence works as designed: InitMem flushes page 377 and sets WP; the
+Alto boot BLT sweeps 64 K into it; the first store misses and faults;
+`XMFaultTask` ignores it; the reference proceeds so the line is now cached
+clean; and every subsequent store hits and is dropped. BLT runs to
+completion.
+
+Gates: 11/11 test binaries plus snapshot fidelity; Alto Galaxian
+**byte-identical** (121,602 px); `verify-cedar-desktop` unchanged (246,086
+px); 5/6 PARC hardware diagnostics pass. `test_map_write_protect` was
+updated -- it had encoded the imprecise reading and its own leading `Fetch←`
+filled the line, so its store was a *hit*; it now asserts both cases
+(hit → dropped, then `Flush←` → miss → faults).
+
+> **Note, pre-existing and NOT from this change:** `IfuComplex` fails at
+> `IMISCERR5B` after 8,873,980 steps -- **identically before and after**,
+> verified by stash-and-compare. Memory records all six diagnostics passing
+> on 2026-06-26, so this regressed somewhere between then and now and wants
+> its own bisect.
+
+### Superseded lead (kept for the trail)
+
+Dropping non-bank-register stores in page 377
 is harmless in itself (the Alto's top page is largely memory-mapped I/O, and
 a 64 K BLT sweeping through it does not care). The damage is that the
 instruction is *restarted*. So the question is narrow: what does real
