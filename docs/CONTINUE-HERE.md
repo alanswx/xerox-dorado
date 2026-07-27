@@ -454,6 +454,51 @@ Ruled out along the way: the `task=14` (disk task) fetch page faults on
 vacant bank-1 pages are **normal** -- AEmu logs exactly the same 1,245 of
 them over the same window and boots fine. Not a lead.
 
+### Smalltalk-76 boots and runs; the screen is the open item
+
+**How to launch it** (settled by asking the Executive itself, via `?`):
+Smalltalk on `xmsmall` is NOT a `.RUN`. The directory holds
+`Smalltalk.Sources.5.5k`, `smalltalk.syms` and **`xmsmall.boot`**, so it is
+started with the Executive's `Bootfrom` command. (`Smalltalk.Sources.5.5k`
+dates it **Smalltalk-76 v5.5k**. A `SMALLTALK.RUN` found by scanning the raw
+image is file CONTENT, not a SysDir entry -- don't chase it.)
+
+    ./build/dorado --cycles 2000000000 --eb '../chm/microcode/SmalltalkDorado.eb!1' \
+      --disk 0=/tmp/xmsmall-trident.pack --boot-reason disk --no-alto-boot \
+      --key-hold 3000000 --type-at 350000000 --type 'Bootfrom xmsmall.boot
+    '
+
+**`--key-hold 3000000` matters.** At the 600,000-cycle default, `Bootfrom`
+arrives as `Botfrom` -- the doubled `o` collapses into one press because the
+Alto path applies keys directly with no pacing (the paced queue is
+Cedar-only). Worth fixing properly.
+
+**Oracle reference.** ContrAlto boots the same pack with the same command
+straight into Smalltalk-76 -- "Top View", the "Classes" browser with its four
+panes, and a "UserView workspace". So the pack and command are right, and any
+difference is ours. Reproduce with
+`DOTNET_ROLL_FORWARD=Major dotnet run --no-build -- ../ContrAlto2-beta/Disks/xmsmall.dsk /tmp/ca_st.pgm 12 "Bootfrom xmsmall.boot" 25`.
+
+**Where we are.** The boot runs for real: 262.5 M task-0 instructions, 2,664
+disk sector reads, and a broad Alto opcode mix. The display list is correct
+and stable -- `DORADO_DCB_TRACE` reports a 3-entry chain from `MDS+0420`,
+`nwrds=40` (32 words/line), `sa=076400`, 800 lines, in **bank 0** (so this is
+not an extended-memory display; that hypothesis is dead). We render exactly
+what is at `0o76400`, and it is noise, because **nothing ever draws there**:
+
+- `BITBLTA` (`0o13124`), `BITBLTSUB` (`0o16260`) and `BITBLTDONE` (`0o13203`)
+  are executed **zero** times, and Smalltalk-76 draws everything via BitBlt.
+- Every dispatched opcode is **`ins0`** -- the Alto instruction set. Dorado
+  Smalltalk is a *second* instruction set (the `DSmall*` modules; `SMTRaps.mc`
+  declares `InsSet[AEmuInsSet, 1]`), and we never switch to it.
+
+So `xmsmall.boot` loads and runs as Alto code but the machine never enters the
+Smalltalk instruction set. **That is the next thing to chase**: find what
+selects the Smalltalk InsSet (`InsSetOrEvent←B`, B[0]=1 loads InsSet from
+B[6:7]) and why it never fires. Note the ether-booted DSemu run *does* reach
+Smalltalk microcode (`0o421` = `LOADX`, 3.2 M executions), so the second
+instruction set works -- it is the disk-boot path that never gets there.
+
 ### FIXED: a WP fault must come from a store that MISSES (HM p.46)
 
 **`DSemu` now boots every Alto pack, with pixel counts identical to AEmu:**
