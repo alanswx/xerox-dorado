@@ -493,11 +493,39 @@ what is at `0o76400`, and it is noise, because **nothing ever draws there**:
   declares `InsSet[AEmuInsSet, 1]`), and we never switch to it.
 
 So `xmsmall.boot` loads and runs as Alto code but the machine never enters the
-Smalltalk instruction set. **That is the next thing to chase**: find what
-selects the Smalltalk InsSet (`InsSetOrEvent←B`, B[0]=1 loads InsSet from
-B[6:7]) and why it never fires. Note the ether-booted DSemu run *does* reach
-Smalltalk microcode (`0o421` = `LOADX`, 3.2 M executions), so the second
-instruction set works -- it is the disk-boot path that never gets there.
+Smalltalk instruction set.
+
+**Ruled out so far** (each measured, not assumed):
+
+- **The display is NOT in extended memory.** `DORADO_DISPLAY_VA_BIAS` (a
+  temporary knob, since removed) offset only the bitmap fetch: bias `0` gives
+  248,995 px, and bias `0o200000` and `0o400000` both give an *identical*
+  229,443 px, i.e. both read the same unmapped memory. The bitmap really is at
+  `0o76400` in bank 0, exactly where the DCB says.
+- **Smalltalk never checks for Dorado microcode.** `VERS` (`0o13114`) executes
+  **zero** times. `SMTRaps.mc`'s `VERS` is what reports "Alto + Smalltalk 76"
+  so a system can tell the built-in Smalltalk emulator is present.
+- **It never tries the Alto RAM-microcode route either.** `JMPRAM` (`0o3110`),
+  `RDRAM` (`0o13111`) and `WRTRAM` (`0o13112`) all execute zero times. On a
+  real Alto, Smalltalk-76 loads its own RAM microcode and enters it via
+  `JMPRAM`; `SMTRaps.mc` traps that deliberately because the Dorado supplies
+  Smalltalk as microcode instead. We take neither path.
+- **It is not stuck.** task-0's 262.5 M instructions are spread across many PCs
+  (top PC only 22 M) with a broad opcode mix, and 2,664 disk sectors are read.
+  This is a real program running, not a spin.
+
+**Method warning.** `DORADO_LOAD_TRACE_VA` traces **loads only** -- its
+`fprintf` sits inside the `DM_REF_FETCH`/`LONGFETCH`/`IFETCH` case. An earlier
+revision used it to conclude "nothing references bank 1", which was never valid
+evidence about *stores*. Use `DORADO_PHYS_WRITE_TRACE` for writes.
+
+**Next.** Find what selects the Smalltalk InsSet (`InsSetOrEvent←B`, B[0]=1
+loads InsSet from B[6:7]) and why nothing on this path ever reaches it. The
+ether-booted DSemu run *does* execute Smalltalk microcode (`0o421` = `LOADX`,
+3.2 M executions), so the second instruction set works in principle -- though
+that run had no image loaded, so it may simply have been interpreting garbage;
+do not treat it as proof the mechanism is sound. Compare against ContrAlto,
+which reaches the full Smalltalk-76 UI on this same pack and command.
 
 ### FIXED: a WP fault must come from a store that MISSES (HM p.46)
 
