@@ -176,7 +176,43 @@ describes HOW a world was loaded does not tell you WHAT was loaded.** Both
 bugs came from treating "came in over the ether" or "is an Alto emulator" as
 if it identified the guest.
 
-### Lyric: TWO regressions, not one
+### Lyric: the transfer STALLS, and two bisects were measured wrong
+
+**Retraction.** The first two Lyric bisects used "does an FTP_RFC happen by
+2.5 B cycles" as the criterion, on the belief that HEAD produced only two
+`FTP_UNSERVED` lines. It does not -- that reading came from a log file caught
+mid-write. HEAD's complete trace is 68 lines and contains the whole opening
+conversation: `FTP_RETRIEVE`, `STP_SERVE ... (4824064 bytes)`,
+`STP_TRANSFER`, and the first data packets. So `rfc >= 1` is true on BOTH
+sides and both bisects (the 179-commit one that named `82398c9`, and the
+28-commit follow-up that drifted into docs-only commits) measured noise.
+Neither verdict stands.
+
+The real difference is where the conversation STOPS:
+
+| build | FTP trace lines by 2.5 B |
+|---|---|
+| `752ad8f` (good) | **12,613** -- streaming 1478-byte data packets |
+| HEAD (bad) | **68** -- stops at `FTP_WINDOW data=1478 ... in_flight=8/16` |
+
+So the sysout transfer opens, serves the first packets, and then wedges with
+eight packets in flight and no further acks; the guest eventually reports
+"Retrieve of sysout ... failed / File not in sysout format". That is a
+sender/window bug, not a name-lookup or disk bug.
+
+`lines >= 1000` is the corrected criterion -- a 185x margin, and
+deterministic (three HEAD runs: 68/68/68). `scratchpad/lyric-probe.sh` runs
+one point.
+
+First measurement with it: `8643e8c~1` is already BAD, so the stall predates
+the 2026-07-18 BSP retransmission work (`8643e8c`, `adb298e`) that looked
+like the obvious suspect. The window is 2026-07-11..07-18.
+
+**The lesson:** never read a criterion off a log while the run that writes it
+is still going, and prefer a criterion with a large numeric margin over a
+boolean -- `rfc >= 1` hid a 185x difference behind a yes.
+
+### (retracted) Lyric: TWO regressions, not one
 
 The bisect over `752ad8f..HEAD` named `82398c9` ("input: host-side keyboard
 buffer") -- correct, and already fixed: `8b325c9` found the same bug from the
