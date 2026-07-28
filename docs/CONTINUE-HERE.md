@@ -955,16 +955,48 @@ readings, and the evidence does not yet separate them:
    that should have filled it did not run -- putting the fault upstream of the
    disk entirely.
 
+### Reading 1 is dead: the command decode and block-op assignment are correct
+
+Re-derived independently. `0o44130` = `0100 1000 0101 1000`, and with Alto
+bit-0-is-MSB numbering the **seal comes out `01001` = `0o11`**, which is the
+documented value and so validates the bit positions. The rest then reads
+header op = `01` = check, label op = `01` = check, data op = `10` = write --
+matching the observed `blk=0 op=2`, `blk=1 op=2`, `blk=2 op=1` exactly (our
+`op=2` is read-check, `op=1` write). Our block-op assignment is right.
+
+### The real anomaly: an 8-word label block, but only 5 words land, offset by 3
+
+`DORADO_STORE_TRACE_VA=176231,176240` shows the same pattern every command:
+
+    task 0  zeroes 0176231..0176235                 (5 words)
+    task 14 writes descending:
+            0176235 <- 002204   0176234 <- 001000   0176233 <- 000000
+            0176232 <- 042524   0176231 <- 062524
+    task 0  zeroes 0176231..0176235 again
+
+Only **5** words are touched. `0176236..0176240` are never written and keep the
+`052525` poison. Meanwhile the check trace reports the label block completing
+`pos=8/8`, i.e. we deliver **8** words.
+
+The five stored values are our media label at indices **[3..7]**:
+
+    media label: 001050 000000 000001 | 002204 001000 000000 042524 062524
+                 <-- first three dropped --> <-------- these five stored ------>
+
+So the first three words never reach the guest, and the transfer is offset by
+three. That is a concrete, mechanical discrepancy and the most likely reason the
+label compare fails.
+
 **Next:**
-1. Test reading 1 directly: dump `blk`/`op` assignment for each block of one
-   command beside the raw command word, and re-derive the operation fields from
-   `AltoDiabloDisk.mc`'s "Disk command format" independently. If the label op is
-   not really *check*, our block-op assignment is the bug and the whole
-   check-error chain follows from it.
-2. Test reading 2: watch writes into the label buffer (`0176231..0176240`) with
-   `DORADO_STORE_TRACE_VA` and see whether anything ever fills it, then compare
-   against ContrAlto (`CA_WATCH` on the equivalent address) to see what a
-   healthy boot puts there.
+1. Find where the three words go. The delivery is ascending from label[3] while
+   the microcode stores descending from the buffer top, so check
+   `disk_block_word()`/`disk_start_current_block()` for a start-offset error on
+   block 1, and check whether the label block's word count is being taken from
+   `format_ram[1]+1` (5) while the stream is framed for 8 -- `pos=8/8` versus
+   5 stored is exactly that shape.
+2. Compare against ContrAlto: `CA_WATCH` each of the 8 label-buffer words on a
+   healthy boot and see how many it writes and in what order. That settles
+   whether the label block should move 5 words or 8, which is the crux.
 
 So the noise on screen is simply uninitialised memory at `0o76400`; nothing
 ever drew, because the Smalltalk system died before reaching its microcode
