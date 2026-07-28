@@ -287,13 +287,31 @@ default settings. (The baseline is a file-scope static, not a
 baked checkpoint fails to restore; after a restore it stays zero and
 degrades to the old test, keeping checkpoints bit-identical.) Gates: Alto
 framebuffer byte-identical, `verify-cedar-desktop` unchanged, 11/11 tests.
-Smalltalk still renders 0 px because it has no virtual image -- DSemu is
-Smalltalk-76/78-era, so the ST-80 `chm/archiveorg/smalltalk-80/VirtualImage`
-may not match; sources are in `chm/dorado/dsemu-src/`. Also found while
+Also found while
 gating (open, undiagnosed): the **Cedar cold-boot login path is
 non-deterministic** run to run (28,490 vs 28,494 px from the identical
 binary), so it is not a byte-exact gate; the Alto path is deterministic.
 Detail: `docs/CONTINUE-HERE.md`.
+
+**Smalltalk-76 runs its interpreter and dies on its first object fault
+(2026-07-28, open).** Booted the period way -- `SmalltalkDorado.eb!1` plus
+the `xmsmall.dsk` pack converted with `dsk2trident --all-heads`, then the
+Executive's `Bootfrom xmsmall.boot` -- DSemu loads the whole image (2674
+sector reads, last page `next=0 nbytes=0`), enters the Smalltalk instruction
+set at cycle 627.07 M and runs real bytecodes: the microcode trace shows
+`SNDMSG`, `HASH`, `REFCKINC/DEC`, `ALLOC/DEALOC`, `MAPCODE`, `RTRN`. After 22
+bytecodes and four `NovaCall`/`NovaRet` round trips a ROT probe comes up
+empty -- `HASH` -> `.Emp` -> `.EmpN` -> `NovaCall(34C)`, the normal
+object-fault call-out to the Alto-side swapper at Alto PC `0016666` -- and
+that call never returns; the machine ends in the OS disk-wait spin. **Two
+long-standing conclusions were wrong and are retracted**: `worlds/aemu.eb`
+cannot host Smalltalk at all (ATraps.mc traps `0o72400-0o72777` =
+`ReadWriteR`, and its `VERS` reports build 0), so the entire disk
+"check error" investigation was chasing an unsupported configuration; and
+"the label block delivers 8 words but only 5 land" is correct Alto behaviour
+(`ANoCheckWord`: a zero word in a check block is a wildcard the controller
+fills from disk). New `DORADO_ALTO_OPHIST=1` gives per-instruction-set,
+per-opcode dispatch counts. Detail and next steps: `docs/CONTINUE-HERE.md`.
 
 Plans/state: `docs/running-the-emulator.md` (how to run everything),
 `docs/CONTINUE-HERE.md` (live bring-up state), `docs/handoff.md` +
