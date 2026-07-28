@@ -486,6 +486,13 @@ void dorado_cpu_init(dorado_cpu *cpu, const dorado_microcode *mc,
      * every baked checkpoint; restores of pre-TgetsMd snapshots carry
      * their own stored value. */
     cpu->compat_same_instr_md_bypass = 0;
+    /* Escape hatch for bisecting worlds against the retirement above:
+     * DORADO_COMPAT_MD_BYPASS=1 restores the old behaviour. */
+    {
+        const char *e = getenv("DORADO_COMPAT_MD_BYPASS");
+        if (e && *e && *e != '0')
+            cpu->compat_same_instr_md_bypass = 1;
+    }
 }
 
 void dorado_cpu_wakeup(dorado_cpu *cpu, int task)
@@ -3359,6 +3366,23 @@ static int apply_lc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t pd,
     case 5: /* T←Pd, RM/STK←Md — or, with the TgetsMd FF decode,
              * T←Md, RM/STK←Md (HM Table 10 note). */
         cpu->T = ff_is_tgetsmd(u) ? md_at_issue : pd;
+        /* DORADO_LC5_TRACE: which LC=5 sites carry TgetsMd and which do
+         * not — the question the retired same-instruction Md bypass was
+         * really asking. */
+        if (dorado_trace_flag("DORADO_LC5_TRACE")) {
+            static int lc5_n = 0;
+            if (lc5_n < 400) {
+                lc5_n++;
+                fprintf(stderr,
+                        "LC5 cyc=%llu task=%o pc=0o%o asel=%o bsel=%o "
+                        "ff=%03o tgetsmd=%d pd=%06o md=%06o\n",
+                        (unsigned long long)dorado_trace_cycle,
+                        cpu->ctask & 017, cpu->real_PC & 07777,
+                        u->asel & 037, u->bsel & 07, u->ff & 0377,
+                        ff_is_tgetsmd(u), pd & 0177777,
+                        md_at_issue & 0177777);
+            }
+        }
         if (!has_rm) return CPU_HALT_UNSUPPORTED_ASEL;
         if (rm_trace_enabled() && rm_a >= 0 && rm_a < 0x100) {
             fprintf(stderr,
