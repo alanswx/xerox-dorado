@@ -117,7 +117,7 @@ WEB_LDFLAGS := -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=67108864 \
                --preload-file ../chm/dorado/expanded/kernel.dm!38_/kernel.mb@/ucode/kernel.mb \
                --preload-file ../chm/dorado/expanded/memMisc.dm!11_/memMisc.mb@/ucode/memMisc.mb \
                --preload-file ../chm/dorado/expanded/Ifu.dm!51_/IfuComplex.mb@/ucode/IfuComplex.mb \
-               --shell-file src/web_shell.html
+               --shell-file $(BINDIR)/web_shell.gen.html
 
 # The Cedar web option preloads the Pilot/Cedar PDI disk image. The raw .pdi
 # is gitignored (large); the .gz is tracked, so decompress it on demand for
@@ -153,7 +153,15 @@ $(WEB_ALTO_PACK): $(WEB_ALTO_PACK).gz
 	gunzip -c $< > $@
 
 .PHONY: web
-web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_PDI_GZ) $(WEB_CEDAR_DEMO_SNAPSHOT_GZ) $(WEB_CEDAR_DEMO_PDI_GZ) $(WEB_CEDAR_CORPUS_SNAPSHOT_GZ) $(WEB_CEDAR_CORPUS_PDI_GZ) $(WEB_LISP_SNAPSHOT_GZ) $(WEB_LISP_PACK_GZ) $(WEB_SMALLTALK_SNAPSHOT_GZ) $(WEB_SMALLTALK_PACK_GZ) web-stp | web-dir
+# The preload bundle is cache-busted by build id (see web_shell.html's
+# locateFile): stamp the shell each build so a redeploy that adds a world is
+# actually seen by returning visitors instead of their cached index.data.
+WEB_BUILD_ID := $(shell git rev-parse --short HEAD 2>/dev/null || date +%s)
+.PHONY: web-shell
+web-shell: src/web_shell.html | $(BINDIR)
+	sed 's/@@BUILD_ID@@/$(WEB_BUILD_ID)/g' src/web_shell.html > $(BINDIR)/web_shell.gen.html
+
+web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_PDI_GZ) $(WEB_CEDAR_DEMO_SNAPSHOT_GZ) $(WEB_CEDAR_DEMO_PDI_GZ) $(WEB_CEDAR_CORPUS_SNAPSHOT_GZ) $(WEB_CEDAR_CORPUS_PDI_GZ) $(WEB_LISP_SNAPSHOT_GZ) $(WEB_LISP_PACK_GZ) $(WEB_SMALLTALK_SNAPSHOT_GZ) $(WEB_SMALLTALK_PACK_GZ) web-stp web-shell | web-dir
 	$(EMCC) $(WEB_CFLAGS) $(WEB_SRCS) $(WEB_LDFLAGS) -o web/index.html
 
 # Pruned STP release tree preloaded into the wasm FS at /stp: CedarChest6.1

@@ -457,7 +457,21 @@
     };
   })();
 
+  /* Cache-bust the big preload bundle. GitHub Pages serves index.data with
+     a long-lived cache, so a returning visitor keeps whatever bundle they
+     downloaded last time -- and a bundle from before a world was added has
+     none of its files, which surfaces as "Could not restore X: undefined"
+     (the FS.readFile of the missing asset throws with no message). emcc
+     stamps @@BUILD_ID@@ from the Makefile; locateFile is what the generated
+     loader consults for index.data and index.wasm. */
+  var BUILD_ID = '@@BUILD_ID@@';
+
   var Module = {
+    locateFile: function(path, prefix) {
+      if (path === 'index.data' || path === 'index.wasm')
+        return (prefix || '') + path + '?v=' + BUILD_ID;
+      return (prefix || '') + path;
+    },
     canvas: (function() {
       var c = document.getElementById('canvas');
       c.addEventListener('webglcontextlost', function(e) {
