@@ -574,16 +574,55 @@ There is also a concrete state divergence right at the loop:
 cause, but it is a cheap landmark for backing up the instruction streams to the
 point where the two machines part company.
 
+### It is waiting for an Alto DISK COMPLETION that stops arriving
+
+`CA_WATCH=176220` on a healthy ContrAlto boot names the writer immediately:
+
+    WATCH M[176220] <- 0     (task Emulator)
+    WATCH M[176220] <- 17400 (task DiskSector)
+    WATCH M[176220] <- 0     (task Emulator)
+    WATCH M[176220] <- 37400 (task DiskSector)
+    WATCH M[176220] <- 0     (task DiskWord)
+    WATCH M[176220] <- 57400 (task DiskSector)
+
+So `0176220` is an Alto **disk status word**: the Emulator task clears it to arm
+an operation and the **DiskSector** task posts completion. The poll loop at
+`0176442` is the OS waiting for disk I/O.
+
+Ours posts it too, and structurally correctly -- `DORADO_STORE_TRACE_VA=176220,176220`
+shows task 14 (the Dorado disk task) writing `data=167400` at cycle 84.4 M and
+`data=007400` at 501.6 M, the same shape as ContrAlto's values (only the sector
+nibble differs). **Then it stops.** The last event is task 0 at `pc=0o133`
+(`STA 1`) clearing the word to arm the next operation, and no completion ever
+follows.
+
+The disk task has not died and the controller is not wedged:
+
+- task-14 runs **16,842,515** instructions.
+- sector pulses keep firing: `secset=148459 secclear=148435`.
+- but transfers are frozen: `counts={ctrl=2689 xfer=2664 rs=2664}`, unchanged
+  between 1.2 B and 2.5 B cycles, with `act=0 pend=0`.
+
+So the sector task wakes every sector, looks at the command block, decides there
+is nothing to do, and the guest waits forever. **Why the command is never picked
+up is the open question.**
+
+> **Correction.** A previous revision flagged `chs=409/4/13` as an out-of-range
+> cylinder. It is not: `dsk2trident` maps `cyl = 406*drive + cyl + 3`, so
+> cylinder 409 is **drive 1, Alto cylinder 0**, and the pack is mirrored onto
+> both drives. The Trident geometry is 815 cyl x 5 head x 29 sec. Nothing is out
+> of range, and the guest is simply working on the second drive.
+
 **Next, in order:**
-1. Find who writes `M[0176220]` on a healthy boot -- add a memory-write watch
-   to ContrAlto (`Memory.Write`) keyed on that address and report the writing
-   task and PC. That names the device or handler we are failing to drive.
-2. Back up from the `AC1` divergence with `CA_TRACEPC` vs `DORADO_IFUDISP_TRACE`
-   to find the last common Alto PC.
-3. Suspicious and worth a look either way: our disk reports
-   `chs=409/4/13` while `dsk2trident` built the pack with 406 cylinders and
-   2 heads, so both the cylinder and the head are out of range, and the
-   controller is idle (`act=0 pend=0`) rather than mid-command.
+1. Dump the Alto disk command block the guest posts (chain head at `0o521`) at
+   the moment it starts waiting, and compare field-by-field with ContrAlto's at
+   the same point. That should show why our sector task does not match it.
+2. Trace our AltoDiabloDisk path: find where the sector task decides "not my
+   sector / not ready" and what it compares against. Note the guest is on
+   **drive 1**, so a drive-select mismatch is a prime suspect -- AEmu is known
+   to issue drive-1 commands (`docs/alto-disk-boot-plan.md` line ~571).
+3. Back up from the `AC1` divergence (`176217` vs `000003`) with `CA_TRACEPC`
+   vs `DORADO_IFUDISP_TRACE` to find the last common Alto PC.
 
 So the noise on screen is simply uninitialised memory at `0o76400`; nothing
 ever drew, because the Smalltalk system died before reaching its microcode
