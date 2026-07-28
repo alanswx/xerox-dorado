@@ -102,16 +102,58 @@ they issue `DiskControl` at different points within the sector, and each
 variant happens to suit one phase. Patch reverted; HEAD keeps the
 immediate start (Smalltalk/Cedar good, Alto-disk/Lyric/Mesa bad).
 
-### Still open: Lyric, and the Mesa group
+### Lyric: a SECOND, separate regression -- and its window is pinned
 
-Lyric is NOT explained by this: its pack is rehydrated from
-`web-assets/lisp-lyric-xcl.pack.gz`, dated 2026-07-10 -- two weeks AFTER the
-format change -- and it still gives 3,078 px against a 206,668 baseline. It
-needs its own bisect, with the same crossing technique (try the Lyric pack
-regenerated from source before touching the emulator).
+Lyric is not the pack. Measured with today's unmodified emulator against the
+same pack, same sysout, same recipe:
+
+| build | result |
+|---|---|
+| `752ad8f` (2026-07-11) | **206,668 px** -- the recorded desktop |
+| HEAD (2026-07-28) | 3,078 px |
+
+So it IS an emulator regression, and it lives in `752ad8f..HEAD`.
+
+Three things are ruled out:
+
+- **Not the TgetsMd/Md-bypass work.** `DORADO_COMPAT_MD_BYPASS=1` puts the
+  retired bypass back: 3,089 px with it, 3,078 without. Both broken.
+- **Not a mis-phased pack.** The Lyric pack has sector 0 at physical slot 0,
+  the same phase as the freshly rebuilt games pack. (The old games pack has
+  old-slot n+1 == new-slot n; that is the signature, and Lyric does not
+  have it.)
+- **Not the sysout.** `chm/archiveorg/_chm-parc_interlisp-lyric/LISP.SYSOUT!1`
+  is tracked and unmodified; only its mtime moved.
+
+**The failure mode is the sysout retrieval, not the disk or the CPU.** The
+Alto Executive comes up and runs the command; the screen then reads
+
+    >// Retrieve of sysout {DORADO}<>((Server-filename LISP.SYSOUT failed
+    >// File not in sysout format
+
+and `DORADO_FTP_TRACE=1` shows why: by 2.5 B cycles the good build has
+emitted **12,613** trace lines -- `FTP_NETDIR lookup`, `FTP_RFC`, the whole
+BSP conversation -- while HEAD has emitted **2**, both `FTP_UNSERVED` (an
+unserved microcode-boot Pup 0o264 and an AltoTime Pup 0o206). The guest
+never opens the connection at all.
+
+That difference is the bisect probe: 2.5 B cycles, `grep -c FTP_RFC`, good
+if >= 1. It is ~2 minutes a point instead of the ~10 an 8.8 B pixel probe
+costs, and unlike pixels it separates cleanly (pixels at 2.5 B are 3,474
+good vs 3,360 bad -- useless). Script: `scratchpad/lyric-bisect.sh`.
+
+### The Mesa group is NOT part of this window
+
+`MesaNetExec.boot!1` on its proper world (`AltoMesaDorado.eb!2` -- NOT
+`aemu.eb`; booting a Mesa boot file on the Alto emulator is the same
+category error as AEmu-hosting-Smalltalk) renders 0 px at `752ad8f` and 0 px
+at HEAD. Whatever broke that group broke it before 2026-07-11, so it needs
+its own window and its own bisect.
+
+### Still open: the Mesa group
 
 The Mesa-world programs boot over EFTP with no disk at all, so the pack
-finding cannot explain them either. Separate hunt.
+finding cannot explain them either. Separate hunt (see above).
 
 ### Superseded next step (the phase theory, now disproved)
 

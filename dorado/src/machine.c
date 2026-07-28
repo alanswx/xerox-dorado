@@ -185,6 +185,12 @@ static struct { uint16_t key; uint8_t down; } machine_key_queue[512];
 static unsigned machine_key_q_head, machine_key_q_tail, machine_key_field_wait;
 
 static uint32_t machine_pchist_task[16][4096];
+/* First word of the EFTP-served boot image, read once at create: 0o405 = Alto
+ * B-format, 0o345 = Mesa/Pilot outload (ethernet.c eth_boot_first_word, and
+ * ETHERBOOT.BRAVO).  The cold-Alto init below needs it to tell an Alto program
+ * from a Mesa one.  File scope, not a dorado_machine member, for the same
+ * snapshot-ABI reason as machine_pdi_path. */
+static long machine_eftp_boot_tag = -1;
 /* PDI media is normally an ephemeral host attachment.  This one-process path
  * table supports the explicit DORADO_PDI_SAVE diagnostic without changing the
  * machine snapshot ABI. */
@@ -2340,6 +2346,17 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
     dorado_ethernet_set_boot_file(&m->ethernet, cfg.boot_file_number,
                                   cfg.eth_boot_110);
     dorado_ethernet_set_eftp_boot_file(&m->ethernet, cfg.eftp_boot);
+    machine_eftp_boot_tag = -1;
+    if (cfg.eftp_boot && *cfg.eftp_boot) {
+        FILE *bf = fopen(cfg.eftp_boot, "rb");
+        if (bf) {
+            int hi = fgetc(bf), lo = fgetc(bf);
+            fclose(bf);
+            if (hi != EOF && lo != EOF)
+                machine_eftp_boot_tag = (long)(((unsigned)hi << 8) |
+                                              (unsigned)lo);
+        }
+    }
     dorado_ethernet_set_ftp_sysout(&m->ethernet, cfg.ftp_sysout);
     dorado_ethernet_set_ftp_root(&m->ethernet, cfg.ftp_root);
     {
@@ -2778,9 +2795,20 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
          * and MissileCommand otherwise inherit the AEmu's leftover Stack ACs
          * (AC1=056623, AC2=121045) at the loaded program's first opcode where
          * ContrAlto cold-boots clean 0. EBoot is gated to alto_ether_boot so
-         * Cedar's germ path (different microcode at 0o2006) is untouched. */
+         * Cedar's germ path (different microcode at 0o2006) is untouched.
+         *
+         * alto_ether_boot alone is NOT enough: it only says "Initial netbooted
+         * the world", which is equally true of the Mesa world. 0o2006 is EBoot
+         * in AEmu.mb; in AltoMesaDorado.eb it is an unrelated instruction, so
+         * firing there wiped STK[1..4] and the I/O page under a running Mesa
+         * NetExec and it rendered 0 px from 2026-06-23 (40e6491) until this
+         * gate. Distinguish by what is being booted, which is exactly what the
+         * served image's format word says: 0o345 is a Mesa/Pilot outload, not
+         * an Alto program, and no Alto cold state applies to it. */
         if (is_imfetch && cpu->ctask == 0 && !m->alto_cold_ac_done &&
-            (pre_pc == 02005 || (pre_pc == 02006 && m->alto_ether_boot))) {
+            (pre_pc == 02005 ||
+             (pre_pc == 02006 && m->alto_ether_boot &&
+              machine_eftp_boot_tag != 0345))) {
             cpu->STK[1] = cpu->STK[2] = cpu->STK[3] = cpu->STK[4] = 0;
             /* Initialize the Alto I/O page (177000-177777) to the hardware
              * floating-bus default 177777. On a real Alto these addresses are
