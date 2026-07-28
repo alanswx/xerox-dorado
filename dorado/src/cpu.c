@@ -14,6 +14,10 @@ int dorado_trace_gate = 0;
 /* Harness-maintained cycle counter for cpu-level debug prints. */
 unsigned long long dorado_trace_cycle = 0;
 
+/* DORADO_ALTO_OPHIST: per-(instruction set, opcode byte) IFU dispatch counts.
+ * Filled at IFUJump, dumped by dorado_machine_debug. */
+unsigned long long dorado_alto_ophist[4][256];
+
 /* Cached boolean test of a trace environment variable. dorado_trace_flag() rescans the
  * whole environment on every call; with a populated shell environment the
  * per-microinstruction trace checks below cost ~2.4x of total run time. Trace
@@ -2053,8 +2057,10 @@ static uint16_t ff_apply_post(dorado_cpu *cpu, const dorado_uinstr *u,
                 if ((b >> 15) & 1) {
                     if (dorado_trace_flag("DORADO_INSSET_TRACE")) {
                         fprintf(stderr,
-                                "INSSET task=%o pc=0o%o b=%06o insset %u->%u "
+                                "INSSET cyc=%llu task=%o pc=0o%o b=%06o "
+                                "insset %u->%u "
                                 "link=0o%o T=%06o pcf=0o%o active=%u\n",
+                                dorado_trace_cycle,
                                 cpu->ctask & 017, cpu->real_PC, b,
                                 cpu->ifu_insset & 3, (b >> 8) & 3,
                                 cpu->Link, cpu->T, cpu->ifu_pcf,
@@ -4035,6 +4041,15 @@ static int next_pc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t *next)
              * the three hardware-visible references directly. */
             for (int i = 0; i < 3; i++) event_counter_direct_tick(cpu, 1, 2);
             cpu->evc_events |= EVC_EV_IFUJUMP;
+
+            /* DORADO_ALTO_OPHIST=1: count every IFU dispatch by
+             * (instruction set, opcode byte). Dumped at exit by
+             * dorado_machine_debug. The cheap way to answer "does this world
+             * ever execute VERS / JMPRAM / the Smalltalk opcodes?" over a
+             * whole multi-billion-cycle run. */
+            if (dorado_trace_flag("DORADO_ALTO_OPHIST") &&
+                (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE")))
+                dorado_alto_ophist[cpu->ifu_insset & 3][opcode & 0377]++;
 
             /* TEMP (Lisp bring-up): log dispatches whose code base (br31)
              * matches a watched fnheader VA list. DORADO_LISP_FN_TRACE =

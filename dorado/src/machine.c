@@ -3613,8 +3613,18 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                 fprintf(stderr, "\n");
             }
         }
+        /* AltoDiabloDisk.mc ACmmdEnd's final `Store_ KPtr, DBuf_ T`, whose
+         * real IM address depends on the world: 0o2376 in AEmu.mb!2, 0o3276
+         * in DSemu.mb!1 (mbdis: ACMMDEND2 + 7). DORADO_ALTO_KCB_TRACE_PC
+         * overrides it in octal. */
+        static long kcb_trace_pc = -1;
+        if (kcb_trace_pc < 0) {
+            const char *w = getenv("DORADO_ALTO_KCB_TRACE_PC");
+            kcb_trace_pc = w ? strtol(w, NULL, 8) : 02376;
+        }
         if (is_imfetch && cpu->ctask == DORADO_DISK_TASK &&
-            pre_pc == 02376 && dorado_trace_flag("DORADO_ALTO_KCB_TRACE")) {
+            pre_pc == kcb_trace_pc &&
+            dorado_trace_flag("DORADO_ALTO_KCB_TRACE")) {
             uint16_t kptr = cpu->RM[(5u << 4) | 007u];
             machine_trace_alto_kcb_completion(m, kptr, bb->cycles);
         }
@@ -4662,6 +4672,21 @@ void dorado_machine_debug(dorado_machine *m)
         for (uint32_t va = 0; va < 0200000u; va++)
             fprintf(stderr, "MD %06o %06o\n", va,
                     dorado_visible_word_at_va(&m->mem, va) & 0177777);
+    }
+    /* DORADO_ALTO_OPHIST (cpu.c): every IFU dispatch counted by instruction
+     * set and opcode byte. One line per instruction set. */
+    if (getenv("DORADO_ALTO_OPHIST")) {
+        extern unsigned long long dorado_alto_ophist[4][256];
+        for (int s = 0; s < 4; s++) {
+            int any = 0;
+            for (int o = 0; o < 256; o++) any |= (dorado_alto_ophist[s][o] != 0);
+            if (!any) continue;
+            fprintf(stderr, "[ophist] insset=%d:", s);
+            for (int o = 0; o < 256; o++)
+                if (dorado_alto_ophist[s][o])
+                    fprintf(stderr, " %03o=%llu", o, dorado_alto_ophist[s][o]);
+            fprintf(stderr, "\n");
+        }
     }
 }
 

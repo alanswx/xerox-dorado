@@ -1,5 +1,283 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## 2026-07-28: SMALLTALK-76 RUNS ITS INTERPRETER FOR REAL, AND DIES ON ITS
+## FIRST OBJECT FAULT. The whole disk "check error" trail below was chasing
+## AEmu, which cannot host Smalltalk by design.
+
+Three corrections and one new frontier.
+
+### Correction 1: AEmu is not a Smalltalk host. Do not debug Smalltalk with it.
+
+`chm/dorado/aemu-src/ATraps.mc` traps the whole Smalltalk Nova-call opcode
+space:
+
+    EmIFUTrap[165, Trap17, 06];	* 72400-72777
+
+and its `VERS` returns `50000C` = eng 5, **build 0 = "Alto emulator only"**.
+`chm/dorado/dsemu-src/SMTRaps.mc` is the same file with those lines
+**commented out** for 160/161/162/164/165/172/176 (the ranges DSmall\* claims)
+and `VERS` returning `52400C` = build 5 = "Alto + Smalltalk 76".
+
+Diffing the Alto instruction stream against ContrAlto pins the AEmu
+divergence to exactly one instruction, with identical ACs on both sides up
+to it:
+
+| | CA (works) | AEmu |
+|---|---|---|
+| `0011712` `ir=54764` | acs=53,177777,2000,15254 | same |
+| `0011713` `ir=72401` | -> `0011714` (executes) | -> **`0175277`** (traps) |
+
+`0o72401` is `ReadWriteR` (`DSmallint.mc`: `TrapXIfuPause[165, ReadWriteR]`),
+the Nova's read/write of a microcode R register. A real Alto runs it from the
+RAM microcode Smalltalk loads (ContrAlto executes `WRTRAM` 0o61012 in that
+very loop); DSemu runs it from IM; AEmu traps it and the guest flails from
+there. **Everything below about the AEmu disk check-error retry loop is
+downstream of that trap.** The AEmu run is a legitimately-unsupported
+configuration, not a bug.
+
+### Correction 2: "the label block delivers 8 words but only 5 land" is CORRECT
+
+`AltoDiabloDisk.mc ACheckLoop` -> `ANoCheckWord`:
+
+    * Memory word is zero: store disk word on top of it.
+    ANoCheckWord: T_ (DskMAddr)+(2C);
+                  PD_ (Store_ T)-1, DBuf_ KTemp1, Block, Branch[ACheckLoop];
+
+A **zero word in an Alto check block is a wildcard**: the controller stores
+the disk word over it instead of comparing. The guest's label buffer was
+`0,0,0,0,0,052525,052525,052525`, so exactly 5 words are stored and 3 are
+compared. Nothing is offset by three; `disk_block_word()` and
+`disk_start_current_block()` are fine. (The delivery order is also confirmed
+right: stream word *i* lands at memory offset *7-i*, which is what puts
+`next`/`prev` in DL words 0/1 and `nbytes=1000` in word 3.)
+
+### Correction 3: DSemu really does execute Smalltalk
+
+New `DORADO_ALTO_OPHIST=1` (per instruction-set, per-opcode dispatch counts,
+dumped by `DORADO_FINAL_DEBUG`) over a whole 2 B-cycle run:
+
+| | AEmu | DSemu |
+|---|---|---|
+| Nova-side Smalltalk ops 160/161/162/164/165/176 | none (`165=1`, the trap) | 8/2/2/16/14/4 |
+| dispatches in instruction set 1 | **0** | **22** |
+
+and a `DORADO_UCODE_TRACE` window over the 22 bytecodes shows the real
+interpreter working: `SNDMSG`, `HASH`/`.FOUND`/`.REMDAT`, `REFCKINC`/
+`REFCKDEC`, `ALLOC`/`DEALOC`, `MAPCODE`, `STASH`, `DIRTY`, `PRIMRET`,
+`I.SUBSCRIPT`, `I.ATRAPMSGS`, `RTRN`. This is Smalltalk-76 running.
+
+### Where it actually stops: the first object fault
+
+Timeline of the DSemu run (`--eb chm/microcode/SmalltalkDorado.eb!1`,
+`--disk 0=<xmsmall trident pack> --boot-reason disk --no-alto-boot`,
+`Bootfrom xmsmall.boot`):
+
+| cycle | event |
+|---|---|
+| 500-626.4 M | 2674 sector reads: the whole of `xmsmall.boot` |
+| 626,450,551 | last page of the file (`next=0`, `nbytes=0`, page `0o3570`) |
+| 627,072,608 | **enters instruction set 1** (`StartIfu`, `InsSetOrEvent_ SmtInset`) |
+| 627.07-627.09 M | 4 interpreter bursts, 22 bytecodes, 4 `NovaCall`/`NovaRet` round trips |
+| 627,094,887 | last exit: `HASH` -> `.EMP` -> `.EMPN` -> `NovaCall(34C)` -> `EMStart` -> Alto PC `0016666` |
+| 627.85-633.0 M | 8 retries of one disk command, all failing |
+| 633 M -> 2 B | disk completely idle; guest spins in the OS disk-wait poll at `0176442` |
+
+`.EmpN` is `DSmallsubrs.mc`'s **object fault**: the ROT probe sequence found
+an empty entry, so the object is not in core and the microcode calls out to
+the Nova-side swapper (`T_ (34c), Branch[NovaCall]`). That call never comes
+back.
+
+The read it then issues is the one the whole trail below dissects: KCB at
+`0176217`, command `044130` (header check, label check, **data write**),
+`diskAddr=052525`, label buffer `{...,052525,052525,052525}`.
+
+**And `052525` is not garbage.** It decodes as sector 5, cylinder 170, head 1,
+drive 0, **restore bit set**, and the sector actually there carries
+`SN=001050 page=002204` -- i.e. a genuine page of `xmsmall.boot`, which *is*
+the Smalltalk image. So the swapper is reaching for the right file; what is
+wrong is the low bit (restore) and the fid words in the label buffer.
+
+**ContrAlto, on the same pack and command, does the swap-in through a
+different KCB with a correct fid:**
+
+    CAKCB done kptr=27313 command=44120 dataAddr=21557 diskAddr=21220
+               label={31220,11220,0,1000,641,1,0,1050}
+
+i.e. Smalltalk's own control block at `0o27313`, a plain read (`44120`), a
+real page number, and the correct file id `version=1, SN=(0,1050)`. Ours uses
+the **OS resident's boot-time KCB at `0176217`** (which ContrAlto only uses
+early, to read `Sys.Boot`) with an uninitialised fid. So the divergence is in
+the Nova-side object-fault handler, upstream of the disk entirely.
+
+### Inside the object-fault handler: traced to one XMLDA
+
+The Nova-side handler is entered through the trap vector: `NovaCall` fetches
+`M[0o530 + T]` (`DSmallint.mc`: `T_ T+(400c); T_ T+(130c); Fetch_ T`), so
+trap `0o34` dispatches through `M[0o564]` = Alto PC **`0016666`**. ContrAlto
+reaches the same handler, so the two Alto instruction streams can be diffed
+from there (`CA_TRACEPC_ARM_PC=16666`). They agree **instruction for
+instruction and AC for AC** through 40 instructions -- `0016666`, `0016674`,
+a JSR to `0016777`, then `0054061`-`0054123` -- and then:
+
+| | CA | ours |
+|---|---|---|
+| `0054120` `XMLDA` (`0o61025`) | AC1=`076424` | AC1=`076424` (identical) |
+| result in AC0 | **`125252`** | **`0`** |
+
+Our alternate-bank register is right: `DORADO_LOAD_TRACE_VA` shows the fetch
+going to VA `0276424`, i.e. **bank 1**, exactly where it should. The bank
+just contains nothing. Over the whole run the only writes anywhere near it
+are that same loop writing back its own complement:
+
+    STORE_VA cyc=627096693 va=0276424 data=177777 op=0o61026 (XMSTA)
+
+`125252`/`052525` is the alternating test pattern the **Alto OS's
+extended-memory sizing probe** leaves behind, and ContrAlto runs that probe
+early in its OS boot -- `CA_XMBANK=1` gives the full order
+
+    177740<-1, 177740<-2, 177740<-3, 177740<-1,   (the sizing probe, ~cyc 9.2M)
+    177741..177757<-1,                             (set every task's bank)
+    177751<-4                                      (display normal bank = 1)
+
+Ours does the sweep and the display register **identically** (measured, cyc
+510.67 M) but never the probe: over 640 M cycles there is exactly one guest
+write to `0177740`, and Alto PC `0117612` (where ContrAlto's probe lives) is
+**never executed**. So banks 1-3 are untouched in our machine when the
+object-fault handler reads them.
+
+Note the WP-fault machinery itself is healthy: each of those 16 stores shows
+`tf=2 cache=0/-1` (miss -> WRITE_PROTECT fault) followed by `XMBStoreOnly`'s
+own `tf=0` store, exactly as `XMFaultTask.mc` intends.
+
+### ContrAlto stops being an oracle once the microcode paths split
+
+Corrected S-group profile for the two machines over a whole boot (get this
+with `DORADO_ALTO_OPCODE_WATCH=142` **plus** `DORADO_ALTO_PC_WATCH=177776,177777`
+-- the watch ORs an opcode test with a PC-range test whose default `0,0`
+matches every `pcx=0` dispatch, which silently produces a histogram of the
+wrong thing):
+
+| opcode | ContrAlto | ours |
+|---|---|---|
+| `61012` WRTRAM | 18,028 | 1,025 |
+| `61010` JMPRAM | 4,251 | **0** |
+| `61011` RDRAM | 4 | 4 |
+| `61014` VERS | 1,027 | 5,040 |
+| `61024` BITBLT | 375 | 52 |
+| `61025`/`61026` XMLDA/XMSTA | - | 32 / 32 |
+
+ContrAlto loads ~18 K words of Alto RAM microcode and enters it 4,251 times;
+we load one 1 K block (a no-op on the Dorado -- `SMTRaps.mc WRTRAM:
+IFUJump[0]`) and **never** JMPRAM. That is the correct Dorado behaviour, and
+it means the two machines are running *different implementations of
+Smalltalk* from that point on. The instruction streams still coincide
+wherever the Alto-side code is shared (which is why the 40-instruction match
+above is meaningful), but a greedy re-alignment past the first interrupt
+excursion produces false divergences -- one such "divergence" at `0017016`
+was an artifact of ContrAlto arriving there from `0050137` while we arrived
+from `0017013`. Treat any ContrAlto comparison after the RAM-microcode fork
+as a lead, never as proof.
+
+### Ruled out: the image load is faithful
+
+The handler's tail is short and ends in the OS. Region-by-region, the whole
+fault handler is only ~350 Alto instructions:
+
+    0016666 -> 0054061..0054126 (the XM loop) -> 0017002..0017451, 0025434
+      -> 0017012: opcode 0o77400 traps -> 0175277 (the OS trap vector)
+      -> 0175413..0176013, 0176321..0176355, 0176272..0176313 (build the KCB)
+      -> 0176442..0176472 spun 22,909 times (the OS disk wait)
+
+`0o77400` is in the one Trap36 range `SMTraps.mc` leaves **active**
+(`EmIFUTrap[177, Trap36, 01]`), so trapping there is correct Dorado
+behaviour, and `0175277` is the OS's trap vector -- the same routine AEmu
+reached, which is why both worlds end at the same KCB.
+
+An earlier reading of this session held that the word at `0017012` differed
+between the machines (`0o21011` in ContrAlto, `0o77400` in ours) and that the
+image load was therefore trampling low memory. **That was wrong, and it is
+worth recording why.** `CA_TRACEW=17012 CA_TRACEW_ALL=1` gives ContrAlto's
+full write history of that word:
+
+    CATRACEW 73672   34521  task=DiskWord
+    CATRACEW 431982  21011  task=DiskWord
+    CATRACEW 1540652 21011  task=Emulator
+    CATRACEW 1606299 77400  task=DiskWord     <- same value we write
+    CAXMBANK seq=1670168 M[177740]<-1 ...     <- bank sweep comes after
+
+ContrAlto's DiskWord task writes `0o77400` there too, before its bank sweep,
+exactly as ours does (cyc 503,494,715, before our sweep at 510.67 M). The
+apparent difference came from `CA_TRACEPC_ARM_PC` firing on ContrAlto's
+**first** visit to that PC (cyc 144 M, when the word still held `0o21011`)
+while our first visit is at 627 M. Same trap as the `aacs` lag and the
+trace-gate artifacts before it: **an unanchored ContrAlto comparison
+manufactures divergences.** Anchor on a guest-level event both machines
+reach exactly once, and check the anchor.
+
+So: our disk path delivers the image byte-for-byte the way a real Alto does,
+and the object-fault handler's control flow through the OS is authentic.
+
+### Next steps
+
+1. **Decide whether the missing OS XM sizing probe is a bug or correct.**
+   The probe is Alto-II-specific; a Dorado reports `eng=5` from `VERS` and
+   may legitimately skip it. If it is legitimate, then bank 1 being empty is
+   also legitimate and the XMLDA reading 0 is *not* the fault -- in which
+   case walk forward from `0054126` and find where the handler gives up.
+   If it is not legitimate, find what our guest tests differently: nothing
+   ever *reads* `0177740`-`0177757` in our run (measured: zero loads), so
+   the decision is being made from something else.
+2. **Find where the OS read request gets its file identity.** The KCB is
+   built at Alto PCs `0176272`-`0176355`; the disk address is stored to
+   `KCB+11` by the `STA` at `0176277` and the 8-word label buffer is
+   BLT-copied (`0o61005`, Alto PC `0176350`) from a source block at
+   `0175730`, which already holds `052525` in the fid words. Walk back from
+   that BLT source: the poison enters the OS's file structure before the
+   disk is ever touched. The window is
+   `DORADO_TRACE_GATE=627090000,627900000` with `DORADO_IFUDISP_TRACE=1`
+   plus `DORADO_STORE_TRACE_VA=175720,175760`; the whole stream is ~25 K
+   lines.
+3. **The display bank is a separate, real bug.** The guest sets the display
+   task's normal bank to 1 (`0177751 <- 4`) at cyc 510.67 M, and our
+   rasteriser reads the bitmap from bank 0. That is why the screen shows
+   noise: we are rendering the wrong bank. `XMFaultTask.mc DispXM` updates
+   the Dorado display base register, so the microcode side is modelled --
+   check `dorado_machine_render_display_list` against it.
+
+### Tooling added for this (all cheap, all off by default)
+
+- `DORADO_ALTO_OPHIST=1` -- per-(instruction set, opcode) IFU dispatch
+  histogram, dumped with `DORADO_FINAL_DEBUG`. The cheap way to ask "does
+  this world ever execute VERS / JMPRAM / the Smalltalk opcodes" over
+  billions of cycles.
+- `DORADO_ALTO_KCB_TRACE_PC=<octal>` -- the existing `DORADO_ALTO_KCB_TRACE`
+  hooks `AltoDiabloDisk.mc`'s `ACmmdEnd` store, whose real IM address is
+  world-specific: `0o2376` in AEmu.mb!2, **`0o3276` in DSemu.mb!1** (mbdis:
+  `ACMMDEND2` + 7). Note the KCB pointer is read from `RM[(5<<4)|7]`, which
+  is AEmu's register assignment -- under DSemu the *cycles* are right but the
+  KCB contents printed are not.
+- `INSSET` trace lines now carry `cyc=`.
+- ContrAlto (`AltoInfo/`, gitignored, so recorded here): `CA_KCB=1` dumps the
+  Alto KCB on every post/consume of VM 521, mirroring `DORADO_ALTO_KCB_TRACE`
+  so the two command streams diff directly; `CA_TRACEPC_ARM_DA=<octal>` arms
+  `CA_TRACEPC` only once the disk command with that `diskAddr` completes, so
+  both machines' instruction streams can be started at the same guest point.
+  Both live in `ContraltoLib/Memory/Memory.cs` (+ one gate in
+  `CPU/Tasks/EmulatorTask.cs`).
+
+### Method notes worth keeping
+
+- The Dorado `IFUDISP` `aacs=` field is the AC state **one instruction
+  behind** ContrAlto's `CATRACEPC acs=` (our IFUJump is issued in the
+  previous instruction's last microinstruction). Shift by one before
+  comparing, or every line looks divergent.
+- `IFUDISP cyc=` is `cpu->cycles`, **not** `dorado_trace_cycle`; it runs ~3.7x
+  slower than the cycle numbers every other trace prints. Correlate through
+  interleaved `STORE_VA` lines, not by comparing the two counters.
+- `--disk` mounts the pack **read/write** and the emulator flushes it on
+  exit. Rebuild a pristine pack with `dsk2trident --all-heads` per run;
+  `/tmp/xmsmall-trident.pack` from earlier sessions is already mutated.
+
 ## 2026-07-26: SMALLTALK BOOTS AND RUNS ITS INTERPRETER. Two real emulation
 ## bugs found: IFU fetches used the wrong Pipe ring, and the display-wake
 ## predicate is a content heuristic that derails non-Alto worlds.
