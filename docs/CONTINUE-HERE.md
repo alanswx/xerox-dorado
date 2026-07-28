@@ -878,18 +878,55 @@ than one the controller is actively executing -- in which case the label
 mismatch is a red herring and the real question is why the command never gets
 picked up, or why the OS believes it is outstanding.
 
+### The KCB IS active, and the command is a WRITE
+
+`DORADO_STORE_TRACE_VA=521,521` shows a working post/consume handshake:
+
+    cyc=631183764 task=0  pc=0o133  data=176217   (OS posts KCB)
+    cyc=631923520 task=14 pc=0o3275 data=000000   (disk consumes it)
+    cyc=631924323 task=0  pc=0o133  data=176217   (OS posts the same KCB)
+    cyc=632665493 task=0  pc=0o133  data=176502   (OS posts a DIFFERENT KCB)
+
+ContrAlto's `CA_WATCH=521` shows the same shape (Emulator posts, DiskSector
+zeroes, repeatedly), so the structure is right -- ours just never succeeds. The
+"maybe the KCB is not active" doubt above is resolved: it is active, and the OS
+even advances to another KCB.
+
+Command `044130` decodes as seal `0o11`, partition 0, **header op = check,
+label op = check, data op = 2 = WRITE**. So this is a *write* with header and
+label verification.
+
+### The likely loop: a check error inhibits the write that would fix the label
+
+That closes a circle. `src/disk.c`'s write path deliberately drops writes while
+CompareErr is set:
+
+    if (ctl->compare_err) {
+        /* ... an uncleared CompareErr inhibits writes of subsequent blocks in
+         * the same sector command ... consume the stream without changing the
+         * media. */
+    }
+
+and `compare_err` is set at the start of **every** `DORADO_DISK_OP_RDCHK` block
+(`if (op == DORADO_DISK_OP_RDCHK) ctl->compare_err = 1;`), cleared only when the
+microcode says the compare succeeded. So if the label compare fails once, the
+write is suppressed, the on-disk label is never updated to what the OS expects,
+and the next attempt fails identically -- forever. The observed label difference
+(ours `001050,...` genuine from the media, the guest's buffer
+`0,0,0,0,0,052525,052525,052525`) is then a *consequence*, not the cause.
+
 **Next:**
-1. Settle the KCB's status first: watch `M[0o521]` with
-   `DORADO_STORE_TRACE_VA=521,521` on our side and `CA_WATCH=521` on ContrAlto,
-   and compare who writes it and when. If ContrAlto's KBLK is non-zero across
-   the equivalent window, our controller consumed the chain when it should not
-   have.
-2. Only if the command really is active, pursue the label: compare our label
-   against what ContrAlto reads for the same sector, and check the descending
-   block order (`disk_block_word`) for an off-by-block, since the header is
-   2 words and the label 8.
-3. Keep in mind the completion code is the one hard fact -- status `037402`,
-   code 2 = check error -- so *something* in a checked block mismatches.
+1. Focus on the **CompareErr clear-in-time window** -- the one thing in this
+   path still unverified. Log, for a single checked block: when we set
+   `compare_err`, every `Output_` the microcode issues to the muffler register,
+   whether `DORADO_DISK_MUFF_CLEAR_COMPARE_ERR` (`0x2000`) appears, and the
+   cycle gap. `AltoDiabloDisk.mc` warns the microcode fails the check if it
+   "fails to clear it in time", so a window that is too short in our model would
+   produce exactly this.
+2. Cross-check against ContrAlto with `CA_COUNTOP`-style instrumentation on its
+   disk controller: does a healthy boot ever take the check-error path at all,
+   or does it always clear cleanly?
+3. Only then revisit the label ordering.
 
 So the noise on screen is simply uninitialised memory at `0o76400`; nothing
 ever drew, because the Smalltalk system died before reaching its microcode
