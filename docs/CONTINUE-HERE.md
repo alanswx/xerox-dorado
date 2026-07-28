@@ -176,7 +176,38 @@ describes HOW a world was loaded does not tell you WHAT was loaded.** Both
 bugs came from treating "came in over the ether" or "is an Alto emulator" as
 if it identified the guest.
 
-### Lyric: the transfer STALLS, and two bisects were measured wrong
+### FIXED: Lyric boots to its desktop again (208,966 px)
+
+Root cause: **`eth_ftp_queue_file_chunk` sends up to 1,478-byte data Pups**,
+the size Cedar advertises as a directly connected host, and only clamps once
+the client's own allocation is known -- which arrives in its first BSP ack.
+The Alto-side BSP client never gets that far: the very first data Pup is
+already 1,478 bytes, it drops it, never acks, and the window fills
+(`FTP_WINDOW data=1478 ... in_flight=8/16`, then nothing). `752ad8f`, the
+last good build, used a fixed 512-byte chunk.
+
+The fix defaults to 512 -- the quantum this server itself advertises in
+`eth_ftp_queue_ack` -- and goes bigger only for a client claiming MORE than
+a standard Pup can carry (532 = a 554-byte Pup less 22 bytes of header and
+checksum).
+
+**Honoring the client's advertisement is not enough.** The Alto client's ack
+says `bytes_per_pup=532`, but it drops 532-byte data Pups too. Measured at
+2.5 B cycles by FTP trace lines:
+
+| server chunk | trace lines |
+|---|---|
+| 1478 (HEAD before the fix) | 68 -- wedged |
+| 532 (the client's own advertisement) | 141 -- crawls |
+| **512** | **22,809 -- streaming** |
+
+Lyric now reaches its Exec (XCL) desktop: `Xerox Lisp 27-Apr-87`, INITCOMS
+loaded, live prompt. Gates: `verify-cedar-desktop` 246,086 px (Cedar
+advertises 1,478 and is untouched), Galaxian byte-identical,
+`verify-alto-disk` 2,092 px, `verify-smalltalk` 124,945 px, MesaNetExec
+1,539 px, 193 tests pass.
+
+### How the two earlier Lyric bisects went wrong (kept for the trail)
 
 **Retraction.** The first two Lyric bisects used "does an FTP_RFC happen by
 2.5 B cycles" as the criterion, on the belief that HEAD produced only two
