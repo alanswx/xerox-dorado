@@ -52,7 +52,39 @@ the transfer only ever started from `dorado_disk_controller_advance_sector`
       ... Branch[ACmmdInTime, ALU=0];
     ACmmdInTime: Block, Call[UpdateSector];  * Block til START of sector
 
-### The candidate fix, and the measurement that kills it
+### RESOLVED: it was the PACK, not the emulator
+
+The phase theory was wrong. `DORADO_DISK_SEQ` puts the first transfer command
+at essentially the same point in the sector in both worlds -- 332 cycles into
+a 9,261-cycle sector for AEmu, 330 for DSemu -- so they are not sitting at
+different phases at all. Crossing world against medium is what settles it,
+with today's UNMODIFIED emulator:
+
+| world | pack | result |
+|---|---|---|
+| AEmu | xmsmall | 2,709 px |
+| AEmu | games | **0 px** |
+| DSemu | xmsmall | 124,945 px |
+| DSemu | games | **0 px** |
+
+The games pack fails in both worlds; the xmsmall pack works in both. And
+rebuilding the games pack from its source `.dsk` with today's `dsk2trident`
+(`--all-heads`, the same options `refresh-alto-golden` uses) boots to
+**2,092 px** -- the exact good value -- with no emulator change at all.
+
+So `3fe8ae1` did not break the reader. It changed the pack LAYOUT (it touched
+`dsk2trident.c` and `altofs.c`, and its sibling `7c1a2fc` is "Fix dsk2trident
+cross-drive label links"), and the checked-in golden pack
+`chm/diskpacks/games-trident.pack.gz` -- a prebuilt binary from 2026-07-10 --
+was never regenerated. Reader and medium have disagreed ever since.
+Regenerated here; `make verify-alto-disk` passes at 2,092 px.
+
+**The lesson is about the artifact, not the code.** A checked-in binary that
+a build step also knows how to produce will silently rot the moment the
+producer changes. `refresh-alto-golden` existed the whole time and nobody had
+cause to run it.
+
+### The candidate fix that was WRONG (kept for the trail)
 
 Gating the immediate start off for Diablo-on-Trident packs
 (`!disk_drive_is_diablo_pack(...)` at the `ctrl-load` call) restores the
@@ -70,7 +102,18 @@ they issue `DiskControl` at different points within the sector, and each
 variant happens to suit one phase. Patch reverted; HEAD keeps the
 immediate start (Smalltalk/Cedar good, Alto-disk/Lyric/Mesa bad).
 
-### Next
+### Still open: Lyric, and the Mesa group
+
+Lyric is NOT explained by this: its pack is rehydrated from
+`web-assets/lisp-lyric-xcl.pack.gz`, dated 2026-07-10 -- two weeks AFTER the
+format change -- and it still gives 3,078 px against a 206,668 baseline. It
+needs its own bisect, with the same crossing technique (try the Lyric pack
+regenerated from source before touching the emulator).
+
+The Mesa-world programs boot over EFTP with no disk at all, so the pack
+finding cannot explain them either. Separate hunt.
+
+### Superseded next step (the phase theory, now disproved)
 
 Model HM section 9 properly instead of picking an extreme: after
 `DiskControl` with a transfer op, the sequencer should start at a
@@ -80,9 +123,9 @@ first -- `DORADO_DISK_SEQ=1` on the first command of each world, and compare
 the cycle offset between the `ctrl-load` and the surrounding `sector+`
 events. That number is the whole problem.
 
-`make verify-alto-disk` captures the gate (expects >= 2000 px). **It fails
-today** -- that is the point; the 2,092-px value had been living in a commit
-message, which is exactly how it rotted unnoticed.
+`make verify-alto-disk` captures the gate (expects >= 2000 px) and now
+PASSES. The 2,092-px value had been living in a commit message, which is
+exactly how it rotted unnoticed for a month.
 
 ## ===> MILESTONE (2026-07-28): SMALLTALK-76 BOOTS TO ITS DESKTOP.
 ## Screenshot: docs/images/smalltalk76-desktop-2026-07-28.png

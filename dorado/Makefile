@@ -1623,7 +1623,9 @@ run-tricond-pack: $(BINDIR)/rundiag alto-disk-image
 # built (the mouse pointer then smears, since the rasteriser only clears when
 # it has a valid chain). This value lived in a commit message and rotted to 0
 # unnoticed for a month -- see docs/CONTINUE-HERE.md 2026-07-28 (later).
-# CURRENTLY FAILS: regression bisected to 3fe8ae1, not yet fixed.
+# The 2026-06/07 failure was a STALE PACK, not the emulator: 3fe8ae1 changed
+# dsk2trident's layout and the checked-in golden pack was never regenerated.
+# If this ever fails again, regenerate first: make refresh-alto-golden.
 ALTO_DISK_GATE_CYCLES ?= 700000000
 ALTO_DISK_GATE_MIN_PX ?= 2000
 
