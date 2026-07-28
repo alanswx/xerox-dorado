@@ -662,18 +662,47 @@ that `0x08` sits in the completion field rather than being an error flag --
 consistent with "our drive never reports the state the microcode is waiting
 for", though the exact bit is not yet pinned.
 
-**Next, in order:**
-1. Identify which muffler bit `Read20Muffs` is polling and what our model
-   returns for it. `TIOA[DiskMuff]` + `Output_`/`Input` is the access path;
-   trace the muffler address and value in `src/io.c` / `src/disk.c` and compare
-   against the Trident drive-status definition. That is the single bit standing
-   between us and a running Smalltalk.
-2. Note the guest is on **drive 1** (`chs=409/...` is drive 1 cylinder 0 under
-   `dsk2trident`'s `cyl = 406*drive + cyl + 3` mapping), so check the muffler
-   set is drive-selected correctly -- AEmu is known to issue drive-1 commands
-   (`docs/alto-disk-boot-plan.md`).
-3. Only if the above stalls: back up from the `AC1` divergence (`176217` vs
-   `000003`) with `CA_TRACEPC` vs `DORADO_IFUDISP_TRACE`.
+**The caller is `AMapHdwStatus`** in `AltoDiabloDisk.mc` (now mirrored to
+`chm/dorado/aemu-src/`; note the real file is `AltoDiabloDisk.mc` -- the
+`DiabloDisk.mc` in the same archive is a 321-byte stub):
+
+    AMapHdwStatus:  * Map hardware status to Diablo format
+        T_ muffsStatus, Call[Read20Muffs]
+        PD_ (KTemp0) AND (16000C)    * NotSelected, NotOnLine, NotReady?
+        T_ (K400) OR (200C), Branch[.+2, ALU=0]
+        KStatus_ (KStatus) OR (40C)  * Report as NotReady
+        PD_ (KTemp0) AND T           * FifoUnderflow, FifoOverflow?
+
+`Read20Muffs` packs mufflers `muffsStatus+1 .. +16` left-to-right, so the
+`0o16000` mask tests the 4th-6th bits read. In `src/disk.c`'s
+`disk_muffler_bit()` the corresponding entries are
+
+    case 023: return !d->selected || !d->online;
+    case 024: return !d->selected || !d->online;
+    case 025: return !d->selected || d->seek_in_progress || !d->online;
+
+so a stuck `seek_in_progress`, or a drive not marked selected/online, reports
+**NotReady** and the OS retries forever.
+
+**But the drive looks healthy**, which is the puzzle. `DORADO_DISK_SEQ=1` at the
+hang gives, repeatedly:
+
+    [diskseq] cyc=... tag  drv=0 chs=409/4/19 run=1 act=0 xfer=0 blk=0 op=0
+              fifo=0/16 rdtw=0 wrtw=0 sectw=0 idxtw=0 tagtw=0 seek=0
+
+`seek=0`, `act=0`, no task wakeups pending, cylinder pinned at 409 -- and
+**every line is a `tag`**, i.e. the microcode is issuing Trident tag
+(seek / head-select) commands over and over while our controller believes it is
+already positioned and idle. So the two sides disagree about drive state, which
+is precisely the sequence-PROM / tag-handling area listed as unfinished.
+
+**Next, the single decisive measurement:** print the 16-bit word
+`Read20Muffs` actually assembles (log `muffsStatus` and each bit as
+`disk_muffler_bit()` returns it), and compare it against what `AMapHdwStatus`
+expects -- specifically whether any of the `0o16000` trio is set. That either
+names the wrong bit outright or proves the status word is fine and moves the
+search to the tag/seek handshake. Get `muffsStatus`'s numeric value from
+`chm/dorado/aemu-src/DiskDefs.mc` first so the muffler addresses line up.
 
 So the noise on screen is simply uninitialised memory at `0o76400`; nothing
 ever drew, because the Smalltalk system died before reaching its microcode
