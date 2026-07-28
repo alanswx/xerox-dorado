@@ -843,17 +843,53 @@ while our media reports `label0=001050`. With `label op = check`, the microcode
 compares this against the disk and finds a mismatch, which is the check error
 (completion code 2) that aborts the command.
 
+Our full label for that sector is
+
+    001050, 000000, 000001, 002204, 001000, 000000, 042524, 062524
+
+### The media is FAITHFUL -- verified by round-trip
+
+`dsk2trident --extract` back to a `.dsk` and `cmp` against the original is the
+cheap way to test the conversion, and it comes out clean where it matters:
+
+- Same size (2,601,648 bytes = 4,872 sectors x 534 bytes; 534 = 267 words =
+  1 pad + 2 header + 8 label + 256 data).
+- The **only systematic** difference is `word[0]`, the leading pad word,
+  differing in 4,871 of 4,872 sectors (the extractor writes a sector index
+  where the original has 0). That word is not part of header/label/data.
+- Every other difference is isolated: 14 distinct word positions total, each
+  affected in only 1-11 sectors.
+
+So the header, label and data we serve are the original Diablo contents. Any
+"our data is wrong" explanation is dead, and `dsk2trident`'s mapping, stagger
+and block layout are all vindicated.
+
+### Open question: is that KCB even an active command?
+
+This is where the trail currently ends, and the label story does **not** close
+cleanly. The guest's 8-word label buffer is `0,0,0,0,0,052525,052525,052525` --
+five zeros then three words of the `052525` poison pattern. That does not look
+like a label any OS would compare against; it looks like an **uninitialised
+buffer**. And `M[0o521]` (KBLK, the pointer to the current command block) is
+**0**, i.e. no command is queued.
+
+So the KCB at `0176217` may be one the OS prepared and is waiting on, rather
+than one the controller is actively executing -- in which case the label
+mismatch is a red herring and the real question is why the command never gets
+picked up, or why the OS believes it is outstanding.
+
 **Next:**
-1. Dump all 8 label words our reads deliver for sector (173,4,19), in the
-   descending order the microcode consumes them, beside the guest buffer above,
-   and find the first differing word.
-2. Then decide which side is wrong: whether `dsk2trident` should be writing a
-   different label for this sector (compare against what ContrAlto reads from
-   the same `.dsk` -- it boots fine, so its label is authoritative), or whether
-   our read path mis-orders or mis-frames the label block. Note the header block
-   is 2 words and the label 8, and the read path already reverses blocks for
-   "the high-to-low stream order used by AltoDiabloDisk.mc" -- an off-by-block
-   in that reversal would show up exactly here.
+1. Settle the KCB's status first: watch `M[0o521]` with
+   `DORADO_STORE_TRACE_VA=521,521` on our side and `CA_WATCH=521` on ContrAlto,
+   and compare who writes it and when. If ContrAlto's KBLK is non-zero across
+   the equivalent window, our controller consumed the chain when it should not
+   have.
+2. Only if the command really is active, pursue the label: compare our label
+   against what ContrAlto reads for the same sector, and check the descending
+   block order (`disk_block_word`) for an off-by-block, since the header is
+   2 words and the label 8.
+3. Keep in mind the completion code is the one hard fact -- status `037402`,
+   code 2 = check error -- so *something* in a checked block mismatches.
 
 So the noise on screen is simply uninitialised memory at `0o76400`; nothing
 ever drew, because the Smalltalk system died before reaching its microcode
