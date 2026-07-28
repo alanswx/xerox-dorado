@@ -1617,6 +1617,30 @@ run-tricond-nopack: $(BINDIR)/rundiag
 run-tricond-pack: $(BINDIR)/rundiag alto-disk-image
 	RUNDIAG_DISK=1 RUNDIAG_DISK_MEDIA=diablo RUNDIAG_DISK_PATH='$(ALTO_RUN_PACK)' RUNDIAG_TASK=14 ./build/rundiag '../chm/dorado/expanded/Tricond.dm!5_/TriconD.mb' BEGIN DONE ERR 120000000
 
+# ---- Alto Executive disk boot gate -----------------------------------------
+# The AEmu world booting a real Alto OS off the Diablo-on-Trident games pack.
+# 2,092 px = the BCPL Executive painted; 0 px = the display list is never
+# built (the mouse pointer then smears, since the rasteriser only clears when
+# it has a valid chain). This value lived in a commit message and rotted to 0
+# unnoticed for a month -- see docs/CONTINUE-HERE.md 2026-07-28 (later).
+# CURRENTLY FAILS: regression bisected to 3fe8ae1, not yet fixed.
+ALTO_DISK_GATE_CYCLES ?= 700000000
+ALTO_DISK_GATE_MIN_PX ?= 2000
+
+.PHONY: verify-alto-disk
+verify-alto-disk: $(BINDIR)/dorado worlds
+	mkdir -p '$(TRIDENT_RUN_DIR)'
+	cp -f '$(WEB_ALTO_PACK)' '$(TRIDENT_RUN_DIR)/alto-disk-gate.pack'
+	chmod 644 '$(TRIDENT_RUN_DIR)/alto-disk-gate.pack'
+	./build/dorado --eb worlds/aemu.eb \
+		--disk 0='$(TRIDENT_RUN_DIR)/alto-disk-gate.pack' \
+		--boot-reason disk --cycles '$(ALTO_DISK_GATE_CYCLES)' \
+		--out build/verify-alto-disk.pgm > build/verify-alto-disk.log 2>&1
+	@px=$$(sed -n 's/^dorado: \([0-9]*\) display-list pixels.*/\1/p' \
+		build/verify-alto-disk.log | tail -1); \
+	echo "verify-alto-disk: $$px px (need >= $(ALTO_DISK_GATE_MIN_PX); good = 2092)"; \
+	test "$$px" -ge '$(ALTO_DISK_GATE_MIN_PX)'
+
 # ---- Smalltalk-76 (2026-07-28 milestone) ---------------------------------
 # Booted the period way, per Smalltalk.midas!17 and DSemuRelease.cm: load
 # DSemu (the Alto emulator PLUS the Smalltalk microcode, ether-boot BFN 111B)

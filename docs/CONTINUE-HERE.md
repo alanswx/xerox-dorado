@@ -1,5 +1,89 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+## 2026-07-28 (later): THE PACK-BOOT REGRESSION, BISECTED TO ONE LINE OF
+## BEHAVIOUR -- and why the obvious fix trades one world for another.
+
+Three worlds that boot off a disk pack are broken, and have been since June:
+
+| world | now | was |
+|---|---|---|
+| Alto Executive (disk boot, games pack) | **0 px** | 2,092 px |
+| Interlisp-D Lyric | **3,078 px** | 206,668 px |
+| Mesa NetExec + PPong/MazeWar/PupWatch, Alto Clock | **0 px** | working |
+
+None of it is from the TgetsMd work: the Alto disk boot is 0 px at
+`29c7ad8` (2026-07-04) too, and Lyric gives 3,089 px with the pre-TgetsMd
+`cpu.c` against 3,078 with it.
+
+### Bisected: `3fe8ae1` "Fix AEmu disk read-check stream order" (2026-06-27)
+
+Probe: `--eb worlds/aemu.eb --disk 0=<games pack> --boot-reason disk
+--cycles 700000000`; good = 2,092 px, bad = 0.
+
+    02e6843  2026-06-21   2092   good
+    b2410cc  2026-06-26   2092   good
+    70c9bc8               2092   good
+    3fe8ae1  2026-06-27      0   <- FIRST BAD
+    6193575  2026-07-01      0
+    HEAD                     0
+
+It is the **disk code specifically**: rebuilding `3fe8ae1` with only
+`src/disk.c` + `include/disk.h` reverted to their parent gives 2,092 px, so
+that commit's `cpu.c` and `dorado.c` changes are innocent.
+
+### The mechanism: when a transfer starts relative to the sector mark
+
+`3fe8ae1` factored the pending-transfer arming into
+`disk_start_pending_transfer()` and, crucially, **added a call from the
+`DiskControl` write path** (`disk_output_b`, the `ctrl-load` case). Before,
+the transfer only ever started from `dorado_disk_controller_advance_sector`
+-- i.e. at the next sector pulse. Its own comment states the intent:
+
+> DiskControl is issued by native DSK microcode while the drive is already
+> in the target sector. The sector's read/write sequencer then starts in
+> that current sector; waiting for the next sector pulse introduces a
+> one-sector skew that makes AEmu's boundary geometry probes fail.
+
+`AltoDiabloDisk.mc` frames it the other way round:
+
+    AWaitSector: SCall[WaitForSector];
+      Output_ KCmmd, Call[UpdateSector];   * issue the command
+      PD_ (KAddr) XOR T;                   * still that sector?
+      ... Branch[ACmmdInTime, ALU=0];
+    ACmmdInTime: Block, Call[UpdateSector];  * Block til START of sector
+
+### The candidate fix, and the measurement that kills it
+
+Gating the immediate start off for Diablo-on-Trident packs
+(`!disk_drive_is_diablo_pack(...)` at the `ctrl-load` call) restores the
+Alto disk boot to **exactly 2,092 px** -- and drops **Smalltalk-76 from
+124,945 px to 0**. Not a partial success: `DORADO_FINAL_DEBUG` shows
+Smalltalk then completes **one** transfer (`ctrl=8 xfer=1`) against 2,684 in
+a healthy run, so it dies on its FIRST read. Galaxian stays byte-identical
+either way (it is EFTP, no disk).
+
+So AEmu-on-games-pack wants the pulse-delayed start and DSemu-on-xmsmall
+wants the immediate one, **through the same `AltoDiabloDisk.mc`**. Both
+cannot be right, which means our controller is **phase-sensitive in a way
+the hardware is not**: the two worlds are different microcode builds, so
+they issue `DiskControl` at different points within the sector, and each
+variant happens to suit one phase. Patch reverted; HEAD keeps the
+immediate start (Smalltalk/Cedar good, Alto-disk/Lyric/Mesa bad).
+
+### Next
+
+Model HM section 9 properly instead of picking an extreme: after
+`DiskControl` with a transfer op, the sequencer should start at a
+**deterministic point relative to the sector mark**, independent of where in
+the sector the microcode happened to write the command. Get the evidence
+first -- `DORADO_DISK_SEQ=1` on the first command of each world, and compare
+the cycle offset between the `ctrl-load` and the surrounding `sector+`
+events. That number is the whole problem.
+
+`make verify-alto-disk` captures the gate (expects >= 2000 px). **It fails
+today** -- that is the point; the 2,092-px value had been living in a commit
+message, which is exactly how it rotted unnoticed.
+
 ## ===> MILESTONE (2026-07-28): SMALLTALK-76 BOOTS TO ITS DESKTOP.
 ## Screenshot: docs/images/smalltalk76-desktop-2026-07-28.png
 ## Gate: `make verify-smalltalk` (124,945 px). Interactive: `make run-smalltalk`.
