@@ -613,16 +613,67 @@ up is the open question.**
 > both drives. The Trident geometry is 815 cyl x 5 head x 29 sec. Nothing is out
 > of range, and the guest is simply working on the second drive.
 
+### Traced to the disk MUFFLER (drive-status) poll -- a known-incomplete area
+
+The disk task is not idle, it is **polling Trident drive status forever**.
+task-14's hot PCs are
+
+    0o3014=2029200  0o3030=2029200  0o3064=2029200  (READ20MLOOP)
+    0o1700=766654   (OUTPUTGETST)   0o3756=677482   0o3710=674842
+
+`READ20MLOOP` is in `DiskSubrs.mc`:
+
+    Read20Muffs:  * Read 20 consecutive mufflers
+    * Enter: T = starting muffler number
+    * Exit: KTemp0 = T = word full of muffler values, left-to-right
+    *       TIOA[DiskMuff]
+    Read20MLoop:  KTemp1_ (KTemp1)+1, Output_ KTemp1
+                  ...
+                  T_ Input, Branch[Read20MLoop, ALU>=0]
+
+Three PCs at exactly 2,029,200 each = the 20-iteration loop called ~101,000
+times. So the Alto disk emulation reads Trident drive status through the
+**muffler / DMux slow-I/O path** over and over, waiting on a bit that never
+becomes true, and therefore never issues another transfer -- which is why
+`xfer` is frozen at 2,664 while `secset` keeps climbing and the guest's status
+word `M[0176220]` is never re-posted.
+
+**This is the documented gap.** Top-level `CLAUDE.md` already flags the
+Trident path as unfinished: "`--pilot-disk` completes PDI-backed SA4000 IOCBs
+through a narrow bridge in `machine.c` over the still-incomplete disk
+sequence-PROM / data-transfer path (gaps F1-F5)". Smalltalk is the first world
+that leans on the drive-status mufflers hard enough to expose it. The Alto
+Executive and the games only ever needed the subset we model, which is why they
+work.
+
+Supporting comparison of the Alto page-0 disk cells (`M[0o520..0o527]`):
+
+| addr | ContrAlto (mid / end) | ours |
+|---|---|---|
+| `0o521` | `0` / `0` | `0` |
+| `0o522` | `137410` / `67410` | `037400` |
+| `0o523` | `20010` / `21220` | `000003` |
+
+`0o522` carries the same shape as the status words posted to `M[0176220]`
+(sector in the top nibble, `0o1111` in bits 4-7), and ContrAlto persistently has
+`0o010` in the low bits where we have `0`. Per `DiskController.cs` the named
+error bits are `SECLATE=0x10, NOTREADY=0x20, STROBE=0x40, SEEKFAIL=0x80`, so
+that `0x08` sits in the completion field rather than being an error flag --
+consistent with "our drive never reports the state the microcode is waiting
+for", though the exact bit is not yet pinned.
+
 **Next, in order:**
-1. Dump the Alto disk command block the guest posts (chain head at `0o521`) at
-   the moment it starts waiting, and compare field-by-field with ContrAlto's at
-   the same point. That should show why our sector task does not match it.
-2. Trace our AltoDiabloDisk path: find where the sector task decides "not my
-   sector / not ready" and what it compares against. Note the guest is on
-   **drive 1**, so a drive-select mismatch is a prime suspect -- AEmu is known
-   to issue drive-1 commands (`docs/alto-disk-boot-plan.md` line ~571).
-3. Back up from the `AC1` divergence (`176217` vs `000003`) with `CA_TRACEPC`
-   vs `DORADO_IFUDISP_TRACE` to find the last common Alto PC.
+1. Identify which muffler bit `Read20Muffs` is polling and what our model
+   returns for it. `TIOA[DiskMuff]` + `Output_`/`Input` is the access path;
+   trace the muffler address and value in `src/io.c` / `src/disk.c` and compare
+   against the Trident drive-status definition. That is the single bit standing
+   between us and a running Smalltalk.
+2. Note the guest is on **drive 1** (`chs=409/...` is drive 1 cylinder 0 under
+   `dsk2trident`'s `cyl = 406*drive + cyl + 3` mapping), so check the muffler
+   set is drive-selected correctly -- AEmu is known to issue drive-1 commands
+   (`docs/alto-disk-boot-plan.md`).
+3. Only if the above stalls: back up from the `AC1` divergence (`176217` vs
+   `000003`) with `CA_TRACEPC` vs `DORADO_IFUDISP_TRACE`.
 
 So the noise on screen is simply uninitialised memory at `0o76400`; nothing
 ever drew, because the Smalltalk system died before reaching its microcode
