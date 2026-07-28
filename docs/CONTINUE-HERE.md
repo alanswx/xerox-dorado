@@ -811,17 +811,49 @@ same odd-cylinder head flip `dsk2trident` implements). The check error is
 Also measured: muffler `0o31` (`read_data_err || compare_err`) reads **0**, so
 `compare_err` is not stuck on either.
 
-**Next, with the easy explanations eliminated:**
-1. The remaining candidates are the **label** compare (the trace shows
-   `label0=001050`; a check block is a compare against guest memory, so diff the
-   whole label against what the OS wrote) and the **CompareErr handshake** --
-   `disk.c` sets `ctl->compare_err = 1` at the start of every
-   `DORADO_DISK_OP_RDCHK` block and relies on the microcode clearing it via
-   `DORADO_DISK_MUFF_CLEAR_COMPARE_ERR` (`0x2000`) in time.
-2. Cheapest decisive test: log every `RDCHK` block with the words we return and
-   the words the microcode supplied for comparison, for the one retried sector
-   (173,4,19), and find which word differs -- or prove none does, which would
-   move the fault to the clear-in-time window.
+### The failing compare is the LABEL block, not the header
+
+The guest's control block decodes cleanly and is the key to everything here:
+
+    KCB+0  0176217 = 000000   next KCB
+    KCB+1  0176220 = 000000   ending status  <- the word the poll loop watches
+    KCB+2  0176221 = 044130   command
+    KCB+3  0176222 = 176227   -> header block
+    KCB+4  0176223 = 176231   -> label block
+    KCB+5  0176224 = 176150   -> data block
+    KCB+11 0176230 = 052525   disk address
+
+Command `044130` decodes against the format in `AltoDiabloDisk.mc` as seal
+`0o11`, partition 0, **header op = 1 (check)**, **label op = 1 (check)**.
+
+**The header check PASSES.** The expected word is `KCB+11 = 052525`; the media
+holds `052524`; and the restore-request tolerance closes the one-bit gap. All
+of that machinery verifiably runs: `ARESTORE` (`0o3063`) executes, the ReZero
+control tag reaches the controller (`kind=control bus=0o0012`, bit 1 = ReZero),
+and an added `rhc=`/`diablo=` field on `DORADO_DISK_HDR_TRACE` shows
+**`rhc=1 diablo=1`** at the failing read -- so `disk.c` ORs the restore bit into
+the first header word and delivers `052525`, matching.
+
+**The label block is where they differ.** The OS's 8-word label buffer at
+`0176231` is
+
+    0, 0, 0, 0, 0, 052525, 052525, 052525
+
+while our media reports `label0=001050`. With `label op = check`, the microcode
+compares this against the disk and finds a mismatch, which is the check error
+(completion code 2) that aborts the command.
+
+**Next:**
+1. Dump all 8 label words our reads deliver for sector (173,4,19), in the
+   descending order the microcode consumes them, beside the guest buffer above,
+   and find the first differing word.
+2. Then decide which side is wrong: whether `dsk2trident` should be writing a
+   different label for this sector (compare against what ContrAlto reads from
+   the same `.dsk` -- it boots fine, so its label is authoritative), or whether
+   our read path mis-orders or mis-frames the label block. Note the header block
+   is 2 words and the label 8, and the read path already reverses blocks for
+   "the high-to-low stream order used by AltoDiabloDisk.mc" -- an off-by-block
+   in that reversal would show up exactly here.
 
 So the noise on screen is simply uninitialised memory at `0o76400`; nothing
 ever drew, because the Smalltalk system died before reaching its microcode
