@@ -480,7 +480,12 @@ void dorado_cpu_init(dorado_cpu *cpu, const dorado_microcode *mc,
     cpu->ctask     = 0;
     cpu->ready     = 0x0001;     /* task 0 always ready */
     cpu->tasking_on = 1;
-    cpu->compat_same_instr_md_bypass = 1;
+    /* OFF: superseded by the real mechanism, TgetsMd (see ff_is_tgetsmd
+     * and apply_lc case 5). The field is kept -- not deleted -- because
+     * dorado_cpu is snapshotted verbatim and removing a member breaks
+     * every baked checkpoint; restores of pre-TgetsMd snapshots carry
+     * their own stored value. */
+    cpu->compat_same_instr_md_bypass = 0;
 }
 
 void dorado_cpu_wakeup(dorado_cpu *cpu, int task)
@@ -1369,6 +1374,28 @@ static int ff_fa0_fb2_fc_ok(const dorado_uinstr *u, int fc)
         return ((u->ff >> 3) & 7) == 2 && (u->ff & 7) == fc;
     }
 
+    return 0;
+}
+
+/* TgetsMd — HM Table 11a (FA=0 FB=7 FC=5), and the note under Table 10:
+ *
+ *   "The only missing combination is T<-Md, RM/STK<-Md.  T<-Md,
+ *    RM/STK<-Md can be accomplished by combining an LC value of 5 with
+ *    the TgetsMd FF decode.  It is illegal to use TgetsMd with other LC
+ *    decodes."
+ *
+ * So LC=5 loads T from Pd normally and from Md when TgetsMd is present.
+ * Micro emits exactly this for the multi-assign idiom `LTEMP2_ T_ Md`
+ * (Interlisp's `.UNBOX1`, real pc 0o2505: LC=5, ASEL=Fetch<-T, FF=0o375).
+ * Note that instruction's ASEL is a memory reference, so FF[0:1] is the
+ * reference variant and the remaining six bits decode as Table 11a --
+ * the same re-dispatch ff_apply_post does. */
+static int ff_is_tgetsmd(const dorado_uinstr *u)
+{
+    if (ff_full_function_ok(u))
+        return ff_fa(u->ff) == 0 && ff_fb(u->ff) == 7 && ff_fc(u->ff) == 5;
+    if (ff_decode_ok(u) && u->asel <= 3)
+        return ((u->ff >> 3) & 7) == 7 && (u->ff & 7) == 5;
     return 0;
 }
 
@@ -3329,8 +3356,9 @@ static int apply_lc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t pd,
         }
         rm_stk_write(cpu, rm_a, md_at_issue);
         break;
-    case 5: /* T←Pd, RM/STK←Md */
-        cpu->T = pd;
+    case 5: /* T←Pd, RM/STK←Md — or, with the TgetsMd FF decode,
+             * T←Md, RM/STK←Md (HM Table 10 note). */
+        cpu->T = ff_is_tgetsmd(u) ? md_at_issue : pd;
         if (!has_rm) return CPU_HALT_UNSUPPORTED_ASEL;
         if (rm_trace_enabled() && rm_a >= 0 && rm_a < 0x100) {
             fprintf(stderr,
@@ -5583,20 +5611,29 @@ static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
     }
     uint8_t new_carry = cpu->alu_carry, new_ovf = cpu->alu_overflow;
     uint8_t is_arith = 0;
-    /* Same-instruction Md bypass (HM §3.2 "paths exist to bypass the
-     * register being written"; p.77 "the bypass logic will change the B
-     * select from Pd or Md to RM or T"): when this instruction reads
-     * RM/STK onto B (BSEL=1) while its LC=5 ("T←Pd, RM/STK←Md") loads the
-     * same RSTK slot from Md, the ALU's B input sees the incoming Md.
-     * Micro's multi-assign idiom `LTEMP2_ T_ Md` (LC=5 + BSEL=RM/STK +
-     * ALUFM="B") requires this to deliver Md into T via Pd — without it,
-     * Interlisp-D's .UNBOX1 mis-unboxes every SMALLP and UFN-recurses
-     * into a stack overflow. The bypass applies ONLY to the ALU B input:
-     * consumers that sample B directly — the LongFetch address high bits
-     * (AEmu's display DCB walker), dbuf store data, Q←B — keep the raw
-     * register value (b). LC=4 (RM←Md alone, Pd unused) is left alone:
-     * eventCounters' `rscr_ Md` encodes BSEL as a don't-care and its
-     * hold-count oracle expects the register on B. */
+    /* RETIRED (kept behind compat_same_instr_md_bypass, now default 0).
+     *
+     * This was a same-instruction Md bypass on the ALU B input for
+     * LC=5 + BSEL=RM/STK, invented to make Micro's multi-assign idiom
+     * `LTEMP2_ T_ Md` (Interlisp's .UNBOX1) deliver Md into T. The real
+     * mechanism is the **TgetsMd FF decode** — HM Table 10: "The only
+     * missing combination is T←Md, RM/STK←Md. T←Md, RM/STK←Md can be
+     * accomplished by combining an LC value of 5 with the TgetsMd FF
+     * decode." TgetsMd was an unimplemented stub (Table 11a FA=0 FB=7
+     * FC=5), so LC=5 always took T from Pd and the bypass was the only
+     * way to get Md there.
+     *
+     * The bypass is far too wide: it corrupts every OTHER LC=5 +
+     * BSEL=RM/STK instruction, whose Pd is meant to be the OLD register.
+     * Dorado Smalltalk's recursive freer (DSmallsubrs.mc `Recuf`:
+     * `T _ Arg1, Arg1 _ Md`, real pc 0o6443) is one: with the bypass,
+     * Father took the incoming Md instead of the oop being freed, so the
+     * freer walked to Father=-1, hashed oop 177777, missed the object
+     * table, and object-faulted out to the Nova on the 22nd bytecode.
+     * The manual is explicit that the genuine bypass paths are between
+     * CONSECUTIVE instructions (page 7: "paths exist to bypass the
+     * register being written if the FOLLOWING instruction specifies it
+     * as a source"), not within one. */
     uint16_t alu_b = (cpu->compat_same_instr_md_bypass &&
                       u->bsel == 1 && u->lc == 5 &&
                       !(u->block && cpu->ctask == 0))
