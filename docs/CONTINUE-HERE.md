@@ -696,13 +696,44 @@ hang gives, repeatedly:
 already positioned and idle. So the two sides disagree about drive state, which
 is precisely the sequence-PROM / tag-handling area listed as unfinished.
 
-**Next, the single decisive measurement:** print the 16-bit word
-`Read20Muffs` actually assembles (log `muffsStatus` and each bit as
-`disk_muffler_bit()` returns it), and compare it against what `AMapHdwStatus`
-expects -- specifically whether any of the `0o16000` trio is set. That either
-names the wrong bit outright or proves the status word is fine and moves the
-search to the tag/seek handshake. Get `muffsStatus`'s numeric value from
-`chm/dorado/aemu-src/DiskDefs.mc` first so the muffler addresses line up.
+**The addresses line up, and our decode is correct.** `DiskDefs.mc` gives
+`MC[muffsStatus, 20]`, and `Read20Muffs` packs first-read-at-MSB, so mask
+`0o16000` (positions 3,4,5) selects exactly `0o23 muffNotSelected`,
+`0o24 muffNotOnLine`, `0o25 muffNotReady` -- matching the microcode's own
+comment and matching `disk.c` cases 023/024/025 one-for-one. The whole status
+group maps cleanly onto our table (`0o21 HeadOvfl`, `0o27 FifoUnderflow`,
+`0o30 FifoOverflow`, `0o31 ReadDataErr`, `0o32 ReadOnly`, ...).
+
+**The drive-select decode is also correct, so the NotReady theory is DEAD.**
+`DiskDefs.mc` defines the DriveTag bus as `tagDriveNumber=17`,
+`tagSelectDrive=20`, `tagLoadSubSector=40`, `tagSubSector=1700` -- exactly what
+`src/disk.c` case 0 decodes (`bus & 0x0F`, `bus & (1<<4)`, `bus & (1<<5)`,
+`(bus>>6) & 0x0F`). And `DORADO_DISK_TAG_TRACE` shows the microcode really does
+send it:
+
+    [disktag] kind=drive data=0o104020 bus=0o4020 drv=0 ...
+    [disktag] kind=drive data=0o104000 bus=0o4000 drv=0 ...
+
+`bus=0o4020` carries `tagSelectDrive` (`0o20`) with drive number 0, and there
+are **257,201** drive tags in the run. (`0o4000` is not a deselect: per the
+KSelect layout comment it is MSB bit 4, "one iff sectors do not evenly divide
+the disk".) So `d->selected` is set, `d->online` is 1 with a pack attached, and
+`seek=0` -- the `0o16000` trio should read **0** and `AMapHdwStatus` should
+NOT report NotReady.
+
+**Revised picture: a deadlock, not a bad status bit.** The Alto OS waits at
+`0176442` for a completion in `M[0176220]`; the Dorado disk task polls hardware
+status waiting for something to do; `M[0o521]` (KBLK, the command-block chain
+head) is `0` in ours **and in ContrAlto**, so an empty chain is not itself the
+anomaly. Nobody posts the next command.
+
+**Next:**
+1. Log the 16-bit word `Read20Muffs` actually assembles, as a direct check on
+   the reasoning above rather than an inference -- if any of `0o16000` is set,
+   the conclusion here is wrong and that bit is the bug.
+2. Otherwise find who posts the *next* disk command on a healthy boot: put
+   `CA_WATCH` on `0o521` under ContrAlto and see which task writes it and when,
+   then check whether our guest ever reaches that code.
 
 So the noise on screen is simply uninitialised memory at `0o76400`; nothing
 ever drew, because the Smalltalk system died before reaching its microcode
