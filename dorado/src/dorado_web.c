@@ -86,6 +86,9 @@
 #define WEB_ALTO_PACK  "/worlds/games-trident.pack"
 #define WEB_LISP_PACK  "/worlds/lisp-lyric-xcl.pack"
 #define WEB_LISP_SNAPSHOT "/worlds/lisp-lyric-xcl.snap"
+#define WEB_SMALLTALK_EB       "/worlds/SmalltalkDorado.eb"
+#define WEB_SMALLTALK_PACK     "/worlds/smalltalk76.pack"
+#define WEB_SMALLTALK_SNAPSHOT "/worlds/smalltalk76.snap"
 
 /* Browser pacing. The per-frame display render + blit cost (~100ms) dwarfs the
  * 60ns microcycle, so when the chunk is small the browser spends most of its
@@ -639,6 +642,66 @@ int dorado_web_boot_lisp(void)
     app.frame     = 0;
     app.cycles_per_frame = WEB_CYCLES_INTERACTIVE;
     printf("dorado_web: restored Interlisp-D Lyric XCL at cycle %llu\n",
+           (unsigned long long)dorado_machine_cycles(app.m));
+    return 0;
+}
+
+/* Restore a WebAssembly-native checkpoint taken at the Smalltalk-76 desktop
+ * (Top View + the Classes browser + a UserView workspace). The world is
+ * DSemu -- the Alto emulator PLUS the Smalltalk microcode -- and the medium
+ * is the "XM Smalltalk" pack, booted by the Alto Executive's
+ * `Bootfrom xmsmall.boot`; that takes ~1.95 B cycles, which is why the
+ * browser restores instead of booting. Same ABI rule as the Lyric asset:
+ * the snapshot is produced by the wasm32 build, the pack by the native one.
+ * web_shell.html expands both gzipped assets into MEMFS before calling us. */
+EMSCRIPTEN_KEEPALIVE
+int dorado_web_boot_smalltalk(void)
+{
+    if (app.m) {
+        dorado_machine_destroy(app.m);
+        paste_queue.active = 0;
+        app.m = NULL;
+        app.disp = NULL;
+    }
+
+    unsetenv("DORADO_DISPM_PRESENT");
+
+    dorado_machine_config cfg;
+    dorado_machine_config_default(&cfg);
+    cfg.bb_rom       = WEB_BB_ROM;
+    cfg.bootstrap_mb = WEB_BOOTSTRAP;
+    cfg.initial_mb   = WEB_INITIAL;
+    cfg.kernel_mb    = WEB_KERNEL;
+    cfg.memmisc_mb   = WEB_MEMMISC;
+    cfg.ifu_mb       = WEB_IFU;
+    cfg.eth_boot_110 = WEB_SMALLTALK_EB;
+    cfg.eftp_boot    = NULL;
+    cfg.disk_pack[0] = WEB_SMALLTALK_PACK;
+    cfg.alto_ether_boot = 0;          /* --no-alto-boot */
+    cfg.boot_dir_all = 0;
+    cfg.boot_keys[0] = DORADO_KEY_NONE;   /* no chord = disk boot reason */
+    cfg.boot_keys_count = 1;
+
+    app.m = dorado_machine_create(&cfg);
+    if (!app.m) {
+        fprintf(stderr, "dorado_web: failed to create Smalltalk machine\n");
+        return 1;
+    }
+    if (dorado_machine_restore(app.m, WEB_SMALLTALK_SNAPSHOT) != 0) {
+        fprintf(stderr, "dorado_web: failed to restore Smalltalk snapshot\n");
+        dorado_machine_destroy(app.m);
+        paste_queue.active = 0;
+        app.m = NULL;
+        return 1;
+    }
+
+    app.disp      = dorado_machine_display(app.m);
+    app.mouse_buttons = 0;
+    app.paused    = 0;
+    app.announced = 1;
+    app.frame     = 0;
+    app.cycles_per_frame = WEB_CYCLES_INTERACTIVE;
+    printf("dorado_web: restored Smalltalk-76 desktop at cycle %llu\n",
            (unsigned long long)dorado_machine_cycles(app.m));
     return 0;
 }

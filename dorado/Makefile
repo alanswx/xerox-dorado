@@ -56,6 +56,11 @@ WEB_LISP_ASSET_DIR := web-assets
 WEB_STP_DIR := build/web-stp
 WEB_LISP_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/lisp-lyric-xcl.snap.gz
 WEB_LISP_PACK_GZ := $(WEB_LISP_ASSET_DIR)/lisp-lyric-xcl.pack.gz
+WEB_SMALLTALK_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/smalltalk76.snap.gz
+WEB_SMALLTALK_PACK_GZ     := $(WEB_LISP_ASSET_DIR)/smalltalk76.pack.gz
+WEB_SMALLTALK_RAW_DIR     := $(BINDIR)/web-smalltalk
+WEB_SMALLTALK_RAW_SNAPSHOT := $(WEB_SMALLTALK_RAW_DIR)/smalltalk76.snap
+WEB_SMALLTALK_RAW_PACK     := $(WEB_SMALLTALK_RAW_DIR)/smalltalk76.pack
 WEB_LISP_RAW_DIR := $(BINDIR)/web-lisp
 WEB_LISP_RAW_SNAPSHOT := $(WEB_LISP_RAW_DIR)/lisp-lyric-xcl.snap
 WEB_LISP_RAW_PACK := $(WEB_LISP_RAW_DIR)/lisp-lyric-xcl.pack
@@ -85,7 +90,7 @@ WEB_CFLAGS := -std=c99 -D_GNU_SOURCE -O2 -Iinclude -Ivendor/6502
 WEB_LDFLAGS := -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=67108864 \
                -sSTACK_SIZE=1048576 \
                -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,FS \
-               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_cedar_desktop,_dorado_web_boot_cedar_demo,_dorado_web_boot_cedar_corpus,_dorado_web_boot_mesa,_dorado_web_boot_disk,_dorado_web_boot_lisp,_dorado_web_key,_dorado_web_mouse,_dorado_web_debug,_dorado_web_paste \
+               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_cedar_desktop,_dorado_web_boot_cedar_demo,_dorado_web_boot_cedar_corpus,_dorado_web_boot_mesa,_dorado_web_boot_disk,_dorado_web_boot_lisp,_dorado_web_boot_smalltalk,_dorado_web_key,_dorado_web_mouse,_dorado_web_debug,_dorado_web_paste \
                --preload-file worlds/aemu.eb@/worlds/aemu.eb \
                --preload-file ../chm/bootfiles@/chm/bootfiles \
                --preload-file '../chm/dorado/AltoMesaDorado.eb!2'@/worlds/AltoMesaDorado.eb \
@@ -102,6 +107,9 @@ WEB_LDFLAGS := -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=67108864 \
                --preload-file '../chm/diskpacks/games-trident.pack'@/worlds/games-trident.pack \
                --preload-file '$(WEB_LISP_SNAPSHOT_GZ)'@/worlds/lisp-lyric-xcl.snap.gz \
                --preload-file '$(WEB_LISP_PACK_GZ)'@/worlds/lisp-lyric-xcl.pack.gz \
+               --preload-file '../chm/microcode/SmalltalkDorado.eb!1'@/worlds/SmalltalkDorado.eb \
+               --preload-file '$(WEB_SMALLTALK_SNAPSHOT_GZ)'@/worlds/smalltalk76.snap.gz \
+               --preload-file '$(WEB_SMALLTALK_PACK_GZ)'@/worlds/smalltalk76.pack.gz \
                --preload-file '$(WEB_STP_DIR)'@/stp \
                --preload-file ../chm/dorado/doradobaserom.mb!13@/ucode/doradobaserom.mb!13 \
                --preload-file ../chm/dorado/expanded/bootstrap.dm!20_/Bootstrap.mb@/ucode/Bootstrap.mb \
@@ -145,7 +153,7 @@ $(WEB_ALTO_PACK): $(WEB_ALTO_PACK).gz
 	gunzip -c $< > $@
 
 .PHONY: web
-web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_PDI_GZ) $(WEB_CEDAR_DEMO_SNAPSHOT_GZ) $(WEB_CEDAR_DEMO_PDI_GZ) $(WEB_CEDAR_CORPUS_SNAPSHOT_GZ) $(WEB_CEDAR_CORPUS_PDI_GZ) $(WEB_LISP_SNAPSHOT_GZ) $(WEB_LISP_PACK_GZ) web-stp | web-dir
+web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_PDI_GZ) $(WEB_CEDAR_DEMO_SNAPSHOT_GZ) $(WEB_CEDAR_DEMO_PDI_GZ) $(WEB_CEDAR_CORPUS_SNAPSHOT_GZ) $(WEB_CEDAR_CORPUS_PDI_GZ) $(WEB_LISP_SNAPSHOT_GZ) $(WEB_LISP_PACK_GZ) $(WEB_SMALLTALK_SNAPSHOT_GZ) $(WEB_SMALLTALK_PACK_GZ) web-stp | web-dir
 	$(EMCC) $(WEB_CFLAGS) $(WEB_SRCS) $(WEB_LDFLAGS) -o web/index.html
 
 # Pruned STP release tree preloaded into the wasm FS at /stp: CedarChest6.1
@@ -1631,6 +1639,75 @@ run-smalltalk: sdl smalltalk-pack
 		--disk 0='$(SMALLTALK_PACK)' --boot-reason disk --no-alto-boot \
 		--key-hold 3000000 --type-at 350000000 \
 		--type 'Bootfrom xmsmall.boot\n'
+
+# ---- Smalltalk-76 checkpoints --------------------------------------------
+# The boot is ~1.95 B cycles (about 90 s native, far too slow in a browser),
+# so both the SDL "play now" target and the web build restore a checkpoint.
+# The guest writes to its pack during the boot, so a snapshot is only valid
+# with the pack as flushed at the same cycle -- keep the pair together.
+SMALLTALK_SNAPSHOT        := build/good-packs/smalltalk76-desktop.snap
+SMALLTALK_SNAPSHOT_PACK   := build/good-packs/smalltalk76-desktop.pack
+SMALLTALK_SNAPSHOT_SCREEN := build/good-packs/smalltalk76-desktop.pgm
+SMALLTALK_NATIVE_SNAPSHOT_GZ := snapshot-assets/smalltalk76-native.snap.gz
+SMALLTALK_NATIVE_PACK_GZ     := snapshot-assets/smalltalk76-native.pack.gz
+
+.PHONY: smalltalk-desktop-snapshot
+smalltalk-desktop-snapshot: $(BINDIR)/dorado smalltalk-pack
+	mkdir -p '$(dir $(SMALLTALK_SNAPSHOT))' snapshot-assets
+	cp -f '$(SMALLTALK_PACK)' '$(SMALLTALK_SNAPSHOT_PACK)'
+	chmod 644 '$(SMALLTALK_SNAPSHOT_PACK)'
+	./build/dorado --cycles '$(SMALLTALK_CYCLES)' --eb '$(SMALLTALK_EB)' \
+		--disk 0='$(SMALLTALK_SNAPSHOT_PACK)' \
+		--boot-reason disk --no-alto-boot \
+		--key-hold 3000000 --type-at 350000000 \
+		--type 'Bootfrom xmsmall.boot\n' \
+		--snapshot-out '$(SMALLTALK_SNAPSHOT)' \
+		--out '$(SMALLTALK_SNAPSHOT_SCREEN)'
+	gzip -c '$(SMALLTALK_SNAPSHOT)' > '$(SMALLTALK_NATIVE_SNAPSHOT_GZ)'
+	gzip -c '$(SMALLTALK_SNAPSHOT_PACK)' > '$(SMALLTALK_NATIVE_PACK_GZ)'
+
+# Restore the saved desktop instantly. Each run gets its own writable copy of
+# the pack so the checkpoint pair stays immutable.
+.PHONY: run-smalltalk-snapshot-sdl
+run-smalltalk-snapshot-sdl: sdl
+	@test -r '$(SMALLTALK_NATIVE_SNAPSHOT_GZ)' || \
+		(echo "Missing $(SMALLTALK_NATIVE_SNAPSHOT_GZ). Run 'make smalltalk-desktop-snapshot' once." && false)
+	mkdir -p '$(TRIDENT_RUN_DIR)' '$(dir $(SMALLTALK_SNAPSHOT))'
+	gunzip -c '$(SMALLTALK_NATIVE_SNAPSHOT_GZ)' > '$(SMALLTALK_SNAPSHOT)'
+	gunzip -c '$(SMALLTALK_NATIVE_PACK_GZ)' > '$(TRIDENT_RUN_DIR)/smalltalk76-run.pack'
+	chmod 644 '$(TRIDENT_RUN_DIR)/smalltalk76-run.pack'
+	./build/dorado-sdl --eb '$(SMALLTALK_EB)' \
+		--disk 0='$(TRIDENT_RUN_DIR)/smalltalk76-run.pack' \
+		--boot-reason disk --no-alto-boot \
+		--snapshot-in '$(SMALLTALK_SNAPSHOT)'
+
+# The browser checkpoint. Machine snapshots are raw C structs, so the wasm32
+# ABI differs from the native one and the asset must come from a wasm32 run;
+# the MEDIA is identical either way, so pair it with the native run's already
+# flushed pack (same rule as lisp-lyric-web-snapshot).
+.PHONY: smalltalk-web-snapshot
+smalltalk-web-snapshot: $(WEB_NODE_JS) smalltalk-pack
+	@test -r '$(SMALLTALK_SNAPSHOT_PACK)' || \
+		(echo "Missing $(SMALLTALK_SNAPSHOT_PACK). Run 'make smalltalk-desktop-snapshot' first." && false)
+	mkdir -p '$(WEB_SMALLTALK_RAW_DIR)' '$(WEB_LISP_ASSET_DIR)'
+	cp -f '$(SMALLTALK_PACK)' '$(WEB_SMALLTALK_RAW_PACK)'
+	chmod 644 '$(WEB_SMALLTALK_RAW_PACK)'
+	DORADO_SNAPSHOT_NO_PACK_FLUSH=1 node '$(WEB_NODE_JS)' \
+		--cycles '$(SMALLTALK_CYCLES)' --eb '$(SMALLTALK_EB)' \
+		--disk 0='$(WEB_SMALLTALK_RAW_PACK)' \
+		--boot-reason disk --no-alto-boot \
+		--key-hold 3000000 --type-at 350000000 \
+		--type 'Bootfrom xmsmall.boot\n' \
+		--snapshot-out '$(WEB_SMALLTALK_RAW_SNAPSHOT)' \
+		--out '$(WEB_SMALLTALK_RAW_DIR)/smalltalk76.pgm'
+	cp -f '$(SMALLTALK_SNAPSHOT_PACK)' '$(WEB_SMALLTALK_RAW_PACK)'
+	gzip -c '$(WEB_SMALLTALK_RAW_SNAPSHOT)' > '$(WEB_SMALLTALK_SNAPSHOT_GZ)'
+	gzip -c '$(WEB_SMALLTALK_RAW_PACK)' > '$(WEB_SMALLTALK_PACK_GZ)'
+
+$(WEB_SMALLTALK_SNAPSHOT_GZ) $(WEB_SMALLTALK_PACK_GZ):
+	@echo "Missing WebAssembly Smalltalk-76 checkpoint assets."
+	@echo "Run 'make smalltalk-desktop-snapshot smalltalk-web-snapshot'."
+	@false
 
 # Headless gate: Smalltalk-76 must paint its Top View / Classes browser /
 # UserView workspace (about 125K px; 0 px means it never reached the

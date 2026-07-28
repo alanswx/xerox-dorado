@@ -87,6 +87,9 @@
         <option value="cedar">Cedar 6.1 &mdash; saved login prompt</option>
         <option value="mesa">Mesa Network Executive</option>
       </optgroup>
+      <optgroup label="Smalltalk-76">
+        <option value="smalltalk">Smalltalk-76 &mdash; saved desktop (Top View, Classes browser)</option>
+      </optgroup>
       <optgroup label="Interlisp-D">
         <option value="lisp">Lyric &mdash; saved Exec (XCL) desktop</option>
       </optgroup>
@@ -176,6 +179,15 @@
     at the <code>Please login ... / Name:</code> prompt &mdash; click the display
     and type a name, then <code>Return</code>.
     <br><br>
+    Choose <b>Smalltalk-76</b> to restore a checkpoint of the real
+    Smalltalk-76 system (from PARC's "XM Smalltalk" disk, booted by the Alto
+    Executive's <code>Bootfrom</code>) running on the Dorado's own Smalltalk
+    microcode. It opens at the desktop: <b>Top View</b>, the <b>Classes</b>
+    browser, and a <b>UserView workspace</b>. It is <b>view-only for now</b>:
+    Smalltalk keeps running (its bytecode interpreter is live), but a mouse
+    click derails it &mdash; the guest resets the display word task's bank
+    register and the Nova side spins. Wiring up input is the next job.
+    <br><br>
     Choose <b>Interlisp-D Lyric</b> to expand and restore a WebAssembly-native
     checkpoint directly at its <code>Exec (XCL)</code> desktop; this avoids
     replaying the multi-billion-cycle Lisp boot. Keyboard delivery reaches
@@ -239,6 +251,19 @@
                       '/worlds/lisp-lyric-xcl.pack')
     ]);
     lyricAssetsReady = true;
+  }
+
+  var smalltalkAssetsReady = false;
+  async function prepareSmalltalkAssets() {
+    if (smalltalkAssetsReady) return;
+    setStatus('Expanding the saved Smalltalk-76 desktop (snapshot + pack)...');
+    await Promise.all([
+      expandGzipAsset('/worlds/smalltalk76.snap.gz',
+                      '/worlds/smalltalk76.snap'),
+      expandGzipAsset('/worlds/smalltalk76.pack.gz',
+                      '/worlds/smalltalk76.pack')
+    ]);
+    smalltalkAssetsReady = true;
   }
 
   var corpusAssetsReady = false;
@@ -351,6 +376,20 @@
       } catch (e) {
         console.error(e);
         setStatus('Could not restore Cedar: ' + e.message);
+      }
+      document.getElementById('canvas').focus();
+      return;
+    }
+    if (path === 'smalltalk') {
+      try {
+        await prepareSmalltalkAssets();
+        var rst = Module.ccall('dorado_web_boot_smalltalk', 'number', [], []);
+        if (rst) throw new Error('snapshot restore rejected the saved image');
+        setStatus('Smalltalk-76 restored at its desktop (view only for now '
+                  + '\u2014 a mouse click currently stops it).');
+      } catch (e) {
+        console.error(e);
+        setStatus('Could not restore Smalltalk-76: ' + e.message);
       }
       document.getElementById('canvas').focus();
       return;
