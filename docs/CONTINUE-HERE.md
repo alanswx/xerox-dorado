@@ -788,15 +788,40 @@ on:
 (14 decimal = `0o16` = `nSectorsDiablo`), which matches; **head = partition+1**
 is covered by `--all-heads`.
 
-**Next:**
-1. Trace the CompareErr flip-flop across one checked block: when
-   `DORADO_DISK_CTRL_*` sets it, whether the microcode's
-   `Output_ clearCompareErr` reaches us, and whether we clear it in the window
-   the microcode expects. `disk.c` has `DORADO_DISK_MUFF_CLEAR_COMPARE_ERR
-   0x2000` and `ctl->compare_err`.
-2. If the flip-flop is right, compare the actual header/label words our reads
-   return against what the OS wrote, since a check block is a memcmp against
-   guest memory.
+**The sector data we return is CORRECT -- checked and re-checked.**
+`DORADO_DISK_HDR_TRACE` gives 2,664 header reads. Early ones decode cleanly,
+e.g. `CHS=(29,4,14) header=000324` -> sector 0, cylinder 26, head 1, drive 0,
+and Trident cyl 29 = Diablo cyl 26 (`+3`), Trident sector 14 = `14*1+0`. The
+retry loop at the end reads `CHS=(173,4,19) header=052524` **six times**.
+
+> **Correction, and a trap worth remembering.** `052524` looks exactly like the
+> `052525` alternating-bit poison fill, and an earlier revision of this section
+> called it an unpopulated sector. It is not. `0o52524` = `0x5554` =
+> `0101 0101 0101 0100`, which under the disk-address format in
+> `AltoDiabloDisk.mc` (0-3 sector, 4-12 cylinder, 13 head, 14 drive) decodes as
+> **sector 5, cylinder 170, head 1, drive 0** -- and Trident CHS (173,4,19) is
+> precisely Diablo (170,1,5) under `cyl+3` and `14*effHead+sec`. The header is
+> exactly right. Decode a suspicious constant before calling it garbage.
+
+So the address mapping, the stagger and the header contents are all correct
+(`Set[staggerSectors, 1]` is present in this microcode version too, with the
+same odd-cylinder head flip `dsk2trident` implements). The check error is
+**not** a header mismatch.
+
+Also measured: muffler `0o31` (`read_data_err || compare_err`) reads **0**, so
+`compare_err` is not stuck on either.
+
+**Next, with the easy explanations eliminated:**
+1. The remaining candidates are the **label** compare (the trace shows
+   `label0=001050`; a check block is a compare against guest memory, so diff the
+   whole label against what the OS wrote) and the **CompareErr handshake** --
+   `disk.c` sets `ctl->compare_err = 1` at the start of every
+   `DORADO_DISK_OP_RDCHK` block and relies on the microcode clearing it via
+   `DORADO_DISK_MUFF_CLEAR_COMPARE_ERR` (`0x2000`) in time.
+2. Cheapest decisive test: log every `RDCHK` block with the words we return and
+   the words the microcode supplied for comparison, for the one retried sector
+   (173,4,19), and find which word differs -- or prove none does, which would
+   move the fault to the clear-in-time window.
 
 So the noise on screen is simply uninitialised memory at `0o76400`; nothing
 ever drew, because the Smalltalk system died before reaching its microcode
