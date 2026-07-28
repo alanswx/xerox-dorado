@@ -721,19 +721,82 @@ the disk".) So `d->selected` is set, `d->online` is 1 with a pack attached, and
 `seek=0` -- the `0o16000` trio should read **0** and `AMapHdwStatus` should
 NOT report NotReady.
 
-**Revised picture: a deadlock, not a bad status bit.** The Alto OS waits at
-`0176442` for a completion in `M[0176220]`; the Dorado disk task polls hardware
-status waiting for something to do; `M[0o521]` (KBLK, the command-block chain
-head) is `0` in ours **and in ContrAlto**, so an empty chain is not itself the
-anomaly. Nobody posts the next command.
+Measured directly with `DORADO_DISK_MUFF_TRACE`, every status muffler
+`0o20`-`0o37` returns **0**, including the `0o23`/`0o24`/`0o25` trio. So
+`KTemp0 AND 0o16000 = 0` and NotReady is confirmed dead by measurement, not
+just by argument. (`muffSectorTW` at `0o2` reads 1, i.e. sectors are being
+serviced.)
+
+### ROOT CAUSE: every read aborts with completion code 2, CHECK ERROR
+
+It is **not deadlocked, it is retrying**. `DORADO_STORE_TRACE_VA=176220,176220`
+shows a steady handshake, forever:
+
+    cyc=631183532 task=0  pc=0o133  data=000000   (OS clears)
+    cyc=631923528 task=14 pc=0o3276 data=037402   (disk posts status)
+    cyc=631924104 task=0  pc=0o133  data=000000   (OS clears)
+    cyc=632664193 task=14 pc=0o3276 data=037402   (disk posts status)
+
+The value is **`037402`**. ContrAlto's are `017400`/`037400`/`057400` -- all
+ending in **0**. `AltoDiabloDisk.mc`'s own header defines the field:
+
+    Disk status format:
+      0-3:   sector number      4-7: 17B
+      8: seek failed            9: seek in progress
+      10: unit not ready        11: data late
+      12: no data transferred   13: data checksum error
+      14-15: completion code: 0 = normal, 1 = hardware error,
+             2 = check error, 3 = illegal sector
+
+So we report **completion code 2 = check error** on every operation, and the
+microcode reacts exactly as observed:
+
+    * KCmmd=0 means a check error occurred.  Post CheckError completion code
+    * and abandon commands for remaining blocks.
+        KStatus_ (KStatus) OR (2C)    * Alto CheckError
+
+A check error aborts the command and skips the remaining blocks, so the OS
+retries forever and the boot never advances.
+
+**Where the check error comes from.** An Alto disk command runs three blocks --
+header, label, data -- each with its own operation (`0 = read, 1 = check,
+2 or 3 = write`). A *check* block compares the on-disk block against memory
+using the controller's **CompareErr** flip-flop:
+
+    * If KTemp0 = clearCompareErr, check finished with no errors ... If
+    * KTemp0 = 0, a check error occurred.  Hardware turns on CompareErr at the
+    * beginning of a checked block, which will inhibit writing of subsequent
+    * blocks if the microcode determines that there is a check error in this
+    * block or fails to clear it in time.
+
+Note the muffler for that (`0o31 muffReadDataErr` = `read_data_err ||
+compare_err` in `disk.c`) reads **0**, so our controller does not think a
+compare failed -- yet the microcode concludes one did. That points at the
+CompareErr **handshake** (the flip-flop is set at block start and the microcode
+must clear it in time via `Output_ clearCompareErr`) rather than at the compare
+result itself.
+
+Also relevant, from the same header -- the address mapping the compare depends
+on:
+
+    Dorado cylinder = 406*(Diablo drive) + Diablo cylinder + 3
+    Dorado head     = (partition number) + 1
+    Dorado sector   = nSectorsDiablo*(Diablo head) + Diablo sector
+    MC[nSectorsDiablo, 16]
+
+`dsk2trident` already uses `cyl=406*drive+cyl+3` and `sector=14*head+sec`
+(14 decimal = `0o16` = `nSectorsDiablo`), which matches; **head = partition+1**
+is covered by `--all-heads`.
 
 **Next:**
-1. Log the 16-bit word `Read20Muffs` actually assembles, as a direct check on
-   the reasoning above rather than an inference -- if any of `0o16000` is set,
-   the conclusion here is wrong and that bit is the bug.
-2. Otherwise find who posts the *next* disk command on a healthy boot: put
-   `CA_WATCH` on `0o521` under ContrAlto and see which task writes it and when,
-   then check whether our guest ever reaches that code.
+1. Trace the CompareErr flip-flop across one checked block: when
+   `DORADO_DISK_CTRL_*` sets it, whether the microcode's
+   `Output_ clearCompareErr` reaches us, and whether we clear it in the window
+   the microcode expects. `disk.c` has `DORADO_DISK_MUFF_CLEAR_COMPARE_ERR
+   0x2000` and `ctl->compare_err`.
+2. If the flip-flop is right, compare the actual header/label words our reads
+   return against what the OS wrote, since a check block is a memcmp against
+   guest memory.
 
 So the noise on screen is simply uninitialised memory at `0o76400`; nothing
 ever drew, because the Smalltalk system died before reaching its microcode
