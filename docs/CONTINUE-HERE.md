@@ -915,18 +915,56 @@ and the next attempt fails identically -- forever. The observed label difference
 (ours `001050,...` genuine from the media, the guest's buffer
 `0,0,0,0,0,052525,052525,052525`) is then a *consequence*, not the cause.
 
+### MEASURED: the header check passes, the LABEL check fails on content
+
+`DORADO_DISK_CHECK_TRACE` resolves it exactly. Per command:
+
+    cyc=631922666 data-in  blk=0 op=2 pos=2/2 cmp=1   header check, CompareErr set
+    cyc=631922704 clr-cmp  blk=0 op=2 pos=2/2 cmp=0   microcode CLEARS it -> header OK
+    ...
+    cyc=632663697 data-in  blk=1 op=2 pos=8/8 cmp=1   label check, CompareErr set
+    cyc=632663848 data-in  blk=2 op=1 pos=0/256 cmp=1 never cleared -> write inhibited
+
+(`op=2` is read-check, `op=1` write, matching the command decode: header check,
+label check, data write.)
+
+**So the clear-in-time window is NOT the bug** -- the microcode clears
+CompareErr for the header about 40 cycles into the block, through the same
+code path, on every command. There are 5,315 `clr-cmp` events overall. It
+simply never clears for the label, i.e. it compared and found a real
+difference.
+
+Combined with the round-trip proof that our media is faithful, this means the
+OS expects a label that is **not** the one on the pristine pack:
+
+    ours (media, genuine): 001050,000000,000001,002204,001000,000000,042524,062524
+    guest buffer:          000000,000000,000000,000000,000000,052525,052525,052525
+
+and the guest's buffer still looks uninitialised rather than like a real label.
+
+**Where that leaves it.** The write that would reconcile the label is exactly
+the write CompareErr suppresses, so once the first label compare fails the
+state can never recover. The open question is why the *first* one fails. Two
+readings, and the evidence does not yet separate them:
+
+1. **The OS is creating something new** (a fresh page/file) and its label
+   buffer is legitimately not on the pristine disk, so a label *check* should
+   not be what this command does -- meaning we may be mis-decoding the command's
+   label-operation field, or mis-assigning ops to blocks.
+2. **The guest's buffer is genuinely uninitialised** because an earlier step
+   that should have filled it did not run -- putting the fault upstream of the
+   disk entirely.
+
 **Next:**
-1. Focus on the **CompareErr clear-in-time window** -- the one thing in this
-   path still unverified. Log, for a single checked block: when we set
-   `compare_err`, every `Output_` the microcode issues to the muffler register,
-   whether `DORADO_DISK_MUFF_CLEAR_COMPARE_ERR` (`0x2000`) appears, and the
-   cycle gap. `AltoDiabloDisk.mc` warns the microcode fails the check if it
-   "fails to clear it in time", so a window that is too short in our model would
-   produce exactly this.
-2. Cross-check against ContrAlto with `CA_COUNTOP`-style instrumentation on its
-   disk controller: does a healthy boot ever take the check-error path at all,
-   or does it always clear cleanly?
-3. Only then revisit the label ordering.
+1. Test reading 1 directly: dump `blk`/`op` assignment for each block of one
+   command beside the raw command word, and re-derive the operation fields from
+   `AltoDiabloDisk.mc`'s "Disk command format" independently. If the label op is
+   not really *check*, our block-op assignment is the bug and the whole
+   check-error chain follows from it.
+2. Test reading 2: watch writes into the label buffer (`0176231..0176240`) with
+   `DORADO_STORE_TRACE_VA` and see whether anything ever fills it, then compare
+   against ContrAlto (`CA_WATCH` on the equivalent address) to see what a
+   healthy boot puts there.
 
 So the noise on screen is simply uninitialised memory at `0o76400`; nothing
 ever drew, because the Smalltalk system died before reaching its microcode
