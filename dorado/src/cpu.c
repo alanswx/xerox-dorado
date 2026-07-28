@@ -3369,7 +3369,8 @@ static int apply_lc(dorado_cpu *cpu, const dorado_uinstr *u, uint16_t pd,
         /* DORADO_LC5_TRACE: which LC=5 sites carry TgetsMd and which do
          * not — the question the retired same-instruction Md bypass was
          * really asking. */
-        if (dorado_trace_flag("DORADO_LC5_TRACE")) {
+        if (dorado_trace_flag("DORADO_LC5_TRACE") &&
+            (!dorado_trace_flag("DORADO_TRACE_GATE") || dorado_trace_gate)) {
             static int lc5_n = 0;
             if (lc5_n < 400) {
                 lc5_n++;

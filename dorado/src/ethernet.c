@@ -1302,10 +1302,20 @@ static int eth_ftp_file_packet_needs_ack(const dorado_ethernet *eth)
     }
 }
 
+/* Bytes of BSP data this server puts in one Pup before the client has told
+ * us its own allocation. It is what eth_ftp_queue_ack advertises, and what
+ * an Alto-side BSP client allocates. */
+#define FTP_DEFAULT_BYTES_PER_PUP 512u
+/* Largest data a standard Pup can carry (554-byte Pup less its 22 bytes of
+ * header and checksum). A client advertising at most this is an ordinary
+ * Pup-MTU client and gets the 512-byte quantum; only a client claiming MORE
+ * (Cedar's directly-connected 1,478) gets larger packets. */
+#define PUP_MAX_DATA_BYTES 532u
+
 static int eth_ftp_queue_ack(dorado_ethernet *eth)
 {
     uint8_t body[6];
-    uint16_t bytes_per_pup = 512;
+    uint16_t bytes_per_pup = FTP_DEFAULT_BYTES_PER_PUP;
     uint16_t pup_alloc = 6;
     uint16_t byte_alloc = (uint16_t)(bytes_per_pup * pup_alloc);
     body[0] = (uint8_t)(bytes_per_pup >> 8);
@@ -1474,9 +1484,22 @@ static int eth_ftp_queue_file_chunk(dorado_ethernet *eth)
     }
     size_t want = eth->ftp_file_size - eth->ftp_file_pos;
     if (want > sizeof buf) want = sizeof buf;
-    if (eth->ftp_client_bytes_per_pup != 0 &&
-        want > eth->ftp_client_bytes_per_pup)
-        want = eth->ftp_client_bytes_per_pup;
+    /* 1,478 is what CEDAR advertises, and it only becomes known from the
+     * client's first BSP ack (ftp_client_bytes_per_pup, tx_words[12]).
+     * Until then the server must not assume it: an Alto-side BSP client
+     * allocates 512-byte fingers -- the size this server itself advertises
+     * in eth_ftp_queue_ack -- and silently drops a larger data Pup, so it
+     * never acks and the transfer wedges with the window full. That is
+     * exactly how Interlisp-D Lyric's 4.8 MB sysout retrieve died from
+     * 2026-07-11 on: FTP_WINDOW data=1478 ... in_flight=8/16 and then
+     * nothing, ending in "File not in sysout format". Default to the
+     * advertised 512 and go bigger only when the client says it can. */
+    {
+        uint16_t per_pup = FTP_DEFAULT_BYTES_PER_PUP;
+        if (eth->ftp_client_bytes_per_pup > PUP_MAX_DATA_BYTES)
+            per_pup = eth->ftp_client_bytes_per_pup;
+        if (want > per_pup) want = per_pup;
+    }
     size_t got = fread(buf, 1, want, fp);
     fclose(fp);
     if (got == 0) return 0;
