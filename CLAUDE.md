@@ -343,11 +343,20 @@ assumptions (2026-07-28).**
   (herald + prompt), PPong 323,184, TriEx 20,787, Pupwatch 6,669, MazeWar
   2,590.
 
-Both had the same shape as the AEmu-cannot-host-Smalltalk finding: a fact
-about HOW something was loaded was used as if it said WHAT was loaded. Still
-open: Interlisp-D Lyric, whose sysout transfer opens and then stalls at
-`in_flight=8/16` (12,613 FTP trace lines at `752ad8f` versus 68 today);
-bisect in progress over 2026-07-11..07-18.
+- **Interlisp-D Lyric boots to its Exec (XCL) desktop again (208,966 px).**
+  Its 4.8 MB sysout retrieve had wedged since 2026-07-11:
+  `eth_ftp_queue_file_chunk` sends up to 1,478-byte data Pups (what Cedar
+  advertises as a directly connected host) and only clamps once the client's
+  allocation is known -- which arrives in its first BSP ack. The Alto-side
+  client never gets there; the first data Pup is already oversized, it drops
+  it, never acks, and the window fills. Default is 512 now (the quantum this
+  server advertises itself), bigger only for a client claiming more than a
+  standard Pup carries. Honoring the client's own advertisement is NOT
+  enough -- it says 532 and still drops 532 (2.5 B-cycle trace lines:
+  1478 -> 68 wedged, 532 -> 141 crawling, 512 -> 22,809 streaming).
+
+All three had the same shape: a fact about HOW something was loaded or
+connected was used as if it said WHAT was on the other end.
 
 **Superseded note (2026-07-28, earlier in the same session):** Booted the period way -- `SmalltalkDorado.eb!1` plus
 the `xmsmall.dsk` pack converted with `dsk2trident --all-heads`, then the
