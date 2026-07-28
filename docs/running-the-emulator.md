@@ -113,6 +113,53 @@ Gzipped in `CedarDisk/` and rehydrated by make on demand:
 
 ## How to load each combination
 
+### Path C — Smalltalk-76 (2026-07-28)
+
+The world is **DSemu** — the Alto emulator PLUS the Dorado's Smalltalk
+microcode, ether-booted as BFN `111B` — and the medium is PARC's "XM
+Smalltalk" pack. Smalltalk is started the period way, by the Alto
+Executive's `Bootfrom`, exactly as `Smalltalk.midas!17` and
+`DSemuRelease.cm` describe.
+
+```
+make run-smalltalk             # boot from scratch in SDL (~90 s to the desktop)
+make run-smalltalk-snapshot-sdl  # restore the saved desktop instantly
+make verify-smalltalk          # headless gate: >= 100000 px (measures 124945)
+make smalltalk-desktop-snapshot  # (re)make the native checkpoint pair
+make smalltalk-web-snapshot      # (re)make the browser checkpoint pair
+```
+
+It reaches **Top View**, the **Classes** browser with its four panes, and a
+**UserView workspace** — the same screen ContrAlto reaches on the same pack
+and command. Screenshot: `docs/images/smalltalk76-desktop-2026-07-28.png`.
+
+By hand, the two flags that are easy to get wrong:
+
+```
+./build/dsk2trident --all-heads ../AltoInfo/ContrAlto2-beta/Disks/xmsmall.dsk /tmp/xmsmall.pack
+./build/dorado --cycles 1950000000 --eb '../chm/microcode/SmalltalkDorado.eb!1' \
+    --disk 0=/tmp/xmsmall.pack --boot-reason disk --no-alto-boot \
+    --key-hold 3000000 --type-at 350000000 --type 'Bootfrom xmsmall.boot\n'
+```
+
+- **`--no-alto-boot` is required.** Without it the run silently falls back to
+  Ethernet and a "renders from the pack" result is not what it looks like.
+- **`--key-hold 3000000` is required.** At the 600K default the doubled `o`
+  in `Bootfrom` collapses into one press (the Alto path applies keys with no
+  pacing) and the Executive sees `Botfrom`.
+- Rebuild the pack per run: the guest writes to it.
+
+**View-only for now.** After the restore the interpreter keeps running and
+the guest polls MOUSELOC (`0o424`/`0o425`), but a mouse click derails it:
+the guest stores 0 to the display word task's bank register `0177751` from
+Alto PC `0002270`, the rasteriser follows it back to bank 0, and the Nova
+side drops into a 4-instruction spin with no further Smalltalk bytecodes.
+
+**Testing a restore by hand:** `--cycles` is an ABSOLUTE target. A
+`--snapshot-in` run needs a target beyond the checkpoint's cycle (1.95 B
+here) or the emulator exits having executed nothing — which looks exactly
+like a dead machine.
+
 ### Path A — Alto software on Dorado (working)
 
 Headless (runs N cycles, writes a `dorado-screen.pgm` snapshot):
