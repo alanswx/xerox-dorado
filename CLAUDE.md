@@ -293,8 +293,37 @@ non-deterministic** run to run (28,490 vs 28,494 px from the identical
 binary), so it is not a byte-exact gate; the Alto path is deterministic.
 Detail: `docs/CONTINUE-HERE.md`.
 
-**Smalltalk-76 runs its interpreter and dies on its first object fault
-(2026-07-28, open).** Booted the period way -- `SmalltalkDorado.eb!1` plus
+**SMALLTALK-76 BOOTS TO ITS DESKTOP (2026-07-28).** `make run-smalltalk`
+brings up Top View, the Classes browser with its four panes, and a UserView
+workspace -- the same screen ContrAlto reaches; `make verify-smalltalk` is
+the headless gate (124,945 px). Screenshot:
+`docs/images/smalltalk76-desktop-2026-07-28.png`. Booted the period way
+(`Smalltalk.midas!17`, `DSemuRelease.cm`): `SmalltalkDorado.eb!1` (DSemu =
+the Alto emulator PLUS the Smalltalk microcode, ether-boot BFN `111B`) on the
+"XM Smalltalk" pack from `dsk2trident --all-heads`, started by the Executive's
+`Bootfrom xmsmall.boot`. **Three emulator bugs were in the way, each grounded
+in the manual or the period microcode.** (1) **`TgetsMd` was unimplemented**
+-- HM Table 10: "The only missing combination is T<-Md, RM/STK<-Md ...
+accomplished by combining an LC value of 5 with the TgetsMd FF decode"
+(Table 11a FA=0 FB=7 FC=5). With it stubbed, LC=5 always took T from Pd, and
+the stand-in was a same-instruction Md bypass that corrupted every OTHER
+LC=5+BSEL=RM/STK instruction -- including Dorado Smalltalk's recursive freer
+(`DSmallsubrs.mc Recuf`, `T _ Arg1, Arg1 _ Md`), which then walked to
+Father=-1 and object-faulted out on the 22nd bytecode. Implementing TgetsMd
+and retiring the bypass took instruction-set-1 dispatches from 22 to hundreds
+of thousands. (2) **The display word task's XM bank register**: Smalltalk
+writes `0177751 <- 4` and its 640x800 bitmap lives in bank 1 while the DCBs
+stay in bank 0 (`XMFaultTask.mc DispXM`); our rasteriser read bank 0, which
+is what earlier sessions recorded as "the screen is noise". (3) **UTILIN
+(`0o177030-3`) was only seeded when a mouse was attached** -- it is active
+low, so an unseeded cell reads as every keyset key held and Smalltalk stops
+with "The keyset is stuck". Gates: Alto Galaxian byte-identical,
+`verify-cedar-desktop` 246,086 px, 11/11 tests. Still open: interaction
+(no click/keystroke driven into the desktop yet), the Alto OS's XM sizing
+probe that ContrAlto runs and we do not, and re-running the Interlisp gate
+(its pack is a missing build artifact here; that world is argued statically).
+
+**Superseded note (2026-07-28, earlier in the same session):** Booted the period way -- `SmalltalkDorado.eb!1` plus
 the `xmsmall.dsk` pack converted with `dsk2trident --all-heads`, then the
 Executive's `Bootfrom xmsmall.boot` -- DSemu loads the whole image (2674
 sector reads, last page `next=0 nbytes=0`), enters the Smalltalk instruction

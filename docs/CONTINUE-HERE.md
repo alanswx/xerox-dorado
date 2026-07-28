@@ -1,10 +1,120 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
-## 2026-07-28: SMALLTALK-76 RUNS ITS INTERPRETER FOR REAL, AND DIES ON ITS
-## FIRST OBJECT FAULT. The whole disk "check error" trail below was chasing
-## AEmu, which cannot host Smalltalk by design.
+## ===> MILESTONE (2026-07-28): SMALLTALK-76 BOOTS TO ITS DESKTOP.
+## Screenshot: docs/images/smalltalk76-desktop-2026-07-28.png
+## Gate: `make verify-smalltalk` (124,945 px). Interactive: `make run-smalltalk`.
 
-Three corrections and one new frontier.
+Top View, the Classes browser with its four panes, and a UserView workspace
+-- the same screen ContrAlto reaches on the same pack and command. Booted the
+period way (`Smalltalk.midas!17`, `DSemuRelease.cm`): `SmalltalkDorado.eb!1`
+(DSemu = the Alto emulator PLUS the Smalltalk microcode, ether-boot BFN
+`111B`) on the "XM Smalltalk" pack, started by the Alto Executive's
+`Bootfrom xmsmall.boot`.
+
+**Three emulator bugs, each grounded in the manual or the period microcode.**
+
+### 1. TgetsMd was unimplemented, and a bogus bypass stood in for it
+
+This one was the boot blocker. The Dorado has no LC encoding for
+"T<-Md, RM/STK<-Md"; HM Table 10 says so and gives the mechanism:
+
+> "The only missing combination is T<-Md, RM/STK<-Md.  T<-Md, RM/STK<-Md can
+> be accomplished by combining an LC value of 5 with the TgetsMd FF decode.
+> It is illegal to use TgetsMd with other LC decodes."
+
+`TgetsMd` is Table 11a FA=0 FB=7 FC=5, and it was a stub:
+`case 5: /* TgetsMd */ return pd; /* memory TBD */`. So LC=5 always took T
+from Pd, Micro's multi-assign idiom `LTEMP2_ T_ Md` came out wrong, and the
+earlier fix for THAT was a **same-instruction Md bypass** on the ALU B input
+for LC=5 + BSEL=RM/STK (triangulated against six microcode witnesses, gated
+to exclude BLOCK/StackSelect).
+
+The bypass is far too wide: it corrupts every OTHER LC=5 + BSEL=RM/STK
+instruction, whose Pd is meant to be the OLD register. Dorado Smalltalk's
+recursive freer is one -- `DSmallsubrs.mc Recuf`:
+
+    T _ Fetch _ Temp3;          *Fetch from core address of object ref'd by oop
+    Store _ T, DBuf _ Father;   *Doesn't clobber Md!!
+    T _ Arg1, Arg1 _ Md;        <-- real pc 0o6443, LC=5 + BSEL=RM/STK
+    Father _ T, Call[RefCkDec];
+
+With the bypass, `Father` took the incoming Md instead of the oop being
+freed, so the freer walked to `Father=-1`, hashed oop `177777`, missed the
+object table, and object-faulted out to the Nova-side swapper on the 22nd
+bytecode. The manual is also explicit that the genuine bypass paths are
+between CONSECUTIVE instructions (p.7: "paths exist to bypass the register
+being written **if the following instruction specifies it as a source**"),
+not within one.
+
+Static blast radius, LC=5 sites carrying the TgetsMd decode:
+
+| world | TgetsMd sites |
+|---|---|
+| `AEmu.mb!2` | **0** |
+| `DSemu.mb!1` | **0** |
+| `Mesa.mb!3` | 1 |
+| `Cedar.mb!6` | 1 |
+| `DoradoLisp.MB!1` | 6 (all `FF=0o375, ASEL=Fetch<-T` -- the `.UNBOX1` shape) |
+
+So the Alto worlds cannot be affected by TgetsMd at all; for them this is
+purely the removal of a wrong bypass (Galaxian stays byte-identical). Three
+of Lisp's six sites are real `0o3317`/`0o3325`, straddling the `0o3321`
+BLOCK witness that forced the old exclusion -- under the manual's rule
+3317/3325 take Md and 3321 takes Pd with no special case, which is what the
+six-witness triangulation was curve-fitting toward.
+`compat_same_instr_md_bypass` now defaults to 0 (the field is kept, not
+deleted: `dorado_cpu` is snapshotted verbatim).
+
+Effect alone: instruction-set-1 dispatches went from **22** to hundreds of
+thousands -- the interpreter runs continuously.
+
+### 2. The display word task's XM bank register
+
+On an Alto II XM the DWT fetches bitmap words through its OWN bank register,
+so a program can move the bitmap out of the emulator's 64K while leaving the
+DCB chain in place. `XMFaultTask.mc` names the cell
+(`MC[ADispWordTaskReg, 177751]`) and takes the normal-bank field from it:
+
+    DispXM: T_ LDF[FaultVal, 2, 2];         * [12:13] normal bank bits
+            T_ T+Q, Call[SetDisplayBRHi];   * Q = EmuBRHiReg
+
+Smalltalk-76 writes `0177751 <- 4`, so its 640x800 bitmap lives in **bank 1**
+while `DASTART` and the DCBs stay in bank 0. Our rasteriser read the bitmap
+from bank 0 and painted 249 K px of noise -- which is what every earlier
+session recorded as "the screen is garbage". Reading the bank from that cell
+drops it to 1,442 px of real content.
+
+### 3. UTILIN was only seeded when a mouse was attached
+
+`0o177030-0o177033` is **active low**: an unseeded (zero) cell reads as
+"every mouse button and every keyset key held down". Smalltalk polls the
+Alto's 5-key keyset at startup and stops -- and with fix 2 in place the
+screen said so, in Smalltalk's own font:
+
+    The keyset is stuck
+    The keyset is stuck
+    ...
+
+Seeding the idle all-ones state regardless of mouse presence takes it from
+1,442 px to the full 124,945-px desktop.
+
+### What is still open
+
+- The Alto OS's **extended-memory sizing probe** runs on ContrAlto
+  (`0177740 <- 1,2,3,1` at Alto PC `0117612`) and never on ours -- Alto PC
+  `0117612` is never executed here. It may be legitimate (a Dorado reports
+  `eng=5` from `VERS`, so Alto-II-specific probes can be skipped) or it may
+  be a second divergence that simply no longer blocks the boot. Nothing in
+  our run ever *reads* `0177740`-`0177757` (measured: zero loads).
+- Interaction is unverified: the desktop is rendered but no click or
+  keystroke has been driven into it yet.
+- The **Interlisp gate could not be re-run** -- `build/good-packs/lisp-lyric-desktop.pack`
+  is a missing build artifact here -- so that world is argued statically from
+  the TgetsMd site table above rather than measured. Re-run it when the pack
+  is rebuilt.
+
+Everything below this section is the investigation that got here, including
+several retracted readings; it is kept for the reasoning trail.
 
 ### Correction 1: AEmu is not a Smalltalk host. Do not debug Smalltalk with it.
 
@@ -216,33 +326,6 @@ reach exactly once, and check the anchor.
 
 So: our disk path delivers the image byte-for-byte the way a real Alto does,
 and the object-fault handler's control flow through the OS is authentic.
-
-### Next steps
-
-1. **Decide whether the missing OS XM sizing probe is a bug or correct.**
-   The probe is Alto-II-specific; a Dorado reports `eng=5` from `VERS` and
-   may legitimately skip it. If it is legitimate, then bank 1 being empty is
-   also legitimate and the XMLDA reading 0 is *not* the fault -- in which
-   case walk forward from `0054126` and find where the handler gives up.
-   If it is not legitimate, find what our guest tests differently: nothing
-   ever *reads* `0177740`-`0177757` in our run (measured: zero loads), so
-   the decision is being made from something else.
-2. **Find where the OS read request gets its file identity.** The KCB is
-   built at Alto PCs `0176272`-`0176355`; the disk address is stored to
-   `KCB+11` by the `STA` at `0176277` and the 8-word label buffer is
-   BLT-copied (`0o61005`, Alto PC `0176350`) from a source block at
-   `0175730`, which already holds `052525` in the fid words. Walk back from
-   that BLT source: the poison enters the OS's file structure before the
-   disk is ever touched. The window is
-   `DORADO_TRACE_GATE=627090000,627900000` with `DORADO_IFUDISP_TRACE=1`
-   plus `DORADO_STORE_TRACE_VA=175720,175760`; the whole stream is ~25 K
-   lines.
-3. **The display bank is a separate, real bug.** The guest sets the display
-   task's normal bank to 1 (`0177751 <- 4`) at cyc 510.67 M, and our
-   rasteriser reads the bitmap from bank 0. That is why the screen shows
-   noise: we are rendering the wrong bank. `XMFaultTask.mc DispXM` updates
-   the Dorado display base register, so the microcode side is modelled --
-   check `dorado_machine_render_display_list` against it.
 
 ### Tooling added for this (all cheap, all off by default)
 
