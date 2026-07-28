@@ -1601,6 +1601,51 @@ run-tricond-nopack: $(BINDIR)/rundiag
 run-tricond-pack: $(BINDIR)/rundiag alto-disk-image
 	RUNDIAG_DISK=1 RUNDIAG_DISK_MEDIA=diablo RUNDIAG_DISK_PATH='$(ALTO_RUN_PACK)' RUNDIAG_TASK=14 ./build/rundiag '../chm/dorado/expanded/Tricond.dm!5_/TriconD.mb' BEGIN DONE ERR 120000000
 
+# ---- Smalltalk-76 (2026-07-28 milestone) ---------------------------------
+# Booted the period way, per Smalltalk.midas!17 and DSemuRelease.cm: load
+# DSemu (the Alto emulator PLUS the Smalltalk microcode, ether-boot BFN 111B)
+# and let the Alto Executive's `Bootfrom` start the system off the "XM
+# Smalltalk" pack.  --no-alto-boot is REQUIRED: without it the run silently
+# falls back to Ethernet and the result is not what it looks like.
+# --key-hold 3000000 is also required -- at the 600K default the doubled `o`
+# in "Bootfrom" collapses into one press (the Alto path applies keys with no
+# pacing) and the Executive sees "Botfrom".
+SMALLTALK_EB     ?= ../chm/microcode/SmalltalkDorado.eb!1
+SMALLTALK_DSK    ?= ../AltoInfo/ContrAlto2-beta/Disks/xmsmall.dsk
+SMALLTALK_PACK   ?= $(TRIDENT_RUN_DIR)/xmsmall-trident.pack
+SMALLTALK_CYCLES ?= 1950000000
+SMALLTALK_MIN_PX ?= 100000
+
+# Always rebuilt: the guest writes to its pack, so a run must not inherit a
+# mutated one.
+.PHONY: smalltalk-pack
+smalltalk-pack: $(BINDIR)/dsk2trident
+	@test -r '$(SMALLTALK_DSK)' || \
+		(echo "Missing $(SMALLTALK_DSK) (AltoInfo/ is gitignored)." && false)
+	mkdir -p '$(TRIDENT_RUN_DIR)'
+	$(BINDIR)/dsk2trident --all-heads '$(SMALLTALK_DSK)' '$(SMALLTALK_PACK)'
+
+.PHONY: run-smalltalk verify-smalltalk
+run-smalltalk: sdl smalltalk-pack
+	./build/dorado-sdl --eb '$(SMALLTALK_EB)' \
+		--disk 0='$(SMALLTALK_PACK)' --boot-reason disk --no-alto-boot \
+		--key-hold 3000000 --type-at 350000000 \
+		--type 'Bootfrom xmsmall.boot\n'
+
+# Headless gate: Smalltalk-76 must paint its Top View / Classes browser /
+# UserView workspace (about 125K px; 0 px means it never reached the
+# interpreter, ~1.4K means it stopped at "The keyset is stuck").
+verify-smalltalk: $(BINDIR)/dorado smalltalk-pack
+	./build/dorado --cycles '$(SMALLTALK_CYCLES)' --eb '$(SMALLTALK_EB)' \
+		--disk 0='$(SMALLTALK_PACK)' --boot-reason disk --no-alto-boot \
+		--key-hold 3000000 --type-at 350000000 \
+		--type 'Bootfrom xmsmall.boot\n' \
+		--out build/verify-smalltalk.pgm > build/verify-smalltalk.log 2>&1
+	@px=$$(sed -n 's/^dorado: \([0-9]*\) display-list pixels.*/\1/p' \
+		build/verify-smalltalk.log | tail -1); \
+	echo "verify-smalltalk: $$px px (need >= $(SMALLTALK_MIN_PX))"; \
+	test "$$px" -ge '$(SMALLTALK_MIN_PX)'
+
 .PHONY: all clean test worlds sdl web web-dir
 
 -include $(wildcard $(OBJDIR)/*.d)

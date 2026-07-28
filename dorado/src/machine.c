@@ -1883,17 +1883,30 @@ static void machine_apply_boot_chord(dorado_display *disp,
  * position) and the UTILIN button word 0o177030..0o177033 (active-low
  * ~buttons, matching ContrAlto's ~(buttons|keyset)). Written at each
  * plausible base like the keyboard words. */
-static void machine_seed_mouse(dorado_memory *mem, int x, int y, int buttons)
+/* UTILIN (0o177030-0o177033) is ACTIVE LOW: a zero bit reads as pressed.
+ * It carries the mouse buttons and the Alto's 5-key keyset. Seeding it is
+ * not optional just because no mouse is attached -- an unseeded (zero) cell
+ * reads as "every button and every keyset key held down", and Smalltalk-76
+ * polls the keyset at startup and stops with "The keyset is stuck". */
+static void machine_seed_utilin(dorado_memory *mem, int buttons)
 {
     if (!mem || !mem->storage) return;
     uint16_t bw = (uint16_t)~((unsigned)buttons & 07u);
     uint32_t bases[] = { 0, dorado_br_get(mem, 031), dorado_br_get(mem, 036) };
+    for (size_t b = 0; b < sizeof bases / sizeof bases[0]; b++)
+        for (uint32_t a = 0177030u; a <= 0177033u; a++)
+            machine_store_va(mem, (bases[b] + a) & 0x0FFFFFFFu, bw);
+}
+
+static void machine_seed_mouse(dorado_memory *mem, int x, int y, int buttons)
+{
+    if (!mem || !mem->storage) return;
+    uint32_t bases[] = { 0, dorado_br_get(mem, 031), dorado_br_get(mem, 036) };
     for (size_t b = 0; b < sizeof bases / sizeof bases[0]; b++) {
         machine_store_va(mem, (bases[b] + 0424u) & 0x0FFFFFFFu, (uint16_t)x);
         machine_store_va(mem, (bases[b] + 0425u) & 0x0FFFFFFFu, (uint16_t)y);
-        for (uint32_t a = 0177030u; a <= 0177033u; a++)
-            machine_store_va(mem, (bases[b] + a) & 0x0FFFFFFFu, bw);
     }
+    machine_seed_utilin(mem, buttons);
 }
 
 static void machine_seed_lisp_iopage_keyboard(dorado_memory *mem,
@@ -1942,6 +1955,8 @@ static void machine_seed_alto_live_io(dorado_machine *m, dorado_display *disp)
                                       m->mouse_buttons);
     if (m->mouse_present)
         machine_seed_mouse(&m->mem, m->mouse_x, m->mouse_y, m->mouse_buttons);
+    else
+        machine_seed_utilin(&m->mem, 0);   /* idle keyset + buttons */
 }
 
 static void machine_seed_lisp_live_io(dorado_machine *m, dorado_display *disp)
@@ -5287,6 +5302,22 @@ int dorado_machine_render_display_list(dorado_machine *m)
         machine_overlay_mouse(m);
         return pixels;
     }
+    /* Alto II XM: the display WORD task fetches bitmap words through its
+     * OWN bank register, so an XM program can move the bitmap out of the
+     * emulator's 64K while leaving the DCB chain in place.
+     * XMFaultTask.mc names the cell (`MC[ADispWordTaskReg, 177751]`) and
+     * takes the normal-bank field from it:
+     *     DispXM: T_ LDF[FaultVal, 2, 2];   * [12:13] normal bank bits
+     *             T_ T+Q, Call[SetDisplayBRHi];   * Q = EmuBRHiReg
+     * so the display base is (EmuBRHiReg + bank) -- here dmds + bank<<16.
+     * Smalltalk-76 uses this to put its 640x800 bitmap in bank 1 (writes
+     * 0177751 <- 4); without it we rasterise bank 0 and get noise. Worlds
+     * that never touch the register read 0 and are unaffected. */
+    uint32_t disp_bank = 0;
+    {
+        uint16_t xmreg = dorado_visible_word_at_va(mem, dmds + 0177751u);
+        disp_bank = (uint32_t)((xmreg >> 2) & 3u) << 16;
+    }
     /* Alto DCB (Hardware Manual; salto helloworld.asm):
      *   w0 = next DCB (0 ends)
      *   w1 = (res<<15) | (inverse<<14) | (HTAB<<8) | NWRDS
@@ -5315,7 +5346,8 @@ int dorado_machine_render_display_list(dorado_machine *m)
         for (int row = 0; row < lines && y < DORADO_DISPLAY_H; row++, y++) {
             for (int wi = 0; wi < nwrds; wi++) {
                 uint16_t bits = dorado_visible_word_at_va(
-                    mem, dmds + sa + (uint32_t)(row * nwrds + wi));
+                    mem, dmds + disp_bank + sa +
+                         (uint32_t)(row * nwrds + wi));
                 if (dcb_trace) bmhash = (bmhash ^ bits) * 16777619u;
                 for (int b = 0; b < 16; b++) {
                     int pix = (bits >> (15 - b)) & 1;
