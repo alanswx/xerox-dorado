@@ -323,6 +323,32 @@ with "The keyset is stuck". Gates: Alto Galaxian byte-identical,
 probe that ContrAlto runs and we do not, and re-running the Interlisp gate
 (its pack is a missing build artifact here; that world is argued statically).
 
+**Two long-standing regressions closed, both artifacts of over-broad
+assumptions (2026-07-28).**
+
+- **The Alto Executive boots from disk again (2,092 px).** It was never an
+  emulator bug: `3fe8ae1` changed `dsk2trident`'s default `--sector-offset`
+  from 1 to 0 and the checked-in `chm/diskpacks/games-trident.pack.gz` was
+  never regenerated, so every sector sat one slot late (old slot n+1 == new
+  slot n, visible by diffing the two packs). Regenerating the pack fixed it
+  with zero source changes. Gate: `make verify-alto-disk`.
+- **Five Mesa-world programs come back from 0 px.** Bisected to `40e6491`,
+  which extended the one-shot cold-Alto init to real PC `0o2006` whenever
+  `alto_ether_boot` was set. `0o2006` is EBoot in `AEmu.mb` but an unrelated
+  instruction in `AltoMesaDorado.eb`, and `alto_ether_boot` only means
+  "Initial netbooted the world" -- equally true of the Mesa world -- so the
+  init wiped a running Mesa NetExec's stack and I/O page. The gate now keys
+  on the served image's format word, which `ethernet.c` already decodes
+  (`0o405` = Alto B-format, `0o345` = Mesa outload). MesaNetExec 1,513 px
+  (herald + prompt), PPong 323,184, TriEx 20,787, Pupwatch 6,669, MazeWar
+  2,590.
+
+Both had the same shape as the AEmu-cannot-host-Smalltalk finding: a fact
+about HOW something was loaded was used as if it said WHAT was loaded. Still
+open: Interlisp-D Lyric, whose sysout transfer opens and then stalls at
+`in_flight=8/16` (12,613 FTP trace lines at `752ad8f` versus 68 today);
+bisect in progress over 2026-07-11..07-18.
+
 **Superseded note (2026-07-28, earlier in the same session):** Booted the period way -- `SmalltalkDorado.eb!1` plus
 the `xmsmall.dsk` pack converted with `dsk2trident --all-heads`, then the
 Executive's `Bootfrom xmsmall.boot` -- DSemu loads the whole image (2674
