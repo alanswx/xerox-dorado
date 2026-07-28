@@ -142,7 +142,55 @@ if >= 1. It is ~2 minutes a point instead of the ~10 an 8.8 B pixel probe
 costs, and unlike pixels it separates cleanly (pixels at 2.5 B are 3,474
 good vs 3,360 bad -- useless). Script: `scratchpad/lyric-bisect.sh`.
 
-### The Mesa group is NOT part of this window
+### FIXED: the Mesa group -- five worlds, one over-broad gate
+
+Bisected (probe: 300 M cycles on `AltoMesaDorado.eb!2`, good if >= 500 px) to
+**`40e6491`** (2026-06-23), "cold-Alto init on the ether-boot path (EBoot)".
+It extended the one-shot cold-Alto init -- clear `STK[1..4]`, fill the Alto
+I/O page with 177777, set the bank registers -- to real PC `0o2006` whenever
+`alto_ether_boot` is set.
+
+`0o2006` is EBoot in `AEmu.mb`. In `AltoMesaDorado.eb` it is an unrelated
+instruction, and `alto_ether_boot` only says "Initial netbooted the world",
+which is equally true of the Mesa world. So the init fired underneath a
+running Mesa NetExec and wiped its stack and I/O page.
+
+The fix gates on **what is being booted**, which `ethernet.c` already
+classifies from the served image's first word (ETHERBOOT.BRAVO): `0o405` =
+Alto B-format, `0o345` = Mesa/Pilot outload. A Mesa outload is not an Alto
+program. Read once at create into a file-scope static (a `dorado_machine`
+member would change the snapshot ABI and break every baked checkpoint).
+
+| world | before | after |
+|---|---|---|
+| MesaNetExec | 0 px | **1,513 px** (herald + `>` prompt) |
+| PPong | 0 px | **323,184 px** |
+| TriEx | 0 px | **20,787 px** |
+| Pupwatch | 0 px | **6,669 px** |
+| MazeWar | 0 px | **2,590 px** |
+
+Chat (0 px) and Fly (98 px) are unchanged; they wait on input.
+
+The lesson is the same one AEmu-hosting-Smalltalk taught: **a flag that
+describes HOW a world was loaded does not tell you WHAT was loaded.** Both
+bugs came from treating "came in over the ether" or "is an Alto emulator" as
+if it identified the guest.
+
+### Lyric: TWO regressions, not one
+
+The bisect over `752ad8f..HEAD` named `82398c9` ("input: host-side keyboard
+buffer") -- correct, and already fixed: `8b325c9` found the same bug from the
+other end ("a DISK-booted Alto has that flag clear... keys were queued for a
+drainer that never runs"). Probing `8b325c9` directly gives FTP_RFC=1, i.e.
+GOOD.
+
+So HEAD is bad for a *second*, later reason, in the 28 commits of the
+Smalltalk session. That is the live hunt. The general trap: a binary search
+assumes one transition; when it names a commit that was demonstrably fixed
+later, probe the fix and re-bisect the remainder rather than trusting the
+single verdict.
+
+### (superseded) The Mesa group is NOT part of this window
 
 `MesaNetExec.boot!1` on its proper world (`AltoMesaDorado.eb!2` -- NOT
 `aemu.eb`; booting a Mesa boot file on the Alto emulator is the same
