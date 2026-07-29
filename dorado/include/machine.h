@@ -132,6 +132,8 @@ uint64_t dorado_machine_cycles(const dorado_machine *m);
 
 /* 1 once Initial has LoadRam'd the Alto/Mesa world and it is running. */
 int dorado_machine_booted(const dorado_machine *m);
+/* 1 when the EFTP-served image is a Mesa/Pilot outload (see machine.c). */
+int dorado_machine_boot_is_mesa_outload(const dorado_machine *m);
 
 /* The display device (for framebuffer access / snapshot). */
 dorado_display *dorado_machine_display(dorado_machine *m);

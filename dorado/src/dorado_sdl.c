@@ -221,6 +221,7 @@ int main(int argc, char **argv)
 {
     int scale = 1;
     uint64_t cycles_per_frame = 400000;   /* emulated cycles per redraw */
+    int speed_explicit = 0;               /* --speed pins the pace */
     long shots[64];                       /* frame numbers to snapshot   */
     int n_shots = 0;
     long max_shot = -1;
@@ -291,8 +292,10 @@ int main(int argc, char **argv)
         }
         else if (!strcmp(a, "--no-alto-boot"))         cfg.alto_ether_boot = 0;
         else if (!strcmp(a, "--scale") && i + 1 < argc) scale = atoi(argv[++i]);
-        else if (!strcmp(a, "--speed") && i + 1 < argc)
+        else if (!strcmp(a, "--speed") && i + 1 < argc) {
             cycles_per_frame = parse_u64(argv[++i], cycles_per_frame);
+            speed_explicit = 1;
+        }
         else if (!strcmp(a, "--snapshot-in") && i + 1 < argc)
             snapshot_in = argv[++i];
         else if (!strcmp(a, "--snapshot-out") && i + 1 < argc)
@@ -524,8 +527,21 @@ int main(int argc, char **argv)
 
         if (!paused) {
             uint64_t now = dorado_machine_cycles(m);
+            /* 400,000 cycles per redraw is ~24 M cycles/s at 60 fps, which
+             * suits an Alto world: it paints when it is ready. A Mesa
+             * outload does not -- MesaNetExec shows its herald by ~30 M
+             * cycles but only reaches its `>` prompt near 300 M, so at the
+             * interactive pace the window sits on a herald for tens of
+             * seconds and looks hung. Boot such a world in large chunks
+             * until it is up, then fall back to the responsive pace.
+             * An explicit --speed always wins (the Lisp and Cedar recipes
+             * are tuned). */
+            uint64_t chunk = cycles_per_frame;
+            if (!speed_explicit && dorado_machine_boot_is_mesa_outload(m) &&
+                now < 800000000ull)
+                chunk = 4000000ull;
             dorado_typequeue_pump(&paste_queue, m);
-            dorado_machine_run_until(m, now + cycles_per_frame);
+            dorado_machine_run_until(m, now + chunk);
             dorado_typequeue_pump(&paste_queue, m);
             if (!announced && dorado_machine_booted(m)) {
                 announced = 1;

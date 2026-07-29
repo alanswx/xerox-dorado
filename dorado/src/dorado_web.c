@@ -788,8 +788,13 @@ static void frame(void)
         /* Still booting: show progress so a slow world is visibly alive. */
         if ((app.frame & 0x0F) == 0)
             js_boot_progress((int)(dorado_machine_cycles(app.m) / 1000000ull));
+        /* The cycle floor applies to a Mesa outload, whose herald lands
+         * ~270 M cycles before its prompt. An Alto B-format world paints
+         * when it is ready, so the pixel test alone still governs it and
+         * the games stay at their normal pace. */
         if (rendered_px > 700 &&
-            dorado_machine_cycles(app.m) >= WEB_BOOT_FAST_CYCLES)
+            (!dorado_machine_boot_is_mesa_outload(app.m) ||
+             dorado_machine_cycles(app.m) >= WEB_BOOT_FAST_CYCLES))
             app.cycles_per_frame = WEB_CYCLES_INTERACTIVE;
     }
     const uint8_t *fb = app.disp->fb;

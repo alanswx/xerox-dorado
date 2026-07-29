@@ -3850,6 +3850,17 @@ uint64_t dorado_machine_cycles(const dorado_machine *m)
     return m ? m->bb.cycles : 0;
 }
 
+/* True when the image this machine is serving over EFTP is a Mesa/Pilot
+ * outload (first word 0o345) rather than an Alto B-format boot file (0o405).
+ * Frontends need it for pacing: a Mesa world paints its herald within ~30 M
+ * cycles but only reaches its prompt near 300 M, so "the screen has painted"
+ * must not be taken for "the world is up". */
+int dorado_machine_boot_is_mesa_outload(const dorado_machine *m)
+{
+    (void)m;
+    return machine_eftp_boot_tag == 0345;
+}
+
 int dorado_machine_booted(const dorado_machine *m)
 {
     return m && m->ether_loaded_world_cycle != 0;
