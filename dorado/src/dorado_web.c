@@ -98,6 +98,9 @@
  * chunk on the first keystroke so interaction stays responsive. */
 #define WEB_CYCLES_BOOT         4000000u
 #define WEB_CYCLES_INTERACTIVE   400000u
+/* Emulated cycles to keep the fast-boot chunk for, regardless of what the
+ * screen shows. Covers the slowest cold boot in the menu (Cedar ~640 M). */
+#define WEB_BOOT_FAST_CYCLES     800000000ull
 
 /* Single global app state - the frame() callback has no other way to reach
  * it under emscripten_set_main_loop. */
@@ -755,11 +758,22 @@ static void frame(void)
                    rendered_px,
                    (unsigned long long)app.cycles_per_frame);
     }
-    /* Stay in fast-boot (large cycle chunks) while the screen is still blank,
-     * then switch to a responsive chunk once the world paints its UI (herald /
-     * prompt / game field). This is keyboard-independent: typing during the
-     * boot never slows the boot, and the prompt always appears on time. */
-    if (app.cycles_per_frame != WEB_CYCLES_INTERACTIVE && rendered_px > 700)
+    /* Stay in fast-boot (large cycle chunks) while the world is still coming
+     * up, then switch to a responsive chunk. This is keyboard-independent:
+     * typing during the boot never slows the boot.
+     *
+     * "Painted something" is NOT the same as "is up". Mesa NetExec paints its
+     * first herald line (~1,250 px) at ~30 M cycles but only reaches its `>`
+     * prompt near 300 M; on the pixel test alone it dropped to 400 K
+     * cycles/frame there and then crawled at ~4 M cycles/s, so the prompt
+     * never arrived and the world looked hung -- a browser-only failure the
+     * native CLI cannot show, because it has no throttle. Require a cycle
+     * budget that covers every world's cold boot as well (Alto Executive
+     * ~120 M, Alto NetExec ~100 M, Mesa NetExec ~300 M, Smalltalk ~630 M,
+     * Cedar ~640 M; the Lyric and Cedar desktop entries restore a checkpoint
+     * and start interactive already). */
+    if (app.cycles_per_frame != WEB_CYCLES_INTERACTIVE && rendered_px > 700 &&
+        dorado_machine_cycles(app.m) >= WEB_BOOT_FAST_CYCLES)
         app.cycles_per_frame = WEB_CYCLES_INTERACTIVE;
     const uint8_t *fb = app.disp->fb;
 

@@ -163,6 +163,12 @@ web-shell: src/web_shell.html | $(BINDIR)
 
 web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_PDI_GZ) $(WEB_CEDAR_DEMO_SNAPSHOT_GZ) $(WEB_CEDAR_DEMO_PDI_GZ) $(WEB_CEDAR_CORPUS_SNAPSHOT_GZ) $(WEB_CEDAR_CORPUS_PDI_GZ) $(WEB_LISP_SNAPSHOT_GZ) $(WEB_LISP_PACK_GZ) $(WEB_SMALLTALK_SNAPSHOT_GZ) $(WEB_SMALLTALK_PACK_GZ) web-stp web-shell | web-dir
 	$(EMCC) $(WEB_CFLAGS) $(WEB_SRCS) $(WEB_LDFLAGS) -o web/index.html
+	@# Cache-bust the emcc-generated loader too. Module.locateFile already
+	@# stamps index.data/index.wasm with the build id, but emcc emits a plain
+	@# `<script async src=index.js>`; a browser that had the page open kept
+	@# serving the OLD index.js beside the NEW wasm/data -- which is how a
+	@# rebuilt frontend silently did not take effect during testing.
+	sed -i '' 's|src=index\.js|src="index.js?v=$(WEB_BUILD_ID)"|' web/index.html
 
 # Pruned STP release tree preloaded into the wasm FS at /stp: CedarChest6.1
 # (AISImages, AIS/AISViewer, PressReader, Sil, ...) plus the font
