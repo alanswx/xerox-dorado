@@ -168,7 +168,9 @@ web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_CEDAR_D
 	@# `<script async src=index.js>`; a browser that had the page open kept
 	@# serving the OLD index.js beside the NEW wasm/data -- which is how a
 	@# rebuilt frontend silently did not take effect during testing.
-	sed -i '' 's|src=index\.js|src="index.js?v=$(WEB_BUILD_ID)"|' web/index.html
+	@# (sed -i is not portable: BSD needs an argument, GNU must not have one.)
+	sed 's|src=index\.js|src="index.js?v=$(WEB_BUILD_ID)"|' web/index.html \
+		> web/index.html.tmp && mv -f web/index.html.tmp web/index.html
 
 # Pruned STP release tree preloaded into the wasm FS at /stp: CedarChest6.1
 # (AISImages, AIS/AISViewer, PressReader, Sil, ...) plus the font
