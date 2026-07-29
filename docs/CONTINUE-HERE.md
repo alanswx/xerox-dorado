@@ -207,6 +207,36 @@ advertises 1,478 and is untouched), Galaxian byte-identical,
 `verify-alto-disk` 2,092 px, `verify-smalltalk` 124,945 px, MesaNetExec
 1,539 px, 193 tests pass.
 
+### The Mesa fix had a second half: input
+
+Gating the cold-Alto init off for a Mesa outload fixed the DISPLAY and broke
+the KEYBOARD. The live-input branch in `dorado_machine_run_until` is gated on
+`m->alto_cold_ac_done` -- a flag only that init sets -- so a Mesa world could
+never reach it and Mesa NetExec ignored typing.
+
+That gate is a recent proxy for "past the boot vector". In June (`f456829`)
+the interactive phase keyed purely on `eftp_max_seq != 0` ("the boot file is
+downloading, so release the held boot keys and deliver live key state") and
+typing worked. A Mesa outload now takes that same path -- the polled keyboard
+words and the mouse, deliberately NOT `machine_seed_alto_live_io`, which also
+writes the Lisp IOPage window at `0x14041` that is ordinary VM to a Mesa
+world.
+
+Measured: 1,551 px idle -> 1,603 px after `--type "abc"`, and the screen
+reads `>abc` at the prompt (the June repro's +46 px).
+
+**TriEx moved 20,787 -> 2,130 px, and DOWN is correct here.** It now stops at
+
+    TRIdent EXerciser program 4.1 (May 31, 1978)
+    WARNING - Writing with TRIEX will destroy data on your Trident pack.
+    Type the character '<-' if you wish to enable writing.
+
+Before, the keyboard words were never seeded, and they are ACTIVE LOW -- an
+unseeded cell reads as every key held, so TriEx "received" the enable
+character and ran on into the pack. Same failure mode as Smalltalk's stuck
+keyset. A pixel count is not a quality metric; the higher number was the
+machine acting on keys nobody pressed.
+
 ### How the two earlier Lyric bisects went wrong (kept for the trail)
 
 **Retraction.** The first two Lyric bisects used "does an FTP_RFC happen by
