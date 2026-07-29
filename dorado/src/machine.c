@@ -3295,6 +3295,25 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                 machine_seed_keyboard(&m->mem, w);
             } else if (m->alto_cold_ac_done) {
                 machine_seed_alto_live_io(m, disp);
+            } else if (machine_eftp_boot_tag == 0345) {
+                /* A Mesa outload deliberately never runs the cold-Alto init
+                 * (it is not an Alto program), so alto_cold_ac_done can never
+                 * become true and cannot gate its input. Deliver live keys the
+                 * way this path did before that flag became the gate: the
+                 * polled keyboard words only. NOT machine_seed_alto_live_io --
+                 * that also writes the Lisp IOPage window at 0x14041, which is
+                 * ordinary VM to a Mesa world. */
+                if (!m->keys_live) {
+                    dorado_display_keyboard_all_up(disp);
+                    m->keys_live = 1;
+                }
+                uint16_t w[4];
+                for (int i = 0; i < 4; i++)
+                    w[i] = dorado_display_keyboard_word(disp, i);
+                machine_seed_keyboard(&m->mem, w);
+                if (m->mouse_present)
+                    machine_seed_mouse(&m->mem, m->mouse_x, m->mouse_y,
+                                       m->mouse_buttons);
             }
 
             /* (The divide-vector guard was retired 2026-06-13: the
