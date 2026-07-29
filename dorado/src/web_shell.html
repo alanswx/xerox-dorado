@@ -208,7 +208,15 @@
   var ready = false;
   var paused = false;
 
-  function setStatus(t) { statusEl.textContent = t; }
+  // setStatus(text, booting): while `booting` is set, the C frame loop
+  // appends a live "[N M cycles]" counter (js_boot_progress), so a world
+  // that paints its herald long before its prompt is visibly alive rather
+  // than apparently hung.
+  function setStatus(t, booting) {
+    statusEl.textContent = t;
+    statusEl.dataset.bootText = t;
+    statusEl.dataset.booting = booting ? '1' : '0';
+  }
 
   // Send a command to the running world as paced synthetic keystrokes,
   // via the same C queue the clipboard paste uses. The canvas must have
@@ -412,7 +420,7 @@
       Module.ccall('dorado_web_boot_disk', 'number', [], []);
       setStatus('Booting the real Alto OS from disk... reaches the BCPL '
                 + 'Executive (>) prompt in ~20-30s. Then click the display and '
-                + 'type a program name (e.g. chess, mazewar) and Return.');
+                + 'type a program name (e.g. chess, mazewar) and Return.', 1);
       document.getElementById('canvas').focus();
       return;
     }
@@ -420,14 +428,14 @@
       var mesaBoot = path === 'mesa' ? '' : path.slice(5);
       Module.ccall('dorado_web_boot_mesa', 'number', ['string'], [mesaBoot]);
       setStatus('Booting ' + opt.textContent.trim()
-                + ' on the Alto/Mesa world... (~15-25s to first paint; the '
-                + 'display freezes briefly while it fast-boots)');
+                + ' on the Alto/Mesa world... the herald appears early but the '
+                + '> prompt needs ~300M cycles, so give it ~20s', 1);
       document.getElementById('canvas').focus();
       return;
     }
     var menu = opt.getAttribute('data-menu') ? 1 : 0;
     Module.ccall('dorado_web_boot', 'number', ['string', 'number'], [path, menu]);
-    setStatus('Booting ' + opt.textContent.trim() + '... (give the display a moment)');
+    setStatus('Booting ' + opt.textContent.trim() + '... (give the display a moment)', 1);
     document.getElementById('canvas').focus();
   }
 
@@ -490,7 +498,7 @@
       gameSel.disabled = false;
       pauseBtn.disabled = false;
       spinnerEl.textContent = '';
-      setStatus('Booting NetExec... type a program name, or pick one above.');
+      setStatus('Booting NetExec... type a program name, or pick one above.', 1);
       installInput();
       document.getElementById('canvas').focus();
       // Useful for direct links and automated smoke tests, e.g. ?boot=lisp.

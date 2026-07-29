@@ -142,6 +142,18 @@ EM_JS(void, js_present, (const void *px, int w, int h), {
         new ImageData(new Uint8ClampedArray(bytes.buffer), w, h), 0, 0);
 });
 
+/* Boot progress for the status line. A world that paints its first line at
+ * 30 M cycles but only prompts near 300 M looks hung for the ~20 s in
+ * between, so say what is happening instead of leaving a still screen. The
+ * shell shows this text while a boot is running. */
+EM_JS(void, js_boot_progress, (int millions), {
+    var el = document.getElementById('status');
+    if (!el || !el.dataset || el.dataset.booting !== '1') return;
+    var base = el.dataset.bootText || el.textContent;
+    el.dataset.bootText = base;
+    el.textContent = base + '  [' + millions + 'M cycles]';
+});
+
 /* Key encoding shared with web_shell.html's keydown/keyup wiring:
  * printable keys arrive as their unshifted ASCII code ('a'..'z', '0'..'9',
  * punctuation, ' ', '\r', '\b', '\t', 27, 127); modifiers and function
@@ -772,9 +784,14 @@ static void frame(void)
      * ~120 M, Alto NetExec ~100 M, Mesa NetExec ~300 M, Smalltalk ~630 M,
      * Cedar ~640 M; the Lyric and Cedar desktop entries restore a checkpoint
      * and start interactive already). */
-    if (app.cycles_per_frame != WEB_CYCLES_INTERACTIVE && rendered_px > 700 &&
-        dorado_machine_cycles(app.m) >= WEB_BOOT_FAST_CYCLES)
-        app.cycles_per_frame = WEB_CYCLES_INTERACTIVE;
+    if (app.cycles_per_frame != WEB_CYCLES_INTERACTIVE) {
+        /* Still booting: show progress so a slow world is visibly alive. */
+        if ((app.frame & 0x0F) == 0)
+            js_boot_progress((int)(dorado_machine_cycles(app.m) / 1000000ull));
+        if (rendered_px > 700 &&
+            dorado_machine_cycles(app.m) >= WEB_BOOT_FAST_CYCLES)
+            app.cycles_per_frame = WEB_CYCLES_INTERACTIVE;
+    }
     const uint8_t *fb = app.disp->fb;
 
     /* Present the active world's native raster (Alto 808x606, Cedar lf

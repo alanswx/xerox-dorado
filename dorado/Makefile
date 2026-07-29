@@ -480,6 +480,50 @@ run-crttest: sdl
 run-dmt: sdl
 	./build/dorado-sdl --eb worlds/aemu.eb --eftp '../chm/bootfiles/DMT.BOOT!22'
 
+# Mesa world (AltoMesaDorado.eb!2): Mesa-format outloads (0o162400). These
+# will NOT run on worlds/aemu.eb -- booting a Mesa outload on the Alto
+# emulator is the same category error as hosting Smalltalk there.
+#
+# MesaNetExec reaches its `>` prompt near 300M cycles; type at it directly.
+# MESA_BOOT overrides the boot file, e.g.
+#   make run-mesa MESA_BOOT='../chm/bootfiles/PPong.boot!1'
+MESA_WORLD ?= ../chm/dorado/AltoMesaDorado.eb!2
+MESA_BOOT  ?= ../chm/bootfiles/MesaNetExec.boot!1
+
+.PHONY: run-mesa run-mesa-netexec run-ppong run-mazewar run-pupwatch run-triex
+run-mesa: sdl
+	./build/dorado-sdl --eb '$(MESA_WORLD)' --eftp '$(MESA_BOOT)'
+run-mesa-netexec: sdl
+	./build/dorado-sdl --eb '$(MESA_WORLD)' \
+		--eftp '../chm/bootfiles/MesaNetExec.boot!1'
+run-ppong: sdl
+	./build/dorado-sdl --eb '$(MESA_WORLD)' \
+		--eftp '../chm/bootfiles/PPong.boot!1'
+run-mazewar: sdl
+	./build/dorado-sdl --eb '$(MESA_WORLD)' \
+		--eftp '../chm/bootfiles/MazeWar.boot!1'
+run-pupwatch: sdl
+	./build/dorado-sdl --eb '$(MESA_WORLD)' \
+		--eftp '../chm/bootfiles/Pupwatch.boot!1'
+run-triex: sdl
+	./build/dorado-sdl --eb '$(MESA_WORLD)' \
+		--eftp '../chm/bootfiles/TriEx.boot!1'
+
+# Headless gate for the Mesa world: herald + prompt, and typing echoes.
+.PHONY: verify-mesa
+verify-mesa: $(BINDIR)/dorado
+	@idle=$$(./build/dorado --eb '$(MESA_WORLD)' \
+		--eftp '../chm/bootfiles/MesaNetExec.boot!1' \
+		--cycles 300000000 --out build/verify-mesa.pgm 2>/dev/null \
+		| sed -n 's/.*: \([0-9]*\) display-list pixels.*/\1/p' | tail -1); \
+	typed=$$(./build/dorado --eb '$(MESA_WORLD)' \
+		--eftp '../chm/bootfiles/MesaNetExec.boot!1' \
+		--type "abc" --type-at 160000000 --key-hold 4000000 \
+		--cycles 300000000 --out build/verify-mesa-typed.pgm 2>/dev/null \
+		| sed -n 's/.*: \([0-9]*\) display-list pixels.*/\1/p' | tail -1); \
+	echo "verify-mesa: idle $$idle px, after typing abc $$typed px"; \
+	test "$$idle" -ge 1200 && test "$$typed" -gt "$$idle"
+
 # Alto games (from CHM Io/Murray collection; all Alto B-format 0o002401).
 # Boot + the lock-step EFTP transfer take ~80-160M cycles before any game
 # code runs (~1M cycles per 512-byte packet), so give a run time to load.
