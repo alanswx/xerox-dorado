@@ -1901,20 +1901,29 @@ static void machine_seed_utilin(dorado_memory *mem, int buttons)
 {
     if (!mem || !mem->storage) return;
     uint16_t bw = (uint16_t)~((unsigned)buttons & 07u);
-    uint32_t bases[] = { 0, dorado_br_get(mem, 031), dorado_br_get(mem, 036) };
-    for (size_t b = 0; b < sizeof bases / sizeof bases[0]; b++)
-        for (uint32_t a = 0177030u; a <= 0177033u; a++)
-            machine_store_va(mem, (bases[b] + a) & 0x0FFFFFFFu, bw);
+    /* Base 0 only. 575744b wrote this at three bases -- 0, BR031, BR036 --
+     * on the theory that a world might map its I/O page through a base
+     * register. Two of those are guesses that land wherever the BR happens
+     * to point, i.e. in the middle of the guest's live data, and they are
+     * what made a click destroy the Smalltalk desktop (see
+     * machine_seed_mouse). Smalltalk boots to exactly the same 124,945 px
+     * with the base-0 write alone, so the shotgun bought nothing. */
+    for (uint32_t a = 0177030u; a <= 0177033u; a++)
+        machine_store_va(mem, a, bw);
 }
 
 static void machine_seed_mouse(dorado_memory *mem, int x, int y, int buttons)
 {
     if (!mem || !mem->storage) return;
-    uint32_t bases[] = { 0, dorado_br_get(mem, 031), dorado_br_get(mem, 036) };
-    for (size_t b = 0; b < sizeof bases / sizeof bases[0]; b++) {
-        machine_store_va(mem, (bases[b] + 0424u) & 0x0FFFFFFFu, (uint16_t)x);
-        machine_store_va(mem, (bases[b] + 0425u) & 0x0FFFFFFFu, (uint16_t)y);
-    }
+    /* MOUSELOC, and ONLY there. Writing x,y at BR031/BR036-relative
+     * addresses too (575744b) scribbled two arbitrary words of guest memory
+     * on every pointer motion: one click turned the Smalltalk desktop into
+     * noise (246,317 px of garbage vs 123,934 px of desktop) and Interlisp-D
+     * Lyric into a RAID "Error in uninterruptable system code" with a
+     * visibly scribbled screen. A host-side input shortcut must write where
+     * the guest reads and nowhere else. */
+    machine_store_va(mem, 0424u, (uint16_t)x);
+    machine_store_va(mem, 0425u, (uint16_t)y);
     machine_seed_utilin(mem, buttons);
 }
 
