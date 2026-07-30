@@ -3311,9 +3311,15 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                 for (int i = 0; i < 4; i++)
                     w[i] = dorado_display_keyboard_word(disp, i);
                 machine_seed_keyboard(&m->mem, w);
-                if (m->mouse_present)
-                    machine_seed_mouse(&m->mem, m->mouse_x, m->mouse_y,
-                                       m->mouse_buttons);
+                /* Keyboard only. machine_seed_mouse writes the ALTO mouse
+                 * cells, which are ordinary VM to a Mesa world -- doing it
+                 * here stalled MesaNetExec at its first herald line (1,315
+                 * px, "Date and time unknown", no prompt) the moment the
+                 * host cursor moved over the window, which is why it looked
+                 * fine under a scripted run and hung under a human. Mesa
+                 * reads its pointer through its own head, not these cells.
+                 * Measured at frame 40: 1,315 px with the mouse seeded,
+                 * 1,563 px (full herald + `>` prompt) without. */
             }
 
             /* (The divide-vector guard was retired 2026-06-13: the

@@ -414,6 +414,16 @@ int main(int argc, char **argv)
     SDL_Texture *tex = ren ? SDL_CreateTexture(
         ren, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
         DORADO_DISPLAY_W, DORADO_DISPLAY_H) : NULL;
+    /* Bring the window to the front. Launched from a terminal on macOS the
+     * window otherwise opens BEHIND it, and an occluded window is throttled
+     * by the compositor -- this loop is render-bound, so the emulator then
+     * crawls (measured: 2.4 fps occluded vs full rate raised, i.e. a boot
+     * that should take under a second takes half a minute and looks hung). */
+    if (win) {
+        SDL_ShowWindow(win);
+        SDL_RaiseWindow(win);
+    }
+
     int headless = (!win || !ren || !tex);
     if (headless) {
         if (win && !ren) { SDL_DestroyWindow(win); win = NULL; }
@@ -437,6 +447,8 @@ int main(int argc, char **argv)
     int mouse_buttons = 0;
     long frame = 0;
     uint64_t chunk_used = 0;              /* cycles advanced this frame */
+    uint64_t boot_chunk = 4000000ull;     /* adapts to the present rate */
+    uint32_t frame_ms = 0, frame_t0 = SDL_GetTicks();
     int win_w = DORADO_DISPLAY_W, win_h = DORADO_DISPLAY_H;  /* presented size */
     while (running) {
         SDL_Event e;
@@ -539,8 +551,19 @@ int main(int argc, char **argv)
              * are tuned). */
             uint64_t chunk = cycles_per_frame;
             if (!speed_explicit && dorado_machine_boot_is_mesa_outload(m) &&
-                now < 800000000ull)
-                chunk = 4000000ull;
+                now < 800000000ull) {
+                /* Boot phase. Presenting is the bottleneck, so do more work
+                 * per present when presents are slow: if the previous frame
+                 * took longer than ~20 ms of wall clock (an occluded window,
+                 * a slow compositor), double the chunk, up to 32 M. That
+                 * keeps time-to-prompt roughly constant instead of scaling
+                 * with the window's frame rate. */
+                chunk = boot_chunk;
+                if (frame_ms > 20 && boot_chunk < 32000000ull)
+                    boot_chunk *= 2;
+                else if (frame_ms < 8 && boot_chunk > 4000000ull)
+                    boot_chunk /= 2;
+            }
             chunk_used = chunk;
             dorado_typequeue_pump(&paste_queue, m);
             dorado_machine_run_until(m, now + chunk);
@@ -625,6 +648,11 @@ int main(int argc, char **argv)
 
         /* In windowless mode, stop once the last requested frame is done. */
         if (headless && frame >= max_shot) running = 0;
+        {
+            uint32_t t = SDL_GetTicks();
+            frame_ms = t - frame_t0;
+            frame_t0 = t;
+        }
         frame++;
     }
 
