@@ -559,6 +559,40 @@ verify-lisp: $(BINDIR)/dorado
 	echo "verify-lisp: $$px px (need >= $(LISP_GATE_MIN_PX); desktop = ~208985)"; \
 	test "$$px" -ge '$(LISP_GATE_MIN_PX)'
 
+# The same desktop, clicked the way a person clicks it. verify-lisp above only
+# proves Lyric boots; it never touches the machine, and the 2026-07-30 IOPage
+# corruption lived entirely on the interaction path.
+#
+# Hold duration is the whole point. --click's default --key-hold is 600,000
+# cycles = 36 ms, shorter than any human click, and the bug does not fire:
+# 2,000,000 (120 ms) leaves the desktop clean, 3,000,000 (180 ms) puts Lisp in
+# RAID. That is exactly why this was reproducible in the browser and not in a
+# single gate for two weeks. Click at (250,50) = the Prompt Window.
+#
+# Validated against its own bug: 191,601 px at 5673515 (RAID "Compiler/
+# microcode error: unknown UFN"), 208,966 px with the IOPage write retired.
+LISP_CLICK_GATE_MIN_PX ?= 200000
+LISP_CLICK_HOLD ?= 3000000
+
+.PHONY: verify-lisp-click
+verify-lisp-click: $(BINDIR)/dorado
+	@test -r '$(LISP_DESKTOP_SNAPSHOT)' || \
+		(echo "Missing $(LISP_DESKTOP_SNAPSHOT); run make lisp-lyric-desktop-snapshot first." && false)
+	@mkdir -p '$(TRIDENT_RUN_DIR)'
+	@cp -f '$(LISP_DESKTOP_SNAPSHOT_PACK)' '$(TRIDENT_RUN_DIR)/lisp-click-gate.pack'
+	@chmod 644 '$(TRIDENT_RUN_DIR)/lisp-click-gate.pack'
+	@px=`DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_CURRENT_FAKE_TIME)' \
+		./build/dorado --eb worlds/aemu.eb \
+		--disk 0='$(TRIDENT_RUN_DIR)/lisp-click-gate.pack' \
+		--boot-reason disk --no-alto-boot \
+		--snapshot-in '$(LISP_DESKTOP_SNAPSHOT)' \
+		--type-at 8850000000 --click 250,50 \
+		--key-hold '$(LISP_CLICK_HOLD)' \
+		--cycles 9300000000 --out build/verify-lisp-click.pgm 2>/dev/null \
+		| sed -n 's/.*: \([0-9][0-9]*\) display-list pixels.*/\1/p' | tail -1`; \
+	echo "verify-lisp-click: $$px px (need >= $(LISP_CLICK_GATE_MIN_PX); healthy = 208966, RAID = 191601)"; \
+	test "$$px" -ge '$(LISP_CLICK_GATE_MIN_PX)'
+
 # Headless gate for the Mesa world: herald + prompt, and typing echoes.
 .PHONY: verify-mesa
 verify-mesa: $(BINDIR)/dorado

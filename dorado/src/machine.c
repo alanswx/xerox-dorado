@@ -852,17 +852,6 @@ static void machine_store_va(dorado_memory *mem, uint32_t va, uint16_t value)
     }
 }
 
-/* Host-side input shortcut: update the named virtual/absolute cell and any
- * resident cache copy, but do not follow the guest Map to backing physical
- * storage.  Lisp can temporarily map its Dandelion-style IOPage onto RP 0;
- * using machine_store_va() there corrupts low-core external links such as
- * M[0100] when all-up keyboard words are refreshed. */
-static void machine_store_host_input(dorado_memory *mem, uint32_t va,
-                                     uint16_t value)
-{
-    dorado_memory_host_io_write(mem, va, value);
-}
-
 static int alto_rda_to_vda(uint16_t rda, int cylinders, int sectors, int *vda)
 {
     int cylinder = (rda >> 3) & 0777;
@@ -1927,29 +1916,35 @@ static void machine_seed_mouse(dorado_memory *mem, int x, int y, int buttons)
     machine_seed_utilin(mem, buttons);
 }
 
-static void machine_seed_lisp_iopage_keyboard(dorado_memory *mem,
-                                              const uint16_t w[4],
-                                              int mouse_present,
-                                              int mouse_buttons)
-{
-    if (!mem || !mem->storage) return;
-
-    /* The Fugue StartLisp bootstrap clears 0x1403A..0x14040 once
-     * (IOPage.keyBitsm1=0x39), but the later Dandelion Lisp definitions used
-     * by DoradoLispMc place IOPage.key at 0x41 and keyBitsm1 at 0x3C.  After
-     * the Lyric sysout loads, 0x1403A..0x14040 hold live IOPage state, so the
-     * host-side terminal shortcut must refresh only the later key window. */
-    const uint32_t base = 0x14041u;
-    for (uint32_t i = 0; i < 4; i++)
-        machine_store_host_input(mem, base + i, w[i]);
-
-    uint16_t buttons = 0177777u;
-    if (mouse_present)
-        buttons = (uint16_t)~((unsigned)mouse_buttons & 07u);
-    machine_store_host_input(mem, base + 4u, buttons);
-    machine_store_host_input(mem, base + 5u, 0177777u);
-    machine_store_host_input(mem, base + 6u, 0177777u);
-}
+/* (Retired 2026-07-30.) A host-side refresh of a Dandelion-style Lisp IOPage
+ * key window at 0x14041..0x14047 used to live here, called on every live-I/O
+ * tick. It was wrong for every world we run, and it was destroying the
+ * Interlisp-D Lyric desktop.
+ *
+ * LLKEY's \SETIOPOINTERS decides where Lisp reads its keyboard, mouse and
+ * UTILIN, and it branches on \MACHINETYPE. Only the \DANDELION arm reads the
+ * IOPage -- (fetch DLKBDAD0PTR of \IOPAGE), DLUTILINPTR, DLMOUSEXPTR. The
+ * (LIST \DOLPHIN \DORADO) arm reads absolute emulator low core instead:
+ * (EMADDRESS KBDAD0.EM) = 0177034..7, (EMADDRESS UTILIN.EM) = 0177030,
+ * (EMADDRESS MOUSEX.EM) = 0424/0425 -- exactly the cells machine_seed_keyboard,
+ * machine_seed_utilin and machine_seed_mouse already write. We emulate a
+ * Dorado, so nothing ever read the IOPage window.
+ *
+ * What it did instead: in the Lyric world VA 0x14041 maps to real page 0o1721,
+ * a live Interlisp-D data page (the "Lisp maps its IOPage onto RP 0" premise
+ * this was built on is not true of the loaded sysout). Seven words of that page
+ * were being overwritten ~19 M times per run. The desktop survives it while
+ * idle, because the values never change; the moment a mouse button is held long
+ * enough for a value to change, the window manager walks the scribbled words and
+ * Lisp faults -- `Raid: "Invalid address" {377,177777}` for a held middle button
+ * (a 24-bit pointer assembled out of two all-ones words, which is precisely the
+ * all-keys-up pattern we wrote), and `Raid: Called from Lisp:
+ * "Compiler/microcode error: unknown UFN"` for a held left button. Removing the
+ * write leaves the desktop intact under both, and the underlying words read back
+ * as real Lisp data (0o114, 0o103) instead of 0177777.
+ *
+ * Same rule as 5673515, in the one place that commit did not look: a host-side
+ * input shortcut must write where the guest reads and nowhere else. */
 
 static int machine_boot_chord_is_disk(const dorado_machine *m)
 {
@@ -1969,8 +1964,6 @@ static void machine_seed_alto_live_io(dorado_machine *m, dorado_display *disp)
     for (int i = 0; i < 4; i++)
         w[i] = dorado_display_keyboard_word(disp, i);
     machine_seed_keyboard(&m->mem, w);
-    machine_seed_lisp_iopage_keyboard(&m->mem, w, m->mouse_present,
-                                      m->mouse_buttons);
     if (m->mouse_present)
         machine_seed_mouse(&m->mem, m->mouse_x, m->mouse_y, m->mouse_buttons);
     else
@@ -3333,8 +3326,7 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                  * become true and cannot gate its input. Deliver live keys the
                  * way this path did before that flag became the gate: the
                  * polled keyboard words only. NOT machine_seed_alto_live_io --
-                 * that also writes the Lisp IOPage window at 0x14041, which is
-                 * ordinary VM to a Mesa world. */
+                 * that also seeds the Alto mouse cells (see below). */
                 if (!m->keys_live) {
                     dorado_display_keyboard_all_up(disp);
                     m->keys_live = 1;
