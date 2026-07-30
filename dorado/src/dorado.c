@@ -177,6 +177,11 @@ typedef struct click_event {
     int menu;     /* 1 = press-and-HOLD, screenshot mid-hold, then release
                    * (captures a Cedar pop-up menu, which the yellow/middle
                    * button raises while held) */
+    int move_only;/* 1 = move the pointer, press nothing. Pointer MOTION is
+                   * its own input path: it is what sets mouse_present and
+                   * makes the machine seed the host cursor into guest cells,
+                   * and it broke MesaNetExec (2026-07-30) with no button
+                   * ever pressed. A gate that only clicks cannot see it. */
 } click_event;
 
 /* Driving an Iago install from the command line needs a lot of these: each
@@ -443,6 +448,25 @@ int main(int argc, char **argv)
             click_event_count++;
             last_type_can_update = 0;
             pending_type_at = 0;
+        } else if (!strcmp(a, "--mouse") && i + 1 < argc) {
+            /* --mouse X,Y — move the pointer to (X,Y) at the pending
+             * --type-at cycle, pressing nothing. */
+            if (click_event_count >= MAX_CLICK_EVENTS) {
+                fprintf(stderr, "dorado: too many click/mouse events (max %d)\n",
+                        MAX_CLICK_EVENTS);
+                return 2;
+            }
+            int cx = 0, cy = 0;
+            if (sscanf(argv[++i], "%d,%d", &cx, &cy) != 2) {
+                fprintf(stderr, "dorado: --mouse wants X,Y (decimal)\n");
+                return 2;
+            }
+            click_events[click_event_count] =
+                (click_event){ .x = cx, .y = cy, .at = type_at, .done = 0,
+                               .move_only = 1 };
+            click_event_count++;
+            last_type_can_update = 0;
+            pending_type_at = 0;
         } else if (!strcmp(a, "--menu") && i + 1 < argc) {
             /* --menu X,Y — press+HOLD the middle (yellow) button at (X,Y),
              * screenshot the pop-up menu while held, then release. Proves
@@ -523,7 +547,7 @@ int main(int argc, char **argv)
                    "[--quote] [--boot-keys K[,K...]] "
                    "[--boot-reason ethernet|netexec|disk] "
                    "[--no-alto-boot] [--progress] "
-                   "[--type-at CYCLES --type TEXT]... "
+                   "[--type-at CYCLES --type TEXT] [--mouse X,Y]... "
                    "[--type-at CYCLES --key-chord K[,K...]]...\n"
                    "  --boot-keys: boot-selection chord held down (default "
                    "bs, +quote with --quote); e.g. bs,quote\n"
@@ -638,9 +662,22 @@ int main(int argc, char **argv)
                                   ? click_events[ce].button
                                   : DORADO_MOUSE_LEFT;
                     printf("dorado: %s (%d,%d) at cyc %llu\n",
+                           click_events[ce].move_only ? "mouse" :
                            click_events[ce].menu ? "menu" : "click",
                            click_events[ce].x, click_events[ce].y,
                            (unsigned long long)dorado_machine_cycles(m));
+                    if (click_events[ce].move_only) {
+                        /* Motion only: several steps, as a hand would, so
+                         * the guest sees the cursor travel rather than jump. */
+                        for (int step = 1; step <= 8; step++) {
+                            dorado_machine_set_mouse(
+                                m, click_events[ce].x * step / 8,
+                                click_events[ce].y * step / 8, 0);
+                            dorado_machine_run_until(
+                                m, dorado_machine_cycles(m) + 300000ull);
+                        }
+                        continue;
+                    }
                     /* Move first so the tracking software sees the cursor
                      * arrive, then press the button. */
                     dorado_machine_set_mouse(m, click_events[ce].x,

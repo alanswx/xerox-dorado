@@ -509,6 +509,56 @@ run-triex: sdl
 	./build/dorado-sdl --eb '$(MESA_WORLD)' \
 		--eftp '../chm/bootfiles/TriEx.boot!1'
 
+# ---------------------------------------------------------------------------
+# Input-fidelity gates.
+#
+# Every other gate types with --key-hold between 1,000,000 and 4,000,000
+# cycles and never moves the mouse. A display field is 277,778 cycles, so
+# those gates hold a key 4-14x LONGER than the world's sampling interval,
+# while a browser keystroke is SHORTER than one -- and a human moves the
+# pointer constantly. That gap is not academic: on 2026-07-30 three separate
+# input bugs shipped green (Mesa mouse-cell corruption, dropped browser
+# keystrokes, an SDL pacing stall), because no gate drove input the way a
+# person does.
+#
+# So: move the pointer, and type with a hold SHORTER than one field.
+KEY_HOLD_FAST ?= 120000
+
+.PHONY: verify-input
+verify-input: $(BINDIR)/dorado
+	@px=`./build/dorado --eb '$(MESA_WORLD)' \
+		--eftp '../chm/bootfiles/MesaNetExec.boot!1' \
+		--type-at 120000000 --mouse 400,300 \
+		--type-at 200000000 --type "abc" --key-hold '$(KEY_HOLD_FAST)' \
+		--cycles 320000000 --out build/verify-input-mesa.pgm 2>/dev/null \
+		| sed -n 's/.*: \([0-9][0-9]*\) display-list pixels.*/\1/p' | tail -1`; \
+	echo "verify-input mesa (mouse + $(KEY_HOLD_FAST)-cycle keys): $$px px"; \
+	echo "  (1250 = the 2026-07-30 mouse-corruption bug; 1573 = healthy)"; \
+	test "$$px" -ge 1400
+
+# ---------------------------------------------------------------------------
+# Interlisp-D Lyric: restore the saved XCL desktop and confirm it is live.
+# Lyric was broken and unnoticed for two weeks (2026-07-11..07-30, the
+# oversized BSP data Pup) precisely because nothing gated it.
+LISP_GATE_MIN_PX ?= 150000
+
+.PHONY: verify-lisp
+verify-lisp: $(BINDIR)/dorado
+	@test -r '$(LISP_DESKTOP_SNAPSHOT)' || \
+		(echo "Missing $(LISP_DESKTOP_SNAPSHOT); run make lisp-lyric-desktop-snapshot first." && false)
+	@mkdir -p '$(TRIDENT_RUN_DIR)'
+	@cp -f '$(LISP_DESKTOP_SNAPSHOT_PACK)' '$(TRIDENT_RUN_DIR)/lisp-gate.pack'
+	@chmod 644 '$(TRIDENT_RUN_DIR)/lisp-gate.pack'
+	@px=`DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_CURRENT_FAKE_TIME)' \
+		./build/dorado --eb worlds/aemu.eb \
+		--disk 0='$(TRIDENT_RUN_DIR)/lisp-gate.pack' \
+		--boot-reason disk --no-alto-boot \
+		--snapshot-in '$(LISP_DESKTOP_SNAPSHOT)' \
+		--cycles 9000000000 --out build/verify-lisp.pgm 2>/dev/null \
+		| sed -n 's/.*: \([0-9][0-9]*\) display-list pixels.*/\1/p' | tail -1`; \
+	echo "verify-lisp: $$px px (need >= $(LISP_GATE_MIN_PX); desktop = ~208985)"; \
+	test "$$px" -ge '$(LISP_GATE_MIN_PX)'
+
 # Headless gate for the Mesa world: herald + prompt, and typing echoes.
 .PHONY: verify-mesa
 verify-mesa: $(BINDIR)/dorado
