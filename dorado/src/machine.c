@@ -183,6 +183,9 @@ struct dorado_machine {
  * one live machine at a time; dorado_machine_create resets it. */
 static struct { uint16_t key; uint8_t down; } machine_key_queue[512];
 static unsigned machine_key_q_head, machine_key_q_tail, machine_key_field_wait;
+/* Earliest cycle the next buffered transition may be applied on the Mesa
+ * path, which is paced by cycles rather than by field callbacks. */
+static uint64_t machine_key_next_cycle;
 
 static uint32_t machine_pchist_task[16][4096];
 /* First word of the EFTP-served boot image, read once at create: 0o405 = Alto
@@ -2219,6 +2222,7 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
     /* Reset the process-global keyboard buffer for this machine (the web
      * frontend destroys and recreates machines when switching worlds). */
     machine_key_q_head = machine_key_q_tail = machine_key_field_wait = 0;
+    machine_key_next_cycle = 0;
     memset(machine_disp_out_baseline, 0, sizeof machine_disp_out_baseline);
     m->alto_ether_boot  = cfg.alto_ether_boot;
     m->disk_real        = cfg.disk_real;
@@ -3296,6 +3300,25 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
             } else if (m->alto_cold_ac_done) {
                 machine_seed_alto_live_io(m, disp);
             } else if (machine_eftp_boot_tag == 0345) {
+                /* Pace buffered key transitions: apply at most one per
+                 * display field so a keydown/keyup pair delivered by a
+                 * frontend faster than the world samples cannot fall
+                 * between two samples and vanish. Same problem the Cedar
+                 * keyboard buffer solves, and the reason typing into
+                 * MesaNetExec in the browser did nothing while SDL's
+                 * --key-hold (millions of cycles) always worked. */
+                if (machine_key_q_head != machine_key_q_tail &&
+                    bb->cycles >= machine_key_next_cycle) {
+                    unsigned qcap = (unsigned)(sizeof machine_key_queue /
+                                               sizeof machine_key_queue[0]);
+                    uint16_t qk = machine_key_queue[machine_key_q_head].key;
+                    uint8_t qd = machine_key_queue[machine_key_q_head].down;
+                    machine_key_q_head = (machine_key_q_head + 1u) % qcap;
+                    dorado_display_keyboard_set_key(disp,
+                                                    (dorado_display_key)qk, qd);
+                    machine_key_next_cycle = bb->cycles +
+                        KEY_FIELDS_PER_TRANSITION * CEDAR_FIELD_INTERVAL_CYCLES;
+                }
                 /* A Mesa outload deliberately never runs the cold-Alto init
                  * (it is not an Alto program), so alto_cold_ac_done can never
                  * become true and cannot gate its input. Deliver live keys the
@@ -3890,7 +3913,12 @@ void dorado_machine_set_key(dorado_machine *m, dorado_display_key key,
      * left the framebuffer byte-identical) while the Ethernet path worked. */
     int cedar_world_live = !m->alto_ether_boot && m->germ_word_count &&
                            m->germ_data_done && m->ether_loaded_world_cycle;
-    if (!cedar_world_live || !m->keys_live) {
+    /* A Mesa world samples its keyboard on the same field cadence and has
+     * the same drop problem, and its drainer (the 0o345 branch in
+     * dorado_machine_run_until) is running once the world is up. */
+    int buffered = cedar_world_live ||
+                   (machine_eftp_boot_tag == 0345 && m->ether_loaded_world_cycle);
+    if (!buffered || !m->keys_live) {
         dorado_display_keyboard_set_key(&m->display, key, down ? 1 : 0);
         return;
     }
