@@ -1,5 +1,14 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+> **Start here for the 2026-07-28..30 session:**
+> [`docs/handoff-2026-07-30.md`](handoff-2026-07-30.md) — five regressions
+> closed (stale disk pack, the cold-Alto init firing inside a Mesa world, the
+> oversized BSP data Pup that wedged Lyric, and two frontend pacing bugs),
+> the input-path bugs that hid behind every scripted gate, and the two open
+> items: the Lyric click (spurious `?` + inverted video, NOT a crash) and the
+> XCL echo gap.
+
+
 ## 2026-07-28 (later): THE PACK-BOOT REGRESSION, BISECTED TO ONE LINE OF
 ## BEHAVIOUR -- and why the obvious fix trades one world for another.
 
