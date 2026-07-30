@@ -436,6 +436,7 @@ int main(int argc, char **argv)
     int announced = 0;
     int mouse_buttons = 0;
     long frame = 0;
+    uint64_t chunk_used = 0;              /* cycles advanced this frame */
     int win_w = DORADO_DISPLAY_W, win_h = DORADO_DISPLAY_H;  /* presented size */
     while (running) {
         SDL_Event e;
@@ -540,6 +541,7 @@ int main(int argc, char **argv)
             if (!speed_explicit && dorado_machine_boot_is_mesa_outload(m) &&
                 now < 800000000ull)
                 chunk = 4000000ull;
+            chunk_used = chunk;
             dorado_typequeue_pump(&paste_queue, m);
             dorado_machine_run_until(m, now + chunk);
             dorado_typequeue_pump(&paste_queue, m);
@@ -560,8 +562,18 @@ int main(int argc, char **argv)
         }
 
         /* Rasterize the display list into the framebuffer. */
-        dorado_machine_render_display_list(m);
+        int rendered_px = dorado_machine_render_display_list(m);
         const uint8_t *fb = disp->fb;
+
+        /* Progress line every 60 frames: frame, emulated cycles, painted
+         * pixels, cycles per redraw. A world whose prompt is hundreds of
+         * millions of cycles in looks identical to a hang while you wait,
+         * so make the difference observable -- if cyc= climbs, it is
+         * working; if it stops, that is a real stall worth reporting. */
+        if (frame > 0 && frame % 60 == 0)
+            printf("dorado-sdl: frame %ld cyc=%llu px=%d chunk=%llu\n", frame,
+                   (unsigned long long)dorado_machine_cycles(m), rendered_px,
+                   (unsigned long long)chunk_used);
 
         /* Write a snapshot if this frame was requested via --screenshot. */
         for (int s = 0; s < n_shots; s++) {
