@@ -70,16 +70,61 @@ Dorado displaying its own schematics **in the original editable vector
 format, with the symbol library they were drawn with** — zoomable, and
 arguably the most on-point thing this project could show.
 
-**Unverified.** Nothing above has been tried yet. The known unknowns, in the
-order they will bite:
+### 1.1 How far this got (2026-07-31), and the one thing in the way
 
-- whether the Cedar Sil reads the Alto-era `.sil` binary format unchanged
-  (the format is old and stable, but "Sil for Cedar6.1" was a port);
-- the `.dm` archives need unpacking, and their contents are Alto files with
-  the usual name-mangling;
-- whether `Run Sil` is even the right command — see the trap in §4;
-- these are 1979–1981 revisions, so the sheet set will not exactly match the
-  1979 PDFs in `DoradoDocs/schematics/`.
+Tried it. Three of the four unknowns are gone; the fourth stopped it.
+
+**Resolved:**
+
+- **No `.dm` unpacking needed.** The archive serves those archives
+  pre-expanded: `io/doradologic/ProcH-apcRev-Da.dm!1_/ProcH01.sil` is a
+  direct download. (Note the paths are **case-sensitive** and
+  `cross-reference.html` lower-cases them — `proch-apcrev-da...` 404s.)
+- **The sheets reach the volume.** All 32 ProcH sheets are staged in
+  `CedarChest6.1/DoradoLogic/` with a `DoradoLogic.df` modelled on
+  `AISImages.df`, and a cold boot attaches them: `33 files acted upon`,
+  each with its true timestamp (`ProcH32.sil ... {08-Oct-81 21:16:07 EDT}`).
+- **`Run Sil` IS the right command.** `SilKernelImpl.mesa` has
+  `Commander.Register[key: "Sil", proc: StartSilCommand, doc: "Create a
+  Window Sil Instance"]`.
+
+**The blocker:**
+
+```
+% Run Sil
+VersionMismatch[BiScrollers]
+```
+
+`Sil.bcd!4` is dated **26-Aug-86**; the BiScrollers implementation
+`BiScrollers.df!12` pins is `BiScrollersImpl.BCD!11`, **14-Nov-86**. Sil was
+compiled against an older BiScrollers interface than the release ships
+beside it — the mixed-vintage problem §4's third trap describes. Everything
+below Sil in the chain loads cleanly (Cursory, PopUpSelection2,
+PopUpButtons, Geom2D, MJSContainers, TypeProps, Abutters, ViewRec,
+BiScrollers ×3, SirPress, ImagerPressFontSubst, ImagerPress,
+InterpressPackage); only the last `Run` fails.
+
+Next moves, cheapest first: find whether an August BiScrollersImpl exists in
+the archive (the DF pins November, but earlier versions are kept); or a
+later `Sil.bcd` than `!4`; or load Sil against the `BiScrollers.BCD!3`
+interface (26-Aug-86, the matching vintage) without running the November
+impl. This is package archaeology, not emulator work.
+
+**How to load a CedarChest package at cold boot** — worth recording, because
+it is the reliable mechanism and it now works for everything up to Sil. Add
+to `CommandTool.BootCommands` in
+`chm/cedar/stp-root/Cedar6.1/Top/User.Profile` (CR-terminated!), using the
+**selective** `Bringover -o <files> <DF>` form that the AIS lines there
+already use. `-o` names the files and skips the import closure — a plain
+`Bringover [Cedar]<CedarChest6.1>Top>Sil` walks the whole graph and stalls,
+which is what §4's Bringover-cost note means in practice. Then `Run` the
+implementation modules in dependency order, taking the order from each
+package's own `.load` file. Remember the data files: `Run
+PopUpSelection2Impl` fails with `Could not find PopUpSelection2.tip` unless
+the `.tip` is in the `-o` list.
+
+Remaining caveat: these are 1979–1981 revisions, so the sheet set will not
+exactly match the 1979 PDFs in `DoradoDocs/schematics/`.
 
 ---
 

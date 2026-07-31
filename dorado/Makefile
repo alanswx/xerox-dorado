@@ -938,6 +938,18 @@ CEDAR_DESKTOP_SNAPSHOT_GZ := snapshot-assets/cedar-desktop-native.snap.gz
 CEDAR_DESKTOP_PDI_GZ := snapshot-assets/cedar-desktop-native.pdi.gz
 
 .PHONY: cedar-desktop-snapshot run-cedar-desktop-sdl
+# TYPE-AT IS TIMING-CRITICAL AND WAS WRONG. The login is typed at a fixed
+# cycle, and the prompt has to be up by then or the keys are simply lost --
+# the bake then runs its whole budget and snapshots the LOGIN SCREEN
+# (28,570 px instead of ~167,000), overwriting the good checkpoint with a
+# useless one. 760M worked once; it does not now, because serving the
+# LookupFile protocol (2026-07-31) removed four retries and a 30-second
+# negative cache from the cold boot and moved the prompt more than a billion
+# cycles later. Measured: 760M and 1.2B lose the keys, 2B logs in.
+#
+# No gate covers this, because every Cedar gate RESTORES a checkpoint rather
+# than cold-booting. Back up build/good-packs/cedar-desktop.{snap,pdi}
+# before rebaking, and check the result is a desktop before trusting it.
 cedar-desktop-snapshot: $(BINDIR)/dorado $(CEDAR_WORK_PDI)
 	mkdir -p '$(dir $(CEDAR_DESKTOP_SNAPSHOT))' '$(dir $(CEDAR_DESKTOP_SNAPSHOT_GZ))'
 	cp -f '$(CEDAR_WORK_PDI)' '$(CEDAR_DESKTOP_PDI)'
@@ -947,7 +959,8 @@ cedar-desktop-snapshot: $(BINDIR)/dorado $(CEDAR_WORK_PDI)
 		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
 		--pilot-disk '$(CEDAR_DESKTOP_PDI)' \
 		--ftp-root ../chm/cedar/stp-root \
-		--type-at 760000000 --type 'Guest\n\n' \
+		--key-hold 1600000 \
+		--type-at 2500000000 --type 'Guest\n\n' \
 		--cycles '$(CEDAR_DESKTOP_CYCLES)' \
 		--snapshot-out '$(CEDAR_DESKTOP_SNAPSHOT)' \
 		--out '$(CEDAR_DESKTOP_SCREEN)'
