@@ -27,12 +27,22 @@ enum {
     PUP_TYPE_BSP_MARK = 023,
     PUP_TYPE_BSP_AMARK = 026,
 
+    /* PupType.mesa: the LookupFile packet exchange (see
+     * eth_handle_file_lookup).  fileLookupReply is 0o201, fileLookupError
+     * 0o202; the well-known socket is PupWKS.fileLookup = 0o61. */
+    PUP_TYPE_FILE_LOOKUP = 0200,
+
     FTP_MARK_RETRIEVE = 01,
     FTP_MARK_YES = 03,
     FTP_MARK_NO = 04,
     FTP_MARK_HERE_IS_FILE = 05,
     FTP_MARK_EOC = 06,
     FTP_MARK_VERSION = 010,
+    /* STPOps.mesa!2 markDirectory -- the old-style Enumerate.  A client whose
+     * New-Directory is refused with protocolError/requestRefused/badCommand
+     * retries with this form (STPImpl.mesa!5 TryNewDirectory), so both are
+     * decoded. */
+    FTP_MARK_DIRECTORY = 012,
     FTP_MARK_HERE_IS_PLIST = 013,
     FTP_MARK_NEW_DIRECTORY = 014,
 
@@ -43,6 +53,7 @@ enum {
     FTP_TX_DONE = 4,
     FTP_TX_NOT_FOUND = 5,
     FTP_TX_GV_AUTH_REPLY = 6,
+    FTP_TX_ENUM = 7,
 
     FTP_PHASE_IDLE = 0,
     FTP_PHASE_WAIT_RETRIEVE_YES = 1,
@@ -955,6 +966,55 @@ static int eth_queue_pup_bytes(dorado_ethernet *eth, uint16_t pup_type,
     return 1;
 }
 
+/* One IFS file name -- "[Cedar]<Cedar6.1>Top>Basic.Loadees!3", or the same
+ * without the volume, or already in path form -- as a path relative to the
+ * release root.  Returns 0 for a name that is not one we may serve.
+ *
+ * An IFS name may carry an explicit "!<version>" (FS demand-fetches an
+ * attached file by the exact version its DF pinned).  The real server parses
+ * the version into a separate property (STPServerImpl SendPropList sends
+ * `Version` alongside the name); our tree stores one version of each file
+ * under its bare name, and the DF index is keyed the same way, so strip the
+ * suffix. */
+static int eth_ftp_relative_from_name(const char *value, char *out,
+                                      size_t outsz)
+{
+    if (*value == '[') {
+        const char *close = strchr(value, ']');
+        if (!close) return 0;
+        value = close + 1;
+    }
+    while (*value == '<' || *value == '>' || *value == ' ' || *value == '\t')
+        value++;
+
+    size_t n = 0;
+    for (; *value && *value != ')' && n + 1 < outsz; value++) {
+        unsigned char c = (unsigned char)*value;
+        if (c == '>') c = '/';
+        if (!(isalnum(c) || c == '.' || c == '_' || c == '-' || c == '/' ||
+              c == '!'))
+            return 0;
+        out[n++] = (char)c;
+    }
+    out[n] = '\0';
+    while (out[0] == '/') memmove(out, out + 1, strlen(out));
+    if (!out[0] || strstr(out, "..")) return 0;
+
+    {
+        char *bang = strrchr(out, '!');
+        if (bang && bang != out && strchr(bang, '/') == NULL) {
+            const char *d = bang + 1;
+            if (*d == 'H' || *d == 'h' || *d == 'L' || *d == 'l') {
+                if (d[1] == '\0') *bang = '\0';
+            } else {
+                while (isdigit((unsigned char)*d)) d++;
+                if (*d == '\0' && d != bang + 1) *bang = '\0';
+            }
+        }
+    }
+    return 1;
+}
+
 /* Translate an IFS Server-filename property into a safe path below the
  * configured release root.  Cedar's STP client sends names such as
  * [Cedar]<Cedar6.1>Top>Basic.Loadees.  The original STP server receives
@@ -1000,46 +1060,8 @@ static int eth_ftp_resolve_file(dorado_ethernet *eth, char *out, size_t outsz)
         value += strlen("Server-filename");
         while (*value == ' ' || *value == '\t') value++;
     }
-    if (*value == '[') {
-        const char *close = strchr(value, ']');
-        if (!close) return 0;
-        value = close + 1;
-    }
-    while (*value == '<' || *value == '>' || *value == ' ' || *value == '\t')
-        value++;
-
     char relative[384];
-    size_t n = 0;
-    for (; *value && *value != ')' && n + 1 < sizeof relative; value++) {
-        unsigned char c = (unsigned char)*value;
-        if (c == '>') c = '/';
-        if (!(isalnum(c) || c == '.' || c == '_' || c == '-' || c == '/' ||
-              c == '!'))
-            return 0;
-        relative[n++] = (char)c;
-    }
-    relative[n] = '\0';
-    while (relative[0] == '/') memmove(relative, relative + 1, strlen(relative));
-    if (!relative[0] || strstr(relative, "..")) return 0;
-
-    /* An IFS name may carry an explicit "!<version>" (FS demand-fetches an
-     * attached file by the exact version its DF pinned).  The real server
-     * parses the version into a separate property (STPServerImpl
-     * SendPropList sends `Version` alongside the name); our tree stores one
-     * version of each file under its bare name, and the DF date index is
-     * keyed the same way, so strip the suffix. */
-    {
-        char *bang = strrchr(relative, '!');
-        if (bang && bang != relative && strchr(bang, '/') == NULL) {
-            const char *d = bang + 1;
-            if (*d == 'H' || *d == 'h' || *d == 'L' || *d == 'l') {
-                if (d[1] == '\0') *bang = '\0';
-            } else {
-                while (isdigit((unsigned char)*d)) d++;
-                if (*d == '\0' && d != bang + 1) *bang = '\0';
-            }
-        }
-    }
+    if (!eth_ftp_relative_from_name(value, relative, sizeof relative)) return 0;
     char response_relative[sizeof relative];
     snprintf(response_relative, sizeof response_relative, "%s", relative);
 
@@ -1074,11 +1096,13 @@ static int eth_ftp_resolve_file(dorado_ethernet *eth, char *out, size_t outsz)
 static struct {
     char key[128];      /* "dir/name", lowercased */
     char date[40];      /* verbatim from the DF */
+    uint16_t version;   /* the DF's "!n", or 0 when it names none */
 } ftp_dates[FTP_DATE_MAX];
 static int ftp_date_count;
 static int ftp_dates_loaded;
 
-static void ftp_date_add(const char *dir, const char *name, const char *date)
+static void ftp_date_add(const char *dir, const char *name, const char *date,
+                         unsigned version)
 {
     if (ftp_date_count >= FTP_DATE_MAX) return;
     char key[128];
@@ -1091,6 +1115,8 @@ static void ftp_date_add(const char *dir, const char *name, const char *date)
              sizeof ftp_dates[0].key, "%s", key);
     snprintf(ftp_dates[ftp_date_count].date,
              sizeof ftp_dates[0].date, "%s", date);
+    ftp_dates[ftp_date_count].version =
+        version > 0xFFFFu ? 0xFFFFu : (uint16_t)version;
     ftp_date_count++;
 }
 
@@ -1159,8 +1185,13 @@ static void ftp_dates_scan_df(const char *path)
         size_t nlen = bang ? (size_t)(bang - s) : tok;
         if (nlen == 0 || nlen >= 64 || !memchr(s, '.', nlen)) continue;
         const char *d;
+        unsigned long version = 0;
         if (bang) {
+            /* The DF pins a version as well as a date, and both are wanted:
+             * the date to satisfy BringOver, the version so a listing shows
+             * the truth (`CommandToolImpl.mesa!2`) instead of a flat !1. */
             d = bang + 1;
+            version = strtoul(d, NULL, 10);
             while (isdigit((unsigned char)*d)) d++;
             if (d == bang + 1) continue;                    /* bare '!' */
         } else {
@@ -1175,7 +1206,7 @@ static void ftp_dates_scan_df(const char *path)
         snprintf(date, sizeof date, "%s", d);
         for (int i = (int)strlen(date) - 1; i >= 0 && isspace((unsigned char)date[i]); i--)
             date[i] = '\0';
-        if (date[0]) ftp_date_add(dir, name, date);
+        if (date[0]) ftp_date_add(dir, name, date, (unsigned)version);
     }
     free(buf);
 }
@@ -1220,20 +1251,438 @@ static void ftp_dates_load(const dorado_ethernet *eth)
                 ftp_date_count, eth->ftp_sysout_path);
 }
 
-/* Creation date for a resolved relative path ("Cedar6.1/Viewers/Icons.tip"),
- * or NULL if no DF names it (the Basic.Loadees BCDs, which the Loader takes
+/* DF index entry for a resolved relative path ("Cedar6.1/Viewers/Icons.tip"),
+ * or -1 when no DF names it (the Basic.Loadees BCDs, which the Loader takes
  * without a date check). */
-static const char *eth_ftp_creation_date(const dorado_ethernet *eth,
-                                         const char *relative)
+static int eth_ftp_df_entry(const dorado_ethernet *eth, const char *relative)
 {
     ftp_dates_load(eth);
     char key[128];
     if ((size_t)snprintf(key, sizeof key, "%s", relative) >= sizeof key)
-        return NULL;
+        return -1;
     for (char *p = key; *p; p++) *p = (char)tolower((unsigned char)*p);
     for (int i = 0; i < ftp_date_count; i++)
-        if (strcmp(ftp_dates[i].key, key) == 0) return ftp_dates[i].date;
-    return NULL;
+        if (strcmp(ftp_dates[i].key, key) == 0) return i;
+    return -1;
+}
+
+static const char *eth_ftp_creation_date(const dorado_ethernet *eth,
+                                         const char *relative)
+{
+    int i = eth_ftp_df_entry(eth, relative);
+    return i < 0 ? NULL : ftp_dates[i].date;
+}
+
+/* The version a release DF pins this file at.  Our tree stores exactly one
+ * version of each file, so !H, !L, !* and !<n> all select it and there is
+ * nothing to resolve -- what the version is FOR is telling the truth in a
+ * listing, and giving FS the hint it records with an attachment.  A file no
+ * DF names (or one a DF names without a bang, such as a DF's own self-export)
+ * is version 1. */
+static unsigned eth_ftp_file_version(const dorado_ethernet *eth,
+                                     const char *relative)
+{
+    int i = eth_ftp_df_entry(eth, relative);
+    return (i < 0 || ftp_dates[i].version == 0) ? 1u : ftp_dates[i].version;
+}
+
+/* One reply property list, the shape STPServerImpl.SendPropList writes.
+ * `relative` is the served path ("Cedar6.1/VersionMap/CedarSource.VersionMap")
+ * and is used only to look the creation date up; `directory` and `name` carry
+ * the IFS spelling the client asked for.
+ *
+ * SendPropList forces Server-Filename, Directory, Name-Body, Version and
+ * Byte-Size into every reply whatever the client desired -- LoaderDriver needs
+ * Byte-Size to open a received BCD as binary even though it never asks for it.
+ * `Creation-Date` is spelled exactly this way because the client's Lisp
+ * property parser is case-sensitive.
+ *
+ * Serve the file's real creation date when a release DF records one: BringOver
+ * asks for a file "created on <date>" and skips anything whose advertised date
+ * differs (see eth_ftp_creation_date).  The synthetic fallback stands in for
+ * files no DF names, such as the Basic.Loadees BCDs, which the Loader accepts
+ * without a date check. */
+static void eth_ftp_format_plist(const dorado_ethernet *eth,
+                                 const char *relative, const char *directory,
+                                 const char *name, uint32_t size, char *out,
+                                 size_t outsz)
+{
+    const char *created = eth_ftp_creation_date(eth, relative);
+    unsigned version = eth_ftp_file_version(eth, relative);
+    snprintf(out, outsz,
+             "((Server-Filename <%s>%s!%u)(Directory %s)(Name-Body %s)"
+             "(Version %u)(Byte-Size 8)"
+             "(Creation-Date %s)(Size %u))",
+             directory, name, version, directory, name, version,
+             created ? created : "01-Jan-84 00:00:00 GST", size);
+}
+
+/* ---- Enumerate: STP New-Directory (0o14) and Directory (0o12) -------------
+ *
+ * STPServerImpl.mesa!9 DoFiles answers an enumeration mark by walking the
+ * requested pattern with FS.EnumerateForNames/ForInfo and emitting one
+ * property list per matching file.  Its Info/Name procs frame that as
+ *
+ *   New-Directory: markHereIsPList ONCE, then a bare plist per file, EOC
+ *   Directory:     markHereIsPList before EVERY plist, then EOC
+ *   no matches:    markNo, fileNotFound, "File not found", EOC
+ *
+ * (`IF (first AND cs.mark = markNewDirectory) OR cs.mark = markDirectory THEN
+ * SendMark[markHereIsPList]`, then `IF matches THEN Finish[stream, ""]`.)  The
+ * client half is STPImpl.mesa!5 TryNewDirectory, whose inner loop calls
+ * GetPList repeatedly -- each balanced "(...)" is one more entry -- until a
+ * mark appears, and then requires EOC.  A listing is entirely
+ * server-to-client: STP.Enumerate's confirm proc puts nothing on the wire.
+ *
+ * Before this existed, 0o14 was aliased onto Retrieve (one file, no pattern)
+ * and 0o12 was not decoded at all, so an old-style Enumerate got no reply
+ * whatsoever and the client waited forever. */
+
+#define FTP_ENUM_MAX       512   /* Tioga, the largest release directory, has
+                                  * 306 files; only a whole-tree "*" truncates */
+#define FTP_ENUM_MAX_DEPTH 8
+
+/* Host-side data, so a file static rather than emulated state -- adding a
+ * member to dorado_ethernet would change the snapshot ABI and every baked
+ * checkpoint would fail to restore.  The cursor into this list is the
+ * connection's own ftp_file_pos (unused while enumerating), which the
+ * per-connection context switch already saves and restores. */
+struct ftp_enum_entry {
+    char relative[128];
+    uint32_t size;
+    uint32_t tx_off;      /* byte offset within this listing, set when sent */
+};
+static struct ftp_enum_entry ftp_enum[FTP_ENUM_MAX];
+static int ftp_enum_count;
+static int ftp_enum_truncated;
+static int ftp_enum_old_form;       /* markDirectory: a mark before each entry */
+static uint32_t ftp_enum_conn;      /* connection this list was built for */
+static uint32_t ftp_enum_tx_start;  /* ftp_tx_next when the listing began */
+static uint32_t ftp_enum_eoc_off;   /* offset of the trailing EOC, once sent */
+
+static int ftp_ci_equal(const char *a, const char *b, size_t n)
+{
+    for (size_t i = 0; i < n; i++)
+        if (tolower((unsigned char)a[i]) != tolower((unsigned char)b[i]))
+            return 0;
+    return 1;
+}
+
+/* Value of "(Key value)" in an STP command property list.  These are the
+ * properties STPServerImpl.GetUserProperties reads; the client sends them as
+ * a Lisp-ish list, "((User-Name Guest.pa)(Directory Cedar6.1)(Name-Body
+ * VersionMap>*)(Desired-property Version))". */
+static int ftp_plist_prop(const char *plist, const char *key,
+                          char *out, size_t outsz)
+{
+    size_t klen = strlen(key);
+    for (const char *p = plist; (p = strchr(p, '(')) != NULL; p++) {
+        const char *v = p + 1 + klen;
+        if (!ftp_ci_equal(p + 1, key, klen) || *v != ' ') continue;
+        v++;
+        size_t n = strcspn(v, ")");
+        if (n >= outsz) return 0;
+        memcpy(out, v, n);
+        out[n] = '\0';
+        return 1;
+    }
+    return 0;
+}
+
+/* Cedar's "*" matches any run of characters INCLUDING the ">" that separates
+ * subdirectory levels: CommandTool's List carries an X switch, "eXact level
+ * match (causes * to not match >)", precisely because crossing levels is the
+ * default (CommandToolCommands.tioga!1).  Names are case-insensitive. */
+static int ftp_glob_match(const char *pat, const char *str)
+{
+    const char *star = NULL, *retry = str;
+    while (*str) {
+        if (*pat == '*') { star = pat++; retry = str; }
+        else if (tolower((unsigned char)*pat) == tolower((unsigned char)*str)) {
+            pat++;
+            str++;
+        } else if (star) { pat = star + 1; str = ++retry; }
+        else return 0;
+    }
+    while (*pat == '*') pat++;
+    return *pat == '\0';
+}
+
+/* Could any name under `prefix` (a directory path ending in '/') still match?
+ * Only literal characters before the pattern's first "*" can rule a subtree
+ * out -- once a "*" is reachable it swallows the rest, levels included. */
+static int ftp_glob_can_extend(const char *pat, const char *prefix)
+{
+    while (*prefix) {
+        if (*pat == '*') return 1;
+        if (*pat == '\0') return 0;
+        if (tolower((unsigned char)*pat) != tolower((unsigned char)*prefix))
+            return 0;
+        pat++;
+        prefix++;
+    }
+    return 1;
+}
+
+static void ftp_enum_add(const char *dir_prefix, const char *sub, uint32_t size)
+{
+    if (ftp_enum_count >= FTP_ENUM_MAX) { ftp_enum_truncated = 1; return; }
+    if ((size_t)snprintf(ftp_enum[ftp_enum_count].relative,
+                         sizeof ftp_enum[0].relative, "%s%s",
+                         dir_prefix, sub) >= sizeof ftp_enum[0].relative)
+        return;
+    ftp_enum[ftp_enum_count].size = size;
+    ftp_enum[ftp_enum_count].tx_off = 0;
+    ftp_enum_count++;
+}
+
+/* `abs_dir` is the host directory being scanned, `sub` its path relative to
+ * the request's Directory ("" or "VersionMap/"), and `pattern` the Name-Body
+ * with '>' rewritten to '/'. */
+static void ftp_enum_walk(const char *abs_dir, const char *sub,
+                          const char *pattern, const char *dir_prefix,
+                          int depth)
+{
+    DIR *dp = opendir(abs_dir);
+    struct dirent *de;
+    if (!dp) return;
+    while ((de = readdir(dp)) != NULL) {
+        char child_abs[1024], child_sub[256];
+        struct stat st;
+        if (de->d_name[0] == '.') continue;
+        if ((size_t)snprintf(child_sub, sizeof child_sub, "%s%s", sub,
+                             de->d_name) >= sizeof child_sub)
+            continue;
+        if ((size_t)snprintf(child_abs, sizeof child_abs, "%s/%s", abs_dir,
+                             de->d_name) >= sizeof child_abs)
+            continue;
+        if (stat(child_abs, &st) != 0) continue;
+        if (S_ISREG(st.st_mode)) {
+            if (ftp_glob_match(pattern, child_sub))
+                ftp_enum_add(dir_prefix, child_sub, (uint32_t)st.st_size);
+        } else if (S_ISDIR(st.st_mode) && depth + 1 < FTP_ENUM_MAX_DEPTH) {
+            char child_dir[256];
+            if ((size_t)snprintf(child_dir, sizeof child_dir, "%s/",
+                                 child_sub) >= sizeof child_dir)
+                continue;
+            if (ftp_glob_can_extend(pattern, child_dir))
+                ftp_enum_walk(child_abs, child_dir, pattern, dir_prefix,
+                              depth + 1);
+        }
+    }
+    closedir(dp);
+}
+
+static int ftp_enum_cmp(const void *a, const void *b)
+{
+    /* FS.mesa: an IFS enumerates "in lexical order of LNames expressed in
+     * bracket syntax (lower case letters are mapped to upper case)". */
+    const char *x = ((const struct ftp_enum_entry *)a)->relative;
+    const char *y = ((const struct ftp_enum_entry *)b)->relative;
+    for (; *x && *y; x++, y++) {
+        int cx = toupper((unsigned char)*x), cy = toupper((unsigned char)*y);
+        if (cx != cy) return cx < cy ? -1 : 1;
+    }
+    return *x ? 1 : (*y ? -1 : 0);
+}
+
+/* Build the match list for the enumeration request now in ftp_cmd_data.
+ * Returns the number of matches. */
+static int eth_ftp_enum_build(dorado_ethernet *eth)
+{
+    char directory[128], name_body[256], pattern[256], root[768];
+    const char *cmd = (const char *)eth->ftp_cmd_data;
+    struct stat st;
+
+    ftp_enum_count = 0;
+    ftp_enum_truncated = 0;
+    if (!eth->ftp_sysout_path[0]) return 0;
+    if (stat(eth->ftp_sysout_path, &st) != 0 || !S_ISDIR(st.st_mode)) return 0;
+    if (!ftp_plist_prop(cmd, "Directory", directory, sizeof directory) ||
+        !ftp_plist_prop(cmd, "Name-Body", name_body, sizeof name_body))
+        return 0;
+    if (!directory[0] || strstr(directory, "..")) return 0;
+    for (const char *p = directory; *p; p++) {
+        unsigned char c = (unsigned char)*p;
+        if (!(isalnum(c) || c == '.' || c == '_' || c == '-')) return 0;
+    }
+
+    /* The pattern is the Name-Body in path form.  An explicit "!version" is
+     * dropped: our tree stores one version of each file, so !H, !L, !* and
+     * !<n> all select it (STPServerImpl leaves Version NIL for an enumerate,
+     * which FS defaults to !*). */
+    {
+        size_t n = 0;
+        for (const char *p = name_body; *p && n + 1 < sizeof pattern; p++) {
+            unsigned char c = (unsigned char)*p;
+            if (c == '>') c = '/';
+            if (c == '!') break;
+            if (!(isalnum(c) || c == '.' || c == '_' || c == '-' || c == '/' ||
+                  c == '*' || c == '$' || c == '+'))
+                return 0;
+            pattern[n++] = (char)c;
+        }
+        pattern[n] = '\0';
+        while (pattern[0] == '/') memmove(pattern, pattern + 1, strlen(pattern));
+        if (strstr(pattern, "..")) return 0;
+        /* CommandTool's List appends "*" to a pattern that names a directory,
+         * but a bare "<Dir>" arrives here as an empty Name-Body. */
+        if (!pattern[0]) snprintf(pattern, sizeof pattern, "*");
+    }
+
+    if ((size_t)snprintf(root, sizeof root, "%s/%s", eth->ftp_sysout_path,
+                         directory) >= sizeof root)
+        return 0;
+    if (stat(root, &st) != 0 || !S_ISDIR(st.st_mode)) return 0;
+
+    {
+        char dir_prefix[136];
+        if ((size_t)snprintf(dir_prefix, sizeof dir_prefix, "%s/", directory) >=
+            sizeof dir_prefix)
+            return 0;
+        ftp_enum_walk(root, "", pattern, dir_prefix, 0);
+    }
+    if (ftp_enum_count > 1)
+        qsort(ftp_enum, (size_t)ftp_enum_count, sizeof ftp_enum[0],
+              ftp_enum_cmp);
+    if (ftp_trace()) {
+        fprintf(stderr, "STP_ENUM <%s>%s -> %d file%s\n", directory, name_body,
+                ftp_enum_count, ftp_enum_count == 1 ? "" : "s");
+        /* Never let a bounded walk read as complete coverage. */
+        if (ftp_enum_truncated)
+            fprintf(stderr, "STP_ENUM TRUNCATED at %d matches; the listing is "
+                            "incomplete\n", FTP_ENUM_MAX);
+    }
+    return ftp_enum_count;
+}
+
+/* ---- LookupFile (PupType.fileLookup, 0o200) -------------------------------
+ *
+ * FSRemoteFileImpl.Info tries this single-Pup exchange FIRST and only falls
+ * back to an STP enumerate if nothing answers: "This procedure uses the
+ * LookupFile packet exchange protocol to obtain the version number, create
+ * time, and byte length of a file on a remote file server" (FSRemoteFile.mesa).
+ * It is what fills List's version, size and date columns.  Unanswered,
+ * FSFileLookupImpl retries four times, caches `noResponse` against the server
+ * for 30 seconds, and every remote name in a listing prints "??" for its date
+ * and a stale number for its size -- which is exactly what the first
+ * end-to-end listing showed on 2026-07-30.
+ *
+ * Request: the file name in bracket syntax laid straight into the Pup body
+ * (PupSocket.CopyRope zaps the length, appends the characters, sets the
+ * length -- no count prefix).  Reply: PupType.fileLookupReply (0o201) carrying
+ * PupBuffer.FileLookupReply = version (1 word), createTime (2 words, seconds
+ * since the 1901 Pup epoch), length (2 words).  0o202 is fileLookupError,
+ * which the client reads as noSuchFile.
+ *
+ * Answered on whatever socket it arrives at rather than only on
+ * PupWKS.fileLookup (0o61): our NetDir handler answers every name lookup with
+ * the STP address -- socket 3 -- so that is where the client sends it. */
+
+/* "04-Dec-86 10:05:32 PST" -> seconds since 1901-01-01 GMT.  The zone is the
+ * DF's own spelling; hours WEST of Greenwich are added back to reach GMT. */
+static uint32_t ftp_pup_time_from_date(const char *s)
+{
+    static const char *months = "JanFebMarAprMayJunJulAugSepOctNovDec";
+    char mon[8] = "", zone[8] = "";
+    int day = 0, year = 0, hh = 0, mm = 0, ss = 0;
+    if (!s) return 0;
+    if (sscanf(s, "%d-%3s-%d %d:%d:%d %7s", &day, mon, &year, &hh, &mm, &ss,
+               zone) < 6)
+        return 0;
+    const char *p = strstr(months, mon);
+    if (!p || ((p - months) % 3) != 0) return 0;
+    int month = (int)((p - months) / 3) + 1;
+    year += year < 70 ? 2000 : 1900;
+    /* Days from 1970-01-01 (Howard Hinnant's civil_from_days, inverted): no
+     * mktime, so the result does not depend on the host's timezone. */
+    int y = year - (month <= 2);
+    int era = (y >= 0 ? y : y - 399) / 400;
+    unsigned yoe = (unsigned)(y - era * 400);
+    unsigned doy = (unsigned)((153 * (month + (month > 2 ? -3 : 9)) + 2) / 5 +
+                              day - 1);
+    unsigned doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+    long days = (long)era * 146097 + (long)doe - 719468;
+    long secs = days * 86400L + hh * 3600L + mm * 60L + ss;
+    int west = 0;   /* hours west of Greenwich, per the DF's zone */
+    if (!strncmp(zone, "PST", 3)) west = 8;
+    else if (!strncmp(zone, "PDT", 3)) west = 7;
+    else if (!strncmp(zone, "MST", 3)) west = 7;
+    else if (!strncmp(zone, "MDT", 3)) west = 6;
+    else if (!strncmp(zone, "CST", 3)) west = 6;
+    else if (!strncmp(zone, "CDT", 3)) west = 5;
+    else if (!strncmp(zone, "EST", 3)) west = 5;
+    else if (!strncmp(zone, "EDT", 3)) west = 4;
+    secs += west * 3600L;
+    if (secs < 0) return 0;
+    /* 2177452800 = seconds from the Pup/Alto epoch (1901) to the Unix one. */
+    return (uint32_t)(secs + 2177452800u);
+}
+
+static int eth_handle_file_lookup(dorado_ethernet *eth)
+{
+    char name[384], relative[384], path[768];
+    uint8_t body[16];
+    struct stat st;
+    size_t nbytes = eth->tx_words[2] > 026 ?
+        (size_t)(eth->tx_words[2] - 026) : 0;
+    uint32_t id = pup_id32(eth->tx_words[4], eth->tx_words[5]);
+    uint32_t created, size;
+    unsigned version;
+
+    if (!eth->ftp_sysout_path[0]) return 0;
+    if (nbytes == 0 || nbytes >= sizeof name) return 0;
+    for (size_t i = 0; i < nbytes; i++) {
+        uint16_t w = eth->tx_words[12 + i / 2];
+        name[i] = (char)((i & 1) ? (w & 0xFF) : (w >> 8));
+    }
+    name[nbytes] = '\0';
+
+    if (!eth_ftp_relative_from_name(name, relative, sizeof relative) ||
+        (size_t)snprintf(path, sizeof path, "%s/%s", eth->ftp_sysout_path,
+                         relative) >= sizeof path ||
+        stat(path, &st) != 0 || !S_ISREG(st.st_mode)) {
+        if (ftp_trace())
+            fprintf(stderr, "STP_LOOKUP_MISSING %s\n", name);
+        return eth_queue_pup_bytes(eth, 0202 /* fileLookupError */, id,
+                                   eth->tx_words[9], eth->tx_words[10],
+                                   eth->tx_words[11],
+                                   (uint16_t)((DORADO_PUP_LOCAL_NET << 8) |
+                                              eth->remote_host),
+                                   eth->tx_words[7], eth->tx_words[8],
+                                   NULL, 0);
+    }
+
+    version = eth_ftp_file_version(eth, relative);
+    size = (uint32_t)st.st_size;
+    created = ftp_pup_time_from_date(eth_ftp_creation_date(eth, relative));
+    if (created == 0)
+        created = ftp_pup_time_from_date("01-Jan-84 00:00:00 GMT");
+    body[0] = (uint8_t)(version >> 8);
+    body[1] = (uint8_t)version;
+    body[2] = (uint8_t)(created >> 24);
+    body[3] = (uint8_t)(created >> 16);
+    body[4] = (uint8_t)(created >> 8);
+    body[5] = (uint8_t)created;
+    body[6] = (uint8_t)(size >> 24);
+    body[7] = (uint8_t)(size >> 16);
+    body[8] = (uint8_t)(size >> 8);
+    body[9] = (uint8_t)size;
+    if (ftp_trace())
+        fprintf(stderr, "STP_LOOKUP %s -> !%u %u bytes %s\n", relative, version,
+                size, eth_ftp_creation_date(eth, relative));
+    return eth_queue_pup_bytes(eth, 0201 /* fileLookupReply */, id,
+                               eth->tx_words[9], eth->tx_words[10],
+                               eth->tx_words[11],
+                               (uint16_t)((DORADO_PUP_LOCAL_NET << 8) |
+                                          eth->remote_host),
+                               eth->tx_words[7], eth->tx_words[8],
+                               body, 10);
+}
+
+static uint32_t eth_ftp_conn_id(const dorado_ethernet *eth)
+{
+    return pup_id32(eth->ftp_client_sock_hi, eth->ftp_client_sock_lo);
 }
 
 static uint32_t eth_ftp_file_size(dorado_ethernet *eth)
@@ -1449,19 +1898,37 @@ static int eth_ftp_queue_plist(dorado_ethernet *eth)
      * Name-Body, Version, and Byte-Size into every reply.  LoaderDriver
      * needs Byte-Size to open a received BCD as binary even when it did not
      * explicitly list that property in its request. */
-    /* Serve the file's real creation date when a release DF records one:
-     * BringOver asks for a file "created on <date>" and skips anything whose
-     * advertised date differs (see eth_ftp_creation_date).  The synthetic
-     * fallback stands in for files no DF names, such as the Basic.Loadees
-     * BCDs, which the Loader accepts without a date check. */
-    const char *created = eth_ftp_creation_date(eth, relative);
-    snprintf(plist, sizeof plist,
-             "((Server-Filename <%s>%s!1)(Directory %s)(Name-Body %s)"
-             "(Version 1)(Byte-Size 8)"
-             "(Creation-Date %s)(Size %u))",
-             directory, name, directory, name,
-             created ? created : "01-Jan-84 00:00:00 GST", advertised_size);
+    eth_ftp_format_plist(eth, relative, directory, name, advertised_size,
+                         plist, sizeof plist);
     if (ftp_trace()) fprintf(stderr, "STP_PLIST %s\n", plist);
+    return eth_ftp_queue_data(eth, (const uint8_t *)plist, strlen(plist),
+                              eth_ftp_file_packet_needs_ack(eth));
+}
+
+/* One entry of a listing.  Cedar displays the Server-Filename verbatim
+ * (STPImpl.MakeRemoteName returns it whenever it is present), so the IFS
+ * spelling built here is what the user reads. */
+static int eth_ftp_queue_enum_entry(dorado_ethernet *eth, int index)
+{
+    char plist[512];
+    char directory[192];
+    const char *relative = ftp_enum[index].relative;
+    const char *name = strrchr(relative, '/');
+    size_t dn;
+
+    name = name ? name + 1 : relative;
+    dn = (size_t)(name - relative);
+    if (dn && relative[dn - 1] == '/') dn--;
+    if (dn >= sizeof directory) return 0;
+    memcpy(directory, relative, dn);
+    directory[dn] = '\0';
+    for (size_t i = 0; i < dn; i++)
+        if (directory[i] == '/') directory[i] = '>';
+
+    eth_ftp_format_plist(eth, relative, directory, name,
+                         ftp_enum[index].size, plist, sizeof plist);
+    ftp_enum[index].tx_off = eth->ftp_tx_next - ftp_enum_tx_start;
+    if (ftp_trace()) fprintf(stderr, "STP_ENUM_ENTRY %s\n", plist);
     return eth_ftp_queue_data(eth, (const uint8_t *)plist, strlen(plist),
                               eth_ftp_file_packet_needs_ack(eth));
 }
@@ -1528,9 +1995,38 @@ static void eth_ftp_handle_command(dorado_ethernet *eth)
     case FTP_MARK_VERSION:
         eth_ftp_start_tx(eth, FTP_TX_VERSION);
         break;
-    case FTP_MARK_RETRIEVE:
+    case FTP_MARK_DIRECTORY:
     case FTP_MARK_NEW_DIRECTORY:
+        /* A listing, not a file: match the pattern against the served tree
+         * and stream one property list per hit (STPServerImpl DoFiles). */
+        ftp_enum_old_form = eth->ftp_cmd_mark == FTP_MARK_DIRECTORY;
+        ftp_enum_conn = eth_ftp_conn_id(eth);
+        ftp_enum_tx_start = eth->ftp_tx_next;
+        ftp_enum_eoc_off = 0;
+        eth->ftp_file_pos = 0;      /* the cursor into ftp_enum[] */
+        if (eth_ftp_enum_build(eth) <= 0) {
+            if (ftp_trace())
+                fprintf(stderr, "STP_ENUM_MISSING %s\n", eth->ftp_cmd_data);
+            /* fileNotFound, deliberately: the client falls back to the old
+             * Directory form only on protocolError/requestRefused/badCommand
+             * (STPImpl.TryNewDirectory), and an empty directory is not a
+             * protocol failure. */
+            eth_ftp_start_tx(eth, FTP_TX_NOT_FOUND);
+        } else {
+            eth_ftp_start_tx(eth, FTP_TX_ENUM);
+        }
+        /* Idle, NOT FTP_PHASE_DONE: that phase means "a retrieve just
+         * finished", and the duplicate-ack recovery reads it as a 20-byte
+         * completion tail it may regenerate.  A listing has no such tail, and
+         * leaving a previous retrieve's DONE standing would let a duplicate
+         * ack rewind into a file transfer that is not happening. */
+        eth->ftp_phase = FTP_PHASE_IDLE;
+        break;
+    case FTP_MARK_RETRIEVE:
         eth->ftp_file_pos = 0;
+        /* This connection is done with any listing it made: ftp_file_pos is
+         * the file cursor again, so no stale entry offset may be rewound to. */
+        if (eth_ftp_conn_id(eth) == ftp_enum_conn) ftp_enum_eoc_off = 0;
         if (!eth_ftp_file_exists(eth)) {
             if (ftp_trace())
                 fprintf(stderr, "STP_MISSING %s\n", eth->ftp_cmd_data);
@@ -1714,6 +2210,38 @@ static int eth_ftp_tx_next_segment(dorado_ethernet *eth)
             return eth_ftp_queue_plist(eth);
         }
         eth->ftp_tx_mode = FTP_TX_NONE;
+        return eth_ftp_queue_mark(eth, FTP_MARK_EOC,
+                                  eth_ftp_file_packet_needs_ack(eth));
+    case FTP_TX_ENUM:
+        /* New-Directory takes one HereIsPList for the whole listing; the old
+         * Directory form takes one before every entry (STPServerImpl DoFiles:
+         * `first AND markNewDirectory` OR `markDirectory`).  Step 0 is that
+         * mark, step 1 the entry that follows it. */
+        if (eth->ftp_tx_step == 0) {
+            eth->ftp_tx_step = 1;
+            return eth_ftp_queue_mark(eth, FTP_MARK_HERE_IS_PLIST,
+                                      eth_ftp_file_packet_needs_ack(eth));
+        }
+        if (eth_ftp_conn_id(eth) == ftp_enum_conn &&
+            eth->ftp_file_pos < (uint32_t)ftp_enum_count) {
+            int index = (int)eth->ftp_file_pos;
+            if (ftp_enum_old_form && eth->ftp_tx_step == 2) {
+                eth->ftp_tx_step = 1;
+                return eth_ftp_queue_mark(eth, FTP_MARK_HERE_IS_PLIST,
+                                          eth_ftp_file_packet_needs_ack(eth));
+            }
+            if (!eth_ftp_queue_enum_entry(eth, index)) return 0;
+            eth->ftp_file_pos++;
+            eth->ftp_tx_step = 2;
+            return 1;
+        }
+        /* Finish[stream, ""] -- a bare EOC ends the listing.  The same exit
+         * covers the case where another connection has since claimed the
+         * match list: end the stream cleanly rather than leave the client
+         * waiting on entries this server can no longer produce. */
+        eth->ftp_tx_mode = FTP_TX_NONE;
+        if (eth_ftp_conn_id(eth) == ftp_enum_conn)
+            ftp_enum_eoc_off = eth->ftp_tx_next - ftp_enum_tx_start;
         return eth_ftp_queue_mark(eth, FTP_MARK_EOC,
                                   eth_ftp_file_packet_needs_ack(eth));
     case FTP_TX_FILE:
@@ -2141,6 +2669,48 @@ static int eth_ftp_select_conn(dorado_ethernet *eth)
            eth->tx_words[8] == eth->ftp_server_sock_lo;
 }
 
+/* Duplicate acknowledgement while a listing is on the wire.  A listing has no
+ * file behind it to act as the retransmit ring, so the match list is one: each
+ * entry recorded its byte offset within the listing as it went out, and an ack
+ * naming an entry boundary rewinds the cursor to that entry and streams again.
+ * Returns 1 when it has repositioned the transmit state; the caller then
+ * rewinds ftp_tx_next to the acknowledged byte exactly as it does for a file. */
+static int eth_ftp_enum_rewind(dorado_ethernet *eth, uint32_t ack)
+{
+    uint32_t off = ack - ftp_enum_tx_start;
+    int lost_eoc_only;
+
+    if (eth_ftp_conn_id(eth) != ftp_enum_conn) return 0;
+    lost_eoc_only = eth->ftp_tx_mode == FTP_TX_NONE && ftp_enum_eoc_off != 0 &&
+                    off == ftp_enum_eoc_off;
+    if (eth->ftp_tx_mode != FTP_TX_ENUM && !lost_eoc_only) return 0;
+    if (off > (1u << 20)) return 0;      /* not a position in this listing */
+
+    /* file_pos >= count with a non-zero step re-enters the state machine at
+     * its EOC. */
+    if (lost_eoc_only) {
+        eth->ftp_tx_mode = FTP_TX_ENUM;
+        eth->ftp_tx_step = 1;
+        eth->ftp_file_pos = (uint32_t)ftp_enum_count;
+        return 1;
+    }
+    if (off == 0) {                      /* even the HereIsPList was lost */
+        eth->ftp_tx_step = 0;
+        eth->ftp_file_pos = 0;
+        return 1;
+    }
+    for (int i = 0; i < ftp_enum_count && (uint32_t)i < eth->ftp_file_pos; i++) {
+        /* In the old Directory form the entry's own HereIsPList mark sits one
+         * byte in front of it and has to go out again. */
+        uint32_t start = ftp_enum[i].tx_off - (ftp_enum_old_form ? 1u : 0u);
+        if (start != off) continue;
+        eth->ftp_file_pos = (uint32_t)i;
+        eth->ftp_tx_step = ftp_enum_old_form ? 2 : 1;
+        return 1;
+    }
+    return 0;
+}
+
 static int eth_ftp_handle_packet(dorado_ethernet *eth)
 {
     uint16_t type = eth->tx_words[3];
@@ -2190,8 +2760,10 @@ static int eth_ftp_handle_packet(dorado_ethernet *eth)
              * FTP_TX_DONE's step machine at the lost step. */
             uint32_t back = eth->ftp_tx_next - ack;
             uint32_t tail_sent;
-            int recovered = 0;
-            if (eth->ftp_tx_mode == FTP_TX_FILE)
+            int recovered = eth_ftp_enum_rewind(eth, ack);
+            if (recovered)
+                tail_sent = UINT32_MAX;
+            else if (eth->ftp_tx_mode == FTP_TX_FILE)
                 tail_sent = 0;
             else if (eth->ftp_tx_mode == FTP_TX_DONE)
                 tail_sent = eth->ftp_tx_step == 0 ? 0u
@@ -2380,6 +2952,10 @@ static void eth_tx_packet_done(dorado_ethernet *eth)
         if (eth->tx_words[3] == 01 /* echoMe */ &&
             eth->tx_words[8] == PUP_SOCKET_GV_RS_POLL) {
             (void)eth_queue_gv_echo_reply(eth);
+            return;
+        }
+        if (eth->tx_words[3] == PUP_TYPE_FILE_LOOKUP) {
+            (void)eth_handle_file_lookup(eth);
             return;
         }
         if (eth->tx_words[3] == PUP_TYPE_RTP_RFC &&

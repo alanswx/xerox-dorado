@@ -690,6 +690,322 @@ static int test_ftp_netdir_rtp_and_bsp_alloc(void)
     return 0;
 }
 
+/* ---- STP enumerate ("ls" on a remote directory) --------------------------
+ *
+ * Play the client half of STPImpl.mesa!5 TryNewDirectory / DoFiles against the
+ * in-process server: open the BSP connection, send an enumeration mark plus
+ * its property list, and reassemble the reply into (mark, text) segments.
+ * The framing under test is STPServerImpl.mesa!9 DoFiles -- HereIsPList once
+ * for New-Directory, before every entry for the old Directory, then EOC. */
+
+#define STP_ROOT "../chm/cedar/stp-root"
+
+typedef struct {
+    dorado_ethernet eth;
+    uint32_t rx_cursor;         /* next byte ID we expect from the server */
+    uint32_t tx_cursor;         /* next byte ID we will send */
+} stp_client;
+
+/* Drain one queued Pup into `pkt`; returns its word count, or 0 if the server
+ * has nothing more to say. */
+static int stp_take(stp_client *c, uint16_t *pkt, int cap)
+{
+    dorado_ethernet *eth = &c->eth;
+    int n;
+    for (int i = 0; i < 200000 && eth->rx_pos >= eth->rx_count; i++)
+        (void)dorado_ethernet_wakeup_mask(eth);
+    if (eth->rx_pos >= eth->rx_count) return 0;
+    n = (int)eth->rx_count;
+    if (n > cap) n = cap;
+    for (int i = 0; i < n; i++) pkt[i] = eth->rx_words[i];
+    eth->rx_pos = eth->rx_count;         /* consume it off the wire */
+    return n;
+}
+
+/* Acknowledge everything received so far, advertising an ordinary Alto-side
+ * BSP allocation (this is what unblocks the server's window). */
+static void stp_ack(stp_client *c)
+{
+    uint16_t ack[15] = {
+        (uint16_t)((01 << 8) | 042), 01000, 026 + 6,
+        022, (uint16_t)(c->rx_cursor >> 16), (uint16_t)c->rx_cursor,
+        (uint16_t)((01 << 8) | 01), 0, 03,
+        (uint16_t)((01 << 8) | 042), 0, 020,
+        512, 6, 512 * 6
+    };
+    dorado_ethernet_direct_transmit(&c->eth, ack, 15);
+}
+
+/* One BSP Mark packet: the mark byte, then any command text in the same Pup
+ * (PupStream.SendMark flushes the stream, which is how Cedar sends a command). */
+static void stp_send_mark(stp_client *c, uint8_t mark, const char *text)
+{
+    uint16_t pkt[600];
+    size_t nbytes = 1 + (text ? strlen(text) : 0);
+    size_t nwords = (nbytes + 1) / 2;
+    uint8_t bytes[1024];
+    bytes[0] = mark;
+    if (text) memcpy(bytes + 1, text, nbytes - 1);
+    if (nbytes & 1) bytes[nbytes] = 0;
+    pkt[0] = (uint16_t)((01 << 8) | 042);
+    pkt[1] = 01000;
+    pkt[2] = (uint16_t)(026 + 2 * nwords);
+    pkt[3] = 023;                                   /* BSP Mark */
+    pkt[4] = (uint16_t)(c->tx_cursor >> 16);
+    pkt[5] = (uint16_t)c->tx_cursor;
+    pkt[6] = (uint16_t)((01 << 8) | 01);
+    pkt[7] = 0;
+    pkt[8] = 03;
+    pkt[9] = (uint16_t)((01 << 8) | 042);
+    pkt[10] = 0;
+    pkt[11] = 020;
+    for (size_t i = 0; i < nwords; i++)
+        pkt[12 + i] = (uint16_t)((bytes[2 * i] << 8) | bytes[2 * i + 1]);
+    pkt[12 + nwords] = 0177777;
+    c->tx_cursor += (uint32_t)nbytes;
+    dorado_ethernet_direct_transmit(&c->eth, pkt, (int)(13 + nwords));
+}
+
+static int stp_open(stp_client *c, const char *root)
+{
+    uint16_t rfc[15] = {
+        (uint16_t)((01 << 8) | 042), 01000, 026 + 6,
+        010, 012345, 067123,
+        (uint16_t)((01 << 8) | 01), 0, 03,
+        (uint16_t)((01 << 8) | 042), 0, 020,
+        (uint16_t)((01 << 8) | 042), 0, 020
+    };
+    uint16_t pkt[600];
+    dorado_ethernet_init(&c->eth);
+    dorado_ethernet_set_ftp_root(&c->eth, root);
+    /* Both byte-ID spaces are seeded from the RFC connection ID (PupBSPProt). */
+    c->rx_cursor = c->tx_cursor = ((uint32_t)012345 << 16) | 067123;
+    dorado_ethernet_direct_transmit(&c->eth, rfc, 15);
+    EXPECT(c->eth.ftp_open, "STP connection opened");
+    EXPECT(stp_take(c, pkt, 600) > 0 && pkt[3] == 010, "RFC reply");
+    EXPECT(stp_take(c, pkt, 600) > 0 && pkt[3] == 022, "initial BSP allocation");
+    return 0;
+}
+
+/* Collect the server's whole answer as a transcript: one line per BSP
+ * segment, "M<octal mark>" for a mark and the literal text for data. */
+static int stp_collect(stp_client *c, char *out, size_t outsz, int *n_plists,
+                       int *n_marks)
+{
+    uint16_t pkt[600];
+    size_t used = 0;
+    int n;
+    *n_plists = *n_marks = 0;
+    out[0] = '\0';
+    while ((n = stp_take(c, pkt, 600)) > 0) {
+        uint16_t type = pkt[3];
+        uint32_t id = ((uint32_t)pkt[4] << 16) | pkt[5];
+        size_t nbytes = pkt[2] > 026 ? (size_t)(pkt[2] - 026) : 0;
+        char seg[1024];
+        size_t si = 0;
+        if (type != 020 && type != 021 && type != 023 && type != 026) continue;
+        EXPECT(id == c->rx_cursor, "byte ID %08x, expected %08x (a segment was "
+               "lost or duplicated)", id, c->rx_cursor);
+        c->rx_cursor = id + (uint32_t)nbytes;
+        for (size_t i = 0; i < nbytes && si < sizeof seg - 1; i++) {
+            uint16_t w = pkt[12 + i / 2];
+            seg[si++] = (char)((i & 1) ? (w & 0xFF) : (w >> 8));
+        }
+        seg[si] = '\0';
+        if (type == 023 || type == 026) {
+            (*n_marks)++;
+            used += (size_t)snprintf(out + used, outsz - used, "M%o\n",
+                                     (unsigned)(uint8_t)seg[0]);
+            if (si > 1)         /* text riding along with the mark */
+                used += (size_t)snprintf(out + used, outsz - used, "%s\n",
+                                         seg + 1);
+        } else {
+            if (seg[0] == '(') (*n_plists)++;
+            used += (size_t)snprintf(out + used, outsz - used, "%s\n", seg);
+        }
+        if (used + 1024 > outsz) break;
+        stp_ack(c);
+    }
+    return 0;
+}
+
+/* markNewDirectory(0o14) / markDirectory(0o12) with `pattern` as the
+ * Name-Body, exactly as FSRemoteFileImpl.InnerEnumerate sends it. */
+static int stp_enumerate(stp_client *c, uint8_t mark, const char *directory,
+                         const char *pattern, char *out, size_t outsz,
+                         int *n_plists, int *n_marks)
+{
+    char cmd[512];
+    snprintf(cmd, sizeof cmd,
+             "((User-Name Guest.pa)(Directory %s)(Name-Body %s)"
+             "(Desired-property Directory)(Desired-property Name-Body)"
+             "(Desired-property Version))", directory, pattern);
+    stp_send_mark(c, mark, cmd);
+    stp_send_mark(c, 06, NULL);              /* markEOC ends the command */
+    return stp_collect(c, out, outsz, n_plists, n_marks);
+}
+
+static int test_stp_enumerate(void)
+{
+    stp_client c;
+    char reply[65536];
+    int plists, marks;
+
+    /* 1. New-Directory: one HereIsPList, a bare plist per file, one EOC. */
+    if (stp_open(&c, STP_ROOT)) return 1;
+    if (stp_enumerate(&c, 014, "Cedar6.1", "VersionMap>*", reply, sizeof reply,
+                      &plists, &marks))
+        return 1;
+    EXPECT(strstr(reply, "M13\n") == reply,
+           "listing opens with markHereIsPList; got:\n%s", reply);
+    EXPECT(marks == 2, "%d marks (want HereIsPList + EOC):\n%s", marks, reply);
+    EXPECT(strstr(reply, "M6\n") != NULL, "listing ends with markEOC:\n%s",
+           reply);
+    EXPECT(plists == 11, "%d property lists (VersionMap holds 11 files):\n%s",
+           plists, reply);
+    /* The version and date are the release DF's, not a synthetic !1: the DF
+     * pins CedarSource.VersionMap at !34, 04-Dec-86. */
+    EXPECT(strstr(reply, "(Server-Filename <Cedar6.1>VersionMap>"
+                         "CedarSource.VersionMap!34)") != NULL,
+           "the version map itself is listed, at its DF version:\n%s", reply);
+    EXPECT(strstr(reply, "(Creation-Date 04-Dec-86 10:05:32 PST)") != NULL,
+           "and at its DF creation date:\n%s", reply);
+    EXPECT(strstr(reply, "(Directory Cedar6.1>VersionMap)") != NULL,
+           "Directory property carries the subdirectory:\n%s", reply);
+    /* Lexical order, upper-cased, as an IFS enumerates (FS.mesa). */
+    EXPECT(strstr(reply, "CedarSource.VersionMap") <
+           strstr(reply, "CedarSymbols.VersionMap"), "sorted:\n%s", reply);
+    dorado_ethernet_free(&c.eth);
+
+    /* 2. A pattern that matches nothing is a refusal, not silence -- and
+     *    fileNotFound(100B), the code that does NOT make the client fall back
+     *    to the old Directory form. */
+    if (stp_open(&c, STP_ROOT)) return 1;
+    if (stp_enumerate(&c, 014, "Cedar6.1", "VersionMap>*.nonesuch", reply,
+                      sizeof reply, &plists, &marks))
+        return 1;
+    EXPECT(plists == 0, "no plists for an empty match:\n%s", reply);
+    EXPECT(strstr(reply, "M4\n") == reply, "markNo first:\n%s", reply);
+    EXPECT(strstr(reply, "@File not found") != NULL,
+           "fileNotFound(100B = '@') and its explanation:\n%s", reply);
+    dorado_ethernet_free(&c.eth);
+
+    /* 3. The old Directory form: a HereIsPList before EVERY entry. */
+    if (stp_open(&c, STP_ROOT)) return 1;
+    if (stp_enumerate(&c, 012, "Cedar6.1", "VersionMap>*.VersionMap", reply,
+                      sizeof reply, &plists, &marks))
+        return 1;
+    EXPECT(plists == 2, "%d plists (two .VersionMap files):\n%s", plists, reply);
+    EXPECT(marks == 3, "%d marks (a HereIsPList each, then EOC):\n%s", marks,
+           reply);
+    dorado_ethernet_free(&c.eth);
+
+    /* 4. "*" crosses ">": CommandToolCommands.tioga's List has an X switch,
+     *    "causes * to not match >", precisely because it does by default. */
+    if (stp_open(&c, STP_ROOT)) return 1;
+    if (stp_enumerate(&c, 014, "Cedar6.1", "*.VersionMap", reply, sizeof reply,
+                      &plists, &marks))
+        return 1;
+    EXPECT(plists == 2, "%d plists for a level-crossing *:\n%s", plists, reply);
+    EXPECT(strstr(reply, "<Cedar6.1>VersionMap>CedarSource.VersionMap") != NULL,
+           "found a file one level down:\n%s", reply);
+    dorado_ethernet_free(&c.eth);
+
+    /* 5. An exact name (no wildcard) still enumerates. */
+    if (stp_open(&c, STP_ROOT)) return 1;
+    if (stp_enumerate(&c, 014, "Cedar6.1", "CommandTool>CommandTool.mesa",
+                      reply, sizeof reply, &plists, &marks))
+        return 1;
+    EXPECT(plists == 1, "%d plists for an exact name:\n%s", plists, reply);
+    EXPECT(strstr(reply, "(Name-Body CommandTool.mesa)") != NULL,
+           "Name-Body is the leaf name:\n%s", reply);
+    EXPECT(strstr(reply, "(Size 17048)") != NULL,
+           "Size is the real byte count:\n%s", reply);
+    dorado_ethernet_free(&c.eth);
+
+    /* 6. Versions come from the DF, per file -- CommandTool.df pins
+     *    CommandTool.mesa at !1 and CommandToolImpl.mesa at !2, and a flat
+     *    "!1" for both would be a lie the old server told. */
+    if (stp_open(&c, STP_ROOT)) return 1;
+    if (stp_enumerate(&c, 014, "Cedar6.1", "CommandTool>CommandTool*.mesa",
+                      reply, sizeof reply, &plists, &marks))
+        return 1;
+    EXPECT(strstr(reply, "CommandToolImpl.mesa!2)") != NULL,
+           "CommandToolImpl.mesa is version 2:\n%s", reply);
+    EXPECT(strstr(reply, "CommandTool.mesa!1)") != NULL,
+           "CommandTool.mesa is version 1:\n%s", reply);
+    dorado_ethernet_free(&c.eth);
+
+    printf("  STP enumerate: New-Directory and Directory framing, level-"
+           "crossing patterns, fileNotFound on no match\n");
+    return 0;
+}
+
+/* The LookupFile packet exchange (PupType.fileLookup, 0o200): the single-Pup
+ * protocol FSRemoteFileImpl.Info tries first, and the one that fills List's
+ * version/size/date columns.  Reply body is PupBuffer.FileLookupReply --
+ * version (1 word), createTime (2 words, seconds since the 1901 Pup epoch),
+ * length (2 words). */
+static int test_file_lookup(void)
+{
+    dorado_ethernet eth;
+    uint16_t pkt[600];
+    int n;
+    const char *name = "[Cedar]<Cedar6.1>VersionMap>CedarSource.VersionMap";
+    size_t len = strlen(name), words = (len + 1) / 2;
+
+    dorado_ethernet_init(&eth);
+    dorado_ethernet_set_ftp_root(&eth, STP_ROOT);
+
+    pkt[0] = (uint16_t)((01 << 8) | 042);
+    pkt[1] = 01000;
+    pkt[2] = (uint16_t)(026 + 2 * words);
+    pkt[3] = 0200;                                  /* fileLookup */
+    pkt[4] = 0123; pkt[5] = 04567;                  /* request id */
+    pkt[6] = (uint16_t)((01 << 8) | 01); pkt[7] = 0; pkt[8] = 061;
+    pkt[9] = (uint16_t)((01 << 8) | 042); pkt[10] = 0; pkt[11] = 020;
+    for (size_t i = 0; i < words; i++) {
+        uint8_t hi = (uint8_t)name[2 * i];
+        uint8_t lo = 2 * i + 1 < len ? (uint8_t)name[2 * i + 1] : 0;
+        pkt[12 + i] = (uint16_t)((hi << 8) | lo);
+    }
+    pkt[12 + words] = 0177777;
+    dorado_ethernet_direct_transmit(&eth, pkt, (int)(13 + words));
+
+    n = (int)eth.rx_count;
+    EXPECT(n >= 17, "fileLookup answered (%d words)", n);
+    EXPECT(eth.rx_words[3] == 0201, "fileLookupReply type 0o%o",
+           eth.rx_words[3]);
+    EXPECT(eth.rx_words[4] == 0123 && eth.rx_words[5] == 04567,
+           "reply carries the request id");
+    EXPECT(eth.rx_words[2] == 026 + 10, "reply body is 10 bytes, got 0o%o",
+           eth.rx_words[2]);
+    EXPECT(eth.rx_words[12] == 34, "version %u (the DF pins !34)",
+           eth.rx_words[12]);
+    /* 04-Dec-86 10:05:32 PST = 1986-12-04 18:05:32 GMT = 534103532 Unix,
+     * + 2177452800 (1901 -> 1970) = 2711556332 = 0o24136323654. */
+    EXPECT((((uint32_t)eth.rx_words[13] << 16) | eth.rx_words[14]) ==
+           2711556332u, "createTime 0o%o%o", eth.rx_words[13],
+           eth.rx_words[14]);
+    EXPECT((((uint32_t)eth.rx_words[15] << 16) | eth.rx_words[16]) == 66296u,
+           "length %u", (((uint32_t)eth.rx_words[15] << 16) | eth.rx_words[16]));
+
+    /* A name we do not have is fileLookupError (0o202) = noSuchFile, not
+     * silence: silence costs the client four retries and 30 seconds of
+     * negative caching against the whole server. */
+    eth.rx_pos = eth.rx_count;
+    pkt[2] = (uint16_t)(026 + 2 * words);
+    for (size_t i = 0; i < words; i++) pkt[12 + i] = ('x' << 8) | 'x';
+    dorado_ethernet_direct_transmit(&eth, pkt, (int)(13 + words));
+    EXPECT(eth.rx_words[3] == 0202, "fileLookupError type 0o%o",
+           eth.rx_words[3]);
+
+    printf("  LookupFile: version, 1901-epoch create time and byte length for"
+           " a release file; fileLookupError for a name we lack\n");
+    dorado_ethernet_free(&eth);
+    return 0;
+}
+
 int main(void)
 {
     int rc = 0;
@@ -699,6 +1015,8 @@ int main(void)
     rc |= test_bootdir_reply_format();
     rc |= test_bootdir_all_games();
     rc |= test_ftp_netdir_rtp_and_bsp_alloc();
+    rc |= test_stp_enumerate();
+    rc |= test_file_lookup();
     if (rc == 0) printf("All ethernet tests passed.\n");
     return rc;
 }
