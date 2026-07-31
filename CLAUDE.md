@@ -358,6 +358,89 @@ assumptions (2026-07-28).**
 All three had the same shape: a fact about HOW something was loaded or
 connected was used as if it said WHAT was on the other end.
 
+**`ls` works on the emulated file server (2026-07-30).** A Cedar author
+tried the emulator, said it was "really close", and asked for two things:
+host Cedar 6.1 so you can `ls` a release directory, and make `OpenR` work.
+`OpenR` turned out not to be broken -- it works natively, including the
+author's own `OpenR TiogaDoc` -- but `ls` returned nothing, silently:
+`FSRemoteFileImpl.InnerEnumerate` swallows `noSuchFile`, so a missing
+directory and an empty one look identical. Our STP server had no Enumerate
+at all (`markNewDirectory` 0o14 was aliased onto Retrieve; `markDirectory`
+0o12 was not decoded, so an old-style client got no reply whatsoever).
+`List [Cedar]<Cedar6.1>VersionMap>*` now prints all eleven files with their
+true versions, sizes and dates -- `CedarSource.VersionMap!34  66296
+04-Dec-86 13:05:32 EST`, and a summary line that totals correctly
+(screenshot `docs/images/cedar-ls-versionmap-2026-07-30.png`; gate
+`make verify-cedar-ls`). Three things were needed, all in
+`src/ethernet.c`:
+
+- **Enumerate**, framed exactly as `STPServerImpl.mesa!9 DoFiles` does it:
+  HereIsPList once for New-Directory and before every entry for the old
+  Directory, one bare plist per match, one EOC; `fileNotFound` only when
+  nothing matched (any other reply code makes the client fall back to the
+  old form). Cedar's `*` crosses `>` -- CommandTool's List has an `X`
+  switch, "causes * to not match >", precisely because that is the default.
+- **Real versions**, kept from the DFs the date index already parsed and
+  threw away. Both the listing and the retrieve plist report them.
+- **The LookupFile packet exchange** (`PupType.fileLookup`, 0o200), which
+  this was not looking for. The first end-to-end listing printed all eleven
+  NAMES and then junk -- `MakeVersionMap.cm!257  32 ??`. Our plists carried
+  the truth; `List` was not reading it from there.
+  `FSRemoteFileImpl.Info` tries a single-Pup exchange FIRST and only falls
+  back to an STP enumerate if nothing answers, and unanswered,
+  `FSFileLookupImpl` caches `noResponse` against the whole server for 30
+  seconds. Reply body is version (1 word), createTime (2 words, seconds
+  since the 1901 Pup epoch), length (2 words). It arrives on **socket 3**,
+  not `PupWKS.fileLookup` (0o61), because our NetDir handler answers every
+  name lookup with the STP address -- so it is answered by Pup type
+  wherever it lands.
+
+Two things this cost that are worth not re-learning. **A pixel count cannot
+gate a listing**: the CommandTool typescript is already full, so a listing
+scrolls rather than adding ink -- 167,129 px with the listing on screen
+against 167,192 px for a listing of a directory that does not exist. The
+gate reads both ends of the wire out of the trace instead: `STP_ENUM` for
+what we sent, `STP_LOOKUP` for the guest naming those files back to us,
+which it can only do having received them. And **enumeration state had to be
+file-scope static** -- a new `dorado_ethernet` member changes the snapshot
+ABI and every baked checkpoint fails to restore -- with the per-connection
+cursor kept in `ftp_file_pos`, which the context switch already saves.
+Gates: 12/12 tests (`test_ethernet` now plays the client half of
+`STPImpl.TryNewDirectory` over real BSP and fails on `49332c3`),
+`verify-cedar-desktop` 245,711 px.
+
+**And the release reaches the browser.** The deployed page served 2 of
+Cedar6.1's 70 directories, which is why `OpenR` silently opened the wrong
+file there. The stated blocker -- "the full tree would push `index.data`
+past GitHub's 100 MB per-file limit" -- was not real: `dorado/web/` is
+gitignored, `make web` runs in CI and uploads through
+`actions/upload-pages-artifact`, so `index.data` never enters git and git's
+limit cannot bind it. (It measures 102,565,493 bytes = 97.81 MiB.) What
+actually constrains it is that Emscripten preloads it in full before the
+page boots, so anything added lands on every visitor. So the release ships
+as a SEPARATE `web/cedar-src.tar.gz` fetched in the background only when a
+Cedar world is chosen and unpacked into MEMFS at `/stp` -- a tar because it
+is the one archive a browser can walk with ~30 lines of JS and no library,
+gzip because `DecompressionStream` was already in the shell for the
+snapshots. Contents are a DENY-list (everything but `.bcd` and the two
+already-preloaded directories), not an allow-list of source extensions: the
+first cut listed `.mesa/.tioga/.df/.cm/.config` and silently dropped both
+version maps -- `CedarSource.VersionMap` is what `OpenR` resolves short
+names through -- the Tioga `.style` files, and every capitalised variant
+(`.Mesa`, `.Tioga`, `.Profile`), because `find -name` is case-sensitive.
+963 files, 62 directories, 2.93 MiB. Verified in Chrome: `/stp/Cedar6.1`
+goes from 2 directories to 64, `List [Cedar]<Cedar6.1>VersionMap>*` prints,
+and `OpenR TiogaDoc` opens a viewer TITLED
+`[Cedar]<Cedar6.1>Documentation>TiogaDoc.tioga!1` -- the title, not the
+`Opened:` line, because `TryExtensions` will happily open a different file
+and still say `Opened:`. Screenshot:
+`docs/images/cedar-browser-ls-openr-2026-07-30.png`. Detail:
+`docs/cedar-file-server-plan.md` §7.
+
+(Toolchain note: emsdk is already installed at `~/emsdk` with emcc 6.0.0,
+the version `.github/workflows/deploy-pages.yml` pins; it is not on PATH
+until `source ~/emsdk/emsdk_env.sh`, and no shell profile sources it.)
+
 **Superseded note (2026-07-28, earlier in the same session):** Booted the period way -- `SmalltalkDorado.eb!1` plus
 the `xmsmall.dsk` pack converted with `dsk2trident --all-heads`, then the
 Executive's `Bootfrom xmsmall.boot` -- DSemu loads the whole image (2674

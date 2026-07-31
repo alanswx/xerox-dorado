@@ -428,6 +428,60 @@ list them in a `<Package>.df` under `Top/`, following the layout of
 
 ---
 
+## Browsing the release: `ls`, `OpenR`, and other server names
+
+The desktop can list and open files on the emulated release host.
+
+```
+% List [Cedar]<Cedar6.1>VersionMap>*
+[Cedar]<Cedar6.1>VersionMap>
+  CedarSource.VersionMap!34   66296  04-Dec-86 13:05:32 EST
+  ...
+-- 11 files, 199078 total bytes
+% OpenR TiogaDoc
+```
+
+Screenshot: `docs/images/cedar-ls-versionmap-2026-07-30.png`. Both the
+bracket form and the slash form work (`List /Cedar/Cedar6.1/VersionMap/*`),
+and `*` crosses `>` by default — `List [Cedar]<Cedar6.1>*` walks the whole
+release, so give it `-X` if you want one level. Our walk stops at 512 matches
+and 8 levels and says so (`STP_ENUM TRUNCATED`) when it does.
+
+**Any server name reaches us.** Every Pup name lookup is answered with the
+same address, so `[Cedar]`, `[Ivy]` and `[fileservername]` are all this
+server; what selects the tree is the DIRECTORY (`<Cedar6.1>`,
+`<CedarChest6.1>`, `<Fonts>` — the top-level directories of `--ftp-root`).
+To point a running Cedar's release host somewhere else, use Cedar's own
+mechanism rather than an emulator flag:
+
+```
+% PSAdd Cedar Ivy          -- read [Cedar]<...> from [Ivy] as well
+% PSAdd                    -- list the pseudo-server table
+```
+
+`FSPseudoServers` calls this "a simple, but effective, form of file
+replication for read-only files ... especially intended to be used for the
+Cedar release", and `InnerEnumerate` walks the whole read list, so a listing
+spans every server in it.
+
+**Two failure messages worth knowing**, because they say which half broke:
+`Sorry, 'X' is not in the current Cedar release.` means the **version map**
+did not resolve the name; `Not found: X` means it resolved and no candidate
+could be fetched. And silence plus the *wrong* file means a partial tree —
+`OpenR`'s `TryExtensions` falls through to whatever candidate it can open, so
+against a pruned tree `OpenR CommandTool` opens `Top>CommandTool.df` and
+still prints `Opened:`, with no error anywhere. Any check of `OpenR` must
+therefore assert the **viewer's title**, not that the command succeeded.
+
+**In the browser** the release arrives as a separate ~2.9 MiB bundle
+(`web/cedar-src.tar.gz`, built by `make web-cedar-src`) which the page fetches
+in the background when a Cedar world is chosen and unpacks into the emulated
+file system — so it costs nothing for someone booting Galaxian. It carries
+963 files across 62 of the release's 70 directories: everything except the
+`.bcd` binaries the desktop checkpoint already has installed, which is why a
+browser listing of a directory shows fewer files than the native one.
+Screenshot: `docs/images/cedar-browser-ls-openr-2026-07-30.png`.
+
 ## Installing CedarChest applications onto the desktop
 
 The desktop world installs software exactly the way PARC did: `Bringover`
@@ -736,7 +790,9 @@ volume boots from disk; the base system still streams. Software you
 |---|---|---|
 | `make test` | seconds | the C unit/integration suite (11 binaries) |
 | `make verify-cedar-gate-selftest` | instant | that the Cedar gate's pass/fail logic still discriminates |
+| `make verify-cedar-ls-selftest` | instant | that the listing gate still discriminates |
 | `make verify-cedar-desktop` | ~12 min | the shipped desktop checkpoint AND the browser build |
+| `make verify-cedar-ls` | ~8 min | `ls` on a remote directory: STP Enumerate + LookupFile |
 | `./build/dorado --eb worlds/aemu.eb --eftp '../chm/bootfiles/Galaxian.boot!1' --cycles 2500000000` | ~2 min | the Alto path (expect 121,515 px) |
 
 `verify-cedar-desktop` exists because three bugs shipped on 2026-07-18/19
@@ -757,6 +813,15 @@ signals, both real failures we hit:
 The decision logic lives in `tools/check_cedar_gate.sh` (not inline in
 the Makefile) so it can be exercised against known-good and known-bad
 logs; `verify-cedar-gate-selftest` does exactly that in a second.
+
+`verify-cedar-ls` guards remote listings, and **cannot** use a pixel count:
+the CommandTool typescript is already full of text, so a listing scrolls
+rather than adding ink (measured: 167,129 px with an eleven-file listing on
+screen, 167,192 px for a listing of a directory that does not exist — less
+difference than the length of the echoed command). It reads both ends of the
+wire out of the trace instead: `STP_ENUM` for what the server produced, and
+`STP_LOOKUP` for the guest naming those files back to us afterwards, which it
+can only do having received the listing. `tools/check_cedar_ls_gate.sh`.
 
 Checkpoint bakes are now deterministic: both snapshot recipes pin
 `DORADO_FAKE_TIME` (`CEDAR_DESKTOP_FAKE_TIME`), because `time(NULL)` was
