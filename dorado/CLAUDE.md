@@ -575,18 +575,32 @@ lock-step EFTP packet on every Alto RxOn toggle and stalls the Alto boot
 mid-stream (Galaxian -> 0 px).
 
 **Trace-flag discipline (perf).** Per-step trace checks go through
-`dorado_trace_flag()` (cpu.c) -- never a raw `getenv()` in a hot path.
-The helper memoizes on the CALL SITE's string-literal POINTER, so each
-call site consumes a slot: the table is an open-addressed 1024-entry
-hash for ~250 sites. When it was a 128-entry linear scan, overflowed
-sites silently fell back to a full scan plus a real `getenv()` on every
-call -- ~40% of total runtime, found by profiling on 2026-07-18
-(`sample <pid>`), together with a raw `getenv` in
-`dorado_ethernet_wakeup_mask` (~17%). Fixing both doubled throughput
-with byte-identical output: **20.4 M cycles/s Alto, ~27 M Cedar**
-(1.2x / 1.6x the real 16.67 MIPS machine). If more is needed, profile
-first -- the next spots are `dorado_visible_word_at_va` VA
-re-translation (~20%) and the interpreter (~15%).
+`dorado_trace_flag()` -- declared in `include/trace.h`, which is the ONE
+place (memory.c, display.c and disk.c each used to carry their own
+`extern`, the same diverging-copies trap that put two ASCII key maps in
+the frontends). Never a raw `getenv()` in a hot path.
+
+It is a two-level test now. `dorado_trace_env_present`, probed once from
+`environ` by `dorado_trace_init()`, is 0 when NO `DORADO_*` variable is
+set at all; since all 114 keys are `DORADO_`-prefixed, that answers every
+one of them and the inline collapses to a load and a branch. Otherwise it
+falls through to `dorado_trace_flag_lookup()`, whose pointer-keyed memo is
+an open-addressed 1024-entry hash (each call site's string literal is its
+own key, so the table must exceed the ~250 sites: as a 128-entry linear
+scan, overflowed sites fell back to a full scan plus a real `getenv()` per
+call -- 40% of runtime, found 2026-07-18).
+
+**Beware the cliff:** setting ANY `DORADO_*` variable turns the fast path
+off, so every gate run pays the memo. Watch for it when timing something.
+And keep `dorado_trace_flag_lookup` free of extra tests -- a redundant
+`if` there cost 9% on the Cedar path when it was measured on 2026-07-31.
+
+**Profile before optimizing** (`sample <pid> 20 -file out.txt`, then the
+"Sort by top of stack" section), and gate on BYTE-IDENTICAL framebuffers
+(`cmp` two .pgm files), not pixel counts. Current: **29.1 M cycles/s Alto,
+25.2 M Cedar** = 1.75x / 1.51x the real 16.67 MIPS machine. Next spots:
+`execute_uinstr` (~20%), the per-cycle `eth_ftp_maybe_deliver` poll (~5%),
+the BaseBoard 6502 still running at full speed long after boot (~5%).
 
 **Keyboard buffer (input reliability).** Cedar samples the physical key
 matrix once per display field (`CEDAR_FIELD_INTERVAL_CYCLES`); a key whose

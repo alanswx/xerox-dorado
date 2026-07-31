@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 #include "disasm.h"
+#include "trace.h"
 #include "microcode.h"
 #include "io.h"
 
@@ -495,9 +496,6 @@ void dorado_cpu_set_subtask(dorado_cpu *cpu, int task, uint8_t subtask);
 extern int dorado_trace_gate;
 extern unsigned long long dorado_trace_cycle;
 
-/* Cached boolean test of a trace environment variable (DORADO_*_TRACE etc.).
- * Caches by string-literal pointer; pass only literals used as on/off flags,
- * never value-returning env vars. See src/cpu.c. */
-int dorado_trace_flag(const char *name);
+/* dorado_trace_flag() -- see trace.h (included above). */
 
 #endif

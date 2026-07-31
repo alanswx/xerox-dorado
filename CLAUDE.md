@@ -45,16 +45,40 @@ been thoroughly cross-checked against the board schematics
 Overflow branch condition, shifter Pd-mux masking, and Return clobbering a
 same-instruction explicit Link<- load -- the Cedar-desktop blocker; an
 explicit Link<- overrides Return's Link<-CIA+1 reload, per DMesaFloat.mc).
-The emulator runs **20.4 M microinstructions/s on the Alto path and
-~27 M on the Cedar desktop** (measured 2026-07-18) -- 1.2x and 1.6x the
-real 16.67 MIPS Dorado. Trace-enable checks had quietly become ~40% of
-runtime: `dorado_trace_flag`'s pointer-keyed memo held 128 entries for
-~250 call sites, so every overflowed site fell back to a full scan plus
-a real `getenv()` per call; it is an open-addressed 1024-slot hash now,
-and `dorado_ethernet_wakeup_mask`'s raw `getenv` (another ~17%) is
-cached. That was a 2x speedup with byte-identical output. Next hot
-spots, if more is needed: `dorado_visible_word_at_va` VA re-translation
-(~20%) and the interpreter itself (~15%). It also builds to
+The emulator runs **29.1 M microinstructions/s on the Alto path and
+25.2 M on the Cedar desktop** (measured 2026-07-31 on an M4 Max) --
+**1.75x and 1.51x the real 16.67 MIPS Dorado** (60 ns cycle). That is
+1.21x faster than the 2026-07-18 figures, with both framebuffers
+byte-identical, from two fixes found by `sample`:
+
+- **The display-active predicate was asked once per microinstruction.**
+  `machine_alto_display_active()` re-translates four VAs and walks the DCB
+  chain to answer "has the loaded world installed a display list?" -- 24%
+  of total runtime, more than the interpreter. It answers a question about
+  the world's display list, which changes when a world installs one, and
+  the scanline wakeup it gates already ran on a ~1000-cycle cadence. It is
+  evaluated on that same cadence now and cached
+  (`machine_display_active_cached`, a file-scope static because a new
+  `dorado_machine` member would break the snapshot ABI).
+- **`dorado_trace_flag` was 8%** even as a memoized hash: 256 call sites
+  asking, per microinstruction, "is tracing off?" in 114 different ways.
+  All 114 keys are `DORADO_`-prefixed, so when the environment holds no
+  `DORADO_*` variable the answer is no for every one of them; one pass over
+  `environ` at startup collapses the whole thing to an inlined load and
+  branch (`include/trace.h`, which is also now the ONE declaration --
+  memory.c, display.c and disk.c each carried their own `extern`).
+  Note the cliff: setting ANY `DORADO_*` variable disables that fast path,
+  so gate runs (which set `DORADO_PDI_IGNORE_LABEL_FLAGS` and
+  `DORADO_FAKE_TIME`) still pay it -- the Cedar figure above is measured
+  WITH it paid, so a plain Cedar run is faster still.
+
+Remaining hot spots, in order: the interpreter `execute_uinstr` (~20%),
+the per-cycle ethernet poll `eth_ftp_maybe_deliver` (~5%, scans every
+connection slot when idle), the BaseBoard 6502 which keeps running full
+speed forever after boot (~5%), and what is left of
+`dorado_visible_word_at_va` (~8%). The last three all touch documented
+timing minefields; measure with `sample <pid>`, and gate any change on
+BYTE-IDENTICAL framebuffers, not pixel counts. It also builds to
 **WebAssembly**
 (`make web`) and auto-deploys to GitHub Pages
 (`.github/workflows/deploy-pages.yml`): a dropdown picks the Alto games,

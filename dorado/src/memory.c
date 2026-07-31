@@ -19,7 +19,7 @@ int dorado_mem_trace_ac1 = 0;
 int dorado_mem_trace_ac2 = 0;
 int dorado_mem_trace_ac3 = 0;
 extern int dorado_trace_gate;
-extern int dorado_trace_flag(const char *name); /* cached getenv (see cpu.c) */
+#include "trace.h"
 
 static uint32_t va_cache_row(uint32_t va);
 static int cache_pick_victim(dorado_memory *mem, uint32_t va);

@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-extern int dorado_trace_flag(const char *name);
+#include "trace.h"
 
 static int display_trace_limit(const char *name, unsigned default_limit,
                                unsigned *limit)

@@ -8,7 +8,7 @@
 
 /* Cached per-name trace flag (cpu.c). Keep disk trace checks off the hot
  * path's raw getenv() — see dorado/CLAUDE.md "Don't regress". */
-extern int dorado_trace_flag(const char *name);
+#include "trace.h"
 extern int dorado_trace_gate;
 extern unsigned long long dorado_trace_cycle;
 

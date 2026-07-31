@@ -25,7 +25,29 @@ unsigned long long dorado_alto_ophist[4][256];
  * site's (string-literal) name pointer -- a pointer compare, no rescan. Pass
  * only string literals (boolean DORADO_*_TRACE flags); value-returning
  * dorado_trace_flag() calls must stay direct. */
-int dorado_trace_flag(const char *name)
+/* -1 = not yet probed, which is SAFE rather than fast: trace.h's inlined
+ * dorado_trace_flag() short-circuits only on 0, so an unprobed environment
+ * simply takes the full memo path, which is correct on its own. */
+int dorado_trace_env_present = -1;
+
+void dorado_trace_init(void)
+{
+    /* Every key dorado_trace_flag is called with is DORADO_-prefixed (114 of
+     * them across 256 sites), so one pass over the environment decides all of
+     * them at once.  Done eagerly at machine creation so the lookup below
+     * needs no test of its own: an extra load and branch per call, on a path
+     * taken millions of times a second, measured 9% on the Cedar path. */
+    extern char **environ;
+    dorado_trace_env_present = 0;
+    for (char **e = environ; e && *e; e++) {
+        if (strncmp(*e, "DORADO_", 7) == 0) {
+            dorado_trace_env_present = 1;
+            return;
+        }
+    }
+}
+
+int dorado_trace_flag_lookup(const char *name)
 {
     /* Pointer-keyed memo of getenv(name)!=NULL, open-addressed so the
      * lookup is O(1). Each CALL SITE's string literal is its own key, so

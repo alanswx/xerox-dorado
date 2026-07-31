@@ -304,6 +304,38 @@ static uint16_t machine_boot_switches[GERM_SWITCH_WORDS];
  * degrade to the historical `!= 0` and keeps restored checkpoints
  * bit-identical. */
 static uint64_t machine_disp_out_baseline[16];
+
+/* Cached "has the loaded world installed a display list?".
+ *
+ * machine_alto_display_active() re-translates four virtual addresses and then
+ * walks the DCB chain, and the run loop asked it once per MICROINSTRUCTION.
+ * At 20 M cycles/s that one predicate was 24% of the emulator's entire
+ * runtime -- more than the interpreter (`sample`, 2026-07-31).  It answers a
+ * question about the world's display list, which changes when a world
+ * installs one, not per cycle; and the scanline wakeup it gates already runs
+ * on a ~1000-cycle cadence.  So evaluate it on that same cadence and cache
+ * the answer.
+ *
+ * Same file-scope-static reason as machine_disp_out_baseline above: a new
+ * dorado_machine member changes the snapshot ABI and every baked checkpoint
+ * fails to restore.  Zero after a restore simply forces a recompute on the
+ * first cycle, which is what we want. */
+static uint64_t machine_display_active_next_cycle;
+static int      machine_display_active_cached;
+
+/* Scanline cadence experiment knob (DORADO_SCANLINE_CYCLES, default 1000).
+ * The display-active predicate and the scanline wakeup it gates share it, so
+ * the predicate is evaluated exactly when the wakeup can act on it. */
+static long machine_scanline_cycles(void)
+{
+    static long cycles = -1;
+    if (cycles < 0) {
+        const char *w = getenv("DORADO_SCANLINE_CYCLES");
+        cycles = (w && atol(w) > 0) ? atol(w) : 1000;
+    }
+    return cycles;
+}
+
 static int      machine_boot_switches_any;
 static int      machine_boot_switches_planted;
 static int      machine_boot_switches_held;
@@ -2225,7 +2257,10 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
      * frontend destroys and recreates machines when switching worlds). */
     machine_key_q_head = machine_key_q_tail = machine_key_field_wait = 0;
     machine_key_next_cycle = 0;
+    dorado_trace_init();     /* before any per-step dorado_trace_flag() */
     memset(machine_disp_out_baseline, 0, sizeof machine_disp_out_baseline);
+    machine_display_active_next_cycle = 0;
+    machine_display_active_cached = 0;
     m->alto_ether_boot  = cfg.alto_ether_boot;
     m->disk_real        = cfg.disk_real;
     m->alto_ether_quote = cfg.alto_ether_quote;
@@ -3781,13 +3816,21 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
              * the germ is live, Cedar installs a real DCB chain and uses the
              * same scanline wake source.  The DDC predicate remains limited
              * to non-germ (Alto/Interlisp) worlds below. */
-            int display_active = machine_alto_display_active(&m->mem) &&
-                                 (!m->germ_word_count || m->germ_data_done);
-            if (!m->germ_word_count)
-                display_active |= machine_ddc_display_active(m);
-            if (!display_active && dorado_trace_flag("DORADO_FORCE_DISPLAY_WAKE")) {
-                display_active = 1;
+            /* Recomputed on the scanline cadence, not per cycle: see
+             * machine_display_active_cached. */
+            if (bb->cycles >= machine_display_active_next_cycle) {
+                int active = machine_alto_display_active(&m->mem) &&
+                             (!m->germ_word_count || m->germ_data_done);
+                if (!m->germ_word_count)
+                    active |= machine_ddc_display_active(m);
+                if (!active &&
+                    dorado_trace_flag("DORADO_FORCE_DISPLAY_WAKE"))
+                    active = 1;
+                machine_display_active_cached = active;
+                machine_display_active_next_cycle =
+                    bb->cycles + machine_scanline_cycles();
             }
+            int display_active = machine_display_active_cached;
             /* Diagnostic counterpart: suppress the content-derived wake so a
              * world whose memory merely RESEMBLES an Alto DCB chain can be
              * run without task 3/4 preempting the emulator task.  See the
@@ -3830,17 +3873,11 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                             dorado_cpu_wakeup(cpu, task);
                     }
                 }
-                /* Scanline cadence experiment knob (DORADO_SCANLINE_CYCLES,
-                 * default 1000). Gated to display_active so it touches only
-                 * the running world, not the boot. Measured against the
-                 * M[3016] tracediff, not pixels. */
-                static long scanline_cycles = -1;
-                if (scanline_cycles < 0) {
-                    const char *w = getenv("DORADO_SCANLINE_CYCLES");
-                    scanline_cycles = (w && atol(w) > 0) ? atol(w) : 1000;
-                }
+                /* Gated to display_active so it touches only the running
+                 * world, not the boot. Measured against the M[3016]
+                 * tracediff, not pixels. */
                 m->next_display_scanline_cycle =
-                    bb->cycles + (uint64_t)scanline_cycles;
+                    bb->cycles + (uint64_t)machine_scanline_cycles();
             }
             int dwt_subtask = 0;
             if (display_active && dorado_display_dwt_wakeup(disp, &dwt_subtask)) {
