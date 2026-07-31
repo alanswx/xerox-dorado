@@ -1,5 +1,23 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+> **Start here for the 2026-07-31 session:**
+> [`docs/sil-schematics-handoff.md`](sil-schematics-handoff.md) — the
+> Dorado's own schematics in their original Sil vector format (506 `.sil`
+> files; 32 ProcH sheets now reach the emulated volume), blocked on
+> `Run Sil` -> `VersionMismatch[BiScrollers]`. **Read its §1 first: nothing
+> from that work is shipped, and two commits including a real STP bug fix
+> are unpushed.** Also records why `make cedar-desktop-snapshot` stopped
+> producing a desktop (it types the login 1.7 B cycles too early now) and
+> the gate hole that hid it — every Cedar gate restores a checkpoint, none
+> cold-boots. Companion inventory:
+> [`docs/cedarchest-packages.md`](cedarchest-packages.md) (all 316
+> CedarChest packages, which 20 we mirror, which are worth having).
+>
+> Earlier in the same day: `ls` on the emulated file server —
+> [`docs/cedar-file-server-plan.md`](cedar-file-server-plan.md) §7 (STP
+> Enumerate, DF versions, the LookupFile packet exchange), and a 1.21x
+> byte-identical speedup (top-level `CLAUDE.md`).
+
 > **Start here for the 2026-07-28..30 session:**
 > [`docs/handoff-2026-07-30.md`](handoff-2026-07-30.md) — five regressions
 > closed (stale disk pack, the cold-Alto init firing inside a Mesa world, the
