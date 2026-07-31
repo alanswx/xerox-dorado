@@ -183,6 +183,19 @@ web-stp:
 	rm -rf '$(WEB_STP_DIR)'
 	mkdir -p '$(WEB_STP_DIR)'
 	cp -R ../chm/cedar/stp-root/CedarChest6.1 '$(WEB_STP_DIR)/'
+	@# Preloaded means EVERY visitor downloads it, including one who came for
+	@# Galaxian. These three are large and are not part of any browser demo
+	@# yet: Gargoyle (4.7 MB) and Whiteboard were mirrored to answer "why
+	@# doesn't Run Gargoyle work", and DoradoLogic holds the ProcH .sil
+	@# schematics whose Sil viewer path is still unproven. Keep them for the
+	@# native/SDL tree; move them into the lazily-fetched bundle (see
+	@# web-cedar-src) if a browser demo ever needs them.
+	rm -rf '$(WEB_STP_DIR)/CedarChest6.1/Gargoyle' \
+	       '$(WEB_STP_DIR)/CedarChest6.1/Whiteboard' \
+	       '$(WEB_STP_DIR)/CedarChest6.1/DoradoLogic'
+	rm -f '$(WEB_STP_DIR)/CedarChest6.1/Top/Gargoyle.df' \
+	      '$(WEB_STP_DIR)/CedarChest6.1/Top/Whiteboard.df' \
+	      '$(WEB_STP_DIR)/CedarChest6.1/Top/DoradoLogic.df'
 	cp -R ../chm/cedar/stp-root/Fonts '$(WEB_STP_DIR)/'
 	cp -R ../chm/cedar/stp-root/PressFonts '$(WEB_STP_DIR)/'
 	cp -R ../chm/cedar/stp-root/CedarFonts '$(WEB_STP_DIR)/'

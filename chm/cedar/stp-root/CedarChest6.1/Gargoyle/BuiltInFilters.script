@@ -1,0 +1,1 @@
+SetGravityExtent 0.5Get "KnotchedGrid"* [201.0, 424.0] StartSelectJoint* [201.0, 424.0] AllUpSelectAll* [201.0, 424.0] AllUpMakeHot* [201.0, 424.0] AllUpToggleSlope 0.0ToggleSlope 90.0ToggleSlope 60.0TypescriptResetStatisticsToggleSlope 120.0StatisticsSlopePromptToggleRadius 1.0ResetStatisticsToggleRadius 2.0Statistics

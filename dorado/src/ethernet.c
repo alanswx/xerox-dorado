@@ -1092,6 +1092,16 @@ static int eth_ftp_resolve_file(dorado_ethernet *eth, char *out, size_t outsz)
  * is `name!version   dd-Mon-yy hh:mm:ss ZONE` (a leading '+' is DF
  * bookkeeping).  Host-side data, so it is a file static rather than emulated
  * state that would have to be snapshotted. */
+/* Case-insensitive compare of n bytes; used for DF extensions and for the
+ * property keys in an STP command plist. */
+static int ftp_ci_equal(const char *a, const char *b, size_t n)
+{
+    for (size_t i = 0; i < n; i++)
+        if (tolower((unsigned char)a[i]) != tolower((unsigned char)b[i]))
+            return 0;
+    return 1;
+}
+
 #define FTP_DATE_MAX 4096
 static struct {
     char key[128];      /* "dir/name", lowercased */
@@ -1219,7 +1229,15 @@ static void ftp_dates_scan_dir(const char *dir)
     struct dirent *de;
     while ((de = readdir(dp)) != NULL) {
         size_t n = strlen(de->d_name);
-        if (n < 4 || strcmp(de->d_name + n - 3, ".df") != 0) continue;
+        /* Case-INsensitively: four of the release's DFs are spelled `.DF`
+         * (Abutters, PopUpButtons, SirPress, ViewRec).  A case-sensitive
+         * test skipped them, so nothing they export had a creation date and
+         * every one was advertised with the synthetic 01-Jan-84 fallback --
+         * which BringOver rejects as `NOT updated: userSaidNo. (Probably
+         * date mixup)`.  That silently broke installing anything whose
+         * import closure touches them: found 2026-07-31 when a Bringover of
+         * Sil stopped on PopUpButtons.df. */
+        if (n < 4 || !ftp_ci_equal(de->d_name + n - 3, ".df", 3)) continue;
         char path[1024];
         if ((size_t)snprintf(path, sizeof path, "%s/%s", dir, de->d_name) <
             sizeof path)
@@ -1359,14 +1377,6 @@ static int ftp_enum_old_form;       /* markDirectory: a mark before each entry *
 static uint32_t ftp_enum_conn;      /* connection this list was built for */
 static uint32_t ftp_enum_tx_start;  /* ftp_tx_next when the listing began */
 static uint32_t ftp_enum_eoc_off;   /* offset of the trailing EOC, once sent */
-
-static int ftp_ci_equal(const char *a, const char *b, size_t n)
-{
-    for (size_t i = 0; i < n; i++)
-        if (tolower((unsigned char)a[i]) != tolower((unsigned char)b[i]))
-            return 0;
-    return 1;
-}
 
 /* Value of "(Key value)" in an STP command property list.  These are the
  * properties STPServerImpl.GetUserProperties reads; the client sends them as
