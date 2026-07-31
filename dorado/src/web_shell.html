@@ -306,6 +306,71 @@
     cedarDesktopAssetsReady = true;
   }
 
+  /* The Cedar 6.1 release SOURCES (1,042 files, ~3 MB gzipped) ride beside
+     index.data rather than inside it, so someone who came to play Galaxian
+     never downloads them. Without them the browser serves 2 of the release's
+     70 directories, and `OpenR CommandTool` then quietly opens a DIFFERENT
+     file that is served -- OpenCommand's TryExtensions falls through to the
+     best candidate it can actually fetch, prints "Opened:", and shows you the
+     .df. See docs/cedar-file-server-plan.md.
+
+     Unpacked into MEMFS at /stp, which is where the in-process STP server
+     looks. A tar is the one archive a browser can walk with no library, and
+     gzip comes free from DecompressionStream (already used for the
+     snapshots). Fetched in the BACKGROUND: the desktop restores immediately
+     and the sources land during the seconds it takes to read the screen and
+     click the prompt. */
+  var cedarSourcesPromise = null;
+
+  function untarIntoFS(bytes, prefix) {
+    var files = 0;
+    for (var off = 0; off + 512 <= bytes.length; ) {
+      var name = '';
+      for (var i = 0; i < 100 && bytes[off + i]; i++)
+        name += String.fromCharCode(bytes[off + i]);
+      if (!name) { off += 512; continue; }      /* end-of-archive padding */
+      /* ustar: size is octal at 124, type flag at 156 ('0'/NUL = file). */
+      var size = 0;
+      for (var j = 124; j < 136; j++) {
+        var c = bytes[off + j];
+        if (c >= 48 && c <= 55) size = size * 8 + (c - 48);
+      }
+      var type = bytes[off + 156];
+      var body = off + 512;
+      off = body + Math.ceil(size / 512) * 512;
+      if (type !== 0 && type !== 48) continue;  /* only plain files */
+      var path = prefix + '/' + name;
+      var dir = path.substring(0, path.lastIndexOf('/'));
+      try { Module.FS.mkdirTree(dir); } catch (e) { /* already there */ }
+      Module.FS.writeFile(path, bytes.subarray(body, body + size));
+      files++;
+    }
+    return files;
+  }
+
+  function fetchCedarSources() {
+    if (cedarSourcesPromise) return cedarSourcesPromise;
+    cedarSourcesPromise = (async function () {
+      var res = await fetch('cedar-src.tar.gz?v=@@BUILD_ID@@');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      if (typeof DecompressionStream === 'undefined')
+        throw new Error('this browser does not support gzip decompression');
+      var stream = res.body.pipeThrough(new DecompressionStream('gzip'));
+      var bytes = new Uint8Array(await new Response(stream).arrayBuffer());
+      var n = untarIntoFS(bytes, '/stp');
+      console.log('[dorado] Cedar 6.1 sources ready: ' + n + ' files');
+      return n;
+    })();
+    /* A failed fetch must not break the desktop: the world boots and runs
+       without the sources, only List/OpenR of an unshipped directory
+       suffers. Report it once, in the console, and let the next boot retry. */
+    cedarSourcesPromise.catch(function (e) {
+      console.warn('[dorado] Cedar sources unavailable: ' + e.message);
+      cedarSourcesPromise = null;
+    });
+    return cedarSourcesPromise;
+  }
+
   var cedarDemoAssetsReady = false;
   async function prepareCedarDemoAssets() {
     if (cedarDemoAssetsReady) return;
@@ -327,6 +392,7 @@
     showGuide(false);          /* only the Cedar desktop guide applies */
     if (path === 'cedar-corpus') {
       try {
+        fetchCedarSources();      /* in the background; not awaited */
         await prepareCedarCorpusAssets();
         var rcc = Module.ccall('dorado_web_boot_cedar_corpus', 'number', [], []);
         if (rcc) throw new Error('snapshot restore rejected the saved image');
@@ -360,6 +426,7 @@
     }
     if (path === 'cedar-desktop') {
       try {
+        fetchCedarSources();      /* in the background; not awaited */
         await prepareCedarDesktopAssets();
         var rc = Module.ccall('dorado_web_boot_cedar_desktop', 'number', [], []);
         if (rc) throw new Error('snapshot restore rejected the saved image');
@@ -377,6 +444,7 @@
     }
     if (path === 'cedar') {
       try {
+        fetchCedarSources();      /* in the background; not awaited */
         await prepareCedarAssets();
         var rc = Module.ccall('dorado_web_boot_cedar', 'number', [], []);
         if (rc) throw new Error('snapshot restore rejected the saved image');

@@ -161,7 +161,7 @@ WEB_BUILD_ID := $(shell git rev-parse --short HEAD 2>/dev/null || date +%s)
 web-shell: src/web_shell.html | $(BINDIR)
 	sed 's/@@BUILD_ID@@/$(WEB_BUILD_ID)/g' src/web_shell.html > $(BINDIR)/web_shell.gen.html
 
-web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_PDI_GZ) $(WEB_CEDAR_DEMO_SNAPSHOT_GZ) $(WEB_CEDAR_DEMO_PDI_GZ) $(WEB_CEDAR_CORPUS_SNAPSHOT_GZ) $(WEB_CEDAR_CORPUS_PDI_GZ) $(WEB_LISP_SNAPSHOT_GZ) $(WEB_LISP_PACK_GZ) $(WEB_SMALLTALK_SNAPSHOT_GZ) $(WEB_SMALLTALK_PACK_GZ) web-stp web-shell | web-dir
+web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_PDI_GZ) $(WEB_CEDAR_DEMO_SNAPSHOT_GZ) $(WEB_CEDAR_DEMO_PDI_GZ) $(WEB_CEDAR_CORPUS_SNAPSHOT_GZ) $(WEB_CEDAR_CORPUS_PDI_GZ) $(WEB_LISP_SNAPSHOT_GZ) $(WEB_LISP_PACK_GZ) $(WEB_SMALLTALK_SNAPSHOT_GZ) $(WEB_SMALLTALK_PACK_GZ) web-stp web-cedar-src web-shell | web-dir
 	$(EMCC) $(WEB_CFLAGS) $(WEB_SRCS) $(WEB_LDFLAGS) -o web/index.html
 	@# Cache-bust the emcc-generated loader too. Module.locateFile already
 	@# stamps index.data/index.wasm with the build id, but emcc emits a plain
@@ -195,6 +195,36 @@ web-stp:
 	mkdir -p '$(WEB_STP_DIR)/Cedar6.1'
 	cp -R ../chm/cedar/stp-root/Cedar6.1/Top '$(WEB_STP_DIR)/Cedar6.1/'
 	cp -R ../chm/cedar/stp-root/Cedar6.1/Viewers '$(WEB_STP_DIR)/Cedar6.1/'
+
+# The rest of the release, as a SEPARATE bundle fetched only when a Cedar
+# world is chosen -- so `List` and `OpenR` can reach the whole release in the
+# browser without putting 10 MB in front of someone who came to play Galaxian.
+# It rides BESIDE index.data in the Pages artifact rather than inside it, and
+# web_shell.html unpacks it into MEMFS at /stp (see fetchCedarSources): a tar
+# is the one archive a browser can walk with ~30 lines of JS and no library,
+# and gzip comes free from DecompressionStream, which the shell already uses
+# for the snapshots.
+#
+# Everything EXCEPT what is already preloaded above and the .bcd binaries
+# (12.3 MB of compiled code the desktop checkpoint carries installed). A
+# deny-list, not an allow-list of source extensions: the first cut listed
+# .mesa/.tioga/.df/.cm/.config and silently dropped BOTH version maps
+# (`CedarSource.VersionMap` -- the file OpenR resolves short names through),
+# the Tioga .style files, and every capitalised variant (`.Mesa`, `.Tioga`,
+# `.Profile`), because find's -name is case-sensitive. 963 files, 62 of the
+# release's 70 directories, ~2.9 MiB gzipped. The 6 directories not covered
+# hold a single .bcd and nothing else.
+WEB_CEDAR_SRC := web/cedar-src.tar.gz
+.PHONY: web-cedar-src
+web-cedar-src: | web-dir
+	@cd ../chm/cedar/stp-root && find Cedar6.1 -type f \
+		! -iname '*.bcd' \
+		! -path 'Cedar6.1/Top/*' ! -path 'Cedar6.1/Viewers/*' | sort | \
+		tar -czf '$(CURDIR)/$(WEB_CEDAR_SRC)' -T -
+	@printf 'web-cedar-src: %s (%s files, %s directories, fetched on demand)\n' \
+		"$$(du -h '$(WEB_CEDAR_SRC)' | cut -f1)" \
+		"$$(tar -tzf '$(WEB_CEDAR_SRC)' | wc -l | tr -d ' ')" \
+		"$$(tar -tzf '$(WEB_CEDAR_SRC)' | cut -d/ -f2 | sort -u | wc -l | tr -d ' ')"
 
 # Node-hosted wasm32 CLI used only to create ABI-compatible browser snapshots.
 # NODERAWFS lets the ordinary dorado CLI read/write the repository paths.
@@ -813,6 +843,64 @@ verify-cedar-desktop: $(BINDIR)/dorado $(CEDAR_DESKTOP_SNAPSHOT) $(CEDAR_DESKTOP
 		--cycles '$(CEDAR_GATE_CYCLES)' \
 		--out build/verify-cedar.pgm > build/verify-cedar.log 2>&1
 	@../tools/check_cedar_gate.sh build/verify-cedar.log '$(CEDAR_GATE_MIN_PX)'
+
+# ---- Cedar remote-listing gate --------------------------------------------
+# "ls" on a release directory. Before 2026-07-30 our STP server had no
+# Enumerate at all: mark 0o14 (New-Directory) was aliased onto Retrieve and
+# mark 0o12 (the old Directory) was not decoded, so a listing printed nothing
+# -- silently, because FSRemoteFileImpl.InnerEnumerate swallows noSuchFile.
+#
+# The gate reads both ends of the wire out of one trace: STP_ENUM (we produced
+# entries) and STP_LOOKUP (the guest asked us about those names afterwards,
+# which it can only do having received them). See tools/check_cedar_ls_gate.sh
+# for why a pixel count would NOT catch this.
+CEDAR_LS_CYCLES ?= 40000000000
+
+.PHONY: verify-cedar-ls
+verify-cedar-ls: $(BINDIR)/dorado $(CEDAR_DESKTOP_SNAPSHOT) $(CEDAR_DESKTOP_PDI)
+	@echo "verify-cedar-ls: listing [Cedar]<Cedar6.1>VersionMap> from the desktop"
+	@cp -f '$(CEDAR_DESKTOP_PDI)' build/verify-cedar-ls.pdi
+	@DORADO_FTP_TRACE=1 DORADO_PDI_IGNORE_LABEL_FLAGS=1 \
+	DORADO_FAKE_TIME='$(CEDAR_DESKTOP_FAKE_TIME)' ./build/dorado \
+		--boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk build/verify-cedar-ls.pdi \
+		--ftp-root ../chm/cedar/stp-root \
+		--snapshot-in '$(CEDAR_DESKTOP_SNAPSHOT)' --key-hold 1600000 \
+		--type-at 31100000000 --click 700,733 \
+		--paste-at 31300000000 --paste 'List [Cedar]<Cedar6.1>VersionMap>*\n' \
+		--cycles '$(CEDAR_LS_CYCLES)' \
+		--out build/verify-cedar-ls.pgm > build/verify-cedar-ls.log 2>&1
+	@../tools/check_cedar_ls_gate.sh build/verify-cedar-ls.log
+
+# The listing gate judged against its own bug: a log with the pre-2026-07-30
+# server's answer (markNo, no entries, no lookups) must FAIL.
+.PHONY: verify-cedar-ls-selftest
+verify-cedar-ls-selftest:
+	@echo "ls gate self-test: the old server's log must FAIL"
+	@printf 'FTP_CMD mark=0o14 len=148\nSTP_MISSING ((User-Name Guest.pa)(Directory Cedar6.1)(Name-Body VersionMap>*)\ndorado: 167129 display-list pixels\n' > build/ls-gate-bad.log
+	@if ../tools/check_cedar_ls_gate.sh build/ls-gate-bad.log >/dev/null 2>&1; then \
+		echo "SELFTEST FAIL: the gate passed the broken server's log"; exit 1; fi
+	@echo "ls gate self-test: a listing that never reached the guest must FAIL"
+	@{ printf 'STP_ENUM <Cedar6.1>VersionMap>* -> 11 files\n'; \
+	   for n in CedarSource.VersionMap CedarSymbols.VersionMap \
+	            VersionMap.mesa MakeVersionMap.cm; do \
+	     printf 'STP_ENUM_ENTRY ((Name-Body %s)(Size 1))\n' "$$n"; done; \
+	   printf 'dorado: 167129 display-list pixels\n'; } > build/ls-gate-noclient.log
+	@if ../tools/check_cedar_ls_gate.sh build/ls-gate-noclient.log >/dev/null 2>&1; then \
+		echo "SELFTEST FAIL: the gate passed a listing with no client half"; exit 1; fi
+	@echo "ls gate self-test: a good log must PASS"
+	@{ printf 'STP_ENUM <Cedar6.1>VersionMap>* -> 11 files\n'; \
+	   for n in CedarSource.VersionMap CedarSymbols.VersionMap \
+	            VersionMap.mesa MakeVersionMap.cm; do \
+	     printf 'STP_ENUM_ENTRY ((Name-Body %s)(Size 1))\n' "$$n"; done; \
+	   for i in 1 2 3 4 5 6 7 8; do \
+	     printf 'STP_LOOKUP Cedar6.1/VersionMap/File%s -> !1 1 bytes x\n' "$$i"; done; \
+	   printf 'dorado: 167129 display-list pixels\n'; } > build/ls-gate-good.log
+	@../tools/check_cedar_ls_gate.sh build/ls-gate-good.log >/dev/null \
+		|| (echo "SELFTEST FAIL: the gate failed a good log"; exit 1)
+	@rm -f build/ls-gate-bad.log build/ls-gate-noclient.log build/ls-gate-good.log
+	@echo "ls gate self-test: PASS (fails both half-broken logs, passes a good one)"
 
 # ---- Cedar Viewers DESKTOP checkpoint (2026-07-15 milestone) --------------
 # The guest mutates the PDI during the install, so the snapshot is only valid
