@@ -87,7 +87,65 @@ is Select/Draw/Mark, `^Z` makes hardcopy.
 
 ---
 
-## 3. The blocker
+## 3. The blocker — and why it is probably terminal for Sil
+
+**Short version: CedarChest 6.1 never captured the payload directories for
+`biscrollers`, `viewrec`, `popupbuttons` and `cursory` — only their DFs in
+`Top`. Everything below follows from that.**
+
+`tools/fetch_cedarchest_app.py` falls back to CedarChest **6.0** when a
+payload directory is missing (documented behaviour, and right for
+CardTable). So our "6.1" install of those four is 6.0 code behind 6.1 DFs —
+a hybrid. Proof: our `BiScrollersImpl.BCD` is byte-identical to
+`cyan/cedarchest6.0/biscrollers/BiScrollersImpl.BCD!4`, while
+`BiScrollers.df!12` pins `!11` (14-Nov-86). `!11` exists **nowhere** in the
+archive; the only BiScrollers payloads anywhere are `cedarchest6.0` and
+`indigo/cedarhacks5.2`.
+
+### Four iterations, each moving the failure one link along
+
+| # | what was tried | result |
+|---|---|---|
+| 1 | 6.1 `Sil.bcd!4` against the (6.0) BiScrollers we have | `VersionMismatch[BiScrollers]` |
+| 2 | 6.0 `Sil.bcd!18` instead, same deps | `VersionMismatch[ViewRec]` — past BiScrollers |
+| 3 | add 6.0 ViewRec/Abutters/MJSContainers, on the `cedar-sil-wip` base | `Exported Type Clash for interface Abutters` — that base already has the 6.1 chain RUNNING, and two implementations of one interface cannot coexist |
+| 4 | same, on a clean `cedar-sil-base` (files fetched, nothing run), with the 6.1 bcds `Delete`d first | `AMTypesAImpl.Error[reason: noSymbols, msg: "ViewRecImpl"]` |
+
+Iteration 4 loads `CursoryImpl`, `PopUpSelection2Impl`, `PopUpButtonsImpl`,
+`Geom2DImpl`, `MJSContainersImpl6`, `TypePropsImpl6` and `AbuttersImpl6`
+cleanly, then dies in `DoGetTypeSymbols`.
+
+### Why `noSymbols` is the end of this road
+
+ViewRec is a record VIEWER built on Cedar's runtime type system, so loading
+it needs **symbol files**, not just code. Symbols are resolved through the
+profile's `VersionMap.SymbolsMaps`, which points at
+`/Cedar/CedarChest6.1/VersionMap/CedarChestSymbols.VersionMap`. Both maps
+are present and served — but they resolve names into
+`CedarChest6.1/ViewRec/`, which is exactly one of the four directories the
+archive never captured. So the symbols cannot be fetched, from either
+vintage, and `Delete`ing the shadowing bcds (iteration 4) does not help
+because the problem is absence, not shadowing.
+
+### What is left to try
+
+1. **Point `VersionMap.SymbolsMaps` at a CedarChest 6.0 symbols map**, if
+   `cyan/cedarchest6.0/versionmap/` exists — then 6.0 symbols would resolve
+   for 6.0 code. This is the one clean shot left and it is cheap.
+2. **`indigo/cedarhacks5.2/biscrollers`** is the only other BiScrollers
+   payload in the archive; a 5.2-era Sil chain might be internally
+   consistent, though it is two releases from our world.
+3. **Give up on Sil and use Griffin** (`df!6`, not yet mirrored) or the
+   CedarChest **7.0** Gargoyle. Neither is known to read `.sil`.
+4. **Render the `.sil` files outside Cedar.** The format is simple and
+   documented by `Help.LSil`; a host-side converter to AIS would put the
+   drawings on screen through the AISViewer path that already works, losing
+   the "edit it in its own editor" part but keeping the vectors.
+
+Note the schematics themselves are NOT blocked by any of this — they are on
+the volume already (§2.2). Only the editor is.
+
+## 3.1 Original blocker note
 
 ```
 % Run Sil
