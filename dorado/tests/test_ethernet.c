@@ -1006,6 +1006,47 @@ static int test_file_lookup(void)
     return 0;
 }
 
+/* Interlisp-D names a DEVICE with braces -- `{DORADO}<>LISP.SYSOUT` -- where
+ * Cedar names a host with brackets. A served ROOT must answer both, otherwise
+ * Lisp can only ever be given the one file --ftp-sysout points at. */
+static int test_ftp_brace_device_names(void)
+{
+    stp_client c;
+    char reply[8192];
+    int plists, marks;
+
+    if (stp_open(&c, STP_ROOT)) return 1;
+    if (stp_enumerate(&c, 014, "Cedar6.1", "VersionMap>CedarSource.VersionMap",
+                      reply, sizeof reply, &plists, &marks))
+        return 1;
+    EXPECT(plists == 1, "bracket form still resolves:\n%s", reply);
+    dorado_ethernet_free(&c.eth);
+
+    /* Interlisp does a RETRIEVE (mark 0o1), not an enumerate, and spells the
+     * device with braces. The server must strip {DEVICE} as it strips [Host]
+     * and answer HereIsPList (0o13) for the file -- not markNo (0o4). */
+    if (stp_open(&c, STP_ROOT)) return 1;
+    {
+        char cmd[512];
+        snprintf(cmd, sizeof cmd,
+                 "((User-Name Guest.pa)"
+                 "(Server-filename {DORADO}<Cedar6.1>VersionMap>"
+                 "CedarSource.VersionMap)(Desired-property Size))");
+        stp_send_mark(&c, 01, cmd);
+        stp_send_mark(&c, 06, NULL);
+        if (stp_collect(&c, reply, sizeof reply, &plists, &marks)) return 1;
+    }
+    EXPECT(strstr(reply, "M13\n") == reply,
+           "brace device retrieve answers HereIsPList, not markNo:\n%s", reply);
+    EXPECT(strstr(reply, "(Size 66296)") != NULL,
+           "and it is the right file:\n%s", reply);
+    dorado_ethernet_free(&c.eth);
+
+    printf("  Names: [Host]<Dir>Name and Interlisp's {DEVICE}<>Name both"
+           " resolve against a served root\n");
+    return 0;
+}
+
 int main(void)
 {
     int rc = 0;
@@ -1017,6 +1058,7 @@ int main(void)
     rc |= test_ftp_netdir_rtp_and_bsp_alloc();
     rc |= test_stp_enumerate();
     rc |= test_file_lookup();
+    rc |= test_ftp_brace_device_names();
     if (rc == 0) printf("All ethernet tests passed.\n");
     return rc;
 }

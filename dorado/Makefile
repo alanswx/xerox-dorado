@@ -191,11 +191,9 @@ web-stp:
 	@# native/SDL tree; move them into the lazily-fetched bundle (see
 	@# web-cedar-src) if a browser demo ever needs them.
 	rm -rf '$(WEB_STP_DIR)/CedarChest6.1/Gargoyle' \
-	       '$(WEB_STP_DIR)/CedarChest6.1/Whiteboard' \
-	       '$(WEB_STP_DIR)/CedarChest6.1/DoradoLogic'
+	       '$(WEB_STP_DIR)/CedarChest6.1/Whiteboard'
 	rm -f '$(WEB_STP_DIR)/CedarChest6.1/Top/Gargoyle.df' \
-	      '$(WEB_STP_DIR)/CedarChest6.1/Top/Whiteboard.df' \
-	      '$(WEB_STP_DIR)/CedarChest6.1/Top/DoradoLogic.df'
+	      '$(WEB_STP_DIR)/CedarChest6.1/Top/Whiteboard.df'
 	cp -R ../chm/cedar/stp-root/Fonts '$(WEB_STP_DIR)/'
 	cp -R ../chm/cedar/stp-root/PressFonts '$(WEB_STP_DIR)/'
 	cp -R ../chm/cedar/stp-root/CedarFonts '$(WEB_STP_DIR)/'
@@ -337,7 +335,8 @@ cedar-desktop-web-snapshot: $(WEB_NODE_JS) $(CEDAR_WORK_PDI)
 		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
 		--pilot-disk '$(WEB_CEDAR_DESKTOP_RAW_PDI)' \
 		--ftp-root ../chm/cedar/stp-root \
-		--type-at 760000000 --type 'Guest\n\n' \
+		--key-hold 1600000 \
+		--type-at 2500000000 --type 'Guest\n\n' \
 		--cycles '$(CEDAR_DESKTOP_CYCLES)' \
 		--snapshot-out '$(WEB_CEDAR_DESKTOP_RAW_SNAPSHOT)'
 	gzip -c '$(WEB_CEDAR_DESKTOP_RAW_SNAPSHOT)' > '$(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ)'

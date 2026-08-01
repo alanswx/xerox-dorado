@@ -114,6 +114,21 @@ research project, not a demo.
 
 ---
 
+## 2.5 Sil — DONE (2026-08-01)
+
+`Sil ProcH01.sil`, or the Sil button in the CommandTool menu line, opens the
+Dorado's own processor-board drawing. In the shipped native checkpoint.
+Screenshot `docs/images/cedar-sil-proch01-2026-08-01.png`; recipe and the
+four wrong turns in `docs/sil-schematics-handoff.md` §3.2. The answer was a
+**pure CedarChest 6.0 chain, real names, nothing mixed** — 6.0 BiScrollers
+imports nothing, so the layer 6.1 adds disappears.
+
+**Gargoyle is not reachable the same way.** `Gargoyle.load` needs
+`BiScrollersButtonned` and CedarChest 6.0 has no gargoyle directory, so no
+consistent set exists. The BigCardinals idea in §1 was wrong: that analysis
+read DF `Imports` and missed that `.load` files name dependencies the DF does
+not. Any future "X unlocks Y" claim should be checked against the `.load`.
+
 ## 3. Smalltalk-76 — the software is already inside the image
 
 `make run-smalltalk` reaches Top View, the Classes browser with its four
@@ -122,22 +137,30 @@ panes, and a UserView workspace (screenshot
 interesting software is not files on a server — it is the class library
 *in* the image, and it is all there.
 
-**The gap is interaction, not content.** The top-level `CLAUDE.md` records
-it: "Still open: interaction (no click/keystroke driven into the desktop
-yet)". A visitor cannot currently do anything.
+**The gap is interaction, not content** — and it is narrower than
+`CLAUDE.md`'s "no click/keystroke driven into the desktop yet" suggests.
+Measured 2026-08-01, after the input fixes that followed that note:
 
-Work, in order:
+| | state |
+|---|---|
+| Mouse **position** | **works.** `--mouse 300,200 --type-at N --click 300,200` renders the cursor at exactly that point on the Smalltalk desktop (126,636 px vs a 124,945 px baseline — the cursor is the difference). |
+| The destructive click | **gone.** Clicking no longer turns the desktop into noise; that was the BR-relative seeding fixed by `host-input-seeding-write-only-where-guest-reads`. |
+| Mouse **button** | **not yet.** Clicking a class category in the browser (`110,142`, on "Kernel Classes") leaves the screen at 124,956 px — the cursor moved, nothing selected. |
 
-1. **Drive a mouse click into the Smalltalk desktop** and make the class
-   browser respond. This is THE unlock — everything else follows. Note the
-   memory `host-input-seeding-write-only-where-guest-reads`: a click once
-   scribbled guest memory and produced noise, so this needs the per-world
-   care that fix established.
-2. Then a scripted tour: open a class category, show a method's source,
-   `doIt` an expression. Smalltalk-76 browsing itself is the demo.
-3. `chm/archiveorg/smalltalk-80/` holds a Smalltalk-80 image and sources —
-   a different, later system. Interesting as a comparison but a separate
-   bring-up; do not confuse it with the 76 world that works.
+So the remaining unlock is narrow and well-defined: **the button press is
+not reaching Smalltalk's selection logic**, though the position is. The
+click is already held for `key_hold` cycles (3 M in the test, ~180 ms
+emulated), so a too-brief press is probably not the cause; the next thing to
+check is what Smalltalk-76 actually polls for buttons and whether our UTILIN
+seeding matches it in the bank the display task uses (recall Smalltalk's
+bitmap lives in bank 1 while its DCBs stay in bank 0).
+
+After that: a scripted tour — open a class category, show a method's source,
+`doIt` an expression. Smalltalk-76 browsing itself is the demo.
+
+`chm/archiveorg/smalltalk-80/` holds a Smalltalk-80 image and sources — a
+different, later system. Interesting as a comparison but a separate
+bring-up; do not confuse it with the 76 world that works.
 
 ---
 
@@ -159,12 +182,34 @@ BLACKOUT DRAWFILE ACTIVEREGIONS CHUNK-MENU DEDITK EDITHIST EDITMACROS`.
 `EMACS`, `BROWSER`, `EDITBITMAP` and `DRAWFILE` are obvious exhibits —
 Interlisp-D's structure editor and a bitmap editor on a 1979 machine.
 
-**Unknown to resolve first:** how a running Lyric loads a `.DCOM` from our
-in-process server. Cedar uses STP over Pup socket 3, which we implement;
-Interlisp uses its own file access, and we currently only serve it a sysout
-over EFTP. Establishing `(LOAD 'BROWSER.DCOM)` from the emulated wire is the
-one piece of plumbing that would open all 295 at once — the same shape of
-win the STP Enumerate work was for Cedar.
+**The plumbing is closer than it looked** (measured 2026-08-01). Lyric does
+not need a new protocol: it already fetches its sysout from us over **Pup
+FTP on socket 3**, the same server Cedar's STP uses. Two things were in the
+way, one now fixed:
+
+1. **A single `--ftp-sysout FILE` short-circuits every request.**
+   `eth_ftp_resolve_file` returns that one file for any name when the path
+   is not a directory (`src/ethernet.c`, the `S_ISDIR` test). That is why
+   Lyric can fetch its sysout and nothing else. Pointing Lisp at a served
+   **root** instead removes the short-circuit — no code change.
+2. **Interlisp names a DEVICE with braces** — `{DORADO}<>LISP.SYSOUT`, as
+   the trace in `CONTINUE-HERE` shows — where Cedar names a host with
+   brackets. The resolver only stripped `[...]`, so a brace name failed its
+   character filter. **Fixed and unit-tested** (`test_ftp_brace_device_names`
+   in `tests/test_ethernet.c`): a Retrieve for
+   `{DORADO}<Cedar6.1>VersionMap>CedarSource.VersionMap` now answers
+   HereIsPList with the right file instead of markNo.
+
+So the remaining work is configuration and one experiment, not protocol:
+build a Lisp FTP root holding `LISP.SYSOUT` plus a few `.DCOM`s, point the
+Lisp targets at it instead of the bare sysout, and type
+`(LOAD '{DORADO}<>BROWSER.DCOM)` at the Lyric Exec. If that lands, all 295
+packages are reachable at once.
+
+**A second route worth knowing:** Lyric boots from a Trident **pack**
+(`lisp-lyric-xcl.pack`), and `dsk2trident` builds packs from files. Putting
+`.DCOM`s on the pack and loading them from `{DSK}` avoids the wire
+entirely, at the cost of a pack rebuild per change.
 
 ---
 

@@ -979,8 +979,14 @@ static int eth_queue_pup_bytes(dorado_ethernet *eth, uint16_t pup_type,
 static int eth_ftp_relative_from_name(const char *value, char *out,
                                       size_t outsz)
 {
-    if (*value == '[') {
-        const char *close = strchr(value, ']');
+    /* Cedar/IFS spells the host `[Cedar]<Dir>Name`; Interlisp-D spells the
+     * DEVICE `{DORADO}<>NAME` (the trace of Lyric's sysout retrieve reads
+     * `Retrieve of sysout {DORADO}<>...`).  Accept both, so a served ROOT can
+     * answer more than one file to Lisp -- today a single --ftp-sysout file
+     * short-circuits every request, which is why Lyric can fetch its sysout
+     * and nothing else. */
+    if (*value == '[' || *value == '{') {
+        const char *close = strchr(value, *value == '[' ? ']' : '}');
         if (!close) return 0;
         value = close + 1;
     }
