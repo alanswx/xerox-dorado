@@ -602,6 +602,29 @@ And keep `dorado_trace_flag_lookup` free of extra tests -- a redundant
 `execute_uinstr` (~20%), the per-cycle `eth_ftp_maybe_deliver` poll (~5%),
 the BaseBoard 6502 still running at full speed long after boot (~5%).
 
+**Never leave an expensive artifact in a temp directory.** `/tmp`,
+`/private/tmp` and any per-session scratchpad DO NOT survive a reboot, and a
+Cedar checkpoint bake is ~25 minutes. The instant a run produces a snapshot,
+disk image or pack, copy it into `build/good-packs/` (gitignored, so it
+stays local but persists) under a name that says what it is, and say where
+it went. Scratch is for logs, PGM->PNG conversions and one-shot scripts.
+This has nearly cost real work twice: an ad-hoc PDI, and the
+`cedar-sil-wip` checkpoint.
+
+**Baking a checkpoint overwrites the shipped one, in place, and can ship a
+login screen.** `make cedar-desktop-snapshot` writes straight over
+`build/good-packs/cedar-desktop.{snap,pdi}` and the tracked
+`snapshot-assets/*.gz`. It types the login at a FIXED cycle; if the prompt
+is not up by then the keys are lost, the bake runs its full budget and
+snapshots the LOGIN SCREEN (~28,570 px, not ~167,000) -- exit status 0.
+Back both files up first, and check the pixel count before trusting the
+result. Better: run the recipe's command by hand with `--snapshot-out` and
+`--out` pointed at scratch, verify, then install. The recipe's `--type-at`
+went stale on 2026-07-31 when serving the LookupFile Pup protocol removed
+four retries and a 30 s negative cache from the cold boot and moved the
+prompt past it; no gate caught it because every Cedar gate RESTORES a
+checkpoint and none cold-boots. See `docs/sil-schematics-handoff.md` §5.2.
+
 **Keyboard buffer (input reliability).** Cedar samples the physical key
 matrix once per display field (`CEDAR_FIELD_INTERVAL_CYCLES`); a key whose
 down and up fall inside one field is never seen. `dorado_machine_set_key`
