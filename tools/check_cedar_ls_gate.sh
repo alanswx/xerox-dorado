@@ -61,12 +61,17 @@ for n in $want_names; do
     fi
 done
 
-# 3. The guest read those names back to us. Not all 11: a file already in the
-#    local FS cache needs no remote check, so require a clear majority.
+# 3. The guest read those names back to us. NOT all 11, and the exact count is
+#    not stable: a file already in the checkpoint's local FS cache needs no
+#    remote check, so it varies with which checkpoint is restored (9 on the
+#    2026-07-30 desktop, 7 on the 2026-08-01 one that also installs Sil).
+#    What the check is really for is "did the listing reach the guest at all",
+#    and any lookup at all proves that -- a server that answers an enumeration
+#    with nothing can produce none. Keep a margin above zero, not a majority.
 looks=$(grep -c "STP_LOOKUP Cedar6\.1/VersionMap/" "$log" 2>/dev/null || true)
 [ -z "$looks" ] && looks=0
-if [ "$looks" -lt 8 ]; then
-    echo "FAIL: the guest looked up only $looks of the listed names (want >= 8)."
+if [ "$looks" -lt 5 ]; then
+    echo "FAIL: the guest looked up only $looks of the listed names (want >= 5)."
     echo "      It can only ask for names it read out of our listing, so this"
     echo "      is the half of the gate that proves Cedar received one."
     fail=1

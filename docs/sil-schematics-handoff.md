@@ -1,11 +1,25 @@
 # Handoff — the Dorado's own schematics, in Sil vector format
 
-Written 2026-07-31. Read `docs/cedarchest-packages.md` §1 and §1.1 first for
-the inventory and the shorter version; this is the working detail.
+Written 2026-07-31, **resolved 2026-08-01**.
 
-**Where it stands in one line:** every piece works except the last `Run` —
-`VersionMismatch[BiScrollers]` — and nothing from this line of work has been
-shipped to either platform.
+> ## IT WORKS
+>
+> `Sil ProcH01.sil` opens the Dorado's processor board — Ed Clark's 1981
+> vector drawing — in Sil, on the emulated Dorado. Screenshot:
+> `docs/images/cedar-sil-proch01-2026-08-01.png`. The window is titled
+> `///Users/Guest.pa/ProcH01.sil`, with Sil's own menu bar (`Scale Rotate Fit
+> ResetAndCenter Center Vanilla Left Right Top Bottom`) and status line
+> (`Grid: 4  LineW: 1  Mag: 1  Font: 0 ...`). The drawing shows the `"A" Mux`
+> and `"B" Mux`, the ALU, ALUFM, `Cnt`, `StkP`, `RBase`, `Stk`, `Q`, `Rm`,
+> `Im`, the shifter and the bypass paths — the same registers `src/cpu.c`
+> implements, displayed by the machine that executes them.
+>
+> **The answer was: use CedarChest 6.0's chain, whole, with nothing renamed.**
+> See §3.2. The sections below are kept in the order they were learned,
+> because the wrong turns are instructive.
+
+Read `docs/cedarchest-packages.md` §1 and §1.1 for the inventory and the
+shorter version; this is the working detail.
 
 ---
 
@@ -153,6 +167,76 @@ remotely through the version map.
 REAL name from a separate served directory (a second volume in
 `--ftp-root`, or a `PSAdd` pseudo-server), so nothing is renamed. Only if
 that also fails is the vintage genuinely unbridgeable.
+
+## 3.2 THE ANSWER — a pure CedarChest 6.0 chain
+
+Nine attempts. What worked:
+
+**Mirror CedarChest 6.0 as its own served volume** —
+`chm/cedar/stp-root/CedarChest6.0/`, 254 files (Sil, BiScrollers, ViewRec,
+Abutters, ImagerPress, Interpress, InterpressTools, SirPress), **every file
+under its real name** — and load the entire chain from there. 6.0's own
+`Sil.load` gives the order, and it is simpler than 6.1's because **6.0
+BiScrollers imports nothing from CedarChest**, so the PopUpButtons/Cursory
+layer 6.1 adds disappears completely.
+
+```
+Bringover -o Geom2DImpl.BCD BiScrollersImpl.BCD BiScrollersButtonned.BCD BiScroller.TIP Knob.TIP  [Cedar]<CedarChest6.0>Top>BiScrollers
+Bringover -o MJSContainersImpl.BCD TypePropsImpl.BCD ViewRecImpl.BCD ViewRec.icons              [Cedar]<CedarChest6.0>Top>ViewRec
+Bringover -o AbuttersImpl.BCD                                                                   [Cedar]<CedarChest6.0>Top>Abutters
+Bringover -o Sil.bcd Sil.tip Sil.icons sil.lb5 sil.lb6 sil.lb7 sil.lb8 SilKernelImpl.bcd
+             SilDisplayImpl.bcd SilDisplayImplA.bcd SilDisplayUtilsImpl.bcd
+             SilDisplayUtilsImplA.bcd SilDisplayCursorsImpl.bcd SilFileImpl.bcd
+             SilUserInputImpl.bcd SilColorImpl.bcd SilBiScrollersImpl.bcd                       [Cedar]<CedarChest6.0>Top>Sil
+Run Geom2DImpl BiScrollersImpl BiScrollersButtonned
+Run MJSContainersImpl TypePropsImpl ViewRecImpl AbuttersImpl
+Run Sil
+Sil ProcH01.sil
+```
+
+### Four things that each broke it once
+
+1. **Never rename.** Cedar resolves symbols by MODULE name, so a 6.0 file
+   staged as `ViewRecImpl6.BCD` still announces itself as `ViewRecImpl`, the
+   loader finds the 6.1 `ViewRecImpl.BCD` instead, and you get
+   `AMTypesAImpl.Error[reason: noSymbols]`. That error is NOT an archive gap
+   — it was self-inflicted.
+2. **Delete the local 6.1 copies first** (only needed when starting from a
+   volume that already fetched them). Otherwise every Bringover is refused:
+   `NOT updated: userSaidNo. (Probably date mixup)` — the local
+   `BiScrollers.df` has a different date from 6.0's. Same `Delete` insight
+   the AISViewer recipe records. **At cold boot this is unnecessary**: there
+   is nothing to shadow, which is why the profile version below is simpler.
+3. **Fetch Sil's MODULE bcds, not just `Sil.bcd`.** `Sil.bcd!18` is a bound
+   config; creating a viewer needs type symbols for its constituents. With
+   only `Sil.bcd` present, `Run Sil` succeeds but the `Sil` command dies in
+   `DoGetTypeSymbols` on `SilDisplayImplA`.
+4. **Selective `-o` only.** A plain `Bringover [Cedar]<CedarChest6.0>Top>Sil`
+   walks the import closure into `<Cedar6.0>` base DFs we do not serve —
+   23 errors (`Could not find [Cedar]<Cedar6.0>Top>Real.df`, `Rope.df`,
+   `Tioga.df`, `Viewers.df` ...).
+
+### Two things still missing, neither fatal
+
+- **`sil.lb9`** — the ninth symbol library, in neither CedarChest. Recovered
+  from `indigo/voice/etp/etparch.dm!2_/` (20,608 bytes, 31-Jan-1982) and
+  staged in `CedarChest6.1/SilAlt/`. Sil reports "Sil Library Files sil.lb9
+  loading failed" in its title bar without it and runs anyway.
+- **Hardcopy.** 6.0's `ImagerPressFontSubstImpl` hits
+  `VersionMismatch[ImagerFontPrivate]` against the RUNNING Cedar 6.1 Imager
+  — a clash with the base system, which cannot be swapped. So `^Z` printing
+  is unavailable; viewing, scrolling and editing are not affected. Sil loads
+  with unbound `ImagerPress`/`ImagerInterpress` imports and does not care.
+
+### Gargoyle is NOT rescuable this way
+
+`Gargoyle.load` needs `BiScrollersButtonned`, and CedarChest 6.0 has **no
+gargoyle directory** — so no consistent 6.0 set exists for it. An earlier
+claim in `demo-plan.md` that BigCardinals (4 files) would unlock Gargoyle was
+wrong: that analysis read DF `Imports` sections and missed that `.load` files
+name dependencies the DF does not.
+
+## 3.3 Superseded — what was tried before §3.2
 
 ### What is left to try
 

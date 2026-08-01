@@ -365,8 +365,8 @@ cedar-demo-web-snapshot: $(WEB_NODE_JS) $(CEDAR_WORK_PDI)
 		--pilot-disk '$(WEB_CEDAR_DEMO_RAW_PDI)' \
 		--ftp-root ../chm/cedar/stp-root \
 		--type-at 760000000 --type 'Guest\n\n' \
-		--type-at 31100000000 --click 700,733 \
-		--paste-at 31300000000 --paste 'Bringover -p [Cedar]<CedarChest6.1>Top>ChessHack\nBringover -p [Cedar]<CedarChest6.1>Top>Clock\nRun ChessHackImpl\nRun Clock\nClock\nChessHack\nEval ImagerFont.Find["Xerox/TiogaFonts/Chess40"]\n' \
+		--type-at 36100000000 --click 700,733 \
+		--paste-at 36300000000 --paste 'Bringover -p [Cedar]<CedarChest6.1>Top>ChessHack\nBringover -p [Cedar]<CedarChest6.1>Top>Clock\nRun ChessHackImpl\nRun Clock\nClock\nChessHack\nEval ImagerFont.Find["Xerox/TiogaFonts/Chess40"]\n' \
 		--cycles '$(CEDAR_DEMO_CYCLES)' \
 		--snapshot-out '$(WEB_CEDAR_DEMO_RAW_SNAPSHOT)'
 	gzip -c '$(WEB_CEDAR_DEMO_RAW_SNAPSHOT)' > '$(WEB_CEDAR_DEMO_SNAPSHOT_GZ)'
@@ -824,7 +824,7 @@ run-cedar-corpus-sdl: sdl $(CEDAR_CORPUS_SNAPSHOT) $(CEDAR_CORPUS_RUN_PDI)
 # for the picture. Discriminating counts (2026-07-19): plain desktop
 # 167K px, failed Eval 169K (just error text), moon painted 246K.
 CEDAR_GATE_MIN_PX ?= 200000
-CEDAR_GATE_CYCLES ?= 40000000000
+CEDAR_GATE_CYCLES ?= 45000000000
 
 .PHONY: verify-cedar-gate-selftest
 verify-cedar-gate-selftest:
@@ -851,8 +851,8 @@ verify-cedar-desktop: $(BINDIR)/dorado $(CEDAR_DESKTOP_SNAPSHOT) $(CEDAR_DESKTOP
 		--pilot-disk build/verify-cedar.pdi \
 		--ftp-root '$(WEB_STP_DIR)' \
 		--snapshot-in '$(CEDAR_DESKTOP_SNAPSHOT)' --key-hold 1600000 \
-		--type-at 31100000000 --click 700,733 \
-		--paste-at 31300000000 --paste 'Moon.cm\n' \
+		--type-at 36100000000 --click 700,733 \
+		--paste-at 36300000000 --paste 'Moon.cm\n' \
 		--cycles '$(CEDAR_GATE_CYCLES)' \
 		--out build/verify-cedar.pgm > build/verify-cedar.log 2>&1
 	@../tools/check_cedar_gate.sh build/verify-cedar.log '$(CEDAR_GATE_MIN_PX)'
@@ -867,7 +867,7 @@ verify-cedar-desktop: $(BINDIR)/dorado $(CEDAR_DESKTOP_SNAPSHOT) $(CEDAR_DESKTOP
 # entries) and STP_LOOKUP (the guest asked us about those names afterwards,
 # which it can only do having received them). See tools/check_cedar_ls_gate.sh
 # for why a pixel count would NOT catch this.
-CEDAR_LS_CYCLES ?= 40000000000
+CEDAR_LS_CYCLES ?= 45000000000
 
 .PHONY: verify-cedar-ls
 verify-cedar-ls: $(BINDIR)/dorado $(CEDAR_DESKTOP_SNAPSHOT) $(CEDAR_DESKTOP_PDI)
@@ -880,8 +880,8 @@ verify-cedar-ls: $(BINDIR)/dorado $(CEDAR_DESKTOP_SNAPSHOT) $(CEDAR_DESKTOP_PDI)
 		--pilot-disk build/verify-cedar-ls.pdi \
 		--ftp-root ../chm/cedar/stp-root \
 		--snapshot-in '$(CEDAR_DESKTOP_SNAPSHOT)' --key-hold 1600000 \
-		--type-at 31100000000 --click 700,733 \
-		--paste-at 31300000000 --paste 'List [Cedar]<Cedar6.1>VersionMap>*\n' \
+		--type-at 36100000000 --click 700,733 \
+		--paste-at 36300000000 --paste 'List [Cedar]<Cedar6.1>VersionMap>*\n' \
 		--cycles '$(CEDAR_LS_CYCLES)' \
 		--out build/verify-cedar-ls.pgm > build/verify-cedar-ls.log 2>&1
 	@../tools/check_cedar_ls_gate.sh build/verify-cedar-ls.log
@@ -927,7 +927,7 @@ CEDAR_DESKTOP_SCREEN := build/good-packs/cedar-desktop.pgm
 # 31B: the complete-tree profile boot (AIS packages + the DoradoWelcome
 # command files, buttons, and welcome banner) settles ~29B with BSP sender
 # retransmission; the wedge-era 47B is history.
-CEDAR_DESKTOP_CYCLES ?= 31000000000
+CEDAR_DESKTOP_CYCLES ?= 36000000000
 # PIN THE CLOCK. time(NULL) in eth_fill_alto_time is the emulator's only
 # nondeterministic input, and it moves how far a boot gets: two bakes of
 # this same recipe once landed ~6B cycles apart, one at the desktop and
@@ -1306,8 +1306,8 @@ cedar-demo-snapshot: $(BINDIR)/dorado $(CEDAR_DESKTOP_SNAPSHOT) $(CEDAR_DESKTOP_
 		--pilot-disk '$(CEDAR_DEMO_PDI)' \
 		--ftp-root ../chm/cedar/stp-root \
 		--snapshot-in '$(CEDAR_DESKTOP_SNAPSHOT)' --key-hold 1600000 \
-		--type-at 31100000000 --click 700,733 \
-		--paste-at 31300000000 --paste 'Bringover -p [Cedar]<CedarChest6.1>Top>ChessHack\nBringover -p [Cedar]<CedarChest6.1>Top>Clock\nRun ChessHackImpl\nRun Clock\nClock\nChessHack\nEval ImagerFont.Find["Xerox/TiogaFonts/Chess40"]\n' \
+		--type-at 36100000000 --click 700,733 \
+		--paste-at 36300000000 --paste 'Bringover -p [Cedar]<CedarChest6.1>Top>ChessHack\nBringover -p [Cedar]<CedarChest6.1>Top>Clock\nRun ChessHackImpl\nRun Clock\nClock\nChessHack\nEval ImagerFont.Find["Xerox/TiogaFonts/Chess40"]\n' \
 		--cycles '$(CEDAR_DEMO_CYCLES)' \
 		--snapshot-out '$(CEDAR_DEMO_SNAPSHOT)' \
 		--out '$(CEDAR_DEMO_SCREEN)'
