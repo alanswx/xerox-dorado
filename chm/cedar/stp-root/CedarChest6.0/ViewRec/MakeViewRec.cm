@@ -1,0 +1,1 @@
+compile ViewRec ViewRecExtras; compile MJSContainers TypeProps ViewRecInsides; compile MJSContainersImpl TypePropsImpl ViewRecCreate ViewRecAux ViewRecOther ViewRecSample VBug ViewRecExampleClient; bind /a ViewRecImpl
