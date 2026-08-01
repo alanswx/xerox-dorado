@@ -89,9 +89,24 @@ is Select/Draw/Mark, `^Z` makes hardcopy.
 
 ## 3. The blocker — and why it is probably terminal for Sil
 
-**Short version: CedarChest 6.1 never captured the payload directories for
-`biscrollers`, `viewrec`, `popupbuttons` and `cursory` — only their DFs in
-`Top`. Everything below follows from that.**
+> **CORRECTION (2026-08-01).** An earlier version of this section, and the
+> commit message of `8d0b758`, claimed CedarChest 6.1 was missing the payload
+> directories for `biscrollers`, `viewrec`, `popupbuttons` AND `cursory`, and
+> blamed the `noSymbols` failure on ViewRec's symbols being unfetchable. A
+> file-level audit of the whole archive (`docs/cedar-archive-gaps.md`)
+> disproves both. **Only `biscrollers` is missing.** `viewrec`,
+> `popupbuttons`, `cursory`, `sil` and `abutters` are all present and
+> complete, and our mirrored `ViewRecImpl.BCD` is byte-identical to the
+> genuine 6.1 `!5`. The `noSymbols` error is therefore NOT an archive gap;
+> the likeliest cause is that iteration 4 renamed 6.0's `ViewRecImpl.BCD` to
+> `ViewRecImpl6.BCD`, and Cedar resolves symbols by MODULE name — so it
+> looked for `ViewRecImpl`'s symbols, found the 6.1 file, and rejected the
+> version stamp. Retry without renaming (serve the 6.0 build under its real
+> name from a separate directory) before concluding anything.
+
+**Short version: CedarChest 6.1 never captured the payload directory for
+`biscrollers` — 34 of the 35 files `BiScrollers.df!12` pins. Everything
+below follows from that one gap.**
 
 `tools/fetch_cedarchest_app.py` falls back to CedarChest **6.0** when a
 payload directory is missing (documented behaviour, and right for
@@ -115,17 +130,29 @@ Iteration 4 loads `CursoryImpl`, `PopUpSelection2Impl`, `PopUpButtonsImpl`,
 `Geom2DImpl`, `MJSContainersImpl6`, `TypePropsImpl6` and `AbuttersImpl6`
 cleanly, then dies in `DoGetTypeSymbols`.
 
-### Why `noSymbols` is the end of this road
+### What `noSymbols` probably is — and it is NOT an archive gap
 
 ViewRec is a record VIEWER built on Cedar's runtime type system, so loading
-it needs **symbol files**, not just code. Symbols are resolved through the
-profile's `VersionMap.SymbolsMaps`, which points at
-`/Cedar/CedarChest6.1/VersionMap/CedarChestSymbols.VersionMap`. Both maps
-are present and served — but they resolve names into
-`CedarChest6.1/ViewRec/`, which is exactly one of the four directories the
-archive never captured. So the symbols cannot be fetched, from either
-vintage, and `Delete`ing the shadowing bcds (iteration 4) does not help
-because the problem is absence, not shadowing.
+it needs **symbol files**, not just code, resolved through the profile's
+`VersionMap.SymbolsMaps`.
+
+The first explanation written here — that the symbols resolve into a
+directory the archive never captured — is **wrong**: `CedarChest6.1/ViewRec/`
+is present and complete (37/37 pinned files). See the correction above.
+
+The likeliest cause is self-inflicted. Iteration 4 staged 6.0's
+`ViewRecImpl.BCD` under the name `ViewRecImpl6.BCD`, so it could sit beside
+the 6.1 file on one volume. But Cedar resolves symbols by **module** name,
+and the module inside that file is still `ViewRecImpl` — so the loader went
+looking for `ViewRecImpl`'s symbols, found the 6.1 `ViewRecImpl.BCD`, and
+rejected the version stamp. `Delete`ing the 6.1 bcds did not help because
+the deletion removes the local attachment but the name still resolves
+remotely through the version map.
+
+**Retry properly before concluding anything:** serve the 6.0 build under its
+REAL name from a separate served directory (a second volume in
+`--ftp-root`, or a `PSAdd` pseudo-server), so nothing is renamed. Only if
+that also fails is the vintage genuinely unbridgeable.
 
 ### What is left to try
 
