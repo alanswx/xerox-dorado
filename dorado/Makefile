@@ -228,10 +228,17 @@ web-stp:
 WEB_CEDAR_SRC := web/cedar-src.tar.gz
 .PHONY: web-cedar-src
 web-cedar-src: | web-dir
-	@cd ../chm/cedar/stp-root && find Cedar6.1 -type f \
-		! -iname '*.bcd' \
-		! -path 'Cedar6.1/Top/*' ! -path 'Cedar6.1/Viewers/*' | sort | \
-		tar -czf '$(CURDIR)/$(WEB_CEDAR_SRC)' -T -
+	@cd ../chm/cedar/stp-root && { \
+		find Cedar6.1 -type f ! -iname '*.bcd' \
+			! -path 'Cedar6.1/Top/*' ! -path 'Cedar6.1/Viewers/*'; \
+		: 'Sil needs these at RUNTIME, so they are bcds and ride here' ; \
+		: 'rather than in index.data, which every visitor downloads:' ; \
+		: 'its own module bcds (the bound config asks for their type' ; \
+		: 'symbols when it opens a viewer) and AMTypes, which does the' ; \
+		: 'asking. 0.8 MiB gzipped. Without them the browser desktop' ; \
+		: 'restores fine and `Sil ProcH01.sil` then dies on STP_MISSING.' ; \
+		find CedarChest6.0/Sil Cedar6.1/AMTypes -type f; \
+	   } | sort | tar -czf '$(CURDIR)/$(WEB_CEDAR_SRC)' -T -
 	@printf 'web-cedar-src: %s (%s files, %s directories, fetched on demand)\n' \
 		"$$(du -h '$(WEB_CEDAR_SRC)' | cut -f1)" \
 		"$$(tar -tzf '$(WEB_CEDAR_SRC)' | wc -l | tr -d ' ')" \
