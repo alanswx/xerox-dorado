@@ -179,7 +179,22 @@ typedef struct type_event {
     int typed;
 } type_event;
 
+/* A scripted pointer event, the SDL twin of dorado.c's --click/--mouse.
+ * Needed here even though SDL has a real mouse: a demo that restores a
+ * checkpoint and types into it must first put the guest's cursor on the
+ * window that takes keystrokes, and it cannot ask the person watching to
+ * do that at the right cycle.  The host mouse keeps working -- the next
+ * SDL_MOUSEMOTION simply overwrites the position, which is what you want
+ * once a human takes over. */
+typedef struct click_event {
+    int x, y;
+    int press;                /* 0 = move only (--mouse), 1 = click */
+    uint64_t at;
+    int done;
+} click_event;
+
 #define MAX_TYPE_EVENTS 16
+#define MAX_CLICK_EVENTS 16
 
 static void type_text(dorado_machine *m, const char *text, uint64_t key_hold)
 {
@@ -228,6 +243,8 @@ int main(int argc, char **argv)
     const char *shot_prefix = "dorado-frame";
     int boot_dir_all_opt = -1;            /* -1 auto, 0 off, 1 on */
     type_event type_events[MAX_TYPE_EVENTS];
+    click_event click_events[MAX_CLICK_EVENTS];
+    int click_event_count = 0;
     static dorado_typequeue paste_queue;  /* Cmd/Ctrl+V clipboard typing */
     int type_event_count = 0;
     int last_type_event = -1;
@@ -323,6 +340,27 @@ int main(int argc, char **argv)
             key_hold = parse_u64(argv[++i], key_hold);
             last_type_can_update = 0;
         }
+        else if ((!strcmp(a, "--click") || !strcmp(a, "--mouse")) &&
+                 i + 1 < argc) {
+            /* Same spelling and semantics as dorado.c: fire at the pending
+             * --type-at cycle, so `--type-at N --click X,Y` reads the same
+             * in both frontends. */
+            if (click_event_count >= MAX_CLICK_EVENTS) {
+                fprintf(stderr, "dorado-sdl: too many --click/--mouse events "
+                                "(max %d)\n", MAX_CLICK_EVENTS);
+                return 2;
+            }
+            int cx = 0, cy = 0;
+            if (sscanf(argv[++i], "%d,%d", &cx, &cy) != 2) {
+                fprintf(stderr, "dorado-sdl: %s wants X,Y (decimal)\n", a);
+                return 2;
+            }
+            click_events[click_event_count++] = (click_event){
+                .x = cx, .y = cy, .press = !strcmp(a, "--click"),
+                .at = type_at, .done = 0 };
+            last_type_can_update = 0;
+            pending_type_at = 0;
+        }
         else if (!strcmp(a, "--type-at") && i + 1 < argc) {
             type_at = parse_u64(argv[++i], type_at);
             if (last_type_can_update && last_type_event >= 0) {
@@ -354,6 +392,8 @@ int main(int argc, char **argv)
                    "          [--snapshot-in PATH] [--snapshot-out PATH]\n"
                    "          [--type-at CYCLES --type TEXT]... "
                    "[--key-hold CYCLES]\n"
+                   "          [--type-at CYCLES --click X,Y]... "
+                   "[--type-at CYCLES --mouse X,Y]...\n"
                    "          [--screenshot F1,F2,...] [--shot-prefix NAME]\n",
                    argv[0]);
             return 0;
@@ -574,6 +614,33 @@ int main(int argc, char **argv)
                        (unsigned long long)dorado_machine_cycles(m));
             }
             if (dorado_machine_booted(m)) {
+                /* Pointer events first: a scripted click is normally there to
+                 * give a window the keystrokes that the type event right
+                 * after it will send, and both can come due in the same
+                 * iteration. */
+                for (int ce = 0; ce < click_event_count; ce++) {
+                    if (click_events[ce].done ||
+                        dorado_machine_cycles(m) < click_events[ce].at)
+                        continue;
+                    click_events[ce].done = 1;
+                    int cx = click_events[ce].x, cy = click_events[ce].y;
+                    printf("dorado-sdl: %s (%d,%d) at cyc %llu\n",
+                           click_events[ce].press ? "click" : "mouse", cx, cy,
+                           (unsigned long long)dorado_machine_cycles(m));
+                    /* Move first, so software that tracks the cursor sees it
+                     * arrive, then press and hold for the same duration a
+                     * scripted keystroke uses. */
+                    dorado_machine_set_mouse(m, cx, cy, mouse_buttons);
+                    if (!click_events[ce].press)
+                        continue;
+                    dorado_machine_run_until(m,
+                        dorado_machine_cycles(m) + 2000000ull);
+                    dorado_machine_set_mouse(m, cx, cy,
+                                             mouse_buttons | DORADO_MOUSE_LEFT);
+                    dorado_machine_run_until(m,
+                        dorado_machine_cycles(m) + key_hold);
+                    dorado_machine_set_mouse(m, cx, cy, mouse_buttons);
+                }
                 for (int te = 0; te < type_event_count; te++) {
                     if (!type_events[te].typed &&
                         dorado_machine_cycles(m) >= type_events[te].at) {

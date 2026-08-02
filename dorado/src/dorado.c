@@ -182,6 +182,14 @@ typedef struct click_event {
                    * makes the machine seed the host cursor into guest cells,
                    * and it broke MesaNetExec (2026-07-30) with no button
                    * ever pressed. A gate that only clicks cannot see it. */
+    int drag_x, drag_y;
+    int drag;     /* 1 = press at (x,y), travel to (drag_x,drag_y), release.
+                   * Interlisp-D tools do not open a window where you click:
+                   * FileBrowser and Sketch call GETREGION, which asks you to
+                   * sweep out the rectangle -- press at one corner, drag to
+                   * the opposite one, release. A single click leaves them
+                   * waiting with no window, no output and no error, which
+                   * reads exactly like "the function did nothing". */
 } click_event;
 
 /* Driving an Iago install from the command line needs a lot of these: each
@@ -467,6 +475,27 @@ int main(int argc, char **argv)
             click_event_count++;
             last_type_can_update = 0;
             pending_type_at = 0;
+        } else if (!strcmp(a, "--drag") && i + 1 < argc) {
+            /* --drag X1,Y1,X2,Y2 — sweep out a rectangle: press at the first
+             * corner, travel to the second, release. This is how Interlisp-D
+             * asks for a window (GETREGION), so it is what opens FileBrowser
+             * and Sketch. */
+            if (click_event_count >= MAX_CLICK_EVENTS) {
+                fprintf(stderr, "dorado: too many click/mouse events (max %d)\n",
+                        MAX_CLICK_EVENTS);
+                return 2;
+            }
+            int x1 = 0, y1 = 0, x2 = 0, y2 = 0;
+            if (sscanf(argv[++i], "%d,%d,%d,%d", &x1, &y1, &x2, &y2) != 4) {
+                fprintf(stderr, "dorado: --drag wants X1,Y1,X2,Y2 (decimal)\n");
+                return 2;
+            }
+            click_events[click_event_count] =
+                (click_event){ .x = x1, .y = y1, .at = type_at, .done = 0,
+                               .drag = 1, .drag_x = x2, .drag_y = y2 };
+            click_event_count++;
+            last_type_can_update = 0;
+            pending_type_at = 0;
         } else if (!strcmp(a, "--menu") && i + 1 < argc) {
             /* --menu X,Y — press+HOLD the middle (yellow) button at (X,Y),
              * screenshot the pop-up menu while held, then release. Proves
@@ -663,6 +692,7 @@ int main(int argc, char **argv)
                                   : DORADO_MOUSE_LEFT;
                     printf("dorado: %s (%d,%d) at cyc %llu\n",
                            click_events[ce].move_only ? "mouse" :
+                           click_events[ce].drag ? "drag" :
                            click_events[ce].menu ? "menu" : "click",
                            click_events[ce].x, click_events[ce].y,
                            (unsigned long long)dorado_machine_cycles(m));
@@ -676,6 +706,32 @@ int main(int argc, char **argv)
                             dorado_machine_run_until(
                                 m, dorado_machine_cycles(m) + 300000ull);
                         }
+                        continue;
+                    }
+                    if (click_events[ce].drag) {
+                        /* Sweep: arrive at the first corner, press, travel in
+                         * steps so the rubber-band feedback tracks it the way
+                         * it would under a hand, then release at the far
+                         * corner. */
+                        int x1 = click_events[ce].x, y1 = click_events[ce].y;
+                        int x2 = click_events[ce].drag_x;
+                        int y2 = click_events[ce].drag_y;
+                        dorado_machine_set_mouse(m, x1, y1, 0);
+                        dorado_machine_run_until(m,
+                            dorado_machine_cycles(m) + 2000000ull);
+                        dorado_machine_set_mouse(m, x1, y1, btn);
+                        dorado_machine_run_until(m,
+                            dorado_machine_cycles(m) + 2000000ull);
+                        for (int step = 1; step <= 12; step++) {
+                            dorado_machine_set_mouse(
+                                m, x1 + (x2 - x1) * step / 12,
+                                y1 + (y2 - y1) * step / 12, btn);
+                            dorado_machine_run_until(
+                                m, dorado_machine_cycles(m) + 400000ull);
+                        }
+                        dorado_machine_run_until(m,
+                            dorado_machine_cycles(m) + key_hold);
+                        dorado_machine_set_mouse(m, x2, y2, 0);
                         continue;
                     }
                     /* Move first so the tracking software sees the cursor
