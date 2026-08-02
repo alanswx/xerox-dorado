@@ -2607,6 +2607,17 @@ enum {
 };
 #define LEAF_ANSWER_BIT 02000u          /* IfsLeaf.decl opAnswerBit */
 
+/* Sequin control values, LEAF!33: \SEQUIN.DATA 0, \SEQUIN.ACK 1,
+ * \SEQUIN.OPEN 5. */
+#define LEAF_SEQUIN_DATA 0u
+#define LEAF_SEQUIN_ACK  1u
+#define LEAF_SEQUIN_OPEN 5u
+
+static unsigned leaf_seqcontrol(const dorado_ethernet *eth)
+{
+    return (unsigned)((eth->tx_words[5] >> 8) & 0377);
+}
+
 static unsigned leaf_op_code(uint16_t w)   { return (unsigned)((w >> 11) & 037u); }
 static unsigned leaf_op_answer(uint16_t w) { return (unsigned)((w >> 10) & 1u); }
 static unsigned leaf_op_length(uint16_t w) { return (unsigned)(w & 01777u); }
@@ -2638,8 +2649,30 @@ static int eth_leaf_answer_simple(dorado_ethernet *eth, unsigned code,
     body[2] = (uint8_t)(handle >> 8); body[3] = (uint8_t)(handle & 0377);
     /* Swap the endpoints: our reply comes FROM the socket the request was
      * aimed at, back to the port it came from. */
-    int ok = eth_queue_pup_bytes(eth, DORADO_PUP_TYPE_LEAF,
-                                 pup_id32(eth->tx_words[4], eth->tx_words[5]),
+    /* Leaf rides on Sequin, and Sequin keeps its control block in the Pup ID
+     * field -- LEAF!33 (Interlisp's client):
+     *   (BLOCKRECORD SEQUINSTART ((NIL 2 WORD)
+     *      (ALLOCATE BYTE) (RECEIVESEQ BYTE) (SEQCONTROL BYTE) (SENDSEQ BYTE)
+     *      (* Sequin uses ID fields of PUP for control info)))
+     * with \SEQUIN.DATA 0, \SEQUIN.ACK 1, \SEQUIN.OPEN 5.  The first
+     * request carries seqcontrol 5 (PUTSEQUIN sets \SEQUIN.OPEN while the
+     * connection is \SS.UNOPENED), so echoing the ID verbatim replies with
+     * an OPEN and the client keeps waiting.  Answer as DATA, acknowledging
+     * their sendseq. */
+    unsigned req_allocate  = (unsigned)((eth->tx_words[4] >> 8) & 0377);
+    unsigned req_sendseq   = (unsigned)(eth->tx_words[5] & 0377);
+    /* Our own outgoing sequence. A file-scope static, NOT a dorado_ethernet
+     * member: adding one changes the snapshot ABI and every baked checkpoint
+     * fails to restore. Reset when the client opens the connection. */
+    static unsigned leaf_sendseq;
+    if (leaf_seqcontrol(eth) == LEAF_SEQUIN_OPEN) leaf_sendseq = 0;
+    uint32_t reply_id =
+        ((uint32_t)(req_allocate ? req_allocate : 10u) << 24) |
+        ((uint32_t)((req_sendseq + 1u) & 0377u) << 16) |
+        ((uint32_t)LEAF_SEQUIN_DATA << 8) |
+        (uint32_t)(leaf_sendseq & 0377u);
+    leaf_sendseq++;
+    int ok = eth_queue_pup_bytes(eth, DORADO_PUP_TYPE_LEAF, reply_id,
                                  eth->tx_words[9], eth->tx_words[10],
                                  eth->tx_words[11],
                                  eth->tx_words[6], eth->tx_words[7],
@@ -2666,9 +2699,12 @@ static int eth_leaf_handle(dorado_ethernet *eth)
 
     if (ftp_trace())
         fprintf(stderr, "LEAF %s op=%06o code=%u answer=%u len=%u "
-                "(pup %zu bytes) handle=%06o\n",
+                "(pup %zu bytes) handle=%06o seq[alloc=%u recv=%u ctl=%u "
+                "send=%u]\n",
                 leaf_op_name(code), opw, code, leaf_op_answer(opw), len,
-                nbytes, handle);
+                nbytes, handle, (eth->tx_words[4] >> 8) & 0377,
+                eth->tx_words[4] & 0377, leaf_seqcontrol(eth),
+                eth->tx_words[5] & 0377);
 
     /* An answer arriving from the guest is not ours to act on. */
     if (leaf_op_answer(opw)) return 1;
