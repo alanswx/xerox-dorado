@@ -237,7 +237,17 @@ web-cedar-src: | web-dir
 		: 'symbols when it opens a viewer) and AMTypes, which does the' ; \
 		: 'asking. 0.8 MiB gzipped. Without them the browser desktop' ; \
 		: 'restores fine and `Sil ProcH01.sil` then dies on STP_MISSING.' ; \
-		find CedarChest6.0/Sil Cedar6.1/AMTypes -type f; \
+		: '' ; \
+		: 'CedarChest6.0/Top is 48 KB of DFs and is NOT optional: the' ; \
+		: 'served creation date of every file comes from its volume Top' ; \
+		: 'DF index (ethernet.c ftp_dates_load scans <root>/<vol>/Top),' ; \
+		: 'and FSRemoteFileImpl.Retrieve Confirm answers `skip` (STP' ; \
+		: 'markNo) for any candidate whose Creation-Date is not the one' ; \
+		: 'the local DF pinned. Ship Sil without its DF and the plist' ; \
+		: 'carries the synthetic 01-Jan-84 fallback, the guest declines' ; \
+		: 'every module bcd, and `Sil ProcH01.sil` hangs with no' ; \
+		: 'STP_MISSING to show for it. SHIP A VOLUME, SHIP ITS Top.' ; \
+		find CedarChest6.0/Sil CedarChest6.0/Top Cedar6.1/AMTypes -type f; \
 	   } | sort | tar -czf '$(CURDIR)/$(WEB_CEDAR_SRC)' -T -
 	@printf 'web-cedar-src: %s (%s files, %s directories, fetched on demand)\n' \
 		"$$(du -h '$(WEB_CEDAR_SRC)' | cut -f1)" \
@@ -1867,6 +1877,251 @@ run-lisp-snapshot-sdl: sdl
 		--boot-reason disk --no-alto-boot \
 		--snapshot-in '$(LISP_DESKTOP_SNAPSHOT)' \
 		--scale 1 --speed 400000
+
+QUOTE := '
+
+# The same desktop with the Interlisp library on its disk: 194 Lyric .LCOM
+# packages, including the SKETCH illustrator.  Nothing is loaded yet -- click
+# the prompt window and type, e.g.
+#
+#     (LOAD '{DSK}SKETCH.LCOM)
+#
+# The click matters: input goes to the window under the cursor, and without
+# it the keystrokes land nowhere.  Note the Exec is XCL, so LOAD works bare
+# but Interlisp functions need the IL: prefix.
+.PHONY: run-lisp-lispusers-sdl
+run-lisp-lispusers-sdl: sdl
+	@test -r '$(LISP_LISPUSERS_SNAPSHOT)' || \
+		(echo "Missing $(LISP_LISPUSERS_SNAPSHOT). Run 'make lisp-lispusers-snapshot' once." && false)
+	@test -r '$(LISP_LISPUSERS_SNAPSHOT_PACK)' || \
+		(echo "Missing matching pack $(LISP_LISPUSERS_SNAPSHOT_PACK)." && false)
+	@mkdir -p '$(TRIDENT_RUN_DIR)'
+	cp -f '$(LISP_LISPUSERS_SNAPSHOT_PACK)' '$(TRIDENT_RUN_DIR)/lisp-lispusers-run.pack'
+	chmod 644 '$(TRIDENT_RUN_DIR)/lisp-lispusers-run.pack'
+	@echo "Click the Prompt Window (upper left), then type:  (LOAD $(QUOTE){DSK}SKETCH.LCOM)"
+	DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_CURRENT_FAKE_TIME)' \
+	./build/dorado-sdl \
+		--eb worlds/aemu.eb \
+		--disk 0='$(TRIDENT_RUN_DIR)/lisp-lispusers-run.pack' \
+		--boot-reason disk --no-alto-boot \
+		--snapshot-in '$(LISP_LISPUSERS_SNAPSHOT)' \
+		--scale 1 --speed 400000
+
+# Same, but the LOAD is typed for you a moment after the restore, so the
+# illustrator is already in by the time you touch the keyboard.  The cycle
+# numbers are absolute and the checkpoint restores at 8.8 B, which is why
+# they look large; SKETCH pulls five more files off {DSK} and takes a while.
+.PHONY: run-lisp-sketch-sdl
+run-lisp-sketch-sdl: sdl
+	@test -r '$(LISP_LISPUSERS_SNAPSHOT)' || \
+		(echo "Missing $(LISP_LISPUSERS_SNAPSHOT). Run 'make lisp-lispusers-snapshot' once." && false)
+	@mkdir -p '$(TRIDENT_RUN_DIR)'
+	cp -f '$(LISP_LISPUSERS_SNAPSHOT_PACK)' '$(TRIDENT_RUN_DIR)/lisp-sketch-run.pack'
+	chmod 644 '$(TRIDENT_RUN_DIR)/lisp-sketch-run.pack'
+	@echo 'Auto-loading SKETCH. The first "Loading" line appears after ~10 s;'
+	@echo 'the full chain (SKETCHELEMENTS, SKETCHEDIT, SKETCHOBJ, SKETCHBMELT,'
+	@echo 'SCALEBITMAP) is ~4 B cycles and takes ~3 min of wall clock.'
+	DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_CURRENT_FAKE_TIME)' \
+	./build/dorado-sdl \
+		--eb worlds/aemu.eb \
+		--disk 0='$(TRIDENT_RUN_DIR)/lisp-sketch-run.pack' \
+		--boot-reason disk --no-alto-boot \
+		--snapshot-in '$(LISP_LISPUSERS_SNAPSHOT)' \
+		--type-at 8850000000 --click 250,50 --key-hold 2000000 \
+		--type-at 8950000000 --type "(LOAD $(QUOTE){DSK}SKETCH.LCOM)\n" \
+		--scale 1 --speed 400000
+
+# The File Browser, loaded for you.  It needs TABLEBROWSER, which it pulls
+# off {DSK} itself once both are on the pack -- and both must come from the
+# SAME tree: FILEBROWSER.LCOM is !1 (Mar-1987) in phylum/lisp/lyric/library
+# and !2 (Jun-1988) in phylum/lisplibrary/lyric, and only the release pair is
+# self-consistent.
+.PHONY: run-lisp-filebrowser-sdl
+run-lisp-filebrowser-sdl: sdl
+	@test -r '$(LISP_LISPUSERS_SNAPSHOT)' || \
+		(echo "Missing $(LISP_LISPUSERS_SNAPSHOT). Run 'make lisp-lispusers-snapshot' once." && false)
+	@mkdir -p '$(TRIDENT_RUN_DIR)'
+	cp -f '$(LISP_LISPUSERS_SNAPSHOT_PACK)' '$(TRIDENT_RUN_DIR)/lisp-fb-run.pack'
+	chmod 644 '$(TRIDENT_RUN_DIR)/lisp-fb-run.pack'
+	@echo 'Loading FILEBROWSER (+TABLEBROWSER); ~1 min. Then sweep out a window:'
+	@echo "type  (IL:FB $(QUOTE){DSK})  and drag the mouse with the LEFT button held."
+	DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_CURRENT_FAKE_TIME)' \
+	./build/dorado-sdl \
+		--eb worlds/aemu.eb \
+		--disk 0='$(TRIDENT_RUN_DIR)/lisp-fb-run.pack' \
+		--boot-reason disk --no-alto-boot \
+		--snapshot-in '$(LISP_LISPUSERS_SNAPSHOT)' \
+		--type-at 8850000000 --click 250,50 --key-hold 2000000 \
+		--type-at 8950000000 --type "(LOAD $(QUOTE){DSK}FILEBROWSER.LCOM)\n" \
+		--scale 1 --speed 400000
+
+# ---------------------------------------------------------------------------
+# Interlisp-D library packages on the Lyric pack.
+#
+# Lyric reaches remote files over Leaf, which we do not serve -- only Pup FTP
+# and STP, which is enough for the Alto-side loader to fetch LISP.SYSOUT but
+# not for Lisp itself.  So library packages have to arrive on the LOCAL disk,
+# where Lisp names them {DSK}FOO.DCOM, and putting them there means editing the
+# Alto file system inside the Trident pack.
+#
+# Two things about that edit are easy to get wrong:
+#
+#   --base is not optional.  dsk2trident --extract only covers the mapped
+#   Diablo region (cyl+3, the partition's head); rebuilding without --base
+#   zeroes everything outside it.  With --base the round trip is byte-exact --
+#   verified by extracting and re-converting the shipped pack unchanged.
+#
+#   --no-vmem is not optional either.  Without it altofs recreates
+#   LISP.VIRTUALMEM., which IS the saved Lisp world -- 15002 pages, and every
+#   bit of the desktop state.
+#
+# The pack is reproducible but not byte-reproducible: Alto file leaders carry
+# created/written/read times, and altofs stamps them from the host clock, so
+# two runs of this target differ in ~100 bytes across the leader pages of the
+# inserted files and SysDir.  Compare the directory listing, not the bytes.
+#
+# The pack alone is not enough to reach the files from a RESTORED checkpoint:
+# the snapshot's virtual memory holds the directory Lisp read at ITS boot, so a
+# file inserted afterwards is genuinely absent as far as that world is
+# concerned ("File not found: {DSK}BANNER.DCOM" while a file already on the
+# pack loads fine).  Hence the second target, which boots the edited pack from
+# cold so Lisp reads the directory that has them, and saves that world.
+# Full filenames, because the extension IS the release: Lyric compiles to
+# .LCOM, Harmony and Koto to .DCOM, and the Common Lisp compiler to .DFASL.
+# The default set is Lyric-vintage .LCOM -- what the shipped sysout can
+# actually load -- and lives in a file rather than here because it is 194
+# names chosen to fill the pack's free pages. Override with
+# LISP_LISPUSERS_PACKAGES='A.LCOM B.LCOM' for a quick experiment.
+LISP_LISPUSERS_PACKAGE_LIST ?= lisp-lispusers-packages.txt
+# The hash MUST be escaped: an unescaped one starts a Make comment and would
+# truncate this line in the middle of $(shell ...), which fails with the
+# distinctly unhelpful "unterminated call to function `shell'".
+LISP_LISPUSERS_PACKAGES ?= $(shell sed 's/\#.*//' '$(LISP_LISPUSERS_PACKAGE_LIST)')
+LISP_LISPUSERS_DIR ?= ../chm/lisp/ftp-root
+LISP_LISPUSERS_PACK ?= build/good-packs/lisp-lyric-lispusers.pack
+LISP_LISPUSERS_SNAPSHOT ?= build/good-packs/lisp-lyric-lispusers.snap
+LISP_LISPUSERS_SNAPSHOT_PACK ?= build/good-packs/lisp-lyric-lispusers-xcl.pack
+# Alto utilities a Lisp pack has no use for.  The pack cannot be made bigger:
+# AltoDiabloDisk.mc hard-codes 406 cylinders ("626B = 406 = number of
+# cylinders", and anything past it is ABadCylinder), the Diablo disk address
+# has ONE drive bit and ONE head bit, and 406*2+3 = 815 is exactly the T-80's
+# cylinder count -- so 2 drives x 2 heads x 406 cyl x 14 sectors = 22,736
+# pages is the architectural ceiling, and LISP.VIRTUALMEM. takes 15,003 of
+# them.  Freeing these 33 files is the only way to buy room, and it buys
+# 1,590 pages (0.79 MB) -- Bravo alone is 458.
+#
+# Fonts.Widths and Gacha10.al are deliberately NOT dropped: INIT.NONET, the
+# greeting file this pack actually uses, names {DSK}FONTS.WIDTHS in
+# PRESSFONTWIDTHSFILES and searches {DSK} itself for display fonts
+# (DISPLAYFONTDIRECTORIES '({DSK} {FLOPPY})).  Deleting them produced
+# file-not-found errors.
+LISP_PACK_DROP ?= BRAVO.RUN. Ftp.Run. BCPL.RUN. NEPTUNE.RUN. EMPRESS.RUN. \
+	CHAT.RUN. OEDIT.RUN. ALTOD1MC.EB. bravo.scratchbin. BLDR.RUN. \
+	BRAVO.ERROR. BRAVO.MESSAGES. bravo.scratchbin2. \
+	Bravo.State. bravo.scratchbravo. bravo.ts. SYS.BK. SYS.SYMS. \
+	ALTODEFS.D. ALTOFILESYS.D. BCPLFILES.D. DISKS.D. STREAMS.D. SYSDEFS.D. \
+	Dumper.boot. Rem.Cm. Ftp.log. Scavenger.Log$$. \
+	UPDATELISP.CM. CREATEFILE.RUN.
+
+# Swap the greeting file.  The stock pack carries INIT.NONET (renamed
+# INIT.LCOM), whose DIRECTORIES is ({DSK} {FLOPPY}) -- no network device at
+# all.  INIT.DORADO is that same file with {FLOPPY} -> {DORADO}, which is a
+# byte-for-byte length-preserving substitution, so Lisp searches our served
+# root for anything it cannot find locally.  Note the pack's INIT.LCOM is
+# SOURCE despite the name (2,438 bytes, identical to INIT.NONET!1); Interlisp
+# LOADs it interpreted, so no compiler is needed to change it.
+LISP_INIT_OVERRIDE ?=
+
+LISP_LISPUSERS_GEOM ?= --diablo-cylinders 406 --diablo-sectors 14
+LISP_LISPUSERS_SCRATCH ?= build/lispusers
+
+.PHONY: lisp-lispusers-fetch
+lisp-lispusers-fetch:
+	python3 ../tools/fetch_lispusers.py $(LISP_LISPUSERS_PACKAGES)
+
+.PHONY: lisp-lispusers-pack
+lisp-lispusers-pack: $(BINDIR)/dsk2trident $(BINDIR)/altofs $(LISP_GOOD_PACK)
+	@mkdir -p '$(LISP_LISPUSERS_SCRATCH)' '$(dir $(LISP_LISPUSERS_PACK))'
+	./build/dsk2trident --extract $(LISP_LISPUSERS_GEOM) '$(LISP_GOOD_PACK)' \
+		'$(LISP_LISPUSERS_SCRATCH)/d0.dsk' --drive1 '$(LISP_LISPUSERS_SCRATCH)/d1.dsk'
+	./build/altofs --disk0 '$(LISP_LISPUSERS_SCRATCH)/d0.dsk' \
+		--disk1 '$(LISP_LISPUSERS_SCRATCH)/d1.dsk' --existing --no-vmem \
+		$(foreach f,$(LISP_PACK_DROP),--delete '$(f)') \
+		$(if $(LISP_INIT_OVERRIDE),--delete 'INIT.LCOM.' \
+			--insert '$(LISP_INIT_OVERRIDE)' 'INIT.LCOM.',) \
+		$(foreach p,$(LISP_LISPUSERS_PACKAGES),--insert '$(LISP_LISPUSERS_DIR)/$(p)' '$(p).')
+	./build/dsk2trident --partition $(LISP_MAIN_PARTITION) $(LISP_LISPUSERS_GEOM) \
+		--base '$(LISP_GOOD_PACK)' --drive1 '$(LISP_LISPUSERS_SCRATCH)/d1.dsk' \
+		'$(LISP_LISPUSERS_SCRATCH)/d0.dsk' '$(LISP_LISPUSERS_PACK)'
+	@echo 'lisp-lispusers-pack: wrote $(LISP_LISPUSERS_PACK)'
+	./build/altofs --disk0 '$(LISP_LISPUSERS_SCRATCH)/d0.dsk' \
+		--disk1 '$(LISP_LISPUSERS_SCRATCH)/d1.dsk' \
+		--existing --preserve-existing-metadata --no-vmem --list 'SysDir.' | grep -E 'LCOM|DCOM|DFASL'
+
+# Boot the edited pack from cold and save the world that can see the new
+# files.  --ftp-root (not --ftp-sysout) serves LISP.SYSOUT by name out of the
+# same directory the packages came from: the Alto-side loader asks for
+# `{DORADO}LISP.SYSOUT`, and the STP server strips the {device} bracket.
+.PHONY: lisp-lispusers-snapshot
+lisp-lispusers-snapshot: $(BINDIR)/dorado lisp-lispusers-pack
+	cp -f '$(LISP_LISPUSERS_PACK)' '$(LISP_LISPUSERS_SNAPSHOT_PACK)'
+	chmod 644 '$(LISP_LISPUSERS_SNAPSHOT_PACK)'
+	DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_CURRENT_FAKE_TIME)' \
+	./build/dorado \
+		--eb worlds/aemu.eb \
+		--disk 0='$(LISP_LISPUSERS_SNAPSHOT_PACK)' \
+		--boot-reason disk --no-alto-boot \
+		--ftp-root '$(LISP_LISPUSERS_DIR)' \
+		--type 'lisp.run/M {DORADO}LISP.SYSOUT\n' \
+		--type-at 330000000 --key-hold 4000000 \
+		--cycles '$(LISP_DESKTOP_SNAPSHOT_CYCLES)' \
+		--snapshot-out '$(LISP_LISPUSERS_SNAPSHOT)' \
+		--out build/lisp-lispusers-desktop.pgm
+
+# Prove a package actually loads, by reading Lisp's own answer off the screen.
+# A pixel count cannot do this: "Loading {DSK}BANNER.DCOM" and "File not
+# found: {DSK}BANNER.DCOM" are both just text appearing in the prompt window
+# (211,318 px vs 210,163 -- a 0.5% difference that says nothing about which
+# one happened).  tools/pgm_text.py segments the glyphs and matches them
+# against the guest font, so the gate reads the sentence.
+LISP_LISPUSERS_PROBE ?= GREP.LCOM
+
+.PHONY: verify-lisp-lispusers
+verify-lisp-lispusers: $(BINDIR)/dorado
+	@test -r '$(LISP_LISPUSERS_SNAPSHOT)' || \
+		(echo "Missing $(LISP_LISPUSERS_SNAPSHOT); run 'make lisp-lispusers-snapshot' first." && false)
+	@mkdir -p '$(TRIDENT_RUN_DIR)'
+	@cp -f '$(LISP_LISPUSERS_SNAPSHOT_PACK)' '$(TRIDENT_RUN_DIR)/lisp-lispusers-gate.pack'
+	@chmod 644 '$(TRIDENT_RUN_DIR)/lisp-lispusers-gate.pack'
+	@DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_CURRENT_FAKE_TIME)' \
+		./build/dorado --eb worlds/aemu.eb \
+		--disk 0='$(TRIDENT_RUN_DIR)/lisp-lispusers-gate.pack' \
+		--boot-reason disk --no-alto-boot \
+		--snapshot-in '$(LISP_LISPUSERS_SNAPSHOT)' \
+		--type-at 8850000000 --click 250,50 --key-hold 2000000 \
+		--type-at 8950000000 --type "(LOAD '{DSK}$(LISP_LISPUSERS_PROBE))\n" \
+		--cycles 10200000000 --out build/verify-lisp-lispusers.pgm >/dev/null 2>&1
+	@text=`python3 ../tools/pgm_text.py build/verify-lisp-lispusers.pgm \
+		--diff build/lisp-lispusers-desktop.pgm --space-gap 6 --cols 18,320 2>/dev/null`; \
+	echo "$$text"; \
+	case "$$text" in \
+	  *"not found"*) \
+	    echo "verify-lisp-lispusers: FAIL -- Lisp cannot see {DSK}$(LISP_LISPUSERS_PROBE)."; \
+	    echo "  Either the pack edit did not take, or -- far more likely -- this"; \
+	    echo "  world was saved BEFORE the file was inserted, so its in-memory"; \
+	    echo "  directory does not have it. Re-run 'make lisp-lispusers-snapshot'."; \
+	    false;; \
+	  *"compiled function"*) \
+	    echo "verify-lisp-lispusers: FAIL -- wrong vintage, NOT a plumbing fault."; \
+	    echo "  Lisp found the file, read it, and printed its true creation date,"; \
+	    echo "  then rejected the compiled code itself. Every .DCOM in"; \
+	    echo "  eris/lispusers is a 1982-84 (Harmony-era) build and the sysout we"; \
+	    echo "  boot is Lyric (1986-87); the compiled-code format moved between"; \
+	    echo "  them. Loading one of these needs a Harmony sysout, not a fix here."; \
+	    false;; \
+	  *"compiled on"*) echo "verify-lisp-lispusers: PASS -- $(LISP_LISPUSERS_PROBE) loaded";; \
+	  *) echo "verify-lisp-lispusers: FAIL -- no recognisable reply from Lisp"; false;; \
+	esac
 
 run-tricond-nopack: $(BINDIR)/rundiag
 	RUNDIAG_DISK=1 RUNDIAG_TASK=14 ./build/rundiag '../chm/dorado/expanded/Tricond.dm!5_/TriconD.mb' BEGIN TESTOK-WITHOUT-DISK ERR 50000000

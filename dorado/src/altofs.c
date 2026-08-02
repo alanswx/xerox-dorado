@@ -382,6 +382,7 @@ static void usage(const char *prog)
         "  --extract NAME HOST extract Alto file NAME to host path HOST\n"
         "  --repair NAME      rewrite NAME's leader metadata from its chain\n"
         "  --insert HOST NAME insert a host file as Alto filename NAME\n"
+           "  --delete NAME      remove NAME, freeing its pages (runs before inserts)\n"
         "  --boot-file NAME   install Alto boot sector from filesystem NAME\n"
         "  --help             show this help\n",
         prog);
@@ -669,7 +670,18 @@ int main(int argc, char **argv)
     struct geometry dg;
     struct geometry src_dg;
     int source_geometry = 0;
-    insert_spec inserts[32];
+    /* 512, not 32: populating a Lyric pack with the Interlisp library means
+     * a few hundred .LCOMs in one pass, and re-running with --existing per
+     * batch would rewrite SysDir and the DiskDescriptor each time.  The real
+     * ceiling is the directory: SysDir. is a fixed-size file (10000 bytes on
+     * the shipped Lyric pack) holding variable-length entries, so a few
+     * hundred names fit and several thousand would not. */
+    insert_spec inserts[512];
+    /* Deletions run BEFORE insertions (see below), so a rebuild can free the
+     * Alto utilities a Lisp pack does not need -- Bravo alone is 458 pages --
+     * and spend them on Interlisp packages instead. */
+    const char *deletes[128];
+    int delete_count = 0;
     int insert_count = 0;
 
     dg.num_disks = DEFAULT_DISKS;
@@ -740,6 +752,12 @@ int main(int argc, char **argv)
             inserts[insert_count].host_path = argv[++i];
             inserts[insert_count].alto_name = argv[++i];
             insert_count++;
+        } else if (!strcmp(a, "--delete") && i + 1 < argc) {
+            if (delete_count >= (int)(sizeof deletes / sizeof deletes[0])) {
+                fprintf(stderr, "altofs: too many --delete entries\n");
+                return 2;
+            }
+            deletes[delete_count++] = argv[++i];
         } else if (!strcmp(a, "--boot-file") && i + 1 < argc) {
             boot_file = argv[++i];
         } else if (!strcmp(a, "--help") || !strcmp(a, "-h")) {
@@ -875,6 +893,16 @@ int main(int argc, char **argv)
             fs_destroy(&afs);
             return 1;
         }
+    }
+
+    for (int i = 0; i < delete_count; i++) {
+        int err = 0;
+        if (!fs_unlink(&afs, deletes[i], 1, &err)) {   /* 1 = remove underlying */
+            fprintf(stderr, "altofs: --delete %s failed (error %d)\n",
+                    deletes[i], err);
+            return 1;
+        }
+        printf("altofs: deleted %s\n", deletes[i]);
     }
 
     for (int i = 0; i < insert_count; i++) {
