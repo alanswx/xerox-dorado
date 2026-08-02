@@ -1,0 +1,18 @@
+{
+  "cross_reference": "chm/cross-reference.html",
+  "local_root": "chm",
+  "inventory_as_of": "2026-08-02",
+  "remote_occurrences": 205797,
+  "local_files_checked": 4976,
+  "mirror_status_counts": {
+    "mirrored-exact-name-and-content": 2399,
+    "mirrored-same-content-different-name": 6824,
+    "not-mirrored-or-unmatched": 196164,
+    "same-name-and-size-crc-differs": 410
+  },
+  "notes": [
+    "One record represents one CHM archive occurrence, not one deduplicated byte string.",
+    "Mirror matching is metadata-based: basename, size, and cross-reference CRC32.",
+    "A same-content match may be a copied release or a renamed local artifact; preserve the archive path."
+  ]
+}

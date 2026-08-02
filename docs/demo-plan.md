@@ -164,14 +164,14 @@ bring-up; do not confuse it with the 76 world that works.
 
 ---
 
-## 4. Interlisp-D — 295 packages nobody has tried
+## 4. Interlisp-D — the Lyric library, reachable and loading
 
 Lyric boots to its Exec (XCL) desktop (208,966 px gate). The archive has a
 substantial user library we have never touched:
 
 | tree | contents |
 |---|---|
-| `eris/lispusers/` | **295 compiled `.DCOM` packages** |
+| `eris/lispusers/` | **131 compiled `.DCOM` packages, all 1982-84 (Harmony)** |
 | `eris/lispcore/`, `eris/lisp/`, `eris/lispmanual/` | the release and its manuals |
 | `phylum/lisplibrary/`, `phylum/lispfonts/` | library and fonts |
 | `qv/lispcourse/` | 40 files — teaching material |
@@ -210,6 +210,69 @@ packages are reachable at once.
 (`lisp-lyric-xcl.pack`), and `dsk2trident` builds packs from files. Putting
 `.DCOM`s on the pack and loading them from `{DSK}` avoids the wire
 entirely, at the cost of a pack rebuild per change.
+
+### RESULT (2026-08-01): the pack route works, and Lyric packages load
+
+**Superseded in part -- read `docs/interlisp-archive-survey.md`.** The
+paragraphs below correctly describe the pack machinery and the failure with
+Harmony-era `.DCOM`s, but their conclusion ("no Lyric-era library exists")
+was a search error: Interlisp compiles to **`.LCOM`** from Lyric onward, and
+`phylum/lisp/lyric/` holds ~320 Lyric-vintage compiled files. `GREP.LCOM`
+and `HRULE.LCOM` both load on the shipped Lyric world. Harmony is not
+needed.
+
+### The original finding: the pack route works; `.DCOM` packages are the wrong vintage
+
+Both halves of the plumbing above were built and proved, and then the
+library turned out not to fit. Recording the outcome in full because the
+negative result is the useful part.
+
+**What works.** `make lisp-lispusers-pack` inserts `.DCOM`s into the Alto
+file system inside the Lyric pack, `make lisp-lispusers-snapshot` boots that
+pack from cold and saves the world, and Lyric then finds the files:
+
+```
+2<-(LOAD '{DSK}BANNER.DCOM)
+Loading {DSK}BANNER.DCOM
+compiled on 30-Nov-83 ...
+File created 30-Nov-83 ...
+```
+
+That date is not ours -- it is stored inside the DCOM and matches the
+archive index for `BANNER.DCOM!9` exactly, so the file arrived intact
+through insert -> pack -> Alto FS -> Interlisp's own file reader.
+
+**What does not.** The next line is `Bad compiled function`. Same for
+`BROWSER.DCOM!10`, the newest build in the directory. **Every one of the 131
+`.DCOM`s in `eris/lispusers` was compiled in 1982-1984** (checked against the
+index: 8 files from 1982, 39 from 1983, 78 from 1984, none later), which is
+the **Harmony** era. The sysout we boot is **Lyric** (1986-87), and the
+compiled-code format moved in between. There are only 4 `.LSP` sources in
+the whole directory -- the other non-DCOM files are documentation
+(`.TTY`, `.PRESS`, `.BRAVO`, `.TED`) -- so there is no load-the-source
+workaround either. `eris/lispcore`, `eris/lisp`, `phylum/lisplibrary` and
+`qv/lispcourse` hold no `.DCOM`s at all.
+
+So the earlier framing of this section -- "295 packages nobody has tried" --
+was wrong in the way that matters. They are reachable, and they are for a
+different Interlisp release.
+
+**What that leaves, in order of cost:**
+
+1. **Boot a Harmony sysout instead.** We already have
+   `chm/lisp/harmony/basics/LISP.SYSOUT!15`, and the whole library then
+   matches by construction. This is the cheap path to a Lisp demo with
+   software in it, at the price of bringing up a second world (the
+   validated desktop today is Lyric).
+2. **Compile inside Lyric.** Version-independent and slow, and needs
+   sources we mostly do not have.
+3. **Find a Lyric-era library.** Not in the obvious places in the archive.
+
+The gate `make verify-lisp-lispusers` distinguishes all three outcomes --
+file-not-found (a pack or checkpoint fault), `Bad compiled function` (this
+vintage wall), and a real load -- by reading Lisp's own reply off the
+framebuffer with `tools/pgm_text.py`. A pixel count cannot tell them apart:
+the failing load and the succeeding one differ by 0.5%.
 
 ---
 

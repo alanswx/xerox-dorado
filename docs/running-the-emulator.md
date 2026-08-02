@@ -922,6 +922,96 @@ Mesa Network Executive is the next high-value target once its exact capture
 frame is revalidated. The directly booted Alto games are fast enough
 that a separate snapshot for every menu item is not currently worthwhile.
 
+### Putting Interlisp library packages on the Lyric pack
+
+Lyric fetches its sysout from us over Pup FTP, but Lisp's own file access
+cannot reach us -- it wants Leaf, which we do not serve -- so library
+packages have to arrive on the **local disk**, where Lisp names them
+`{DSK}FOO.DCOM`.
+
+```sh
+cd dorado
+make lisp-lispusers-fetch      # mirror .DCOMs into chm/lisp/ftp-root/
+make lisp-lispusers-pack       # insert them into the Alto FS in the pack
+make lisp-lispusers-snapshot   # cold-boot that pack and save the world
+make verify-lisp-lispusers     # type a LOAD and read Lisp's reply
+```
+
+Pick packages with `LISP_LISPUSERS_PACKAGES='BROWSER EMACS'`;
+`python3 tools/fetch_lispusers.py --list` shows all 131.
+
+Three things about this that cost time to learn:
+
+- **The checkpoint has to be re-baked after a pack edit.** A restored world
+  answers out of the directory it read at *its* boot, so a file inserted
+  afterwards is genuinely invisible to it -- `File not found:
+  {DSK}BANNER.DCOM`, while a file that was already on the pack loads fine.
+  That is why `lisp-lispusers-snapshot` exists rather than reusing
+  `lisp-lyric-xcl.snap`.
+- **`--ftp-root` replaces `--ftp-sysout` for the cold boot.** A single
+  `--ftp-sysout FILE` short-circuits every request to that one file; a
+  served root resolves `{DORADO}LISP.SYSOUT` by name (the STP server strips
+  the `{device}` bracket) and serves the packages from the same directory.
+  Verified: the fresh boot reaches the desktop at 208,985 px either way.
+- **Match the release's extension.** Interlisp compiles to `.DCOM` through
+  Koto and **`.LCOM`** from Lyric. A Harmony `.DCOM` in the Lyric world gets
+  `Bad compiled function`; the Lyric `.LCOM`s load. The default package list
+  (`dorado/lisp-lispusers-packages.txt`, 194 files) is all Lyric-vintage.
+- **The Exec is XCL, not Interlisp.** `LOAD` works unprefixed; Interlisp
+  functions need `IL:` (`(FILESLOAD X)` answers `Undefined car of form`).
+- **The pack cannot be made bigger.** `AltoDiabloDisk.mc` hard-codes 406
+  Diablo cylinders, the disk address has one drive bit and one head bit, and
+  `406*2+3 = 815` is exactly the T-80's cylinder count -- so 2 drives x 2
+  heads x 406 x 14 = **22,736 pages** is architectural, and
+  `LISP.VIRTUALMEM.` takes 15,003 of them. Room is bought only by deleting
+  Alto utilities the Lisp pack never uses (`LISP_PACK_DROP` in the Makefile,
+  via `altofs --delete`): dropping 33 files frees 1,590 pages and takes the
+  pack from 119 to **206 packages + 14 fonts**. All 285 `.LCOM`s (~11,300
+  pages) do not fit, and neither does the IRM (~7,400) plus its hash
+  (~3,760) -- so HELPSYS cannot read the IRM here the way Medley does.
+- **Dependencies must be on the pack too.** A package's `COMS` does its own
+  `FILESLOAD` against `{DSK}`, so a missing dependency opens a
+  `SIMPLE: ERROR` window naming it (`File MATMULT not found on {DSK}`). Add
+  it to the list and rebuild. Not everything fits: 285 `.LCOM`s exist,
+  ~4800 free pages hold about 194.
+
+Verified loading: `GREP`, `HRULE`, `PACMAN`, and `SKETCH` -- the Interlisp
+illustrator -- which resolves SKETCHELEMENTS/SKETCHEDIT/SKETCHOBJ/
+SKETCHBMELT/SCALEBITMAP off `{DSK}` unattended.
+
+#### Interactively, in SDL
+
+```sh
+cd dorado
+make run-lisp-sketch-sdl      # restores the desktop and types the LOAD for you
+make run-lisp-lispusers-sdl   # same desktop, load whatever you like by hand
+```
+
+Both restore in a few seconds (no 8.8 B-cycle boot). `run-lisp-sketch-sdl`
+then clicks and types for you: the first `Loading` line shows up about ten
+seconds later, and the full chain is ~4 B cycles, so give it ~3 minutes to
+finish. By hand:
+
+1. **Click the Prompt Window** (upper left, around x=250 y=50). Input goes to
+   the window under the cursor; without the click the keystrokes land
+   nowhere. This is the single most common way to conclude "the desktop is
+   not interactive" when it is.
+2. Type `(LOAD '{DSK}SKETCH.LCOM)` and Return. It prints `Loading ...` for
+   SKETCH and each dependency it pulls in, and takes a little while --
+   roughly 4 B cycles for the whole chain.
+3. Anything else on the pack loads the same way; `ls
+   chm/lisp/ftp-root/*.LCOM` is the menu, and
+   `dorado/lisp-lispusers-packages.txt` is what actually fits.
+
+Caveats worth knowing before you demo it: **loading is proved, driving is
+not** -- `(IL:SKETCH)` echoed without opening a window, and the entry points
+live in the Lyric manuals that are missing from the archive. Packages whose
+dependencies did not fit in the 194 open a `SIMPLE: ERROR` window naming the
+file; add it to the list and re-run `make lisp-lispusers-pack
+lisp-lispusers-snapshot`. And `make run-*` SDL targets never exit on their
+own -- close the window when done. Full survey of every
+Interlisp release in the archive: `docs/interlisp-archive-survey.md`.
+
 `make test` runs the unit suites (11 binaries); the regression "gate" the
 bring-up keeps green is: `make test` + AEmu NETEXEC ≈ 1476–1505 px +
 Galaxian ≈ 121.5k px + AltoMesaDorado in band + `make sdl` compiles +

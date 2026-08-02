@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dorado Archive Atlas</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Dorado Archive Atlas</h1>
+    <p>Systems, releases, boot chains, disk recipes, and the CHM evidence underneath them.</p>
+    <nav id="nav">
+      <button data-view="overview" class="active">Overview</button>
+      <button data-view="environments">Environments</button>
+      <button data-view="browser">Browse archive</button>
+      <button data-view="recipes">Disk recipes</button>
+      <button data-view="gaps">Recovery queue</button>
+      <button data-view="raw">Raw inventory</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="notice" id="notice">The full CHM inventory is loaded automatically.</section>
+
+    <section id="view-overview" class="view active-view">
+      <div id="metrics" class="metrics"></div>
+      <h2>What can run?</h2>
+      <div id="overview-environments" class="card-grid"></div>
+      <h2>How to read the Atlas</h2>
+      <div class="explanation">
+        <p>The archive inventory is evidence, not the main story. Start with an environment, follow its boot chain and media recipe, then inspect the raw CHM occurrences when you need provenance or missing files.</p>
+        <p><strong>Occurrence</strong> means one CHM copy. <strong>Artifact</strong> means a meaningful input such as a germ, boot file, disk, or microcode world. <strong>Recipe</strong> means a tested or proposed way to assemble those artifacts into a working environment.</p>
+      </div>
+    </section>
+
+    <section id="view-environments" class="view">
+      <h2>Systems and releases</h2>
+      <p class="section-intro">The software generations that give the archive structure and the emulator a target.</p>
+      <div id="environments" class="card-grid"></div>
+    </section>
+
+    <section id="view-browser" class="view">
+      <h2>Browse archive</h2>
+      <p class="section-intro">Navigate the CHM IFS hierarchy. Directory counts include descendants; files are shown only for the selected directory unless you search within the branch.</p>
+      <section class="controls browser-controls">
+        <label>Server <select id="browser-server"><option value="">All servers</option></select></label>
+        <label>Search current branch <input id="browser-search" type="search" placeholder="filename or path…"></label>
+        <label class="check-label"><input id="browser-unmatched" type="checkbox"> Unmatched only</label>
+      </section>
+      <div id="browser-breadcrumbs" class="breadcrumbs"></div>
+      <section class="browser-layout">
+        <aside id="browser-dirs" class="browser-dirs"></aside>
+        <section class="browser-files">
+          <div id="browser-summary" class="summary"></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Name</th><th>Kind</th><th>Size</th><th>Date</th><th>Mirror</th></tr></thead>
+              <tbody id="browser-rows"></tbody>
+            </table>
+          </div>
+          <article id="browser-detail" class="detail"><p>Select a file to inspect it.</p></article>
+        </section>
+      </section>
+    </section>
+
+    <section id="view-recipes" class="view">
+      <h2>Boot and disk recipes</h2>
+      <p class="section-intro">These are the useful assembly instructions: exact inputs, ordered boot path, media, network dependencies, and validation.</p>
+      <div id="recipes" class="recipe-list"></div>
+    </section>
+
+    <section id="view-gaps" class="view">
+      <h2>Recovery queue</h2>
+      <p class="section-intro">Open questions and high-value archive leads, separated from ordinary unmirrored files.</p>
+      <div id="gaps" class="gap-list"></div>
+    </section>
+
+    <section id="view-raw" class="view">
+      <h2>Raw occurrence inventory</h2>
+      <p class="section-intro">The audit layer: one row per CHM occurrence. Use this when you already know what you are looking for.</p>
+      <section class="controls">
+        <label>Search <input id="search" type="search" placeholder="filename, path, note, system…"></label>
+        <label>Dataset
+          <select id="dataset">
+            <option value="all">All loaded records</option>
+            <option value="remote">CHM remote inventory</option>
+            <option value="artifacts">Seed artifacts</option>
+            <option value="releases">Releases</option>
+            <option value="recipes">Recipes</option>
+            <option value="gaps">Gaps</option>
+          </select>
+        </label>
+        <label>Mirror status <select id="status"><option value="">Any</option></select></label>
+        <label>Limit <input id="limit" type="number" min="25" max="2000" value="300"></label>
+        <button id="load-file">Replace with JSONL…</button>
+        <input id="file-input" type="file" accept=".jsonl,.txt" hidden>
+      </section>
+      <section class="summary" id="summary"></section>
+      <section class="results">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Type</th><th>Name / goal</th><th>Archive path</th><th>Status</th><th>Bytes</th></tr></thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+        <article id="detail" class="detail"><p>Select a record to inspect it.</p></article>
+      </section>
+    </section>
+  </main>
+
+  <script src="seed.js"></script>
+  <script src="remote-inventory.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
