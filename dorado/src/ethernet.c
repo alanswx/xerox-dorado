@@ -2636,10 +2636,63 @@ static const char *leaf_op_name(unsigned code)
     return code < sizeof n / sizeof n[0] ? n[code] : "?";
 }
 
+/* Pull the n'th Leaf string out of a request body.  IfsLeafOpen.bcpl
+ * declares `String: [length byte; char^1,1 byte]`, but the wire says
+ * otherwise and the wire wins: the observed Open carries a length WORD then
+ * that many bytes, padded to a word boundary with a byte that is NOT zeroed
+ * (the first string reads `000005 "Guestu"` -- five chars and one byte of
+ * leftover).  Returns 0 if the request runs out before string `want`. */
+static int eth_leaf_string(const dorado_ethernet *eth, size_t nbytes,
+                           unsigned first_word, unsigned want,
+                           char *out, size_t outsz)
+{
+    unsigned w = first_word;
+    unsigned limit = (unsigned)((nbytes + 1u) / 2u);
+    for (unsigned n = 0; ; n++) {
+        if (w >= limit) return 0;
+        unsigned len = eth->tx_words[12 + w];
+        w++;
+        unsigned words = (len + 1u) / 2u;
+        if (n == want) {
+            if (len >= outsz) len = (unsigned)outsz - 1u;
+            for (unsigned i = 0; i < len; i++) {
+                uint16_t word = eth->tx_words[12 + w + i / 2u];
+                out[i] = (char)((i & 1u) ? (word & 0377) : (word >> 8));
+            }
+            out[len] = '\0';
+            return 1;
+        }
+        w += words;
+    }
+}
+
+/* One open file.  A file-scope static, not a dorado_ethernet member: a new
+ * member changes the snapshot ABI and every baked checkpoint fails to
+ * restore.  One slot is enough -- Interlisp opens, reads and closes a .LCOM
+ * before asking for the next. */
+static struct {
+    int in_use;
+    uint16_t handle;
+    char path[1024];
+    uint32_t length;
+} leaf_file;
+
+/* IfsLeaf.decl LeafAddress: `high word = [signExtend bit 5 [...]; highAddr
+ * bit 11]; low word` -- a byte address split 11 bits high, 16 bits low. */
+static void leaf_put_address(uint8_t *p, uint32_t addr)
+{
+    uint16_t hi = (uint16_t)((addr >> 16) & 03777u);
+    p[0] = (uint8_t)(hi >> 8);      p[1] = (uint8_t)(hi & 0377);
+    p[2] = (uint8_t)((addr >> 8) & 0377); p[3] = (uint8_t)(addr & 0377);
+}
+
 /* Answer a Leaf request whose reply is the generic two-word LeafAnswer
  * (IfsLeaf.decl: `LeafAnswer: [op @Op; handle word]`, and IfsLeafRare.bcpl
  * DoNothingLeaf answers `2*lenLeafAnswer` = 4 bytes).  Reset, Noop, Close,
  * CloseTransaction, Delete, Truncate and Params all share it. */
+static int eth_leaf_reply(dorado_ethernet *eth, const uint8_t *body,
+                          size_t blen, unsigned code);
+
 static int eth_leaf_answer_simple(dorado_ethernet *eth, unsigned code,
                                   uint16_t handle)
 {
@@ -2647,6 +2700,13 @@ static int eth_leaf_answer_simple(dorado_ethernet *eth, unsigned code,
     uint16_t op = leaf_make_op(code, 4);
     body[0] = (uint8_t)(op >> 8);   body[1] = (uint8_t)(op & 0377);
     body[2] = (uint8_t)(handle >> 8); body[3] = (uint8_t)(handle & 0377);
+    return eth_leaf_reply(eth, body, sizeof body, code);
+}
+
+static int eth_leaf_reply(dorado_ethernet *eth, const uint8_t *body,
+                          size_t blen, unsigned code)
+{
+    uint16_t op = (uint16_t)((body[0] << 8) | body[1]);
     /* Swap the endpoints: our reply comes FROM the socket the request was
      * aimed at, back to the port it came from. */
     /* Leaf rides on Sequin, and Sequin keeps its control block in the Pup ID
@@ -2676,13 +2736,105 @@ static int eth_leaf_answer_simple(dorado_ethernet *eth, unsigned code,
                                  eth->tx_words[9], eth->tx_words[10],
                                  eth->tx_words[11],
                                  eth->tx_words[6], eth->tx_words[7],
-                                 eth->tx_words[8], body, sizeof body);
+                                 eth->tx_words[8], body, blen);
     if (ftp_trace())
         fprintf(stderr, "LEAF_REPLY %s op=%06o queued=%d d=%06o/%o/%o "
                 "s=%06o/%o/%o\n", leaf_op_name(code), op, ok,
                 eth->tx_words[9], eth->tx_words[10], eth->tx_words[11],
                 eth->tx_words[6], eth->tx_words[7], eth->tx_words[8]);
     return ok;
+}
+
+/* IfsLeafOpen.bcpl OpenLeaf: strings are login user, login password,
+ * connect name, connect password, filename -- the observed request carries
+ * "Guest","Guest","","","AISBLT.LCOM".  Answer is OpenAnswer
+ * `[op; handle; length @LeafAddress; mode]`, AnswerSetOp(..2*lenOpenAnswer)
+ * = 10 bytes.  Credentials are ignored: the served tree is read-only and the
+ * STP path already answers every user alike. */
+static int eth_leaf_open(dorado_ethernet *eth, size_t nbytes)
+{
+    char name[512];
+    if (!eth_leaf_string(eth, nbytes, 3, 4, name, sizeof name)) {
+        if (ftp_trace()) fprintf(stderr, "LEAF_OPEN no filename string\n");
+        return 0;
+    }
+    char rel[768];
+    if (!eth_ftp_relative_from_name(name, rel, sizeof rel)) {
+        if (ftp_trace()) fprintf(stderr, "LEAF_OPEN unparsable \"%s\"\n", name);
+        return 0;
+    }
+    char path[1024];
+    struct stat st;
+    if (!eth->ftp_sysout_path[0]) return 0;
+    snprintf(path, sizeof path, "%s/%s", eth->ftp_sysout_path, rel);
+    if (stat(path, &st) != 0 || !S_ISREG(st.st_mode)) {
+        if (ftp_trace())
+            fprintf(stderr, "LEAF_OPEN_MISSING \"%s\" -> %s\n", name, path);
+        return 0;                        /* an ErrorAnswer belongs here */
+    }
+
+    leaf_file.in_use = 1;
+    leaf_file.handle = (uint16_t)(leaf_file.handle + 1u ? leaf_file.handle + 1u : 1u);
+    snprintf(leaf_file.path, sizeof leaf_file.path, "%s", path);
+    leaf_file.length = (uint32_t)st.st_size;
+
+    uint8_t body[10];
+    uint16_t op = leaf_make_op(LEAF_OP_OPEN, 10);
+    body[0] = (uint8_t)(op >> 8);  body[1] = (uint8_t)(op & 0377);
+    body[2] = (uint8_t)(leaf_file.handle >> 8);
+    body[3] = (uint8_t)(leaf_file.handle & 0377);
+    leaf_put_address(body + 4, leaf_file.length);
+    body[8] = (uint8_t)(eth->tx_words[14] >> 8);   /* echo the requested mode */
+    body[9] = (uint8_t)(eth->tx_words[14] & 0377);
+    if (ftp_trace())
+        fprintf(stderr, "LEAF_OPEN \"%s\" -> %s (%u bytes) handle=%06o\n",
+                name, path, leaf_file.length, leaf_file.handle);
+    return eth_leaf_reply(eth, body, sizeof body, LEAF_OP_OPEN);
+}
+
+/* IfsLeaf.decl FileRequest: `[op; handle; address @LeafAddress; length word;
+ * rate word = words^0,0 word]` -- the observed Read is 10 bytes, i.e. five
+ * words with no data.  FileAnswer has the same shape and `rate` overlays
+ * `words`, so the answer header is five words and the file bytes follow.
+ * Capped at 512 data bytes: that is the quantum this server advertises for
+ * STP too, and an oversized data Pup is exactly what wedged Lyric's sysout
+ * retrieve for three weeks. */
+static int eth_leaf_read(dorado_ethernet *eth)
+{
+    uint16_t handle = eth->tx_words[13];
+    uint32_t addr = (uint32_t)(((uint32_t)(eth->tx_words[14] & 03777u) << 16) |
+                               eth->tx_words[15]);
+    unsigned want = eth->tx_words[16];
+
+    if (!leaf_file.in_use || handle != leaf_file.handle) {
+        if (ftp_trace())
+            fprintf(stderr, "LEAF_READ_BADHANDLE %06o (open=%06o)\n",
+                    handle, leaf_file.handle);
+        return 0;
+    }
+    if (want == 0 || want > 512) want = 512;
+    if (addr >= leaf_file.length) want = 0;
+    else if (addr + want > leaf_file.length)
+        want = (unsigned)(leaf_file.length - addr);
+
+    uint8_t body[10 + 512];
+    uint16_t op = leaf_make_op(LEAF_OP_READ, 10u + want);
+    body[0] = (uint8_t)(op >> 8);  body[1] = (uint8_t)(op & 0377);
+    body[2] = (uint8_t)(handle >> 8); body[3] = (uint8_t)(handle & 0377);
+    leaf_put_address(body + 4, addr);
+    body[8] = (uint8_t)(want >> 8); body[9] = (uint8_t)(want & 0377);
+
+    if (want) {
+        FILE *fp = fopen(leaf_file.path, "rb");
+        if (!fp) return 0;
+        if (fseek(fp, (long)addr, SEEK_SET) != 0 ||
+            fread(body + 10, 1, want, fp) != want) { fclose(fp); return 0; }
+        fclose(fp);
+    }
+    if (ftp_trace())
+        fprintf(stderr, "LEAF_READ handle=%06o addr=%u want=%u of %u\n",
+                handle, addr, want, leaf_file.length);
+    return eth_leaf_reply(eth, body, 10u + want, LEAF_OP_READ);
 }
 
 /* Returns 1 if the packet was a Leaf request we handled. */
@@ -2718,12 +2870,34 @@ static int eth_leaf_handle(dorado_ethernet *eth)
     case LEAF_OP_NOOP:
     case LEAF_OP_PARAMS:
         return eth_leaf_answer_simple(eth, code, handle) ? 1 : 1;
+    case LEAF_OP_OPEN:
+        if (eth_leaf_open(eth, nbytes)) return 1;
+        return 0;
+    case LEAF_OP_READ:
+        if (eth_leaf_read(eth)) return 1;
+        return 0;
+    case LEAF_OP_CLOSE:
+        leaf_file.in_use = 0;
+        return eth_leaf_answer_simple(eth, code, handle) ? 1 : 1;
     default:
         /* Not yet implemented -- say so loudly rather than letting the guest
-         * retransmit into silence, which is what Open/Read will do next. */
-        if (ftp_trace())
-            fprintf(stderr, "LEAF_UNIMPLEMENTED %s (code %u)\n",
+         * retransmit into silence, which is what Read will do next. */
+        if (ftp_trace()) {
+            fprintf(stderr, "LEAF_UNIMPLEMENTED %s (code %u) body:",
                     leaf_op_name(code), code);
+            unsigned nw = (unsigned)((nbytes + 1u) / 2u);
+            if (nw > 24) nw = 24;
+            for (unsigned i = 0; i < nw; i++)
+                fprintf(stderr, " %06o", eth->tx_words[12 + i]);
+            fprintf(stderr, "  text=\"");
+            for (unsigned i = 0; i < nw; i++) {
+                int c1 = (eth->tx_words[12 + i] >> 8) & 0377;
+                int c2 = eth->tx_words[12 + i] & 0377;
+                fputc(c1 >= 040 && c1 < 0177 ? c1 : '.', stderr);
+                fputc(c2 >= 040 && c2 < 0177 ? c2 : '.', stderr);
+            }
+            fprintf(stderr, "\"\n");
+        }
         return 0;
     }
 }
