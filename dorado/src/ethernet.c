@@ -2051,9 +2051,24 @@ static void eth_ftp_handle_command(dorado_ethernet *eth)
             break;
         }
         eth->ftp_file_size = eth_ftp_file_size(eth);
-        if (ftp_trace())
+        if (ftp_trace()) {
             fprintf(stderr, "STP_SERVE %s (%u bytes)\n",
                     eth->ftp_cmd_data, eth->ftp_file_size);
+            /* No release DF names this file, so the plist about to go out
+             * carries the synthetic 01-Jan-84 fallback.  That is fine for the
+             * Basic.Loadees BCDs -- the Loader takes those without a date
+             * check -- and FATAL for anything FS demand-fetches by date:
+             * FSRemoteFileImpl.Retrieve's Confirm proc answers `skip` (STP
+             * markNo) for every candidate whose Creation-Date is not the one
+             * the local DF pinned, then retries once with !* and gives up.
+             * Nothing is missing, so there is no STP_MISSING to see; the
+             * guest simply stops.  Name it here, because the two times this
+             * has bitten (the case-sensitive `.DF` scan, and shipping
+             * CedarChest6.0/Sil to the browser without CedarChest6.0/Top)
+             * the wire looked healthy from every other angle. */
+            if (!eth_ftp_creation_date(eth, (const char *)eth->ftp_cmd_data))
+                fprintf(stderr, "STP_NO_DF_DATE %s\n", eth->ftp_cmd_data);
+        }
         if (eth->ftp_file_size == 0) {
             eth_ftp_start_tx(eth, FTP_TX_DONE);
             eth->ftp_phase = FTP_PHASE_DONE;
@@ -2573,6 +2588,110 @@ static int eth_ftp_handle_rfc(dorado_ethernet *eth, uint16_t server_socket)
     return eth_ftp_queue_rfc_reply(eth);
 }
 
+/* ---------------------------------------------------------------- Leaf
+ * Interlisp-D reaches {HOST} files over Leaf, the IFS random-access file
+ * protocol -- Pup type 0260 on a raw level-1 socket (IfsLeafInit.bcpl
+ * OpenLevel1Socket, NOT BSP), aimed at whatever socket our NetDir reply
+ * advertised.  Server source: chm/leaf/ (xeroxalto _cd8_/ifs/ifsleaf.dm!2_).
+ *
+ * IfsLeaf.decl: `structure Op: [ code bit 5; answer bit 1; length bit 10 ]`,
+ * BCPL bit numbering from the MSB, so code is the top 5 bits and length is
+ * the low 10 -- in BYTES, which the first observed request confirms: op word
+ * 0040023 gives code 8, answer 0, length 19, against a 19-byte body.
+ */
+enum {
+    LEAF_OP_ERROR = 0, LEAF_OP_OPEN = 1, LEAF_OP_CLOSE = 2,
+    LEAF_OP_DELETE = 3, LEAF_OP_CLOSE_TRANSACTION = 4, LEAF_OP_TRUNCATE = 5,
+    LEAF_OP_READ = 6, LEAF_OP_WRITE = 7, LEAF_OP_RESET = 8, LEAF_OP_NOOP = 9,
+    LEAF_OP_TELNET = 10, LEAF_OP_PARAMS = 11
+};
+#define LEAF_ANSWER_BIT 02000u          /* IfsLeaf.decl opAnswerBit */
+
+static unsigned leaf_op_code(uint16_t w)   { return (unsigned)((w >> 11) & 037u); }
+static unsigned leaf_op_answer(uint16_t w) { return (unsigned)((w >> 10) & 1u); }
+static unsigned leaf_op_length(uint16_t w) { return (unsigned)(w & 01777u); }
+
+static uint16_t leaf_make_op(unsigned code, unsigned nbytes)
+{
+    return (uint16_t)(((code & 037u) << 11) | LEAF_ANSWER_BIT |
+                      (nbytes & 01777u));
+}
+
+static const char *leaf_op_name(unsigned code)
+{
+    static const char *n[] = { "Error", "Open", "Close", "Delete",
+                               "CloseTransaction", "Truncate", "Read",
+                               "Write", "Reset", "Noop", "Telnet", "Params" };
+    return code < sizeof n / sizeof n[0] ? n[code] : "?";
+}
+
+/* Answer a Leaf request whose reply is the generic two-word LeafAnswer
+ * (IfsLeaf.decl: `LeafAnswer: [op @Op; handle word]`, and IfsLeafRare.bcpl
+ * DoNothingLeaf answers `2*lenLeafAnswer` = 4 bytes).  Reset, Noop, Close,
+ * CloseTransaction, Delete, Truncate and Params all share it. */
+static int eth_leaf_answer_simple(dorado_ethernet *eth, unsigned code,
+                                  uint16_t handle)
+{
+    uint8_t body[4];
+    uint16_t op = leaf_make_op(code, 4);
+    body[0] = (uint8_t)(op >> 8);   body[1] = (uint8_t)(op & 0377);
+    body[2] = (uint8_t)(handle >> 8); body[3] = (uint8_t)(handle & 0377);
+    /* Swap the endpoints: our reply comes FROM the socket the request was
+     * aimed at, back to the port it came from. */
+    int ok = eth_queue_pup_bytes(eth, DORADO_PUP_TYPE_LEAF,
+                                 pup_id32(eth->tx_words[4], eth->tx_words[5]),
+                                 eth->tx_words[9], eth->tx_words[10],
+                                 eth->tx_words[11],
+                                 eth->tx_words[6], eth->tx_words[7],
+                                 eth->tx_words[8], body, sizeof body);
+    if (ftp_trace())
+        fprintf(stderr, "LEAF_REPLY %s op=%06o queued=%d d=%06o/%o/%o "
+                "s=%06o/%o/%o\n", leaf_op_name(code), op, ok,
+                eth->tx_words[9], eth->tx_words[10], eth->tx_words[11],
+                eth->tx_words[6], eth->tx_words[7], eth->tx_words[8]);
+    return ok;
+}
+
+/* Returns 1 if the packet was a Leaf request we handled. */
+static int eth_leaf_handle(dorado_ethernet *eth)
+{
+    size_t nbytes = eth->tx_words[2] > 026 ?
+        (size_t)(eth->tx_words[2] - 026) : 0;
+    if (eth->tx_words[3] != DORADO_PUP_TYPE_LEAF || nbytes < 2) return 0;
+
+    uint16_t opw = eth->tx_words[12];
+    unsigned code = leaf_op_code(opw);
+    unsigned len  = leaf_op_length(opw);
+    uint16_t handle = nbytes >= 4 ? eth->tx_words[13] : 0;
+
+    if (ftp_trace())
+        fprintf(stderr, "LEAF %s op=%06o code=%u answer=%u len=%u "
+                "(pup %zu bytes) handle=%06o\n",
+                leaf_op_name(code), opw, code, leaf_op_answer(opw), len,
+                nbytes, handle);
+
+    /* An answer arriving from the guest is not ours to act on. */
+    if (leaf_op_answer(opw)) return 1;
+
+    switch (code) {
+    case LEAF_OP_RESET:
+        /* IfsLeafRare.bcpl ResetLeaf: log in from the strings, then answer.
+         * Any credentials are accepted here -- the served tree is read-only
+         * and the STP path already answers every user the same way. */
+        return eth_leaf_answer_simple(eth, code, 0) ? 1 : 1;
+    case LEAF_OP_NOOP:
+    case LEAF_OP_PARAMS:
+        return eth_leaf_answer_simple(eth, code, handle) ? 1 : 1;
+    default:
+        /* Not yet implemented -- say so loudly rather than letting the guest
+         * retransmit into silence, which is what Open/Read will do next. */
+        if (ftp_trace())
+            fprintf(stderr, "LEAF_UNIMPLEMENTED %s (code %u)\n",
+                    leaf_op_name(code), code);
+        return 0;
+    }
+}
+
 static int eth_queue_netdir_reply(dorado_ethernet *eth, uint16_t server_socket)
 {
     uint16_t req_src_host = (uint16_t)(eth->tx_words[0] & 0377);
@@ -2982,6 +3101,8 @@ static void eth_tx_packet_done(dorado_ethernet *eth)
         }
         if (eth_ftp_select_conn(eth) && eth_ftp_handle_packet(eth))
             return;
+        if (eth_leaf_handle(eth))
+            return;
         /* Anything else the guest sends that we never answer: a Pup aimed at
          * a host/socket this shim does not implement (Cedar reaching for a
          * fonts or file server), or a live connection's packet rejected by
@@ -2994,6 +3115,27 @@ static void eth_tx_packet_done(dorado_ethernet *eth)
                     pup_id32(eth->tx_words[4], eth->tx_words[5]),
                     eth->tx_words[6], eth->tx_words[7], eth->tx_words[8],
                     eth->tx_words[9], eth->tx_words[10], eth->tx_words[11]);
+            /* The type alone says which protocol; it does not say what was
+             * ASKED. Dump the body too: a Leaf request carries its opcode in
+             * the first word (IfsLeaf.decl `Op: code bit 5, answer bit 1,
+             * length bit 10`) and the filename as a string after the header,
+             * and without those there is no way to tell a file open from a
+             * name lookup we simply mis-declined. */
+            unsigned len = eth->tx_words[2] > 026 ?
+                (unsigned)(eth->tx_words[2] - 026) : 0u;
+            unsigned nw = (len + 1u) / 2u;
+            if (nw > 16) nw = 16;
+            fprintf(stderr, "FTP_UNSERVED body len=%u words:", len);
+            for (unsigned i = 0; i < nw; i++)
+                fprintf(stderr, " %06o", eth->tx_words[12 + i]);
+            fprintf(stderr, "  text=\"");
+            for (unsigned i = 0; i < nw && i < 16; i++) {
+                int c1 = (eth->tx_words[12 + i] >> 8) & 0377;
+                int c2 = eth->tx_words[12 + i] & 0377;
+                fputc(c1 >= 040 && c1 < 0177 ? c1 : '.', stderr);
+                fputc(c2 >= 040 && c2 < 0177 ? c2 : '.', stderr);
+            }
+            fprintf(stderr, "\"\n");
         }
     }
 
@@ -3107,6 +3249,10 @@ static void eth_tx_packet_done(dorado_ethernet *eth)
         eth->tx_words[3] == DORADO_PUP_TYPE_ADDRESS_LOOKUP) {
         static const uint8_t name[] = { 'D', 'o', 'r', 'a', 'd', 'o' };
         uint16_t req_src_host = (uint16_t)(eth->tx_words[0] & 0377);
+        if (ftp_trace())
+            fprintf(stderr, "PUP_ADDRLOOKUP -> AddressIs \"Dorado\" "
+                    "(queried %06o/%o/%o)\n",
+                    eth->tx_words[6], eth->tx_words[7], eth->tx_words[8]);
         uint16_t net = DORADO_PUP_LOCAL_NET;
         eth_clear_rx(eth);
         size_t cap = 0;

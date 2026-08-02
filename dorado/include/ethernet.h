@@ -57,6 +57,15 @@
 #define DORADO_PUP_TYPE_GATEWAY_REPLY  0201
 #define DORADO_PUP_TYPE_ALTOTIME_REQ   0206
 #define DORADO_PUP_TYPE_ALTOTIME_REPLY 0207
+/* Leaf, the IFS random-access file protocol Interlisp-D uses for {HOST}
+ * files.  Observed 2026-08-02: with {DORADO} in LISPUSERSDIRECTORIES, Lyric
+ * logs in and then sends type 0o260 to whatever socket the NetDir reply
+ * advertised (3, our STP socket), retransmitting until answered.  The body
+ * is IfsLeaf.decl's `Op: code bit 5; answer bit 1; length bit 10` -- the
+ * first word 0o040023 is code=8 (opReset), answer=0, length=19, and 19 is
+ * exactly the observed body length, which pins the bit layout.  Server
+ * source mirrored to chm/leaf/. */
+#define DORADO_PUP_TYPE_LEAF           0260
 #define DORADO_PUP_TYPE_ADDRESS_LOOKUP 0223
 #define DORADO_PUP_TYPE_ADDRESS_REPLY  0224
 #define DORADO_PUP_TYPE_NETDIR_LOOKUP  0220
