@@ -1,8 +1,7 @@
 # Handoff — Interlisp-D on the network (Leaf), 2026-08-01..03
 
-**Read §1 first.** The commits on branch `lisp-lyric-library-and-leaf`
-are **not pushed**. There was a hold on pushing at one point (a live
-demo was running off GitHub Pages); confirm with Alan before pushing.
+**Read §1 first.** The push hold that used to apply to this branch was
+lifted by Alan on 2026-08-03; the branch pushes normally now.
 
 ---
 
