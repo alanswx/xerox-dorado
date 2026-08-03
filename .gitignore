@@ -81,3 +81,8 @@ dorado/*.pdi
 
 # Generated corpus name index (regenerate with tools/chm_crc_index.py)
 /build/
+
+# Generated CHM atlas inventories (tools/build_chm_atlas_inventory.py) --
+# 138 MB each, over GitHub's 100 MB blob limit; they stay local.
+docs/chm-atlas/remote-inventory.jsonl
+docs/chm-atlas/viewer/remote-inventory.js

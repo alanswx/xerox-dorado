@@ -60,6 +60,7 @@ recipes, and gaps.
 | `gaps.jsonl` | Explicit missing, uncertain, stale, or unreviewed areas. |
 | `overview.md` | Human-facing first view of the current seed corpus. |
 | `remote-inventory.jsonl` | Exhaustive CHM cross-reference occurrences, with local mirror matching. |
+| | NOT COMMITTED (138 MB, over GitHub's blob limit) -- regenerate it and `viewer/remote-inventory.js` locally with `tools/build_chm_atlas_inventory.py`. |
 | `inventory-summary.json` | Snapshot counts and matching methodology. |
 | `viewer/` | Static browser viewer; works from `file://`, with the full inventory bundled. |
 
