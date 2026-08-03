@@ -7,6 +7,8 @@
 
 #include <string.h>
 #include "typetext.h"
+
+#include <stdio.h>
 #include "machine.h"
 
 dorado_display_key dorado_char_to_key(char c, int *shift)
@@ -34,7 +36,22 @@ dorado_display_key dorado_char_to_key(char c, int *shift)
     case '\n': case '\r': return DORADO_KEY_RETURN;
     case '?': *shift = 1; return DORADO_KEY_FSLASH;
     case '/': return DORADO_KEY_FSLASH;
-    /* Alto II digit-row shifts: 8*, 9(, 0) — needed to type Lisp forms. */
+    /* Alto II digit-row shifts.  The whole row, not just the three the Lisp
+     * forms happened to need: an unmapped character used to vanish without a
+     * word, and `&` going missing turned `IRM.HOST&DIR` into `IRM.HOSTDIR`
+     * and reported it as an unbound variable -- which reads as a broken init
+     * file rather than a broken keyboard.
+     *
+     * Note 6: the Alto puts `~` there, where a modern keyboard has `^`.
+     * `^` is deliberately left unmapped rather than guessed at; an explicit
+     * gap that warns is better than a wrong key. */
+    case '!': *shift = 1; return DORADO_KEY_1;
+    case '@': *shift = 1; return DORADO_KEY_2;
+    case '#': *shift = 1; return DORADO_KEY_3;
+    case '$': *shift = 1; return DORADO_KEY_4;
+    case '%': *shift = 1; return DORADO_KEY_5;
+    case '~': *shift = 1; return DORADO_KEY_6;
+    case '&': *shift = 1; return DORADO_KEY_7;
     case '(': *shift = 1; return DORADO_KEY_9;
     case ')': *shift = 1; return DORADO_KEY_0;
     case '*': *shift = 1; return DORADO_KEY_8;
@@ -98,7 +115,16 @@ int dorado_typequeue_pump(dorado_typequeue *q, struct dorado_machine *m)
                 tc = (char)(tc - 1 + 'a');
             }
             q->key = dorado_char_to_key(tc, &shift);
-            if (q->key == DORADO_KEY_NONE) { q->pos++; ctrl = 0; }
+            if (q->key == DORADO_KEY_NONE) {
+                /* Say so. A dropped character produces a subtly wrong form
+                 * in the guest -- a missing `&` cost a full debugging cycle
+                 * by turning a set variable into an unbound one. */
+                fprintf(stderr, "dorado: cannot type '%c' (0x%02x), skipped\n",
+                        (q->text[q->pos] >= 040 && q->text[q->pos] < 0177)
+                            ? q->text[q->pos] : '?',
+                        (unsigned char)q->text[q->pos]);
+                q->pos++; ctrl = 0;
+            }
         } while (q->key == DORADO_KEY_NONE);
         q->shift = shift;
         q->ctrl = ctrl;
