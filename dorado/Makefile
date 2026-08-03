@@ -1918,12 +1918,15 @@ run-lisp-lispusers-sdl: sdl
 	@mkdir -p '$(TRIDENT_RUN_DIR)'
 	cp -f '$(LISP_LISPUSERS_SNAPSHOT_PACK)' '$(TRIDENT_RUN_DIR)/lisp-lispusers-run.pack'
 	chmod 644 '$(TRIDENT_RUN_DIR)/lisp-lispusers-run.pack'
-	@echo "Click the Prompt Window (upper left), then type:  (LOAD $(QUOTE){DSK}SKETCH.LCOM)"
+	@echo "Click the Exec (XCL) window, then type:  (LOAD $(QUOTE){DSK}SKETCH.LCOM)"
+	@echo "For the reference manual:  (IL:FILESLOAD HELPSYS)  then"
+	@echo "  (IL:LOAD $(QUOTE){DORADO}<IRM>IRMDEMO)  -- answer Login with Guest/Guest"
 	DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_CURRENT_FAKE_TIME)' \
 	./build/dorado-sdl \
 		--eb worlds/aemu.eb \
 		--disk 0='$(TRIDENT_RUN_DIR)/lisp-lispusers-run.pack' \
 		--boot-reason disk --no-alto-boot \
+		--ftp-root '$(LISP_LISPUSERS_DIR)' \
 		--snapshot-in '$(LISP_LISPUSERS_SNAPSHOT)' \
 		--scale 1 --speed 400000
 
