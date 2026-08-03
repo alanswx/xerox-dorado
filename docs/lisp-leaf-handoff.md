@@ -211,16 +211,26 @@ over Leaf, graph (47,688 bytes) streamed, DInfo window opens with no
 region prompt, `IRM.LOOKUP` probes the 331 KB hash file by random access,
 finds CAR, and streams `<IRM>CHAPLISTS.TEDIT!1` (74,141 bytes -- our
 first Leaf file past 64 K; offsets verified good to EOF) plus the italic
-Modern-10 display font to render it. **Two guest breaks then stop the
-page short of painting**, the open items: `IR SYMBOL-NAME-TOO-LONG`
-("In PACK*: Symbol name too long") during DInfo/TEdit's section pull, and
-an earlier `ARG NOT PROCESS {\UNBOXEDHUNK2}` break in the Leaf background
-process (`DORADO #LEAF/5`) that appears in every run but does not stop
-transfers. The served chapter bytes are verified byte-identical to the
-archive, so the next discriminator is opening the chapter in PLAIN TEdit
-with an explicit window (`{DORADO}<IRM>TEDDEMO` does exactly that): if it
-renders, the Leaf byte path is exonerated and the bug is DInfo's section
-logic; if it breaks, it is our random-access Read.
+Modern-10 display font to render it. **One suspect now stops the page
+short of painting: the guest's Leaf background process breaks with
+`ARG NOT PROCESS #<\UNBOXEDHUNK2 @ 74,0>` (`DORADO #LEAF/4` or `/5`)** in
+EVERY multi-file Leaf session -- and everything downstream looks like its
+fallout. In `build/irmdemo2.log` the DInfo section pull then died with
+`IR SYMBOL-NAME-TOO-LONG` ("In PACK*: Symbol name too long" -- a
+giant symbol is what READ makes of a corrupted stream, and the chapter
+bytes on disk are verified byte-identical to the archive); in
+`build/teddemo.log` the plain-TEdit control (`{DORADO}<IRM>TEDDEMO`,
+which FILESLOADs TEDIT then opens the chapter in an explicit window) the
+break fired DURING the TEdit load and an `\ILLEGAL.ARG: NIL` break
+killed the loading process before the chapter was even requested. An
+UNBOXEDHUNK2 where a process was expected is the signature of the
+client's connection table being indexed by a value from OUR packets --
+suspect the server's handle numbering / Sequin control bytes against
+`LEAF.lisp-client`'s state machine (idle probes, multi-connection
+interleaving, handle reuse). The single-file leaf gate is too short to
+tickle it, which is why `verify-lisp-leaf` stays green. Fixing that one
+server-side bug is the next session's first move; the whole rest of the
+chain is proven.
 
 Setup remains per `HELPSYS.tedit` (mirrored at `chm/lisp/lyric-docs/`,
 now alongside the Lyric-vintage `dinfo.tedit` user doc): the 331 KB hash
