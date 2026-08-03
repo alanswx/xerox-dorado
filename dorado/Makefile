@@ -54,8 +54,13 @@ WEB_NODE_SRCS := $(filter-out src/dorado_web.c,$(WEB_SRCS)) src/dorado.c
 WEB_NODE_JS := $(BINDIR)/dorado-node.js
 WEB_LISP_ASSET_DIR := web-assets
 WEB_STP_DIR := build/web-stp
-WEB_LISP_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/lisp-lyric-xcl.snap.gz
-WEB_LISP_PACK_GZ := $(WEB_LISP_ASSET_DIR)/lisp-lyric-xcl.pack.gz
+# The Lyric world shipped to the browser is the LIBRARY world (204 packages,
+# the network init, HELPSYS + the IRM served over Leaf).  Its snapshot and
+# pack are NOT preloaded into index.data -- they are copied beside it and
+# fetched only when the Lyric world is chosen, like cedar-src.tar.gz, so a
+# visitor who came for Galaxian never downloads them.
+WEB_LISP_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/lisp-lispusers.snap.gz
+WEB_LISP_PACK_GZ := $(WEB_LISP_ASSET_DIR)/lisp-lispusers.pack.gz
 WEB_SMALLTALK_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/smalltalk76.snap.gz
 WEB_SMALLTALK_PACK_GZ     := $(WEB_LISP_ASSET_DIR)/smalltalk76.pack.gz
 WEB_SMALLTALK_RAW_DIR     := $(BINDIR)/web-smalltalk
@@ -105,8 +110,6 @@ WEB_LDFLAGS := -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=67108864 \
                --preload-file '$(WEB_CEDAR_CORPUS_SNAPSHOT_GZ)'@/worlds/cedar-corpus.snap.gz \
                --preload-file '$(WEB_CEDAR_CORPUS_PDI_GZ)'@/worlds/cedar-corpus.pdi.gz \
                --preload-file '../chm/diskpacks/games-trident.pack'@/worlds/games-trident.pack \
-               --preload-file '$(WEB_LISP_SNAPSHOT_GZ)'@/worlds/lisp-lyric-xcl.snap.gz \
-               --preload-file '$(WEB_LISP_PACK_GZ)'@/worlds/lisp-lyric-xcl.pack.gz \
                --preload-file '../chm/microcode/SmalltalkDorado.eb!1'@/worlds/SmalltalkDorado.eb \
                --preload-file '$(WEB_SMALLTALK_SNAPSHOT_GZ)'@/worlds/smalltalk76.snap.gz \
                --preload-file '$(WEB_SMALLTALK_PACK_GZ)'@/worlds/smalltalk76.pack.gz \
@@ -161,7 +164,9 @@ WEB_BUILD_ID := $(shell git rev-parse --short HEAD 2>/dev/null || date +%s)
 web-shell: src/web_shell.html | $(BINDIR)
 	sed 's/@@BUILD_ID@@/$(WEB_BUILD_ID)/g' src/web_shell.html > $(BINDIR)/web_shell.gen.html
 
-web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_PDI_GZ) $(WEB_CEDAR_DEMO_SNAPSHOT_GZ) $(WEB_CEDAR_DEMO_PDI_GZ) $(WEB_CEDAR_CORPUS_SNAPSHOT_GZ) $(WEB_CEDAR_CORPUS_PDI_GZ) $(WEB_LISP_SNAPSHOT_GZ) $(WEB_LISP_PACK_GZ) $(WEB_SMALLTALK_SNAPSHOT_GZ) $(WEB_SMALLTALK_PACK_GZ) web-stp web-cedar-src web-shell | web-dir
+web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_PDI_GZ) $(WEB_CEDAR_DEMO_SNAPSHOT_GZ) $(WEB_CEDAR_DEMO_PDI_GZ) $(WEB_CEDAR_CORPUS_SNAPSHOT_GZ) $(WEB_CEDAR_CORPUS_PDI_GZ) $(WEB_LISP_SNAPSHOT_GZ) $(WEB_LISP_PACK_GZ) $(WEB_SMALLTALK_SNAPSHOT_GZ) $(WEB_SMALLTALK_PACK_GZ) web-stp web-cedar-src web-lisp-src web-shell | web-dir
+	cp -f '$(WEB_LISP_SNAPSHOT_GZ)' web/lisp-lispusers.snap.gz
+	cp -f '$(WEB_LISP_PACK_GZ)' web/lisp-lispusers.pack.gz
 	$(EMCC) $(WEB_CFLAGS) $(WEB_SRCS) $(WEB_LDFLAGS) -o web/index.html
 	@# Cache-bust the emcc-generated loader too. Module.locateFile already
 	@# stamps index.data/index.wasm with the build id, but emcc emits a plain
@@ -242,7 +247,8 @@ WEB_LISP_SRC  := web/lisp-src.tar.gz
 .PHONY: web-lisp-src
 web-lisp-src: | web-dir
 	@cd '$(LISP_LISPUSERS_DIR)' && find . -type f ! -name '.*' \
-	   | sort | tar -czf '$(CURDIR)/$(WEB_LISP_SRC)' -T -
+	   | sed 's|^\./||' | sort \
+	   | COPYFILE_DISABLE=1 tar -czf '$(CURDIR)/$(WEB_LISP_SRC)' -T -
 	@printf 'web-lisp-src: %s (%s files, fetched on demand)\n' \
 		"$$(du -h '$(WEB_LISP_SRC)' | cut -f1)" \
 		"$$(tar -tzf '$(WEB_LISP_SRC)' | wc -l | tr -d ' ')"
@@ -281,42 +287,47 @@ $(WEB_NODE_JS): $(WEB_NODE_SRCS) | $(BINDIR)
 		-sENVIRONMENT=node -sNODERAWFS=1 -sALLOW_MEMORY_GROWTH=1 \
 		-sINITIAL_MEMORY=67108864 -sSTACK_SIZE=1048576 -o $@
 
-.PHONY: lisp-lyric-web-snapshot
-lisp-lyric-web-snapshot: $(WEB_NODE_JS)
-	@test -r '$(LISP_GOOD_PACK)' || \
-		(echo "Missing $(LISP_GOOD_PACK)." && false)
-	@test -r '$(LISP_DESKTOP_SNAPSHOT_PACK)' || \
-		(echo "Missing deterministic native checkpoint pack $(LISP_DESKTOP_SNAPSHOT_PACK). Run 'make lisp-lyric-desktop-snapshot' first." && false)
+# (lisp-lyric-web-snapshot, which baked the plain no-library desktop from
+# --ftp-sysout, is retired: the browser Lyric world is the library world
+# below.)
+
+# The browser Lyric world: the LIBRARY pack (204 packages + the network
+# init), booted from cold under the node-hosted wasm32 binary, because the
+# native and wasm32 snapshot ABIs differ while their runs are cycle/data
+# deterministic.  Boot flags mirror lisp-lispusers-snapshot exactly; the
+# wasm checkpoint is then paired with the NATIVE run's already-flushed pack.
+WEB_LISPUSERS_RAW_SNAPSHOT := $(WEB_LISP_RAW_DIR)/lisp-lispusers.snap
+WEB_LISPUSERS_RAW_PACK := $(WEB_LISP_RAW_DIR)/lisp-lispusers.pack
+.PHONY: lisp-lispusers-web-snapshot
+lisp-lispusers-web-snapshot: $(WEB_NODE_JS)
+	@test -r '$(LISP_LISPUSERS_PACK)' || \
+		(echo "Missing $(LISP_LISPUSERS_PACK); run 'make lisp-lispusers-pack LISP_INIT_OVERRIDE=$(LISP_LISPUSERS_DIR)/INIT.DORADO' first." && false)
+	@test -r '$(LISP_LISPUSERS_SNAPSHOT_PACK)' || \
+		(echo "Missing native flushed pack $(LISP_LISPUSERS_SNAPSHOT_PACK); run 'make lisp-lispusers-snapshot LISP_INIT_OVERRIDE=$(LISP_LISPUSERS_DIR)/INIT.DORADO' first." && false)
 	mkdir -p '$(WEB_LISP_RAW_DIR)' '$(WEB_LISP_ASSET_DIR)'
-	cp -f '$(LISP_GOOD_PACK)' '$(WEB_LISP_RAW_PACK)'
-	chmod 644 '$(WEB_LISP_RAW_PACK)'
-	../tools/interlisp-sysout/discard_stale_process.py \
-		$(foreach record,$(LISP_GOOD_STALE_PROCESSES),--record '$(record)') \
-		'$(LISP_GOOD_SYSOUT_FILE)' '$(WEB_LISP_RAW_SYSOUT)'
+	cp -f '$(LISP_LISPUSERS_PACK)' '$(WEB_LISPUSERS_RAW_PACK)'
+	chmod 644 '$(WEB_LISPUSERS_RAW_PACK)'
 	DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_CURRENT_FAKE_TIME)' \
 	DORADO_SNAPSHOT_NO_PACK_FLUSH=1 \
 	node '$(WEB_NODE_JS)' \
 		--eb worlds/aemu.eb \
-		--disk 0='$(WEB_LISP_RAW_PACK)' \
+		--disk 0='$(WEB_LISPUSERS_RAW_PACK)' \
 		--boot-reason disk --no-alto-boot \
-		--ftp-sysout '$(WEB_LISP_RAW_SYSOUT)' \
+		--ftp-root '$(LISP_LISPUSERS_DIR)' \
 		--type 'lisp.run/M {DORADO}LISP.SYSOUT\n' \
 		--type-at 330000000 --key-hold 4000000 \
 		--cycles '$(LISP_DESKTOP_SNAPSHOT_CYCLES)' \
-		--snapshot-out '$(WEB_LISP_RAW_SNAPSHOT)'
-	# Native and wasm32 runs are cycle/data deterministic, but their raw C
-	# snapshot ABIs differ. Pair the wasm32 checkpoint with the native run's
-	# already-flushed media image; restore validation checks this pair.
-	cp -f '$(LISP_DESKTOP_SNAPSHOT_PACK)' '$(WEB_LISP_RAW_PACK)'
-	gzip -c '$(WEB_LISP_RAW_SNAPSHOT)' > '$(WEB_LISP_SNAPSHOT_GZ)'
-	gzip -c '$(WEB_LISP_RAW_PACK)' > '$(WEB_LISP_PACK_GZ)'
+		--snapshot-out '$(WEB_LISPUSERS_RAW_SNAPSHOT)'
+	gzip -c '$(WEB_LISPUSERS_RAW_SNAPSHOT)' > '$(WEB_LISP_SNAPSHOT_GZ)'
+	gzip -c '$(LISP_LISPUSERS_SNAPSHOT_PACK)' > '$(WEB_LISP_PACK_GZ)'
+	@ls -l '$(WEB_LISP_SNAPSHOT_GZ)' '$(WEB_LISP_PACK_GZ)'
 
 # The compressed browser assets are generated together and intentionally
 # checked into/deployed with the web build. Give make a useful diagnostic in a
 # checkout where they have not been generated yet.
 $(WEB_LISP_SNAPSHOT_GZ) $(WEB_LISP_PACK_GZ):
 	@echo "Missing WebAssembly Lyric checkpoint assets."
-	@echo "Run 'make lisp-lyric-web-snapshot' with emsdk on PATH."
+	@echo "Run 'make lisp-lispusers-web-snapshot' with emsdk on PATH."
 	@false
 
 .PHONY: cedar-login-web-snapshot

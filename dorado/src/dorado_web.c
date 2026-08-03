@@ -84,8 +84,12 @@
  * BCPL Executive prompt; type a program name (e.g. `chess`, `mazewar`) + Return
  * to run it off the disk, the way an Alto did. Preloaded by `make web`. */
 #define WEB_ALTO_PACK  "/worlds/games-trident.pack"
-#define WEB_LISP_PACK  "/worlds/lisp-lyric-xcl.pack"
-#define WEB_LISP_SNAPSHOT "/worlds/lisp-lyric-xcl.snap"
+#define WEB_LISP_PACK  "/worlds/lisp-lispusers.pack"
+#define WEB_LISP_SNAPSHOT "/worlds/lisp-lispusers.snap"
+/* The Interlisp served tree (285 .LCOMs, display fonts, the IRM), unpacked
+ * from lisp-src.tar.gz by the shell when the Lyric world is chosen.  The
+ * guest reaches it as the {DORADO} device over Leaf/STP. */
+#define WEB_LISP_FTP_ROOT "/lisp-stp"
 #define WEB_SMALLTALK_EB       "/worlds/SmalltalkDorado.eb"
 #define WEB_SMALLTALK_PACK     "/worlds/smalltalk76.pack"
 #define WEB_SMALLTALK_SNAPSHOT "/worlds/smalltalk76.snap"
@@ -630,6 +634,7 @@ int dorado_web_boot_lisp(void)
     cfg.eth_boot_110 = WEB_EB_WORLD;
     cfg.eftp_boot    = NULL;
     cfg.disk_pack[0] = WEB_LISP_PACK;
+    cfg.ftp_root     = WEB_LISP_FTP_ROOT;
     cfg.alto_ether_boot = 0;
     cfg.boot_dir_all = 0;
     cfg.boot_keys[0] = DORADO_KEY_NONE;
@@ -647,6 +652,12 @@ int dorado_web_boot_lisp(void)
         app.m = NULL;
         return 1;
     }
+
+    /* The restore clobbers the ethernet state with the BAKE-TIME ftp root
+     * (a native path that does not exist in MEMFS); point it back at the
+     * unpacked lisp-src tree, the same post-restore re-set every Cedar
+     * boot above does with /stp. */
+    dorado_machine_set_ftp_source(app.m, NULL, WEB_LISP_FTP_ROOT);
 
     /* Keep the decompressed checkpoint so selecting Lyric again remains an
      * immediate restore rather than requiring a page reload. */

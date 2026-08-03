@@ -91,7 +91,7 @@
         <option value="smalltalk">Smalltalk-76 &mdash; saved desktop (Top View, Classes browser)</option>
       </optgroup>
       <optgroup label="Interlisp-D">
-        <option value="lisp">Lyric &mdash; saved Exec (XCL) desktop</option>
+        <option value="lisp">Lyric &mdash; library desktop + online reference manual</option>
       </optgroup>
       <optgroup label="Mesa programs (native Mesa world)">
         <option value="mesa:/chm/bootfiles/PPong.boot!1">Polish Pong (game)</option>
@@ -188,10 +188,16 @@
     click derails it &mdash; the guest resets the display word task's bank
     register and the Nova side spins. Wiring up input is the next job.
     <br><br>
-    Choose <b>Interlisp-D Lyric</b> to expand and restore a WebAssembly-native
-    checkpoint directly at its <code>Exec (XCL)</code> desktop; this avoids
-    replaying the multi-billion-cycle Lisp boot. Keyboard delivery reaches
-    Lisp, but this saved desktop's XCL process does not yet consume input.
+    Choose <b>Interlisp-D Lyric</b> to restore a WebAssembly-native
+    checkpoint at its <code>Exec (XCL)</code> desktop with 204 library
+    packages on disk and a file server behind the <code>{DORADO}</code>
+    device. Click the Exec window and type
+    <code>(IL:FILESLOAD HELPSYS)</code>, then
+    <code>(IL:LOAD '{DORADO}&lt;IRM&gt;IRMDEMO)</code> &mdash; answer the
+    <code>{DORADO} Login:</code> prompt with <code>Guest</code> twice
+    &mdash; and the 1987 <b>Interlisp-D Reference Manual</b> opens to the
+    CAR page, fetched over Leaf, the IFS random-access file protocol.
+    Any <code>(IL:IRM.LOOKUP 'NAME)</code> looks up another entry.
     <br><br>
     A few Alto games (Pool, Star&nbsp;Wars, Trek; Missile Command past its
     attract screen) load custom microcode into the Alto's writable control
@@ -249,16 +255,53 @@
     Module.FS.unlink(src);
   }
 
+  /* The Lyric library world (204 packages + the network init) is NOT in
+     index.data: its snapshot and pack are fetched beside it only when the
+     world is chosen, decompressed by the browser on the way in. */
+  async function fetchGzWorld(url, dst) {
+    var res = await fetch(url + '?v=@@BUILD_ID@@');
+    if (!res.ok) throw new Error('HTTP ' + res.status + ' for ' + url);
+    if (typeof DecompressionStream === 'undefined')
+      throw new Error('this browser does not support gzip decompression');
+    var stream = res.body.pipeThrough(new DecompressionStream('gzip'));
+    var bytes = new Uint8Array(await new Response(stream).arrayBuffer());
+    Module.FS.writeFile(dst, bytes);
+  }
+
   async function prepareLyricAssets() {
     if (lyricAssetsReady) return;
-    setStatus('Expanding the saved Lyric desktop...');
+    setStatus('Fetching the Lyric library world (~25 MB)...');
     await Promise.all([
-      expandGzipAsset('/worlds/lisp-lyric-xcl.snap.gz',
-                      '/worlds/lisp-lyric-xcl.snap'),
-      expandGzipAsset('/worlds/lisp-lyric-xcl.pack.gz',
-                      '/worlds/lisp-lyric-xcl.pack')
+      fetchGzWorld('lisp-lispusers.snap.gz', '/worlds/lisp-lispusers.snap'),
+      fetchGzWorld('lisp-lispusers.pack.gz', '/worlds/lisp-lispusers.pack')
     ]);
     lyricAssetsReady = true;
+  }
+
+  /* The Interlisp served tree (the .LCOM library, display fonts, and the
+     35-file Interlisp-D Reference Manual), unpacked into MEMFS at
+     /lisp-stp where the in-process file server looks.  Background fetch,
+     same contract as the Cedar sources: the desktop restores immediately
+     and the tree lands while you read the screen. */
+  var lispSourcesPromise = null;
+  function fetchLispSources() {
+    if (lispSourcesPromise) return lispSourcesPromise;
+    lispSourcesPromise = (async function () {
+      var res = await fetch('lisp-src.tar.gz?v=@@BUILD_ID@@');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      if (typeof DecompressionStream === 'undefined')
+        throw new Error('this browser does not support gzip decompression');
+      var stream = res.body.pipeThrough(new DecompressionStream('gzip'));
+      var bytes = new Uint8Array(await new Response(stream).arrayBuffer());
+      var n = untarIntoFS(bytes, '/lisp-stp');
+      console.log('[dorado] Interlisp served tree ready: ' + n + ' files');
+      return n;
+    })();
+    lispSourcesPromise.catch(function (e) {
+      console.warn('[dorado] Interlisp served tree unavailable: ' + e.message);
+      lispSourcesPromise = null;
+    });
+    return lispSourcesPromise;
   }
 
   var smalltalkAssetsReady = false;
@@ -472,11 +515,15 @@
     }
     if (path === 'lisp') {
       try {
+        fetchLispSources();       /* in the background; not awaited */
         await prepareLyricAssets();
         var rc = Module.ccall('dorado_web_boot_lisp', 'number', [], []);
         if (rc) throw new Error('snapshot restore rejected the saved image');
         setStatus('Interlisp-D Lyric restored at Exec (XCL). Click inside '
-                  + 'the Exec window before typing.');
+                  + 'the Exec window, then for the online reference manual '
+                  + 'type (IL:FILESLOAD HELPSYS) and, when it finishes, '
+                  + '(IL:LOAD \'{DORADO}<IRM>IRMDEMO) -- answer the '
+                  + '{DORADO} Login: prompt with Guest, twice.', 1);
       } catch (e) {
         console.error(e);
         setStatus('Could not restore Lyric: ' + e.message);

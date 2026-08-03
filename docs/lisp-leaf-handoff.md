@@ -363,15 +363,29 @@ down (`phylum/lispusers/` lists zero files and two subdirs holding 871); and a
 
 ---
 
-## 10. Web build
+## 10. Web build (WIRED UP 2026-08-03)
 
-`make web-lisp-src` produces `web/lisp-src.tar.gz` — **5.4 MB, the whole
-served tree** (285 `.LCOM`s, 94 display fonts, the greeting file, the 35-file
-IRM), fetched lazily only when a Lisp world is chosen, mirroring how
-`cedar-src.tar.gz` works. A DENY-list, not an allow-list: the Cedar bundle
-shipped with an allow-list of extensions and silently dropped both version
-maps and every capitalised variant, because `find -name` is case-sensitive.
+The browser's Lyric world is now the LIBRARY world: `make
+lisp-lispusers-web-snapshot` bakes the wasm-ABI checkpoint from the
+lispusers pack under the node-hosted binary (same boot flags as the native
+bake; paired with the native run's flushed pack), and the world's three
+assets are all fetched LAZILY when the dropdown entry is chosen --
+`lisp-lispusers.snap.gz` + `lisp-lispusers.pack.gz` (~7.3 MB, was
+preloaded in index.data, which shrank ~6 MB for every visitor) and
+`web/lisp-src.tar.gz` (5.0 MB, the whole served tree: 285 `.LCOM`s, the
+display fonts, INIT, and the 38-file `IRM/` -- `COPYFILE_DISABLE=1` on
+the tar or macOS bsdtar pollutes it with `._` AppleDouble twins).
+`web_shell.html` untars it into MEMFS at `/lisp-stp` in the background
+and `dorado_web_boot_lisp` points `ftp_root` there.
 
-**Not yet wired up.** `web_shell.html` does not fetch it, and the Lisp world's
-`--ftp-root` is not pointed at the unpacked MEMFS tree. That is the remaining
-work to get netboot into the browser build.
+**The trap that cost the bring-up hour: `dorado_machine_restore` clobbers
+the ethernet state with the BAKE-TIME ftp root** -- a native path that
+does not exist in MEMFS, so every lookup missed (login still worked:
+NetDir and Leaf Reset/Params never touch the root, which makes the
+failure read as "file not found", three packets after the actual cause).
+Every Cedar web boot already re-applied `dorado_machine_set_ftp_source`
+after restore; the Lisp boot now does the same. Verified with the native
+binary serving the UNPACKED tarball tree (`STP_LOOKUP IRM/IRMDEMO -> !1`)
+and in Chrome against the local build. Note for browser testing: a
+HIDDEN window suspends requestAnimationFrame and the machine crawls --
+keep the tab visible while driving it.
