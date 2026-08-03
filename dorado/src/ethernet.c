@@ -2745,6 +2745,33 @@ static int eth_leaf_reply(dorado_ethernet *eth, const uint8_t *body,
     return ok;
 }
 
+/* IfsLeaf.decl ErrorAnswer: `[op @Op; error word; errorOp @Op; handle word]`
+ * -- four words.  The client keys on it in \SEQUIN.HANDLE.INPUT:
+ *   (EQ (fetch LEAFOPCODE of PUPDATA) \LEAFOP.ERROR)
+ *     -> (SETQ OPCODE (fetch LEAFERROROPCODE of PUPDATA)) (SETQ ERROR T)
+ * so errorOp must carry the op word of the request that failed, or the
+ * client cannot tell which request died.  Without this a missing file is
+ * answered with silence and the guest retransmits until it times out --
+ * which reads as a hang rather than "no such file".
+ * \IFSERROR.FILE.NOT.FOUND is 317Q (LEAF!33 constants). */
+#define LEAF_ERR_FILE_NOT_FOUND 0317u
+#define LEAF_ERR_BAD_HANDLE     01013u   /* IfsLeafErrors.decl ecBadHandle */
+
+static int eth_leaf_error(dorado_ethernet *eth, uint16_t failed_op,
+                          unsigned error_code, uint16_t handle)
+{
+    uint8_t body[8];
+    uint16_t op = leaf_make_op(LEAF_OP_ERROR, 8);
+    body[0] = (uint8_t)(op >> 8);           body[1] = (uint8_t)(op & 0377);
+    body[2] = (uint8_t)(error_code >> 8);   body[3] = (uint8_t)(error_code & 0377);
+    body[4] = (uint8_t)(failed_op >> 8);    body[5] = (uint8_t)(failed_op & 0377);
+    body[6] = (uint8_t)(handle >> 8);       body[7] = (uint8_t)(handle & 0377);
+    if (ftp_trace())
+        fprintf(stderr, "LEAF_ERROR code=%u for op=%06o handle=%06o\n",
+                error_code, failed_op, handle);
+    return eth_leaf_reply(eth, body, sizeof body, LEAF_OP_ERROR);
+}
+
 /* IfsLeafOpen.bcpl OpenLeaf: strings are login user, login password,
  * connect name, connect password, filename -- the observed request carries
  * "Guest","Guest","","","AISBLT.LCOM".  Answer is OpenAnswer
@@ -2770,7 +2797,8 @@ static int eth_leaf_open(dorado_ethernet *eth, size_t nbytes)
     if (stat(path, &st) != 0 || !S_ISREG(st.st_mode)) {
         if (ftp_trace())
             fprintf(stderr, "LEAF_OPEN_MISSING \"%s\" -> %s\n", name, path);
-        return 0;                        /* an ErrorAnswer belongs here */
+        return eth_leaf_error(eth, eth->tx_words[12],
+                              LEAF_ERR_FILE_NOT_FOUND, 0);
     }
 
     leaf_file.in_use = 1;
@@ -2810,7 +2838,8 @@ static int eth_leaf_read(dorado_ethernet *eth)
         if (ftp_trace())
             fprintf(stderr, "LEAF_READ_BADHANDLE %06o (open=%06o)\n",
                     handle, leaf_file.handle);
-        return 0;
+        return eth_leaf_error(eth, eth->tx_words[12],
+                              LEAF_ERR_BAD_HANDLE, handle);
     }
     if (want == 0 || want > 512) want = 512;
     if (addr >= leaf_file.length) want = 0;
@@ -2898,7 +2927,7 @@ static int eth_leaf_handle(dorado_ethernet *eth)
             }
             fprintf(stderr, "\"\n");
         }
-        return 0;
+        return eth_leaf_error(eth, opw, LEAF_ERR_FILE_NOT_FOUND, handle);
     }
 }
 

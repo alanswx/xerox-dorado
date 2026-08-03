@@ -226,7 +226,27 @@ web-stp:
 # release's 70 directories, ~2.9 MiB gzipped. The 6 directories not covered
 # hold a single .bcd and nothing else.
 WEB_CEDAR_SRC := web/cedar-src.tar.gz
+WEB_LISP_SRC  := web/lisp-src.tar.gz
 .PHONY: web-cedar-src
+# The Interlisp served tree, fetched lazily the way cedar-src is: only when a
+# Lisp world is chosen, so it never lands on a visitor who came for Galaxian.
+# This is what makes the browser build able to serve MORE than the pack holds
+# -- the pack ceiling is 22,736 pages (AltoDiabloDisk.mc hard-codes 406
+# cylinders and LISP.VIRTUALMEM. takes 15,003 of them), and Leaf lifts it.
+#
+# Everything in the root goes: the .LCOM library, the display fonts, the
+# greeting file, and the documentation. A DENY-list, not an allow-list --
+# the Cedar bundle shipped with an allow-list of source extensions and
+# silently dropped both version maps and every capitalised variant, because
+# `find -name` is case-sensitive.
+.PHONY: web-lisp-src
+web-lisp-src: | web-dir
+	@cd '$(LISP_LISPUSERS_DIR)' && find . -type f ! -name '.*' \
+	   | sort | tar -czf '$(CURDIR)/$(WEB_LISP_SRC)' -T -
+	@printf 'web-lisp-src: %s (%s files, fetched on demand)\n' \
+		"$$(du -h '$(WEB_LISP_SRC)' | cut -f1)" \
+		"$$(tar -tzf '$(WEB_LISP_SRC)' | wc -l | tr -d ' ')"
+
 web-cedar-src: | web-dir
 	@cd ../chm/cedar/stp-root && { \
 		find Cedar6.1 -type f ! -iname '*.bcd' \
@@ -1954,6 +1974,39 @@ run-lisp-filebrowser-sdl: sdl
 		--type-at 8850000000 --click 250,50 --key-hold 2000000 \
 		--type-at 8950000000 --type "(LOAD $(QUOTE){DSK}FILEBROWSER.LCOM)\n" \
 		--scale 1 --speed 400000
+
+# Interlisp loading a package that is NOT on its disk, over Leaf.  The probe
+# must be a package the pack does not carry, or the test proves nothing --
+# AISBLT is deliberately absent from lisp-lispusers-packages.txt.
+LISP_LEAF_PROBE ?= AISBLT
+
+.PHONY: verify-lisp-leaf
+verify-lisp-leaf: $(BINDIR)/dorado
+	@test -r '$(LISP_LISPUSERS_SNAPSHOT)' || \
+		(echo "Missing $(LISP_LISPUSERS_SNAPSHOT); run 'make lisp-lispusers-snapshot LISP_INIT_OVERRIDE=$(LISP_LISPUSERS_DIR)/INIT.DORADO' first." && false)
+	@grep -qx '$(LISP_LEAF_PROBE).LCOM' '$(LISP_LISPUSERS_PACKAGE_LIST)' && \
+		(echo "$(LISP_LEAF_PROBE) is ON the pack; the gate would pass without the network." && false) || true
+	@mkdir -p '$(TRIDENT_RUN_DIR)'
+	@cp -f '$(LISP_LISPUSERS_SNAPSHOT_PACK)' '$(TRIDENT_RUN_DIR)/lisp-leaf-gate.pack'
+	@chmod 644 '$(TRIDENT_RUN_DIR)/lisp-leaf-gate.pack'
+	@DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_CURRENT_FAKE_TIME)' \
+		DORADO_FTP_TRACE=1 \
+		./build/dorado --eb worlds/aemu.eb \
+		--disk 0='$(TRIDENT_RUN_DIR)/lisp-leaf-gate.pack' \
+		--boot-reason disk --no-alto-boot \
+		--ftp-root '$(LISP_LISPUSERS_DIR)' \
+		--snapshot-in '$(LISP_LISPUSERS_SNAPSHOT)' \
+		--type-at 8850000000 --click 250,50 --key-hold 2000000 \
+		--type-at 8950000000 --type "(IL:FILESLOAD $(LISP_LEAF_PROBE))\n" \
+		--type-at 11000000000 --type "Guest\n" \
+		--type-at 12200000000 --type "Guest\n" \
+		--cycles 24000000000 --out build/verify-lisp-leaf.pgm \
+		> build/verify-lisp-leaf.log 2>&1
+	@sh ../tools/check_lisp_leaf_gate.sh build/verify-lisp-leaf.log '$(LISP_LEAF_PROBE)'
+	@python3 ../tools/pgm_text.py build/verify-lisp-leaf.pgm \
+		--diff build/lisp-lispusers-desktop.pgm --space-gap 6 --cols 18,470 \
+		2>/dev/null | grep -qi 'COMS' && echo "verify-lisp-leaf: Interlisp accepted the file (COMS printed)" || \
+		(echo "verify-lisp-leaf: FAIL -- the bytes arrived but Interlisp printed no COMS line" && false)
 
 # ---------------------------------------------------------------------------
 # Interlisp-D library packages on the Lyric pack.
