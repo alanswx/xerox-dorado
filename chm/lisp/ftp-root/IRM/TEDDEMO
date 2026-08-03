@@ -1,0 +1,1 @@
+(* TEDDEMO -- open an IRM chapter directly in TEdit, explicit window.)(FILESLOAD TEDIT)(TEDIT (QUOTE {DORADO}<IRM>CHAPLISTS.TEDIT) (CREATEW (CREATEREGION 440 40 560 700)))STOP

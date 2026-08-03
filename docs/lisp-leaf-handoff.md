@@ -1,7 +1,7 @@
 # Handoff — Interlisp-D on the network (Leaf), 2026-08-01..03
 
-**Read §1 first.** Eleven commits sit on branch `lisp-lyric-library-and-leaf`
-and **none are pushed**. There was a hold on pushing at one point (a live
+**Read §1 first.** The commits on branch `lisp-lyric-library-and-leaf`
+are **not pushed**. There was a hold on pushing at one point (a live
 demo was running off GitHub Pages); confirm with Alan before pushing.
 
 ---
@@ -13,11 +13,13 @@ the IFS random-access file protocol. `make verify-lisp-leaf` proves it:
 `AISBLT` is deliberately absent from the pack, and the gate watches it open
 and stream in 33 reads. That lifts the pack's hard 22,736-page ceiling, which
 was the thing blocking a bigger Lisp demo. Separately the pack itself went
-from 119 to 204 packages plus 14 fonts. **One thing is unfinished:** HELPSYS
-(the online Interlisp Reference Manual, and the "docs on a button" the demo
-wants) does not open, because `IRM.HOST&DIR` is unbound in the booted world
-even though the init file that sets it is on the pack intact. §5 has the
-precise diagnosis and the next thing to try.
+from 119 to 204 packages plus 14 fonts. **The HELPSYS blocker is FIXED**
+(2026-08-03): `IRM.HOST&DIR` was unbound because ONE COLON in an added
+`(* HELPSYS: ...)` comment aborted the init file's load — §5 has the full
+story. `IRM.LOOKUP` now logs in, resolves the IRM files over the wire, and
+raises the DInfo window prompt; what remains for docs-on-a-button is the
+region-confirm click (a general input gap, precisely characterized in §5)
+or the scripted no-mouse bypass, plus baking a demo snapshot.
 
 ---
 
@@ -122,51 +124,108 @@ never tried". Any scripted run must answer it (`Guest` / `Guest`).
 
 ---
 
-## 5. THE OPEN PROBLEM: HELPSYS
+## 5. HELPSYS: the init mystery was one colon (RESOLVED 2026-08-03)
 
-`(IL:IRM.LOOKUP 'CAR)` reports **"IRM.DINFOGRAPH not found on IRM.HOST&DIR"**
-and — the diagnostic that matters — **never asks the server for it**. Zero
-lookups for that name on the wire.
+`IRM.HOST&DIR` was unbound **because of the comment that introduced it**.
+Interlisp `(* ...)` comments are list data the reader parses, and the Lyric
+reader (the Xerox Common Lisp era) parses the token `HELPSYS:` as a package
+prefix: *"Can't find package HELPSYS to look up symbol"* — and the load of
+the file dies right there, so every form after the comment was never read,
+in either position relative to the `(DECLARE%: ...)`. At greet time the
+error is swallowed, which is why it looked like a file-format property.
+A manual `(IL:LOAD '{DSK}INIT.LCOM)` at the Exec printed the reader error
+on screen and cracked it in one run. The fix is one character
+(`HELPSYS --`), then `make lisp-lispusers-snapshot
+LISP_INIT_OVERRIDE=../chm/lisp/ftp-root/INIT.DORADO` to rebake. Both gates
+pass against the rebaked snapshot, and the previous section-5 diagnosis is
+corrected as follows:
 
-What is already proven, so do not re-test it:
+- **The `INIT.USER` plan would have backfired.** `USERGREETFILES` entries
+  are alternatives for ONE user greet file, tried in order, first found
+  wins (Medley's SIMPLE-INIT pairs `(dir "INIT" COM)/(dir "INIT")` =
+  compiled-else-source). `{DSK}INIT.USER` would have SHADOWED `{DSK}INIT`,
+  silently dropping the whole main init.
+- **"Never asks the server" had a second cause stacked on the first**:
+  HELPSYS's own `(RPAQ? IRM.HOST&DIR)` initializes the unbound variable to
+  NIL at load, after which `INFILEP` of the packed (host-less) name
+  searches only `{DSK}`; and a bare `INFILEP` on a `{DORADO}` name raises
+  the silent `{DORADO} Login:` prompt (probe2 caught it mid-echo).
+- **The archive agrees this setup was always site-specific**: the only init
+  in the whole archive that sets `IRM.HOST&DIR` is `INIT.MAIKO` (1988,
+  Maiko), inside its `INITCOMS`; PARC's own site inits
+  (`chm/lisp/inits/INIT.{CSL,CIS,ISL,LISPCORE,KSALISPCORE,NEW-CSL}`) never
+  wired the IRM in. Medley's `docs/dinfo/README.md` documents the same
+  three steps we implement, and HELPSYS itself registers
+  `("Interlisp-D Reference Manual" (IRM.GET.DINFOGRAPH T))` in
+  `DINFO.GRAPHS` — that is the Background-menu docs button.
 
-- `IL:IRM.HOST&DIR` is **unbound** in the booted world.
-- The name form is fine: `INFILEP '{DORADO}<>IRM.DINFOGRAPH` resolves over the
-  wire (`STP_LOOKUP IRM.DINFOGRAPH -> !1 47688 bytes`), and `PACKFILENAME
-  'NAME 'IRM 'EXTENSION 'DINFOGRAPH 'BODY {DORADO}<>` builds exactly that
-  string.
-- All the files HELPSYS needs are in the served root already: 32
-  `CHAP*.TEDIT`, `IRMTOP.TEDIT`, `IRM.DINFOGRAPH` (47 KB), `IRM.HASHFILE`
-  (331 KB).
-- The init on the pack is intact — 3,181 bytes, byte-identical to source.
-- That same file's ORIGINAL `RPAQQ`s DO take effect:
-  `IL:LISPUSERSDIRECTORIES` reads `({DSK} {DORADO}<>)`.
+**Proven working now, in one scripted run** (`build/helpsys-live2.log`):
+`(IL:FILESLOAD HELPSYS)` loads HELPSYS+DINFO+TEDIT off `{DSK}`, fetches its
+display fonts over Leaf, `(IL:IRM.LOOKUP (QUOTE CAR))` passes the
+`{DORADO} Login:` gate (Guest/Guest), resolves
+`STP_LOOKUP IRM.DINFOGRAPH -> !1 47688 bytes`, and raises "Specify region
+for IRM DInfo Window" with the 540x400 ghost box **tracking the cursor**
+(bottom-left anchored — Interlisp Y grows upward).
 
-So: **forms appended to this file-package format are not evaluated at greet
-time**, regardless of position relative to `(DECLARE%: DONTCOPY (FILEMAP …))`.
-This also means `\FTPAVAILABLE` never took either — `FILESLOAD` succeeded via
-`LookupFile`, not the FTP enumeration I had credited it to.
+**What is still open, precisely: the region-confirm CLICK.** The box tracks
+(mouse POSITION flows through raw `MOUSEX.EM` 0424/5), but the confirming
+button never lands. `\TRACKWITHBOX` exits on a LEFT|MIDDLE change in
+`LASTMOUSEBUTTONS`, and `GETMOUSESTATE` takes that NOT from UTILIN but from
+`\LASTKEYSTATE` — the last KEYBOARDEVENT `\KEYHANDLER` pushed. Typed keys
+produce those events; a UTILIN-only button change apparently never wakes
+the handler. The bit encoding is verified correct (LLKEY `\MOUSE.LEFTBIT 4
+/RIGHTBIT 2/MIDDLEBIT 1`, active low — exactly what `machine_seed_utilin`
+writes), so the gap is in event/wake delivery. The same gap is what left
+Sketch's `GETREGION` sweep dead, and it gates SDL too — real clicks flow
+through the same `dorado_machine_set_mouse`. Beware the decoy that cost
+two runs here: the region prompt lags the login by ~6 B cycles (14
+font-name LookupFile misses, each burning a guest timeout), so clicks at
+18.5 B and 22.0 B both fired BEFORE the prompt existed; on this timeline
+it appears between 22.0 and 23.0 B.
 
-**Next thing to try:** `USERGREETFILES`. The init already lists
-`{DSK}INIT.USER`, which is the documented user hook and a plain form file with
-no COMS or FILEMAP to fight. Put the three settings there instead:
+**The demo does not have to wait for the click.** `GETBOXREGION` runs only
+because `IRM.GET.DINFOGRAPH` was given no window; giving `DINFO` an
+explicit `(CREATEW (CREATEREGION ...))` skips it. And do NOT type the long
+form -- one of the trailing `))` reliably drops on the wire and the XCL
+reader silently swallows everything after into the open form (one whole
+run died this way). The forms live in a served file instead, so the demo
+is ONE short line:
 
-```lisp
-(RPAQQ IRM.HOST&DIR {DORADO}<>)
-(RPAQQ \FTPAVAILABLE T)
-(ADDTOVAR NETWORKOSTYPES (DORADO . IFS))
+```
+(IL:LOAD (QUOTE {DORADO}<IRM>IRMDEMO))
 ```
 
-Setup is per `HELPSYS.tedit` (mirrored at `chm/lisp/lyric-docs/`): "copy all
-these files to one directory, and set the variable IRM.HOST&DIR to the name of
-this directory … This should be set in your site init file." The doc warns the
-hash file "must be on a random access filing device" — Leaf **is** one, which
-is the whole reason Interlisp uses it over FTP, so the 331 KB hash file can
-stay on the server rather than cost pack pages we do not have.
+**The IRM must be served from a NAMED directory, not the root.** DInfo
+rebuilds each node's file name by copying host AND directory from
+`IRM.HOST&DIR`, and an empty `<>` directory is DROPPED in that copy -- the
+node files then resolve in the login user's directory
+(`STP_LOOKUP_MISSING <GUEST>CHAPLISTS.TEDIT`). The 35 IRM files now live
+in `chm/lisp/ftp-root/IRM/` and `IRM.HOST&DIR` is `{DORADO}<IRM>` (the
+server maps `<A>B` to `A/B`, same as the Cedar tree). This is also the
+authentic shape -- `HELPSYS.tedit` says "copy all these files to one
+directory". Note `CHAPLISTS.TEDIT` IS in the mirror -- an `ls | head`
+truncation made it look missing for half a session.
 
-Payoff when it works: the doc also says *"selecting DInfo from the Background
-Menu will raise a menu which will contain an item named Interlisp-D Reference
-Manual"* — that is the docs-button demo, native, no UI work needed.
+With that, the scripted chain (`build/irmdemo2.log`) runs: IRMDEMO fetched
+over Leaf, graph (47,688 bytes) streamed, DInfo window opens with no
+region prompt, `IRM.LOOKUP` probes the 331 KB hash file by random access,
+finds CAR, and streams `<IRM>CHAPLISTS.TEDIT!1` (74,141 bytes -- our
+first Leaf file past 64 K; offsets verified good to EOF) plus the italic
+Modern-10 display font to render it. **Two guest breaks then stop the
+page short of painting**, the open items: `IR SYMBOL-NAME-TOO-LONG`
+("In PACK*: Symbol name too long") during DInfo/TEdit's section pull, and
+an earlier `ARG NOT PROCESS {\UNBOXEDHUNK2}` break in the Leaf background
+process (`DORADO #LEAF/5`) that appears in every run but does not stop
+transfers. The served chapter bytes are verified byte-identical to the
+archive, so the next discriminator is opening the chapter in PLAIN TEdit
+with an explicit window (`{DORADO}<IRM>TEDDEMO` does exactly that): if it
+renders, the Leaf byte path is exonerated and the bug is DInfo's section
+logic; if it breaks, it is our random-access Read.
+
+Setup remains per `HELPSYS.tedit` (mirrored at `chm/lisp/lyric-docs/`,
+now alongside the Lyric-vintage `dinfo.tedit` user doc): the 331 KB hash
+file stays on the server because Leaf is exactly the "random access filing
+device" the doc demands.
 
 ---
 
@@ -240,6 +299,26 @@ down (`phylum/lispusers/` lists zero files and two subdirs holding 871); and a
 
 ## 9. Traps that cost real time
 
+- **Interlisp `(* ...)` comments are parsed, and a colon is live syntax.**
+  `(* HELPSYS: the online ...)` read as a package-qualified symbol and
+  silently killed every later form in the init at greet time (§5). No bare
+  `word:` tokens outside strings in anything Interlisp will LOAD; Interlisp
+  itself writes `%:` (see `DECLARE%:`). When later forms in a file "don't
+  take", do a manual LOAD at the Exec — it prints the reader error that
+  greet swallows.
+- **A snapshot taken with an open Leaf connection restores dead.** The
+  server's Sequin/handle state is file-scope static, deliberately outside
+  the snapshot ABI; after restore the guest retries its in-flight reads
+  against a server that has never heard of them, then declares
+  `[DORADO not responding ...]` and unwinds. Mid-chain checkpoints cannot
+  be used to iterate on anything past the first network file op — bake
+  desktops BEFORE any Leaf traffic, and script full live chains for the
+  rest.
+- **Clicks race prompts.** `--click` at a fixed cycle silently does nothing
+  if the guest's prompt/tracker is not up yet, and the thing you are
+  clicking for may lag its trigger by billions of cycles (font-miss
+  timeouts, §5). Bracket the appearance with `--shot-every` before
+  scheduling the click.
 - **`FTP_UNSERVED` is traced BEFORE the handlers that answer some of those
   packets.** It flags served traffic. `0223` is AddressLookup and we do answer
   it; I spent a cycle "implementing" something already implemented.
