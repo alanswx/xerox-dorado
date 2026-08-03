@@ -208,28 +208,46 @@ truncation made it look missing for half a session.
 With that, the scripted chain (`build/irmdemo2.log`) runs: IRMDEMO fetched
 over Leaf, graph (47,688 bytes) streamed, DInfo window opens with no
 region prompt, `IRM.LOOKUP` probes the 331 KB hash file by random access,
-finds CAR, and streams `<IRM>CHAPLISTS.TEDIT!1` (74,141 bytes -- our
-first Leaf file past 64 K; offsets verified good to EOF) plus the italic
-Modern-10 display font to render it. **One suspect now stops the page
-short of painting: the guest's Leaf background process breaks with
-`ARG NOT PROCESS #<\UNBOXEDHUNK2 @ 74,0>` (`DORADO #LEAF/4` or `/5`)** in
-EVERY multi-file Leaf session -- and everything downstream looks like its
-fallout. In `build/irmdemo2.log` the DInfo section pull then died with
-`IR SYMBOL-NAME-TOO-LONG` ("In PACK*: Symbol name too long" -- a
-giant symbol is what READ makes of a corrupted stream, and the chapter
-bytes on disk are verified byte-identical to the archive); in
-`build/teddemo.log` the plain-TEdit control (`{DORADO}<IRM>TEDDEMO`,
-which FILESLOADs TEDIT then opens the chapter in an explicit window) the
-break fired DURING the TEdit load and an `\ILLEGAL.ARG: NIL` break
-killed the loading process before the chapter was even requested. An
-UNBOXEDHUNK2 where a process was expected is the signature of the
-client's connection table being indexed by a value from OUR packets --
-suspect the server's handle numbering / Sequin control bytes against
-`LEAF.lisp-client`'s state machine (idle probes, multi-connection
-interleaving, handle reuse). The single-file leaf gate is too short to
-tickle it, which is why `verify-lisp-leaf` stays green. Fixing that one
-server-side bug is the next session's first move; the whole rest of the
-chain is proven.
+finds CAR, streams `<IRM>CHAPLISTS.TEDIT!1` (74,141 bytes) plus the
+document's own Modern display fonts, and **DISPLAYS THE CAR MANUAL PAGE
+in the DInfo window** -- "(CAR X) [Function] Returns the first element of
+the list X ...", scrolled to the node the hash index named. Screenshots:
+`docs/images/lisp-irm-car-dinfo-2026-08-03.png` (the lookup) and
+`lisp-irm-chapter-tedit-2026-08-03.png` (the whole chapter open in plain
+TEdit via `{DORADO}<IRM>TEDDEMO`).
+
+**What actually blocked it was the IFS LEADER PAGE** -- after two red
+herrings whose fixes were still worth keeping (a handle TABLE, since
+HELPSYS holds the hash file open while fonts and chapters come and go;
+and honest Sequin behavior: cached-answer retransmit for duplicate
+requests, NOOP/RESTART/DESTROY/QUIT control handling). The real bug,
+from `IfsLeafRead.bcpl SetModeLength`: a 27-bit read address at or above
+`2^27-2048` (`maxAddress = [#3777; #174000]` -- the "weird"
+`addr=134215680` that had been sitting in every trace) is a NEGATIVE
+offset into the file's 2 KB leader page, and LEAF!33 reads it at EVERY
+OPEN: 3 Alto dates at leader offset 0, the full file name (BCPL string)
+at 512, author at 636, filetype at 680. Our server clamped those
+addresses against the file length and answered ZERO bytes, so
+`GetBcplString`/`ALTO.TO.LISP.DATE` parsed uninitialized pup buffer:
+garbage names in every stream record, `PACK*` exploding on a garbage
+length byte ("IR SYMBOL-NAME-TOO-LONG"), and the Leaf watcher process
+eventually dying on the poisoned records (`ARG NOT PROCESS
+#<UNBOXEDHUNK2 @ 74,0>` -- constant address because the garbage was
+deterministic). `leaf_build_leader` in `src/ethernet.c` now synthesizes
+the page (mtime as all three dates, the opened name with a `!version` so
+`\LEAF.READFILENAME` finds its bang, author "Guest", type unknown), and
+ordinary reads answer with SetModeLength's dontExtend semantics: address
+clamped to EOF and the answer's `newEOF` bit reporting address+length =
+EOF, which is how the client's page machinery finds the end of file.
+
+Still open, both minor: a LATE `ARG NOT PROCESS` break, now ~4 emulated
+minutes AFTER the page renders (the client's `\LEAF.FLUSH.CACHE` idle
+path around a soft-closed font -- the deferred wire Close never gets
+sent; it no longer harms the demo but wedges later network use, and a
+`BT` typed into that break in a TEDDEMO-style run is the next probe);
+and the "Unknown IMAGEOBJ" boxes where the chapter has horizontal rules
+-- `(FILESLOAD HRULE)` is now the demo file's first form (HRULE.LCOM is
+on the pack) which should let TEdit render them.
 
 Setup remains per `HELPSYS.tedit` (mirrored at `chm/lisp/lyric-docs/`,
 now alongside the Lyric-vintage `dinfo.tedit` user doc): the 331 KB hash

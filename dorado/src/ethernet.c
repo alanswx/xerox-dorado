@@ -2607,11 +2607,15 @@ enum {
 };
 #define LEAF_ANSWER_BIT 02000u          /* IfsLeaf.decl opAnswerBit */
 
-/* Sequin control values, LEAF!33: \SEQUIN.DATA 0, \SEQUIN.ACK 1,
- * \SEQUIN.OPEN 5. */
-#define LEAF_SEQUIN_DATA 0u
-#define LEAF_SEQUIN_ACK  1u
-#define LEAF_SEQUIN_OPEN 5u
+/* Sequin control values, LEAF!33 SEQUINOPS. */
+#define LEAF_SEQUIN_DATA     0u
+#define LEAF_SEQUIN_ACK      1u
+#define LEAF_SEQUIN_NOOP     2u
+#define LEAF_SEQUIN_RESTART  3u
+#define LEAF_SEQUIN_OPEN     5u
+#define LEAF_SEQUIN_DESTROY  011u
+#define LEAF_SEQUIN_DALLYING 012u
+#define LEAF_SEQUIN_QUIT     013u
 
 static unsigned leaf_seqcontrol(const dorado_ethernet *eth)
 {
@@ -2666,24 +2670,96 @@ static int eth_leaf_string(const dorado_ethernet *eth, size_t nbytes,
     }
 }
 
-/* One open file.  A file-scope static, not a dorado_ethernet member: a new
+/* Open files.  File-scope statics, not dorado_ethernet members: a new
  * member changes the snapshot ABI and every baked checkpoint fails to
- * restore.  One slot is enough -- Interlisp opens, reads and closes a .LCOM
- * before asking for the next. */
-static struct {
+ * restore.  A TABLE, not one slot: HELPSYS keeps IRM.HASHFILE open by
+ * random access across the whole session while it opens fonts, the DInfo
+ * graph and TEdit chapters beside it, so "one .LCOM at a time" is false
+ * the moment anything interesting runs. */
+#define LEAF_MAX_FILES 16
+static struct leaf_open_file {
     int in_use;
     uint16_t handle;
     char path[1024];
+    char open_name[128];        /* the name the client opened, for the leader */
     uint32_t length;
-} leaf_file;
+    uint32_t alto_mtime;        /* seconds since the 1901 Pup/Alto epoch */
+} leaf_files[LEAF_MAX_FILES];
+static uint16_t leaf_handle_counter;
 
-/* IfsLeaf.decl LeafAddress: `high word = [signExtend bit 5 [...]; highAddr
- * bit 11]; low word` -- a byte address split 11 bits high, 16 bits low. */
+static struct leaf_open_file *leaf_file_by_handle(uint16_t handle)
+{
+    for (int i = 0; i < LEAF_MAX_FILES; i++)
+        if (leaf_files[i].in_use && leaf_files[i].handle == handle)
+            return &leaf_files[i];
+    return NULL;
+}
+
+/* Sequin connection state, lockstep with LEAF!33's client: the client keeps
+ * EXACTLY one request outstanding and matches every arriving answer against
+ * the head of its done queue (\LEAF.HANDLE.INPUT: "every requesting packet
+ * is responded to by exactly one packet").  So a RETRANSMITTED request must
+ * be answered by RETRANSMITTING the previous answer byte-for-byte with its
+ * ORIGINAL sequence number -- a fresh answer with a fresh sendseq counts as
+ * NEW data at the client, desynchronizes that queue, and the eventual error
+ * path hands \LEAF.ERROR garbage where a stream belongs ("ARG NOT PROCESS").
+ * Hence the one-deep answer cache, which is this server's whole retransmit
+ * ring. */
+static unsigned leaf_sendseq;          /* seq our NEXT data answer carries  */
+static unsigned leaf_recvseq;          /* client seq we expect NEXT         */
+static int      leaf_have_answer;      /* the cache below is valid          */
+static unsigned leaf_last_req_seq;     /* client seq of the cached request  */
+static unsigned leaf_last_answer_seq;  /* our seq the cached answer carried */
+static unsigned leaf_last_code;
+static size_t   leaf_last_answer_len;
+static uint8_t  leaf_last_answer[10 + 512];
+
+/* IfsLeaf.decl LeafAddress: `high word = [signExtend bit 5 = [mode bit 2;
+ * newEOF bit 1; extra bit 2]; highAddr bit 11]; low word` -- a 27-bit byte
+ * address, with mode/newEOF flags in the top 5 bits. */
+#define LEAF_NEWEOF_BIT 0x2000u
 static void leaf_put_address(uint8_t *p, uint32_t addr)
 {
     uint16_t hi = (uint16_t)((addr >> 16) & 03777u);
     p[0] = (uint8_t)(hi >> 8);      p[1] = (uint8_t)(hi & 0377);
     p[2] = (uint8_t)((addr >> 8) & 0377); p[3] = (uint8_t)(addr & 0377);
+}
+
+/* The IFS LEADER PAGE.  IfsLeafRead.bcpl SetModeLength: a 27-bit address at
+ * or above 2^27-2048 ("maxAddress = [#3777; #174000]") is a NEGATIVE byte
+ * offset into the file's leader page -- `leaderPagePos = address!1 +
+ * bytesPerPage`.  LEAF!33 reads exactly four things from it, at fixed
+ * offsets (\LEAF.READFILEPROP call sites):
+ *   0    3 x 4-byte Alto times: created, written, read
+ *   512  full file name, BCPL string (\OFFSET.FILENAME, max 100 bytes);
+ *        \LEAF.READFILENAME turns the trailing !version into ;version
+ *   636  author, BCPL string (\OFFSET.AUTHOR, 40 bytes)
+ *   680  file type word + byte size word (\OFFSET.FILETYPE; \FT.UNKNOWN 0)
+ * Not answering these was THE HELPSYS blocker: the client parsed an empty
+ * answer's uninitialized pup buffer as dates and BCPL strings -- a garbage
+ * length byte made PACK* explode ("Symbol name too long"), the stream's
+ * remote name was trash, and the Leaf watcher process eventually died on
+ * the poisoned records ("ARG NOT PROCESS #<UNBOXEDHUNK2>"). */
+#define LEAF_LEADER_BASE ((1u << 27) - 2048u)
+
+static void leaf_build_leader(const struct leaf_open_file *f,
+                              uint8_t leader[2048])
+{
+    memset(leader, 0, 2048);
+    for (int d = 0; d < 3; d++) {           /* created, written, read */
+        leader[d * 4 + 0] = (uint8_t)(f->alto_mtime >> 24);
+        leader[d * 4 + 1] = (uint8_t)(f->alto_mtime >> 16);
+        leader[d * 4 + 2] = (uint8_t)(f->alto_mtime >> 8);
+        leader[d * 4 + 3] = (uint8_t)(f->alto_mtime);
+    }
+    size_t n = strlen(f->open_name);
+    if (n > 99) n = 99;
+    leader[512] = (uint8_t)n;               /* BCPL string: length, chars */
+    memcpy(leader + 513, f->open_name, n);
+    static const char author[] = "Guest";
+    leader[636] = (uint8_t)(sizeof author - 1);
+    memcpy(leader + 637, author, sizeof author - 1);
+    /* 680: file type \FT.UNKNOWN (0) + byte size -- already zero. */
 }
 
 /* Answer a Leaf request whose reply is the generic two-word LeafAnswer
@@ -2703,45 +2779,88 @@ static int eth_leaf_answer_simple(dorado_ethernet *eth, unsigned code,
     return eth_leaf_reply(eth, body, sizeof body, code);
 }
 
+/* Leaf rides on Sequin, and Sequin keeps its control block in the Pup ID
+ * field -- LEAF!33 (Interlisp's client):
+ *   (BLOCKRECORD SEQUINSTART ((NIL 2 WORD)
+ *      (ALLOCATE BYTE) (RECEIVESEQ BYTE) (SEQCONTROL BYTE) (SENDSEQ BYTE)
+ *      (* Sequin uses ID fields of PUP for control info)))
+ * The first request carries seqcontrol 5 (PUTSEQUIN sets \SEQUIN.OPEN while
+ * the connection is \SS.UNOPENED), so echoing the ID verbatim replies with
+ * another OPEN and the client keeps waiting.  Answer as DATA. */
+static uint32_t leaf_reply_id(unsigned recvseq, unsigned ctl, unsigned sendseq)
+{
+    return ((uint32_t)10u << 24) |             /* our allocation grant */
+           ((uint32_t)(recvseq & 0377u) << 16) |
+           ((uint32_t)(ctl & 0377u) << 8) |
+           (uint32_t)(sendseq & 0377u);
+}
+
+/* Send a FRESH data answer to the request currently in tx_words, and cache
+ * it: if the client retransmits the request, the cached bytes go out again
+ * with the same sequence numbers (see the block comment at leaf_sendseq). */
 static int eth_leaf_reply(dorado_ethernet *eth, const uint8_t *body,
                           size_t blen, unsigned code)
 {
     uint16_t op = (uint16_t)((body[0] << 8) | body[1]);
+    unsigned req_sendseq = (unsigned)(eth->tx_words[5] & 0377);
+    uint32_t reply_id = leaf_reply_id(req_sendseq + 1u, LEAF_SEQUIN_DATA,
+                                      leaf_sendseq);
+    if (blen <= sizeof leaf_last_answer) {
+        memcpy(leaf_last_answer, body, blen);
+        leaf_last_answer_len = blen;
+        leaf_last_req_seq = req_sendseq;
+        leaf_last_answer_seq = leaf_sendseq;
+        leaf_last_code = code;
+        leaf_have_answer = 1;
+    }
+    leaf_sendseq = (leaf_sendseq + 1u) & 0377u;
     /* Swap the endpoints: our reply comes FROM the socket the request was
      * aimed at, back to the port it came from. */
-    /* Leaf rides on Sequin, and Sequin keeps its control block in the Pup ID
-     * field -- LEAF!33 (Interlisp's client):
-     *   (BLOCKRECORD SEQUINSTART ((NIL 2 WORD)
-     *      (ALLOCATE BYTE) (RECEIVESEQ BYTE) (SEQCONTROL BYTE) (SENDSEQ BYTE)
-     *      (* Sequin uses ID fields of PUP for control info)))
-     * with \SEQUIN.DATA 0, \SEQUIN.ACK 1, \SEQUIN.OPEN 5.  The first
-     * request carries seqcontrol 5 (PUTSEQUIN sets \SEQUIN.OPEN while the
-     * connection is \SS.UNOPENED), so echoing the ID verbatim replies with
-     * an OPEN and the client keeps waiting.  Answer as DATA, acknowledging
-     * their sendseq. */
-    unsigned req_allocate  = (unsigned)((eth->tx_words[4] >> 8) & 0377);
-    unsigned req_sendseq   = (unsigned)(eth->tx_words[5] & 0377);
-    /* Our own outgoing sequence. A file-scope static, NOT a dorado_ethernet
-     * member: adding one changes the snapshot ABI and every baked checkpoint
-     * fails to restore. Reset when the client opens the connection. */
-    static unsigned leaf_sendseq;
-    if (leaf_seqcontrol(eth) == LEAF_SEQUIN_OPEN) leaf_sendseq = 0;
-    uint32_t reply_id =
-        ((uint32_t)(req_allocate ? req_allocate : 10u) << 24) |
-        ((uint32_t)((req_sendseq + 1u) & 0377u) << 16) |
-        ((uint32_t)LEAF_SEQUIN_DATA << 8) |
-        (uint32_t)(leaf_sendseq & 0377u);
-    leaf_sendseq++;
     int ok = eth_queue_pup_bytes(eth, DORADO_PUP_TYPE_LEAF, reply_id,
                                  eth->tx_words[9], eth->tx_words[10],
                                  eth->tx_words[11],
                                  eth->tx_words[6], eth->tx_words[7],
                                  eth->tx_words[8], body, blen);
     if (ftp_trace())
-        fprintf(stderr, "LEAF_REPLY %s op=%06o queued=%d d=%06o/%o/%o "
+        fprintf(stderr, "LEAF_REPLY %s op=%06o queued=%d seq=%u d=%06o/%o/%o "
                 "s=%06o/%o/%o\n", leaf_op_name(code), op, ok,
+                leaf_last_answer_seq,
                 eth->tx_words[9], eth->tx_words[10], eth->tx_words[11],
                 eth->tx_words[6], eth->tx_words[7], eth->tx_words[8]);
+    return ok;
+}
+
+/* Retransmit the cached answer byte-for-byte, original sequence numbers. */
+static int eth_leaf_resend_cached(dorado_ethernet *eth, const char *why)
+{
+    if (!leaf_have_answer) return 0;
+    uint32_t reply_id = leaf_reply_id(leaf_last_req_seq + 1u,
+                                      LEAF_SEQUIN_DATA, leaf_last_answer_seq);
+    int ok = eth_queue_pup_bytes(eth, DORADO_PUP_TYPE_LEAF, reply_id,
+                                 eth->tx_words[9], eth->tx_words[10],
+                                 eth->tx_words[11],
+                                 eth->tx_words[6], eth->tx_words[7],
+                                 eth->tx_words[8],
+                                 leaf_last_answer, leaf_last_answer_len);
+    if (ftp_trace())
+        fprintf(stderr, "LEAF_RESEND %s seq=%u (%s) queued=%d\n",
+                leaf_op_name(leaf_last_code), leaf_last_answer_seq, why, ok);
+    return ok;
+}
+
+/* A bodyless Sequin control packet (NOOP ack, DALLYING, ...).  sendseq is
+ * NOT incremented for non-data, per \SEQUIN.PUT. */
+static int eth_leaf_send_control(dorado_ethernet *eth, unsigned ctl)
+{
+    uint32_t reply_id = leaf_reply_id(leaf_recvseq, ctl, leaf_sendseq);
+    int ok = eth_queue_pup_bytes(eth, DORADO_PUP_TYPE_LEAF, reply_id,
+                                 eth->tx_words[9], eth->tx_words[10],
+                                 eth->tx_words[11],
+                                 eth->tx_words[6], eth->tx_words[7],
+                                 eth->tx_words[8], NULL, 0);
+    if (ftp_trace())
+        fprintf(stderr, "LEAF_CONTROL ctl=%u recv=%u send=%u queued=%d\n",
+                ctl, leaf_recvseq, leaf_sendseq, ok);
     return ok;
 }
 
@@ -2801,22 +2920,42 @@ static int eth_leaf_open(dorado_ethernet *eth, size_t nbytes)
                               LEAF_ERR_FILE_NOT_FOUND, 0);
     }
 
-    leaf_file.in_use = 1;
-    leaf_file.handle = (uint16_t)(leaf_file.handle + 1u ? leaf_file.handle + 1u : 1u);
-    snprintf(leaf_file.path, sizeof leaf_file.path, "%s", path);
-    leaf_file.length = (uint32_t)st.st_size;
+    struct leaf_open_file *slot = NULL;
+    for (int i = 0; i < LEAF_MAX_FILES; i++)
+        if (!leaf_files[i].in_use) { slot = &leaf_files[i]; break; }
+    if (!slot) {
+        /* Table full: evict the oldest slot rather than fail the open.  A
+         * session that truly holds 16 files open has a leak somewhere; say
+         * so. */
+        slot = &leaf_files[0];
+        if (ftp_trace())
+            fprintf(stderr, "LEAF_OPEN table full, evicting handle=%06o %s\n",
+                    slot->handle, slot->path);
+    }
+    leaf_handle_counter = (uint16_t)(leaf_handle_counter + 1u);
+    if (!leaf_handle_counter) leaf_handle_counter = 1;
+    slot->in_use = 1;
+    slot->handle = leaf_handle_counter;
+    snprintf(slot->path, sizeof slot->path, "%s", path);
+    slot->length = (uint32_t)st.st_size;
+    /* Leader-page identity: the name as opened, always carrying a !version
+     * so \LEAF.READFILENAME finds its bang.  2177452800 = seconds from the
+     * Pup/Alto epoch (1901) to the Unix one. */
+    snprintf(slot->open_name, sizeof slot->open_name, "%s%s", name,
+             strchr(name, '!') ? "" : "!1");
+    slot->alto_mtime = (uint32_t)((long long)st.st_mtime + 2177452800LL);
 
     uint8_t body[10];
     uint16_t op = leaf_make_op(LEAF_OP_OPEN, 10);
     body[0] = (uint8_t)(op >> 8);  body[1] = (uint8_t)(op & 0377);
-    body[2] = (uint8_t)(leaf_file.handle >> 8);
-    body[3] = (uint8_t)(leaf_file.handle & 0377);
-    leaf_put_address(body + 4, leaf_file.length);
+    body[2] = (uint8_t)(slot->handle >> 8);
+    body[3] = (uint8_t)(slot->handle & 0377);
+    leaf_put_address(body + 4, slot->length);
     body[8] = (uint8_t)(eth->tx_words[14] >> 8);   /* echo the requested mode */
     body[9] = (uint8_t)(eth->tx_words[14] & 0377);
     if (ftp_trace())
         fprintf(stderr, "LEAF_OPEN \"%s\" -> %s (%u bytes) handle=%06o\n",
-                name, path, leaf_file.length, leaf_file.handle);
+                name, path, slot->length, slot->handle);
     return eth_leaf_reply(eth, body, sizeof body, LEAF_OP_OPEN);
 }
 
@@ -2834,35 +2973,64 @@ static int eth_leaf_read(dorado_ethernet *eth)
                                eth->tx_words[15]);
     unsigned want = eth->tx_words[16];
 
-    if (!leaf_file.in_use || handle != leaf_file.handle) {
+    struct leaf_open_file *f = leaf_file_by_handle(handle);
+    if (!f) {
         if (ftp_trace())
-            fprintf(stderr, "LEAF_READ_BADHANDLE %06o (open=%06o)\n",
-                    handle, leaf_file.handle);
+            fprintf(stderr, "LEAF_READ_BADHANDLE %06o\n", handle);
         return eth_leaf_error(eth, eth->tx_words[12],
                               LEAF_ERR_BAD_HANDLE, handle);
     }
-    if (want == 0 || want > 512) want = 512;
-    if (addr >= leaf_file.length) want = 0;
-    else if (addr + want > leaf_file.length)
-        want = (unsigned)(leaf_file.length - addr);
 
     uint8_t body[10 + 512];
-    uint16_t op = leaf_make_op(LEAF_OP_READ, 10u + want);
+    uint16_t op;
+
+    if (addr >= LEAF_LEADER_BASE) {
+        /* Leader-page read (see leaf_build_leader). */
+        unsigned off = (unsigned)(addr - LEAF_LEADER_BASE);
+        uint8_t leader[2048];
+        if (want > 512) want = 512;
+        if (off + want > 2048u) want = 2048u - off;
+        leaf_build_leader(f, leader);
+        op = leaf_make_op(LEAF_OP_READ, 10u + want);
+        body[0] = (uint8_t)(op >> 8);  body[1] = (uint8_t)(op & 0377);
+        body[2] = (uint8_t)(handle >> 8); body[3] = (uint8_t)(handle & 0377);
+        leaf_put_address(body + 4, addr);
+        body[8] = (uint8_t)(want >> 8); body[9] = (uint8_t)(want & 0377);
+        memcpy(body + 10, leader + off, want);
+        if (ftp_trace())
+            fprintf(stderr, "LEAF_READ_LEADER handle=%06o off=%u want=%u "
+                    "\"%s\"\n", handle, off, want, f->open_name);
+        return eth_leaf_reply(eth, body, 10u + want, LEAF_OP_READ);
+    }
+
+    /* Ordinary data: clamp to EOF the way SetModeLength's dontExtend case
+     * does -- a request past the end answers ADDRESS = EOF with length 0,
+     * and the answer's newEOF bit reports address+length == EOF.  The
+     * client's page machinery reads the file's end from these. */
+    if (want == 0 || want > 512) want = 512;
+    if (addr > f->length) addr = f->length;
+    if (addr + want > f->length)
+        want = (unsigned)(f->length - addr);
+
+    op = leaf_make_op(LEAF_OP_READ, 10u + want);
     body[0] = (uint8_t)(op >> 8);  body[1] = (uint8_t)(op & 0377);
     body[2] = (uint8_t)(handle >> 8); body[3] = (uint8_t)(handle & 0377);
     leaf_put_address(body + 4, addr);
+    if (addr + want == f->length)
+        body[4] |= (uint8_t)(LEAF_NEWEOF_BIT >> 8);
     body[8] = (uint8_t)(want >> 8); body[9] = (uint8_t)(want & 0377);
 
     if (want) {
-        FILE *fp = fopen(leaf_file.path, "rb");
+        FILE *fp = fopen(f->path, "rb");
         if (!fp) return 0;
         if (fseek(fp, (long)addr, SEEK_SET) != 0 ||
             fread(body + 10, 1, want, fp) != want) { fclose(fp); return 0; }
         fclose(fp);
     }
     if (ftp_trace())
-        fprintf(stderr, "LEAF_READ handle=%06o addr=%u want=%u of %u\n",
-                handle, addr, want, leaf_file.length);
+        fprintf(stderr, "LEAF_READ handle=%06o addr=%u want=%u of %u%s\n",
+                handle, addr, want, f->length,
+                addr + want == f->length ? " EOF" : "");
     return eth_leaf_reply(eth, body, 10u + want, LEAF_OP_READ);
 }
 
@@ -2871,7 +3039,65 @@ static int eth_leaf_handle(dorado_ethernet *eth)
 {
     size_t nbytes = eth->tx_words[2] > 026 ?
         (size_t)(eth->tx_words[2] - 026) : 0;
-    if (eth->tx_words[3] != DORADO_PUP_TYPE_LEAF || nbytes < 2) return 0;
+    if (eth->tx_words[3] != DORADO_PUP_TYPE_LEAF) return 0;
+
+    unsigned ctl     = leaf_seqcontrol(eth);
+    unsigned req_seq = (unsigned)(eth->tx_words[5] & 0377);
+    unsigned their_recv = (unsigned)(eth->tx_words[4] & 0377);
+
+    /* A fresh connection (\SEQUIN.OPEN carried on the first request): both
+     * sides start their sequences at 0, and every handle from an earlier
+     * conversation is dead. */
+    if (ctl == LEAF_SEQUIN_OPEN) {
+        leaf_sendseq = 0;
+        leaf_recvseq = req_seq;
+        leaf_have_answer = 0;
+        for (int i = 0; i < LEAF_MAX_FILES; i++) leaf_files[i].in_use = 0;
+    }
+
+    /* Bodyless packets are pure Sequin control: the client's idle NOOP
+     * prods, retransmit requests, and the close handshake.  Ignoring them
+     * (which this server used to do, silently -- the size test sat BEFORE
+     * the trace) leaves the client timing out into "[HOST not responding]"
+     * and worse. */
+    if (nbytes < 2) {
+        if (ftp_trace())
+            fprintf(stderr, "LEAF ctl-only seq[alloc=%u recv=%u ctl=%u "
+                    "send=%u]\n", (eth->tx_words[4] >> 8) & 0377,
+                    their_recv, ctl, req_seq);
+        switch (ctl) {
+        case LEAF_SEQUIN_NOOP:
+            /* "All our stuff is acked, but client is still waiting for
+             * something" (\SEQUIN.PROCESS) -- if they have not consumed our
+             * last answer, they need it again; otherwise answer the prod so
+             * their timer resets. */
+            if (leaf_have_answer && their_recv == leaf_last_answer_seq)
+                eth_leaf_resend_cached(eth, "noop prod");
+            else
+                eth_leaf_send_control(eth, LEAF_SEQUIN_NOOP);
+            return 1;
+        case LEAF_SEQUIN_RESTART:
+            /* "Partner got ahead, ask for retransmission" -- resend. */
+            if (!eth_leaf_resend_cached(eth, "restart"))
+                eth_leaf_send_control(eth, LEAF_SEQUIN_NOOP);
+            return 1;
+        case LEAF_SEQUIN_DESTROY:
+            /* Close handshake: server answers DALLYING, client replies
+             * QUIT (\SEQUIN.HANDLE.INPUT). */
+            eth_leaf_send_control(eth, LEAF_SEQUIN_DALLYING);
+            return 1;
+        case LEAF_SEQUIN_QUIT:
+            leaf_have_answer = 0;
+            leaf_sendseq = leaf_recvseq = 0;
+            for (int i = 0; i < LEAF_MAX_FILES; i++)
+                leaf_files[i].in_use = 0;
+            return 1;
+        default:
+            /* ACK and anything else: their header fields have been noted;
+             * nothing to send. */
+            return 1;
+        }
+    }
 
     uint16_t opw = eth->tx_words[12];
     unsigned code = leaf_op_code(opw);
@@ -2884,11 +3110,25 @@ static int eth_leaf_handle(dorado_ethernet *eth)
                 "send=%u]\n",
                 leaf_op_name(code), opw, code, leaf_op_answer(opw), len,
                 nbytes, handle, (eth->tx_words[4] >> 8) & 0377,
-                eth->tx_words[4] & 0377, leaf_seqcontrol(eth),
-                eth->tx_words[5] & 0377);
+                their_recv, ctl, req_seq);
 
     /* An answer arriving from the guest is not ours to act on. */
     if (leaf_op_answer(opw)) return 1;
+
+    /* A data request we have already answered is a retransmission: the
+     * client lost (or has not yet drained) our answer.  Send the SAME
+     * answer with the SAME sequence number -- a fresh one desynchronizes
+     * the client's request/answer matching (see leaf_sendseq above). */
+    if (ctl == LEAF_SEQUIN_DATA || ctl == LEAF_SEQUIN_OPEN) {
+        if (leaf_have_answer && req_seq == leaf_last_req_seq) {
+            eth_leaf_resend_cached(eth, "dup request");
+            return 1;
+        }
+        if (req_seq != leaf_recvseq && ftp_trace())
+            fprintf(stderr, "LEAF_SEQ_GAP got=%u expected=%u (resync)\n",
+                    req_seq, leaf_recvseq);
+        leaf_recvseq = (req_seq + 1u) & 0377u;
+    }
 
     switch (code) {
     case LEAF_OP_RESET:
@@ -2905,9 +3145,11 @@ static int eth_leaf_handle(dorado_ethernet *eth)
     case LEAF_OP_READ:
         if (eth_leaf_read(eth)) return 1;
         return 0;
-    case LEAF_OP_CLOSE:
-        leaf_file.in_use = 0;
+    case LEAF_OP_CLOSE: {
+        struct leaf_open_file *f = leaf_file_by_handle(handle);
+        if (f) f->in_use = 0;
         return eth_leaf_answer_simple(eth, code, handle) ? 1 : 1;
+    }
     default:
         /* Not yet implemented -- say so loudly rather than letting the guest
          * retransmit into silence, which is what Read will do next. */
