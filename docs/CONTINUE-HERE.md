@@ -1,5 +1,15 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+> **Start here for the 2026-08-03 session:**
+> [`docs/lisp-leaf-handoff.md`](lisp-leaf-handoff.md) — Interlisp-D now loads
+> files it does NOT have on its disk, over **Leaf**, the IFS random-access
+> file protocol (`make verify-lisp-leaf`). That lifts the pack's hard
+> 22,736-page ceiling. The pack itself went 119 -> 204 packages + 14 fonts.
+> **Eleven commits on branch `lisp-lyric-library-and-leaf`, none pushed.**
+> One thing unfinished: HELPSYS (the online Reference Manual, and the
+> "docs on a button" the demo wants) does not open because `IRM.HOST&DIR`
+> is unbound at greet time — §5 has the diagnosis and the next thing to try.
+>
 > **Start here for the 2026-07-31 session:**
 > [`docs/sil-schematics-handoff.md`](sil-schematics-handoff.md) — the
 > Dorado's own schematics in their original Sil vector format (506 `.sil`
