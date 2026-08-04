@@ -1,5 +1,38 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+> **2026-08-04: the saved-login checkpoints were dead on both platforms,
+> from a snapshot ABI change nobody rebaked against.**
+> The browser's "Cedar 6.1 — saved login prompt" answered *"snapshot
+> restore rejected the saved image"*, and `make run-cedar-snapshot-sdl`
+> was broken the same way. Cause: `e5ecba1` (Leaf) grew
+> `dorado_ethernet` by 66,496 bytes, and `dorado_machine` with it.
+> `dorado_machine_restore` compares every `sizeof` against a header the
+> bake wrote, so every checkpoint made before that commit is rejected —
+> correctly. Every OTHER world was rebaked afterwards; the two login
+> checkpoints were not, because **no gate cold-boots or restores them**
+> (the Cedar gates all restore the *desktop*).
+>
+> Diagnose without booting anything — the sizes are in the snapshot
+> header (magic 16B, version+pad 8B, then ten `uint64`s: mc, cpu, mem,
+> disp, bb, eth, disk, fastio, machine, storage_words):
+>
+> ```sh
+> python3 -c "import gzip,struct;h=gzip.open('web-assets/cedar-login.snap.gz','rb').read(104);print(struct.unpack('<10Q',h[24:104]))"
+> ```
+>
+> Compare against a checkpoint that restores. Native and wasm32 have
+> DIFFERENT sizes (86,392 vs 86,288 for `sz_eth`) — compare like with
+> like. Fixed by rebaking: `make cedar-login-snapshot`,
+> `make cedar-bestof-snapshot` (native, ~25 s each) and
+> `make cedar-login-web-snapshot` (wasm, needs emsdk + node). All three
+> verified restoring afterwards at ~28,470 px, the login screen.
+>
+> **The gate hole is the real finding.** An ABI bump silently kills only
+> the checkpoints you happen not to rebake, and the ones nothing tests
+> are exactly the ones that stay broken. See also
+> `docs/sil-schematics-handoff.md` §5.2 for the other half of this hole
+> (no Cedar gate cold-boots).
+
 > **Start here for the 2026-08-01..04 sessions (all merged to main,
 > Pages deploy live):**
 > [`docs/lisp-leaf-handoff.md`](lisp-leaf-handoff.md) — Interlisp-D loads

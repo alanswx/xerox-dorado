@@ -25,24 +25,37 @@ shorter version; this is the working detail.
 
 ## 1. Shipping status — READ THIS FIRST
 
-Asked directly: *is the new image snapshotted and shipped for both
-platforms?* **No, on every count.** Deliberately, because Sil does not load.
+**Updated 2026-08-04.** The table below was written on 07-31, while Sil
+still failed to load, and it said "not shipped, on every count". That is
+no longer true and reading it as current will send you to the wrong
+image. Current state:
 
 | thing | state |
 |---|---|
-| Native shipped checkpoint `build/good-packs/cedar-desktop.{snap,pdi}` | **unchanged** — the pre-existing one. It was overwritten by a failed bake and restored from a backup; verified afterwards at 167,537 px. |
-| wasm32 checkpoints `dorado/web-assets/*.gz` | **unchanged**, untouched by this work. |
-| The Sil/schematics image | baked, **not installed**. Kept as `build/good-packs/cedar-sil-wip.{snap,pdi,pgm}` (gitignored, local only). 167,318 px, a healthy desktop. |
-| `User.Profile` change that produced it | **reverted** in the tree. The exact block is in §4 below — that is the only copy. |
-| Commits `316b1fc`, `968fe3b` | committed, **NOT pushed**. |
-| GitHub Pages | serving `d0204ba`. **Does not include the `.DF` date fix.** |
+| Native shipped checkpoint `build/good-packs/cedar-desktop.{snap,pdi}` | **IS the Sil image.** Installed 2026-08-01 16:52; byte-identical to `cedar-sil-desktop.{snap,pdi}`. Run it with `make run-cedar-desktop-sdl`. |
+| Pre-Sil native checkpoint | set aside as `cedar-desktop-presil.{snap,pdi}.bak` (no CedarChest6.0 content). |
+| `cedar-sil-wip.{snap,pdi,pgm}` | the **pre-fix** WIP from 07-31. Still fails with `VersionMismatch[BiScrollers]` — do NOT use it to demo Sil. Superseded by `cedar-sil-desktop`. |
+| wasm32 checkpoint `dorado/web-assets/cedar-desktop.{snap,pdi}.gz` | **IS the Sil image** as of 2026-08-04. It was NOT before: a wasm bake of the Sil volume had been sitting unused in `build/good-packs/cedar-sil-wasm.{snap,pdi}.gz` since 08-01 18:33 while `web-assets/` still carried the pre-Sil pair, so the deployed page had no Sil at all. Installing it was a copy, not a rebake — the bake already matched the current snapshot ABI. Pre-Sil pair kept as `*.gz.presil.bak`. |
+| `User.Profile` change that produced it | **in the tree** (`chm/cedar/stp-root/Cedar6.1/Top/User.Profile`, since 08-01 16:24), carrying the §3.2 CedarChest 6.0 chain and `CreateButton Sil Sil ProcH01.sil`. §4 below is the older 6.1 block that did NOT work; keep it only for the reasoning. |
+| Commits `316b1fc`, `968fe3b` | pushed; `origin/main` is current. |
 
-So two separate "not shipped" facts: the Sil image (intentional), and the
-`.DF` bug fix (just unpushed — `git push origin main` deploys it).
+Verifying which image is which without booting it: the resolved chain is
+CedarChest **6.0** (§3.2), so
 
-The WIP image is worth keeping: it is ~25 minutes of compute, and it is a
-volume with all 32 schematic sheets and every Sil dependency already
-installed. Whoever resolves §3 can start from it instead of rebaking.
+```sh
+strings -a build/good-packs/cedar-desktop.pdi | grep -c CedarChest6.0
+gzcat web-assets/cedar-desktop.pdi.gz | strings -a | grep -c CedarChest6.0
+```
+
+answers 149 for a Sil-capable volume and 0 for a pre-Sil one.
+
+In the browser the world is the existing **"Cedar 6.1 — saved Viewers
+desktop"** entry; there is no separate Sil entry. The restored desktop
+announces `Sil Library Files loading A-OK` in its title bar and carries a
+`Sil` button in the CommandTool menu line, so a visitor either clicks that
+or types `Sil ProcH01.sil` — which is now a row in the page's guide table
+(`dorado/src/web_shell.html`). Cost to `index.data` is about +1 MB (both
+assets are `--preload-file`d, i.e. every visitor downloads them).
 
 ---
 
@@ -408,15 +421,15 @@ cp build/good-packs/cedar-desktop.snap build/good-packs/cedar-desktop.snap.bak
 cp build/good-packs/cedar-desktop.pdi  build/good-packs/cedar-desktop.pdi.bak
 make cedar-desktop-snapshot            # ~25 min; MUST end ~167,000 px
 
-# or drive the WIP image that already has everything installed:
-./build/dorado-sdl --boot-reason disk --no-alto-boot \
-  --eb '../chm/dorado/CedarDorado.eb!6' \
-  --germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6' \
-  --pilot-disk build/good-packs/cedar-sil-wip.pdi \
-  --ftp-root ../chm/cedar/stp-root \
-  --snapshot-in build/good-packs/cedar-sil-wip.snap --speed 4000000
+# or just run the shipped desktop -- since 2026-08-01 it IS the Sil image:
+make run-cedar-desktop-sdl
 ```
 
+Do NOT drive `cedar-sil-wip.{snap,pdi}` for this. That is the 07-31
+pre-fix WIP and it still dies on `VersionMismatch[BiScrollers]`; it is
+kept only as a starting point for further staging work.
+
 In the desktop: click the CommandTool's `%` prompt for type-in focus, then
-`Run Sil` to see the mismatch, or `List [Cedar]<CedarChest6.1>DoradoLogic>*`
-to see the 32 sheets the volume already has.
+`Sil ProcH01.sil`, or `List [Cedar]<CedarChest6.1>DoradoLogic>*` to see the
+32 sheets the volume already has. If the modules are not already loaded in
+the checkpoint, run the §3.2 `Run` lines first.
