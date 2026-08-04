@@ -18,6 +18,7 @@
 #include "display.h"
 
 #include <stdint.h>
+#include <stdio.h>   /* FILE, for dorado_machine_print_abi */
 
 typedef struct dorado_machine dorado_machine;
 
@@ -202,6 +203,16 @@ int dorado_machine_render_display_list(dorado_machine *m);
  */
 int dorado_machine_snapshot(dorado_machine *m, const char *path);
 int dorado_machine_restore(dorado_machine *m, const char *path);
+
+/*
+ * Print the struct sizes this build stamps into a snapshot header, one
+ * "name value" per line, in header order. Every baked checkpoint must
+ * agree with these or restore refuses it, so `make verify-snapshot-abi`
+ * diffs the shipped checkpoints against this instead of booting each one.
+ * Per-ABI: native and wasm32 differ, and each must be checked against its
+ * own build. Exposed via `dorado --print-abi`.
+ */
+void dorado_machine_print_abi(FILE *out);
 
 /*
  * A 64-bit FNV-1a digest over the machine's core runtime state (main

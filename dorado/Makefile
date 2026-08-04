@@ -962,6 +962,86 @@ verify-cedar-ls-selftest:
 	@rm -f build/ls-gate-bad.log build/ls-gate-noclient.log build/ls-gate-good.log
 	@echo "ls gate self-test: PASS (fails both half-broken logs, passes a good one)"
 
+# ---- Sil: the Dorado draws its own board ----------------------------------
+# Clicking the CommandTool's Sil button opens ProcH01.sil -- Ed Clark's 1981
+# processor-board drawing, the VECTOR original rather than the AIS scan
+# Schematic.cm paints -- in Sil, the CedarChest 6.0 drawing editor. This
+# covers a chain nothing else touches: the CedarChest 6.0 Bringover/Run
+# block in the served User.Profile, the 32 ProcH sheets on the volume, and
+# the CreateButton that puts Sil in the menu line. It went unshipped in the
+# browser for three days precisely because no gate looked (see
+# docs/sil-schematics-handoff.md section 1).
+#
+# The click coordinate is MEASURED, not guessed: the Sil button spans
+# x 728-740, y 29-36 on the restored desktop (an ink-column scan of the
+# menu row). Guessing cost most of a session.
+#
+# SLOW -- about 25 minutes, since Sil parses and paints 6.5 KB of vectors.
+# Not part of `make test`.
+CEDAR_SIL_CYCLES ?= 40000000000
+
+.PHONY: verify-cedar-sil
+verify-cedar-sil: $(BINDIR)/dorado $(CEDAR_DESKTOP_SNAPSHOT) $(CEDAR_DESKTOP_PDI)
+	@echo "verify-cedar-sil: clicking the Sil button to open ProcH01.sil (~25 min)"
+	@cp -f '$(CEDAR_DESKTOP_PDI)' build/verify-cedar-sil.pdi
+	@DORADO_PDI_IGNORE_LABEL_FLAGS=1 \
+	DORADO_FAKE_TIME='$(CEDAR_DESKTOP_FAKE_TIME)' ./build/dorado \
+		--boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk build/verify-cedar-sil.pdi \
+		--ftp-root ../chm/cedar/stp-root \
+		--snapshot-in '$(CEDAR_DESKTOP_SNAPSHOT)' --key-hold 1600000 \
+		--type-at 36100000000 --click 734,32 \
+		--cycles '$(CEDAR_SIL_CYCLES)' \
+		--out build/verify-cedar-sil.pgm > build/verify-cedar-sil.log 2>&1
+	@../tools/check_cedar_sil_gate.sh build/verify-cedar-sil.log
+
+.PHONY: verify-cedar-sil-selftest
+verify-cedar-sil-selftest:
+	@mkdir -p build
+	@printf 'dorado: 167653 display-list pixels\n' > build/sil-gate-noclick.log
+	@if ../tools/check_cedar_sil_gate.sh build/sil-gate-noclick.log >/dev/null 2>&1; \
+	 then echo "SELFTEST FAIL: passed an untouched desktop"; exit 1; fi
+	@printf 'dorado: 28703 display-list pixels\n' > build/sil-gate-cold.log
+	@if ../tools/check_cedar_sil_gate.sh build/sil-gate-cold.log >/dev/null 2>&1; \
+	 then echo "SELFTEST FAIL: passed a cold-booted login screen"; exit 1; fi
+	@printf 'dorado: 89614 display-list pixels\n' > build/sil-gate-good.log
+	@../tools/check_cedar_sil_gate.sh build/sil-gate-good.log >/dev/null \
+		|| (echo "SELFTEST FAIL: the gate failed a good log"; exit 1)
+	@rm -f build/sil-gate-noclick.log build/sil-gate-cold.log build/sil-gate-good.log
+	@echo "sil gate self-test: PASS (rejects both real failure modes)"
+
+# ---- Snapshot ABI: are the baked checkpoints still loadable? --------------
+# dorado_machine_restore refuses any checkpoint whose header struct sizes
+# disagree with the running build, so a struct that grows kills every
+# checkpoint baked before it. On 2026-08-04 the Leaf ethernet growth
+# (e5ecba1, +66,496 bytes) was found to have left BOTH saved-login
+# checkpoints dead for a week -- the browser answered "snapshot restore
+# rejected the saved image" and run-cedar-snapshot-sdl was broken -- because
+# every Cedar gate restores the DESKTOP and none touches a login checkpoint.
+#
+# This reads the sizes out of each header, so it costs a second and boots
+# nothing. Run it after ANY change to a struct that a snapshot serializes.
+# The sizes are per-ABI: web-assets are wasm32 and are checked against the
+# node build, skipped when emsdk is not on PATH.
+.PHONY: verify-snapshot-abi
+verify-snapshot-abi: $(BINDIR)/dorado
+	@echo "verify-snapshot-abi: native checkpoints vs this build"
+	@./build/dorado --print-abi > build/abi-native.txt
+	@python3 ../tools/check_snapshot_abi.py --abi build/abi-native.txt \
+		snapshot-assets
+	@if [ -r '$(WEB_NODE_JS)' ] && \
+	    node '$(WEB_NODE_JS)' --print-abi > build/abi-wasm.txt 2>/dev/null && \
+	    grep -q sz_machine build/abi-wasm.txt; then \
+		echo "verify-snapshot-abi: wasm32 checkpoints vs the node build"; \
+		python3 ../tools/check_snapshot_abi.py --abi build/abi-wasm.txt \
+			web-assets; \
+	else \
+		echo "  (skipping web-assets: $(WEB_NODE_JS) is missing or predates"; \
+		echo "   --print-abi. Rebuild it, or the browser checkpoints go"; \
+		echo "   unchecked: source ~/emsdk/emsdk_env.sh && make $(WEB_NODE_JS))"; \
+	fi
+
 # ---- Cedar Viewers DESKTOP checkpoint (2026-07-15 milestone) --------------
 # The guest mutates the PDI during the install, so the snapshot is only valid
 # with the PDI image saved at the same cycle: the producer runs on a COPY with

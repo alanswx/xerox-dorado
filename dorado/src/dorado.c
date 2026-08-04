@@ -562,6 +562,14 @@ int main(int argc, char **argv)
             } else {
                 pending_type_at = 1;
             }
+        } else if (!strcmp(a, "--print-abi")) {
+            /* Report the snapshot header's struct sizes and exit. A
+             * checkpoint whose header disagrees is refused by restore, so
+             * verify-snapshot-abi diffs the shipped ones against this
+             * rather than booting each. Native and wasm32 differ; each
+             * build reports its own. */
+            dorado_machine_print_abi(stdout);
+            return 0;
         } else if (!strcmp(a, "--help") || !strcmp(a, "-h")) {
             printf("usage: %s [--cycles N] [--eb PATH] [--eftp PATH] "
                    "[--ftp-sysout PATH] "

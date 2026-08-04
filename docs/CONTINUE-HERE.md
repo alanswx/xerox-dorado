@@ -27,11 +27,27 @@
 > `make cedar-login-web-snapshot` (wasm, needs emsdk + node). All three
 > verified restoring afterwards at ~28,470 px, the login screen.
 >
-> **The gate hole is the real finding.** An ABI bump silently kills only
-> the checkpoints you happen not to rebake, and the ones nothing tests
-> are exactly the ones that stay broken. See also
-> `docs/sil-schematics-handoff.md` §5.2 for the other half of this hole
-> (no Cedar gate cold-boots).
+> **The gate hole was the real finding, and it is closed on both ends:**
+>
+> - **`make verify-snapshot-abi`** — a second, boots nothing. Diffs every
+>   header in `snapshot-assets/` (native) and `web-assets/` (wasm32, via
+>   the node build) against `dorado --print-abi`, a new flag reporting the
+>   sizes the bake stamps. Validated against its own bug: fed the pre-fix
+>   `cedar-login-native.snap.gz` out of git history, it names `sz_eth` and
+>   `sz_machine` and exits 1. Run it after touching any struct a snapshot
+>   serializes.
+> - **`make verify-cedar-sil`** — clicks the CommandTool's Sil button and
+>   asserts ProcH01.sil painted (89,614 px; ~25 min, so not in
+>   `make test`). It covers the CedarChest 6.0 chain, the 32 ProcH sheets
+>   and the CreateButton, none of which anything else touched — which is
+>   why the browser shipped without Sil for three days.
+>   `make verify-cedar-sil-selftest` checks the checker rejects both real
+>   failure modes: 167,653 px (the click missed) and ~28,500 px (it
+>   cold-booted).
+>
+> Still open, the other half of the hole: no Cedar gate COLD-BOOTS, which
+> is what hid the stale `--type-at` in the desktop bake
+> (`docs/sil-schematics-handoff.md` §5.2).
 
 > **Start here for the 2026-08-01..04 sessions (all merged to main,
 > Pages deploy live):**

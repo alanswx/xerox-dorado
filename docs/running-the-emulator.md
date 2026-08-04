@@ -789,11 +789,37 @@ volume boots from disk; the base system still streams. Software you
 | Command | Runtime | What it protects |
 |---|---|---|
 | `make test` | seconds | the C unit/integration suite (11 binaries) |
+| `make verify-snapshot-abi` | ~1 s | that every baked checkpoint still restores against this build |
 | `make verify-cedar-gate-selftest` | instant | that the Cedar gate's pass/fail logic still discriminates |
 | `make verify-cedar-ls-selftest` | instant | that the listing gate still discriminates |
+| `make verify-cedar-sil-selftest` | instant | that the Sil gate still discriminates |
 | `make verify-cedar-desktop` | ~12 min | the shipped desktop checkpoint AND the browser build |
 | `make verify-cedar-ls` | ~8 min | `ls` on a remote directory: STP Enumerate + LookupFile |
+| `make verify-cedar-sil` | ~25 min | Sil opens ProcH01.sil: the CedarChest 6.0 chain end to end |
 | `./build/dorado --eb worlds/aemu.eb --eftp '../chm/bootfiles/Galaxian.boot!1' --cycles 2500000000` | ~2 min | the Alto path (expect 121,515 px) |
+
+`verify-snapshot-abi` is the cheapest gate here and covers the widest
+blast radius. `dorado_machine_restore` refuses any checkpoint whose
+header struct sizes disagree with the running build, so a struct that
+grows kills every checkpoint baked before it — and only the ones no gate
+exercises stay broken. On 2026-08-04 the Leaf ethernet growth was found
+to have left BOTH saved-login checkpoints dead for a week, on both
+platforms, because every Cedar gate restores the *desktop*. This reads
+the sizes out of each header (`dorado --print-abi` reports what this
+build stamps) and boots nothing. **Run it after touching any struct a
+snapshot serializes.** Native and wasm32 sizes legitimately differ, so
+each set is checked against its own build; `web-assets/` is skipped with
+a warning when emsdk is not on PATH.
+
+`verify-cedar-sil` covers the CedarChest 6.0 Bringover/Run chain in the
+served `User.Profile`, the 32 ProcH sheets on the volume, and the
+`CreateButton` that puts Sil in the menu line — a path nothing else
+touched, which is why the browser shipped for three days without Sil at
+all. The click coordinate is measured, not guessed (the button spans
+x 728–740, y 29–36); guessing cost most of a session. A pixel band works
+here, unlike `verify-cedar-ls`, because the drawing replaces the left
+half of the screen: 89,614 px open, 167,653 px if the click missed,
+~28,500 px if the world cold-booted instead of restoring.
 
 `verify-cedar-desktop` exists because three bugs shipped on 2026-07-18/19
 that every test at the time passed. It restores the desktop checkpoint,

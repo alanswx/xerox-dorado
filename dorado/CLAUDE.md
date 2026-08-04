@@ -638,6 +638,26 @@ fails to restore. Reset in `dorado_machine_create`. Engages only for the
 live Cedar world (Alto path applies keys directly). Paste pacing is 800K
 cyc (~= the 3-field drain rate), down from 1.6M.
 
+**When the snapshot ABI DOES have to change, sweep every checkpoint.**
+The rule above avoids the change where it is avoidable, but sometimes a
+struct legitimately grows -- and then `dorado_machine_restore` refuses
+every checkpoint baked before it, correctly, by comparing the header's
+struct sizes. The ones nothing exercises are the ones that stay broken:
+`e5ecba1` (Leaf) grew `dorado_ethernet` by 66,496 bytes and both
+SAVED-LOGIN checkpoints were dead for a week, native and wasm, because
+every Cedar gate restores the DESKTOP and none touches a login image.
+
+`make verify-snapshot-abi` now reads the sizes out of each header and
+diffs them against `dorado --print-abi`. It costs a second, boots
+nothing, and covers `snapshot-assets/` (native) plus `web-assets/`
+(wasm32, via the node build -- skipped, with a warning, when emsdk is
+not on PATH). **Run it after any change to a struct a snapshot
+serializes.** The two ABIs legitimately differ (`sz_eth` 86,392 vs
+86,288), so each set is checked against its own build; a wasm
+checkpoint read against the native report looks broken and is not.
+Rebake with `make cedar-login-snapshot`, `cedar-bestof-snapshot`,
+`cedar-login-web-snapshot`, and the other `*-web-snapshot` targets.
+
 **Frontend input.** `src/typetext.c` owns the ONE canonical ASCII->Alto
 key map (`dorado_char_to_key`) plus a non-blocking paced typing queue.
 `dorado.c` and `dorado_sdl.c` used to carry diverging static copies (the

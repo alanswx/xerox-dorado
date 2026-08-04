@@ -5554,6 +5554,31 @@ typedef struct {
     int32_t  disk_write_stream_sector;
 } dorado_snap_header;
 
+/* Report the struct sizes this build stamps into a snapshot header, in the
+ * header's own field order. dorado_machine_restore rejects any checkpoint
+ * whose header disagrees with these, so a struct that grows silently kills
+ * every checkpoint baked before it -- and only the ones no gate exercises
+ * stay broken (2026-08-04: the Leaf ethernet growth left both saved-login
+ * checkpoints dead for a week). `make verify-snapshot-abi` diffs every
+ * shipped checkpoint against this, without booting anything.
+ *
+ * NOTE the numbers are per-ABI: native and wasm32 legitimately differ, so
+ * a wasm checkpoint must be checked against the wasm build's report. */
+void dorado_machine_print_abi(FILE *out)
+{
+    if (!out) return;
+    fprintf(out, "version %u\n", (unsigned)DORADO_SNAP_VERSION);
+    fprintf(out, "sz_mc %zu\n",      sizeof(dorado_microcode));
+    fprintf(out, "sz_cpu %zu\n",     sizeof(dorado_cpu));
+    fprintf(out, "sz_mem %zu\n",     sizeof(dorado_memory));
+    fprintf(out, "sz_disp %zu\n",    sizeof(dorado_display));
+    fprintf(out, "sz_bb %zu\n",      sizeof(dorado_baseboard));
+    fprintf(out, "sz_eth %zu\n",     sizeof(dorado_ethernet));
+    fprintf(out, "sz_disk %zu\n",    sizeof(dorado_disk_controller));
+    fprintf(out, "sz_fastio %zu\n",  sizeof(dorado_fastio_router));
+    fprintf(out, "sz_machine %zu\n", sizeof(struct dorado_machine));
+}
+
 static int snap_wr(FILE *f, const void *p, size_t n)
 {
     return (n == 0 || fwrite(p, 1, n, f) == n) ? 0 : -1;
