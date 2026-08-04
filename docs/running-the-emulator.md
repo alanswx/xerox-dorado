@@ -300,7 +300,7 @@ browser build's **Boot** dropdown.
 | **Cedar corpus** | `make run-cedar-corpus-sdl` | The same desktop, but its disk is the **recovered PARC file corpus** — `List ///*` shows real 1985 files. |
 | **Cedar archive** | `make run-cedar-archive-sdl` | The desktop plus PressReader/Sil and the original Dorado press drawings. |
 | **Cedar login** | `make run-cedar` | The bare SimpleTerminal login prompt, for watching a boot from the start. |
-| **Interlisp-D Lyric** | `make run-lisp-snapshot-sdl` | The Lyric Exec (XCL) desktop. |
+| **Interlisp-D Lyric** | `make run-lisp-lispusers-sdl` | The Lyric Exec (XCL) desktop with 204 library packages on disk and a file server behind `{DORADO}` — type `(IL:FILESLOAD HELPSYS)` then `(IL:LOAD '{DORADO}<IRM>IRMDEMO)` (login `Guest`/`Guest`) for the online Reference Manual. |
 | **Alto games / NetExec** | `make run-galaxian`, `make run-netexec`, … | Alto software through the Dorado's Alto-emulator microcode. |
 
 Cold boots, if you want to watch the whole thing: `make run-cedar-work`
@@ -885,28 +885,33 @@ state. Pack media bytes are not embedded; restore with the same `--disk`
 arguments used to create the snapshot. Writable dirty packs are flushed before
 snapshot so the restored controller state and media image agree.
 
-For Interlisp-D Lyric, create the XCL checkpoint pair once, then resume it:
+For Interlisp-D Lyric, create the library-world checkpoint pair once, then
+resume it:
 
 ```sh
 cd dorado
-make lisp-lyric-desktop-snapshot   # one full 8.8B-cycle boot
-make run-lisp-snapshot-sdl         # subsequent launches are immediate
+make lisp-lispusers-snapshot LISP_INIT_OVERRIDE=../chm/lisp/ftp-root/INIT.DORADO
+make run-lisp-lispusers-sdl        # subsequent launches are immediate
 ```
 
 The SDL frontend accepts `--snapshot-in` and `--snapshot-out`. The generated
-`lisp-lyric-xcl.snap` and `lisp-lyric-xcl.pack` are an inseparable pair because
-pack media is not embedded in the snapshot. The web build has a separate
-wasm32-ABI checkpoint under `web-assets/`; select **Interlisp-D / Lyric — saved
-Exec (XCL) desktop**, or link directly with `?boot=lisp`. Native raw snapshots
-cannot be used by wasm32 because the current format deliberately serializes C
-structs and validates their ABI sizes.
+`lisp-lyric-lispusers.snap` and `lisp-lyric-lispusers-xcl.pack` are an
+inseparable pair because pack media is not embedded in the snapshot. The web
+build has a separate wasm32-ABI checkpoint (`make lisp-lispusers-web-snapshot`,
+assets under `web-assets/`, fetched lazily by the page); select
+**Interlisp-D / Lyric — library desktop + online reference manual**, or link
+directly with `?boot=lisp`. Native raw snapshots cannot be used by wasm32
+because the current format deliberately serializes C structs and validates
+their ABI sizes.
 
-The saved Lyric desktop currently restores and renders but is not yet an
-interactive Lisp listener. Keyboard and mouse transitions reach LLKEY and
-typed characters enter Lisp's SYSBUFFER, but the saved process/TTY state does
-not consume them and the blank Exec window never prints its initial prompt.
-This is a guest-process bring-up bug, not a need to click a different host
-window.
+The restored desktop is a live Lisp listener: click inside the Exec (XCL)
+window, then type. `(IL:FILESLOAD HELPSYS)` followed by
+`(IL:LOAD '{DORADO}<IRM>IRMDEMO)` — answering the `{DORADO} Login:` prompt
+with `Guest` twice — opens the 1987 Interlisp-D Reference Manual to the CAR
+page over Leaf; `(IL:IRM.LOOKUP 'NAME)` then looks up anything else.
+Loading library packages works both from the pack (`(LOAD '{DSK}GREP.LCOM)`)
+and over the network (`(IL:FILESLOAD AISBLT)` — a file deliberately NOT on
+the pack).
 
 `make clean` removes the native files under `build/good-packs`. The producer
 automatically rehydrates its prerequisite Lyric pack from the preserved

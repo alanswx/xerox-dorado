@@ -465,6 +465,32 @@ and still say `Opened:`. Screenshot:
 the version `.github/workflows/deploy-pages.yml` pins; it is not on PATH
 until `source ~/emsdk/emsdk_env.sh`, and no shell profile sources it.)
 
+**Interlisp-D reads its own manual over the network (2026-08-01..04).**
+The Lyric pack grew from 119 to 204 library packages (chosen by
+dependency closure, `tools/lisp_pack_closure.py`), and **Leaf** — the IFS
+random-access file protocol, Pup 0o260 — is served in-process
+(`src/ethernet.c`), which lifts the pack's hard 22,736-page ceiling:
+`make verify-lisp-leaf` watches a package that is NOT on the disk stream
+in over the wire. On top of that, **the 1987 Interlisp-D Reference
+Manual opens on screen**: `(IL:FILESLOAD HELPSYS)` then
+`(IL:LOAD '{DORADO}<IRM>IRMDEMO)` (login Guest/Guest) shows the CAR page
+— hash-index lookup in the 331 KB `IRM.HASHFILE` by random access, the
+chapter streamed, TEdit rules drawn
+(`docs/images/lisp-irm-car-dinfo-2026-08-03.png`). Three root causes on
+the way, all in `docs/lisp-leaf-handoff.md` §5: Interlisp `(* ...)`
+comments are PARSED, and one `HELPSYS:` token read as a package prefix
+silently killed the init file at greet; DInfo drops an empty `<>`
+directory when rebuilding node names, so the IRM lives in a served
+`<IRM>` subdirectory; and the server was not answering **IFS leader-page
+reads** (dates/name/author at 27-bit addresses >= 2^27-2048, made at
+EVERY open) — the client parsed uninitialized packet buffer,
+deterministically, while the wire looked clean. The browser build ships
+the same world: the wasm checkpoint, pack and served tree are all
+fetched lazily when the Lyric entry is chosen (index.data SHRANK ~6 MB),
+and the deploy is live. Beware: `dorado_machine_restore` clobbers the
+ethernet state with the bake-time ftp root — every web boot must re-apply
+`dorado_machine_set_ftp_source` after restore.
+
 **Superseded note (2026-07-28, earlier in the same session):** Booted the period way -- `SmalltalkDorado.eb!1` plus
 the `xmsmall.dsk` pack converted with `dsk2trident --all-heads`, then the
 Executive's `Bootfrom xmsmall.boot` -- DSemu loads the whole image (2674

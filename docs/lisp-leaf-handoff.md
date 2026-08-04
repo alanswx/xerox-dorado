@@ -1,24 +1,28 @@
-# Handoff — Interlisp-D on the network (Leaf), 2026-08-01..03
+# Handoff — Interlisp-D on the network (Leaf), 2026-08-01..04
 
-**Read §1 first.** The push hold that used to apply to this branch was
-lifted by Alan on 2026-08-03; the branch pushes normally now.
+**Read §1 first.** Everything below is merged to `main` and the GitHub
+Pages deploy is live (the old push hold was lifted 2026-08-03).
 
 ---
 
 ## 1. State in one paragraph
 
-Interlisp-D Lyric now loads files it does not have on its disk, over **Leaf**,
-the IFS random-access file protocol. `make verify-lisp-leaf` proves it:
-`AISBLT` is deliberately absent from the pack, and the gate watches it open
-and stream in 33 reads. That lifts the pack's hard 22,736-page ceiling, which
-was the thing blocking a bigger Lisp demo. Separately the pack itself went
-from 119 to 204 packages plus 14 fonts. **The HELPSYS blocker is FIXED**
-(2026-08-03): `IRM.HOST&DIR` was unbound because ONE COLON in an added
-`(* HELPSYS: ...)` comment aborted the init file's load — §5 has the full
-story. `IRM.LOOKUP` now logs in, resolves the IRM files over the wire, and
-raises the DInfo window prompt; what remains for docs-on-a-button is the
-region-confirm click (a general input gap, precisely characterized in §5)
-or the scripted no-mouse bypass, plus baking a demo snapshot.
+Interlisp-D Lyric loads files it does not have on its disk over **Leaf**,
+the IFS random-access file protocol, and **the docs demo works end to
+end, native and in the browser**: `(IL:FILESLOAD HELPSYS)` then
+`(IL:LOAD '{DORADO}<IRM>IRMDEMO)` (login `Guest`/`Guest`) opens the 1987
+Interlisp-D Reference Manual to the CAR page — hash-index lookup, chapter
+streamed over Leaf, horizontal rules drawn
+(`docs/images/lisp-irm-car-dinfo-2026-08-03.png`). Getting there took,
+in order: a colon in a comment that killed the init at greet (§5), the
+IRM moving to a served `<IRM>` directory (§5), and the real server-side
+blocker — the unserved **IFS leader page**, which the client reads at
+every open (§5, §3). The pack carries 204 packages + 14 fonts; Leaf
+lifts its hard 22,736-page ceiling. The web build ships the library
+world with all three assets fetched lazily (§10). Open items, all
+minor: a late `ARG NOT PROCESS` break minutes AFTER success (client
+cache-flush idle path, §5), the mouse region-confirm click (input gap,
+§5), and optionally baking a demo snapshot with HELPSYS preloaded.
 
 ---
 
@@ -32,11 +36,16 @@ make run-lisp-lispusers-sdl      # click the Prompt Window, then type
 make run-lisp-sketch-sdl         # auto-loads SKETCH (~3 min of wall clock)
 make run-lisp-filebrowser-sdl    # auto-loads FILEBROWSER (+TABLEBROWSER)
 
+# The reference-manual demo, inside the running desktop (click the Exec):
+#   (IL:FILESLOAD HELPSYS)
+#   (IL:LOAD '{DORADO}<IRM>IRMDEMO)     -- {DORADO} Login: Guest / Guest
+#   (IL:IRM.LOOKUP 'ANYTHING)           -- further lookups
+
 # Gates
 make verify-lisp                 # desktop restores, 208985 px
 make verify-lisp-leaf            # loads a package NOT on disk, over the network
 make verify-lisp-lispusers       # loads one that IS on disk
-make test                        # 12 suites, 193 assertions
+make test                        # 12 suites, 204 assertions
 ```
 
 Verified loading: `GREP`, `HRULE`, `PACMAN`, `FILEBROWSER` (pulls
@@ -65,9 +74,18 @@ The client is the more useful of the two: it is the half we must satisfy, it
 names constants the BCPL only implies, and `AnswerSetOp` lives in the IFS
 Sequin module which survives only as compiled `.BR`.
 
-Implemented: **Reset, Params, Open, Read, Close, ErrorAnswer**. Not
-implemented: Write, Delete, Truncate, CloseTransaction, Telnet (the served
-tree is read-only).
+Implemented: **Reset, Params, Open, Read, Close, ErrorAnswer**, a
+**16-slot handle table** (HELPSYS holds the hash file open while fonts,
+the graph and chapters come and go — one slot answers BAD HANDLE to the
+second lookup), **honest Sequin behavior** (a duplicate data request is
+answered by RETRANSMITTING the cached answer with its ORIGINAL sequence
+number — LEAF!33 matches answers to requests strictly by order against
+its done queue, and a fresh answer desynchronizes it; bodyless
+NOOP/RESTART/DESTROY/QUIT controls are recognized and answered), and the
+**IFS leader page** (§5 — dates, BCPL name with `!version`, author,
+type, served at 27-bit addresses ≥ 2^27−2048, plus dontExtend EOF
+clamping and the answer's `newEOF` bit). Not implemented: Write, Delete,
+Truncate, CloseTransaction, Telnet (the served tree is read-only).
 
 ### Three things that were not guessable from the header
 

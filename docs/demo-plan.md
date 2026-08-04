@@ -166,6 +166,15 @@ bring-up; do not confuse it with the 76 world that works.
 
 ## 4. Interlisp-D — the Lyric library, reachable and loading
 
+> **DONE (2026-08-04) and beyond — see `docs/lisp-leaf-handoff.md`.** The
+> shipped Lyric world carries 204 Lyric-vintage `.LCOM` packages + 14
+> fonts on its pack, loads anything else over a full in-process **Leaf**
+> server (the pack ceiling no longer binds), and opens the 1987
+> Interlisp-D Reference Manual on screen (`(IL:FILESLOAD HELPSYS)` then
+> `(IL:LOAD '{DORADO}<IRM>IRMDEMO)`, Guest/Guest at the login) — native
+> (`make run-lisp-lispusers-sdl`) and on the deployed GitHub Pages build.
+> The sections below are the planning trail that got there.
+
 Lyric boots to its Exec (XCL) desktop (208,966 px gate). The archive has a
 substantial user library we have never touched:
 

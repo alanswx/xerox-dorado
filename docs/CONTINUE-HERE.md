@@ -1,14 +1,22 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
-> **Start here for the 2026-08-03 session:**
-> [`docs/lisp-leaf-handoff.md`](lisp-leaf-handoff.md) — Interlisp-D now loads
-> files it does NOT have on its disk, over **Leaf**, the IFS random-access
-> file protocol (`make verify-lisp-leaf`). That lifts the pack's hard
-> 22,736-page ceiling. The pack itself went 119 -> 204 packages + 14 fonts.
-> **Eleven commits on branch `lisp-lyric-library-and-leaf`, none pushed.**
-> One thing unfinished: HELPSYS (the online Reference Manual, and the
-> "docs on a button" the demo wants) does not open because `IRM.HOST&DIR`
-> is unbound at greet time — §5 has the diagnosis and the next thing to try.
+> **Start here for the 2026-08-01..04 sessions (all merged to main,
+> Pages deploy live):**
+> [`docs/lisp-leaf-handoff.md`](lisp-leaf-handoff.md) — Interlisp-D loads
+> files it does NOT have on its disk over **Leaf**, the IFS random-access
+> file protocol (`make verify-lisp-leaf`; the pack went 119 -> 204
+> packages + 14 fonts), and **the 1987 Interlisp-D Reference Manual opens
+> on screen**, native and in the browser: `(IL:FILESLOAD HELPSYS)` then
+> `(IL:LOAD '{DORADO}<IRM>IRMDEMO)` with Guest/Guest at the login shows
+> the CAR page, fetched over the wire. Three root causes on the way, each
+> a section-5 story: a COLON in a `(* HELPSYS: ...)` comment silently
+> killed the init at greet; DInfo drops an empty `<>` directory, so the
+> IRM lives in a served `<IRM>` directory; and the server was not
+> answering **IFS leader-page reads** (file dates/name/author at
+> addresses ≥ 2^27−2048, read at EVERY open), which poisoned the client
+> deterministically while the wire looked clean. Open, minor: a late
+> `ARG NOT PROCESS` break minutes after success, and the mouse
+> region-confirm click (handoff §5).
 >
 > **Start here for the 2026-07-31 session:**
 > [`docs/sil-schematics-handoff.md`](sil-schematics-handoff.md) — the

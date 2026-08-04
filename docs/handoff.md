@@ -605,7 +605,7 @@ are the historical log.
 | App install into the live desktop | `Bringover [Cedar]<CedarChest6.1>Top>ChessHack` then `Run ...` | 2026-07-16 scripted run (NOTE: plain Bringover, not `-p`) |
 | Playable Chess board | `Run ChessHackImpl; ChessHack; Eval ViewerOps.OpenIcon[...]` (needs Chess40 in TiogaFonts.df + a desktop rebake) | full board paints, `Chess40.ks` demand-fetched (2026-07-21) |
 | Offline apps demo (Chess + Clock) | `make run-cedar-demo-sdl` / web "apps demo (offline)" option | restores clean desktop + icons, opens ChessHack offline (0 STP fetches) |
-| Interlisp-D Lyric desktop | web dropdown / lisp targets | saved Exec checkpoint |
+| Interlisp-D Lyric desktop + library + docs | `make run-lisp-lispusers-sdl` / web dropdown | 204 packages on disk, Leaf file server, Reference Manual demo (`docs/lisp-leaf-handoff.md`) |
 | Diagnostics | `build/rundiag` | all six PASS |
 
 Media/PDI invariants that keep the Cedar path alive: germ and microcode
