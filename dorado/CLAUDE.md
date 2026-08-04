@@ -638,6 +638,28 @@ fails to restore. Reset in `dorado_machine_create`. Engages only for the
 live Cedar world (Alto path applies keys directly). Paste pacing is 800K
 cyc (~= the 3-field drain rate), down from 1.6M.
 
+**`--cycles` does NOT count Dorado microcycles.** Every cycle number in
+this project -- `--cycles`, `--type-at`, `--paste-at`, the gate budgets,
+`DORADO_TRACE_GATE` -- is `m->bb.cycles`, the BASEBOARD 6502 cycle
+counter. `baseboard_cycles_per_uop` is 1, but `baseboard_run()` executes a
+whole 6502 INSTRUCTION and adds all of its cycles, so bb.cycles advances
+by the average 6502 instruction length -- **measured 3.70 per Dorado
+microinstruction** in the Lyric world (2,704,685 microinstructions per
+10,010,624 bb.cycles).
+
+So to convert a cycle budget to emulated Dorado time: divide by 3.7, then
+multiply by the 60 ns microcycle. 10 M cycles is ~162 ms of guest time,
+not 600 ms. This matters whenever you reason about anything the GUEST
+times -- timeouts, retries, interrupt cadence, the Interlisp mouse-chord
+window -- and getting it wrong makes the emulator's clock look 3.7x slow
+when it is in fact correct: over that same interval the guest's own
+`\RCLK` advanced 162.4 ms against 162.3 ms of microinstructions.
+
+Cross-check the guest clock with `DORADO_RCLK_RATE=1`, which samples what
+`LOPS.mc opRCLK` returns (VM 0o430 high, the `RTClock` RM register low;
+`Junk.mc` maintains it by DDA, and only `RTClock[0:9]` is clock -- the low
+6 bits are DDA fraction, so a naive 16-bit read is off by 64x).
+
 **When the snapshot ABI DOES have to change, sweep every checkpoint.**
 The rule above avoids the change where it is avoidable, but sometimes a
 struct legitimately grows -- and then `dorado_machine_restore` refuses

@@ -1929,6 +1929,22 @@ static void machine_seed_utilin(dorado_memory *mem, int buttons)
      * what made a click destroy the Smalltalk desktop (see
      * machine_seed_mouse). Smalltalk boots to exactly the same 124,945 px
      * with the base-0 write alone, so the shotgun bought nothing. */
+    /* DORADO_MOUSE_TRACE: report every CHANGE of the offered button word,
+     * with what the cell reads back afterwards. The question it answers is
+     * whether a button release actually persists in the cell the guest
+     * polls, or whether something re-asserts it -- the first thing to
+     * establish before blaming the guest for missing an up-edge. */
+    if (dorado_trace_flag("DORADO_MOUSE_TRACE")) {
+        static uint16_t last_bw = 0xFFFFu;
+        static int seeded_once = 0;
+        if (!seeded_once || bw != last_bw) {
+            seeded_once = 1;
+            last_bw = bw;
+            fprintf(stderr, "[mouse] utilin<-%06o (buttons=%d) readback=%06o\n",
+                    bw, buttons & 07,
+                    dorado_visible_word_at_va(mem, 0177030u));
+        }
+    }
     for (uint32_t a = 0177030u; a <= 0177033u; a++)
         machine_store_va(mem, a, bw);
 }
@@ -2014,6 +2030,25 @@ static void machine_seed_lisp_live_io(dorado_machine *m, dorado_display *disp)
     for (int i = 0; i < 4; i++)
         w[i] = dorado_display_keyboard_word(disp, i);
     machine_seed_keyboard(&m->mem, w);
+
+    /* DORADO_RCLK_RATE: sample the clock \RCLK returns, so its rate can be
+     * compared against emulated time. LOPS.mc opRCLK builds a 32-bit value
+     * from VM 0o430 (hi) and the RTClock RM register (lo) -- and Interlisp's
+     * mouse-chord timer is denominated in those ticks
+     * (\MOUSECHORDTICKS = \MOUSECHORDMILLISECONDS * \RCLKMILLISECOND), so a
+     * clock that runs slow stretches the 50 ms chord window into something a
+     * whole drag fits inside. */
+    if (dorado_trace_flag("DORADO_RCLK_RATE")) {
+        static unsigned long long next_at = 0;
+        if (m->bb.cycles >= next_at) {
+            next_at = m->bb.cycles + 10000000ull;
+            fprintf(stderr,
+                    "[rclk] cyc=%llu vm430=%06o RTClock=%06o\n",
+                    (unsigned long long)m->bb.cycles,
+                    dorado_visible_word_at_va(&m->mem, 0430u),
+                    m->cpu.RM[0260] & 0177777u);
+        }
+    }
 
     if (dorado_trace_flag("DORADO_LISP_FORCE_KEY_MASK")) {
         /* Diagnostic: LLKEY!\KEYBOARDON sets DISPINTERRUPT.EM[020000].

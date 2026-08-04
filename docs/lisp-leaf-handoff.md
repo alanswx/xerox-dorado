@@ -184,17 +184,60 @@ display fonts over Leaf, `(IL:IRM.LOOKUP (QUOTE CAR))` passes the
 for IRM DInfo Window" with the 540x400 ghost box **tracking the cursor**
 (bottom-left anchored — Interlisp Y grows upward).
 
-**What is still open, precisely: the region-confirm CLICK.** The box tracks
-(mouse POSITION flows through raw `MOUSEX.EM` 0424/5), but the confirming
-button never lands. `\TRACKWITHBOX` exits on a LEFT|MIDDLE change in
-`LASTMOUSEBUTTONS`, and `GETMOUSESTATE` takes that NOT from UTILIN but from
-`\LASTKEYSTATE` — the last KEYBOARDEVENT `\KEYHANDLER` pushed. Typed keys
-produce those events; a UTILIN-only button change apparently never wakes
-the handler. The bit encoding is verified correct (LLKEY `\MOUSE.LEFTBIT 4
-/RIGHTBIT 2/MIDDLEBIT 1`, active low — exactly what `machine_seed_utilin`
-writes), so the gap is in event/wake delivery. The same gap is what left
-Sketch's `GETREGION` sweep dead, and it gates SDL too — real clicks flow
-through the same `dorado_machine_set_mouse`. Beware the decoy that cost
+**The region-confirm CLICK — CORRECTED 2026-08-04.** The paragraph that
+stood here was wrong in its main claim: it said "the confirming button
+never lands" and blamed event/wake delivery. **The press lands fine.** The
+sweep needs the button HELD LONGER than the scripted drag was holding it
+(~0.14 s of guest time).
+
+Measured one variable at a time with `--drag-hold`, added for exactly this
+— the button hold used to share `--key-hold`, so lengthening a drag also
+slowed every keystroke and moved the whole timeline, which made the first
+attempt at this measurement worthless:
+
+| button held (cycles) | result |
+|---|---|
+| 8.8 M (the old default) | box tracks, never returns |
+| 16.8 M | same |
+| 36.8 M | **`(IL:GETREGION)` returns `(616 142 199 151)`** |
+
+Three things ruled out on the way, none worth re-testing:
+
+- **Delivery is correct.** `DORADO_MOUSE_TRACE` shows five clean
+  transitions across a drag and the release PERSISTS
+  (`utilin<-177777 readback=177777`) for hundreds of millions of cycles.
+- **The press does land.** Motion with no button (`--mouse`) draws no box;
+  the box appears only once the button goes down.
+- **It is not the keyboard-event path.** A keystroke after the release
+  changes literally nothing (0 pixels differ), and
+  `DORADO_LISP_FORCE_KEY_MASK=1` does not help.
+
+The mechanism is `\DOMOUSECHORDING` (Medley `sources/LLKEY`): a press of
+ONE button is deliberately WITHHELD from `\EM.UTILIN` while a timer runs to
+see whether the other button follows (left+right synthesizes the middle
+button a two-button mouse lacks). And `\EM.UTILIN` is **not** the cell we
+write: on the Dorado arm of `\SETIOPOINTERS`, `\EM.REALUTILIN` =
+`(EMADDRESS UTILIN.EM)` = 0o177030 (ours), while `\EM.UTILIN` — what
+`GETMOUSESTATE`/`LASTMOUSEBUTTONS` read — is FAKEMOUSEBITS in the
+`\InterfacePage`.
+
+The timer is in `\RCLK` ticks (`\MOUSECHORDTICKS =
+\MOUSECHORDMILLISECONDS * \RCLKMILLISECOND`, default 50 ms). `\RCLK` is
+`LOPS.mc opRCLK`: 32 bits from **VM 0o430 (high) and the `RTClock` RM
+register (low)**, maintained by AEmu's junk task — `Junk.mc` (Taft 1983):
+wake every 32 us, DDA-approximate a tick every 38.09524 us, and only
+`RTClock[0:9]` is clock, the low 6 bits being DDA fraction.
+
+**Our clock checks out**, which is why this is not filed as a timing bug:
+2,704,685 microinstructions x 60 ns = 162.3 ms of Dorado time against the
+162.4 ms the guest's own clock advanced over the same interval.
+
+**Still unexplained — pick it up here.** The documented chord window is
+50 ms, but the sweep needs between 0.27 s and 0.6 s of guest time, 5-10x
+more than that constant accounts for. `\MOUSECHORDTICKS` DEFAULTS TO NIL
+(chording off) and is only set by `MOUSECHORDWAIT`, so the next probe is
+to read its actual value in the Lyric sysout: if it is NIL, chording is
+not the gate at all and the real one is still unnamed. Beware the decoy that cost
 two runs here: the region prompt lags the login by ~6 B cycles (14
 font-name LookupFile misses, each burning a guest timeout), so clicks at
 18.5 B and 22.0 B both fired BEFORE the prompt existed; on this timeline

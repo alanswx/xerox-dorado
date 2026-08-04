@@ -338,6 +338,15 @@ int main(int argc, char **argv)
     int last_type_can_update = 0;
     int pending_type_at = 0;
     uint64_t key_hold = 600000;      /* cycles to hold each key down/up */
+    /* Button hold for --click/--drag/--menu. Separate from --key-hold
+     * because they are different physical acts with different durations: a
+     * keystroke is tens of milliseconds, a drag is a second or more, and
+     * some guest interactions are sensitive to how long the button is held
+     * (Interlisp's region sweep). Sharing one knob also made bisecting
+     * impossible -- raising --key-hold to lengthen a drag also slowed every
+     * keystroke, which moved the whole timeline and confounded the run.
+     * 0 = follow --key-hold, which is the historical behaviour. */
+    uint64_t drag_hold = 0;
     uint64_t type_at = 110000000ull; /* cycle to begin typing (Alto default;
                                       * Cedar login prompt is ~650M) */
     int boot_dir_all_opt = -1;       /* -1 auto, 0 off, 1 on */
@@ -538,6 +547,9 @@ int main(int argc, char **argv)
         } else if (!strcmp(a, "--key-hold") && i + 1 < argc) {
             key_hold = parse_u64(argv[++i], key_hold);
             last_type_can_update = 0;
+        } else if (!strcmp(a, "--drag-hold") && i + 1 < argc) {
+            drag_hold = parse_u64(argv[++i], drag_hold);
+            last_type_can_update = 0;
         } else if (!strcmp(a, "--paste-at") && i + 3 < argc &&
                    !strcmp(argv[i + 2], "--paste")) {
             /* --paste-at CYCLES --paste TEXT: exercise the frontends'
@@ -586,6 +598,9 @@ int main(int argc, char **argv)
                    "[--no-alto-boot] [--progress] "
                    "[--type-at CYCLES --type TEXT] [--mouse X,Y]... "
                    "[--type-at CYCLES --key-chord K[,K...]]...\n"
+                   "  --drag-hold N: cycles to hold the mouse button for "
+                   "--click/--drag/--menu (default: --key-hold). Interlisp's "
+                   "GETREGION needs a long hold\n"
                    "  --boot-keys: boot-selection chord held down (default "
                    "bs, +quote with --quote); e.g. bs,quote\n"
                    "  --boot-reason: alias for the chord (ethernet=bs, "
@@ -694,6 +709,8 @@ int main(int argc, char **argv)
             for (int ce = 0; ce < click_event_count; ce++) {
                 if (!click_events[ce].done &&
                     dorado_machine_cycles(m) >= click_events[ce].at) {
+                    /* Button hold: --drag-hold when given, else --key-hold. */
+                    uint64_t btn_hold = drag_hold ? drag_hold : key_hold;
                     click_events[ce].done = 1;
                     int btn = click_events[ce].button
                                   ? click_events[ce].button
@@ -738,7 +755,7 @@ int main(int argc, char **argv)
                                 m, dorado_machine_cycles(m) + 400000ull);
                         }
                         dorado_machine_run_until(m,
-                            dorado_machine_cycles(m) + key_hold);
+                            dorado_machine_cycles(m) + btn_hold);
                         dorado_machine_set_mouse(m, x2, y2, 0);
                         continue;
                     }
@@ -751,7 +768,7 @@ int main(int argc, char **argv)
                     dorado_machine_set_mouse(m, click_events[ce].x,
                                              click_events[ce].y, btn);
                     dorado_machine_run_until(m,
-                        dorado_machine_cycles(m) + key_hold);
+                        dorado_machine_cycles(m) + btn_hold);
                     if (click_events[ce].menu) {
                         /* A pop-up menu is up now, under the cursor and still
                          * held. Give it several fields to paint, capturing a
