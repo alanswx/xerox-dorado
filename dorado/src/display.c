@@ -9,6 +9,20 @@
 static int display_trace_limit(const char *name, unsigned default_limit,
                                unsigned *limit)
 {
+    /* This is a HOT path -- called once per display word the DDC fetches,
+     * via dorado_display_iofetch_word. A raw getenv() here was costing ~2%
+     * of total runtime (sample, 2026-08-04): exactly the trap
+     * dorado/CLAUDE.md warns about ("Never a raw getenv() in a hot path"),
+     * sitting in the one file that already carries the warning.
+     *
+     * dorado_trace_flag() is the inlined "is ANY DORADO_* variable set"
+     * test, so with a clean environment this returns immediately and the
+     * getenv disappears. Only when some DORADO_* is set do we pay a real
+     * getenv to read the limit VALUE -- which dorado_trace_flag cannot give
+     * us, because it memoizes booleans keyed by string-literal pointer.
+     * Behaviour is identical: an unset variable answered 0 before too. */
+    if (!dorado_trace_flag(name))
+        return 0;
     const char *env = getenv(name);
     if (!env || !*env || *env == '0')
         return 0;

@@ -45,11 +45,33 @@ been thoroughly cross-checked against the board schematics
 Overflow branch condition, shifter Pd-mux masking, and Return clobbering a
 same-instruction explicit Link<- load -- the Cedar-desktop blocker; an
 explicit Link<- overrides Return's Link<-CIA+1 reload, per DMesaFloat.mc).
-The emulator runs **29.1 M microinstructions/s on the Alto path and
-25.2 M on the Cedar desktop** (measured 2026-07-31 on an M4 Max) --
-**1.75x and 1.51x the real 16.67 MIPS Dorado** (60 ns cycle). That is
-1.21x faster than the 2026-07-18 figures, with both framebuffers
-byte-identical, from two fixes found by `sample`:
+**RETRACTED 2026-08-04: the emulator is SLOWER than the real Dorado, not
+faster.** The figures below said 29.1 M microinstructions/s on the Alto
+path and 25.2 M on Cedar, "1.75x and 1.51x the real 16.67 MIPS Dorado".
+Those were **`m->bb.cycles` per second** -- the BaseBoard 6502 counter,
+which advances 3.70 per Dorado microinstruction -- reported as if they
+were microinstructions. Divide by 3.70 and the same runs give:
+
+| path | microinstr/s | vs real 16.67 MIPS Dorado |
+|---|---|---|
+| Alto (Galaxian) | 7.6 M | **0.46x** |
+| Cedar desktop | 6.4 M | **0.39x** |
+
+So a PARC veteran reporting that it "feels slow" was reading the machine
+correctly and the documentation was wrong: we run at roughly half speed,
+and to match the hardware we need ~2.2x more throughput. `dorado` now
+prints the honest number at the end of every run -- emulated Dorado
+seconds per CPU second, from `cpu->cycles` (microinstructions), never
+from bb.cycles -- so this cannot be misread again.
+
+**The clocks themselves are correct**, which is the good news: the guest's
+own `\RCLK` advanced 162.4 ms over an interval in which 2,704,685
+microinstructions x 60 ns = 162.3 ms elapsed, and the junk task fires
+every 533 microinstructions = the 32 us `Junk.mc` specifies. Nothing is
+mis-clocked; the emulator is simply not fast enough yet.
+
+The 2026-07-18/31 optimizations below were real (they are byte-identical
+speedups); only their headline ratio was wrong:
 
 - **The display-active predicate was asked once per microinstruction.**
   `machine_alto_display_active()` re-translates four VAs and walks the DCB

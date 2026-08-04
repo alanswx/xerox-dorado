@@ -40,6 +40,7 @@
 
 #include <stdint.h>
 #include <signal.h>
+#include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -658,6 +659,14 @@ int main(int argc, char **argv)
 
     printf("dorado: booting (target %llu cycles)...\n",
            (unsigned long long)cycles);
+    clock_t run_start_clock = clock();
+    /* Baseline AFTER any --snapshot-in: cpu->cycles is part of the
+     * snapshotted state, so a restored checkpoint arrives carrying every
+     * microinstruction its bake executed. Charging those to this run's
+     * wall time reported a restored Cedar desktop at "14.7x real
+     * hardware". Only the delta is this run's work. */
+    uint64_t run_start_uops = dorado_machine_uinstructions(m);
+    uint64_t run_start_cycles = dorado_machine_cycles(m);
     install_signal_snapshot_handlers();
     if (shot_every) next_shot = shot_every;
 
@@ -814,6 +823,25 @@ int main(int argc, char **argv)
     dorado_display_vblank(disp);
     if (dorado_display_snapshot_pgm(disp, out) == 0) {
         printf("dorado: %d display-list pixels; wrote %s\n", pixels, out);
+        /* Honest speed report, in the machine's own unit. The headline
+         * number here is emulated-Dorado-seconds per wall second: the real
+         * machine ran 16.666 M microinstructions/s (60 ns), so >1.0 means
+         * this emulator outruns a real Dorado and <1.0 means it does not.
+         * Quoting bb.cycles/s instead overstates it by ~3.7x, which is how
+         * "1.75x the real Dorado" came to be published for something that
+         * is actually slower than the hardware. */
+        uint64_t uops = dorado_machine_uinstructions(m) - run_start_uops;
+        double wall = (double)(clock() - run_start_clock) / CLOCKS_PER_SEC;
+        if (uops && wall > 0.0) {
+            double emulated_s = (double)uops / 16.666e6;
+            printf("dorado: %llu microinstructions = %.2f s of Dorado time "
+                   "in %.2f s CPU = %.2fx real hardware "
+                   "(%.1f M uinstr/s; %llu BB-6502 cycles, %.2f per uinstr)\n",
+                   (unsigned long long)uops, emulated_s, wall,
+                   emulated_s / wall, (double)uops / wall / 1e6,
+                   (unsigned long long)(dorado_machine_cycles(m) - run_start_cycles),
+                   (double)(dorado_machine_cycles(m) - run_start_cycles) / (double)uops);
+        }
     } else {
         fprintf(stderr, "dorado: failed to write %s\n", out);
     }

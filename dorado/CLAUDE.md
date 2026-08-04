@@ -597,10 +597,40 @@ And keep `dorado_trace_flag_lookup` free of extra tests -- a redundant
 
 **Profile before optimizing** (`sample <pid> 20 -file out.txt`, then the
 "Sort by top of stack" section), and gate on BYTE-IDENTICAL framebuffers
-(`cmp` two .pgm files), not pixel counts. Current: **29.1 M cycles/s Alto,
-25.2 M Cedar** = 1.75x / 1.51x the real 16.67 MIPS machine. Next spots:
-`execute_uinstr` (~20%), the per-cycle `eth_ftp_maybe_deliver` poll (~5%),
-the BaseBoard 6502 still running at full speed long after boot (~5%).
+(`cmp` two .pgm files), not pixel counts.
+
+**Current speed: 0.46x real hardware on the Alto path (7.6 M
+microinstructions/s), 0.39x on Cedar (6.4 M).** We are SLOWER than a real
+Dorado, by a bit over 2x. The old "29.1 M cycles/s = 1.75x" claim was
+bb.cycles/s read as microinstructions/s -- off by exactly the 3.70
+BB-cycles-per-microinstruction factor. Every run now prints the honest
+figure; quote THAT, never a cycles/s number.
+
+Audited 2026-08-04, with what each item actually costs (byte-identical
+A/B, three runs each):
+
+- `execute_uinstr` ~23% and `dorado_machine_run_until` ~15% -- the
+  interpreter itself. This is where a 2x has to come from; there is no
+  remaining silly bug of that size.
+- `machine_store_va` ~13%. The Alto path re-seeds the keyboard/mouse cells
+  on EVERY microinstruction (`machine_seed_alto_live_io`, ~10 stores each
+  with a VA translate and a cache invalidation) to write values that change
+  only when a human touches the input. The Lisp path already gates itself
+  to one seed per 16384 cycles. Skipping when nothing changed measured
+  ~2% and stayed byte-identical on the Alto path -- NOT shipped, because
+  it needs checking against Cedar/Lisp/Smalltalk first (a world that
+  consumes the cell would need the refresh).
+- The BaseBoard 6502 ~4%. It runs ONE 6502 INSTRUCTION PER DORADO
+  MICROINSTRUCTION, i.e. about 62x faster than the real ~1 MHz part
+  relative to the 16.67 MHz Dorado. Skipping it after boot is
+  byte-identical and worth 4.2%. Doing that properly means decoupling the
+  master clock from the 6502 first -- see the `--cycles` note above; that
+  is a breaking change to every cycle constant and gate budget in the
+  tree, so it is a decision, not a cleanup.
+- `display_trace_limit` called raw `getenv()` per fetched display word --
+  2.5%, FIXED 2026-08-04. It is the exact trap this file warns about, in
+  the file the warning lives next to; grep for other raw `getenv` on
+  per-cycle paths before assuming there are none left.
 
 **Never leave an expensive artifact in a temp directory.** `/tmp`,
 `/private/tmp` and any per-session scratchpad DO NOT survive a reboot, and a

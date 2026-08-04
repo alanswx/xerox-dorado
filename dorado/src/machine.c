@@ -3952,6 +3952,18 @@ uint64_t dorado_machine_cycles(const dorado_machine *m)
     return m ? m->bb.cycles : 0;
 }
 
+/* Executed Dorado MICROINSTRUCTIONS -- the only counter that is in the
+ * machine's own unit. dorado_machine_cycles() above is m->bb.cycles, the
+ * BaseBoard 6502 counter, which advances by a whole 6502 instruction's
+ * length per microinstruction (~3.7x). Anything comparing this emulator's
+ * speed to the real 16.67 MIPS Dorado, or converting a cycle budget to
+ * emulated time, must use THIS one: at 60 ns per microinstruction,
+ * emulated seconds = dorado_machine_uinstructions() / 16.666e6. */
+uint64_t dorado_machine_uinstructions(const dorado_machine *m)
+{
+    return m ? m->cpu.cycles : 0;
+}
+
 /* True when the image this machine is serving over EFTP is a Mesa/Pilot
  * outload (first word 0o345) rather than an Alto B-format boot file (0o405).
  * Frontends need it for pacing: a Mesa world paints its herald within ~30 M

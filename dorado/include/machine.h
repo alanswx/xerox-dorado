@@ -131,6 +131,12 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle);
 
 uint64_t dorado_machine_cycles(const dorado_machine *m);
 
+/* Executed Dorado microinstructions. NOT the same as
+ * dorado_machine_cycles(), which returns the BaseBoard 6502 counter
+ * (~3.7x larger). Use this one for speed comparisons against the real
+ * 16.67 MIPS machine and for converting cycle budgets to emulated time. */
+uint64_t dorado_machine_uinstructions(const dorado_machine *m);
+
 /* 1 once Initial has LoadRam'd the Alto/Mesa world and it is running. */
 int dorado_machine_booted(const dorado_machine *m);
 /* 1 when the EFTP-served image is a Mesa/Pilot outload (see machine.c). */
