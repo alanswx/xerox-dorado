@@ -257,6 +257,46 @@ interactive value to ~1,028,000 would let the core run flat out; left
 unchanged for the same reason as SDL's, that it changes how every world
 and demo feels, and that is a human's call.
 
+### The profile after Phase 5, and what 1.0x in wasm would take
+
+Re-profiled with the BaseBoard suppressed (Galaxian, PGO build):
+
+| | share |
+|---|---|
+| `execute_uinstr` | ~44% |
+| `dorado_machine_run_until` | ~40% |
+| `next_pc` | ~5.7% |
+| `dorado_memory_ref_task` | ~3.7% |
+| `display_output_b` | ~2.8% |
+| `ff_override_b` | ~2.3% |
+
+The 6502 is gone entirely — Phase 5 worked. What remains is **84% pure
+interpreter**, and under LTO those top two inline into each other, so
+treat them as one number rather than two.
+
+One more raw `getenv` was hiding in there: `display_dispm_present()` said
+in its own comment that it was "read only during the display-status probe,
+not on every microcycle", but the Alto microcode POLLS that status
+register, so it sat under `display_output_b` at ~0.7%. Now cached and
+invalidated by `dorado_display_init()` — it cannot be cached
+process-wide, because the browser setenv/unsetenvs it and creates a new
+machine per world without reloading the module. Worth ~1%, byte-identical.
+That is the second instance of this exact trap in `display.c` alone; grep
+for raw `getenv` before assuming there is not a third.
+
+**Getting wasm to 1.0x is now an interpreter project, not a flags one.**
+wasm sits at 0.68-0.70x and needs 1.45x. With 84% of the time in the
+interpreter, that means cutting the interpreter itself by roughly 40% —
+there is no longer any peripheral work of that size to remove. The
+candidates are Phase 2 (predecode: precompute per-IM-word what to do,
+instead of re-deriving FF/LC/ALUFM routing and branch targets every
+execution) and dispatch restructuring. Both are real work with real
+regression risk, and neither is a flag.
+
+The compiler-flag avenue is exhausted: `-O3 -flto` plus the native PGO
+profile is everything emscripten will give. `-O3` alone was worth nothing,
+`-mcpu` does not apply, and emscripten cannot collect its own profile.
+
 ### Phase 5 DONE: the idle BaseBoard (2026-08-04)
 
 The 6502 ran ONE INSTRUCTION PER DORADO MICROINSTRUCTION — about 62x
