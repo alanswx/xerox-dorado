@@ -32,6 +32,7 @@
 #include "memory.h"
 #include "microcode.h"
 #include "pdi.h"
+#include "trace.h"
 
 #include <stddef.h>
 #include <stdint.h>
@@ -2644,7 +2645,24 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
      * we are about to step so running one never drives another's BB. */
     baseboard_active = bb;
 
+    /* One probe of the environment so the per-cycle diagnostic preamble
+     * below can be skipped wholesale. */
+    if (dorado_trace_env_present < 0) dorado_trace_init();
+
     while (bb->cycles < until_cycle && !cpu->halted) {
+        /* PER-CYCLE DIAGNOSTIC PREAMBLE -- trace-only, no behavioural
+         * effect, and therefore skipped entirely unless some DORADO_*
+         * variable is set. These three blocks (trace gate, VMDUMP,
+         * MAPCOUNT) ran on every microinstruction: a global store, two
+         * compares and two more branch tests each, 7.6 million times a
+         * second, to answer "is tracing off". dorado_trace_env_present is
+         * the same inlined load-and-branch dorado_trace_flag() uses.
+         *
+         * When any DORADO_* IS set the gate is true and every block runs
+         * exactly as before, so a traced run is bit-identical to the old
+         * behaviour. dorado_trace_cycle is only ever read inside fprintf,
+         * so leaving it stale while tracing is off is harmless. */
+        if (dorado_trace_env_present) {
         /* Trace-gate cycle window (env DORADO_TRACE_GATE="lo,hi"), so the
          * standalone binary can drive the same gated IFUDISP/BR/store
          * traces as the test harness. Trace-only; no behavioral effect. */
@@ -2761,7 +2779,13 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
                 mc_next = bb->cycles + (uint64_t)mc_int;
             }
         }
-        /* Boot-button schedule (three presses). */
+        }   /* end per-cycle diagnostic preamble */
+
+        /* Boot-button schedule (three presses). The whole chain is dead
+         * once the last release is behind us, but it was still evaluating
+         * up to eight comparisons every microinstruction for the rest of
+         * the run. One test retires it. */
+        if (m->pressed || bb->cycles < T_PRESS3_UP) {
         if (!m->pressed && bb->cycles >= T_PRESS1_DOWN &&
             bb->cycles < T_PRESS1_UP) {
             baseboard_boot_button(bb, 1); m->pressed = 1;
@@ -2780,6 +2804,7 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
         } else if (m->pressed && bb->cycles >= T_PRESS3_UP) {
             baseboard_boot_button(bb, 0); m->pressed = 0;
         }
+        }   /* end boot-button schedule */
 
         int will_inject = bb->dorado_ss_pending && bb->dorado_mir_loaded;
         int will_hold   = !will_inject && !bb->dorado_running;

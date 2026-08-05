@@ -157,11 +157,63 @@ number is. Record what it was worth and move on.
 | phase | status | measured |
 |---|---|---|
 | 0 — compiler flags | **DONE** | **1.95x — 0.52x → 1.02x real hardware** |
-| 1 — task-schedule cache | not started | — |
+| 4a — diagnostic preamble hoist | **DONE** | +1.4%, byte-identical |
+| 5 — BaseBoard at its real rate | measured, not implemented | **+7.2%**, byte-identical on Alto |
+| 1 — task-schedule cache | superseded — see below | — |
 | 2 — predecode | not started | — |
 | 3 — translation cache | not started | — |
-| 4 — deadline scheduling | not started | — |
-| 5 — master-clock decoupling | not started | — |
+| 4b — deadline scheduling (rest) | not started | — |
+
+### Correction: the profile lied, and here is why
+
+The phase ordering above was derived from `sample` attributing 31% to
+`dorado_machine_run_until` and reading that as per-cycle polling overhead.
+**That inference was wrong.** Under `-flto` (and more so under PGO)
+`dorado_cpu_step` and much of `execute_uinstr` inline *into* `run_until`,
+so its self-time is mostly the emulation itself. Hoisting the entire
+per-cycle diagnostic preamble out — the change that inference predicted
+would be worth ~15% — measured **1.4%**.
+
+**Only A/B measurement counts here.** Profile attribution on an LTO/PGO
+build cannot distinguish a caller's own work from its inlined callees.
+Every number in this document from Phase 0 onward is a timed A/B with a
+`cmp` on the framebuffers; treat any percentage that is not, including the
+original table above, as a hypothesis.
+
+A second measurement trap, learned the same way: **do not A/B a code change
+against a PGO profile trained on the unmodified binary.** Adding one branch
+to the hot loop and re-measuring under the old profile showed the *control*
+regressing 15.8 s → 17.0 s, and made a real 7% win look like a 40% loss.
+Either retrain per variant, or A/B on `-O3 -flto` without PGO (what the
+numbers below do) and apply PGO once at the end.
+
+### Phase 5 is the biggest remaining item, and it is not the smallest job
+
+Running the BaseBoard 6502 at a realistic rate after boot measures **+7.2%**
+(9.75 → 10.45 M uinstr/s on `-O3 -flto`, byte-identical framebuffer). It
+is the largest single measured item left, not the ~4% the original ranking
+guessed — PGO speeds the interpreter far more than it speeds the 6502, so
+the BaseBoard's share grew.
+
+The obstacle is real and is the reason this is its own phase: `bb.cycles`
+IS the 6502's cycle count, and it is also the master clock every cadence,
+budget and gate constant is denominated in. Running the 6502 less often
+makes the master clock advance slower, which changes the meaning of every
+`--cycles` number in the tree. The shape of the fix:
+
+- a master counter advancing at today's rate (3.70 per microinstruction),
+  so every existing constant keeps its meaning bit-for-bit;
+- the BaseBoard keeping its own counter, stepped at its real ratio
+  (~1 6502 instruction per 62 microinstructions at 1 MHz vs 16.67 MHz);
+- the BB still running normally through boot, so the BB↔Dorado CPReg
+  handshake is untouched.
+
+**Caveat before anyone starts:** the measurement above *pauses* the BB
+after boot rather than slowing it. Those are not the same. A paused BB
+stops its RIOT timers, so anything post-boot that depends on them —
+notably a boot-button press from the SDL frontend — would silently stop
+working, and no current gate would catch it. Slowing rather than pausing
+avoids that, but has not been measured.
 
 ### Phase 0 result (2026-08-04)
 
