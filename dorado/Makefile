@@ -593,8 +593,18 @@ test: $(BINDIR)/test_pdi $(BINDIR)/test_mb $(BINDIR)/test_disasm $(BINDIR)/test_
 # retrain on that world by editing PGO_TRAIN below and re-running.
 # llvm-profdata: plain on Linux, behind xcrun on macOS. Detected rather
 # than hardcoded -- `xcrun` is macOS-only and broke this in CI.
-PROFDATA := $(shell command -v llvm-profdata 2>/dev/null || \
-	(command -v xcrun >/dev/null 2>&1 && echo "xcrun llvm-profdata"))
+# Ask the COMPILER where its own llvm-profdata is before trusting PATH:
+# Ubuntu ships versioned binaries (llvm-profdata-18) and no bare name, which
+# is what made this fail in CI. Order matters -- the tool that WROTE the
+# .profraw should merge it, or the format version can disagree.
+PROFDATA := $(shell \
+	p=$$($(CC) -print-prog-name=llvm-profdata 2>/dev/null); \
+	if [ -x "$$p" ]; then echo "$$p"; \
+	elif command -v llvm-profdata >/dev/null 2>&1; then echo llvm-profdata; \
+	elif ls /usr/lib/llvm-*/bin/llvm-profdata >/dev/null 2>&1; then \
+		ls /usr/lib/llvm-*/bin/llvm-profdata | tail -1; \
+	elif command -v xcrun >/dev/null 2>&1; then echo "xcrun llvm-profdata"; \
+	fi)
 
 PGO_PROFRAW := build/pgo/dorado-%p.profraw
 PGO_PROFDATA := build/pgo/dorado.profdata

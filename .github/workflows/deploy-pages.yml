@@ -51,6 +51,17 @@ jobs:
       # Best effort on purpose. If the native build or the training run
       # fails, we carry on and ship an unprofiled build rather than losing
       # the deploy.
+      # Ubuntu ships llvm-profdata only under a versioned name, or not at
+      # all, and the Makefile needs one to merge the .profraw. Best effort:
+      # a missing tool costs the profile, not the deploy.
+      - name: Ensure llvm-profdata is available
+        run: |
+          command -v llvm-profdata >/dev/null && exit 0
+          ls /usr/lib/llvm-*/bin/llvm-profdata >/dev/null 2>&1 && exit 0
+          sudo apt-get update -qq && sudo apt-get install -y -qq llvm || true
+          command -v llvm-profdata || ls /usr/lib/llvm-*/bin/llvm-profdata || \
+            echo "no llvm-profdata; the browser build will be unprofiled"
+
       # CC=clang is required, not cosmetic: the runner's default cc is gcc,
       # whose -fprofile-generate produces a format emsdk's clang cannot read
       # (the first attempt at this failed on the flag spelling alone).
