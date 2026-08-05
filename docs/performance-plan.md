@@ -213,6 +213,50 @@ the EFTP RxOn-clear had to be gated to the Cedar path because ungating it
 stalled the Alto boot. It deserves its own session and the full gate set,
 not the tail of one.
 
+### WebAssembly (2026-08-04)
+
+Measured on the node harness, which is the same wasm the browser runs.
+Galaxian, 1 B cycles, every step byte-identical:
+
+| build | speed |
+|---|---|
+| `-O2` (the old default) | 0.54x real hardware |
+| `-O3` | 0.54x — **no gain, omitted** |
+| `-O3 -flto` | 0.57x |
+| `-O3 -flto` + the **native** PGO profile | **0.68x** |
+
+The wasm build already had Phase 5, the preamble hoist and the config
+allowlist, because those are in the shared C sources — only the compiler
+flags were missing. `-O3 -flto` is now the default and the profile is used
+when present, so the browser gains **27%**.
+
+**Emscripten cannot COLLECT a PGO profile but can USE one.** An
+instrumented wasm build runs and writes no `.profraw` — the LLVM profile
+runtime is not there. But profiles are keyed by function name, so the one
+`make pgo` collects from the NATIVE binary applies to the wasm build of the
+same sources. That is where the 0.57x → 0.68x comes from.
+
+The flag is conditional (`WEB_PGO`): with no `build/pgo/dorado.profdata`
+the flag is omitted rather than passed and failing, so `make web` still
+works in a clean tree. **Run `make pgo` before `make web`** for the fast
+browser build.
+
+**The deployed page does NOT get this yet, and that is deliberate.**
+`.github/workflows/deploy-pages.yml` runs only `make web`. Adding
+`make pgo` before it would work locally-shaped but carries a real risk:
+the profile would be collected by CI's clang and consumed by emsdk's
+clang, and a profile-format version mismatch is an ERROR, not a skip —
+it would break the deploy rather than silently fall back. Worth doing,
+but it needs a CI run to prove the two clangs agree, not an assumption.
+
+**And the browser has the same pacing cap as SDL.**
+`WEB_CYCLES_INTERACTIVE` is 400,000 cycles per frame, which at 60 Hz is
+0.39x — now *below* what the wasm core can sustain (0.68x). Boot uses
+`WEB_CYCLES_BOOT` (4,000,000) and is already core-limited. Raising the
+interactive value to ~1,028,000 would let the core run flat out; left
+unchanged for the same reason as SDL's, that it changes how every world
+and demo feels, and that is a human's call.
+
 ### Phase 5 DONE: the idle BaseBoard (2026-08-04)
 
 The 6502 ran ONE INSTRUCTION PER DORADO MICROINSTRUCTION — about 62x

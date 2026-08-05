@@ -94,7 +94,26 @@ WEB_CEDAR_DEMO_RAW_PDI := $(WEB_CEDAR_RAW_DIR)/cedar-demo.pdi
 # macOS headers expose them by default, so the native build doesn't need it.
 # No SDL: the web frontend presents via the canvas 2d context and takes
 # input through exported C functions (see src/dorado_web.c header).
-WEB_CFLAGS := -std=c99 -D_GNU_SOURCE -O2 -Iinclude -Ivendor/6502
+# Browser build flags. Measured 2026-08-04 on the node harness (same wasm),
+# Galaxian 1 B cycles, every step byte-identical:
+#
+#   -O2 (the old default)                   0.54x real hardware
+#   -O3                                     0.54x   (no gain -- omitted)
+#   -O3 -flto                               0.57x
+#   -O3 -flto + the NATIVE PGO profile      0.68x   <- 27% over the old default
+#
+# The last line is the surprise: emscripten cannot COLLECT a profile (an
+# instrumented wasm build runs but writes no .profraw -- the LLVM profile
+# runtime is not there), but it can USE one. Profiles are keyed by function
+# name, so the profile `make pgo` collects from the NATIVE binary applies to
+# the wasm build of the same sources.
+#
+# Conditional on purpose: with no build/pgo/dorado.profdata present the flag
+# is omitted rather than passed and failing, so `make web` still works in a
+# clean tree and in CI. Run `make pgo` before `make web` for the fast build.
+WEB_PGO := $(if $(wildcard build/pgo/dorado.profdata),\
+	-fprofile-instr-use=build/pgo/dorado.profdata,)
+WEB_CFLAGS := -std=c99 -D_GNU_SOURCE -O3 -flto $(WEB_PGO) -Iinclude -Ivendor/6502
 # STACK_SIZE: Emscripten's default wasm stack is 64 KB and overflow corrupts
 # static data silently (no guard page); give the emulator real headroom.
 WEB_LDFLAGS := -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=67108864 \
