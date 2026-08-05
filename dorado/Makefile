@@ -588,10 +588,15 @@ pgo:
 	@rm -f build/pgo/*.profraw
 	@LLVM_PROFILE_FILE='$(PGO_PROFRAW)' $(BINDIR)/dorado $(PGO_TRAIN) >/dev/null 2>&1
 	@xcrun llvm-profdata merge -output='$(PGO_PROFDATA)' build/pgo/*.profraw
-	@echo "pgo: stage 3 -- optimized rebuild"
+	@echo "pgo: stage 3 -- optimized rebuild (headless AND the SDL frontend)"
 	@$(MAKE) -s clean-objs
 	@$(MAKE) -s $(BINDIR)/dorado \
 		CFLAGS="$(CFLAGS) -fprofile-instr-use=$(PGO_PROFDATA)"
+	@# The SDL binary is the one a person actually watches. Building only
+	@# the headless one meant `make pgo` doubled a number nobody could see.
+	@$(MAKE) -s $(BINDIR)/dorado-sdl \
+		CFLAGS="$(CFLAGS) -fprofile-instr-use=$(PGO_PROFDATA)" || \
+		echo "pgo: SDL frontend not built (SDL2 missing?) -- headless is done"
 	@echo "pgo: done. Verify byte-identical output before trusting it:"
 	@echo "  cmp two .pgm files from the same run pre/post."
 

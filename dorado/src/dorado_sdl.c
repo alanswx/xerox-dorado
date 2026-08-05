@@ -235,6 +235,27 @@ static void type_text(dorado_machine *m, const char *text, uint64_t key_hold)
 int main(int argc, char **argv)
 {
     int scale = 1;
+    /* Emulated cycles per redraw. The renderer is PRESENTVSYNC, so this
+     * times the display refresh IS the emulated speed, and it caps the
+     * machine no matter how fast the core gets:
+     *
+     *   400,000 x 60 Hz = 24.0 M cycles/s = 6.5 M microinstr/s = 0.39x
+     *
+     * i.e. the interactive window has been pinned at well under half a
+     * real Dorado, which is what "it feels slow" was. Real time is
+     *
+     *   16.666 M microinstr/s x 3.70 cycles/microinstr / 60 Hz
+     *     = 1,028,000 cycles per frame
+     *
+     * (3.70 is the BB-6502 cycles per Dorado microinstruction -- see
+     * dorado/CLAUDE.md; --cycles is denominated in 6502 cycles, not
+     * microcycles.) DORADO_REALTIME_CYCLES_PER_FRAME below is that value.
+     * The default is left at the historical 400,000 because the run-*
+     * recipes and the games were tuned around it and raising it changes
+     * how every one of them feels; pass --speed 1028000 for true speed,
+     * and note that a PGO build (`make pgo`) is what can actually sustain
+     * it -- a plain build tops out near 0.60x and will simply miss frames.
+     */
     uint64_t cycles_per_frame = 400000;   /* emulated cycles per redraw */
     int speed_explicit = 0;               /* --speed pins the pace */
     long shots[64];                       /* frame numbers to snapshot   */
@@ -389,6 +410,10 @@ int main(int argc, char **argv)
                    "[--quote] [--boot-keys K[,K...]] "
                    "[--boot-reason ethernet|netexec|disk] "
                    "[--no-alto-boot] [--scale N] [--speed CYCLES]\n"
+                   "          (--speed is emulated cycles per vsync frame; "
+                   "default 400000 = 0.39x a real Dorado,\n"
+                   "           1028000 = real time. Needs a `make pgo` "
+                   "build to sustain.)\n"
                    "          [--snapshot-in PATH] [--snapshot-out PATH]\n"
                    "          [--type-at CYCLES --type TEXT]... "
                    "[--key-hold CYCLES]\n"
