@@ -60,6 +60,7 @@ void dorado_trace_init(void)
         "DORADO_FAKE_TIME=",
         "DORADO_DISPM_PRESENT=",
         "DORADO_PDI_SAVE=",
+        "DORADO_BB_ALWAYS_STEP=",
     };
 
     extern char **environ;
@@ -432,6 +433,42 @@ extern int dorado_mem_trace_ac3;
 
 #define DORADO_JUNK_TASK          2
 #define DORADO_JUNK_TICK_CYCLES   533   /* 32 us / 60 ns microcycle */
+
+/* ---- BaseBoard idle suppression (docs/performance-plan.md Phase 5) -----
+ *
+ * The BaseBoard 6502 runs ONE 6502 INSTRUCTION PER DORADO MICROINSTRUCTION,
+ * i.e. about 62x faster than the real ~1 MHz part relative to a 16.67 MHz
+ * Dorado. Long after boot it is still executing ~8 million instructions a
+ * second to spin in its idle loop, and that measured 7-11% of total runtime
+ * (Alto +7.2%, Cedar +11%, Lisp +7%).
+ *
+ * Once boot is well behind us the 6502 is stepped no further and the master
+ * clock is advanced synthetically at the SAME 3.70 cycles per
+ * microinstruction it averages when really stepped, so every cycle constant,
+ * gate budget and cadence in the tree keeps its meaning. Verified
+ * byte-identical on all three worlds that exercise different I/O: Galaxian
+ * (Alto/ethernet), the Cedar desktop (PDI/STP), and Lyric.
+ *
+ * TWO THINGS MAKE THIS SAFE, and both must stay true:
+ *
+ *  - Nothing presses the boot button after boot. The only presses are the
+ *    scripted three in machine.c, all below 3.4 M cycles, and no frontend
+ *    exposes one. A suppressed BaseBoard stops its RIOT timers, so a
+ *    post-boot press would otherwise be silently ignored.
+ *  - If the Dorado touches CPReg -- the only channel it has to the
+ *    BaseBoard -- we resume stepping immediately and stay awake for a long
+ *    window afterwards. rundiag drives BaseBoard diagnostics through
+ *    exactly that path, so "nobody talks to it after boot" is true of the
+ *    shipped worlds but must not be assumed of every binary in the tree.
+ *
+ * State is file-scope static, NOT a dorado_machine/dorado_baseboard member:
+ * a new member changes the snapshot ABI and every baked checkpoint fails to
+ * restore. After a restore these reset, which merely steps the 6502 for a
+ * while longer -- the safe direction.
+ */
+#define BB_IDLE_AFTER_UOPS   40000000ull  /* boot is ~9 M microinstructions */
+#define BB_IDLE_TOUCH_WINDOW 16000000ull  /* stay awake after a CPReg access */
+static uint64_t bb_idle_last_touch_uop;
 #define DORADO_TASKSIM_TASK       012   /* HM §3.12 TASKSIM wakeup target: task 0o12
                                          * (=10 dec), backplane-jumpered; the kernel
                                          * TestTW + Postamble "Task12" simulator */
@@ -1792,6 +1829,9 @@ static int ff_override_b(dorado_cpu *cpu, const dorado_uinstr *u,
              * Loc with bit 15 set, sending writes into Boot0 region
              * (0o7763..0o7777), corrupting Bootstrap itself. */
             if (cpu->baseboard) {
+                /* The Dorado is talking to the BaseBoard, so it must be
+                 * awake -- see bb_idle_last_touch_uop. */
+                bb_idle_last_touch_uop = cpu->cycles;
                 uint16_t v = baseboard_dorado_read_cpreg(cpu->baseboard);
                 if (cpu->baseboard->dorado_running &&
                     !cpu->baseboard->dorado_ss_pending) {
@@ -6606,7 +6646,27 @@ memory_ref_done: ;
         cpu->cycles++;
         if (cpu->mem) dorado_memory_tick(cpu->mem);
         if (cpu->baseboard && cpu->baseboard_cycles_per_uop > 0) {
-            baseboard_run(cpu->baseboard, cpu->baseboard_cycles_per_uop);
+            /* Suppress the idle BaseBoard once boot is well behind us and
+             * the Dorado has not touched CPReg recently; advance the master
+             * clock at the rate real stepping averages. See
+             * BB_IDLE_AFTER_UOPS above for why this is safe and what must
+             * stay true. DORADO_BB_ALWAYS_STEP=1 restores unconditional
+             * stepping for bisecting. */
+            static int bb_idle_disabled = -1;
+            if (bb_idle_disabled < 0)
+                bb_idle_disabled = getenv("DORADO_BB_ALWAYS_STEP") ? 1 : 0;
+            if (!bb_idle_disabled &&
+                cpu->cycles > BB_IDLE_AFTER_UOPS &&
+                cpu->cycles - bb_idle_last_touch_uop > BB_IDLE_TOUCH_WINDOW) {
+                /* 3.70 cycles per microinstruction, carried in hundredths
+                 * so the clock does not drift against the real average. */
+                static unsigned acc = 0;
+                acc += 370;
+                cpu->baseboard->cycles += acc / 100u;
+                acc %= 100u;
+            } else {
+                baseboard_run(cpu->baseboard, cpu->baseboard_cycles_per_uop);
+            }
         }
     }
 

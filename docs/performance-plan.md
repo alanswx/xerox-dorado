@@ -158,7 +158,7 @@ number is. Record what it was worth and move on.
 |---|---|---|
 | 0 — compiler flags | **DONE** | **1.95x — 0.52x → 1.02x real hardware** |
 | 4a — diagnostic preamble hoist | **DONE** | +1.4%, byte-identical |
-| 5 — BaseBoard at its real rate | measured, not implemented | **+7.2%**, byte-identical on Alto |
+| 5 — BaseBoard idle suppression | **DONE** | **+19.7%** — Alto 1.05x → **1.29x**, Cedar 0.73x → **0.92x** |
 | 1 — task-schedule cache | superseded — see below | — |
 | 2 — predecode | not started | — |
 | 3 — translation cache | not started | — |
@@ -212,6 +212,57 @@ breaking every checkpoint (snapshot ABI), and this is the subsystem where
 the EFTP RxOn-clear had to be gated to the Cedar path because ungating it
 stalled the Alto boot. It deserves its own session and the full gate set,
 not the tail of one.
+
+### Phase 5 DONE: the idle BaseBoard (2026-08-04)
+
+The 6502 ran ONE INSTRUCTION PER DORADO MICROINSTRUCTION — about 62x
+faster than the real ~1 MHz part relative to a 16.67 MHz Dorado — for the
+whole life of every run, spinning in its idle loop long after boot. It is
+now stepped no further once boot is well behind, with the master clock
+advanced synthetically at the same 3.70 cycles per microinstruction real
+stepping averages, so every cycle constant and gate budget keeps its
+meaning.
+
+| | before | after |
+|---|---|---|
+| Alto (Galaxian), PGO | 1.05x | **1.29x** |
+| Cedar desktop, PGO | 0.73x | **0.92x** |
+
++19.7% on a fair non-PGO A/B (27.94 s → 23.35 s). Byte-identical
+framebuffers on all three worlds that exercise different I/O: Galaxian
+(Alto/ethernet), the Cedar desktop (PDI/STP) and Lyric.
+
+**Two things make it safe, and both must stay true:**
+
+- **Nothing presses the boot button after boot.** The only presses are the
+  scripted three in `machine.c`, all below 3.4 M cycles, and no frontend
+  exposes one. A suppressed BaseBoard stops its RIOT timers, so a
+  post-boot press would otherwise be silently ignored.
+- **A CPReg touch wakes it.** That is the Dorado's only channel to the
+  BaseBoard, and `rundiag` drives BaseBoard diagnostics through it, so
+  "nobody talks to it after boot" is true of the shipped worlds but must
+  not be assumed of every binary in the tree. Any access resets a
+  16 M-microinstruction wake window.
+
+`DORADO_BB_ALWAYS_STEP=1` restores unconditional stepping for bisecting,
+and is on the config allowlist so using it does not itself distort a
+measurement.
+
+**Caveat — this is not byte-identical everywhere.** The synthetic clock
+advances at 3.70/microinstruction where real stepping averages *almost*
+exactly that, so a fixed `--cycles` budget now covers ~0.03% more
+microinstructions (270,396,790 → 270,475,713 on Galaxian). The three
+world restores above are unaffected, but `verify-cedar-desktop`, which
+drives input and paints the moon, moved 245,677 → 245,594 px: the same
+screen, fractionally further along. Anything comparing screens across
+this change must expect that, and a gate wanting bit-exactness should
+compare at a fixed microinstruction count rather than a fixed cycle
+budget.
+
+Diagnostics: kernel, eventCounters, memMisc, IfuSimple and TriconD all
+PASS. IfuComplex FAILS — identically, at the same step count and PC, with
+`DORADO_BB_ALWAYS_STEP=1`, so it is the pre-existing discrepancy the
+handoff already records, not a regression.
 
 ### Research: getting Cedar from 0.73x to 1.0x (2026-08-04, no code written)
 
