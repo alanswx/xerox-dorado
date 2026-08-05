@@ -591,6 +591,11 @@ test: $(BINDIR)/test_pdi $(BINDIR)/test_mb $(BINDIR)/test_disasm $(BINDIR)/test_
 # Cross-world measurement showed the Cedar path still gains, so it is not
 # pathologically overfit -- but if you are optimizing for Cedar or Lisp,
 # retrain on that world by editing PGO_TRAIN below and re-running.
+# llvm-profdata: plain on Linux, behind xcrun on macOS. Detected rather
+# than hardcoded -- `xcrun` is macOS-only and broke this in CI.
+PROFDATA := $(shell command -v llvm-profdata 2>/dev/null || \
+	(command -v xcrun >/dev/null 2>&1 && echo "xcrun llvm-profdata"))
+
 PGO_PROFRAW := build/pgo/dorado-%p.profraw
 PGO_PROFDATA := build/pgo/dorado.profdata
 # Train on BOTH shipped paths and merge. Galaxian alone leaves the Cedar
@@ -608,6 +613,13 @@ PGO_TRAIN_CEDAR := --boot-reason disk --no-alto-boot \
 .PHONY: pgo
 pgo:
 	@mkdir -p build/pgo
+	@# -fprofile-instr-generate is a CLANG spelling; gcc calls it
+	@# -fprofile-generate and produces a format emsdk's clang cannot read
+	@# anyway. Fail with a sentence rather than a compiler error (CI's
+	@# default cc is gcc, which is how this was found).
+	@$(CC) -fprofile-instr-generate -E -x c /dev/null -o /dev/null 2>/dev/null || \
+		(echo "pgo: $(CC) does not support -fprofile-instr-generate."; \
+		 echo "     Use a clang, e.g.  make pgo CC=clang"; false)
 	@echo "pgo: stage 1 -- instrumented build"
 	@$(MAKE) -s clean-objs
 	@$(MAKE) -s $(BINDIR)/dorado \
@@ -622,7 +634,9 @@ pgo:
 	else \
 		echo "pgo: no Cedar checkpoint -- training on the Alto path only"; \
 	fi
-	@xcrun llvm-profdata merge -output='$(PGO_PROFDATA)' build/pgo/*.profraw
+	@test -n '$(PROFDATA)' || \
+		(echo "pgo: no llvm-profdata found (install llvm, or use xcrun on macOS)"; false)
+	@$(PROFDATA) merge -output='$(PGO_PROFDATA)' build/pgo/*.profraw
 	@echo "pgo: stage 3 -- optimized rebuild (headless AND the SDL frontend)"
 	@$(MAKE) -s clean-objs
 	@$(MAKE) -s $(BINDIR)/dorado \

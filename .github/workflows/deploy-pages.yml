@@ -51,9 +51,12 @@ jobs:
       # Best effort on purpose. If the native build or the training run
       # fails, we carry on and ship an unprofiled build rather than losing
       # the deploy.
+      # CC=clang is required, not cosmetic: the runner's default cc is gcc,
+      # whose -fprofile-generate produces a format emsdk's clang cannot read
+      # (the first attempt at this failed on the flag spelling alone).
       - name: Collect PGO profile from a native build (best effort)
         working-directory: dorado
-        run: make pgo || echo "pgo unavailable; continuing without a profile"
+        run: make pgo CC=clang || echo "pgo unavailable; continuing without a profile"
 
       # The risk this guards is specific: the profile is written by the
       # RUNNER's clang and consumed by emsdk's clang, and a profile-format
