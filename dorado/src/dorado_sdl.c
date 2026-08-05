@@ -249,14 +249,25 @@ int main(int argc, char **argv)
      *
      * (3.70 is the BB-6502 cycles per Dorado microinstruction -- see
      * dorado/CLAUDE.md; --cycles is denominated in 6502 cycles, not
-     * microcycles.) DORADO_REALTIME_CYCLES_PER_FRAME below is that value.
-     * The default is left at the historical 400,000 because the run-*
-     * recipes and the games were tuned around it and raising it changes
-     * how every one of them feels; pass --speed 1028000 for true speed,
-     * and note that a PGO build (`make pgo`) is what can actually sustain
-     * it -- a plain build tops out near 0.60x and will simply miss frames.
+     * microcycles.)
+     *
+     * The default is now that real-time value rather than the historical
+     * 400,000. THE DOWNSIDE IS FRAME RATE, NOT CORRECTNESS: the loop runs
+     * a chunk and then presents, so if the core cannot emulate a chunk
+     * within one refresh the display simply presents less often. At
+     * 1.29x (a `make pgo` native build) a chunk fits easily; at 0.68x
+     * (wasm) it takes ~24 ms and the page runs ~41 fps while the emulated
+     * machine still goes as fast as the core allows -- which is faster
+     * than the 0.39x the old cap enforced. What it never does is make the
+     * emulated machine slower.
+     *
+     * The other consequence is that everything now runs at AUTHENTIC
+     * speed, so the games are quicker than people got used to. That is
+     * the point, but it is a visible change: pass --speed 400000 for the
+     * historical pace. Recipes that set --speed explicitly (Cedar, Lisp)
+     * are unaffected either way.
      */
-    uint64_t cycles_per_frame = 400000;   /* emulated cycles per redraw */
+    uint64_t cycles_per_frame = 1028000;  /* emulated cycles per redraw */
     int speed_explicit = 0;               /* --speed pins the pace */
     long shots[64];                       /* frame numbers to snapshot   */
     int n_shots = 0;
@@ -411,9 +422,9 @@ int main(int argc, char **argv)
                    "[--boot-reason ethernet|netexec|disk] "
                    "[--no-alto-boot] [--scale N] [--speed CYCLES]\n"
                    "          (--speed is emulated cycles per vsync frame; "
-                   "default 400000 = 0.39x a real Dorado,\n"
-                   "           1028000 = real time. Needs a `make pgo` "
-                   "build to sustain.)\n"
+                   "default 1028000 = real Dorado speed.\n"
+                   "           400000 = the historical slower pace. A slow "
+                   "core costs frame RATE, not emulated speed.)\n"
                    "          [--snapshot-in PATH] [--snapshot-out PATH]\n"
                    "          [--type-at CYCLES --type TEXT]... "
                    "[--key-hold CYCLES]\n"

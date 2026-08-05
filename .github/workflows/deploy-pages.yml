@@ -42,6 +42,41 @@ jobs:
       - name: Verify emcc
         run: emcc --version
 
+      # Profile-guided optimization is worth 27% in the browser (0.54x ->
+      # 0.68x of a real Dorado, byte-identical). Emscripten cannot COLLECT a
+      # profile -- an instrumented wasm build writes no .profraw -- but it
+      # can USE one, because profiles are keyed by function name. So collect
+      # it from a NATIVE build here and let `make web` consume it.
+      #
+      # Best effort on purpose. If the native build or the training run
+      # fails, we carry on and ship an unprofiled build rather than losing
+      # the deploy.
+      - name: Collect PGO profile from a native build (best effort)
+        working-directory: dorado
+        run: make pgo || echo "pgo unavailable; continuing without a profile"
+
+      # The risk this guards is specific: the profile is written by the
+      # RUNNER's clang and consumed by emsdk's clang, and a profile-format
+      # version mismatch is a compile ERROR, not a silent skip -- it would
+      # take the deploy down. Prove the two agree on a one-line program
+      # first, and drop the profile if they do not.
+      - name: Verify emsdk clang accepts the profile
+        working-directory: dorado
+        run: |
+          if [ -f build/pgo/dorado.profdata ]; then
+            echo 'int main(void){return 0;}' > /tmp/pgo-probe.c
+            if emcc -O3 -flto -fprofile-instr-use=build/pgo/dorado.profdata \
+                 /tmp/pgo-probe.c -o /tmp/pgo-probe.js 2>/tmp/pgo-probe.log; then
+              echo "profile accepted; the browser build will be PGO-optimised"
+            else
+              echo "profile REJECTED by emsdk clang -- building without it:"
+              cat /tmp/pgo-probe.log
+              rm -f build/pgo/dorado.profdata
+            fi
+          else
+            echo "no profile collected; building without one"
+          fi
+
       - name: Build WebAssembly frontend
         working-directory: dorado
         run: make web

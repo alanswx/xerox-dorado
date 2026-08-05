@@ -101,7 +101,14 @@
  * chunks during boot (few renders => fast time-to-prompt), then drop to a small
  * chunk on the first keystroke so interaction stays responsive. */
 #define WEB_CYCLES_BOOT         4000000u
-#define WEB_CYCLES_INTERACTIVE   400000u
+/* Real time. cycles_per_frame x refresh IS the emulated speed, so the old
+ * 400,000 pinned the page at 400,000 x 60 = 24.0 M cycles/s = 6.5 M
+ * microinstructions/s = 0.39x a real Dorado -- below what the wasm core can
+ * now sustain (0.68x). 16.666 M microinstr/s x 3.70 cycles/microinstr / 60 Hz
+ * = 1,028,000. The cost of raising it is frame RATE, never emulated speed:
+ * when a chunk takes longer than a refresh the page presents less often
+ * (~41 fps at 0.68x) while the machine runs as fast as the core allows. */
+#define WEB_CYCLES_INTERACTIVE  1028000u
 /* Emulated cycles to keep the fast-boot chunk for, regardless of what the
  * screen shows. Covers the slowest cold boot in the menu (Cedar ~640 M). */
 #define WEB_BOOT_FAST_CYCLES     800000000ull
