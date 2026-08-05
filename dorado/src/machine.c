@@ -419,6 +419,14 @@ static void machine_boot_switches_parse(const char *text)
  * keyboard watcher (ProcessKeyboard) blocks on this retrace notify, so the
  * cadence sets how often it samples the keyboard. */
 #define CEDAR_FIELD_INTERVAL_CYCLES 277778ull
+
+/* How often the germ I/O bridge polls guest memory, in master cycles. A
+ * file-scope static rather than a dorado_machine member on purpose: a new
+ * member changes the snapshot ABI and every baked checkpoint fails to
+ * restore. Resetting to 0 after a restore only makes the next poll happen
+ * immediately, which is the safe direction. */
+#define GERM_POLL_INTERVAL 64ull
+static uint64_t machine_germ_last_poll;
 /* Fields to hold each buffered key transition before applying the next. Three
  * fields (~63 ms/char wall at emulator speed, ~16 char/s) is lossless even
  * when a paste dumps a whole line into the buffer at once: each state is
@@ -2327,6 +2335,7 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
     memset(machine_disp_out_baseline, 0, sizeof machine_disp_out_baseline);
     machine_display_active_next_cycle = 0;
     machine_display_active_cached = 0;
+    machine_germ_last_poll = 0;
     m->alto_ether_boot  = cfg.alto_ether_boot;
     m->disk_real        = cfg.disk_real;
     m->alto_ether_quote = cfg.alto_ether_quote;
@@ -3336,7 +3345,29 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
          * Route B runs (world_rx_words = 0xFFFF from init). */
         if (m->ether_loaded_world_cycle && !m->germ_word_count)
             eth->world_rx_words = dorado_visible_word_at_va(&m->mem, 0604u);
-        if (m->germ_word_count) {
+        /* CADENCE, not per-microinstruction. This whole block polls GUEST
+         * MEMORY -- roughly five VA reads and three bridge calls -- to ask
+         * "has the germ posted an IOCB yet?", and it was doing so on every
+         * microinstruction for the entire life of a Cedar run. Measured
+         * 2026-08-05 on the Cedar desktop: dorado_visible_word_at_va 13.7%
+         * of total runtime plus the three machine_germ_* bridges at 4.3%,
+         * i.e. 18% spent asking a question whose answer changes at DEVICE
+         * rates.
+         *
+         * GERM_POLL_INTERVAL microinstructions of added completion latency
+         * is ~4 us of guest time against a real SA4000's milliseconds, and
+         * the germ simply spins a little longer in its wait loop. What it
+         * DOES change is exactly when a completion lands, so a fixed
+         * --cycles budget no longer produces a bit-identical screen -- see
+         * docs/performance-plan.md. That is a timing shift, not a
+         * correctness one, and it is why this is gated by a constant that
+         * can be set to 1 to get the old behaviour back.
+         *
+         * Alto, Lisp and Smalltalk are untouched: germ_word_count is 0
+         * there, so this block never ran for them in the first place. */
+        if (m->germ_word_count && (bb->cycles - machine_germ_last_poll >=
+                                   GERM_POLL_INTERVAL)) {
+            machine_germ_last_poll = bb->cycles;
             /* Complete the germ's disk IOCBs. Default: direct PDI copy. Under
              * --disk-real: the same IOCB bridge, but each page is read through
              * the real controller's read path (FIFO + framing, D0-D3) instead

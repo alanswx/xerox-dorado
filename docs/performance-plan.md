@@ -158,6 +158,7 @@ number is. Record what it was worth and move on.
 |---|---|---|
 | 0 — compiler flags | **DONE** | **1.95x — 0.52x → 1.02x real hardware** |
 | 4a — diagnostic preamble hoist | **DONE** | +1.4%, byte-identical |
+| 4b — germ I/O bridge cadence | **DONE** | Cedar 0.93x → **1.26x** native, 0.62x → **0.80x** wasm |
 | 5 — BaseBoard idle suppression | **DONE** | **+19.7%** — Alto 1.05x → **1.29x**, Cedar 0.73x → **0.92x** |
 | 1 — task-schedule cache | superseded — see below | — |
 | 2 — predecode | not started | — |
@@ -374,6 +375,39 @@ Diagnostics: kernel, eventCounters, memMisc, IfuSimple and TriconD all
 PASS. IfuComplex FAILS — identically, at the same step count and PC, with
 `DORADO_BB_ALWAYS_STEP=1`, so it is the pre-existing discrepancy the
 handoff already records, not a regression.
+
+### DONE: the germ I/O bridge now polls on a cadence (2026-08-05)
+
+The block that completes the germ's disk and ethernet IOCBs ran on EVERY
+microinstruction for the whole life of a Cedar run — five VA reads and
+three bridge calls, asking "has the germ posted an IOCB yet?" about
+something that changes at device rates. It now polls every
+`GERM_POLL_INTERVAL` (64) master cycles.
+
+| Cedar desktop | before | after |
+|---|---|---|
+| native (PGO) | 0.93x | **1.26x** |
+| wasm | 0.62x | **0.80x** |
+
+**Cedar is now faster than the real machine natively**, and 35% / 29%
+better respectively — from an 18% profile item, because the reads were
+also feeding `dorado_visible_word_at_va`.
+
+64 cycles is ~4 µs of guest latency against a real SA4000's milliseconds;
+the germ just spins a little longer in its wait loop. Set
+`GERM_POLL_INTERVAL` to 1 for the old behaviour.
+
+**It came out byte-identical**, which I did not expect and had explicitly
+warned would not happen. The plain Cedar desktop restore is bit-for-bit
+unchanged; `verify-cedar-desktop`, which drives input and paints the moon,
+moved 245,594 → 245,635 px. So the timing shift is real but far smaller
+than predicted. Do not read the byte-identity as a guarantee for the
+COLD-BOOT path, which no gate covers — that remains the risk, and it is
+the same gate hole recorded elsewhere in this document.
+
+**Alto, Lisp and Smalltalk are untouched by construction**: the block is
+inside `if (m->germ_word_count)`, which is 0 for those worlds, so it never
+ran for them. Both verified byte-identical anyway.
 
 ### Measured profiles with percentages (2026-08-05)
 
