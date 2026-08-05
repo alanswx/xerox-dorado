@@ -1,5 +1,10 @@
 CC      ?= cc
-CFLAGS  ?= -std=c99 -Wall -Wextra -Wshadow -Wpedantic -Wno-gnu-zero-variadic-macro-arguments -O2 -g -Iinclude -Ivendor/6502
+# -O3 -flto: measured 11.9% over -O2 on the Alto path, byte-identical
+# framebuffer (2026-08-04, docs/performance-plan.md Phase 0). -mcpu=apple-m4
+# was tried and does NOT help (slightly worse than plain -O3), so it is
+# deliberately absent -- it would also make the build host-specific.
+# For the rest of Phase 0's gain, see `make pgo` below.
+CFLAGS  ?= -std=c99 -Wall -Wextra -Wshadow -Wpedantic -Wno-gnu-zero-variadic-macro-arguments -O3 -flto -g -Iinclude -Ivendor/6502
 LDFLAGS ?=
 DEPFLAGS := -MMD -MP
 
@@ -552,7 +557,66 @@ test: $(BINDIR)/test_pdi $(BINDIR)/test_mb $(BINDIR)/test_disasm $(BINDIR)/test_
 	@echo
 	$(BINDIR)/test_snapshot
 
+# ---- PGO: the largest single speedup available, and it is free ------------
+# Profile-guided optimization on top of -O3 -flto took the Alto path from
+# 0.52x to 1.02x real hardware -- 1.95x, byte-identical framebuffer
+# (2026-08-04). An interpreter dispatch loop is close to the ideal PGO case:
+# the branch pattern is stable and utterly opaque to static heuristics.
+#
+# It is a separate target, not the default, for three reasons: it needs a
+# two-stage build, it leaves a .profdata artifact the tree would have to
+# track or regenerate, and CI does not need it. Run it when you want the
+# fast local binary; plain `make` stays a one-stage build.
+#
+# CAVEAT: the profile is trained on ONE world (Galaxian, the Alto path).
+# Cross-world measurement showed the Cedar path still gains, so it is not
+# pathologically overfit -- but if you are optimizing for Cedar or Lisp,
+# retrain on that world by editing PGO_TRAIN below and re-running.
+PGO_PROFRAW := build/pgo/dorado-%p.profraw
+PGO_PROFDATA := build/pgo/dorado.profdata
+PGO_TRAIN := --eb worlds/aemu.eb --eftp '../chm/bootfiles/Galaxian.boot!1' \
+	--cycles 300000000 --out build/pgo/train.pgm
+
+.PHONY: pgo
+pgo:
+	@mkdir -p build/pgo
+	@echo "pgo: stage 1 -- instrumented build"
+	@$(MAKE) -s clean-objs
+	@$(MAKE) -s $(BINDIR)/dorado \
+		CFLAGS="-std=c99 -O3 -flto -g -Iinclude -Ivendor/6502 -fprofile-instr-generate"
+	@echo "pgo: stage 2 -- training run"
+	@rm -f build/pgo/*.profraw
+	@LLVM_PROFILE_FILE='$(PGO_PROFRAW)' $(BINDIR)/dorado $(PGO_TRAIN) >/dev/null 2>&1
+	@xcrun llvm-profdata merge -output='$(PGO_PROFDATA)' build/pgo/*.profraw
+	@echo "pgo: stage 3 -- optimized rebuild"
+	@$(MAKE) -s clean-objs
+	@$(MAKE) -s $(BINDIR)/dorado \
+		CFLAGS="$(CFLAGS) -fprofile-instr-use=$(PGO_PROFDATA)"
+	@echo "pgo: done. Verify byte-identical output before trusting it:"
+	@echo "  cmp two .pgm files from the same run pre/post."
+
+# Object files only -- never touches build/good-packs.
+.PHONY: clean-objs
+clean-objs:
+	@rm -f $(OBJDIR)/*.o $(BINDIR)/dorado $(BINDIR)/dorado-sdl
+
 clean:
+	@# NEVER remove build/good-packs. dorado/CLAUDE.md tells you to copy
+	@# every expensive artifact (checkpoints, packs, baked images) there
+	@# BECAUSE it is gitignored but persists -- and `rm -rf build` deleted
+	@# the lot on 2026-08-04 during a compiler-flag sweep, taking the only
+	@# native Lyric checkpoint with it (the tracked web-assets copies are
+	@# wasm32 and cannot substitute). The instruction and the tool
+	@# contradicted each other; the tool was wrong.
+	@if [ -d '$(OBJDIR)' ]; then \
+		find '$(OBJDIR)' -mindepth 1 -maxdepth 1 ! -name good-packs \
+			-exec rm -rf {} + ; \
+	fi
+
+# Deliberate: wipes good-packs too. Only for reclaiming disk, never as a
+# step in a build or benchmark loop.
+.PHONY: clean-everything
+clean-everything:
 	rm -rf $(OBJDIR)
 
 # Interactive boot recipes (open an SDL window). Each builds the SDL
