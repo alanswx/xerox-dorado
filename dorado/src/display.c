@@ -582,7 +582,11 @@ static void display_output_b(void *ctx, int task, int subtask,
         unsigned val = data & 0x0FFF;
         if (reg < DORADO_DISPLAY_NLCB_WORDS)
             d->nlcb[0][reg] = (uint16_t)val;
-        if (getenv("DORADO_NLCB_TRACE")) {
+        /* dorado_trace_flag, not raw getenv: this sits in display_output_b,
+         * which the microcode drives per NLCB write, and it was the THIRD
+         * raw getenv found on a hot path in this one file (after
+         * display_trace_limit and display_dispm_present). */
+        if (dorado_trace_flag("DORADO_NLCB_TRACE")) {
             static long n = 0;
             if (reg != 0 && n++ < 600)
                 fprintf(stderr, "NLCB reg=%02o val=%04o raw=%06o\n",
