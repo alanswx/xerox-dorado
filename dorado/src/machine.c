@@ -1890,6 +1890,27 @@ static void machine_germ_netboot_diag(dorado_machine *m)
 /* Seed the four Alto keyboard words (base+0177034..7) at each plausible
  * base (absolute, IOBR, MDS) so the loaded world's boot-key poll sees
  * them regardless of which space it reads. */
+/* Store only when the cell does not already hold `value`.
+ *
+ * The Alto live-I/O path re-seeds the keyboard, mouse and UTILIN cells on
+ * EVERY microinstruction, so machine_store_va was ~11% of total runtime
+ * (sample, 2026-08-05) writing values that change only when a human touches
+ * the input. A store costs a VA translate plus a cache-line invalidation; a
+ * read is a cache lookup. Writing X over an X is a no-op for the guest, so
+ * checking first is exactly equivalent and much cheaper.
+ *
+ * It is a READ-BACK, deliberately, not a memo of what we last wrote: if the
+ * guest consumes or clears one of these cells we must re-present it, exactly
+ * as before. That is why this is not the "skip if our value is unchanged"
+ * shortcut -- that one would stop re-presenting a held key. */
+static void machine_store_va_if_changed(dorado_memory *mem, uint32_t va,
+                                        uint16_t value)
+{
+    if (!mem || !mem->storage) return;
+    if (dorado_visible_word_at_va(mem, va) == value) return;
+    machine_store_va(mem, va, value);
+}
+
 static void machine_seed_keyboard(dorado_memory *mem, const uint16_t w[4])
 {
     if (!mem || !mem->storage) return;
@@ -1897,7 +1918,7 @@ static void machine_seed_keyboard(dorado_memory *mem, const uint16_t w[4])
     for (size_t b = 0; b < sizeof bases / sizeof bases[0]; b++) {
         for (uint32_t i = 0; i < 4; i++) {
             uint32_t va = (bases[b] + 0177034u + i) & 0x0FFFFFFFu;
-            machine_store_va(mem, va, w[i]);
+            machine_store_va_if_changed(mem, va, w[i]);
         }
     }
 }
@@ -1956,7 +1977,7 @@ static void machine_seed_utilin(dorado_memory *mem, int buttons)
         }
     }
     for (uint32_t a = 0177030u; a <= 0177033u; a++)
-        machine_store_va(mem, a, bw);
+        machine_store_va_if_changed(mem, a, bw);
 }
 
 static void machine_seed_mouse(dorado_memory *mem, int x, int y, int buttons)
@@ -1969,8 +1990,8 @@ static void machine_seed_mouse(dorado_memory *mem, int x, int y, int buttons)
      * Lyric into a RAID "Error in uninterruptable system code" with a
      * visibly scribbled screen. A host-side input shortcut must write where
      * the guest reads and nowhere else. */
-    machine_store_va(mem, 0424u, (uint16_t)x);
-    machine_store_va(mem, 0425u, (uint16_t)y);
+    machine_store_va_if_changed(mem, 0424u, (uint16_t)x);
+    machine_store_va_if_changed(mem, 0425u, (uint16_t)y);
     machine_seed_utilin(mem, buttons);
 }
 

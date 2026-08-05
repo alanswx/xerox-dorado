@@ -284,6 +284,33 @@ machine per world without reloading the module. Worth ~1%, byte-identical.
 That is the second instance of this exact trap in `display.c` alone; grep
 for raw `getenv` before assuming there is not a third.
 
+**Two more found by looking INSIDE the interpreter (2026-08-05).** Before
+starting on predecode, reading the top of `execute_uinstr` turned up the
+same pattern as the `run_until` preamble, in the hotter place:
+
+- **Eight global stores per microinstruction, purely for tracing**, at the
+  very first line of `execute_uinstr` — including a `dorado_br_get()` call
+  into the memory subsystem — preparing `dorado_mem_trace_*` context for
+  output that is off. Every reader sits behind a `dorado_trace_flag()`
+  check. Gated: **7.3%**, byte-identical. That one change is worth more
+  than the entire diagnostic-preamble hoist was.
+- **The Alto input seeding re-writes 18 cells per microinstruction**
+  (keyboard at three bases = 12, UTILIN 4, mouse 2) with values that change
+  only when a human touches the input. `machine_store_va` was ~11% of
+  runtime. Storing only when the cell does not already hold the value is
+  exactly equivalent and cheaper — a store costs a VA translate plus a
+  cache-line invalidation, a read is a cache lookup. **2%**,
+  byte-identical.
+
+  It is a READ-BACK, deliberately, not a memo of what we last wrote: if the
+  guest consumes or clears one of those cells we must re-present it. The
+  "skip if our value is unchanged" shortcut would stop re-presenting a held
+  key.
+
+Net: wasm 0.68 → **0.72x**, native Alto steady at 1.30x (PGO had already
+been hiding much of the trace-store cost, so the native gain is small and
+the wasm gain is not).
+
 **Getting wasm to 1.0x is now an interpreter project, not a flags one.**
 wasm sits at 0.68-0.70x and needs 1.45x. With 84% of the time in the
 interpreter, that means cutting the interpreter itself by roughly 40% —

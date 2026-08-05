@@ -5349,14 +5349,27 @@ static int check_trace_pc(uint16_t pc)
 
 static int execute_uinstr(dorado_cpu *cpu, const dorado_uinstr *u, int from_im)
 {
-    dorado_mem_trace_pc = cpu->real_PC;
-    dorado_mem_trace_pcx = cpu->ifu_pcx;
-    dorado_mem_trace_br31 = cpu->mem ? (int)dorado_br_get(cpu->mem, 31) : 0;
-    dorado_mem_trace_op = ((int)cpu->ifu_opcode << 8) | cpu->ifu_alpha;
-    dorado_mem_trace_ac0 = cpu->STK[1] & 0177777;
-    dorado_mem_trace_ac1 = cpu->STK[2] & 0177777;
-    dorado_mem_trace_ac2 = cpu->STK[3] & 0177777;
-    dorado_mem_trace_ac3 = cpu->STK[4] & 0177777;
+    /* Context for the memory subsystem's trace prints, and NOTHING else --
+     * every reader of these globals sits behind a dorado_trace_flag() check
+     * (memory.c's trace_lisp_blt_store, the ref/store trace lines). They
+     * were being written on EVERY microinstruction, at the top of the
+     * emulator's hottest function: eight global stores plus a
+     * dorado_br_get() call into the memory subsystem, ~11 million times a
+     * second, to prepare context for output that is off.
+     *
+     * dorado_trace_env_present is the inlined "is any DORADO_* set at all"
+     * test. With one set, every store happens exactly as before, so a
+     * traced run is unchanged. */
+    if (dorado_trace_env_present) {
+        dorado_mem_trace_pc = cpu->real_PC;
+        dorado_mem_trace_pcx = cpu->ifu_pcx;
+        dorado_mem_trace_br31 = cpu->mem ? (int)dorado_br_get(cpu->mem, 31) : 0;
+        dorado_mem_trace_op = ((int)cpu->ifu_opcode << 8) | cpu->ifu_alpha;
+        dorado_mem_trace_ac0 = cpu->STK[1] & 0177777;
+        dorado_mem_trace_ac1 = cpu->STK[2] & 0177777;
+        dorado_mem_trace_ac2 = cpu->STK[3] & 0177777;
+        dorado_mem_trace_ac3 = cpu->STK[4] & 0177777;
+    }
 
     /* Trace the ethernet tasks' microcode PC (EOT=6, EIT=7) -- diagnostic for
      * the EOT transmit-completion path (why a deferred completion diverts the
