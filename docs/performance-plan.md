@@ -213,6 +213,119 @@ the EFTP RxOn-clear had to be gated to the Cedar path because ungating it
 stalled the Alto boot. It deserves its own session and the full gate set,
 not the tail of one.
 
+### Research: getting Cedar from 0.73x to 1.0x (2026-08-04, no code written)
+
+Cedar needs **1.37x**. Reading the call sites rather than guessing, its
+deficit is three concrete things, all of them *polling guest memory at
+16 MHz for events that happen at millisecond rates*.
+
+#### 1. The germ I/O bridge polls the guest every microinstruction (~15.5%)
+
+`dorado_machine_run_until` runs this on EVERY microinstruction whenever
+`m->germ_word_count` is set — i.e. for the entire life of any Cedar run:
+
+```
+machine_germ_complete_disk_iocb(m);
+machine_germ_seed_ethernet_header_page(m);
+machine_germ_complete_ethernet_tx(m);
+```
+
+plus **8 `dorado_visible_word_at_va` calls** inline in the same block. Each
+of those is a VA translation. The bridge functions add more before they can
+bail: `complete_disk_iocb` reads the IOCB pointer and then its seal word;
+`complete_ethernet_tx` reads an IOCB VA and a completion word. So the Cedar
+path performs **roughly a dozen guest-memory translations per
+microinstruction** — about 145 million per wall-clock second at today's
+speed — to ask "has the germ posted an IOCB yet?".
+
+That is the `dorado_visible_word_at_va` 11% and the bridge functions' 4.5%,
+and the two are the same phenomenon.
+
+What it is asking about happens at **device** rates. A disk IOCB completes
+in milliseconds; the CSB changes when the germ writes it. Three ways to fix
+it, cheapest-risk first:
+
+- **(C) Cache the translation, keep the cadence.** The CSB sits at a fixed
+  VA (`GERM_ETH_CSB_VA`), so its VA→physical mapping is stable for long
+  stretches. Caching the physical pointer leaves the polling *rate*,
+  *order* and *behaviour* exactly as they are and only makes each read
+  cheaper. Lowest behavioural risk of the three — the machine still looks
+  at the same words at the same moments. Needs invalidation when the map
+  changes (Pilot does remap), which is the whole difficulty.
+- **(A) Poll on a cadence.** Run the bridge every N microinstructions
+  instead of every one. **There is in-tree precedent**: `machine_cedar_io`
+  already does exactly this with `CEDAR_FIELD_INTERVAL_CYCLES` (277,778)
+  and `next_cedar_field_cycle`, and the Lisp input seeding gates itself to
+  one pass per 16,384 cycles. Even N=256 removes ~99.6% of the work while
+  adding at most 256 cycles — about 15 µs of guest time — of completion
+  latency, which is three orders of magnitude below a real disk. The risk
+  is not the average case but the boot: the germ's polled IOCB path is
+  timing-sensitive, and this is the code that took a long bring-up to get
+  right.
+- **(B) Trigger on guest writes.** Exact and event-driven: only run the
+  bridge when the guest stores into the CSB/IOCB pages. Most invasive, and
+  needs a write hook in the memory subsystem.
+
+Recommendation: **A, gated to post-boot, with C as the follow-up.** A is
+small, has precedent in this file, and its risk is confined to a window
+(boot) that can simply be excluded by keeping the per-cycle rate until
+`germ_data_done`.
+
+#### 2. The STP connection scan, every cycle (~9%)
+
+`dorado_ethernet_wakeup_mask` is called per microinstruction from
+`run_until`, and reaches `eth_ftp_maybe_deliver` → `eth_ftp_pick_busy_conn`,
+which walks **all 16 `ftp_ctx` slots** (`DORADO_FTP_MAX_CONN`) looking for
+one with work. Its early-out only fires when a connection is already open
+AND busy, so the idle case — the common one — is a full 16-slot scan.
+
+This is a leaf function, so unlike the `run_until` attribution below its 9%
+is trustworthy.
+
+The obvious fix is a "some connection has work" hint so the scan is skipped
+when nothing is pending. **Two obstacles, both real:**
+
+- The hint cannot become a `dorado_ethernet` member without changing the
+  snapshot ABI and invalidating every baked checkpoint (see
+  `make verify-snapshot-abi`). It has to be a file-scope static, like the
+  keyboard queue and the display-active memo, and reconstructed after a
+  restore.
+- It must be updated at every site that sets `pending_ack`, `tx_mode`,
+  `used` or `open`, and a missed site means a connection that silently
+  never gets serviced. This is the subsystem where the EFTP RxOn-clear had
+  to be gated to the Cedar path because ungating it stalled the Alto boot
+  mid-stream — mistakes here do not show up as crashes, they show up as a
+  world that hangs three minutes later.
+
+#### 3. The BaseBoard, as already measured (~7%)
+
+Phase 5 above. Applies to both paths, not just Cedar.
+
+#### Does it add up to 1.0x?
+
+| item | share |
+|---|---|
+| germ I/O bridge + its VA reads | ~15.5% |
+| STP connection scan | ~9% |
+| BaseBoard 6502 | ~7% |
+| **total** | **~31.5%** |
+
+Removing all of it would give 1/(1−0.315) = **1.46x → 1.07x**. Removing a
+more plausible 80% of each gives 1.34x → **0.98x**. So real time is
+reachable from these three, with nothing left over — there is no fourth
+item of this size waiting behind them.
+
+**Caveats on that arithmetic.** The shares come from ONE profile of a
+*restored, largely idle* Cedar desktop; a Cedar that is compiling or
+repainting has a different mix, and the germ bridge's share in particular
+should fall when the machine is doing real work. The three items are not
+independent — cutting the per-cycle poll rate reduces both #1 and the
+`visible_word_at_va` cost inside it, so they cannot simply be summed
+twice. And every one of these percentages is top-of-stack attribution, which
+this session already demonstrated can mislead badly for non-leaf functions;
+only #2 and the BaseBoard are leaves. **Treat the table as a ranking, not a
+budget, and re-measure by timed A/B after each change.**
+
 ### Correction: the profile lied, and here is why
 
 The phase ordering above was derived from `sample` attributing 31% to
