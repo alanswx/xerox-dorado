@@ -599,38 +599,50 @@ And keep `dorado_trace_flag_lookup` free of extra tests -- a redundant
 "Sort by top of stack" section), and gate on BYTE-IDENTICAL framebuffers
 (`cmp` two .pgm files), not pixel counts.
 
-**Current speed: 0.46x real hardware on the Alto path (7.6 M
-microinstructions/s), 0.39x on Cedar (6.4 M).** We are SLOWER than a real
-Dorado, by a bit over 2x. The old "29.1 M cycles/s = 1.75x" claim was
-bb.cycles/s read as microinstructions/s -- off by exactly the 3.70
-BB-cycles-per-microinstruction factor. Every run now prints the honest
-figure; quote THAT, never a cycles/s number.
+**Current speed (2026-08-05, `make pgo` build): Alto 1.33x real hardware,
+Cedar 1.23-1.26x; wasm 0.74x and 0.80x.** Both native paths now beat the
+real machine. Every run prints the honest figure -- emulated Dorado
+seconds per CPU second, from microinstructions -- so **quote THAT, never a
+cycles/s number.** The old "29.1 M cycles/s = 1.75x" claim was bb.cycles/s
+read as microinstructions/s, wrong by exactly the 3.70 factor, and the
+truth at the time was 0.46x.
 
-Audited 2026-08-04, with what each item actually costs (byte-identical
-A/B, three runs each):
+Full account: `docs/performance-plan.md`. The measurement method and the
+traps that produced two wrong answers: `docs/performance-methodology.md`.
 
-- `execute_uinstr` ~23% and `dorado_machine_run_until` ~15% -- the
-  interpreter itself. This is where a 2x has to come from; there is no
-  remaining silly bug of that size.
-- `machine_store_va` ~13%. The Alto path re-seeds the keyboard/mouse cells
-  on EVERY microinstruction (`machine_seed_alto_live_io`, ~10 stores each
-  with a VA translate and a cache invalidation) to write values that change
-  only when a human touches the input. The Lisp path already gates itself
-  to one seed per 16384 cycles. Skipping when nothing changed measured
-  ~2% and stayed byte-identical on the Alto path -- NOT shipped, because
-  it needs checking against Cedar/Lisp/Smalltalk first (a world that
-  consumes the cell would need the refresh).
-- The BaseBoard 6502 ~4%. It runs ONE 6502 INSTRUCTION PER DORADO
-  MICROINSTRUCTION, i.e. about 62x faster than the real ~1 MHz part
-  relative to the 16.67 MHz Dorado. Skipping it after boot is
-  byte-identical and worth 4.2%. Doing that properly means decoupling the
-  master clock from the 6502 first -- see the `--cycles` note above; that
-  is a breaking change to every cycle constant and gate budget in the
-  tree, so it is a decision, not a cleanup.
-- `display_trace_limit` called raw `getenv()` per fetched display word --
-  2.5%, FIXED 2026-08-04. It is the exact trap this file warns about, in
-  the file the warning lives next to; grep for other raw `getenv` on
-  per-cycle paths before assuming there are none left.
+What actually paid, each a byte-identical A/B:
+
+- **PGO + LTO, 1.95x.** `make pgo` (opt-in, two-stage). PGO alone is 1.7x:
+  an interpreter dispatch loop is close to its ideal case. Emscripten
+  cannot COLLECT a profile but can USE one, so the browser build consumes
+  the native profile.
+- **The idle BaseBoard 6502, +19.7%.** It ran ONE 6502 INSTRUCTION PER
+  DORADO MICROINSTRUCTION -- ~62x the real 1 MHz part relative to a
+  16.67 MHz Dorado -- spinning in its idle loop forever. Suppressed after
+  boot, master clock advanced synthetically at the same 3.70/uinstr so no
+  cycle constant changes meaning. Wakes on any CPReg touch.
+- **The germ I/O bridge, Cedar 0.93x -> 1.26x.** It polled guest memory
+  every microinstruction for an answer that changes at device rates; now
+  every `GERM_POLL_INTERVAL` (64) cycles.
+- **The trace-flag cliff, Cedar 0.48x -> 0.73x.** Every Cedar and Lisp
+  recipe sets `DORADO_*` config variables, and ANY of them disabled the
+  trace fast path for the whole run. `dorado_trace_init()` now skips a
+  config allowlist. **A name on that list must be read with a cached
+  `getenv`, never `dorado_trace_flag()`** -- through the memo it would
+  answer 0 whenever it is the only `DORADO_*` set, which is a behaviour
+  change, not a speedup.
+- **Four raw `getenv`s and two blocks of trace bookkeeping on hot paths.**
+  Three of the getenvs were in `display.c` alone. The worst was eight
+  global stores plus a `dorado_br_get()` call at the top of
+  `execute_uinstr`, per microinstruction, preparing context for output
+  that was off: 7.3%. Grep for raw `getenv` before assuming there is not
+  a fifth.
+
+What is left, and it is now genuinely the interpreter: `execute_uinstr`,
+`next_pc`, `task_schedule`, `b_bus`, `apply_lc`, `lc_write_address` --
+~44% together on Alto with no single item above 8%. The one big
+non-interpreter item is Cedar's `eth_ftp_pick_busy_conn` at 14.3%; see
+`docs/stp-scan-design.md`.
 
 **Never leave an expensive artifact in a temp directory.** `/tmp`,
 `/private/tmp` and any per-session scratchpad DO NOT survive a reboot, and a

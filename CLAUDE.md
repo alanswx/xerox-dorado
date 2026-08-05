@@ -45,24 +45,35 @@ been thoroughly cross-checked against the board schematics
 Overflow branch condition, shifter Pd-mux masking, and Return clobbering a
 same-instruction explicit Link<- load -- the Cedar-desktop blocker; an
 explicit Link<- overrides Return's Link<-CIA+1 reload, per DMesaFloat.mc).
-**RETRACTED 2026-08-04: the emulator is SLOWER than the real Dorado, not
-faster.** The figures below said 29.1 M microinstructions/s on the Alto
-path and 25.2 M on Cedar, "1.75x and 1.51x the real 16.67 MIPS Dorado".
-Those were **`m->bb.cycles` per second** -- the BaseBoard 6502 counter,
-which advances 3.70 per Dorado microinstruction -- reported as if they
-were microinstructions. Divide by 3.70 and the same runs give:
+**Speed, corrected and then fixed (2026-08-04/05).** The figures here used
+to say 29.1 M microinstructions/s on Alto and 25.2 M on Cedar, "1.75x and
+1.51x the real 16.67 MIPS Dorado". Those were **`m->bb.cycles` per
+second** -- the BaseBoard 6502 counter, which advances 3.70 per Dorado
+microinstruction -- reported as if they were microinstructions. The true
+figure was 0.46x / 0.39x: we were running at *under half* the speed of the
+hardware, which is exactly what a PARC veteran meant by "it feels slow".
 
-| path | microinstr/s | vs real 16.67 MIPS Dorado |
+Both paths now beat the real machine natively:
+
+| path | native (`make pgo`) | wasm / browser |
 |---|---|---|
-| Alto (Galaxian) | 7.6 M | **0.46x** |
-| Cedar desktop | 6.4 M | **0.39x** |
+| Alto (Galaxian) | **1.33x** | 0.74x |
+| Cedar desktop | **1.23-1.26x** | 0.80x |
 
-So a PARC veteran reporting that it "feels slow" was reading the machine
-correctly and the documentation was wrong: we run at roughly half speed,
-and to match the hardware we need ~2.2x more throughput. `dorado` now
-prints the honest number at the end of every run -- emulated Dorado
-seconds per CPU second, from `cpu->cycles` (microinstructions), never
-from bb.cycles -- so this cannot be misread again.
+`dorado` prints the honest number at the end of every run -- emulated
+Dorado seconds per CPU second, from `cpu->cycles` (microinstructions),
+never from bb.cycles -- so this cannot be misread again. **Quote that
+line, never a cycles/s number.** The full account, with every measurement
+and the traps that produced two wrong answers on the way, is
+`docs/performance-plan.md`; the methodology worth reusing is
+`docs/performance-methodology.md`.
+
+The big items were: PGO + LTO (1.95x, and `make pgo` is opt-in because it
+is a two-stage build), suppressing the idle BaseBoard 6502 which ran ~62x
+faster than the real 1 MHz part (+19.7%), giving the germ I/O bridge a
+poll cadence instead of running it every microinstruction (Cedar
+0.93x -> 1.26x), and the trace-flag cliff, which every Cedar and Lisp
+recipe was paying for its whole run (Cedar 0.48x -> 0.73x).
 
 **The clocks themselves are correct**, which is the good news: the guest's
 own `\RCLK` advanced 162.4 ms over an interval in which 2,704,685

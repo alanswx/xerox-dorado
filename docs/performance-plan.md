@@ -2,7 +2,23 @@
 
 Written 2026-08-04, after the clock audit.
 
-## Where we actually are
+## Where we ended up (2026-08-05)
+
+| path | native (`make pgo`) | wasm / browser |
+|---|---|---|
+| Alto (Galaxian) | **1.33x** | 0.74x |
+| Cedar desktop | **1.23-1.26x** | 0.80x |
+
+**Both native paths now beat the real machine**, from 0.46x and 0.39x when
+this plan was written. The browser roughly doubled. The one big
+non-interpreter item left is Cedar's STP connection scan at 14.3% —
+designed in `docs/stp-scan-design.md`, not yet implemented.
+
+How to measure any of this without fooling yourself, and the traps that
+produced two confidently wrong answers along the way:
+`docs/performance-methodology.md`.
+
+## Where we started
 
 Measured in the machine's own unit (`dorado` prints it at the end of every
 run; see `dorado_machine_uinstructions`):

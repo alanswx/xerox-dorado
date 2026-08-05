@@ -1,5 +1,24 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+> **2026-08-04/05: the emulator is now FASTER than a real Dorado.**
+> Alto 1.33x and Cedar 1.23-1.26x natively (`make pgo`), 0.74x and 0.80x
+> in the browser — from 0.46x and 0.39x, and the published figure before
+> that was wrong by 3.70x because it quoted BaseBoard 6502 cycles as
+> microinstructions. A PARC veteran saying "it feels slow" was reading the
+> machine correctly and the documentation was not.
+>
+> - `docs/performance-plan.md` — every change and what it measured.
+> - `docs/performance-methodology.md` — **read this before optimizing.**
+>   The measurement was wrong more often than the code was.
+> - `docs/stp-scan-design.md` — the one big item left (Cedar 14.3%),
+>   designed, not implemented.
+>
+> Two things that bite outside performance work: `--cycles` counts 6502
+> cycles (3.70 per microinstruction), and `make clean` no longer destroys
+> `build/good-packs` — it used to, and it took every local checkpoint with
+> it.
+
+
 > **2026-08-04: the saved-login checkpoints were dead on both platforms,
 > from a snapshot ABI change nobody rebaked against.**
 > The browser's "Cedar 6.1 — saved login prompt" answered *"snapshot

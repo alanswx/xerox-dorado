@@ -784,6 +784,29 @@ UNVERSIONED remote path and unversioned forces a server round trip. A
 volume boots from disk; the base system still streams. Software you
 `Bringover` does land locally.
 
+## Speed: build with `make pgo`
+
+A plain `make` gives about 0.6x a real Dorado. **`make pgo`** — a
+two-stage profile-guided build — gives **1.33x on the Alto path and
+1.23-1.26x on Cedar**, i.e. faster than the hardware, and it builds the
+SDL frontend too. Every run prints the honest figure at the end:
+
+```
+270475713 microinstructions = 16.23 s of Dorado time in 12.46 s CPU = 1.30x real hardware
+```
+
+**Quote that line, never a cycles/s number.** `--cycles` counts BaseBoard
+6502 cycles, 3.70 per Dorado microinstruction, and reading it as
+microinstructions is how the emulator was documented as 1.75x real speed
+while actually running at 0.46x.
+
+The frontends default to `--speed 1028000` cycles per frame, which is real
+Dorado speed; `--speed 400000` is the slower historical pace. A core that
+cannot keep up costs frame RATE, never emulated speed.
+
+Background: `docs/performance-plan.md`, and
+`docs/performance-methodology.md` before changing anything for speed.
+
 ## Verification gates
 
 | Command | Runtime | What it protects |

@@ -184,6 +184,21 @@ Example queries:
 - `grep -i 'mesa.mb\|mesa.eb\|mesa.dm' "chm/cross-reference.html"`
 - `grep -i 'microd' "chm/cross-reference.html"`
 
+## Performance
+
+- `docs/performance-plan.md` — the whole 2026-08-04/05 effort: where the
+  time went, what each change was worth, and what is left. Both native
+  paths went from under half real-Dorado speed to faster than it.
+- `docs/performance-methodology.md` — **read before optimizing anything.**
+  How to measure this emulator without fooling yourself: the unit is
+  microinstructions (NOT `--cycles`, which counts 6502 cycles at 3.70 per
+  microinstruction), the gate is byte-identical framebuffers on three
+  worlds, and profile attribution lies under LTO. Every trap in it produced
+  a confidently stated number that was false.
+- `docs/stp-scan-design.md` — design for the one big non-interpreter item
+  left, Cedar's 14.3% STP connection scan. Two routes, with the risks of
+  each; not yet implemented.
+
 ## First-hand background
 
 - `docs/parc-veteran-notes.md` — pointers and hardware history from two
