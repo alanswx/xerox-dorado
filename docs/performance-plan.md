@@ -375,6 +375,60 @@ PASS. IfuComplex FAILS — identically, at the same step count and PC, with
 `DORADO_BB_ALWAYS_STEP=1`, so it is the pre-existing discrepancy the
 handoff already records, not a regression.
 
+### Measured profiles with percentages (2026-08-05)
+
+Two builds each, because on the shipped build the percentages mislead:
+`-flto` inlines callees into callers, so `run_until`'s share is mostly the
+emulation itself. Use the plain build for RANKING and always confirm with
+a timed A/B.
+
+Current speeds: Alto **1.33x** native / **0.74x** wasm; Cedar **0.93x**
+native / **0.62x** wasm.
+
+**ALTO (Galaxian) — plain `-O2 -g`, no LTO**
+
+| | share |
+|---|---|
+| `execute_uinstr` | 27.4% |
+| `dorado_machine_run_until` | 16.0% |
+| `dorado_visible_word_at_va` | 7.7% |
+| `task_schedule` | 6.0% |
+| `next_pc` | 5.7% |
+| `b_bus` | 3.9% |
+| `ifu_id_at` | 3.9% |
+| `dorado_ethernet_wakeup_mask` | 3.6% |
+| `ff_override_b` / `apply_lc` / `lc_write_address` | 2.4 / 2.2 / 2.2% |
+| tail (`stk_apply_post`, `ddc_render_line`, `disk_controller_tick`, `machine_seed_keyboard`, `junk_timer_tick`, `cache_lookup`…) | ~14% |
+
+No single item above 8%. The interpreter core — `execute_uinstr`,
+`next_pc`, `b_bus`, `apply_lc`, `lc_write_address`, `ff_override_b` — is
+~44% together, and that is what predecode would attack.
+
+**CEDAR desktop — shipped build (the two Cedar-specific items are leaves,
+so their shares are trustworthy here)**
+
+| | share |
+|---|---|
+| `execute_uinstr` | 34.3% |
+| `dorado_machine_run_until` | 20.1% |
+| **`dorado_visible_word_at_va`** | **13.7%** |
+| **`eth_ftp_pick_busy_conn`** | **11.3%** |
+| `next_pc` | 6.1% |
+| `dorado_memory_ref_task` | 6.0% |
+| `machine_germ_complete_ethernet_tx` | 1.8% |
+| `machine_germ_complete_disk_iocb` | 1.3% |
+| `machine_germ_seed_ethernet_header_page` | 1.2% |
+
+**This confirms the research below, and revises it upward.** The germ
+bridge — `visible_word_at_va` 13.7% plus the three germ functions 4.3% —
+is **18%**, and the STP connection scan is **11.3%**. Together **~29%**,
+where the research estimated 24.5%. Removing all of it would be
+1/(1−0.29) = **1.41x**, taking Cedar to ~1.30x native and ~0.87x wasm.
+
+Cedar's plain-build profile also shows `dorado_trace_flag` at 2.3% and
+`eth_ftp_maybe_deliver` at 7.1% (the scan's caller), i.e. the same two
+items seen from the other side.
+
 ### Research: getting Cedar from 0.73x to 1.0x (2026-08-04, no code written)
 
 Cedar needs **1.37x**. Reading the call sites rather than guessing, its
