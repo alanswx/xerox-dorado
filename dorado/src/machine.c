@@ -1558,8 +1558,17 @@ static void machine_germ_complete_disk_iocb(dorado_machine *m)
              * It exists to reconcile those two original-source behaviours;
              * keep the default hardware-exact comparison for regression
              * work until the compatibility result is established. */
-            int ignore_label_flags =
-                dorado_trace_flag("DORADO_PDI_IGNORE_LABEL_FLAGS");
+            /* CONFIGURATION, not a trace. Read once through its own
+             * cache rather than dorado_trace_flag(), so it can be on the
+             * config allowlist in dorado_trace_init() -- see there: a
+             * DORADO_* variable being set is what disables the trace fast
+             * path, and every Cedar recipe sets this one, which cost the
+             * Cedar path 51% for a flag that only picks a label-compare
+             * rule. */
+            static int ignore_label_flags = -1;
+            if (ignore_label_flags < 0)
+                ignore_label_flags =
+                    getenv("DORADO_PDI_IGNORE_LABEL_FLAGS") ? 1 : 0;
             int mismatch = 0;
             for (uint16_t w = 0; w < compare_words; w++) {
                 uint16_t want = dorado_visible_word_at_va(&m->mem,

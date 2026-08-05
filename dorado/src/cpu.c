@@ -37,13 +37,44 @@ void dorado_trace_init(void)
      * them at once.  Done eagerly at machine creation so the lookup below
      * needs no test of its own: an extra load and branch per call, on a path
      * taken millions of times a second, measured 9% on the Cedar path. */
+    /* CONFIGURATION variables, not traces. These select behaviour (a
+     * label-compare rule, a fixed clock, which display board is fitted,
+     * whether to persist the PDI); none is ever queried through
+     * dorado_trace_flag, so their presence says nothing about whether any
+     * TRACE is enabled and must not disable the fast path.
+     *
+     * This matters more than it looks. Every Cedar and Lisp recipe sets
+     * DORADO_PDI_IGNORE_LABEL_FLAGS and DORADO_FAKE_TIME, so every one of
+     * them was paying the slow path for its whole run: measured 2026-08-04,
+     * the Cedar desktop went 0.48x -> 0.72x of real hardware with a
+     * BYTE-IDENTICAL framebuffer purely by not setting them. Half of what
+     * looked like "Cedar is intrinsically slower than Alto" was this.
+     *
+     * Anything added here MUST be read with a direct cached getenv, never
+     * dorado_trace_flag() -- a name on this list that is looked up through
+     * the memo would silently answer 0 whenever it is the only DORADO_*
+     * set. DORADO_PDI_IGNORE_LABEL_FLAGS was converted for exactly that
+     * reason (see machine.c). */
+    static const char *const config_not_trace[] = {
+        "DORADO_PDI_IGNORE_LABEL_FLAGS=",
+        "DORADO_FAKE_TIME=",
+        "DORADO_DISPM_PRESENT=",
+        "DORADO_PDI_SAVE=",
+    };
+
     extern char **environ;
     dorado_trace_env_present = 0;
     for (char **e = environ; e && *e; e++) {
-        if (strncmp(*e, "DORADO_", 7) == 0) {
-            dorado_trace_env_present = 1;
-            return;
+        if (strncmp(*e, "DORADO_", 7) != 0) continue;
+        int is_config = 0;
+        for (size_t c = 0;
+             c < sizeof config_not_trace / sizeof config_not_trace[0]; c++) {
+            size_t n = strlen(config_not_trace[c]);
+            if (strncmp(*e, config_not_trace[c], n) == 0) { is_config = 1; break; }
         }
+        if (is_config) continue;
+        dorado_trace_env_present = 1;
+        return;
     }
 }
 

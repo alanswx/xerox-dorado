@@ -164,6 +164,55 @@ number is. Record what it was worth and move on.
 | 3 — translation cache | not started | — |
 | 4b — deadline scheduling (rest) | not started | — |
 
+### Cedar: half its deficit was the trace-flag cliff, not the emulation
+
+Setting ANY `DORADO_*` variable disables the trace-flag fast path (and the
+preamble hoist above). Every Cedar and Lisp recipe sets
+`DORADO_PDI_IGNORE_LABEL_FLAGS` and `DORADO_FAKE_TIME`, so every one of
+them paid the slow path for its whole run:
+
+| Cedar desktop, PGO build | |
+|---|---|
+| with the recipe's env vars (before) | 0.48x |
+| **with them, after the config allowlist** | **0.73x** |
+
+Byte-identical framebuffer. Those two variables are CONFIGURATION — a
+label-compare rule and a fixed clock — not traces, and
+`dorado_trace_init()` now skips a short allowlist of such names when
+deciding whether tracing might be on.
+
+**The trap for anyone extending that list:** a name on it must be read
+with a direct cached `getenv`, never `dorado_trace_flag()`. A name looked
+up through the memo would silently answer 0 whenever it is the only
+`DORADO_*` set — a behaviour change, not a speedup.
+`DORADO_PDI_IGNORE_LABEL_FLAGS` was read through the memo and had to be
+converted first.
+
+PGO now also trains on the Cedar path and merges both profiles; that took
+the Alto path to 1.05x as a side effect, and costs nothing.
+
+### What is left between Cedar and real time
+
+Cedar sits at 0.73x, so it needs ~1.37x more. Its profile is genuinely
+different from the Alto path's — these are Cedar-specific and do not show
+up in Galaxian at all:
+
+| | share | what |
+|---|---|---|
+| `dorado_visible_word_at_va` | ~11% | guest-memory reads, largely the Cedar I/O bridge polling |
+| `eth_ftp_pick_busy_conn` | ~9% | scans every STP connection slot **every cycle**, finding nothing while idle |
+| germ/Cedar I/O bridge | ~4.5% | `machine_germ_complete_ethernet_tx`, `..._seed_ethernet_header_page`, `..._complete_disk_iocb`, `set_eftp_rx_armed` |
+
+`eth_ftp_pick_busy_conn` is the clearest single target and it is a leaf
+function, so unlike the `run_until` attribution above this share is
+trustworthy. **It was not attempted here**: skipping the scan needs a
+"nothing is pending" hint maintained wherever the connection fields
+change, that state cannot become a `dorado_ethernet` member without
+breaking every checkpoint (snapshot ABI), and this is the subsystem where
+the EFTP RxOn-clear had to be gated to the Cedar path because ungating it
+stalled the Alto boot. It deserves its own session and the full gate set,
+not the tail of one.
+
 ### Correction: the profile lied, and here is why
 
 The phase ordering above was derived from `sample` attributing 31% to

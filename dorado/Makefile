@@ -574,8 +574,17 @@ test: $(BINDIR)/test_pdi $(BINDIR)/test_mb $(BINDIR)/test_disasm $(BINDIR)/test_
 # retrain on that world by editing PGO_TRAIN below and re-running.
 PGO_PROFRAW := build/pgo/dorado-%p.profraw
 PGO_PROFDATA := build/pgo/dorado.profdata
+# Train on BOTH shipped paths and merge. Galaxian alone leaves the Cedar
+# path -- the PDI disk bridge, the STP server, the Cedar/Mesa microcode --
+# entirely unprofiled, and those are exactly where Cedar's remaining
+# deficit lives. llvm-profdata merges the two runs' raw profiles.
 PGO_TRAIN := --eb worlds/aemu.eb --eftp '../chm/bootfiles/Galaxian.boot!1' \
 	--cycles 300000000 --out build/pgo/train.pgm
+PGO_TRAIN_CEDAR := --boot-reason disk --no-alto-boot \
+	--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+	--pilot-disk '$(CEDAR_DESKTOP_PDI)' --ftp-root ../chm/cedar/stp-root \
+	--snapshot-in '$(CEDAR_DESKTOP_SNAPSHOT)' \
+	--cycles 36500000000 --out build/pgo/train-cedar.pgm
 
 .PHONY: pgo
 pgo:
@@ -584,9 +593,16 @@ pgo:
 	@$(MAKE) -s clean-objs
 	@$(MAKE) -s $(BINDIR)/dorado \
 		CFLAGS="-std=c99 -O3 -flto -g -Iinclude -Ivendor/6502 -fprofile-instr-generate"
-	@echo "pgo: stage 2 -- training run"
+	@echo "pgo: stage 2 -- training runs (Alto, then Cedar if its checkpoint is present)"
 	@rm -f build/pgo/*.profraw
 	@LLVM_PROFILE_FILE='$(PGO_PROFRAW)' $(BINDIR)/dorado $(PGO_TRAIN) >/dev/null 2>&1
+	@if [ -r '$(CEDAR_DESKTOP_SNAPSHOT)' ] && [ -r '$(CEDAR_DESKTOP_PDI)' ]; then \
+		LLVM_PROFILE_FILE='$(PGO_PROFRAW)' DORADO_PDI_IGNORE_LABEL_FLAGS=1 \
+		DORADO_FAKE_TIME='$(CEDAR_DESKTOP_FAKE_TIME)' \
+		$(BINDIR)/dorado $(PGO_TRAIN_CEDAR) >/dev/null 2>&1 || true; \
+	else \
+		echo "pgo: no Cedar checkpoint -- training on the Alto path only"; \
+	fi
 	@xcrun llvm-profdata merge -output='$(PGO_PROFDATA)' build/pgo/*.profraw
 	@echo "pgo: stage 3 -- optimized rebuild (headless AND the SDL frontend)"
 	@$(MAKE) -s clean-objs
