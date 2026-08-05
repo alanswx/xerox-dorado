@@ -4,7 +4,7 @@ CC      ?= cc
 # was tried and does NOT help (slightly worse than plain -O3), so it is
 # deliberately absent -- it would also make the build host-specific.
 # For the rest of Phase 0's gain, see `make pgo` below.
-CFLAGS  ?= -std=c99 -Wall -Wextra -Wshadow -Wpedantic -Wno-gnu-zero-variadic-macro-arguments -O3 -flto -g -Iinclude -Ivendor/6502
+CFLAGS  ?= -std=c99 -D_GNU_SOURCE -Wall -Wextra -Wshadow -Wpedantic -Wno-gnu-zero-variadic-macro-arguments -O3 -flto -g -Iinclude -Ivendor/6502
 LDFLAGS ?=
 DEPFLAGS := -MMD -MP
 
@@ -622,8 +622,11 @@ pgo:
 		 echo "     Use a clang, e.g.  make pgo CC=clang"; false)
 	@echo "pgo: stage 1 -- instrumented build"
 	@$(MAKE) -s clean-objs
+	@# Derive from CFLAGS rather than restating it: the first version
+	@# hardcoded a subset, dropped -D_GNU_SOURCE, and broke on glibc where
+	@# timegm/strcasecmp need it (clang makes those an error, not a warning).
 	@$(MAKE) -s $(BINDIR)/dorado \
-		CFLAGS="-std=c99 -O3 -flto -g -Iinclude -Ivendor/6502 -fprofile-instr-generate"
+		CFLAGS="$(CFLAGS) -fprofile-instr-generate"
 	@echo "pgo: stage 2 -- training runs (Alto, then Cedar if its checkpoint is present)"
 	@rm -f build/pgo/*.profraw
 	@LLVM_PROFILE_FILE='$(PGO_PROFRAW)' $(BINDIR)/dorado $(PGO_TRAIN) >/dev/null 2>&1

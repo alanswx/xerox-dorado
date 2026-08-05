@@ -63,6 +63,14 @@ jobs:
       # version mismatch is a compile ERROR, not a silent skip -- it would
       # take the deploy down. Prove the two agree on a one-line program
       # first, and drop the profile if they do not.
+      # A failed pgo leaves CLANG LTO objects in build/, and the next `make`
+      # links them with the runner's gcc -- "file format not recognized",
+      # which is how the previous attempt broke the deploy rather than
+      # degrading. Never let one compiler inherit another's objects.
+      - name: Discard native objects from the PGO attempt
+        working-directory: dorado
+        run: make clean-objs
+
       - name: Verify emsdk clang accepts the profile
         working-directory: dorado
         run: |
