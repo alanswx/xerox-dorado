@@ -788,7 +788,7 @@ volume boots from disk; the base system still streams. Software you
 
 A plain `make` gives about 0.6x a real Dorado. **`make pgo`** — a
 two-stage profile-guided build — gives **1.33x on the Alto path and
-1.23-1.26x on Cedar**, i.e. faster than the hardware, and it builds the
+1.43x on Cedar**, i.e. faster than the hardware, and it builds the
 SDL frontend too. Every run prints the honest figure at the end:
 
 ```

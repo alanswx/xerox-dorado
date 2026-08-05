@@ -7,12 +7,17 @@ Written 2026-08-04, after the clock audit.
 | path | native (`make pgo`) | wasm / browser |
 |---|---|---|
 | Alto (Galaxian) | **1.33x** | 0.74x |
-| Cedar desktop | **1.23-1.26x** | 0.80x |
+| Cedar desktop | **1.43x** | 0.84x |
 
 **Both native paths now beat the real machine**, from 0.46x and 0.39x when
-this plan was written. The browser roughly doubled. The one big
-non-interpreter item left is Cedar's STP connection scan at 14.3% —
-designed in `docs/stp-scan-design.md`, not yet implemented.
+this plan was written — Cedar by 43%. The browser roughly doubled.
+
+**Nothing but the interpreter is left.** Every peripheral item of any size
+has been taken: the BaseBoard, the germ bridge, the STP scan, the
+trace-flag cliff, four raw `getenv`s and two blocks of per-microinstruction
+trace bookkeeping. What remains is `execute_uinstr`, `next_pc`,
+`task_schedule`, `b_bus`, `apply_lc`, `lc_write_address` — ~44% together,
+no single item above 8%.
 
 How to measure any of this without fooling yourself, and the traps that
 produced two confidently wrong answers along the way:
@@ -175,6 +180,7 @@ number is. Record what it was worth and move on.
 | 0 — compiler flags | **DONE** | **1.95x — 0.52x → 1.02x real hardware** |
 | 4a — diagnostic preamble hoist | **DONE** | +1.4%, byte-identical |
 | 4b — germ I/O bridge cadence | **DONE** | Cedar 0.93x → **1.26x** native, 0.62x → **0.80x** wasm |
+| 4c — STP connection scan cadence | **DONE** | Cedar 1.26x → **1.43x** native, 0.80x → **0.84x** wasm |
 | 5 — BaseBoard idle suppression | **DONE** | **+19.7%** — Alto 1.05x → **1.29x**, Cedar 0.73x → **0.92x** |
 | 1 — task-schedule cache | superseded — see below | — |
 | 2 — predecode | not started | — |

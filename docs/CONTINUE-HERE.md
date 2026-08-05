@@ -1,7 +1,7 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
 > **2026-08-04/05: the emulator is now FASTER than a real Dorado.**
-> Alto 1.33x and Cedar 1.23-1.26x natively (`make pgo`), 0.74x and 0.80x
+> Alto 1.33x and Cedar 1.43x natively (`make pgo`), 0.74x and 0.84x
 > in the browser — from 0.46x and 0.39x, and the published figure before
 > that was wrong by 3.70x because it quoted BaseBoard 6502 cycles as
 > microinstructions. A PARC veteran saying "it feels slow" was reading the

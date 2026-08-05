@@ -58,7 +58,7 @@ Both paths now beat the real machine natively:
 | path | native (`make pgo`) | wasm / browser |
 |---|---|---|
 | Alto (Galaxian) | **1.33x** | 0.74x |
-| Cedar desktop | **1.23-1.26x** | 0.80x |
+| Cedar desktop | **1.43x** | 0.84x |
 
 `dorado` prints the honest number at the end of every run -- emulated
 Dorado seconds per CPU second, from `cpu->cycles` (microinstructions),
@@ -105,13 +105,15 @@ speedups); only their headline ratio was wrong:
   `DORADO_FAKE_TIME`) still pay it -- the Cedar figure above is measured
   WITH it paid, so a plain Cedar run is faster still.
 
-Remaining hot spots, in order: the interpreter `execute_uinstr` (~20%),
-the per-cycle ethernet poll `eth_ftp_maybe_deliver` (~5%, scans every
-connection slot when idle), the BaseBoard 6502 which keeps running full
-speed forever after boot (~5%), and what is left of
-`dorado_visible_word_at_va` (~8%). The last three all touch documented
-timing minefields; measure with `sample <pid>`, and gate any change on
-BYTE-IDENTICAL framebuffers, not pixel counts. It also builds to
+All three of those "remaining hot spots" -- the idle BaseBoard, the
+per-cycle ethernet connection scan, and the guest reads behind
+`dorado_visible_word_at_va` -- were taken on 2026-08-04/05, along with the
+germ I/O bridge. **Nothing but the interpreter is left**: `execute_uinstr`,
+`next_pc`, `task_schedule`, `b_bus`, `apply_lc`, `lc_write_address`, ~44%
+together with no single item above 8%. Measure with `sample <pid>` against
+BOTH a shipped and a plain `-O2` build (LTO inlining makes attribution
+lie), and gate on BYTE-IDENTICAL framebuffers across Galaxian, the Cedar
+desktop and Lyric. It also builds to
 **WebAssembly**
 (`make web`) and auto-deploys to GitHub Pages
 (`.github/workflows/deploy-pages.yml`): a dropdown picks the Alto games,

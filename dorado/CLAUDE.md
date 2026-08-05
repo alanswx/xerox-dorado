@@ -600,7 +600,7 @@ And keep `dorado_trace_flag_lookup` free of extra tests -- a redundant
 (`cmp` two .pgm files), not pixel counts.
 
 **Current speed (2026-08-05, `make pgo` build): Alto 1.33x real hardware,
-Cedar 1.23-1.26x; wasm 0.74x and 0.80x.** Both native paths now beat the
+Cedar 1.43x; wasm 0.74x and 0.84x.** Both native paths now beat the
 real machine. Every run prints the honest figure -- emulated Dorado
 seconds per CPU second, from microinstructions -- so **quote THAT, never a
 cycles/s number.** The old "29.1 M cycles/s = 1.75x" claim was bb.cycles/s

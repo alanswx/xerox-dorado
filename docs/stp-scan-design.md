@@ -1,9 +1,22 @@
 # Design: the STP connection scan (`eth_ftp_pick_busy_conn`)
 
-Written 2026-08-05. **Verdict: yes, it can be sped up, and by two
-independent routes.** The simple one has a precedent that landed the same
-day; the exact one is safe but needs a hook. Recommend the simple one
-first.
+Written 2026-08-05. **Verdict: yes — and Option A is now IMPLEMENTED and
+shipped.**
+
+| Cedar desktop | before | after |
+|---|---|---|
+| native (`make pgo`) | 1.23-1.26x | **1.43x** |
+| wasm | 0.80x | **0.84x** |
+
+Byte-identical on Galaxian, the Cedar desktop, Lyric **and a cold Cedar
+boot** — the path this document flagged as the exposure. The estimate
+above (~1.44x native) was almost exactly right; the wasm figure came in
+lower than the predicted 0.94x, because the browser build weights the
+interpreter more heavily than the native one does.
+
+The rest of this document is kept as written, including Option B, which
+remains the fallback if the cadence ever proves to cost responsiveness
+under load.
 
 ## What it is
 

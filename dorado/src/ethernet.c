@@ -200,9 +200,16 @@ static void eth_clear_rx(dorado_ethernet *eth)
     eth->rx_wire_timer = 0;
 }
 
+/* Cadence for the idle STP connection scan -- see eth_ftp_pick_busy_conn
+ * below for why a cadence is sound there. Declared here because
+ * dorado_ethernet_init resets it. */
+#define FTP_PICK_INTERVAL 64u
+static unsigned eth_ftp_pick_countdown;
+
 void dorado_ethernet_init(dorado_ethernet *eth)
 {
     memset(eth, 0, sizeof *eth);
+    eth_ftp_pick_countdown = 0;   /* scan on the first call after a reset */
     eth->local_host = 042;
     eth->remote_host = 01;
     eth->world_rx_words = 0xFFFFu;  /* no rx-size gate until the world posts EICLOC */
@@ -2326,11 +2333,26 @@ static int eth_ftp_tx_next_segment(dorado_ethernet *eth)
 /* The pump below runs on the working set, so a connection parked in a slot
  * would never make progress on its own.  If the loaded connection has
  * nothing to send, switch to one that does. */
+/* How often the idle connection scan below actually runs, in calls. It is
+ * reached once per microinstruction from dorado_ethernet_wakeup_mask, and
+ * measured 14.3% of Cedar's total runtime (2026-08-05, shipped build; a
+ * leaf, so that share is trustworthy) walking all 16 slots to find nothing.
+ *
+ * A cadence is sound here in a way it would not be for guest-visible I/O:
+ * this picks which connection the SERVER services next, so deferring it is
+ * a scheduling delay, not latency the guest waits on. 64 calls is ~4 us of
+ * guest time against BSP round trips measured in milliseconds.
+ *
+ * The counter is a plain static phase, not state: worst case after a
+ * restore is one extra or one skipped scan. Set to 1 to get the old
+ * every-call behaviour. See docs/stp-scan-design.md. */
 static void eth_ftp_pick_busy_conn(dorado_ethernet *eth)
 {
     if (eth->ftp_open && (eth->ftp_pending_ack ||
                           eth->ftp_tx_mode != FTP_TX_NONE))
         return;
+    if (eth_ftp_pick_countdown) { eth_ftp_pick_countdown--; return; }
+    eth_ftp_pick_countdown = FTP_PICK_INTERVAL - 1u;
     for (int i = 0; i < DORADO_FTP_MAX_CONN; i++) {
         const struct dorado_ftp_ctx *c = &eth->ftp_ctx[i];
         if (eth->ftp_ctx_valid && eth->ftp_ctx_cur == (uint8_t)i) continue;
