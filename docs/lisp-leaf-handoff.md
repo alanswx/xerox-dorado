@@ -332,6 +332,43 @@ Architectural, from `AemuSources.dm!82_/AltoDiabloDisk.mc`:
 `NewUserBigDisk.cm` gave VMEM *20000* and noted it "should leave about 1000
 free pages" — they were tighter than we are.
 
+**QUALIFIED 2026-08-06 — the ceiling is the T-80's HEAD COUNT, and the
+microcode already supports a bigger drive.** Nick Briggs pointed out there
+is microcode that runs VMEM across multiple partitions. It is not a
+separate build: it is `AltoDiabloDisk.mc`, the AEmu microcode we already
+run. Its own header says so:
+
+> Alto emulation is performed only on drive 0, which may be either a T-80
+> or an **AMS-315**. A Trident disk is formatted as 815 cylinders, 5 heads,
+> 29 sectors. An **AMS-315 disk is formatted as 815 cylinders, 19 heads**,
+> 29 sectors.
+>
+>     Dorado cylinder = 406*(Diablo drive) + Diablo cylinder + 3
+>     Dorado head     = (partition number) + 1
+
+**Partitions ARE heads.** The microcode probes the drive type from the
+error status and sets the limit accordingly — `MaxPartition_ 5C` for a
+T-80, `MaxPartition_ 23C` (= 19) for an AMS-315. So the 22,736-page figure
+below is a property of choosing a 5-head T-80, not of the emulation.
+
+**Our disk model already has the geometry**: `include/disk.h` defines
+`DORADO_DISK_T300` as 815 × **19 heads** × 9 sectors — the same drive the
+microcode calls an AMS-315.
+
+Two cautions before treating this as free space:
+
+- The partition number is command bits 5–7, and the source says outright
+  that **"it's impossible to select partitions 8-19"** through that field.
+  So the readily selectable range is 1–7, not 1–19 — a gain over the T-80's
+  5, but not 3.8x, unless partitions 8+ are reachable some other way.
+- The Alto side must agree: VMEM lives in `LispFmap`, the file map that
+  `IndexedPageIO` resolves (`VMemB.bcpl`), and the `\MOREVMEMFILE` subr in
+  `\INITSUBRS` is what extends it. Whether our `Lisp.run!6` exercises that
+  is unverified — a `strings` scan of the binary finds neither symbol, but
+  BCPL binaries need not carry them.
+
+Until that is tried, the lever below remains the one in use:
+
 The only lever is deleting Alto utilities a Lisp pack never uses:
 `altofs --delete` (added this session, runs before the inserts) and
 `LISP_PACK_DROP` in the Makefile. That frees 1,590 pages — Bravo alone is 458.
