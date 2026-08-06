@@ -1,5 +1,33 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+> **2026-08-06: the Lyric VMEM ceiling is liftable, and `Full.sysout!6`
+> loads but RAIDs.** Three findings, detail in `docs/lisp-leaf-handoff.md`
+> §6.1-6.5:
+>
+> - **The multi-partition VMEM is a LOADER switch, not microcode.**
+>   `Lisp.run!6` — already on our pack — implements `n/X`, linking a
+>   `Lisp.xvirtualmem` in partitions 1..7, at most twice. Its own string
+>   `Extended vmem files must be in partitions 1..7` confirms the
+>   bits-5-7 limit independently derived from `AltoDiabloDisk.mc`. We use
+>   partitions 5 and 4, so 1-3 are free: ~68,000 pages reachable.
+> - **VMEM sizes, measured.** 15,400/16,000/17,000/18,000/**19,000** all
+>   fit; PARC's 20,000 does NOT, because `NewUserBigDisk.cm` creates the
+>   VMEM on an *erased* disk and FTPs the Lisp files in after, while we
+>   insert first and CreateFile into the fragmented remainder — ~1,000
+>   pages, not 5,000. The shipped 15,002 is 139 pages SHORT of
+>   `Full.sysout!6` (15,141), which is the whole original problem.
+>   **CreateFile fails and the emulator still exits 0** — read the screen.
+> - **`Full.sysout!6` loads and then enters
+>   `Raid: "Bad Array Block" {103,252}`** — identical at 17,000 and
+>   19,000, and with `DORADO_FAKE_TIME` set, so it is neither size nor
+>   clock. Live hypothesis: we serve the sysout RAW, while the shipped
+>   Lyric world sanitizes its own with `discard_stale_process.py`, whose
+>   docstring says an untreated Lyric sysout "enters RAID".
+>
+> **Do not gate any of this on pixel counts.** Three runs of the SAME
+> failure at the SAME address spanned 14,308 px, and the broken world is
+> within 2% of the good desktop. Convert the framebuffer and look at it.
+
 > **2026-08-04/05: the emulator is now FASTER than a real Dorado.**
 > Alto 1.33x and Cedar 1.43x natively (`make pgo`), 0.74x and 0.84x
 > in the browser — from 0.46x and 0.39x, and the published figure before

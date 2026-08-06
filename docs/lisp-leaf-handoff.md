@@ -487,6 +487,94 @@ already in service: `lisp-disk-image-full` writes `LISP.SYSOUT` to the
 **aux partition (4)** while the VMEM and OS live on the main one (5). The
 sysout has never competed with the VMEM for space.
 
+### 6.5 `Full.sysout!6` LOADS — and then enters RAID (open)
+
+With a 17,000-page VMEM, `Full.sysout!6` loads and paints: the Xerox Lisp
+logo, `copyright (c) 1988 Xerox Corporation  LYRIC 27-Apr-87 17:05:23`, a
+Prompt Window and an `Exec (XCL)` window. **204,902 display-list pixels.**
+
+It is not a boot. The Prompt Window reads:
+
+```
+Raid: "Bad Array Block" {103,252}
+```
+
+**Do not gate this on the pixel count.** The shipped good desktop is
+208,966 px and this broken world is 204,902 -- 2% apart, because the
+desktop chrome paints either way and the failure is one line of text. This
+is `pixel-counts-cannot-read-text` landing on the person who wrote it down;
+the framebuffer had to be converted and LOOKED AT.
+
+**Size is RULED OUT, measured.** The same boot at a **19,000**-page VMEM
+(3,859 pages spare) enters RAID at the **identical address**:
+
+| VMEM | `DORADO_FAKE_TIME` | pixels | Prompt Window |
+|---|---|---|---|
+| 17,000 (1,859 spare) | no | 204,902 | `Raid: "Bad Array Block" {103,252}` |
+| 19,000 (3,859 spare) | no | 192,476 | `Raid: "Bad Array Block" {103,252}` |
+| 18,000 (2,859 spare) | **yes** | 190,594 | `Raid: "Bad Array Block" {103,252}` |
+
+`DORADO_FAKE_TIME` -- the other thing the shipped recipe sets and the first
+run omitted -- makes no difference either. The failure is **deterministic,
+size-independent and time-independent**, at one fixed address, which is
+what a bad datum *in the image* looks like and not what a resource limit
+looks like.
+
+Note also that the pixel counts span 14,308 across three runs of the SAME
+failure at the SAME address -- an independent demonstration that the count
+carries no signal about this world's health in either direction.
+
+The cause is that we served the sysout RAW. The shipped Lyric recipe
+does not: `run-lisp-good-sdl` first runs
+
+```
+tools/interlisp-sysout/discard_stale_process.py \
+    --record 74:101500 --record 74:101600 --record 74:101700 \
+    LISP.SYSOUT!1  lisp-lyric-usable.sysout
+```
+
+and that tool's own description says what an untreated sysout does:
+
+> Lyric and Medley 1.0 archive sleeping process handles whose stack pages
+> are not present in the sysout. On a hard restart, PROCESSWORLD preserves
+> a deleted process ... **That enters RAID with an invalid stack address.**
+
+So RAID entry on an unsanitized Lyric sysout is a known, documented failure
+of this exact class, and `Full.sysout!6` has had no such treatment. The
+record addresses are explicit `--record HI:LO` octal arguments specific to
+`LISP.SYSOUT!1`; `Full.sysout!6` is a different, much larger image (15,141
+pages vs 9,422) and its stale records, if any, are at different addresses
+that have to be found. The tool validates the process layout and the
+missing stack page before writing, so it can tell a real one from a guess.
+
+**Honest caveat:** the documented break is `Invalid address`; ours is
+`Bad Array Block`. Same family (a live reference into pages the sysout does
+not carry), NOT the same message. Strong lead, unconfirmed diagnosis --
+the sanitizer's three record addresses are specific to `LISP.SYSOUT!1` and
+prove nothing about Full's contents on their own.
+
+**Next step:** find `Full.sysout!6`'s stale PROCESS records, if that is
+what they are. `discard_stale_process.py` validates the process layout and
+the missing stack page before writing, so it can be pointed at candidate
+addresses and will refuse the wrong ones -- which makes a search cheap and
+safe. Size and clock are both already excluded, so this is the live
+hypothesis, not one of several.
+
+**Reproduce:**
+
+```
+make lisp-lyric-full-pack     # ~20 min, 19,000-page VMEM
+make run-lisp-lyric-full      # boots Full.sysout!6 over FTP
+```
+
+then CONVERT AND LOOK AT the framebuffer -- `sips -s format png
+out.pgm --out out.png` -- because `tools/pgm_text.py` reads the Alto
+Executive's font and returns nothing useful against the Lisp desktop's.
+
+Packs are preserved at `dorado/build/good-packs/lisp-lyric-full-{17000,
+18000,19000,20000}.pack` (the 20,000 one has NO VMEM -- its CreateFile
+failed -- and is kept only as the negative control).
+
 Until one of those is baked, the lever below remains the one in use:
 
 The only lever is deleting Alto utilities a Lisp pack never uses:
