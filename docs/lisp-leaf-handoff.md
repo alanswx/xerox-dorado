@@ -699,10 +699,66 @@ Against an 8% baseline, one page's absence means nothing.
 
 So this branch is **inconclusive, not negative**, and the tool
 (`tools/interlisp-sysout/compare_vmem_pages.py`) carries that warning in
-its docstring so the next person does not read a miss as a defect. Doing
-it properly needs **LispFmap decoded**, so the VMEM file page holding a
-given virtual page can be located and compared directly instead of
-searched for by content. That is the concrete next task.
+its docstring so the next person does not read a miss as a defect.
+
+### 6.11 DONE PROPERLY: the image is delivered PERFECTLY (100.0%)
+
+No content searching needed -- `altofs` can read the file straight off the
+volume, which makes this exact:
+
+```
+dsk2trident --extract --diablo-cylinders 406 --diablo-sectors 14 \
+    probe20k.pack pv-d0.dsk --drive1 pv-d1.dsk
+altofs --disk0 pv-d0.dsk --disk1 pv-d1.dsk --existing \
+    --preserve-existing-metadata --no-vmem \
+    --extract 'LISP.VIRTUALMEM.' vmem.bin        # 10,240,000 bytes = 20,000 pages
+```
+
+**The on-disk VMEM page index equals the sysout raw page index** -- verified,
+not assumed: the interface page (`IFPValidKey` = 0o12743) sits at
+`vmem.bin` page **1**, byte-identical to sysout raw page 1. (Note this is
+NOT the `raw page = file page - 1` relation in
+`discard_stale_process.py`; that one is about indexing the sysout's own
+FPTOVP table, a different thing. Do not conflate them.)
+
+Comparing every page at its own index:
+
+| | |
+|---|---|
+| sysout pages | 15,141 |
+| **byte-identical on disk** | **15,140 (100.0%)** |
+| differing | 1 -- page 0 only, which the sysout omits |
+| **the failing page, raw 15048 (VP 0o41400)** | **BYTE-IDENTICAL** |
+
+**Conclusions, both firm:**
+
+1. **Our disk path is correct across a 7.75 MB load.** Ethernet ->
+   `Lisp.run` -> `LISP.VIRTUALMEM` on a Trident pack delivers 15,140 pages
+   without a single wrong byte. That is a real result for the emulator
+   independent of this bug.
+2. **The bytes the array allocator rejects are exactly the bytes
+   `Full.sysout!6` contains.** The image is not being corrupted, so nothing
+   about data delivery explains the RAID.
+
+This also settles 6.10 retroactively: the content search that "found
+nothing" was simply the wrong method (8% baseline), and the page-indexed
+comparison it should have been shows 100%.
+
+**What that leaves is EXECUTION, not data.** Same build, same microcode,
+same loader, same pack, image delivered byte-perfect -- and the small
+sysout of that same build boots to a clean desktop. So the remaining
+candidate is an emulator defect on some instruction or microcode path that
+only the full library exercises, computing the allocator's check wrongly.
+That is the same shape as `TgetsMd` (blocked Smalltalk) and the
+same-instruction Md bypass (blocked Lisp), both of which were single
+mis-modelled operations found by tracing the guest's own code.
+
+**Next probe:** trace what the guest executes approaching the RAID.
+`DORADO_ALTO_OPHIST=1` gives per-instruction-set, per-opcode dispatch
+counts, and `DORADO_TRACE_GATE` bounds a PC trace to the window before the
+failure -- gate it AFTER the world load, per
+`gate-pc-traces-after-world-load`, or Initial's PCs blend in at the same IM
+addresses.
 
 ### 6.8 What is left
 
