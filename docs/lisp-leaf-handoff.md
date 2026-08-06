@@ -681,6 +681,29 @@ that was logged as the achievement at the time.** So this world reaching
 RAID is its pre-existing state, not new evidence. Treat control 2 as
 unresolved, not as corroboration.
 
+### 6.10 An inconclusive probe, and the trap in it
+
+Tried to answer "are the bytes the allocator rejects the bytes the sysout
+holds?" by content search: take the 16-byte signature at VP 0o41400
+(`aaa90102aaa80614004300aa004300aa`), confirm it is absent from the pack
+before booting, boot `Full.sysout!6` into a writable copy, and look again.
+
+Result: **still absent**, which looked like a disk-path bug and is not.
+
+**The control kills it.** Of 72 random non-sparse pages from the same
+just-loaded sysout, only **6 (8%)** appear verbatim in the pack -- as-is or
+byte-swapped, both give 6. The guest does not copy the sysout to disk and
+stop; it loads and then RUNS, and a running Interlisp dirties pages
+continuously, so on-disk VMEM is live state, not the archived image.
+Against an 8% baseline, one page's absence means nothing.
+
+So this branch is **inconclusive, not negative**, and the tool
+(`tools/interlisp-sysout/compare_vmem_pages.py`) carries that warning in
+its docstring so the next person does not read a miss as a defect. Doing
+it properly needs **LispFmap decoded**, so the VMEM file page holding a
+given virtual page can be located and compared directly instead of
+searched for by content. That is the concrete next task.
+
 ### 6.8 What is left
 
 Ruled out, each by measurement: **VMEM size** (four sizes, 6.7), **the
