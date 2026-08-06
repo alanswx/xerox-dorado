@@ -355,19 +355,75 @@ below is a property of choosing a 5-head T-80, not of the emulation.
 `DORADO_DISK_T300` as 815 × **19 heads** × 9 sectors — the same drive the
 microcode calls an AMS-315.
 
-Two cautions before treating this as free space:
+### 6.1 RESOLVED — the multi-partition VMEM is in `Lisp.run!6`, and we ship it
 
-- The partition number is command bits 5–7, and the source says outright
-  that **"it's impossible to select partitions 8-19"** through that field.
-  So the readily selectable range is 1–7, not 1–19 — a gain over the T-80's
-  5, but not 3.8x, unless partitions 8+ are reachable some other way.
-- The Alto side must agree: VMEM lives in `LispFmap`, the file map that
-  `IndexedPageIO` resolves (`VMemB.bcpl`), and the `\MOREVMEMFILE` subr in
-  `\INITSUBRS` is what extends it. Whether our `Lisp.run!6` exercises that
-  is unverified — a `strings` scan of the binary finds neither symbol, but
-  BCPL binaries need not carry them.
+The last open question above ("whether our `Lisp.run!6` exercises that")
+is answered, and the answer is yes. Nick Briggs supplied the operator-facing
+error strings; they are **in the loader already on our Lyric pack**
+(`chm/lisp/Lisp.run!6`, and `strings -a` finds every one of them):
 
-Until that is tried, the lever below remains the one in use:
+```
+An argument (n or -) is required for /X switch
+Can't use both n/X and -/X
+Extended vmem files must be in partitions 1..7
+Can't use /X more than twice
+Can't use both -/X and n/X
+```
+
+So this is **not microcode at all** — it is an Alto-side loader switch, which
+is why grepping the `.mb` worlds for it found nothing. The rest of the string
+table gives the whole mechanism:
+
+| string in `Lisp.run!6` | what it tells us |
+|---|---|
+| `Extended vmem files must be in partitions 1..7` | independently confirms the `AltoDiabloDisk.mc` bits-5–7 limit above — arrived at from the microcode, stated outright by the loader |
+| `Can't use /X more than twice` | **up to two extensions**, so VMEM spans at most three partitions |
+| `Warning: Lisp.xvirtualmem in partition @` | the extension file is **`Lisp.xvirtualmem`**, one per extension partition |
+| `is currently linked to the vmem based in partition @` | the partitions are *linked*, and the link is checked at every boot |
+| `Can't extend vmem into partition @ / because main vmem is already linked instead to partition @` | you cannot silently re-point an extension |
+| `Use /O switch with n/X if you're sure you know what you're doing` | `/O` overrides that check |
+| `is exceedingly fragmented, and not all of the file can be addressed` | the extension must be reasonably contiguous — same `CreateFile`-on-an-erased-partition discipline as the main VMEM |
+| `Can't access partition: partition > 7 or bad password` | the 1..7 limit again, at the access path |
+
+**Our pack has room for this today.** `LISP_MAIN_PARTITION = 5`,
+`LISP_AUX_PARTITION = 4`, so partitions **1, 2 and 3 are unused**, and each
+is a full head — the same ~22,736 pages. Two extensions would take the
+ceiling from 22,736 to roughly 68,000 pages without changing the drive type.
+
+### 6.2 But try PARC's own recipe first — it already fits `Full.sysout!6`
+
+`chm/lisp/cm/NewUserBigDisk.cm!6`, headed **"FOR Lyric ONLY -- BEWARE"**, is
+PARC's procedure for exactly our situation, and it uses **no `/X` at all**:
+
+```
+CREATEFILE.run LISP.VIRTUALMEM 20000D      // "should leave about 1000 free pages"
+FTP/-EA PHYLUM Dir/C <Lisp>Lyric>Basics> Ret/C LISP.run LISP.syms DoradoLispMC.EB AltoD1MC.eb
+```
+
+A plain 20,000-page single-partition VMEM — and the four files it fetches are
+exactly the four we use. The arithmetic says that is enough:
+
+| | pages | working room above the image |
+|---|---|---|
+| `Full.sysout!6` (7,752,192 bytes) | 15,141 | — |
+| our current VMEM | 15,002 | **−139 (does not fit)** |
+| Nick's minimum ("if it fits it fits") | ~15,200 | 59 pages (0.03 MB) |
+| **PARC's `NewUserBigDisk` size** | **20,000** | **4,859 pages (2.5 MB)** |
+
+PARC noted 20,000 left them ~1,000 free pages, so their usable pack was
+~21,000 — **1,736 fewer than our 22,736**. Their recipe fits us with room to
+spare, and a *full* sysout has the whole library preloaded, so it wants more
+working VM than the stock one, not less. It also does not need the 204
+on-pack packages, which Leaf now serves anyway.
+
+**Recommended order:** VMEM = 20,000 in partition 5 (PARC's documented Lyric
+configuration, no new mechanism, costs the on-pack library), and hold `/X`
+in reserve for going beyond one partition. An earlier VMEM=20000 run this
+session was killed as "over-generous" against Nick's minimum-size rule —
+that was the wrong call: the rule gives the floor, `NewUserBigDisk.cm` gives
+the size PARC actually shipped.
+
+Until one of those is baked, the lever below remains the one in use:
 
 The only lever is deleting Alto utilities a Lisp pack never uses:
 `altofs --delete` (added this session, runs before the inserts) and
