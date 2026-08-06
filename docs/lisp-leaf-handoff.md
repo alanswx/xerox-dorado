@@ -617,13 +617,57 @@ address at 17,000/18,000/19,000 is weak evidence *against* a size-dependent
 fault, though not decisive if the check precedes any size-dependent
 allocation.
 
-**The ceiling is 19,9xx, so the 20,000 test is reachable.** 19,500 and
-19,900 both fit; 20,000 does not -- about 100 pages short. That is one
-file, and deleting files the booted pack does not need is what
-`NewUserBigDisk.cm` itself does (`delete DMT.boot`,
-`Delete installswat.run`, `Delete CREATEFILE.run`). `SCAVENGER.RUN` is only
-used by the scavenge step, which has already run, and `SWATEE` is the Swat
-debugger's swap image.
+### 6.7 TESTED AND DEAD: it is not the VMEM size, at 20,000 either
+
+The ceiling turned out to be 19,9xx (19,500 and 19,900 both fit), i.e. ~100
+pages short -- one file. Deleting files the booted pack does not need is
+what `NewUserBigDisk.cm` itself does (`delete DMT.boot`,
+`Delete installswat.run`, `Delete CREATEFILE.run`), so the CreateFile step
+was re-run after `delete scavenger.run` (only the scavenge step, already
+finished, uses it) and `delete swatee` (the Swat debugger's swap image).
+**CreateFile then placed a 20,000-page LISP.VIRTUALMEM**, out of three
+extents rather than one.
+
+Booted `Full.sysout!6` in it. **Identical failure:**
+
+| VMEM | pixels | Prompt Window |
+|---|---|---|
+| 17,000 | 204,902 | `Raid: "Bad Array Block" {103,252}` |
+| 18,000 (+`DORADO_FAKE_TIME`) | 190,594 | `Raid: "Bad Array Block" {103,252}` |
+| 19,000 | 192,476 | `Raid: "Bad Array Block" {103,252}` |
+| **20,000** (PARC's own number) | **192,476** | `Raid: "Bad Array Block" {103,252}` |
+
+The 20,000 result is pixel-identical to 19,000. **VMEM size is conclusively
+not the cause**, and the word-0o107 = 20000 coincidence -- however striking
+against `NewUserBigDisk.cm`'s `20000D` -- does not explain this failure.
+That field's meaning remains unknown and is now un-load-bearing.
+
+Pack preserved at `build/good-packs/lisp-lyric-full-20000-real.pack` (a
+genuine 20,000-page VMEM, in case it is wanted for something else).
+
+### 6.8 What is left
+
+Ruled out, each by measurement: **VMEM size** (four sizes, 6.7), **the
+clock** (`DORADO_FAKE_TIME`, 6.5), **transfer truncation** (6.6), and
+**absence of the page** (it is present, 6.6).
+
+Still live, roughly in order of promise:
+
+1. **An emulator defect on a path only a full library exercises.** This
+   has precedent here: `TgetsMd` blocked Smalltalk, and the same-instruction
+   Md bypass was a Lisp blocker. The Lyric world ALREADY has a known
+   residual RAID (`Invalid address {1,101700}`, memory
+   `lisp-hang-freestackblock-diagnosis`), so a second, earlier RAID in a
+   heavier image is consistent with an unfixed defect rather than bad data.
+   The array allocator is the subsystem to instrument.
+2. **A different full sysout as a control.** `chm/lisp/current/FULL.SYSOUT!2`
+   with its matched `LISP.RUN!3` (`make lisp-current-good-pack`). If that
+   also lands in `Bad Array Block`, this is ours, not the image's; if it
+   boots, something is specific to `Full.sysout!6`. **This is the cheapest
+   next experiment and it discriminates cleanly.**
+3. **The sanitizer class**, kept last because 6.6 showed it is the wrong
+   subsystem: `discard_stale_process.py` repairs a sleeping-PROCESS stack
+   reference, while `\MP.BADARRAYBLOCK` is a heap-block check.
 
 **Reproduce:**
 
