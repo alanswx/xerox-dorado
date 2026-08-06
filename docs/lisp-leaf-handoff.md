@@ -665,9 +665,35 @@ Still live, roughly in order of promise:
    also lands in `Bad Array Block`, this is ours, not the image's; if it
    boots, something is specific to `Full.sysout!6`. **This is the cheapest
    next experiment and it discriminates cleanly.**
-3. **The sanitizer class**, kept last because 6.6 showed it is the wrong
-   subsystem: `discard_stale_process.py` repairs a sleeping-PROCESS stack
-   reference, while `\MP.BADARRAYBLOCK` is a heap-block check.
+3. ~~**The sanitizer class**~~ -- **DEAD, tested.** Running
+   `discard_stale_process.py` on `Full.sysout!6` at `LISP.SYSOUT!1`'s three
+   record addresses is refused, and the refusal is the answer:
+
+   ```
+   PROCFX0=1, expected record segment 74; PROCSTATUS=1, expected
+   PSTAT.DELETED; PROCDELETED is clear in flag byte 0x10; PROCINFOHOOK is
+   NIL; rebased stack page for {1,16642} is present
+   ```
+
+   Those are **live, healthy processes with their stack pages present** --
+   the opposite of the stale-handle condition the tool repairs. Combined
+   with 6.6's heap-vs-stack subsystem argument, this hypothesis is done.
+
+**Also excluded: the loader and microcode versions.** The interface page
+carries them, and they say the matched-set worry does not apply:
+
+| field | `LISP.SYSOUT!1` (works) | `Full.sysout!6` |
+|---|---|---|
+| `IFPMinRVersion` / `IFPRVersion` (microcode) | 5682 / 5682 | **5682 / 5682** |
+| `IFPMachineType` | 5 | **5** |
+| `IFPMinBVersion` (minimum loader) | 11008 | **11008** |
+| `IFPBVersion` (loader that wrote it) | 11008 | 12032 |
+
+Microcode version and machine type are identical, so `DORADOLISPMC.EB!1`
+is not mismatched. `Full.sysout!6` was last written by a newer loader
+(12032) but declares the same minimum (11008) -- and our `Lisp.run!6`
+checks `IFPMinBVersion` and **loaded rather than refusing**, so by the
+image's own contract the loader is compatible.
 
 **Reproduce:**
 
