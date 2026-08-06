@@ -452,11 +452,40 @@ So PARC's number is not transferable to our build order, and two things
 could each recover part of the gap: creating the VMEM before the inserts,
 or the `n/X` extension in 6.1.
 
-**Current status: probing the largest size that does fit** (probe script
-re-runs only the CreateFile step against the cached scavenged pack, ~2
-minutes per size, and reads the screen for the failure string). The floor
-is `Full.sysout!6` itself at 15,141 pages, against the shipped 15,002 —
-so the working range, if any, is narrow.
+### 6.4 MEASURED — the window is wide, and 19,000 fits
+
+Probed by re-running only the CreateFile step against the cached scavenged
+pack (~2 min per size) and reading the screen. CreateFile's success line is
+`Found a group of N pages starting at vda N`; its failure line is
+`There isn't enough space on your disk`, and **the emulator exits 0 either
+way**, so the screen is the only signal.
+
+| VMEM pages | result | room above `Full.sysout!6` (15,141) |
+|---|---|---|
+| **15,002** (shipped today) | fits | **−139 — too small, this is the whole problem** |
+| 15,400 | fits | 259 |
+| 16,000 | fits | 859 |
+| 17,000 | fits | 1,859 |
+| 18,000 | fits | 2,859 |
+| **19,000** | **fits** | **3,859 (1.98 MB)** |
+| 20,000 (PARC's number) | **FAILS** | — |
+
+So the working range is not narrow at all: **our build order costs about
+1,000 pages against `NewUserBigDisk.cm`, not the 5,000 the first failure
+suggested.** 19,000 gives the full sysout 3,859 pages of working room
+against PARC's own 4,859 — close enough that the ordering fix is an
+optimisation, not a prerequisite.
+
+`LISP_FULL_VMEM_PAGES` defaults to 19,000. Recovering the last 1,000 would
+mean creating the VMEM before the inserts; `altofs` already has the knob
+(`--vmem-after-inserts` — *not* passing it is PARC's order), in the
+`lisp-disk-image-full` chain that synthesises the VMEM rather than using
+the guest's `CreateFile.run`.
+
+One more thing that chain shows, and it is the multi-partition idea
+already in service: `lisp-disk-image-full` writes `LISP.SYSOUT` to the
+**aux partition (4)** while the VMEM and OS live on the main one (5). The
+sysout has never competed with the VMEM for space.
 
 Until one of those is baked, the lever below remains the one in use:
 

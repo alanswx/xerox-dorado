@@ -2086,9 +2086,28 @@ lisp-current-good-pack:
 # So LISP_SYSOUT_FILE belongs on the BOOT target, not here: the pack build
 # (lisp-bcplprog-scavenged-vmem-image) never reads it, and passing it here
 # is silently inert.
+# MEASURED 2026-08-06, by re-running only the CreateFile step against the
+# cached scavenged pack and reading the SCREEN (CreateFile prints "There
+# isn't enough space on your disk" and the emulator still exits 0):
+#
+#   15,002 (shipped)  fits   -139 pages vs Full.sysout!6 -- TOO SMALL
+#   15,400            fits    259
+#   16,000            fits    859
+#   17,000            fits  1,859
+#   18,000            fits  2,859
+#   19,000            fits  3,859   <- default here
+#   20,000 (PARC)     FAILS
+#
+# So our build order costs ~1,000 pages against NewUserBigDisk.cm, not the
+# 5,000 a first look suggested: PARC place the VMEM on an erased disk and
+# FTP the Lisp files in after, we insert the files first and CreateFile
+# into the fragmented remainder. Recovering that last 1,000 means creating
+# the VMEM before the inserts (altofs has --vmem-after-inserts, and NOT
+# passing it is PARC's order) -- not needed, since 19,000 already gives
+# Full.sysout!6 3,859 pages of working room against PARC's own 4,859.
 LISP_FULL_SYSOUT_FILE ?= ../chm/lisp/lyric-basics/Full.sysout!6
-LISP_FULL_VMEM_PAGES ?= 20000
-LISP_FULL_GOOD_PACK ?= build/good-packs/lisp-lyric-full-20000.pack
+LISP_FULL_VMEM_PAGES ?= 19000
+LISP_FULL_GOOD_PACK ?= build/good-packs/lisp-lyric-full-$(LISP_FULL_VMEM_PAGES).pack
 LISP_FULL_WORK_PREFIX ?= build/good-packs/lisp-lyric-full-work
 LISP_FULL_CYCLES ?= 12000000000
 
