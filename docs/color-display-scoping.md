@@ -40,6 +40,7 @@ This is the encouraging part.
 | | status |
 |---|---|
 | Hardware reference | HM §11 distilled in `docs/display-architecture.md`, incl. CLCB/NLCB fields, mixer modes, 24-bit mode |
+| **Board schematics** | **`DispM-apcRev-Da.press!1.pdf`, 32 sheets, K. Pier, Nov 1982** — pages 12–31 are the Mixer drawings: ABuf/BBuf/CBuf, BMap, CMap, mixer address drivers and control, the Blue/Red/Green byte slices, output register, DACs, PLL, block diagram, and the Slow IO formats. Five revisions held (Cf, Cg, Ch, mwRev-Ch, apcRev-Da) in `DoradoDocs/doradodrawings/`. NOTE the copy in `DoradoDocs/schematics/` is a degraded 164 KB rendering — use the 1.7 MB `doradodrawings/` one. |
 | Microcode source | `chm/doradomicrocode/doradomicrocodesources/ColorDisplay.mc!1` (Taft, Sept 1981), complete |
 | Device numbers | `DisplayDefs.mc!1`: **Mixer 361₈, CMap 362₈, BMap 365₈** on the DispM board |
 | Colour code in the worlds | `Mesa.mb!3` and `Cedar.mb!6` both contain `COLORCTRLBLKPTR`, `COLORVSTOVSINIT`, `PROCESSAMAP`, `PROCESSCMAP`. (`AEmu.mb` does not — the Alto world has no colour.) |
@@ -58,13 +59,32 @@ starts it, and the colour control block is `(ColCBLow 176) (ColCBSize 16)
 
 Five pieces. Only the fourth is invasive.
 
-**(a) The DDC RAM-load protocol.** `Output←B` at TIOA 361/362/365 with the
-control bits in the top four (`RamCtrlShift` = 12): `LoadAddress` (2<<12,
-implies DontWrite), `DontWrite` (4<<12), `DontKeep` (10₈<<12),
-`ReleaseRam` (DontKeep|DontWrite). Sequence is: one Output with
-LoadAddress to set the address, then a stream of data words
-auto-incrementing, then ReleaseRam. Small, self-contained, and testable in
-isolation against `ColorDisplay.mc`'s `DoSomeTable` loop.
+**(a) The DDC RAM-load protocol — and we have the bit-level spec.**
+`DoradoDocs/doradodrawings/DispM-apcRev-Da.press!1.pdf` page 29 ("Slow IO
+system formats", K. Pier, 7/15/81) gives the exact word layouts, and they
+agree with `DisplayDefs.mc` bit for bit. Bits are numbered MSB-first, and
+the control bits are ACTIVE LOW (the schematic primes them), which is why
+the microcode constants are named *Dont*Keep / *Dont*Write:
+
+| device | TIOA | format (bit 0 = MSB) |
+|---|---|---|
+| MIXER | 361₈ | 0 `Keep'` · 1 `Write'` · 2 `LoadAddr` · 3 x · 5–14 `Addr.0-9` · 15 `Hi/Lo select` — **or** bits 4–15 = 12 bits of Mixer data |
+| BMap | 365₈ | 0 `Keep'` · 1 `Write'` · 2 `LoadAddr` · 3 x · 8–15 `Address.0-7` **or** `Data.0-7` |
+| CMap | 362₈ | same as BMap |
+| PIXELCLK | 360₈ | 4–11 Pixel Clock Rate · 12–15 Clock Divider |
+
+Cross-check against `DisplayDefs.mc` (`RamCtrlShift` = 12): `DontKeep` =
+10₈<<12 = 0x8000 = bit 0 = `Keep'`; `DontWrite` = 4<<12 = 0x4000 = bit 1 =
+`Write'`; `LoadAddress` = (2<<12)|DontWrite = bit 2 + bit 1. **Exact
+agreement**, which is about as good as a spec gets here.
+
+Note the Mixer's 24 bits are written as **two 12-bit halves** selected by
+bit 15, over 1024 addresses (Addr.0-9) — consistent with the microcode
+loading 2048−2 words. BMap and CMap are 256×8, one word each.
+
+Sequence: one Output with `LoadAddr` to set the address, then a stream of
+data words auto-incrementing, then `ReleaseRam` (DontKeep|DontWrite).
+Small, self-contained, testable against `ColorDisplay.mc`'s `DoSomeTable`.
 
 **(b) Item unpacking at 1/2/4/8 bpp.** Today the DWT path lays 16
 monochrome pixels per fetched word. It needs to honour `αItemSize` and
@@ -117,9 +137,15 @@ configured before anything is visible. **Start with Lisp.**
   TIOA 361/362/365 and for the colour DHT entry point. If they never fire,
   the work is bigger than this document assumes, because something has to
   configure a colour monitor first.
-- **Does a real colour monitor need to be "connected"?** `DisplayConfig`
-  bit 15 means "LF monitor connected"; the colour path may key off monitor
-  configuration we currently answer statically. Unknown until traced.
+- **How the guest discovers a colour monitor — ANSWERED by the schematic.**
+  DispM page 28 ("DDC to DDM Interface") shows `MType.0/1/2` as a
+  **monitor type field set by jumper resistors on the backplane**, and page
+  29 shows it read back through the STATUS *inputs*: TIOA 361 in =
+  `MType.0-3, Green.0-7, Red.0-3`, TIOA 360 in = `Keyboard,1,1,1,
+  Red.4-7, Blue.0-7`. So making a colour monitor "present" means answering
+  those two input registers with the right MType — a small, concrete
+  change, not an unknown. (The same reads hand back DAC values, which is
+  also a free self-test: write a mixer entry, read it back.)
 - **Geometry.** Our framebuffer is 1024×808 mono. A colour raster at 8 bpp
   is a different width in words and may want different dimensions; the
   `active_w`/`active_h` mechanism already exists for per-world rasters and
