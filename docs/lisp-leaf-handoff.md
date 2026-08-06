@@ -645,6 +645,42 @@ That field's meaning remains unknown and is now un-load-bearing.
 Pack preserved at `build/good-packs/lisp-lyric-full-20000-real.pack` (a
 genuine 20,000-page VMEM, in case it is wanted for something else).
 
+### 6.9 Two controls: the pack is innocent, and the SMALL image boots on it
+
+**Control 1 -- the 20,000-page pack is sound.** Booted the *known-good*
+`LISP.SYSOUT!1` (sanitized) on
+`build/good-packs/lisp-lyric-full-20000-real.pack`, the pack built by
+deleting `scavenger.run` + `swatee` and running CreateFile in PARC's order:
+
+> **209,068 px -- a clean, live Lyric desktop.** `Xerox Lisp 27-Apr-87`,
+> `{DSK5}INIT.LCOM;1`, `INITCOMS`, `Hello.`, and an Exec prompt. No RAID.
+> (The shipped desktop is 208,966 px.)
+
+So the 20,000-page VMEM, the three-extent CreateFile, and the loss of
+`swatee`/`scavenger.run` are all harmless. **The pack is not the problem.**
+
+**And the two sysouts are the same build.** That desktop banner reads
+`27-Apr-87` -- exactly `Full.sysout!6`'s `LYRIC 27-Apr-87 17:05:23`. Same
+release, same microcode (RVersion 5682), same loader, same pack: **one
+boots and one does not, and the only difference is what is loaded in the
+image.**
+
+**Control 2 -- a second full sysout also RAIDs, but it proves less than it
+looks.** `chm/lisp/current/FULL.SYSOUT!2` with its own matched `LISP.RUN!3`
+on a freshly built `lisp-current-19000.pack`:
+
+```
+Raid: Error in uninterruptable system code -- ?N to continue into error handler
+```
+
+Different message, and only 928 px, so it fails earlier than
+`Full.sysout!6` does. Tempting to read as "all full-library images fail, so
+it is ours" -- **but memory `ifu-fault-must-not-count` records that the
+matched `current/` set was ALREADY known to reach a live RAID prompt, and
+that was logged as the achievement at the time.** So this world reaching
+RAID is its pre-existing state, not new evidence. Treat control 2 as
+unresolved, not as corroboration.
+
 ### 6.8 What is left
 
 Ruled out, each by measurement: **VMEM size** (four sizes, 6.7), **the
