@@ -2077,20 +2077,27 @@ lisp-current-good-pack:
 # Lisp.run!6: `n/X` links a Lisp.xvirtualmem in partition n (1..7, at most
 # two of them).  Our pack uses partitions 5 and 4, so 1-3 are free.
 # See docs/lisp-leaf-handoff.md section 6.1.
+# The sysout NEVER lands on the pack -- `lisp.run/M {DORADO}LISP.SYSOUT`
+# streams it over FTP straight into VMEM (see run-lisp-lyric-full below).
+# That is what makes 20,000 work at all: only the VMEM is charged to the
+# 22,736-page volume.  Storing the sysout as a file too would need
+# 20,000 + 15,141 = 35,141 pages and cannot fit by a factor of 1.5.
+#
+# So LISP_SYSOUT_FILE belongs on the BOOT target, not here: the pack build
+# (lisp-bcplprog-scavenged-vmem-image) never reads it, and passing it here
+# is silently inert.
 LISP_FULL_SYSOUT_FILE ?= ../chm/lisp/lyric-basics/Full.sysout!6
 LISP_FULL_VMEM_PAGES ?= 20000
 LISP_FULL_GOOD_PACK ?= build/good-packs/lisp-lyric-full-20000.pack
 LISP_FULL_WORK_PREFIX ?= build/good-packs/lisp-lyric-full-work
+LISP_FULL_CYCLES ?= 12000000000
 
 lisp-lyric-full-pack:
-	@test -r '$(LISP_FULL_SYSOUT_FILE)' || \
-		(echo "Missing $(LISP_FULL_SYSOUT_FILE) -- fetch Full.sysout!6 from <Lisp>Lyric>Basics>." && false)
 	mkdir -p '$(dir $(LISP_FULL_GOOD_PACK))'
 	$(MAKE) lisp-bcplprog-scavenged-vmem-image \
 		LISP_VMEM_PAGES=$(LISP_FULL_VMEM_PAGES) \
 		LISP_LYRIC_VMEM_PAGE_SPEC=$(LISP_FULL_VMEM_PAGES)D \
 		LISP_LYRIC_CREATEFILE_CYCLES=9500000000 \
-		LISP_SYSOUT_FILE='$(LISP_FULL_SYSOUT_FILE)' \
 		LISP_BCPLPROG_DSK='$(LISP_FULL_WORK_PREFIX)-loader.dsk' \
 		LISP_BCPLPROG_PACK='$(LISP_FULL_WORK_PREFIX)-loader.pack' \
 		LISP_BCPLPROG_CREATEFILE_DSK='$(LISP_FULL_WORK_PREFIX)-createfile.dsk' \
@@ -2100,6 +2107,24 @@ lisp-lyric-full-pack:
 		LISP_BCPLPROG_PHYSICAL_PACK='$(LISP_FULL_WORK_PREFIX)-physical.pack' \
 		LISP_BCPLPROG_SCAVENGED_PACK='$(LISP_FULL_WORK_PREFIX)-scavenged.pack' \
 		LISP_BCPLPROG_SCAVENGED_VMEM_PACK='$(LISP_FULL_GOOD_PACK)'
+
+# Boot the 20,000-page pack with Full.sysout!6 served over FTP.  Headless;
+# writes /tmp/dorado-lisp-lyric.pgm and periodic shots.  Needs the pack
+# from lisp-lyric-full-pack to exist (it is NOT a prerequisite on purpose --
+# that bake is ~20 minutes and should not be triggered by a boot attempt).
+run-lisp-lyric-full: $(BINDIR)/dorado
+	@test -r '$(LISP_FULL_GOOD_PACK)' || \
+		(echo "Missing $(LISP_FULL_GOOD_PACK) -- run 'make lisp-lyric-full-pack' first." && false)
+	@test -r '$(LISP_FULL_SYSOUT_FILE)' || \
+		(echo "Missing $(LISP_FULL_SYSOUT_FILE) -- fetch Full.sysout!6 from <Lisp>Lyric>Basics>." && false)
+	$(if $(LISP_LYRIC_FTP_TRACE),DORADO_FTP_TRACE=1 )DORADO_DISPM_PRESENT=1 ./build/dorado --eb worlds/aemu.eb \
+		--disk 0='$(LISP_FULL_GOOD_PACK)' --boot-reason disk --no-alto-boot \
+		--ftp-sysout '$(LISP_FULL_SYSOUT_FILE)' \
+		--type 'lisp.run/M {$(LISP_REMOTE_HOST)}$(LISP_REMOTE_SYSOUT_NAME)\n' \
+		--type-at 330000000 --key-hold 4000000 \
+		--cycles $(LISP_FULL_CYCLES) \
+		--shot-prefix /tmp/dorado-lisp-lyric-full --shot-every 1000000000 \
+		--out /tmp/dorado-lisp-lyric-full.pgm
 
 run-lisp-good-sdl: sdl
 	@test -r '$(LISP_GOOD_PACK)' || \
