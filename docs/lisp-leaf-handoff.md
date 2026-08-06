@@ -410,18 +410,53 @@ exactly the four we use. The arithmetic says that is enough:
 | Nick's minimum ("if it fits it fits") | ~15,200 | 59 pages (0.03 MB) |
 | **PARC's `NewUserBigDisk` size** | **20,000** | **4,859 pages (2.5 MB)** |
 
-PARC noted 20,000 left them ~1,000 free pages, so their usable pack was
-~21,000 — **1,736 fewer than our 22,736**. Their recipe fits us with room to
-spare, and a *full* sysout has the whole library preloaded, so it wants more
-working VM than the stock one, not less. It also does not need the 204
-on-pack packages, which Leaf now serves anyway.
+A *full* sysout has the whole library preloaded, so it wants more working VM
+than the stock one, not less, and it does not need the 204 on-pack packages,
+which Leaf now serves anyway.
 
-**Recommended order:** VMEM = 20,000 in partition 5 (PARC's documented Lyric
-configuration, no new mechanism, costs the on-pack library), and hold `/X`
-in reserve for going beyond one partition. An earlier VMEM=20000 run this
-session was killed as "over-generous" against Nick's minimum-size rule —
-that was the wrong call: the rule gives the floor, `NewUserBigDisk.cm` gives
-the size PARC actually shipped.
+**The sysout is never stored on the pack.** `lisp.run/M {DORADO}LISP.SYSOUT`
+streams it over FTP straight into VMEM, so only the VMEM is charged to the
+22,736-page volume. That is the whole reason a 20,000-page VMEM is even
+conceivable; storing the sysout as a file too would want 20,000 + 15,141 =
+35,141 pages, over the volume by half.
+
+### 6.3 MEASURED — 20,000 does NOT fit our pack, and the reason is ordering
+
+Tried it (`make lisp-lyric-full-pack`, 2026-08-06). CreateFile printed
+**"There isn't enough space on your disk"** and the emulator **still exited
+0** — the documented trap, caught by reading the screen with
+`tools/pgm_text.py`, not the status. So the "fits with room to spare"
+arithmetic in the first draft of this section was wrong, and 22,736 − 20,000
+= 2,736 was never the relevant subtraction.
+
+**`NewUserBigDisk.cm` creates the VMEM BEFORE bringing over the Lisp files:**
+
+```
+InstallSwat                                  <- near-empty disk: OS + Swat
+CREATEFILE.run LISP.VIRTUALMEM 20000D        <- VMEM first, into free space
+Delete CREATEFILE.run
+// Bring over Lisp files
+FTP ... LISP.run LISP.syms DoradoLispMC.EB AltoD1MC.eb    <- files AFTER
+```
+
+and it opens by insisting on a **clean, erased** partition "so that
+CREATEFILE can find contiguous blocks". Our chain is the reverse: the
+`lisp-bcplprog-loader-image` step inserts `LISP.RUN`, `LISP.SYMS`,
+`DORADOLISPMC.EB`, `ALTOD1MC.EB`, `UPDATELISP.CM` and `INIT.LCOM` into a
+small BFS image, grows it to Trident geometry, scavenges, and only then
+runs CreateFile — into whatever is left, fragmented. PARC's ~1,000 free
+pages were what remained *after* a 20,000-page contiguous VMEM was already
+placed, not a budget the Lisp files had to share with it.
+
+So PARC's number is not transferable to our build order, and two things
+could each recover part of the gap: creating the VMEM before the inserts,
+or the `n/X` extension in 6.1.
+
+**Current status: probing the largest size that does fit** (probe script
+re-runs only the CreateFile step against the cached scavenged pack, ~2
+minutes per size, and reads the screen for the failure string). The floor
+is `Full.sysout!6` itself at 15,141 pages, against the shipped 15,002 —
+so the working range, if any, is narrow.
 
 Until one of those is baked, the lever below remains the one in use:
 
