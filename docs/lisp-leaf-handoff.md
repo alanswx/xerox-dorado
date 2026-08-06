@@ -553,12 +553,77 @@ not carry), NOT the same message. Strong lead, unconfirmed diagnosis --
 the sanitizer's three record addresses are specific to `LISP.SYSOUT!1` and
 prove nothing about Full's contents on their own.
 
-**Next step:** find `Full.sysout!6`'s stale PROCESS records, if that is
-what they are. `discard_stale_process.py` validates the process layout and
-the missing stack page before writing, so it can be pointed at candidate
-addresses and will refuse the wrong ones -- which makes a search cheap and
-safe. Size and clock are both already excluded, so this is the live
-hypothesis, not one of several.
+### 6.6 Diagnosis in progress -- what the RAID is, and what it is not
+
+**It is an ALLOCATOR check, not a stack/process fault.** `Bad Array Block`
+is `\MP.BADARRAYBLOCK = 33Q`, a maintenance-panel code defined in
+`chm/lisp/lispcore/sources/LLPARAMS!30`. Its neighbours name the
+subsystem:
+
+```
+\MP.MDSFULLWARNING 31Q  \MP.BADMDSFREELIST 32Q  \MP.BADARRAYBLOCK 33Q
+\MP.BADDELETEBLOCK 34Q  \MP.BADARRAYRECLAIM 35Q
+```
+
+So Interlisp's array allocator walked a block header and rejected it. That
+is a *different* subsystem from the sleeping-PROCESS problem
+`discard_stale_process.py` fixes, which weakens the 6.5 hypothesis
+considerably -- the sanitizer's failure mode is a stack address, this is a
+heap block. Keep it as a lead, not the leading one. (The allocator source
+is not in our tree; only the code's *definition* is, in LLPARAMS.)
+
+**Truncation is RULED OUT.** `Full.sysout!6` is 7.75 MB, 60% larger than
+the 4.8 MB image, and this project has had two large-transfer bugs, so this
+was worth eliminating. With `DORADO_FTP_TRACE=1` the whole file arrives:
+
+```
+FINAL queued: 7,754,089 of 7,752,192 bytes in 15,165 chunks
+aborts: 1     rewinds (retransmits): 1
+```
+
+The 1,897-byte excess is the one retransmit, and the single abort is EFTP's
+normal close-with-Abort *success* path. The guest receives the whole image.
+
+**The failing page exists, and only in this image.** New tool
+`tools/interlisp-sysout/inspect_sysout.py` (reuses
+`discard_stale_process.py`'s page/FPTOVP model so both agree on layout).
+`{103,252}` = VA 0o20600252 -> VP 0o41400 (17152), word 0o252:
+
+| | `Full.sysout!6` | `LISP.SYSOUT!1` (works) |
+|---|---|---|
+| VP 0o41400 | **present**, raw page 15048 | **ABSENT from FPTOVP** |
+
+so this is a page the full library brings and the small image never had.
+Its words are `0xaaa9, 0x0102, 0xaaa8, 0x0614,` then `{103,252}` stored
+**twice** -- a node pointing at itself, which is what an *empty circular
+queue* looks like, not obviously corruption.
+
+**The strongest lead: interface-page word 0o107 = 20000.** Checked across
+every sysout we hold:
+
+| sysout | pages | word 0o107 |
+|---|---|---|
+| **Full.sysout!6** (Lyric) | 15,141 | **20000** |
+| LISP.SYSOUT!1 (Lyric, works) | 9,422 | 0 |
+| fugue.6 FULL / SMALL, harmony FULL / LISP, current FULL | 4.5k-6.8k | 0 |
+
+**20000 is exactly `NewUserBigDisk.cm`'s `20000D`.** The coherent story is
+that this sysout was saved from a system built to PARC's recipe and records
+that configuration. Two caveats, stated because neither is resolved:
+our only `LispBcpl.params` is fugue.6-era and stops at
+`IFPFPTOVPStart = #73`, so **word 0o107 has no definition in our tree** and
+its meaning is inferred from one coincidence; and the identical failure
+address at 17,000/18,000/19,000 is weak evidence *against* a size-dependent
+fault, though not decisive if the check precedes any size-dependent
+allocation.
+
+**The ceiling is 19,9xx, so the 20,000 test is reachable.** 19,500 and
+19,900 both fit; 20,000 does not -- about 100 pages short. That is one
+file, and deleting files the booted pack does not need is what
+`NewUserBigDisk.cm` itself does (`delete DMT.boot`,
+`Delete installswat.run`, `Delete CREATEFILE.run`). `SCAVENGER.RUN` is only
+used by the scavenge step, which has already run, and `SWATEE` is the Swat
+debugger's swap image.
 
 **Reproduce:**
 
