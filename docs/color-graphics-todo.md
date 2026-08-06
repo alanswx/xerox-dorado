@@ -15,17 +15,43 @@ there is period software on our own Lyric pack to test with.
 
 # PART 1 — REFERENCE
 
-## 1.1 The one fact that makes this tractable
+## 1.1 CORRECTED 2026-08-06 — there ARE two boards
 
-**There is no separate colour board.** The same DDC drives mono and
-colour; colour is a *mode*. So this is not "emulate new hardware", it is
-"finish the display controller we already have".
+> **This section previously said "There is no separate colour board. The
+> same DDC drives mono and colour... this is not 'emulate new hardware',
+> it is 'finish the display controller we already have'." That was wrong**,
+> corrected by the PARC veterans on the 2026-08-06 call and verified
+> against the schematics. It was the premise this whole document was
+> scoped from, so **re-read Part 2 with that in mind** — the estimates
+> below were made under a false assumption and are likely optimistic.
+
+**DispY is the monochrome board; DispM is the colour board.** Two boards:
+
+| board | title page | contents |
+|---|---|---|
+| **DispY** = **DDC**, the display controller | "Display Y", K. Pier, 22-Oct-81, 31 sheets | FOUT interface, Pointers, Fifo, Item Permutation Logic, Channel A/B data paths, Next Line Control Block, Horizontal RAM, DWT Task WakeUp Logic, Cursor, Slow IO, **Alto Display Drivers**, **MiniMixer**, OIS Terminal Interface, Mufflers |
+| **DispM** = **DDM**, the display mixer | "Display M", K. Pier, Nov 1982, 32 sheets | sheets 1-11 the Alto display controller, **sheets 12-31 the Mixer**: ABuf/BBuf/CBuf, BMap, CMap, mixer Blue/Red/Green bytes, **DACs Red Green Blue**, PLL |
+
+The decisive evidence is that **both boards carry a "DDC to DDM Interface
+Table"** — they are two boards talking to each other, not one board in two
+modes. DispY's **MiniMixer** is what gives the monochrome board its limited
+mixing; the full Mixer, the colour maps and the DACs are on DispM.
+
+So colour does mean bringing up a second board's worth of behaviour, and
+the framing "finish the controller we already have" understated it.
+
+**Also:** `DoradoDocs/schematics/DispY.pdf` is **mislabelled** — its pages
+are `DskEth-Rev-Ce.ps`, the disk/ethernet signal cross-reference. Use
+`DoradoDocs/doradodrawings/DispY-*.pdf` (8 revisions), consistent with that
+directory's own note that its copies are the better ones.
 
 ## 1.2 Source material and where it lives
 
 | what | where |
 |---|---|
-| **Board schematics** | `DoradoDocs/doradodrawings/DispM-apcRev-Da.press!1.pdf` — 32 sheets, K. Pier, Nov 1982. Four earlier revisions beside it (Cf, Cg, Ch, mwRev-Ch). **Do not use** `DoradoDocs/schematics/DispM-apcRev-Da.press!1.pdf` — it is a degraded 164 KB rendering of the same file; the `doradodrawings/` copy is 1.7 MB. |
+| **Colour board (DDM) schematics** | `DoradoDocs/doradodrawings/DispM-apcRev-Da.press!1.pdf` — 32 sheets, K. Pier, Nov 1982. Four earlier revisions beside it (Cf, Cg, Ch, mwRev-Ch). **Do not use** `DoradoDocs/schematics/DispM-apcRev-Da.press!1.pdf` — it is a degraded 164 KB rendering of the same file; the `doradodrawings/` copy is 1.7 MB. |
+| **Mono board (DDC) schematics** | `DoradoDocs/doradodrawings/DispY-apcRev-Da.press!1.pdf` — 31 sheets, K. Pier, 22-Oct-81, plus 7 earlier revisions (Cg, Ci, Cj, Ck, Cl, mwRev-Cj, mwRev-Ck). **`DoradoDocs/schematics/DispY.pdf` is mislabelled** and actually contains `DskEth-Rev-Ce.ps`. |
+| **Colour monitor** | **Conrac RGB** (per the PARC veterans, 2026-08-06). Bears on §1.6 — the MType field has to say this monitor is attached. Model and timings not yet pinned down. |
 | Board photos | `DoradoDocs/photos/DISPM-APCREV-DA_F.jpeg` (front), `_B.jpeg` (back) |
 | Microcode | `chm/doradomicrocode/doradomicrocodesources/ColorDisplay.mc!1` (Taft, 23 Sep 1981) |
 | Definitions | `chm/doradomicrocode/doradomicrocodesources/DisplayDefs.mc!1` — device numbers, mode bits, RAM control constants |
