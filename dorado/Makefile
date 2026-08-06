@@ -2059,6 +2059,48 @@ lisp-current-good-pack:
 		LISP_BCPLPROG_SCAVENGED_PACK='$(LISP_CURRENT_WORK_PREFIX)-scavenged.pack' \
 		LISP_BCPLPROG_SCAVENGED_VMEM_PACK='$(LISP_CURRENT_GOOD_PACK)'
 
+# ---------------------------------------------------------------------------
+# Lyric with the FULL sysout, built to PARC's own recipe.
+#
+# chm/lisp/cm/NewUserBigDisk.cm!6 ("FOR Lyric ONLY -- BEWARE") is Xerox's
+# procedure for exactly this: a plain 20,000-page LISP.VIRTUALMEM, no
+# partition extension.  Full.sysout!6 is 7,752,192 bytes = 15,141 pages, so
+# 20,000 leaves 4,859 pages (2.5 MB) of working room.  Do NOT size this to
+# the sysout (~15,200): that is the minimum that FITS, not a size that runs
+# -- a full sysout has the whole library preloaded and needs room to cons.
+#
+# PARC noted 20,000 left THEM about 1,000 free pages, so their pack was
+# ~21,000; ours is 22,736, i.e. 1,736 pages larger.  The cost is the 204
+# on-pack packages, which Leaf serves over the wire now anyway.
+#
+# If this ever needs to exceed one partition, the mechanism is already in
+# Lisp.run!6: `n/X` links a Lisp.xvirtualmem in partition n (1..7, at most
+# two of them).  Our pack uses partitions 5 and 4, so 1-3 are free.
+# See docs/lisp-leaf-handoff.md section 6.1.
+LISP_FULL_SYSOUT_FILE ?= ../chm/lisp/lyric-basics/Full.sysout!6
+LISP_FULL_VMEM_PAGES ?= 20000
+LISP_FULL_GOOD_PACK ?= build/good-packs/lisp-lyric-full-20000.pack
+LISP_FULL_WORK_PREFIX ?= build/good-packs/lisp-lyric-full-work
+
+lisp-lyric-full-pack:
+	@test -r '$(LISP_FULL_SYSOUT_FILE)' || \
+		(echo "Missing $(LISP_FULL_SYSOUT_FILE) -- fetch Full.sysout!6 from <Lisp>Lyric>Basics>." && false)
+	mkdir -p '$(dir $(LISP_FULL_GOOD_PACK))'
+	$(MAKE) lisp-bcplprog-scavenged-vmem-image \
+		LISP_VMEM_PAGES=$(LISP_FULL_VMEM_PAGES) \
+		LISP_LYRIC_VMEM_PAGE_SPEC=$(LISP_FULL_VMEM_PAGES)D \
+		LISP_LYRIC_CREATEFILE_CYCLES=9500000000 \
+		LISP_SYSOUT_FILE='$(LISP_FULL_SYSOUT_FILE)' \
+		LISP_BCPLPROG_DSK='$(LISP_FULL_WORK_PREFIX)-loader.dsk' \
+		LISP_BCPLPROG_PACK='$(LISP_FULL_WORK_PREFIX)-loader.pack' \
+		LISP_BCPLPROG_CREATEFILE_DSK='$(LISP_FULL_WORK_PREFIX)-createfile.dsk' \
+		LISP_BCPLPROG_CREATEFILE_PACK='$(LISP_FULL_WORK_PREFIX)-createfile.pack' \
+		LISP_BCPLPROG_PHYSICAL_DSK0='$(LISP_FULL_WORK_PREFIX)-drive0.dsk' \
+		LISP_BCPLPROG_PHYSICAL_DSK1='$(LISP_FULL_WORK_PREFIX)-drive1.dsk' \
+		LISP_BCPLPROG_PHYSICAL_PACK='$(LISP_FULL_WORK_PREFIX)-physical.pack' \
+		LISP_BCPLPROG_SCAVENGED_PACK='$(LISP_FULL_WORK_PREFIX)-scavenged.pack' \
+		LISP_BCPLPROG_SCAVENGED_VMEM_PACK='$(LISP_FULL_GOOD_PACK)'
+
 run-lisp-good-sdl: sdl
 	@test -r '$(LISP_GOOD_PACK)' || \
 		(echo "Missing $(LISP_GOOD_PACK)." && false)
