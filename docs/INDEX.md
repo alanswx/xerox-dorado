@@ -195,11 +195,14 @@ Example queries:
   microinstruction), the gate is byte-identical framebuffers on three
   worlds, and profile attribution lies under LTO. Every trap in it produced
   a confidently stated number that was false.
-- `docs/color-display-scoping.md` — what it would take to add the COLOUR
-  display. The DDC drives mono and colour from the same board, the
-  microcode is in `Mesa.mb`/`Cedar.mb` already, the control writes already
-  reach our display device, and `DORADOCOLOR.LCOM` + `COLORDEMO.LCOM` are
-  on the Lyric pack to test with. Five pieces; start by tracing whether any
+- `docs/color-graphics-todo.md` — **everything about the COLOUR display in
+  one place**: reference (DispM sheet map, TIOA device numbers, the
+  bit-level slow-IO word formats, mixer modes and RAM sizes, how the guest
+  finds a colour monitor, what the Interlisp driver does) plus the ordered
+  task list. The DDC drives mono and colour from the same board, the
+  microcode is already inside `Mesa.mb`/`Cedar.mb`, the control writes
+  already reach our display device, and `DORADOCOLOR.LCOM` + `COLORDEMO`
+  are on the Lyric pack to test with. Start at task 0: trace whether any
   world actually programs the colour RAMs.
 - `docs/stp-scan-design.md` — design for the one big non-interpreter item
   left, Cedar's 14.3% STP connection scan. Two routes, with the risks of
