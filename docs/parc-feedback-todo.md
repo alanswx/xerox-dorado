@@ -1297,6 +1297,43 @@ period files use a special keyword marker byte, so omit the line entirely,
 as `PACMAN!1` itself does. And, like Cedar, **Interlisp text files are
 CR-terminated**.
 
+**A second fix was needed, and it is the more serious of the two: a second
+STP retrieve in one session DEADLOCKED.** With the resolve fixed,
+`(FILESLOAD PACMAN)` streamed 95,169 bytes and `(FILESLOAD PACMANFIX)` then
+printed its header and hung -- reproducible headlessly, and exactly what the
+reporter saw. The wire:
+
+| | first retrieve | second |
+|---|---|---|
+| mark `0o23` | queued | queued |
+| data `0o20` | queued | queued |
+| **AData `0o21`** (ack requested) | queued -> client acks -> streams | **never queued** |
+
+`FTP_STALL byte-window tx_next=000198c8 last_ack=0001963a outstanding=654
+alloc=532`. The client advertised a **532-byte window -- one Pup**.
+`eth_ftp_file_packet_needs_ack` decides *before* adding the packet: 142 bytes
+outstanding, `142*2 < 532`, so no ack; the packet then takes us to 654, past
+the whole window; `eth_ftp_maybe_deliver`'s byte gate stops, and with no ack
+requested the client never sends one. Permanently.
+
+The half-window liveness rule (added 2026-07-18 for the >100 KB demand-fetch
+stall) looks at bytes ALREADY outstanding, so with a small allocation one
+packet can jump the entire window in a single step and skip the trigger. It
+now also asks whether the packet about to be queued would reach the window,
+and requests an ack on it if so -- at most one extra ack per window.
+
+**It only ever appeared on the SECOND retrieve**, because the first is what
+teaches us the client's allocation in the first place. Every earlier test
+missed it by having the first retrieve baked into a checkpoint. `FTP_STALL`
+is now printed under `DORADO_FTP_TRACE` whenever either send gate stops a
+transfer, naming which one: a file that stops mid-stream is otherwise
+indistinguishable from one that finished, since the pump simply returns every
+tick in silence.
+
+This changes ack policy for EVERY transfer, Cedar's included, so it is gated
+by `verify-cedar-desktop` (245,635 px) and `verify-cedar-ls` as well as the
+Lisp ones.
+
 **The Leaf resend is NOT fixed, and may never have been a bug.** With the
 retrieve working, `FILESLOAD` no longer falls back to Leaf, so the
 `LEAF_RESEND Open seq=0 (dup request)` x5 seen earlier is not reproducible
