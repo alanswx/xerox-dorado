@@ -760,6 +760,54 @@ failure -- gate it AFTER the world load, per
 `gate-pc-traces-after-world-load`, or Initial's PCs blend in at the same IM
 addresses.
 
+### 6.12 The opcode differential, and READFLAGS cleared
+
+With the image proven byte-perfect (6.11), the remaining variable is which
+code runs. `DORADO_ALTO_OPHIST=1` **plus `DORADO_FINAL_DEBUG=1`** (the
+histogram is printed by `dorado_machine_debug`, which only the latter
+triggers -- easy to omit and get a silent no-op) gives per-opcode dispatch
+counts. Run A = `Full.sysout!6` (fails), run B = `LISP.SYSOUT!1` (boots), on
+the SAME 20,000-page pack:
+
+| | set 0 (Alto) | set 1 (Lisp, `InsSet[LispInsSet,1]`) |
+|---|---|---|
+| A (fails) | 150 opcodes, 400.8 M | 191 opcodes, 15.5 M |
+| B (boots) | 150 opcodes, 135.4 M | 199 opcodes, **198.5 M** |
+
+**No opcode is unique to the failing run** in either set, so this is not an
+unimplemented instruction. B executes 12.8x more Lisp instructions, which
+simply reflects that it reaches a live desktop while A stops early.
+
+The standout skew was **set 1 opcode `0o161`, A=12,557 vs B=5 (32,180x)**.
+`LISP0.mc`: `regOP1[161, StackBR, opREADFLAGS, 0]` -- **READFLAGS**, which
+is exactly the kind of primitive an allocator consistency check uses.
+
+**Chased and CLEARED.** `opREADFLAGS` does `RMap_`, `waitforMapBuf`, then
+reads `Map'` and `Pipe4'` and masks with `m1pipe4.wpdref`. PARC's
+`EMemDefs.mc` defines that layout authoritatively:
+
+```
+MC[pipe4.ref, b0];  MC[pipe4.notMapTrouble, b1];
+MC[pipe4.wProtect, b2];  MC[pipe4.dirty, b3];
+MC[m1pipe4.wpdref, b0, b2, b3];   * all the ref bits
+```
+
+so Pipe4 carries map flags AND error state -- our `dorado/CLAUDE.md`
+one-liner calls it "inverted per-slot error state", which undersells it,
+though `dorado_pipe4_at()` does implement the flags. New
+`DORADO_RMAP_TRACE` logs what each `RMap<-` captures, and the round trip
+is correct:
+
+| map state | our `Pipe4'` | guest's `not(Pipe4') AND m1pipe4.wpdref` |
+|---|---|---|
+| wp=0 dirty=1 ref=1 | `0o020361` | ref=1, wp=0, dirty=1 -- correct |
+| wp=1 dirty=1 ref=0 (vacant) | `0o100361` | ref=0, wp=1, dirty=1 -- correct |
+
+Flag distribution is sensible too: 33,027 resident (`dirty=1 ref=1`),
+11,523 untouched, 727 `ref=1` only, 11 vacant. **READFLAGS returns correct
+data**, so the 12,557 dispatches are the allocator SCANNING -- a symptom of
+the failure, not its cause.
+
 ### 6.8 What is left
 
 Ruled out, each by measurement: **VMEM size** (four sizes, 6.7), **the

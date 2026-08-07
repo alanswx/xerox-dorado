@@ -2115,6 +2115,24 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
         break;
     }
     case DM_REF_RMAP:
+        /* DORADO_RMAP_TRACE: what an RMap<- captured, which is exactly what
+         * Interlisp's READFLAGS (LISP0.mc opREADFLAGS, opcode 161 of the Lisp
+         * instruction set) reads back through Map'/Pipe4' and masks with
+         * m1pipe4.wpdref = ref|wProtect|dirty (EMemDefs.mc). Added while
+         * chasing Full.sysout!6's `Raid: "Bad Array Block"`, where READFLAGS
+         * is dispatched 12,557 times against 5 in a healthy boot. */
+        if (dorado_trace_flag("DORADO_RMAP_TRACE")) {
+            uint32_t idx = dorado_map_index(va);
+            const dorado_map_entry *e = &mem->map[idx];
+            fprintf(stderr,
+                    "RMAP cyc=%llu task=%o va=%07o idx=%04X "
+                    "rp=%05o wp=%d dirty=%d ref=%d vacant=%d pipe4'=%06o\n",
+                    (unsigned long long)dorado_trace_cycle, task & 017,
+                    va & 0x0FFFFFFFu, idx,
+                    e->rp & 0x1FFF, e->wp & 1, e->dirty & 1, e->ref & 1,
+                    (e->wp & 1) && (e->dirty & 1),
+                    dorado_pipe4_at(mem, srn));
+        }
         /* RMap← (HM page 46-47): read a map entry. The entry's PREVIOUS
          * contents are already in the pipe (pipe_push above captured
          * rp_pre/flags_pre, read back via Map'/Errors'/Pipe3'). Unlike
