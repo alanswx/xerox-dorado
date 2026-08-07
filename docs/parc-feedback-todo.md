@@ -372,6 +372,40 @@ be concluded from it.
 attempt returned dozens of matches per button with **zero overlap** between
 right and middle.)
 
+### A3: the BUTTON is eliminated from the guest's side (2026-08-07)
+
+`DORADO_LOAD_TRACE_VA=177030,177033` already exists and logs guest READS of
+a VA range — no new instrument was needed. Over a drag that reproduces the
+bug it logged **3,857 reads** of `0177030`, all from `pc=0o1425`:
+
+| window | value read | count |
+|---|---|---|
+| 14.4001-14.4014 B (just after the press) | `177777` (up) | 28 |
+| **14.4020 B onward, through the collapse at 14.470 B** | **`177775` (down)** | **331** |
+
+The 28 "up" reads are a startup transient before our seeding propagated —
+the first correct DOWN read is at 14.4020 B, and **every read after that is
+DOWN**, including throughout the dwell, the travel, and the moment the menu
+closes.
+
+**So the guest sees the button held, correctly, for the whole interaction.**
+That eliminates the button as a cause from the GUEST's side, not merely
+ours, and it retires the whole family of theories in this section: chording,
+a lost release, a stale cell, cache coherency. The menu closes and the item
+fires while `MOUSESTATE`'s underlying cell reads DOWN.
+
+**What that leaves:** the trigger is the pointer's POSITION (established
+earlier: inside the menu box collapses, one pixel outside does not), with
+the button verifiably down throughout. So either MENU is reading position
+in a way our `MOUSELOC` writes at `0424/0425` mislead, or `MOUSESTATE` does
+not derive from `0177030` at all on this machine type.
+
+**Do not spend more effort on the button.** The next instrument should be a
+PC trace of the guest in the narrow window where the menu closes
+(`DORADO_TRACE_GATE` around 14.465-14.475 B), to see what code path runs —
+or `\SETIOPOINTERS` read directly to settle where `MOUSESTATE` actually
+looks.
+
 **Better next approaches, in preference order:**
 
 1. **Follow `\SETIOPOINTERS` instead of searching.** LLKEY's Dorado arm
