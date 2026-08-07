@@ -556,6 +556,10 @@
     }
     if (path === 'lisp-full') {
       try {
+        /* Same served tree as the other Lyric world: the checkpoint's own
+           image has the library, but {DORADO} is what FILESLOAD and the
+           reference manual resolve through, so fetch it here too. */
+        fetchLispSources();       /* in the background; not awaited */
         await prepareLyricFullAssets();
         var rcf = Module.ccall('dorado_web_boot_lisp_full', 'number', [], []);
         if (rcf) throw new Error('snapshot restore rejected the saved image');
@@ -563,8 +567,10 @@
                   + 'FULL-library sysout (Released-Full.sysout!2, 25-Jan-88) '
                   + '— about 2,300 pages more library preloaded than the '
                   + 'other Lyric entry. Click inside the Exec window and type '
-                  + 'a form, e.g. (PLUS 1 2). No network world here: the '
-                  + 'library is already in the image.', 1);
+                  + 'a form, e.g. (PLUS 1 2). For the online reference '
+                  + 'manual: (IL:FILESLOAD HELPSYS) then '
+                  + '(IL:LOAD \'{DORADO}<IRM>IRMDEMO) -- answer the '
+                  + '{DORADO} Login: prompt with Guest, twice.', 1);
       } catch (e) {
         console.error(e);
         setStatus('Could not restore the full-library Lyric: ' + e.message);

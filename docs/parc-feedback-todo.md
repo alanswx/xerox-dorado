@@ -39,6 +39,33 @@ fail before the fix).
 - **Acceptance:** a headless gate that sends Control+<key> and asserts the
   guest saw a control character, per world.
 
+**EVIDENCE (2026-08-06): a modifier-timing defect is observable today, and
+it may be the same bug.** Driving `(IL:FILESLOAD HELPSYS)` into the Lyric
+Exec headlessly at `--key-hold 200000` produced, on screen:
+
+```
+1> (il:FILesLOaDHELPSYS)
+Undefined car of form
+IL:FILESLOADHELPSYS
+```
+
+Two distinct corruptions in one line: **the case is inconsistent**
+(`il:FILesLOaD` — some letters shifted, some not) and **the space was
+dropped**, so the reader saw a single symbol. Case comes from SHIFT being
+held around a letter, so inconsistent case IS a modifier-timing failure —
+the same shape as "Control does nothing". **Check whether A1 and this are
+one defect before fixing them separately.**
+
+Caveat, and it matters: 200000 cycles is ~3.2 ms of guest time, far shorter
+than the 4,000,000 the Lisp recipes use, so some of this may simply be
+"driven faster than the hardware samples" rather than a modelling error.
+That is itself the question — a real keyboard's shift contact spans the
+whole keystroke, so if our modifier is applied as a *separate timed event*
+rather than a *held level*, fast typing will race it and a human will
+occasionally see it too. Compare against Table 24's ordering guarantee
+(A4): the terminal microcomputer reports keyboard transitions in
+preference to mouse motion precisely so key state is never lost.
+
 ### A2. Middle-click on Cedar inserts instead of selects [reported]
 
 - **Symptom:** middle button performs the insert action rather than a
@@ -68,6 +95,45 @@ fail before the fix).
 - **Open question:** is this the same hold-duration issue, a drag-across-
   submenu-boundary issue, or a genuine missing event? Reproduce
   interactively first.
+
+**INVESTIGATED 2026-08-06 — menus work; they are on the RIGHT button.**
+
+The first finding is about our TEST TOOLING, not the emulator: `--menu` had
+`DORADO_MOUSE_MIDDLE` hardcoded, and **middle/yellow raises nothing in an
+Interlisp window**. With the **right/blue** button the window menu appears
+immediately and correctly:
+
+```
+Close  Snap  Paint  Clear  Bury  Redisplay  Hardcopy>  Move  Shape  Shrink
+```
+
+`Hardcopy>` carries the submenu arrow — that is the submenu in question.
+
+**The input plumbing is correct**, established rather than assumed:
+
+- `DORADO_MOUSE_TRACE` shows the press writing `utilin<-177776` (bit 0 clear
+  = Yellow) and the release restoring `177777`, at `0177030..0177033`.
+  (The `readback=` in that trace lags one line — it prints BEFORE the store.
+  Not a bug; do not chase it.)
+- The cursor tracks position, so the guest is reading MOUSELOC (`0424/0425`).
+- The button enum already matches the Alto bit order —
+  `LEFT 0x4`=Red=bit2, `RIGHT 0x2`=Blue=bit1, `MIDDLE 0x1`=Yellow=bit0 — so
+  the Alto path's `~(buttons & 07)` is equivalent to the Cedar path's
+  explicit per-button mapping. **Neither is wrong**, which also weakens the
+  "button mapping error" guess for A2.
+- Dragging with the button held keeps the menu up and moves the cursor
+  within it.
+
+**Tooling added:** `--menu-button left|middle|right` (also
+`red|yellow|blue`), applying to `--menu` and `--drag`. It defaults to 0
+meaning "each option's own default" (`--menu` middle, `--click`/`--drag`
+left) so the existing GETREGION sweep recipes, which depend on `--drag`
+being left, are unchanged.
+
+**Still open:** whether the submenu itself opens on a drag into
+`Hardcopy>`. And note the user's report was about picking an **Interlisp
+shell**, which is probably a DIFFERENT menu from this window menu — get the
+exact steps before concluding.
 
 ### A3b. Caps Lock must work [reported — small, and the mapping is already right]
 
@@ -309,6 +375,165 @@ Contents visible in the index include `GarageMidasManual.Press`,
   interface needed for A6.
 
 ---
+
+## F. Sil design-automation tools — netlists from the schematics (PHASE 2 LEVER)
+
+**The idea:** we hold the Dorado board drawings as Sil files. PARC also
+wrote the tools that turn Sil drawings into netlists and wire lists. If
+those run (or are re-implemented), the schematics become machine-readable —
+a checkable oracle for the C emulator, and plausibly a generator path toward
+the Verilog of Phase 2.
+
+**It all survives, in `_cd6_/sil/`** — found 2026-08-06, none of it fetched
+yet:
+
+| file | what |
+|---|---|
+| `ANALYZE.RUN!1` (38,554 b, 10-Jul-1979) | **the netlist extractor** |
+| `ANALYZESOURCES.DM!1` (108,349 b) | **its full BCPL source** (`anb.bcpl`, `anc.bcpl`, ...) |
+| **`ECLDICT.ANALYZE!1`** | **the ECL component dictionary — the Dorado is an ECL machine** |
+| `TTLDICT.ANALYZE!1` | the TTL dictionary |
+| `BUILD.RUN!1` + `BUILD.DM!1` + `BUILD.SYMS!1` | wire-list / build tool, with source |
+| `GOBBLE.RUN!1` + `GobSources.dm!1`, `VIEWGOBBLE.RUN!2` | with source |
+| `SilSources.dm!1` | **Sil itself, in BCPL** |
+| `SILMANUAL.DM!1` / `.PRESS!1`, `SILSUMMARY`, `SILUPDATES` | the Sil manual and updates |
+| **`DORADODESIGNAUTOMATION.CM!1`** | **the Dorado's OWN design-automation procedure** |
+| **`DORADOBUILDBACKUPTEMPLATE.CM!1`** | Dorado-specific build template |
+| `DESIGNAUTOMATION.CM!1`, `EDBUILD.MEMO!1`, `EdBuild.dm!1` | the general flow + memo |
+| `NETDELAYS.DM!1` | net delay data |
+| `TestAnalyze.dm!1` | test cases for Analyze |
+| `*.wl` — `aubopenpins.wl`, `aubshortedpins.wl`, `storopenpins.wl`, `storshortedpins.wl` | **wire lists, apparently real board output** ("stor" = storage board?) |
+| `ecldatasheets.dm!1`, `ttldatasheets.dm!1` | part datasheets |
+
+**Why this is worth real effort**
+
+- **`DORADODESIGNAUTOMATION.CM` is the Dorado's own flow**, so the intended
+  procedure is recorded rather than guessed — the same pattern that made the
+  Cedar and Lisp bring-ups tractable.
+- **`ECLDICT.ANALYZE` matters specifically**: the Dorado is ECL, and a
+  netlist is only as good as its component dictionary.
+- **We can run Alto programs.** `ANALYZE.RUN`, `BUILD.RUN` and `GOBBLE.RUN`
+  are Alto executables and our Alto-on-Dorado world runs Alto binaries off a
+  disk pack today. So the first experiment is "put ANALYZE.RUN and a Sil
+  file on a pack and run it", not "port a BCPL program".
+- **Sources exist for everything**, so where the period binaries prove
+  awkward, re-implementation is informed rather than reverse-engineered.
+
+**Suggested first steps**
+
+1. Fetch the directory (it is small apart from the `.dm` archives) and read
+   `SILMANUAL` + `DORADODESIGNAUTOMATION.CM` before touching code.
+2. Run `ANALYZE.RUN` on one Dorado sheet inside our Alto world — start with
+   a small one, not `ProcH`.
+3. Compare the extracted netlist against the emulator for one well-understood
+   block (the shifter or ALUFM would be good: small, and we already know
+   what correct looks like from the HM tables).
+4. Then the Sil -> Verilog path (see below — it is the point, not a stretch).
+
+### F.1 Tim: build the Verilog FROM the Sil files, not from the manual
+
+**This upgrades F from "nice verification tool" to the recommended Phase 2
+route**, and it retires a caveat I had written here (that a netlist of ECL
+parts is far from synthesizable RTL and Verilog generation was a stretch
+goal). Tim's points:
+
+- **PARC built the Dorado with the Sil tools.** The drawings are not
+  documentation of the machine, they ARE the design input the boards were
+  fabricated from.
+- **They updated the Sil files as they fixed bugs.** So the drawings track
+  the machine's real revision history, and the latest revision of each board
+  is the definitive, as-shipped Dorado.
+- **He considers this better than working from the manual text.**
+
+That last point deserves care against this project's standing norm ("treat
+the Hardware Manual as canon"). The reconciliation: **the manual is canon
+for ARCHITECTURE and intent — it explains what the machine is meant to do
+and stays the reference for the C emulator — while the Sil files are canon
+for WHAT WAS BUILT.** Where they disagree at the gate level, the drawings
+won, because the boards were made from them. The Sep-1981 manual is also a
+snapshot; the drawings kept moving (our own tree has DispM at revisions Cf,
+Cg, Ch, mwRev-Ch, apcRev-Da, and DispY at eight).
+
+**Practical consequence: always take the LATEST revision of each board.**
+Our `DoradoDocs/doradodrawings/` deliberately keeps every revision; for
+netlist extraction that is a hazard, not a feature. Pick the newest per
+board and record which was used.
+
+### F.2 BLOCKER: we have no .sil source, only rendered PDFs
+
+Checked 2026-08-06. `DoradoDocs/doradodrawings/` and
+`DoradoDocs/schematics/` hold **PDFs of Press files** — renderings. **Zero
+`.sil` files locally.** ANALYZE consumes `.sil`, so nothing in F can start
+until the sources are fetched.
+
+They exist: **1,891 `.sil` files are indexed in `chm/cross-reference.html`**,
+of which **293 match Dorado board names** (`BaseBd*`, and the Proc/Mem/IFU/
+Disp/DskEth sheets). Fetching those 293 (plus the `_cd6_/sil` toolchain from
+F) is the real first task, ahead of everything else in this section.
+
+Note the archive also holds D0 drawings (`cpe-FP*.SIL` and
+`cyan/d0/testerdrawings.disk`), so filter by board name carefully — D0 is
+the sibling machine, not the Dorado.
+
+**Related:** `docs/sil-schematics-handoff.md` (we already display Sil
+drawings inside Cedar), and the `garage` material in E1 — the hardware team
+directories are the natural place for more of this.
+
+## G. The CHM archive AS the PARC file servers — "you are at PARC"
+
+**The idea:** make the guest see the real IFS hosts. From Cedar's
+CommandTool or Lisp's Exec you would `List [Indigo]<Dorado>*`, `Bringover
+[Cedar]<Cedar6.1>Top>...`, or open `{PHYLUM}<LISP>Lyric>Basics>` and have it
+work — because the archive is mounted behind our in-process file servers
+rather than a hand-curated local tree.
+
+**Most of the hard parts are already built.** `src/ethernet.c` serves STP
+(Cedar), Leaf (Lisp random access, IFS leader pages included), EFTP/Mayday,
+and answers NetDir name lookups; STP **Enumerate** and the **LookupFile**
+single-Pup exchange landed 2026-07-30, which is what makes `ls` and `OpenR`
+work. So this is largely a **backing-store** change: point the existing
+servers at the archive instead of `chm/cedar/stp-root` / `chm/lisp/ftp-root`.
+
+**What the archive gives us for free**
+
+- It **is** the IFS contents, organised by volume — `indigo/`, `phylum/`,
+  `cyan/`, `eris/`, `_cd6_/`, `_cd8_/` — which map onto the real host names
+  the guests already type.
+- **`chm/cross-reference.html` is the index**: 568k lines of
+  `filename -> [Host]<Dir>Name!version size checksum date author`. That is
+  precisely the metadata an STP plist and a LookupFile reply need (we
+  already synthesise version/createTime/length; the archive supplies the
+  true values).
+- Version numbers, dates and authors are already in the listing, so
+  `!N` semantics and "print the true version" come along.
+
+**Design questions to settle first**
+
+1. **Lazy fetch vs mirror.** The full archive is far too large to ship;
+   on-demand HTTP fetch with a local cache is the obvious shape, and the
+   cross-reference gives the URL. Decide the cache location and whether a
+   cold miss should block the guest (a Pup timeout is unforgiving) or fail
+   fast and warm the cache in the background.
+2. **Name mapping.** Guest names are `[Host]<Dir>Sub>Name!ver`; archive
+   paths are lowercased directories. Needs a case-insensitive resolver plus
+   the volume-name aliases (`[Indigo]` -> `indigo/`, and note `_cd6_`/`_cd8_`
+   are CD images whose original host names differ).
+3. **Offline and the browser.** Native can fetch; the wasm build cannot
+   reach arbitrary hosts (CORS), so the browser probably keeps a curated
+   subset or proxies. **Do not regress the current worlds** — they must
+   still work with no network at all.
+4. **Read-only.** Everything here is an archive; writes should be refused
+   cleanly rather than half-implemented.
+
+**Why it is worth doing:** it turns the emulator from "a machine with some
+files on it" into the environment those machines actually lived in, and it
+is the natural payoff of the file-server work already done. It also makes
+every future bring-up cheaper — the recurring pattern this session was
+"the file exists in the archive but not on our pack" (`LYRIC-PARC-INIT`,
+`Released-Full.sysout!2`, the ExtendedVmem module, the Sil tools in F).
+
+**Start:** `docs/cedar-file-server-plan.md` is the existing design note for
+the STP side; extend it rather than starting fresh.
 
 ## Suggested order
 

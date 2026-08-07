@@ -348,6 +348,12 @@ int main(int argc, char **argv)
      * keystroke, which moved the whole timeline and confounded the run.
      * 0 = follow --key-hold, which is the historical behaviour. */
     uint64_t drag_hold = 0;
+    /* --menu-button: 0 means leave each option's own default
+     * (--menu presses middle/yellow, --click and --drag press
+     * left/red).  Setting it overrides BOTH, so an Interlisp
+     * window menu -- which is on the RIGHT/blue button -- can be
+     * opened and then dragged into. */
+    int menu_button = 0;
     uint64_t type_at = 110000000ull; /* cycle to begin typing (Alto default;
                                       * Cedar login prompt is ~650M) */
     int boot_dir_all_opt = -1;       /* -1 auto, 0 off, 1 on */
@@ -502,14 +508,32 @@ int main(int argc, char **argv)
             }
             click_events[click_event_count] =
                 (click_event){ .x = x1, .y = y1, .at = type_at, .done = 0,
+                               .button = menu_button,  /* 0 -> left */
                                .drag = 1, .drag_x = x2, .drag_y = y2 };
             click_event_count++;
             last_type_can_update = 0;
             pending_type_at = 0;
+        } else if (!strcmp(a, "--menu-button") && i + 1 < argc) {
+            /* Which button subsequent --menu events press. Interlisp and
+             * Cedar put menus on different buttons (red/yellow/blue =
+             * left/middle/right), so a fixed choice cannot test both. */
+            const char *b = argv[++i];
+            if (!strcmp(b, "left") || !strcmp(b, "red"))
+                menu_button = DORADO_MOUSE_LEFT;
+            else if (!strcmp(b, "middle") || !strcmp(b, "yellow"))
+                menu_button = DORADO_MOUSE_MIDDLE;
+            else if (!strcmp(b, "right") || !strcmp(b, "blue"))
+                menu_button = DORADO_MOUSE_RIGHT;
+            else {
+                fprintf(stderr, "dorado: --menu-button wants left|middle|right "
+                                "(or red|yellow|blue)\n");
+                return 2;
+            }
         } else if (!strcmp(a, "--menu") && i + 1 < argc) {
-            /* --menu X,Y — press+HOLD the middle (yellow) button at (X,Y),
-             * screenshot the pop-up menu while held, then release. Proves
-             * the mouse->context-menu path renders. */
+            /* --menu X,Y — press+HOLD a button at (X,Y), screenshot the
+             * pop-up menu while held, then release. Proves the
+             * mouse->context-menu path renders. Button: --menu-button,
+             * default middle (yellow). */
             if (click_event_count >= MAX_CLICK_EVENTS) {
                 fprintf(stderr, "dorado: too many click/menu events (max %d)\n",
                         MAX_CLICK_EVENTS);
@@ -522,7 +546,9 @@ int main(int argc, char **argv)
             }
             click_events[click_event_count] =
                 (click_event){ .x = cx, .y = cy, .at = type_at, .done = 0,
-                               .button = DORADO_MOUSE_MIDDLE, .menu = 1 };
+                               .button = menu_button ? menu_button
+                                                     : DORADO_MOUSE_MIDDLE,
+                               .menu = 1 };
             click_event_count++;
             last_type_can_update = 0;
             pending_type_at = 0;

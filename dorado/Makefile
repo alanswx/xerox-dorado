@@ -2189,12 +2189,21 @@ LISP_FULL_GOOD_PACK ?= build/good-packs/lisp-lyric-full-$(LISP_FULL_VMEM_PAGES).
 LISP_FULL_WORK_PREFIX ?= build/good-packs/lisp-lyric-full-work
 LISP_FULL_CYCLES ?= 12000000000
 
+# INIT.DORADO, not the default INIT.NONET.  NONET's DIRECTORIES is
+# ({DSK} {FLOPPY}) -- no network device -- so FILESLOAD has no {DORADO} to
+# search, falls through to probing local partitions, and dies with
+# "Device error: {DSK1}DISKDESCRIPTOR.;1" on the very first documented
+# command.  INIT.DORADO is the same file with {FLOPPY} -> {DORADO} (a
+# length-preserving substitution); see the LISP_INIT_OVERRIDE note below.
+LISP_FULL_INIT_FILE ?= ../chm/lisp/ftp-root/INIT.DORADO
+
 lisp-lyric-full-pack:
 	mkdir -p '$(dir $(LISP_FULL_GOOD_PACK))'
 	$(MAKE) lisp-bcplprog-scavenged-vmem-image \
 		LISP_VMEM_PAGES=$(LISP_FULL_VMEM_PAGES) \
 		LISP_LYRIC_VMEM_PAGE_SPEC=$(LISP_FULL_VMEM_PAGES)D \
 		LISP_LYRIC_CREATEFILE_CYCLES=9500000000 \
+		LISP_INIT_FILE='$(LISP_FULL_INIT_FILE)' \
 		LISP_BCPLPROG_DSK='$(LISP_FULL_WORK_PREFIX)-loader.dsk' \
 		LISP_BCPLPROG_PACK='$(LISP_FULL_WORK_PREFIX)-loader.pack' \
 		LISP_BCPLPROG_CREATEFILE_DSK='$(LISP_FULL_WORK_PREFIX)-createfile.dsk' \
@@ -2243,11 +2252,14 @@ run-lisp-lyric-full-snapshot-sdl: sdl
 	chmod 644 '$(LISP_FULL_RUN_PACK)'
 	@echo "Full-library Lyric (Released-Full.sysout!2, 25-Jan-88)."
 	@echo "Click the Exec (XCL) window, then type a form, e.g.  (PLUS 1 2)"
+	@echo "For the reference manual:  (IL:FILESLOAD HELPSYS)  then"
+	@echo "  (IL:LOAD $(QUOTE){DORADO}<IRM>IRMDEMO)  -- answer Login with Guest/Guest"
 	DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_CURRENT_FAKE_TIME)' \
 	./build/dorado-sdl \
 		--eb worlds/aemu.eb \
 		--disk 0='$(LISP_FULL_RUN_PACK)' --boot-reason disk --no-alto-boot \
 		--snapshot-in '$(LISP_FULL_SNAPSHOT)' \
+		--ftp-root '$(LISP_LISPUSERS_DIR)' \
 		--scale 1 --speed 4000000
 
 .PHONY: run-lisp-lyric-full-sdl
@@ -2267,6 +2279,14 @@ run-lisp-lyric-full-sdl: sdl
 		--type 'lisp.run/M {DORADO}LISP.SYSOUT\n' \
 		--type-at 330000000 --key-hold 4000000 \
 		--scale 1 --speed 4000000
+	@# NOTE: deliberately NO --ftp-root here. dorado_ethernet_set_ftp_sysout
+	@# and _set_ftp_root write the SAME field (ethernet.c ftp_sysout_path,
+	@# a directory meaning "rooted tree" and a file meaning "serve this"),
+	@# and dorado_machine_set_ftp_source applies root SECOND -- so passing
+	@# both would silently serve ../chm/lisp/ftp-root/LISP.SYSOUT (the plain
+	@# 4.8 MB sysout) instead of Released-Full.sysout!2, booting the wrong
+	@# world with no error. The snapshot target above can use --ftp-root
+	@# precisely because it has no --ftp-sysout to lose.
 
 run-lisp-good-sdl: sdl
 	@test -r '$(LISP_GOOD_PACK)' || \
