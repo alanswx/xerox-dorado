@@ -312,7 +312,49 @@ the item is taken on entry.
 transitions in the run. So `GETMOUSESTATE` is NOT reading what we maintain,
 or is not reading it the way we assume.
 
-### A3 MECHANISM FOUND: mouse CHORDING reports a single button as UP
+### A3 — the chording explanation below is RETRACTED (2026-08-06)
+
+**Do not act on the chording section that follows.** Two checks kill it:
+
+- `LLKEY!88` line 42: `(initvars (\mousechordticks) (\mousechordmilliseconds 50))`
+  — `\mousechordticks` initialises to **NIL**, and `\domousechording`'s first
+  test is `(or (null \mousechordticks) ...) -> real and virtual the same`. So
+  chording is OFF unless something calls `mousechordwait`, and nothing is
+  known to.
+- More decisively: if a single right press were reported UP, **the menu
+  could never open at all** — and it opens reliably.
+
+The section is kept because the two-utilin structure it documents
+(`\em.realutilin` = our `0177030` cell vs `\em.utilin` = the virtual word
+`MOUSESTATE` reads) is real and useful. The *conclusion* drawn from it was
+not.
+
+**What is actually established, and it is narrow:**
+
+| test | motion? | result |
+|---|---|---|
+| `--menu` at (740,495), hold 120 M | none | **menu stays up** the whole hold |
+| `--drag` ending anywhere inside the menu box (765/775/780) | yes | **closes on arrival** |
+| `--drag` ending at 740, one pixel OUTSIDE the box | yes | **stays up** |
+
+So the trigger is **the pointer being inside the menu**, not motion as such
+(x=740 moves too and survives). MENU's loop is
+`(until (COND (MOUSEDOWN ... (MOUSESTATE UP)) ((MOUSESTATE (NOT UP)) ...)))`
+— i.e. select on RELEASE — so `MOUSESTATE` must be reading UP once the
+pointer is inside. Our cell at `0177030..0177033` is verifiably still
+`177775` at that moment, and `dorado_machine_set_mouse` stores buttons
+without clearing anything.
+
+**So the gap is between our cell and `\em.utilin`**, and the next step is to
+watch that, not to reason about it further: find `\em.utilin`'s address in
+the running guest (LLKEY sets it via `(settopval '\em.utilin (locf ...))`,
+separately from `\em.realutilin` = `(emaddress utilin.em)`), then trace both
+words through a drag. If `\em.utilin` goes up while `\em.realutilin` stays
+down, the fault is in whatever should be copying one to the other — the
+poll loop only calls `\domousechording` when it sees `\em.realutilin`
+CHANGE, so a held button may simply never be re-propagated.
+
+### (RETRACTED) A3 MECHANISM: mouse CHORDING reports a single button as UP
 
 From `chm/lisp/lispcore/sources/LLKEY!88` (fetched from
 `eris/lispcore/sources`, 171 KB — the Lyric-era low-level keyboard/mouse
