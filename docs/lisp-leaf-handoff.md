@@ -854,6 +854,81 @@ connection is not direct.
 fields the loader fills, and whatever `RealPages` /`InitLispRegs` reports.
 The question to answer is whether a VP above 16383 can be paged in at all.
 
+### 6.14 The 2^14 boundary explained -- and the loader exonerated
+
+**The boundary is an ADDRESS-SPACE width, and the period source says so.**
+`chm/lisp/fugue.6/bcpl/lispbcplsources.dm!1_/VMem.decl`:
+
+```
+structure BPT: [ NEXT word
+                 VP word = [ STATE word ]   // overflow values mean empty or NA
+                 FWORD word = [ LOCK bit; FILEP bit 15 ] ]
+manifest [ LastVirtualPage = #37777    // for 22-bit address space
+           EMPTY   = #40000            // assumes 22-bit addresses!
+           UNAVAIL = #40400 ]
+```
+
+`#37777` = 16383 is EXACTLY `LISP.SYSOUT!1`'s maximum VP. The buffer page
+table stores a VP in one word and reserves values **>= #40000 (16384)** as
+the `EMPTY`/`UNAVAIL` sentinels, so on a 22-bit build a real VP of 17152 is
+indistinguishable from "empty". `docs/memory-architecture.md` gives the
+same equivalence from the hardware side: **22-bit VA = 4 M words = 2^14
+pages of 256 words.** So the working image is a 22-bit-address image and
+`Full.sysout!6` is a 24-bit one.
+
+**But the loader is NOT the problem -- verified, not assumed.**
+`NewUserBigDisk.cm` fetches `LISP.run` from `<Lisp>Lyric>Basics>`, the same
+directory as the sysout, and ours is **byte-identical** to it:
+
+```
+d4ec56a8a8a7036d...  chm/lisp/Lisp.run!6
+d4ec56a8a8a7036d...  <downloaded>/phylum/lisp/lyric/basics/Lisp.run!6
+```
+
+(Also confirmed: that directory holds `Lisp.run!1..!6` and `Full.sysout!5,!6`;
+we have the newest of each.) So we run exactly the loader PARC prescribes,
+and the `VMem.decl` quoted above is fugue.6 (1982), five years older than
+Lyric -- its "assumes 22-bit addresses!" is a flagged limitation, not
+necessarily Lyric's behaviour. No Lyric-era BCPL source exists in the
+archive (`lyric/sources/` holds two unrelated files) to check directly.
+
+**The Dorado side handles 24 bits fine.** From the RMap trace: the guest
+reaches Dorado page **65,496** (VA 0o77754000, just under 2^24), our map is
+`DM_MAP_ENTRIES = 64K` with a 16-bit index, and only 3 of 45,290 references
+are at/above 2^22 with none above 2^24. So nothing truncates at 22 bits on
+our side.
+
+### 6.15 A neat multi-partition theory, killed by our own earlier data
+
+Worth recording because the arithmetic is seductive. IF the VMEM file were
+indexed by VIRTUAL page, then `Full.sysout!6` (max VP 65533) would need a
+65,534-page VMEM = **2.88 partitions**, one partition holds 22,736, and
+`Lisp.run!6` allows main + **exactly two** extensions = 68,208 pages -- just
+enough to cover a full 16-bit VP space, while `LISP.SYSOUT!1` at 16,384
+pages needs only 0.72 of a partition and works today. That would explain
+every observation at once and would make Nick Briggs's `/X` the required
+fix.
+
+**It is wrong.** Section 6.11 measured sysout raw page *N* byte-identical
+to `vmem.bin` page *N* for 15,140 of 15,141 pages. A VP-indexed VMEM would
+scatter page *N* to page `FPTOVP[N]`; ours does not. The VMEM is a **packed
+copy** of the sysout, 15,141 pages, comfortably inside one partition. So
+multi-partition VMEM is NOT required for this image, and `/X` is not the
+fix. Kept here so the arithmetic is not rediscovered and believed.
+
+### 6.16 Storage size / RealPages wrap -- tested, not the cause
+
+We model 16 MW (4 modules x 4 MW), and `docs/memory-architecture.md` notes
+the consequence: "The microcode's `RealPages` register is 16 bits, so the
+full 64K-page configuration appears there as `0x0000`." `InitLispRegs`
+(LISP0.mc) hands `RealPages` straight to Lisp as the page count, so a
+wrapped 0 was a plausible way for a bigger image to break where a small one
+survives.
+
+`DORADO_STORAGE_MODULES=1` (4 MW = 16,384 pages, no wrap) boots
+`Full.sysout!6` to **192,476 px -- identical to the 19,000 and 20,000-page
+runs.** Not the cause.
+
 ### 6.8 What is left
 
 Ruled out, each by measurement: **VMEM size** (four sizes, 6.7), **the
