@@ -570,6 +570,25 @@ int main(int argc, char **argv)
         SDL_ShowWindow(win);
         SDL_RaiseWindow(win);
     }
+    /* Logical size, established HERE and not only when a world's raster
+     * turns out to differ from the initial guess.
+     *
+     * Everything below -- the panel band, the guest blit, the mouse
+     * arithmetic -- is in window POINTS. On a HiDPI display the renderer's
+     * backing store is twice that, so without a logical size the guest and
+     * the panel both draw at half scale in the top-left corner while clicks
+     * are still hit-tested at full size: the buttons look wrong AND do not
+     * track the pointer.
+     *
+     * It used to be set only inside the "the world's raster changed" branch,
+     * which meant it depended on the world: an Alto world (808x606) differs
+     * from the initial DORADO_DISPLAY_W/H guess so the branch fired and all
+     * was well, while Interlisp-D Lyric is EXACTLY 1024x808 -- the guess --
+     * so the branch never ran and the whole window was half scale. */
+    if (ren)
+        SDL_RenderSetLogicalSize(ren, DORADO_DISPLAY_W * scale,
+                                 DORADO_DISPLAY_H * scale + DORADO_UI_HEIGHT);
+
     /* The front panel. If it cannot start (no atlas texture) the emulator
      * still runs -- it is chrome, not a dependency. */
     const char *served_root = cfg.ftp_root;

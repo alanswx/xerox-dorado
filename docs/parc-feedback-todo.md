@@ -1395,10 +1395,19 @@ Two implementation notes worth keeping:
   fields are free-running COUNTERS, not booleans -- the frontend lights a
   lamp when a count moved since its last frame, because "is the disk busy"
   has no honest answer at frame rate.
-- The window now needs `SDL_RenderSetLogicalSize`. Without it a HiDPI backing
-  store is twice the window's point size, and the guest draws at half scale
-  in the corner with the panel floating over it -- which is exactly what the
-  first build did.
+- The window now needs `SDL_RenderSetLogicalSize`, and it must be set at
+  STARTUP rather than only when a world's raster differs from the initial
+  guess. Without it a HiDPI backing store is twice the window's point size,
+  so the guest AND the panel draw at half scale in the top-left while clicks
+  are still hit-tested at full size -- the buttons look wrong and do not
+  track the pointer.
+
+  Setting it only in the "raster changed" branch made the bug depend on the
+  WORLD, which is why the first build looked fine: an Alto world is 808x606,
+  differs from the `DORADO_DISPLAY_W/H` guess, so the branch fired. Lyric is
+  exactly 1024x808 -- the guess itself -- so the branch never ran and the
+  whole window was half scale. A conditional that happens to be true for the
+  world you tested is not a test.
 
 **What this leaves for J:** paste is a button now, so Carl's conflict 1 is
 gone -- nothing has to choose between Yellow and paste. `Cmd/Ctrl+V` still
