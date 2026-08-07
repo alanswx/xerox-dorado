@@ -1,0 +1,1 @@
+Delete *.press *.wlOldDelete *.ad *.bp *.comments *.er *.re *.pe *.lc *.ps *-E.nl *-C.nl *.inl *.mh *.mhi *.mwcopy OldOldRev _ OldRevcopy OldRev _ RevBravo/n RevRename @Board@-Rev-@OldRev@.nl @Board@-Rev-@Rev@.nlRename @Board@-Rev-@OldRev@.sil @Board@-Rev-@Rev@.silDelete @Board@-Rev-@OldOldRev@.wl

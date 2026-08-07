@@ -878,7 +878,34 @@ promising anything.
 
 ## E. Archive: the "garage" directories
 
-### E1. Find the hardware team's material [verified — it exists, not yet fetched]
+### E1 DONE 2026-08-07 — both archives fetched into `chm/garage/`
+
+`tools/fetch_chm_archive.py` (expanded-archive walker; casing matters and the
+cross-reference HTML lowercases everything, so copy names out of the parent
+`.index.html` when a path 404s):
+
+- **`GarageMidasManual.dm!2`** from `_cd8_/doradosource/` — 13 members. The
+  manual itself is five Bravo files totalling ~218 KB, and its title page
+  reads *"ELECTRONIC MODEL SHOP / DORADO MIDAS REFERENCE MANUAL / June 29,
+  1985 / by Frank Vest / Xerox Palo Alto Research Center"*. Bravo is the
+  Alto's word processor, but the text is plain ASCII with formatting escapes
+  interleaved, so it reads with `strings` and would render properly with a
+  Bravo converter. Also inside: `Grid.sil` / `grid0.sil` / `grid25.sil` and
+  their `.press` renderings (the manual's drawing templates), plus
+  `MakeGarageMidasManual.cm` and `MakeGarageMidasListings.cm`.
+  (`indigo/doradosource/GarageMidasManual.dm!1` is the older version 1.)
+- **`GarageD0Drawings.Dm!1`** from `cyan/d0logic/` — 42 members, all `.SIL`:
+  `BACKPANEL`, `BUSSBAR`, `CABLEALTO1/2`, `D0CHECKOUT`, `d0mp01/02`,
+  `DELAYLINE`, `96KSTORAGELAYOUT`, `BOARDTESTERWIRING` and so on. D0 is the
+  Dorado's sibling, so this is context and Sil-format examples rather than
+  Dorado design data — the Dorado equivalents are in `chm/sil/` (F.2).
+
+Worth reading next: the Midas manual is the hardware team's own document for
+the machine's hardware debugger, and `build/rundiag` already runs PARC's six
+real diagnostics. It is the natural companion to that work, and may also
+document the keyboard/mouse interface **A6** needs.
+
+### E1 (historical). Find the hardware team's material [verified — it exists, not yet fetched]
 
 **From the call: directories named "garage" are the hardware team's.**
 Confirmed present in `chm/cross-reference.html`, and **we hold none of it
@@ -985,7 +1012,56 @@ Our `DoradoDocs/doradodrawings/` deliberately keeps every revision; for
 netlist extraction that is a hazard, not a feature. Pick the newest per
 board and record which was used.
 
-### F.2 BLOCKER: we have no .sil source, only rendered PDFs
+### F.2 RESOLVED 2026-08-07 — we have the Sil source, and the NETLISTS
+
+`tools/fetch_dorado_sil.py` pulled **640 members across all 16 boards** into
+`chm/sil/`, one expanded IFS dump archive per board at its highest bare
+`-Rev-` revision (the design of record; `--all-variants` also fetches the
+`-mwRev-` multiwire and `-apcRev-` printed-circuit revisions):
+
+| board | archive | .sil sheets |
+|---|---|---|
+| Processor high / low | `ProcH-Rev-Ce`, `ProcL-Rev-Ci` | 33, 34 |
+| Control A / B | `ContA-Rev-Cd`, `ContB-Rev-Cd` | 34, 24 |
+| Memory C / D / X | `MemC-Rev-Be`, `MemD-Rev-Ca`, `MemX-Rev-Ch` | 25, 24, 25 |
+| IFU | `IFU-Rev-Ch` | 24 |
+| Display Y / M | `DispY-Rev-Cl`, `DispM-Rev-Ch` | 32, 32 |
+| Disk + Ethernet | `DskEth-Rev-Cf` | 49 |
+| BaseBoard | `BaseBd-Rev-Am` | 18 |
+| MSA / PCMSA / IOTest / Music | `msa-Rev-Bg`, `PCMSA-Rev-Pa`, `IOTest-Rev-Ad`, `Music-Rev-Ac` | 23, 29, 9, 7 |
+
+**The find is not the `.sil` files — it is the `.nl` files beside them.**
+Every archive carries two netlists (`-C.nl`, `-E.nl`) plus a wire list
+(`.wl`), the board/layout files (`.ad`, `.bp`, `.lc`) and PARC's own build
+scripts (`Build.cm`, `MwBuild.cm`, `NewMwRev.cm`, `Print<Board>.cm`). The
+netlists are **plain text, immediately machine-readable**, and they carry
+the Dorado's real signal names on real backplane pins:
+
+```
+; Nets for connector C of class Conn-C on board located at s05
+StartCycle'a: #s05-C.5
+CLKEnable'c:  #s05-C.8
+CLK.ph':      #s05-C.9
+IOB.00:       #s05-C.12
+...
+RSTK.0:       #s05-C.24
+RbBypass:     #s05-C.32
+```
+
+`IOB`, `RSTK`, `RbBypass`, `Freeze`, `CLK.ph'` are the same names the C
+emulator implements, which makes these directly checkable against it — and
+they are what F.1 wanted: the design input, not the manual's prose.
+
+The `.sil` files themselves are Sil's binary drawing format, so they still
+need `ANALYZE`/Sil (or the rendered PDFs in `DoradoDocs/doradodrawings/`)
+to look at. The netlists need neither.
+
+**Next on this track:** pick one board — ProcH, since we already display
+`ProcH01.sil` inside Cedar — and diff its netlist against the emulator's
+model of that board. That is a real cross-check of the C emulator against
+the hardware, before any RTL is written.
+
+### F.2 (historical) BLOCKER: we had no .sil source, only rendered PDFs
 
 Checked 2026-08-06. `DoradoDocs/doradodrawings/` and
 `DoradoDocs/schematics/` hold **PDFs of Press files** — renderings. **Zero
@@ -1130,6 +1206,64 @@ they are `.sil` files or Dorado listings, they may want to go into the
 archive and the served tree rather than onto a guest volume at all — and
 that overlaps **F.2** and **G** rather than this item.
 
+## I. PACMAN breaks in the full Lyric world when you steer it [reported]
+
+**Symptom (screenshot, 2026-08-07):** in the full-library Lyric world,
+`(FILESLOAD PACMAN)` fetches `{DORADO}<>PACMAN.LCOM;1` over Leaf, `(PACMAN)`
+starts, the maze and ghosts paint correctly — and typing the movement keys
+raises an Interlisp break window:
+
+```
+UNDEFINED-FUNCTION-IN-APPLY
+  OLDFAULT1 / NEWFAULT1 / FAULTAPPLY / T / MOVEPACMAN / PACMAN /
+  XCL::NOHOOK / (PACMAN)
+```
+
+**Read the title bar first: the emulator says `running`.** This is a guest
+break, not an emulator crash — `MOVEPACMAN` applied a function that is not
+defined in this sysout. So the question is *which* function, and whether it
+is a library gap on our pack or something PACMAN expects the hardware to
+have.
+
+**We hold the file**, so most of this is answerable offline:
+`chm/lisp/ftp-root/PACMAN.LCOM` (95,169 bytes, compiled 23-Nov-87) is what
+our own server hands the guest. Its symbol table shows the shape of the
+program:
+
+- **Input**, one function per mode: `KEYDOWNP` for the I/J/L/space keys,
+  `GETMOUSESTATE` + `LASTMOUSEX`/`LASTMOUSEY`/`LASTMOUSEBUTTONS` for the
+  cursor mode, `PAD1` for the joystick, `VOICEINPUT` for voice. The menu is
+  `Choose mode` with `SAMEDIRASCURSOR / KEYS / JOYSTICK / VOICE`.
+- **Machine dispatch:** it branches on `MACHINETYPE` with arms naming
+  `DOVE`, `DANDELION` and `DORADO`, and carries the string
+  `"Unknown machine type."` — so it has an opinion about what it is running
+  on, and a path for not recognising it.
+- **A whole colour half:** `HASCOLORDISPLAYP`, `PACMANINCOLOR`,
+  `COLORDISPLAY`, `COLORCREATEW`, `SCREENCOLORMAP`, `COLORMAPCREATE`,
+  `CHANGECURSORSCREEN`, `SETDISPLAYHEIGHT`, and a `COLOR*BITMAP` for every
+  sprite. The screenshot is sitting at the unanswered `In color?` prompt.
+
+**Do these in order:**
+
+1. **Get the name.** The break window is scrolled to the backtrace; its
+   first line names the undefined function. Scroll it up, or evaluate
+   `(BAKTRACE)` in the break. Everything below is guessing until that is
+   known.
+2. **Re-test on a post-fix build.** The screenshot may predate the
+   2026-08-07 UTILIN fix, and `GETMOUSESTATE` / `LASTMOUSEBUTTONS` are
+   exactly the path it changed. Confirm the break still happens.
+3. **Answer `In color?` with No explicitly.** If the break only appears on
+   the colour arm, this is section **D**, not an input bug — we have no
+   colour board, so `HASCOLORDISPLAYP` and friends may be unbound.
+4. **Then check the mode.** If it breaks under `KEYS` but not `Cursor`, the
+   missing function is in the keyboard arm; `KEYDOWNP` itself is core
+   Interlisp, so suspect a helper the pack does not carry.
+
+**Worth having either way:** a headless gate that loads PACMAN, chooses
+`Keyboard` mode, drives I/J/L/space, and asserts PMAN moved — this is the
+first *application* in a guest we would be driving with real keystrokes, and
+it exercises the input path far harder than a prompt does.
+
 ## Suggested order
 
 Done 2026-08-07: **A1** (Control), **A3** (the Interlisp menu), **A3b**
@@ -1140,9 +1274,14 @@ arrives.
 
 What is left, in order:
 
-1. **E1 + F.2** — fetch the garage archives and the `.sil` design files.
-   Both are downloads, both unblock later work, and F.2 is the only thing
-   between us and the Verilog route the veterans actually recommended.
+1. ~~**E1 + F.2** — fetch the garage archives and the `.sil` design files.~~
+   **DONE 2026-08-07.** `chm/sil/` holds 640 members across all 16 boards
+   (`tools/fetch_dorado_sil.py`) and `chm/garage/` holds the Midas manual
+   and the D0 drawings (`tools/fetch_chm_archive.py`). The next F step is to
+   *use* them — see F.1, and note the `.nl` netlists below.
+1b. **I** — PACMAN. A concrete application-level failure with a screenshot,
+   and the first thing that would drive a guest with real gameplay
+   keystrokes. Cheap to narrow (steps 1-3 need no code).
 2. **H** — get a user's own files in. Ask what the files are first; the
    answer decides whether this is a browser drop target, a served-tree
    change, or an archive job. Pairs naturally with C1.

@@ -1,0 +1,1 @@
+; Nets for connector E of class Conn-E on board located at s14@IOin': #s14-E.71IOout': #s14-E.74IOReset: #s14-E.130

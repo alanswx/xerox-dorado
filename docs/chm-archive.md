@@ -576,3 +576,44 @@ The keyword search exposed a few previously unseen archives:
 The other `doradomicrocode/` subdirs (`7.0/`, `BlockOps/`, `CedarDual3/`,
 `Code/`, `Cpa/`, `LoadAltoDumpFile/`, `LoadMB/`, `Micro/`, `MicroD/`,
 `Top/`) remain unsurveyed — pull on demand.
+
+## Dorado board Sil source and netlists (`chm/sil/`, fetched 2026-08-07)
+
+`tools/fetch_dorado_sil.py` mirrors `[Io]<DoradoLogic>`, which holds one
+expanded IFS dump archive **per board revision**. The default fetch is the
+bare `-Rev-` variant at its highest revision (the design of record);
+`--all-variants` also takes the `-mwRev-` multiwire and `-apcRev-`
+printed-circuit revisions. 640 members across 16 boards, ~6.8 MB.
+
+Each archive holds more than drawings:
+
+| member | what |
+|---|---|
+| `<Board>NN.sil` | the numbered sheets, Sil's binary drawing format |
+| `<Board>-Rev-Xx.sil` | the assembled drawing |
+| `<Board>-Rev-Xx-C.nl`, `-E.nl` | **netlists, plain text** -- signal name to backplane pin |
+| `<Board>-Rev-Xx.wl` | wire list |
+| `.ad` `.bp` `.lc` | board / layout files |
+| `Build.cm`, `MwBuild.cm`, `Print<Board>.cm` | PARC's own design-automation scripts |
+
+The `.nl` files are the useful ones without any tooling: they name the
+Dorado's real signals on real pins (`IOB.00`, `RSTK.0`, `RbBypass`,
+`Freeze`, `CLK.ph'`, `StartCycle'a`), which are the same names the C
+emulator implements. The `.sil` drawings need `ANALYZE`/Sil to render --
+`DoradoDocs/doradodrawings/` has the rendered PDFs for reading.
+
+## Hardware-team "garage" archives (`chm/garage/`, fetched 2026-08-07)
+
+`tools/fetch_chm_archive.py <ifs-path> --dest chm/garage`.
+
+- `GarageMidasManual.dm!2` (`_cd8_/doradosource/`) -- the **Dorado Midas
+  Reference Manual**, Frank Vest, Electronic Model Shop, 29-Jun-1985, as
+  five Bravo files plus the drawing-template `.sil`/`.press` pairs and the
+  `Make*.cm` scripts. Midas is the Dorado's hardware debugger.
+- `GarageD0Drawings.Dm!1` (`cyan/d0logic/`) -- 42 `.SIL` drawings for the
+  D0, the Dorado's sibling machine.
+
+**Casing:** the live URLs use the IFS spelling (`ProcH-Rev-Ce.dm`,
+`GarageD0Drawings.Dm`) while `chm/cross-reference.html` lowercases every
+path. When a path 404s, fetch the parent `.index.html` and copy the name
+out of it.
