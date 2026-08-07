@@ -500,6 +500,61 @@ and still say `Opened:`. Screenshot:
 the version `.github/workflows/deploy-pages.yml` pins; it is not on PATH
 until `source ~/emsdk/emsdk_env.sh`, and no shell profile sources it.)
 
+**A FULL-LIBRARY Interlisp-D world boots, and it was the wrong sysout all
+along (2026-08-07).** `Released-Full.sysout!2` (Jan-88) comes up to a live
+Exec at 209,188 px -- `Xerox Lisp 25-Jan-88`, INIT.LCOM, INITCOMS, "Good
+afternoon." -- carrying ~2,300 pages more preloaded library than the shipped
+world. `make run-lisp-lyric-full-snapshot-sdl` restores it in seconds; the
+browser dropdown has "Lyric -- full-library sysout", deployed. The months of
+effort against **`Full.sysout!6`** were spent on an image that cannot work
+on a stock machine: it is dated **17-Nov-1988**, nineteen months after the
+Lyric release, and uses 894 virtual pages above **2^14** where both
+`LISP.SYSOUT!1` and `Released-Full.sysout!2` stop at exactly 16,383. 2^14
+pages x 256 words is a 22-bit address space, exactly what the period BCPL
+assumes (`VMem.decl`: `LastVirtualPage = #37777`, `EMPTY = #40000`,
+"assumes 22-bit addresses!"). `Full.sysout!6` needs a machine running
+Nick Briggs's **ExtendedVmem** rebuilt, not an emulator fix -- his module
+and manual are recovered into `chm/lisp/lyric-lispusers/`. Ten hypotheses
+were eliminated by measurement first (VMEM size at four values including
+PARC's own 20,000, the clock, transfer truncation, stale PROCESS records,
+microcode and loader versions, the pack itself, RealPages wrap); the image
+is delivered **byte-perfect**, 15,140 of 15,141 pages identical on disk.
+Full account: `docs/lisp-leaf-handoff.md` §6.1-6.18. **The lesson worth
+keeping: I asked "why does this artifact fail?" for a long time before
+asking "is this the right artifact?" -- the answer was in the release
+message and a directory listing.**
+
+**Feedback from the PARC veterans, turned into work
+(`docs/parc-feedback-todo.md`, 2026-08-07).** Two of their remarks
+corrected us. **`DispM` is the COLOUR board and `DispY` the MONOCHROME
+one** -- confirmed from the Hardware Manual (doc p.110): "on a Dorado with
+only a 7-wire terminal and no color monitor, only the DispY board is
+present"; `docs/color-graphics-todo.md` had asserted the opposite and
+scoped its whole estimate from it. And the **keyboard mapping is now
+specified**: Alto HW Manual doc p.27 (PDF p.34) gives four words at
+`KBDAD = 177034B` with **depressed = 0**, and the Dorado manual's **Table
+24** (doc p.117 = PDF p.124) shows the terminal microcomputer -- the
+"processor in the keyboard" -- serialising keyboard words to
+`177034B`-`177037B`, mouse/keyset to `177033B`, and X/Y as excess-200B
+deltas. Also mapped: the **Sil design-automation tools** survive complete
+in `_cd6_/sil` (`ANALYZE.RUN` + BCPL source, `ECLDICT.ANALYZE`, `BUILD`,
+`GOBBLE`, **`DORADODESIGNAUTOMATION.CM`**), which Tim recommends as the
+route to the Verilog since the Sil files were the design input and tracked
+bug fixes -- blocked only by our holding no `.sil` files, just rendered
+PDFs, while 293 Dorado-named ones sit in the archive.
+
+**The Interlisp menu bug is characterised but NOT fixed.** The pointer
+merely *entering* a menu selects an item and closes it, so you always get
+the first thing you touch and never see a submenu. Menus are on the
+**RIGHT/blue** button. The mouse button is eliminated **from the guest's
+side**: `DORADO_LOAD_TRACE_VA=177030,177033` logs 3,857 guest reads and,
+from 14.4020 B onward, all 331 read DOWN right through the collapse --
+which retired five successive theories of mine (chording, lost release,
+stale cell, cache coherency, submenu arrows). The trigger is *position*.
+Next: read `\SETIOPOINTERS`' Dorado arm to find where `MOUSESTATE` really
+looks, or PC-trace the window where the menu closes;
+`chm/lisp/lispcore/sources/MENU!29` and `LLKEY!88` are now local.
+
 **Interlisp-D reads its own manual over the network (2026-08-01..04).**
 The Lyric pack grew from 119 to 204 library packages (chosen by
 dependency closure, `tools/lisp_pack_closure.py`), and **Leaf** — the IFS

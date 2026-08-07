@@ -1,5 +1,96 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+> ## ===> 2026-08-07: A FULL-LIBRARY INTERLISP-D WORLD BOOTS, AND IS SHIPPED
+>
+> `Released-Full.sysout!2` (Jan-88) comes up to a live Exec — **209,188 px**,
+> `Xerox Lisp 25-Jan-88`, `INIT.LCOM`, `INITCOMS`, "Good afternoon.".
+> ~2,300 pages more preloaded library than the shipped world.
+> Screenshot: `docs/images/lisp-lyric-full-sysout-2026-08-06.png`.
+>
+> ```
+> make lisp-lyric-full-pack               # ~20 min, 19,000-page VMEM
+> make run-lisp-lyric-full-snapshot-sdl   # FAST: restores the checkpoint
+> make run-lisp-lyric-full-sdl            # cold boot, ~4 min
+> ```
+> Browser: the dropdown entry **"Lyric — full-library sysout"**, deployed.
+>
+> **It was the wrong sysout all along.** `<Lisp>Lyric>Basics>` holds three
+> images and we had picked the one that cannot work on a stock machine —
+> `Full.sysout!6` is dated **17-Nov-1988**, nineteen months after the
+> release, and uses 894 virtual pages above 2^14 where `LISP.SYSOUT!1` and
+> `Released-Full.sysout!2` both stop at exactly 16,383. 2^14 pages x 256
+> words = a 22-bit address space, which is precisely what the period BCPL
+> assumes (`VMem.decl`: `LastVirtualPage = #37777`, `EMPTY = #40000`,
+> "assumes 22-bit addresses!"). Detail and every dead end:
+> `docs/lisp-leaf-handoff.md` §6.1-6.18.
+>
+> **`Full.sysout!6` is CLOSED, not abandoned:** it needs a machine running
+> Briggs's ExtendedVmem reconstructed, not an emulator fix. His module and
+> manual are now in `chm/lisp/lyric-lispusers/`.
+>
+> **Two bugs fixed on the way**, both mine, both silent: the SDL target had
+> no `--ftp-root` so `{DORADO}` did not exist, and the pack carried
+> `INIT.NONET` (whose `DIRECTORIES` is `({DSK} {FLOPPY})`, no network device)
+> instead of `INIT.DORADO`. Together they made `(IL:FILESLOAD HELPSYS)` fail
+> with `Device error: {DSK1}DISKDESCRIPTOR.;1`. Now reaches `{DORADO} Login:`.
+>
+> **Beware:** `dorado_ethernet_set_ftp_sysout` and `_set_ftp_root` write the
+> SAME field, and `dorado_machine_set_ftp_source` applies root SECOND — so
+> passing both silently serves the tree's own `LISP.SYSOUT` instead of the
+> one you meant. The cold-boot target carries a comment saying so.
+>
+> ## 2026-08-07: the PARC veterans' work list
+>
+> `docs/parc-feedback-todo.md` — input (A), Cedar checkpoint (B), browser
+> persistence (C), colour (D), the "garage" archives (E), **the Sil
+> design-automation tools (F)** and **the CHM as a live PARC file server
+> (G)**.
+>
+> - **Colour: `DispM` is the COLOUR board, `DispY` the MONOCHROME one.**
+>   Confirmed from the Hardware Manual itself (doc p.110 = PDF p.117):
+>   "on a Dorado with only a 7-wire terminal and no color monitor, only the
+>   DispY board is present". `docs/color-graphics-todo.md` asserted the
+>   opposite and scoped the whole job from it — corrected.
+> - **Keyboard mapping is now specified, not guessed.** Alto HW Manual doc
+>   p.27 = **PDF p.34**: four words at `KBDAD = 177034B`, **depressed = 0**.
+>   Dorado HW Manual doc p.117 = **PDF p.124** (offset +7), **Table 24**: the
+>   terminal microcomputer serialises keyboard words to `177034B`-`177037B`,
+>   mouse buttons and keyset to `177033B`, X/Y as excess-200B deltas.
+> - **Caps Lock is a frontend job**: `display.c` already has
+>   `DORADO_KEY_LOCK = {3, 0x0080}` = Xerox bit 8 of `KBDAD+3`, exactly per
+>   the manual, but neither `dorado_sdl.c` nor `web_shell.html` maps a host
+>   key to it.
+> - **Sil tools (F) survive complete** in `_cd6_/sil` — `ANALYZE.RUN` with
+>   its BCPL source, `ECLDICT.ANALYZE`, `BUILD`, `GOBBLE`, and
+>   **`DORADODESIGNAUTOMATION.CM`**. Tim: build the Verilog FROM the Sil
+>   files, which were the design input and tracked bug fixes. **Blocker: we
+>   hold no `.sil` files**, only rendered PDFs; 293 Dorado-named ones are in
+>   the archive.
+>
+> ## 2026-08-07: the Interlisp menu bug (A3) — NOT FIXED
+>
+> Characterised precisely, root cause still unknown. **The pointer merely
+> entering a menu selects an item and closes it**, so you always get the
+> first thing you touch and never see a submenu.
+>
+> - Menus are on the **RIGHT/blue** button; our `--menu` had middle
+>   hardcoded, which is why this looked like a dead path.
+> - **The button is eliminated from the GUEST's side**:
+>   `DORADO_LOAD_TRACE_VA=177030,177033` shows 3,857 guest reads, and from
+>   14.4020 B onward **all 331 read DOWN**, through the collapse. That
+>   retires chording, lost releases, stale cells and cache coherency — five
+>   theories, all wrong.
+> - The trigger is **position**: inside the menu box collapses it, one pixel
+>   outside does not.
+> - **Next:** read `\SETIOPOINTERS`' Dorado arm to find where `MOUSESTATE`
+>   actually looks (the evidence now argues it is not `0177030`), or PC-trace
+>   the 10 M cycles where the menu closes. Sources are local now:
+>   `chm/lisp/lispcore/sources/MENU!29` and `LLKEY!88`.
+>
+> **New test tooling** (all opt-in, gates unchanged): `--menu-button`,
+> `--drag-dwell`, `--shot-every` now firing inside click/drag/menu holds,
+> `DORADO_RMAP_TRACE`, `tools/interlisp-sysout/inspect_sysout.py`.
+
 > **2026-08-06: the Lyric VMEM ceiling is liftable, and `Full.sysout!6`
 > loads but RAIDs.** Three findings, detail in `docs/lisp-leaf-handoff.md`
 > §6.1-6.5:
