@@ -1061,17 +1061,99 @@ every future bring-up cheaper — the recurring pattern this session was
 **Start:** `docs/cedar-file-server-plan.md` is the existing design note for
 the STP side; extend it rather than starting fresh.
 
+## H. Get a user's OWN files into a running world [requested]
+
+**The ask:** Tim wants files off his personal hard drive and into an image —
+either the SDL build or the browser one. He is the person with period Dorado
+material nobody else has, so this is also how that material gets preserved
+and shared; it is not only a convenience feature.
+
+**What already works, and is worth saying out loud because it is not
+obvious:**
+
+- **Serving a host directory to the guest** is the closest thing we have.
+  `--ftp-root DIR` points the in-process file servers at a host tree, and
+  the guest fetches from it with its own transfer tool: Cedar's `Bringover`
+  over STP, Interlisp's `(FILESLOAD ...)` / `{DORADO}<...>` over Leaf and
+  FTP, the Alto's EFTP. Nothing has to be injected — the file simply
+  appears on the emulated network.
+- **Offline injection into an Alto/Trident pack** exists and is complete:
+  `altofs --existing --insert HOST NAME` (and `--extract`, `--list`,
+  `--inspect`, `--repair`). That is the path used to build the Lisp packs.
+
+**So the gaps are specific, and each needs its own answer:**
+
+1. **The browser has nothing at all.** No host filesystem, no file picker,
+   no drag-and-drop; `web_shell.html` has no `input type=file` and no drop
+   handler. Everything reaches MEMFS by `fetch()` from the deploy. A file
+   picker or a drop target that writes into the served tree (`/stp` for
+   Cedar, `/lisp-stp` for Interlisp — both already populated by
+   `untarIntoFS`) is the smallest useful version, and it composes with **C1
+   (persistence)**: a file you drop should still be there after a reload.
+2. **Cedar/Pilot volumes have no safe injection path.** `rusty-backup`
+   injection **crashes Cedar's live FS** — recorded in memory
+   `cedar-font-install-attach`, where it produced an 81 px "Type Key"
+   herald. Only Cedar's own install path works, which is why the serve-then-
+   `Bringover` route is the recommended one and why "just write it onto the
+   disk" is not.
+3. **Injection is offline.** `altofs` edits an image the emulator is not
+   running. Dropping a file into a *running* world means the served-tree
+   route, or a live-write path we do not have.
+
+**Traps to carry into the design** (all of these have already cost a
+debugging session):
+
+- Cedar text files must be **CR-terminated**; an LF file parses as one line.
+- **`Bringover -p` fetches public files only**, so data files (`.cm`,
+  images, documents) need a plain `Bringover`.
+- A **semicolon is a command separator** and cannot appear in `Echo` text.
+- `dorado_machine_restore` **clobbers ethernet state with the bake-time ftp
+  root**, so any web path must re-apply `dorado_machine_set_ftp_source`
+  after a restore.
+- **No new `dorado_machine` members** (snapshot ABI).
+
+**Design questions to settle before building:**
+
+- Which direction matters more first — host -> guest (Tim's material into a
+  world) or guest -> host (getting something back out, e.g. a Tioga
+  document he has edited)? The ask names the first; the second is what makes
+  the emulator useful for real work.
+- Does a dropped file land in the **served tree** (safe, works for every
+  world, needs the guest to fetch it) or **on the volume** (feels direct,
+  but is the path that crashes Cedar)?
+- What does the user see? A drop target on the canvas is discoverable;
+  a menu item is not. Whatever it is, it should say where the file went and
+  what to type next, the way the Cedar welcome menu does.
+
+**Ask Tim what the files actually are before designing the transport.** If
+they are `.sil` files or Dorado listings, they may want to go into the
+archive and the served tree rather than onto a guest volume at all — and
+that overlaps **F.2** and **G** rather than this item.
+
 ## Suggested order
 
-1. **A1/A2** — Control key and Cedar middle-click. Highest impact, most
-   likely simple mapping errors, and both are testable headlessly.
-2. **A5** — the keyboard map document + graphic, written as A4's audit
-   proceeds. Cheap, and it is what a new user needs most.
-3. **E1** — fetch the garage archives. Cheap, and may inform A6.
+Done 2026-08-07: **A1** (Control), **A3** (the Interlisp menu), **A3b**
+(Caps Lock), **A4** (the keyboard audit), **A5** (the map, text and graphic),
+**D1** (the board identification). **A2** is not a mapping error and is now
+waiting on a repro from the reporter, so it is off this list until that
+arrives.
+
+What is left, in order:
+
+1. **E1 + F.2** — fetch the garage archives and the `.sil` design files.
+   Both are downloads, both unblock later work, and F.2 is the only thing
+   between us and the Verilog route the veterans actually recommended.
+2. **H** — get a user's own files in. Ask what the files are first; the
+   answer decides whether this is a browser drop target, a served-tree
+   change, or an archive job. Pairs naturally with C1.
+3. **A6** — the terminal serialiser's deltas and its ordering guarantee.
+   Today's fix made the first real use of that path; finishing it removes a
+   class of input bug rather than one instance.
 4. **B1** — the checkpoint crash. Deeper; touches the disk shim.
-5. **D1** — correct the colour doc. Minutes of work, but it prevents
-   scoping colour off a false premise.
-6. **C1 / D2 / D3** — features, once the machine is comfortably drivable.
+5. **C1** — browser persistence. Decide whole-pack vs dirty-block first.
+6. **D2 / D3 / G** — colour and the archive-as-file-server, once the
+   machine is comfortably drivable. Colour's step 0 stands: trace whether
+   any world programs the colour RAMs before promising anything.
 
 ## What NOT to do
 
