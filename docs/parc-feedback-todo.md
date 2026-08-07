@@ -345,14 +345,44 @@ pointer is inside. Our cell at `0177030..0177033` is verifiably still
 `177775` at that moment, and `dorado_machine_set_mouse` stores buttons
 without clearing anything.
 
-**So the gap is between our cell and `\em.utilin`**, and the next step is to
-watch that, not to reason about it further: find `\em.utilin`'s address in
-the running guest (LLKEY sets it via `(settopval '\em.utilin (locf ...))`,
-separately from `\em.realutilin` = `(emaddress utilin.em)`), then trace both
-words through a drag. If `\em.utilin` goes up while `\em.realutilin` stays
-down, the fault is in whatever should be copying one to the other — the
-poll loop only calls `\domousechording` when it sees `\em.realutilin`
-CHANGE, so a held button may simply never be re-propagated.
+**So the gap is between our cell and `\em.utilin`.** Finding that cell is
+the next step, and a brute-force memory scan **did not work** — recorded so
+the next attempt does not repeat it.
+
+`DORADO_UTILIN_SCAN` (in `machine_seed_utilin`) is a two-phase search:
+phase 1 records every word matching the pressed pattern, phase 2 reports
+those that follow the button back to all-up on release. Three variants all
+returned **`phase1: 115 words hold 177775` / `phase2: 0 of 115`**:
+
+| variant | result |
+|---|---|
+| scan at the press instant, low 2^22 | 115 / 0 |
+| scan after 200 held ticks (~3.3 M cycles), low 2^22 | **exactly 115 / 0** |
+| scan after 200 held ticks, full 2^24 | **exactly 115 / 0** |
+
+**Getting the identical count after quadrupling the range is the tell:** the
+scan is not seeing Lisp's high memory. Its VPs run to 65533, i.e. VAs to
+~16.8 M words, but `dorado_visible_word_at_va` evidently does not return
+live data for those pages here. So "no cell tracks the button" is a
+statement about the instrument, **not** about the guest, and nothing should
+be concluded from it.
+
+(A single-phase scan is hopeless for a different reason worth noting:
+`177775`/`177776` are just -3 and -2 and litter Lisp memory — the first
+attempt returned dozens of matches per button with **zero overlap** between
+right and middle.)
+
+**Better next approaches, in preference order:**
+
+1. **Follow `\SETIOPOINTERS` instead of searching.** LLKEY's Dorado arm
+   plants the pointers; read what it stores and where, and dereference
+   `\em.utilin` directly rather than hunting for its value. `machine.c`
+   already cites this function for the keyboard/mouse addresses, so the
+   groundwork is there.
+2. **Trace guest READS of `0177030`.** If the guest never reads our cell
+   during the hold, the propagation question is moot and the answer is
+   upstream.
+3. Only then consider instrumenting `MOUSESTATE`/`GETMOUSESTATE` directly.
 
 ### (RETRACTED) A3 MECHANISM: mouse CHORDING reports a single button as UP
 

@@ -1986,6 +1986,55 @@ static void machine_seed_utilin(dorado_memory *mem, int buttons)
     }
     for (uint32_t a = 0177030u; a <= 0177033u; a++)
         machine_store_va_if_changed(mem, a, bw);
+
+    /* DORADO_UTILIN_SCAN: find Interlisp's VIRTUAL utilin.
+     *
+     * LLKEY!88 keeps TWO words -- \em.realutilin, which is the hardware cell
+     * at 0177030 that the loop above writes, and \em.utilin, a separate cell
+     * that \domousechording maintains and that everything else (MENU's
+     * MOUSESTATE included) actually reads.  Only the first is ours, so when a
+     * menu behaves as though the button came up while our cell still says
+     * down, the second is where to look -- and its address is assigned at run
+     * time by (settopval '\em.utilin (locf ...)), so it has to be found, not
+     * looked up.  On the first press this dumps every word that mirrors the
+     * button pattern; intersect two runs with different buttons to identify
+     * it. */
+    if (dorado_trace_flag("DORADO_UTILIN_SCAN")) {
+        /* Two-phase, because a single scan is useless: 177775/177776 are
+         * just -3 and -2 and litter Lisp memory (a first attempt returned
+         * dozens of coincidences and no overlap between buttons).  Phase 1
+         * records every word matching the pressed pattern; phase 2, on
+         * release, reports only those that have followed the button back to
+         * all-up.  A cell that tracks the button in BOTH directions is the
+         * virtual utilin (or a copy of it). */
+        static uint32_t cand[4096];
+        static int ncand, phase, held;
+        /* Phase 1 must run WELL AFTER the press, not at it: the guest needs
+         * time to propagate our cell into its virtual one, and scanning at
+         * the press instant finds only coincidences (measured: 115 hits, 0
+         * of which followed the release). */
+        if (buttons) held++; else held = 0;
+        if (buttons && phase == 0 && held > 200) {
+            phase = 1;
+            for (uint32_t va = 0; va < (1u << 24) && ncand < 4096; va++) {
+                if (va >= 0177030u && va <= 0177033u) continue;   /* ours */
+                if (dorado_visible_word_at_va(mem, va) == bw) cand[ncand++] = va;
+            }
+            fprintf(stderr, "[utilin-scan] phase1: %d words hold %06o\n",
+                    ncand, bw);
+        } else if (!buttons && phase == 1) {
+            phase = 2;
+            int hits = 0;
+            for (int i = 0; i < ncand; i++)
+                if (dorado_visible_word_at_va(mem, cand[i]) == 0177777u) {
+                    fprintf(stderr, "[utilin-scan] TRACKS BUTTON: va=%08o\n",
+                            cand[i]);
+                    hits++;
+                }
+            fprintf(stderr, "[utilin-scan] phase2: %d of %d followed the "
+                    "release\n", hits, ncand);
+        }
+    }
 }
 
 static void machine_seed_mouse(dorado_memory *mem, int x, int y, int buttons)
