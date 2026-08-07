@@ -808,6 +808,52 @@ Flag distribution is sensible too: 33,027 resident (`dirty=1 ref=1`),
 data**, so the 12,557 dispatches are the allocator SCANNING -- a symptom of
 the failure, not its cause.
 
+### 6.13 THE CLEANEST DISCRIMINATOR FOUND: VP > 2^14
+
+Timing first. `DORADO_RMAP_TRACE` timestamps every `RMap<-`, so the failure
+window falls out of data already collected -- no extra run:
+
+| cycles | `RMap<-` count | what it is |
+|---|---|---|
+| ~67 M | 1 | early probe |
+| **4500-5000 M** | **32,770** | a systematic sweep -- note ~= 2^15, the initial map walk |
+| 7000-7500 M | 4 | **the transition**: 3 of the 4 come back VACANT |
+| **7500-8000 M** | **12,515** | the READFLAGS burst (matches the 12,557 dispatches) |
+| after 8000 M | **0** | silent -- sitting in RAID, though the run goes to 14,000 M |
+
+So the failure begins around **7.06 B cycles**, where three probes return
+`rp=0 wp=1 dirty=1` (vacant), and the machine is dead after 8.0 B.
+
+**And the structural difference between the two images is sharp:**
+
+| image | VP range, excluding the 65535 sentinel |
+|---|---|
+| `LISP.SYSOUT!1` -- **boots** | 256 .. **16383 = 2^14 - 1 EXACTLY** |
+| `Full.sysout!6` -- **fails** | 256 .. **65533**, with **894 VPs above 2^14** |
+
+The working image fits entirely in **14 bits** of virtual page number; the
+failing one does not, and the RAID address `{103,252}` = **VP 17152** sits
+just above that line.
+
+**This is not an artifact of the full image merely being bigger.** It has
+14,843 VPs; allocated densely from 256 they would reach ~15,099, not 65533.
+It is deliberately placing data at high addresses -- Interlisp address
+spaces the small image never uses.
+
+**State it as correlation, not cause.** Every other difference has been
+eliminated (6.5-6.12), and a boundary at exactly 2^14 separating the two
+cases is the strongest lead in this section -- but no mechanism has been
+identified yet. Things checked and NOT the answer: our Dorado map is
+`DM_MAP_ENTRIES = 64K` and `dorado_map_index` masks to 16 bits, so the
+Dorado side addresses these pages fine; and the vacant probes seen at the
+transition are at Dorado VPs around 5,000-10,000, *below* 2^14, so the
+connection is not direct.
+
+**Next:** find what in the Lisp VMEM path is 14 bits wide. Candidates: the
+`LispFmap` entry format (`VMemB.bcpl`, `IndexedPageIO`), the interface-page
+fields the loader fills, and whatever `RealPages` /`InitLispRegs` reports.
+The question to answer is whether a VP above 16383 can be paged in at all.
+
 ### 6.8 What is left
 
 Ruled out, each by measurement: **VMEM size** (four sizes, 6.7), **the
