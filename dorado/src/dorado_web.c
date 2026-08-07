@@ -132,6 +132,13 @@ static struct {
     int              paused;
     int              announced;
     long             frame;
+    /* What a restore has to put back. dorado_machine_restore CLOBBERS the
+     * ethernet state with the BAKE-TIME ftp root -- a native path that does
+     * not exist in MEMFS -- so every restore path re-applies this. Recording
+     * it here lets the generic save/resume below do the same without knowing
+     * which world is loaded. */
+    const char      *ftp_root;
+    const char      *world;      /* short tag, for the download's filename */
 } app;
 
 static uint32_t pixels[DORADO_DISPLAY_W * DORADO_DISPLAY_H];
@@ -257,6 +264,63 @@ void dorado_web_key(int key, int down)
         dorado_machine_set_key(app.m, dk, down);
 }
 
+/* ---- Save and resume in the browser --------------------------------------
+ *
+ * The emulator already has a snapshot format and the whole project runs on
+ * baked checkpoints; what the browser lacked was any way to keep one. These
+ * two entry points bridge it to MEMFS, and web_shell.html turns that into a
+ * download and a file picker.
+ *
+ * SCOPE, stated because it is a real limit and not a bug: a snapshot restores
+ * into a machine that was CREATED for the same world. dorado_machine_create
+ * takes the microcode world, germ and disk images, and the snapshot carries
+ * none of that -- so the page must be booted to the same dropdown entry
+ * before resuming. The shell puts the world in the download's filename and
+ * checks it on the way back in, which is the honest amount of protection
+ * available: a mismatched pair has the same struct sizes, so
+ * dorado_machine_restore's ABI check cannot catch it.
+ *
+ * Anything else in this file that restores also re-applies the served root,
+ * because dorado_machine_restore clobbers the ethernet state with the
+ * bake-time one. This does the same from app.ftp_root.
+ */
+#define WEB_SAVE_PATH "/dorado-state.snap"
+
+EMSCRIPTEN_KEEPALIVE
+int dorado_web_save_state(void)
+{
+    if (!app.m) return -1;
+    if (dorado_machine_snapshot(app.m, WEB_SAVE_PATH) != 0) return -1;
+    FILE *f = fopen(WEB_SAVE_PATH, "rb");
+    if (!f) return -1;
+    if (fseek(f, 0, SEEK_END) != 0) { fclose(f); return -1; }
+    long n = ftell(f);
+    fclose(f);
+    return n > 0 ? (int)n : -1;
+}
+
+EMSCRIPTEN_KEEPALIVE
+int dorado_web_restore_state(void)
+{
+    if (!app.m) return -1;
+    if (dorado_machine_restore(app.m, WEB_SAVE_PATH) != 0) return -1;
+    if (app.ftp_root)
+        dorado_machine_set_ftp_source(app.m, NULL, app.ftp_root);
+    app.disp = dorado_machine_display(app.m);
+    app.mouse_buttons = 0;
+    app.paused = 0;
+    paste_queue.active = 0;
+    return 0;
+}
+
+/* The world tag, for naming the saved file and for refusing an obvious
+ * mismatch on the way back in. */
+EMSCRIPTEN_KEEPALIVE
+const char *dorado_web_world_tag(void)
+{
+    return app.world ? app.world : "dorado";
+}
+
 EMSCRIPTEN_KEEPALIVE
 void dorado_web_mouse(int x, int y, int buttons)
 {
@@ -272,6 +336,7 @@ void dorado_web_mouse(int x, int y, int buttons)
 EMSCRIPTEN_KEEPALIVE
 int dorado_web_boot(const char *eftp_path, int dir_all)
 {
+    app.world = "alto";
     unsetenv("DORADO_DISPM_PRESENT");
     if (app.m) {
         dorado_machine_destroy(app.m);
@@ -318,6 +383,7 @@ int dorado_web_boot(const char *eftp_path, int dir_all)
 EMSCRIPTEN_KEEPALIVE
 int dorado_web_boot_cedar(void)
 {
+    app.world = "cedar-login";
     unsetenv("DORADO_DISPM_PRESENT");
     if (app.m) {
         dorado_machine_destroy(app.m);
@@ -362,6 +428,7 @@ int dorado_web_boot_cedar(void)
         }
         restored = 1;
         dorado_machine_set_ftp_source(app.m, NULL, WEB_STP_ROOT);
+    app.ftp_root = WEB_STP_ROOT;
     }
     app.disp      = dorado_machine_display(app.m);
     app.mouse_buttons = 0;
@@ -383,6 +450,7 @@ int dorado_web_boot_cedar(void)
 EMSCRIPTEN_KEEPALIVE
 int dorado_web_boot_cedar_desktop(void)
 {
+    app.world = "cedar-desktop";
     unsetenv("DORADO_DISPM_PRESENT");
     if (app.m) {
         dorado_machine_destroy(app.m);
@@ -422,6 +490,7 @@ int dorado_web_boot_cedar_desktop(void)
         return 1;
     }
     dorado_machine_set_ftp_source(app.m, NULL, WEB_STP_ROOT);
+    app.ftp_root = WEB_STP_ROOT;
     app.disp      = dorado_machine_display(app.m);
     app.mouse_buttons = 0;
     app.paused    = 0;
@@ -441,6 +510,7 @@ int dorado_web_boot_cedar_desktop(void)
 EMSCRIPTEN_KEEPALIVE
 int dorado_web_boot_cedar_demo(void)
 {
+    app.world = "cedar-demo";
     unsetenv("DORADO_DISPM_PRESENT");
     if (app.m) {
         dorado_machine_destroy(app.m);
@@ -480,6 +550,7 @@ int dorado_web_boot_cedar_demo(void)
         return 1;
     }
     dorado_machine_set_ftp_source(app.m, NULL, WEB_STP_ROOT);
+    app.ftp_root = WEB_STP_ROOT;
     app.disp      = dorado_machine_display(app.m);
     app.mouse_buttons = 0;
     app.paused    = 0;
@@ -496,6 +567,7 @@ int dorado_web_boot_cedar_demo(void)
 EMSCRIPTEN_KEEPALIVE
 int dorado_web_boot_cedar_corpus(void)
 {
+    app.world = "cedar-corpus";
     unsetenv("DORADO_DISPM_PRESENT");
     if (app.m) {
         dorado_machine_destroy(app.m);
@@ -534,6 +606,7 @@ int dorado_web_boot_cedar_corpus(void)
         return 1;
     }
     dorado_machine_set_ftp_source(app.m, NULL, WEB_STP_ROOT);
+    app.ftp_root = WEB_STP_ROOT;
     app.disp      = dorado_machine_display(app.m);
     app.mouse_buttons = 0;
     app.paused    = 0;
@@ -552,6 +625,7 @@ int dorado_web_boot_cedar_corpus(void)
 EMSCRIPTEN_KEEPALIVE
 int dorado_web_boot_mesa(const char *eftp_path)
 {
+    app.world = "mesa";
     unsetenv("DORADO_DISPM_PRESENT");
     if (app.m) {
         dorado_machine_destroy(app.m);
@@ -596,6 +670,7 @@ int dorado_web_boot_mesa(const char *eftp_path)
 EMSCRIPTEN_KEEPALIVE
 int dorado_web_boot_disk(void)
 {
+    app.world = "alto-disk";
     unsetenv("DORADO_DISPM_PRESENT");
     if (app.m) {
         dorado_machine_destroy(app.m);
@@ -691,6 +766,7 @@ static int web_boot_lyric(const char *snapshot, const char *pack,
      * unpacked lisp-src tree, the same post-restore re-set every Cedar
      * boot above does with /stp. */
     dorado_machine_set_ftp_source(app.m, NULL, WEB_LISP_FTP_ROOT);
+    app.ftp_root = WEB_LISP_FTP_ROOT;
 
     /* Keep the decompressed checkpoint so selecting Lyric again remains an
      * immediate restore rather than requiring a page reload. */
@@ -707,6 +783,7 @@ static int web_boot_lyric(const char *snapshot, const char *pack,
 
 int dorado_web_boot_lisp(void)
 {
+    app.world = "lisp";
     return web_boot_lyric(WEB_LISP_SNAPSHOT, WEB_LISP_PACK, "XCL");
 }
 
@@ -714,6 +791,7 @@ int dorado_web_boot_lisp(void)
  * VMEM already holds Released-Full.sysout!2. */
 int dorado_web_boot_lisp_full(void)
 {
+    app.world = "lisp-full";
     return web_boot_lyric(WEB_LISP_FULL_SNAPSHOT, WEB_LISP_FULL_PACK,
                           "full-library Exec");
 }
@@ -729,6 +807,7 @@ int dorado_web_boot_lisp_full(void)
 EMSCRIPTEN_KEEPALIVE
 int dorado_web_boot_smalltalk(void)
 {
+    app.world = "smalltalk";
     if (app.m) {
         dorado_machine_destroy(app.m);
         paste_queue.active = 0;

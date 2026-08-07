@@ -123,7 +123,7 @@ WEB_CFLAGS := -std=c99 -D_GNU_SOURCE -O3 -flto $(WEB_PGO) -Iinclude -Ivendor/650
 WEB_LDFLAGS := -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=67108864 \
                -sSTACK_SIZE=1048576 \
                -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,FS \
-               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_cedar_desktop,_dorado_web_boot_cedar_demo,_dorado_web_boot_cedar_corpus,_dorado_web_boot_mesa,_dorado_web_boot_disk,_dorado_web_boot_lisp,_dorado_web_boot_lisp_full,_dorado_web_boot_smalltalk,_dorado_web_key,_dorado_web_mouse,_dorado_web_debug,_dorado_web_paste \
+               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_cedar_desktop,_dorado_web_boot_cedar_demo,_dorado_web_boot_cedar_corpus,_dorado_web_boot_mesa,_dorado_web_boot_disk,_dorado_web_boot_lisp,_dorado_web_boot_lisp_full,_dorado_web_boot_smalltalk,_dorado_web_key,_dorado_web_mouse,_dorado_web_debug,_dorado_web_paste,_dorado_web_save_state,_dorado_web_restore_state,_dorado_web_world_tag \
                --preload-file worlds/aemu.eb@/worlds/aemu.eb \
                --preload-file ../chm/bootfiles@/chm/bootfiles \
                --preload-file '../chm/dorado/AltoMesaDorado.eb!2'@/worlds/AltoMesaDorado.eb \
@@ -510,9 +510,21 @@ web-dir:
 	@mkdir -p web
 
 $(OBJDIR)/dorado_sdl.o: src/dorado_sdl.c | $(OBJDIR)
-	$(CC) $(CFLAGS) $(SDL_CFLAGS) $(DEPFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) $(SDL_CFLAGS) -Ivendor/microui $(DEPFLAGS) -c -o $@ $<
 
-$(BINDIR)/dorado-sdl: $(LIB_OBJS) $(OBJDIR)/machine.o $(OBJDIR)/typetext.o $(OBJDIR)/dorado_sdl.o | $(BINDIR)
+# The front panel and its widget toolkit. microui is vendored (public domain,
+# ~1,100 lines of C) rather than depended on, like vendor/6502/fake6502.h --
+# the project's rule is C99 with no external libraries, and SDL2 is already
+# the frontend's one exception. -Wno-... : microui is not our code and is not
+# warning-clean under -Wpedantic.
+$(OBJDIR)/ui_panel.o: src/ui_panel.c | $(OBJDIR)
+	$(CC) $(CFLAGS) $(SDL_CFLAGS) -Ivendor/microui $(DEPFLAGS) -c -o $@ $<
+
+$(OBJDIR)/microui.o: vendor/microui/microui.c | $(OBJDIR)
+	$(CC) $(CFLAGS) -Wno-pedantic -Wno-unused-parameter -Ivendor/microui \
+		$(DEPFLAGS) -c -o $@ $<
+
+$(BINDIR)/dorado-sdl: $(LIB_OBJS) $(OBJDIR)/machine.o $(OBJDIR)/typetext.o $(OBJDIR)/ui_panel.o $(OBJDIR)/microui.o $(OBJDIR)/dorado_sdl.o | $(BINDIR)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(SDL_LIBS)
 
 $(BINDIR)/mbdis: $(MB_OBJS) | $(BINDIR)
@@ -871,6 +883,51 @@ verify-lisp-click: $(BINDIR)/dorado
 		| sed -n 's/.*: \([0-9][0-9]*\) display-list pixels.*/\1/p' | tail -1`; \
 	echo "verify-lisp-click: $$px px (need >= $(LISP_CLICK_GATE_MIN_PX); healthy = 208966, RAID = 191601)"; \
 	test "$$px" -ge '$(LISP_CLICK_GATE_MIN_PX)'
+
+# ---------------------------------------------------------------------------
+# Serving a hand-written file to Interlisp.
+#
+# Interlisp names everything we serve it at the ROOT of the tree --
+# {DORADO}<>NAME -- and spells the STP command plist in upper case:
+#   ((USER-NAME Guest)(USER-PASSWORD Guest)(DIRECTORY )(NAME-BODY PACMANFIX)...)
+# eth_ftp_resolve_file used to read that with a case-sensitive strstr and to
+# reject an empty Directory, so a retrieve our own STP LOOKUP had just
+# resolved came back fileNotFound. Nothing gated it because every file we had
+# ever served Lisp came from the pack or over Leaf.
+#
+# The probe is PACMANFIX (see docs/parc-feedback-todo.md section I), which is
+# the only extensionless file in the served root. Read the wire, not pixels:
+# a FILESLOAD that fails prints nothing distinctive.
+#
+# Validated against its own bug: before the fix the log holds
+#   STP_LOOKUP PACMANFIX -> !1 2927 bytes
+#   STP_MISSING ((USER-NAME Guest)...(DIRECTORY )(NAME-BODY PACMANFIX)...)
+# and after it, STP_SERVE / STP_TRANSFER.
+.PHONY: verify-lisp-serve
+verify-lisp-serve: $(BINDIR)/dorado
+	@test -r '$(LISP_FULL_SNAPSHOT)' || \
+		(echo "Missing $(LISP_FULL_SNAPSHOT). Run 'make lisp-lyric-full-snapshot' once." && false)
+	@mkdir -p '$(TRIDENT_RUN_DIR)'
+	@cp -f '$(LISP_FULL_SNAPSHOT_PACK)' '$(TRIDENT_RUN_DIR)/lisp-serve-gate.pack'
+	@chmod 644 '$(TRIDENT_RUN_DIR)/lisp-serve-gate.pack'
+	@DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_CURRENT_FAKE_TIME)' \
+		DORADO_FTP_TRACE=1 \
+		./build/dorado --eb worlds/aemu.eb \
+		--disk 0='$(TRIDENT_RUN_DIR)/lisp-serve-gate.pack' \
+		--boot-reason disk --no-alto-boot \
+		--snapshot-in '$(LISP_FULL_SNAPSHOT)' \
+		--ftp-root '$(LISP_LISPUSERS_DIR)' \
+		--type-at 14050000000 --click 250,50 --key-hold 2000000 \
+		--type-at 14150000000 --type "(IL:FILESLOAD PACMANFIX)\n" \
+		--type-at 16200000000 --type "Guest\n" \
+		--type-at 17400000000 --type "Guest\n" \
+		--cycles 19500000000 --out build/verify-lisp-serve.pgm \
+		> build/verify-lisp-serve.log 2>&1
+	@grep -q '^STP_SERVE PACMANFIX' build/verify-lisp-serve.log && \
+	 grep -q '^STP_TRANSFER PACMANFIX' build/verify-lisp-serve.log && \
+	 echo "verify-lisp-serve: the root-level extensionless file was served over STP" || \
+	 (echo "verify-lisp-serve: FAIL --"; \
+	  grep -E '^STP_(LOOKUP|MISSING|SERVE)' build/verify-lisp-serve.log | head -5; false)
 
 # ---------------------------------------------------------------------------
 # An Interlisp pop-up menu you can actually navigate.

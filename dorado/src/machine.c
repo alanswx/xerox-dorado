@@ -6156,6 +6156,28 @@ static uint64_t snap_fnv1a(uint64_t h, const void *p, size_t n)
     return h;
 }
 
+/* One sample of everything a front panel shows. See machine.h: the activity
+ * fields are free-running counters, so a frontend lights a lamp when one
+ * MOVED since its last frame rather than asking "is the disk busy", which is
+ * a question with no honest answer at frame rate. */
+void dorado_machine_get_panel(const dorado_machine *m,
+                              dorado_machine_panel *out)
+{
+    if (!out) return;
+    memset(out, 0, sizeof *out);
+    if (!m) return;
+    out->lamp_on        = m->bb.lamp_on;
+    out->booted         = dorado_machine_booted(m);
+    out->mouse_buttons  = m->mouse_present ? m->mouse_buttons : 0;
+    out->cycles         = m->bb.cycles;
+    out->uinstructions  = m->cpu.cycles;
+    out->disk_activity  = m->disk.read_stream_sector_starts +
+                          m->disk.write_sectors_committed;
+    out->net_activity   = m->ethernet.ftp_packets_seen +
+                          m->ethernet.ftp_packets_queued;
+    out->display_frames = m->display.frame_count;
+}
+
 uint64_t dorado_machine_state_digest(const dorado_machine *m)
 {
     if (!m) return 0;

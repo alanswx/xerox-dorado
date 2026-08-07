@@ -18,6 +18,7 @@
 #include "machine.h"
 #include "display.h"
 #include "typetext.h"
+#include "ui_panel.h"
 
 #include <SDL.h>
 
@@ -91,6 +92,60 @@ static dorado_display_key map_key(SDL_Keycode k)
     case SDLK_F6:           return DORADO_KEY_LF;
     default: return DORADO_KEY_NONE;
     }
+}
+
+/* Copy a dropped host file into the served tree, so the guest can fetch it
+ * with its own transfer tool. Returns a short human sentence for the panel.
+ *
+ * Serving is the SAFE direction and the only one that works: injecting onto
+ * a mounted Cedar volume crashes its live FS (rusty-backup, 2026-07-21), and
+ * altofs --insert only edits an image the emulator is NOT running. A file in
+ * the served root is reachable from Cedar as Bringover and from Interlisp as
+ * {DORADO}<>NAME, which is the route docs/parc-feedback-todo.md section H
+ * settled on.
+ *
+ * Text files are left byte-exact: converting line endings here would be
+ * guessing, and both guests are CR-terminated worlds where an LF file reads
+ * as one long line. Say so rather than silently rewriting someone's file. */
+static const char *dorado_sdl_serve_file(dorado_machine *m, const char *path,
+                                         const char *root)
+{
+    static char msg[128];
+    if (!root || !root[0]) {
+        snprintf(msg, sizeof msg,
+                 "No served tree: start with --ftp-root DIR to accept files.");
+        return msg;
+    }
+    const char *base = strrchr(path, '/');
+    base = base ? base + 1 : path;
+    if (!base[0]) { snprintf(msg, sizeof msg, "That is a directory."); return msg; }
+
+    char dest[1024];
+    if ((size_t)snprintf(dest, sizeof dest, "%s/%s", root, base) >= sizeof dest) {
+        snprintf(msg, sizeof msg, "Path too long.");
+        return msg;
+    }
+    FILE *in = fopen(path, "rb");
+    if (!in) { snprintf(msg, sizeof msg, "Cannot read %s", base); return msg; }
+    FILE *out = fopen(dest, "wb");
+    if (!out) {
+        fclose(in);
+        snprintf(msg, sizeof msg, "Cannot write into the served tree.");
+        return msg;
+    }
+    char buf[65536];
+    size_t n, total = 0;
+    while ((n = fread(buf, 1, sizeof buf, in)) > 0) {
+        if (fwrite(buf, 1, n, out) != n) break;
+        total += n;
+    }
+    fclose(in);
+    int ok = (fclose(out) == 0);
+    (void)m;
+    if (!ok) { snprintf(msg, sizeof msg, "Write failed."); return msg; }
+    snprintf(msg, sizeof msg, "Serving %s (%zu bytes) -- fetch it as {DORADO}<>%s",
+             base, total, base);
+    return msg;
 }
 
 static uint64_t parse_u64(const char *s, uint64_t def)
@@ -499,8 +554,8 @@ int main(int argc, char **argv)
      * machine and writes the requested --screenshot frames. */
     SDL_Window *win = SDL_CreateWindow(
         "Xerox Dorado", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        DORADO_DISPLAY_W * scale, DORADO_DISPLAY_H * scale,
-        SDL_WINDOW_ALLOW_HIGHDPI);
+        DORADO_DISPLAY_W * scale, DORADO_DISPLAY_H * scale + DORADO_UI_HEIGHT,
+        SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_ALLOW_HIGHDPI);
     SDL_Renderer *ren = win ? SDL_CreateRenderer(
         win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC) : NULL;
     SDL_Texture *tex = ren ? SDL_CreateTexture(
@@ -515,6 +570,18 @@ int main(int argc, char **argv)
         SDL_ShowWindow(win);
         SDL_RaiseWindow(win);
     }
+    /* The front panel. If it cannot start (no atlas texture) the emulator
+     * still runs -- it is chrome, not a dependency. */
+    const char *served_root = cfg.ftp_root;
+    const char *world_label = cfg.eftp_boot ? cfg.eftp_boot : "Dorado";
+    { const char *sl = strrchr(world_label, '/');
+      if (sl) world_label = sl + 1; }
+    int ui_on = (ren && dorado_ui_init(ren) == 0);
+    dorado_ui_status ui_st;
+    memset(&ui_st, 0, sizeof ui_st);
+    ui_st.world = world_label;
+    snprintf(ui_st.message, sizeof ui_st.message,
+             "Drop a file on the window to serve it to the guest.");
 
     int headless = (!win || !ren || !tex);
     if (headless) {
@@ -550,8 +617,10 @@ int main(int argc, char **argv)
                 running = 0;
                 break;
             case SDL_MOUSEMOTION:
+                if (ui_on && dorado_ui_handle_event(&e)) break;
                 dorado_machine_set_mouse(m, e.motion.x / scale,
-                                         e.motion.y / scale, mouse_buttons);
+                                         (e.motion.y - DORADO_UI_HEIGHT) / scale,
+                                         mouse_buttons);
                 break;
             case SDL_MOUSEBUTTONDOWN:
             case SDL_MOUSEBUTTONUP: {
@@ -565,6 +634,9 @@ int main(int argc, char **argv)
                  * modifier before the mouse-up still releases the same
                  * emulated button. */
                 static int down_bit[8];
+                /* The panel is drawn over the top band of the window; a click
+                 * there is the panel's and must NOT also land in the guest. */
+                if (ui_on && dorado_ui_handle_event(&e)) break;
                 unsigned pb = e.button.button & 7;
                 int bit;
                 if (e.type == SDL_MOUSEBUTTONDOWN) {
@@ -585,7 +657,25 @@ int main(int argc, char **argv)
                     mouse_buttons &= ~bit;
                 }
                 dorado_machine_set_mouse(m, e.button.x / scale,
-                                         e.button.y / scale, mouse_buttons);
+                                         (e.button.y - DORADO_UI_HEIGHT) / scale,
+                                         mouse_buttons);
+                break;
+            }
+            case SDL_DROPFILE: {
+                /* Drag a host file onto the window and it joins the served
+                 * tree, where the guest fetches it with its own transfer
+                 * tool -- Bringover in Cedar, FILESLOAD in Interlisp. That
+                 * is the safe direction: writing onto a mounted volume
+                 * crashes Cedar's live FS (memory cedar-font-install-attach),
+                 * while serving a file is what those tools are for. */
+                char *dropped = e.drop.file;
+                if (dropped) {
+                    const char *why = dorado_sdl_serve_file(m, dropped,
+                                                            served_root);
+                    snprintf(ui_st.message, sizeof ui_st.message, "%s", why);
+                    printf("dorado-sdl: %s\n", why);
+                    SDL_free(dropped);
+                }
                 break;
             }
             case SDL_KEYDOWN:
@@ -749,8 +839,16 @@ int main(int argc, char **argv)
             int aw = disp->active_w ? disp->active_w : DORADO_DISPLAY_W;
             int ah = disp->active_h ? disp->active_h : DORADO_DISPLAY_H;
             if (aw != win_w || ah != win_h) {
-                SDL_SetWindowSize(win, aw * scale, ah * scale);
+                SDL_SetWindowSize(win, aw * scale,
+                                  ah * scale + DORADO_UI_HEIGHT);
                 win_w = aw; win_h = ah;
+                /* Logical size, so every coordinate below -- the panel band,
+                 * the guest blit, and the mouse arithmetic -- is in the same
+                 * units. Without it a HiDPI backing store is twice the
+                 * window's point size and the guest draws at half scale in
+                 * the corner. */
+                SDL_RenderSetLogicalSize(ren, aw * scale,
+                                         ah * scale + DORADO_UI_HEIGHT);
             }
             uint32_t *px = pixels;
             for (int y = 0; y < ah; y++) {
@@ -764,8 +862,81 @@ int main(int argc, char **argv)
             SDL_UpdateTexture(tex, NULL, pixels,
                               DORADO_DISPLAY_W * (int)sizeof(uint32_t));
             SDL_Rect src = { 0, 0, aw, ah };
+            int ww = aw * scale, wh = ah * scale + DORADO_UI_HEIGHT;
+            SDL_Rect dst = { 0, DORADO_UI_HEIGHT, ww, wh - DORADO_UI_HEIGHT };
+            SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
             SDL_RenderClear(ren);
-            SDL_RenderCopy(ren, tex, &src, NULL);
+            SDL_RenderCopy(ren, tex, &src, &dst);
+
+            if (ui_on) {
+                dorado_machine_panel pan;
+                dorado_machine_get_panel(m, &pan);
+                ui_st.paused = paused;
+                /* The honest figure the whole project quotes: emulated
+                 * Dorado seconds per CPU second, from microinstructions --
+                 * never a cycles/s number, which is BaseBoard 6502 cycles
+                 * and wrong by 3.70x (dorado/CLAUDE.md). */
+                {
+                    static uint64_t prev_uinstr; static uint32_t prev_ms;
+                    uint32_t now_ms = SDL_GetTicks();
+                    if (now_ms - prev_ms >= 500) {
+                        uint64_t d = pan.uinstructions - prev_uinstr;
+                        double secs = (now_ms - prev_ms) / 1000.0;
+                        if (secs > 0)
+                            ui_st.speed_ratio = (double)d * 60e-9 / secs;
+                        prev_uinstr = pan.uinstructions;
+                        prev_ms = now_ms;
+                    }
+                }
+                switch (dorado_ui_frame(&pan, &ui_st, ww)) {
+                case DORADO_UI_PAUSE:
+                    paused = !paused;
+                    break;
+                case DORADO_UI_BOOT:
+                    /* The real front-panel button. HM/Booting memo: the boot
+                     * button is held for a number of scan lines and the
+                     * BaseBoard counts it; MinimumPush is 8 ms and pushes
+                     * shorter than 10 ms are contact bounce, so give it a
+                     * comfortably long press. */
+                    dorado_display_boot_button(dorado_machine_display(m), 600);
+                    snprintf(ui_st.message, sizeof ui_st.message,
+                             "Boot button pressed.");
+                    break;
+                case DORADO_UI_PASTE: {
+                    char *clip = SDL_GetClipboardText();
+                    if (clip && *clip) {
+                        dorado_typequeue_start(&paste_queue, clip, 800000ull,
+                                               dorado_machine_cycles(m));
+                        snprintf(ui_st.message, sizeof ui_st.message,
+                                 "Pasting %zu characters.", strlen(clip));
+                    } else {
+                        snprintf(ui_st.message, sizeof ui_st.message,
+                                 "The host clipboard is empty.");
+                    }
+                    if (clip) SDL_free(clip);
+                    break;
+                }
+                case DORADO_UI_SAVE: {
+                    char path[256];
+                    snprintf(path, sizeof path, "dorado-%llu.snap",
+                             (unsigned long long)dorado_machine_cycles(m));
+                    if (dorado_machine_snapshot(m, path) == 0)
+                        snprintf(ui_st.message, sizeof ui_st.message,
+                                 "Saved %s -- restore with --snapshot-in", path);
+                    else
+                        snprintf(ui_st.message, sizeof ui_st.message,
+                                 "Could not write %s", path);
+                    break;
+                }
+                case DORADO_UI_ADDFILE:
+                    snprintf(ui_st.message, sizeof ui_st.message,
+                             served_root
+                                 ? "Drop a file on the window to serve it."
+                                 : "Start with --ftp-root DIR to accept files.");
+                    break;
+                default: break;
+                }
+            }
             SDL_RenderPresent(ren);
 
             char title[176];

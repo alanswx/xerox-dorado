@@ -1034,6 +1034,9 @@ static int eth_ftp_relative_from_name(const char *value, char *out,
  * that property list at the FTP endpoint (STPServerImpl.mesa DoFiles); our
  * first read-only implementation intentionally supports only this lookup /
  * retrieve path. */
+static int ftp_plist_prop(const char *plist, const char *key,
+                          char *out, size_t outsz);
+
 static int eth_ftp_resolve_file(dorado_ethernet *eth, char *out, size_t outsz)
 {
     struct stat st;
@@ -1049,22 +1052,33 @@ static int eth_ftp_resolve_file(dorado_ethernet *eth, char *out, size_t outsz)
     if (!value) {
         /* Cedar's STP client normally supplies the decomposed IFS form:
          * (Directory Cedar6.1)(Name-Body Top>Basic.Loadees), rather than
-         * the optional Server-filename string used by older FTP clients. */
-        const char *directory = strstr((const char *)eth->ftp_cmd_data,
-                                       "Directory ");
-        const char *name_body = strstr((const char *)eth->ftp_cmd_data,
-                                       "Name-Body ");
-        if (directory && name_body) {
-            directory += strlen("Directory ");
-            name_body += strlen("Name-Body ");
-            size_t dn = strcspn(directory, ") \t");
-            size_t nn = strcspn(name_body, ") \t");
-            if (dn == 0 || nn == 0 || dn + 1 + nn >= sizeof requested)
+         * the optional Server-filename string used by older FTP clients.
+         *
+         * Read it with ftp_plist_prop rather than strstr, for two reasons
+         * that both showed up serving one file to Interlisp:
+         *
+         *  - The keys are CASE-INSENSITIVE and the clients disagree. Cedar
+         *    sends `(Directory ...)(Name-Body ...)`, Interlisp-D sends
+         *    `(DIRECTORY )(NAME-BODY PACMANFIX)`. A case-sensitive strstr
+         *    finds neither of Lisp's.
+         *  - The DIRECTORY may legitimately be EMPTY: `{DORADO}<>NAME` is a
+         *    file at the root of the served tree, which is how Interlisp
+         *    names everything we serve it. The old code required a non-empty
+         *    directory and returned 0, so a retrieve our own STP LOOKUP had
+         *    just resolved came back fileNotFound. */
+        char dir[128], name_body[256];
+        int have_dir = ftp_plist_prop((const char *)eth->ftp_cmd_data,
+                                      "Directory", dir, sizeof dir);
+        if (ftp_plist_prop((const char *)eth->ftp_cmd_data, "Name-Body",
+                           name_body, sizeof name_body) && name_body[0]) {
+            if (have_dir && dir[0]) {
+                if ((size_t)snprintf(requested, sizeof requested, "%s>%s",
+                                     dir, name_body) >= sizeof requested)
+                    return 0;
+            } else if ((size_t)snprintf(requested, sizeof requested, "%s",
+                                        name_body) >= sizeof requested) {
                 return 0;
-            memcpy(requested, directory, dn);
-            requested[dn] = '>';
-            memcpy(requested + dn + 1, name_body, nn);
-            requested[dn + 1 + nn] = '\0';
+            }
             value = requested;
         } else {
             value = (const char *)eth->ftp_cmd_data; /* normalized form */
@@ -1751,6 +1765,11 @@ static unsigned eth_ftp_file_ack_window(const dorado_ethernet *eth)
     return (n + 1u) / 2u;
 }
 
+/* Bytes of BSP data this server will put in the next file Pup. Mirrors the
+ * clamp in eth_ftp_queue_file_chunk: 512 unless the client has told us it
+ * can take more than a standard Pup carries. */
+static unsigned eth_ftp_pup_quantum(const dorado_ethernet *eth);
+
 static int eth_ftp_file_packet_needs_ack(const dorado_ethernet *eth)
 {
     if (!eth->ftp_open) return 0;
@@ -1764,7 +1783,30 @@ static int eth_ftp_file_packet_needs_ack(const dorado_ethernet *eth)
      * transfer wedged -- the >100 KB demand-fetch stall of 2026-07-18. */
     if (eth->ftp_client_byte_alloc != 0) {
         uint32_t outstanding = eth->ftp_tx_next - eth->ftp_last_ack;
-        return outstanding * 2u >= eth->ftp_client_byte_alloc;
+        if (outstanding * 2u >= eth->ftp_client_byte_alloc) return 1;
+        /* ...and never queue a packet that EXHAUSTS the window without
+         * having asked for an acknowledgement on it. The half-window test
+         * above looks at the bytes already outstanding, so with a small
+         * allocation a single packet can jump the whole window in one go:
+         * the test says "not yet", the packet then puts us past the limit,
+         * eth_ftp_maybe_deliver's byte gate stops, and because no ack was
+         * requested the client never sends one. Deadlock, permanently.
+         *
+         * Measured: a Lyric FILESLOAD whose client advertised a 532-byte
+         * allocation -- one Pup -- got the 1-byte HereIsFile mark and one
+         * 512-byte data Pup, reaching 654 outstanding against a 532 window,
+         * and stopped there forever. It only ever showed up on the SECOND
+         * retrieve of a session, because the first is what teaches us the
+         * client's allocation in the first place.
+         *
+         * Predicting the post-packet position needs the packet size, which
+         * the callers have and this does not; bounding it by the quantum
+         * this server would send is enough to close the hole and costs at
+         * most one extra ack request per window. */
+        if (outstanding + eth_ftp_pup_quantum(eth) >=
+            eth->ftp_client_byte_alloc)
+            return 1;
+        return 0;
     }
     {
         unsigned next = eth->ftp_tx_in_flight + 1u;
@@ -1778,11 +1820,20 @@ static int eth_ftp_file_packet_needs_ack(const dorado_ethernet *eth)
  * us its own allocation. It is what eth_ftp_queue_ack advertises, and what
  * an Alto-side BSP client allocates. */
 #define FTP_DEFAULT_BYTES_PER_PUP 512u
+/* Forward: PUP_MAX_DATA_BYTES is defined just below. */
+static unsigned eth_ftp_pup_quantum(const dorado_ethernet *eth);
 /* Largest data a standard Pup can carry (554-byte Pup less its 22 bytes of
  * header and checksum). A client advertising at most this is an ordinary
  * Pup-MTU client and gets the 512-byte quantum; only a client claiming MORE
  * (Cedar's directly-connected 1,478) gets larger packets. */
 #define PUP_MAX_DATA_BYTES 532u
+
+static unsigned eth_ftp_pup_quantum(const dorado_ethernet *eth)
+{
+    return eth->ftp_client_bytes_per_pup > PUP_MAX_DATA_BYTES
+               ? eth->ftp_client_bytes_per_pup
+               : FTP_DEFAULT_BYTES_PER_PUP;
+}
 
 static int eth_ftp_queue_ack(dorado_ethernet *eth)
 {
@@ -2382,14 +2433,40 @@ static void eth_ftp_maybe_deliver(dorado_ethernet *eth)
      * advertised window past the last acknowledged position (the client
      * buffers exactly that much; excess is dropped and, with no
      * retransmit ring here, lost forever -> wedge). */
+    /* Which gate stopped a transfer, said once per stall. A file that stops
+     * mid-stream is otherwise indistinguishable from one that finished: the
+     * pump simply returns, every tick, in silence. */
     if (eth->ftp_client_byte_alloc != 0 &&
         (uint32_t)(eth->ftp_tx_next - eth->ftp_last_ack) >=
-            eth->ftp_client_byte_alloc)
+            eth->ftp_client_byte_alloc) {
+        if (ftp_trace()) {
+            static uint32_t said;
+            if (said != eth->ftp_tx_next) {
+                said = eth->ftp_tx_next;
+                fprintf(stderr, "FTP_STALL byte-window tx_next=%08x "
+                        "last_ack=%08x outstanding=%u alloc=%u\n",
+                        eth->ftp_tx_next, eth->ftp_last_ack,
+                        (unsigned)(eth->ftp_tx_next - eth->ftp_last_ack),
+                        eth->ftp_client_byte_alloc);
+            }
+        }
         return;
+    }
     if ((eth->ftp_waiting_for_ack && eth->ftp_client_pup_alloc != 0 &&
          eth->ftp_tx_in_flight >= eth->ftp_client_pup_alloc) ||
-        eth->ftp_tx_mode == FTP_TX_NONE)
+        eth->ftp_tx_mode == FTP_TX_NONE) {
+        if (ftp_trace() && eth->ftp_tx_mode != FTP_TX_NONE) {
+            static uint32_t said_pup;
+            if (said_pup != eth->ftp_tx_next) {
+                said_pup = eth->ftp_tx_next;
+                fprintf(stderr, "FTP_STALL pup-window in_flight=%u alloc=%u "
+                        "tx_next=%08x last_ack=%08x\n",
+                        eth->ftp_tx_in_flight, eth->ftp_client_pup_alloc,
+                        eth->ftp_tx_next, eth->ftp_last_ack);
+            }
+        }
         return;
+    }
     (void)eth_ftp_tx_next_segment(eth);
 }
 

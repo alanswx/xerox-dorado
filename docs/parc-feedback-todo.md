@@ -1256,26 +1256,227 @@ comparing to `L J I` and space — with no `KEYDOWNP` anywhere. Checked too:
 mode, but it returns NIL here (`(KEYDOWNP 'PAD2..'PAD5)` are all NIL), so it
 contributes nothing.
 
-**A fix exists but is not yet deliverable.** `chm/lisp/lyric-lispusers/PACMANFIX`
-restates `MOVEPACMAN` verbatim from the 1987 source with the one token
-changed — trailing `(T NIL)` becomes `NIL` — leaving `PACMAN.LCOM`
-byte-exact. It is deliberately **not** in `chm/lisp/ftp-root/` yet, because
-loading it exposes two unrelated server gaps:
+**Fixed, and PACMAN is steerable.** `chm/lisp/ftp-root/PACMANFIX` restates
+`MOVEPACMAN` verbatim from the 1987 source with the one token changed --
+trailing `(T NIL)` becomes `NIL` -- leaving `PACMAN.LCOM` byte-exact. Load it
+after PACMAN:
 
-1. `LOAD '{DORADO}<>PACMANFIX` times out with `{DORADO} not responding`. The
-   trace shows `STP_LOOKUP PACMANFIX -> !1 2927 bytes` succeeding and then
-   `STP_MISSING ((USER-NAME Guest)...(DIRECTORY )(NAME-BODY PACMANFIX)(VERSION 1))`
-   — our STP **retrieve** cannot resolve an extensionless name that our STP
-   **lookup** just resolved.
-2. `FILESLOAD PACMANFIX` gets as far as `LEAF_OPEN "<>PACMANFIX!1" -> ...
-   (2927 bytes) handle=000001`, and then the client re-requests the Open five
-   times (`LEAF_RESEND Open seq=0 (dup request)`) and never issues a Read.
-   Preceded by `LEAF_SEQ_GAP got=191 expected=0 (resync)`.
+```lisp
+(IL:FILESLOAD PACMAN)
+(IL:FILESLOAD PACMANFIX)     ; prints (MOVEPACMAN redefined)
+(IL:PACMAN)
+```
 
-Both are worth fixing on their own account — they are the same class of gap
-as the 2026-07-30 `ls` work, and gap 1 is a two-server disagreement about one
-filename. **Serving any hand-written file to Interlisp is blocked behind
-them**, which also bears on **H**.
+Verified in the guest: `(CAR (CALLS 'MOVEPACMAN))` no longer contains `T`,
+and `(ERSETQ (MOVEPACMAN 'XX 0))` -- the exact case that used to break --
+now falls through the SELECTQ silently. (It reports `Unbound variable:
+OLDPMAN` instead, which is just what calling it outside a running game does.)
+
+**Delivering it took a real server fix**, which is the more valuable half of
+this item. `eth_ftp_resolve_file` in `src/ethernet.c` read the STP command
+plist with a case-sensitive `strstr` and rejected an empty `Directory`:
+
+- The keys are **case-insensitive and the clients disagree**. Cedar sends
+  `(Directory ...)(Name-Body ...)`; Interlisp-D sends `(DIRECTORY )(NAME-BODY
+  PACMANFIX)`. A case-sensitive `strstr` finds neither of Lisp's.
+- **An empty DIRECTORY is legitimate**: `{DORADO}<>NAME` is a file at the
+  root of the served tree, which is how Interlisp names everything we serve
+  it. The old code required a non-empty directory and returned 0, so a
+  retrieve that our own STP **lookup** had just resolved came back
+  fileNotFound -- `STP_LOOKUP PACMANFIX -> !1 2927 bytes` immediately
+  followed by `STP_MISSING`.
+
+It now reads both with `ftp_plist_prop`, which was already case-insensitive
+and already handles an empty value. **This unblocks serving any hand-written
+file to Interlisp**, which is what section **H** needs.
+
+Two smaller things learned writing a file for Interlisp, worth the same
+status as the Cedar traps: `(DEFINE-FILE-INFO READTABLE ...)` spelled with
+plain symbols is rejected (`Unrecognized file info key / READTABLE`) -- the
+period files use a special keyword marker byte, so omit the line entirely,
+as `PACMAN!1` itself does. And, like Cedar, **Interlisp text files are
+CR-terminated**.
+
+**The Leaf resend is NOT fixed, and may never have been a bug.** With the
+retrieve working, `FILESLOAD` no longer falls back to Leaf, so the
+`LEAF_RESEND Open seq=0 (dup request)` x5 seen earlier is not reproducible
+from here -- and it followed a failed STP retrieve, so it was plausibly a
+consequence of that rather than an independent defect. Do not chase it
+without a fresh reproduction.
+
+## J. Carl Hauser: the middle button is fighting over paste [reported]
+
+Verbatim, because the diagnosis is his and it is better than ours:
+
+> in Cedar the new middle mouse behavior of pasting the externally selected
+> text conflicts with the standard Cedar use of the middle mouse button as
+> "select word at cursor". And shift-right-click which should be "extend
+> secondary selection" is doing that AND opening the browser right-click
+> context menu. And then releasing the shift key isn't pasting the secondary
+> selection to the primary selection, however pressing and releasing the
+> shift key once more does do the paste.
+>
+> [...] Google's search AI says that pasting the external selection was done
+> with the "PASTE" key on the sun keyboard rather than mouse (as used for
+> Cedar's own secondary selection paste action). I don't know if that helps,
+> as the dorado keyboard had no such key. Maybe you could require the Alt
+> modifier along with middle-mouse to trigger the paste action in the
+> emulator. I don't [think] there is any corresponding dorado keyboard key so
+> from the Cedar/lisp/smalltalk side that would be conflict-free.
+
+**This is almost certainly the answer to A2** ("middle-click on Cedar inserts
+instead of selects"). We cleared the bit mapping there against
+`TerminalDefs.mesa` -- `Red(13) Blue(14) Yellow(15)` are right -- and found
+no second writer of `177033`. What was left unexplained is exactly what Carl
+describes: the button reaches Cedar correctly, and something ELSE is also
+acting on it. **Treat A2 and J as one item.**
+
+Three distinct problems in his report, worth separating:
+
+1. **Middle-click means two things.** Cedar's Yellow is "select word at
+   cursor"; an external paste on the same button cannot coexist with it.
+2. **Shift-right-click does two things at once** -- extends the secondary
+   selection *and* raises the browser context menu. That one is ours to fix
+   outright: the canvas already calls `event.preventDefault()` on
+   `contextmenu`, so a modifier path is escaping it.
+3. **Shift release does not commit the secondary selection**, but a second
+   press-and-release does. That is a modifier edge-timing bug of the same
+   family as A1, and it is the one that most needs a look at how we deliver
+   modifier transitions rather than levels.
+
+**Carl's suggestion is good and cheap: put the external paste behind Alt.**
+The Dorado keyboard has no Alt (Figure 6: 61 keys, no such keytop -- see the
+map in the README), so Alt is free in every world, which is precisely why we
+already use `Option/Alt + left click` as the *Yellow* chord in both
+frontends (`dorado_sdl.c` `KMOD_ALT`, `web_shell.html` `e.altKey`). **So Alt
+is NOT currently free -- it is the middle-button chord**, and that collision
+has to be resolved before adopting his proposal. Options, in the order I
+would try them:
+
+- Move the external paste to **Alt+middle** (a real middle button plus Alt),
+  leaving Alt+left as Yellow for trackpad users. Conflict-free in the guest,
+  and it keeps the trackpad chord that the Cedar demo instructions document.
+- Or drop mouse paste entirely and keep **Cmd/Ctrl+V**, which already works
+  in both frontends and collides with nothing in the guest. Carl says "I
+  really get the need to have a way to paste an external selection" -- he
+  wants the capability, not the button.
+
+**Ask Carl which he prefers before building it.** He is the one with the
+muscle memory this is fighting.
+
+## K. DONE 2026-08-07 -- the SDL window has a front panel
+
+`src/ui_panel.c` + `vendor/microui/` (public domain, ~1,100 lines of C,
+vendored beside `fake6502.h` -- no build-system change, no new dependency,
+and the core stays C99). A 30-pixel band across the top of the window:
+
+| control | what it does |
+|---|---|
+| **Pause / Run** | what F1 did, without taking F1 from the guest |
+| **Boot** | the machine's own BOOT BUTTON, held 600 scan lines (the Booting memo's MinimumPush is 8 ms and shorter pushes are contact bounce). Previously reachable only from `--boot-keys` in a headless run. |
+| **Paste** | host clipboard -> guest, through the same paced typing queue |
+| **Save** | writes `dorado-<cycles>.snap`, restorable with `--snapshot-in` |
+| **Add file** | reminds you to drop one (see below) |
+| **PWR** | the BaseBoard's **real green status LED**, driven from MiscByte by the 6502 -- modelled since the BaseBoard went in, with nowhere to show it until now |
+| **DSK / NET** | activity flickers, from sector and packet counters |
+| readout | world name, the honest **x-real-hardware** figure from microinstructions, and the last thing that happened |
+
+**Drag a host file onto the window** and it joins the served tree, where the
+guest fetches it with its own transfer tool -- `Bringover` in Cedar,
+`(FILESLOAD ...)` in Interlisp. That is section **H**, and serving is the only
+safe direction: injecting onto a mounted Cedar volume crashes its live FS, and
+`altofs --insert` only edits an image the emulator is not running. Needs
+`--ftp-root DIR`; the panel says so when it is missing.
+
+Two implementation notes worth keeping:
+
+- `dorado_machine_get_panel()` is one accessor returning one struct, rather
+  than a dozen little ones that would grow by one per lamp. The activity
+  fields are free-running COUNTERS, not booleans -- the frontend lights a
+  lamp when a count moved since its last frame, because "is the disk busy"
+  has no honest answer at frame rate.
+- The window now needs `SDL_RenderSetLogicalSize`. Without it a HiDPI backing
+  store is twice the window's point size, and the guest draws at half scale
+  in the corner with the panel floating over it -- which is exactly what the
+  first build did.
+
+**What this leaves for J:** paste is a button now, so Carl's conflict 1 is
+gone -- nothing has to choose between Yellow and paste. `Cmd/Ctrl+V` still
+works for muscle memory. The two genuine bugs remain: shift-right-click also
+raising the browser context menu, and shift release not committing the
+secondary selection.
+
+## L. Save and resume in the browser [DONE 2026-08-07]
+
+The emulator has had a snapshot format all along and the whole project runs
+on baked checkpoints; the browser simply had no way to keep one. **Save
+state** downloads the live machine as a `.snap`; **Resume** takes one back.
+Verified round-tripping in Chrome: 9,512,834 bytes with the `DORADOSN` magic
+into MEMFS, and `dorado_web_restore_state()` returning 0.
+
+**A real limit, stated rather than hidden:** a snapshot only restores into a
+machine *created* for the same world. `dorado_machine_create` takes the
+microcode world, germ and disk images and none of that is in the file, so you
+must pick the same dropdown entry before resuming. The world tag goes in the
+filename (`dorado-cedar-desktop.snap`) and the shell warns on a mismatch --
+that is the only guard available, because a mismatched pair has identical
+struct sizes and the snapshot's own ABI check cannot see it.
+
+This is NOT **C1** (persistence across a reload). It is the manual version:
+you get a file. C1 would put the same bytes in IndexedDB automatically, and
+the two share everything but the storage.
+
+## K (historical). Put the host controls in CHROME, not in modifier chords
+
+Alan's suggestion, and it dissolves **J** rather than working around it: give
+the SDL window a toolbar, with a **Paste** button and the other controls we
+currently express as stolen key chords or do not expose at all. Then no host
+function needs a modifier the guest might want, and Carl's conflict goes away
+without anyone having to choose between Yellow and paste.
+
+**What we currently steal, and would stop stealing.** Every one of these is a
+key or chord the guest cannot have:
+
+| chord | frontend | what it does | guest cost |
+|---|---|---|---|
+| `Cmd/Ctrl+V` | both | paste the clipboard as paced keystrokes | Ctrl-V unreachable |
+| `Cmd/Ctrl+Q` | SDL | quit the emulator | Ctrl-Q unreachable |
+| `F1` | both | pause/resume | F1 unreachable (not an Alto key, so free) |
+| `Cmd/Ctrl` + left click | both | Blue / right button | -- (a mouse chord) |
+| `Alt/Option` + left click | both | Yellow / middle button | -- (no Alt on the Alto keyboard) |
+
+**Hardware the real machine had and we do not expose at all** -- the natural
+contents of such a toolbar, and the reason it is worth more than a Paste
+button alone:
+
+- The **boot button**, and its chord. `dorado_display_boot_button()` exists
+  and `--boot-keys` drives it headlessly, but a windowed user cannot press
+  it. This is the single most authentic control on the machine.
+- **Maintenance panel / status LED**, which the BaseBoard already models.
+- **Which world / which boot file**, i.e. the dropdown the browser build
+  already has and SDL does not.
+- **Speed and pause**, today only `--speed` and F1.
+- **A file drop target**, which is section **H** -- and a toolbar is exactly
+  where "add a file to the served tree" belongs.
+
+**Design notes before building.** SDL2 has no widgets, so this is either a
+hand-drawn strip inside the same window (draw into a band above the
+framebuffer, hit-test clicks by rectangle -- no new dependency, and the
+existing PGM/scale plumbing already maps window pixels to guest pixels), or a
+second small window. The hand-drawn strip is preferable: it keeps one window,
+one event loop, and it works identically under the Emscripten build where the
+browser already supplies real chrome.
+
+**Watch:** the click-to-guest path maps window coordinates to guest
+coordinates; a toolbar changes that origin. `machine_seed_mouse` writes only
+`0424/0425` and nothing else (memory
+`host-input-seeding-write-only-where-guest-reads`), so the fix is a coordinate
+offset in the frontend, not anywhere near the guest.
+
+**Order it after J's decision, not before**: if paste moves to a button, J
+question 1 is answered and only the two genuine bugs remain (shift-right-click
+also raising the browser context menu, and shift release not committing the
+secondary selection).
 
 ## Suggested order
 
@@ -1292,11 +1493,15 @@ What is left, in order:
    (`tools/fetch_dorado_sil.py`) and `chm/garage/` holds the Midas manual
    and the D0 drawings (`tools/fetch_chm_archive.py`). The next F step is to
    *use* them — see F.1, and note the `.nl` netlists below.
-1b. ~~**I** — PACMAN.~~ **SOLVED 2026-08-07**: a `(T NIL)` default clause in
-   the 1987 source, not an emulator bug. What is left from it is a pair of
-   real server gaps that block serving any hand-written file to Interlisp
-   (STP retrieve vs lookup disagreeing on an extensionless name; a Leaf Open
-   the client re-requests and never Reads). Those also block **H**.
+1a. **J / A2** — the middle-button paste conflict, and **K**, the toolbar
+   that dissolves it. Carl has done the
+   diagnosis; the remaining work is a decision about which chord, then three
+   small fixes. Highest user-visible value of anything left.
+1b. ~~**I** — PACMAN.~~ **SOLVED and FIXED 2026-08-07**: a `(T NIL)` default
+   clause in the 1987 source, not an emulator bug; PACMANFIX repairs it. The
+   server fix it needed -- STP retrieve now reads the plist case-insensitively
+   and accepts an empty Directory -- unblocks serving any hand-written file
+   to Interlisp, which **H** needs.
 2. **H** — get a user's own files in. Ask what the files are first; the
    answer decides whether this is a browser drop target, a served-tree
    change, or an archive job. Pairs naturally with C1.

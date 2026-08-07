@@ -119,6 +119,13 @@
       </optgroup>
     </select>
     <button id="pause" disabled onclick="togglePause()">Pause</button>
+    <button id="savebtn" disabled onclick="saveState()"
+            title="Download a snapshot of the machine exactly as it is now">Save state</button>
+    <button id="loadbtn" disabled
+            onclick="document.getElementById('loadfile').click()"
+            title="Resume from a snapshot you saved earlier">Resume&hellip;</button>
+    <input type="file" id="loadfile" accept=".snap" style="display:none"
+           onchange="loadState(this)">
     <span id="spinner"></span>
   </div>
 
@@ -601,6 +608,56 @@
     document.getElementById('canvas').focus();
   }
 
+  // Save and resume. The emulator has had a snapshot format all along and the
+  // whole project runs on baked checkpoints; the browser simply had no way to
+  // keep one. dorado_web_save_state() writes it into MEMFS and we hand the
+  // bytes to the user as a download.
+  //
+  // A snapshot restores only into a machine CREATED for the same world -- the
+  // microcode world, germ and disk images come from dorado_machine_create and
+  // are not in the file -- so the world tag goes in the filename and is
+  // checked on the way back. A mismatched pair has identical struct sizes, so
+  // the snapshot's own ABI check cannot catch it; this is the only guard
+  // there is, and it is a warning rather than a refusal.
+  function saveState() {
+    if (!ready) return;
+    var n = Module.ccall('dorado_web_save_state', 'number', [], []);
+    if (n <= 0) { setStatus('Could not save the machine state.'); return; }
+    var tag = Module.ccall('dorado_web_world_tag', 'string', [], []);
+    var data = Module.FS.readFile('/dorado-state.snap');
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([data], {type: 'application/octet-stream'}));
+    a.download = 'dorado-' + tag + '.snap';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 10000);
+    setStatus('Saved ' + a.download + ' (' + (n >> 10) + ' KB). Pick the same '
+              + 'boot entry, then Resume, to come back to exactly here.');
+  }
+
+  async function loadState(input) {
+    var f = input.files && input.files[0];
+    input.value = '';
+    if (!f || !ready) return;
+    var tag = Module.ccall('dorado_web_world_tag', 'string', [], []);
+    if (f.name.indexOf(tag) < 0 &&
+        !confirm('That snapshot does not look like it came from the "' + tag +
+                 '" boot entry.\n\nA snapshot only restores into the world it '
+               + 'was taken from; loading it here will most likely hang the '
+               + 'machine.\n\nLoad it anyway?')) return;
+    try {
+      Module.FS.writeFile('/dorado-state.snap',
+                          new Uint8Array(await f.arrayBuffer()));
+      if (Module.ccall('dorado_web_restore_state', 'number', [], []))
+        throw new Error('the snapshot was rejected (a different build?)');
+      paused = false; pauseBtn.textContent = 'Pause';
+      setStatus('Resumed from ' + f.name + '.');
+    } catch (e) {
+      console.error(e);
+      setStatus('Could not resume: ' + e.message);
+    }
+    document.getElementById('canvas').focus();
+  }
+
   function togglePause() {
     if (!ready) return;
     // Mirror the C-side F1 toggle by synthesizing an F1 keydown on the canvas.
@@ -659,6 +716,8 @@
       ready = true;
       gameSel.disabled = false;
       pauseBtn.disabled = false;
+      document.getElementById('savebtn').disabled = false;
+      document.getElementById('loadbtn').disabled = false;
       spinnerEl.textContent = '';
       setStatus('Booting NetExec... type a program name, or pick one above.', 1);
       installInput();

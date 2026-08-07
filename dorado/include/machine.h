@@ -230,4 +230,32 @@ void dorado_machine_print_abi(FILE *out);
  */
 uint64_t dorado_machine_state_digest(const dorado_machine *m);
 
+/* ---- Front panel -------------------------------------------------------
+ *
+ * What a person standing at the machine could see, gathered in one call so a
+ * frontend does not need the internals. `dorado_machine` is opaque on
+ * purpose, and the alternative -- a dozen little accessors -- would grow one
+ * per light.
+ *
+ * The activity fields are free-running COUNTERS, not booleans: a frontend
+ * lights its lamp when the count moved since the last frame, which is what
+ * the real indicators did. Reading them costs nothing and they never reset,
+ * so a caller may sample at any rate.
+ *
+ * `lamp_on` is the real thing: the BaseBoard's green status LED, driven from
+ * MiscByte by the 6502 exactly as on the hardware (baseboard.h). */
+typedef struct dorado_machine_panel {
+    int      lamp_on;          /* BaseBoard green status LED               */
+    int      booted;           /* a world has been loaded and started      */
+    int      mouse_buttons;    /* DORADO_MOUSE_* bits currently held       */
+    uint64_t cycles;           /* BaseBoard 6502 cycles (see --cycles)     */
+    uint64_t uinstructions;    /* Dorado microinstructions                 */
+    uint64_t disk_activity;    /* sector reads + writes                    */
+    uint64_t net_activity;     /* ethernet packets seen + queued           */
+    uint64_t display_frames;   /* completed display frames                 */
+} dorado_machine_panel;
+
+void dorado_machine_get_panel(const dorado_machine *m,
+                              dorado_machine_panel *out);
+
 #endif /* DORADO_MACHINE_H_ */
