@@ -714,7 +714,30 @@ matches the table.
   `LONG[177033B]`; the Alto path applies keys directly; Smalltalk needs
   UTILIN seeded. A mapping "correct" in one world can be wrong in another.
 
-### A5. Keyboard mapping documentation — text AND a graphic [reported]
+### A5. Keyboard mapping documentation — text AND a graphic [DONE 2026-08-07]
+
+Both are in the repo's **`README.md`**, which did not exist before:
+a keyboard-shaped **`docs/images/alto-keyboard-map.svg`** with every keytop
+labelled `word.bit` and its host key, the four `KBDAD` words as a bit table,
+the host-key stand-ins, the mouse buttons, and the per-world notes
+(Interlisp's right-button menus, Cedar's `KeyBits` at `177033B`, Smalltalk's
+keyset).
+
+Two things make it reviewable rather than merely present, which is what this
+item was for:
+
+- The graphic is **generated** (`tools/make_keyboard_svg.py`) from a table
+  that is machine-checked against `display.c`'s `key_map` -- all 61 cells,
+  no mismatches -- so the picture cannot drift from the emulator. The
+  README's bit table is checked the same way.
+- It has exactly **61 keys**, which is what HW Manual 5.1 says the Alto
+  keyboard has, so nothing is missing.
+
+Provenance is stated on the artifact: the `word.bit` labels are Figure 6
+verbatim, while the physical arrangement is a reconstruction from the
+placement notes in `TerminalDefs.mesa` ("CTRL (large key left of A)",
+"LOCK (Alto lower left corner)", 'Spare1 "Look" (blank key right of BS)')
+over the standard QWERTY body -- not a traced photograph.
 
 - Deliverable: a document plus an **image** showing the mapping
   graphically (host key -> Dorado key, per world where they differ).

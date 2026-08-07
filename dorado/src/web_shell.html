@@ -703,22 +703,21 @@
     F2: 0x1006, F3: 0x1007, F4: 0x1008,   // Look / Next / Swat
     F6: 0x1009                  // LF
   };
-  // Ctrl chords the BROWSER owns. Everything else Ctrl+<key> belongs to the
-  // guest: Ctrl-E, Ctrl-D, Ctrl-C and friends are how you drive an Interlisp
-  // Exec or a Cedar viewer, and the old guard dropped every one of them --
-  // which is the whole of "the Control key does not work" in the browser.
-  var CTRL_BROWSER_KEYS = {
-    KeyR: 1, KeyT: 1, KeyN: 1, KeyW: 1, KeyL: 1, KeyV: 1, KeyP: 1,
-    Tab: 1, F5: 1, F12: 1
-  };
-  // Ctrl chords the BROWSER owns. Everything else Ctrl+<key> belongs to the
-  // guest: Ctrl-E, Ctrl-D, Ctrl-C and friends are how you drive an Interlisp
-  // Exec or a Cedar viewer, and the old guard dropped every one of them --
-  // which is the whole of "the Control key does not work" in the browser.
-  var CTRL_BROWSER_KEYS = {
-    KeyR: 1, KeyT: 1, KeyN: 1, KeyW: 1, KeyL: 1, KeyV: 1, KeyP: 1,
-    Tab: 1, F5: 1, F12: 1
-  };
+  // Ctrl belongs to the GUEST. Ctrl-W, Ctrl-E, Ctrl-D and Ctrl-L are how you
+  // drive an Interlisp Exec or a Cedar viewer, and the old guard dropped
+  // every Ctrl+<key> event before it reached C -- which is the whole of "the
+  // Control key does not work" in the browser.
+  //
+  // A deny-list of "browser chords" is the wrong shape, and was tried first:
+  // the chords Chrome reserves (Ctrl-T/N/W on Windows and Linux) never reach
+  // the page at all, so listing them buys nothing, while on macOS those are
+  // Cmd chords and Ctrl-W is free -- so the list only stole keys from the
+  // guest on the platform where they worked. Cmd is the escape hatch
+  // instead, left entirely to the browser everywhere.
+  //
+  // The one exception is Ctrl-V: preventDefault on its keydown suppresses the
+  // paste event that clipboard support rides on.
+  var CTRL_KEEP_FOR_BROWSER = { KeyV: 1 };
   function webKeyCode(e) {
     var c = e.code;
     if (c && c.indexOf('Key') === 0 && c.length === 4)
@@ -732,12 +731,9 @@
   function installInput() {
     var canvas = document.getElementById('canvas');
     function sendKey(e, down) {
-      // Cmd is the browser's; Ctrl is the GUEST's, except for the handful of
-      // chords the browser owns (and Ctrl+Shift+anything, the devtools
-      // chords). Dropping all of Ctrl+<key> is what made Control look dead.
+      // Cmd is the browser's, Ctrl is the guest's. See CTRL_KEEP_FOR_BROWSER.
       if (e.metaKey) return;
-      if (e.ctrlKey && e.code !== 'ControlLeft' && e.code !== 'ControlRight' &&
-          (CTRL_BROWSER_KEYS[e.code] || e.shiftKey)) return;
+      if (e.ctrlKey && CTRL_KEEP_FOR_BROWSER[e.code]) return;
       // LOCK is a latching key on the Alto and a latch on the host too, so
       // mirror the host's STATE rather than its press/release -- SDL and the
       // browser both report a down/up pair per toggle, which would leave the
