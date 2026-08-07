@@ -980,6 +980,52 @@ have taken -- the loader prints `Can't open Lisp.XVirtualmem` on failure
 and nothing on success, so a trace of the guest's own output would be
 needed to tell "linked" from "silently ignored".
 
+### 6.18 SOLVED: a FULL Lyric sysout boots -- `Released-Full.sysout!2`
+
+**`make run-lisp-lyric-full` now brings up a full-library Interlisp-D
+world: 209,183 px, `Xerox Lisp 25-Jan-88`, `INIT.LCOM`, `INITCOMS`,
+"Good evening.", and a live Exec prompt.**
+
+Found by doing what should have been done first: listing
+`<Lisp>Lyric>Basics>` in full and reading `releasemessage.tedit!1`. The
+directory holds **three** relevant images, not one, and the one this
+investigation had been fighting is the wrong one.
+
+| sysout | date | VPs | max VP | VPs > 2^14 | result |
+|---|---|---|---|---|---|
+| `LISP.SYSOUT!1` | Apr-87 | 9,124 | 16,383 | 0 | boots (shipped today) |
+| **`Released-Full.sysout!2`** | **Jan-88** | **11,457** | **16,383** | **0** | **BOOTS** |
+| `Full.sysout!6` | **17-Nov-1988** | 14,843 | 65,533 | **894** | `Raid: "Bad Array Block"` |
+
+**The 2^14 boundary of 6.13 is confirmed by a third point.** 2^14 pages x
+256 words = a **22-bit address space**, exactly what the period BCPL
+assumes (`VMem.decl`: `LastVirtualPage = #37777`, `EMPTY = #40000`,
+"assumes 22-bit addresses!"). Every image that stays inside it boots;
+the one that does not, does not.
+
+**And `Full.sysout!6` was never a Lyric release artifact.** It is dated
+**17-Nov-1988, nineteen months after** the Lyric release, and
+`releasemessage.tedit!1` states "The lisp.sysout is dated 27-Apr-87
+17:07:03" while `Full.sysout!6`'s own banner reads `27-Apr-87 17:05:23` --
+a different build. Its 894 pages above 2^14 are the signature of a system
+running Briggs's **ExtendedVmem**, whose manual documents exactly that
+address range ("the full 32Mb", "combined limit of 65533 pages" = its max
+VP). So it is a late development image saved on an extended-VMEM machine,
+and booting it needs that machine reconstructed -- see 6.17 for the
+attempt, which linked a secondary partition but never reached
+`(INSTALL-EXTENDED-VIRTUAL-MEMORY)`.
+
+**`Released-Full.sysout!2` is a genuine full-library image**, not a
+consolation prize: 11,457 VPs against `LISP.SYSOUT!1`'s 9,124, so ~2,300
+pages more library preloaded, and it needs only 11,755 file pages -- it
+fits even the shipped 15,002-page VMEM, no 19,000/20,000 pack required.
+
+**Also cleared on the way:** the documented procedure installs
+`LYRIC-PARC-INIT.LCOM` as `INIT.LCOM` and we use Harmony's `INIT.NONET!3`
+(the boot log shows `File created 29-Sep-84` under a 1987 sysout). A real
+deviation, but **not the cause** -- deleting `INIT.LCOM` entirely leaves
+`Full.sysout!6` failing at the same 190,594 px.
+
 ### 6.8 What is left
 
 Ruled out, each by measurement: **VMEM size** (four sizes, 6.7), **the

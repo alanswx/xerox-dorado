@@ -2105,6 +2105,26 @@ lisp-current-good-pack:
 # the VMEM before the inserts (altofs has --vmem-after-inserts, and NOT
 # passing it is PARC's order) -- not needed, since 19,000 already gives
 # Full.sysout!6 3,859 pages of working room against PARC's own 4,859.
+# WHICH full sysout: use Released-Full.sysout!2. It BOOTS (2026-08-06);
+# Full.sysout!6 does not, and the difference is the Lisp virtual-address
+# space each one occupies:
+#
+#   LISP.SYSOUT!1          9,124 VPs   max VP 16,383   0 above 2^14   boots
+#   Released-Full.sysout!2 11,457 VPs  max VP 16,383   0 above 2^14   BOOTS
+#   Full.sysout!6         14,843 VPs   max VP 65,533 894 above 2^14   Raid
+#
+# 2^14 pages of 256 words = a 22-bit address space, which is exactly what
+# the period BCPL assumes: VMem.decl declares LastVirtualPage = #37777 and
+# reserves >= #40000 as the EMPTY/UNAVAIL sentinels of the buffer page
+# table ("assumes 22-bit addresses!"). Full.sysout!6 is dated 17-Nov-1988,
+# nineteen months AFTER the Lyric release, and was evidently saved on a
+# machine with Briggs's ExtendedVmem installed -- see
+# chm/lisp/lyric-lispusers/ExtendedVmem.tedit!1 and
+# docs/lisp-leaf-handoff.md 6.13-6.18.
+#
+# Released-Full.sysout!2 is the RELEASED full sysout (Jan 1988) and is a
+# genuine full-library image: 11,457 VPs against LISP.SYSOUT!1's 9,124.
+LISP_RELFULL_SYSOUT_FILE ?= ../chm/lisp/lyric-basics/Released-Full.sysout!2
 LISP_FULL_SYSOUT_FILE ?= ../chm/lisp/lyric-basics/Full.sysout!6
 LISP_FULL_VMEM_PAGES ?= 19000
 LISP_FULL_GOOD_PACK ?= build/good-packs/lisp-lyric-full-$(LISP_FULL_VMEM_PAGES).pack
@@ -2134,11 +2154,11 @@ lisp-lyric-full-pack:
 run-lisp-lyric-full: $(BINDIR)/dorado
 	@test -r '$(LISP_FULL_GOOD_PACK)' || \
 		(echo "Missing $(LISP_FULL_GOOD_PACK) -- run 'make lisp-lyric-full-pack' first." && false)
-	@test -r '$(LISP_FULL_SYSOUT_FILE)' || \
-		(echo "Missing $(LISP_FULL_SYSOUT_FILE) -- fetch Full.sysout!6 from <Lisp>Lyric>Basics>." && false)
+	@test -r '$(LISP_RELFULL_SYSOUT_FILE)' || \
+		(echo "Missing $(LISP_RELFULL_SYSOUT_FILE) -- fetch Released-Full.sysout!2 from <Lisp>Lyric>Basics>." && false)
 	$(if $(LISP_LYRIC_FTP_TRACE),DORADO_FTP_TRACE=1 )DORADO_DISPM_PRESENT=1 ./build/dorado --eb worlds/aemu.eb \
 		--disk 0='$(LISP_FULL_GOOD_PACK)' --boot-reason disk --no-alto-boot \
-		--ftp-sysout '$(LISP_FULL_SYSOUT_FILE)' \
+		--ftp-sysout '$(LISP_RELFULL_SYSOUT_FILE)' \
 		--type 'lisp.run/M {$(LISP_REMOTE_HOST)}$(LISP_REMOTE_SYSOUT_NAME)\n' \
 		--type-at 330000000 --key-hold 4000000 \
 		--cycles $(LISP_FULL_CYCLES) \
