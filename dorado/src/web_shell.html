@@ -63,6 +63,20 @@
     padding: 1px 5px; color: #cdd5de;
   }
   #spinner { color: #6db3f2; }
+  /* Front panel: the same controls and lamps as the SDL window's microui
+     band, as HTML -- the page already has real chrome. */
+  .lamps { display: flex; gap: 12px; align-items: center; margin-left: 4px; }
+  .lamp { display: flex; gap: 5px; align-items: center;
+          color: #7f8892; font-size: 12px; letter-spacing: .04em; }
+  .lamp i { width: 9px; height: 9px; border-radius: 50%;
+            background: #2a2f36; display: inline-block;
+            transition: background .12s linear; }
+  .lamp.on i { box-shadow: 0 0 6px currentColor; }
+  .lamp.pwr.on i { background: #40e050; color: #40e050; }
+  .lamp.dsk.on i { background: #f0b040; color: #f0b040; }
+  .lamp.net.on i { background: #60b0f0; color: #60b0f0; }
+  #speed { color: #7f8892; font-size: 12px; font-variant-numeric: tabular-nums; }
+  #frame.drop { outline: 3px dashed #6db3f2; outline-offset: 3px; }
 </style>
 </head>
 <body>
@@ -126,6 +140,20 @@
             title="Resume from a snapshot you saved earlier">Resume&hellip;</button>
     <input type="file" id="loadfile" accept=".snap" style="display:none"
            onchange="loadState(this)">
+    <button id="bootbtn" disabled onclick="pressBoot()"
+            title="Press the machine's own front-panel boot button">Boot</button>
+    <button id="pastebtn" disabled onclick="pasteClipboard()"
+            title="Type the host clipboard into the guest">Paste</button>
+    <button id="addfilebtn" disabled
+            onclick="document.getElementById('addfile').click()"
+            title="Serve a file to the guest (or just drop it on the display)">Add file</button>
+    <input type="file" id="addfile" style="display:none" onchange="addFile(this)">
+    <span class="lamps">
+      <span class="lamp pwr" id="lamp-pwr"><i></i>PWR</span>
+      <span class="lamp dsk" id="lamp-dsk"><i></i>DSK</span>
+      <span class="lamp net" id="lamp-net"><i></i>NET</span>
+    </span>
+    <span id="speed"></span>
     <span id="spinner"></span>
   </div>
 
@@ -658,6 +686,119 @@
     document.getElementById('canvas').focus();
   }
 
+  // ---- Front panel -------------------------------------------------------
+  // Reads dorado_web_panel(), which marshals the SAME dorado_machine_get_panel()
+  // accessor the SDL panel uses, so the two frontends cannot drift apart.
+  // The activity fields are free-running COUNTERS: a lamp lights when a count
+  // MOVED since the last sample, because "is the disk busy" has no honest
+  // answer at frame rate.
+  var panelPrev = {disk: 0, net: 0}, panelDecay = {disk: 0, net: 0};
+  var panelUinstr = 0, panelMs = 0;
+
+  function lamp(id, on) {
+    document.getElementById(id).classList.toggle('on', !!on);
+  }
+
+  function updatePanel() {
+    if (!ready) return;
+    var p;
+    try { p = JSON.parse(Module.ccall('dorado_web_panel', 'string', [], [])); }
+    catch (e) { return; }
+
+    if (p.disk !== panelPrev.disk) { panelPrev.disk = p.disk; panelDecay.disk = 6; }
+    else if (panelDecay.disk) panelDecay.disk--;
+    if (p.net !== panelPrev.net) { panelPrev.net = p.net; panelDecay.net = 6; }
+    else if (panelDecay.net) panelDecay.net--;
+
+    lamp('lamp-pwr', p.lamp);
+    lamp('lamp-dsk', panelDecay.disk > 0);
+    lamp('lamp-net', panelDecay.net > 0);
+
+    // The honest figure the whole project quotes: emulated Dorado seconds per
+    // real second, from MICROINSTRUCTIONS at 60 ns. Never a cycles/s number --
+    // those are BaseBoard 6502 cycles and wrong by 3.70x.
+    var now = performance.now();
+    if (panelMs && now - panelMs >= 500) {
+      var r = (p.uinstr - panelUinstr) * 60e-9 / ((now - panelMs) / 1000);
+      document.getElementById('speed').textContent = r.toFixed(2) + 'x real';
+      panelUinstr = p.uinstr; panelMs = now;
+    } else if (!panelMs) { panelUinstr = p.uinstr; panelMs = now; }
+  }
+
+  function pressBoot() {
+    if (!ready) return;
+    Module.ccall('dorado_web_boot_button', null, [], []);
+    setStatus('Boot button pressed.');
+    document.getElementById('canvas').focus();
+  }
+
+  async function pasteClipboard() {
+    if (!ready) return;
+    try {
+      var t = await navigator.clipboard.readText();
+      if (!t) { setStatus('The clipboard is empty.'); return; }
+      Module.ccall('dorado_web_paste', 'number', ['string'], [t]);
+      setStatus('Pasting ' + t.length + ' characters.');
+    } catch (e) {
+      // Reading the clipboard needs permission; Cmd/Ctrl+V always works
+      // because the browser hands us the text with the paste event.
+      setStatus('The browser would not hand over the clipboard \u2014 '
+                + 'press Cmd/Ctrl+V over the display instead.');
+    }
+    document.getElementById('canvas').focus();
+  }
+
+  // Serving a file is the SAFE direction and the only one that works: the
+  // guest fetches it with its own transfer tool (Bringover in Cedar,
+  // FILESLOAD in Interlisp), where writing onto a mounted Cedar volume
+  // crashes its live FS. The served root comes from the running machine, so
+  // this follows whichever world is loaded.
+  async function serveFile(file) {
+    if (!ready || !file) return;
+    var root = '';
+    try { root = JSON.parse(Module.ccall('dorado_web_panel', 'string', [], [])).root; }
+    catch (e) { /* fall through to the message below */ }
+    if (!root) {
+      setStatus('This world serves no file tree, so there is nowhere to put it.');
+      return;
+    }
+    try {
+      Module.FS.writeFile(root + '/' + file.name,
+                          new Uint8Array(await file.arrayBuffer()));
+      setStatus('Serving ' + file.name + ' (' + file.size + ' bytes) \u2014 '
+                + 'fetch it in the guest, e.g. {DORADO}<>' + file.name
+                + ' or Bringover.');
+    } catch (e) {
+      console.error(e);
+      setStatus('Could not add ' + file.name + ': ' + e.message);
+    }
+  }
+
+  function addFile(input) {
+    var f = input.files && input.files[0];
+    input.value = '';
+    serveFile(f);
+  }
+
+  // Drag a file onto the display, the same gesture the SDL window accepts.
+  function installDropTarget() {
+    var frame = document.getElementById('frame');
+    ['dragenter', 'dragover'].forEach(function (t) {
+      frame.addEventListener(t, function (e) {
+        e.preventDefault(); frame.classList.add('drop');
+      });
+    });
+    ['dragleave', 'drop'].forEach(function (t) {
+      frame.addEventListener(t, function (e) {
+        e.preventDefault(); frame.classList.remove('drop');
+      });
+    });
+    frame.addEventListener('drop', function (e) {
+      var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (f) serveFile(f);
+    });
+  }
+
   function togglePause() {
     if (!ready) return;
     // Mirror the C-side F1 toggle by synthesizing an F1 keydown on the canvas.
@@ -716,8 +857,10 @@
       ready = true;
       gameSel.disabled = false;
       pauseBtn.disabled = false;
-      document.getElementById('savebtn').disabled = false;
-      document.getElementById('loadbtn').disabled = false;
+      ['savebtn','loadbtn','bootbtn','pastebtn','addfilebtn']
+        .forEach(function (id) { document.getElementById(id).disabled = false; });
+      setInterval(updatePanel, 150);
+      installDropTarget();
       spinnerEl.textContent = '';
       setStatus('Booting NetExec... type a program name, or pick one above.', 1);
       installInput();

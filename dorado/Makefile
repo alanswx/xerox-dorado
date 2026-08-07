@@ -123,7 +123,7 @@ WEB_CFLAGS := -std=c99 -D_GNU_SOURCE -O3 -flto $(WEB_PGO) -Iinclude -Ivendor/650
 WEB_LDFLAGS := -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=67108864 \
                -sSTACK_SIZE=1048576 \
                -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,FS \
-               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_cedar_desktop,_dorado_web_boot_cedar_demo,_dorado_web_boot_cedar_corpus,_dorado_web_boot_mesa,_dorado_web_boot_disk,_dorado_web_boot_lisp,_dorado_web_boot_lisp_full,_dorado_web_boot_smalltalk,_dorado_web_key,_dorado_web_mouse,_dorado_web_debug,_dorado_web_paste,_dorado_web_save_state,_dorado_web_restore_state,_dorado_web_world_tag \
+               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_cedar_desktop,_dorado_web_boot_cedar_demo,_dorado_web_boot_cedar_corpus,_dorado_web_boot_mesa,_dorado_web_boot_disk,_dorado_web_boot_lisp,_dorado_web_boot_lisp_full,_dorado_web_boot_smalltalk,_dorado_web_key,_dorado_web_mouse,_dorado_web_debug,_dorado_web_paste,_dorado_web_save_state,_dorado_web_restore_state,_dorado_web_world_tag,_dorado_web_panel,_dorado_web_boot_button \
                --preload-file worlds/aemu.eb@/worlds/aemu.eb \
                --preload-file ../chm/bootfiles@/chm/bootfiles \
                --preload-file '../chm/dorado/AltoMesaDorado.eb!2'@/worlds/AltoMesaDorado.eb \

@@ -6166,7 +6166,7 @@ void dorado_machine_get_panel(const dorado_machine *m,
     if (!out) return;
     memset(out, 0, sizeof *out);
     if (!m) return;
-    out->lamp_on        = m->bb.lamp_on;
+    out->lamp_on        = baseboard_lamp_on(&m->bb);
     out->booted         = dorado_machine_booted(m);
     out->mouse_buttons  = m->mouse_present ? m->mouse_buttons : 0;
     out->cycles         = m->bb.cycles;

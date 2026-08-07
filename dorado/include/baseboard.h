@@ -137,7 +137,12 @@ typedef struct dorado_baseboard {
 
     /* External state — what the world is doing to the BaseBoard.
      *  - `boot_pressed`: nonzero when the boot button is held down.
-     *  - `lamp_on`: derived; the BaseBoard sets this via MiscByte. */
+     *  - `lamp_on`: NOT maintained. Read the lamp with baseboard_lamp_on(),
+     *    which derives it from the MiscByte RIOT pin. This field was
+     *    documented as "the BaseBoard sets this via MiscByte" and never
+     *    assigned by any code; it is kept only because removing a member
+     *    changes the snapshot ABI and every baked checkpoint would stop
+     *    restoring. */
     int boot_pressed;
     int lamp_on;
 
@@ -221,6 +226,10 @@ void baseboard_boot_button(dorado_baseboard *bb, int pressed);
 
 /* Diagnostic: dump current state to a string. */
 void baseboard_dump(const dorado_baseboard *bb, char *buf, size_t buflen);
+
+/* The green status LED: MiscByte (RIOT #2 port B, 0x482) bit 7 "LampOff",
+ * an active-low output. Derived, so it cannot go stale. */
+int baseboard_lamp_on(const dorado_baseboard *bb);
 
 /* Read 6502 register state. (fake6502 keeps these as file-scope static
  * variables; expose them through baseboard.c so other TUs can inspect.) */

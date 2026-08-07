@@ -1377,7 +1377,7 @@ and the core stays C99). A 30-pixel band across the top of the window:
 | **Paste** | host clipboard -> guest, through the same paced typing queue |
 | **Save** | writes `dorado-<cycles>.snap`, restorable with `--snapshot-in` |
 | **Add file** | reminds you to drop one (see below) |
-| **PWR** | the BaseBoard's **real green status LED**, driven from MiscByte by the 6502 -- modelled since the BaseBoard went in, with nowhere to show it until now |
+| **PWR** | the BaseBoard's green status LED, derived from the real pin -- MiscByte (RIOT #2 port B, `0x482`) bit 7 "LampOff", an active-low output |
 | **DSK / NET** | activity flickers, from sector and packet counters |
 | readout | world name, the honest **x-real-hardware** figure from microinstructions, and the last thing that happened |
 
@@ -1395,6 +1395,20 @@ Two implementation notes worth keeping:
   fields are free-running COUNTERS, not booleans -- the frontend lights a
   lamp when a count moved since its last frame, because "is the disk busy"
   has no honest answer at frame rate.
+- **The PWR lamp caught a dead field.** `dorado_baseboard.lamp_on` has existed
+  since the BaseBoard went in, is documented as "the BaseBoard sets this via
+  MiscByte", and **is never assigned by any code** -- a panel wired to it
+  reads a constant 0. `baseboard_lamp_on()` now DERIVES it from the pin the
+  model does have: MiscByte is RIOT #2 port B and its bit 7 is named
+  "LampOff", an active-low output, so the lamp is lit when that pin is driven
+  low. Derived rather than tracked, so it cannot go stale and adds nothing to
+  the snapshot; the field stays only because removing a member would change
+  the snapshot ABI.
+
+  **Still unverified: whether the BaseBoard firmware ever lights it in our
+  runs.** It reads 0 through reset and the first 5,001 cycles in
+  `test_baseboard`. If it stays dark, that is a finding about the BaseBoard
+  model -- the 6502 ROM's lamp handling -- and not about the panel.
 - The window now needs `SDL_RenderSetLogicalSize`, and it must be set at
   STARTUP rather than only when a world's raster differs from the initial
   guess. Without it a HiDPI backing store is twice the window's point size,

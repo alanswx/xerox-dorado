@@ -264,6 +264,48 @@ void dorado_web_key(int key, int down)
         dorado_machine_set_key(app.m, dk, down);
 }
 
+/* ---- Front panel ---------------------------------------------------------
+ *
+ * The browser gets the SAME panel as the SDL window, but drawn as HTML
+ * instead of microui: the page already has real chrome -- a dropdown,
+ * buttons, a status line -- and a bitmap toolkit inside the canvas would be
+ * worse to use and more code to keep working.
+ *
+ * What must not diverge is the DATA, so both frontends read it through the
+ * one dorado_machine_get_panel() accessor. This just marshals that into JSON,
+ * which is the cheapest thing for JS to consume and needs no new export per
+ * lamp.
+ */
+EMSCRIPTEN_KEEPALIVE
+const char *dorado_web_panel(void)
+{
+    static char json[256];
+    dorado_machine_panel p;
+    dorado_machine_get_panel(app.m, &p);
+    snprintf(json, sizeof json,
+             "{\"lamp\":%d,\"booted\":%d,\"cycles\":%llu,\"uinstr\":%llu,"
+             "\"disk\":%llu,\"net\":%llu,\"frames\":%llu,\"paused\":%d,"
+             "\"world\":\"%s\",\"root\":\"%s\"}",
+             p.lamp_on, p.booted,
+             (unsigned long long)p.cycles, (unsigned long long)p.uinstructions,
+             (unsigned long long)p.disk_activity,
+             (unsigned long long)p.net_activity,
+             (unsigned long long)p.display_frames, app.paused,
+             app.world ? app.world : "dorado",
+             app.ftp_root ? app.ftp_root : "");
+    return json;
+}
+
+/* The machine's own front-panel boot button. Held for a number of scan
+ * lines: the Booting memo's MinimumPush is 8 ms and pushes shorter than
+ * 10 ms are contact bounce, so give it a comfortable press -- the same
+ * 600 the SDL panel uses. */
+EMSCRIPTEN_KEEPALIVE
+void dorado_web_boot_button(void)
+{
+    if (app.m) dorado_display_boot_button(dorado_machine_display(app.m), 600);
+}
+
 /* ---- Save and resume in the browser --------------------------------------
  *
  * The emulator already has a snapshot format and the whole project runs on

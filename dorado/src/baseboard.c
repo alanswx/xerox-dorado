@@ -178,6 +178,25 @@ static uint8_t riot_read_pb(const riot_chip *r)
                      (r->pb_external & (uint8_t)~r->pb_ddr));
 }
 
+/* The green status LED on the machine's front.
+ *
+ * MiscByte is RIOT #2's port B (0x482) and its bit 7 is named "LampOff" --
+ * an OUTPUT, and active low: the BaseBoard lights the lamp by driving that
+ * pin to 0. So the lamp is on when the pin is an output (its DDR bit is set)
+ * and the output latch holds 0.
+ *
+ * Derived on demand rather than tracked in a field. `bb->lamp_on` existed for
+ * a long time, was documented as "the BaseBoard sets this via MiscByte", and
+ * was never assigned by anything -- a panel wired to it read a constant 0.
+ * Deriving it from the RIOT state cannot go stale, and adds no state to
+ * snapshot. */
+int baseboard_lamp_on(const dorado_baseboard *bb)
+{
+    if (!bb) return 0;
+    const riot_chip *r = &bb->riot[1];
+    return (r->pb_ddr & 0x80) && !(r->pb_latch & 0x80);
+}
+
 /* Which RIOT chip serves a given address? Returns NULL if none. */
 static riot_chip *riot_for(dorado_baseboard *bb, uint16_t addr)
 {
@@ -636,5 +655,5 @@ void baseboard_dump(const dorado_baseboard *bb, char *buf, size_t buflen)
              "cycles=%llu lamp=%d",
              pc, a, x, y, sp, status,
              (unsigned long long)bb->cycles,
-             bb->lamp_on);
+             baseboard_lamp_on(bb));
 }
