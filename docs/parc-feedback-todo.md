@@ -1206,63 +1206,76 @@ they are `.sil` files or Dorado listings, they may want to go into the
 archive and the served tree rather than onto a guest volume at all — and
 that overlaps **F.2** and **G** rather than this item.
 
-## I. PACMAN breaks in the full Lyric world when you steer it [reported]
+## I. PACMAN: SOLVED — a 1987 bug in PACMAN, not in the emulator
 
-**Symptom (screenshot, 2026-08-07):** in the full-library Lyric world,
-`(FILESLOAD PACMAN)` fetches `{DORADO}<>PACMAN.LCOM;1` over Leaf, `(PACMAN)`
-starts, the maze and ghosts paint correctly — and typing the movement keys
-raises an Interlisp break window:
+**It is `(T NIL)` at the end of a `SELECTQ`.** `MOVEPACMAN` ends its dispatch
+like this (`[phylum]<LISP>Lyric>Lispusers>PACMAN!1`, MJD, 11-Nov-87, now
+local at `chm/lisp/lyric-lispusers/PACMAN!1`):
 
+```lisp
+(MOVEPACMAN
+  [LAMBDA (PMAN DIR)
+    (SELECTQ DIR
+      (1 ... (MOVEDOWN PMAN OLDPMAN))
+      (2 ... (MOVEUP PMAN OLDPMAN))
+      (4 ... (MOVERIGHT PMAN OLDPMAN))
+      (8 ... (MOVELEFT PMAN OLDPMAN))
+      (T NIL))                            ; <-- not a clause
+    ...])
 ```
-UNDEFINED-FUNCTION-IN-APPLY
-  OLDFAULT1 / NEWFAULT1 / FAULTAPPLY / T / MOVEPACMAN / PACMAN /
-  XCL::NOHOOK / (PACMAN)
-```
 
-**Read the title bar first: the emulator says `running`.** This is a guest
-break, not an emulator crash — `MOVEPACMAN` applied a function that is not
-defined in this sysout. So the question is *which* function, and whether it
-is a library gap on our pack or something PACMAN expects the hardware to
-have.
+In Interlisp a `SELECTQ`'s **last element is its default EXPRESSION**, not a
+COND-style clause. So when `DIR` is not 1, 2, 4 or 8, `(T NIL)` is
+*evaluated* — a call to the function `T`, which does not exist. Proven in the
+guest, three independent ways:
 
-**We hold the file**, so most of this is answerable offline:
-`chm/lisp/ftp-root/PACMAN.LCOM` (95,169 bytes, compiled 23-Nov-87) is what
-our own server hands the guest. Its symbol table shows the shape of the
-program:
+- **Runtime, minimal case.** `(ERSETQ (SELECTQ 0 (1 'A) (T NIL)))` prints
+  `Undefined car of form` / `T` — the reporter's break, with no PACMAN
+  involved at all.
+- **Statically.** `(CAR (CALLS 'MOVEPACMAN))` lists
+  `(PUTPROP MOVEDOWN MOVEUP GETPROP CHECKAT ERASEOBJ MOVERIGHT MOVELEFT T)`
+  — the compiler recorded a call to `T`.
+- **The backtrace matches exactly**: `FAULTAPPLY / T / MOVEPACMAN / PACMAN`.
 
-- **Input**, one function per mode: `KEYDOWNP` for the I/J/L/space keys,
-  `GETMOUSESTATE` + `LASTMOUSEX`/`LASTMOUSEY`/`LASTMOUSEBUTTONS` for the
-  cursor mode, `PAD1` for the joystick, `VOICEINPUT` for voice. The menu is
-  `Choose mode` with `SAMEDIRASCURSOR / KEYS / JOYSTICK / VOICE`.
-- **Machine dispatch:** it branches on `MACHINETYPE` with arms naming
-  `DOVE`, `DANDELION` and `DORADO`, and carries the string
-  `"Unknown machine type."` — so it has an opinion about what it is running
-  on, and a path for not recognising it.
-- **A whole colour half:** `HASCOLORDISPLAYP`, `PACMANINCOLOR`,
-  `COLORDISPLAY`, `COLORCREATEW`, `SCREENCOLORMAP`, `COLORMAPCREATE`,
-  `CHANGECURSORSCREEN`, `SETDISPLAYHEIGHT`, and a `COLOR*BITMAP` for every
-  sprite. The screenshot is sitting at the unanswered `In color?` prompt.
+**Why steering triggers it.** PACMAN's loop calls
+`(MOVEPACMAN PMAN (SETQ MOVE (GETMOVE MOVE)))` unconditionally, and `GETMOVE`
+has three `(RETURN 0)` paths — taken when PMAN can move neither the way you
+asked nor the way it was already going, i.e. **when it is against a wall**.
+`0` is not 1/2/4/8, so the default fires. Attract mode never sees it because
+`PACINTRO` feeds `(CAR (NTH '(1 2 4 8) (RAND 1 4)))` — always a legal
+direction. You meet it the first time you take control and steer into a wall.
+**A real Dorado would have done the same in 1987**, which fits the file's own
+header: its last edit was `changes to: (FNS MOVEPACMAN)`.
 
-**Do these in order:**
+**The emulator is exonerated, and specifically the input work is.** The title
+bar in the report says `running`; this is a guest break, not a crash. And the
+keyboard is not even on the path: `(CAR (CALLS 'GETMOVE))` shows the KEYS arm
+reads characters from a stream — `CONTROL`, `READP`, `ECHOMODE`, `READC`,
+comparing to `L J I` and space — with no `KEYDOWNP` anywhere. Checked too:
+`(JOYSTICK)` is called *unconditionally* by `GETMOVE` regardless of input
+mode, but it returns NIL here (`(KEYDOWNP 'PAD2..'PAD5)` are all NIL), so it
+contributes nothing.
 
-1. **Get the name.** The break window is scrolled to the backtrace; its
-   first line names the undefined function. Scroll it up, or evaluate
-   `(BAKTRACE)` in the break. Everything below is guessing until that is
-   known.
-2. **Re-test on a post-fix build.** The screenshot may predate the
-   2026-08-07 UTILIN fix, and `GETMOUSESTATE` / `LASTMOUSEBUTTONS` are
-   exactly the path it changed. Confirm the break still happens.
-3. **Answer `In color?` with No explicitly.** If the break only appears on
-   the colour arm, this is section **D**, not an input bug — we have no
-   colour board, so `HASCOLORDISPLAYP` and friends may be unbound.
-4. **Then check the mode.** If it breaks under `KEYS` but not `Cursor`, the
-   missing function is in the keyboard arm; `KEYDOWNP` itself is core
-   Interlisp, so suspect a helper the pack does not carry.
+**A fix exists but is not yet deliverable.** `chm/lisp/lyric-lispusers/PACMANFIX`
+restates `MOVEPACMAN` verbatim from the 1987 source with the one token
+changed — trailing `(T NIL)` becomes `NIL` — leaving `PACMAN.LCOM`
+byte-exact. It is deliberately **not** in `chm/lisp/ftp-root/` yet, because
+loading it exposes two unrelated server gaps:
 
-**Worth having either way:** a headless gate that loads PACMAN, chooses
-`Keyboard` mode, drives I/J/L/space, and asserts PMAN moved — this is the
-first *application* in a guest we would be driving with real keystrokes, and
-it exercises the input path far harder than a prompt does.
+1. `LOAD '{DORADO}<>PACMANFIX` times out with `{DORADO} not responding`. The
+   trace shows `STP_LOOKUP PACMANFIX -> !1 2927 bytes` succeeding and then
+   `STP_MISSING ((USER-NAME Guest)...(DIRECTORY )(NAME-BODY PACMANFIX)(VERSION 1))`
+   — our STP **retrieve** cannot resolve an extensionless name that our STP
+   **lookup** just resolved.
+2. `FILESLOAD PACMANFIX` gets as far as `LEAF_OPEN "<>PACMANFIX!1" -> ...
+   (2927 bytes) handle=000001`, and then the client re-requests the Open five
+   times (`LEAF_RESEND Open seq=0 (dup request)`) and never issues a Read.
+   Preceded by `LEAF_SEQ_GAP got=191 expected=0 (resync)`.
+
+Both are worth fixing on their own account — they are the same class of gap
+as the 2026-07-30 `ls` work, and gap 1 is a two-server disagreement about one
+filename. **Serving any hand-written file to Interlisp is blocked behind
+them**, which also bears on **H**.
 
 ## Suggested order
 
@@ -1279,9 +1292,11 @@ What is left, in order:
    (`tools/fetch_dorado_sil.py`) and `chm/garage/` holds the Midas manual
    and the D0 drawings (`tools/fetch_chm_archive.py`). The next F step is to
    *use* them — see F.1, and note the `.nl` netlists below.
-1b. **I** — PACMAN. A concrete application-level failure with a screenshot,
-   and the first thing that would drive a guest with real gameplay
-   keystrokes. Cheap to narrow (steps 1-3 need no code).
+1b. ~~**I** — PACMAN.~~ **SOLVED 2026-08-07**: a `(T NIL)` default clause in
+   the 1987 source, not an emulator bug. What is left from it is a pair of
+   real server gaps that block serving any hand-written file to Interlisp
+   (STP retrieve vs lookup disagreeing on an extensionless name; a Leaf Open
+   the client re-requests and never Reads). Those also block **H**.
 2. **H** — get a user's own files in. Ask what the files are first; the
    answer decides whether this is a browser drop target, a served-tree
    change, or an archive job. Pairs naturally with C1.
