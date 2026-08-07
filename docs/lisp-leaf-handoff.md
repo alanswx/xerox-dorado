@@ -929,6 +929,57 @@ survives.
 `Full.sysout!6` to **192,476 px -- identical to the 19,000 and 20,000-page
 runs.** Not the cause.
 
+### 6.17 ExtendedVmem FOUND in the CHM -- Briggs's own module and manual
+
+Searching `chm/cross-reference.html` for `vmem` turned up what Nick Briggs
+was pointing at all along, in `[phylum]<LISP>Lyric>Lispusers>`, **written by
+him**:
+
+| file | size | date | author |
+|---|---|---|---|
+| `extendedvmem.tedit!1` | 13,697 | -- | the manual, "last edited November 17, 1987" |
+| `ExtendedVmem-Lisp.run!1` | 89,354 | 16-Feb-1987 | `BRIGGS.pa` |
+| `ExtendedVmem-Lisp.syms!1` | 17,020 | | |
+| `EXTENDEDVMEM.LCOM!1` | 8,362 | | |
+
+All four are saved under `chm/lisp/lyric-lispusers/`. The manual is the
+specification we lacked:
+
+- three partitions back **"the full 32Mb of virtual memory addressable by
+  Xerox Lisp"**;
+- secondaries from partitions **1..7**, each up to **22600** pages, primary
+  capped at **20333** with two secondaries;
+- **"a combined (primary and secondary partitions) limit of 65533 pages"**
+  -- which is EXACTLY `Full.sysout!6`'s maximum VP;
+- invocation `Lisp n/X m/X [host]<directory>lisp.sysout`, then
+  `(INSTALL-EXTENDED-VIRTUAL-MEMORY)` from the LCOM;
+- a sysout made with it **auto-activates** on a machine that has support.
+
+**The feature is in our loader already.** `Lisp.run!6` carries
+`LISP.XVIRTUALMEM.`, `Can't open Lisp.XVirtualmem` and the partition
+warning, so Lyric folded ExtendedVmem into the shipped loader; the separate
+`ExtendedVmem-Lisp.run` (89,354 b) predates it.
+
+**Built it and it does NOT fix the RAID.** A 22,600-page
+`Lisp.XVirtualMem` (`altofs --vmem-name 'Lisp.XVirtualMem.' --vmem-pages
+22600`, 85 pages free -- exactly the manual's number) overlaid at partition
+1 (`dsk2trident --base ... --partition 1`), booted as
+`lisp.run/M 1/X {DORADO}LISP.SYSOUT`: **190,594 px, same
+`Raid: "Bad Array Block" {103,252}`.**
+
+**The manual predicted this**, which is why it is not a surprise in
+hindsight -- under "Using sysouts made with extended virtual memory" it
+says such a sysout "will operate normally (non-extended virtual memory) ...
+on Dorados which do not have the extended virtual memory version of
+Lisp.run installed". So extended VMEM was never able to explain a hard
+failure, and 6.15's arithmetic was right to be discarded.
+
+**Not yet tried:** `(INSTALL-EXTENDED-VIRTUAL-MEMORY)` was never called
+(the run never reaches an Exec), and the `/X` link was not confirmed to
+have taken -- the loader prints `Can't open Lisp.XVirtualmem` on failure
+and nothing on success, so a trace of the guest's own output would be
+needed to tell "linked" from "silently ignored".
+
 ### 6.8 What is left
 
 Ruled out, each by measurement: **VMEM size** (four sizes, 6.7), **the
