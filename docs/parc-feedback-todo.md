@@ -266,10 +266,109 @@ interaction. Note the earlier drag also STARTED 5 px outside the menu's left
 edge, which is a second confound to eliminate — rerun the arrow test
 starting inside.
 
-**Next:** compare x=740 / 770 / 778 / 782 with identical start points, all
-inside the menu, and find the x at which the behaviour flips. Then read what
-Interlisp's menu package does at the arrow (`\MENU` / `SUBITEMS`) to see
-what event it expects there.
+### A3 ROOT CAUSE (2026-08-06): entering the menu selects immediately
+
+The endpoint sweep inverts the arrow theory above. Measuring the menu's
+real bounding box from a frame diff — **x=741..824, y=362..495**, not the
+x=705..783 I eyeballed — and holding the start fixed at (740,495):
+
+| endpoint | vs the menu box | menu during the hold |
+|---|---|---|
+| x=740 | **outside** (1 px left of the edge) | **stays up** the whole 120 M hold |
+| x=765 | inside | **collapses on arrival** |
+| x=775 | inside | **collapses on arrival** |
+| x=780 | inside | **collapses on arrival** |
+
+So it has nothing to do with the `>` arrow. **The pointer merely entering
+the menu selects an item and closes it**, without waiting for the button
+release. The reason `--menu` with no motion appeared to work is that the
+menu opens to the RIGHT of the press point, leaving the cursor just outside
+it.
+
+That is exactly the report: you cannot navigate, because the first item you
+touch is taken instantly, and the menu is gone before you can read it.
+
+**Mechanism, from `chm/lisp/lispcore/sources/MENU!29`** (fetched from
+`eris/lispcore/sources`, 76 KB, 27-Jan-1986 — the closest source to Lyric;
+none of the local `lispcore/sources` had it):
+
+- the tracking loop branches on **`(MOUSESTATE UP)`** vs
+  `(MOUSESTATE (NOT UP))`, commented *"mouse hasn't been down but just went
+  down"* (line ~3979);
+- a submenu needs the item held for
+  **`LOCALMENUHELDWAIT (OR (FIXP MENUHELDWAIT) 1200)`** — 1200 ms, i.e.
+  ~74 M bb cycles — via `HOLDTIMER` / `(TIMEREXPIRED? HOLDTIMER)` and the
+  comment *"same button in same region for MENUHELDWAIT"* (lines 3722,
+  5174, 13891).
+
+So the loop polls `MOUSESTATE`, and everything observed follows if
+`MOUSESTATE` reads **UP** while the button is physically held: the menu
+opens on the down-edge, then the first pointer-inside sample looks like a
+click and selects. The 1200 ms submenu dwell can never be reached because
+the item is taken on entry.
+
+**But our UTILIN cell is correct** — `DORADO_MOUSE_TRACE` shows the word at
+`0177030..0177033` holding `177775` for the whole interval, with only three
+transitions in the run. So `GETMOUSESTATE` is NOT reading what we maintain,
+or is not reading it the way we assume.
+
+### A3 MECHANISM FOUND: mouse CHORDING reports a single button as UP
+
+From `chm/lisp/lispcore/sources/LLKEY!88` (fetched from
+`eris/lispcore/sources`, 171 KB — the Lyric-era low-level keyboard/mouse
+module our `machine.c` already cites for `\SETIOPOINTERS`).
+
+**Interlisp keeps TWO utilin words**, which is the piece we were missing:
+
+- `\em.realutilin` = `(emaddress utilin.em)` — the hardware cell at
+  `0177030`, which is what our `machine_seed_utilin` writes;
+- `\em.utilin` — a **virtual/"fake"** word that the rest of the system,
+  including MENU's `MOUSESTATE`, actually reads.
+
+The bridge is `\domousechording`, whose own docstring says it "Sets contents
+of `\em.utilin` to reflect the **virtual** mouse state, which may contain a
+middle mouse button even where there is only a two-button mouse."
+
+And this is the path a single right-button press takes:
+
+```
+(t (* Either l or r or both are down, so have to decide about Middle)
+   (setq realutilin (logor realutilin \mouse.lrbit))    (* Turn off the l and/or r bits)
+   (cond ((eq lrstate \mouse.lrbit)
+          (* Both l and r down at once, interpret as middle without waiting) ...)
+         ((neq state \dlmouse.waiting)
+          (* Only one of l and r down.  Set timer, and IGNORE THE DOWN BIT FOR NOW)
+          (\boxiplus (\rclk (locf (fetch dlmousetimer of \miscstats))) ...
+```
+
+**One button down is deliberately reported as UP** — the l/r bits are OR-ed
+out of the virtual word (utilin is active low, so OR = "up") — while a timer
+runs to see whether the other button joins and makes a middle chord. So
+MENU sees UP, and pointer-entry looks like a click. Every observation
+follows.
+
+The state only leaves `\dlmouse.waiting` when the timer expires, checked in
+the poll loop as
+`(igreaterp (\boxidifference (\rclk mousetemp) mousetimer) 0)`.
+
+**So the question is now specific:** either the chord timer never expires
+in our emulator, or chording is enabled when it should not be. Two things
+to check, in this order:
+
+1. **`\mousechordticks`.** The function's FIRST test is
+   `(or (null \mousechordticks) (eq lrstate 0))` -> "real state and virtual
+   state the same". **If `\mousechordticks` is NIL, chording is off and none
+   of this happens.** Find out what it is in our world; if it is non-NIL,
+   ask why (a Dorado has a real 3-button mouse and needs no chord).
+2. **The timer.** It is built from `\rclk` and `dlmousetimer` in
+   `\miscstats`. Our `\RCLK` is known-good (memory records the guest's own
+   clock tracking within 0.1%), but `\boxiplus`/`\boxidifference` on a boxed
+   value and the units of `\mousechordticks` are worth confirming before
+   assuming the timer is fine.
+
+Note the code is commented "Handles mouse transitions on a DLion" — this may
+be a Dandelion-oriented path that a Dorado should not be taking at all, in
+which case the fix is upstream of the timer.
 
 **Tooling this required, both now in `dorado`:**
 
