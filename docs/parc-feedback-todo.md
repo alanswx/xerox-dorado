@@ -181,6 +181,45 @@ a very long hold (36.8 M cycles worked where 16.8 M hung). That is the
 likely place a user gets stuck, and it looks like "the menu did nothing"
 because the prompt is easy to miss.
 
+### A3 CORRECTED — it is the SUBMENU that never appears
+
+The reporter, on seeing the above: *"you are supposed to be able to choose
+things from that menu, but we always get the first item and we can't even
+see it."*
+
+That is a different and better-specified symptom than "cannot pick a
+submenu item". Read it as: the parent menu is fine, but **moving onto an
+item with a `>` arrow never opens its submenu**, so there is nothing to
+choose from and releasing yields the parent's default — the first sub-item.
+
+**Our own EXEC result is consistent with exactly that**, and I initially
+mis-read it as success: releasing on `EXEC>` produced
+`Specify region for window "Exec"` — the DEFAULT action — rather than a
+choice between Interlisp / Common Lisp / XCL Execs. That is "you always get
+the first item".
+
+**BLOCKER: we cannot currently see the screen while a menu is up.**
+`--click`, `--drag` and `--menu` each run their press/travel/hold inside
+their own `dorado_machine_run_until` loops, which **bypass the periodic
+`--shot-every` path**. Measured: a latency run with `--shot-every 4000000`
+has a **151,000,000-cycle hole** in its frame sequence
+(14,396,000,338 -> 14,547,000,354) covering the entire press. `--menu`
+writes two shots of its own, but nothing else does, so a drag onto a
+submenu parent is unobservable.
+
+**Next steps, in order:**
+
+1. **Make the interaction observable** — emit periodic screenshots inside
+   the click/drag/menu loops (or add an explicit `--shot-at CYCLES`). Until
+   then every submenu conclusion is guesswork; this section already contains
+   two of mine that were wrong.
+2. With frames in hand, hold on `EXEC>` and watch for the submenu. If it
+   never appears, the question becomes what triggers it in Interlisp —
+   dwell timer, or motion past the arrow — and whether our input delivers
+   that.
+3. Only then judge whether this is an emulator defect or an input-pacing
+   artifact.
+
 **Tooling this required, both now in `dorado`:**
 
 - `--menu-button left|middle|right` — parsed sequentially, so one run can
