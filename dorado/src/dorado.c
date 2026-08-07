@@ -171,6 +171,8 @@ typedef struct key_chord_event {
     int typed;
 } key_chord_event;
 
+#define DRAG_MAX_WAYPOINTS 6
+
 typedef struct click_event {
     int x, y;
     uint64_t at;
@@ -185,6 +187,15 @@ typedef struct click_event {
                    * and it broke MesaNetExec (2026-07-30) with no button
                    * ever pressed. A gate that only clicks cannot see it. */
     int drag_x, drag_y;
+    /* Extra waypoints after (drag_x,drag_y), travelled in order with the
+     * button still down. A straight line cannot express a gesture that has
+     * to stay on one menu row: Interlisp opens a non-popup submenu when the
+     * pointer "rolled out the right side of an item" (MENU!29 MENU.HANDLER),
+     * so the path must reach the item and only then move horizontally out of
+     * the menu. Interpolating a single segment crosses the neighbouring rows
+     * on the way and deselects. */
+    int way_x[DRAG_MAX_WAYPOINTS], way_y[DRAG_MAX_WAYPOINTS];
+    int way_n;
     int drag;     /* 1 = press at (x,y), travel to (drag_x,drag_y), release.
                    * Interlisp-D tools do not open a window where you click:
                    * FileBrowser and Sketch call GETREGION, which asks you to
@@ -539,15 +550,34 @@ int main(int argc, char **argv)
                         MAX_CLICK_EVENTS);
                 return 2;
             }
-            int x1 = 0, y1 = 0, x2 = 0, y2 = 0;
-            if (sscanf(argv[++i], "%d,%d,%d,%d", &x1, &y1, &x2, &y2) != 4) {
-                fprintf(stderr, "dorado: --drag wants X1,Y1,X2,Y2 (decimal)\n");
+            /* X1,Y1,X2,Y2[,X3,Y3...] -- extra pairs are waypoints travelled
+             * in order with the button still down (see click_event.way_x). */
+            int pt[2 * (2 + DRAG_MAX_WAYPOINTS)];
+            int npt = 0;
+            for (const char *p = argv[++i]; *p && npt < (int)(sizeof pt / sizeof pt[0]);) {
+                char *end = NULL;
+                long v = strtol(p, &end, 10);
+                if (end == p) break;
+                pt[npt++] = (int)v;
+                p = (*end == ',') ? end + 1 : end;
+            }
+            if (npt < 4 || (npt & 1)) {
+                fprintf(stderr, "dorado: --drag wants X1,Y1,X2,Y2[,X3,Y3...] "
+                                "(decimal, at most %d extra waypoints)\n",
+                        DRAG_MAX_WAYPOINTS);
                 return 2;
             }
             click_events[click_event_count] =
-                (click_event){ .x = x1, .y = y1, .at = type_at, .done = 0,
+                (click_event){ .x = pt[0], .y = pt[1], .at = type_at, .done = 0,
                                .button = menu_button,  /* 0 -> left */
-                               .drag = 1, .drag_x = x2, .drag_y = y2 };
+                               .drag = 1, .drag_x = pt[2], .drag_y = pt[3] };
+            for (int k = 4; k + 1 < npt; k += 2) {
+                click_events[click_event_count].way_x[
+                    click_events[click_event_count].way_n] = pt[k];
+                click_events[click_event_count].way_y[
+                    click_events[click_event_count].way_n] = pt[k + 1];
+                click_events[click_event_count].way_n++;
+            }
             click_event_count++;
             last_type_can_update = 0;
             pending_type_at = 0;
@@ -826,16 +856,28 @@ int main(int argc, char **argv)
                         if (drag_dwell)
                             run_until_shots(
                                 m, dorado_machine_cycles(m) + drag_dwell, shot_prefix, shot_every, &next_shot);
-                        for (int step = 1; step <= 12; step++) {
-                            dorado_machine_set_mouse(
-                                m, x1 + (x2 - x1) * step / 12,
-                                y1 + (y2 - y1) * step / 12, btn);
-                            run_until_shots(
-                                m, dorado_machine_cycles(m) + 400000ull, shot_prefix, shot_every, &next_shot);
+                        int cx = x1, cy = y1;
+                        for (int leg = 0; leg <= click_events[ce].way_n; leg++) {
+                            int lx = (leg == 0) ? x2 : click_events[ce].way_x[leg - 1];
+                            int ly = (leg == 0) ? y2 : click_events[ce].way_y[leg - 1];
+                            for (int step = 1; step <= 12; step++) {
+                                dorado_machine_set_mouse(
+                                    m, cx + (lx - cx) * step / 12,
+                                    cy + (ly - cy) * step / 12, btn);
+                                run_until_shots(
+                                    m, dorado_machine_cycles(m) + 400000ull, shot_prefix, shot_every, &next_shot);
+                            }
+                            cx = lx; cy = ly;
+                            /* Dwell at each intermediate waypoint too: a
+                             * submenu roll-out only counts if the guest
+                             * sampled the pointer on the item first. */
+                            if (leg < click_events[ce].way_n && drag_dwell)
+                                run_until_shots(
+                                    m, dorado_machine_cycles(m) + drag_dwell, shot_prefix, shot_every, &next_shot);
                         }
                         run_until_shots(m,
                             dorado_machine_cycles(m) + btn_hold, shot_prefix, shot_every, &next_shot);
-                        dorado_machine_set_mouse(m, x2, y2, 0);
+                        dorado_machine_set_mouse(m, cx, cy, 0);
                         continue;
                     }
                     /* Move first so the tracking software sees the cursor

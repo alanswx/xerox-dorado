@@ -34,6 +34,16 @@ dorado_display_key dorado_char_to_key(char c, int *shift)
     case '8': return DORADO_KEY_8;  case '9': return DORADO_KEY_9;
     case ' ':  return DORADO_KEY_SPACE;
     case '\n': case '\r': return DORADO_KEY_RETURN;
+    /* Four keys that ARE on the matrix and were unreachable from here, so
+     * --type/--paste could not send them at all: TAB fell through to
+     * "cannot type" (the control-code path excludes it), ESC (033) and DEL
+     * (0177) are outside the 1..032 control range, and BS arrived as
+     * Ctrl-H, which is not the same key. Alto HW Manual Figure 6: TAB is
+     * word 2 bit 2, ESC word 2 bit 1, DEL word 2 bit 14, BS word 0 bit 15. */
+    case '\t':   return DORADO_KEY_TAB;
+    case 033:    return DORADO_KEY_ESC;
+    case 010:    return DORADO_KEY_BS;
+    case 0177:   return DORADO_KEY_DEL;
     case '?': *shift = 1; return DORADO_KEY_FSLASH;
     case '/': return DORADO_KEY_FSLASH;
     /* Alto II digit-row shifts.  The whole row, not just the three the Lisp
@@ -109,8 +119,12 @@ int dorado_typequeue_pump(dorado_typequeue *q, struct dorado_machine *m)
         do {
             if (q->pos >= q->len) { q->active = 0; return 0; }
             tc = q->text[q->pos];
+            /* Control codes that name a real Alto KEY are excluded from the
+             * Ctrl-<letter> synthesis and mapped as themselves below: Return
+             * (015), LF (012), Tab (011) and BS (010). Without the BS
+             * exclusion 010 arrived as Ctrl-H, which is a different key. */
             if (tc > 0 && tc <= 0x1A && tc != '\n' && tc != '\r' &&
-                tc != '\t') {
+                tc != '\t' && tc != 010) {
                 ctrl = 1;
                 tc = (char)(tc - 1 + 'a');
             }

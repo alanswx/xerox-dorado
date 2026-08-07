@@ -2150,6 +2150,68 @@ static void machine_seed_lisp_live_io(dorado_machine *m, dorado_display *disp)
     if (m->mouse_present)
         machine_seed_mouse(&m->mem, m->mouse_x, m->mouse_y,
                            m->mouse_buttons);
+    /* DORADO_LISP_MOUSE_CHAIN: the path MENU's MOUSESTATE actually reads.
+     *
+     * Every mouse instrument before this one watched 0177030, which is only
+     * the FIRST of four hops, and LLKEY!88 says none of the rest derive from
+     * it directly:
+     *
+     *   \em.realutilin  = (emaddress utilin.em)  = 0177030   <- we write this
+     *   \em.utilin      = (locf (fetch (ifpage fakemousebits)
+     *                              of \InterfacePage))       <- \domousechording,
+     *                                                           and ONLY when
+     *                                                           realutilin CHANGES
+     *   keyboardevent wu -> \lastkeystate                    <- \dobufferedtransitions
+     *   getmousestate: lastmousebuttons <- \lastkeystate.wu
+     *
+     * and position is its own two-hop chain -- we write \em.mousex/mousey
+     * (0424/0425), \keyhandler1 calls \trackcursor, which CLIPS and writes
+     * \em.cursorx/cursory, and getmousestate reads THOSE:
+     *   (setq lastmousex (\xmousecoord))   -> \em.cursorx
+     *
+     * Addresses. \setiopointers' (list \dolphin \dorado) arm binds the cursor
+     * pair to (emaddress cursorx.em); the Dorado's own Alto-terminal
+     * microcode fixes that at 426 -- displaydefs.mc, "Fixed Alto Emulator
+     * Constants": MC[MouseXLoc, 424], MC[CursorXCoord, 426],
+     * MC[CursorBitMap, 431]. The fake utilin is word 60 of IFPAGELAYOUT
+     * (LLPARAMS!30, counting FULLXPOINTER as two), and \InterfacePage is
+     * (6 0) = space 6 base 0; a space is 64K words (\IOPAGE is (0 177400Q),
+     * the Alto I/O page in space 0), so the page starts at 6*65536 = 393216.
+     *
+     * The two self-check words make the arithmetic falsifiable rather than
+     * assumed: MachineType (word 13) must read as a machine type, and
+     * FAKEKBDAD4/5 (words 66/67) must read 0177777, because \setiopointers
+     * plants (\putbase \em.kbdad4 0 allup) on exactly this path. If those
+     * two are wrong, `fake` is not the fake utilin and means nothing. */
+    if (dorado_trace_flag("DORADO_LISP_MOUSE_CHAIN")) {
+        /* \InterfacePage = space 6, base 0. */
+        const uint32_t ifpage = 6u * 65536u;
+        static unsigned long long next_at = 0;
+        static uint16_t last_real, last_fake, last_cx, last_cy;
+        static int seeded = 0;
+        uint16_t real = dorado_visible_word_at_va(&m->mem, 0177030u);
+        uint16_t fake = dorado_visible_word_at_va(&m->mem, ifpage + 60u);
+        uint16_t cx   = dorado_visible_word_at_va(&m->mem, 0426u);
+        uint16_t cy   = dorado_visible_word_at_va(&m->mem, 0427u);
+        if (!seeded || real != last_real || fake != last_fake ||
+            cx != last_cx || cy != last_cy || m->bb.cycles >= next_at) {
+            seeded = 1;
+            last_real = real; last_fake = fake; last_cx = cx; last_cy = cy;
+            next_at = m->bb.cycles + 20000000ull;
+            fprintf(stderr,
+                    "[mousechain] cyc=%llu real=%06o fake=%06o "
+                    "mx=%06o my=%06o cx=%06o cy=%06o "
+                    "host=(%d,%d,b%d) mtype=%06o fk4=%06o fk5=%06o\n",
+                    (unsigned long long)m->bb.cycles, real, fake,
+                    dorado_visible_word_at_va(&m->mem, 0424u),
+                    dorado_visible_word_at_va(&m->mem, 0425u), cx, cy,
+                    m->mouse_x, m->mouse_y, m->mouse_buttons & 07,
+                    dorado_visible_word_at_va(&m->mem, ifpage + 13u),
+                    dorado_visible_word_at_va(&m->mem, ifpage + 66u),
+                    dorado_visible_word_at_va(&m->mem, ifpage + 67u));
+        }
+    }
+
     if (dorado_trace_flag("DORADO_LISP_KEY_TRACE") &&
         (w[0] != 0177777u || w[1] != 0177777u ||
          w[2] != 0177777u || w[3] != 0177777u)) {
@@ -4214,6 +4276,31 @@ void dorado_machine_set_mouse(dorado_machine *m, int x, int y, int buttons)
     m->mouse_x = x;
     m->mouse_y = y;
     m->mouse_buttons = buttons;
+
+    /* Report the buttons on the terminal back-channel as well, because the
+     * running microcode is a SECOND WRITER of the cell we poke.
+     *
+     * HM Table 24: the terminal microcomputer serialises message 05B =
+     * "mouse buttons and keyset (Alto 177033B)", and the Alto-terminal
+     * microcode stores what it receives into 177033/177030. We model that
+     * stream (display_terminal_keyboard_bit: word 4 is the type-5 body) but
+     * had never driven word 4 from the mouse, so it reported ALL BUTTONS UP
+     * forever while machine_seed_utilin poked the same cell with the real
+     * state -- two writers, ~160,000 cycles apart, disagreeing.
+     *
+     * The guest loses that race a few times per second, and in Interlisp-D
+     * that is enough to break every pop-up menu: \keyhandler1 calls
+     * \domousechording only when \em.realutilin CHANGES, so one sampled
+     * all-up restarts the chord state machine, which "ignores the down bit
+     * for now" and holds \em.utilin -- the word MENU's MOUSESTATE actually
+     * reflects -- UP for a full \mousechordmilliseconds. MENU.HANDLER's
+     * `until (MOUSESTATE UP)` then fires on whatever item the pointer is
+     * over. Driving word 4 makes both writers agree, so the window closes
+     * rather than being papered over. Active low, same bit order as
+     * machine_seed_utilin and machine_seed_cedar_keyboard: bit 2 = Red/left,
+     * bit 1 = Blue/right, bit 0 = Yellow/middle. */
+    dorado_display_keyboard_set_word(&m->display, 4,
+                                     (uint16_t)~((unsigned)buttons & 07u));
 }
 
 dorado_display *dorado_machine_display(dorado_machine *m)

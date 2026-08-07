@@ -872,6 +872,92 @@ verify-lisp-click: $(BINDIR)/dorado
 	echo "verify-lisp-click: $$px px (need >= $(LISP_CLICK_GATE_MIN_PX); healthy = 208966, RAID = 191601)"; \
 	test "$$px" -ge '$(LISP_CLICK_GATE_MIN_PX)'
 
+# ---------------------------------------------------------------------------
+# An Interlisp pop-up menu you can actually navigate.
+#
+# The reported symptom (A3) was "you always get the first item and we can't
+# even see it": the pointer merely entering the menu took an item and closed
+# it. Root cause was two writers of the UTILIN cell -- see the comment in
+# dorado_machine_set_mouse -- so the guest sampled all-buttons-up a few times
+# a second while the button was held.
+#
+# The gate presses the RIGHT button on the background, dwells until the menu
+# is up, travels onto TEdit (an item with no submenu) and measures whether
+# that ROW IS INVERTED, which is Interlisp's "this item is selected, waiting
+# for your release". A full-screen pixel count cannot see this: the menu-up
+# and menu-gone screens are within 0.2% of each other.
+#
+# Validated against its own bug: 297/1066 black before the fix (menu already
+# gone, TEdit's default action fired), 893/1066 after (row inverted, menu
+# still up). Both readings are stable across trials.
+LISP_MENU_MIN_INK ?= 700
+
+.PHONY: verify-lisp-menu
+verify-lisp-menu: $(BINDIR)/dorado
+	@test -r '$(LISP_FULL_SNAPSHOT)' || \
+		(echo "Missing $(LISP_FULL_SNAPSHOT). Run 'make lisp-lyric-full-snapshot' once." && false)
+	@mkdir -p '$(TRIDENT_RUN_DIR)'
+	@cp -f '$(LISP_FULL_SNAPSHOT_PACK)' '$(TRIDENT_RUN_DIR)/lisp-menu-gate.pack'
+	@chmod 644 '$(TRIDENT_RUN_DIR)/lisp-menu-gate.pack'
+	@DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_CURRENT_FAKE_TIME)' \
+		./build/dorado --eb worlds/aemu.eb \
+		--disk 0='$(TRIDENT_RUN_DIR)/lisp-menu-gate.pack' \
+		--boot-reason disk --no-alto-boot \
+		--snapshot-in '$(LISP_FULL_SNAPSHOT)' \
+		--ftp-root '$(LISP_LISPUSERS_DIR)' \
+		--menu-button right --type-at 14400000000 \
+		--drag 740,495,770,477 --drag-dwell 30000000 --drag-hold 60000000 \
+		--cycles 14495000000 --out build/verify-lisp-menu.pgm >/dev/null 2>&1
+	@ink=`python3 ../tools/pgm_ink.py build/verify-lisp-menu.pgm 742 471 824 484`; \
+	echo "verify-lisp-menu: TEdit row ink $$ink/1066 (need >= $(LISP_MENU_MIN_INK);"; \
+	echo "  893 = item selected with the menu still up, 297 = menu already collapsed)"; \
+	test "$$ink" -ge '$(LISP_MENU_MIN_INK)'
+
+# ---------------------------------------------------------------------------
+# Control as a MODIFIER, driven the way a frontend drives it.
+#
+# "The Control key does not work" was reported by a PARC veteran (A1 in
+# docs/parc-feedback-todo.md) and nothing gated it. --type's control-code path
+# is not the interesting one: it is self-contained. What matters is
+# dorado_machine_set_key(CTRL, 1) held as a LEVEL across another key, which is
+# exactly what dorado_sdl.c and dorado_web.c do, and what --key-chord does.
+#
+# The probe is Interlisp's line editor: at the Exec, Ctrl-W deletes the
+# previous word. Type "abcdef ghijkl", then Ctrl-W, then measure the ink in
+# the Exec's first line. Ink, not a full-screen pixel count -- the screen is
+# 209,000 px and one word is 145 of them.
+#
+# Validated against its own bug, both directions:
+#   405 ink  no chord at all         ("abcdef ghijkl")
+#   439 ink  --key-chord w           (a 'w' appended -- key delivered, no
+#                                     modifier: the exact failure this gate
+#                                     exists to catch)
+#   260 ink  --key-chord ctrl,w      (word deleted -- Control held as a level)
+# so the threshold sits below all three of the failure readings.
+LISP_CTRL_MAX_INK ?= 330
+
+.PHONY: verify-ctrl
+verify-ctrl: $(BINDIR)/dorado
+	@test -r '$(LISP_FULL_SNAPSHOT)' || \
+		(echo "Missing $(LISP_FULL_SNAPSHOT). Run 'make lisp-lyric-full-snapshot' once." && false)
+	@mkdir -p '$(TRIDENT_RUN_DIR)'
+	@cp -f '$(LISP_FULL_SNAPSHOT_PACK)' '$(TRIDENT_RUN_DIR)/lisp-ctrl-gate.pack'
+	@chmod 644 '$(TRIDENT_RUN_DIR)/lisp-ctrl-gate.pack'
+	@DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_CURRENT_FAKE_TIME)' \
+		./build/dorado --eb worlds/aemu.eb \
+		--disk 0='$(TRIDENT_RUN_DIR)/lisp-ctrl-gate.pack' \
+		--boot-reason disk --no-alto-boot \
+		--snapshot-in '$(LISP_FULL_SNAPSHOT)' \
+		--ftp-root '$(LISP_LISPUSERS_DIR)' \
+		--type-at 14050000000 --click 250,50 --key-hold 3000000 \
+		--type-at 14200000000 --type "abcdef ghijkl" --key-hold 4000000 \
+		--type-at 14450000000 --key-chord ctrl,w --key-hold 4000000 \
+		--cycles 14560000000 --out build/verify-ctrl.pgm >/dev/null 2>&1
+	@ink=`python3 ../tools/pgm_ink.py build/verify-ctrl.pgm 0 256 320 276`; \
+	echo "verify-ctrl: Exec line ink $$ink (need <= $(LISP_CTRL_MAX_INK);"; \
+	echo "  260 = Ctrl-W deleted the word, 405 = chord ignored, 439 = 'w' with no Control)"; \
+	test "$$ink" -le '$(LISP_CTRL_MAX_INK)'
+
 # Headless gate for the Mesa world: herald + prompt, and typing echoes.
 .PHONY: verify-mesa
 verify-mesa: $(BINDIR)/dorado

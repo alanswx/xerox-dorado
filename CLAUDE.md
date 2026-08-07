@@ -543,17 +543,47 @@ route to the Verilog since the Sil files were the design input and tracked
 bug fixes -- blocked only by our holding no `.sil` files, just rendered
 PDFs, while 293 Dorado-named ones sit in the archive.
 
-**The Interlisp menu bug is characterised but NOT fixed.** The pointer
-merely *entering* a menu selects an item and closes it, so you always get
-the first thing you touch and never see a submenu. Menus are on the
-**RIGHT/blue** button. The mouse button is eliminated **from the guest's
-side**: `DORADO_LOAD_TRACE_VA=177030,177033` logs 3,857 guest reads and,
-from 14.4020 B onward, all 331 read DOWN right through the collapse --
-which retired five successive theories of mine (chording, lost release,
-stale cell, cache coherency, submenu arrows). The trigger is *position*.
-Next: read `\SETIOPOINTERS`' Dorado arm to find where `MOUSESTATE` really
-looks, or PC-trace the window where the menu closes;
-`chm/lisp/lispcore/sources/MENU!29` and `LLKEY!88` are now local.
+**The Interlisp menu bug is FIXED, and it was two writers of one cell
+(2026-08-07).** The Alto-terminal microcode stores the mouse/keyset word
+into `0177030`/`0177033` every ~160,000 cycles (HM Table 24, message
+`05B`), and we never drove the modelled back-channel's word 4 from the
+mouse -- so it reported ALL BUTTONS UP while `machine_seed_utilin` poked
+the real state into the same cell. A few times a second the guest sampled
+the microcode's value; in Interlisp one all-up restarts
+`\domousechording`, which by its own comment "ignores the down bit for
+now" and holds the VIRTUAL utilin up for a full
+`\mousechordmilliseconds`, so `MENU.HANDLER`'s `until (MOUSESTATE UP)`
+fires on whatever item the pointer is over. `dorado_machine_set_mouse`
+now sets terminal word 4 too. Menus navigate, items highlight, and
+**submenus open** -- `EXEC>` gives `Xerox Common Lisp / Common Lisp /
+Interlisp` (`docs/images/lisp-exec-submenu-2026-08-07.png`). Gate:
+`make verify-lisp-menu`.
+
+**What made this take five wrong theories: `MOUSESTATE` reads none of the
+cells we were tracing.** Buttons reach it three hops downstream via
+`\lastkeystate`, and position comes from `\em.cursorx/cursory` =
+**`0426/0427`**, not the `0424/0425` we write. The virtual utilin is at
+**`0o1400074`** (`\InterfacePage` = space 6 base 0 = word 393216,
+`FAKEMOUSEBITS` = word 60 of `IFPAGELAYOUT`), self-checked in the guest
+against `MachineType`=5=`\DORADO` and `FAKEKBDAD4/5`=`0177777`.
+`DORADO_LISP_MOUSE_CHAIN=1` prints the whole chain.
+
+**Keyboard audited, Control fixed (2026-08-07).** The 61-key matrix in
+`display.c` is correct in **every** position, checked against three
+independent sources: Alto HW Manual Figure 6, ContrAlto, and Cedar's own
+`TerminalDefs.mesa KeyName` -- which also settles Figure 6's one
+ambiguous row (word 2 bit 10 = Period, bit 11 = SemiColon), names the
+three unmarked keys from the Alto keytops (Look / Next / Swat), and
+confirms `KeyBits` starts **at** `177033`. The bugs were elsewhere: the
+browser dropped **every** Ctrl+key event before it reached C (that is the
+whole of "the Control key does not work"; native was never broken --
+Ctrl-W deletes a word in the Lyric Exec, gate `make verify-ctrl`); Caps
+Lock reached no host key in either frontend and is now mirrored as a
+LATCH; `←`, LF and the three blank keys had no host key at all; and
+`--type`/paste could not send TAB, ESC, DEL or BS. Cedar middle-click is
+NOT a button-number error -- `Red(13) Blue(14) Yellow(15)` match our bits
+exactly and Cedar has no second writer of `177033`. Detail and the
+retracted theories: `docs/parc-feedback-todo.md` section A.
 
 **Interlisp-D reads its own manual over the network (2026-08-01..04).**
 The Lyric pack grew from 119 to 204 library packages (chosen by

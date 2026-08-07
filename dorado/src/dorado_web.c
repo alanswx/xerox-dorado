@@ -181,6 +181,14 @@ EM_JS(void, js_boot_progress, (int millions), {
 #define WEB_KEY_RSHIFT 0x1002
 #define WEB_KEY_CTRL   0x1003
 #define WEB_KEY_F1     0x1004
+/* The rest of the Alto's 61 keys, which have no modern keytop. Keep in sync
+ * with web_shell.html's KEYCODES table (Alto HW Manual Figure 6, doc p.27). */
+#define WEB_KEY_ARROW  0x1005   /* the Alto's left-arrow, host Backquote  */
+#define WEB_KEY_BLANKT 0x1006
+#define WEB_KEY_BLANKM 0x1007
+#define WEB_KEY_BLANKB 0x1008
+#define WEB_KEY_LF     0x1009
+#define WEB_KEY_LOCK   0x100A
 
 static dorado_display_key map_key(int k)
 {
@@ -224,6 +232,12 @@ static dorado_display_key map_key(int k)
     case WEB_KEY_LSHIFT: return DORADO_KEY_LSHIFT;
     case WEB_KEY_RSHIFT: return DORADO_KEY_RSHIFT;
     case WEB_KEY_CTRL:   return DORADO_KEY_CTRL;
+    case WEB_KEY_ARROW:  return DORADO_KEY_ARROW;
+    case WEB_KEY_BLANKT: return DORADO_KEY_BLANKTOP;
+    case WEB_KEY_BLANKM: return DORADO_KEY_BLANKMIDDLE;
+    case WEB_KEY_BLANKB: return DORADO_KEY_BLANKBOTTOM;
+    case WEB_KEY_LF:     return DORADO_KEY_LF;
+    case WEB_KEY_LOCK:   return DORADO_KEY_LOCK;
     default: return DORADO_KEY_NONE;
     }
 }

@@ -1,5 +1,46 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+> ## ===> 2026-08-07: THE INTERLISP MENU BUG IS FIXED, AND THE KEYBOARD IS AUDITED
+>
+> **A3 root cause: two writers of the UTILIN cell.** The Alto-terminal
+> microcode (HM Table 24 message `05B`) stores the mouse/keyset word into
+> `0177030`/`0177033` every ~160,000 cycles, and we never drove the terminal
+> back-channel's word 4 from the mouse — so it said ALL BUTTONS UP while
+> `machine_seed_utilin` poked the truth into the same cell. The guest lost
+> that race a few times a second; in Interlisp one sampled all-up restarts
+> `\domousechording`, which holds the VIRTUAL utilin up for a full
+> `\mousechordmilliseconds`, and `MENU.HANDLER`'s `until (MOUSESTATE UP)`
+> takes whatever item the pointer is on. One line in
+> `dorado_machine_set_mouse` makes both writers agree.
+>
+> Menus now navigate: items highlight, the menu stays up, **submenus open**
+> (`EXEC>` -> `Xerox Common Lisp / Common Lisp / Interlisp`, screenshot
+> `docs/images/lisp-exec-submenu-2026-08-07.png`), and dwelling on an item
+> prints its help. Gate `make verify-lisp-menu` (893/1066 vs 297 before).
+>
+> **The instrument was the whole problem.** `MOUSESTATE` reads NONE of the
+> cells five sessions of tracing watched. Buttons come from `\lastkeystate`,
+> three hops downstream, and position from `\em.cursorx/cursory` = **`0426/
+> 0427`**, not `0424/0425`. The virtual utilin is at **`0o1400074`** —
+> `\InterfacePage` (6 0) = 393216, `FAKEMOUSEBITS` = word 60 of
+> `IFPAGELAYOUT` — self-checked in the guest against `MachineType`=5 and
+> `FAKEKBDAD4/5`=`0177777`. `DORADO_LISP_MOUSE_CHAIN=1` prints all of it.
+>
+> **A1 (Control) was a browser one-liner**: `web_shell.html` dropped every
+> Ctrl+key event before it reached C. Native was never broken — Ctrl-W in
+> the Lyric Exec deletes a word. Gate `make verify-ctrl`.
+>
+> **A4: the 61-key matrix is correct in every position**, confirmed against
+> Alto HW Manual Figure 6, ContrAlto, and Cedar's `TerminalDefs.mesa
+> KeyName` (which also settles Figure 6's ambiguous row, names the blank
+> keys Look/Next/Swat, and confirms KeyBits starts at `177033`). What was
+> wrong was reachability: `←`, LF and the three blank keys had no host key,
+> and TAB/ESC/DEL/BS could not be typed. Caps Lock (A3b) is wired in both
+> frontends as a LATCH. A2 is NOT a button-number error — `Red(13)
+> Blue(14) Yellow(15)` match us bit for bit, and Cedar has no second writer.
+>
+> Full account with the retractions: `docs/parc-feedback-todo.md` section A.
+
 > ## ===> 2026-08-07: A FULL-LIBRARY INTERLISP-D WORLD BOOTS, AND IS SHIPPED
 >
 > `Released-Full.sysout!2` (Jan-88) comes up to a live Exec — **209,188 px**,

@@ -14,6 +14,159 @@ Legend: **[verified]** checked against code/docs this session ·
 
 ---
 
+## A. RESULTS (2026-08-07): A3 fixed, A1 fixed, A3b done, A4 audited
+
+Read this before the per-item history below, which is kept because the
+wrong turns in it are instructive.
+
+### A3 — FIXED. Two writers of the UTILIN cell.
+
+**Root cause: the running microcode is a second writer of `0177030`, and it
+was writing ALL BUTTONS UP.** HM Table 24: the terminal microcomputer
+serialises message `05B` = "mouse buttons and keyset (Alto `177033B`)", and
+the Alto-terminal microcode stores what it receives. We *do* model that
+stream — `display_terminal_keyboard_bit()`, where `keyboard_words[4]` is the
+type-5 body — but nothing ever drove word 4 from the mouse, so it reported
+all-up forever while `machine_seed_utilin` poked the same cell with the real
+state. Measured: `task=4 pc=0o2442/0o2451` stores `177777` to
+`0177033`/`0177030` every ~160,000 cycles, against our repair every 16,384.
+
+The guest loses that race a few times per second, and in Interlisp-D that is
+enough to break every pop-up menu. `\keyhandler1` (LLKEY!88) calls
+`\domousechording` only when `\em.realutilin` **changes**, so one sampled
+all-up restarts the chord state machine, which by its own comment "ignores
+the down bit for now" and holds `\em.utilin` UP for a full
+`\mousechordmilliseconds`. `MENU.HANDLER`'s `until (MOUSESTATE UP)` then
+fires on whatever item the pointer is over — "you always get the first item
+and we can't even see it".
+
+Fix: `dorado_machine_set_mouse` now also sets terminal word 4, so both
+writers agree. One line plus its explanation.
+
+Measured A/B over one 250 M-cycle button hold, stores to `\em.utilin`:
+
+| build | stores | of which all-up |
+|---|---|---|
+| before | 20 | 14 |
+| after | 3 | 2 (the initial 50 ms chord wait, and the real release) |
+
+And on screen: dragging onto `TEdit` leaves the row inverted with the menu
+open (893/1066 black) instead of the menu already gone (297/1066).
+**Submenus work**: rolling right out of `EXEC>` opens
+`Xerox Common Lisp / Common Lisp / Interlisp`, which is exactly the choice
+the reporter said was unreachable
+(`docs/images/lisp-exec-submenu-2026-08-07.png`), and dwelling on an item
+for `MENUHELDWAIT` prints its help ("Start a new Exec") in the Prompt
+Window. Gate: **`make verify-lisp-menu`**.
+
+**The instrument that cracked it, after five wrong theories, was pointing at
+the right cell.** `MOUSESTATE` reads none of the words we had been tracing:
+
+| hop | cell | address | written by |
+|---|---|---|---|
+| 0 | `\em.realutilin` | `0177030` | us, and the microcode |
+| 1 | `\em.utilin` (fake) | **`0o1400074`** | `\domousechording`, only on a CHANGE of hop 0 |
+| 2 | `keyboardevent.wu` | ring | `\keyhandler1` |
+| 3 | `\lastkeystate.wu` | — | `\dobufferedtransitions`; `getmousestate` reads THIS |
+
+Position is its own chain: we write `\em.mousex/mousey` (`0424/0425`),
+`\trackcursor` clips and writes `\em.cursorx/cursory` (**`0426/0427`**), and
+`getmousestate` reads those. `\em.utilin`'s address is not runtime-unknowable
+as an earlier note claimed: `\setiopointers` binds it to
+`(locf (fetch (ifpage fakemousebits) of \InterfacePage))`, `\InterfacePage`
+is `(6 0)` = word 6·65536 = 393216, and `FAKEMOUSEBITS` is word 60 of
+`IFPAGELAYOUT` (LLPARAMS!30). Verified in the running guest by two
+self-check words in the same page: `MachineType` (word 13) reads `5` =
+`\DORADO`, and `FAKEKBDAD4/5` (words 66/67) read `0177777`, which is what
+`\setiopointers` plants there. `DORADO_LISP_MOUSE_CHAIN=1` prints the whole
+chain; `DORADO_STORE_TRACE_VA=1400074,1400074` names the writer.
+
+Two earlier conclusions were wrong and are retracted:
+
+- **"The button is eliminated from the guest's side."** The 331 sampled
+  reads all showed DOWN because the race window is small — the guest sees
+  all-up about three times per hold, and a sparse read trace missed them.
+- **"`DORADO_UTILIN_SCAN` shows the instrument is blind above 2^22."** The
+  whole Lisp address space *is* 2^22 (that is the same 2^14-page boundary
+  that closed `Full.sysout!6`), so identical counts at 2^22 and 2^24 are
+  expected. The real defect was in phase 2, which scanned on the same tick
+  our cell went up, before the guest could re-poll.
+
+### A1 — FIXED for the browser; the native path was never broken.
+
+`web_shell.html`'s `sendKey` began `if (e.metaKey || (e.ctrlKey && code
+!== Control...)) return;` — so **every** Ctrl+<key> event was dropped before
+reaching C. The C side was fine all along. Now only the chords the browser
+owns (`R T N W L V P`, Tab, F5, F12, and Ctrl+Shift+anything) are left to
+it; everything else goes to the guest.
+
+Native was verified working, not assumed: in the Lyric Exec, typing
+`abcdef ghijkl` then Ctrl-W leaves `abcdef ` — Interlisp's delete-word.
+Gate: **`make verify-ctrl`**, validated in both directions (405 ink with no
+chord, 439 with `--key-chord w` — the key delivered without its modifier,
+which is the failure mode — and 260 with `--key-chord ctrl,w`).
+
+The `il:FILesLOaD` mixed-case corruption is a *separate* issue and is not a
+modelling error: `typetext.c` already presses a modifier a full `key_hold`
+before the base key and releases it after, so at `--key-hold 200000`
+(~3.2 ms of guest time) it is simply typing faster than the guest samples.
+
+### A3b — DONE. Caps Lock, in both frontends, as a LATCH.
+
+The matrix entry was already right (`display.c`, word 3 mask `0x0080`). Both
+frontends now mirror the host's caps-lock **state** (`SDL_GetModState() &
+KMOD_CAPS`, `e.getModifierState('CapsLock')`) rather than its press/release,
+because both report a down/up pair per toggle and the naive wiring leaves the
+Alto's LOCK stuck on.
+
+### A4 — AUDITED. The 61-key matrix is correct; the reachability was not.
+
+Every entry of `display.c`'s `key_map` was checked against **three
+independent sources** and all four words agree in every position: Alto HW
+Manual Figure 6 (doc p.27 = PDF p.34), ContrAlto's `Keyboard.cs`, and — best
+of all, because it is a Xerox source that also names the keys — Cedar's
+`TerminalDefs.mesa KeyName`, which enumerates the whole `KeyBits` block
+starting at `177033`. That third source settles the one row where Figure 6's
+scan is ambiguous: word 2 bit 10 is `Period` and bit 11 is `SemiColon`, as
+we have it.
+
+It also names the three unmarked keys from the Alto keytops — **Spare1
+"Look"** (right of BS), **Spare2 "Next"** (right of RETURN), **Spare3
+"Swat"** (lower right corner) — our BLANKTOP / BLANKMIDDLE / BLANKBOTTOM.
+Interlisp reads all three in `\eventkeys` as mouse-event modifier bits, so
+they are not decorative.
+
+And it confirms the CLAUDE.md discrepancy A4 flagged: `TerminalHeadDorado.mesa`
+has `keyboard: ... _ LOOPHOLE[LONG[177033B]]` and `mouse: ... _
+LOOPHOLE[LONG[424B]]`, i.e. KeyBits **starts at** the UTILIN word and spans
+forward over the four Alto keyboard words — exactly what
+`machine_seed_cedar_keyboard` does.
+
+What the audit did find is that correct bits were **unreachable**:
+
+- SDL and the browser had no host key for the left arrow (`←`), LF, or Look
+  / Next / Swat. Now on backquote and F2/F3/F4/F6, documented as stand-ins
+  chosen for being free rather than for resembling the keytops.
+- `dorado_char_to_key` could not produce TAB, ESC, DEL or BS, so `--type`
+  and paste could not send them: TAB fell through to "cannot type", ESC
+  (`033`) and DEL (`0177`) are outside the control-code range, and BS
+  arrived as Ctrl-H, a different key.
+
+### A2 — NOT a button-number error. Still open, needs a precise repro.
+
+Checked against the period source rather than intuition, as the item asked.
+`TerminalDefs.mesa` gives `Red(13)` = left, `Blue(14)` = right,
+`Yellow(15)` = middle; in the `177033` word those are masks `0004`, `0002`,
+`0001` — bit for bit what `machine_seed_cedar_keyboard` writes. And the
+A3 two-writer race does **not** reach Cedar: a store trace on `0177033`
+across a 120 M-cycle middle-button hold in the live desktop shows **zero**
+guest stores, so on that path we are the only writer.
+
+So either this is authentic Tioga behaviour (yellow does have copy/insert
+semantics in Cedar) or it is something narrower than the button mapping.
+Get the exact viewer, gesture and expected result from the reporter before
+changing anything.
+
 ## A. Input — keyboard and mouse (HIGHEST PRIORITY)
 
 Four independent complaints, and this is the class of bug that makes

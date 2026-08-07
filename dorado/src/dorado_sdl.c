@@ -73,6 +73,22 @@ static dorado_display_key map_key(SDL_Keycode k)
     case SDLK_LSHIFT:       return DORADO_KEY_LSHIFT;
     case SDLK_RSHIFT:       return DORADO_KEY_RSHIFT;
     case SDLK_LCTRL: case SDLK_RCTRL: return DORADO_KEY_CTRL;
+    /* The rest of the Alto's 61 keys, which no modern keytop names. Alto HW
+     * Manual Figure 6 (doc p.27): the left arrow is word 2 bit 13, LF is
+     * word 0 bit 14, and the three unmarked keys are word 1 bits 15 and 14
+     * and word 3 bit 13. Cedar's TerminalDefs.mesa names them from the Alto
+     * keytops -- Spare1 "Look" (right of BS), Spare2 "Next" (right of
+     * RETURN), Spare3 "Swat" (lower right corner) -- which is what our
+     * BLANKTOP/MIDDLE/BOTTOM are. Interlisp reads all three in \eventkeys as
+     * mouse-event modifier bits, so leaving them unreachable is a real gap,
+     * not a cosmetic one. The host keys are stand-ins chosen for being free,
+     * not for resembling the keytops. LOCK is NOT here: it is a latch,
+     * handled from SDL_GetModState below. */
+    case SDLK_BACKQUOTE:    return DORADO_KEY_ARROW;        /* Alto _ and ^ */
+    case SDLK_F2:           return DORADO_KEY_BLANKTOP;     /* Look */
+    case SDLK_F3:           return DORADO_KEY_BLANKMIDDLE;  /* Next */
+    case SDLK_F4:           return DORADO_KEY_BLANKBOTTOM;  /* Swat */
+    case SDLK_F6:           return DORADO_KEY_LF;
     default: return DORADO_KEY_NONE;
     }
 }
@@ -605,6 +621,19 @@ int main(int argc, char **argv)
                 }
                 if (!down && k == SDLK_v && paste_queue.active)
                     break;            /* release of the swallowed chord */
+                /* LOCK is a latching key on the Alto (Figure 6, word 3 bit
+                 * 8) and Caps Lock is a latch on the host, but SDL reports a
+                 * down/up PAIR per toggle -- so map the host's STATE, not
+                 * its transitions, or LOCK sticks on after one press.
+                 * Checked on every key event so the two stay in step. */
+                {
+                    static int caps_was = -1;
+                    int caps = (SDL_GetModState() & KMOD_CAPS) ? 1 : 0;
+                    if (caps != caps_was) {
+                        caps_was = caps;
+                        dorado_machine_set_key(m, DORADO_KEY_LOCK, caps);
+                    }
+                }
                 dorado_display_key dk = map_key(k);
                 if (dk != DORADO_KEY_NONE)
                     dorado_machine_set_key(m, dk, down);
