@@ -66,6 +66,10 @@ WEB_STP_DIR := build/web-stp
 # visitor who came for Galaxian never downloads them.
 WEB_LISP_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/lisp-lispusers.snap.gz
 WEB_LISP_PACK_GZ := $(WEB_LISP_ASSET_DIR)/lisp-lispusers.pack.gz
+# The full-library Lyric world (Released-Full.sysout!2), a SECOND Lyric entry
+# rather than a replacement -- see dorado_web.c WEB_LISP_FULL_PACK.
+WEB_LISP_FULL_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/lisp-lyric-full.snap.gz
+WEB_LISP_FULL_PACK_GZ := $(WEB_LISP_ASSET_DIR)/lisp-lyric-full.pack.gz
 WEB_SMALLTALK_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/smalltalk76.snap.gz
 WEB_SMALLTALK_PACK_GZ     := $(WEB_LISP_ASSET_DIR)/smalltalk76.pack.gz
 WEB_SMALLTALK_RAW_DIR     := $(BINDIR)/web-smalltalk
@@ -119,7 +123,7 @@ WEB_CFLAGS := -std=c99 -D_GNU_SOURCE -O3 -flto $(WEB_PGO) -Iinclude -Ivendor/650
 WEB_LDFLAGS := -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=67108864 \
                -sSTACK_SIZE=1048576 \
                -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,FS \
-               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_cedar_desktop,_dorado_web_boot_cedar_demo,_dorado_web_boot_cedar_corpus,_dorado_web_boot_mesa,_dorado_web_boot_disk,_dorado_web_boot_lisp,_dorado_web_boot_smalltalk,_dorado_web_key,_dorado_web_mouse,_dorado_web_debug,_dorado_web_paste \
+               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_cedar_desktop,_dorado_web_boot_cedar_demo,_dorado_web_boot_cedar_corpus,_dorado_web_boot_mesa,_dorado_web_boot_disk,_dorado_web_boot_lisp,_dorado_web_boot_lisp_full,_dorado_web_boot_smalltalk,_dorado_web_key,_dorado_web_mouse,_dorado_web_debug,_dorado_web_paste \
                --preload-file worlds/aemu.eb@/worlds/aemu.eb \
                --preload-file ../chm/bootfiles@/chm/bootfiles \
                --preload-file '../chm/dorado/AltoMesaDorado.eb!2'@/worlds/AltoMesaDorado.eb \
@@ -188,9 +192,11 @@ WEB_BUILD_ID := $(shell git rev-parse --short HEAD 2>/dev/null || date +%s)
 web-shell: src/web_shell.html | $(BINDIR)
 	sed 's/@@BUILD_ID@@/$(WEB_BUILD_ID)/g' src/web_shell.html > $(BINDIR)/web_shell.gen.html
 
-web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_PDI_GZ) $(WEB_CEDAR_DEMO_SNAPSHOT_GZ) $(WEB_CEDAR_DEMO_PDI_GZ) $(WEB_CEDAR_CORPUS_SNAPSHOT_GZ) $(WEB_CEDAR_CORPUS_PDI_GZ) $(WEB_LISP_SNAPSHOT_GZ) $(WEB_LISP_PACK_GZ) $(WEB_SMALLTALK_SNAPSHOT_GZ) $(WEB_SMALLTALK_PACK_GZ) web-stp web-cedar-src web-lisp-src web-shell | web-dir
+web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_PDI_GZ) $(WEB_CEDAR_DEMO_SNAPSHOT_GZ) $(WEB_CEDAR_DEMO_PDI_GZ) $(WEB_CEDAR_CORPUS_SNAPSHOT_GZ) $(WEB_CEDAR_CORPUS_PDI_GZ) $(WEB_LISP_SNAPSHOT_GZ) $(WEB_LISP_PACK_GZ) $(WEB_LISP_FULL_SNAPSHOT_GZ) $(WEB_LISP_FULL_PACK_GZ) $(WEB_SMALLTALK_SNAPSHOT_GZ) $(WEB_SMALLTALK_PACK_GZ) web-stp web-cedar-src web-lisp-src web-shell | web-dir
 	cp -f '$(WEB_LISP_SNAPSHOT_GZ)' web/lisp-lispusers.snap.gz
 	cp -f '$(WEB_LISP_PACK_GZ)' web/lisp-lispusers.pack.gz
+	cp -f '$(WEB_LISP_FULL_SNAPSHOT_GZ)' web/lisp-lyric-full.snap.gz
+	cp -f '$(WEB_LISP_FULL_PACK_GZ)' web/lisp-lyric-full.pack.gz
 	$(EMCC) $(WEB_CFLAGS) $(WEB_SRCS) $(WEB_LDFLAGS) -o web/index.html
 	@# Cache-bust the emcc-generated loader too. Module.locateFile already
 	@# stamps index.data/index.wasm with the build id, but emcc emits a plain
@@ -322,6 +328,58 @@ $(WEB_NODE_JS): $(WEB_NODE_SRCS) | $(BINDIR)
 # wasm checkpoint is then paired with the NATIVE run's already-flushed pack.
 WEB_LISPUSERS_RAW_SNAPSHOT := $(WEB_LISP_RAW_DIR)/lisp-lispusers.snap
 WEB_LISPUSERS_RAW_PACK := $(WEB_LISP_RAW_DIR)/lisp-lispusers.pack
+# The FULL-library Lyric world for the browser.  Same two-bake shape as
+# lisp-lispusers-web-snapshot below: the native and wasm32 snapshot ABIs
+# differ, so the wasm checkpoint must be baked by the node build and is then
+# paired with the NATIVE run's already-flushed pack.
+LISP_FULL_SNAPSHOT ?= build/good-packs/lisp-lyric-full.snap
+LISP_FULL_SNAPSHOT_PACK ?= build/good-packs/lisp-lyric-full.pack
+LISP_FULL_SNAPSHOT_CYCLES ?= 14000000000
+WEB_LISP_FULL_RAW_SNAPSHOT := $(WEB_LISP_RAW_DIR)/lisp-lyric-full.snap
+WEB_LISP_FULL_RAW_PACK := $(WEB_LISP_RAW_DIR)/lisp-lyric-full.pack
+
+# Native checkpoint: boot Released-Full.sysout!2 and snapshot at the Exec.
+.PHONY: lisp-lyric-full-snapshot
+lisp-lyric-full-snapshot: $(BINDIR)/dorado
+	@test -r '$(LISP_FULL_GOOD_PACK)' || \
+		(echo "Missing $(LISP_FULL_GOOD_PACK) -- run 'make lisp-lyric-full-pack' first." && false)
+	mkdir -p '$(dir $(LISP_FULL_SNAPSHOT))'
+	cp -f '$(LISP_FULL_GOOD_PACK)' '$(LISP_FULL_SNAPSHOT_PACK)'
+	chmod 644 '$(LISP_FULL_SNAPSHOT_PACK)'
+	DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_CURRENT_FAKE_TIME)' \
+	./build/dorado --eb worlds/aemu.eb \
+		--disk 0='$(LISP_FULL_SNAPSHOT_PACK)' --boot-reason disk --no-alto-boot \
+		--ftp-sysout '$(LISP_RELFULL_SYSOUT_FILE)' \
+		--type 'lisp.run/M {DORADO}LISP.SYSOUT\n' \
+		--type-at 330000000 --key-hold 4000000 \
+		--cycles $(LISP_FULL_SNAPSHOT_CYCLES) \
+		--snapshot-out '$(LISP_FULL_SNAPSHOT)' \
+		--out /tmp/dorado-lisp-lyric-full-snapshot.pgm
+	@echo 'lisp-lyric-full-snapshot: expect ~209,000 display-list pixels above.'
+
+# wasm32 checkpoint, paired with the native run's flushed pack.
+.PHONY: lisp-lyric-full-web-snapshot
+lisp-lyric-full-web-snapshot: $(WEB_NODE_JS)
+	@test -r '$(LISP_FULL_SNAPSHOT_PACK)' || \
+		(echo "Missing $(LISP_FULL_SNAPSHOT_PACK); run 'make lisp-lyric-full-snapshot' first." && false)
+	mkdir -p '$(WEB_LISP_RAW_DIR)' '$(WEB_LISP_ASSET_DIR)'
+	cp -f '$(LISP_FULL_GOOD_PACK)' '$(WEB_LISP_FULL_RAW_PACK)'
+	chmod 644 '$(WEB_LISP_FULL_RAW_PACK)'
+	DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_CURRENT_FAKE_TIME)' \
+	DORADO_SNAPSHOT_NO_PACK_FLUSH=1 \
+	node '$(WEB_NODE_JS)' \
+		--eb worlds/aemu.eb \
+		--disk 0='$(WEB_LISP_FULL_RAW_PACK)' \
+		--boot-reason disk --no-alto-boot \
+		--ftp-sysout '$(LISP_RELFULL_SYSOUT_FILE)' \
+		--type 'lisp.run/M {DORADO}LISP.SYSOUT\n' \
+		--type-at 330000000 --key-hold 4000000 \
+		--cycles $(LISP_FULL_SNAPSHOT_CYCLES) \
+		--snapshot-out '$(WEB_LISP_FULL_RAW_SNAPSHOT)'
+	gzip -c '$(WEB_LISP_FULL_RAW_SNAPSHOT)' > '$(WEB_LISP_FULL_SNAPSHOT_GZ)'
+	gzip -c '$(LISP_FULL_SNAPSHOT_PACK)' > '$(WEB_LISP_FULL_PACK_GZ)'
+	@ls -l '$(WEB_LISP_FULL_SNAPSHOT_GZ)' '$(WEB_LISP_FULL_PACK_GZ)'
+
 .PHONY: lisp-lispusers-web-snapshot
 lisp-lispusers-web-snapshot: $(WEB_NODE_JS)
 	@test -r '$(LISP_LISPUSERS_PACK)' || \
@@ -2164,6 +2222,51 @@ run-lisp-lyric-full: $(BINDIR)/dorado
 		--cycles $(LISP_FULL_CYCLES) \
 		--shot-prefix /tmp/dorado-lisp-lyric-full --shot-every 1000000000 \
 		--out /tmp/dorado-lisp-lyric-full.pgm
+
+# Interactive: the full-library Lyric world in a window.  Boots
+# Released-Full.sysout!2 (see the note above LISP_RELFULL_SYSOUT_FILE for why
+# that one and not Full.sysout!6).  Runs on a WRITABLE copy of the pack, so
+# the VMEM the guest writes does not mutate the checked-in artifact.
+LISP_FULL_RUN_PACK ?= $(TRIDENT_RUN_DIR)/lisp-lyric-full-run.pack
+
+# FAST START: restore the baked checkpoint instead of booting for ~4 minutes.
+# This is the one to use day to day; run-lisp-lyric-full-sdl below is the cold
+# boot, for when you want to watch the sysout load or have no checkpoint.
+.PHONY: run-lisp-lyric-full-snapshot-sdl
+run-lisp-lyric-full-snapshot-sdl: sdl
+	@test -r '$(LISP_FULL_SNAPSHOT)' || \
+		(echo "Missing $(LISP_FULL_SNAPSHOT). Run 'make lisp-lyric-full-snapshot' once." && false)
+	@test -r '$(LISP_FULL_SNAPSHOT_PACK)' || \
+		(echo "Missing matching pack $(LISP_FULL_SNAPSHOT_PACK)." && false)
+	@mkdir -p '$(TRIDENT_RUN_DIR)'
+	cp -f '$(LISP_FULL_SNAPSHOT_PACK)' '$(LISP_FULL_RUN_PACK)'
+	chmod 644 '$(LISP_FULL_RUN_PACK)'
+	@echo "Full-library Lyric (Released-Full.sysout!2, 25-Jan-88)."
+	@echo "Click the Exec (XCL) window, then type a form, e.g.  (PLUS 1 2)"
+	DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_CURRENT_FAKE_TIME)' \
+	./build/dorado-sdl \
+		--eb worlds/aemu.eb \
+		--disk 0='$(LISP_FULL_RUN_PACK)' --boot-reason disk --no-alto-boot \
+		--snapshot-in '$(LISP_FULL_SNAPSHOT)' \
+		--scale 1 --speed 4000000
+
+.PHONY: run-lisp-lyric-full-sdl
+run-lisp-lyric-full-sdl: sdl
+	@test -r '$(LISP_FULL_GOOD_PACK)' || \
+		(echo "Missing $(LISP_FULL_GOOD_PACK) -- run 'make lisp-lyric-full-pack' first." && false)
+	@test -r '$(LISP_RELFULL_SYSOUT_FILE)' || \
+		(echo "Missing $(LISP_RELFULL_SYSOUT_FILE) -- fetch Released-Full.sysout!2 from <Lisp>Lyric>Basics>." && false)
+	mkdir -p '$(dir $(LISP_FULL_RUN_PACK))'
+	cp -f '$(LISP_FULL_GOOD_PACK)' '$(LISP_FULL_RUN_PACK)'
+	chmod 644 '$(LISP_FULL_RUN_PACK)'
+	DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_CURRENT_FAKE_TIME)' \
+	./build/dorado-sdl \
+		--eb worlds/aemu.eb \
+		--disk 0='$(LISP_FULL_RUN_PACK)' --boot-reason disk --no-alto-boot \
+		--ftp-sysout '$(LISP_RELFULL_SYSOUT_FILE)' \
+		--type 'lisp.run/M {DORADO}LISP.SYSOUT\n' \
+		--type-at 330000000 --key-hold 4000000 \
+		--scale 1 --speed 4000000
 
 run-lisp-good-sdl: sdl
 	@test -r '$(LISP_GOOD_PACK)' || \

@@ -69,7 +69,74 @@ fail before the fix).
   submenu-boundary issue, or a genuine missing event? Reproduce
   interactively first.
 
-### A4. Audit every keyboard mapping [reported]
+### A3b. Caps Lock must work [reported — small, and the mapping is already right]
+
+Wanted especially for Lisp. **The matrix entry already exists and is
+correct**: `src/display.c:127` has `[DORADO_KEY_LOCK] = { 3, 0x0080 }`, i.e.
+word 3, mask `0x0080` = C bit 7 = **Xerox bit 8 of `KBDAD+3`**, which is
+exactly what the Alto Hardware Manual gives for `LOCK` (below).
+
+**The gap is the frontends**: neither `src/dorado_sdl.c` nor
+`src/web_shell.html` maps a host key to `DORADO_KEY_LOCK` — grep for
+`capslock`/`SDLK_CAPS` finds nothing. So this is a frontend wiring job, not
+a matrix fix.
+
+Watch: host Caps Lock is a *toggle* with its own OS-level state, and the
+Alto's LOCK is just another key in an active-low matrix. Decide deliberately
+whether to mirror the host toggle state or treat press/release literally —
+SDL reports both a keydown and a keyup for the toggle on most platforms, and
+getting this wrong leaves LOCK stuck on.
+
+### A4. Audit every keyboard mapping [reported — NOW SPECIFIED]
+
+**The authority is `DoradoDocs/manuals/Alto_Hardware_Manual_Aug76.pdf`,
+document page 27 = PDF page 34** (pointer from Tim). It gives the full
+bit-by-bit layout for both Alto I and Alto II keyboards:
+
+- The keyboard is **four 16-bit words at `KBDAD` = `177034B`** (so
+  `177034B`-`177037B`).
+- **Depressed keys read 0, idle keys read 1** — active low. (Same trap that
+  produced the Smalltalk "keyset is stuck" bug when UTILIN was left
+  unseeded.)
+- Figure 6 tabulates bit -> keytop for each of the four words, for both
+  keyboard generations. Alto I and Alto II differ only in the last few bits
+  (Alto II adds FR1-FR5/FL1-FL4 function keys where Alto I has blanks).
+
+**Which keyboard did the Dorado use?** Tim's guess is the Alto II version.
+Worth confirming, but the two layouts are identical except in the function
+keys, so the audit can proceed either way.
+
+**How the Dorado gets there** —
+`DoradoDocs/manuals/Dorado_Hardware_Manual_Sep1981.pdf`, document page 117 =
+**PDF page 124** (the PDF is offset +7), **Table 24: Terminal Microcomputer
+Messages**. This IS the "processor in the keyboard" of A6:
+
+| message | meaning |
+|---|---|
+| `01B`-`04B` | Keyboard words 0-3, "corresponds to Alto memory location" **`177034B`-`177037B`** |
+| `05B` | **Mouse buttons and keyset (Alto `177033B`)** |
+| `06B` | 8-bit changes in X (0:7) and Y (8:15), **excess-200B** notation |
+| `10B`/`11B` | Keyboard words 4-5, **Star keyboards only, no Alto analogue** |
+| `17B` | Boot message (the boot button jams data to one continuously; up to 8 bits of garbage follow, and pushes under 10 ms must be ignored as contact bounce) |
+| `00B`, `07B`, `12B`-`16B` | Illegal, ignored |
+
+So Tim is right that the Alto mapping applies: the terminal microcomputer
+serialises keyboard AND mouse into one message stream whose keyboard
+messages land at the Alto locations. Note also the manual's remark just
+above the table -- if a mouse-position change would be reported but a
+keyboard transition is pending, "one keyboard word is reported instead of
+the mouse position change; thus, the correct state of the keyboard is
+eventually reported even if transitions are missed." That is a real
+ordering guarantee worth honouring if A1-A3 turn out to be timing bugs.
+
+**One discrepancy to resolve:** `177033B` is the **mouse/keyset** word per
+Table 24, but the top-level `CLAUDE.md` says "Cedar's keyboard is delivered
+to KeyBits at absolute `LONG[177033B]`". Those reconcile only if Cedar's
+KeyBits structure starts at UTILIN and spans the four keyboard words. Check
+it while doing the audit. Our `machine.c` seeds `base + 0177034..7`, which
+matches the table.
+
+### A4b. Was the Dorado keyboard the Alto II one? [open question]
 
 - Not a bug report — a request for a systematic pass. Do it against the
   hardware key matrix and each world's expectations, and write the result
@@ -93,9 +160,13 @@ fail before the fix).
   events shared one serial path, which constrains their relative timing and
   ordering. Worth understanding before A1-A3 are called fixed, because it
   may explain event-ordering assumptions in the guests.
-- **Find the documentation first.** Check the Hardware Manual's I/O
-  sections and the schematics for the keyboard/mouse interface before
-  modelling anything (project norm: do not invent behaviour).
+- **FOUND — it is the "terminal microcomputer", and its protocol is
+  Table 24** (Dorado HW Manual doc p.117 = PDF p.124, tabulated under A4
+  above). The 7-Wire Video Interface section that introduces it begins at
+  document page 116 = PDF page 123. So the serialisation Tim described is
+  fully specified: one message stream carrying keyboard words, mouse
+  buttons/keyset, and X/Y deltas, with keyboard transitions given priority
+  over position changes so key state is never lost.
 
 ---
 

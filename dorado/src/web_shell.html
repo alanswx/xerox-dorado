@@ -92,6 +92,7 @@
       </optgroup>
       <optgroup label="Interlisp-D">
         <option value="lisp">Lyric &mdash; library desktop + online reference manual</option>
+        <option value="lisp-full">Lyric &mdash; full-library sysout (Released-Full, Jan-88)</option>
       </optgroup>
       <optgroup label="Mesa programs (native Mesa world)">
         <option value="mesa:/chm/bootfiles/PPong.boot!1">Polish Pong (game)</option>
@@ -284,6 +285,20 @@
       fetchGzWorld('lisp-lispusers.pack.gz', '/worlds/lisp-lispusers.pack')
     ]);
     lyricAssetsReady = true;
+  }
+
+  /* The full-library Lyric world: Released-Full.sysout!2 already loaded.
+     A separate checkpoint from the one above, fetched only if chosen, so a
+     visitor who never picks it pays nothing. */
+  var lyricFullAssetsReady = false;
+  async function prepareLyricFullAssets() {
+    if (lyricFullAssetsReady) return;
+    setStatus('Fetching the full-library Lyric world (~25 MB)...');
+    await Promise.all([
+      fetchGzWorld('lisp-lyric-full.snap.gz', '/worlds/lisp-lyric-full.snap'),
+      fetchGzWorld('lisp-lyric-full.pack.gz', '/worlds/lisp-lyric-full.pack')
+    ]);
+    lyricFullAssetsReady = true;
   }
 
   /* The Interlisp served tree (the .LCOM library, display fonts, and the
@@ -535,6 +550,24 @@
       } catch (e) {
         console.error(e);
         setStatus('Could not restore Lyric: ' + e.message);
+      }
+      document.getElementById('canvas').focus();
+      return;
+    }
+    if (path === 'lisp-full') {
+      try {
+        await prepareLyricFullAssets();
+        var rcf = Module.ccall('dorado_web_boot_lisp_full', 'number', [], []);
+        if (rcf) throw new Error('snapshot restore rejected the saved image');
+        setStatus('Interlisp-D Lyric restored at Exec (XCL), running the '
+                  + 'FULL-library sysout (Released-Full.sysout!2, 25-Jan-88) '
+                  + '— about 2,300 pages more library preloaded than the '
+                  + 'other Lyric entry. Click inside the Exec window and type '
+                  + 'a form, e.g. (PLUS 1 2). No network world here: the '
+                  + 'library is already in the image.', 1);
+      } catch (e) {
+        console.error(e);
+        setStatus('Could not restore the full-library Lyric: ' + e.message);
       }
       document.getElementById('canvas').focus();
       return;

@@ -32,9 +32,31 @@ there is period software on our own Lyric pack to test with.
 | **DispY** = **DDC**, the display controller | "Display Y", K. Pier, 22-Oct-81, 31 sheets | FOUT interface, Pointers, Fifo, Item Permutation Logic, Channel A/B data paths, Next Line Control Block, Horizontal RAM, DWT Task WakeUp Logic, Cursor, Slow IO, **Alto Display Drivers**, **MiniMixer**, OIS Terminal Interface, Mufflers |
 | **DispM** = **DDM**, the display mixer | "Display M", K. Pier, Nov 1982, 32 sheets | sheets 1-11 the Alto display controller, **sheets 12-31 the Mixer**: ABuf/BBuf/CBuf, BMap, CMap, mixer Blue/Red/Green bytes, **DACs Red Green Blue**, PLL |
 
-The decisive evidence is that **both boards carry a "DDC to DDM Interface
-Table"** — they are two boards talking to each other, not one board in two
-modes. DispY's **MiniMixer** is what gives the monochrome board its limited
+**Confirmed by the Hardware Manual itself** (doc p.110 = PDF p.117), which
+is project canon and settles it beyond the schematic title pages:
+
+> The DDC is implemented on two Dorado main logic boards, called **DispY and
+> DispM**. DispY contains all the logic necessary for vertical and horizontal
+> sweep control, channel data paths, and video data for **binary and
+> grey-level monitors** running at a fixed pixel clock rate. **DispM contains
+> the color maps, the programmable pixel clock, and the three DACs for
+> driving a color monitor.** Additionally, DispM contains an independent
+> terminal controller ... specialized to driving a 7-wire terminal.
+>
+> ... On a Dorado with only a 7-wire terminal and no color monitor, **only
+> the DispY board is present**; it is programmed for Alto terminal emulation,
+> and only a small subset of its capabilities are used. However, on a Dorado
+> with both a 7-wire terminal and a color monitor, **the DispM board is also
+> present**.
+
+So colour literally means adding a board that need not be there. The same
+page also names the three DispY output interfaces (Alto monitor, seven-wire
+1 bit/pixel, and an 8-bit DAC for grey-level), and the MiniMixer as a
+256-word x 4-bit map.
+
+The other decisive evidence is that **both boards carry a "DDC to DDM
+Interface Table"** — they are two boards talking to each other, not one
+board in two modes. DispY's **MiniMixer** is what gives the monochrome board its limited
 mixing; the full Mixer, the colour maps and the DACs are on DispM.
 
 So colour does mean bringing up a second board's worth of behaviour, and

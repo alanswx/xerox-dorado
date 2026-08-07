@@ -90,6 +90,14 @@
  * from lisp-src.tar.gz by the shell when the Lyric world is chosen.  The
  * guest reaches it as the {DORADO} device over Leaf/STP. */
 #define WEB_LISP_FTP_ROOT "/lisp-stp"
+/* The FULL-library Lyric world: Released-Full.sysout!2 (Jan-88) already
+ * loaded into a 19,000-page VMEM.  A separate world from the one above, not
+ * a replacement: this one carries ~2,300 more preloaded library pages and
+ * has no on-pack package set, where the other has the served tree and the
+ * reference manual.  See docs/lisp-leaf-handoff.md 6.18 for why it is
+ * Released-Full.sysout!2 and not Full.sysout!6. */
+#define WEB_LISP_FULL_PACK     "/worlds/lisp-lyric-full.pack"
+#define WEB_LISP_FULL_SNAPSHOT "/worlds/lisp-lyric-full.snap"
 #define WEB_SMALLTALK_EB       "/worlds/SmalltalkDorado.eb"
 #define WEB_SMALLTALK_PACK     "/worlds/smalltalk76.pack"
 #define WEB_SMALLTALK_SNAPSHOT "/worlds/smalltalk76.snap"
@@ -619,7 +627,11 @@ int dorado_web_boot_disk(void)
  * from a native run. The matching writable Trident pack is still required;
  * web_shell.html expands both gzipped assets into MEMFS before calling us. */
 EMSCRIPTEN_KEEPALIVE
-int dorado_web_boot_lisp(void)
+/* Shared by both Lyric worlds (dorado_web_boot_lisp and
+ * dorado_web_boot_lisp_full): identical machine setup and restore, differing
+ * only in which checkpoint and pack are used.  `label` is for the log line. */
+static int web_boot_lyric(const char *snapshot, const char *pack,
+                          const char *label)
 {
     if (app.m) {
         dorado_machine_destroy(app.m);
@@ -640,7 +652,7 @@ int dorado_web_boot_lisp(void)
     cfg.ifu_mb       = WEB_IFU;
     cfg.eth_boot_110 = WEB_EB_WORLD;
     cfg.eftp_boot    = NULL;
-    cfg.disk_pack[0] = WEB_LISP_PACK;
+    cfg.disk_pack[0] = pack;
     cfg.ftp_root     = WEB_LISP_FTP_ROOT;
     cfg.alto_ether_boot = 0;
     cfg.boot_dir_all = 0;
@@ -652,7 +664,7 @@ int dorado_web_boot_lisp(void)
         fprintf(stderr, "dorado_web: failed to create Lisp restore machine\n");
         return 1;
     }
-    if (dorado_machine_restore(app.m, WEB_LISP_SNAPSHOT) != 0) {
+    if (dorado_machine_restore(app.m, snapshot) != 0) {
         fprintf(stderr, "dorado_web: failed to restore Lisp snapshot\n");
         dorado_machine_destroy(app.m);
         paste_queue.active = 0;
@@ -674,9 +686,22 @@ int dorado_web_boot_lisp(void)
     app.announced = 1;
     app.frame     = 0;
     app.cycles_per_frame = WEB_CYCLES_INTERACTIVE;
-    printf("dorado_web: restored Interlisp-D Lyric XCL at cycle %llu\n",
-           (unsigned long long)dorado_machine_cycles(app.m));
+    printf("dorado_web: restored Interlisp-D Lyric %s at cycle %llu\n",
+           label, (unsigned long long)dorado_machine_cycles(app.m));
     return 0;
+}
+
+int dorado_web_boot_lisp(void)
+{
+    return web_boot_lyric(WEB_LISP_SNAPSHOT, WEB_LISP_PACK, "XCL");
+}
+
+/* The full-library world.  Same restore path; a different checkpoint whose
+ * VMEM already holds Released-Full.sysout!2. */
+int dorado_web_boot_lisp_full(void)
+{
+    return web_boot_lyric(WEB_LISP_FULL_SNAPSHOT, WEB_LISP_FULL_PACK,
+                          "full-library Exec");
 }
 
 /* Restore a WebAssembly-native checkpoint taken at the Smalltalk-76 desktop
