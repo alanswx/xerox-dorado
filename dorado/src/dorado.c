@@ -158,6 +158,7 @@ static int parse_boot_reason(const char *r, dorado_machine_config *cfg)
 
 /* char_to_key lives in src/typetext.c now (dorado_char_to_key). */
 
+
 typedef struct type_event {
     const char *text;
     uint64_t at;
@@ -310,6 +311,36 @@ static void write_snapshot(dorado_machine *m, const char *prefix,
         fflush(stdout);
     } else {
         fprintf(stderr, "dorado: failed to write screenshot %s\n", path);
+    }
+}
+
+/* Run to `target` while still honouring --shot-every.
+ *
+ * The click, drag and menu paths below drive the machine with their own
+ * dorado_machine_run_until() calls, which bypassed the periodic-screenshot
+ * path in the main loop.  That made the one moment worth watching
+ * invisible: a pop-up menu exists only while the button is held, and a
+ * latency run at --shot-every 4000000 had a 151,000,000-cycle hole in its
+ * frame sequence covering the entire press.  Submenu behaviour cannot be
+ * judged without frames from inside the hold. */
+static void run_until_shots(dorado_machine *m, uint64_t target,
+                            const char *prefix, uint64_t shot_every,
+                            uint64_t *next_shot)
+{
+    if (!shot_every || !next_shot) {
+        dorado_machine_run_until(m, target);
+        return;
+    }
+    while (dorado_machine_cycles(m) < target) {
+        uint64_t stop = (*next_shot < target) ? *next_shot : target;
+        uint64_t now = dorado_machine_run_until(m, stop);
+        if (dorado_machine_cycles(m) >= *next_shot) {
+            write_snapshot(m, prefix, "periodic");
+            do {
+                *next_shot += shot_every;
+            } while (dorado_machine_cycles(m) >= *next_shot);
+        }
+        if (now < stop) break;          /* halted */
     }
 }
 
@@ -772,8 +803,8 @@ int main(int argc, char **argv)
                             dorado_machine_set_mouse(
                                 m, click_events[ce].x * step / 8,
                                 click_events[ce].y * step / 8, 0);
-                            dorado_machine_run_until(
-                                m, dorado_machine_cycles(m) + 300000ull);
+                            run_until_shots(
+                                m, dorado_machine_cycles(m) + 300000ull, shot_prefix, shot_every, &next_shot);
                         }
                         continue;
                     }
@@ -786,24 +817,24 @@ int main(int argc, char **argv)
                         int x2 = click_events[ce].drag_x;
                         int y2 = click_events[ce].drag_y;
                         dorado_machine_set_mouse(m, x1, y1, 0);
-                        dorado_machine_run_until(m,
-                            dorado_machine_cycles(m) + 2000000ull);
+                        run_until_shots(m,
+                            dorado_machine_cycles(m) + 2000000ull, shot_prefix, shot_every, &next_shot);
                         dorado_machine_set_mouse(m, x1, y1, btn);
-                        dorado_machine_run_until(m,
-                            dorado_machine_cycles(m) + 2000000ull);
+                        run_until_shots(m,
+                            dorado_machine_cycles(m) + 2000000ull, shot_prefix, shot_every, &next_shot);
                         /* Let a pop-up menu actually appear before moving. */
                         if (drag_dwell)
-                            dorado_machine_run_until(
-                                m, dorado_machine_cycles(m) + drag_dwell);
+                            run_until_shots(
+                                m, dorado_machine_cycles(m) + drag_dwell, shot_prefix, shot_every, &next_shot);
                         for (int step = 1; step <= 12; step++) {
                             dorado_machine_set_mouse(
                                 m, x1 + (x2 - x1) * step / 12,
                                 y1 + (y2 - y1) * step / 12, btn);
-                            dorado_machine_run_until(
-                                m, dorado_machine_cycles(m) + 400000ull);
+                            run_until_shots(
+                                m, dorado_machine_cycles(m) + 400000ull, shot_prefix, shot_every, &next_shot);
                         }
-                        dorado_machine_run_until(m,
-                            dorado_machine_cycles(m) + btn_hold);
+                        run_until_shots(m,
+                            dorado_machine_cycles(m) + btn_hold, shot_prefix, shot_every, &next_shot);
                         dorado_machine_set_mouse(m, x2, y2, 0);
                         continue;
                     }
@@ -811,27 +842,27 @@ int main(int argc, char **argv)
                      * arrive, then press the button. */
                     dorado_machine_set_mouse(m, click_events[ce].x,
                                              click_events[ce].y, 0);
-                    dorado_machine_run_until(m,
-                        dorado_machine_cycles(m) + 2000000ull);
+                    run_until_shots(m,
+                        dorado_machine_cycles(m) + 2000000ull, shot_prefix, shot_every, &next_shot);
                     dorado_machine_set_mouse(m, click_events[ce].x,
                                              click_events[ce].y, btn);
-                    dorado_machine_run_until(m,
-                        dorado_machine_cycles(m) + btn_hold);
+                    run_until_shots(m,
+                        dorado_machine_cycles(m) + btn_hold, shot_prefix, shot_every, &next_shot);
                     if (click_events[ce].menu) {
                         /* A pop-up menu is up now, under the cursor and still
                          * held. Give it several fields to paint, capturing a
                          * shot at each so timing can't hide it, then release. */
                         for (int k = 0; k < 6; k++) {
-                            dorado_machine_run_until(m,
-                                dorado_machine_cycles(m) + 4000000ull);
+                            run_until_shots(m,
+                                dorado_machine_cycles(m) + 4000000ull, shot_prefix, shot_every, &next_shot);
                             dorado_machine_render_display_list(m);
                             write_snapshot(m, "dorado-menu", "menu");
                         }
                     }
                     dorado_machine_set_mouse(m, click_events[ce].x,
                                              click_events[ce].y, 0);
-                    dorado_machine_run_until(m,
-                        dorado_machine_cycles(m) + 1000000ull);
+                    run_until_shots(m,
+                        dorado_machine_cycles(m) + 1000000ull, shot_prefix, shot_every, &next_shot);
                 }
             }
         }
