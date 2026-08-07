@@ -348,6 +348,13 @@ int main(int argc, char **argv)
      * keystroke, which moved the whole timeline and confounded the run.
      * 0 = follow --key-hold, which is the historical behaviour. */
     uint64_t drag_hold = 0;
+    /* --drag-dwell: cycles to WAIT, button already down, before the
+     * pointer starts travelling.  A pop-up menu does not exist the
+     * instant the button goes down; without a dwell the travel is
+     * over before the menu appears and the pointer can never move
+     * WITHIN the menu, which is exactly what selecting a submenu
+     * item requires. */
+    uint64_t drag_dwell = 0;
     /* --menu-button: 0 means leave each option's own default
      * (--menu presses middle/yellow, --click and --drag press
      * left/red).  Setting it overrides BOTH, so an Interlisp
@@ -574,6 +581,8 @@ int main(int argc, char **argv)
         } else if (!strcmp(a, "--key-hold") && i + 1 < argc) {
             key_hold = parse_u64(argv[++i], key_hold);
             last_type_can_update = 0;
+        } else if (!strcmp(a, "--drag-dwell") && i + 1 < argc) {
+            drag_dwell = parse_u64(argv[++i], drag_dwell);
         } else if (!strcmp(a, "--drag-hold") && i + 1 < argc) {
             drag_hold = parse_u64(argv[++i], drag_hold);
             last_type_can_update = 0;
@@ -782,6 +791,10 @@ int main(int argc, char **argv)
                         dorado_machine_set_mouse(m, x1, y1, btn);
                         dorado_machine_run_until(m,
                             dorado_machine_cycles(m) + 2000000ull);
+                        /* Let a pop-up menu actually appear before moving. */
+                        if (drag_dwell)
+                            dorado_machine_run_until(
+                                m, dorado_machine_cycles(m) + drag_dwell);
                         for (int step = 1; step <= 12; step++) {
                             dorado_machine_set_mouse(
                                 m, x1 + (x2 - x1) * step / 12,

@@ -151,10 +151,44 @@ explain the user's report; it just means the current gate cannot test it.
 `--drag-dwell CYCLES` inserted between the press and the travel), so the
 menu is up before the pointer moves. That is the next concrete step on A3.
 
-**And get the exact steps from the reporter first.** This is the *window*
-menu (Close/Snap/Paint/...). The report was about picking an **Interlisp
-shell**, which is likely a different menu — possibly middle-button in the
-prompt window — so the reproduction may not be here at all.
+### A3 RESOLVED (2026-08-06): the menu works; the reporter's next step is a
+### region sweep
+
+The reporter clarified: press **outside** every window for a different menu,
+and the Exec item there opens an Interlisp window. That is the **background
+menu**, not the window menu tested above.
+
+**Which button:** the **RIGHT/blue** one, and only that one. Left and middle
+on the background produce byte-identical framebuffers to the idle screen —
+i.e. nothing at all. Contents:
+
+```
+AR Edit>   FileBrowser>   CHAT   Idle   SaveVM>   Snap
+Hardcopy>  EXEC>   PSW   TEdit   SendMail
+```
+
+**Selecting EXEC works.** Press right on the background, dwell so the menu
+appears, travel onto `EXEC>` (~y=458), release — and the Prompt Window says:
+
+```
+Specify region for window "Exec"
+```
+
+So the menu, the submenu-bearing item, and the selection all function. **The
+next step is `GETREGION`** — sweep the new window's rectangle — which is
+exactly what memory `lisp-region-sweep-needs-a-long-hold` records as needing
+a very long hold (36.8 M cycles worked where 16.8 M hung). That is the
+likely place a user gets stuck, and it looks like "the menu did nothing"
+because the prompt is easy to miss.
+
+**Tooling this required, both now in `dorado`:**
+
+- `--menu-button left|middle|right` — parsed sequentially, so one run can
+  open a menu with the right button and then sweep with the left.
+- **`--drag-dwell CYCLES`** — wait, button already down, before the pointer
+  travels. Without it the travel finishes before the menu exists and the
+  pointer can never move WITHIN a menu, which made every earlier submenu
+  test meaningless.
 
 ### A3b. Caps Lock must work [reported — small, and the mapping is already right]
 
