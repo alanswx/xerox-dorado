@@ -207,18 +207,69 @@ has a **151,000,000-cycle hole** in its frame sequence
 writes two shots of its own, but nothing else does, so a drag onto a
 submenu parent is unobservable.
 
-**Next steps, in order:**
+### A3 CHARACTERISED (tooling fixed, behaviour measured)
 
-1. **Make the interaction observable** — emit periodic screenshots inside
-   the click/drag/menu loops (or add an explicit `--shot-at CYCLES`). Until
-   then every submenu conclusion is guesswork; this section already contains
-   two of mine that were wrong.
-2. With frames in hand, hold on `EXEC>` and watch for the submenu. If it
-   never appears, the question becomes what triggers it in Interlisp —
-   dwell timer, or motion past the arrow — and whether our input delivers
-   that.
-3. Only then judge whether this is an emulator defect or an input-pacing
-   artifact.
+`--shot-every` now fires inside the click/drag/menu holds (commit
+`7a339fb`), so the interaction is observable. With frames every 10 M cycles:
+
+| cycle | event |
+|---|---|
+| 14.400 B | button press (right) |
+| **14.410 B** | **menu appears**, +1,263 ink — 10 M cycles = ~162 ms of guest time. Reasonable, not pathological. |
+| 14.410-14.460 B | menu stable through the dwell |
+| ~14.465 B | pointer arrives on `EXEC>` |
+| **14.470 B** | **menu VANISHES**, -794 ink — **button still held** |
+| 14.520 B | `Specify region for window "Exec"` — the item has been acted on |
+| 14.585 B | our release (far too late to matter) |
+
+**The button is verifiably still down.** `DORADO_MOUSE_TRACE` prints only on
+change and shows exactly three transitions for the whole run:
+
+```
+177777 (idle)  ->  177775 (right pressed)  ->  177777 (released)
+```
+
+So there is **no spurious release**: the emulator holds the button word at
+`0177030..0177033` correctly for the entire interval in which the menu
+closed and the item fired. Two mechanisms already excluded:
+`machine_store_va_if_changed` re-reads the real cell and rewrites if the
+guest clobbers it, and `mouse_present` is set once and never cleared.
+
+**So the defect is: selection fires on pointer-ARRIVAL, not on release.**
+That is precisely the reported symptom — you get whatever you first land on
+and never see a submenu, because the menu is gone before you can navigate.
+
+**AND THE MENU IS FINE WHEN THE POINTER STAYS INSIDE IT.** Repeating the
+drag entirely within the menu bounds — (740,495) -> (740,458), menu spans
+x=705..783 — the menu **stays up for the whole 120 M-cycle hold**:
+
+```
+14.410 B  +1263  menu appears
+14.420 - 14.550 B  ink steady 619,459..619,478  (only the +/-19 cursor blink)
+```
+
+No collapse, no premature activation. So the emulator holds a menu open
+correctly, and the earlier collapse was caused by the pointer's path, not by
+a lost button.
+
+**The remaining difference is the ENDPOINT, and it is a good lead.** The
+run that collapsed ended at **x=775**, which is on the `>` submenu arrow
+(arrows sit at x~779); the run that stayed open ended at **x=740**,
+mid-item. So:
+
+- pointer mid-item -> menu stays up, item highlights (correct)
+- pointer **on the `>` arrow** -> menu closes and the item's **default
+  action fires**, instead of opening the submenu
+
+That is exactly the reported symptom, localised to the submenu-arrow
+interaction. Note the earlier drag also STARTED 5 px outside the menu's left
+edge, which is a second confound to eliminate — rerun the arrow test
+starting inside.
+
+**Next:** compare x=740 / 770 / 778 / 782 with identical start points, all
+inside the menu, and find the x at which the behaviour flips. Then read what
+Interlisp's menu package does at the arrow (`\MENU` / `SUBITEMS`) to see
+what event it expects there.
 
 **Tooling this required, both now in `dorado`:**
 
