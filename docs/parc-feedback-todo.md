@@ -130,10 +130,31 @@ meaning "each option's own default" (`--menu` middle, `--click`/`--drag`
 left) so the existing GETREGION sweep recipes, which depend on `--drag`
 being left, are unchanged.
 
-**Still open:** whether the submenu itself opens on a drag into
-`Hardcopy>`. And note the user's report was about picking an **Interlisp
-shell**, which is probably a DIFFERENT menu from this window menu — get the
-exact steps before concluding.
+**The submenu is NOT yet reproduced, and the blocker is our tooling.**
+`--drag` presses and then starts moving 2 M cycles later, but the menu
+takes longer than that to appear, so the menu is created *after* the
+travel is over. Measured across three runs — the menu's top-left always
+lands at the cursor's FINAL position, never the press position:
+
+| test | press | dragged to | menu appears at |
+|---|---|---|---|
+| `--menu` (no drag) | 250,300 | — | x=252, y=295 |
+| `--drag` | 250,300 | 300,361 | x=305, y=300 |
+| `--drag` | 250,300 | 340,371 | x=345, y=365 |
+
+So the pointer can never travel *within* an open menu: it arrives, then the
+menu materialises under it with the cursor on the first item. A human does
+the opposite — press, see the menu, then move — so this artifact does not
+explain the user's report; it just means the current gate cannot test it.
+
+**What is needed:** a press -> DWELL -> move -> release primitive (e.g.
+`--drag-dwell CYCLES` inserted between the press and the travel), so the
+menu is up before the pointer moves. That is the next concrete step on A3.
+
+**And get the exact steps from the reporter first.** This is the *window*
+menu (Close/Snap/Paint/...). The report was about picking an **Interlisp
+shell**, which is likely a different menu — possibly middle-button in the
+prompt window — so the reproduction may not be here at all.
 
 ### A3b. Caps Lock must work [reported — small, and the mapping is already right]
 
