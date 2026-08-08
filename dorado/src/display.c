@@ -1088,3 +1088,60 @@ int dorado_display_dwt_wakeup(dorado_display *d, int *subtask)
     }
     return 0;
 }
+
+/* ---- Colour step 0: which DDC output devices does a world actually use? ---
+ *
+ * The Dorado's display is TWO boards. DispY is monochrome -- Alto video,
+ * cursor, MiniMixer -- and DispM is colour: sheets 12-31 are the Mixer,
+ * BMap/CMap and the three DACs. The netlist settles it beyond argument
+ * (docs/sil-netlist-crosscheck.md): DispM carries DACRed/DACGreen/DACBlue
+ * with GNDRed/GNDGreen/GNDBlue and RefIn; DispY carries one AltoTTLVideo.
+ *
+ * We model DispY's devices and none of DispM's. Before promising colour,
+ * the question that decides the whole scope is empirical: does any world we
+ * can boot ever PROGRAM the colour side? A world that never writes DispM's
+ * addresses cannot display colour no matter what we implement, and one that
+ * does tells us exactly which registers to build.
+ *
+ * This prints every TIOA the DDC saw, so the answer comes off a real run
+ * rather than out of the manual. Addresses we decode are named; anything
+ * else is flagged UNDECODED, which is where DispM would show up. */
+void dorado_display_dump_tioa_use(const dorado_display *d)
+{
+    static const struct { unsigned tioa; const char *name; } known[] = {
+        { DORADO_DISPLAY_TIOA_DHTFLAG,   "DHTFlag"   },
+        { DORADO_DISPLAY_TIOA_DWTFLAG,   "DWTFlag"   },
+        { DORADO_DISPLAY_TIOA_AHTFLAG,   "AHTFlag"   },
+        { DORADO_DISPLAY_TIOA_AWTFLAG,   "AWTFlag"   },
+        { DORADO_DISPLAY_TIOA_NLCB,      "NLCB"      },
+        { DORADO_DISPLAY_TIOA_TNLCB,     "TNLCB"     },
+        { DORADO_DISPLAY_TIOA_STATICS,   "Statics"   },
+        { DORADO_DISPLAY_TIOA_TSTATICS,  "TStatics"  },
+        { DORADO_DISPLAY_TIOA_HRAM,      "HRam"      },
+        { DORADO_DISPLAY_TIOA_DDCSTATUS, "DDCStatus" },
+        { DORADO_DISPLAY_TIOA_TSTATUS,   "TStatus"   },
+        { DORADO_DISPLAY_TIOA_RAST_SELCMD,  "RastSel"  },
+        { DORADO_DISPLAY_TIOA_RAST_ADDRCMD, "RastAddr" },
+        { DORADO_DISPLAY_TIOA_RAST_DATACMD, "RastData" },
+        { DORADO_DISPLAY_TIOA_RAST_TASKCMD, "RastTask" },
+    };
+    if (!d) return;
+    unsigned undecoded = 0;
+    fprintf(stderr, "[ddc] Output<-B by TIOA (total %llu):\n",
+            (unsigned long long)d->output_count);
+    for (unsigned t = 0; t < 256; t++) {
+        if (d->output_tioa_count[t] == 0) continue;
+        const char *name = NULL;
+        for (unsigned i = 0; i < sizeof known / sizeof known[0]; i++)
+            if (known[i].tioa == t) { name = known[i].name; break; }
+        if (!name) undecoded++;
+        fprintf(stderr, "[ddc]   %03o %-10s %12llu  first=%06o last=%06o\n",
+                t, name ? name : "UNDECODED",
+                (unsigned long long)d->output_tioa_count[t],
+                d->output_tioa_first[t], d->output_tioa_last[t]);
+    }
+    fprintf(stderr,
+            "[ddc] %u undecoded address(es). DispM (colour) would appear "
+            "here; none means this world never programmed the colour side.\n",
+            undecoded);
+}

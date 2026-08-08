@@ -414,6 +414,12 @@ int      dorado_display_dwt_wakeup(dorado_display *d, int *subtask);
  */
 void dorado_display_set_pixel(dorado_display *d, int x, int y, int pix);
 
+/* Print every TIOA the DDC received an Output<-B on, naming the ones we
+ * decode and flagging the rest UNDECODED. Colour step 0: DispM's registers
+ * would show up as undecoded, so an empty list is proof that the world under
+ * test never programmed the colour board. Driven by DORADO_DDC_TIOA=1. */
+void dorado_display_dump_tioa_use(const dorado_display *d);
+
 /*
  * Drain the per-channel FIFO and render pixels into the framebuffer.
  * Phase 2 simplified: assumes 1-bit-per-pixel (Alto monitor /

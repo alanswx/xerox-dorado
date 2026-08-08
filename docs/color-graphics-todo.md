@@ -197,17 +197,73 @@ Which worlds carry the microcode: **`Mesa.mb!3` and `Cedar.mb!6` do**
 
 Ordered so each step is verifiable before the next.
 
-## [ ] 0. Trace whether any world actually programs the colour RAMs
+## [x] 0. ANSWERED 2026-08-08 — no world we boot programs the colour RAMs
 
-**Do this before promising anything.** Everything below assumes the guest
-will drive the hardware once we model it, and that is unchecked. Log
-`Output←B` at TIOA 361/362/365 and watch for the colour DHT entry
-(`COLORVSTOVSINIT`).
+Done with `DORADO_DDC_TIOA=1`, which prints every TIOA the DDC received an
+`Output<-B` on, naming what we decode and flagging the rest UNDECODED
+(`dorado_display_dump_tioa_use`, `src/display.c`). The answer is a clean no,
+and the microcode says exactly why, so this section is no longer guesswork.
 
-- Cheap: no code beyond a trace flag; hours not days.
-- **If they never fire**, something must configure a colour monitor first
-  (see 1.6) and the job is bigger than the rest of this list assumes.
-- Acceptance: a yes/no answer for Lyric and for the Cedar desktop.
+**What the worlds actually touch.** Cedar 6.1's desktop and the Alto world
+use the same four DispY devices and nothing else:
+
+```
+[ddc]   372 UNDECODED    256  first=000017 last=177417   <- MiniMixer
+[ddc]   375 HRam         766  first=060000 last=140000
+[ddc]   376 NLCB           6  first=000004 last=050000
+[ddc]   377 Statics        6  first=043000 last=000000
+```
+
+**TIOA 0372 is the MiniMixer**, identified from PARC's own
+`chm/dorado/aemu-src/DisplayMain.mc`. `JLoadMiniMixer` -- "Loads the
+minimixer with the identity for Alto emulation. This is done ONCE in the
+beginning of the world" -- walks an address in the top byte by `400C` per
+iteration until it wraps, which is exactly **256 writes**, and emits `17B`
+for white or `0` for black. First `000017` = address 0/white, last `177417`
+= address 0377/white. Every field matches. It is DispY's own limited mixer,
+not DispM's.
+
+**And the microcode is explicit about why colour never comes up:**
+
+```
+* Skip over HRam and MiniMixer initialization if DispM present.
+ResetDisplayConfig:
+	PD_ NOT (DisplayConfig);
+	TReg400C_ 400C, Branch[NoInitRams, ALU>=0];
+	Call[InitHRam];
+	Call[JLoadMiniMixer];
+```
+
+`DisplayConfig[0]` selects the board (0 = DispY, 1 = DispM) and
+`DisplayConfig[13:15]` the monitor ({Alto, LF Alto-width, LF full screen}).
+Our machines report DispY, so the microcode takes the DispY path every time.
+
+**The flag already exists and it works.** `DORADO_DISPM_PRESENT=1` on a COLD
+BOOT flips the whole thing: the Alto world moves off the DispY device set
+(0373/0374/0376/0377) onto the DispM/terminal set, and stops loading
+MiniMixer entirely --
+
+```
+[ddc]   363 AWTFlag   529507      [ddc]   366 TNLCB   840142
+[ddc]   364 AHTFlag   128310      [ddc]   367 TStatics     4
+[ddc] 0 undecoded address(es).
+```
+
+-- which is `ResetDisplayConfig` branching to `NoInitRams`, precisely as
+written. **Two traps worth recording**: this must be tested on a COLD BOOT,
+because a restored checkpoint ran `THTInit` long before the snapshot was
+taken and flipping the flag afterwards changes nothing; and the Lisp gates
+already set `DORADO_DISPM_PRESENT=1`, so Lyric is running the DispM path
+today.
+
+**So the honest scope.** Selecting DispM gets us its **Alto terminal
+emulation** -- sheets 1-11 of the board. The Mixer, BMap, CMap and the three
+DACs are sheets 12-31, and they are programmed by *colour application
+software*, not by the terminal path any of our worlds runs. Nothing we can
+boot has ever written them. Implementing the RAM-load protocol in section 1
+therefore cannot be validated against a real guest until there is colour
+software to run -- which makes "find or build a guest that drives colour"
+the true step 1, ahead of everything below.
 
 ## [ ] 1. DDC RAM loads (Mixer / BMap / CMap)
 
