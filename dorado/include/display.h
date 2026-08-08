@@ -412,6 +412,13 @@ int      dorado_display_dwt_wakeup(dorado_display *d, int *subtask);
  * 1 (white). Real Alto convention: 0 = white, 1 = black; we use the
  * literal bit value and the snapshot inverts.
  */
+/* Report mouse MOTION on the terminal back channel (HM Table 24 msg 06B,
+ * excess-200B deltas). This is what the hardware sends -- the guest's own
+ * accumulator turns motion into a per-screen position and owns screen
+ * crossing -- so it is the only input shape in which a second display can
+ * work. See the note in display.c. */
+void dorado_display_mouse_delta(dorado_display *d, int dx, int dy);
+
 void dorado_display_set_pixel(dorado_display *d, int x, int y, int pix);
 
 /* Print every TIOA the DDC received an Output<-B on, naming the ones we

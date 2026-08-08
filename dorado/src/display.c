@@ -266,6 +266,39 @@ void dorado_display_boot_button(dorado_display *d, uint32_t scanlines)
     d->boot_button_scanlines = scanlines;
 }
 
+/* ---- Mouse MOTION on the terminal back channel (HM Table 24 msg 06B) ----
+ *
+ * The terminal microcomputer reports the mouse as DELTAS in excess-200B, not
+ * as a position. That distinction is load-bearing, not pedantry: Cedar's
+ * InterminalImpl is the accumulator that turns motion into a position, and it
+ * keeps a SEPARATE 0-based coordinate space per screen (color^ is [xMin: 0,
+ * xMax: colorWidth-1], right^/left^ are [xMin: 0, xMax: bwWidth-1]) with
+ * crossing detected by the pointer pushing past an edge by more than an
+ * escape threshold. Inject an absolute position instead -- which is what
+ * machine.c does at 0424/0425 -- and there is no input shape in which a
+ * second screen can ever work: the value is clamped into whichever display is
+ * current, and any attempt to reach past its xMax is either clamped or
+ * triggers a crossing that immediately resets the position to the new
+ * screen's origin.
+ *
+ * File-scope statics, not dorado_display members: the display struct is
+ * snapshotted whole and a new member breaks every baked checkpoint. */
+static int  display_mouse_dx, display_mouse_dy;
+static int  display_mouse_pending;
+/* Mid-serialisation body of a type-06B message. A dorado_display MEMBER here
+ * broke every baked checkpoint -- the struct is snapshotted whole -- which is
+ * precisely what the comment above warns about, added in the same edit. */
+static uint16_t display_mouse_body;
+
+void dorado_display_mouse_delta(dorado_display *d, int dx, int dy)
+{
+    (void)d;
+    if (!dx && !dy) return;
+    display_mouse_dx += dx;
+    display_mouse_dy += dy;
+    display_mouse_pending = 1;
+}
+
 static uint16_t display_terminal_keyboard_bit(dorado_display *d)
 {
     if (!d) return 0;
@@ -273,6 +306,36 @@ static uint16_t display_terminal_keyboard_bit(dorado_display *d)
     uint8_t word = (uint8_t)(d->terminal_msg_word % DORADO_DISPLAY_KEY_WORDS);
     uint8_t type = (word < 4u) ? (uint8_t)(word + 1u) : 5u;
     uint16_t body = d->keyboard_words[word];
+
+    /* A pending motion pre-empts the keyboard rotation at a message boundary.
+     * Table 24: type 06B, body = dx and dy each biased by 200B into a byte.
+     * Clamp to what a byte can carry and keep the remainder for the next
+     * message, so a fast host movement becomes several small deltas rather
+     * than one wrapped one. */
+    if (display_mouse_pending && d->terminal_msg_bit == 0) {
+        int dx = display_mouse_dx, dy = display_mouse_dy;
+        if (dx >  127) dx =  127; else if (dx < -128) dx = -128;
+        if (dy >  127) dy =  127; else if (dy < -128) dy = -128;
+        display_mouse_dx -= dx;
+        display_mouse_dy -= dy;
+        if (!display_mouse_dx && !display_mouse_dy) display_mouse_pending = 0;
+        type = 6u;
+        body = (uint16_t)((((unsigned)(dx + 0200) & 0377u) << 8) |
+                           ((unsigned)(dy + 0200) & 0377u));
+        uint32_t m = (1u << 31) | ((uint32_t)type << 24) |
+                     ((uint32_t)body << 8) | (1u << 7);
+        uint16_t b0 = (uint16_t)((m >> 31) & 1u);
+        if (dorado_trace_flag("DORADO_MOUSE_DELTA_TRACE"))
+            fprintf(stderr, "TMOUSE dx=%d dy=%d body=%06o\n", dx, dy, body);
+        d->terminal_bits++;
+        d->terminal_msg_bit = 1;
+        display_mouse_body = body;       /* rest of this message uses it */
+        return b0 ? 0x8000u : 0u;
+    }
+    if (d->terminal_msg_bit != 0 && display_mouse_body) {
+        type = 6u;
+        body = display_mouse_body;
+    }
     uint32_t msg = (1u << 31) | ((uint32_t)type << 24) |
                    ((uint32_t)body << 8) | (1u << 7);
     uint16_t bit = (uint16_t)((msg >> (31u - (d->terminal_msg_bit & 31u))) & 1u);
@@ -289,8 +352,12 @@ static uint16_t display_terminal_keyboard_bit(dorado_display *d)
     d->terminal_msg_bit++;
     if (d->terminal_msg_bit >= 32u) {
         d->terminal_msg_bit = 0;
-        d->terminal_msg_word =
-            (uint8_t)((word + 1u) % DORADO_DISPLAY_KEY_WORDS);
+        if (display_mouse_body) {
+            display_mouse_body = 0;       /* motion message complete */
+        } else {
+            d->terminal_msg_word =
+                (uint8_t)((word + 1u) % DORADO_DISPLAY_KEY_WORDS);
+        }
         d->terminal_messages++;
     }
     /* HM Table 25 / DispY18,21, DispM10,21: the terminal serial back-

@@ -4312,6 +4312,22 @@ uint16_t dorado_machine_read_visible_word(void *ctx, uint32_t va)
     return dorado_visible_word_at_va(&m->mem, va);
 }
 
+/* Report mouse MOTION, which is what the terminal microcomputer actually
+ * sends (HM Table 24 msg 06B, excess-200B deltas). The guest accumulates it
+ * into a per-screen position and decides screen crossing itself, so this is
+ * the only route by which a pointer can reach the colour display.
+ *
+ * Additive to the absolute path rather than a replacement: every world we
+ * boot today is driven by the absolute seed at 0424/0425 and swapping it out
+ * wholesale would put the mono mouse at risk across Alto, Lisp, Smalltalk and
+ * Cedar at once. Enabled with DORADO_MOUSE_DELTAS=1 until it has been shown
+ * to drive the mono cursor as well as the absolute path does. */
+void dorado_machine_mouse_delta(dorado_machine *m, int dx, int dy)
+{
+    if (!m) return;
+    dorado_display_mouse_delta(&m->display, dx, dy);
+}
+
 void dorado_machine_set_ftp_source(dorado_machine *m, const char *sysout,
                                    const char *root)
 {
@@ -4363,35 +4379,14 @@ int dorado_machine_interactive(const dorado_machine *m)
 void dorado_machine_set_mouse(dorado_machine *m, int x, int y, int buttons)
 {
     if (!m) return;
-    /* CLAMP TO THE WHOLE DESKTOP, WHICH MAY BE TWO SCREENS WIDE.
-     *
-     * This used to clamp x to the b/w raster, so a pointer could never reach
-     * a coordinate belonging to a second screen and the colour monitor had no
-     * cursor on it at all. A Dorado with the colour option has ONE pointer
-     * space spanning both monitors -- which is exactly what Cedar's
-     * `ColorDisplay left | right` configures, since telling Viewers which
-     * SIDE the colour screen is on only means anything if the pointer can
-     * cross between them.
-     *
-     * The colour screen is placed to the RIGHT here, so the b/w screen keeps
-     * coordinates 0..1023 and nothing about the existing mono path changes.
-     * That is a deliberate choice and it is the half of this that is a GUESS:
-     * `ColorDisplay ?` on our checkpoint reports "left", and if Cedar expects
-     * the colour screen at negative x (or expects the mono screen shifted
-     * right by the colour width) then the offset below is wrong and the
-     * cursor will appear on the colour screen at the wrong place, or not at
-     * all. Verify by moving the pointer onto the colour window and watching
-     * for a cursor before trusting it. Doing it the other way round would
-     * move the mono screen's origin, which would break every existing recipe
-     * and gate -- so if `left` turns out to be required, it needs the guest's
-     * own coordinate convention read out of Terminal/TerminalExtras rather
-     * than another guess. */
-    int max_x = DORADO_DISPLAY_W - 1;
-    if (dorado_dispm_installed() != DORADO_DISPM_NONE) {
-        int cw = 0, ch = 0;
-        if (dorado_dispm_rgb(&cw, &ch) && cw > 0) max_x += cw;
-    }
-    if (x < 0) x = 0; else if (x > max_x) x = max_x;
+    /* Clamp to the b/w raster. A widened clamp was tried on 2026-08-08 to
+     * let the pointer reach a second screen and REVERTED: Cedar has no
+     * combined coordinate space to reach into. InterminalImpl gives each
+     * display its own 0-based extent and crosses between them by edge-push,
+     * so a coordinate past this raster is either clamped or triggers a
+     * crossing that resets to the new screen's origin. Motion, not position,
+     * is the input shape that works -- see dorado_machine_mouse_delta. */
+    if (x < 0) x = 0; else if (x > DORADO_DISPLAY_W - 1) x = DORADO_DISPLAY_W - 1;
     if (y < 0) y = 0; else if (y > DORADO_DISPLAY_H - 1) y = DORADO_DISPLAY_H - 1;
     m->mouse_present = 1;
     m->mouse_x = x;

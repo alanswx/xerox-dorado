@@ -735,20 +735,34 @@ int main(int argc, char **argv)
                  * screen is placed to the right and why that is the part
                  * still to be verified against Cedar's own convention. */
                 if (cwin && e.motion.windowID == SDL_GetWindowID(cwin)) {
-                    /* DORADO_COLOR_MOUSE_TRACE=1 answers "is SDL even
-                     * delivering these?" -- which is a different question
-                     * from whether the guest then draws a cursor there. */
+                    /* MOTION, not a coordinate. SDL's windowID is already the
+                     * "which window is the pointer over" answer -- including
+                     * when they overlap -- so the window the event arrived on
+                     * IS the screen the user means. What we cannot do is tell
+                     * Cedar that directly: it decides which display is current
+                     * itself, by edge-push, from accumulated motion. So feed
+                     * it the motion and let it cross.
+                     *
+                     * xrel/yrel are SDL's own deltas, which is exactly what
+                     * the terminal microcomputer reports. */
                     if (getenv("DORADO_COLOR_MOUSE_TRACE"))
-                        fprintf(stderr, "COLORMOUSE x=%d y=%d -> guest x=%d "
-                                "y=%d buttons=%d\n", e.motion.x, e.motion.y,
-                                DORADO_DISPLAY_W + e.motion.x, e.motion.y,
-                                mouse_buttons);
-                    dorado_machine_set_mouse(m, DORADO_DISPLAY_W + e.motion.x,
-                                             e.motion.y, mouse_buttons);
+                        fprintf(stderr, "COLORMOUSE dx=%d dy=%d (at %d,%d)\n",
+                                e.motion.xrel, e.motion.yrel,
+                                e.motion.x, e.motion.y);
+                    if (getenv("DORADO_MOUSE_DELTAS"))
+                        dorado_machine_mouse_delta(m, e.motion.xrel,
+                                                   e.motion.yrel);
                     break;
                 }
                 if (win && e.motion.windowID != SDL_GetWindowID(win)) break;
                 if (ui_on && dorado_ui_handle_event(&e)) break;
+                /* The guest's accumulator needs a CONTINUOUS motion stream to
+                 * cross in either direction, so the mono window feeds it too
+                 * -- not just the colour one. The absolute path below still
+                 * runs; see dorado_machine_mouse_delta for why both. */
+                if (getenv("DORADO_MOUSE_DELTAS"))
+                    dorado_machine_mouse_delta(m, e.motion.xrel,
+                                               e.motion.yrel);
                 dorado_machine_set_mouse(m, e.motion.x / scale,
                                          (e.motion.y - DORADO_UI_HEIGHT) / scale,
                                          mouse_buttons);

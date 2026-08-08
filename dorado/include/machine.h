@@ -165,6 +165,11 @@ int dorado_machine_interactive(const dorado_machine *m);
  * callback so the colour board model needs no memory.h. */
 uint16_t dorado_machine_read_visible_word(void *ctx, uint32_t va);
 
+/* Mouse MOTION on the terminal back channel -- the shape the hardware sends,
+ * and the only one in which the guest can cross to a second screen. Opt in
+ * with DORADO_MOUSE_DELTAS=1. */
+void dorado_machine_mouse_delta(dorado_machine *m, int dx, int dy);
+
 void dorado_machine_set_ftp_source(dorado_machine *m, const char *sysout,
                                    const char *root);
 
