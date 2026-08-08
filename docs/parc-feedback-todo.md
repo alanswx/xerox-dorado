@@ -840,7 +840,16 @@ Both carry a **"DDC to DDM Interface Table"**, i.e. these are two boards
 talking to each other: **DDC = the display controller (DispY)** and
 **DDM = the display mixer (DispM)**.
 
-**`docs/color-graphics-todo.md` §1.1 currently says the opposite** — "There
+**CONFIRMED A THIRD TIME, 2026-08-08, from the design data.** DispM's
+backplane connector carries **`DACRed`, `DACGreen`, `DACBlue` with
+`GNDRed`, `GNDGreen`, `GNDBlue` and `RefIn`**; DispY's carries a single
+`AltoTTLVideo` plus `AltoHSync`/`AltoVSync'`/`AltoCSync'`, `CursorData`,
+`Crystal` and `TermIsLF`. Three video DACs with their own analog grounds
+cannot sit on a monochrome board. `docs/color-graphics-todo.md` is fixed;
+`docs/INDEX.md` still described `DispY.pdf` as "Color/extended display
+output" and was fixed the same day. See `docs/sil-netlist-crosscheck.md`.
+
+**`docs/color-graphics-todo.md` §1.1 originally said the opposite** — "There
 is no separate colour board. The same DDC drives mono and colour... this is
 not 'emulate new hardware', it is 'finish the display controller we already
 have'." That claim is the premise the whole scoping rests on, so it must be
@@ -1751,39 +1760,89 @@ secondary selection).
 
 ## Suggested order
 
-Done 2026-08-07: **A1** (Control), **A3** (the Interlisp menu), **A3b**
-(Caps Lock), **A4** (the keyboard audit), **A5** (the map, text and graphic),
-**D1** (the board identification). **A2** is not a mapping error and is now
-waiting on a repro from the reporter, so it is off this list until that
-arrives.
+**Updated 2026-08-08**, after the Sil cross-check finished.
 
-What is left, in order:
+**Done.** 2026-08-07: **A1** (Control), **A3** (the Interlisp menu), **A3b**
+(Caps Lock), **A4** (the keyboard audit), **A5** (the map), **D1** (the board
+identification), **E1** + **F.2** (the garage archives and the `.sil` files),
+**I** (PACMAN), **K** (the SDL front panel), **L** (save/resume in the
+browser). 2026-08-08: **F.1** -- all eleven boards of a working machine
+cross-checked against their netlists (`docs/sil-netlist-crosscheck.md`), and
+the Phase 2 input characterised (`docs/verilog-from-sil.md`).
 
-1. ~~**E1 + F.2** — fetch the garage archives and the `.sil` design files.~~
-   **DONE 2026-08-07.** `chm/sil/` holds 640 members across all 16 boards
-   (`tools/fetch_dorado_sil.py`) and `chm/garage/` holds the Midas manual
-   and the D0 drawings (`tools/fetch_chm_archive.py`). The next F step is to
-   *use* them — see F.1, and note the `.nl` netlists below.
-1a. **J / A2** — the middle-button paste conflict, and **K**, the toolbar
-   that dissolves it. Carl has done the
-   diagnosis; the remaining work is a decision about which chord, then three
-   small fixes. Highest user-visible value of anything left.
-1b. ~~**I** — PACMAN.~~ **SOLVED and FIXED 2026-08-07**: a `(T NIL)` default
-   clause in the 1987 source, not an emulator bug; PACMANFIX repairs it. The
-   server fix it needed -- STP retrieve now reads the plist case-insensitively
-   and accepts an empty Directory -- unblocks serving any hand-written file
-   to Interlisp, which **H** needs.
-2. **H** — get a user's own files in. Ask what the files are first; the
-   answer decides whether this is a browser drop target, a served-tree
-   change, or an archive job. Pairs naturally with C1.
-3. **A6** — the terminal serialiser's deltas and its ordering guarantee.
-   Today's fix made the first real use of that path; finishing it removes a
-   class of input bug rather than one instance.
-4. **B1** — the checkpoint crash. Deeper; touches the disk shim.
-5. **C1** — browser persistence. Decide whole-pack vs dirty-block first.
-6. **D2 / D3 / G** — colour and the archive-as-file-server, once the
-   machine is comfortably drivable. Colour's step 0 stands: trace whether
-   any world programs the colour RAMs before promising anything.
+### Tier 1 -- reported by real users, still wrong, and cheap
+
+These are the only things a visitor would notice today.
+
+1. **J / A2 -- Carl Hauser's two remaining bugs.** The paste *conflict* is
+   gone (paste is a toolbar button now, not the middle mouse button), but two
+   specifics were never fixed:
+   - **shift-right-click also raises the browser context menu.** Note that
+     `web_shell.html:164` already has `oncontextmenu="event.preventDefault()"`
+     **on the canvas** -- so either this landed after Carl's report, or the
+     menu is coming from an ancestor / the panel / macOS Ctrl-click. Verify
+     in a browser before writing any code.
+   - **releasing shift does not commit the secondary selection**; pressing
+     and releasing shift a second time does. That smells like the same
+     sample-once-per-field edge the key queue exists for, but on a MODIFIER,
+     which does not go through `machine_key_queue`.
+2. **"Typing seems a bit slow"** (reported 2026-08-07, never investigated).
+   Concrete places to look before theorising: `KEY_FIELDS_PER_TRANSITION` is
+   3 (`machine.c:437`), so every press and release costs 3 Cedar display
+   fields; paste pacing is 800K cycles per character. Measure what a human
+   actually experiences per keystroke, in emulated milliseconds, before
+   changing a constant -- and remember `--cycles` is BaseBoard cycles, 3.70
+   per microinstruction.
+3. **Confirm the SDL file drop with one human drag.** The message now renders
+   in the panel's last cell for 8 s. This is the last thing blocking **H**.
+
+### Tier 2 -- removes a class of bug rather than an instance
+
+4. **A6 -- the terminal serialiser's ordering guarantee.** The menu bug was
+   caused by exactly this path: the terminal microcomputer writing
+   `0177030`/`0177033` on its own schedule while we wrote the same cell. The
+   netlist just added the starting point -- **`KeyboardData` and
+   `OISData[0-3]`/`OISClkA`/`OISClkB` are on BOTH display boards**, so the
+   keyboard genuinely arrives over the display board's serial link (HM Table
+   24). Model the deltas and the ordering and this class of bug closes.
+
+### Tier 3 -- the big lever, now unblocked
+
+5. **Phase 2: the `.wl` parser and the MECL cell library.**
+   `docs/verilog-from-sil.md` has the plan and the sizing (3,026 logic
+   packages, 118 types, **50 types cover 90%**). Step 1 -- a `.wl` + `.lc`
+   reader producing a netlist graph -- is self-contained, testable on its
+   own, and makes everything after it mechanical. This is the highest
+   long-term value item on the list and it did not exist as a possibility a
+   week ago.
+
+### Tier 4 -- known, deeper, no user waiting
+
+6. **B1** -- the Cedar checkpoint/rollback crash. Touches the disk shim.
+7. **C1** -- browser persistence via IDBFS. Decide whole-pack vs dirty-block
+   first.
+8. **Smalltalk input.** Smalltalk-76 boots to its desktop and **no click or
+   keystroke has ever been driven into it**. Every other world we boot is
+   interactive; this one is a picture.
+9. **The Cedar cold-boot login path is non-deterministic** (28,490 vs 28,494
+   px from an identical binary), so it cannot be a byte-exact gate and
+   nothing cold-boots Cedar in CI. Undiagnosed since 2026-07-26.
+10. **D2 / D3 -- colour.** Step 0 still stands and is cheap: trace whether
+    ANY world programs the colour RAMs before promising anything. The
+    netlist has now told us the scope is real (DispM is a whole second board
+    with three DACs), so the honest answer may be "no world we have uses it".
+11. **G** -- the CHM archive as live PARC file servers.
+12. **F.1 leftover: BaseBd.** The last board worth checking; we already
+    emulate its 6502 from the real EPROM dumps, so its netlist is a direct
+    check on `baseboard.c`. (msa, PCMSA, IOTest, Music are support/test
+    boards.)
+
+### Not on this list on purpose
+
+**Replies to Carl and Tim.** Both gave detailed, generous feedback that
+turned directly into shipped work -- Carl's middle-button diagnosis and Tim's
+"build the Verilog from the Sil files" both landed. Worth telling them, but
+that is the user's call to send, not a task to schedule.
 
 ## What NOT to do
 
