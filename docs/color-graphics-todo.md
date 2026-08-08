@@ -325,6 +325,41 @@ and trace what it writes with `DORADO_DDC_TIOA=1`. That gives a real guest
 driving the real registers, and turns everything below from
 "implement and hope" into "implement against a trace".
 
+## PGM or PPM? Two screens, two files -- and why the mono path must NOT change
+
+Asked while the board was being built, and it is a real design decision.
+
+**The monochrome framebuffer stays PGM, and that is the faithful choice.**
+DispY is genuinely **one bit per pixel** -- `AltoTTLVideo`, a single video
+line on the netlist. Greyscale PGM is already generous for it; making it PPM
+would imply a colour capability the board does not have and would quietly
+invite code that assumes every Dorado screen has colour in it.
+
+**Colour is a SECOND SCREEN, so it gets its own file.** `dispm.c` writes
+`<out>.color.ppm` (P6, 24-bit) at the colour monitor's own raster --
+640x480 or 1024x768, neither of which is DispY's 1024x808. They are different
+sizes because they are different monitors. `ColorDisplay left | right` is the
+proof: the command tells Viewers which side of the black-and-white display
+the colour one sits on, which only makes sense for two physical screens.
+
+So the emulator's output for a colour-equipped Dorado is a **pair**: a
+1024x808 PGM and a 640x480 PPM.
+
+### What that means for the parts not yet built
+
+- **Frontends need a second surface.** SDL: a second window, or one window
+  with both rasters side by side in the order `ColorDisplay left|right`
+  reports. Browser: a second canvas. Neither exists yet.
+- **Colour needs its own gate**, comparing PPMs. The existing gates `cmp` two
+  PGMs and would not notice the colour screen at all.
+- **Do not composite them into one image** to save a file. The guest decides
+  which screen a viewer lives on; flattening that loses the one piece of
+  information the arrangement carries.
+- The RGB buffer is `DORADO_DISPM_MAX_W * DORADO_DISPM_MAX_H * 3` = 2.36 MB,
+  file-scope in `dispm.c`. It is NOT a `dorado_machine` member and must not
+  become one -- that changes the snapshot ABI and kills every baked
+  checkpoint.
+
 ## THE PRESENCE TEST, VERBATIM -- three READS, and they gate everything
 
 `ColorDisplayHeadDorado.mesa`'s module initialization ends with the colour
