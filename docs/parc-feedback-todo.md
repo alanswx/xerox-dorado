@@ -1056,10 +1056,37 @@ The `.sil` files themselves are Sil's binary drawing format, so they still
 need `ANALYZE`/Sil (or the rendered PDFs in `DoradoDocs/doradodrawings/`)
 to look at. The netlists need neither.
 
-**Next on this track:** pick one board — ProcH, since we already display
-`ProcH01.sil` inside Cedar — and diff its netlist against the emulator's
-model of that board. That is a real cross-check of the C emulator against
-the hardware, before any RTL is written.
+### F.1 STARTED 2026-08-08 — ProcH and ProcL cross-checked
+
+`docs/sil-netlist-crosscheck.md`, with `tools/sil_netlist_report.py` to
+repeat it on any board.
+
+**It confirms the emulator's shape.** Every field and register width matches
+the hardware interface exactly — RSTK 4, ALUF 4, BSEL 3, ASEL 3, LC 3, FF 8,
+MemBase 5, RbAdr 4, StkAdr 8, TIOA 8 — and **every branch condition we
+implement is a real pin**: `ResEqZero'`, `ResLtZero'`, `ALUCarry`,
+`Cnt=Zero'`, `RmLtZero'`, `RmOdd'`, `Overflow'`. Also settled: the datapath
+splits high byte / low byte across the two boards with a parity bit each
+(`.16` and `.17`), and the ALU is **four MC10181 slices**, two per board —
+which is why an ALUFM entry is 6 bits (4 function + mode + carry) rather than
+an opcode.
+
+**And it names four things the hardware has that we do not model:**
+
+1. **A byte-parity network across the datapath.** `IOB.16/.17`,
+   `dMD.16/.17`, `BMux.16/.17` plus `IOPE`, `MdPE`, `RamPE` and
+   `CkMdParity'`. We model IM parity and memory ECC; bus and register-file
+   parity appear nowhere.
+2. **Hold, at pin level**: `PRhold`, `PrBlock'`, `PrHoldReq`, `SimHoldDis`.
+   A known gap, now a named four-signal interface — including a hardware
+   simulation-disable, which is what boot microcode uses `mcr.disHold` for.
+3. **`SubTask.0/1`** — never touched.
+4. **`StkError`** — exists only inside a comment in `cpu.c`.
+
+**Next:** IFU and the memory boards (MemC/MemD/MemX). The IFU because its
+interface should settle open questions about what our IFU model owes the rest
+of the machine; the memory boards because the Pipe and Map are where the
+subtlest emulation bugs have lived.
 
 ### F.2 (historical) BLOCKER: we had no .sil source, only rendered PDFs
 
