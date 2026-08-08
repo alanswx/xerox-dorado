@@ -469,6 +469,52 @@ POSITION and PATTERN separate from the monochrome cursor.** The head knowing
 nothing about it is expected: the head drives registers, Terminal owns the
 presentation.
 
+### AND THE CROSSING IS AN EDGE-PUSH, NOT AN EXTENDED DESKTOP
+
+`Cedar6.1/Inscript/InterminalImpl.mesa` finishes the story, and it rules out
+the model the emulator currently implements.
+
+Both screens are **0-based and independent**:
+
+```
+color^ _ [xMin: 0, xMax: terminal.colorWidth-1,
+          yMin: 0, yMax: terminal.colorHeight-1, color: TRUE];   -- line 297
+right^ _ left^ _ [xMin: 0, xMax: terminal.bwWidth-1, ...];        -- line 323
+```
+
+There is no combined coordinate space. Each display has its own origin, and
+crossing is detected by the pointer PUSHING PAST an edge by more than an
+escape threshold:
+
+```
+mouse.x>display.xMax => {                        -- the mouse is moving right
+  IF display=left AND (mouse.x-display.xMax >
+       (IF display.color THEN vColorEscape ELSE vBWEscape)) THEN {
+    ... mousePosition.x _ display.xMin }          -- lands at 0 on the NEW screen
+  ELSE mousePosition.x _ display.xMax };          -- otherwise just clamp
+```
+
+**So injecting an absolute position can never work.** `machine.c` writes the
+host pointer straight into `0424`/`0425`. Cedar clamps that to the current
+display's `0..xMax` and only switches when the value exceeds `xMax` by more
+than the escape -- and on switching it RESETS the position to the new
+screen's origin. Push x to 1024+ and you get exactly what was observed: a
+cursor appears on the colour screen for a moment, then the next absolute write
+pushes past the edge again and the mapping is nonsense. The b/w screen keeps
+reacting because the same coordinate is still being clamped into its space
+whenever `display` is the b/w one.
+
+**This is the delta path, definitively.** HM Table 24 message `06B` sends
+mouse Δx/Δy as excess-200B -- *motion*, not position -- and `InterminalImpl`
+is the accumulator that turns motion into a per-screen position and owns the
+crossing. Feeding it deltas is not a fidelity nicety; it is the only input
+shape in which two screens can work at all.
+
+**Therefore `dorado_machine_set_mouse`'s widened clamp and the colour-window
+coordinate offset should be REVERTED, not tuned.** They implement a combined
+coordinate space that Cedar does not have. The work is task A6: deliver Δx/Δy
+through the terminal serialiser and let the guest do the rest.
+
 ### ANSWERED: it is a SOFTWARE cursor, in colour-screen-LOCAL coordinates
 
 `Cedar6.1/Terminal/TerminalImpl.mesa` settles both halves.
