@@ -469,22 +469,42 @@ POSITION and PATTERN separate from the monochrome cursor.** The head knowing
 nothing about it is expected: the head drives registers, Terminal owns the
 presentation.
 
-### What this means for us, and what is still unknown
+### ANSWERED: it is a SOFTWARE cursor, in colour-screen-LOCAL coordinates
 
-The important open question is **where the colour cursor is drawn**. If
-Terminal composites it into the colour frame buffer, our existing render would
-already show it and the reason it does not is that the guest never moves it --
-which points back at the coordinate mapping and `ColorDisplaySide`. If instead
-it is a pattern register the hardware overlays, we do not model it at all:
-`ColorDisplayDorado.mesa`'s MonitorControlBlock / ChannelControlBlock /
-ColorControlBlock have no cursor field, so it would have to arrive some other
-way.
+`Cedar6.1/Terminal/TerminalImpl.mesa` settles both halves.
 
-Read `Terminal/TerminalImpl` (or whatever implements SetColorCursorPosition)
-and find out which, before writing any more mouse code. And note the side
-matters here: `Interminal.GetColorDisplaySide` is the guest's own answer to
-the left/right question that `dorado_machine_set_mouse` currently guesses at
-by placing the colour screen on the right.
+`SetColorCursorPosition` (line 524) hides the cursor, moves it, shows it
+again -- and `ShowColorCursor` / `HideColorCursor` (lines 642, 687) are
+TRUSTED procs that paint a **16 x 16** patch into the colour frame buffer
+directly, bounded by `vt.colorWidth` / `vt.colorHeight` and gated on
+`impl.colorMode.full OR impl.colorMode.bitsPerPixelChannelA > 0`.
+
+So:
+
+1. **It is composited into the frame buffer, not overlaid by hardware.** Our
+   existing DispM render would therefore show it *if the guest drew it*. There
+   is nothing to add to `dispm.c` for this.
+2. **Its position is COLOUR-SCREEN-LOCAL** -- x and y inside
+   colorWidth/colorHeight, i.e. 0..639 and 0..479 -- **not** a coordinate in
+   some extended two-screen desktop.
+
+**Point 2 means `dorado_machine_set_mouse`'s widened clamp is the wrong
+model.** Extending the mono space rightward and sending x=1024+ gives Cedar a
+monochrome coordinate off the right edge of the mono screen; it does not put
+the pointer on the colour screen. Something above -- Interminal or Viewers,
+using `Interminal.GetColorDisplaySide` -- decides the pointer has crossed and
+calls `SetColorCursorPosition` with a LOCAL position. The
+Terminal.mesa comment is explicit that clipping is the client's job: "It is
+the responsibility of the client to clip the position ... to ensure that the
+cursor remains on the visible area of the display."
+
+**Next, and it is a read not a guess:** find who calls
+`SetColorCursorPosition` in `Cedar6.1/Inscript/InterminalImpl.mesa` (it is one
+of the five files that mention it) and what input drives it. That says what
+the guest needs from us -- most likely just a mouse position it already
+understands, with the crossing decided entirely inside Cedar, in which case
+the emulator needs no coordinate work at all and the widened clamp should be
+reverted rather than tuned.
 
 ## PGM or PPM? Two screens, two files -- and why the mono path must NOT change
 
