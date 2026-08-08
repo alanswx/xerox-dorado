@@ -68,7 +68,18 @@ def pbm_read(path):
     pos += 1                                   # the single whitespace
     w, h = fields
     row_bytes = (w + 7) // 8
-    rows = [data[pos + y * row_bytes: pos + (y + 1) * row_bytes]
+    # INVERT. PBM (P4) is 1 = BLACK; AIS samples are LUMINANCE, high = white.
+    # The 8-bit files prove the convention: ProcH-BitSlice07.ais has a mean
+    # sample of 240 (white paper, 5% ink) and the period Xerox uscmoon.ais is
+    # a photograph averaging 128. A 1-bit AIS written straight from a PBM
+    # therefore comes out INVERTED -- a schematic with 14% ink renders as 86%
+    # black, i.e. a black square with thin white lines. That is exactly what
+    # IFU-Sheet02.ais and ProcH-Title.ais did from the day they were made;
+    # ProcH-BitSlice07.ais escaped only because it was later regenerated as
+    # 8-bit greyscale (b5fe238), which is why the docs screenshot of it looks
+    # right and the IFU button did not.
+    inv = bytes(255 - b for b in range(256))
+    rows = [data[pos + y * row_bytes: pos + (y + 1) * row_bytes].translate(inv)
             for y in range(h)]
     return w, h, rows
 
