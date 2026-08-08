@@ -630,6 +630,33 @@ cannot host Smalltalk at all (ATraps.mc traps `0o72400-0o72777` =
 fills from disk). New `DORADO_ALTO_OPHIST=1` gives per-instruction-set,
 per-opcode dispatch counts. Detail and next steps: `docs/CONTINUE-HERE.md`.
 
+**THE COLOUR BOARD WORKS (2026-08-08).** `src/dispm.c` models DispM -- the
+Dorado's second, colour display board -- transcribed from Xerox's own driver,
+which was in the tree we already serve the guest: `Cedar6.1/HeadsDorado/
+ColorDisplayDorado.mesa` (registers, control blocks) and
+`ColorDisplayHeadDorado.mesa` (the presence test), cross-checked against the
+board's netlist. Cedar detects it on a cold boot (`presence reads: 360B=3
+361B=1`, head latches `standard 640x480`), `ColorDisplay on` arms the ColorCSB
+chain at 177414B, and viewers moved onto the colour screen render. Two
+surfaces: an SDL second window and a browser second canvas -- **a Dorado's
+colour monitor is a SEPARATE SCREEN at its own raster (640x480 or 1024x768),
+not a colourisation of the 1024x808 mono one, which is genuinely 1 bit per
+pixel.** `make run-cedar-color`. The bug that kept it black is worth knowing:
+**the pixel value is not the table index** -- ATable has 1024 entries because
+the index is TEN bits (`aaaaaaaabb`), so at 8 bpp it is `a<<2`.
+
+Two threads are one step from done, both with a precise next action in
+`docs/CONTINUE-HERE.md`: **Gargoyle** (Tim made his 1980s railroad book's
+artwork in it -- import closure complete at 52 DFs, `Install` fixed, remaining
+failures all caused by `Bringover -p` fetching public files only, now
+corrected but untested) and **the colour cursor** (software-composited, each
+screen 0-based, crossing by EDGE-PUSH, registered via the ColorDisplayTool's
+SIDE toggle rather than by turning colour on; deltas implemented behind
+`DORADO_MOUSE_DELTAS=1`). First-hand background from Tim on how the book was
+actually made -- colour monitor as an antialiasing soft-proofing device,
+Interpress to a Dover then to film, photographs as HOLES in the page masters
+-- is in `docs/parc-veteran-notes.md`.
+
 Plans/state: `docs/running-the-emulator.md` (how to run everything),
 `docs/CONTINUE-HERE.md` (live bring-up state), `docs/handoff.md` +
 `dorado/CLAUDE.md` (gaps), `docs/hardware-specs.md` (specs for unbuilt

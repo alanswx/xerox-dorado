@@ -1,5 +1,95 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+> ## ===> 2026-08-08: THE COLOUR BOARD IS BUILT AND PAINTS; GARGOYLE AND THE
+> ## COLOUR CURSOR ARE BOTH ONE STEP FROM DONE
+>
+> **Read `docs/color-graphics-todo.md` first** -- it carries the full account.
+> This is the short version and the resume points.
+>
+> ### DONE, and gated
+>
+> **DispM, the colour board, exists** (`src/dispm.c`, `include/dispm.h`),
+> transcribed from Xerox's own driver -- `Cedar6.1/HeadsDorado/
+> ColorDisplayDorado.mesa` and `ColorDisplayHeadDorado.mesa`, which we have
+> been SERVING to the guest all along -- and cross-checked against
+> `chm/sil/DispM-Rev-Ch`'s netlist. Presence test, the three RAM registers
+> (mixer 361B, cMap 362B, bMap 365B) with the real keep/load/write handshake,
+> the ColorCSB chain walk at 177414B, and ATable -> 24-bit RGB.
+>
+> **Cedar detects it and paints on it.** Cold boot with
+> `DORADO_DISPM_COLOR=1`: `presence reads: 360B=3 361B=1`, head latches
+> `standard 640x480`, and a viewer moved onto the colour screen renders. The
+> screen was black until the last fix: **the pixel value is not the table
+> index** -- ATable is 1024 entries because the index is TEN bits
+> (`aaaaaaaabb`), so at 8 bpp it is `a<<2`, not `a`.
+>
+> **Two display surfaces**: an SDL second window and a browser second canvas,
+> both lazy, both throttled. The mono path stays PGM (DispY is genuinely 1
+> bit/pixel); colour writes its own `.color.ppm`.
+>
+> `make run-cedar-color` (instant, from `build/good-packs/cedar-color.snap`),
+> `make run-cedar-color-cold` (cold boot -- needed for profile changes),
+> `make cedar-color-snapshot` (re-bake).
+>
+> ### THE TWO OPEN THREADS, each with a precise next step
+>
+> **1. Gargoyle** (Tim made his book's artwork in it, so this is the tool, not
+> a demo). Import closure COMPLETE -- 52 CedarChest6.1 DFs, 0 missing. Install
+> is fixed: it is its own package (`Install.DF!7`) needing `HashTable.df!1`,
+> and once both are Run the failures change from `[[Install not found]]` to
+> real Install diagnostics and `Install BiScrollersButtonned` SUCCEEDS.
+> Remaining: `Failed to find load file for PopUpSelection` / `SlackProcess`
+> and `Could not find TiogaButtonsImpl.bcd` -- all caused by `Bringover -p`
+> fetching PUBLIC FILES ONLY. `Color.cm!7` uses plain Bringovers now and
+> fetches those three packages explicitly. **UNTESTED.** Whether it also
+> clears `VersionMismatch[BiScrollers]` is the open question, and plausible:
+> five version theories were killed by evidence, and the mismatch may be a
+> symptom of BiScrollersButtonned never having been installed.
+>
+> **2. The colour cursor.** Read `InterminalImpl.mesa` before touching
+> anything -- four greps settled what three wrong fixes could not:
+>
+> - The cursor is **software**, composited into the colour frame buffer
+>   (`ShowColorCursor`/`HideColorCursor`, 16x16). Our render will show it.
+> - Each display has its **own 0-based extent**; crossing is by **EDGE-PUSH**
+>   past `xMax` by more than an escape, resetting to the new screen's origin.
+>   There is no combined coordinate space -- so injecting an absolute position
+>   at 0424/0425, which `machine.c` does, cannot ever reach a second screen.
+> - At startup **both `left` and `right` are MONOCHROME** with identical
+>   extents. Crossing without a colour display registered jumps the pointer to
+>   the other b/w display's `xMax` -- which is the "goes left, jumps 100px
+>   right" symptom exactly.
+> - `TurnOnColorCursor[side]` is the registration, gated on
+>   `terminal.hasColorDisplay`, and it is reached from the **side toggle**
+>   (`SetColorDisplaySide`), NOT from `ColorDisplay on`. Which is why a cursor
+>   appeared only after pressing `Right` in the ColorDisplayTool.
+>
+> **Built but unconfirmed:** HM Table 24 msg `06B` mouse deltas (excess-200B)
+> in the terminal serialiser, opt-in with `DORADO_MOUSE_DELTAS=1`, additive to
+> the absolute path. The wrong widened clamp is reverted. **Next: run
+> `DORADO_MOUSE_DELTAS=1 make run-cedar-color`, turn colour on, TOGGLE THE
+> SIDE, and see whether the pointer crosses.**
+>
+> ### Also today
+>
+> - **AIS 1-bit images were written inverted** (PBM is 1=black, AIS is
+>   luminance high=white). `IFU-Sheet02.ais` was 86% black -- the "black
+>   square". Converter and both stored files fixed. Never a regression: only
+>   `ProcH-BitSlice07.ais` was ever regenerated as 8-bit.
+> - **Still open:** painting IFU-Sheet02 (1000x1291) KILLS the world at 130 B
+>   cycles -- 81 px, the "Type Key" herald. Schematic.cm and Moon.cm are fine.
+> - `verify-cedar-desktop` now fails TOO MUCH ink as well as too little; a
+>   minimum-only gate passed a solid-black screen for weeks.
+> - **The Cedar display field fires at 222 Hz, not 60** --
+>   `CEDAR_FIELD_INTERVAL_CYCLES` is microinstructions compared against
+>   bb.cycles. Not fixed; see section N of the feedback todo.
+> - `make verify-paste` reads the WIRE to tell in minutes whether a typed
+>   command reached the guest. Built after three 45-minute runs died on a typo.
+> - Per-key input pacing was tried and REVERTED (it doubled, then starved,
+>   pasted characters). **Carl's shift-ordering bug is open again**; a correct
+>   fix makes the MOUSE respect the queue rather than letting keys skip it.
+>
+
 > ## ===> 2026-08-07: THE INTERLISP MENU BUG IS FIXED, AND THE KEYBOARD IS AUDITED
 >
 > **A3 root cause: two writers of the UTILIN cell.** The Alto-terminal
