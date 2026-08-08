@@ -1121,6 +1121,73 @@ run-cedar: sdl
 run-cedar-work: sdl $(CEDAR_WORK_PDI)
 	DORADO_PDI_IGNORE_LABEL_FLAGS=1 ./build/dorado-sdl --boot-reason disk --no-alto-boot --eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' --pilot-disk '$(CEDAR_WORK_PDI)' --ftp-root ../chm/cedar/stp-root --speed 4000000
 
+# ---- Colour: the Dorado's SECOND screen (DispM) --------------------------
+#
+# The Dorado's black-and-white display is DispY -- 1024x808, ONE BIT PER PIXEL.
+# Colour is a physically separate board, DispM, driving its own 640x480 or
+# 1024x768 monitor. So `make run-cedar-color` opens TWO windows: the mono
+# desktop, and a second window for the colour screen. That is what the guest
+# believes too -- Cedar's `ColorDisplay left | right` command asks which side
+# of the b/w display the colour one sits on.
+#
+# THE BOARD MUST BE PRESENT AT BOOT. ColorDisplayHeadDorado's presence test
+# lives in its module initialization body, so it runs once when the
+# configuration is STARTed and never again. A checkpoint baked without the
+# board has already latched displayType _ none, and no amount of typing
+# ColorDisplay on will change its mind -- which is why this has its own
+# checkpoint rather than reusing cedar-desktop.
+CEDAR_COLOR_SNAPSHOT := build/good-packs/cedar-color.snap
+CEDAR_COLOR_PDI      := build/good-packs/cedar-color.pdi
+
+.PHONY: run-cedar-color
+run-cedar-color: sdl $(CEDAR_COLOR_SNAPSHOT) $(CEDAR_COLOR_PDI)
+	@echo "Cedar 6.1 with the colour board (DispM). Two windows: the mono"
+	@echo "desktop, and a second one for the colour screen."
+	@echo
+	@echo "The colour screen starts BLACK and that is correct -- the display is"
+	@echo "on, its palette is loaded (255 of 1024 ATable entries), but nothing"
+	@echo "has been placed on it, so every pixel indexes ATable[0] = black."
+	@echo "To get a picture, something has to be MOVED THERE. In the CommandTool:"
+	@echo "  ColorDisplay ?        report the mode (expect: on, 8 bpp, left, 640x480)"
+	@echo "  ColorDisplay left     put the colour screen left of the b/w one"
+	@echo "  ColorDisplay 8        8 bits/pixel; try 4, 2, 1, 24 as well"
+	@echo "  ColorDisplay dither   dithered rather than flat 8bpp"
+	@echo "There is also a Color button in the message window (top right):"
+	@echo "left-click toggles, right-click gives the options menu."
+	@cp -f '$(CEDAR_COLOR_PDI)' build/run-cedar-color.pdi
+	DORADO_DISPM_COLOR=1 DORADO_PDI_IGNORE_LABEL_FLAGS=1 \
+	./build/dorado-sdl --boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk build/run-cedar-color.pdi \
+		--ftp-root ../chm/cedar/stp-root \
+		--snapshot-in '$(CEDAR_COLOR_SNAPSHOT)' --speed 4000000
+
+# Cold-boot a fresh colour checkpoint: board installed from the first
+# instruction, log in, install the ColorDisplay package, turn it on. ~25 min.
+# Writes to good-packs directly, so back up first if you care about the old one.
+.PHONY: cedar-color-snapshot
+cedar-color-snapshot: $(BINDIR)/dorado
+	mkdir -p build/good-packs
+	cp -f '$(CEDAR_DESKTOP_PDI)' '$(CEDAR_COLOR_PDI)'
+	DORADO_DISPM_COLOR=1 DORADO_PDI_IGNORE_LABEL_FLAGS=1 \
+	DORADO_FAKE_TIME='$(CEDAR_DESKTOP_FAKE_TIME)' ./build/dorado \
+		--boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk '$(CEDAR_COLOR_PDI)' \
+		--ftp-root ../chm/cedar/stp-root --key-hold 1600000 \
+		--type-at 2500000000 --type 'Guest\n\n' \
+		--type-at 38000000000 --click 700,733 \
+		--paste-at 38500000000 --paste 'Bringover -p [Cedar]<CedarChest6.1>Top>ColorDisplay.df\n' \
+		--paste-at 52000000000 --paste 'Run ImagerGrayImpl\n' \
+		--paste-at 55000000000 --paste 'Run ImagerForkContextImpl\n' \
+		--paste-at 58000000000 --paste 'Run ImagerMaskContextImpl\n' \
+		--paste-at 61000000000 --paste 'Run ColorDisplayImpl\n' \
+		--paste-at 65000000000 --paste 'ColorDisplay on\n' \
+		--cycles 80000000000 \
+		--snapshot-out '$(CEDAR_COLOR_SNAPSHOT)' \
+		--out build/cedar-color.pgm
+	@echo "baked $(CEDAR_COLOR_SNAPSHOT); check build/cedar-color.pgm is a desktop"
+
 # ---- The CORPUS pack: recovered PARC files on a bootable Cedar volume ----
 # Built by tools/make_corpus_volume.sh (see it for why each step is needed).
 # The volume is a repack of the recovered corpus into Cedar's own layout with
