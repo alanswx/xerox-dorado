@@ -1365,6 +1365,56 @@ they are `.sil` files or Dorado listings, they may want to go into the
 archive and the served tree rather than onto a guest volume at all — and
 that overlaps **F.2** and **G** rather than this item.
 
+## O. Ifu.cm: the AIS was inverted, AND the long paint kills the world
+
+Two separate faults behind one report, and I got the second attribution wrong
+before getting it right. Recorded because the wrong step is the instructive
+one.
+
+### Fault 1, FIXED: 1-bit AIS images were written inverted
+
+PBM is `1 = black`; AIS samples are luminance, `high = white` (the 8-bit
+files prove it -- `ProcH-BitSlice07.ais` averages 240, and the period Xerox
+`uscmoon.ais` averages 128). `tools/pbm2ais.py` passed PBM rows through
+verbatim, so `IFU-Sheet02.ais` -- a schematic with **13.8% ink** -- was stored
+**86.2% black**. A black square with thin white lines.
+
+Never a regression: all three schematics were added 1-bit, and only
+`ProcH-BitSlice07.ais` was later regenerated as 8-bit greyscale (`b5fe238`),
+which is why that one renders and its screenshot is the one in `docs/images`.
+Converter and both stored files fixed; ink is now 13.8% and 9.2%.
+
+### Fault 2, OPEN: painting IFU-Sheet02 crashes the world
+
+`Ifu.cm` at a 60 B-cycle budget leaves a healthy desktop with the viewer
+still an icon (167,791 px -- the paint is unfinished, the sheet is 1000x1291,
+**four times** ProcH's 500x644, and `Schematic.cm`'s own text says that one
+takes ~20 emulated seconds). At **130 B cycles the world is dead**: 81 px,
+the "Type Key" herald from memory `cedar-font-install-attach`.
+
+So the big AIS paint runs for a long time and then kills Cedar. Untouched so
+far. `Schematic.cm` and `Moon.cm` are both fine, so this is specific to the
+large sheet -- start by asking whether it is size (1.3 M pixels at 1 bpp) or
+duration.
+
+### The attribution I got wrong
+
+I blamed fault 2 on my own change: `dispm.c` had been registering its four
+I/O cells unconditionally, and claiming a cell is genuinely guest-visible
+(an unregistered cell is a floating bus returning 0xFFFF, and `cpu.c` guards
+every Output on `dorado_io_has_write`). The timing fitted -- the working run
+predated `dispm.c` and the dead one followed it -- and I committed that
+reasoning.
+
+**It was wrong.** Re-running with the fix in place still gives 81 px. The
+budget, not the binary, is what differs between the working and dead runs.
+
+The change stands on its own merits -- a Dorado with no colour board should
+be bit-identical to one that has never heard of DispM, and perturbing the I/O
+map when a feature is switched off is indefensible -- but the evidence I gave
+for it was not evidence. **Two variables moved between those runs (binary and
+cycle budget) and I read the one I had just touched.**
+
 ## N. "Typing seems a bit slow" -- measured, and it is not the keyboard
 
 Reported 2026-08-07. Measured 2026-08-08, and the answer is the opposite of
