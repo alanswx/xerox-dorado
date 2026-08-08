@@ -4277,6 +4277,24 @@ void dorado_machine_set_key(dorado_machine *m, dorado_display_key key,
             >= KEY_FIELDS_PER_TRANSITION) {
         machine_key_last_field[key] = machine_key_field_no;
         dorado_display_keyboard_set_key(&m->display, key, down ? 1 : 0);
+        /* RESERVE THE FIELD, exactly as the drain below does. Without this
+         * the immediate path was asymmetric with the queued one: a key-down
+         * applied here did not stop the queue draining the matching key-UP on
+         * the very next field, so the press occupied no field of its own.
+         *
+         * That doubled the first character of every paste after a restore --
+         * "BBringover [Cedar]<CedarChest6.1>Top>DoradoWelcome", which then
+         * failed as [[BBringover not found]] and took every dependent step
+         * with it. It is the first character specifically because that is the
+         * only one that finds the queue empty and takes this path.
+         *
+         * The 222 Hz field (see docs/parc-feedback-todo.md section N -- the
+         * interval is in microinstructions but compared against bb.cycles) is
+         * what makes a press with no reserved field visible to the guest more
+         * than once. Both bugs are needed to produce the symptom, which is
+         * why the earlier runs that typed at 2.5 B and at 36.1 B failed
+         * identically and the settle time was a red herring. */
+        machine_key_field_wait = KEY_FIELDS_PER_TRANSITION - 1u;
         return;
     }
     unsigned next = (machine_key_q_tail + 1u) % cap;
