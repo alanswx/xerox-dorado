@@ -812,6 +812,22 @@ machine, six gaps found, no contradictions):
 
 ## External resources
 
+- **"The Structure of Cedar"** — Swinehart, Zellweger, Hagmann, ACM SIGPLAN
+  1985, pp. 230-244:
+  https://worrydream.com/refs/Swinehart_1985_-_The_Structure_of_Cedar.pdf
+  The architects' account of the system we boot, one version before 6.1.
+  Scanned images: text extraction returns binary noise, so read the pages
+  visually. Figure 1 is the entire system on one page. Four things it
+  settles, each of which changed a plan here: colour is an option on a
+  second frame buffer reached through Imager and **Griffin** is the colour
+  application (`docs/color-graphics-todo.md`); **FS will not open a
+  remotely-named file for writing**, so everything our STP server serves is
+  a read-only cache and edits must be written locally first; a **DF file is
+  the period-correct container for "the sections and figures of a paper"**;
+  and **Rollback "has become the conventional way to restart Cedar"**, which
+  is why the checkpoint crash matters more than its symptom suggests.
+  Details in `docs/parc-feedback-todo.md` section M.
+
 - **Computer History Museum Xerox PARC archive** — https://xeroxparcarchive.computerhistory.org/ 
   The full IFS file-server contents from PARC. Microcode sources, MB
   binaries, schematics, tools. See `docs/chm-archive.md` for a curated list

@@ -325,6 +325,99 @@ and trace what it writes with `DORADO_DDC_TIOA=1`. That gives a real guest
 driving the real registers, and turns everything below from
 "implement and hope" into "implement against a trace".
 
+## [x] THE DRIVER IS IN OUR SERVED TREE (2026-08-08) -- colour is now SPECIFIED
+
+Fetching CedarGriffin led somewhere better than Griffin. Chasing what
+`GriffinColor.mesa` actually calls -- `ImagerColor.ColorFromRGB` /
+`RGBFromHSV` over a 30-entry HSV palette ("black", "dk brown", ... "white") --
+runs to `TerminalExtras.SetColorArray` / `SetRedMapArray` / `SetGreenMapArray`
+/ `SetBlueMapArray`, then to `ColorDisplayDefs`, and lands on
+
+**`chm/cedar/stp-root/Cedar6.1/HeadsDorado/ColorDisplayHeadDorado.mesa`
+(22 KB) and `ColorDisplayDorado.mesa` (6.6 KB)** -- Xerox's own DispM driver
+and its register definitions, for the Dorado, in Cedar 6.1. **We have been
+serving these to the guest all along.** The colour board does not have to be
+reverse-engineered from the schematics; it can be read off the driver.
+
+### The registers (`ColorDisplayDorado.mesa`, Doug Wyatt, 1-May-1985)
+
+```
+mixerRegister: DoradoInputOutput.IOAddress ~ 361B;
+cMapRegister:  DoradoInputOutput.IOAddress ~ 362B;
+bMapRegister:  DoradoInputOutput.IOAddress ~ 365B;
+```
+
+These are the three TIOAs `docs/color-graphics-todo.md` had guessed at, now
+confirmed from the driver. **We decode none of them** -- `DORADO_DDC_TIOA=1`
+would show them as UNDECODED.
+
+### The control-block chain, exactly like the mono DCB chain at 0420
+
+```
+csb: -> ColorCSB ~ 177414B          -- colour controller status block
+  mcb -> MonitorControlBlock (5 words, seal = 177456B)
+           flags: m/vc/hc/clk/a/b/c -- which tables to (re)load
+           channelA -> ChannelControlBlock (8 words)
+           channelB -> ChannelControlBlock
+           color    -> ColorControlBlock (16 words)
+                         tableA -> ATable   (1024 entries x 2 words)
+                         tableB -> BCTable  (256 entries)
+                         tableC -> BCTable
+                         miniMixer -> MiniMixerTable (256)
+                         vc/hc/clk -- vertical, horizontal, clock control
+```
+
+**`mcbSeal = 177456B` is already in our source.** `machine.c:5429` tests
+`seal == 0177456u` in the Interlisp colour probe, written in an earlier
+session from the Lisp side. Cedar's driver defines the same constant -- which
+is the strongest kind of confirmation, because it means both operating
+systems are describing one piece of hardware, not each their own convention.
+
+### Pixel formats and geometry
+
+`ChannelControlBlock.scanControl` gives `mode24` (24 bits/pixel),
+`aChannelOnly`, `bBypass`, `pixelMode` (`a6b4` or `a8b2` -- the `A8B2` signal
+the netlist shows on BOTH display boards), `resolution`
+(quarter/half/full) and `bitsPerPixel` (**must be 1, 2, 4 or 8**).
+
+`ATable` entries are two words carrying **8 bits each of red, green and
+blue** (red split `redL`/`redH` across the words) -- i.e. 24-bit colour,
+which is what the three DACs on DispM are for.
+
+`SetDisplayType` in the head gives the two supported monitors:
+
+| type | raster | pixels/inch | clock mul/div |
+|---|---|---|---|
+| `standard` | **640 x 480** | 42 | 130B / 14B |
+| `highResolution` | **1024 x 768** | 72 | 54 / 14 |
+
+So the colour monitor is a *separate* raster from DispY's 1024x808 mono
+screen, confirming the two-monitor reading of the netlist and the manual.
+
+### The RAM-load protocol, in the driver's own words
+
+`MixerDatum` and `BCDatum` are `keep` / `write` / `load` bits plus a variant
+body that is either an address or data -- exactly the "two address sources
+with a `Keep'` flipflop" handshake described in section 1.4 and in
+`docs/io-systems-architecture.md`. Now with the actual bit positions.
+
+### What this changes
+
+Section 1 below no longer needs guessing. The work is: decode 361B/362B/365B
+with the `MixerDatum`/`BCDatum` format, walk the CSB chain at 177414B the way
+`machine.c` already walks the mono DCB chain at 0420, and render `ATable`
+through to RGB. And the head also uses `DoradoInputOutput.RWMufMan` and
+`DMuxAddr`, so **the muffler/DMux gap from the netlist cross-check is on this
+path too** -- we answer two DMux addresses today
+(`docs/sil-netlist-crosscheck.md`).
+
+**Still true, and still the blocker:** none of this runs until the guest
+believes a colour display exists. `TerminalHeadDorado.mesa` -- the MONO head
+-- contains **zero** colour references (checked), so the two heads are
+separate modules and `ColorDisplayHeadDorado` has to be loaded and told
+`SetDisplayType`. That is the real step 2, and it is a Cedar configuration
+question rather than an emulator one.
+
 ## [ ] 1. DDC RAM loads (Mixer / BMap / CMap)
 
 Implement the §1.4 protocol at the `display.c` TODO. Store into the
