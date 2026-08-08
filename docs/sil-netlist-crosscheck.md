@@ -310,6 +310,79 @@ be reverse-engineered from the sheets:
 That is the four-way cache, its victim policy and its data path spelled out
 in the designers' own names.
 
+## The display boards: which one is colour, settled by the pins
+
+`docs/color-graphics-todo.md` originally had this backwards and scoped its
+whole estimate from it; the PARC veterans corrected it and the Hardware
+Manual (doc p.110) confirmed it. The design data now confirms it a third
+time, independently and beyond argument:
+
+| DispM — **colour** | DispY — **monochrome** |
+|---|---|
+| `DACRed`, `DACGreen`, `DACBlue` | `AltoTTLVideo` (one video line) |
+| `GNDRed`, `GNDGreen`, `GNDBlue` | `AltoHSync`, `AltoVSync'`, `AltoCSync'` |
+| `RefIn` (DAC reference) | `CursorData`, `Crystal`, `HalfLine` |
+| `MType'[0-3]` (monitor type) | `JamVBlank`, `XHsync`, `XSyncEn'` |
+| `TTLCSync'`, `TTLHSync'`, `TTLVSync'` | `TermIsLF` |
+
+Three video DACs, each with its own analog ground and a shared reference,
+cannot sit on a monochrome board. Recorded here because the original error
+cost a scoping estimate, and a pin list is the one form of evidence that
+cannot be read two ways.
+
+Three further findings:
+
+- **The task wakeups follow the boards.** `WakeDHT`/`WakeDWT` are on DispY,
+  `WakeAHT`/`WakeAWT` on DispM — and `include/display.h` already assigns
+  AHT (task 4) and AWT (task 11₈) to DispM. Correct as written.
+- **`TermIsLF`** — "terminal is large format" is a *hardware strap* on DispY.
+  We pick the raster per world in software (Alto 808×606, Cedar lf
+  1024×808); the machine had a pin for it.
+- **`KeyboardData` and `OISData[0-3]`/`OISClkA`/`OISClkB` are on BOTH display
+  boards.** The keyboard arrives over the terminal serial link through the
+  display board — which is exactly HM Table 24's terminal microcomputer,
+  the thing that turned out to be the second writer of `0177030` in the
+  Interlisp menu bug. Anyone picking up task A6 (the terminal serialiser's
+  ordering guarantee) should start from these pins.
+
+`A8B2` and `24Bit`/`24BitMode` appear on both boards; `display.h` already
+lists "24Bit color mode (3-channel via AMap+BMap+CMap)" and "Mixer modes
+A8B2 / BBypass / dDAC outputs" under *NOT modeled yet*, so the netlist adds
+confirmation rather than news there.
+
+## DskEth: both I/O controllers on one board
+
+- **Four drives, wired individually and in full**: `Select0'..Select3'`,
+  `Selected0'..Selected3'`, `SecIndx0'..SecIndx3'`, `OS0..OS3`, and
+  *differential pairs* for data and clock per drive (`DataP0..P3` /
+  `DataM0..M3`, `ClockP0..P3` / `ClockM0..M3`). `DORADO_DISK_NUM_DRIVES` is
+  4, and Iago's `Describe Drives` reporting RD0..RD3 is the guest seeing the
+  same four.
+- **The SMD interface, exactly the shape our controller has**: a bus
+  `TagBus'[0-9]` plus four *separate* strobe lines — `DriveTag'`,
+  `HeadTag'`, `CylinderTag'`, `ContTag'`. `disk.c` decodes a tag word as
+  "one of the upper four bits selects which tag, the rest is the bus", which
+  is that structure.
+  - **This looked like the first real contradiction and was not.** The
+    connector carries ten bus lines; `DORADO_DISK_TAG_BUS` is `0x0FFF`,
+    twelve. But every field the decoder reads lives in bits 0..9 —
+    `bus & 0x0F` for drive select, bits 4 and 5 as flags, `(bus >> 6) & 0x0F`
+    for the subsector count, `bus & 0x3F` for the head number. The 12-bit
+    mask is the *controller register's* width, and the code already carries
+    a comment explaining that Pilot keeps KSelect bookkeeping in bit 11.
+    Ten wires to the drive, ten bits decoded. No change made.
+- **Drive status lines we do not model**: `TtlEndOfCyl'`, `TtlOffSet'`,
+  `TtlDeviceCk'`, `OKToSelect`. We have OnLine and ReadOnly
+  (`TtlOnLine'`, `TtlReadOnly'`) and the sector/index timing
+  (`TtlSector'`, `TtlIndex'`). Minor, and nothing has needed them.
+- **The Ethernet host address is a strap.** `Host[0-7]` — eight lines
+  setting this machine's Ethernet host number. `ethernet.c:213` hardcodes
+  `eth->local_host = 042`. Harmless while the network is in-process and
+  worth knowing the moment two emulators are wired together.
+- `Collision` and `RcvData` are the only other Ethernet signals on the
+  connector; `Collision` we model. `DiskTW` (disk task wakeup) and `IOatt`
+  are both modelled.
+
 ## How to repeat this
 
 ```sh
@@ -328,13 +401,10 @@ for b in ProcH ProcL ContA ContB IFU MemC MemD MemX; do
 done
 ```
 
-The whole CPU is now covered. **Six boards remain: DispY, DispM, DskEth,
-BaseBd, msa, PCMSA, IOTest, Music** (the last four are test and support
-boards, not part of a working machine). **DispY and DispM are the obvious
-next targets** — they would settle `docs/color-graphics-todo.md` from the
-design data rather than from the manual, and one fact is already in hand:
-DispM is the only board in the machine not on the DMux diagnostic chain.
-DskEth follows, covering both remaining I/O controllers at once.
+Every board of a working Dorado is now covered. **Five remain: BaseBd, msa,
+PCMSA, IOTest and Music** — the BaseBoard (whose 6502 we already emulate from
+the real EPROM dumps, so its netlist is the natural check on `baseboard.c`)
+and four support/test boards that are not part of a running machine.
 
 ## What this is not
 
@@ -347,12 +417,23 @@ What this pass establishes is that the emulator's *shape* matches the
 hardware exactly — field widths, register widths, all eight branch
 conditions, the Pipe's 16 entries, the ASRN/ProcSRN split, the FA/FB/FC
 decode, the 15-line wakeup network with no request line for task 0, the
-control-processor handshake — and it names six specific things the hardware
+control-processor handshake — and it names the specific things the hardware
 has that we do not: bus and IM parity, the seven-requester Hold network,
-`CountMiss`, DRAM refresh, the DMux scan chain beyond two addresses, and ECC
-generation/checking.
+`CountMiss`, DRAM refresh, the DMux scan chain beyond two addresses, ECC
+generation/checking, four SMD drive status lines, and the Ethernet
+host-address strap.
 
-Worth saying plainly: across eight boards, **every disagreement found was a
-gap, not a contradiction**. Nothing the emulator implements turned out to be
-the wrong width, the wrong polarity or the wrong shape. For a model built
-from a manual and a pile of microcode, that is the result you want.
+Worth saying plainly: across all eleven boards, **every disagreement found
+was a gap, not a contradiction**. Nothing the emulator implements turned out
+to be the wrong width, the wrong polarity or the wrong shape. Five things
+looked like contradictions along the way — `SubTask`, `StkError`, `QBit'`,
+IM parity and the tag-bus width — and every one dissolved on inspection:
+three were already implemented under a C spelling, one was a signal
+identified by its endpoints, and one was a register width mistaken for a
+wire count. For a model built from a manual and a pile of microcode, that is
+the result you want.
+
+**For Phase 2, this is the input, not a byproduct.** What these files mean
+for writing and testing the Verilog — module boundaries, port lists, the
+verification strategy, and what is still missing — is
+`docs/verilog-from-sil.md`.

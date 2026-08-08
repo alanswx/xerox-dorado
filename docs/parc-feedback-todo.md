@@ -1157,9 +1157,59 @@ endpoints identify it far more reliably than its name.
 Worth recording: across eight boards, **every disagreement was a gap, not a
 contradiction.** Nothing we implement is the wrong width, polarity or shape.
 
-**Next:** DispY/DispM, which would settle `docs/color-graphics-todo.md` from
-the design data rather than the manual (and DispM being off the DMux chain is
-already one fact in hand), then DskEth for both I/O controllers at once.
+**DispY/DispM/DskEth done -- all eleven boards of a working machine covered.**
+
+The display boards settle the colour question a third time, and this time
+beyond argument: **DispM carries `DACRed`/`DACGreen`/`DACBlue` with
+`GNDRed`/`GNDGreen`/`GNDBlue` and `RefIn`**; DispY carries a single
+`AltoTTLVideo` plus `AltoHSync`/`AltoVSync'`/`AltoCSync'`, `CursorData` and
+`TermIsLF`. Three video DACs with their own analog grounds cannot sit on a
+monochrome board. (`docs/color-graphics-todo.md` was already corrected from
+the HW Manual; `docs/INDEX.md` still had DispY labelled "Color/extended
+display output" and is fixed now.)
+
+Three more findings from those boards:
+
+- **`WakeDHT`/`WakeDWT` are on DispY, `WakeAHT`/`WakeAWT` on DispM** --
+  `include/display.h` already assigns AHT/AWT to DispM. Correct as written.
+- **`KeyboardData` + `OISData[0-3]`/`OISClkA`/`OISClkB` are on BOTH display
+  boards.** The keyboard arrives over the terminal serial link through the
+  display board -- HM Table 24's terminal microcomputer, i.e. the second
+  writer of `0177030` that caused the Interlisp menu bug. **Anyone picking up
+  A6 should start from these pins.**
+- **`TermIsLF`** is a hardware strap on DispY. We choose the raster per world
+  in software (Alto 808x606, Cedar lf 1024x808); the machine had a pin.
+
+DskEth confirms **four drives wired individually and in full** (`Select0'..3'`,
+`Selected0'..3'`, `SecIndx0'..3'`, differential data+clock pairs per drive) --
+our `DORADO_DISK_NUM_DRIVES` is 4 -- and the SMD interface as a bus
+`TagBus'[0-9]` plus four separate strobes, which is exactly the shape
+`disk.c` decodes. Two smaller gaps: four drive status lines we ignore
+(`TtlEndOfCyl'`, `TtlOffSet'`, `TtlDeviceCk'`, `OKToSelect`), and
+**`Host[0-7]`, the Ethernet host-address strap** -- `ethernet.c:213`
+hardcodes `local_host = 042`, harmless in-process but real the moment two
+emulators are wired together.
+
+**A fifth near-miss.** `TagBus'[0-9]` is ten lines and
+`DORADO_DISK_TAG_BUS` is `0x0FFF`, twelve -- the first apparent
+contradiction of the whole exercise. Reading the decoder dissolved it: every
+field lives in bits 0..9 (`bus & 0x0F` drive select, bits 4/5 flags,
+`(bus >> 6) & 0x0F` subsector count, `bus & 0x3F` head). The 12-bit mask is
+the controller REGISTER width, not the wire count, and disk.c already
+documents Pilot's KSelect bookkeeping in bit 11. **No change made.**
+
+**And the Phase 2 payoff, written up separately in
+`docs/verilog-from-sil.md`.** The `.wl` wire lists are the **gate-level
+netlist in plain text** -- every net by name, every package/pin, and the
+DIRECTION of each pin. We do not have to infer the Dorado's logic from the
+manual or the PDFs. Sizing: 3,026 logic packages in 118 part types, **50
+types cover 90%**, plus 7 memory/PROM types that become inferred RAMs. The
+structural RTL is ~50 MECL cell models plus a netlist-to-Verilog generator,
+with each board's `.nl` supplying the module port list.
+
+**Next on F.1:** BaseBd -- we already emulate its 6502 from the real EPROM
+dumps, so its netlist is a direct check on `baseboard.c`. (msa, PCMSA,
+IOTest and Music are support/test boards, not part of a running machine.)
 
 ### F.2 (historical) BLOCKER: we had no .sil source, only rendered PDFs
 

@@ -50,12 +50,37 @@ multiple revisions of each.
 | `Control_A.pdf`, `Control_B.pdf` | Control section | JCN decoding, task scheduler, Link/TPC. |
 | `IFU.pdf` | Instruction Fetch Unit | IFUM, prefetch, IFUJump entry vector. |
 | `MEMC.pdf`, `MEMD.pdf`, `MEMX.pdf` | Memory: Cache, Data, eXtension | Cache, Map, Pipe, BR, ECC. |
-| `DispY.pdf` | Y-channel display | Color/extended display output. |
+| `DispY.pdf` | Display, **monochrome** | The DDC: Alto/7-wire mono video, cursor, OIS terminal + keyboard link. |
 | `DskEth.pdf` | Disk + Ethernet (combined card) | Disk T-80 controller and 3 Mbit/10 Mbit Ethernet. |
 | `PCMSA.pdf` | PC-MSA board | Memory storage array |
 | `ECL_SSI_Symbols.pdf`, `Library_Symbols.pdf` | Schematic conventions | Reading any of the above. |
 | `Board_Revisions_Aug1980.pdf` | Board rev list (Aug 1980) | Cross-checking which schematic matches a given machine. |
 | `manuals/photos/DISPM-APCREV-DA_*.jpeg` | Board photographs | Sanity-checking package types and hand-wired patches. |
+
+## Sil design data — `chm/sil/` (the design INPUT, not a rendering)
+
+PARC's own design-automation output for all sixteen boards. Unlike the PDFs
+above, which are renderings, these are the files the machine was **built
+from**, and the plain-text ones use the machine's own signal names — the same
+vocabulary as the Hardware Manual and the C emulator.
+
+| File | What | Use when |
+|---|---|---|
+| `<Board>-Rev-Xx.wl` | **Wire list — the gate-level netlist.** Every net by name, every package/pin, with pin DIRECTION (`f17.15o` drives, `g17.12i` receives) and board coordinates. | Writing RTL; tracing what actually drives a signal. |
+| `<Board>-Rev-Xx.lc` | Component list: part number → packages. | Building the cell library; sizing the design. |
+| `<Board>-Rev-Xx-C.nl`, `-E.nl` | Backplane interface = the board's port list. | Cross-checking the emulator; declaring Verilog module ports. |
+| `<Board>NN.sil` | Drawing sheets, Sil's binary format. | Human reading only — the `.wl` is derived from these and is plain text. |
+| `Build.cm`, `Print<Board>.cm` | PARC's build scripts. | Reproducing their toolchain. |
+
+`tools/sil_netlist_report.py` reads the `.nl` and `.lc` files
+(`--chips`, `--grep`). Boards present: ProcH, ProcL, ContA, ContB, IFU,
+MemC, MemD, MemX, DispY, DispM, DskEth, BaseBd, msa, PCMSA, IOTest, Music.
+
+- **`docs/sil-netlist-crosscheck.md`** — the C emulator checked against all
+  eleven boards of a working machine. Confirms every field width, register
+  width and branch condition; names six gaps; found no contradictions.
+- **`docs/verilog-from-sil.md`** — what these files mean for Phase 2:
+  module boundaries, the ~50-part cell library, the five-tier test plan.
 
 ## Schematics — every revision (`DoradoDocs/doradodrawings/`)
 

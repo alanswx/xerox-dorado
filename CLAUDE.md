@@ -776,7 +776,7 @@ than synthetic test inputs — there are 30+ years of well-debugged
 microprograms; we want bug parity with hardware, not with our own
 intuitions.
 
-## Phase 2 (Verilog) — non-goal for now
+## Phase 2 (Verilog) — still later, but the input is now in hand
 
 Hold off on RTL until the C emulator boots something real. The C
 emulator's structure (per-section modules, cycle-tick driver, Pipe and
@@ -784,6 +784,31 @@ ALUFM as explicit memories) should map fairly directly to Verilog modules
 later. Avoid C tricks that won't translate (function pointers per opcode,
 bit-fields with implementation-defined layout) in code paths intended to
 become RTL.
+
+**What changed (2026-08-08): we no longer have to infer the logic.**
+`chm/sil/` holds PARC's own design-automation output for all sixteen
+boards, and the `.wl` wire lists are the **gate-level netlist** in plain
+text -- every net by name (`ALUCarry`, `ALUF.0`), every package and pin it
+touches, and the DIRECTION of each pin (`f17.15o` drives, `g17.12i`
+receives), plus the backplane pins where it leaves the board. With `.lc`
+mapping packages to part numbers, that is a complete structural design.
+
+Sizing: 5,563 packages across the machine, 127 part types; strip
+terminators and spares and it is **3,026 logic packages in 118 types, of
+which 50 types cover 90%**, plus 7 memory/PROM types (745 packages) that
+become inferred RAMs. The parts are MECL 10K with published truth tables.
+So the structural RTL is: ~50 cell models + a netlist-to-Verilog
+generator, with each board's `.nl` file supplying the module's port list.
+
+And the testing position is unusually strong -- the C emulator boots five
+operating systems and already passes six of PARC's own hardware
+diagnostics, which were written to test the boards.
+
+Full plan, including what is missing and the suggested order:
+`docs/verilog-from-sil.md`. The board-by-board cross-check of the C
+emulator against those same netlists (all eleven boards of a working
+machine, six gaps found, no contradictions):
+`docs/sil-netlist-crosscheck.md`.
 
 ## External resources
 
