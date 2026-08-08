@@ -614,6 +614,7 @@ int main(int argc, char **argv)
     int cw = 0, chh = 0;
     uint32_t *cpix = NULL;
     uint64_t next_color_render = 0;
+    int color_closed = 0;      /* user closed it; do not reopen */
 
     /* Bring the window to the front. Launched from a terminal on macOS the
      * window otherwise opens BEHIND it, and an occluded window is throttled
@@ -693,7 +694,37 @@ int main(int argc, char **argv)
             case SDL_QUIT:
                 running = 0;
                 break;
+            case SDL_WINDOWEVENT:
+                /* With a second window open, SDL_QUIT only arrives when the
+                 * LAST one closes -- so closing the emulator window did
+                 * nothing and there was no way out. Handle the close per
+                 * window: the main one quits, the colour one just goes away
+                 * and stays away (color_closed), rather than being reopened
+                 * by the next repaint. */
+                if (e.window.event == SDL_WINDOWEVENT_CLOSE) {
+                    if (win && e.window.windowID == SDL_GetWindowID(win)) {
+                        running = 0;
+                    } else if (cwin &&
+                               e.window.windowID == SDL_GetWindowID(cwin)) {
+                        if (ctex) SDL_DestroyTexture(ctex);
+                        if (cren) SDL_DestroyRenderer(cren);
+                        SDL_DestroyWindow(cwin);
+                        ctex = NULL; cren = NULL; cwin = NULL;
+                        free(cpix); cpix = NULL;
+                        cw = chh = 0;
+                        color_closed = 1;
+                    }
+                }
+                break;
             case SDL_MOUSEMOTION:
+                /* INPUT BELONGS TO THE MAIN WINDOW. Without this test, moving
+                 * the pointer over the colour window delivered THAT window's
+                 * coordinates to the guest, so the Dorado's cursor jumped
+                 * around whenever the mouse crossed the second screen. The
+                 * colour display is output-only here: the guest places
+                 * viewers on it with `ColorDisplay left|right`, and Cedar's
+                 * pointer still lives on the b/w screen. */
+                if (win && e.motion.windowID != SDL_GetWindowID(win)) break;
                 if (ui_on && dorado_ui_handle_event(&e)) break;
                 dorado_machine_set_mouse(m, e.motion.x / scale,
                                          (e.motion.y - DORADO_UI_HEIGHT) / scale,
@@ -701,6 +732,7 @@ int main(int argc, char **argv)
                 break;
             case SDL_MOUSEBUTTONDOWN:
             case SDL_MOUSEBUTTONUP: {
+                if (win && e.button.windowID != SDL_GetWindowID(win)) break;
                 /* Three-button (Red/Yellow/Blue) mouse. A real 3-button
                  * mouse maps directly; for one-button laptops a modified
                  * LEFT click substitutes:
@@ -1043,7 +1075,7 @@ int main(int argc, char **argv)
              * changes faster than the eye. Repaint a few times a second. */
             if (dorado_dispm_installed() != DORADO_DISPM_NONE) {
                 uint64_t now_c = dorado_machine_cycles(m);
-                if (now_c >= next_color_render) {
+                if (!color_closed && now_c >= next_color_render) {
                     next_color_render = now_c + 250000000ull;
                     int px = dorado_dispm_render(
                         dorado_machine_read_visible_word, m);
