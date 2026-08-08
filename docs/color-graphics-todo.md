@@ -325,6 +325,31 @@ and trace what it writes with `DORADO_DDC_TIOA=1`. That gives a real guest
 driving the real registers, and turns everything below from
 "implement and hope" into "implement against a trace".
 
+## THE BOARD IS ALIVE IN THE GUEST (2026-08-08)
+
+Cold boot with `DORADO_DISPM_COLOR=1`, run to the Cedar login prompt:
+
+```
+[dispm] board=installed type=standard 640x480  presence reads: 360B=3 361B=1
+dorado: 28703 display-list pixels
+```
+
+**`ColorDisplayHeadDorado` asked, and accepted our answers.** It read the
+board register at 360B three times and the device register at 361B once, and
+the type code we return there (`0170000`, i.e. 17B in the top four bits)
+is what makes it latch `displayType _ standard`. Before this the head had
+never so much as looked; a Dorado in this emulator now has a colour board on
+it as far as Cedar is concerned.
+
+28,703 px is the login screen, which is the expected place to stop -- the
+head starts long before login, so this is the cheapest possible test of the
+presence path and it costs one cold boot rather than a desktop bake.
+
+RAM writes are still zero, correctly: nothing has been told to turn the
+display on yet. That is the next run -- cold boot, log in, install the
+ColorDisplay package, `ColorDisplay on` -- and it is the first time
+361B/362B/365B could ever have been written here.
+
 ## COLOUR NEEDS A COLD BOOT -- no checkpoint we ship can ever show it
 
 Measured 2026-08-08 with the board installed (`DORADO_DISPM_COLOR=1`), the
