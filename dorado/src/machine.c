@@ -2749,11 +2749,25 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
     dorado_dispm_reset();
     {
         const char *v = getenv("DORADO_DISPM_COLOR");
-        if (v && *v && *v != '0')
+        if (v && *v && *v != '0') {
             dorado_dispm_install(v[0] == 'h' ? DORADO_DISPM_HIGHRES
                                              : DORADO_DISPM_STANDARD);
+            /* ATTACH ONLY WHEN THE BOARD IS INSTALLED. Registering the
+             * device changes guest-visible behaviour even when it answers
+             * "absent": an unregistered cell is a FLOATING BUS (io.c returns
+             * 0xFFFF and flags parity), and cpu.c's dorado_io_has_write()
+             * guard means an Output there is dropped entirely. Claiming the
+             * cells replaces both with a real device returning 0.
+             *
+             * That is not hypothetical -- it killed the Cedar world. With the
+             * board absent but attached, Ifu.cm went from a painted desktop
+             * (167,791 px) to the 81-px "Type Key" herald. A Dorado with no
+             * colour board must be bit-identical to one that has never heard
+             * of DispM, and the only way to guarantee that is to leave the
+             * I/O cells alone. */
+            dorado_dispm_attach_to_io(&m->io);
+        }
     }
-    dorado_dispm_attach_to_io(&m->io);
     dorado_disk_controller_attach_to_io(&m->disk, &m->io);
     dorado_ethernet_attach_to_io(&m->ethernet, &m->io);
     dorado_fastio_router_init(&m->fastio, &m->display, &m->disk);
