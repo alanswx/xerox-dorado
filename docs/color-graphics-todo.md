@@ -432,6 +432,38 @@ the board is the measurement as well as the feature.
 Both instruments now say all this in their own comments, so the next person
 reads the caveat next to the number rather than after it.
 
+## THERE IS NO CURSOR ON THE COLOUR SCREEN, and that is correct
+
+Asked 2026-08-08 after the mouse was made to cross onto the second window and
+still showed nothing. Counting cursor references in the heads settles it:
+
+| file | cursor references |
+|---|---|
+| `Cedar6.1/HeadsDorado/TerminalHeadDorado.mesa` (monochrome) | **14** |
+| `Cedar6.1/HeadsDorado/ColorDisplayHeadDorado.mesa` (colour) | **0** |
+| `Cedar6.1/HeadsCommon/ColorDisplayFace.mesa` (the interface) | **0** |
+
+Cedar's colour head has no cursor concept, and the Face those heads export
+does not even name one -- no cursor, no position, no mouse. This is not a gap
+in our model; the hardware and its driver never had it.
+
+It matches what the machine was for. Tim: *"Because of the low resolution on
+the colour monitor, you needed a monochrome display to do anything useful."*
+The colour screen was a **soft proofing** surface driven by an antialiasing
+Imager context -- you looked at it, you did not point at it. The pointer lived
+on the mono screen, which is where the page layout was actually done.
+
+**So the clamp widening in `dorado_machine_set_mouse` and the colour-window
+event routing in `dorado_sdl.c` were answering a question the hardware never
+asked.** They stay -- inert without a board, harmless with one, and already
+in place should a client ever composite a software cursor into the colour
+frame buffer -- but nothing is missing here and no work remains.
+
+The mistake worth remembering: I inferred a requirement ("two screens,
+therefore the pointer must cross") from the shape of the thing rather than
+checking what the guest implements. Two greps of the driver would have
+answered it before any code was written.
+
 ## PGM or PPM? Two screens, two files -- and why the mono path must NOT change
 
 Asked while the board was being built, and it is a real design decision.
