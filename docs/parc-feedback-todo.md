@@ -1334,6 +1334,38 @@ This changes ack policy for EVERY transfer, Cedar's included, so it is gated
 by `verify-cedar-desktop` (245,635 px) and `verify-cedar-ls` as well as the
 Lisp ones.
 
+**`verify-lisp-leaf` was rewritten, because the resolve fix retired its
+premise.** It drove `(FILESLOAD AISBLT)` and asserted the file streamed over
+Leaf -- but a FILESLOAD is SEQUENTIAL, and it only ever reached Leaf because
+the STP retrieve failed first. With the retrieve working it legitimately goes
+over STP, and the gate saw no Leaf traffic at all. **A gate whose subject is
+reached only by way of a bug stops testing the moment the bug is fixed.**
+
+It now drives what only Leaf can do -- `OPENSTREAM`, `SETFILEPTR`, `BIN` --
+and checks both ends *on the wire*:
+
+- a `LEAF_READ` at a **non-zero address**: it seeked at all. Neither an STP
+  retrieve nor a sequential stream can produce one.
+- a `LEAF_READ` at the address the **DATA implies**. The guest reads the byte
+  at offset 1000 and then seeks to *that byte times 100*, so the second
+  seek's address is a function of the bytes it received: block **7168**, and
+  only the correct byte (76) produces it.
+
+That second check replaced reading the answer off the screen, which does not
+work here -- `pgm_text.py` cannot read this Exec's font and returns `?` for
+every glyph. Deriving the proof from the guest's BEHAVIOUR is better than
+teaching it the font, because behaviour cannot be fooled by a plausible
+screen.
+
+Name resolution moved rather than vanished: an explicit full path needs no
+`LookupFile`, so that assertion would fail a good run here. `make
+verify-lisp-serve` covers the whole resolution chain instead
+(`STP_LOOKUP_MISSING .DFASL / .LCOM`, then `STP_LOOKUP`, then `STP_SERVE`),
+and both files say so, so the coverage cannot be lost silently.
+
+`make verify-lisp-leaf-selftest` proves the checker distinguishes a seek from
+a sequential read, without booting anything.
+
 **The Leaf resend is NOT fixed, and may never have been a bug.** With the
 retrieve working, `FILESLOAD` no longer falls back to Leaf, so the
 `LEAF_RESEND Open seq=0 (dup request)` x5 seen earlier is not reproducible

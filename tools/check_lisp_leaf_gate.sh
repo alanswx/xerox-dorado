@@ -1,11 +1,22 @@
 #!/bin/sh
-# check_lisp_leaf_gate.sh LOG
+# check_lisp_leaf_gate.sh LOG [PROBE]
 #
 # Decide whether a verify-lisp-leaf run passed, from its trace log.
 #
-# What this gate is for: Interlisp loading a file that is NOT on its disk,
-# over Leaf. Every step below was a separate day's bug, and each one failed
-# in a way that looked like one of the others:
+# WHAT THIS GATE IS FOR, and why it changed on 2026-08-07. Leaf is the IFS
+# RANDOM-ACCESS file protocol: an Interlisp stream that seeks. The gate used
+# to prove that by loading a package that was not on the disk -- but a
+# FILESLOAD is sequential, and it only ever reached Leaf because the STP
+# retrieve failed first (an empty Directory in the command plist, fixed the
+# same day). With the retrieve working, FILESLOAD legitimately goes over STP
+# and the old gate saw zero Leaf traffic and failed.
+#
+# So the gate now drives what only Leaf can do: OPENSTREAM the file, seek to
+# a byte offset, and read. The decisive evidence is a LEAF_READ at a NON-ZERO
+# address -- neither an STP retrieve nor a sequential stream can produce one.
+#
+# Every check below was a separate day's bug, and each failed in a way that
+# looked like one of the others:
 #
 #   LEAF Reset / Params   the Sequin connection opened at all. Sequin keeps
 #                         its state in the Pup ID field, and echoing that id
@@ -16,14 +27,18 @@
 #                         {DORADO}<> made it ask for <GUEST>NAME and give up
 #                         BEFORE any Leaf traffic -- the failure was three
 #                         packets earlier than it appeared.
-#   LEAF Open + Reads     the file actually transferred.
-#   the COMS line         Interlisp accepted what it read. A file can be
-#                         served byte-perfect and still be the wrong vintage
-#                         ("Bad compiled function"), so the wire is not
-#                         sufficient evidence on its own.
+#   LEAF Open             the file opened.
+#   LEAF_READ addr>0      it SEEKED. This is the whole point.
+#   LEAF_READ_LEADER      the IFS leader page, requested at every open. Left
+#                         unanswered the client parsed uninitialised packet
+#                         buffer -- deterministically, with a clean wire.
 #
-# Deliberately NOT a pixel count: a load that works and a load that reports
-# "not found" differ by about 0.5% of lit pixels, and the failing screen is
+# The bytes the guest actually got back are checked by the Makefile against
+# the host file, because the wire being right is not the same as the guest
+# receiving what is on disk.
+#
+# Deliberately NOT a pixel count: a load that works and one that reports "not
+# found" differ by about 0.5% of lit pixels, and the failing screen is
 # sometimes the larger of the two.
 
 log="$1"
@@ -61,26 +76,48 @@ for op in Reset Params Open; do
     fi
 done
 
-# 3. The client resolved the name through LookupFile, and we answered.
-if ! grep -q "STP_LOOKUP $probe" "$log"; then
-    echo "FAIL: no successful LookupFile for $probe."
-    grep "STP_LOOKUP_MISSING" "$log" | sort -u | sed 's/^/      asked for: /'
-    fail=1
-fi
+# 3. NAME RESOLUTION is deliberately NOT checked here any more.
+#
+#    The old gate required a successful STP_LOOKUP, because a FILESLOAD has
+#    to resolve `AISBLT` into `AISBLT.LCOM!1` first, and getting that wrong
+#    ({DORADO} instead of {DORADO}<>, so the client asked for <GUEST>NAME)
+#    killed the transfer three packets before any Leaf traffic. This gate now
+#    opens an explicit full path, which needs no resolution at all -- so
+#    asserting a lookup here would fail a perfectly good run.
+#
+#    That coverage moved rather than vanished: `make verify-lisp-serve` does
+#    a FILESLOAD and asserts the whole resolution chain
+#    (STP_LOOKUP_MISSING .DFASL / .LCOM, then STP_LOOKUP, then STP_SERVE).
+#    If this comment and that gate ever disagree, the coverage is gone.
 
-# 4. The file transferred: an Open and a run of Reads reaching the tail.
+# 4. The file opened, and its leader page was asked for and answered.
 if ! grep -q "^LEAF_OPEN " "$log"; then
     echo "FAIL: the client never opened the file"
     fail=1
 fi
-reads=$(grep -c "^LEAF_READ handle" "$log" 2>/dev/null || true)
-[ -z "$reads" ] && reads=0
-if [ "$reads" -lt 5 ]; then
-    echo "FAIL: only $reads Leaf reads; the file did not stream"
+if ! grep -q "^LEAF_READ_LEADER " "$log"; then
+    echo "FAIL: no leader-page read. Interlisp asks for it at EVERY open;"
+    echo "      its absence means the open did not really happen."
     fail=1
 fi
 
-# 5. Nothing was left unanswered. A missing file must produce an ErrorAnswer,
+# 5. THE POINT OF THE GATE: a read at a non-zero address, i.e. a seek.
+#    An STP retrieve cannot produce one, and neither can a sequential
+#    stream -- this is the one signature only random access leaves.
+seeks=$(grep "^LEAF_READ handle" "$log" 2>/dev/null |
+        sed -n 's/.*addr=\([0-9][0-9]*\).*/\1/p' |
+        awk '$1 > 0' | wc -l | tr -d ' ')
+[ -z "$seeks" ] && seeks=0
+if [ "$seeks" -lt 1 ]; then
+    echo "FAIL: no Leaf read at a non-zero address -- nothing SEEKED, so this"
+    echo "      run does not exercise random access at all. If the reads are"
+    echo "      missing entirely, the client probably satisfied the open over"
+    echo "      STP instead; check for STP_SERVE of the same name."
+    grep -E "^(LEAF_READ|STP_SERVE)" "$log" | head -5 | sed 's/^/      /'
+    fail=1
+fi
+
+# 6. Nothing was left unanswered. A missing file must produce an ErrorAnswer,
 #    not silence -- silence makes the guest retransmit until it times out,
 #    which reads as a hang rather than "no such file".
 if grep -q "LEAF_UNIMPLEMENTED" "$log"; then
@@ -90,6 +127,6 @@ if grep -q "LEAF_UNIMPLEMENTED" "$log"; then
 fi
 
 if [ "$fail" -eq 0 ]; then
-    echo "PASS: $probe opened and streamed in $reads reads, none on disk"
+    echo "PASS: $probe opened over Leaf and seeked ($seeks read(s) past 0)"
 fi
 exit "$fail"

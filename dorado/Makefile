@@ -2573,9 +2573,39 @@ run-lisp-filebrowser-sdl: sdl
 		--scale 1 --speed 400000
 
 # Interlisp loading a package that is NOT on its disk, over Leaf.  The probe
-# must be a package the pack does not carry, or the test proves nothing --
+# must be a file the pack does not carry, or the test proves nothing --
 # AISBLT is deliberately absent from lisp-lispusers-packages.txt.
 LISP_LEAF_PROBE ?= AISBLT
+# Where to seek to, and how many bytes to read back. 1000 is arbitrary except
+# that it is not 0 and not a block boundary, so a server that ignored the
+# offset would return the wrong bytes rather than accidentally the right ones.
+LISP_LEAF_OFFSET ?= 1000
+LISP_LEAF_COUNT  ?= 4
+
+# Leaf is the IFS RANDOM-ACCESS protocol, so the gate drives a SEEK.
+#
+# It used to drive (FILESLOAD AISBLT) and assert the file streamed. That only
+# reached Leaf because the STP retrieve failed first -- an empty Directory in
+# the command plist, fixed 2026-08-07 -- and once the retrieve worked,
+# FILESLOAD legitimately went over STP and this gate saw no Leaf traffic at
+# all. A gate whose subject is reached only by way of a bug stops testing the
+# moment the bug is fixed.
+#
+# The guest now OPENSTREAMs the file, seeks to LISP_LEAF_OFFSET, reads the
+# byte there, and SEEKS AGAIN TO THAT BYTE TIMES 100. That last step is the
+# whole trick: the second seek's address is a function of the DATA, so the
+# wire alone proves the guest received the right bytes -- no screen reading,
+# no OCR. (pgm_text.py cannot read this Exec's font; every glyph comes back
+# '?'. Deriving the proof from behaviour is better than teaching it the font,
+# because it cannot be fooled by a plausible-looking screen.)
+#
+# Both ends are still checked, they are just both on the wire:
+#   - a LEAF_READ at a non-zero address           -> it seeked at all
+#   - a LEAF_READ at the address the DATA implies -> it seeked to the right
+#                                                    place, so the bytes it
+#                                                    got match the host file
+LISP_LEAF_OFFSET ?= 1000
+LISP_LEAF_SCALE  ?= 100
 
 .PHONY: verify-lisp-leaf
 verify-lisp-leaf: $(BINDIR)/dorado
@@ -2594,16 +2624,34 @@ verify-lisp-leaf: $(BINDIR)/dorado
 		--ftp-root '$(LISP_LISPUSERS_DIR)' \
 		--snapshot-in '$(LISP_LISPUSERS_SNAPSHOT)' \
 		--type-at 8850000000 --click 250,50 --key-hold 2000000 \
-		--type-at 8950000000 --type "(IL:FILESLOAD $(LISP_LEAF_PROBE))\n" \
+		--type-at 8950000000 \
+		--type "(IL:SETQ IL:S (IL:OPENSTREAM '{DORADO}<>$(LISP_LEAF_PROBE).LCOM 'IL:INPUT))\n" \
 		--type-at 11000000000 --type "Guest\n" \
 		--type-at 12200000000 --type "Guest\n" \
-		--cycles 24000000000 --out build/verify-lisp-leaf.pgm \
+		--type-at 14000000000 --type "(IL:SETFILEPTR IL:S $(LISP_LEAF_OFFSET))\n" \
+		--type-at 15000000000 \
+		--type "(IL:SETFILEPTR IL:S (IL:ITIMES (IL:BIN IL:S) $(LISP_LEAF_SCALE)))\n" \
+		--type-at 16000000000 --type "(IL:BIN IL:S)\n" \
+		--cycles 17200000000 --out build/verify-lisp-leaf.pgm \
 		> build/verify-lisp-leaf.log 2>&1
 	@sh ../tools/check_lisp_leaf_gate.sh build/verify-lisp-leaf.log '$(LISP_LEAF_PROBE)'
-	@python3 ../tools/pgm_text.py build/verify-lisp-leaf.pgm \
-		--diff build/lisp-lispusers-desktop.pgm --space-gap 6 --cols 18,470 \
-		2>/dev/null | grep -qi 'COMS' && echo "verify-lisp-leaf: Interlisp accepted the file (COMS printed)" || \
-		(echo "verify-lisp-leaf: FAIL -- the bytes arrived but Interlisp printed no COMS line" && false)
+	@want=`python3 -c "d=open('$(LISP_LISPUSERS_DIR)/$(LISP_LEAF_PROBE).LCOM','rb').read();print(d[$(LISP_LEAF_OFFSET)]*$(LISP_LEAF_SCALE)//512*512)"`; \
+	grep -q "^LEAF_READ handle=[0-9]* addr=$$want " build/verify-lisp-leaf.log && \
+		echo "verify-lisp-leaf: and it seeked to block $$want, which only the right byte at $(LISP_LEAF_OFFSET) produces" || \
+		(echo "verify-lisp-leaf: FAIL -- no read at block $$want, so the byte the guest read was not the one on disk"; \
+		 grep "^LEAF_READ handle" build/verify-lisp-leaf.log | sed 's/^/      /'; false)
+
+# The gate must fail when Leaf does not seek. Cheap to check without booting:
+# feed the checker a log with only sequential reads.
+.PHONY: verify-lisp-leaf-selftest
+verify-lisp-leaf-selftest:
+	@printf 'LEAF Reset x\nLEAF_REPLY Reset x\nLEAF Params x\nLEAF_REPLY Params x\nLEAF_OPEN "a"\nLEAF_READ_LEADER handle=1\nLEAF_READ handle=000001 addr=0 want=512 of 15365\n' > build/leaf-noseek.log
+	@if sh ../tools/check_lisp_leaf_gate.sh build/leaf-noseek.log >/dev/null 2>&1; then \
+		echo "SELFTEST FAIL: the checker passed a log with no seek"; exit 1; fi
+	@printf 'LEAF Reset x\nLEAF_REPLY Reset x\nLEAF Params x\nLEAF_REPLY Params x\nLEAF_OPEN "a"\nLEAF_READ_LEADER handle=1\nLEAF_READ handle=000001 addr=7168 want=512 of 15365\n' > build/leaf-seek.log
+	@sh ../tools/check_lisp_leaf_gate.sh build/leaf-seek.log >/dev/null 2>&1 || \
+		(echo "SELFTEST FAIL: the checker failed a log with a seek"; exit 1)
+	@echo "verify-lisp-leaf-selftest: the checker distinguishes a seek from a sequential read"
 
 # ---------------------------------------------------------------------------
 # Interlisp-D library packages on the Lyric pack.
