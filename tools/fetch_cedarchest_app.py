@@ -2,6 +2,7 @@
 """Mirror a CedarChest6.1 package into the served STP tree.
 
     python3 tools/fetch_cedarchest_app.py ChessHack.df!3 [More.df!1 ...]
+    python3 tools/fetch_cedarchest_app.py --volume=CedarChest6.0 Gargoyle.df!27
 
 Fetches the named DF from [Cyan]<CedarChest6.1>Top>, parses its Exports /
 Directory sections, downloads every listed file from the archive, and lays
@@ -43,15 +44,20 @@ def save(rel, data):
     print(f'  {rel}  ({len(data)} bytes)')
 
 
-def mirror_package(df_spec):
+def mirror_package(df_spec, vol='CedarChest6.1'):
+    """vol picks the CedarChest release. 6.1 is the default because that is
+    what our Cedar runs, but 6.0 is worth reaching for when a 6.1 package will
+    not bind: the two releases were built at different times and a .bcd from
+    one can want an interface version the other does not ship, which is
+    exactly the VersionMismatch[BiScrollers] wall Gargoyle hits."""
     name, _, ver = df_spec.partition('!')
     if not ver:
         sys.exit(f'{df_spec}: need an explicit version (Name.df!N)')
-    print(f'== {name}!{ver}')
-    df_bytes = fetch(f'{HOST}/cyan/cedarchest6.1/top/{name}!{ver}')
+    print(f'== {vol} {name}!{ver}')
+    df_bytes = fetch(f'{HOST}/cyan/{vol.lower()}/top/{name}!{ver}')
     if df_bytes.lstrip()[:9] == b'<!DOCTYPE':
         sys.exit(f'{df_spec}: archive returned 404')
-    save(f'CedarChest6.1/Top/{name}', df_bytes)
+    save(f'{vol}/Top/{name}', df_bytes)
 
     text = df_bytes.decode('latin-1').replace('\r', '\n')
     section = None          # (volume, dir-path) of the current section
@@ -92,11 +98,15 @@ def mirror_package(df_spec):
 
 
 def main():
-    if len(sys.argv) < 2:
+    args = sys.argv[1:]
+    vol = 'CedarChest6.1'
+    if args and args[0].startswith('--volume='):
+        vol = args.pop(0).split('=', 1)[1]
+    if not args:
         sys.exit(__doc__)
     all_failures = []
-    for spec in sys.argv[1:]:
-        all_failures += mirror_package(spec)
+    for spec in args:
+        all_failures += mirror_package(spec, vol)
     if all_failures:
         print(f'{len(all_failures)} file(s) missing — see above')
 
