@@ -1127,7 +1127,16 @@ void dorado_display_dump_tioa_use(const dorado_display *d)
     };
     if (!d) return;
     unsigned undecoded = 0;
-    fprintf(stderr, "[ddc] Output<-B by TIOA (total %llu):\n",
+    /* WARNING, and it produced a wrong answer on 2026-08-08: these counters
+     * live in `dorado_display`, which machine.c snapshots WHOLE
+     * (snap_wr(&m->display) / snap_rd(&m->display)). On any run started with
+     * --snapshot-in they come back from the BAKE, so this dump reports the
+     * checkpoint's history, not what the run just did. It is only run-scoped
+     * on a cold boot. For run-scoped truth across all tasks -- including
+     * addresses no device is registered for -- use DORADO_IO_CENSUS, whose
+     * counters are file-scope statics and therefore not restored. */
+    fprintf(stderr, "[ddc] Output<-B by TIOA (total %llu)"
+            " -- SNAPSHOT-RESTORED counts if this run used --snapshot-in:\n",
             (unsigned long long)d->output_count);
     for (unsigned t = 0; t < 256; t++) {
         if (d->output_tioa_count[t] == 0) continue;

@@ -325,6 +325,45 @@ and trace what it writes with `DORADO_DDC_TIOA=1`. That gives a real guest
 driving the real registers, and turns everything below from
 "implement and hope" into "implement against a trace".
 
+## CORRECTION: the step-0 numbers for CEDAR were the CHECKPOINT's, not the run's
+
+Recorded because it is the third instrument failure on this one question and
+the pattern is worth more than the answer.
+
+`dorado_display`'s per-TIOA counters are inside the struct `machine.c`
+snapshots whole (`snap_wr(f, &m->display, ...)` / `snap_rd`). So on any run
+started with `--snapshot-in` they come back **from the bake**. The "Cedar
+6.1 desktop writes 256 words to the MiniMixer" figure was read off a restored
+desktop that had, in that run, written nothing at all -- it was the
+2026-07-15 bake's history being replayed as if it were live.
+
+**The Alto number was genuine** (a cold boot, no checkpoint), and so was the
+conclusion drawn from it: `DisplayMain.mc` really does load MiniMixer once per
+world and really does skip it when DispM is present.
+
+Three ways to be blind to the same thing, in one day:
+
+1. **Counting inside a device.** `DORADO_DDC_TIOA` lives in `display.c`, so
+   it can only see writes already routed to the display -- and display.c
+   claims TIOA 0360..0377 for the DISPLAY TASKS only. Cedar's colour driver
+   is Mesa code running in the EMULATOR task.
+2. **Counting inside the router.** `DORADO_IO_CENSUS` moved the count to
+   `io.c`, which is task-agnostic -- but BOTH `cpu.c` call sites guard on
+   `dorado_io_has_write()` first, so a write to an address with no registered
+   device never reaches the router either. The census proves what was
+   ROUTED; it cannot see the unrouted.
+3. **Counting in snapshotted state.** Anything in a struct the snapshot
+   serializes measures the bake, not the run, the moment `--snapshot-in` is
+   used.
+
+**What actually works, and it is the thing `dispm.c` now does:** register the
+device. An address with a device behind it is counted, decoded and traced;
+an address without one is invisible at every layer. That is why installing
+the board is the measurement as well as the feature.
+
+Both instruments now say all this in their own comments, so the next person
+reads the caveat next to the number rather than after it.
+
 ## PGM or PPM? Two screens, two files -- and why the mono path must NOT change
 
 Asked while the board was being built, and it is a real design decision.

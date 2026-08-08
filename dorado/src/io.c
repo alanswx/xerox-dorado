@@ -21,9 +21,20 @@
  * vanished. The instrument reported "no world programs the colour side" when
  * what it had actually established was "no DISPLAY TASK does".
  *
- * File-scope statics, not dorado_io members: a new struct member changes the
- * snapshot ABI and every baked checkpoint fails to restore. Reset in
- * dorado_io_init. */
+ * File-scope statics, not dorado_io members. Two reasons, and the second was
+ * not obvious: a new struct member would change the snapshot ABI and break
+ * every baked checkpoint, AND being outside the snapshot is what makes these
+ * counts RUN-SCOPED. display.c's equivalent lives in `dorado_display`, which
+ * machine.c snapshots whole, so on a --snapshot-in run it reports the bake's
+ * history and not the run's -- which is how "Cedar writes 256 words to the
+ * MiniMixer" came to be recorded from a restored desktop that had written
+ * nothing at all. Reset in dorado_io_init.
+ *
+ * KNOWN LIMIT: both cpu.c call sites guard on dorado_io_has_write() before
+ * calling here, so a write to an address with NO registered device never
+ * reaches this function and cannot be counted. The census therefore proves
+ * what WAS routed; to see the unrouted, register the device (as dispm.c now
+ * does for 360B/361B/362B/365B) and watch the count appear. */
 static uint64_t io_out_count[DORADO_IO_TASKS][256];
 static uint16_t io_out_first[DORADO_IO_TASKS][256];
 static uint16_t io_out_last[DORADO_IO_TASKS][256];
