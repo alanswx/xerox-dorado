@@ -1,0 +1,1 @@
+Compile LinearSystem LinearSystemImpl Quadratic QuadraticImpl Polynomial PolynomialImpl Vector Complex ComplexImpl MultiPolynomial MultiPolynomialImpl; Bind MathPackage;

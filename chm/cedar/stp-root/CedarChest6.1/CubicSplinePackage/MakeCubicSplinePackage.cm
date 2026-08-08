@@ -1,0 +1,1 @@
+-- Make the spline packge-- Maureen Stone June 29, 1985 12:36:42 pm PDTcompile Cubic2 Cubic2Impl-- defscompile CubicSplines RegularUMSpline RegularALSpline LocalSplines -- implementationscompile CubicSplinesImpl RegularUMSplineImpl RegularALSplineImpl LocalSplinesImpl-- bind itbind SplinePackage
