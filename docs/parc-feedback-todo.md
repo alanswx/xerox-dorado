@@ -1056,37 +1056,71 @@ The `.sil` files themselves are Sil's binary drawing format, so they still
 need `ANALYZE`/Sil (or the rendered PDFs in `DoradoDocs/doradodrawings/`)
 to look at. The netlists need neither.
 
-### F.1 STARTED 2026-08-08 — ProcH and ProcL cross-checked
+### F.1 STARTED 2026-08-08 — six boards cross-checked
 
-`docs/sil-netlist-crosscheck.md`, with `tools/sil_netlist_report.py` to
-repeat it on any board.
+ProcH, ProcL, IFU, MemC, MemD, MemX. Full account in
+`docs/sil-netlist-crosscheck.md`; `tools/sil_netlist_report.py` repeats it on
+any board.
 
 **It confirms the emulator's shape.** Every field and register width matches
 the hardware interface exactly — RSTK 4, ALUF 4, BSEL 3, ASEL 3, LC 3, FF 8,
-MemBase 5, RbAdr 4, StkAdr 8, TIOA 8 — and **every branch condition we
-implement is a real pin**: `ResEqZero'`, `ResLtZero'`, `ALUCarry`,
-`Cnt=Zero'`, `RmLtZero'`, `RmOdd'`, `Overflow'`. Also settled: the datapath
-splits high byte / low byte across the two boards with a parity bit each
-(`.16` and `.17`), and the ALU is **four MC10181 slices**, two per board —
-which is why an ALUFM entry is 6 bits (4 function + mode + carry) rather than
-an opcode.
+MemBase 5, RbAdr 4, StkAdr 8, TIOA 8, IFUM address 10, opcode byte 8 — and
+**every branch condition we implement is a real pin**: `ResEqZero'`,
+`ResLtZero'`, `ALUCarry`, `Cnt=Zero'`, `RmLtZero'`, `RmOdd'`, `Overflow'`.
+The **16-entry Pipe** is confirmed directly by `dPipe02Ad[0-3]` /
+`dPipe34Ad[0-3]`. The datapath splits high/low byte across the two processor
+boards with a parity bit each (`.16`, `.17`), and the ALU is **four MC10181
+slices** — which is why an ALUFM entry is 6 bits (4 function + mode + carry)
+rather than an opcode.
 
-**And it names four things the hardware has that we do not model:**
+Several things we got right the hard way appear as backplane signals:
+**`UseAsrn`** + **`ProcSrn_'`** (the 2026-07-26 Smalltalk fix — the hardware
+has a wire for that choice), **`FF[2-7]` + `FA=1'`** on two different boards
+(the physical form of our FA/FB/FC decode; each board is wired to receive
+only the part of FF it can act on), `SignIfuData`, `JunkTW`/`Pendulum`,
+`ChipsAre64K`/`M0..M3`, `FinTask[0-3]`+`FinSubtask[0-1]`, `TWReq15`,
+`DisHold`.
 
-1. **A byte-parity network across the datapath.** `IOB.16/.17`,
-   `dMD.16/.17`, `BMux.16/.17` plus `IOPE`, `MdPE`, `RamPE` and
-   `CkMdParity'`. We model IM parity and memory ECC; bus and register-file
-   parity appear nowhere.
-2. **Hold, at pin level**: `PRhold`, `PrBlock'`, `PrHoldReq`, `SimHoldDis`.
-   A known gap, now a named four-signal interface — including a hardware
-   simulation-disable, which is what boot microcode uses `mcr.disHold` for.
-3. **`SubTask.0/1`** — never touched.
-4. **`StkError`** — exists only inside a comment in `cpu.c`.
+**Five things the hardware has that we do not model:**
 
-**Next:** IFU and the memory boards (MemC/MemD/MemX). The IFU because its
-interface should settle open questions about what our IFU model owes the rest
-of the machine; the memory boards because the Pipe and Map are where the
-subtlest emulation bugs have lived.
+1. **A byte-parity network across the whole machine** — `IOPE`, `MdPE`,
+   `RamPE`, `CkMdParity'`, `dHitPerr`, `dSTPerr`, `MemPE`. `cpu.h:203` says
+   it outright; `memory.c` contains "parity" zero times.
+2. **Hold is a request/collect/broadcast NETWORK, not a signal** — seven
+   independent requesters (`PrHoldReq`, `CHoldReq`, `CBHold`, `IfuHold`,
+   `IOHold`, `MXHold`, `ExtHoldReq`, `HoldMapBuf`, `LargeHold`) collected on
+   MemC into `Hold` and gated by `DisHold`. We assert it from ONE source (Md
+   not ready) and keep the stall behind `DORADO_HOLD`. What the model needs
+   is seven requesters, not a better constant.
+3. **`CountMiss`** — a dedicated cache-miss line into the event counters, on
+   both IFU and MemX. Our counters have no miss input.
+4. **DRAM refresh** — `MemRfsh`, `RfshPeriod`, `MapRfsh'`, `MemRASa/b`,
+   `MemCASa/b`. Storage is a flat array; refresh steals no bandwidth.
+5. **ECC generation/checking** — we read back an 8-bit syndrome
+   (matching `EcOut[0-6]`+`EcOut'[7]`) but never generate or check it.
+
+**Bonus for Phase 2:** MemC/MemX name the cache pipeline stage by stage — A
+(`At=Curt'`, `AcanhaveMap'`, `EcWantsA`…), Ec1 (`TagInEc1`, `WPinEc1`,
+`MapTroubleInEc1`…), Ec2 (`IfuFaultInEc2`, `ErrorsFromEc2`), victim selection
+(`VicIfMiss'`, `VicInPair'`, `PairFull'`, `STfree'`) and transport
+(`MakeD_CD`, `MakeF_D`, `MakeMD_D'`…). The four-way cache and its victim
+policy in the designers' own names — the RTL will not need reverse
+engineering from the sheets.
+
+**A METHOD WARNING, learned by getting it wrong twice.** The first pass of
+this cross-check reported `SubTask.0/1` and `StkError` as unmodelled. Both
+were wrong: subtask is modelled throughout (`cpu->task_subtask[16]`,
+`dorado_io_read_subtask`, per-Pipe-entry `subtask`) and `stk_error_check()`
+implements HM page 11's formula with sticky flags and a task-15 wake. I had
+grepped for the Xerox camel-case signal name and read no hit as no model,
+when this project's convention is to keep the manual's terminology in C form.
+**Grep case-insensitively, grep for the concept, and read the hit before
+calling anything missing.**
+
+**Next:** ContA/ContB — the Control section is where tasking and the
+sequencer live, so its interface should say whether our 16-way scheduler owes
+the rest of the machine anything we do not provide. Then DispY/DispM, which
+would settle `docs/color-graphics-todo.md` directly.
 
 ### F.2 (historical) BLOCKER: we had no .sil source, only rendered PDFs
 
