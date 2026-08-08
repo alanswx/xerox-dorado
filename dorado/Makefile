@@ -1292,6 +1292,37 @@ verify-cedar-gate-selftest:
 	@rm -f build/gate-bad.log build/gate-good.log build/gate-black.log
 	@echo "gate self-test: PASS (fails bad logs, passes good ones)"
 
+# ---- Did a pasted command reach the guest INTACT? ------------------------
+#
+# Built after three ~45-minute Gargoyle runs died on the same typo and it was
+# only visible at the end, by converting a framebuffer to PNG and reading it.
+# This answers the same question in a few minutes.
+#
+# It reads the WIRE, not the screen. A correct Bringover makes the guest ask
+# our STP server for DoradoWelcome.df, which logs STP_SERVE; a corrupted one
+# is rejected by the CommandTool and produces no network traffic at all. That
+# needs no font table -- pgm_text.py knows the Interlisp font, not Cedar's
+# Tioga -- and it is the same reasoning as verify-cedar-ls.
+CEDAR_PASTE_SETTLE ?= 36100000000
+
+.PHONY: verify-paste
+verify-paste: $(BINDIR)/dorado $(CEDAR_COLOR_SNAPSHOT) $(CEDAR_COLOR_PDI)
+	@echo "verify-paste: does a pasted command survive the trip to the guest?"
+	@cp -f '$(CEDAR_COLOR_PDI)' build/verify-paste.pdi
+	@DORADO_FTP_TRACE=1 DORADO_PDI_IGNORE_LABEL_FLAGS=1 \
+	DORADO_FAKE_TIME='$(CEDAR_DESKTOP_FAKE_TIME)' ./build/dorado \
+		--boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk build/verify-paste.pdi \
+		--ftp-root ../chm/cedar/stp-root \
+		--snapshot-in '$(CEDAR_COLOR_SNAPSHOT)' --key-hold 1600000 \
+		--type-at $(CEDAR_PASTE_SETTLE) --click 700,733 \
+		--paste-at $$(($(CEDAR_PASTE_SETTLE)+200000000)) \
+		--paste 'Bringover [Cedar]<CedarChest6.1>Top>DoradoWelcome\n' \
+		--cycles $$(($(CEDAR_PASTE_SETTLE)+10000000000)) \
+		--out build/verify-paste.pgm > build/verify-paste.log 2>&1
+	@../tools/check_paste_gate.sh build/verify-paste.log
+
 .PHONY: verify-cedar-desktop
 verify-cedar-desktop: $(BINDIR)/dorado $(CEDAR_DESKTOP_SNAPSHOT) $(CEDAR_DESKTOP_PDI) web-stp
 	@echo "verify-cedar-desktop: restoring the desktop and running Moon.cm"
