@@ -39,6 +39,8 @@ static struct {
     uint64_t renders;
     uint16_t last_scan_control;
     uint32_t last_bitmap;
+    uint32_t last_table_a;
+    unsigned atable_nonzero;
 
     int      rgb_w, rgb_h;
     uint8_t  rgb[DORADO_DISPM_MAX_W * DORADO_DISPM_MAX_H * 3];
@@ -254,6 +256,19 @@ int dorado_dispm_render(uint16_t (*read_word)(void *ctx, uint32_t va),
             painted++;
         }
     }
+    /* How much of the colour map is actually loaded. An all-black image has
+     * two very different causes and this separates them: an EMPTY colour
+     * screen (nothing moved onto it yet, so every pixel indexes ATable[0]
+     * which is legitimately black) versus a table we are not reading at all
+     * (wrong pointer, wrong stride). Count the non-zero entries once per
+     * render rather than guessing from the picture. */
+    dm.atable_nonzero = 0;
+    for (unsigned i = 0; i < DORADO_DISPM_MIXER_WORDS; i++) {
+        if (read_word(ctx, table_a + i * 2u) ||
+            read_word(ctx, table_a + i * 2u + 1u))
+            dm.atable_nonzero++;
+    }
+    dm.last_table_a = table_a;
     dm.rgb_w = w; dm.rgb_h = h; dm.renders++;
     return painted;
 }
@@ -296,6 +311,28 @@ void dorado_dispm_dump(void)
             dm.mixer_keep, dm.bmap_keep, dm.cmap_keep,
             (unsigned long long)dm.renders,
             dm.last_scan_control, dm.last_bitmap, dm.rgb_w, dm.rgb_h);
+    if (dm.renders) {
+        /* ScanControl, Xerox bit order: 0..5 unused, 6 mode24, 7
+         * aChannelOnly, 8 bBypass, 9 pixelMode, 10..11 resolution,
+         * 12..15 bitsPerPixel. */
+        uint16_t sc = dm.last_scan_control;
+        fprintf(stderr,
+                "[dispm] scanControl: bpp=%u res=%u pixelMode=%s bBypass=%d "
+                "aChannelOnly=%d mode24=%d\n",
+                (unsigned)(sc & 017u), (unsigned)((sc >> 4) & 3u),
+                ((sc >> 6) & 1u) ? "a8b2" : "a6b4",
+                (int)((sc >> 7) & 1u), (int)((sc >> 8) & 1u),
+                (int)((sc >> 9) & 1u));
+        fprintf(stderr,
+                "[dispm] ATable at %07o: %u/%u entries non-zero%s\n",
+                dm.last_table_a, dm.atable_nonzero,
+                DORADO_DISPM_MIXER_WORDS,
+                dm.atable_nonzero == 0
+                  ? "  <- the colour map is EMPTY: either nothing has been"
+                    " moved onto the colour screen, or the tableA pointer is"
+                    " wrong"
+                  : "");
+    }
     if (dm.reads_board == 0)
         fprintf(stderr, "[dispm] the guest never asked whether a board is "
                         "present -- ColorDisplayHeadDorado has not started, "
