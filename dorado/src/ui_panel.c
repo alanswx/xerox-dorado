@@ -179,6 +179,22 @@ int dorado_ui_handle_event(const SDL_Event *e)
     }
 }
 
+/* A message is shown for a few seconds after it CHANGES, then the readout
+ * comes back. Tracked here rather than in the frontend so that every caller
+ * that sets a message gets the behaviour without remembering to time it. */
+#define UI_MESSAGE_MS 8000
+static int ui_message_fresh(const char *msg)
+{
+    static char last[128];
+    static Uint32 since;
+    if (!msg || !msg[0]) return 0;
+    if (strcmp(last, msg) != 0) {
+        snprintf(last, sizeof last, "%s", msg);
+        since = SDL_GetTicks();
+    }
+    return (Uint32)(SDL_GetTicks() - since) < UI_MESSAGE_MS;
+}
+
 /* Draw the panel and return which button, if any, the user pressed this
  * frame. One action per frame is plenty and keeps the caller a switch. */
 dorado_ui_action dorado_ui_frame(const dorado_machine_panel *p,
@@ -227,19 +243,25 @@ dorado_ui_action dorado_ui_frame(const dorado_machine_panel *p,
         dorado_ui_lamp(&ui_ctx, "DSK", lamp_disk.decay > 0, 0xF0, 0xB0, 0x40);
         dorado_ui_lamp(&ui_ctx, "NET", lamp_net.decay > 0, 0x60, 0xB0, 0xF0);
 
-        char line[160];
-        snprintf(line, sizeof line, "%s   %.2fx real   %llu uinstr%s",
-                 st->world && st->world[0] ? st->world : "Dorado",
-                 st->speed_ratio,
-                 (unsigned long long)p->uinstructions,
-                 st->message[0] ? "" : "");
-        mu_label(&ui_ctx, line);
-
-        if (st->message[0]) {
-            static const int mw[] = { -1 };
-            mu_layout_row(&ui_ctx, 1, mw, 0);
-            mu_label(&ui_ctx, st->message);
+        /* The last cell is either the machine's vitals or the last thing
+         * that happened, for a few seconds.
+         *
+         * It used to be BOTH, with the message on a second row -- which was
+         * outside the 30-pixel band and therefore clipped away. A file
+         * dropped on the window was copied, served, and reported into a
+         * string nobody could see; the user concluded the drop had done
+         * nothing, which is exactly what a silent success looks like. If a
+         * panel writes a message, the panel has to show it. */
+        char line[200];
+        if (ui_message_fresh(st->message)) {
+            snprintf(line, sizeof line, "%s", st->message);
+        } else {
+            snprintf(line, sizeof line, "%s   %.2fx real   %llu uinstr",
+                     st->world && st->world[0] ? st->world : "Dorado",
+                     st->speed_ratio,
+                     (unsigned long long)p->uinstructions);
         }
+        mu_label(&ui_ctx, line);
         mu_end_window(&ui_ctx);
     }
     mu_end(&ui_ctx);

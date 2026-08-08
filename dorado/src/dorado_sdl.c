@@ -94,6 +94,40 @@ static dorado_display_key map_key(SDL_Keycode k)
     }
 }
 
+/* Ask the desktop for a file, because SDL2 has no file dialog of its own.
+ *
+ * One blocking popen of the platform's own chooser: `osascript` on macOS,
+ * zenity or kdialog on a Linux desktop. The emulator stops rendering while
+ * the dialog is up, which is what a modal file dialog is supposed to do.
+ *
+ * Returns 1 and fills `out` with a path, or 0 if the user cancelled or the
+ * host has no chooser -- in which case dragging a file onto the window still
+ * works and the caller says so. */
+static int dorado_sdl_pick_file(char *out, size_t outsz)
+{
+    static const char *const askers[] = {
+#if defined(__APPLE__)
+        "osascript -e 'POSIX path of (choose file with prompt "
+        "\"Choose a file to serve to the Dorado\")' 2>/dev/null",
+#endif
+        "zenity --file-selection --title='Serve a file to the Dorado' 2>/dev/null",
+        "kdialog --getopenfilename 2>/dev/null",
+    };
+    for (size_t i = 0; i < sizeof askers / sizeof askers[0]; i++) {
+        FILE *p = popen(askers[i], "r");
+        if (!p) continue;
+        char buf[1024];
+        char *got = fgets(buf, sizeof buf, p);
+        int rc = pclose(p);
+        if (!got || rc != 0) continue;          /* cancelled, or no chooser */
+        buf[strcspn(buf, "\r\n")] = '\0';
+        if (!buf[0]) continue;
+        snprintf(out, outsz, "%s", buf);
+        return 1;
+    }
+    return 0;
+}
+
 /* Copy a dropped host file into the served tree, so the guest can fetch it
  * with its own transfer tool. Returns a short human sentence for the panel.
  *
@@ -569,6 +603,10 @@ int main(int argc, char **argv)
     if (win) {
         SDL_ShowWindow(win);
         SDL_RaiseWindow(win);
+        /* SDL2 delivers SDL_DROPFILE only if you ask for it: drop events are
+         * DISABLED by default, so the handler below is dead code without
+         * this and a drag does nothing at all, silently. */
+        SDL_EventState(SDL_DROPFILE, SDL_ENABLE);
     }
     /* Logical size, established HERE and not only when a world's raster
      * turns out to differ from the initial guess.
@@ -947,12 +985,25 @@ int main(int argc, char **argv)
                                  "Could not write %s", path);
                     break;
                 }
-                case DORADO_UI_ADDFILE:
-                    snprintf(ui_st.message, sizeof ui_st.message,
-                             served_root
-                                 ? "Drop a file on the window to serve it."
-                                 : "Start with --ftp-root DIR to accept files.");
+                case DORADO_UI_ADDFILE: {
+                    /* A button that told you to do something else instead of
+                     * doing it was not a button. SDL2 has no file dialog, so
+                     * ask the desktop for one. */
+                    char picked[1024];
+                    if (!served_root) {
+                        snprintf(ui_st.message, sizeof ui_st.message,
+                                 "Start with --ftp-root DIR to accept files.");
+                    } else if (dorado_sdl_pick_file(picked, sizeof picked)) {
+                        const char *why =
+                            dorado_sdl_serve_file(m, picked, served_root);
+                        snprintf(ui_st.message, sizeof ui_st.message, "%s", why);
+                        printf("dorado-sdl: %s\n", why);
+                    } else {
+                        snprintf(ui_st.message, sizeof ui_st.message,
+                                 "No file chosen -- or drop one on the window.");
+                    }
                     break;
+                }
                 default: break;
                 }
             }

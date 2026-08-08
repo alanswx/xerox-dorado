@@ -1452,7 +1452,25 @@ and the core stays C99). A 30-pixel band across the top of the window:
 
 **Drag a host file onto the window** and it joins the served tree, where the
 guest fetches it with its own transfer tool -- `Bringover` in Cedar,
-`(FILESLOAD ...)` in Interlisp. That is section **H**, and serving is the only
+`(FILESLOAD ...)` in Interlisp.
+
+Three things were wrong with this on first contact, and the third is the
+instructive one:
+
+- `SDL_EventState(SDL_DROPFILE, SDL_ENABLE)` was missing. SDL2 documents drop
+  events as disabled by default, which makes the handler dead code. (macOS
+  delivered them anyway, so this was not the reported failure -- but it would
+  have been on another platform.)
+- **Add file did not add a file.** It printed a hint telling you to drop one
+  instead, which is not a button. SDL2 has no file dialog, so it now asks the
+  desktop for one: `osascript` on macOS, `zenity` or `kdialog` on Linux.
+- **The drop WORKED and said nothing.** The file was copied and served, and
+  the report went into `ui_st.message` -- which the panel drew on a SECOND
+  row, outside the 30-pixel band, where it was clipped away. The user
+  reasonably concluded nothing had happened. *A silent success is
+  indistinguishable from a failure*, and the evidence that it had worked was
+  a file timestamp three minutes after I deleted the file. The message now
+  replaces the vitals in the last cell for eight seconds after it changes. That is section **H**, and serving is the only
 safe direction: injecting onto a mounted Cedar volume crashes its live FS, and
 `altofs --insert` only edits an image the emulator is not running. Needs
 `--ftp-root DIR`; the panel says so when it is missing.
