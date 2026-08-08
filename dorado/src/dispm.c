@@ -41,6 +41,8 @@ static struct {
     uint32_t last_bitmap;
     uint32_t last_table_a;
     unsigned atable_nonzero;
+    unsigned fb_nonzero, fb_sampled;
+    uint16_t last_wpl, last_lines, last_ppl;
 
     int      rgb_w, rgb_h;
     uint8_t  rgb[DORADO_DISPM_MAX_W * DORADO_DISPM_MAX_H * 3];
@@ -239,7 +241,20 @@ int dorado_dispm_render(uint16_t (*read_word)(void *ctx, uint32_t va),
             unsigned wi = (unsigned)x / per_word;
             unsigned sh = 16u - bpp * (((unsigned)x % per_word) + 1u);
             uint16_t word = read_word(ctx, row + wi);
-            unsigned idx = (word >> sh) & mask;
+            unsigned a = (word >> sh) & mask;
+
+            /* THE PIXEL VALUE IS NOT THE TABLE INDEX. ColorDisplayDorado.mesa
+             * on ScanControl.pixelMode: "10 bit pixel value is aaaaaaaabb or
+             * aaaaaabbbb". ATable is 1024 entries because the index is TEN
+             * bits, assembled from both channels -- A contributes the high
+             * bits and B the low ones. So at 8 bpp in a8b2 mode the index is
+             * a<<2, not a, and indexing by the raw sample reads three wrong
+             * entries out of every four.
+             *
+             * With aChannelOnly the B bits are zero, which is our case: the
+             * guest reports scanControl 000570 = bpp 8, a8b2, aChannelOnly. */
+            unsigned bbits = (scan >> 6) & 1u ? 2u : 4u;   /* a8b2 : a6b4 */
+            unsigned idx = (a << bbits) & 01777u;
 
             /* AEntry, 2 words:
              *   w0: zeroL(0:0..3) redL(0:4..7) blue(0:8..15)
@@ -269,6 +284,22 @@ int dorado_dispm_render(uint16_t (*read_word)(void *ctx, uint32_t va),
             dm.atable_nonzero++;
     }
     dm.last_table_a = table_a;
+
+    /* Is there anything IN the frame buffer? The other half of the black-
+     * screen question. A loaded palette plus an empty buffer means the guest
+     * has not painted; a loaded palette plus a NON-empty buffer that still
+     * renders black means we are reading it wrong -- wrong address, wrong
+     * stride, or wrong index-to-entry mapping. Sample rather than sweep. */
+    dm.fb_nonzero = 0; dm.fb_sampled = 0;
+    for (int y = 0; y < h; y += 4) {
+        uint32_t row = bitmap + (uint32_t)y * (uint32_t)wpl;
+        for (unsigned i = 0; i < wpl; i += 4) {
+            dm.fb_sampled++;
+            if (read_word(ctx, row + i)) dm.fb_nonzero++;
+        }
+    }
+    dm.last_wpl = wpl; dm.last_lines = lines; dm.last_ppl = ppl;
+
     dm.rgb_w = w; dm.rgb_h = h; dm.renders++;
     return painted;
 }
@@ -332,6 +363,19 @@ void dorado_dispm_dump(void)
                     " moved onto the colour screen, or the tableA pointer is"
                     " wrong"
                   : "");
+        fprintf(stderr,
+                "[dispm] channel A: wordsPerLine=%u linesPerField=%u "
+                "pixelsPerLine=%u (=%d visible)\n",
+                dm.last_wpl, dm.last_lines, dm.last_ppl,
+                (int)dm.last_ppl - (int)DORADO_DISPM_PPL_OFFSET);
+        fprintf(stderr,
+                "[dispm] frame buffer at %07o: %u/%u sampled words non-zero%s\n",
+                dm.last_bitmap, dm.fb_nonzero, dm.fb_sampled,
+                dm.fb_nonzero == 0
+                  ? "  <- EMPTY. The guest has not painted here, or the"
+                    " address/stride is wrong."
+                  : "  <- there IS data here; a black picture now means the"
+                    " index-to-ATable mapping is wrong");
     }
     if (dm.reads_board == 0)
         fprintf(stderr, "[dispm] the guest never asked whether a board is "
