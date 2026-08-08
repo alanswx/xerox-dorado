@@ -182,6 +182,70 @@ CedarExamplesDoc/CedarProgramStyle/CedarSyntaxDoc (the language docs),
 and **EtherBoot.tioga — the net-booting protocol documentation** (goes
 straight to the Stage-2/DoInLoad work).
 
+## Tim on the colour monitor, and on how the book was actually made
+
+First-hand, 2026-08-08. This is the use case the colour work exists for, and
+it settles several things we had been inferring.
+
+**Dorados came in exactly two configurations:** one with just a monochrome
+display, and one with **both a monochrome display and a colour RGB monitor**.
+Nothing else. That matches the Hardware Manual (doc p.110: "on a Dorado with
+only a 7-wire terminal and no color monitor, only the DispY board is
+present") and it is why `DORADO_DISPM_COLOR` is a binary install rather than
+a family of options.
+
+**"Because of the low resolution on the colour monitor, you needed a
+monochrome display to do anything useful."** So the two screens were not
+peers -- the mono screen was where you worked and the colour one was a
+second, coarser surface beside it. That is exactly the arrangement
+`ColorDisplay left | right` describes, and it justifies the emulator opening
+a second window rather than trying to blend them.
+
+**On the resolution his memory is uncertain** -- "I can't remember if the
+monitor was 480x320 or 320x?" -- and the driver source is definite where
+memory is not. `ColorDisplayHeadDorado.mesa`'s `SetDisplayType` offers
+exactly two: `standard` = **640 x 480** and `highResolution` = **1024 x 768**.
+A plausible reconciliation: the same file's margin-offset table names
+**ConracRQB525**, and a 525-line monitor is the NTSC-ish one that gives
+640x480. Treat 640x480 as the standard colour monitor and Tim's figure as a
+recollection of roughly that.
+
+### How the book was made -- the whole pipeline
+
+> "For the book software, the color monitor was used with an antialiasing
+> Imager context as a **soft proofing device**. This setup was good enough to
+> be used for the actual page layout, ie page breaks, position of boxes for
+> the photographs &c. Once that was done, the software made **Interpress or
+> Press files** that were printed on a **Dover** for hard copy proofing
+> before being printed at high resolution **directly on film**. (The high res
+> printer only printed Interpress.) The film and monochromatic photographs
+> were sent to the printing company. The company optically half-toned the
+> photos and put them into the film page masters **where the holes were**.
+> They then made the printing plates from the assembled film signature."
+>
+> "**All of the Artwork was created in Gargoyle using the same process.**"
+
+Four things follow for this project:
+
+1. **Gargoyle is not a nice-to-have, it is the tool.** Tim made the book's
+   artwork in it, so "get Gargoyle running" is the requirement, not a
+   demonstration of colour.
+2. **The colour screen's job was soft proofing**, through an *antialiasing
+   Imager context*. So the interesting output is not "colour on screen" for
+   its own sake -- it is whether an Imager context renders a page proof
+   there. Antialiasing means grey levels, which is what the 8-bit ATable path
+   and `ColorDisplay gray | dither` are for.
+3. **Interpress is on the critical path, not a side quest.** The layout
+   software emitted Interpress or Press; the high-resolution filmsetter took
+   Interpress only. That retroactively justifies the Interpress and
+   InterpressTools packages in Gargoyle's import closure -- they are the
+   output half of the workflow, not incidental weight.
+4. **Photographs were holes.** The page masters carried boxes where images
+   would go and the printer optically half-toned the photos into them. So a
+   faithful reproduction of Tim's workflow does not need photographic images
+   on screen at all -- it needs correct page geometry and correctly placed
+   empty boxes.
+
 ## A living use case
 
 Diebert wrote software at PARC that produced the actual page negatives
