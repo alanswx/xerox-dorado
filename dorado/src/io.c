@@ -1,10 +1,62 @@
 #include "io.h"
+#include "trace.h"
 
+#include <stdio.h>
 #include <string.h>
+
+/* ---- Output<-B census, ACROSS ALL TASKS AND INCLUDING UNROUTED WRITES ----
+ *
+ * dorado_io_write_subtask() drops a write with no registered device on the
+ * floor, silently. That is correct behaviour -- real hardware has nothing
+ * listening either -- but it makes the machine opaque exactly where you most
+ * want to see it: an address WE do not model looks identical to an address
+ * the guest never touched.
+ *
+ * This cost a wrong answer on 2026-08-08. `DORADO_DDC_TIOA` counted inside
+ * display.c, so it could only ever see writes that had already been routed to
+ * the display -- and display.c registers TIOA 0360..0377 for the DISPLAY
+ * TASKS only (3, 4, 011, 013). Cedar's ColorDisplayHeadDorado is Mesa code
+ * calling DoradoInputOutput.Output from the EMULATOR task, so its writes to
+ * the colour registers (361B/362B/365B) went to an unregistered cell and
+ * vanished. The instrument reported "no world programs the colour side" when
+ * what it had actually established was "no DISPLAY TASK does".
+ *
+ * File-scope statics, not dorado_io members: a new struct member changes the
+ * snapshot ABI and every baked checkpoint fails to restore. Reset in
+ * dorado_io_init. */
+static uint64_t io_out_count[DORADO_IO_TASKS][256];
+static uint16_t io_out_first[DORADO_IO_TASKS][256];
+static uint16_t io_out_last[DORADO_IO_TASKS][256];
+static uint8_t  io_out_routed[DORADO_IO_TASKS][256];
 
 void dorado_io_init(dorado_io *io)
 {
     memset(io, 0, sizeof *io);
+    memset(io_out_count, 0, sizeof io_out_count);
+    memset(io_out_first, 0, sizeof io_out_first);
+    memset(io_out_last, 0, sizeof io_out_last);
+    memset(io_out_routed, 0, sizeof io_out_routed);
+}
+
+void dorado_io_dump_output_census(void)
+{
+    fprintf(stderr, "[io] Output<-B census by (task, TIOA), all tasks:\n");
+    unsigned unrouted = 0;
+    for (int t = 0; t < DORADO_IO_TASKS; t++) {
+        for (int a = 0; a < 256; a++) {
+            if (io_out_count[t][a] == 0) continue;
+            if (!io_out_routed[t][a]) unrouted++;
+            fprintf(stderr,
+                    "[io]   task %02o  tioa %03o  %12llu  first=%06o "
+                    "last=%06o  %s\n",
+                    t, a, (unsigned long long)io_out_count[t][a],
+                    io_out_first[t][a], io_out_last[t][a],
+                    io_out_routed[t][a] ? "" : "<- NO DEVICE (we drop these)");
+        }
+    }
+    fprintf(stderr,
+            "[io] %u (task,tioa) pair(s) written with no device registered. "
+            "DispM colour lives at 361B/362B/365B.\n", unrouted);
 }
 
 void dorado_io_register(dorado_io *io, int task, uint8_t tioa,
@@ -61,6 +113,14 @@ void dorado_io_write_subtask(dorado_io *io, int task, int subtask,
     if (!io || task < 0 || task >= DORADO_IO_TASKS) return;
     subtask &= 3;
     const dorado_io_device *dev = io->cells[task][tioa];
+    /* Census BEFORE the routing test, so an address we do not model is
+     * distinguishable from one the guest never wrote. See the note above. */
+    if (dorado_trace_flag("DORADO_IO_CENSUS")) {
+        if (io_out_count[task][tioa] == 0) io_out_first[task][tioa] = data;
+        io_out_count[task][tioa]++;
+        io_out_last[task][tioa] = data;
+        if (dev && dev->write) io_out_routed[task][tioa] = 1;
+    }
     if (!dev || !dev->write) return;
     dev->write(dev->ctx, task, subtask, tioa, data);
 }

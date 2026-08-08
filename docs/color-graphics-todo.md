@@ -325,6 +325,68 @@ and trace what it writes with `DORADO_DDC_TIOA=1`. That gives a real guest
 driving the real registers, and turns everything below from
 "implement and hope" into "implement against a trace".
 
+## THE PRESENCE TEST, VERBATIM -- three READS, and they gate everything
+
+`ColorDisplayHeadDorado.mesa`'s module initialization ends with the colour
+board detection. This is the gate `ColorDisplay on` is behind, and it is
+small enough to implement exactly:
+
+```
+colorBoardAddr:  DoradoInputOutput.IOAddress ~ 360B;
+colorDeviceAddr: DoradoInputOutput.IOAddress ~ 361B;
+colorRevAddr:    DoradoInputOutput.DMuxAddr  ~ 3107B;
+colorDeviceData: MACHINE DEPENDENT RECORD[type: [0..17B], junk: [0..7777B]];
+
+base0[csb] _ [mcb: RNIL];
+colorBoardData _ DoradoInputOutput.InputNoPE[colorBoardAddr];
+IF colorBoardData#0 THEN {          -- Color display board is installed
+  colorDeviceData _ LOOPHOLE[DoradoInputOutput.InputNoPE[colorDeviceAddr]];
+  SELECT colorDeviceData.type FROM
+    17B => displayType _ standard;        -- 640x480
+    16B => displayType _ highResolution;  -- 1024x768
+    ENDCASE;                              -- unknown display type
+  colorRevData _ DoradoInputOutput.RWMufMan[[useDMD: FALSE, dMuxAddr: colorRevAddr]];
+  oldRev _ (colorRevData.dMuxData=1);
+  };
+```
+
+So to make Cedar believe a colour display exists, three values must come
+back:
+
+1. **`Input` at TIOA 360B must be non-zero** -- "board is installed".
+2. **`Input` at TIOA 361B**: `type` is the **top four bits** (`[0..17B]`
+   first in a MACHINE DEPENDENT RECORD is Xerox bit 0..3), so `0170000`
+   selects `standard` (640x480) and `0160000` selects `highResolution`
+   (1024x768). Anything else leaves `displayType` at `none`.
+3. **The muffler at DMux address 3107B**: `oldRev` is TRUE iff `dMuxData=1`.
+   *"Old revision boards can't run both channels at the same time"*, so
+   returning anything but 1 gets a modern board.
+
+**Note `InputNoPE` -- Input with No Parity Error.** The driver expects a
+floating bus when the board is absent, which is exactly what `io.c` returns
+for an unregistered cell (0xFFFF, parity flagged). That has an accidental
+consequence worth checking rather than assuming: 0xFFFF is non-zero, and its
+top four bits are 17B, so an unmodelled read could look like *"a standard
+640x480 colour board is installed"* by accident. `ColorDisplay ?` in the
+2026-08-08 probe did report `off, 8 bpp, left, 640x480, Dither` -- but
+640x480 is also the profile default, so that is not evidence either way
+until the census run distinguishes them.
+
+### And the real driving mechanism is the CSB, not these Outputs
+
+The `MixerOutput` / `BMapOutput` / `CMapOutput` calls in the head are a
+short clear sequence (`keep`/`load addr 0`/`write data 0`/`keep F` for each
+of the three RAMs). The **continuous** work is done the same way the
+monochrome side does it: the driver writes `base0[csb]` -- the ColorCSB at
+**177414B** -- pointing at a MonitorControlBlock, and the **microcode** walks
+that chain, exactly as DHT/DWT walk the mono DCB chain at 0420.
+
+That reframes the emulator work. Decoding 361B/362B/365B gets the RAM loads;
+**making a picture appear also needs the colour display task's IOFetch path**,
+which is the same shape as the existing `DWT/AWT` fast-I/O path in
+`fastio.c`. Scope accordingly: register decode is small, the channel fetch is
+the real work.
+
 ## THE WHOLE PATH IS NOW KNOWN, END TO END (2026-08-08)
 
 The last unknown -- "what makes Cedar believe a colour display exists" -- has

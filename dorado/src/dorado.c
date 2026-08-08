@@ -38,6 +38,7 @@
 #include "display.h"
 #include "typetext.h"
 #include "trace.h"
+#include "io.h"
 
 #include <stdint.h>
 #include <signal.h>
@@ -935,6 +936,8 @@ int main(int argc, char **argv)
     dorado_display *disp = dorado_machine_display(m);
     if (dorado_trace_flag("DORADO_DDC_TIOA"))
         dorado_display_dump_tioa_use(disp);
+    if (dorado_trace_flag("DORADO_IO_CENSUS"))
+        dorado_io_dump_output_census();
     dorado_display_vblank(disp);
     if (dorado_display_snapshot_pgm(disp, out) == 0) {
         printf("dorado: %d display-list pixels; wrote %s\n", pixels, out);

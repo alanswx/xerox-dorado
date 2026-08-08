@@ -71,6 +71,13 @@ void dorado_io_register_all_tasks(dorado_io *io, uint8_t tioa,
  * parity error. */
 uint16_t dorado_io_read(dorado_io *io, int task, uint8_t tioa,
                         int *out_bad_parity);
+/* Print every (task, TIOA) that received an Output<-B, INCLUDING the ones no
+ * device was registered for -- which the router otherwise drops silently, so
+ * an unmodelled address is indistinguishable from an untouched one. Driven by
+ * DORADO_IO_CENSUS=1. Counting inside a device (as DORADO_DDC_TIOA does) can
+ * only ever see what was already routed to it. */
+void dorado_io_dump_output_census(void);
+
 uint16_t dorado_io_read_subtask(dorado_io *io, int task, int subtask,
                                 uint8_t tioa, int *out_bad_parity);
 
