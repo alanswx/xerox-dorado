@@ -1117,10 +1117,49 @@ when this project's convention is to keep the manual's terminology in C form.
 **Grep case-insensitively, grep for the concept, and read the hit before
 calling anything missing.**
 
-**Next:** ContA/ContB — the Control section is where tasking and the
-sequencer live, so its interface should say whether our 16-way scheduler owes
-the rest of the machine anything we do not provide. Then DispY/DispM, which
-would settle `docs/color-graphics-todo.md` directly.
+**ContA/ContB done too — the whole CPU is covered.** The Control section
+confirms the tasking model pin by pin. **`TWReq[1-15]`: fifteen wakeup lines,
+1..15, and none for task 0** — our `task_bnt()` does `avail |= 0x0001;`
+(comment: "task 0 always ready") and scans 15 down to 1, which turns out to be
+a statement about physical wiring. **`BNTGtCT'`** is the priority comparator
+our `bnt` is named after. **`FFok'a/b`** is the "FF is a function iff BSEL not
+constant and JCN not long" gate = `ff_full_function_ok()`. All eight Table 13
+conditions arrive at ContA as pins. And the control-processor interface
+(`CPAddr'[0-2]`, `CPOut[0-8]`, `CPIn[0-3]`, `CPStrb'`, `SetSS'`, `SetRun`,
+`Freeze`, `StopMIRClk`) is exactly the LoadDoradoCode handshake `baseboard.c`
+drives.
+
+Two additions to the gap list:
+
+6. **A machine-wide serial diagnostic bus.** `DMuxClk`/`DMuxData` on TEN of
+   eleven boards — the exception is **DispM, the colour board**. This is how
+   Midas reads machine state. We answer exactly two addresses (`MapIs64K`,
+   `MapIs256K`, for InitMem's VirtualBanks probe). Fine for running software;
+   wrong for running Midas, which would be the natural way to validate Phase 2
+   RTL against the C emulator.
+7. **IM parity is carried, not modelled.** ContB collects `IMLHPE'`,
+   `IMRHPE'` alongside `IOPE`/`MdPE`/`MemPE`/`RamPE` into `Error'`.
+   `mb2eb.c` writes `LHpar`/`RHpar` into every `.eb` because `LoadRam`
+   expects them, but nothing checks them. (`dorado/CLAUDE.md` is fine here --
+   it documents the bits' position in the `.MB` format and stops; the
+   overclaim was the cross-check doc's own first draft.)
+
+**A third near-miss, and the technique that caught it.** `QBit'` arrives at
+ContA and is not one of Table 13's eight conditions — it looked like a ninth
+one we lack. Asking WHICH BOARDS carry it answered it: exactly ProcL and
+ContA. Q's manual bit 14 is C-LSB bit 1, the low half of the word, so it
+leaves from ProcL; TNIA is formed on ContA, so it arrives there. That is HM
+§4.4 p.32's Multiply verbatim, and `cpu.c:2048` implements it — the fix that
+stopped every BCPL multiply returning garbage and crashing NetExec into Swat.
+**Trace the net across boards first, then read the code**; a signal's
+endpoints identify it far more reliably than its name.
+
+Worth recording: across eight boards, **every disagreement was a gap, not a
+contradiction.** Nothing we implement is the wrong width, polarity or shape.
+
+**Next:** DispY/DispM, which would settle `docs/color-graphics-todo.md` from
+the design data rather than the manual (and DispM being off the DMux chain is
+already one fact in hand), then DskEth for both I/O controllers at once.
 
 ### F.2 (historical) BLOCKER: we had no .sil source, only rendered PDFs
 

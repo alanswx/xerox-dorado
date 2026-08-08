@@ -1,6 +1,7 @@
 # Checking the emulator against the Dorado's own design data
 
-**2026-08-08. Six boards: ProcH, ProcL, IFU, MemC, MemD, MemX.**
+**2026-08-08. Eight boards: ProcH, ProcL, ContA, ContB, IFU, MemC, MemD,
+MemX** — the whole CPU.
 
 Everything in this project has been checked against the Hardware Manual, the
 schematics-as-PDFs, and PARC's microcode. This is the first check against the
@@ -27,9 +28,11 @@ The `.nl` files are plain text and use **the machine's own signal names** —
 emulator uses. That is what makes a direct comparison possible.
 
 ```
-$ tools/sil_netlist_report.py ProcH ProcL IFU MemC MemD MemX
+$ tools/sil_netlist_report.py ProcH ProcL ContA ContB IFU MemC MemD MemX
 == ProcH  (ProcH-Rev-Ce.dm!1_)  175 nets,  68 signals
 == ProcL  (ProcL-Rev-Ci.dm!1_)  176 nets,  71 signals
+== ContA  (ContA-Rev-Cd.dm!1_)  170 nets,  64 signals
+== ContB  (ContB-Rev-Cd.dm!1_)  132 nets,  44 signals
 == IFU    (IFU-Rev-Ch.dm!1_)    137 nets,  47 signals
 == MemC   (MemC-Rev-Be.dm!1_)   168 nets,  95 signals
 == MemD   (MemD-Rev-Ca.dm!1_)   174 nets,  43 signals
@@ -57,6 +60,20 @@ we model the thing.** This project's convention is to keep the manual's
 terminology in C form — `SubTask` becomes `subtask`, `StkError` becomes
 `stk_error_check`. Grep case-insensitively, grep for the concept, and read
 the hit before calling anything missing.
+
+A third near-miss on the Control pass shows the technique that actually
+works. `QBit'` arrives at ContA and is not one of Table 13's eight branch
+conditions — it looked like a ninth condition we lack. Asking the netlist
+*which boards carry it* answered it instead: `QBit'` exists on exactly two
+boards, **ProcL and ContA**. Q's manual bit 14 is C-LSB bit 1, i.e. the low
+half of the word, which is why it leaves from ProcL; TNIA is formed on ContA,
+which is why it arrives there. That is HM §4.4 p.32's Multiply verbatim —
+"OR's Q[14] into TNIA[14] … captured in a flipflop at t2 … OR'ed into
+TNIA[14] during the next instruction for the same task" — and `cpu.c:2048`
+implements it.
+
+**So: trace the net across boards first, then read the code.** A signal's
+endpoints say what it is far more reliably than its name does.
 
 The corrected findings are below.
 
@@ -125,26 +142,93 @@ signals, which is the strongest form of confirmation available short of RTL:
 - **`DisHold`** (MemC, MemX) — `mcr.disHold` is a real backplane line, not a
   microcode convention. That is why boot-stage microcode can turn Hold off
   machine-wide.
+- **`QBit'`** (ProcL → ContA) — the Multiply dispatch. `cpu.c:2048` ORs
+  `Q & 0x0002` into the task's dispatch, and the reason it does is that with
+  it stubbed every BCPL multiply returned garbage, NetExec's keyword table
+  overran the first coroutine's CTX, and startup crashed into Swat. The wire
+  that carries it runs from the board holding Q's bit 14 to the board that
+  forms TNIA.
 - **`EventA`..`EventE`, `CrryEvCntA`, `GenIn[0-15]`, `GenOut[0-15]`,
   `GLd'`, `GDv'`** (IFU, MemD) — the §4.11 event counters and the generator
   our `gen_io_mode` models, which is what makes the `eventCounters`
   diagnostic pass.
 
+## The Control section: the tasking model, confirmed pin by pin
+
+ContA and ContB are where the microinstruction sequencer and the 16-way
+scheduler live, and their interface confirms the emulator's tasking model
+more directly than anything else so far.
+
+**`TWReq[1-15]` — fifteen wakeup request lines, numbered 1 to 15. There is no
+line for task 0.** Our scheduler reads:
+
+```c
+static int task_bnt(uint16_t avail)
+{
+    avail |= 0x0001;   /* task 0 always ready */
+    for (int i = 15; i > 0; i--) ...
+```
+
+That comment is a statement about physical wiring. Task 0 is the emulator and
+the unconditional fallback, so the hardware never needs to request it — and
+correspondingly our loop stops at 1.
+
+**`BNTGtCT'a` / `BNTGtCT'b`** — "Best Next Task Greater Than Current Task",
+the priority comparator that decides whether to switch. Our variable is
+already called `bnt`, from the manual. The signal also reaches MemX and ContB,
+which is how the memory section knows a task switch is coming.
+
+**`FFok'a` / `FFok'b`** — the gate for "FF is interpreted as a function iff
+BSEL is not a constant and JCN is not long". That rule is `ff_full_function_ok()`
+in `cpu.c:1902`, and it is a pair of real signals distributed to the boards
+that act on FF.
+
+**All eight Table 13 branch conditions arrive at ContA as pins**:
+`ResEqZero'`, `ResLtZero'`, `ALUCarry`, `Cnt=Zero'`, `RmLtZero'`, `RmOdd'`,
+`IOatt`, `Overflow'` — plus `QBit'` for Multiply, discussed above.
+
+**`TNIA[2-15]` and `BNPC[2-15]`** — 14 bits wired. `docs/jcn-encoding.md`
+already records that TNIA is nominally 16 bits and that "bits 4:15 of TNIA
+are the 12-bit IM address actually used". The netlist agrees and adds that
+bits 0 and 1 are not wired at all.
+
+**The control-processor interface is exactly the one our BaseBoard drives**:
+`CPAddr'[0-2]`, `CPOut[0-8]`, `CPIn[0-3]`, `CPStrb'`, `SetSS'`, `SetRun`,
+`Freeze`, `StopMIRClk`, `CRamClock`, `rMIRa`. The LoadDoradoCode handshake in
+`baseboard.c` — jam a microinstruction, strobe MIR, `SetSS`, finally `SetRun`
+to free-run — is that pin list in the right order.
+
+And the whole microinstruction arrives at Control: `RSTK[0-3]`, `ALUF[0-3]`,
+`BSEL'[0-2]`, `ASEL'[0-2]`, `LC[0-2]`, `dFF[0-7]`, `dJCN[0-7]`, `Block`.
+
 ## What the design shows the emulator does NOT model
 
-### 1. A byte-parity network across the whole machine — a real gap
+### 1. A parity network spanning the machine, converging on ContB
 
 `IOB.16/.17`, `dMD.16/.17`, `BMux.16/.17` carry parity, with dedicated error
 and control lines on every board: **`IOPE`**, **`MdPE`**, **`RamPE`**,
 **`CkMdParity'`** (ProcH/L), **`dHitPerr`**, **`dSTPerr`** (MemC, MemX),
-**`MemPE`** (MemX).
+**`MemPE`** (MemX). The Control pass finished the picture: **ContB is where
+they all land** — `IOPE`, `MdPE`, `MemPE`, `RamPE` plus IM's own
+`IMLHPE'`, `IMRHPE'`, `IMLHPEDly`, `IMRHPEDly` — and the collected result is
+`Error'`, which ContA also carries.
 
 `include/cpu.h:203` says it outright: *"We do not yet model parity at the bit
 level."* `src/memory.c` contains the string "parity" zero times. What exists
 is `io_bad_parity`, a single device-flagged bit on the slow-I/O input path.
-So a microprogram that induces or checks a bus or register-file parity fault
-sees nothing happen. Given that the Hardware Manual lists faults as visible
-to microcode, this is a real gap rather than a detail.
+
+**Including IM's own parity, which the first version of this document
+claimed we model.** We *carry* those bits — `mb2eb.c` writes `LHpar` and
+`RHpar` into every `.eb` because `LoadRam` expects them there — but nothing
+ever checks them: `grep -i "lhpar\|rhpar"` over `cpu.c` and `microcode.c`
+returns nothing. Carrying a parity bit through a loader is not modelling
+parity. (`dorado/CLAUDE.md` never claimed otherwise; it documents the bits'
+position in the `.MB` format and stops there, and `cpu.h:203` is explicit.
+The overclaim was this document's.)
+
+So a microprogram that induces or checks any parity fault sees nothing
+happen. Given that the Hardware Manual lists faults as visible to microcode,
+this is a real gap rather than a detail.
 
 ### 2. Hold is a multi-source request network — we model one source
 
@@ -182,7 +266,23 @@ counters work but have no miss input. Zero hits in the source.
 cycle, so on real hardware refresh steals memory bandwidth we give away
 free. A timing-fidelity item, and one that only matters once Hold is real.
 
-### 5. ECC is read back but never generated or checked
+### 5. A machine-wide serial diagnostic bus — we answer two addresses of it
+
+`DMuxClk` and `DMuxData` appear on **ten of the eleven boards checked** —
+ProcH, ProcL, ContA, ContB, IFU, MemC, MemD, MemX, DispY, DskEth. The one
+exception is **DispM, the colour board**, which is not on the chain at all.
+
+This is the path Midas reads machine state through: a serial scan chain
+reaching every register in the Dorado. We model it as far as exactly two
+addresses — `MapIs64K` (0o1511) and `MapIs256K` (0o1512), because
+`InitMem.mc`'s `SetDMuxAddress` probe needs them to compute VirtualBanks
+(`memory.c:913-945`). Every other address returns nothing.
+
+That is the right call for running software and the wrong one for running
+Midas, which is the period debugger and would be the natural way to validate
+Phase 2 RTL against the C emulator.
+
+### 6. ECC is read back but never generated or checked
 
 We keep an 8-bit `pipe4_syndrome` per Pipe slot so microcode can read a
 fault, and `memory.h:222` notes plainly that main storage does not model ECC.
@@ -218,20 +318,41 @@ tools/sil_netlist_report.py --chips ProcH     # the parts and where they sit
 tools/sil_netlist_report.py --grep Hold MemC  # find a signal family
 ```
 
-Ten boards remain: ContA, ContB, DispY, DispM, DskEth, BaseBd, msa, PCMSA,
-IOTest, Music. **ContA/ContB are the obvious next targets** — the Control
-section is where tasking and the microinstruction sequencer live, so its
-interface should say whether our 16-way scheduler owes the rest of the
-machine anything we are not providing. DispY (monochrome) and DskEth follow,
-and would settle the colour question in `docs/color-graphics-todo.md`
-directly from DispM.
+Tracing one signal across boards is the highest-value move, and the tool does
+not do it directly — loop instead:
+
+```sh
+for b in ProcH ProcL ContA ContB IFU MemC MemD MemX; do
+    printf "%-6s %s\n" "$b" \
+      "$(tools/sil_netlist_report.py --grep QBit $b | grep -c QBit)"
+done
+```
+
+The whole CPU is now covered. **Six boards remain: DispY, DispM, DskEth,
+BaseBd, msa, PCMSA, IOTest, Music** (the last four are test and support
+boards, not part of a working machine). **DispY and DispM are the obvious
+next targets** — they would settle `docs/color-graphics-todo.md` from the
+design data rather than from the manual, and one fact is already in hand:
+DispM is the only board in the machine not on the DMux diagnostic chain.
+DskEth follows, covering both remaining I/O controllers at once.
 
 ## What this is not
 
 It is a **coverage** cross-check, not an equivalence proof. The `.nl` files
 give each board's interface, not its logic; proving our datapath computes
 what ProcH's 419 packages compute needs the `.wl` wire list and the sheets,
-which is Phase 2's job. What this pass establishes is that the emulator's
-*shape* — field widths, register widths, branch conditions, the Pipe's depth,
-the ASRN/ProcSRN split, the FA/FB/FC decode — matches the hardware exactly,
-and it names five specific things the hardware has that we do not.
+which is Phase 2's job.
+
+What this pass establishes is that the emulator's *shape* matches the
+hardware exactly — field widths, register widths, all eight branch
+conditions, the Pipe's 16 entries, the ASRN/ProcSRN split, the FA/FB/FC
+decode, the 15-line wakeup network with no request line for task 0, the
+control-processor handshake — and it names six specific things the hardware
+has that we do not: bus and IM parity, the seven-requester Hold network,
+`CountMiss`, DRAM refresh, the DMux scan chain beyond two addresses, and ECC
+generation/checking.
+
+Worth saying plainly: across eight boards, **every disagreement found was a
+gap, not a contradiction**. Nothing the emulator implements turned out to be
+the wrong width, the wrong polarity or the wrong shape. For a model built
+from a manual and a pile of microcode, that is the result you want.
