@@ -4363,7 +4363,35 @@ int dorado_machine_interactive(const dorado_machine *m)
 void dorado_machine_set_mouse(dorado_machine *m, int x, int y, int buttons)
 {
     if (!m) return;
-    if (x < 0) x = 0; else if (x > DORADO_DISPLAY_W - 1) x = DORADO_DISPLAY_W - 1;
+    /* CLAMP TO THE WHOLE DESKTOP, WHICH MAY BE TWO SCREENS WIDE.
+     *
+     * This used to clamp x to the b/w raster, so a pointer could never reach
+     * a coordinate belonging to a second screen and the colour monitor had no
+     * cursor on it at all. A Dorado with the colour option has ONE pointer
+     * space spanning both monitors -- which is exactly what Cedar's
+     * `ColorDisplay left | right` configures, since telling Viewers which
+     * SIDE the colour screen is on only means anything if the pointer can
+     * cross between them.
+     *
+     * The colour screen is placed to the RIGHT here, so the b/w screen keeps
+     * coordinates 0..1023 and nothing about the existing mono path changes.
+     * That is a deliberate choice and it is the half of this that is a GUESS:
+     * `ColorDisplay ?` on our checkpoint reports "left", and if Cedar expects
+     * the colour screen at negative x (or expects the mono screen shifted
+     * right by the colour width) then the offset below is wrong and the
+     * cursor will appear on the colour screen at the wrong place, or not at
+     * all. Verify by moving the pointer onto the colour window and watching
+     * for a cursor before trusting it. Doing it the other way round would
+     * move the mono screen's origin, which would break every existing recipe
+     * and gate -- so if `left` turns out to be required, it needs the guest's
+     * own coordinate convention read out of Terminal/TerminalExtras rather
+     * than another guess. */
+    int max_x = DORADO_DISPLAY_W - 1;
+    if (dorado_dispm_installed() != DORADO_DISPM_NONE) {
+        int cw = 0, ch = 0;
+        if (dorado_dispm_rgb(&cw, &ch) && cw > 0) max_x += cw;
+    }
+    if (x < 0) x = 0; else if (x > max_x) x = max_x;
     if (y < 0) y = 0; else if (y > DORADO_DISPLAY_H - 1) y = DORADO_DISPLAY_H - 1;
     m->mouse_present = 1;
     m->mouse_x = x;

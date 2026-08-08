@@ -724,6 +724,17 @@ int main(int argc, char **argv)
                  * colour display is output-only here: the guest places
                  * viewers on it with `ColorDisplay left|right`, and Cedar's
                  * pointer still lives on the b/w screen. */
+                /* The colour window is the SECOND SCREEN, and the guest has
+                 * one pointer space across both. Offset its coordinates past
+                 * the b/w raster instead of dropping them, so the cursor can
+                 * cross. See dorado_machine_set_mouse for why the colour
+                 * screen is placed to the right and why that is the part
+                 * still to be verified against Cedar's own convention. */
+                if (cwin && e.motion.windowID == SDL_GetWindowID(cwin)) {
+                    dorado_machine_set_mouse(m, DORADO_DISPLAY_W + e.motion.x,
+                                             e.motion.y, mouse_buttons);
+                    break;
+                }
                 if (win && e.motion.windowID != SDL_GetWindowID(win)) break;
                 if (ui_on && dorado_ui_handle_event(&e)) break;
                 dorado_machine_set_mouse(m, e.motion.x / scale,
@@ -732,6 +743,20 @@ int main(int argc, char **argv)
                 break;
             case SDL_MOUSEBUTTONDOWN:
             case SDL_MOUSEBUTTONUP: {
+                if (cwin && e.button.windowID == SDL_GetWindowID(cwin)) {
+                    /* Buttons on the colour screen, same offset. */
+                    int cb = e.button.button == SDL_BUTTON_LEFT
+                               ? DORADO_MOUSE_LEFT
+                           : e.button.button == SDL_BUTTON_MIDDLE
+                               ? DORADO_MOUSE_MIDDLE
+                           : e.button.button == SDL_BUTTON_RIGHT
+                               ? DORADO_MOUSE_RIGHT : 0;
+                    if (e.type == SDL_MOUSEBUTTONDOWN) mouse_buttons |= cb;
+                    else                               mouse_buttons &= ~cb;
+                    dorado_machine_set_mouse(m, DORADO_DISPLAY_W + e.button.x,
+                                             e.button.y, mouse_buttons);
+                    break;
+                }
                 if (win && e.button.windowID != SDL_GetWindowID(win)) break;
                 /* Three-button (Red/Yellow/Blue) mouse. A real 3-button
                  * mouse maps directly; for one-button laptops a modified

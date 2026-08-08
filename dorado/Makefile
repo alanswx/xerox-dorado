@@ -1162,6 +1162,28 @@ run-cedar-color: sdl $(CEDAR_COLOR_SNAPSHOT) $(CEDAR_COLOR_PDI)
 		--ftp-root ../chm/cedar/stp-root \
 		--snapshot-in '$(CEDAR_COLOR_SNAPSHOT)' --speed 4000000
 
+.PHONY: run-cedar-color-cold
+run-cedar-color-cold: sdl $(CEDAR_DESKTOP_PDI)
+	@echo "Cold boot with the colour board. COLD because User.Profile's"
+	@echo "BootCommands only run at boot -- a restored checkpoint still has"
+	@echo "the modules it was baked with, which is the whole BiScrollers issue."
+	@echo
+	@echo "  1. log in:      type  Guest  then Return twice"
+	@echo "  2. CHECK SIL:   click the  Sil  button in the CommandTool menu"
+	@echo "                  line (or type: Sil ProcH01.sil). It must still"
+	@echo "                  open the ProcH drawing -- the profile now loads"
+	@echo "                  BiScrollers and Sil from CedarChest6.1, and Sil"
+	@echo "                  is what that change puts at risk."
+	@echo "  3. CHECK GARGOYLE: type  Color.cm  then, when it finishes,"
+	@echo "                  Gargoyle. Watch for VersionMismatch[BiScrollers]"
+	@echo "                  -- its absence is the fix working."
+	@cp -f '$(CEDAR_DESKTOP_PDI)' build/run-cedar-color-cold.pdi
+	DORADO_DISPM_COLOR=1 DORADO_PDI_IGNORE_LABEL_FLAGS=1 \
+	./build/dorado-sdl --boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk build/run-cedar-color-cold.pdi \
+		--ftp-root ../chm/cedar/stp-root --speed 4000000
+
 # Cold-boot a fresh colour checkpoint: board installed from the first
 # instruction, log in, install the ColorDisplay package, turn it on. ~25 min.
 # Writes to good-packs directly, so back up first if you care about the old one.
