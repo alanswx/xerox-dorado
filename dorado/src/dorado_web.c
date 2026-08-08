@@ -22,6 +22,7 @@
  * file, or back at NetExec.
  */
 
+#include "dispm.h"
 #include "machine.h"
 #include "display.h"
 #include "typetext.h"
@@ -262,6 +263,50 @@ void dorado_web_key(int key, int down)
     dorado_display_key dk = map_key(key);
     if (dk != DORADO_KEY_NONE)
         dorado_machine_set_key(app.m, dk, down);
+}
+
+/* ---- The colour screen (DispM) -----------------------------------------
+ *
+ * A SECOND surface, not a mode of the first: the Dorado's b/w display is
+ * 1024x808 at one bit per pixel and colour is a separate board driving its
+ * own 640x480 or 1024x768 monitor. The page draws it on its own canvas.
+ *
+ * dorado_web_color_frame() repaints from the ColorCSB chain and returns a
+ * pointer to RGBA the page can blit straight into ImageData; width and height
+ * come back through dorado_web_color_w/h. Returns 0 when no board is
+ * installed or the guest has not armed the chain, which is the page's cue to
+ * keep the canvas hidden. */
+static uint8_t *web_color_rgba;
+static int web_color_w, web_color_h;
+
+EMSCRIPTEN_KEEPALIVE
+int dorado_web_color_w(void) { return web_color_w; }
+
+EMSCRIPTEN_KEEPALIVE
+int dorado_web_color_h(void) { return web_color_h; }
+
+EMSCRIPTEN_KEEPALIVE
+uintptr_t dorado_web_color_frame(void)
+{
+    if (!app.m || dorado_dispm_installed() == DORADO_DISPM_NONE) return 0;
+    if (dorado_dispm_render(dorado_machine_read_visible_word, app.m) <= 0)
+        return 0;
+    int w = 0, h = 0;
+    const uint8_t *rgb = dorado_dispm_rgb(&w, &h);
+    if (!rgb || w <= 0 || h <= 0) return 0;
+    if (w != web_color_w || h != web_color_h) {
+        free(web_color_rgba);
+        web_color_rgba = (uint8_t *)malloc((size_t)w * (size_t)h * 4u);
+        web_color_w = w; web_color_h = h;
+    }
+    if (!web_color_rgba) { web_color_w = web_color_h = 0; return 0; }
+    for (int i = 0; i < w * h; i++) {
+        web_color_rgba[i * 4 + 0] = rgb[i * 3 + 0];
+        web_color_rgba[i * 4 + 1] = rgb[i * 3 + 1];
+        web_color_rgba[i * 4 + 2] = rgb[i * 3 + 2];
+        web_color_rgba[i * 4 + 3] = 255;
+    }
+    return (uintptr_t)web_color_rgba;
 }
 
 /* ---- Front panel ---------------------------------------------------------

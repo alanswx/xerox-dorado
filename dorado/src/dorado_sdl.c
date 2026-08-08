@@ -15,6 +15,7 @@
  * emulation clock; Esc-via-window-close or Cmd/Ctrl+Q quits.
  */
 
+#include "dispm.h"
 #include "machine.h"
 #include "display.h"
 #include "typetext.h"
@@ -595,6 +596,25 @@ int main(int argc, char **argv)
     SDL_Texture *tex = ren ? SDL_CreateTexture(
         ren, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
         DORADO_DISPLAY_W, DORADO_DISPLAY_H) : NULL;
+    /* ---- The colour screen (DispM) is a SECOND WINDOW ---------------------
+     *
+     * Not a mode of the first one. On a Dorado the black-and-white display is
+     * DispY at 1024x808 and one bit per pixel; colour is a physically
+     * separate board driving its own monitor at 640x480 or 1024x768. Cedar
+     * knows it as a second screen too -- `ColorDisplay left | right` tells
+     * Viewers which side of the b/w display it sits on -- so two windows is
+     * what the guest already believes it has.
+     *
+     * Created only when the board is installed (DORADO_DISPM_COLOR), and
+     * only once the guest has actually armed the ColorCSB, so a machine with
+     * no colour software never grows a stray empty window. */
+    SDL_Window   *cwin = NULL;
+    SDL_Renderer *cren = NULL;
+    SDL_Texture  *ctex = NULL;
+    int cw = 0, chh = 0;
+    uint32_t *cpix = NULL;
+    uint64_t next_color_render = 0;
+
     /* Bring the window to the front. Launched from a terminal on macOS the
      * window otherwise opens BEHIND it, and an occluded window is throttled
      * by the compositor -- this loop is render-bound, so the emulator then
@@ -1017,6 +1037,55 @@ int main(int argc, char **argv)
                 default: break;
                 }
             }
+            /* Colour screen. Walking the ColorCSB chain reads guest memory
+             * per pixel, so it is far too costly per frame; the real board
+             * repaints at the field rate and nothing in a still picture
+             * changes faster than the eye. Repaint a few times a second. */
+            if (dorado_dispm_installed() != DORADO_DISPM_NONE) {
+                uint64_t now_c = dorado_machine_cycles(m);
+                if (now_c >= next_color_render) {
+                    next_color_render = now_c + 250000000ull;
+                    int px = dorado_dispm_render(
+                        dorado_machine_read_visible_word, m);
+                    int nw = 0, nh = 0;
+                    const uint8_t *rgb = px > 0 ? dorado_dispm_rgb(&nw, &nh)
+                                                : NULL;
+                    if (rgb && nw > 0 && nh > 0) {
+                        if (!cwin || nw != cw || nh != chh) {
+                            if (ctex) SDL_DestroyTexture(ctex);
+                            if (cren) SDL_DestroyRenderer(cren);
+                            if (cwin) SDL_DestroyWindow(cwin);
+                            free(cpix);
+                            cw = nw; chh = nh;
+                            cwin = SDL_CreateWindow(
+                                "Xerox Dorado  -  colour display (DispM)",
+                                SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                                cw, chh, SDL_WINDOW_ALLOW_HIGHDPI);
+                            cren = cwin ? SDL_CreateRenderer(
+                                cwin, -1, SDL_RENDERER_ACCELERATED) : NULL;
+                            ctex = cren ? SDL_CreateTexture(
+                                cren, SDL_PIXELFORMAT_ARGB8888,
+                                SDL_TEXTUREACCESS_STREAMING, cw, chh) : NULL;
+                            cpix = (uint32_t *)calloc((size_t)cw * (size_t)chh,
+                                                      sizeof(uint32_t));
+                            if (cwin) SDL_RaiseWindow(win);  /* keep focus */
+                        }
+                        if (ctex && cpix) {
+                            for (int i = 0; i < cw * chh; i++)
+                                cpix[i] = 0xFF000000u
+                                        | ((uint32_t)rgb[i * 3 + 0] << 16)
+                                        | ((uint32_t)rgb[i * 3 + 1] << 8)
+                                        |  (uint32_t)rgb[i * 3 + 2];
+                            SDL_UpdateTexture(ctex, NULL, cpix,
+                                              cw * (int)sizeof(uint32_t));
+                            SDL_RenderClear(cren);
+                            SDL_RenderCopy(cren, ctex, NULL, NULL);
+                            SDL_RenderPresent(cren);
+                        }
+                    }
+                }
+            }
+
             SDL_RenderPresent(ren);
 
             char title[176];

@@ -78,6 +78,13 @@
   .lamp.net.on i { background: #60b0f0; color: #60b0f0; }
   #speed { color: #7f8892; font-size: 12px; font-variant-numeric: tabular-nums; }
   #frame.drop { outline: 3px dashed #6db3f2; outline-offset: 3px; }
+  #colorframe { margin-top: 12px; border: 1px solid #000; background: #000;
+                line-height: 0; }
+  #colorframe .colorlabel {
+    background: #23272e; color: #9ecbff; font-size: 12px; line-height: 1.6;
+    padding: 0 8px; letter-spacing: .04em;
+  }
+  #colorcanvas { image-rendering: pixelated; display: block; }
   /* Keyboard/mouse reference: folded away by default so it does not bury the
      one line a first-time visitor needs ("click the display, type a name"). */
   details.keys { margin: 10px 0; }
@@ -179,6 +186,17 @@
   <div id="frame">
     <canvas id="canvas" width="808" height="606" tabindex="-1"
             oncontextmenu="event.preventDefault()"></canvas>
+  </div>
+  <!-- The COLOUR screen is a second display, not a mode of the first: on a
+       Dorado the b/w monitor is DispY at 1024x808 and one bit per pixel,
+       while colour is a separate board (DispM) driving its own 640x480 or
+       1024x768 monitor. Cedar treats it as a second screen too -- its
+       `ColorDisplay left | right` command tells Viewers which side of the b/w
+       display it sits on. Hidden until the guest arms the ColorCSB chain, so
+       a machine with no colour software never shows an empty frame. -->
+  <div id="colorframe" style="display:none">
+    <div class="colorlabel">Colour display (DispM)</div>
+    <canvas id="colorcanvas" width="640" height="480"></canvas>
   </div>
   <div id="status">Loading emulator&hellip;</div>
 
@@ -781,6 +799,32 @@
     document.getElementById(id).classList.toggle('on', !!on);
   }
 
+  // Repaint the colour screen. Walking the ColorCSB chain reads guest memory
+  // per pixel, so this is far too costly to do every animation frame; the
+  // real board repaints at the field rate and a still picture does not change
+  // faster than the eye. Called on the panel's own 150 ms tick, and it hides
+  // the canvas whenever the guest has not armed the chain -- so a machine
+  // with no colour software never shows an empty black frame.
+  var colorImage = null;
+  function updateColorScreen() {
+    if (!Module || !Module.ccall) return;
+    var frame = document.getElementById('colorframe');
+    var ptr = 0;
+    try { ptr = Module.ccall('dorado_web_color_frame', 'number', [], []); }
+    catch (e) { return; }
+    if (!ptr) { if (frame) frame.style.display = 'none'; return; }
+    var w = Module.ccall('dorado_web_color_w', 'number', [], []);
+    var h = Module.ccall('dorado_web_color_h', 'number', [], []);
+    if (!w || !h) { if (frame) frame.style.display = 'none'; return; }
+    var cv = document.getElementById('colorcanvas');
+    if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; colorImage = null; }
+    var cx = cv.getContext('2d');
+    if (!colorImage) colorImage = cx.createImageData(w, h);
+    colorImage.data.set(Module.HEAPU8.subarray(ptr, ptr + w * h * 4));
+    cx.putImageData(colorImage, 0, 0);
+    if (frame) frame.style.display = '';
+  }
+
   function updatePanel() {
     if (!ready) return;
     var p;
@@ -951,6 +995,7 @@
       ['savebtn','loadbtn','bootbtn','pastebtn','addfilebtn']
         .forEach(function (id) { document.getElementById(id).disabled = false; });
       setInterval(updatePanel, 150);
+      setInterval(updateColorScreen, 150);
       installDropTarget();
       spinnerEl.textContent = '';
       setStatus('Booting NetExec... type a program name, or pick one above.', 1);
