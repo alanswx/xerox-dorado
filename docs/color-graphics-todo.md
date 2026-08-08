@@ -325,6 +325,49 @@ and trace what it writes with `DORADO_DDC_TIOA=1`. That gives a real guest
 driving the real registers, and turns everything below from
 "implement and hope" into "implement against a trace".
 
+## COLOUR NEEDS A COLD BOOT -- no checkpoint we ship can ever show it
+
+Measured 2026-08-08 with the board installed (`DORADO_DISPM_COLOR=1`), the
+full ColorDisplay install and `ColorDisplay on`, against the saved desktop:
+
+```
+[dispm] board=installed type=standard 640x480  presence reads: 360B=0 361B=0
+[dispm] RAM writes: mixer=0 bmap=0 cmap=0
+[dispm] the guest never asked whether a board is present
+```
+
+**Zero presence reads**, and that is diagnostic rather than a failure. The
+detection lives in `ColorDisplayHeadDorado`'s **module initialization body** --
+the fragment that ends the file, right before `END.` -- so it runs once, when
+the configuration is STARTed at **boot**. Our desktop checkpoint was baked on
+2026-07-15, years of emulator-time before DispM existed here, and it latched
+`displayType _ none` then. Nothing typed into a restored world can undo that:
+`ColorDisplay on` asks a head that has already decided there is no board.
+
+This also settles a caution from the previous round. The earlier probe's
+`ColorDisplay ?` answered `off, 8 bpp, left, 640x480, Dither`, and 640x480
+looked like it might be detection reporting `standard`. It was not -- it is
+the **profile default** (`ColorDisplay.Type`), exactly as suspected, because
+detection never ran at all.
+
+**Consequences, and they shape the rest of this work:**
+
+1. **Every colour experiment must COLD BOOT** with the board installed. That
+   is cheap for the presence test -- the head starts long before the login
+   prompt, so a boot to login is enough to see `360B`/`361B` read.
+2. **A colour desktop needs its own bake.** The shipped checkpoints are
+   monochrome machines and always will be; a colour Cedar means re-running
+   the desktop bake with `DORADO_DISPM_COLOR=1`. Heed
+   `docs/sil-schematics-handoff.md` §5.2 and memory
+   `cedar-desktop-bake-destroys-checkpoint`: the bake overwrites in place and
+   exits 0 having snapshotted a LOGIN SCREEN if the timed login misses. Back
+   up first, bake to scratch, check the pixel count, then install.
+3. **This is the same trap as the counters, one level up.** There it was
+   snapshotted *state* being read as live; here it is a snapshotted *decision*.
+   Anything a guest determines once at boot -- device presence, configuration,
+   sizing -- is frozen into every checkpoint taken afterwards, and no amount
+   of driving the restored machine will re-ask the question.
+
 ## CORRECTION: the step-0 numbers for CEDAR were the CHECKPOINT's, not the run's
 
 Recorded because it is the third instrument failure on this one question and
