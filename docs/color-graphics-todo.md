@@ -419,6 +419,37 @@ the Hardware Manual (doc p.110) say.
 Steps 1 and 2 need no emulator changes at all. **Do them first**: they turn
 the whole of section 1 below from specification into transcription.
 
+## And GARGOYLE 6.1 is already in the served tree, with a ColorTool
+
+The illustrator in the Cedar 13 screenshot has a 6.1 ancestor, and it was
+mirrored here at some earlier point: `chm/cedar/stp-root/CedarChest6.1/
+Gargoyle/`, **253 files**, with `Gargoyle.bcd` and `Gargoyle.load`.
+
+`Gargoyle.load` is signed *Pier, October 31, 1986* and *Bier, January 14,
+1987* -- Eric Bier, whose toolglass paper is the document open in that
+screenshot -- and it ends:
+
+```
+Install PopUpSelection
+Install BiScrollersButtonned
+Install SlackProcess
+Run InterpressPackage.bcd CubicSplinePackage.bcd TiogaButtonsImpl.bcd
+    NamedColorsImpl.bcd ImagerMemoryImpl.bcd ImagerArtworkImpl.bcd
+    GListImpl.bcd MathPackage.bcd Draw2dPackage.bcd
+Run Gargoyle.bcd
+-- Unbound imports are OK. Don't worry.
+Run BasicCombiner.bcd ColorTool.bcd
+```
+
+**`NamedColorsImpl` and `ColorTool`.** So the demo that would look most like
+what Tim remembers is not Griffin but **Gargoyle with its ColorTool**, on a
+colour display enabled by `ColorDisplay on` -- which is precisely the pairing
+the Cedar 13 screenshot shows, a decade later and on X11.
+
+Griffin stays useful as the simpler target (fewer packages, and its
+`GriffinColor` palette is 30 fixed HSV entries, easy to recognise in a
+trace); Gargoyle is the one to demo.
+
 ## What Cedar 13 shows, and why it is NOT our case (2026-08-08)
 
 A screenshot arrived of **Cedar 13.0.79 from sylvester.parc.xerox.com**,
