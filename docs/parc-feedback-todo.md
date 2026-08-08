@@ -1474,10 +1474,21 @@ Two implementation notes worth keeping:
   the snapshot; the field stays only because removing a member would change
   the snapshot ABI.
 
-  **Still unverified: whether the BaseBoard firmware ever lights it in our
-  runs.** It reads 0 through reset and the first 5,001 cycles in
-  `test_baseboard`. If it stays dark, that is a finding about the BaseBoard
-  model -- the 6502 ROM's lamp handling -- and not about the panel.
+  **Resolved: it BLINKS, and then it freezes.** The ROM drives it from two
+  three-instruction routines -- `F37D LDA #$80 / ORA $0482 / STA $0482` sets
+  bit 7 (lamp off) and `F38C LDA #$7F / AND $0482 / STA $0482` clears it
+  (lamp on) -- reached from a test at `F372`, with `F3DC` initialising the
+  port to latch=0x80 DDR=0x80, i.e. an output driven high, so it legitimately
+  starts OFF. `DORADO_BB_LAMP_TRACE` over a Galaxian boot shows a heartbeat:
+  **187 transitions, roughly every 313,000 BaseBoard cycles**, the last at
+  **145 M cycles of a 900 M run**. It stops there because the BaseBoard 6502
+  is deliberately suppressed once the machine is up (the 19.7% speedup), so
+  the lamp freezes at whatever phase it was in.
+
+  Faithful -- and useless as "is it alive?", since it is dark for most of a
+  long session. So **RUN** was added beside it, following the microinstruction
+  counter, which only advances when the machine is executing. PWR is the real
+  LED; RUN is the question people actually ask a power light.
 - The window now needs `SDL_RenderSetLogicalSize`, and it must be set at
   STARTUP rather than only when a world's raster differs from the initial
   guess. Without it a HiDPI backing store is twice the window's point size,

@@ -109,7 +109,7 @@ static int        ui_ready;
  * while the decay runs, so a burst of disk sectors reads as a flicker rather
  * than a value that is already stale by the time it is drawn. */
 typedef struct { uint64_t last; int decay; } ui_lamp;
-static ui_lamp lamp_disk, lamp_net, lamp_video;
+static ui_lamp lamp_disk, lamp_net, lamp_run;
 
 static void lamp_step(ui_lamp *l, uint64_t now)
 {
@@ -190,7 +190,7 @@ dorado_ui_action dorado_ui_frame(const dorado_machine_panel *p,
 
     lamp_step(&lamp_disk,  p->disk_activity);
     lamp_step(&lamp_net,   p->net_activity);
-    lamp_step(&lamp_video, p->display_frames);
+    lamp_step(&lamp_run,   p->uinstructions);
 
     mu_begin(&ui_ctx);
     if (mu_begin_window_ex(&ui_ctx, "panel",
@@ -198,8 +198,8 @@ dorado_ui_action dorado_ui_frame(const dorado_machine_panel *p,
                            MU_OPT_NOTITLE | MU_OPT_NORESIZE |
                            MU_OPT_NOCLOSE | MU_OPT_NOSCROLL)) {
         /* One row: buttons, then lamps, then the honest speed readout. */
-        static const int widths[] = { 60, 52, 56, 52, 72, 46, 46, 46, -1 };
-        mu_layout_row(&ui_ctx, 9, widths, 0);
+        static const int widths[] = { 60, 52, 56, 52, 72, 46, 46, 46, 46, -1 };
+        mu_layout_row(&ui_ctx, 10, widths, 0);
 
         if (mu_button(&ui_ctx, st->paused ? "Run" : "Pause"))
             action = DORADO_UI_PAUSE;
@@ -208,8 +208,21 @@ dorado_ui_action dorado_ui_frame(const dorado_machine_panel *p,
         if (mu_button(&ui_ctx, "Save"))   action = DORADO_UI_SAVE;
         if (mu_button(&ui_ctx, "Add file")) action = DORADO_UI_ADDFILE;
 
-        /* Lamps. The green one is the machine's real status LED, driven from
-         * the BaseBoard's MiscByte; the other three are activity flickers. */
+        /* Lamps.
+         *
+         * PWR is the machine's REAL status LED -- the BaseBoard's MiscByte
+         * bit 7, driven by the 6502 from two three-instruction routines in
+         * the ROM (F37D sets it, F38C clears it). Traced over a boot it
+         * BLINKS, about every 313,000 BaseBoard cycles, and then stops: the
+         * BaseBoard is deliberately suppressed once the machine is up (a
+         * 19.7% speedup), so the lamp freezes at whatever phase it was in --
+         * measured, the last of 187 transitions is at 145 M cycles of a
+         * 900 M run.
+         *
+         * That is faithful but useless as "is it alive?", so RUN answers
+         * that separately: it follows the microinstruction counter, which
+         * only advances when the machine is actually executing. */
+        dorado_ui_lamp(&ui_ctx, "RUN", lamp_run.decay > 0, 0x40, 0xE0, 0x50);
         dorado_ui_lamp(&ui_ctx, "PWR", p->lamp_on, 0x40, 0xE0, 0x50);
         dorado_ui_lamp(&ui_ctx, "DSK", lamp_disk.decay > 0, 0xF0, 0xB0, 0x40);
         dorado_ui_lamp(&ui_ctx, "NET", lamp_net.decay > 0, 0x60, 0xB0, 0xF0);

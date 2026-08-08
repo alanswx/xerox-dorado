@@ -231,6 +231,9 @@ void baseboard_dump(const dorado_baseboard *bb, char *buf, size_t buflen);
  * an active-low output. Derived, so it cannot go stale. */
 int baseboard_lamp_on(const dorado_baseboard *bb);
 
+/* DORADO_BB_LAMP_TRACE: log every change of the lamp. */
+void baseboard_lamp_poll(dorado_baseboard *bb);
+
 /* Read 6502 register state. (fake6502 keeps these as file-scope static
  * variables; expose them through baseboard.c so other TUs can inspect.) */
 uint16_t baseboard_pc(const dorado_baseboard *bb);

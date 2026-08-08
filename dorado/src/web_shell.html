@@ -72,6 +72,7 @@
             background: #2a2f36; display: inline-block;
             transition: background .12s linear; }
   .lamp.on i { box-shadow: 0 0 6px currentColor; }
+  .lamp.run.on i { background: #40e050; color: #40e050; }
   .lamp.pwr.on i { background: #40e050; color: #40e050; }
   .lamp.dsk.on i { background: #f0b040; color: #f0b040; }
   .lamp.net.on i { background: #60b0f0; color: #60b0f0; }
@@ -149,6 +150,7 @@
             title="Serve a file to the guest (or just drop it on the display)">Add file</button>
     <input type="file" id="addfile" style="display:none" onchange="addFile(this)">
     <span class="lamps">
+      <span class="lamp run" id="lamp-run"><i></i>RUN</span>
       <span class="lamp pwr" id="lamp-pwr"><i></i>PWR</span>
       <span class="lamp dsk" id="lamp-dsk"><i></i>DSK</span>
       <span class="lamp net" id="lamp-net"><i></i>NET</span>
@@ -692,7 +694,8 @@
   // The activity fields are free-running COUNTERS: a lamp lights when a count
   // MOVED since the last sample, because "is the disk busy" has no honest
   // answer at frame rate.
-  var panelPrev = {disk: 0, net: 0}, panelDecay = {disk: 0, net: 0};
+  var panelPrev = {disk: 0, net: 0, run: 0},
+      panelDecay = {disk: 0, net: 0, run: 0};
   var panelUinstr = 0, panelMs = 0;
 
   function lamp(id, on) {
@@ -710,6 +713,15 @@
     if (p.net !== panelPrev.net) { panelPrev.net = p.net; panelDecay.net = 6; }
     else if (panelDecay.net) panelDecay.net--;
 
+    if (p.uinstr !== panelPrev.run) { panelPrev.run = p.uinstr; panelDecay.run = 6; }
+    else if (panelDecay.run) panelDecay.run--;
+
+    // RUN follows the microinstruction counter, which only advances when the
+    // machine is executing. PWR is the BaseBoard's REAL status LED (MiscByte
+    // bit 7): it blinks through boot and then freezes, because the BaseBoard
+    // 6502 is deliberately suppressed once the machine is up. Faithful, but
+    // no answer to "is it alive?" -- hence both.
+    lamp('lamp-run', panelDecay.run > 0);
     lamp('lamp-pwr', p.lamp);
     lamp('lamp-dsk', panelDecay.disk > 0);
     lamp('lamp-net', panelDecay.net > 0);

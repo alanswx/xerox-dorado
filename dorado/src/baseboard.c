@@ -10,6 +10,7 @@
  */
 
 #include "baseboard.h"
+#include "trace.h"
 #include "mb.h"
 
 #include <stdio.h>
@@ -195,6 +196,28 @@ int baseboard_lamp_on(const dorado_baseboard *bb)
     if (!bb) return 0;
     const riot_chip *r = &bb->riot[1];
     return (r->pb_ddr & 0x80) && !(r->pb_latch & 0x80);
+}
+
+/* DORADO_BB_LAMP_TRACE: report every change of the status LED, with the
+ * cycle. The ROM drives it from two three-instruction routines --
+ *
+ *   F37D  LDA #$80 / ORA $0482 / STA $0482   set bit 7   -> lamp OFF
+ *   F38C  LDA #$7F / AND $0482 / STA $0482   clear bit 7 -> lamp ON
+ *
+ * -- reached from a test at F372 (`BMI $F38C`), and initialised at F3DC to
+ * latch=0x80, DDR=0x80: an output, driven high, so the lamp starts OFF. That
+ * is why it reads 0 at reset and through early boot; it is correct, not a
+ * dead indicator. */
+void baseboard_lamp_poll(dorado_baseboard *bb)
+{
+    if (!bb || !dorado_trace_flag("DORADO_BB_LAMP_TRACE")) return;
+    static int last = -1;
+    int now = baseboard_lamp_on(bb);
+    if (now != last) {
+        last = now;
+        fprintf(stderr, "[bb-lamp] %s at cyc=%llu\n", now ? "ON" : "off",
+                (unsigned long long)bb->cycles);
+    }
 }
 
 /* Which RIOT chip serves a given address? Returns NULL if none. */
@@ -600,6 +623,7 @@ uint32_t baseboard_run(dorado_baseboard *bb, uint32_t cycles)
         if (t == 0) break;
         total += t;
     }
+    baseboard_lamp_poll(bb);
     return total;
 }
 
