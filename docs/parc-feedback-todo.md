@@ -1365,6 +1365,94 @@ they are `.sil` files or Dorado listings, they may want to go into the
 archive and the served tree rather than onto a guest volume at all — and
 that overlaps **F.2** and **G** rather than this item.
 
+## M. Tim's book, and what *The Structure of Cedar* says about doing it
+
+Read 2026-08-08: Swinehart, Zellweger and Hagmann, **"The Structure of
+Cedar"**, ACM SIGPLAN Symposium on Language Issues in Programming
+Environments, 1985, pp. 230-244
+(`https://worrydream.com/refs/Swinehart_1985_-_The_Structure_of_Cedar.pdf`).
+Scanned images, so text extraction fails -- read the pages visually.
+
+Four things in it bear directly on hosting Tim's 1980s railroad book.
+
+### 1. Editing a fetched file is not symmetric with fetching it
+
+p.234, on FS: *"Our current file servers have limitations that prevent
+reading and writing of remote files from being treated entirely
+symmetrically. **FS will not accept a request to open a remotely-named file
+for writing.** Therefore the file must first be written locally, entering its
+name in the local directory. A special FS copy routine may then be invoked to
+create a new remote file and replace the local directory reference with an
+attachment to the remote file."*
+
+This is the shape of the whole problem, stated by the authors. FS keeps **two
+logical directories**: the *local file name directory* and the *remote file
+cache directory*, and *"read-only copies of remote files are retrieved and
+cached as needed on the local disk"*. So everything our STP server serves
+arrives as a **read-only cached remote file**. Tim cannot edit those in
+place, and no amount of work on the server changes that -- it is Cedar's own
+rule, not a gap in our emulation.
+
+**Consequence for H:** the upload path for editable documents must land files
+in the **local** name directory on the volume, not only in the served tree.
+The served tree is right for programs and read-only data (that is what
+Bringover is for); a manuscript being edited is neither. Note this cuts
+against injection too -- rusty-backup writing onto a mounted volume crashes
+Cedar's live FS (memory `cedar-font-install-attach`), so it has to go through
+Cedar's own local-write path.
+
+### 2. A DF file is the period-correct container for a book
+
+p.238: *"DF files are also suitable for describing versions of any item
+consisting of a collection of files, **such as the sections and figures of a
+paper**."* The DF Package can *"store changed versions of the files on remote
+file servers and update the DF file to refer to the new files"* -- the exact
+round trip Tim needs, and the mechanism Xerox used for documents, not just
+code. So: one DF for the book, Bringover to fetch, edit locally, store back.
+
+Also explains a cost we already measured the hard way: *"a DF file may
+specify files to be **imported** from other DF files. These files, while not
+part of the package, are required by it"* -- the import closure that made
+Interpress a 15-billion-cycle Bringover.
+
+### 3. Tioga will not lay out his pages -- TSetter does
+
+p.237: *"Tioga is the tree-structured text editor... **Nodes**, corresponding
+approximately to paragraphs, and their text content are decorated with
+user-specified **style and font** information controlling their displayed and
+printed appearance. **Tioga is a galley editor; it does not provide automatic
+support for page layout.**"*
+
+Page layout is **TSetter**, which Figure 1 places at the Applications level
+as "document formatter". So the book workflow is Tioga for content, TSetter
+for pages -- and a book demo that stops at Tioga is only half of it. Check
+whether TSetter exists for 6.1 before promising output (816 cross-reference
+hits, unexamined).
+
+### 4. Rollback is not a nicety -- it is how Cedar is restarted
+
+p.235: *"It takes several minutes longer to initialize a Cedar system 'from
+scratch' than to roll back... **The Rollback has become the conventional way
+to restart Cedar.**"* And p.243: recovering from a bad Applications-level
+module is *"one need only perform a Rollback operation... (one minute)"*
+against *"five minutes to build and boot on a Dorado"* for a Nucleus change.
+
+**This raises B1.** The checkpoint/rollback crash is not a Tier 4 curiosity;
+it breaks the normal way a Cedar user recovers from anything. Anyone editing
+a long document will reach for it.
+
+### Also confirmed in passing
+
+The Dorado, p.233: *"16-bit words, a cached virtual memory with a large
+virtual address space (24 bits, word-addressed), and up to 32 megabytes of
+physical storage (typically two to eight megabytes)."* And the scale of what
+we are serving, p.238: Cedar 6.0 sources are *"more than 17 million bytes...
+over 1500 program source files, more than 400,000 lines of source code,
+approximately 150 DF files, and over 100 separate configurations."*
+
+**Colour**: the paper answers colour step 1 outright -- Griffin. Recorded in
+`docs/color-graphics-todo.md`.
+
 ## I. PACMAN: SOLVED — a 1987 bug in PACMAN, not in the emulator
 
 **It is `(T NIL)` at the end of a `SELECTQ`.** `MOVEPACMAN` ends its dispatch

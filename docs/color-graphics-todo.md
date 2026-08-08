@@ -265,6 +265,66 @@ therefore cannot be validated against a real guest until there is colour
 software to run -- which makes "find or build a guest that drives colour"
 the true step 1, ahead of everything below.
 
+## [x] STEP 1 ANSWERED 2026-08-08 -- the colour application is GRIFFIN
+
+Step 0 established that no world we boot programs the colour RAMs, which
+left "find a guest that drives colour" as the real blocker. Swinehart,
+Zellweger and Hagmann, *The Structure of Cedar* (ACM SIGPLAN 1985,
+`https://worrydream.com/refs/Swinehart_1985_-_The_Structure_of_Cedar.pdf`)
+names it, and confirms the hardware three separate ways.
+
+**The hardware, from the people who built the system:**
+
+- p.233, on the Dorado: "Input/output devices include a large (1024 x 808
+  pixels) high-resolution bitmapped black-and-white display, a keyboard, a
+  mouse pointing device, and an Ethernet interface. **A color display can be
+  added.**"
+- p.235, on Terminal: "There may be several instances of Terminal, each with
+  its own full-screen bitmap and **optional color frame display memory**."
+- p.236, on Imager: "Programs can render images in a device-independent
+  fashion **on color or black and white display devices**, or on a variety of
+  laser printers."
+
+So colour is an option on a second frame buffer, reached through Imager --
+which matches the netlist exactly (DispM's three DACs, sheets 12-31) and
+matches the microcode (`DisplayConfig[0]` selecting the board).
+
+**The application, p.238:** "Cedar applications in the area of computer
+graphics include a program for producing **full-page color illustrations
+(*Griffin*)**, a system for manipulating three-dimensional synthesized
+graphical objects (*SolidViews*), programs for processing scanned images, and
+programs for driving experimental printers." Figure 1 places **Griffin
+(2-dimensional illustrator)** at the Applications level.
+
+**And Griffin is in the archive, in the exact form we can already install.**
+`chm/cross-reference.html` has 103 entries under `[Cyan]<CedarChest6.1>
+CedarGriffin>`, including **`Griffin.bcd!5`**, `Griffin.config!1` and
+`CompileDefs.cm!1` -- a compiled Cedar 6.1 binary, in a CedarChest package.
+`tools/fetch_cedarchest_app.py` already mirrors CedarChest6.1 packages by
+name, and the running desktop already installs them the period way:
+
+```
+Bringover -p [Cedar]<CedarChest6.1>Top>Griffin.df
+Run Griffin
+```
+
+which is exactly how ChessHack got in (see the 2026-07-16 and 2026-07-21
+entries in the top-level `CLAUDE.md`).
+
+**Also worth knowing about, older and probably not directly usable:**
+`[Indigo]<Griffin>colordisplaytest.dm!1_` is a *colour display test* -- but
+it is dated **14-Nov-1980** and is Mesa 6-era Bravo/Mesa source, nineteen
+months before Cedar existed in the form we run. `[indigo]<Griffin>color>` has
+1982 sources. Treat these as documentation of what the colour hardware was
+driven with, not as software to boot -- the same version wall that killed
+`OthelloDorado.boot`. `CedarChest6.1>GriffinToIP` (Griffin to Interpress) is
+the 6.1-era companion.
+
+**So the order changed.** Fetch CedarGriffin, install it into the desktop,
+and trace what it writes with `DORADO_DDC_TIOA=1`. That gives a real guest
+driving the real registers, and turns everything below from
+"implement and hope" into "implement against a trace".
+
 ## [ ] 1. DDC RAM loads (Mixer / BMap / CMap)
 
 Implement the §1.4 protocol at the `display.c` TODO. Store into the
