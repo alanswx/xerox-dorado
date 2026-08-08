@@ -325,6 +325,38 @@ and trace what it writes with `DORADO_DDC_TIOA=1`. That gives a real guest
 driving the real registers, and turns everything below from
 "implement and hope" into "implement against a trace".
 
+## What Cedar 13 shows, and why it is NOT our case (2026-08-08)
+
+A screenshot arrived of **Cedar 13.0.79 from sylvester.parc.xerox.com**,
+with obvious colour on screen: Gargoyle's palette of swatches and a purple
+triangle, beside a Tioga viewer holding Eric Bier's toolglass/magic-lens
+SIGGRAPH '93 paper.
+
+That is **PCedar** -- Portable Cedar -- and the giveaways are in the picture:
+the title bar says `X11Viewers`, and the CommandTool is running
+`/usr/ccs/bin/ld` over `/project/cedar13.0/versions/gargoyle/sunos$/`. It is
+Cedar compiled for **SunOS, displaying through X11**, roughly a decade after
+the machine we emulate.
+
+**Why the difference matters here.** On PCedar the whole screen is a colour
+frame buffer because X11 gives it one; colour is not a separate device and
+there is no DispM. On a **Dorado**, the main screen is DispY -- 1024x808,
+**one bit per pixel** -- and colour is a physically separate board driving a
+second monitor at 640x480 or 1024x768. That is not an emulator limitation; it
+is what the hardware was. So a colour Cedar 6.1 desktop is not a thing that
+existed: the desktop was monochrome and colour was where the illustrations
+went.
+
+Which the screenshot itself supports. Even in Cedar 13, the text editor, the
+CommandTool and the icons are black on white; the colour is in **Gargoyle**,
+the illustrator -- the successor to Griffin, and the same role Griffin plays
+in 6.1. So the target is right even though the display architecture differs:
+**colour on a Dorado means an illustration program on a second monitor.**
+
+Worth flagging for anyone scoping from Tim's memory of the system: if his
+book was produced on PCedar, he would remember a colour screen that a Dorado
+never had. Ask which machine before promising a match.
+
 ## [x] THE DRIVER IS IN OUR SERVED TREE (2026-08-08) -- colour is now SPECIFIED
 
 Fetching CedarGriffin led somewhere better than Griffin. Chasing what
