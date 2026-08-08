@@ -39,6 +39,7 @@
 #include "typetext.h"
 #include "trace.h"
 #include "io.h"
+#include "dispm.h"
 
 #include <stdint.h>
 #include <signal.h>
@@ -938,6 +939,18 @@ int main(int argc, char **argv)
         dorado_display_dump_tioa_use(disp);
     if (dorado_trace_flag("DORADO_IO_CENSUS"))
         dorado_io_dump_output_census();
+    if (dorado_dispm_installed() != DORADO_DISPM_NONE) {
+        /* Paint the colour board from the ColorCSB chain and write it beside
+         * the monochrome snapshot. A second monitor is a second image: the
+         * Dorado's colour display is a separate screen (ColorDisplay left |
+         * right places viewers on one side or the other), not an overlay. */
+        int px = dorado_dispm_render(dorado_machine_read_visible_word, m);
+        char cpath[1024];
+        snprintf(cpath, sizeof cpath, "%s.color.ppm", out);
+        if (px > 0 && dorado_dispm_snapshot_ppm(cpath) == 0)
+            printf("dorado: DispM colour: %d px; wrote %s\n", px, cpath);
+        dorado_dispm_dump();
+    }
     dorado_display_vblank(disp);
     if (dorado_display_snapshot_pgm(disp, out) == 0) {
         printf("dorado: %d display-list pixels; wrote %s\n", pixels, out);

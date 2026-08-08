@@ -24,6 +24,7 @@
 
 #include "baseboard.h"
 #include "cpu.h"
+#include "dispm.h"
 #include "disk.h"
 #include "ethernet.h"
 #include "fastio.h"
@@ -2741,6 +2742,18 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
     }
 
     dorado_display_attach_to_io(&m->display, &m->io);
+    /* DispM, the colour board, on the EMULATOR task. Installing it is opt-in:
+     * with no board the presence registers read ZERO and Cedar's head leaves
+     * displayType at `none`, which is a Dorado with only a 7-wire terminal --
+     * the configuration every checkpoint we ship was baked as. */
+    dorado_dispm_reset();
+    {
+        const char *v = getenv("DORADO_DISPM_COLOR");
+        if (v && *v && *v != '0')
+            dorado_dispm_install(v[0] == 'h' ? DORADO_DISPM_HIGHRES
+                                             : DORADO_DISPM_STANDARD);
+    }
+    dorado_dispm_attach_to_io(&m->io);
     dorado_disk_controller_attach_to_io(&m->disk, &m->io);
     dorado_ethernet_attach_to_io(&m->ethernet, &m->io);
     dorado_fastio_router_init(&m->fastio, &m->display, &m->disk);
@@ -4263,6 +4276,15 @@ void dorado_machine_set_key(dorado_machine *m, dorado_display_key key,
     machine_key_queue[machine_key_q_tail].key = (uint16_t)key;
     machine_key_queue[machine_key_q_tail].down = (uint8_t)(down ? 1 : 0);
     machine_key_q_tail = next;
+}
+
+/* Guest-memory word reader in the shape dorado_dispm_render wants, so that
+ * dispm.c needs no memory.h and stays a pure board model. */
+uint16_t dorado_machine_read_visible_word(void *ctx, uint32_t va)
+{
+    dorado_machine *m = (dorado_machine *)ctx;
+    if (!m) return 0;
+    return dorado_visible_word_at_va(&m->mem, va);
 }
 
 void dorado_machine_set_ftp_source(dorado_machine *m, const char *sysout,

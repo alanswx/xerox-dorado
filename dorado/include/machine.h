@@ -161,6 +161,10 @@ int dorado_machine_interactive(const dorado_machine *m);
 
 /* Reapply explicitly selected host-side FTP/STP sources after restoring a
  * snapshot.  These source paths are not part of the emulated machine state. */
+/* Read one guest virtual word. Signature chosen for dorado_dispm_render's
+ * callback so the colour board model needs no memory.h. */
+uint16_t dorado_machine_read_visible_word(void *ctx, uint32_t va);
+
 void dorado_machine_set_ftp_source(dorado_machine *m, const char *sysout,
                                    const char *root);
 
