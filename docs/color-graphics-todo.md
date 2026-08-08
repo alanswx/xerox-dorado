@@ -432,37 +432,59 @@ the board is the measurement as well as the feature.
 Both instruments now say all this in their own comments, so the next person
 reads the caveat next to the number rather than after it.
 
-## THERE IS NO CURSOR ON THE COLOUR SCREEN, and that is correct
+## RETRACTED: there IS a colour cursor, and it is a Terminal-level one
 
-Asked 2026-08-08 after the mouse was made to cross onto the second window and
-still showed nothing. Counting cursor references in the heads settles it:
+I concluded on 2026-08-08 that DispM has no cursor, from counting cursor
+references in the heads: `TerminalHeadDorado.mesa` 14, the colour head 0,
+`ColorDisplayFace.mesa` 0. **That was the wrong place to look**, and the
+challenge that overturned it was the obvious one: if a viewer can live on the
+colour screen, you must be able to get it back.
 
-| file | cursor references |
-|---|---|
-| `Cedar6.1/HeadsDorado/TerminalHeadDorado.mesa` (monochrome) | **14** |
-| `Cedar6.1/HeadsDorado/ColorDisplayHeadDorado.mesa` (colour) | **0** |
-| `Cedar6.1/HeadsCommon/ColorDisplayFace.mesa` (the interface) | **0** |
+`Cedar6.1/Terminal/Terminal.mesa` has a complete colour cursor interface:
 
-Cedar's colour head has no cursor concept, and the Face those heads export
-does not even name one -- no cursor, no position, no mouse. This is not a gap
-in our model; the hardware and its driver never had it.
+```
+hasColorDisplay: BOOL,
+GetColorCursorPosition: PROC [vt: Virtual] RETURNS [Position];
+SetColorCursorPosition: PROC [vt: Virtual, position: Position];
+ColorCursorBitmap: TYPE ~ TerminalDefs.Cursor;
+GetColorCursorPattern: PROC [vt: Virtual] RETURNS [pattern: ColorCursorBitmap];
+SetColorCursorPattern: PROC [vt: Virtual, pattern: ColorCursorBitmap];
+ColorCursorPresentation: TYPE ~ {onesAreWhite, onesAreBlack};
+```
 
-It matches what the machine was for. Tim: *"Because of the low resolution on
-the colour monitor, you needed a monochrome display to do anything useful."*
-The colour screen was a **soft proofing** surface driven by an antialiasing
-Imager context -- you looked at it, you did not point at it. The pointer lived
-on the mono screen, which is where the page layout was actually done.
+and `Cedar6.1/Inscript/Interminal*.mesa` carries the geometry and the tracking:
 
-**So the clamp widening in `dorado_machine_set_mouse` and the colour-window
-event routing in `dorado_sdl.c` were answering a question the hardware never
-asked.** They stay -- inert without a board, harmless with one, and already
-in place should a client ever composite a software cursor into the colour
-frame buffer -- but nothing is missing here and no work remains.
+```
+GetColorDisplaySide / SetColorDisplaySide  [Side]
+SetCursorPosition: PROC[posX, posY: INTEGER, enableTracking: BOOL _ TRUE];
+GetMousePosition / SetMousePosition
+```
 
-The mistake worth remembering: I inferred a requirement ("two screens,
-therefore the pointer must cross") from the shape of the thing rather than
-checking what the guest implements. Two greps of the driver would have
-answered it before any code was written.
+`ColorDisplayImpl.mesa` uses both -- it imports
+`Terminal.SetColorCursorPresentation` and flips the side with
+`Interminal.SetColorDisplaySide[left|right]`.
+
+**So the cursor is managed above the head, at the Terminal level, with its own
+POSITION and PATTERN separate from the monochrome cursor.** The head knowing
+nothing about it is expected: the head drives registers, Terminal owns the
+presentation.
+
+### What this means for us, and what is still unknown
+
+The important open question is **where the colour cursor is drawn**. If
+Terminal composites it into the colour frame buffer, our existing render would
+already show it and the reason it does not is that the guest never moves it --
+which points back at the coordinate mapping and `ColorDisplaySide`. If instead
+it is a pattern register the hardware overlays, we do not model it at all:
+`ColorDisplayDorado.mesa`'s MonitorControlBlock / ChannelControlBlock /
+ColorControlBlock have no cursor field, so it would have to arrive some other
+way.
+
+Read `Terminal/TerminalImpl` (or whatever implements SetColorCursorPosition)
+and find out which, before writing any more mouse code. And note the side
+matters here: `Interminal.GetColorDisplaySide` is the guest's own answer to
+the left/right question that `dorado_machine_set_mouse` currently guesses at
+by placing the colour screen on the right.
 
 ## PGM or PPM? Two screens, two files -- and why the mono path must NOT change
 
