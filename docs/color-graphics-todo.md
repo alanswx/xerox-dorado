@@ -325,6 +325,100 @@ and trace what it writes with `DORADO_DDC_TIOA=1`. That gives a real guest
 driving the real registers, and turns everything below from
 "implement and hope" into "implement against a trace".
 
+## THE WHOLE PATH IS NOW KNOWN, END TO END (2026-08-08)
+
+The last unknown -- "what makes Cedar believe a colour display exists" -- has
+a period answer, and it is a **user typing a command**.
+
+### The head is ALREADY in our booted system
+
+`Cedar6.1/HeadsDorado/HeadsDorado.config` lists it in `CONTROL`:
+
+```
+CONTROL ProcessorHeadDorado, TextBltImpl, TerminalHeadDorado,
+        ColorDisplayHeadDorado, DiskHeadDorado, DiskHeadSA4000,
+        EthernetHeadDorado, EthernetOneHeadDorado = ...
+```
+
+and `HeadsDorado.bootmesa` marks it `RESIDENT`. So `ColorDisplayHeadDorado`
+is compiled into the Dorado boot file and is running in our Cedar desktop
+right now. It simply sits at `displayType _ none` -- *"display type, 'none'
+if display not available"* -- until something calls `SetDisplayType`.
+
+### `ColorDisplay` is a CedarChest package, and it is fetched
+
+`[Cyan]<CedarChest6.1>Top>ColorDisplay.df!18`, mirrored into the served tree
+by `tools/fetch_cedarchest_app.py ColorDisplay.df!18`: `ColorDisplayImpl.bcd`
+(37 KB), the `ColorDisplay` client interface, `ColorDisplay.load` and
+`ColorDisplayDoc.tioga`. Written by Mik Lamming and Ken Pier, maintained by
+Tim Diebert; the doc is stamped **CEDAR 6.1**.
+
+`ColorDisplay.load` is four lines:
+
+```
+Run ImagerGrayImpl
+Run ImagerForkContextImpl
+Run ImagerMaskContextImpl
+Run ColorDisplayImpl
+```
+
+### And then the user just types it
+
+From `ColorDisplayDoc.tioga`, verbatim:
+
+| command | effect |
+|---|---|
+| `ColorDisplay` | toggle; on restores the state it had when last turned off |
+| `ColorDisplay on` / `off` | unconditional |
+| `ColorDisplay <n>` | on, with **n bits per point, n = {1,2,4,8,24}** |
+| `ColorDisplay +<m>` | on, with m bits per point on the **B channel**, m = {0,1,2} |
+| `ColorDisplay left` / `right` | colour display logically left/right of the b/w display |
+| `ColorDisplay default` | the mode described by the profile |
+| `ColorDisplay gray` / `dither` | 8bpp non-dithered / dithered |
+| `ColorDisplay ?` | report the mode |
+
+There is also **a `Color` button in the message window**: *"Left-click to turn
+the color display on and off. Middle-click to cause the color display to
+sleep for a while. Right-click for more options, and to see the current
+state."*
+
+And it is configurable from the machine profile -- the same mechanism our
+`DoradoWelcome` profile already uses:
+
+```
+ColorDisplay.Side:         [left/right]
+ColorDisplay.BitsPerPoint: [1,2,4,8,24]
+ColorDisplay.Type:         [1024x768, 640x480]
+ColorDisplay.Gray:         [TRUE/FALSE]
+ColorDisplay.BitsPerPointB: [0,1,2]
+```
+
+`ColorDisplay.Type` matches `SetDisplayType`'s two rasters exactly, which
+closes the loop from the profile down to the hardware.
+
+**"left" and "right" settle the two-monitor question for good.** The colour
+display is a second physical screen and Viewers places windows on one side or
+the other -- exactly as the netlist (DispY mono + DispM with three DACs) and
+the Hardware Manual (doc p.110) say.
+
+### So the remaining work is ours, and it is bounded
+
+1. `Bringover -p [Cedar]<CedarChest6.1>Top>ColorDisplay.df` then run
+   `ColorDisplay.load`, then type `ColorDisplay on` (or `ColorDisplay 8`).
+2. Trace it with `DORADO_DDC_TIOA=1`. Registers 361B/362B/365B should light
+   up as UNDECODED, which is the proof that a real guest is driving the real
+   colour hardware -- the thing that has never happened here.
+3. Implement, against that trace and the `MixerDatum`/`BCDatum` bit
+   positions: decode the three TIOAs, walk the `ColorCSB` chain at 177414B
+   the way `machine.c` already walks the mono DCB chain at 0420, render
+   `ATable` to RGB.
+4. Present it. A second monitor is a frontend question -- a second window, or
+   a side-by-side surface -- and `ColorDisplay left|right` says which side the
+   guest thinks it is on.
+
+Steps 1 and 2 need no emulator changes at all. **Do them first**: they turn
+the whole of section 1 below from specification into transcription.
+
 ## What Cedar 13 shows, and why it is NOT our case (2026-08-08)
 
 A screenshot arrived of **Cedar 13.0.79 from sylvester.parc.xerox.com**,
