@@ -702,9 +702,19 @@ int main(int argc, char **argv)
                         : e.button.button == SDL_BUTTON_RIGHT  ? DORADO_MOUSE_RIGHT
                         : 0;
                     if (e.button.button == SDL_BUTTON_LEFT) {
+                        /* Trackpad substitutes for the Dorado's other two
+                         * buttons. The modifier is GUI (Cmd/Super), NOT Ctrl:
+                         * Ctrl belongs to the guest -- Ctrl-W deletes a word
+                         * in the Lyric Exec, which is what `make verify-ctrl`
+                         * gates -- so a Ctrl+click would send Control AND
+                         * press Blue. Same modifier-versus-button conflict
+                         * Carl Hauser reported for middle-click paste.
+                         * Cmd/Ctrl+V and Cmd/Ctrl+Q below keep both, because
+                         * those are host commands that never reach the guest.
+                         * Keep in step with web_shell.html's emuBitFor(). */
                         SDL_Keymod mod = SDL_GetModState();
-                        if (mod & KMOD_ALT)               bit = DORADO_MOUSE_MIDDLE;
-                        else if (mod & (KMOD_GUI | KMOD_CTRL)) bit = DORADO_MOUSE_RIGHT;
+                        if (mod & KMOD_ALT)      bit = DORADO_MOUSE_MIDDLE;
+                        else if (mod & KMOD_GUI) bit = DORADO_MOUSE_RIGHT;
                     }
                     down_bit[pb] = bit;
                     mouse_buttons |= bit;

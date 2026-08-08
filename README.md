@@ -206,13 +206,20 @@ Yellow** — pop up menus, **right = Blue** — extend/adjust. Both frontends
 | Middle click | **Yellow** (menus) |
 | Right click | **Blue** (extend) |
 | **Option/Alt + left click** | **Yellow** (menus) |
-| **Cmd or Ctrl + left click** | **Blue** (extend) |
+| **Cmd + left click** | **Blue** (extend) |
 
 A real three-button mouse just works. On a laptop trackpad, hold the
 modifier *before* pressing: the button is decided at press time and held
 until release, so a modifier chord behaves like holding the real middle or
 right button (drag included). In the browser, right-click is delivered to
-the emulator and the page's context menu is suppressed over the display.
+the emulator and the page's context menu is suppressed over the whole
+display area.
+
+**The trackpad substitute is Cmd, not Ctrl.** Ctrl belongs to the guest (see
+above), so a Ctrl+click would send Control *and* press Blue -- the same
+modifier-versus-button conflict Carl Hauser reported for middle-click paste.
+Cmd is reserved for the browser everywhere, so it can carry the substitution
+without ambiguity.
 
 #### Keyboard map
 

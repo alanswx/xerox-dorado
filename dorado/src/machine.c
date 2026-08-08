@@ -184,6 +184,11 @@ struct dorado_machine {
  * one live machine at a time; dorado_machine_create resets it. */
 static struct { uint16_t key; uint8_t down; } machine_key_queue[512];
 static unsigned machine_key_q_head, machine_key_q_tail, machine_key_field_wait;
+/* Which field each key was last applied in, so pacing can be PER KEY rather
+ * than global. See dorado_machine_set_key for why that distinction matters.
+ * machine_key_field_no ticks once per sampled field. */
+static unsigned machine_key_field_no;
+static unsigned machine_key_last_field[DORADO_KEY_LAST];
 /* Earliest cycle the next buffered transition may be applied on the Mesa
  * path, which is paced by cycles rather than by field callbacks. */
 static uint64_t machine_key_next_cycle;
@@ -2294,6 +2299,7 @@ static void machine_cedar_io(dorado_machine *m, dorado_baseboard *bb,
      * applied at a field boundary and held long enough to be sampled below.
      * This is what makes fast typing lossless -- delivery no longer races the
      * field clock. */
+    machine_key_field_no++;
     if (machine_key_field_wait > 0) {
         machine_key_field_wait--;
     } else if (machine_key_q_head != machine_key_q_tail) {
@@ -2303,6 +2309,8 @@ static void machine_cedar_io(dorado_machine *m, dorado_baseboard *bb,
         uint8_t down = machine_key_queue[machine_key_q_head].down;
         machine_key_q_head = (machine_key_q_head + 1u) % cap;
         dorado_display_keyboard_set_key(disp, (dorado_display_key)key, down);
+        if (key < DORADO_KEY_LAST)
+            machine_key_last_field[key] = machine_key_field_no;
         machine_key_field_wait = KEY_FIELDS_PER_TRANSITION - 1u;
     }
 
@@ -2442,6 +2450,8 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
      * frontend destroys and recreates machines when switching worlds). */
     machine_key_q_head = machine_key_q_tail = machine_key_field_wait = 0;
     machine_key_next_cycle = 0;
+    machine_key_field_no = KEY_FIELDS_PER_TRANSITION;  /* first key is free */
+    memset(machine_key_last_field, 0, sizeof machine_key_last_field);
     dorado_trace_init();     /* before any per-step dorado_trace_flag() */
     memset(machine_disp_out_baseline, 0, sizeof machine_disp_out_baseline);
     machine_display_active_next_cycle = 0;
@@ -4204,8 +4214,44 @@ void dorado_machine_set_key(dorado_machine *m, dorado_display_key key,
         dorado_display_keyboard_set_key(&m->display, key, down ? 1 : 0);
         return;
     }
+    /* PACE PER KEY, NOT GLOBALLY.
+     *
+     * The guest samples the whole key matrix once per display field, so the
+     * only transition it can MISS is one that is undone before the next
+     * sample -- i.e. the SAME key going down and up inside one field. Two
+     * DIFFERENT keys changing in the same field is just a chord, which is
+     * what a real keyboard produces and what the sampler reads correctly.
+     *
+     * Pacing every transition globally (one per KEY_FIELDS_PER_TRANSITION
+     * fields, regardless of which key) was therefore over-conservative, and
+     * it cost two things:
+     *
+     *  - ORDER against the mouse. dorado_machine_set_mouse() writes straight
+     *    through, so a click OVERTAKES a still-queued Shift and the guest
+     *    sees an unshifted click followed by a Shift press. That is Carl
+     *    Hauser's report -- shift-right-click not committing the secondary
+     *    selection, "however pressing and releasing the shift key once more
+     *    does do the paste", because by the second gesture the queue has
+     *    drained. Same shape as the Interlisp menu bug: two writers of the
+     *    same input state on different schedules.
+     *  - SPEED. Every keystroke waited its turn behind every other one.
+     *
+     * So: apply immediately when this key has not been touched within the
+     * pacing window and nothing is already queued; otherwise queue, which
+     * preserves order for everything that follows. Shift+click now lands in
+     * order, and shifted TYPING still works -- Shift and the letter go down
+     * together in one field (correctly read as a chord), the letter's own UP
+     * is paced away from its DOWN, and Shift's release queues behind it. */
     unsigned cap = (unsigned)(sizeof machine_key_queue /
                               sizeof machine_key_queue[0]);
+    if (machine_key_q_head == machine_key_q_tail &&
+        (unsigned)key < DORADO_KEY_LAST &&
+        machine_key_field_no - machine_key_last_field[key]
+            >= KEY_FIELDS_PER_TRANSITION) {
+        machine_key_last_field[key] = machine_key_field_no;
+        dorado_display_keyboard_set_key(&m->display, key, down ? 1 : 0);
+        return;
+    }
     unsigned next = (machine_key_q_tail + 1u) % cap;
     if (next == machine_key_q_head) {
         /* Full (a huge paste burst): drain synchronously rather than drop.

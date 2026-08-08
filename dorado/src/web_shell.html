@@ -78,6 +78,23 @@
   .lamp.net.on i { background: #60b0f0; color: #60b0f0; }
   #speed { color: #7f8892; font-size: 12px; font-variant-numeric: tabular-nums; }
   #frame.drop { outline: 3px dashed #6db3f2; outline-offset: 3px; }
+  /* Keyboard/mouse reference: folded away by default so it does not bury the
+     one line a first-time visitor needs ("click the display, type a name"). */
+  details.keys { margin: 10px 0; }
+  details.keys > summary {
+    cursor: pointer; color: #9ecbff; font-size: 13px; width: fit-content;
+  }
+  details.keys table {
+    border-collapse: collapse; margin: 6px 0 2px; font-size: 13px;
+  }
+  details.keys td { padding: 3px 10px 3px 0; vertical-align: top; }
+  details.keys td.cmd { white-space: nowrap; width: 1%; }
+  details.keys p { margin: 10px 0 2px; }
+  details.keys .note { color: #7f8892; font-size: 12px; }
+  details.keys code.k {
+    background: #23272e; border: 1px solid #3a4049; border-radius: 4px;
+    padding: 1px 6px; color: #9ecbff; font-size: 12px;
+  }
 </style>
 </head>
 <body>
@@ -215,10 +232,72 @@
     Click the display to give it keyboard focus.
     In the <b>NetExec menu</b>, type a program name (e.g. <code>Galaxian</code>)
     and press <code>Return</code> to boot it; or pick one from the dropdown
-    above to boot it directly. <code>F1</code> pauses/resumes. The middle/right
-    mouse buttons map to the Alto's 3-button mouse.
+    above to boot it directly.
+
+    <details class="keys">
+      <summary>Keyboard and mouse &mdash; the full mapping</summary>
+
+      <p><b>The Dorado's mouse has three buttons and Cedar uses all of
+      them</b> (Xerox names in parentheses). A real three-button mouse just
+      works; on a trackpad, hold the modifier <i>before</i> pressing &mdash;
+      the button is decided at press time and held until release, so a chord
+      drags like the real button.</p>
+
+      <table>
+        <tr><td class="cmd"><code class="k">Left click</code></td>
+            <td><b>Red</b> &mdash; point and select</td></tr>
+        <tr><td class="cmd"><code class="k">Middle click</code></td>
+            <td><b>Yellow</b> &mdash; pop up menus</td></tr>
+        <tr><td class="cmd"><code class="k">Right click</code></td>
+            <td><b>Blue</b> &mdash; extend / adjust the selection</td></tr>
+        <tr><td class="cmd"><code class="k">Option</code>/<code class="k">Alt</code> + left</td>
+            <td><b>Yellow</b>, for a one-button trackpad</td></tr>
+        <tr><td class="cmd"><code class="k">Cmd</code> + left</td>
+            <td><b>Blue</b>, for a one-button trackpad</td></tr>
+      </table>
+
+      <p class="note"><b>Cmd, not Ctrl</b>, is the trackpad substitute:
+      <code class="k">Ctrl</code> belongs to the guest (below), so a
+      Ctrl+click would send Control <i>and</i> press a button. The page's own
+      context menu is suppressed over the display so right-click reaches the
+      emulator.</p>
+
+      <p><b>Control goes to the guest.</b> <code class="k">Ctrl-W</code>
+      (delete word), <code class="k">Ctrl-E</code> and
+      <code class="k">Ctrl-L</code> are how you drive an Interlisp Exec or a
+      Cedar viewer. The one exception is <code class="k">Ctrl-V</code>, which
+      the browser keeps so clipboard paste works; <code class="k">Cmd</code>
+      is left to the browser everywhere.</p>
+
+      <p><b>Keys the Dorado has and your keyboard does not.</b> The Dorado
+      presents an <b>Alto</b> keyboard &mdash; 61 keys, several with no modern
+      keytop:</p>
+
+      <table>
+        <tr><td class="cmd"><code class="k">`</code> (backquote)</td>
+            <td>the Alto's <b>left-arrow</b> <code class="k">&larr;</code>
+                &mdash; Cedar's assignment character</td></tr>
+        <tr><td class="cmd"><code class="k">F2</code> / <code class="k">F3</code> / <code class="k">F4</code></td>
+            <td>the three unmarked keys: <b>Look</b>, <b>Next</b>, <b>Swat</b>.
+                Interlisp reads all three as mouse-event modifiers.</td></tr>
+        <tr><td class="cmd"><code class="k">F6</code></td>
+            <td><b>LF</b> (line feed)</td></tr>
+        <tr><td class="cmd"><code class="k">Caps&nbsp;Lock</code></td>
+            <td>the Alto's <b>LOCK</b>, mirrored as a latch &mdash; your
+                host lock state <i>is</i> the guest's</td></tr>
+        <tr><td class="cmd"><code class="k">F1</code></td>
+            <td>pause / resume the emulator (not sent to the guest)</td></tr>
+      </table>
+
+      <p class="note">Everything else is where you expect it. The full 61-key
+      matrix, with bit positions, is in the project README &mdash; it was
+      audited against the Alto Hardware Manual Figure 6, ContrAlto, and
+      Cedar's own <code>TerminalDefs.mesa</code>.</p>
+    </details>
+
     <code>Cmd/Ctrl+V</code> pastes the clipboard as keystrokes &mdash; handy
-    for the long Cedar <code>Eval</code> lines.
+    for the long Cedar <code>Eval</code> lines, and the <b>Paste</b> button
+    above does the same thing without a keyboard chord.
     <br><br>
     Pick <b>Cedar 6.1</b> to boot the real Cedar/Mesa environment from a Pilot
     disk image instead of the Alto emulator. A saved checkpoint opens directly
@@ -537,7 +616,7 @@
         setStatus('Cedar 6.1 Viewers desktop restored. Click the CommandTool\'s '
                   + '% prompt line, then type a command from the list below '
                   + '(Cmd/Ctrl+V pastes; Option+click = middle/Yellow, '
-                  + 'Cmd/Ctrl+click = right/Blue mouse button).');
+                  + 'Cmd+click = right/Blue mouse button).');
       } catch (e) {
         console.error(e);
         setStatus('Could not restore the Cedar desktop: ' + e.message);
@@ -976,16 +1055,36 @@
     });
     // Three-button (Red/Yellow/Blue) mouse. A real 3-button mouse maps
     // directly; for one-button laptops/trackpads a modified LEFT click
-    // substitutes: Option/Alt+click = Yellow (middle), Cmd/Ctrl+click =
+    // substitutes: Option/Alt+click = Yellow (middle), Cmd+click =
     // Blue (right). The substitution is decided at mousedown and
     // remembered until that physical button's mouseup, so releasing the
     // modifier first still releases the same emulated button.
     var emuButtons = 0;              // Dorado bits: left=4 right=2 middle=1
     var downBit = {};                // physical JS button -> emulated bit
+    // Suppress the context menu for the whole DISPLAY AREA, not just the
+    // canvas element. The canvas carries oncontextmenu itself, but that is
+    // not enough: browsers raise contextmenu on mouseUP on some platforms, so
+    // a right-press that drifts off the canvas mid-gesture delivers the event
+    // to #frame instead, where nothing was listening -- which is Carl
+    // Hauser's "shift-right-click ... is doing that AND opening the browser
+    // right-click context menu". Scoped to #frame on purpose: right-clicking
+    // the guide text below still works normally, so the page's own text can
+    // be selected and copied.
+    document.addEventListener('contextmenu', function (e) {
+      var frame = document.getElementById('frame');
+      if (frame && frame.contains(e.target)) e.preventDefault();
+    });
     function emuBitFor(e) {
       if (e.button === 0) {          // left: apply modifier substitution
+        // Cmd (Super on Linux/Windows) is the substitution modifier, NOT
+        // Ctrl. Ctrl belongs to the guest now -- Ctrl-W, Ctrl-E and friends
+        // are how you drive an Interlisp Exec or a Cedar viewer -- so a
+        // Ctrl+click used to send Control to the guest AND press Blue, which
+        // is precisely the modifier-versus-button conflict Carl reported.
+        // Cmd is already reserved for the browser everywhere (sendKey returns
+        // early on metaKey), so it can carry this without ambiguity.
         if (e.altKey) return 1;                   // Yellow (middle)
-        if (e.metaKey || e.ctrlKey) return 2;     // Blue (right)
+        if (e.metaKey) return 2;                  // Blue (right)
         return 4;                                 // Red (left)
       }
       if (e.button === 1) return 1;  // middle
