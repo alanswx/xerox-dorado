@@ -1365,6 +1365,64 @@ they are `.sil` files or Dorado listings, they may want to go into the
 archive and the served tree rather than onto a guest volume at all — and
 that overlaps **F.2** and **G** rather than this item.
 
+## N. "Typing seems a bit slow" -- measured, and it is not the keyboard
+
+Reported 2026-08-07. Measured 2026-08-08, and the answer is the opposite of
+the obvious one: **the key path is FASTER than the real machine, not slower.**
+
+### The keyboard is not the problem
+
+`KEY_FIELDS_PER_TRANSITION` is 3 and `CEDAR_FIELD_INTERVAL_CYCLES` is
+277,778, so a key transition costs 3 fields. Converting honestly --
+`--cycles` counts BaseBoard 6502 cycles at **3.70 per microinstruction**, and
+a microinstruction is 60 ns:
+
+```
+277,778 bb.cycles / 3.70 = 75,075 uinstr x 60 ns = 4.505 ms per field
+3 fields = 13.5 ms per key transition
+```
+
+On a real Dorado a display field is **16.67 ms**, so a transition should cost
+**50 ms**. We are 3.7x faster than the hardware. Nothing about the key queue
+can be making typing feel slow.
+
+### But the display field fires 3.7x too often -- and that is a real bug
+
+`277778` is exactly `16,666,667 / 60`: **microinstructions** per field at
+60 Hz. It is compared against `bb->cycles` (`machine.c:2282`), which advances
+3.70x faster. So the Cedar vertical field fires at **222 Hz**, and the
+comment sitting next to it -- *"the body ... runs only ~60x/emulated-second"*
+-- is wrong by that factor. For a true 60 Hz the constant would be
+**1,027,778**.
+
+This is the same trap as memory `cycles-are-6502-cycles-not-microcycles`,
+which is recorded as making a correct clock LOOK 3.7x slow; here it makes an
+interval actually BE 3.7x short.
+
+**Why it would make the machine feel slow.** That field is not just the
+keyboard sampler -- it is where `machine_cedar_io` ORs `CSB.wakeupMask` into
+NWW, i.e. **the display vertical-field naked notify**, which drives
+SimpleTerminalImpl's watcher. Firing it 222 times an emulated second instead
+of 60 makes the guest run its field-interrupt path 3.7x more than the
+hardware ever did, spending emulated CPU on interrupt handling instead of on
+what the user is doing.
+
+**Not yet confirmed empirically** -- the arithmetic is solid and the 3.70
+ratio is measured in the Cedar world (`verify-cedar.log`: "3.70 per uinstr"),
+but the fix must be gated: slowing the field to 60 Hz slows the keyboard to
+the hardware's 50 ms/transition too, and changes the cadence every Cedar
+checkpoint was baked against. Count actual field fires per emulated second
+first, then change one constant and re-run `verify-cedar-desktop` and
+`verify-input`.
+
+### And check which BUILD is being used
+
+A plain `make` build measures **0.55x real hardware** on the Cedar gate
+(`verify-cedar.log`) and 0.61x on Galaxian. `make pgo` is **1.43x** -- 2.6x
+faster, and opt-in because it is a two-stage build. Anyone reporting "slow"
+from a `make`-built binary is seeing that before anything else. Worth
+confirming which binary was in use before changing any constant.
+
 ## M. Tim's book, and what *The Structure of Cedar* says about doing it
 
 Read 2026-08-08: Swinehart, Zellweger and Hagmann, **"The Structure of
