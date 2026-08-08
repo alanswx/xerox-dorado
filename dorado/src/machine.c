@@ -4241,34 +4241,27 @@ void dorado_machine_set_key(dorado_machine *m, dorado_display_key key,
         dorado_display_keyboard_set_key(&m->display, key, down ? 1 : 0);
         return;
     }
-    /* PACE PER KEY, NOT GLOBALLY.
+    /* PACE GLOBALLY: one transition per KEY_FIELDS_PER_TRANSITION fields,
+     * whichever key it belongs to.
      *
-     * The guest samples the whole key matrix once per display field, so the
-     * only transition it can MISS is one that is undone before the next
-     * sample -- i.e. the SAME key going down and up inside one field. Two
-     * DIFFERENT keys changing in the same field is just a chord, which is
-     * what a real keyboard produces and what the sampler reads correctly.
+     * A per-key variant was tried on 2026-08-08 and REVERTED the same day.
+     * The idea was sound -- the guest samples the whole matrix once per
+     * field, so only the SAME key going down and up inside one field can be
+     * lost, and pacing independent keys against each other is unnecessary --
+     * and it did fix the ordering bug it was written for (a mouse click
+     * overtaking a still-queued Shift, Carl Hauser's shift-right-click
+     * report). But it applied the first transition IMMEDIATELY, and that path
+     * runs OUTSIDE the field callback, so it could not reserve a field
+     * without also resetting the drain's countdown. Leaving it unreserved
+     * doubled the first character of every paste; reserving it starved the
+     * queue completely, because each new key reset the wait before the drain
+     * ever reached zero. Both were measured: "BBringover" and then no
+     * keystrokes at all.
      *
-     * Pacing every transition globally (one per KEY_FIELDS_PER_TRANSITION
-     * fields, regardless of which key) was therefore over-conservative, and
-     * it cost two things:
-     *
-     *  - ORDER against the mouse. dorado_machine_set_mouse() writes straight
-     *    through, so a click OVERTAKES a still-queued Shift and the guest
-     *    sees an unshifted click followed by a Shift press. That is Carl
-     *    Hauser's report -- shift-right-click not committing the secondary
-     *    selection, "however pressing and releasing the shift key once more
-     *    does do the paste", because by the second gesture the queue has
-     *    drained. Same shape as the Interlisp menu bug: two writers of the
-     *    same input state on different schedules.
-     *  - SPEED. Every keystroke waited its turn behind every other one.
-     *
-     * So: apply immediately when this key has not been touched within the
-     * pacing window and nothing is already queued; otherwise queue, which
-     * preserves order for everything that follows. Shift+click now lands in
-     * order, and shifted TYPING still works -- Shift and the letter go down
-     * together in one field (correctly read as a chord), the letter's own UP
-     * is paced away from its DOWN, and Shift's release queues behind it. */
+     * Typing is load-bearing for every recipe and every user, so it wins over
+     * one reported edge case. THE SHIFT-ORDERING BUG IS THEREFORE OPEN AGAIN
+     * -- see docs/parc-feedback-todo.md. A correct fix has to make the mouse
+     * respect the same queue rather than making keys skip it. */
     unsigned cap = (unsigned)(sizeof machine_key_queue /
                               sizeof machine_key_queue[0]);
     if (machine_key_q_head == machine_key_q_tail &&
