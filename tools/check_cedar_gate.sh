@@ -10,7 +10,10 @@
 #                      interpreter demand-fetches while evaluating, so
 #                      anything missing there breaks the deployed site
 #                      only -- never SDL.
-#   pixel count        the desktop must actually paint the picture.
+#   pixel count        the desktop must paint the picture -- and must NOT
+#                      paint too much. Both bounds are needed: an all-black
+#                      region is MORE ink, so a floor alone passes it (that
+#                      is how inverted AIS images hid for weeks).
 #                      Reference counts: mid-install checkpoint ~87K,
 #                      bare desktop ~167K, failed Eval ~169K (error text
 #                      only), moon painted ~246K.
@@ -21,6 +24,9 @@
 
 log="$1"
 min="${2:-200000}"
+# Upper bound. 1024x808 = 827,392 px total; a healthy desktop with a picture
+# is ~250K (30%). Half the screen filled is not a desktop. See below.
+max="${3:-420000}"
 
 if [ ! -r "$log" ]; then
     echo "FAIL: no log at $log"
@@ -48,6 +54,25 @@ elif [ "$px" -lt "$min" ]; then
     echo "      Either the Eval errored, or the checkpoint is not at the"
     echo "      desktop (mid-install ~87K, bare desktop ~167K, failed Eval"
     echo "      ~169K, painted moon ~246K). Look at build/verify-cedar.pgm."
+    fail=1
+elif [ "$px" -gt "$max" ]; then
+    # TOO MUCH INK IS ALSO A FAILURE, and the minimum alone cannot see it.
+    #
+    # Learned 2026-08-08. AIS images written from PBM came out with inverted
+    # polarity, so a schematic with 14% ink stored as 86% black rendered as a
+    # black square. A minimum-pixel gate PASSES that -- an all-black AIS
+    # viewer is roughly 600x670 = 400K pixels MORE ink, sailing past any
+    # floor. The bug lived from the day the files were made until a human
+    # noticed the picture, with the gate green throughout.
+    #
+    # The screen is 1024x808 = 827,392 pixels. A working Cedar desktop with a
+    # picture on it runs ~250K, i.e. 30% ink. Anything past half the screen
+    # is not a desktop, it is a fill.
+    echo "FAIL: $px display-list pixels > $max -- TOO MUCH ink."
+    echo "      A minimum-only gate cannot catch this: solid black is MORE"
+    echo "      pixels, not fewer. Suspect inverted polarity (AIS is"
+    echo "      luminance, high = white; PBM is 1 = black), or a viewer"
+    echo "      painting a filled rectangle. Look at build/verify-cedar.pgm."
     fail=1
 fi
 

@@ -1211,11 +1211,18 @@ verify-cedar-gate-selftest:
 	@printf 'STP_MISSING Cedar6.1/Viewers/ViewerOps.bcd\ndorado: 168952 display-list pixels\n' > build/gate-bad.log
 	@if ../tools/check_cedar_gate.sh build/gate-bad.log 200000 >/dev/null 2>&1; then \
 		echo "SELFTEST FAIL: the gate passed a bad log"; exit 1; fi
+	@echo "gate self-test: a SOLID BLACK screen must FAIL (too much ink)"
+	@# The failure mode a minimum-only gate cannot see. Inverted AIS images
+	@# rendered a black square and passed for weeks, because solid black is
+	@# MORE pixels, not fewer. See tools/check_cedar_gate.sh.
+	@printf 'dorado: 500000 display-list pixels\n' > build/gate-black.log
+	@if ../tools/check_cedar_gate.sh build/gate-black.log 200000 >/dev/null 2>&1; then \
+		echo "SELFTEST FAIL: the gate passed an all-black screen"; exit 1; fi
 	@echo "gate self-test: a clean painted log must PASS"
 	@printf 'dorado: 245822 display-list pixels\n' > build/gate-good.log
 	@../tools/check_cedar_gate.sh build/gate-good.log 200000 >/dev/null \
 		|| (echo "SELFTEST FAIL: the gate failed a good log"; exit 1)
-	@rm -f build/gate-bad.log build/gate-good.log
+	@rm -f build/gate-bad.log build/gate-good.log build/gate-black.log
 	@echo "gate self-test: PASS (fails bad logs, passes good ones)"
 
 .PHONY: verify-cedar-desktop
