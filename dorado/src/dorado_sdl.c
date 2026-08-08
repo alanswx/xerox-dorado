@@ -608,6 +608,10 @@ int main(int argc, char **argv)
      * Created only when the board is installed (DORADO_DISPM_COLOR), and
      * only once the guest has actually armed the ColorCSB, so a machine with
      * no colour software never grows a stray empty window. */
+    /* Without this SDL delivers no mouse events to a window that does not
+     * have focus, so the colour window looks dead even when the coordinate
+     * mapping is right. */
+    SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
     SDL_Window   *cwin = NULL;
     SDL_Renderer *cren = NULL;
     SDL_Texture  *ctex = NULL;
@@ -731,6 +735,14 @@ int main(int argc, char **argv)
                  * screen is placed to the right and why that is the part
                  * still to be verified against Cedar's own convention. */
                 if (cwin && e.motion.windowID == SDL_GetWindowID(cwin)) {
+                    /* DORADO_COLOR_MOUSE_TRACE=1 answers "is SDL even
+                     * delivering these?" -- which is a different question
+                     * from whether the guest then draws a cursor there. */
+                    if (getenv("DORADO_COLOR_MOUSE_TRACE"))
+                        fprintf(stderr, "COLORMOUSE x=%d y=%d -> guest x=%d "
+                                "y=%d buttons=%d\n", e.motion.x, e.motion.y,
+                                DORADO_DISPLAY_W + e.motion.x, e.motion.y,
+                                mouse_buttons);
                     dorado_machine_set_mouse(m, DORADO_DISPLAY_W + e.motion.x,
                                              e.motion.y, mouse_buttons);
                     break;
